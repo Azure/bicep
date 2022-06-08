@@ -503,7 +503,7 @@ resource parent 'My.RP/parentType@2020-01-01' = [for item in items: {
                 template.Should().NotHaveValue();
                 diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[]
                 {
-                    ("BCP179", DiagnosticLevel.Warning,"The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"scope\""),
+                    ("BCP179", DiagnosticLevel.Warning,"Unique resource or deployment name is required when looping. The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"scope\""),
                     ("BCP160", DiagnosticLevel.Error, "A nested resource cannot appear inside of a resource with a for-expression."),
                     ("BCP157", DiagnosticLevel.Error, "The resource type cannot be determined due to an error in the containing resource."),
                 });
@@ -537,7 +537,7 @@ output loopy string = parent::child[0].name
             {
                 diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[]
                 {
-                    ("BCP179",DiagnosticLevel.Warning,"The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"scope\"")
+                    ("BCP179",DiagnosticLevel.Warning,"Unique resource or deployment name is required when looping. The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"scope\"")
                 });
                 template.Should().NotBeNull();
             }

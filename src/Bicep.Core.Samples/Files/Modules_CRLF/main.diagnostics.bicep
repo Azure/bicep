@@ -274,7 +274,7 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 }
 
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
-//@[07:055) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |propertyLoopInsideParameterValueInsideModuleLoop|
+//@[07:055) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |propertyLoopInsideParameterValueInsideModuleLoop|
   name: 'propertyLoopInsideParameterValueInsideModuleLoop'
   params: {
 //@[02:362) [explicit-values-for-loc-params (Warning)] Parameter 'stringParamA' of module 'propertyLoopInsideParameterValueInsideModuleLoop' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    objParam: {\r\n      a: [for i in range(0,10): i + thing]\r\n      b: [for i in range(1,2): i * thing]\r\n      c: {\r\n        d: [for j in range(2,3): j]\r\n      }\r\n      e: [for k in range(4,4): {\r\n        f: k - thing\r\n      }]\r\n    }\r\n    stringParamB: ''\r\n    arrayParam: [\r\n      {\r\n        e: [for j in range(7,7): j % thing]\r\n      }\r\n    ]\r\n  }|
