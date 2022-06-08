@@ -37,6 +37,7 @@
   "activationEvents": [
     "onLanguage:bicep",
     "onCommand:bicep.build",
+    "onCommand:bicep.generateParams",
     "onCommand:bicep.createConfigFile",
     "onCommand:bicep.deploy",
     "onCommand:bicep.forceModulesRestore",
@@ -158,6 +159,12 @@
         "icon": "$(output)"
       },
       {
+        "command": "bicep.generateParams",
+        "title": "Generate Parameters File",
+        "category": "Bicep",
+        "icon": "$(output)"
+      },
+      {
         "command": "bicep.deploy",
         "title": "Deploy Bicep File...",
         "category": "Bicep",
@@ -258,6 +265,11 @@
           "group": "0_bicep"
         },
         {
+          "command": "bicep.generateParams",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        },
+        {
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep && config.bicep.enableDeploy",
           "group": "0_bicep"
@@ -290,6 +302,11 @@
           "group": "0_bicep"
         },
         {
+          "command": "bicep.generateParams",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        },
+        {
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep && config.bicep.enableDeploy",
           "group": "0_bicep"
@@ -308,6 +325,11 @@
       "editor/context": [
         {
           "command": "bicep.build",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.generateParams",
           "when": "resourceLangId == bicep",
           "group": "0_bicep"
         },
@@ -340,6 +362,10 @@
       "commandPalette": [
         {
           "command": "bicep.build",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.generateParams",
           "group": "0_bicep"
         },
         {
