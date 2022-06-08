@@ -4,7 +4,7 @@
 /**
  * Live tests for "bicep build".
  *
- * @group live/ff
+ * @group live
  */
 
 import {
@@ -21,17 +21,15 @@ import {
   readFileSync,
   writeTempFile,
 } from "./utils/fs";
-import {
-  fairfax,
-  fairfaxEnvironmentOverrides,
-} from "./utils/liveTestEnvironments";
+import { getEnvironment } from "./utils/liveTestEnvironments";
 
 describe("bicep build", () => {
   const testArea = "build";
+  const environment = getEnvironment();
 
   it("should fail to build with --no-restore switch if modules are not cached", () => {
     const bicep = `
-module test 'br:${fairfax.registryUri}/does-not-exist:v-never' = {
+module test 'br:${environment.registryUri}/does-not-exist:v-never' = {
   name: 'test'
 }
     `;
@@ -46,23 +44,23 @@ module test 'br:${fairfax.registryUri}/does-not-exist:v-never' = {
 
   it("should build file with external modules", () => {
     const builder = new BicepRegistryReferenceBuilder(
-      fairfax.registryUri,
+      environment.registryUri,
       testArea
     );
 
     const storageRef = builder.getBicepReference("storage", "v1");
     publishModule(
-      fairfaxEnvironmentOverrides,
+      environment.environmentOverrides,
       storageRef,
-      "modules" + fairfax.suffix,
+      "modules" + environment.suffix,
       "storage.bicep"
     );
 
     const passthroughRef = builder.getBicepReference("passthrough", "v1");
     publishModule(
-      fairfaxEnvironmentOverrides,
+      environment.environmentOverrides,
       passthroughRef,
-      "modules" + fairfax.suffix,
+      "modules" + environment.suffix,
       "passthrough.bicep"
     );
 
@@ -82,7 +80,7 @@ module localModule 'build-external-local-module.bicep' = {
   }
 }
 
-module webAppModuleV1 'ts/test-specs:webAppSpec-${fairfax.resourceSuffix}:1.0.0' = {
+module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.0.0' = {
   name: 'webAppModuleV1'
 }
 
@@ -105,7 +103,7 @@ module nestedLocalModule 'build-external-nested-local-module.bicep' = {
 output blobEndpoint string = storage.outputs.blobEndpoint`;
 
     const nestedLocalModuleContent = `
-module webAppModuleV1 'ts/test-specs:webAppSpec-${fairfax.resourceSuffix}:1.0.0' = {
+module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.0.0' = {
   name: 'webAppModuleV1'
 }`;
 
@@ -128,12 +126,12 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${fairfax.resourceSuffix}:1.0.0'
     );
 
     const exampleConfig = readFileSync(
-      pathToExampleFile("modules" + fairfax.suffix, "bicepconfig.json")
+      pathToExampleFile("modules" + environment.suffix, "bicepconfig.json")
     );
     writeTempFile("build", "bicepconfig.json", exampleConfig);
 
     invokingBicepCommand("build", bicepPath)
-      .withEnvironmentOverrides(fairfaxEnvironmentOverrides)
+      .withEnvironmentOverrides(environment.environmentOverrides)
       .shouldSucceed()
       .withEmptyStdout();
 
@@ -153,7 +151,7 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${fairfax.resourceSuffix}:1.0.0'
 
     expectFileExists(
       pathToCachedTsModuleFile(
-        `${fairfax.templateSpecSubscriptionId}/bicep-ci/webappspec-${fairfax.resourceSuffix}/1.0.0`,
+        `${environment.templateSpecSubscriptionId}/bicep-ci/webappspec-${environment.resourceSuffix}/1.0.0`,
         "main.json"
       )
     );

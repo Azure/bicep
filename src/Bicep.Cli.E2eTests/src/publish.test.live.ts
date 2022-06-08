@@ -4,41 +4,39 @@
 /**
  * Live tests for "bicep publish".
  *
- * @group live/ff
+ * @group live
  */
 
 import { BicepRegistryReferenceBuilder } from "./utils/br";
 import { invokingBicepCommand } from "./utils/command";
 import { pathToExampleFile } from "./utils/fs";
-import {
-  fairfax,
-  fairfaxEnvironmentOverrides,
-} from "./utils/liveTestEnvironments";
+import { getEnvironment } from "./utils/liveTestEnvironments";
 
 describe("bicep publish", () => {
   const testArea = "publish";
+  const environment = getEnvironment();
   const builder = new BicepRegistryReferenceBuilder(
-    fairfax.registryUri,
+    environment.registryUri,
     testArea
   );
 
   it("should publish valid module", () => {
     const exampleFilePath = pathToExampleFile(
       "101",
-      "aks" + fairfax.suffix,
+      "aks" + environment.suffix,
       "main.bicep"
     );
     const target = builder.getBicepReference("aks", "v1");
 
     invokingBicepCommand("publish", exampleFilePath, "--target", target)
-      .withEnvironmentOverrides(fairfaxEnvironmentOverrides)
+      .withEnvironmentOverrides(environment.environmentOverrides)
       .shouldSucceed();
   });
 
   it("should publish valid module with alias", () => {
     const exampleFilePath = pathToExampleFile(
       "101",
-      "aks" + fairfax.suffix,
+      "aks" + environment.suffix,
       "main.bicep"
     );
     const target = builder.getBicepReferenceWithAlias(
@@ -48,20 +46,20 @@ describe("bicep publish", () => {
     );
 
     invokingBicepCommand("publish", exampleFilePath, "--target", target)
-      .withEnvironmentOverrides(fairfaxEnvironmentOverrides)
+      .withEnvironmentOverrides(environment.environmentOverrides)
       .shouldSucceed();
   });
 
   it("should fail to publish invalid module", () => {
     const exampleFilePath = pathToExampleFile(
       "101",
-      "aks" + fairfax.suffix,
+      "aks" + environment.suffix,
       "flawed.bicep"
     );
     const target = builder.getBicepReference("aks-flawed", "v1");
 
     invokingBicepCommand("publish", exampleFilePath, "--target", target)
-      .withEnvironmentOverrides(fairfaxEnvironmentOverrides)
+      .withEnvironmentOverrides(environment.environmentOverrides)
       .shouldFail()
       .withNonEmptyStderr();
   });
