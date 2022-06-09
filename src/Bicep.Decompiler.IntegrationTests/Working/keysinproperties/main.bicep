@@ -63,7 +63,7 @@ resource scriptName 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' =
   location: location
   kind: 'AzurePowerShell'
   identity: {
-    type: 'UserAssigned'
+    type: 'userAssigned'
     userAssignedIdentities: {
       '${identityName.id}': {
       }
@@ -124,7 +124,7 @@ resource sftpContainerGroupName 'Microsoft.ContainerInstance/containerGroups@201
       type: 'Public'
       ports: [
         {
-          protocol: 'TCP'
+          protocol: 'Tcp'
           port: 22
         }
       ]
