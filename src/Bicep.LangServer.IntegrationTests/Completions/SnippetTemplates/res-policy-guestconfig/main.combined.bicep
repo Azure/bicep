@@ -14,6 +14,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 }
 
 resource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25' = {
+//@[31:102) [BCP081 (Warning)] Resource type "Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25" does not have types available. (CodeDescription: none) |'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25'|
   name: 'name'
   scope: virtualMachine
   location: location

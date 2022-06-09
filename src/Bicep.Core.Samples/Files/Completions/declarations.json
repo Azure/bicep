@@ -2087,7 +2087,7 @@
     "detail": "Guest configuration assignment for virtual machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: 'name'\n  scope: virtualMachine\n  location: location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'ApplyAndMonitor'\n      version: '1.*'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25' = {\n  name: 'name'\n  scope: virtualMachine\n  location: location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'ApplyAndMonitor'\n      version: '1.*'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2096,7 +2096,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: ${4:'name'}\n  scope: virtualMachine\n  location: ${2:location}\n  properties: {\n    guestConfiguration: {\n      name: ${5:'configurationName'}\n      assignmentType: ${6|'ApplyAndMonitor','ApplyAndAutoCorrect','Audit'|}\n      version: ${7:'1.*'}\n    }\n  }\n}\n"
+      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25' = {\n  name: ${4:'name'}\n  scope: virtualMachine\n  location: ${2:location}\n  properties: {\n    guestConfiguration: {\n      name: ${5:'configurationName'}\n      assignmentType: ${6|'ApplyAndMonitor','ApplyAndAutoCorrect','Audit'|}\n      version: ${7:'1.*'}\n    }\n  }\n}\n"
     },
     "command": {
       "title": "top level snippet completion",
@@ -2117,7 +2117,7 @@
     "detail": "Guest configuration assignment for virtual machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {\n  name: 'name'\n  location: location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: 'name'\n  scope: arcEnabledMachine\n  location: location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'ApplyAndMonitor'\n      version: '1.*'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {\n  name: 'name'\n  location: location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25' = {\n  name: 'name'\n  scope: arcEnabledMachine\n  location: location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'ApplyAndMonitor'\n      version: '1.*'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2126,7 +2126,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: ${4:'name'}\n  scope: arcEnabledMachine\n  location: ${2:location}\n  properties: {\n    guestConfiguration: {\n      name: ${5:'configurationName'}\n      assignmentType: ${6|'ApplyAndMonitor','ApplyAndAutoCorrect','Audit'|}\n      version: ${7:'1.*'}\n    }\n  }\n}\n"
+      "newText": "resource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25' = {\n  name: ${4:'name'}\n  scope: arcEnabledMachine\n  location: ${2:location}\n  properties: {\n    guestConfiguration: {\n      name: ${5:'configurationName'}\n      assignmentType: ${6|'ApplyAndMonitor','ApplyAndAutoCorrect','Audit'|}\n      version: ${7:'1.*'}\n    }\n  }\n}\n"
     },
     "command": {
       "title": "top level snippet completion",
@@ -2147,7 +2147,7 @@
     "detail": "Guest configuration assignment with parameters, for virtual machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: 'name'\n  scope: virtualMachine\n  location: location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'ApplyAndMonitor'\n      version: '1.*'\n      configurationParameter: [\n        {\n          name: 'parameter1[dscResourceType]dscResourceName;propertyName'\n          value: 'parameter1Value'\n        }\n        {\n          name: 'parameter2[dscResourceType]dscResourceName;propertyName'\n          value: 'parameter2Value'\n        }\n      ]\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25' = {\n  name: 'name'\n  scope: virtualMachine\n  location: location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'ApplyAndMonitor'\n      version: '1.*'\n      configurationParameter: [\n        {\n          name: 'parameter1[dscResourceType]dscResourceName;propertyName'\n          value: 'parameter1Value'\n        }\n        {\n          name: 'parameter2[dscResourceType]dscResourceName;propertyName'\n          value: 'parameter2Value'\n        }\n      ]\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2156,7 +2156,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: ${4:'name'}\n  scope: virtualMachine\n  location: ${2:location}\n  properties: {\n    guestConfiguration: {\n      name: ${5:'configurationName'}\n      assignmentType: ${6|'ApplyAndMonitor','ApplyAndAutoCorrect','Audit'|}\n      version: ${7:'1.*'}\n      configurationParameter: [\n        {\n          name: ${8:'parameter1[dscResourceType]dscResourceName;propertyName'}\n          value: ${9:'parameter1Value'}\n        }\n        {\n          name: ${10:'parameter2[dscResourceType]dscResourceName;propertyName'}\n          value: ${11:'parameter2Value'}\n        }\n      ]\n    }\n  }\n}\n"
+      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25' = {\n  name: ${4:'name'}\n  scope: virtualMachine\n  location: ${2:location}\n  properties: {\n    guestConfiguration: {\n      name: ${5:'configurationName'}\n      assignmentType: ${6|'ApplyAndMonitor','ApplyAndAutoCorrect','Audit'|}\n      version: ${7:'1.*'}\n      configurationParameter: [\n        {\n          name: ${8:'parameter1[dscResourceType]dscResourceName;propertyName'}\n          value: ${9:'parameter1Value'}\n        }\n        {\n          name: ${10:'parameter2[dscResourceType]dscResourceName;propertyName'}\n          value: ${11:'parameter2Value'}\n        }\n      ]\n    }\n  }\n}\n"
     },
     "command": {
       "title": "top level snippet completion",
