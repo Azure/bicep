@@ -625,10 +625,10 @@ var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cos
 //@[025:00035) | | ├─IdentifierSyntax
 //@[025:00035) | | | └─Token(Identifier) |resourceId|
 //@[035:00036) | | ├─Token(LeftParen) |(|
-//@[036:00076) | | ├─FunctionArgumentSyntax
-//@[036:00075) | | | ├─StringSyntax
+//@[036:00075) | | ├─FunctionArgumentSyntax
+//@[036:00075) | | | └─StringSyntax
 //@[036:00075) | | | | └─Token(StringComplete) |'Microsoft.DocumentDB/databaseAccounts'|
-//@[075:00076) | | | └─Token(Comma) |,|
+//@[075:00076) | | ├─Token(Comma) |,|
 //@[077:00093) | | ├─FunctionArgumentSyntax
 //@[077:00093) | | | └─PropertyAccessSyntax
 //@[077:00085) | | | | ├─VariableAccessSyntax
@@ -808,11 +808,11 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[017:00025) | | | | | | | | | | | | | ├─IdentifierSyntax
 //@[017:00025) | | | | | | | | | | | | | | └─Token(Identifier) |listKeys|
 //@[025:00026) | | | | | | | | | | | | | ├─Token(LeftParen) |(|
-//@[026:00045) | | | | | | | | | | | | | ├─FunctionArgumentSyntax
-//@[026:00044) | | | | | | | | | | | | | | ├─VariableAccessSyntax
+//@[026:00044) | | | | | | | | | | | | | ├─FunctionArgumentSyntax
+//@[026:00044) | | | | | | | | | | | | | | └─VariableAccessSyntax
 //@[026:00044) | | | | | | | | | | | | | | | └─IdentifierSyntax
 //@[026:00044) | | | | | | | | | | | | | | | | └─Token(Identifier) |cosmosDbResourceId|
-//@[044:00045) | | | | | | | | | | | | | | └─Token(Comma) |,|
+//@[044:00045) | | | | | | | | | | | | | ├─Token(Comma) |,|
 //@[046:00058) | | | | | | | | | | | | | ├─FunctionArgumentSyntax
 //@[046:00058) | | | | | | | | | | | | | | └─StringSyntax
 //@[046:00058) | | | | | | | | | | | | | | | └─Token(StringComplete) |'2020-04-01'|
@@ -2350,10 +2350,10 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[073:00078) | | | ├─IdentifierSyntax
 //@[073:00078) | | | | └─Token(Identifier) |range|
 //@[078:00079) | | | ├─Token(LeftParen) |(|
-//@[079:00081) | | | ├─FunctionArgumentSyntax
-//@[079:00080) | | | | ├─IntegerLiteralSyntax
+//@[079:00080) | | | ├─FunctionArgumentSyntax
+//@[079:00080) | | | | └─IntegerLiteralSyntax
 //@[079:00080) | | | | | └─Token(Integer) |0|
-//@[080:00081) | | | | └─Token(Comma) |,|
+//@[080:00081) | | | ├─Token(Comma) |,|
 //@[082:00083) | | | ├─FunctionArgumentSyntax
 //@[082:00083) | | | | └─IntegerLiteralSyntax
 //@[082:00083) | | | | | └─Token(Integer) |3|
@@ -2398,10 +2398,10 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[023:00028) | | | | | | | | ├─IdentifierSyntax
 //@[023:00028) | | | | | | | | | └─Token(Identifier) |range|
 //@[028:00029) | | | | | | | | ├─Token(LeftParen) |(|
-//@[029:00031) | | | | | | | | ├─FunctionArgumentSyntax
-//@[029:00030) | | | | | | | | | ├─IntegerLiteralSyntax
+//@[029:00030) | | | | | | | | ├─FunctionArgumentSyntax
+//@[029:00030) | | | | | | | | | └─IntegerLiteralSyntax
 //@[029:00030) | | | | | | | | | | └─Token(Integer) |0|
-//@[030:00031) | | | | | | | | | └─Token(Comma) |,|
+//@[030:00031) | | | | | | | | ├─Token(Comma) |,|
 //@[032:00033) | | | | | | | | ├─FunctionArgumentSyntax
 //@[032:00033) | | | | | | | | | └─IntegerLiteralSyntax
 //@[032:00033) | | | | | | | | | | └─Token(Integer) |4|
@@ -2465,10 +2465,10 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
 //@[099:00104) | | | ├─IdentifierSyntax
 //@[099:00104) | | | | └─Token(Identifier) |range|
 //@[104:00105) | | | ├─Token(LeftParen) |(|
-//@[105:00107) | | | ├─FunctionArgumentSyntax
-//@[105:00106) | | | | ├─IntegerLiteralSyntax
+//@[105:00106) | | | ├─FunctionArgumentSyntax
+//@[105:00106) | | | | └─IntegerLiteralSyntax
 //@[105:00106) | | | | | └─Token(Integer) |0|
-//@[106:00107) | | | | └─Token(Comma) |,|
+//@[106:00107) | | | ├─Token(Comma) |,|
 //@[108:00109) | | | ├─FunctionArgumentSyntax
 //@[108:00109) | | | | └─IntegerLiteralSyntax
 //@[108:00109) | | | | | └─Token(Integer) |3|
@@ -2513,10 +2513,10 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
 //@[023:00028) | | | | | | | | ├─IdentifierSyntax
 //@[023:00028) | | | | | | | | | └─Token(Identifier) |range|
 //@[028:00029) | | | | | | | | ├─Token(LeftParen) |(|
-//@[029:00031) | | | | | | | | ├─FunctionArgumentSyntax
-//@[029:00030) | | | | | | | | | ├─IntegerLiteralSyntax
+//@[029:00030) | | | | | | | | ├─FunctionArgumentSyntax
+//@[029:00030) | | | | | | | | | └─IntegerLiteralSyntax
 //@[029:00030) | | | | | | | | | | └─Token(Integer) |0|
-//@[030:00031) | | | | | | | | | └─Token(Comma) |,|
+//@[030:00031) | | | | | | | | ├─Token(Comma) |,|
 //@[032:00033) | | | | | | | | ├─FunctionArgumentSyntax
 //@[032:00033) | | | | | | | | | └─IntegerLiteralSyntax
 //@[032:00033) | | | | | | | | | | └─Token(Integer) |4|
@@ -2583,10 +2583,10 @@ resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-
 //@[124:00129) | | | ├─IdentifierSyntax
 //@[124:00129) | | | | └─Token(Identifier) |range|
 //@[129:00130) | | | ├─Token(LeftParen) |(|
-//@[130:00132) | | | ├─FunctionArgumentSyntax
-//@[130:00131) | | | | ├─IntegerLiteralSyntax
+//@[130:00131) | | | ├─FunctionArgumentSyntax
+//@[130:00131) | | | | └─IntegerLiteralSyntax
 //@[130:00131) | | | | | └─Token(Integer) |0|
-//@[131:00132) | | | | └─Token(Comma) |,|
+//@[131:00132) | | | ├─Token(Comma) |,|
 //@[133:00134) | | | ├─FunctionArgumentSyntax
 //@[133:00134) | | | | └─IntegerLiteralSyntax
 //@[133:00134) | | | | | └─Token(Integer) |3|
@@ -2631,10 +2631,10 @@ resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-
 //@[023:00028) | | | | | | | | ├─IdentifierSyntax
 //@[023:00028) | | | | | | | | | └─Token(Identifier) |range|
 //@[028:00029) | | | | | | | | ├─Token(LeftParen) |(|
-//@[029:00031) | | | | | | | | ├─FunctionArgumentSyntax
-//@[029:00030) | | | | | | | | | ├─IntegerLiteralSyntax
+//@[029:00030) | | | | | | | | ├─FunctionArgumentSyntax
+//@[029:00030) | | | | | | | | | └─IntegerLiteralSyntax
 //@[029:00030) | | | | | | | | | | └─Token(Integer) |0|
-//@[030:00031) | | | | | | | | | └─Token(Comma) |,|
+//@[030:00031) | | | | | | | | ├─Token(Comma) |,|
 //@[032:00033) | | | | | | | | ├─FunctionArgumentSyntax
 //@[032:00033) | | | | | | | | | └─IntegerLiteralSyntax
 //@[032:00033) | | | | | | | | | | └─Token(Integer) |4|
@@ -2701,10 +2701,10 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
 //@[116:00121) | | | ├─IdentifierSyntax
 //@[116:00121) | | | | └─Token(Identifier) |range|
 //@[121:00122) | | | ├─Token(LeftParen) |(|
-//@[122:00124) | | | ├─FunctionArgumentSyntax
-//@[122:00123) | | | | ├─IntegerLiteralSyntax
+//@[122:00123) | | | ├─FunctionArgumentSyntax
+//@[122:00123) | | | | └─IntegerLiteralSyntax
 //@[122:00123) | | | | | └─Token(Integer) |0|
-//@[123:00124) | | | | └─Token(Comma) |,|
+//@[123:00124) | | | ├─Token(Comma) |,|
 //@[125:00126) | | | ├─FunctionArgumentSyntax
 //@[125:00126) | | | | └─IntegerLiteralSyntax
 //@[125:00126) | | | | | └─Token(Integer) |3|
@@ -2749,10 +2749,10 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
 //@[042:00047) | | | | | | | | ├─IdentifierSyntax
 //@[042:00047) | | | | | | | | | └─Token(Identifier) |range|
 //@[047:00048) | | | | | | | | ├─Token(LeftParen) |(|
-//@[048:00050) | | | | | | | | ├─FunctionArgumentSyntax
-//@[048:00049) | | | | | | | | | ├─IntegerLiteralSyntax
+//@[048:00049) | | | | | | | | ├─FunctionArgumentSyntax
+//@[048:00049) | | | | | | | | | └─IntegerLiteralSyntax
 //@[048:00049) | | | | | | | | | | └─Token(Integer) |0|
-//@[049:00050) | | | | | | | | | └─Token(Comma) |,|
+//@[049:00050) | | | | | | | | ├─Token(Comma) |,|
 //@[051:00052) | | | | | | | | ├─FunctionArgumentSyntax
 //@[051:00052) | | | | | | | | | └─IntegerLiteralSyntax
 //@[051:00052) | | | | | | | | | | └─Token(Integer) |4|
@@ -2808,10 +2808,10 @@ resource dnsZones 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in range(0
 //@[073:00078) | | | ├─IdentifierSyntax
 //@[073:00078) | | | | └─Token(Identifier) |range|
 //@[078:00079) | | | ├─Token(LeftParen) |(|
-//@[079:00081) | | | ├─FunctionArgumentSyntax
-//@[079:00080) | | | | ├─IntegerLiteralSyntax
+//@[079:00080) | | | ├─FunctionArgumentSyntax
+//@[079:00080) | | | | └─IntegerLiteralSyntax
 //@[079:00080) | | | | | └─Token(Integer) |0|
-//@[080:00081) | | | | └─Token(Comma) |,|
+//@[080:00081) | | | ├─Token(Comma) |,|
 //@[081:00082) | | | ├─FunctionArgumentSyntax
 //@[081:00082) | | | | └─IntegerLiteralSyntax
 //@[081:00082) | | | | | └─Token(Integer) |4|
@@ -2864,10 +2864,10 @@ resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in 
 //@[080:00085) | | | ├─IdentifierSyntax
 //@[080:00085) | | | | └─Token(Identifier) |range|
 //@[085:00086) | | | ├─Token(LeftParen) |(|
-//@[086:00088) | | | ├─FunctionArgumentSyntax
-//@[086:00087) | | | | ├─IntegerLiteralSyntax
+//@[086:00087) | | | ├─FunctionArgumentSyntax
+//@[086:00087) | | | | └─IntegerLiteralSyntax
 //@[086:00087) | | | | | └─Token(Integer) |0|
-//@[087:00088) | | | | └─Token(Comma) |,|
+//@[087:00088) | | | ├─Token(Comma) |,|
 //@[088:00089) | | | ├─FunctionArgumentSyntax
 //@[088:00089) | | | | └─IntegerLiteralSyntax
 //@[088:00089) | | | | | └─Token(Integer) |2|
@@ -2953,10 +2953,10 @@ resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (loc
 //@[089:00094) | | | ├─IdentifierSyntax
 //@[089:00094) | | | | └─Token(Identifier) |range|
 //@[094:00095) | | | ├─Token(LeftParen) |(|
-//@[095:00097) | | | ├─FunctionArgumentSyntax
-//@[095:00096) | | | | ├─IntegerLiteralSyntax
+//@[095:00096) | | | ├─FunctionArgumentSyntax
+//@[095:00096) | | | | └─IntegerLiteralSyntax
 //@[095:00096) | | | | | └─Token(Integer) |0|
-//@[096:00097) | | | | └─Token(Comma) |,|
+//@[096:00097) | | | ├─Token(Comma) |,|
 //@[097:00098) | | | ├─FunctionArgumentSyntax
 //@[097:00098) | | | | └─IntegerLiteralSyntax
 //@[097:00098) | | | | | └─Token(Integer) |3|

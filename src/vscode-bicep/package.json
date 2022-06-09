@@ -37,6 +37,7 @@
   "activationEvents": [
     "onLanguage:bicep",
     "onCommand:bicep.build",
+    "onCommand:bicep.generateParams",
     "onCommand:bicep.createConfigFile",
     "onCommand:bicep.deploy",
     "onCommand:bicep.forceModulesRestore",
@@ -85,7 +86,7 @@
         },
         "bicep.enableDeploy": {
           "type": "boolean",
-          "description": "(EXPERIMENTAL) Enable/disable Bicep Deploy feature",
+          "description": "(Preview) Enable/disable Bicep Deploy feature",
           "default": false
         }
       }
@@ -154,6 +155,12 @@
       {
         "command": "bicep.build",
         "title": "Build Bicep File",
+        "category": "Bicep",
+        "icon": "$(output)"
+      },
+      {
+        "command": "bicep.generateParams",
+        "title": "Generate Parameters File",
         "category": "Bicep",
         "icon": "$(output)"
       },
@@ -258,6 +265,11 @@
           "group": "0_bicep"
         },
         {
+          "command": "bicep.generateParams",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        },
+        {
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep && config.bicep.enableDeploy",
           "group": "0_bicep"
@@ -290,6 +302,11 @@
           "group": "0_bicep"
         },
         {
+          "command": "bicep.generateParams",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        },
+        {
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep && config.bicep.enableDeploy",
           "group": "0_bicep"
@@ -308,6 +325,11 @@
       "editor/context": [
         {
           "command": "bicep.build",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.generateParams",
           "when": "resourceLangId == bicep",
           "group": "0_bicep"
         },
@@ -340,6 +362,10 @@
       "commandPalette": [
         {
           "command": "bicep.build",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.generateParams",
           "group": "0_bicep"
         },
         {
@@ -457,15 +483,14 @@
           {
             "id": "deployToAzure",
             "title": "Deploy to Azure",
-            "description": "It's time to get these resources into Azure. If you don't have the [Azure Account Extension](command:extension.open?%5B%22ms-vscode.azure-account%22%5D) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy?%7B%22walkthrough%22%3A%22true%22%7D)",
+            "description": "Bicep right-click deploy is in preview! To enable this feature, navigate to settings (``Ctrl/CMD + ,``) and select Bicep: Enable Deploy. If you don't have the [Azure Account Extension](command:extension.open?%5B%22ms-vscode.azure-account%22%5D) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy?%7B%22walkthrough%22%3A%22true%22%7D)",
             "media": {
               "image": "media/walkthroughs/gettingStarted/5_Deploy.gif",
               "altText": "Example of deploying Bicep file to Azure"
             },
             "completionEvents": [
               "onCommand:bicep.deploy"
-            ],
-            "when": "config.bicep.enableDeploy"
+            ]
           },
           {
             "id": "learnMore",
@@ -520,7 +545,7 @@
     "eslint": "^8.14.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-header": "^3.1.1",
-    "eslint-plugin-jest": "^26.1.5",
+    "eslint-plugin-jest": "^26.5.3",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.29.4",
     "fork-ts-checker-webpack-plugin": "^7.2.6",
@@ -553,7 +578,7 @@
     "fs-extra": "^10.1.0",
     "react": "^18.0.0",
     "react-dom": "^18.1.0",
-    "react-icons": "^4.3.1",
+    "react-icons": "^4.4.0",
     "styled-components": "^5.3.5",
     "triple-beam": "^1.3.0",
     "vscode-languageclient": "^7.0.0",

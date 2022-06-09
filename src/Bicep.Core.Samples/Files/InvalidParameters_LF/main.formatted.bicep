@@ -107,8 +107,10 @@ param secureInt int
   'test'
   true
 ])
-@minValue({})
-@maxValue([])
+@minValue({
+})
+@maxValue([
+])
 @metadata('wrong')
 param wrongIntModifier int = true
 
@@ -179,7 +181,7 @@ param defaultValueOneLinerCompletions string =
   description: 'Name of Virtual Machine'
 })
 @allowed([
-  'abc',
+  'abc', 
   'def'
 ])
 param commaOne string
@@ -210,12 +212,12 @@ param someString string
 @sys.   
 param someInteger int = 20
 
-@allowed([], [], 2)
+@allowed([],  [],  2)
 // #completionTest(4) -> empty
 @az.
 param tooManyArguments1 int = 20
 
-@metadata({}, {}, true)
+@metadata({},  {},  true)
 // #completionTest(2) -> stringParameterDecoratorsPlusNamespace
 @m
 // #completionTest(1, 2, 3) -> stringParameterDecoratorsPlusNamespace

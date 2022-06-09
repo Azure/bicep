@@ -4,15 +4,15 @@
   "devDependencies": {
     "@types/html-escaper": "^3.0.0",
     "@types/jest": "^28.1.1",
-    "@types/node": "^17.0.40",
+    "@types/node": "^17.0.41",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
     "eslint": "^8.17.0",
     "eslint-plugin-header": "^3.1.1",
-    "eslint-plugin-jest": "^26.4.6",
+    "eslint-plugin-jest": "^26.5.3",
     "html-escaper": "^3.0.3",
-    "jest": "^28.1.0",
-    "jest-environment-jsdom": "^28.1.0",
+    "jest": "^28.1.1",
+    "jest-environment-jsdom": "^28.1.1",
     "monaco-editor-core": "^0.33.0",
     "ts-jest": "^28.0.4",
     "ts-node": "^10.8.1",
@@ -30,6 +30,6 @@
   "dependencies": {
     "@babel/core": "^7.18.2",
     "@babel/plugin-transform-modules-commonjs": "^7.18.2",
-    "babel-jest": "^28.1.0"
+    "babel-jest": "^28.1.1"
   }
 }

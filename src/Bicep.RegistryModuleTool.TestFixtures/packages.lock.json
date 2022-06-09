@@ -4,9 +4,9 @@
     "net6.0": {
       "FluentAssertions": {
         "type": "Direct",
-        "requested": "[6.6.0, )",
-        "resolved": "6.6.0",
-        "contentHash": "gBsgPrNRkzUQfnxZSKnU0oVILIc5dr+dmdKXscyYKD5URcwNVQ72a7uuCvTyBzRZW98MZQNolSYC0y/MQTJ03A==",
+        "requested": "[6.7.0, )",
+        "resolved": "6.7.0",
+        "contentHash": "PWbow/R3MnYDP8UW7zh/w80rGb+1NufGoNJeuzouTo2bqpvwNTFxbDwF6XWfFZ5IuquL2225Um+qSyZ8jVsT+w==",
         "dependencies": {
           "System.Configuration.ConfigurationManager": "4.4.0"
         }
@@ -240,8 +240,8 @@
       },
       "Markdig": {
         "type": "Transitive",
-        "resolved": "0.30.0",
-        "contentHash": "wpuC7a5W/c9bsAzQs8Pxuo2S1KlLDIL3stOHpWW7UwGneYbdh3fByPCAyGmsu5FzPsJsqpbjVSYU5RLKkwk2lA=="
+        "resolved": "0.30.2",
+        "contentHash": "rm5rfHGP0BZtcB31CmQeWLLPdpG6xA6xN92x2KcNrl+9MPJONq9u4dfG7VgnTOxdjDnuEkX6GCxMYS+LpoKGOQ=="
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
@@ -2165,10 +2165,10 @@
         "dependencies": {
           "Azure.Bicep.Core": "1.0.0",
           "DiffPlex": "1.7.1",
-          "FluentAssertions": "6.6.0",
+          "FluentAssertions": "6.7.0",
           "JsonPath.Net": "0.2.1",
           "JsonSchema.Net": "2.3.0",
-          "Markdig": "0.30.0",
+          "Markdig": "0.30.2",
           "Microsoft.Extensions.Logging": "6.0.0",
           "Microsoft.Extensions.Logging.Console": "6.0.0",
           "Serilog.Extensions.Hosting": "4.2.0",

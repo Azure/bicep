@@ -1584,9 +1584,9 @@ resource p2 'Microsoft.Network/dnsZones@2018-05-01' = {
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"thing\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"parent\""),
+                ("BCP179", DiagnosticLevel.Warning, "Unique resource or deployment name is required when looping. The loop item variable \"thing\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"parent\""),
                 ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
-                ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"thing2\" must be referenced in at least one of the value expressions of the following properties: \"name\""),
+                ("BCP179", DiagnosticLevel.Warning, "Unique resource or deployment name is required when looping. The loop item variable \"thing2\" must be referenced in at least one of the value expressions of the following properties: \"name\""),
                 ("BCP170", DiagnosticLevel.Error, "Expected resource name to not contain any \"/\" characters. Child resources with a parent resource reference (via the parent property or via nesting) must not contain a fully-qualified name."),
             });
             result.Template.Should().BeNull();
@@ -1754,7 +1754,7 @@ resource rg3 'Microsoft.Resources/resourceGroups@2020-10-01' = if (rg2[0].tags.f
 ");
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\""),
+                ("BCP179", DiagnosticLevel.Warning, "Unique resource or deployment name is required when looping. The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\""),
                 ("BCP178", DiagnosticLevel.Error, "This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"test\" -> \"rg\"). Properties of rg which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
                 ("BCP177", DiagnosticLevel.Error, "This expression is being used in the if-condition expression, which requires a value that can be calculated at the start of the deployment. Properties of rg2 which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\".")
             });
@@ -2557,156 +2557,6 @@ resource initiative 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = 
             evaluated.Should().HaveValueAtPath("$.resources[?(@.name == 'Default initiative')].properties.policyDefinitions[0].policyDefinitionId", "/providers/Microsoft.Management/managementGroups/3fc9f36e-8699-43af-b038-1c103980942f/providers/Microsoft.Authorization/policyDefinitions/Allowed locations");
         }
 
-        // https://github.com/Azure/bicep/issues/4955
-        [TestMethod]
-        public void Test_Issue4955()
-        {
-            // missing new line at the start and end of the array
-            var result = CompilationHelper.Compile(@"
-targetScope = 'subscription'
-
-resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: 'asdf'
-  location: 'asdf'
-  tags: {
-    'abc': ['hi']
-  }
-}
-
-var otherExp = noValidation
-");
-
-            result.Template.Should().NotHaveValue();
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                // diagnostics for both the start and end of the array missing new lines
-                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
-                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
-                // Ensure we see this diagnostic as it means that parsing the rest of the document has succeeded
-                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
-            });
-
-            // missing new line at the start of the array
-            result = CompilationHelper.Compile(@"
-targetScope = 'subscription'
-
-resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: 'asdf'
-  location: 'asdf'
-  tags: {
-    'abc': ['hi'
-    ]
-  }
-}
-
-var otherExp = noValidation
-");
-
-            result.Template.Should().NotHaveValue();
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
-                // Ensure we see this diagnostic as it means that parsing the rest of the document has succeeded
-                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
-            });
-
-            // missing new line at the end of the array
-            result = CompilationHelper.Compile(@"
-targetScope = 'subscription'
-
-resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: 'asdf'
-  location: 'asdf'
-  tags: {
-    'abc': [
-      'hi']
-  }
-}
-
-var otherExp = noValidation
-");
-
-            result.Template.Should().NotHaveValue();
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
-                // Ensure we see this diagnostic as it means that parsing the rest of the document has succeeded
-                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
-            });
-        }
-
-        // https://github.com/Azure/bicep/issues/4955
-        [TestMethod]
-        public void Test_Issue4955_objects()
-        {
-            // missing new line at the start and end of the object
-            var result = CompilationHelper.Compile(@"
-targetScope = 'subscription'
-
-resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: 'asdf'
-  location: 'asdf'
-  tags: {
-    'abc': {foo: 'bar'}
-  }
-}
-
-var otherExp = noValidation
-");
-
-            result.Template.Should().NotHaveValue();
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                // diagnostics for both the start and end of the object missing new lines
-                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
-                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
-                // Ensure we see this diagnostic as it means that parsing the rest of the document has succeeded
-                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
-            });
-
-            // missing new line at the start of the object
-            result = CompilationHelper.Compile(@"
-targetScope = 'subscription'
-
-resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: 'asdf'
-  location: 'asdf'
-  tags: {
-    'abc': {foo: 'bar'
-    }
-  }
-}
-
-var otherExp = noValidation
-");
-
-            result.Template.Should().NotHaveValue();
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
-                // Ensure we see this diagnostic as it means that parsing the rest of the document has succeeded
-                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
-            });
-
-            // missing new line at the end of the object
-            result = CompilationHelper.Compile(@"
-targetScope = 'subscription'
-
-resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
-  name: 'asdf'
-  location: 'asdf'
-  tags: {
-    'abc': {
-      foo: 'bar'}
-  }
-}
-
-var otherExp = noValidation
-");
-
-            result.Template.Should().NotHaveValue();
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
-                // Ensure we see this diagnostic as it means that parsing the rest of the document has succeeded
-                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
-            });
-        }
-
         // https://github.com/Azure/bicep/issues/4850
         [TestMethod]
         public void Test_Issue4850()
@@ -3228,8 +3078,98 @@ resource auth 'Microsoft.Web/sites/config@2021-03-01' = [for (c, i) in configs: 
 }]
 ");
 
+            // verify we have diagnostics for 'properties'
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP037", DiagnosticLevel.Warning, "The property \"madeUpProperty\" is not allowed on objects of type \"SiteAuthSettingsV2Properties\". Permissible properties include \"globalValidation\", \"httpSettings\", \"identityProviders\", \"login\", \"platform\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+            });
+
+            result.Template.Should().HaveValueAtPath("$.resources[1].name", "[format('{0}/{1}', variables('configs')[copyIndex()].name, 'authsettingsV2')]");
+            result.Template.Should().HaveValueAtPath("$.resources[1].dependsOn", new JArray {
+                "[resourceId('Microsoft.Web/sites', variables('configs')[copyIndex()].name)]",
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_4600()
+        {
+            var result = CompilationHelper.Compile(@"
+param keyVaultRoleIds array = [
+  //https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles
+  //Key Vault Secrets Officer
+  'b86a8fe4-44ce-4948-aee5-eccb2c155cd7'
+  //Key Vault Crypto Officer
+  '14b46e9e-c2b7-41b4-b07b-48a6ebf60603'
+  //Key Vault Certificates Officer
+  'a4417e6f-fecd-4de8-b567-7b0420556985'
+]
+param managedIdentityKeyVaultRoleId string = newGuid()
+param userAssignedManagedIdentityId string
+param userAssignedManagedIdentityName string
+
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' existing = {
+  name: userAssignedManagedIdentityName
+}
+
+//Assign the managed identity access to the Key Vault
+resource vaultAssignments 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = [for roleId in keyVaultRoleIds: {
+  name: managedIdentityKeyVaultRoleId
+  scope: managedIdentity
+  dependsOn: [
+    managedIdentity
+  ]
+  properties: {
+   roleDefinitionId: roleId
+   principalId: 'principalId-123'
+  }
+}]
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP179", DiagnosticLevel.Warning, "Unique resource or deployment name is required when looping. The loop item variable \"roleId\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"scope\"")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_4600_2()
+        {
+            var result = CompilationHelper.Compile(@"
+param keyVaultRoleIds array = [
+  //https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles
+  //Key Vault Secrets Officer
+  'b86a8fe4-44ce-4948-aee5-eccb2c155cd7'
+  //Key Vault Crypto Officer
+  '14b46e9e-c2b7-41b4-b07b-48a6ebf60603'
+  //Key Vault Certificates Officer
+  'a4417e6f-fecd-4de8-b567-7b0420556985'
+]
+param managedIdentityKeyVaultRoleId string = newGuid()
+param userAssignedManagedIdentityId string
+param userAssignedManagedIdentityName string
+
+resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' existing = {
+  name: userAssignedManagedIdentityName
+}
+
+//Assign the managed identity access to the Key Vault
+resource vaultAssignments 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = [for (roleId,index) in keyVaultRoleIds: {
+  name: managedIdentityKeyVaultRoleId
+  scope: managedIdentity
+  dependsOn: [
+    managedIdentity
+  ]
+  properties: {
+   roleDefinitionId: roleId
+   principalId: 'principalId-123'
+  }
+}]
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP179", DiagnosticLevel.Warning, "Unique resource or deployment name is required when looping. The loop item variable \"roleId\" or the index variable \"index\" must be referenced in at least one of the value expressions of the following properties in the loop body: \"name\", \"scope\"")
             });
         }
     }

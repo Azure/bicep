@@ -1,4 +1,5 @@
-var emptyObject = {}
+var emptyObject = {
+}
 var simpleObject = {
   foo: 'bar'
 }
@@ -26,7 +27,8 @@ var nestedArrays = [
         5
         6
       ]
-      nestedKey2: {}
+      nestedKey2: {
+      }
     }
   }
 ]

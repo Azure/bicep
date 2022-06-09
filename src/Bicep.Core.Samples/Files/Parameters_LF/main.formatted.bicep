@@ -35,7 +35,8 @@ param foo object = {
   info: {
     a: 'b'
   }
-  empty: {}
+  empty: {
+  }
   array: [
     'string item'
     12
@@ -100,7 +101,8 @@ param description2 string
   description: 'my description'
   a: 1
   b: true
-  c: []
+  c: [
+  ]
   d: {
     test: 'abc'
   }
@@ -173,7 +175,8 @@ param decoratedObject object = {
   info: {
     a: 'b'
   }
-  empty: {}
+  empty: {
+  }
   array: [
     'string item'
     12
