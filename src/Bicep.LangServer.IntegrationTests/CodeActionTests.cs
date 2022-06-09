@@ -566,7 +566,7 @@ var nested = [
 ", @"
 var nested = [
   { foo: [
-  ['bar']
+  [ 'bar' ]
   123
 ]}
 ]
@@ -607,13 +607,13 @@ var foo = {
   ghi: 'jkl'
 }
 ", @"
-var foo = {abc: 'def', ghi: 'jkl'}
+var foo = { abc: 'def', ghi: 'jkl' }
 ")]
         [DataRow(@"
 var foo = { |abc: 'def'
 ghi: 'jkl', }
 ", @"
-var foo = {abc: 'def', ghi: 'jkl'}
+var foo = { abc: 'def', ghi: 'jkl' }
 ")]
         [DataRow(@"
 var foo = [
@@ -621,13 +621,13 @@ var foo = [
   'def'
 ]
 ", @"
-var foo = ['abc', 'def']
+var foo = [ 'abc', 'def' ]
 ")]
         [DataRow(@"
 var foo = [|'abc', 'def'
 'ghi']
 ", @"
-var foo = ['abc', 'def', 'ghi']
+var foo = [ 'abc', 'def', 'ghi' ]
 ")]
         [DataRow(@"
 var nested = [
@@ -636,7 +636,7 @@ var nested = [
 ]
 ", @"
 var nested = [
-  { foo: [['bar'], 123]}
+  { foo: [ [ 'bar' ], 123 ]}
 ]
 ")]
         [DataTestMethod]
