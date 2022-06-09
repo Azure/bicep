@@ -324,8 +324,8 @@ var moduleRuntimeCheck = singleModuleForRuntimeCheck.outputs.stringOutputA
 var moduleRuntimeCheck2 = moduleRuntimeCheck
 
 module moduleLoopForRuntimeCheck 'modulea.bicep' = [for thing in []: {
-//@[007:032) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |moduleLoopForRuntimeCheck|
 //@[007:032) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (CodeDescription: none) |moduleLoopForRuntimeCheck|
+//@[007:032) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |moduleLoopForRuntimeCheck|
   name: moduleRuntimeCheck2
 //@[008:027) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("moduleRuntimeCheck2" -> "moduleRuntimeCheck" -> "singleModuleForRuntimeCheck"). Properties of singleModuleForRuntimeCheck which can be calculated at the start include "name". (CodeDescription: none) |moduleRuntimeCheck2|
 }]
@@ -333,15 +333,15 @@ module moduleLoopForRuntimeCheck 'modulea.bicep' = [for thing in []: {
 var moduleRuntimeCheck3 = moduleLoopForRuntimeCheck[1].outputs.stringOutputB
 var moduleRuntimeCheck4 = moduleRuntimeCheck3
 module moduleLoopForRuntimeCheck2 'modulea.bicep' = [for thing in []: {
-//@[007:033) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |moduleLoopForRuntimeCheck2|
 //@[007:033) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (CodeDescription: none) |moduleLoopForRuntimeCheck2|
+//@[007:033) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |moduleLoopForRuntimeCheck2|
   name: moduleRuntimeCheck4
 //@[008:027) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("moduleRuntimeCheck4" -> "moduleRuntimeCheck3" -> "moduleLoopForRuntimeCheck"). Properties of moduleLoopForRuntimeCheck which can be calculated at the start include "name". (CodeDescription: none) |moduleRuntimeCheck4|
 }]
 
 module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
-//@[007:033) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |moduleLoopForRuntimeCheck3|
 //@[007:033) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (CodeDescription: none) |moduleLoopForRuntimeCheck3|
+//@[007:033) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |moduleLoopForRuntimeCheck3|
   name: concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )
 //@[008:119) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(moduleLoopForRuntimeCheck[1].outputs.stringOutputB, moduleLoopForRuntimeCheck[1].outputs.stringOutputA )|
 //@[015:051) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of moduleLoopForRuntimeCheck which can be calculated at the start include "name". (CodeDescription: none) |moduleLoopForRuntimeCheck[1].outputs|
@@ -577,7 +577,7 @@ var propertyAccessCompletionsForFilteredModuleLoop = paramNameCompletionsInFilte
 var evenMoreDuplicates = 'there'
 //@[004:022) [no-unused-vars (Warning)] Variable "evenMoreDuplicates" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |evenMoreDuplicates|
 module nonexistentArrays 'modulea.bicep' = [for evenMoreDuplicates in alsoDoesNotExist: {
-//@[007:024) [BCP179 (Warning)] The loop item variable "evenMoreDuplicates" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |nonexistentArrays|
+//@[007:024) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "evenMoreDuplicates" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |nonexistentArrays|
 //@[070:086) [BCP057 (Error)] The name "alsoDoesNotExist" does not exist in the current context. (CodeDescription: none) |alsoDoesNotExist|
   name: 'hello-${whyChooseRealVariablesWhenWeCanPretend}'
 //@[017:055) [BCP057 (Error)] The name "whyChooseRealVariablesWhenWeCanPretend" does not exist in the current context. (CodeDescription: none) |whyChooseRealVariablesWhenWeCanPretend|
@@ -616,7 +616,7 @@ module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' = if(true) 
 }
 
 module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
-//@[007:039) [BCP179 (Warning)] The loop item variable "test" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |directRefToCollectionViaLoopBody|
+//@[007:039) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "test" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |directRefToCollectionViaLoopBody|
   name: 'hello3'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)
@@ -628,7 +628,7 @@ module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
 }]
 
 module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for test in []: {
-//@[007:057) [BCP179 (Warning)] The loop item variable "test" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |directRefToCollectionViaLoopBodyWithExtraDependsOn|
+//@[007:057) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "test" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |directRefToCollectionViaLoopBodyWithExtraDependsOn|
   name: 'hello4'
   params: {
     arrayParam: concat(wrongModuleParameterInLoop, nonexistentArrays)

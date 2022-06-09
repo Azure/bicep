@@ -4,7 +4,7 @@
 /**
  * Live tests for "bicep build".
  *
- * @group Live
+ * @group live
  */
 
 import {
@@ -21,58 +21,50 @@ import {
   readFileSync,
   writeTempFile,
 } from "./utils/fs";
-import {
-  createEnvironmentOverrides,
-  environments,
-} from "./utils/liveTestEnvironments";
+import { getEnvironment } from "./utils/liveTestEnvironments";
 
 describe("bicep build", () => {
   const testArea = "build";
+  const environment = getEnvironment();
 
-  it.each(environments)(
-    "should fail to build with --no-restore switch if modules are not cached (%p)",
-    (environment) => {
-      const bicep = `
+  it("should fail to build with --no-restore switch if modules are not cached", () => {
+    const bicep = `
 module test 'br:${environment.registryUri}/does-not-exist:v-never' = {
   name: 'test'
 }
     `;
 
-      const bicepPath = writeTempFile("build", "no-restore.bicep", bicep);
-      invokingBicepCommand("build", bicepPath, "--no-restore")
-        .shouldFail()
-        .withStderr(
-          /.+BCP190: The module with reference "br:biceptest.+\.azurecr\..+\/does-not-exist:v-never" has not been restored..*/
-        );
-    }
-  );
-
-  it.each(environments)(
-    "should build file with external modules (%p)",
-    (environment) => {
-      const builder = new BicepRegistryReferenceBuilder(
-        environment.registryUri,
-        testArea
+    const bicepPath = writeTempFile("build", "no-restore.bicep", bicep);
+    invokingBicepCommand("build", bicepPath, "--no-restore")
+      .shouldFail()
+      .withStderr(
+        /.+BCP190: The module with reference "br:biceptest.+\.azurecr\..+\/does-not-exist:v-never" has not been restored..*/
       );
+  });
 
-      const environmentOverrides = createEnvironmentOverrides(environment);
-      const storageRef = builder.getBicepReference("storage", "v1");
-      publishModule(
-        environmentOverrides,
-        storageRef,
-        "modules" + environment.suffix,
-        "storage.bicep"
-      );
+  it("should build file with external modules", () => {
+    const builder = new BicepRegistryReferenceBuilder(
+      environment.registryUri,
+      testArea
+    );
 
-      const passthroughRef = builder.getBicepReference("passthrough", "v1");
-      publishModule(
-        environmentOverrides,
-        passthroughRef,
-        "modules" + environment.suffix,
-        "passthrough.bicep"
-      );
+    const storageRef = builder.getBicepReference("storage", "v1");
+    publishModule(
+      environment.environmentOverrides,
+      storageRef,
+      "modules" + environment.suffix,
+      "storage.bicep"
+    );
 
-      const mainContent = `
+    const passthroughRef = builder.getBicepReference("passthrough", "v1");
+    publishModule(
+      environment.environmentOverrides,
+      passthroughRef,
+      "modules" + environment.suffix,
+      "passthrough.bicep"
+    );
+
+    const mainContent = `
 module passthrough '${passthroughRef}' = {
   name: 'passthrough'
   params: {
@@ -94,7 +86,7 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
 
 output blobEndpoint string = localModule.outputs.blobEndpoint`;
 
-      const localModuleContent = `
+    const localModuleContent = `
 param passthroughResult string
 
 module storage '${storageRef}' = {
@@ -110,59 +102,58 @@ module nestedLocalModule 'build-external-nested-local-module.bicep' = {
 
 output blobEndpoint string = storage.outputs.blobEndpoint`;
 
-      const nestedLocalModuleContent = `
+    const nestedLocalModuleContent = `
 module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.0.0' = {
   name: 'webAppModuleV1'
 }`;
 
-      const bicepPath = writeTempFile(
-        "build",
-        "build-external.bicep",
-        mainContent
-      );
+    const bicepPath = writeTempFile(
+      "build",
+      "build-external.bicep",
+      mainContent
+    );
 
-      writeTempFile(
-        "build",
-        "build-external-local-module.bicep",
-        localModuleContent
-      );
+    writeTempFile(
+      "build",
+      "build-external-local-module.bicep",
+      localModuleContent
+    );
 
-      writeTempFile(
-        "build",
-        "build-external-nested-local-module.bicep",
-        nestedLocalModuleContent
-      );
+    writeTempFile(
+      "build",
+      "build-external-nested-local-module.bicep",
+      nestedLocalModuleContent
+    );
 
-      const exampleConfig = readFileSync(
-        pathToExampleFile("modules" + environment.suffix, "bicepconfig.json")
-      );
-      writeTempFile("build", "bicepconfig.json", exampleConfig);
+    const exampleConfig = readFileSync(
+      pathToExampleFile("modules" + environment.suffix, "bicepconfig.json")
+    );
+    writeTempFile("build", "bicepconfig.json", exampleConfig);
 
-      invokingBicepCommand("build", bicepPath)
-        .withEnvironmentOverrides(environmentOverrides)
-        .shouldSucceed()
-        .withEmptyStdout();
+    invokingBicepCommand("build", bicepPath)
+      .withEnvironmentOverrides(environment.environmentOverrides)
+      .shouldSucceed()
+      .withEmptyStdout();
 
-      expectFileExists(pathToTempFile("build", "build-external.json"));
+    expectFileExists(pathToTempFile("build", "build-external.json"));
 
-      expectBrModuleStructure(
-        builder.registry,
-        "build$passthrough",
-        `v1_${builder.tagSuffix}$4002000`
-      );
+    expectBrModuleStructure(
+      builder.registry,
+      "build$passthrough",
+      `v1_${builder.tagSuffix}$4002000`
+    );
 
-      expectBrModuleStructure(
-        builder.registry,
-        "build$storage",
-        `v1_${builder.tagSuffix}$4002000`
-      );
+    expectBrModuleStructure(
+      builder.registry,
+      "build$storage",
+      `v1_${builder.tagSuffix}$4002000`
+    );
 
-      expectFileExists(
-        pathToCachedTsModuleFile(
-          `${environment.templateSpecSubscriptionId}/bicep-ci/webappspec-${environment.resourceSuffix}/1.0.0`,
-          "main.json"
-        )
-      );
-    }
-  );
+    expectFileExists(
+      pathToCachedTsModuleFile(
+        `${environment.templateSpecSubscriptionId}/bicep-ci/webappspec-${environment.resourceSuffix}/1.0.0`,
+        "main.json"
+      )
+    );
+  });
 });
