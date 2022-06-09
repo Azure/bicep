@@ -88,7 +88,7 @@ module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-
 
 }
 
-module modANoName './modulea.bicep' = if ({'a': b}.a == true) {
+module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 
 }
 

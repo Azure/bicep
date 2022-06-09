@@ -191,10 +191,29 @@ namespace Bicep.Core.PrettyPrint
                  return Spread(Concat(openParen, itemVariable, comma), Concat(indexVariable, closeParen));
              });
 
-        private void VisitCommaAndNewLineSeparated(ImmutableArray<SyntaxBase> nodes)
+        private void VisitCommaAndNewLineSeparated(ImmutableArray<SyntaxBase> nodes, bool leadingAndTrailingSpace)
         {
-            var hasTrailingNewline = nodes.Length > 0 && nodes[^1] is Token { Type: TokenType.NewLine };
+            SyntaxBase? leadingNewLine = null;
+            if (nodes.Length > 0 && nodes[0] is Token { Type: TokenType.NewLine })
+            {
+                leadingNewLine = nodes[0];
+                nodes = nodes.RemoveAt(0);
+            }
+
+            SyntaxBase? trailingNewLine = null;
+            if (nodes.Length > 0 && nodes[^1] is Token { Type: TokenType.NewLine })
+            {
+                trailingNewLine = nodes[^1];
+                nodes = nodes.RemoveAt(nodes.Length - 1);
+            }
+
             this.Build(() => {
+                this.Visit(leadingNewLine);
+                if (leadingAndTrailingSpace && nodes.Any() && leadingNewLine is null)
+                {
+                    this.PushDocument(Space);
+                }
+
                 for (var i = 0; i < nodes.Length; i++)
                 {
                     this.Visit(nodes[i]);
@@ -206,6 +225,12 @@ namespace Bicep.Core.PrettyPrint
                         this.PushDocument(Space);
                     }
                 }
+
+                if (leadingAndTrailingSpace && nodes.Any() && trailingNewLine is null)
+                {
+                    this.PushDocument(Space);
+                }
+                this.Visit(trailingNewLine);
             }, children => {
                 // This logic ensures that syntax with only a single child is not doubly-nested,
                 // and that the final newline does not cause the next piece of text to be indented
@@ -213,6 +238,7 @@ namespace Bicep.Core.PrettyPrint
                 //   foo({
                 //     bar: 123
                 //   })
+                var hasTrailingNewline = trailingNewLine is not null;
                 var nestedChildren = Concat(hasTrailingNewline ? children[..^1] : children);
                 var newLine = hasTrailingNewline ? children[^1] : Nil;
 
@@ -229,7 +255,7 @@ namespace Bicep.Core.PrettyPrint
             this.BuildWithConcat(() => {
                 this.Visit(syntax.Name);
                 this.Visit(syntax.OpenParen);
-                this.VisitCommaAndNewLineSeparated(syntax.Children);
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: false);
                 this.Visit(syntax.CloseParen);
             });
 
@@ -239,7 +265,7 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Dot);
                 this.Visit(syntax.Name);
                 this.Visit(syntax.OpenParen);
-                this.VisitCommaAndNewLineSeparated(syntax.Children);
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: false);
                 this.Visit(syntax.CloseParen);
             });
 
@@ -335,7 +361,7 @@ namespace Bicep.Core.PrettyPrint
         public override void VisitObjectSyntax(ObjectSyntax syntax) =>
             this.BuildWithConcat(() => {
                 this.Visit(syntax.OpenBrace);
-                this.VisitCommaAndNewLineSeparated(syntax.Children);
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: true);
                 this.Visit(syntax.CloseBrace);
             });
 
@@ -354,7 +380,7 @@ namespace Bicep.Core.PrettyPrint
         public override void VisitArraySyntax(ArraySyntax syntax) =>
             this.BuildWithConcat(() => {
                 this.Visit(syntax.OpenBracket);
-                this.VisitCommaAndNewLineSeparated(syntax.Children);
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: true);
                 this.Visit(syntax.CloseBracket);
             });
 

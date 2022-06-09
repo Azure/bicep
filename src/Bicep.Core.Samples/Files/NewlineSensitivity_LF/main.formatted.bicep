@@ -1,4 +1,4 @@
-@allowed(['abc', 'def', 'ghi'])
+@allowed([ 'abc', 'def', 'ghi' ])
 param foo string
 
 var singleLineFunction = concat('abc', 'def')
@@ -9,7 +9,7 @@ var multiLineFunction = concat(
 )
 
 var multiLineFunctionUnusualFormatting = concat(
-  'abc', any(['hello']),
+  'abc', any([ 'hello' ]),
   'def')
 
 var nestedTest = concat(
@@ -24,35 +24,35 @@ var nestedTest = concat(
     'four'),
   'five')
 
-var singleLineArray = ['abc', 'def']
-var singleLineArrayTrailingCommas = ['abc', 'def',]
+var singleLineArray = [ 'abc', 'def' ]
+var singleLineArrayTrailingCommas = [ 'abc', 'def', ]
 
 var multiLineArray = [
   'abc'
   'def'
 ]
 
-var mixedArray = ['abc', 'def'
+var mixedArray = [ 'abc', 'def'
   'ghi', 'jkl'
-  'lmn']
+  'lmn' ]
 
-var singleLineObject = {abc: 'def', ghi: 'jkl'}
-var singleLineObjectTrailingCommas = {abc: 'def', ghi: 'jkl',}
+var singleLineObject = { abc: 'def', ghi: 'jkl' }
+var singleLineObjectTrailingCommas = { abc: 'def', ghi: 'jkl', }
 var multiLineObject = {
   abc: 'def'
   ghi: 'jkl'
 }
-var mixedObject = {abc: 'abc', def: 'def'
+var mixedObject = { abc: 'abc', def: 'def'
   ghi: 'ghi', jkl: 'jkl'
-  lmn: 'lmn'}
+  lmn: 'lmn' }
 
 var nestedMixed = {
-  abc: {'def': 'ghi', abc: 'def', foo: [
+  abc: { 'def': 'ghi', abc: 'def', foo: [
       'bar', 'blah'
-    ]}
+    ] }
 }
 
-var brokenFormatting = [ /*foo */'bar' /*
+var brokenFormatting = [ /*foo */ 'bar' /*
 
 hello
 
