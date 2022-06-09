@@ -3048,6 +3048,48 @@ resource existingStg4 'Microsoft.Storage/storageAccounts@2021-04-01' existing = 
         }
 
         /// <summary>
+        /// https://github.com/Azure/bicep/issues/6423
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue6423()
+        {
+            var result = CompilationHelper.Compile(@"
+var configs = [
+  {
+    name: 'name1'
+  }
+  {
+    name: 'name2'
+  }
+]
+
+resource webApp 'Microsoft.Web/sites@2021-03-01' = [for c in configs: {
+  name: c.name
+  location: 'West US'
+}]
+
+resource auth 'Microsoft.Web/sites/config@2021-03-01' = [for (c, i) in configs: {
+  name: 'authsettingsV2'
+  parent: webApp[i] // webApp[0] doesn't work either
+  properties: {
+    madeUpProperty: 'blah'
+    // No IntelliSense or type checking
+  }
+}]
+");
+
+            // verify we have diagnostics for 'properties'
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP037", DiagnosticLevel.Warning, "The property \"madeUpProperty\" is not allowed on objects of type \"SiteAuthSettingsV2Properties\". Permissible properties include \"globalValidation\", \"httpSettings\", \"identityProviders\", \"login\", \"platform\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+            });
+
+            result.Template.Should().HaveValueAtPath("$.resources[1].name", "[format('{0}/{1}', variables('configs')[copyIndex()].name, 'authsettingsV2')]");
+            result.Template.Should().HaveValueAtPath("$.resources[1].dependsOn", new JArray {
+                "[resourceId('Microsoft.Web/sites', variables('configs')[copyIndex()].name)]",
+            });
+        }
+
+        /// <summary>
         /// https://github.com/Azure/bicep/issues/3169
         /// </summary>
         [TestMethod]

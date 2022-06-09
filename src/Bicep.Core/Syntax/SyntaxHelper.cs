@@ -87,5 +87,12 @@ namespace Bicep.Core.Syntax
 
             return targetScope;
         }
+
+        public static (SyntaxBase baseSyntax, SyntaxBase? indexSyntax) UnwrapArrayAccessSyntax(SyntaxBase syntax)
+            => syntax switch
+            {
+                ArrayAccessSyntax arrayAccess => (arrayAccess.BaseExpression, arrayAccess.IndexExpression),
+                _ => (syntax, null),
+            };
     }
 }

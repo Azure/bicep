@@ -128,11 +128,8 @@ namespace Bicep.Core.Emit
                         function.Arguments.Select(a => ConvertExpression(a.Expression)));
 
                 case InstanceFunctionCallSyntax instanceFunctionCall:
-                    var (baseSymbol, indexExpression) = instanceFunctionCall.BaseExpression switch
-                    {
-                        ArrayAccessSyntax arrayAccessSyntax => (context.SemanticModel.GetSymbolInfo(arrayAccessSyntax.BaseExpression), arrayAccessSyntax.IndexExpression),
-                        _ => (context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression), null),
-                    };
+                    var (baseExpression, indexExpression) = SyntaxHelper.UnwrapArrayAccessSyntax(instanceFunctionCall.BaseExpression);
+                    var baseSymbol = context.SemanticModel.GetSymbolInfo(baseExpression);
 
                     switch (baseSymbol)
                     {
@@ -574,33 +571,33 @@ namespace Bicep.Core.Emit
 
             /*
              * Consider the following example:
-             * 
+             *
              * resource one 'MS.Example/ones@...' = [for (_, i) in range(0, ...) : {
              *   name: name_exp1(i)
              * }]
-             * 
+             *
              * resource two 'MS.Example/ones/twos@...' = [for (_, j) in range(0, ...) : {
              *   parent: one[index_exp2(j)]
              *   name: name_exp2(j)
              * }]
-             * 
+             *
              * resource three 'MS.Example/ones/twos/threes@...' = [for (_, k) in range(0, ...) : {
              *   parent: two[index_exp3(k)]
              *   name: name_exp3(k)
              * }]
-             * 
+             *
              * name_exp* and index_exp* are expressions represented here as functions
-             * 
+             *
              * The name segment expressions for "three" are the following:
              * 0. name_exp1(index_exp2(index_exp3(k)))
              * 1. name_exp2(index_exp3(k))
              * 2. name_exp3(k)
-             * 
+             *
              * (The formula can be generalized to more levels of nesting.)
-             * 
+             *
              * This function can be used to get 0 and 1 above by passing 0 or 1 respectively as the startingAncestorIndex.
              * The name segment 2 above must be obtained from the resource directly.
-             * 
+             *
              * Given that we don't have proper functions in our runtime AND that our expressions don't have side effects,
              * the formula is implemented via local variable replacement.
              */
@@ -625,10 +622,10 @@ namespace Bicep.Core.Emit
                         /*
                          * There are no local vars to replace. It is impossible for a local var to be introduced at the next level
                          * so we can just bail out with the result.
-                         * 
+                         *
                          * This path is followed by non-loop resources.
-                         * 
-                         * Case 0 is not possible for non-starting ancestor index because 
+                         *
+                         * Case 0 is not possible for non-starting ancestor index because
                          * once we have a local variable replacement, it will propagate to the next levels
                          */
                         return ancestor.Resource.NameSyntax;

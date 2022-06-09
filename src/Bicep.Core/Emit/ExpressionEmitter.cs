@@ -350,11 +350,7 @@ namespace Bicep.Core.Emit
         {
             if (syntax is InstanceFunctionCallSyntax instanceFunctionCall && string.Equals(instanceFunctionCall.Name.IdentifierName, "getSecret", LanguageConstants.IdentifierComparison))
             {
-                var baseSyntax = instanceFunctionCall.BaseExpression switch
-                {
-                    ArrayAccessSyntax arrayAccessSyntax => arrayAccessSyntax.BaseExpression,
-                    _ => instanceFunctionCall.BaseExpression,
-                };
+                var (baseSyntax, _) = SyntaxHelper.UnwrapArrayAccessSyntax(instanceFunctionCall.BaseExpression);
 
                 if (context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax) is not { } resource ||
                     !StringComparer.OrdinalIgnoreCase.Equals(resource.TypeReference.FormatType(), AzResourceTypeProvider.ResourceTypeKeyVault))
