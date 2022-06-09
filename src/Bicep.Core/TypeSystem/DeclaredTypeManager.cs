@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -364,7 +365,8 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
-            var argIndex = parentFunction.Arguments.IndexOf(syntax);
+            var arguments = parentFunction.Arguments.ToImmutableArray();
+            var argIndex = arguments.IndexOf(syntax);
             var declaredType = functionSymbol.GetDeclaredArgumentType(argIndex);
 
             return new DeclaredTypeAssignment(declaredType, declaringSyntax: null);

@@ -390,6 +390,14 @@ namespace Bicep.Core.Parsing
             return Expect(TokenType.NewLine, b => b.ExpectedNewLine());
         }
 
+        private IEnumerable<Token> NewLines()
+        {
+            while (Check(TokenType.NewLine))
+            {
+                yield return this.NewLine();
+            }
+        }
+
         public SyntaxBase Expression(ExpressionFlags expressionFlags)
         {
             var candidate = this.BinaryExpression(expressionFlags);
@@ -644,95 +652,29 @@ namespace Bicep.Core.Parsing
         /// <summary>
         /// Method that gets a function call identifier, its arguments plus open and close parens
         /// </summary>
-        private (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<FunctionArgumentSyntax> ArgumentNodes, Token CloseParen) FunctionCallAccess(IdentifierSyntax functionName, ExpressionFlags expressionFlags)
+        private (IdentifierSyntax Identifier, Token OpenParen, IEnumerable<SyntaxBase> ArgumentNodes, Token CloseParen) FunctionCallAccess(IdentifierSyntax functionName, ExpressionFlags expressionFlags)
         {
             var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
 
-            var argumentNodes = FunctionCallArguments(expressionFlags);
+            var itemsOrTokens = HandleFunctionElements(
+                closingTokenType: TokenType.RightParen,
+                parseChildElement: () => FunctionArgument(expressionFlags));
 
             var closeParen = this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")"));
 
-            return (functionName, openParen, argumentNodes, closeParen);
+            return (functionName, openParen, itemsOrTokens, closeParen);
         }
 
-        /// <summary>
-        /// Method that consumes and returns all arguments from an Instance of Function call.
-        /// This method stops when a right paren is found without consuming it, a caller must
-        /// consume the right paren token.
-        /// </summary>
-        /// <param name="expressionFlags"></param>
-        private IEnumerable<FunctionArgumentSyntax> FunctionCallArguments(ExpressionFlags expressionFlags)
+        private SyntaxBase FunctionArgument(ExpressionFlags expressionFlags)
         {
-            SkippedTriviaSyntax CreateDummyArgument(Token current) =>
-                new SkippedTriviaSyntax(current.ToZeroLengthSpan(), ImmutableArray<SyntaxBase>.Empty, DiagnosticBuilder.ForPosition(current.ToZeroLengthSpan()).UnrecognizedExpression().AsEnumerable());
-
-            if (this.Check(TokenType.RightParen))
+            var expression = this.WithRecovery<SyntaxBase>(() =>
             {
-                return ImmutableArray<FunctionArgumentSyntax>.Empty;
-            }
+                return this.Expression(expressionFlags);
+            }, RecoveryFlags.None, TokenType.NewLine, TokenType.Comma, TokenType.RightParen);
 
-            var arguments = new List<(SyntaxBase expression, Token? comma)>();
-
-            while (true)
-            {
-                var current = this.reader.Peek();
-                switch (current.Type)
-                {
-                    case TokenType.Comma:
-                        this.reader.Read();
-                        if (arguments.Any() && arguments[^1].comma == null)
-                        {
-                            // we have consumed an expression which is expecting a comma
-                            // add the comma to the expression (it's a value type)
-                            var lastArgument = arguments[^1];
-                            lastArgument.comma = current;
-                            arguments[^1] = lastArgument;
-                        }
-                        else
-                        {
-                            // there aren't any arguments or the expression already has a comma following it
-                            // add an empty expression with the comma
-                            arguments.Add((CreateDummyArgument(current), current));
-                        }
-
-                        break;
-
-                    case TokenType.RightParen:
-                        // end of function call
-
-                        if (arguments.Any() && arguments.Last().comma != null)
-                        {
-                            // we have a trailing comma without an argument
-                            // we need to allow it so signature help doesn't get interrupted
-                            // by the user typing a comma without specifying a function argument
-
-                            // insert a dummy argument
-                            arguments.Add((CreateDummyArgument(current), null));
-                        }
-
-                        // return the accumulated arguments without consuming the right paren (the caller must consume it)
-                        var functionArguments = new List<FunctionArgumentSyntax>(arguments.Count);
-                        foreach (var (argumentExpression, comma) in arguments)
-                        {
-                            functionArguments.Add(new FunctionArgumentSyntax(argumentExpression, comma));
-                        }
-                        return functionArguments.ToImmutableArray();
-
-                    default:
-                        // not a comma or )
-                        // it should be an expression
-                        if (arguments.Any() && arguments[^1].comma == null)
-                        {
-                            // we are expecting a comma after the previous expression
-                            throw new ExpectedTokenException(current, b => b.ExpectedCharacter(","));
-                        }
-
-                        var expression = this.Expression(expressionFlags);
-                        arguments.Add((expression, null));
-
-                        break;
-                }
-            }
+            // always return a function argument syntax, even if we have skipped trivia
+            // this simplifies calculations done to show argument completions and signature help
+            return new FunctionArgumentSyntax(expression);
         }
 
         private Token Assignment()
@@ -1035,63 +977,125 @@ namespace Bicep.Core.Parsing
             };
         }
 
-        private SyntaxBase Array()
+        private IEnumerable<SyntaxBase> HandleArrayOrObjectElements(TokenType closingTokenType, Func<SyntaxBase> parseChildElement)
         {
-            var openBracket = Expect(TokenType.LeftSquare, b => b.ExpectedCharacter("["));
-
-            if (Check(TokenType.RightSquare))
+            if (Check(closingTokenType))
             {
-                // allow a close on the same line for an empty array
-                var emptyCloseBracket = reader.Read();
-                return new ArraySyntax(openBracket, ImmutableArray<SyntaxBase>.Empty, emptyCloseBracket);
+                // always allow a close on the same line
+                return ImmutableArray<SyntaxBase>.Empty;
             }
 
             var itemsOrTokens = new List<SyntaxBase>();
 
-            if (!Check(TokenType.NewLine))
-            {
-                itemsOrTokens.Add(SkipEmpty(x => x.ExpectedNewLine()));
-            }
+            itemsOrTokens.AddRange(NewLines());
 
-            while (!this.IsAtEnd() && this.reader.Peek().Type != TokenType.RightSquare)
+            var expectElement = true;
+            while (!this.IsAtEnd() && this.reader.Peek().Type != closingTokenType)
             {
-                // this produces an item node, skipped tokens node, or just a newline token
-                var itemOrToken = this.ArrayItem();
-                itemsOrTokens.Add(itemOrToken);
-
-                // if skipped tokens node is returned above, the newline is not consumed
-                // if newline token is returned, we must not expect another (could be beginning of a new item)
-                if (itemOrToken is ArrayItemSyntax)
+                if (!expectElement)
                 {
-                    if (Check(TokenType.Comma))
+                    // every element should be separated by AT MOST one set of new lines, or one comma
+                    // we don't want to allow mixing and matching, and we want to insert dummy elements between commas
+                    if (Check(TokenType.NewLine))
                     {
-                        var token = this.reader.Read();
-                        var skippedSyntax = new SkippedTriviaSyntax(
-                            token.Span,
-                            token.AsEnumerable(),
-                            DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator().AsEnumerable()
-                        );
-                        itemsOrTokens.Add(skippedSyntax);
+                        itemsOrTokens.AddRange(NewLines());
+                    }
+                    else if (Check(TokenType.Comma))
+                    {
+                        itemsOrTokens.Add(reader.Read());
+                        if (Check(TokenType.NewLine))
+                        {
+                            // this may be a common mistake for anyone converting from single- to multi-line
+                            // array or object declarations. special-case the diagnostics to reduce confusion.
+                            itemsOrTokens.Add(SkipEmpty(x => x.UnexpectedNewLineAfterCommaSeparator()));
+                            itemsOrTokens.Add(NewLine());
+                        }
+                    }
+                    else
+                    {
+                        itemsOrTokens.Add(SkipEmpty(x => x.ExpectedNewLineOrCommaSeparator()));
                     }
 
-                    // we've got a ']' immediately after a property.
-                    // consume it and exit early with an error to avoid assuming we're still inside the object
-                    if (Check(TokenType.RightSquare))
-                    {
-                        itemsOrTokens.Add(SkipEmpty(x => x.ExpectedNewLine()));
-                        var earlyCloseBracket = this.reader.Read();
-
-                        return new ArraySyntax(openBracket, itemsOrTokens, earlyCloseBracket);
-                    }
-
-                    // items must be followed by newlines
-                    var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
-                    if (newLine != null)
-                    {
-                        itemsOrTokens.Add(newLine);
-                    }
+                    expectElement = true;
+                    continue;
                 }
+
+                var itemOrToken = parseChildElement();
+                itemsOrTokens.Add(itemOrToken);
+                expectElement = false;
             }
+
+            return itemsOrTokens;
+        }
+
+        private IEnumerable<SyntaxBase> HandleFunctionElements(TokenType closingTokenType, Func<SyntaxBase> parseChildElement)
+        {
+            if (Check(closingTokenType))
+            {
+                // always allow a close on the same line
+                return ImmutableArray<SyntaxBase>.Empty;
+            }
+
+            var itemsOrTokens = new List<SyntaxBase>();
+
+            itemsOrTokens.AddRange(NewLines());
+
+            var expectElement = true;
+            while (!this.IsAtEnd() && this.reader.Peek().Type != closingTokenType)
+            {
+                if (!expectElement)
+                {
+                    // every element should be separated by AT MOST one set of new lines, or one comma
+                    // we don't want to allow mixing and matching, and we want to insert dummy elements between commas
+                    if (Check(TokenType.NewLine))
+                    {
+                        if (!Check(this.reader.PeekAhead(), closingTokenType))
+                        {
+                            itemsOrTokens.Add(SkipEmpty(x => x.ExpectedCommaSeparator()));
+                        }
+
+                        itemsOrTokens.AddRange(NewLines());
+                    }
+                    else if (Check(TokenType.Comma))
+                    {
+                        itemsOrTokens.Add(reader.Read());
+                        if (Check(TokenType.NewLine))
+                        {
+                            // newlines are optional after commas
+                            itemsOrTokens.AddRange(NewLines());
+                        }
+                        if (Check(closingTokenType))
+                        {
+                            // trailing commas not supported - try to parse a child element before we exit the while loop,
+                            // to give a chance to raise diagnostics, and generate a placeholder 'skipped' element to help pick the correct function overload.
+                            var skippedItem = parseChildElement();
+                            itemsOrTokens.Add(skippedItem);
+                        }
+                    }
+                    else
+                    {
+                        itemsOrTokens.Add(SkipEmpty(x => x.ExpectedNewLineOrCommaSeparator()));
+                    }
+
+                    expectElement = true;
+                    continue;
+                }
+
+                var itemOrToken = parseChildElement();
+                itemsOrTokens.Add(itemOrToken);
+                expectElement = false;
+            }
+
+            return itemsOrTokens;
+        }
+
+        private SyntaxBase Array()
+        {
+            var openBracket = Expect(TokenType.LeftSquare, b => b.ExpectedCharacter("["));
+
+            var itemsOrTokens = HandleArrayOrObjectElements(
+                closingTokenType: TokenType.RightSquare,
+                parseChildElement: () => ArrayItem());
 
             var closeBracket = Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
 
@@ -1102,91 +1106,30 @@ namespace Bicep.Core.Parsing
         {
             return this.WithRecovery<SyntaxBase>(() =>
             {
-                var current = this.reader.Peek();
-
-                if (current.Type == TokenType.NewLine)
-                {
-                    return this.NewLine();
-                }
-
                 var value = this.Expression(ExpressionFlags.AllowComplexLiterals);
+
                 return new ArrayItemSyntax(value);
-            }, RecoveryFlags.None, TokenType.NewLine);
+            }, RecoveryFlags.None, TokenType.NewLine, TokenType.RightSquare);
         }
 
         private ObjectSyntax Object(ExpressionFlags expressionFlags)
         {
             var openBrace = Expect(TokenType.LeftBrace, b => b.ExpectedCharacter("{"));
 
-            if (Check(TokenType.RightBrace))
-            {
-                // allow a close on the same line for an empty object
-                var emptyCloseBrace = reader.Read();
-                return new ObjectSyntax(openBrace, ImmutableArray<SyntaxBase>.Empty, emptyCloseBrace);
-            }
-
-            var propertiesOrResourcesTokens = new List<SyntaxBase>();
-
-            if (!Check(TokenType.NewLine))
-            {
-                propertiesOrResourcesTokens.Add(SkipEmpty(x => x.ExpectedNewLine()));
-            }
-
-            while (!this.IsAtEnd() && this.reader.Peek().Type != TokenType.RightBrace)
-            {
-                // this produces a property node, skipped tokens node, or just a newline token
-                var propertyOrResourceOrToken = this.ObjectProperty(expressionFlags);
-                propertiesOrResourcesTokens.Add(propertyOrResourceOrToken);
-
-                // if skipped tokens node is returned above, the newline is not consumed
-                // if newline token is returned, we must not expect another (could be beginning of a new property)
-                if (propertyOrResourceOrToken is ObjectPropertySyntax)
-                {
-                    if (Check(TokenType.Comma))
-                    {
-                        var token = this.reader.Read();
-                        var skippedSyntax = new SkippedTriviaSyntax(
-                            token.Span,
-                            token.AsEnumerable(),
-                            DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator().AsEnumerable()
-                        );
-                        propertiesOrResourcesTokens.Add(skippedSyntax);
-                    }
-
-                    // we've got a '}' immediately after a property.
-                    // consume it and exit early with an error to avoid assuming we're still inside the object
-                    if (Check(TokenType.RightBrace))
-                    {
-                        propertiesOrResourcesTokens.Add(SkipEmpty(x => x.ExpectedNewLine()));
-                        var earlyCloseBrace = this.reader.Read();
-
-                        return new ObjectSyntax(openBrace, propertiesOrResourcesTokens, earlyCloseBrace);
-                    }
-
-                    // properties must be followed by newlines
-                    var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
-                    if (newLine != null)
-                    {
-                        propertiesOrResourcesTokens.Add(newLine);
-                    }
-                }
-            }
+            var itemsOrTokens = HandleArrayOrObjectElements(
+                closingTokenType: TokenType.RightBrace,
+                parseChildElement: () => ObjectProperty(expressionFlags));
 
             var closeBrace = Expect(TokenType.RightBrace, b => b.ExpectedCharacter("}"));
 
-            return new ObjectSyntax(openBrace, propertiesOrResourcesTokens, closeBrace);
+            return new ObjectSyntax(openBrace, itemsOrTokens, closeBrace);
         }
 
         private SyntaxBase ObjectProperty(ExpressionFlags expressionFlags)
         {
             return this.WithRecovery<SyntaxBase>(() =>
             {
-                // TODO: Clean this up a bit
                 var current = this.reader.Peek();
-                if (current.Type == TokenType.NewLine)
-                {
-                    return this.NewLine();
-                }
 
                 // Nested resource declarations may be allowed - but we need lookahead to avoid
                 // treating 'resource' as a reserved property name.
@@ -1213,13 +1156,13 @@ namespace Bicep.Core.Parsing
                                 _ => throw new ExpectedTokenException(current, b => b.ExpectedPropertyName()),
                             }, b => b.ExpectedPropertyName()),
                     RecoveryFlags.None,
-                    TokenType.Colon, TokenType.NewLine);
+                    TokenType.Colon, TokenType.NewLine, TokenType.RightBrace);
 
-                var colon = this.WithRecovery(() => Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(key), TokenType.NewLine);
-                var value = this.WithRecovery(() => Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(colon), TokenType.NewLine);
+                var colon = this.WithRecovery(() => Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(key), TokenType.NewLine, TokenType.RightBrace);
+                var value = this.WithRecovery(() => Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(colon), TokenType.NewLine, TokenType.RightBrace);
 
                 return new ObjectPropertySyntax(key, colon, value);
-            }, RecoveryFlags.None, TokenType.NewLine);
+            }, RecoveryFlags.None, TokenType.NewLine, TokenType.RightBrace);
         }
 
         private SyntaxBase IfCondition(ExpressionFlags expressionFlags, bool insideForExpression)

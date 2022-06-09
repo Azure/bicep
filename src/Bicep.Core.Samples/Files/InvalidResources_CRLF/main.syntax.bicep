@@ -229,7 +229,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
 //@[056:00068) | | | | ├─PropertyAccessSyntax
 //@[056:00066) | | | | | ├─ObjectSyntax
 //@[056:00057) | | | | | | ├─Token(LeftBrace) |{|
-//@[058:00058) | | | | | | ├─SkippedTriviaSyntax
 //@[058:00064) | | | | | | ├─ObjectPropertySyntax
 //@[058:00061) | | | | | | | ├─StringSyntax
 //@[058:00061) | | | | | | | | └─Token(StringComplete) |'a'|
@@ -237,7 +236,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
 //@[063:00064) | | | | | | | └─VariableAccessSyntax
 //@[063:00064) | | | | | | | | └─IdentifierSyntax
 //@[063:00064) | | | | | | | | | └─Token(Identifier) |b|
-//@[065:00065) | | | | | | ├─SkippedTriviaSyntax
 //@[065:00066) | | | | | | └─Token(RightBrace) |}|
 //@[066:00067) | | | | | ├─Token(Dot) |.|
 //@[067:00068) | | | | | └─IdentifierSyntax
@@ -466,10 +464,10 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Ma
 //@[057:00066) | | | | | | ├─IdentifierSyntax
 //@[057:00066) | | | | | | | └─Token(Identifier) |reference|
 //@[066:00067) | | | | | | ├─Token(LeftParen) |(|
-//@[067:00110) | | | | | | ├─FunctionArgumentSyntax
-//@[067:00109) | | | | | | | ├─StringSyntax
+//@[067:00109) | | | | | | ├─FunctionArgumentSyntax
+//@[067:00109) | | | | | | | └─StringSyntax
 //@[067:00109) | | | | | | | | └─Token(StringComplete) |'Micorosft.Management/managementGroups/MG'|
-//@[109:00110) | | | | | | | └─Token(Comma) |,|
+//@[109:00110) | | | | | | ├─Token(Comma) |,|
 //@[111:00123) | | | | | | ├─FunctionArgumentSyntax
 //@[111:00123) | | | | | | | └─StringSyntax
 //@[111:00123) | | | | | | | | └─Token(StringComplete) |'2020-05-01'|
@@ -514,10 +512,10 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-0
 //@[057:00065) | | | | | | ├─IdentifierSyntax
 //@[057:00065) | | | | | | | └─Token(Identifier) |listKeys|
 //@[065:00066) | | | | | | ├─Token(LeftParen) |(|
-//@[066:00072) | | | | | | ├─FunctionArgumentSyntax
-//@[066:00071) | | | | | | | ├─StringSyntax
+//@[066:00071) | | | | | | ├─FunctionArgumentSyntax
+//@[066:00071) | | | | | | | └─StringSyntax
 //@[066:00071) | | | | | | | | └─Token(StringComplete) |'foo'|
-//@[071:00072) | | | | | | | └─Token(Comma) |,|
+//@[071:00072) | | | | | | ├─Token(Comma) |,|
 //@[073:00085) | | | | | | ├─FunctionArgumentSyntax
 //@[073:00085) | | | | | | | └─StringSyntax
 //@[073:00085) | | | | | | | | └─Token(StringComplete) |'2020-05-01'|
@@ -1482,20 +1480,20 @@ resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[008:00014) | | | | ├─IdentifierSyntax
 //@[008:00014) | | | | | └─Token(Identifier) |concat|
 //@[014:00015) | | | | ├─Token(LeftParen) |(|
-//@[015:00066) | | | | ├─FunctionArgumentSyntax
-//@[015:00065) | | | | | ├─FunctionCallSyntax
+//@[015:00065) | | | | ├─FunctionArgumentSyntax
+//@[015:00065) | | | | | └─FunctionCallSyntax
 //@[015:00021) | | | | | | ├─IdentifierSyntax
 //@[015:00021) | | | | | | | └─Token(Identifier) |concat|
 //@[021:00022) | | | | | | ├─Token(LeftParen) |(|
-//@[022:00042) | | | | | | ├─FunctionArgumentSyntax
-//@[022:00041) | | | | | | | ├─PropertyAccessSyntax
+//@[022:00041) | | | | | | ├─FunctionArgumentSyntax
+//@[022:00041) | | | | | | | └─PropertyAccessSyntax
 //@[022:00038) | | | | | | | | ├─VariableAccessSyntax
 //@[022:00038) | | | | | | | | | └─IdentifierSyntax
 //@[022:00038) | | | | | | | | | | └─Token(Identifier) |runtimeValidRes1|
 //@[038:00039) | | | | | | | | ├─Token(Dot) |.|
 //@[039:00041) | | | | | | | | └─IdentifierSyntax
 //@[039:00041) | | | | | | | | | └─Token(Identifier) |id|
-//@[041:00042) | | | | | | | └─Token(Comma) |,|
+//@[041:00042) | | | | | | ├─Token(Comma) |,|
 //@[043:00064) | | | | | | ├─FunctionArgumentSyntax
 //@[043:00064) | | | | | | | └─PropertyAccessSyntax
 //@[043:00059) | | | | | | | | ├─VariableAccessSyntax
@@ -1505,7 +1503,7 @@ resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[060:00064) | | | | | | | | └─IdentifierSyntax
 //@[060:00064) | | | | | | | | | └─Token(Identifier) |name|
 //@[064:00065) | | | | | | └─Token(RightParen) |)|
-//@[065:00066) | | | | | └─Token(Comma) |,|
+//@[065:00066) | | | | ├─Token(Comma) |,|
 //@[067:00088) | | | | ├─FunctionArgumentSyntax
 //@[067:00088) | | | | | └─PropertyAccessSyntax
 //@[067:00083) | | | | | | ├─VariableAccessSyntax
@@ -1623,8 +1621,8 @@ resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-0
 //@[008:00014) | | | | ├─IdentifierSyntax
 //@[008:00014) | | | | | └─Token(Identifier) |concat|
 //@[014:00015) | | | | ├─Token(LeftParen) |(|
-//@[015:00035) | | | | ├─FunctionArgumentSyntax
-//@[015:00034) | | | | | ├─ArrayAccessSyntax
+//@[015:00034) | | | | ├─FunctionArgumentSyntax
+//@[015:00034) | | | | | └─ArrayAccessSyntax
 //@[015:00026) | | | | | | ├─VariableAccessSyntax
 //@[015:00026) | | | | | | | └─IdentifierSyntax
 //@[015:00026) | | | | | | | | └─Token(Identifier) |validModule|
@@ -1632,7 +1630,7 @@ resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-0
 //@[027:00033) | | | | | | ├─StringSyntax
 //@[027:00033) | | | | | | | └─Token(StringComplete) |'name'|
 //@[033:00034) | | | | | | └─Token(RightSquare) |]|
-//@[034:00035) | | | | | └─Token(Comma) |,|
+//@[034:00035) | | | | ├─Token(Comma) |,|
 //@[036:00040) | | | | ├─FunctionArgumentSyntax
 //@[036:00040) | | | | | └─StringSyntax
 //@[036:00040) | | | | | | └─Token(StringComplete) |'v1'|
@@ -2116,17 +2114,17 @@ resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@202
 //@[008:00014) | | | | ├─IdentifierSyntax
 //@[008:00014) | | | | | └─Token(Identifier) |concat|
 //@[014:00015) | | | | ├─Token(LeftParen) |(|
-//@[015:00041) | | | | ├─FunctionArgumentSyntax
-//@[015:00040) | | | | | ├─PropertyAccessSyntax
+//@[015:00040) | | | | ├─FunctionArgumentSyntax
+//@[015:00040) | | | | | └─PropertyAccessSyntax
 //@[015:00031) | | | | | | ├─VariableAccessSyntax
 //@[015:00031) | | | | | | | └─IdentifierSyntax
 //@[015:00031) | | | | | | | | └─Token(Identifier) |runtimeValidRes1|
 //@[031:00032) | | | | | | ├─Token(Dot) |.|
 //@[032:00040) | | | | | | └─IdentifierSyntax
 //@[032:00040) | | | | | | | └─Token(Identifier) |location|
-//@[040:00041) | | | | | └─Token(Comma) |,|
-//@[042:00071) | | | | ├─FunctionArgumentSyntax
-//@[042:00070) | | | | | ├─ArrayAccessSyntax
+//@[040:00041) | | | | ├─Token(Comma) |,|
+//@[042:00070) | | | | ├─FunctionArgumentSyntax
+//@[042:00070) | | | | | └─ArrayAccessSyntax
 //@[042:00058) | | | | | | ├─VariableAccessSyntax
 //@[042:00058) | | | | | | | └─IdentifierSyntax
 //@[042:00058) | | | | | | | | └─Token(Identifier) |runtimeValidRes2|
@@ -2134,9 +2132,9 @@ resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@202
 //@[059:00069) | | | | | | ├─StringSyntax
 //@[059:00069) | | | | | | | └─Token(StringComplete) |'location'|
 //@[069:00070) | | | | | | └─Token(RightSquare) |]|
-//@[070:00071) | | | | | └─Token(Comma) |,|
-//@[072:00118) | | | | ├─FunctionArgumentSyntax
-//@[072:00117) | | | | | ├─PropertyAccessSyntax
+//@[070:00071) | | | | ├─Token(Comma) |,|
+//@[072:00117) | | | | ├─FunctionArgumentSyntax
+//@[072:00117) | | | | | └─PropertyAccessSyntax
 //@[072:00104) | | | | | | ├─ArrayAccessSyntax
 //@[072:00090) | | | | | | | ├─VariableAccessSyntax
 //@[072:00090) | | | | | | | | └─IdentifierSyntax
@@ -2148,7 +2146,7 @@ resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@202
 //@[104:00105) | | | | | | ├─Token(Dot) |.|
 //@[105:00117) | | | | | | └─IdentifierSyntax
 //@[105:00117) | | | | | | | └─Token(Identifier) |azCliVersion|
-//@[117:00118) | | | | | └─Token(Comma) |,|
+//@[117:00118) | | | | ├─Token(Comma) |,|
 //@[119:00142) | | | | ├─FunctionArgumentSyntax
 //@[119:00142) | | | | | └─PropertyAccessSyntax
 //@[119:00137) | | | | | | ├─PropertyAccessSyntax
@@ -2561,17 +2559,17 @@ resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@202
 //@[008:00014) | | | | ├─IdentifierSyntax
 //@[008:00014) | | | | | └─Token(Identifier) |concat|
 //@[014:00015) | | | | ├─Token(LeftParen) |(|
-//@[015:00035) | | | | ├─FunctionArgumentSyntax
-//@[015:00034) | | | | | ├─PropertyAccessSyntax
+//@[015:00034) | | | | ├─FunctionArgumentSyntax
+//@[015:00034) | | | | | └─PropertyAccessSyntax
 //@[015:00029) | | | | | | ├─VariableAccessSyntax
 //@[015:00029) | | | | | | | └─IdentifierSyntax
 //@[015:00029) | | | | | | | | └─Token(Identifier) |runtimeInvalid|
 //@[029:00030) | | | | | | ├─Token(Dot) |.|
 //@[030:00034) | | | | | | └─IdentifierSyntax
 //@[030:00034) | | | | | | | └─Token(Identifier) |foo1|
-//@[034:00035) | | | | | └─Token(Comma) |,|
-//@[036:00080) | | | | ├─FunctionArgumentSyntax
-//@[036:00079) | | | | | ├─PropertyAccessSyntax
+//@[034:00035) | | | | ├─Token(Comma) |,|
+//@[036:00079) | | | | ├─FunctionArgumentSyntax
+//@[036:00079) | | | | | └─PropertyAccessSyntax
 //@[036:00066) | | | | | | ├─ArrayAccessSyntax
 //@[036:00052) | | | | | | | ├─VariableAccessSyntax
 //@[036:00052) | | | | | | | | └─IdentifierSyntax
@@ -2583,9 +2581,9 @@ resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@202
 //@[066:00067) | | | | | | ├─Token(Dot) |.|
 //@[067:00079) | | | | | | └─IdentifierSyntax
 //@[067:00079) | | | | | | | └─Token(Identifier) |azCliVersion|
-//@[079:00080) | | | | | └─Token(Comma) |,|
-//@[081:00112) | | | | ├─FunctionArgumentSyntax
-//@[081:00111) | | | | | ├─StringSyntax
+//@[079:00080) | | | | ├─Token(Comma) |,|
+//@[081:00111) | | | | ├─FunctionArgumentSyntax
+//@[081:00111) | | | | | └─StringSyntax
 //@[081:00084) | | | | | | ├─Token(StringLeftPiece) |'${|
 //@[084:00109) | | | | | | ├─PropertyAccessSyntax
 //@[084:00100) | | | | | | | ├─VariableAccessSyntax
@@ -2595,7 +2593,7 @@ resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@202
 //@[101:00109) | | | | | | | └─IdentifierSyntax
 //@[101:00109) | | | | | | | | └─Token(Identifier) |location|
 //@[109:00111) | | | | | | └─Token(StringRightPiece) |}'|
-//@[111:00112) | | | | | └─Token(Comma) |,|
+//@[111:00112) | | | | ├─Token(Comma) |,|
 //@[113:00128) | | | | ├─FunctionArgumentSyntax
 //@[113:00128) | | | | | └─PropertyAccessSyntax
 //@[113:00124) | | | | | | ├─VariableAccessSyntax
@@ -6794,10 +6792,10 @@ resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01
 //@[001:00007) | | | ├─IdentifierSyntax
 //@[001:00007) | | | | └─Token(Identifier) |concat|
 //@[007:00008) | | | ├─Token(LeftParen) |(|
-//@[008:00014) | | | ├─FunctionArgumentSyntax
-//@[008:00013) | | | | ├─StringSyntax
+//@[008:00013) | | | ├─FunctionArgumentSyntax
+//@[008:00013) | | | | └─StringSyntax
 //@[008:00013) | | | | | └─Token(StringComplete) |'foo'|
-//@[013:00014) | | | | └─Token(Comma) |,|
+//@[013:00014) | | | ├─Token(Comma) |,|
 //@[015:00020) | | | ├─FunctionArgumentSyntax
 //@[015:00020) | | | | └─StringSyntax
 //@[015:00020) | | | | | └─Token(StringComplete) |'bar'|
@@ -7563,11 +7561,11 @@ resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = 
 //@[096:00101) | | | ├─IdentifierSyntax
 //@[096:00101) | | | | └─Token(Identifier) |union|
 //@[101:00102) | | | ├─Token(LeftParen) |(|
-//@[102:00105) | | | ├─FunctionArgumentSyntax
-//@[102:00104) | | | | ├─ArraySyntax
+//@[102:00104) | | | ├─FunctionArgumentSyntax
+//@[102:00104) | | | | └─ArraySyntax
 //@[102:00103) | | | | | ├─Token(LeftSquare) |[|
 //@[103:00104) | | | | | └─Token(RightSquare) |]|
-//@[104:00105) | | | | └─Token(Comma) |,|
+//@[104:00105) | | | ├─Token(Comma) |,|
 //@[106:00107) | | | ├─FunctionArgumentSyntax
 //@[106:00107) | | | | └─IntegerLiteralSyntax
 //@[106:00107) | | | | | └─Token(Integer) |2|
@@ -7606,11 +7604,11 @@ resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' =
 //@[101:00106) | | | ├─IdentifierSyntax
 //@[101:00106) | | | | └─Token(Identifier) |union|
 //@[106:00107) | | | ├─Token(LeftParen) |(|
-//@[107:00110) | | | ├─FunctionArgumentSyntax
-//@[107:00109) | | | | ├─ArraySyntax
+//@[107:00109) | | | ├─FunctionArgumentSyntax
+//@[107:00109) | | | | └─ArraySyntax
 //@[107:00108) | | | | | ├─Token(LeftSquare) |[|
 //@[108:00109) | | | | | └─Token(RightSquare) |]|
-//@[109:00110) | | | | └─Token(Comma) |,|
+//@[109:00110) | | | ├─Token(Comma) |,|
 //@[111:00112) | | | ├─FunctionArgumentSyntax
 //@[111:00112) | | | | └─IntegerLiteralSyntax
 //@[111:00112) | | | | | └─Token(Integer) |2|
@@ -7925,10 +7923,10 @@ resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01
 //@[094:00099) | | | ├─IdentifierSyntax
 //@[094:00099) | | | | └─Token(Identifier) |range|
 //@[099:00100) | | | ├─Token(LeftParen) |(|
-//@[100:00102) | | | ├─FunctionArgumentSyntax
-//@[100:00101) | | | | ├─IntegerLiteralSyntax
+//@[100:00101) | | | ├─FunctionArgumentSyntax
+//@[100:00101) | | | | └─IntegerLiteralSyntax
 //@[100:00101) | | | | | └─Token(Integer) |0|
-//@[101:00102) | | | | └─Token(Comma) |,|
+//@[101:00102) | | | ├─Token(Comma) |,|
 //@[103:00104) | | | ├─FunctionArgumentSyntax
 //@[103:00104) | | | | └─IntegerLiteralSyntax
 //@[103:00104) | | | | | └─Token(Integer) |3|
@@ -7973,10 +7971,10 @@ resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01
 //@[023:00028) | | | | | | | | ├─IdentifierSyntax
 //@[023:00028) | | | | | | | | | └─Token(Identifier) |range|
 //@[028:00029) | | | | | | | | ├─Token(LeftParen) |(|
-//@[029:00031) | | | | | | | | ├─FunctionArgumentSyntax
-//@[029:00030) | | | | | | | | | ├─IntegerLiteralSyntax
+//@[029:00030) | | | | | | | | ├─FunctionArgumentSyntax
+//@[029:00030) | | | | | | | | | └─IntegerLiteralSyntax
 //@[029:00030) | | | | | | | | | | └─Token(Integer) |0|
-//@[030:00031) | | | | | | | | | └─Token(Comma) |,|
+//@[030:00031) | | | | | | | | ├─Token(Comma) |,|
 //@[032:00033) | | | | | | | | ├─FunctionArgumentSyntax
 //@[032:00033) | | | | | | | | | └─IntegerLiteralSyntax
 //@[032:00033) | | | | | | | | | | └─Token(Integer) |4|
@@ -8046,10 +8044,10 @@ resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-0
 //@[099:00104) | | | ├─IdentifierSyntax
 //@[099:00104) | | | | └─Token(Identifier) |range|
 //@[104:00105) | | | ├─Token(LeftParen) |(|
-//@[105:00107) | | | ├─FunctionArgumentSyntax
-//@[105:00106) | | | | ├─IntegerLiteralSyntax
+//@[105:00106) | | | ├─FunctionArgumentSyntax
+//@[105:00106) | | | | └─IntegerLiteralSyntax
 //@[105:00106) | | | | | └─Token(Integer) |0|
-//@[106:00107) | | | | └─Token(Comma) |,|
+//@[106:00107) | | | ├─Token(Comma) |,|
 //@[108:00109) | | | ├─FunctionArgumentSyntax
 //@[108:00109) | | | | └─IntegerLiteralSyntax
 //@[108:00109) | | | | | └─Token(Integer) |3|
@@ -8094,10 +8092,10 @@ resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-0
 //@[023:00028) | | | | | | | | ├─IdentifierSyntax
 //@[023:00028) | | | | | | | | | └─Token(Identifier) |range|
 //@[028:00029) | | | | | | | | ├─Token(LeftParen) |(|
-//@[029:00031) | | | | | | | | ├─FunctionArgumentSyntax
-//@[029:00030) | | | | | | | | | ├─IntegerLiteralSyntax
+//@[029:00030) | | | | | | | | ├─FunctionArgumentSyntax
+//@[029:00030) | | | | | | | | | └─IntegerLiteralSyntax
 //@[029:00030) | | | | | | | | | | └─Token(Integer) |0|
-//@[030:00031) | | | | | | | | | └─Token(Comma) |,|
+//@[030:00031) | | | | | | | | ├─Token(Comma) |,|
 //@[032:00033) | | | | | | | | ├─FunctionArgumentSyntax
 //@[032:00033) | | | | | | | | | └─IntegerLiteralSyntax
 //@[032:00033) | | | | | | | | | | └─Token(Integer) |4|
@@ -9071,11 +9069,11 @@ output directRefViaOutput array = union(premiumStorages, stuffs)
 //@[034:00039) | | ├─IdentifierSyntax
 //@[034:00039) | | | └─Token(Identifier) |union|
 //@[039:00040) | | ├─Token(LeftParen) |(|
-//@[040:00056) | | ├─FunctionArgumentSyntax
-//@[040:00055) | | | ├─VariableAccessSyntax
+//@[040:00055) | | ├─FunctionArgumentSyntax
+//@[040:00055) | | | └─VariableAccessSyntax
 //@[040:00055) | | | | └─IdentifierSyntax
 //@[040:00055) | | | | | └─Token(Identifier) |premiumStorages|
-//@[055:00056) | | | └─Token(Comma) |,|
+//@[055:00056) | | ├─Token(Comma) |,|
 //@[057:00063) | | ├─FunctionArgumentSyntax
 //@[057:00063) | | | └─VariableAccessSyntax
 //@[057:00063) | | | | └─IdentifierSyntax
@@ -9185,11 +9183,11 @@ resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2
 //@[033:00039) | | | | | | | ├─IdentifierSyntax
 //@[033:00039) | | | | | | | | └─Token(Identifier) |concat|
 //@[039:00040) | | | | | | | ├─Token(LeftParen) |(|
-//@[040:00056) | | | | | | | ├─FunctionArgumentSyntax
-//@[040:00055) | | | | | | | | ├─VariableAccessSyntax
+//@[040:00055) | | | | | | | ├─FunctionArgumentSyntax
+//@[040:00055) | | | | | | | | └─VariableAccessSyntax
 //@[040:00055) | | | | | | | | | └─IdentifierSyntax
 //@[040:00055) | | | | | | | | | | └─Token(Identifier) |premiumStorages|
-//@[055:00056) | | | | | | | | └─Token(Comma) |,|
+//@[055:00056) | | | | | | | ├─Token(Comma) |,|
 //@[057:00063) | | | | | | | ├─FunctionArgumentSyntax
 //@[057:00063) | | | | | | | | └─VariableAccessSyntax
 //@[057:00063) | | | | | | | | | └─IdentifierSyntax
@@ -9231,10 +9229,10 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
 //@[103:00108) | | | ├─IdentifierSyntax
 //@[103:00108) | | | | └─Token(Identifier) |range|
 //@[108:00109) | | | ├─Token(LeftParen) |(|
-//@[109:00111) | | | ├─FunctionArgumentSyntax
-//@[109:00110) | | | | ├─IntegerLiteralSyntax
+//@[109:00110) | | | ├─FunctionArgumentSyntax
+//@[109:00110) | | | | └─IntegerLiteralSyntax
 //@[109:00110) | | | | | └─Token(Integer) |0|
-//@[110:00111) | | | | └─Token(Comma) |,|
+//@[110:00111) | | | ├─Token(Comma) |,|
 //@[112:00113) | | | ├─FunctionArgumentSyntax
 //@[112:00113) | | | | └─IntegerLiteralSyntax
 //@[112:00113) | | | | | └─Token(Integer) |3|
@@ -9311,10 +9309,10 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
 //@[121:00126) | | | ├─IdentifierSyntax
 //@[121:00126) | | | | └─Token(Identifier) |range|
 //@[126:00127) | | | ├─Token(LeftParen) |(|
-//@[127:00129) | | | ├─FunctionArgumentSyntax
-//@[127:00128) | | | | ├─IntegerLiteralSyntax
+//@[127:00128) | | | ├─FunctionArgumentSyntax
+//@[127:00128) | | | | └─IntegerLiteralSyntax
 //@[127:00128) | | | | | └─Token(Integer) |0|
-//@[128:00129) | | | | └─Token(Comma) |,|
+//@[128:00129) | | | ├─Token(Comma) |,|
 //@[130:00131) | | | ├─FunctionArgumentSyntax
 //@[130:00131) | | | | └─IntegerLiteralSyntax
 //@[130:00131) | | | | | └─Token(Integer) |3|
@@ -11469,17 +11467,17 @@ resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-1
 //@[009:00022) | | | | | ├─IdentifierSyntax
 //@[009:00022) | | | | | | └─Token(Identifier) |resourceGroup|
 //@[022:00023) | | | | | ├─Token(LeftParen) |(|
-//@[024:00100) | | | | | ├─FunctionArgumentSyntax
-//@[024:00099) | | | | | | ├─PropertyAccessSyntax
+//@[024:00099) | | | | | ├─FunctionArgumentSyntax
+//@[024:00099) | | | | | | └─PropertyAccessSyntax
 //@[024:00084) | | | | | | | ├─FunctionCallSyntax
 //@[024:00029) | | | | | | | | ├─IdentifierSyntax
 //@[024:00029) | | | | | | | | | └─Token(Identifier) |union|
 //@[029:00030) | | | | | | | | ├─Token(LeftParen) |(|
-//@[031:00060) | | | | | | | | ├─FunctionArgumentSyntax
-//@[031:00059) | | | | | | | | | ├─VariableAccessSyntax
+//@[031:00059) | | | | | | | | ├─FunctionArgumentSyntax
+//@[031:00059) | | | | | | | | | └─VariableAccessSyntax
 //@[031:00059) | | | | | | | | | | └─IdentifierSyntax
 //@[031:00059) | | | | | | | | | | | └─Token(Identifier) |defaultLogAnalyticsWorkspace|
-//@[059:00060) | | | | | | | | | └─Token(Comma) |,|
+//@[059:00060) | | | | | | | | ├─Token(Comma) |,|
 //@[061:00082) | | | | | | | | ├─FunctionArgumentSyntax
 //@[061:00082) | | | | | | | | | └─VariableAccessSyntax
 //@[061:00082) | | | | | | | | | | └─IdentifierSyntax
@@ -11488,7 +11486,7 @@ resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-1
 //@[084:00085) | | | | | | | ├─Token(Dot) |.|
 //@[085:00099) | | | | | | | └─IdentifierSyntax
 //@[085:00099) | | | | | | | | └─Token(Identifier) |subscriptionId|
-//@[099:00100) | | | | | | └─Token(Comma) |,|
+//@[099:00100) | | | | | ├─Token(Comma) |,|
 //@[101:00136) | | | | | ├─FunctionArgumentSyntax
 //@[101:00136) | | | | | | └─PropertyAccessSyntax
 //@[101:00122) | | | | | | | ├─VariableAccessSyntax
@@ -11593,8 +11591,8 @@ resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-0
 //@[018:00023) | | | | | | ├─IdentifierSyntax
 //@[018:00023) | | | | | | | └─Token(Identifier) |union|
 //@[023:00024) | | | | | | ├─Token(LeftParen) |(|
-//@[024:00215) | | | | | | ├─FunctionArgumentSyntax
-//@[024:00214) | | | | | | | ├─TernaryOperationSyntax
+//@[024:00214) | | | | | | ├─FunctionArgumentSyntax
+//@[024:00214) | | | | | | | └─TernaryOperationSyntax
 //@[024:00087) | | | | | | | | ├─FunctionCallSyntax
 //@[024:00029) | | | | | | | | | ├─IdentifierSyntax
 //@[024:00029) | | | | | | | | | | └─Token(Identifier) |empty|
@@ -11658,7 +11656,7 @@ resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-0
 //@[007:00009) | | | | | | | | | ├─Token(NewLine) |\r\n|
     },{
 //@[004:00005) | | | | | | | | | └─Token(RightBrace) |}|
-//@[005:00006) | | | | | | | └─Token(Comma) |,|
+//@[005:00006) | | | | | | ├─Token(Comma) |,|
 //@[006:00250) | | | | | | ├─FunctionArgumentSyntax
 //@[006:00250) | | | | | | | └─ObjectSyntax
 //@[006:00007) | | | | | | | | ├─Token(LeftBrace) |{|

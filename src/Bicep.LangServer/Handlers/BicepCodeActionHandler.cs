@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Analyzers;
 using Bicep.Core.CodeAction;
+using Bicep.Core.CodeAction.Fixes;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
-using Bicep.LanguageServer.CodeFixes;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Extensions;
@@ -45,6 +45,7 @@ namespace Bicep.LanguageServer.Handlers
             new ParameterCodeFixProvider("maxLength", new []{"string", "array"}, Array.Empty<SyntaxBase>()),
             new ParameterCodeFixProvider("minValue", new []{"int"}, Array.Empty<SyntaxBase>()),
             new ParameterCodeFixProvider("maxValue", new []{"int"}, Array.Empty<SyntaxBase>()),
+            new MultilineObjectsAndArraysCodeFixProvider(),
         }.ToImmutableArray<ICodeFixProvider>();
 
         public BicepCodeActionHandler(ICompilationManager compilationManager)

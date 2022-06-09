@@ -788,10 +788,10 @@ output noInnerLoopsInOutputs object = {
 //@[015:0020) | | | | | ├─IdentifierSyntax
 //@[015:0020) | | | | | | └─Token(Identifier) |range|
 //@[020:0021) | | | | | ├─Token(LeftParen) |(|
-//@[021:0023) | | | | | ├─FunctionArgumentSyntax
-//@[021:0022) | | | | | | ├─IntegerLiteralSyntax
+//@[021:0022) | | | | | ├─FunctionArgumentSyntax
+//@[021:0022) | | | | | | └─IntegerLiteralSyntax
 //@[021:0022) | | | | | | | └─Token(Integer) |0|
-//@[022:0023) | | | | | | └─Token(Comma) |,|
+//@[022:0023) | | | | | ├─Token(Comma) |,|
 //@[023:0025) | | | | | ├─FunctionArgumentSyntax
 //@[023:0025) | | | | | | └─IntegerLiteralSyntax
 //@[023:0025) | | | | | | | └─Token(Integer) |10|
@@ -832,10 +832,10 @@ output noInnerLoopsInOutputs2 object = {
 //@[015:0020) | | | | | ├─IdentifierSyntax
 //@[015:0020) | | | | | | └─Token(Identifier) |range|
 //@[020:0021) | | | | | ├─Token(LeftParen) |(|
-//@[021:0023) | | | | | ├─FunctionArgumentSyntax
-//@[021:0022) | | | | | | ├─IntegerLiteralSyntax
+//@[021:0022) | | | | | ├─FunctionArgumentSyntax
+//@[021:0022) | | | | | | └─IntegerLiteralSyntax
 //@[021:0022) | | | | | | | └─Token(Integer) |0|
-//@[022:0023) | | | | | | └─Token(Comma) |,|
+//@[022:0023) | | | | | ├─Token(Comma) |,|
 //@[023:0025) | | | | | ├─FunctionArgumentSyntax
 //@[023:0025) | | | | | | └─IntegerLiteralSyntax
 //@[023:0025) | | | | | | | └─Token(Integer) |10|
@@ -860,10 +860,10 @@ output noInnerLoopsInOutputs2 object = {
 //@[017:0022) | | | | | | | | ├─IdentifierSyntax
 //@[017:0022) | | | | | | | | | └─Token(Identifier) |range|
 //@[022:0023) | | | | | | | | ├─Token(LeftParen) |(|
-//@[023:0025) | | | | | | | | ├─FunctionArgumentSyntax
-//@[023:0024) | | | | | | | | | ├─IntegerLiteralSyntax
+//@[023:0024) | | | | | | | | ├─FunctionArgumentSyntax
+//@[023:0024) | | | | | | | | | └─IntegerLiteralSyntax
 //@[023:0024) | | | | | | | | | | └─Token(Integer) |0|
-//@[024:0025) | | | | | | | | | └─Token(Comma) |,|
+//@[024:0025) | | | | | | | | ├─Token(Comma) |,|
 //@[025:0027) | | | | | | | | ├─FunctionArgumentSyntax
 //@[025:0027) | | | | | | | | | └─IntegerLiteralSyntax
 //@[025:0027) | | | | | | | | | | └─Token(Integer) |10|

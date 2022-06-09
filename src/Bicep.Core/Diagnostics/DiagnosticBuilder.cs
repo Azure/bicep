@@ -1392,6 +1392,20 @@ namespace Bicep.Core.Diagnostics
                 "BCP235",
                 $"Specified JSONPath does not exist in the given file or is invalid.");
 
+            public ErrorDiagnostic ExpectedNewLineOrCommaSeparator() => new(
+                TextSpan,
+                "BCP236",
+                "Expected a new line or comma character at this location.");
+
+            public ErrorDiagnostic ExpectedCommaSeparator() => new(
+                TextSpan,
+                "BCP237",
+                "Expected a comma character at this location.");
+
+            public ErrorDiagnostic UnexpectedNewLineAfterCommaSeparator() => new(
+                TextSpan,
+                "BCP238",
+                "Unexpected new line character after a comma.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

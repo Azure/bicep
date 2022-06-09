@@ -169,6 +169,7 @@ resource nic1 'Microsoft.Network/networkInterfaces@2020-05-01' = {
     }
   }
   dependsOn: [
+
     virtualNetworkName
   ]
 }

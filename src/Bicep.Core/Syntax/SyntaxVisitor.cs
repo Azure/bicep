@@ -285,7 +285,7 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.Name);
             this.Visit(syntax.OpenParen);
-            this.VisitNodes(syntax.Arguments);
+            this.VisitNodes(syntax.Children);
             this.Visit(syntax.CloseParen);
         }
 
@@ -295,14 +295,13 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Dot);
             this.Visit(syntax.Name);
             this.Visit(syntax.OpenParen);
-            this.VisitNodes(syntax.Arguments);
+            this.VisitNodes(syntax.Children);
             this.Visit(syntax.CloseParen);
         }
 
         public virtual void VisitFunctionArgumentSyntax(FunctionArgumentSyntax syntax)
         {
             this.Visit(syntax.Expression);
-            this.Visit(syntax.Comma);
         }
 
         public virtual void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
