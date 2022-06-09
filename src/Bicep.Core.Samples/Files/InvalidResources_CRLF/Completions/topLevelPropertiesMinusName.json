@@ -59,7 +59,7 @@
     "detail": "kind (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'BlobStorage' | 'BlockBlobStorage' | 'FileStorage' | 'Storage' | 'StorageV2'`  \nIndicates the type of storage account.  \n"
+      "value": "Type: `'BlobStorage' | 'BlockBlobStorage' | 'FileStorage' | 'Storage' | 'StorageV2' | string`  \nIndicates the type of storage account.  \n"
     },
     "deprecated": false,
     "preselect": true,

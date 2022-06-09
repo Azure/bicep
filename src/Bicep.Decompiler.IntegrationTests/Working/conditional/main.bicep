@@ -95,7 +95,7 @@ resource storageaccountname 'microsoft.storage/storageaccounts@2019-06-01' = {
   sku: {
     name: storageAccountType
   }
-  kind: 'StorageV2'
+  kind: 'storagev2'
   properties: {
   }
 }
