@@ -16,6 +16,6 @@ namespace Bicep.LanguageServer.Providers
             string UnqualifiedName,
             string subscriptionId);
 
-        Task<JsonElement> GetGenericResource(RootConfiguration configuration, AzResourceIdentifier resourceId, string apiVersion, CancellationToken cancellationToken);
+        Task<JsonElement> GetGenericResource(RootConfiguration configuration, AzResourceIdentifier resourceId, string? apiVersion, CancellationToken cancellationToken);
     }
 }
