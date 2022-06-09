@@ -29,7 +29,7 @@
     <PackageReference Include="JsonPatch.Net" Version="1.1.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
     <PackageReference Include="Moq" Version="4.17.2" />
-    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="16.1.25" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="17.0.18" />
   </ItemGroup>
 
   <ItemGroup>
