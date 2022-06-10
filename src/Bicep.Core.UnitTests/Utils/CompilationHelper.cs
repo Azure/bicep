@@ -65,6 +65,23 @@ namespace Bicep.Core.UnitTests.Utils
             return Compile(context, new Compilation(context.Features ?? BicepTestConstants.Features, context.GetNamespaceProvider(), sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer));
         }
 
+
+        public static CompilationResult CompileParameters(CompilationHelperContext context, params (string fileName, string fileContents)[] files)
+        {
+            var bicepFiles = files.Where(x => x.fileName.EndsWith(".bicepparam", StringComparison.InvariantCultureIgnoreCase));
+            bicepFiles.Select(x => x.fileName).Should().Contain("main.bicepparam");
+
+            var systemFiles = files.Where(x => !x.fileName.EndsWith(".bicepparam", StringComparison.InvariantCultureIgnoreCase));
+
+            var (uriDictionary, entryUri) = CreateFileDictionary(bicepFiles);
+            var fileResolver = new InMemoryFileResolver(CreateFileDictionary(systemFiles).files);
+
+            var configuration = BicepTestConstants.BuiltInConfiguration;
+            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(uriDictionary, entryUri, fileResolver, configuration, context.GetFeatures());
+
+            return Compile(context, new Compilation(context.Features ?? BicepTestConstants.Features, context.GetNamespaceProvider(), sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer));
+        }
+
         public static CompilationResult Compile(IAzResourceTypeLoader resourceTypeLoader, params (string fileName, string fileContents)[] files)
             => Compile(new CompilationHelperContext(AzResourceTypeLoader: resourceTypeLoader), files);
 

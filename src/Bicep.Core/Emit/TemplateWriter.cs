@@ -191,6 +191,16 @@ namespace Bicep.Core.Emit
 
             return result;
         }
+/*
+"{\r\n  \"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\",\r\n  
+\"languageVersion\": \"1.9-experimental\",\r\n  \"contentVersion\": \"1.0.0.0\",\r\n  \"metadata\": {\r\n    
+\"EXPERIMENTAL_WARNING\": \"Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. 
+Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!\",\r\n    
+\"_generator\": {\r\n      \"name\": \"bicep\",\r\n      \"version\": \"dev\",\r\n      \"templateHash\": \"1249206478152780556\"\r\n    }\r\n  },\r\n  \"resources\": {}\r\n}"
+
+
+
+*/
 
         private void EmitParameter(JsonTextWriter jsonWriter, ParameterSymbol parameterSymbol, ExpressionEmitter emitter)
         {

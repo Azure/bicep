@@ -406,7 +406,7 @@ namespace Bicep.Core.UnitTests.Parsing
         //@[012:0017) | | └─Token(Integer) |12|
         //@[017:0018) ├─Token(NewLine) |\n|
 
-        //set myint = 12
+        //set myint = 12 
 
         //Syntax for new declaration type? Can I use existing syntax for param, intentifier, default value?
         [TestMethod]
