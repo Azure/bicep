@@ -36,15 +36,25 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
 
                 if (jToken is not null)
                 {
-                    foreach (var child in jToken.Children())
+                    var propSnippet = new CompletionItem()
                     {
-                        var completionItem = child.ToObject<CompletionItem>();
-                        if (completionItem is not null &&
-                            completionItem.InsertTextFormat == InsertTextFormat.Plaintext)
-                        {
-                            updatedCompletions.Add(completionItem);
-                        }
-                    }
+                        Label = "prop",
+                        InsertText = "public ${1:int} ${2:MyProperty} { get; set; }$0",
+                        InsertTextFormat = InsertTextFormat.Snippet,
+                        Kind = CompletionItemKind.Snippet,
+                    };
+                    updatedCompletions.Add(propSnippet);
+                    //foreach (var child in jToken.Children())
+                    //{
+                    //    var completionItem = child.ToObject<CompletionItem>();
+                    //    if (completionItem is not null &&
+                    //        completionItem.InsertTextFormat == InsertTextFormat.Snippet)
+                    //    {
+                    //        completionItem.InsertText = completionItem.TextEdit?.NewText;
+                    //        completionItem.Kind = CompletionItemKind.Snippet;
+                    //        updatedCompletions.Add(completionItem);
+                    //    }
+                    //}
 
                     return JToken.FromObject(updatedCompletions);
                 }
