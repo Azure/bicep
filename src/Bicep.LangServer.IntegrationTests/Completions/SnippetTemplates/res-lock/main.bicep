@@ -1,4 +1,4 @@
-﻿// $1 = resourceGroupLock
+﻿// $1 = lock
 // $2 = 'name'
 // $3 = 'NotSpecified'
 
