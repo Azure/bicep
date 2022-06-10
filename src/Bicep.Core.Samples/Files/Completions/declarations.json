@@ -2477,7 +2477,7 @@
     "detail": "",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource lock 'Microsoft.Authorization/locks@2017-04-01' = {\n  name: 'name'\n  scope: {3:scopeResource}\n  properties: {\n    level: 'NotSpecified'\n  }\n}\n\n```"
+      "value": "```bicep\nresource lock 'Microsoft.Authorization/locks@2017-04-01' = {\n  name: 'name'\n  scope: scopeResource\n  properties: {\n    level: 'NotSpecified'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2486,7 +2486,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:lock} 'Microsoft.Authorization/locks@2017-04-01' = {\n  name: ${2:'name'}\n  scope: {3:scopeResource}\n  properties: {\n    level: ${4|'NotSpecified','CanNotDelete','ReadOnly'|}\n  }\n}\n"
+      "newText": "resource ${1:lock} 'Microsoft.Authorization/locks@2017-04-01' = {\n  name: ${2:'name'}\n  scope: ${3:scopeResource}\n  properties: {\n    level: ${4|'NotSpecified','CanNotDelete','ReadOnly'|}\n  }\n}\n"
     },
     "command": {
       "title": "top level snippet completion",
