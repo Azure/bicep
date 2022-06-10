@@ -3196,5 +3196,86 @@ resource existingStg4 'Microsoft.Storage/storageAccounts@2021-04-01' existing = 
 ");
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_3356()
+        {
+            var result = CompilationHelper.Compile(@"
+resource foo 'Microsoft.Storage/storageAccounts@2021-09-00' = {
+  name: 'test'
+  kind: 'StorageV2'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+    capacity: 1
+  }
+  extendedLocation: {
+    type: 'NotSpecified'
+  }
+  scale: {
+    capacity: 2
+    minimum: 1
+  }
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      clientId: 'client1'
+      principalId: 'principal1'
+    }
+  }
+}
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2021-09-00\" does not have types available.")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_3356_2()
+        {
+            var result = CompilationHelper.Compile(@"
+resource foo 'Microsoft.Storage/storageAccounts@2021-09-00' = {
+  name: 'test'
+  kind: 'StorageV2'
+  location: resourceGroup().location
+  sku: {
+    name: 123
+    capacity: '1'
+
+  }
+  extendedLocation: {
+    type: 1
+  }
+  scale: {
+    capacity: '2'
+    minimum: 1
+  }
+  identity: {
+    type: 'noType'
+    tenantId: 3
+    userAssignedIdentities: {
+      clientId: 1
+      principalId: 2
+    }
+  }
+}
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2021-09-00\" does not have types available."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"int\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"capacity\" expected a value of type \"int\" but the provided value is of type \"'1'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"type\" expected a value of type \"'ArcZone' | 'CustomLocation' | 'EdgeZone' | 'NotSpecified' | string\" but the provided value is of type \"int\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"capacity\" expected a value of type \"int\" but the provided value is of type \"'2'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"tenantId\" expected a value of type \"string\" but the provided value is of type \"int\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"clientId\" expected a value of type \"string\" but the provided value is of type \"int\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"principalId\" expected a value of type \"string\" but the provided value is of type \"int\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+            });
+        }
     }
 }
