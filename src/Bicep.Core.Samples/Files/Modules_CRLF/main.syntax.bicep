@@ -710,15 +710,15 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 //@[020:0026) | | | | | | ├─IdentifierSyntax
 //@[020:0026) | | | | | | | └─Token(Identifier) |concat|
 //@[026:0027) | | | | | | ├─Token(LeftParen) |(|
-//@[027:0050) | | | | | | ├─FunctionArgumentSyntax
-//@[027:0049) | | | | | | | ├─PropertyAccessSyntax
+//@[027:0049) | | | | | | ├─FunctionArgumentSyntax
+//@[027:0049) | | | | | | | └─PropertyAccessSyntax
 //@[027:0046) | | | | | | | | ├─VariableAccessSyntax
 //@[027:0046) | | | | | | | | | └─IdentifierSyntax
 //@[027:0046) | | | | | | | | | | └─Token(Identifier) |resWithDependencies|
 //@[046:0047) | | | | | | | | ├─Token(Dot) |.|
 //@[047:0049) | | | | | | | | └─IdentifierSyntax
 //@[047:0049) | | | | | | | | | └─Token(Identifier) |id|
-//@[049:0050) | | | | | | | └─Token(Comma) |,|
+//@[049:0050) | | | | | | ├─Token(Comma) |,|
 //@[051:0096) | | | | | | ├─FunctionArgumentSyntax
 //@[051:0096) | | | | | | | └─PropertyAccessSyntax
 //@[051:0091) | | | | | | | | ├─VariableAccessSyntax
@@ -810,15 +810,15 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 //@[020:0026) | | | | | | ├─IdentifierSyntax
 //@[020:0026) | | | | | | | └─Token(Identifier) |concat|
 //@[026:0027) | | | | | | ├─Token(LeftParen) |(|
-//@[027:0050) | | | | | | ├─FunctionArgumentSyntax
-//@[027:0049) | | | | | | | ├─PropertyAccessSyntax
+//@[027:0049) | | | | | | ├─FunctionArgumentSyntax
+//@[027:0049) | | | | | | | └─PropertyAccessSyntax
 //@[027:0046) | | | | | | | | ├─VariableAccessSyntax
 //@[027:0046) | | | | | | | | | └─IdentifierSyntax
 //@[027:0046) | | | | | | | | | | └─Token(Identifier) |resWithDependencies|
 //@[046:0047) | | | | | | | | ├─Token(Dot) |.|
 //@[047:0049) | | | | | | | | └─IdentifierSyntax
 //@[047:0049) | | | | | | | | | └─Token(Identifier) |id|
-//@[049:0050) | | | | | | | └─Token(Comma) |,|
+//@[049:0050) | | | | | | ├─Token(Comma) |,|
 //@[051:0096) | | | | | | ├─FunctionArgumentSyntax
 //@[051:0096) | | | | | | | └─PropertyAccessSyntax
 //@[051:0091) | | | | | | | | ├─VariableAccessSyntax
@@ -1307,10 +1307,10 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
 //@[018:0024) | | | | | | | ├─IdentifierSyntax
 //@[018:0024) | | | | | | | | └─Token(Identifier) |concat|
 //@[024:0025) | | | | | | | ├─Token(LeftParen) |(|
-//@[025:0029) | | | | | | | ├─FunctionArgumentSyntax
-//@[025:0028) | | | | | | | | ├─StringSyntax
+//@[025:0028) | | | | | | | ├─FunctionArgumentSyntax
+//@[025:0028) | | | | | | | | └─StringSyntax
 //@[025:0028) | | | | | | | | | └─Token(StringComplete) |'a'|
-//@[028:0029) | | | | | | | | └─Token(Comma) |,|
+//@[028:0029) | | | | | | | ├─Token(Comma) |,|
 //@[030:0031) | | | | | | | ├─FunctionArgumentSyntax
 //@[030:0031) | | | | | | | | └─VariableAccessSyntax
 //@[030:0031) | | | | | | | | | └─IdentifierSyntax
@@ -1386,10 +1386,10 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@[026:0031) | | | | | | | | ├─IdentifierSyntax
 //@[026:0031) | | | | | | | | | └─Token(Identifier) |range|
 //@[031:0032) | | | | | | | | ├─Token(LeftParen) |(|
-//@[032:0034) | | | | | | | | ├─FunctionArgumentSyntax
-//@[032:0033) | | | | | | | | | ├─IntegerLiteralSyntax
+//@[032:0033) | | | | | | | | ├─FunctionArgumentSyntax
+//@[032:0033) | | | | | | | | | └─IntegerLiteralSyntax
 //@[032:0033) | | | | | | | | | | └─Token(Integer) |0|
-//@[033:0034) | | | | | | | | | └─Token(Comma) |,|
+//@[033:0034) | | | | | | | | ├─Token(Comma) |,|
 //@[034:0035) | | | | | | | | ├─FunctionArgumentSyntax
 //@[034:0035) | | | | | | | | | └─IntegerLiteralSyntax
 //@[034:0035) | | | | | | | | | | └─Token(Integer) |3|
@@ -1399,19 +1399,19 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@[038:0044) | | | | | | | | ├─IdentifierSyntax
 //@[038:0044) | | | | | | | | | └─Token(Identifier) |concat|
 //@[044:0045) | | | | | | | | ├─Token(LeftParen) |(|
-//@[045:0053) | | | | | | | | ├─FunctionArgumentSyntax
-//@[045:0052) | | | | | | | | | ├─StringSyntax
+//@[045:0052) | | | | | | | | ├─FunctionArgumentSyntax
+//@[045:0052) | | | | | | | | | └─StringSyntax
 //@[045:0052) | | | | | | | | | | └─Token(StringComplete) |'test-'|
-//@[052:0053) | | | | | | | | | └─Token(Comma) |,|
-//@[054:0056) | | | | | | | | ├─FunctionArgumentSyntax
-//@[054:0055) | | | | | | | | | ├─VariableAccessSyntax
+//@[052:0053) | | | | | | | | ├─Token(Comma) |,|
+//@[054:0055) | | | | | | | | ├─FunctionArgumentSyntax
+//@[054:0055) | | | | | | | | | └─VariableAccessSyntax
 //@[054:0055) | | | | | | | | | | └─IdentifierSyntax
 //@[054:0055) | | | | | | | | | | | └─Token(Identifier) |i|
-//@[055:0056) | | | | | | | | | └─Token(Comma) |,|
-//@[057:0061) | | | | | | | | ├─FunctionArgumentSyntax
-//@[057:0060) | | | | | | | | | ├─StringSyntax
+//@[055:0056) | | | | | | | | ├─Token(Comma) |,|
+//@[057:0060) | | | | | | | | ├─FunctionArgumentSyntax
+//@[057:0060) | | | | | | | | | └─StringSyntax
 //@[057:0060) | | | | | | | | | | └─Token(StringComplete) |'-'|
-//@[060:0061) | | | | | | | | | └─Token(Comma) |,|
+//@[060:0061) | | | | | | | | ├─Token(Comma) |,|
 //@[062:0073) | | | | | | | | ├─FunctionArgumentSyntax
 //@[062:0073) | | | | | | | | | └─PropertyAccessSyntax
 //@[062:0068) | | | | | | | | | | ├─VariableAccessSyntax
@@ -1822,10 +1822,10 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@[019:0024) | | | | | | | | | ├─IdentifierSyntax
 //@[019:0024) | | | | | | | | | | └─Token(Identifier) |range|
 //@[024:0025) | | | | | | | | | ├─Token(LeftParen) |(|
-//@[025:0027) | | | | | | | | | ├─FunctionArgumentSyntax
-//@[025:0026) | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[025:0026) | | | | | | | | | ├─FunctionArgumentSyntax
+//@[025:0026) | | | | | | | | | | └─IntegerLiteralSyntax
 //@[025:0026) | | | | | | | | | | | └─Token(Integer) |0|
-//@[026:0027) | | | | | | | | | | └─Token(Comma) |,|
+//@[026:0027) | | | | | | | | | ├─Token(Comma) |,|
 //@[027:0029) | | | | | | | | | ├─FunctionArgumentSyntax
 //@[027:0029) | | | | | | | | | | └─IntegerLiteralSyntax
 //@[027:0029) | | | | | | | | | | | └─Token(Integer) |10|
@@ -1852,10 +1852,10 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@[019:0024) | | | | | | | | | ├─IdentifierSyntax
 //@[019:0024) | | | | | | | | | | └─Token(Identifier) |range|
 //@[024:0025) | | | | | | | | | ├─Token(LeftParen) |(|
-//@[025:0027) | | | | | | | | | ├─FunctionArgumentSyntax
-//@[025:0026) | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[025:0026) | | | | | | | | | ├─FunctionArgumentSyntax
+//@[025:0026) | | | | | | | | | | └─IntegerLiteralSyntax
 //@[025:0026) | | | | | | | | | | | └─Token(Integer) |1|
-//@[026:0027) | | | | | | | | | | └─Token(Comma) |,|
+//@[026:0027) | | | | | | | | | ├─Token(Comma) |,|
 //@[027:0028) | | | | | | | | | ├─FunctionArgumentSyntax
 //@[027:0028) | | | | | | | | | | └─IntegerLiteralSyntax
 //@[027:0028) | | | | | | | | | | | └─Token(Integer) |2|
@@ -1890,10 +1890,10 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@[021:0026) | | | | | | | | | | | ├─IdentifierSyntax
 //@[021:0026) | | | | | | | | | | | | └─Token(Identifier) |range|
 //@[026:0027) | | | | | | | | | | | ├─Token(LeftParen) |(|
-//@[027:0029) | | | | | | | | | | | ├─FunctionArgumentSyntax
-//@[027:0028) | | | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[027:0028) | | | | | | | | | | | ├─FunctionArgumentSyntax
+//@[027:0028) | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[027:0028) | | | | | | | | | | | | | └─Token(Integer) |2|
-//@[028:0029) | | | | | | | | | | | | └─Token(Comma) |,|
+//@[028:0029) | | | | | | | | | | | ├─Token(Comma) |,|
 //@[029:0030) | | | | | | | | | | | ├─FunctionArgumentSyntax
 //@[029:0030) | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[029:0030) | | | | | | | | | | | | | └─Token(Integer) |3|
@@ -1923,10 +1923,10 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@[019:0024) | | | | | | | | | ├─IdentifierSyntax
 //@[019:0024) | | | | | | | | | | └─Token(Identifier) |range|
 //@[024:0025) | | | | | | | | | ├─Token(LeftParen) |(|
-//@[025:0027) | | | | | | | | | ├─FunctionArgumentSyntax
-//@[025:0026) | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[025:0026) | | | | | | | | | ├─FunctionArgumentSyntax
+//@[025:0026) | | | | | | | | | | └─IntegerLiteralSyntax
 //@[025:0026) | | | | | | | | | | | └─Token(Integer) |4|
-//@[026:0027) | | | | | | | | | | └─Token(Comma) |,|
+//@[026:0027) | | | | | | | | | ├─Token(Comma) |,|
 //@[027:0028) | | | | | | | | | ├─FunctionArgumentSyntax
 //@[027:0028) | | | | | | | | | | └─IntegerLiteralSyntax
 //@[027:0028) | | | | | | | | | | | └─Token(Integer) |4|
@@ -1988,10 +1988,10 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@[021:0026) | | | | | | | | | | | ├─IdentifierSyntax
 //@[021:0026) | | | | | | | | | | | | └─Token(Identifier) |range|
 //@[026:0027) | | | | | | | | | | | ├─Token(LeftParen) |(|
-//@[027:0029) | | | | | | | | | | | ├─FunctionArgumentSyntax
-//@[027:0028) | | | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[027:0028) | | | | | | | | | | | ├─FunctionArgumentSyntax
+//@[027:0028) | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[027:0028) | | | | | | | | | | | | | └─Token(Integer) |7|
-//@[028:0029) | | | | | | | | | | | | └─Token(Comma) |,|
+//@[028:0029) | | | | | | | | | | | ├─Token(Comma) |,|
 //@[029:0030) | | | | | | | | | | | ├─FunctionArgumentSyntax
 //@[029:0030) | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[029:0030) | | | | | | | | | | | | | └─Token(Integer) |7|
@@ -2073,10 +2073,10 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[025:0030) | | | | | | | | | ├─IdentifierSyntax
 //@[025:0030) | | | | | | | | | | └─Token(Identifier) |range|
 //@[030:0031) | | | | | | | | | ├─Token(LeftParen) |(|
-//@[031:0033) | | | | | | | | | ├─FunctionArgumentSyntax
-//@[031:0032) | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[031:0032) | | | | | | | | | ├─FunctionArgumentSyntax
+//@[031:0032) | | | | | | | | | | └─IntegerLiteralSyntax
 //@[031:0032) | | | | | | | | | | | └─Token(Integer) |0|
-//@[032:0033) | | | | | | | | | | └─Token(Comma) |,|
+//@[032:0033) | | | | | | | | | ├─Token(Comma) |,|
 //@[033:0035) | | | | | | | | | ├─FunctionArgumentSyntax
 //@[033:0035) | | | | | | | | | | └─IntegerLiteralSyntax
 //@[033:0035) | | | | | | | | | | | └─Token(Integer) |10|
@@ -2115,10 +2115,10 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[025:0030) | | | | | | | | | ├─IdentifierSyntax
 //@[025:0030) | | | | | | | | | | └─Token(Identifier) |range|
 //@[030:0031) | | | | | | | | | ├─Token(LeftParen) |(|
-//@[031:0033) | | | | | | | | | ├─FunctionArgumentSyntax
-//@[031:0032) | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[031:0032) | | | | | | | | | ├─FunctionArgumentSyntax
+//@[031:0032) | | | | | | | | | | └─IntegerLiteralSyntax
 //@[031:0032) | | | | | | | | | | | └─Token(Integer) |1|
-//@[032:0033) | | | | | | | | | | └─Token(Comma) |,|
+//@[032:0033) | | | | | | | | | ├─Token(Comma) |,|
 //@[033:0034) | | | | | | | | | ├─FunctionArgumentSyntax
 //@[033:0034) | | | | | | | | | | └─IntegerLiteralSyntax
 //@[033:0034) | | | | | | | | | | | └─Token(Integer) |2|
@@ -2165,10 +2165,10 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[027:0032) | | | | | | | | | | | ├─IdentifierSyntax
 //@[027:0032) | | | | | | | | | | | | └─Token(Identifier) |range|
 //@[032:0033) | | | | | | | | | | | ├─Token(LeftParen) |(|
-//@[033:0035) | | | | | | | | | | | ├─FunctionArgumentSyntax
-//@[033:0034) | | | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[033:0034) | | | | | | | | | | | ├─FunctionArgumentSyntax
+//@[033:0034) | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[033:0034) | | | | | | | | | | | | | └─Token(Integer) |2|
-//@[034:0035) | | | | | | | | | | | | └─Token(Comma) |,|
+//@[034:0035) | | | | | | | | | | | ├─Token(Comma) |,|
 //@[035:0036) | | | | | | | | | | | ├─FunctionArgumentSyntax
 //@[035:0036) | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[035:0036) | | | | | | | | | | | | | └─Token(Integer) |3|
@@ -2210,10 +2210,10 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[025:0030) | | | | | | | | | ├─IdentifierSyntax
 //@[025:0030) | | | | | | | | | | └─Token(Identifier) |range|
 //@[030:0031) | | | | | | | | | ├─Token(LeftParen) |(|
-//@[031:0033) | | | | | | | | | ├─FunctionArgumentSyntax
-//@[031:0032) | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[031:0032) | | | | | | | | | ├─FunctionArgumentSyntax
+//@[031:0032) | | | | | | | | | | └─IntegerLiteralSyntax
 //@[031:0032) | | | | | | | | | | | └─Token(Integer) |4|
-//@[032:0033) | | | | | | | | | | └─Token(Comma) |,|
+//@[032:0033) | | | | | | | | | ├─Token(Comma) |,|
 //@[033:0034) | | | | | | | | | ├─FunctionArgumentSyntax
 //@[033:0034) | | | | | | | | | | └─IntegerLiteralSyntax
 //@[033:0034) | | | | | | | | | | | └─Token(Integer) |4|
@@ -2284,10 +2284,10 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[021:0026) | | | | | | | | | | | ├─IdentifierSyntax
 //@[021:0026) | | | | | | | | | | | | └─Token(Identifier) |range|
 //@[026:0027) | | | | | | | | | | | ├─Token(LeftParen) |(|
-//@[027:0029) | | | | | | | | | | | ├─FunctionArgumentSyntax
-//@[027:0028) | | | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[027:0028) | | | | | | | | | | | ├─FunctionArgumentSyntax
+//@[027:0028) | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[027:0028) | | | | | | | | | | | | | └─Token(Integer) |7|
-//@[028:0029) | | | | | | | | | | | | └─Token(Comma) |,|
+//@[028:0029) | | | | | | | | | | | ├─Token(Comma) |,|
 //@[029:0030) | | | | | | | | | | | ├─FunctionArgumentSyntax
 //@[029:0030) | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[029:0030) | | | | | | | | | | | | | └─Token(Integer) |7|
@@ -2330,10 +2330,10 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[088:0093) | | | ├─IdentifierSyntax
 //@[088:0093) | | | | └─Token(Identifier) |range|
 //@[093:0094) | | | ├─Token(LeftParen) |(|
-//@[094:0096) | | | ├─FunctionArgumentSyntax
-//@[094:0095) | | | | ├─IntegerLiteralSyntax
+//@[094:0095) | | | ├─FunctionArgumentSyntax
+//@[094:0095) | | | | └─IntegerLiteralSyntax
 //@[094:0095) | | | | | └─Token(Integer) |0|
-//@[095:0096) | | | | └─Token(Comma) |,|
+//@[095:0096) | | | ├─Token(Comma) |,|
 //@[096:0097) | | | ├─FunctionArgumentSyntax
 //@[096:0097) | | | | └─IntegerLiteralSyntax
 //@[096:0097) | | | | | └─Token(Integer) |1|
@@ -2382,10 +2382,10 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[019:0024) | | | | | | | | | | ├─IdentifierSyntax
 //@[019:0024) | | | | | | | | | | | └─Token(Identifier) |range|
 //@[024:0025) | | | | | | | | | | ├─Token(LeftParen) |(|
-//@[025:0027) | | | | | | | | | | ├─FunctionArgumentSyntax
-//@[025:0026) | | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[025:0026) | | | | | | | | | | ├─FunctionArgumentSyntax
+//@[025:0026) | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[025:0026) | | | | | | | | | | | | └─Token(Integer) |0|
-//@[026:0027) | | | | | | | | | | | └─Token(Comma) |,|
+//@[026:0027) | | | | | | | | | | ├─Token(Comma) |,|
 //@[027:0029) | | | | | | | | | | ├─FunctionArgumentSyntax
 //@[027:0029) | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[027:0029) | | | | | | | | | | | | └─Token(Integer) |10|
@@ -2417,10 +2417,10 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[019:0024) | | | | | | | | | | ├─IdentifierSyntax
 //@[019:0024) | | | | | | | | | | | └─Token(Identifier) |range|
 //@[024:0025) | | | | | | | | | | ├─Token(LeftParen) |(|
-//@[025:0027) | | | | | | | | | | ├─FunctionArgumentSyntax
-//@[025:0026) | | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[025:0026) | | | | | | | | | | ├─FunctionArgumentSyntax
+//@[025:0026) | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[025:0026) | | | | | | | | | | | | └─Token(Integer) |1|
-//@[026:0027) | | | | | | | | | | | └─Token(Comma) |,|
+//@[026:0027) | | | | | | | | | | ├─Token(Comma) |,|
 //@[027:0028) | | | | | | | | | | ├─FunctionArgumentSyntax
 //@[027:0028) | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[027:0028) | | | | | | | | | | | | └─Token(Integer) |2|
@@ -2460,10 +2460,10 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[021:0026) | | | | | | | | | | | | ├─IdentifierSyntax
 //@[021:0026) | | | | | | | | | | | | | └─Token(Identifier) |range|
 //@[026:0027) | | | | | | | | | | | | ├─Token(LeftParen) |(|
-//@[027:0029) | | | | | | | | | | | | ├─FunctionArgumentSyntax
-//@[027:0028) | | | | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[027:0028) | | | | | | | | | | | | ├─FunctionArgumentSyntax
+//@[027:0028) | | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[027:0028) | | | | | | | | | | | | | | └─Token(Integer) |2|
-//@[028:0029) | | | | | | | | | | | | | └─Token(Comma) |,|
+//@[028:0029) | | | | | | | | | | | | ├─Token(Comma) |,|
 //@[029:0030) | | | | | | | | | | | | ├─FunctionArgumentSyntax
 //@[029:0030) | | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[029:0030) | | | | | | | | | | | | | | └─Token(Integer) |3|
@@ -2493,10 +2493,10 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[019:0024) | | | | | | | | | | ├─IdentifierSyntax
 //@[019:0024) | | | | | | | | | | | └─Token(Identifier) |range|
 //@[024:0025) | | | | | | | | | | ├─Token(LeftParen) |(|
-//@[025:0027) | | | | | | | | | | ├─FunctionArgumentSyntax
-//@[025:0026) | | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[025:0026) | | | | | | | | | | ├─FunctionArgumentSyntax
+//@[025:0026) | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[025:0026) | | | | | | | | | | | | └─Token(Integer) |4|
-//@[026:0027) | | | | | | | | | | | └─Token(Comma) |,|
+//@[026:0027) | | | | | | | | | | ├─Token(Comma) |,|
 //@[027:0028) | | | | | | | | | | ├─FunctionArgumentSyntax
 //@[027:0028) | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[027:0028) | | | | | | | | | | | | └─Token(Integer) |4|
@@ -2563,10 +2563,10 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[021:0026) | | | | | | | | | | | | ├─IdentifierSyntax
 //@[021:0026) | | | | | | | | | | | | | └─Token(Identifier) |range|
 //@[026:0027) | | | | | | | | | | | | ├─Token(LeftParen) |(|
-//@[027:0029) | | | | | | | | | | | | ├─FunctionArgumentSyntax
-//@[027:0028) | | | | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[027:0028) | | | | | | | | | | | | ├─FunctionArgumentSyntax
+//@[027:0028) | | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[027:0028) | | | | | | | | | | | | | | └─Token(Integer) |7|
-//@[028:0029) | | | | | | | | | | | | | └─Token(Comma) |,|
+//@[028:0029) | | | | | | | | | | | | ├─Token(Comma) |,|
 //@[029:0030) | | | | | | | | | | | | ├─FunctionArgumentSyntax
 //@[029:0030) | | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[029:0030) | | | | | | | | | | | | | | └─Token(Integer) |7|
@@ -2682,10 +2682,10 @@ module secureModule1 'child/secureParams.bicep' = {
 //@[027:0036) | | | | | | ├─IdentifierSyntax
 //@[027:0036) | | | | | | | └─Token(Identifier) |getSecret|
 //@[036:0037) | | | | | | ├─Token(LeftParen) |(|
-//@[037:0048) | | | | | | ├─FunctionArgumentSyntax
-//@[037:0047) | | | | | | | ├─StringSyntax
+//@[037:0047) | | | | | | ├─FunctionArgumentSyntax
+//@[037:0047) | | | | | | | └─StringSyntax
 //@[037:0047) | | | | | | | | └─Token(StringComplete) |'mySecret'|
-//@[047:0048) | | | | | | | └─Token(Comma) |,|
+//@[047:0048) | | | | | | ├─Token(Comma) |,|
 //@[048:0063) | | | | | | ├─FunctionArgumentSyntax
 //@[048:0063) | | | | | | | └─StringSyntax
 //@[048:0063) | | | | | | | | └─Token(StringComplete) |'secretVersion'|
@@ -2794,10 +2794,10 @@ module secureModule2 'child/secureParams.bicep' = {
 //@[033:0042) | | | | | | ├─IdentifierSyntax
 //@[033:0042) | | | | | | | └─Token(Identifier) |getSecret|
 //@[042:0043) | | | | | | ├─Token(LeftParen) |(|
-//@[043:0054) | | | | | | ├─FunctionArgumentSyntax
-//@[043:0053) | | | | | | | ├─StringSyntax
+//@[043:0053) | | | | | | ├─FunctionArgumentSyntax
+//@[043:0053) | | | | | | | └─StringSyntax
 //@[043:0053) | | | | | | | | └─Token(StringComplete) |'mySecret'|
-//@[053:0054) | | | | | | | └─Token(Comma) |,|
+//@[053:0054) | | | | | | ├─Token(Comma) |,|
 //@[054:0069) | | | | | | ├─FunctionArgumentSyntax
 //@[054:0069) | | | | | | | └─StringSyntax
 //@[054:0069) | | | | | | | | └─Token(StringComplete) |'secretVersion'|
@@ -2994,15 +2994,15 @@ resource loopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = [for vault i
 //@[009:0022) | | | | | ├─IdentifierSyntax
 //@[009:0022) | | | | | | └─Token(Identifier) |resourceGroup|
 //@[022:0023) | | | | | ├─Token(LeftParen) |(|
-//@[023:0038) | | | | | ├─FunctionArgumentSyntax
-//@[023:0037) | | | | | | ├─PropertyAccessSyntax
+//@[023:0037) | | | | | ├─FunctionArgumentSyntax
+//@[023:0037) | | | | | | └─PropertyAccessSyntax
 //@[023:0028) | | | | | | | ├─VariableAccessSyntax
 //@[023:0028) | | | | | | | | └─IdentifierSyntax
 //@[023:0028) | | | | | | | | | └─Token(Identifier) |vault|
 //@[028:0029) | | | | | | | ├─Token(Dot) |.|
 //@[029:0037) | | | | | | | └─IdentifierSyntax
 //@[029:0037) | | | | | | | | └─Token(Identifier) |vaultSub|
-//@[037:0038) | | | | | | └─Token(Comma) |,|
+//@[037:0038) | | | | | ├─Token(Comma) |,|
 //@[039:0052) | | | | | ├─FunctionArgumentSyntax
 //@[039:0052) | | | | | | └─PropertyAccessSyntax
 //@[039:0044) | | | | | | | ├─VariableAccessSyntax
@@ -3115,15 +3115,15 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 //@[036:0045) | | | | | | | ├─IdentifierSyntax
 //@[036:0045) | | | | | | | | └─Token(Identifier) |getSecret|
 //@[045:0046) | | | | | | | ├─Token(LeftParen) |(|
-//@[046:0058) | | | | | | | ├─FunctionArgumentSyntax
-//@[046:0057) | | | | | | | | ├─PropertyAccessSyntax
+//@[046:0057) | | | | | | | ├─FunctionArgumentSyntax
+//@[046:0057) | | | | | | | | └─PropertyAccessSyntax
 //@[046:0052) | | | | | | | | | ├─VariableAccessSyntax
 //@[046:0052) | | | | | | | | | | └─IdentifierSyntax
 //@[046:0052) | | | | | | | | | | | └─Token(Identifier) |secret|
 //@[052:0053) | | | | | | | | | ├─Token(Dot) |.|
 //@[053:0057) | | | | | | | | | └─IdentifierSyntax
 //@[053:0057) | | | | | | | | | | └─Token(Identifier) |name|
-//@[057:0058) | | | | | | | | └─Token(Comma) |,|
+//@[057:0058) | | | | | | | ├─Token(Comma) |,|
 //@[059:0073) | | | | | | | ├─FunctionArgumentSyntax
 //@[059:0073) | | | | | | | | └─PropertyAccessSyntax
 //@[059:0065) | | | | | | | | | ├─VariableAccessSyntax

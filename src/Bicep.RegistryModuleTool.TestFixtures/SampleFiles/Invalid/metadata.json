@@ -1,6 +1,6 @@
 {
-  "$schema": "https://aka.ms/bicep-registry-module-metadata-file-schema#",
+  "$schema": "https://aka.ms/bicep-registry-module-metadata-file-schema-v2#",
   "name": "Test module",
-  "description": "",
+  "summary": "",
   "owner": "42"
 }

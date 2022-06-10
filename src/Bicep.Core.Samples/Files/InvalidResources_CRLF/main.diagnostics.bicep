@@ -71,9 +71,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[009:012) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |foo|
 //@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[058:058) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) ||
 //@[063:064) [BCP057 (Error)] The name "b" does not exist in the current context. (CodeDescription: none) |b|
-//@[065:065) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) ||
 }
 
 // simulate typing if condition
@@ -542,7 +540,7 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
 
 
 resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
-//@[009:028) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |loopForRuntimeCheck|
+//@[009:028) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |loopForRuntimeCheck|
   name: 'test'
   location: 'test'
 //@[012:018) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'test' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'test'|
@@ -559,7 +557,7 @@ resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' =
 }
 
 resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
-//@[009:029) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |loopForRuntimeCheck2|
+//@[009:029) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |loopForRuntimeCheck2|
   name: runtimeCheckVar2
 //@[008:024) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Network/dnsZones" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimeCheckVar2" -> "runtimeCheckVar" -> "loopForRuntimeCheck"). Properties of loopForRuntimeCheck which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeCheckVar2|
   location: 'test'
@@ -567,7 +565,7 @@ resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thi
 }]
 
 resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
-//@[009:029) [BCP179 (Warning)] The loop item variable "otherThing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |loopForRuntimeCheck3|
+//@[009:029) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "otherThing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |loopForRuntimeCheck3|
   name: loopForRuntimeCheck[0].properties.zoneType
 //@[008:041) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Network/dnsZones" type, which requires a value that can be calculated at the start of the deployment. Properties of loopForRuntimeCheck which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |loopForRuntimeCheck[0].properties|
   location: 'test'
@@ -577,7 +575,7 @@ resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for oth
 var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
 var varForRuntimeCheck4b = varForRuntimeCheck4a
 resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
-//@[009:029) [BCP179 (Warning)] The loop item variable "otherThing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |loopForRuntimeCheck4|
+//@[009:029) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "otherThing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |loopForRuntimeCheck4|
   name: varForRuntimeCheck4b
 //@[008:028) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Network/dnsZones" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("varForRuntimeCheck4b" -> "varForRuntimeCheck4a" -> "loopForRuntimeCheck"). Properties of loopForRuntimeCheck which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |varForRuntimeCheck4b|
   location: 'test'
@@ -1133,7 +1131,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions_if = nestedDiscriminatorMissin
 Nested discriminator missing key (loop)
 */
 resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
-//@[009:042) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |nestedDiscriminatorMissingKey_for|
+//@[009:042) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |nestedDiscriminatorMissingKey_for|
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   location: 'l'
@@ -1161,7 +1159,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissi
 Nested discriminator missing key (filtered loop)
 */
 resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
-//@[009:045) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |nestedDiscriminatorMissingKey_for_if|
+//@[009:045) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |nestedDiscriminatorMissingKey_for_if|
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   location: 'l'
@@ -1262,7 +1260,7 @@ var nestedDiscriminatorArrayIndexCompletions_if = nestedDiscriminator_if.propert
 Nested discriminator (loop)
 */
 resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
-//@[009:032) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |nestedDiscriminator_for|
+//@[009:032) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |nestedDiscriminator_for|
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   location: 'l'
@@ -1300,7 +1298,7 @@ var nestedDiscriminatorArrayIndexCompletions_for = nestedDiscriminator_for[0].pr
 Nested discriminator (filtered loop)
 */
 resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
-//@[009:035) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |nestedDiscriminator_for_if|
+//@[009:035) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |nestedDiscriminator_for_if|
   name: 'test'
 //@[008:014) [BCP121 (Error)] Resources: "nestedDiscriminatorMissingKey", "nestedDiscriminatorMissingKey_if", "nestedDiscriminatorMissingKey_for", "nestedDiscriminatorMissingKey_for_if", "nestedDiscriminator", "nestedDiscriminator_if", "nestedDiscriminator_for", "nestedDiscriminator_for_if" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   location: 'l'
@@ -1613,7 +1611,7 @@ resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-0
 
 // nonexistent arrays and loop variables
 resource nonexistentArrays 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in notAThing: {
-//@[009:026) [BCP179 (Warning)] The loop item variable "i" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |nonexistentArrays|
+//@[009:026) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "i" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |nonexistentArrays|
 //@[086:095) [BCP057 (Error)] The name "notAThing" does not exist in the current context. (CodeDescription: none) |notAThing|
   name: 'vnet-${justPlainWrong}'
 //@[016:030) [BCP057 (Error)] The name "justPlainWrong" does not exist in the current context. (CodeDescription: none) |justPlainWrong|

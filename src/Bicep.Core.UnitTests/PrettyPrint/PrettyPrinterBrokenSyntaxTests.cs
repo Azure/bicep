@@ -15,7 +15,7 @@ namespace Bicep.Core.UnitTests.PrettyPrint
 ### blah blah blah
 
 
-   
+
 
 blah
 
@@ -48,17 +48,19 @@ blah
 
 var bar = true blah /* asfjljasfs */     blah
 
-var baz = {} blah      blah
+var baz = {
+} blah      blah
 
-output foobar array = [] null
+output foobar array = [
+] null
 
-output pi object = {} /* leading whitespaces after me */        null
+output pi object = {
+} /* leading whitespaces after me */        null
 
 concat('foo',             'bar')
 
 1 + 2
-resource vnet 'Microsoft.Network/virtualNetworks@2020-01-01' = {
-  // some comment
+resource vnet 'Microsoft.Network/virtualNetworks@2020-01-01' = { // some comment
   name: 'myVnet'
 } something");
 
@@ -77,9 +79,8 @@ var foo   = {
 
 }
 var   foo = [
-    1,
-    2,
-    3
+    1
+    2 3
 ]")]
         // Broken module declarations.
         [DataRow(
@@ -157,7 +158,7 @@ key: value
 
 
 ] some trivia
-    
+
 
 // Broken.
     var  foo something
@@ -182,7 +183,7 @@ resource foo 'Foo' = {
 resource foo 'Foo' = {
     name: 'foo'
     properties: {
-    key: 
+    key:
 value
 }
 }
@@ -218,8 +219,8 @@ var foo = {
   2
   3
   4
+
 ] some trivia
-    
 
 // Broken.
 var  foo something
@@ -233,14 +234,15 @@ module foo './foo'   = []
 
 resource foo 'Foo' = {
   name: 'foo'
-  properties: {}
+  properties: {
+  }
 }
 
 // Broken.
 resource foo 'Foo' = {
     name: 'foo'
     properties: {
-    key: 
+    key:
 value
 }
 }

@@ -86,6 +86,8 @@ Overwrite the single baseline:
 
 Overwrite all baselines:
     dotnet test --filter ""TestCategory=Baseline"" -- 'TestRunParameters.Parameter(name=\""SetBaseLine\"", value=\""true\"")'
+
+See https://github.com/Azure/bicep/blob/main/CONTRIBUTING.md#updating-test-baselines for more information on how to fix this error.
 ");
                 }
                 else
@@ -96,6 +98,8 @@ Overwrite the single baseline:
 
 Overwrite all baselines:
     dotnet test --filter ""TestCategory=Baseline"" -- 'TestRunParameters.Parameter(name=""SetBaseLine"", value=""true"")'
+
+See https://github.com/Azure/bicep/blob/main/CONTRIBUTING.md#updating-test-baselines for more information on how to fix this error.
 ");
                 }
             }

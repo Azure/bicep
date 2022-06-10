@@ -349,7 +349,7 @@ param defaultValueOneLinerCompletions string =
 })
 @allowed([
   'abc',
-//@[07:008) [BCP106 (Error)] Expected a new line character at this location. Commas are not used as separator delimiters. (CodeDescription: none) |,|
+//@[08:008) [BCP238 (Error)] Unexpected new line character after a comma. (CodeDescription: none) ||
   'def'
 ])
 param commaOne string

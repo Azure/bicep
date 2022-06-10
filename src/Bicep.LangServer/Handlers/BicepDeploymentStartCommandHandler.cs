@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.ResourceManager;
+using Bicep.Core.Tracing;
 using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Telemetry;
 using MediatR;
@@ -13,7 +15,23 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeploymentStartParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId, string portalUrl) : IRequest<string>;
+    public record BicepUpdatedDeploymentParameter(string name, string value, bool isSecure, ParameterType? parameterType);
+
+    public record BicepDeploymentStartParams(
+        string documentPath,
+        string parametersFilePath,
+        string id,
+        string deploymentScope,
+        string location,
+        string template,
+        string token,
+        string expiresOnTimestamp,
+        string deployId,
+        string portalUrl,
+        bool parametersFileExists,
+        string parametersFileName,
+        ParametersFileUpdateOption parametersFileUpdateOption,
+        List<BicepUpdatedDeploymentParameter> updatedDeploymentParameters) : IRequest<string>;
 
     public record BicepDeploymentStartResponse(bool isSuccess, string outputMessage, string? viewDeploymentInPortalMessage);
 
@@ -35,8 +53,11 @@ namespace Bicep.LanguageServer.Handlers
         {
             PostDeployStartTelemetryEvent(request.deployId);
 
+            var options = new ArmClientOptions();
+            options.Diagnostics.ApplySharedResourceManagerSettings();
+
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
-            var armClient = new ArmClient(credential);
+            var armClient = new ArmClient(credential, default, options);
 
             string deploymentName = "bicep_deployment_" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
 
@@ -45,11 +66,14 @@ namespace Bicep.LanguageServer.Handlers
                 armClient,
                 request.documentPath,
                 request.template,
-                request.parameterFilePath,
+                request.parametersFilePath,
                 request.id,
                 request.deploymentScope,
                 request.location,
                 request.deployId,
+                request.parametersFileName,
+                request.parametersFileUpdateOption,
+                request.updatedDeploymentParameters,
                 request.portalUrl,
                 deploymentName,
                 deploymentOperationsCache);

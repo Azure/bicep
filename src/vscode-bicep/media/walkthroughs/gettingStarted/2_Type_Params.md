@@ -6,7 +6,7 @@ param location string = resourceGroup().location
 ```
 * Next, create a parameter named 'appPlanName':
 ```bicep
-param appPlanName string = 'myAppPlanName'
+param appPlanName string = '${uniqueString(resourceGroup().id)}plan'
 ```
 
 These parameters will be used to fill in attributes in your resources.

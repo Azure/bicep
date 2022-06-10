@@ -273,7 +273,7 @@ output existingIndexedResourceLocation string = existingStorageAccounts[index/2]
 output existingIndexedResourceAccessTier string = existingStorageAccounts[index%3].properties.accessTier
 
 resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i) in []: {
-//@[09:024) [BCP179 (Warning)] The loop item variable "zone" or the index variable "i" must be referenced in at least one of the value expressions of the following properties in the loop body: "name" (CodeDescription: none) |duplicatedNames|
+//@[09:024) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "zone" or the index variable "i" must be referenced in at least one of the value expressions of the following properties in the loop body: "name" (CodeDescription: none) |duplicatedNames|
   name: 'no loop variable'
   location: 'eastus'
 //@[12:020) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus'|
@@ -281,7 +281,7 @@ resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i)
 
 // reference to a resource collection whose name expression does not reference any loop variables
 resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i) in []: {
-//@[09:034) [BCP179 (Warning)] The loop item variable "zone" or the index variable "i" must be referenced in at least one of the value expressions of the following properties in the loop body: "name" (CodeDescription: none) |referenceToDuplicateNames|
+//@[09:034) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "zone" or the index variable "i" must be referenced in at least one of the value expressions of the following properties in the loop body: "name" (CodeDescription: none) |referenceToDuplicateNames|
   name: 'no loop variable 2'
   location: 'eastus'
 //@[12:020) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus'|

@@ -196,10 +196,10 @@ var textLoadUnsupportedEncoding = loadTextContent('Assets/TextFile.txt', 'window
 //@[34:0049) | | ├─IdentifierSyntax
 //@[34:0049) | | | └─Token(Identifier) |loadTextContent|
 //@[49:0050) | | ├─Token(LeftParen) |(|
-//@[50:0072) | | ├─FunctionArgumentSyntax
-//@[50:0071) | | | ├─StringSyntax
+//@[50:0071) | | ├─FunctionArgumentSyntax
+//@[50:0071) | | | └─StringSyntax
 //@[50:0071) | | | | └─Token(StringComplete) |'Assets/TextFile.txt'|
-//@[71:0072) | | | └─Token(Comma) |,|
+//@[71:0072) | | ├─Token(Comma) |,|
 //@[73:0087) | | ├─FunctionArgumentSyntax
 //@[73:0087) | | | └─StringSyntax
 //@[73:0087) | | | | └─Token(StringComplete) |'windows-1250'|
@@ -216,10 +216,10 @@ var textLoadWrongEncoding01 = loadTextContent('Assets/encoding-iso.txt', 'us-asc
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0072) | | ├─FunctionArgumentSyntax
-//@[46:0071) | | | ├─StringSyntax
+//@[46:0071) | | ├─FunctionArgumentSyntax
+//@[46:0071) | | | └─StringSyntax
 //@[46:0071) | | | | └─Token(StringComplete) |'Assets/encoding-iso.txt'|
-//@[71:0072) | | | └─Token(Comma) |,|
+//@[71:0072) | | ├─Token(Comma) |,|
 //@[73:0083) | | ├─FunctionArgumentSyntax
 //@[73:0083) | | | └─StringSyntax
 //@[73:0083) | | | | └─Token(StringComplete) |'us-ascii'|
@@ -235,10 +235,10 @@ var textLoadWrongEncoding02 = loadTextContent('Assets/encoding-iso.txt', 'utf-8'
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0072) | | ├─FunctionArgumentSyntax
-//@[46:0071) | | | ├─StringSyntax
+//@[46:0071) | | ├─FunctionArgumentSyntax
+//@[46:0071) | | | └─StringSyntax
 //@[46:0071) | | | | └─Token(StringComplete) |'Assets/encoding-iso.txt'|
-//@[71:0072) | | | └─Token(Comma) |,|
+//@[71:0072) | | ├─Token(Comma) |,|
 //@[73:0080) | | ├─FunctionArgumentSyntax
 //@[73:0080) | | | └─StringSyntax
 //@[73:0080) | | | | └─Token(StringComplete) |'utf-8'|
@@ -254,10 +254,10 @@ var textLoadWrongEncoding03 = loadTextContent('Assets/encoding-iso.txt', 'utf-16
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0072) | | ├─FunctionArgumentSyntax
-//@[46:0071) | | | ├─StringSyntax
+//@[46:0071) | | ├─FunctionArgumentSyntax
+//@[46:0071) | | | └─StringSyntax
 //@[46:0071) | | | | └─Token(StringComplete) |'Assets/encoding-iso.txt'|
-//@[71:0072) | | | └─Token(Comma) |,|
+//@[71:0072) | | ├─Token(Comma) |,|
 //@[73:0083) | | ├─FunctionArgumentSyntax
 //@[73:0083) | | | └─StringSyntax
 //@[73:0083) | | | | └─Token(StringComplete) |'utf-16BE'|
@@ -273,10 +273,10 @@ var textLoadWrongEncoding04 = loadTextContent('Assets/encoding-iso.txt', 'utf-16
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0072) | | ├─FunctionArgumentSyntax
-//@[46:0071) | | | ├─StringSyntax
+//@[46:0071) | | ├─FunctionArgumentSyntax
+//@[46:0071) | | | └─StringSyntax
 //@[46:0071) | | | | └─Token(StringComplete) |'Assets/encoding-iso.txt'|
-//@[71:0072) | | | └─Token(Comma) |,|
+//@[71:0072) | | ├─Token(Comma) |,|
 //@[73:0081) | | ├─FunctionArgumentSyntax
 //@[73:0081) | | | └─StringSyntax
 //@[73:0081) | | | | └─Token(StringComplete) |'utf-16'|
@@ -292,10 +292,10 @@ var textLoadWrongEncoding05 = loadTextContent('Assets/encoding-ascii.txt', 'iso-
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0074) | | ├─FunctionArgumentSyntax
-//@[46:0073) | | | ├─StringSyntax
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
 //@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-ascii.txt'|
-//@[73:0074) | | | └─Token(Comma) |,|
+//@[73:0074) | | ├─Token(Comma) |,|
 //@[75:0087) | | ├─FunctionArgumentSyntax
 //@[75:0087) | | | └─StringSyntax
 //@[75:0087) | | | | └─Token(StringComplete) |'iso-8859-1'|
@@ -311,10 +311,10 @@ var textLoadWrongEncoding06 = loadTextContent('Assets/encoding-ascii.txt', 'utf-
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0074) | | ├─FunctionArgumentSyntax
-//@[46:0073) | | | ├─StringSyntax
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
 //@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-ascii.txt'|
-//@[73:0074) | | | └─Token(Comma) |,|
+//@[73:0074) | | ├─Token(Comma) |,|
 //@[75:0082) | | ├─FunctionArgumentSyntax
 //@[75:0082) | | | └─StringSyntax
 //@[75:0082) | | | | └─Token(StringComplete) |'utf-8'|
@@ -330,10 +330,10 @@ var textLoadWrongEncoding07 = loadTextContent('Assets/encoding-ascii.txt', 'utf-
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0074) | | ├─FunctionArgumentSyntax
-//@[46:0073) | | | ├─StringSyntax
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
 //@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-ascii.txt'|
-//@[73:0074) | | | └─Token(Comma) |,|
+//@[73:0074) | | ├─Token(Comma) |,|
 //@[75:0085) | | ├─FunctionArgumentSyntax
 //@[75:0085) | | | └─StringSyntax
 //@[75:0085) | | | | └─Token(StringComplete) |'utf-16BE'|
@@ -349,10 +349,10 @@ var textLoadWrongEncoding08 = loadTextContent('Assets/encoding-ascii.txt', 'utf-
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0074) | | ├─FunctionArgumentSyntax
-//@[46:0073) | | | ├─StringSyntax
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
 //@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-ascii.txt'|
-//@[73:0074) | | | └─Token(Comma) |,|
+//@[73:0074) | | ├─Token(Comma) |,|
 //@[75:0083) | | ├─FunctionArgumentSyntax
 //@[75:0083) | | | └─StringSyntax
 //@[75:0083) | | | | └─Token(StringComplete) |'utf-16'|
@@ -368,10 +368,10 @@ var textLoadWrongEncoding09 = loadTextContent('Assets/encoding-utf16.txt', 'iso-
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0074) | | ├─FunctionArgumentSyntax
-//@[46:0073) | | | ├─StringSyntax
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
 //@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-utf16.txt'|
-//@[73:0074) | | | └─Token(Comma) |,|
+//@[73:0074) | | ├─Token(Comma) |,|
 //@[75:0087) | | ├─FunctionArgumentSyntax
 //@[75:0087) | | | └─StringSyntax
 //@[75:0087) | | | | └─Token(StringComplete) |'iso-8859-1'|
@@ -387,10 +387,10 @@ var textLoadWrongEncoding10 = loadTextContent('Assets/encoding-utf16.txt', 'utf-
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0074) | | ├─FunctionArgumentSyntax
-//@[46:0073) | | | ├─StringSyntax
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
 //@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-utf16.txt'|
-//@[73:0074) | | | └─Token(Comma) |,|
+//@[73:0074) | | ├─Token(Comma) |,|
 //@[75:0082) | | ├─FunctionArgumentSyntax
 //@[75:0082) | | | └─StringSyntax
 //@[75:0082) | | | | └─Token(StringComplete) |'utf-8'|
@@ -406,10 +406,10 @@ var textLoadWrongEncoding11 = loadTextContent('Assets/encoding-utf16.txt', 'utf-
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0074) | | ├─FunctionArgumentSyntax
-//@[46:0073) | | | ├─StringSyntax
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
 //@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-utf16.txt'|
-//@[73:0074) | | | └─Token(Comma) |,|
+//@[73:0074) | | ├─Token(Comma) |,|
 //@[75:0085) | | ├─FunctionArgumentSyntax
 //@[75:0085) | | | └─StringSyntax
 //@[75:0085) | | | | └─Token(StringComplete) |'utf-16BE'|
@@ -425,10 +425,10 @@ var textLoadWrongEncoding12 = loadTextContent('Assets/encoding-utf16.txt', 'us-a
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0074) | | ├─FunctionArgumentSyntax
-//@[46:0073) | | | ├─StringSyntax
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
 //@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-utf16.txt'|
-//@[73:0074) | | | └─Token(Comma) |,|
+//@[73:0074) | | ├─Token(Comma) |,|
 //@[75:0085) | | ├─FunctionArgumentSyntax
 //@[75:0085) | | | └─StringSyntax
 //@[75:0085) | | | | └─Token(StringComplete) |'us-ascii'|
@@ -444,10 +444,10 @@ var textLoadWrongEncoding13 = loadTextContent('Assets/encoding-utf16be.txt', 'ut
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0076) | | ├─FunctionArgumentSyntax
-//@[46:0075) | | | ├─StringSyntax
+//@[46:0075) | | ├─FunctionArgumentSyntax
+//@[46:0075) | | | └─StringSyntax
 //@[46:0075) | | | | └─Token(StringComplete) |'Assets/encoding-utf16be.txt'|
-//@[75:0076) | | | └─Token(Comma) |,|
+//@[75:0076) | | ├─Token(Comma) |,|
 //@[77:0085) | | ├─FunctionArgumentSyntax
 //@[77:0085) | | | └─StringSyntax
 //@[77:0085) | | | | └─Token(StringComplete) |'utf-16'|
@@ -463,10 +463,10 @@ var textLoadWrongEncoding14 = loadTextContent('Assets/encoding-utf16be.txt', 'ut
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0076) | | ├─FunctionArgumentSyntax
-//@[46:0075) | | | ├─StringSyntax
+//@[46:0075) | | ├─FunctionArgumentSyntax
+//@[46:0075) | | | └─StringSyntax
 //@[46:0075) | | | | └─Token(StringComplete) |'Assets/encoding-utf16be.txt'|
-//@[75:0076) | | | └─Token(Comma) |,|
+//@[75:0076) | | ├─Token(Comma) |,|
 //@[77:0084) | | ├─FunctionArgumentSyntax
 //@[77:0084) | | | └─StringSyntax
 //@[77:0084) | | | | └─Token(StringComplete) |'utf-8'|
@@ -482,10 +482,10 @@ var textLoadWrongEncoding15 = loadTextContent('Assets/encoding-utf16be.txt', 'us
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0076) | | ├─FunctionArgumentSyntax
-//@[46:0075) | | | ├─StringSyntax
+//@[46:0075) | | ├─FunctionArgumentSyntax
+//@[46:0075) | | | └─StringSyntax
 //@[46:0075) | | | | └─Token(StringComplete) |'Assets/encoding-utf16be.txt'|
-//@[75:0076) | | | └─Token(Comma) |,|
+//@[75:0076) | | ├─Token(Comma) |,|
 //@[77:0087) | | ├─FunctionArgumentSyntax
 //@[77:0087) | | | └─StringSyntax
 //@[77:0087) | | | | └─Token(StringComplete) |'us-ascii'|
@@ -501,10 +501,10 @@ var textLoadWrongEncoding16 = loadTextContent('Assets/encoding-utf16be.txt', 'is
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0076) | | ├─FunctionArgumentSyntax
-//@[46:0075) | | | ├─StringSyntax
+//@[46:0075) | | ├─FunctionArgumentSyntax
+//@[46:0075) | | | └─StringSyntax
 //@[46:0075) | | | | └─Token(StringComplete) |'Assets/encoding-utf16be.txt'|
-//@[75:0076) | | | └─Token(Comma) |,|
+//@[75:0076) | | ├─Token(Comma) |,|
 //@[77:0089) | | ├─FunctionArgumentSyntax
 //@[77:0089) | | | └─StringSyntax
 //@[77:0089) | | | | └─Token(StringComplete) |'iso-8859-1'|
@@ -520,10 +520,10 @@ var textLoadWrongEncoding17 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0080) | | ├─FunctionArgumentSyntax
-//@[46:0079) | | | ├─StringSyntax
+//@[46:0079) | | ├─FunctionArgumentSyntax
+//@[46:0079) | | | └─StringSyntax
 //@[46:0079) | | | | └─Token(StringComplete) |'Assets/encoding-windows1250.txt'|
-//@[79:0080) | | | └─Token(Comma) |,|
+//@[79:0080) | | ├─Token(Comma) |,|
 //@[81:0091) | | ├─FunctionArgumentSyntax
 //@[81:0091) | | | └─StringSyntax
 //@[81:0091) | | | | └─Token(StringComplete) |'utf-16BE'|
@@ -539,10 +539,10 @@ var textLoadWrongEncoding18 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0080) | | ├─FunctionArgumentSyntax
-//@[46:0079) | | | ├─StringSyntax
+//@[46:0079) | | ├─FunctionArgumentSyntax
+//@[46:0079) | | | └─StringSyntax
 //@[46:0079) | | | | └─Token(StringComplete) |'Assets/encoding-windows1250.txt'|
-//@[79:0080) | | | └─Token(Comma) |,|
+//@[79:0080) | | ├─Token(Comma) |,|
 //@[81:0089) | | ├─FunctionArgumentSyntax
 //@[81:0089) | | | └─StringSyntax
 //@[81:0089) | | | | └─Token(StringComplete) |'utf-16'|
@@ -558,10 +558,10 @@ var textLoadWrongEncoding19 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0080) | | ├─FunctionArgumentSyntax
-//@[46:0079) | | | ├─StringSyntax
+//@[46:0079) | | ├─FunctionArgumentSyntax
+//@[46:0079) | | | └─StringSyntax
 //@[46:0079) | | | | └─Token(StringComplete) |'Assets/encoding-windows1250.txt'|
-//@[79:0080) | | | └─Token(Comma) |,|
+//@[79:0080) | | ├─Token(Comma) |,|
 //@[81:0088) | | ├─FunctionArgumentSyntax
 //@[81:0088) | | | └─StringSyntax
 //@[81:0088) | | | | └─Token(StringComplete) |'utf-8'|
@@ -577,10 +577,10 @@ var textLoadWrongEncoding20 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0080) | | ├─FunctionArgumentSyntax
-//@[46:0079) | | | ├─StringSyntax
+//@[46:0079) | | ├─FunctionArgumentSyntax
+//@[46:0079) | | | └─StringSyntax
 //@[46:0079) | | | | └─Token(StringComplete) |'Assets/encoding-windows1250.txt'|
-//@[79:0080) | | | └─Token(Comma) |,|
+//@[79:0080) | | ├─Token(Comma) |,|
 //@[81:0091) | | ├─FunctionArgumentSyntax
 //@[81:0091) | | | └─StringSyntax
 //@[81:0091) | | | | └─Token(StringComplete) |'us-ascii'|
@@ -596,10 +596,10 @@ var textLoadWrongEncoding21 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0080) | | ├─FunctionArgumentSyntax
-//@[46:0079) | | | ├─StringSyntax
+//@[46:0079) | | ├─FunctionArgumentSyntax
+//@[46:0079) | | | └─StringSyntax
 //@[46:0079) | | | | └─Token(StringComplete) |'Assets/encoding-windows1250.txt'|
-//@[79:0080) | | | └─Token(Comma) |,|
+//@[79:0080) | | ├─Token(Comma) |,|
 //@[81:0093) | | ├─FunctionArgumentSyntax
 //@[81:0093) | | | └─StringSyntax
 //@[81:0093) | | | | └─Token(StringComplete) |'iso-8859-1'|
@@ -615,10 +615,10 @@ var textLoadWrongEncoding22 = loadTextContent('Assets/encoding-utf8.txt', 'iso-8
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0073) | | ├─FunctionArgumentSyntax
-//@[46:0072) | | | ├─StringSyntax
+//@[46:0072) | | ├─FunctionArgumentSyntax
+//@[46:0072) | | | └─StringSyntax
 //@[46:0072) | | | | └─Token(StringComplete) |'Assets/encoding-utf8.txt'|
-//@[72:0073) | | | └─Token(Comma) |,|
+//@[72:0073) | | ├─Token(Comma) |,|
 //@[74:0086) | | ├─FunctionArgumentSyntax
 //@[74:0086) | | | └─StringSyntax
 //@[74:0086) | | | | └─Token(StringComplete) |'iso-8859-1'|
@@ -634,10 +634,10 @@ var textLoadWrongEncoding23 = loadTextContent('Assets/encoding-utf8.txt', 'utf-1
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0073) | | ├─FunctionArgumentSyntax
-//@[46:0072) | | | ├─StringSyntax
+//@[46:0072) | | ├─FunctionArgumentSyntax
+//@[46:0072) | | | └─StringSyntax
 //@[46:0072) | | | | └─Token(StringComplete) |'Assets/encoding-utf8.txt'|
-//@[72:0073) | | | └─Token(Comma) |,|
+//@[72:0073) | | ├─Token(Comma) |,|
 //@[74:0082) | | ├─FunctionArgumentSyntax
 //@[74:0082) | | | └─StringSyntax
 //@[74:0082) | | | | └─Token(StringComplete) |'utf-16'|
@@ -653,10 +653,10 @@ var textLoadWrongEncoding24 = loadTextContent('Assets/encoding-utf8.txt', 'utf-1
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0073) | | ├─FunctionArgumentSyntax
-//@[46:0072) | | | ├─StringSyntax
+//@[46:0072) | | ├─FunctionArgumentSyntax
+//@[46:0072) | | | └─StringSyntax
 //@[46:0072) | | | | └─Token(StringComplete) |'Assets/encoding-utf8.txt'|
-//@[72:0073) | | | └─Token(Comma) |,|
+//@[72:0073) | | ├─Token(Comma) |,|
 //@[74:0084) | | ├─FunctionArgumentSyntax
 //@[74:0084) | | | └─StringSyntax
 //@[74:0084) | | | | └─Token(StringComplete) |'utf-16BE'|
@@ -672,10 +672,10 @@ var textLoadWrongEncoding25 = loadTextContent('Assets/encoding-utf8.txt', 'us-as
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0073) | | ├─FunctionArgumentSyntax
-//@[46:0072) | | | ├─StringSyntax
+//@[46:0072) | | ├─FunctionArgumentSyntax
+//@[46:0072) | | | └─StringSyntax
 //@[46:0072) | | | | └─Token(StringComplete) |'Assets/encoding-utf8.txt'|
-//@[72:0073) | | | └─Token(Comma) |,|
+//@[72:0073) | | ├─Token(Comma) |,|
 //@[74:0084) | | ├─FunctionArgumentSyntax
 //@[74:0084) | | | └─StringSyntax
 //@[74:0084) | | | | └─Token(StringComplete) |'us-ascii'|
@@ -691,10 +691,10 @@ var textLoadWrongEncoding26 = loadTextContent('Assets/encoding-utf8-bom.txt', 'i
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0077) | | ├─FunctionArgumentSyntax
-//@[46:0076) | | | ├─StringSyntax
+//@[46:0076) | | ├─FunctionArgumentSyntax
+//@[46:0076) | | | └─StringSyntax
 //@[46:0076) | | | | └─Token(StringComplete) |'Assets/encoding-utf8-bom.txt'|
-//@[76:0077) | | | └─Token(Comma) |,|
+//@[76:0077) | | ├─Token(Comma) |,|
 //@[78:0090) | | ├─FunctionArgumentSyntax
 //@[78:0090) | | | └─StringSyntax
 //@[78:0090) | | | | └─Token(StringComplete) |'iso-8859-1'|
@@ -710,10 +710,10 @@ var textLoadWrongEncoding27 = loadTextContent('Assets/encoding-utf8-bom.txt', 'u
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0077) | | ├─FunctionArgumentSyntax
-//@[46:0076) | | | ├─StringSyntax
+//@[46:0076) | | ├─FunctionArgumentSyntax
+//@[46:0076) | | | └─StringSyntax
 //@[46:0076) | | | | └─Token(StringComplete) |'Assets/encoding-utf8-bom.txt'|
-//@[76:0077) | | | └─Token(Comma) |,|
+//@[76:0077) | | ├─Token(Comma) |,|
 //@[78:0086) | | ├─FunctionArgumentSyntax
 //@[78:0086) | | | └─StringSyntax
 //@[78:0086) | | | | └─Token(StringComplete) |'utf-16'|
@@ -729,10 +729,10 @@ var textLoadWrongEncoding28 = loadTextContent('Assets/encoding-utf8-bom.txt', 'u
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0077) | | ├─FunctionArgumentSyntax
-//@[46:0076) | | | ├─StringSyntax
+//@[46:0076) | | ├─FunctionArgumentSyntax
+//@[46:0076) | | | └─StringSyntax
 //@[46:0076) | | | | └─Token(StringComplete) |'Assets/encoding-utf8-bom.txt'|
-//@[76:0077) | | | └─Token(Comma) |,|
+//@[76:0077) | | ├─Token(Comma) |,|
 //@[78:0088) | | ├─FunctionArgumentSyntax
 //@[78:0088) | | | └─StringSyntax
 //@[78:0088) | | | | └─Token(StringComplete) |'utf-16BE'|
@@ -748,10 +748,10 @@ var textLoadWrongEncoding29 = loadTextContent('Assets/encoding-utf8-bom.txt', 'u
 //@[30:0045) | | ├─IdentifierSyntax
 //@[30:0045) | | | └─Token(Identifier) |loadTextContent|
 //@[45:0046) | | ├─Token(LeftParen) |(|
-//@[46:0077) | | ├─FunctionArgumentSyntax
-//@[46:0076) | | | ├─StringSyntax
+//@[46:0076) | | ├─FunctionArgumentSyntax
+//@[46:0076) | | | └─StringSyntax
 //@[46:0076) | | | | └─Token(StringComplete) |'Assets/encoding-utf8-bom.txt'|
-//@[76:0077) | | | └─Token(Comma) |,|
+//@[76:0077) | | ├─Token(Comma) |,|
 //@[78:0088) | | ├─FunctionArgumentSyntax
 //@[78:0088) | | | └─StringSyntax
 //@[78:0088) | | | | └─Token(StringComplete) |'us-ascii'|
@@ -830,10 +830,10 @@ var jsonObject2 = loadJsonContent('Assets/jsonValid.json.txt', '.')
 //@[18:0033) | | ├─IdentifierSyntax
 //@[18:0033) | | | └─Token(Identifier) |loadJsonContent|
 //@[33:0034) | | ├─Token(LeftParen) |(|
-//@[34:0062) | | ├─FunctionArgumentSyntax
-//@[34:0061) | | | ├─StringSyntax
+//@[34:0061) | | ├─FunctionArgumentSyntax
+//@[34:0061) | | | └─StringSyntax
 //@[34:0061) | | | | └─Token(StringComplete) |'Assets/jsonValid.json.txt'|
-//@[61:0062) | | | └─Token(Comma) |,|
+//@[61:0062) | | ├─Token(Comma) |,|
 //@[63:0066) | | ├─FunctionArgumentSyntax
 //@[63:0066) | | | └─StringSyntax
 //@[63:0066) | | | | └─Token(StringComplete) |'.'|
@@ -849,10 +849,10 @@ var jsonObject3 = loadJsonContent('Assets/jsonValid.json.txt', '$.')
 //@[18:0033) | | ├─IdentifierSyntax
 //@[18:0033) | | | └─Token(Identifier) |loadJsonContent|
 //@[33:0034) | | ├─Token(LeftParen) |(|
-//@[34:0062) | | ├─FunctionArgumentSyntax
-//@[34:0061) | | | ├─StringSyntax
+//@[34:0061) | | ├─FunctionArgumentSyntax
+//@[34:0061) | | | └─StringSyntax
 //@[34:0061) | | | | └─Token(StringComplete) |'Assets/jsonValid.json.txt'|
-//@[61:0062) | | | └─Token(Comma) |,|
+//@[61:0062) | | ├─Token(Comma) |,|
 //@[63:0067) | | ├─FunctionArgumentSyntax
 //@[63:0067) | | | └─StringSyntax
 //@[63:0067) | | | | └─Token(StringComplete) |'$.'|
@@ -868,10 +868,10 @@ var jsonObject4 = loadJsonContent('Assets/jsonValid.json.txt', '.propertyThatDoe
 //@[18:0033) | | ├─IdentifierSyntax
 //@[18:0033) | | | └─Token(Identifier) |loadJsonContent|
 //@[33:0034) | | ├─Token(LeftParen) |(|
-//@[34:0062) | | ├─FunctionArgumentSyntax
-//@[34:0061) | | | ├─StringSyntax
+//@[34:0061) | | ├─FunctionArgumentSyntax
+//@[34:0061) | | | └─StringSyntax
 //@[34:0061) | | | | └─Token(StringComplete) |'Assets/jsonValid.json.txt'|
-//@[61:0062) | | | └─Token(Comma) |,|
+//@[61:0062) | | ├─Token(Comma) |,|
 //@[63:0090) | | ├─FunctionArgumentSyntax
 //@[63:0090) | | | └─StringSyntax
 //@[63:0090) | | | | └─Token(StringComplete) |'.propertyThatDoesNotExist'|

@@ -350,11 +350,7 @@ namespace Bicep.Core.Emit
         {
             if (syntax is InstanceFunctionCallSyntax instanceFunctionCall && string.Equals(instanceFunctionCall.Name.IdentifierName, "getSecret", LanguageConstants.IdentifierComparison))
             {
-                var baseSyntax = instanceFunctionCall.BaseExpression switch
-                {
-                    ArrayAccessSyntax arrayAccessSyntax => arrayAccessSyntax.BaseExpression,
-                    _ => instanceFunctionCall.BaseExpression,
-                };
+                var (baseSyntax, _) = SyntaxHelper.UnwrapArrayAccessSyntax(instanceFunctionCall.BaseExpression);
 
                 if (context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax) is not { } resource ||
                     !StringComparer.OrdinalIgnoreCase.Equals(resource.TypeReference.FormatType(), AzResourceTypeProvider.ResourceTypeKeyVault))
@@ -383,14 +379,14 @@ namespace Bicep.Core.Emit
                 writer.WriteEndObject(); // keyVault
 
                 writer.WritePropertyName("secretName");
-                var secretName = converter.ConvertExpression(instanceFunctionCall.Arguments[0].Expression);
+                var secretName = converter.ConvertExpression(instanceFunctionCall.GetArgumentByPosition(0).Expression);
                 var secretNameSerialised = ExpressionSerializer.SerializeExpression(secretName);
                 writer.WriteValue(secretNameSerialised);
 
-                if (instanceFunctionCall.Arguments.Length > 1)
+                if (instanceFunctionCall.Arguments.Count() > 1)
                 {
                     writer.WritePropertyName("secretVersion");
-                    var secretVersion = converter.ConvertExpression(instanceFunctionCall.Arguments[1].Expression);
+                    var secretVersion = converter.ConvertExpression(instanceFunctionCall.GetArgumentByPosition(1).Expression);
                     var secretVersionSerialised = ExpressionSerializer.SerializeExpression(secretVersion);
                     writer.WriteValue(secretVersionSerialised);
                 }

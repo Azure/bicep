@@ -89,11 +89,10 @@ namespace Bicep.Core.Syntax
             var rangeSyntax = new FunctionCallSyntax(
                 CreateIdentifier("range"),
                 LeftParenToken,
-                new FunctionArgumentSyntax[] {
-                    new FunctionArgumentSyntax(
-                        new IntegerLiteralSyntax(CreateToken(TokenType.Integer, "0"), 0),
-                        CommaToken),
-                    new FunctionArgumentSyntax(count, null),
+                new SyntaxBase[] {
+                    new FunctionArgumentSyntax(new IntegerLiteralSyntax(CreateToken(TokenType.Integer, "0"), 0)),
+                    CommaToken,
+                    new FunctionArgumentSyntax(count),
                 },
                 RightParenToken);
 
@@ -116,11 +115,17 @@ namespace Bicep.Core.Syntax
 
         public static ArraySyntax CreateArray(IEnumerable<SyntaxBase> items)
         {
-            var children = new List<SyntaxBase> { NewlineToken };
+            var children = new List<SyntaxBase>();
 
             foreach (var item in items)
             {
+                children.Add(NewlineToken);
                 children.Add(CreateArrayItem(item));
+            }
+
+            if (children.Any())
+            {
+                // only add a newline if we actually have children
                 children.Add(NewlineToken);
             }
 
@@ -221,28 +226,25 @@ namespace Bicep.Core.Syntax
             };
         }
 
-        public static FunctionCallSyntax CreateFunctionCall(string functionName)
-            => CreateFunctionCall(functionName, new FunctionArgumentSyntax[0]);
-
         public static FunctionCallSyntax CreateFunctionCall(string functionName, params SyntaxBase[] argumentExpressions)
         {
-            var arguments = argumentExpressions.Select((expression, i) => new FunctionArgumentSyntax(
-                expression,
-                i < argumentExpressions.Length - 1 ? CommaToken : null));
+            var children = new List<SyntaxBase>();
+
+            for (var i = 0; i < argumentExpressions.Length; i++)
+            {
+                children.Add(new FunctionArgumentSyntax(argumentExpressions[i]));
+                if (i < argumentExpressions.Length - 1)
+                {
+                    children.Add(CommaToken);
+                }
+            }
 
             return new FunctionCallSyntax(
                 CreateIdentifier(functionName),
                 LeftParenToken,
-                arguments,
+                children,
                 RightParenToken);
         }
-
-        public static FunctionCallSyntax CreateFunctionCall(string functionName, params FunctionArgumentSyntax[] argumentSyntaxes)
-            => new FunctionCallSyntax(
-                CreateIdentifier(functionName),
-                LeftParenToken,
-                argumentSyntaxes,
-                RightParenToken);
 
         public static DecoratorSyntax CreateDecorator(string functionName, params SyntaxBase[] argumentExpressions)
         {
@@ -302,13 +304,13 @@ namespace Bicep.Core.Syntax
                 if (functionCallSyntax.NameEquals("concat"))
                 {
                     // just return the inner portion if there's only one concat entry
-                    if (functionCallSyntax.Arguments.Length == 1)
+                    if (functionCallSyntax.Arguments.Count() == 1)
                     {
-                        return functionCallSyntax.Arguments.Select(arg => arg.Expression).First();
+                        return functionCallSyntax.GetArgumentByPosition(0).Expression;
                     }
                     else
                     {
-                        var concatArguments = new List<FunctionArgumentSyntax>();
+                        var concatArguments = new List<SyntaxBase>();
                         foreach (var arg in functionCallSyntax.Arguments)
                         {
                             // recurse
@@ -317,11 +319,11 @@ namespace Bicep.Core.Syntax
                             if (flattenedExpression is FunctionCallSyntax childFunction && childFunction.NameEquals("concat"))
                             {
                                 // concat directly inside a concat - break it out
-                                concatArguments.AddRange(childFunction.Arguments);
+                                concatArguments.AddRange(childFunction.Arguments.Select(x => x.Expression));
                                 continue;
                             }
 
-                            concatArguments.Add(new FunctionArgumentSyntax(flattenedExpression, arg.Comma));
+                            concatArguments.Add(flattenedExpression);
                         }
 
                         // overwrite the original expression
@@ -335,13 +337,13 @@ namespace Bicep.Core.Syntax
             return original;
         }
 
-        private static IEnumerable<FunctionArgumentSyntax> CombineConcatArguments(IEnumerable<FunctionArgumentSyntax> arguments)
+        private static IEnumerable<SyntaxBase> CombineConcatArguments(IEnumerable<SyntaxBase> argumentExpressions)
         {
             var stringList = new List<string>();
-            foreach (var argument in arguments)
+            foreach (var argument in argumentExpressions)
             {
                 // accumulate string literals if possible
-                if (argument.Expression is StringSyntax stringSyntax)
+                if (argument is StringSyntax stringSyntax)
                 {
                     if (!stringSyntax.Expressions.Any())
                     {
@@ -358,7 +360,7 @@ namespace Bicep.Core.Syntax
                 // check to see if a previous string needs to be yielded back
                 if (stringList.Any())
                 {
-                    yield return new FunctionArgumentSyntax(CreateStringLiteral(string.Join("", stringList)), null);
+                    yield return CreateStringLiteral(string.Join("", stringList));
                     stringList.Clear();
                 }
 
@@ -369,7 +371,7 @@ namespace Bicep.Core.Syntax
             // yield final string if there is one
             if (stringList.Any())
             {
-                yield return new FunctionArgumentSyntax(CreateStringLiteral(string.Join("", stringList)), null);
+                yield return CreateStringLiteral(string.Join("", stringList));
             }
         }
 

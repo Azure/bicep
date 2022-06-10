@@ -29,7 +29,7 @@ async function createAndOpenBicepFile(
   const folder: Uri =
     (workspace.workspaceFolders
       ? workspace.workspaceFolders[0].uri
-      : undefined) ?? Uri.file(os.tmpdir());
+      : undefined) ?? Uri.file(os.homedir());
   const uri: Uri | undefined = await window.showSaveDialog({
     title: "Save new Bicep file",
     defaultUri: Uri.joinPath(folder, "main"),
