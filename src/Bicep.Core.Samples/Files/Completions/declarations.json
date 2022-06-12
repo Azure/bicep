@@ -1512,6 +1512,36 @@
     }
   },
   {
+    "label": "res-lock",
+    "kind": "snippet",
+    "detail": "",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource lock 'Microsoft.Authorization/locks@2017-04-01' = {\n  name: 'name'\n  properties: {\n    level: 'NotSpecified'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-lock",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:lock} 'Microsoft.Authorization/locks@2017-04-01' = {\n  name: ${2:'name'}\n  properties: {\n    level: ${3|'NotSpecified','CanNotDelete','ReadOnly'|}\n  }\n}\n"
+    },
+    "command": {
+      "title": "top level snippet completion",
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "snippet/toplevel",
+          "Properties": {
+            "name": "res-lock"
+          }
+        }
+      ]
+    }
+  },
+  {
     "label": "res-log-analytics-solution",
     "kind": "snippet",
     "detail": "Log Analytics Solution",
@@ -2436,6 +2466,36 @@
           "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-route-table-route"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "label": "res-scoped-lock",
+    "kind": "snippet",
+    "detail": "",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource lock 'Microsoft.Authorization/locks@2017-04-01' = {\n  name: 'name'\n  scope: scopeResource\n  properties: {\n    level: 'NotSpecified'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-scoped-lock",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:lock} 'Microsoft.Authorization/locks@2017-04-01' = {\n  name: ${2:'name'}\n  scope: ${3:scopeResource}\n  properties: {\n    level: ${4|'NotSpecified','CanNotDelete','ReadOnly'|}\n  }\n}\n"
+    },
+    "command": {
+      "title": "top level snippet completion",
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "snippet/toplevel",
+          "Properties": {
+            "name": "res-scoped-lock"
           }
         }
       ]
