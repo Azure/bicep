@@ -548,7 +548,7 @@
     "eslint-plugin-jest": "^26.5.3",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.30.0",
-    "fork-ts-checker-webpack-plugin": "^7.2.6",
+    "fork-ts-checker-webpack-plugin": "^7.2.11",
     "jest": "^27.5.1",
     "jest-styled-components": "^7.0.8",
     "ncp": "^2.0.0",
