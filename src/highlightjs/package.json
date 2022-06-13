@@ -13,7 +13,7 @@
     "eslint-plugin-jest": "^26.5.3",
     "highlight.js": "^11.5.1",
     "jest": "^28.1.1",
-    "ts-jest": "^28.0.4",
+    "ts-jest": "^28.0.5",
     "ts-node": "^10.8.1",
     "typescript": "^4.7.3"
   },
