@@ -10,9 +10,11 @@ output myBool bool = !false
 output myOtherBool bool = true
 
 @sys.description('object array description')
-output suchEmpty array = []
+output suchEmpty array = [
+]
 
-output suchEmpty2 object = {}
+output suchEmpty2 object = {
+}
 
 @sys.description('object output description')
 output obj object = {
@@ -25,7 +27,8 @@ output obj object = {
     2
     3
     null
-    {}
+    {
+    }
   ]
   obj: {
     nested: [

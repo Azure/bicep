@@ -246,7 +246,7 @@ namespace Bicep.Core.Semantics
             this.Visit(syntax.Name);
             this.Visit(syntax.OpenParen);
             allowedFlags = allowedFlags.HasAnyDecoratorFlag() ? FunctionFlags.Default : allowedFlags;
-            this.VisitNodes(syntax.Arguments);
+            this.VisitNodes(syntax.Children);
             this.Visit(syntax.CloseParen);
             allowedFlags = currentFlags;
 

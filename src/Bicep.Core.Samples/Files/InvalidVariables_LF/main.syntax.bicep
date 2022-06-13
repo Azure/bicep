@@ -427,10 +427,10 @@ var mySum = az.add(1,2)
 //@[15:0018) | | ├─IdentifierSyntax
 //@[15:0018) | | | └─Token(Identifier) |add|
 //@[18:0019) | | ├─Token(LeftParen) |(|
-//@[19:0021) | | ├─FunctionArgumentSyntax
-//@[19:0020) | | | ├─IntegerLiteralSyntax
+//@[19:0020) | | ├─FunctionArgumentSyntax
+//@[19:0020) | | | └─IntegerLiteralSyntax
 //@[19:0020) | | | | └─Token(Integer) |1|
-//@[20:0021) | | | └─Token(Comma) |,|
+//@[20:0021) | | ├─Token(Comma) |,|
 //@[21:0022) | | ├─FunctionArgumentSyntax
 //@[21:0022) | | | └─IntegerLiteralSyntax
 //@[21:0022) | | | | └─Token(Integer) |2|
@@ -450,10 +450,10 @@ var myConcat = sys.concat('a', az.concat('b', 'c'))
 //@[19:0025) | | ├─IdentifierSyntax
 //@[19:0025) | | | └─Token(Identifier) |concat|
 //@[25:0026) | | ├─Token(LeftParen) |(|
-//@[26:0030) | | ├─FunctionArgumentSyntax
-//@[26:0029) | | | ├─StringSyntax
+//@[26:0029) | | ├─FunctionArgumentSyntax
+//@[26:0029) | | | └─StringSyntax
 //@[26:0029) | | | | └─Token(StringComplete) |'a'|
-//@[29:0030) | | | └─Token(Comma) |,|
+//@[29:0030) | | ├─Token(Comma) |,|
 //@[31:0050) | | ├─FunctionArgumentSyntax
 //@[31:0050) | | | └─InstanceFunctionCallSyntax
 //@[31:0033) | | | | ├─VariableAccessSyntax
@@ -463,10 +463,10 @@ var myConcat = sys.concat('a', az.concat('b', 'c'))
 //@[34:0040) | | | | ├─IdentifierSyntax
 //@[34:0040) | | | | | └─Token(Identifier) |concat|
 //@[40:0041) | | | | ├─Token(LeftParen) |(|
-//@[41:0045) | | | | ├─FunctionArgumentSyntax
-//@[41:0044) | | | | | ├─StringSyntax
+//@[41:0044) | | | | ├─FunctionArgumentSyntax
+//@[41:0044) | | | | | └─StringSyntax
 //@[41:0044) | | | | | | └─Token(StringComplete) |'b'|
-//@[44:0045) | | | | | └─Token(Comma) |,|
+//@[44:0045) | | | | ├─Token(Comma) |,|
 //@[46:0049) | | | | ├─FunctionArgumentSyntax
 //@[46:0049) | | | | | └─StringSyntax
 //@[46:0049) | | | | | | └─Token(StringComplete) |'c'|
@@ -1146,10 +1146,10 @@ var innerPropertyLoop = {
 //@[15:0020) | | | | | ├─IdentifierSyntax
 //@[15:0020) | | | | | | └─Token(Identifier) |range|
 //@[20:0021) | | | | | ├─Token(LeftParen) |(|
-//@[21:0023) | | | | | ├─FunctionArgumentSyntax
-//@[21:0022) | | | | | | ├─IntegerLiteralSyntax
+//@[21:0022) | | | | | ├─FunctionArgumentSyntax
+//@[21:0022) | | | | | | └─IntegerLiteralSyntax
 //@[21:0022) | | | | | | | └─Token(Integer) |0|
-//@[22:0023) | | | | | | └─Token(Comma) |,|
+//@[22:0023) | | | | | ├─Token(Comma) |,|
 //@[23:0025) | | | | | ├─FunctionArgumentSyntax
 //@[23:0025) | | | | | | └─IntegerLiteralSyntax
 //@[23:0025) | | | | | | | └─Token(Integer) |10|
@@ -1196,10 +1196,10 @@ var innerPropertyLoop2 = {
 //@[17:0022) | | | | | | | ├─IdentifierSyntax
 //@[17:0022) | | | | | | | | └─Token(Identifier) |range|
 //@[22:0023) | | | | | | | ├─Token(LeftParen) |(|
-//@[23:0025) | | | | | | | ├─FunctionArgumentSyntax
-//@[23:0024) | | | | | | | | ├─IntegerLiteralSyntax
+//@[23:0024) | | | | | | | ├─FunctionArgumentSyntax
+//@[23:0024) | | | | | | | | └─IntegerLiteralSyntax
 //@[23:0024) | | | | | | | | | └─Token(Integer) |0|
-//@[24:0025) | | | | | | | | └─Token(Comma) |,|
+//@[24:0025) | | | | | | | ├─Token(Comma) |,|
 //@[25:0027) | | | | | | | ├─FunctionArgumentSyntax
 //@[25:0027) | | | | | | | | └─IntegerLiteralSyntax
 //@[25:0027) | | | | | | | | | └─Token(Integer) |10|
@@ -1229,10 +1229,10 @@ var keys = listKeys('fake','fake')
 //@[11:0019) | | ├─IdentifierSyntax
 //@[11:0019) | | | └─Token(Identifier) |listKeys|
 //@[19:0020) | | ├─Token(LeftParen) |(|
-//@[20:0027) | | ├─FunctionArgumentSyntax
-//@[20:0026) | | | ├─StringSyntax
+//@[20:0026) | | ├─FunctionArgumentSyntax
+//@[20:0026) | | | └─StringSyntax
 //@[20:0026) | | | | └─Token(StringComplete) |'fake'|
-//@[26:0027) | | | └─Token(Comma) |,|
+//@[26:0027) | | ├─Token(Comma) |,|
 //@[27:0033) | | ├─FunctionArgumentSyntax
 //@[27:0033) | | | └─StringSyntax
 //@[27:0033) | | | | └─Token(StringComplete) |'fake'|
@@ -1510,10 +1510,10 @@ var notRuntime = concat('a','b')
 //@[17:0023) | | ├─IdentifierSyntax
 //@[17:0023) | | | └─Token(Identifier) |concat|
 //@[23:0024) | | ├─Token(LeftParen) |(|
-//@[24:0028) | | ├─FunctionArgumentSyntax
-//@[24:0027) | | | ├─StringSyntax
+//@[24:0027) | | ├─FunctionArgumentSyntax
+//@[24:0027) | | | └─StringSyntax
 //@[24:0027) | | | | └─Token(StringComplete) |'a'|
-//@[27:0028) | | | └─Token(Comma) |,|
+//@[27:0028) | | ├─Token(Comma) |,|
 //@[28:0031) | | ├─FunctionArgumentSyntax
 //@[28:0031) | | | └─StringSyntax
 //@[28:0031) | | | | └─Token(StringComplete) |'b'|
@@ -1529,11 +1529,11 @@ var evenMoreIndirection = concat(notRuntime, string(moreIndirection))
 //@[26:0032) | | ├─IdentifierSyntax
 //@[26:0032) | | | └─Token(Identifier) |concat|
 //@[32:0033) | | ├─Token(LeftParen) |(|
-//@[33:0044) | | ├─FunctionArgumentSyntax
-//@[33:0043) | | | ├─VariableAccessSyntax
+//@[33:0043) | | ├─FunctionArgumentSyntax
+//@[33:0043) | | | └─VariableAccessSyntax
 //@[33:0043) | | | | └─IdentifierSyntax
 //@[33:0043) | | | | | └─Token(Identifier) |notRuntime|
-//@[43:0044) | | | └─Token(Comma) |,|
+//@[43:0044) | | ├─Token(Comma) |,|
 //@[45:0068) | | ├─FunctionArgumentSyntax
 //@[45:0068) | | | └─FunctionCallSyntax
 //@[45:0051) | | | | ├─IdentifierSyntax
@@ -1556,14 +1556,14 @@ var moreIndirection = reference('s','s', 'Full')
 //@[22:0031) | | ├─IdentifierSyntax
 //@[22:0031) | | | └─Token(Identifier) |reference|
 //@[31:0032) | | ├─Token(LeftParen) |(|
-//@[32:0036) | | ├─FunctionArgumentSyntax
-//@[32:0035) | | | ├─StringSyntax
+//@[32:0035) | | ├─FunctionArgumentSyntax
+//@[32:0035) | | | └─StringSyntax
 //@[32:0035) | | | | └─Token(StringComplete) |'s'|
-//@[35:0036) | | | └─Token(Comma) |,|
-//@[36:0040) | | ├─FunctionArgumentSyntax
-//@[36:0039) | | | ├─StringSyntax
+//@[35:0036) | | ├─Token(Comma) |,|
+//@[36:0039) | | ├─FunctionArgumentSyntax
+//@[36:0039) | | | └─StringSyntax
 //@[36:0039) | | | | └─Token(StringComplete) |'s'|
-//@[39:0040) | | | └─Token(Comma) |,|
+//@[39:0040) | | ├─Token(Comma) |,|
 //@[41:0047) | | ├─FunctionArgumentSyntax
 //@[41:0047) | | | └─StringSyntax
 //@[41:0047) | | | | └─Token(StringComplete) |'Full'|
@@ -1629,8 +1629,8 @@ var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 //@[21:0026) | | ├─IdentifierSyntax
 //@[21:0026) | | | └─Token(Identifier) |union|
 //@[26:0027) | | ├─Token(LeftParen) |(|
-//@[27:0051) | | ├─FunctionArgumentSyntax
-//@[27:0050) | | | ├─ForSyntax
+//@[27:0050) | | ├─FunctionArgumentSyntax
+//@[27:0050) | | | └─ForSyntax
 //@[27:0028) | | | | ├─Token(LeftSquare) |[|
 //@[28:0031) | | | | ├─Token(Identifier) |for|
 //@[32:0037) | | | | ├─LocalVariableSyntax
@@ -1644,7 +1644,7 @@ var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 //@[48:0049) | | | | ├─IntegerLiteralSyntax
 //@[48:0049) | | | | | └─Token(Integer) |4|
 //@[49:0050) | | | | └─Token(RightSquare) |]|
-//@[50:0051) | | | └─Token(Comma) |,|
+//@[50:0051) | | ├─Token(Comma) |,|
 //@[52:0078) | | ├─FunctionArgumentSyntax
 //@[52:0078) | | | └─ForSyntax
 //@[52:0053) | | | | ├─Token(LeftSquare) |[|

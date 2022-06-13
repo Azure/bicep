@@ -35,10 +35,6 @@ namespace Bicep.Core.PrettyPrint
 
         private readonly Stack<ILinkedDocument> documentStack = new Stack<ILinkedDocument>();
 
-        private bool visitingBlockOpenSyntax;
-
-        private bool visitingBlockCloseSyntax;
-
         private bool visitingSkippedTriviaSyntax;
 
         private bool visitingBrokenStatement;
@@ -195,32 +191,82 @@ namespace Bicep.Core.PrettyPrint
                  return Spread(Concat(openParen, itemVariable, comma), Concat(indexVariable, closeParen));
              });
 
-        public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax) =>
-            this.Build(() => base.VisitFunctionCallSyntax(syntax), children =>
+        private void VisitCommaAndNewLineSeparated(ImmutableArray<SyntaxBase> nodes, bool leadingAndTrailingSpace)
+        {
+            SyntaxBase? leadingNewLine = null;
+            if (nodes.Length > 0 && nodes[0] is Token { Type: TokenType.NewLine })
             {
-                Debug.Assert(children.Length >= 3);
+                leadingNewLine = nodes[0];
+                nodes = nodes.RemoveAt(0);
+            }
 
-                ILinkedDocument name = children[0];
-                ILinkedDocument openParen = children[1];
-                ILinkedDocument arguments = Spread(children.Skip(2).SkipLast(1));
-                ILinkedDocument closeParen = children[^1];
+            SyntaxBase? trailingNewLine = null;
+            if (nodes.Length > 0 && nodes[^1] is Token { Type: TokenType.NewLine })
+            {
+                trailingNewLine = nodes[^1];
+                nodes = nodes.RemoveAt(nodes.Length - 1);
+            }
 
-                return Concat(name, openParen, arguments, closeParen);
+            this.Build(() => {
+                this.Visit(leadingNewLine);
+                if (leadingAndTrailingSpace && nodes.Any() && leadingNewLine is null)
+                {
+                    this.PushDocument(Space);
+                }
+
+                for (var i = 0; i < nodes.Length; i++)
+                {
+                    this.Visit(nodes[i]);
+
+                    if (i < nodes.Length - 1 &&
+                        nodes[i] is Token { Type: TokenType.Comma } &&
+                        nodes[i + 1] is not Token { Type: TokenType.NewLine })
+                    {
+                        this.PushDocument(Space);
+                    }
+                }
+
+                if (leadingAndTrailingSpace && nodes.Any() && trailingNewLine is null)
+                {
+                    this.PushDocument(Space);
+                }
+                this.Visit(trailingNewLine);
+            }, children => {
+                // This logic ensures that syntax with only a single child is not doubly-nested,
+                // and that the final newline does not cause the next piece of text to be indented
+                // e.g. 'bar' in the following is only indented once, and '})' is not indented:
+                //   foo({
+                //     bar: 123
+                //   })
+                var hasTrailingNewline = trailingNewLine is not null;
+                var nestedChildren = Concat(hasTrailingNewline ? children[..^1] : children);
+                var newLine = hasTrailingNewline ? children[^1] : Nil;
+
+                if (children.Length > 1)
+                {
+                    nestedChildren = nestedChildren.Nest();
+                }
+
+                return Concat(nestedChildren, newLine);
+            });
+        }
+
+        public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax) =>
+            this.BuildWithConcat(() => {
+                this.Visit(syntax.Name);
+                this.Visit(syntax.OpenParen);
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: false);
+                this.Visit(syntax.CloseParen);
             });
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax) =>
-            this.Build(() => base.VisitInstanceFunctionCallSyntax(syntax), children =>
-            {
-                Debug.Assert(children.Length >= 5);
-
-                ILinkedDocument baseExpression = children[0];
-                ILinkedDocument dot = children[1];
-                ILinkedDocument name = children[2];
-                ILinkedDocument openParen = children[3];
-                ILinkedDocument arguments = Spread(children.Skip(4).SkipLast(1));
-                ILinkedDocument closeParen = children[^1];
-
-                return Concat(baseExpression, dot, name, openParen, arguments, closeParen);
+            this.BuildWithConcat(() => {
+                this.Visit(syntax.BaseExpression);
+                this.Visit(syntax.Dot);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.OpenParen);
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: false);
+                this.Visit(syntax.CloseParen);
             });
 
         public override void VisitFunctionArgumentSyntax(FunctionArgumentSyntax syntax) =>
@@ -313,17 +359,10 @@ namespace Bicep.Core.PrettyPrint
         }
 
         public override void VisitObjectSyntax(ObjectSyntax syntax) =>
-            this.BuildBlock(() =>
-            {
-                this.visitingBlockOpenSyntax = true;
+            this.BuildWithConcat(() => {
                 this.Visit(syntax.OpenBrace);
-                this.visitingBlockOpenSyntax = false;
-
-                this.VisitNodes(syntax.Children);
-
-                this.visitingBlockCloseSyntax = true;
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: true);
                 this.Visit(syntax.CloseBrace);
-                this.visitingBlockCloseSyntax = false;
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax) =>
@@ -339,17 +378,10 @@ namespace Bicep.Core.PrettyPrint
             });
 
         public override void VisitArraySyntax(ArraySyntax syntax) =>
-            this.BuildBlock(() =>
-            {
-                this.visitingBlockOpenSyntax = true;
+            this.BuildWithConcat(() => {
                 this.Visit(syntax.OpenBracket);
-                this.visitingBlockOpenSyntax = false;
-
-                this.VisitNodes(syntax.Children);
-
-                this.visitingBlockCloseSyntax = true;
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: true);
                 this.Visit(syntax.CloseBracket);
-                this.visitingBlockCloseSyntax = false;
             });
 
         private static ILinkedDocument Text(string text) =>
@@ -370,19 +402,6 @@ namespace Bicep.Core.PrettyPrint
         private void BuildWithConcat(Action visitAciton) => this.Build(visitAciton, Concat);
 
         private void BuildWithSpread(Action visitAciton) => this.Build(visitAciton, Spread);
-
-        private void BuildBlock(Action visitAction) =>
-            this.Build(visitAction, children =>
-            {
-                Debug.Assert(children.Length >= 2);
-
-                ILinkedDocument openSymbol = children[0];
-                ILinkedDocument body = Concat(children.Skip(1).SkipLast(2)).Nest();
-                ILinkedDocument lastLine = children.Length > 2 ? children[^2] : Nil;
-                ILinkedDocument closeSymbol = children[^1];
-
-                return Concat(openSymbol, body, lastLine, closeSymbol);
-            });
 
         private void BuildStatement(SyntaxBase syntax, Action visitAction)
         {
@@ -498,19 +517,7 @@ namespace Bicep.Core.PrettyPrint
             }
             else
             {
-                if (this.visitingBlockCloseSyntax)
-                {
-                    // Insert a SingleLine before "}" and "]", which will remove extra newlines before it (by calling PushDocument).
-                    this.PushDocument(SingleLine);
-                }
-
                 this.documentStack.Push(document);
-
-                if (this.visitingBlockOpenSyntax)
-                {
-                    // Add a SingleLine after "{" and "[", which will prevent more newlines from being added after it.
-                    this.documentStack.Push(SingleLine);
-                }
             }
         }
     }

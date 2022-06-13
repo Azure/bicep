@@ -134,10 +134,10 @@ var ipConfigurations = [for i in range(0, 2): {
 //@[033:0038) | | | ├─IdentifierSyntax
 //@[033:0038) | | | | └─Token(Identifier) |range|
 //@[038:0039) | | | ├─Token(LeftParen) |(|
-//@[039:0041) | | | ├─FunctionArgumentSyntax
-//@[039:0040) | | | | ├─IntegerLiteralSyntax
+//@[039:0040) | | | ├─FunctionArgumentSyntax
+//@[039:0040) | | | | └─IntegerLiteralSyntax
 //@[039:0040) | | | | | └─Token(Integer) |0|
-//@[040:0041) | | | | └─Token(Comma) |,|
+//@[040:0041) | | | ├─Token(Comma) |,|
 //@[042:0043) | | | ├─FunctionArgumentSyntax
 //@[042:0043) | | | | └─IntegerLiteralSyntax
 //@[042:0043) | | | | | └─Token(Integer) |2|
@@ -261,10 +261,10 @@ resource nicLoop 'Microsoft.Network/networkInterfaces@2020-11-01' = [for i in ra
 //@[078:0083) | | | ├─IdentifierSyntax
 //@[078:0083) | | | | └─Token(Identifier) |range|
 //@[083:0084) | | | ├─Token(LeftParen) |(|
-//@[084:0086) | | | ├─FunctionArgumentSyntax
-//@[084:0085) | | | | ├─IntegerLiteralSyntax
+//@[084:0085) | | | ├─FunctionArgumentSyntax
+//@[084:0085) | | | | └─IntegerLiteralSyntax
 //@[084:0085) | | | | | └─Token(Integer) |0|
-//@[085:0086) | | | | └─Token(Comma) |,|
+//@[085:0086) | | | ├─Token(Comma) |,|
 //@[087:0088) | | | ├─FunctionArgumentSyntax
 //@[087:0088) | | | | └─IntegerLiteralSyntax
 //@[087:0088) | | | | | └─Token(Integer) |2|

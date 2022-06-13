@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using Bicep.Core.CodeAction;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
-namespace Bicep.LanguageServer.CodeFixes
+namespace Bicep.Core.CodeAction
 {
     public interface ICodeFixProvider
     {

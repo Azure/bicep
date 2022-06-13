@@ -1075,8 +1075,8 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP179",
                 indexVariableName is null
-                    ? $"The loop item variable \"{itemVariableName}\" must be referenced in at least one of the value expressions of the following properties: {ToQuotedString(expectedVariantProperties)}"
-                    : $"The loop item variable \"{itemVariableName}\" or the index variable \"{indexVariableName}\" must be referenced in at least one of the value expressions of the following properties in the loop body: {ToQuotedString(expectedVariantProperties)}");
+                    ? $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" must be referenced in at least one of the value expressions of the following properties: {ToQuotedString(expectedVariantProperties)}"
+                    : $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" or the index variable \"{indexVariableName}\" must be referenced in at least one of the value expressions of the following properties in the loop body: {ToQuotedString(expectedVariantProperties)}");
 
             public ErrorDiagnostic FunctionOnlyValidInModuleSecureParameterAssignment(string functionName) => new(
                 TextSpan,
@@ -1392,6 +1392,20 @@ namespace Bicep.Core.Diagnostics
                 "BCP235",
                 $"Specified JSONPath does not exist in the given file or is invalid.");
 
+            public ErrorDiagnostic ExpectedNewLineOrCommaSeparator() => new(
+                TextSpan,
+                "BCP236",
+                "Expected a new line or comma character at this location.");
+
+            public ErrorDiagnostic ExpectedCommaSeparator() => new(
+                TextSpan,
+                "BCP237",
+                "Expected a comma character at this location.");
+
+            public ErrorDiagnostic UnexpectedNewLineAfterCommaSeparator() => new(
+                TextSpan,
+                "BCP238",
+                "Unexpected new line character after a comma.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -62,11 +62,11 @@ var scripts = take(groups, 2)
 //@[14:018) | | ├─IdentifierSyntax
 //@[14:018) | | | └─Token(Identifier) |take|
 //@[18:019) | | ├─Token(LeftParen) |(|
-//@[19:026) | | ├─FunctionArgumentSyntax
-//@[19:025) | | | ├─VariableAccessSyntax
+//@[19:025) | | ├─FunctionArgumentSyntax
+//@[19:025) | | | └─VariableAccessSyntax
 //@[19:025) | | | | └─IdentifierSyntax
 //@[19:025) | | | | | └─Token(Identifier) |groups|
-//@[25:026) | | | └─Token(Comma) |,|
+//@[25:026) | | ├─Token(Comma) |,|
 //@[27:028) | | ├─FunctionArgumentSyntax
 //@[27:028) | | | └─IntegerLiteralSyntax
 //@[27:028) | | | | └─Token(Integer) |2|
@@ -302,11 +302,11 @@ module scopedToResourceGroupFunction 'hello.bicep' = [for (name, i) in scripts: 
 //@[23:029) | | | | | | | ├─IdentifierSyntax
 //@[23:029) | | | | | | | | └─Token(Identifier) |concat|
 //@[29:030) | | | | | | | ├─Token(LeftParen) |(|
-//@[30:035) | | | | | | | ├─FunctionArgumentSyntax
-//@[30:034) | | | | | | | | ├─VariableAccessSyntax
+//@[30:034) | | | | | | | ├─FunctionArgumentSyntax
+//@[30:034) | | | | | | | | └─VariableAccessSyntax
 //@[30:034) | | | | | | | | | └─IdentifierSyntax
 //@[30:034) | | | | | | | | | | └─Token(Identifier) |name|
-//@[34:035) | | | | | | | | └─Token(Comma) |,|
+//@[34:035) | | | | | | | ├─Token(Comma) |,|
 //@[36:044) | | | | | | | ├─FunctionArgumentSyntax
 //@[36:044) | | | | | | | | └─StringSyntax
 //@[36:044) | | | | | | | | | └─Token(StringComplete) |'-extra'|

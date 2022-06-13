@@ -59,7 +59,7 @@
     "detail": "connectorOffer",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Small'`  \nThe cassandra connector offer type for the Cosmos DB C* database account.  \n"
+      "value": "Type: `'Small' | string`  \nThe cassandra connector offer type for the Cosmos DB C* database account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -419,7 +419,7 @@
     "detail": "publicNetworkAccess",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Disabled' | 'Enabled'`  \nRead-only property  \nWhether requests from Public Network are allowed  \n"
+      "value": "Type: `'Disabled' | 'Enabled' | string`  \nRead-only property  \nWhether requests from Public Network are allowed  \n"
     },
     "deprecated": false,
     "preselect": false,

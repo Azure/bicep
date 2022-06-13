@@ -227,19 +227,19 @@ resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for (m
 //@[008:0014) | | | | | ├─IdentifierSyntax
 //@[008:0014) | | | | | | └─Token(Identifier) |concat|
 //@[014:0015) | | | | | ├─Token(LeftParen) |(|
-//@[015:0023) | | | | | ├─FunctionArgumentSyntax
-//@[015:0022) | | | | | | ├─PropertyAccessSyntax
+//@[015:0022) | | | | | ├─FunctionArgumentSyntax
+//@[015:0022) | | | | | | └─PropertyAccessSyntax
 //@[015:0017) | | | | | | | ├─VariableAccessSyntax
 //@[015:0017) | | | | | | | | └─IdentifierSyntax
 //@[015:0017) | | | | | | | | | └─Token(Identifier) |mg|
 //@[017:0018) | | | | | | | ├─Token(Dot) |.|
 //@[018:0022) | | | | | | | └─IdentifierSyntax
 //@[018:0022) | | | | | | | | └─Token(Identifier) |name|
-//@[022:0023) | | | | | | └─Token(Comma) |,|
-//@[024:0032) | | | | | ├─FunctionArgumentSyntax
-//@[024:0031) | | | | | | ├─StringSyntax
+//@[022:0023) | | | | | ├─Token(Comma) |,|
+//@[024:0031) | | | | | ├─FunctionArgumentSyntax
+//@[024:0031) | | | | | | └─StringSyntax
 //@[024:0031) | | | | | | | └─Token(StringComplete) |'-one-'|
-//@[031:0032) | | | | | | └─Token(Comma) |,|
+//@[031:0032) | | | | | ├─Token(Comma) |,|
 //@[033:0038) | | | | | ├─FunctionArgumentSyntax
 //@[033:0038) | | | | | | └─VariableAccessSyntax
 //@[033:0038) | | | | | | | └─IdentifierSyntax
@@ -342,15 +342,15 @@ resource yetAnotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for
 //@[008:0014) | | | | | ├─IdentifierSyntax
 //@[008:0014) | | | | | | └─Token(Identifier) |concat|
 //@[014:0015) | | | | | ├─Token(LeftParen) |(|
-//@[015:0023) | | | | | ├─FunctionArgumentSyntax
-//@[015:0022) | | | | | | ├─PropertyAccessSyntax
+//@[015:0022) | | | | | ├─FunctionArgumentSyntax
+//@[015:0022) | | | | | | └─PropertyAccessSyntax
 //@[015:0017) | | | | | | | ├─VariableAccessSyntax
 //@[015:0017) | | | | | | | | └─IdentifierSyntax
 //@[015:0017) | | | | | | | | | └─Token(Identifier) |mg|
 //@[017:0018) | | | | | | | ├─Token(Dot) |.|
 //@[018:0022) | | | | | | | └─IdentifierSyntax
 //@[018:0022) | | | | | | | | └─Token(Identifier) |name|
-//@[022:0023) | | | | | | └─Token(Comma) |,|
+//@[022:0023) | | | | | ├─Token(Comma) |,|
 //@[024:0030) | | | | | ├─FunctionArgumentSyntax
 //@[024:0030) | | | | | | └─StringSyntax
 //@[024:0030) | | | | | | | └─Token(StringComplete) |'-two'|
@@ -441,10 +441,10 @@ output managementGroupIds array = [for i in range(0, length(managementGroups)): 
 //@[044:0049) | | | ├─IdentifierSyntax
 //@[044:0049) | | | | └─Token(Identifier) |range|
 //@[049:0050) | | | ├─Token(LeftParen) |(|
-//@[050:0052) | | | ├─FunctionArgumentSyntax
-//@[050:0051) | | | | ├─IntegerLiteralSyntax
+//@[050:0051) | | | ├─FunctionArgumentSyntax
+//@[050:0051) | | | | └─IntegerLiteralSyntax
 //@[050:0051) | | | | | └─Token(Integer) |0|
-//@[051:0052) | | | | └─Token(Comma) |,|
+//@[051:0052) | | | ├─Token(Comma) |,|
 //@[053:0077) | | | ├─FunctionArgumentSyntax
 //@[053:0077) | | | | └─FunctionCallSyntax
 //@[053:0059) | | | | | ├─IdentifierSyntax

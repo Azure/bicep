@@ -53,10 +53,10 @@ resource owner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
 //@[008:0012) | | | | ├─IdentifierSyntax
 //@[008:0012) | | | | | └─Token(Identifier) |guid|
 //@[012:0013) | | | | ├─Token(LeftParen) |(|
-//@[013:0021) | | | | ├─FunctionArgumentSyntax
-//@[013:0020) | | | | | ├─StringSyntax
+//@[013:0020) | | | | ├─FunctionArgumentSyntax
+//@[013:0020) | | | | | └─StringSyntax
 //@[013:0020) | | | | | | └─Token(StringComplete) |'owner'|
-//@[020:0021) | | | | | └─Token(Comma) |,|
+//@[020:0021) | | | | ├─Token(Comma) |,|
 //@[022:0038) | | | | ├─FunctionArgumentSyntax
 //@[022:0038) | | | | | └─VariableAccessSyntax
 //@[022:0038) | | | | | | └─IdentifierSyntax
@@ -126,10 +126,10 @@ resource contributors 'Microsoft.Authorization/roleAssignments@2020-04-01-previe
 //@[008:0012) | | | | | ├─IdentifierSyntax
 //@[008:0012) | | | | | | └─Token(Identifier) |guid|
 //@[012:0013) | | | | | ├─Token(LeftParen) |(|
-//@[013:0027) | | | | | ├─FunctionArgumentSyntax
-//@[013:0026) | | | | | | ├─StringSyntax
+//@[013:0026) | | | | | ├─FunctionArgumentSyntax
+//@[013:0026) | | | | | | └─StringSyntax
 //@[013:0026) | | | | | | | └─Token(StringComplete) |'contributor'|
-//@[026:0027) | | | | | | └─Token(Comma) |,|
+//@[026:0027) | | | | | ├─Token(Comma) |,|
 //@[028:0039) | | | | | ├─FunctionArgumentSyntax
 //@[028:0039) | | | | | | └─VariableAccessSyntax
 //@[028:0039) | | | | | | | └─IdentifierSyntax
@@ -217,10 +217,10 @@ resource readers 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = 
 //@[008:0012) | | | | | ├─IdentifierSyntax
 //@[008:0012) | | | | | | └─Token(Identifier) |guid|
 //@[012:0013) | | | | | ├─Token(LeftParen) |(|
-//@[013:0022) | | | | | ├─FunctionArgumentSyntax
-//@[013:0021) | | | | | | ├─StringSyntax
+//@[013:0021) | | | | | ├─FunctionArgumentSyntax
+//@[013:0021) | | | | | | └─StringSyntax
 //@[013:0021) | | | | | | | └─Token(StringComplete) |'reader'|
-//@[021:0022) | | | | | | └─Token(Comma) |,|
+//@[021:0022) | | | | | ├─Token(Comma) |,|
 //@[023:0029) | | | | | ├─FunctionArgumentSyntax
 //@[023:0029) | | | | | | └─VariableAccessSyntax
 //@[023:0029) | | | | | | | └─IdentifierSyntax

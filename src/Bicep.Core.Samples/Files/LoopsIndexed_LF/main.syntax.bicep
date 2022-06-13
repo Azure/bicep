@@ -421,10 +421,10 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for (
 //@[090:00095) | | | ├─IdentifierSyntax
 //@[090:00095) | | | | └─Token(Identifier) |range|
 //@[095:00096) | | | ├─Token(LeftParen) |(|
-//@[096:00098) | | | ├─FunctionArgumentSyntax
-//@[096:00097) | | | | ├─IntegerLiteralSyntax
+//@[096:00097) | | | ├─FunctionArgumentSyntax
+//@[096:00097) | | | | └─IntegerLiteralSyntax
 //@[096:00097) | | | | | └─Token(Integer) |0|
-//@[097:00098) | | | | └─Token(Comma) |,|
+//@[097:00098) | | | ├─Token(Comma) |,|
 //@[098:00099) | | | ├─FunctionArgumentSyntax
 //@[098:00099) | | | | └─IntegerLiteralSyntax
 //@[098:00099) | | | | | └─Token(Integer) |1|
@@ -543,10 +543,10 @@ resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for (i, i2) 
 //@[083:00088) | | | ├─IdentifierSyntax
 //@[083:00088) | | | | └─Token(Identifier) |range|
 //@[088:00089) | | | ├─Token(LeftParen) |(|
-//@[089:00091) | | | ├─FunctionArgumentSyntax
-//@[089:00090) | | | | ├─IntegerLiteralSyntax
+//@[089:00090) | | | ├─FunctionArgumentSyntax
+//@[089:00090) | | | | └─IntegerLiteralSyntax
 //@[089:00090) | | | | | └─Token(Integer) |0|
-//@[090:00091) | | | | └─Token(Comma) |,|
+//@[090:00091) | | | ├─Token(Comma) |,|
 //@[091:00092) | | | ├─FunctionArgumentSyntax
 //@[091:00092) | | | | └─IntegerLiteralSyntax
 //@[091:00092) | | | | | └─Token(Integer) |1|
@@ -1046,10 +1046,10 @@ resource firstSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (i,ii) i
 //@[082:00087) | | | ├─IdentifierSyntax
 //@[082:00087) | | | | └─Token(Identifier) |range|
 //@[087:00088) | | | ├─Token(LeftParen) |(|
-//@[088:00090) | | | ├─FunctionArgumentSyntax
-//@[088:00089) | | | | ├─IntegerLiteralSyntax
+//@[088:00089) | | | ├─FunctionArgumentSyntax
+//@[088:00089) | | | | └─IntegerLiteralSyntax
 //@[088:00089) | | | | | └─Token(Integer) |0|
-//@[089:00090) | | | | └─Token(Comma) |,|
+//@[089:00090) | | | ├─Token(Comma) |,|
 //@[091:00107) | | | ├─FunctionArgumentSyntax
 //@[091:00107) | | | | └─FunctionCallSyntax
 //@[091:00097) | | | | | ├─IdentifierSyntax
@@ -1158,10 +1158,10 @@ resource secondSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (i,iii)
 //@[084:00089) | | | ├─IdentifierSyntax
 //@[084:00089) | | | | └─Token(Identifier) |range|
 //@[089:00090) | | | ├─Token(LeftParen) |(|
-//@[090:00092) | | | ├─FunctionArgumentSyntax
-//@[090:00091) | | | | ├─IntegerLiteralSyntax
+//@[090:00091) | | | ├─FunctionArgumentSyntax
+//@[090:00091) | | | | └─IntegerLiteralSyntax
 //@[090:00091) | | | | | └─Token(Integer) |0|
-//@[091:00092) | | | | └─Token(Comma) |,|
+//@[091:00092) | | | ├─Token(Comma) |,|
 //@[093:00109) | | | ├─FunctionArgumentSyntax
 //@[093:00109) | | | | └─FunctionCallSyntax
 //@[093:00099) | | | | | ├─IdentifierSyntax
@@ -1851,11 +1851,11 @@ module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for (moduleNa
 //@[008:00014) | | | | | ├─IdentifierSyntax
 //@[008:00014) | | | | | | └─Token(Identifier) |concat|
 //@[014:00015) | | | | | ├─Token(LeftParen) |(|
-//@[015:00026) | | | | | ├─FunctionArgumentSyntax
-//@[015:00025) | | | | | | ├─VariableAccessSyntax
+//@[015:00025) | | | | | ├─FunctionArgumentSyntax
+//@[015:00025) | | | | | | └─VariableAccessSyntax
 //@[015:00025) | | | | | | | └─IdentifierSyntax
 //@[015:00025) | | | | | | | | └─Token(Identifier) |moduleName|
-//@[025:00026) | | | | | | └─Token(Comma) |,|
+//@[025:00026) | | | | | ├─Token(Comma) |,|
 //@[027:00038) | | | | | ├─FunctionArgumentSyntax
 //@[027:00038) | | | | | | └─VariableAccessSyntax
 //@[027:00038) | | | | | | | └─IdentifierSyntax
@@ -1957,11 +1957,11 @@ module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [for (mo
 //@[008:00014) | | | | | ├─IdentifierSyntax
 //@[008:00014) | | | | | | └─Token(Identifier) |concat|
 //@[014:00015) | | | | | ├─Token(LeftParen) |(|
-//@[015:00026) | | | | | ├─FunctionArgumentSyntax
-//@[015:00025) | | | | | | ├─VariableAccessSyntax
+//@[015:00025) | | | | | ├─FunctionArgumentSyntax
+//@[015:00025) | | | | | | └─VariableAccessSyntax
 //@[015:00025) | | | | | | | └─IdentifierSyntax
 //@[015:00025) | | | | | | | | └─Token(Identifier) |moduleName|
-//@[025:00026) | | | | | | └─Token(Comma) |,|
+//@[025:00026) | | | | | ├─Token(Comma) |,|
 //@[027:00038) | | | | | ├─FunctionArgumentSyntax
 //@[027:00038) | | | | | | └─VariableAccessSyntax
 //@[027:00038) | | | | | | | └─IdentifierSyntax
@@ -2059,8 +2059,8 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 //@[013:00019) | | | | | | ├─IdentifierSyntax
 //@[013:00019) | | | | | | | └─Token(Identifier) |concat|
 //@[019:00020) | | | | | | ├─Token(LeftParen) |(|
-//@[020:00087) | | | | | | ├─FunctionArgumentSyntax
-//@[020:00086) | | | | | | | ├─PropertyAccessSyntax
+//@[020:00086) | | | | | | ├─FunctionArgumentSyntax
+//@[020:00086) | | | | | | | └─PropertyAccessSyntax
 //@[020:00077) | | | | | | | | ├─PropertyAccessSyntax
 //@[020:00069) | | | | | | | | | ├─ArrayAccessSyntax
 //@[020:00062) | | | | | | | | | | ├─VariableAccessSyntax
@@ -2077,7 +2077,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 //@[077:00078) | | | | | | | | ├─Token(Dot) |.|
 //@[078:00086) | | | | | | | | └─IdentifierSyntax
 //@[078:00086) | | | | | | | | | └─Token(Identifier) |myOutput|
-//@[086:00087) | | | | | | | └─Token(Comma) |,|
+//@[086:00087) | | | | | | ├─Token(Comma) |,|
 //@[088:00136) | | | | | | ├─FunctionArgumentSyntax
 //@[088:00136) | | | | | | | └─PropertyAccessSyntax
 //@[088:00125) | | | | | | | | ├─PropertyAccessSyntax
@@ -2174,11 +2174,11 @@ module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for (modul
 //@[008:00014) | | | | | ├─IdentifierSyntax
 //@[008:00014) | | | | | | └─Token(Identifier) |concat|
 //@[014:00015) | | | | | ├─Token(LeftParen) |(|
-//@[015:00026) | | | | | ├─FunctionArgumentSyntax
-//@[015:00025) | | | | | | ├─VariableAccessSyntax
+//@[015:00025) | | | | | ├─FunctionArgumentSyntax
+//@[015:00025) | | | | | | └─VariableAccessSyntax
 //@[015:00025) | | | | | | | └─IdentifierSyntax
 //@[015:00025) | | | | | | | | └─Token(Identifier) |moduleName|
-//@[025:00026) | | | | | | └─Token(Comma) |,|
+//@[025:00026) | | | | | ├─Token(Comma) |,|
 //@[027:00038) | | | | | ├─FunctionArgumentSyntax
 //@[027:00038) | | | | | | └─VariableAccessSyntax
 //@[027:00038) | | | | | | | └─IdentifierSyntax
@@ -2869,10 +2869,10 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
 //@[038:00043) | | | | | | | | | | | | | ├─IdentifierSyntax
 //@[038:00043) | | | | | | | | | | | | | | └─Token(Identifier) |range|
 //@[043:00044) | | | | | | | | | | | | | ├─Token(LeftParen) |(|
-//@[044:00046) | | | | | | | | | | | | | ├─FunctionArgumentSyntax
-//@[044:00045) | | | | | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[044:00045) | | | | | | | | | | | | | ├─FunctionArgumentSyntax
+//@[044:00045) | | | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[044:00045) | | | | | | | | | | | | | | | └─Token(Integer) |0|
-//@[045:00046) | | | | | | | | | | | | | | └─Token(Comma) |,|
+//@[045:00046) | | | | | | | | | | | | | ├─Token(Comma) |,|
 //@[047:00062) | | | | | | | | | | | | | ├─FunctionArgumentSyntax
 //@[047:00062) | | | | | | | | | | | | | | └─FunctionCallSyntax
 //@[047:00053) | | | | | | | | | | | | | | | ├─IdentifierSyntax
@@ -3028,10 +3028,10 @@ resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05
 //@[106:00111) | | | ├─IdentifierSyntax
 //@[106:00111) | | | | └─Token(Identifier) |range|
 //@[111:00112) | | | ├─Token(LeftParen) |(|
-//@[112:00114) | | | ├─FunctionArgumentSyntax
-//@[112:00113) | | | | ├─IntegerLiteralSyntax
+//@[112:00113) | | | ├─FunctionArgumentSyntax
+//@[112:00113) | | | | └─IntegerLiteralSyntax
 //@[112:00113) | | | | | └─Token(Integer) |0|
-//@[113:00114) | | | | └─Token(Comma) |,|
+//@[113:00114) | | | ├─Token(Comma) |,|
 //@[115:00130) | | | ├─FunctionArgumentSyntax
 //@[115:00130) | | | | └─FunctionCallSyntax
 //@[115:00121) | | | | | ├─IdentifierSyntax
@@ -3321,10 +3321,10 @@ resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoor
 //@[034:00039) | | | | | | | | | | | | | ├─IdentifierSyntax
 //@[034:00039) | | | | | | | | | | | | | | └─Token(Identifier) |range|
 //@[039:00040) | | | | | | | | | | | | | ├─Token(LeftParen) |(|
-//@[040:00042) | | | | | | | | | | | | | ├─FunctionArgumentSyntax
-//@[040:00041) | | | | | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[040:00041) | | | | | | | | | | | | | ├─FunctionArgumentSyntax
+//@[040:00041) | | | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[040:00041) | | | | | | | | | | | | | | | └─Token(Integer) |0|
-//@[041:00042) | | | | | | | | | | | | | | └─Token(Comma) |,|
+//@[041:00042) | | | | | | | | | | | | | ├─Token(Comma) |,|
 //@[043:00059) | | | | | | | | | | | | | ├─FunctionArgumentSyntax
 //@[043:00059) | | | | | | | | | | | | | | └─FunctionCallSyntax
 //@[043:00049) | | | | | | | | | | | | | | | ├─IdentifierSyntax
@@ -3486,10 +3486,10 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
 //@[107:00112) | | | ├─IdentifierSyntax
 //@[107:00112) | | | | └─Token(Identifier) |range|
 //@[112:00113) | | | ├─Token(LeftParen) |(|
-//@[113:00115) | | | ├─FunctionArgumentSyntax
-//@[113:00114) | | | | ├─IntegerLiteralSyntax
+//@[113:00114) | | | ├─FunctionArgumentSyntax
+//@[113:00114) | | | | └─IntegerLiteralSyntax
 //@[113:00114) | | | | | └─Token(Integer) |0|
-//@[114:00115) | | | | └─Token(Comma) |,|
+//@[114:00115) | | | ├─Token(Comma) |,|
 //@[116:00132) | | | ├─FunctionArgumentSyntax
 //@[116:00132) | | | | └─FunctionCallSyntax
 //@[116:00122) | | | | | ├─IdentifierSyntax

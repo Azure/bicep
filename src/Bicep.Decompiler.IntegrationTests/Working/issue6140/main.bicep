@@ -4,7 +4,7 @@ resource someworkspacename 'microsoft.operationalinsights/workspaces@2021-06-01'
   properties: {
     provisioningState: 'Succeeded'
     sku: {
-      name: 'PerGB2018'
+      name: 'pergb2018'
     }
     retentionInDays: 365
     features: {

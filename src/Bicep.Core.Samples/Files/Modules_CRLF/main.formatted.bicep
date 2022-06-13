@@ -54,7 +54,8 @@ module optionalWithNoParams1 './child/optionalParams.bicep' = {
 
 module optionalWithNoParams2 './child/optionalParams.bicep' = {
   name: 'optionalWithNoParams2'
-  params: {}
+  params: {
+  }
 }
 
 module optionalWithAllParams './child/optionalParams.bicep' = {

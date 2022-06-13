@@ -51,7 +51,8 @@ resource storageAccountName 'Microsoft.Storage/storageAccounts@2019-06-01' = {
     name: storageAccountType
   }
   kind: 'StorageV2'
-  properties: {}
+  properties: {
+  }
   dependsOn: [
     roleDefinitionName
   ]
@@ -62,9 +63,10 @@ resource scriptName 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' =
   location: location
   kind: 'AzurePowerShell'
   identity: {
-    type: 'UserAssigned'
+    type: 'userAssigned'
     userAssignedIdentities: {
-      '${identityName.id}': {}
+      '${identityName.id}': {
+      }
     }
   }
   properties: {
@@ -122,7 +124,7 @@ resource sftpContainerGroupName 'Microsoft.ContainerInstance/containerGroups@201
       type: 'Public'
       ports: [
         {
-          protocol: 'TCP'
+          protocol: 'Tcp'
           port: 22
         }
       ]
