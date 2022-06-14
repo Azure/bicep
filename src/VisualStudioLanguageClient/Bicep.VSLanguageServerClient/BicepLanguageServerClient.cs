@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.VSLanguageServerClient.ContentType;
@@ -58,10 +59,14 @@ namespace Bicep.VSLanguageServerClient
         {
             await _threadingContext.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
 
+            string vsixInstallPath = Path.GetDirectoryName(typeof(BicepLanguageServerClient).Assembly.Location);
+            string languageServerExePath = Path.Combine(vsixInstallPath, "LangServer", "Bicep.LangServer.exe");
+
             ProcessStartInfo info = new ProcessStartInfo
             {
-                FileName = "\"c:\\Users\\bhsubra\\AppData\\Roaming\\Code\\User\\globalStorage\\ms-dotnettools.vscode-dotnet-runtime\\.dotnet\\6.0.5\\dotnet.exe\" \"C:\\EnlistmentsNew\\bicep\\src\\Bicep.LangServer\\bin\\Debug\\net6.0\\Bicep.LangServer.dll\"",
-                //FileName = "\"C:\\EnlistmentsNew\\bicep\\src\\Bicep.LangServer\\bin\\Debug\\net6.0\\Bicep.LangServer.exe\"",
+                //FileName = "\"c:\\Users\\bhsubra\\AppData\\Roaming\\Code\\User\\globalStorage\\ms-dotnettools.vscode-dotnet-runtime\\.dotnet\\6.0.5\\dotnet.exe\" \"C:\\EnlistmentsNew\\bicep\\src\\Bicep.LangServer\\bin\\Debug\\net6.0\\Bicep.LangServer.dll\"",
+                //FileName = "\"C:\USERS\BHSUBRA\APPDATA\LOCAL\MICROSOFT\VISUALSTUDIO\17.0_B376FA5EEXP\EXTENSIONS\Microsoft IT\Bicep.VSLanguageServerClientDeployment\1.0\Bicep.LangServer.exe\"",
+                FileName = languageServerExePath,
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,

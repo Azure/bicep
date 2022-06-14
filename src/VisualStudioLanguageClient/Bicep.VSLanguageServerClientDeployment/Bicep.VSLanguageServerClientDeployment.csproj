@@ -26,6 +26,7 @@
     <StartAction>Program</StartAction>
     <StartProgram Condition="'$(DevEnvDir)' != ''">$(DevEnvDir)devenv.exe</StartProgram>
     <StartArguments>/rootsuffix Exp</StartArguments>
+	<AssemblyPath>$(AssemblyPath)\VSClient</AssemblyPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -51,7 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <!--<PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.2.32505.173" PrivateAssets="All" />-->
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.2.2186" />
+    <!--<PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.2.2186" />-->
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Bicep.VSLanguageServerClient\Bicep.VSLanguageServerClient.csproj">
@@ -70,4 +71,10 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+	<Target Name="CopyBicepLangServerExeToOutDir" AfterTargets="AfterBuild">
+		<ItemGroup>
+			<BicepLangServerExePath Include="..\..\Bicep.LangServer\**\**\*.*" />
+		</ItemGroup>
+		<Copy SourceFiles="@(BicepLangServerExePath)" DestinationFolder="$(VsixDeploymentPath)\LangServer" />
+	</Target>
 </Project>

@@ -86,6 +86,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.VSLanguageServerClient", "src\VisualStudioLanguageClient\Bicep.VSLanguageServerClient\Bicep.VSLanguageServerClient.csproj", "{F6155B20-2659-4B37-95A3-AAAC4CC03971}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.VSLanguageServerClientDeployment", "src\VisualStudioLanguageClient\Bicep.VSLanguageServerClientDeployment\Bicep.VSLanguageServerClientDeployment.csproj", "{CC7A3B3B-12FC-4915-9400-568EBF663AA0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F4AF2603-C020-4A57-A428-AF3EFED21544} = {F4AF2603-C020-4A57-A428-AF3EFED21544}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
