@@ -121,8 +121,9 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             using var streamReader = new StreamReader(new MemoryStream(memoryStream.ToArray()));
             var compiledJson = await streamReader.ReadToEndAsync();
+            var jsonLines = compiledJson.Split(System.Environment.NewLine);
 
-            var sourceTextWithSourceMap = OutputHelper.AddSourceMapToSourceText(dataSet.Bicep, compiledJson, sourceMap, dataSet.HasCrLfNewlines() ? "\r\n" : "\n");
+            var sourceTextWithSourceMap = OutputHelper.AddSourceMapToSourceText(dataSet.Bicep, dataSet.HasCrLfNewlines() ? "\r\n" : "\n", jsonLines, sourceMap);
             var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainSourceMap);
             File.WriteAllText(resultsFile, sourceTextWithSourceMap.ToString());
 
