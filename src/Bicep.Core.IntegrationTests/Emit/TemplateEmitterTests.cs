@@ -32,7 +32,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         [DataTestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public async Task ValidBicep_TemplateEmitterShouldProduceExpectedTemplate(DataSet dataSet)
+        public async Task ValidBicep_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
@@ -41,7 +41,6 @@ namespace Bicep.Core.IntegrationTests.Emit
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             var bicepFileUri = PathHelper.FilePathToFileUrl(bicepFilePath);
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
-            var sourceMapFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainSourceMap));
             var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(bicepFileUri);
 
             // emitting the template should be successful
@@ -53,7 +52,7 @@ namespace Bicep.Core.IntegrationTests.Emit
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
-            var result = EmitTemplate(sourceFileGrouping, BicepTestConstants.EmitterSettingsWithSourceMapping, compiledFilePath);
+            var result = EmitTemplate(sourceFileGrouping, BicepTestConstants.EmitterSettings, compiledFilePath);
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
@@ -129,6 +128,30 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // validate that the template is parseable by the deployment engine
             TemplateHelper.TemplateShouldBeValid(outputFile);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task ValidBicep_TemplateEmitterShouldProduceExpectedSourceMap(DataSet dataSet)
+        {
+            var (compilation, outputDirectory, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.EmitterSettingsWithSourceMapping);
+            using var memoryStream = new MemoryStream();
+            var sourceMap = emitter.Emit(memoryStream).SourceMap!;
+
+            using var streamReader = new StreamReader(new MemoryStream(memoryStream.ToArray()));
+            var compiledJson = await streamReader.ReadToEndAsync();
+
+            var sourceTextWithSourceMap = OutputHelper.AddSourceMapToSourceText(dataSet.Bicep, compiledJson, sourceMap, dataSet.HasCrLfNewlines() ? "\r\n" : "\n");
+            var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainSourceMap);
+            File.WriteAllText(resultsFile, sourceTextWithSourceMap.ToString());
+
+            sourceTextWithSourceMap.Should().EqualWithLineByLineDiffOutput(
+                TestContext,
+                dataSet.SourceMap!,
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
+                actualLocation: resultsFile);
         }
 
         [TestMethod]

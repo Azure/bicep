@@ -211,8 +211,10 @@ namespace Bicep.Core.Emit
 
             // transform offsets in rawSourceMap to line numbers for formatted JSON using unformattedLineStarts
             // add 1 to all line numbers to convert to 1-indexing
+            // strip full path from main bicep source file
+            string getFileName(string file) => (file == this.context.SemanticModel.SourceFile.FileUri.AbsolutePath) ? Path.GetFileName(file) : file;
             var formattedSourceMap = this.rawSourceMap.ToDictionary(
-                kvp => kvp.Key,
+                kvp => getFileName(kvp.Key),
                 kvp => kvp.Value.ToDictionary(
                     kvp => kvp.Key + 1,
                     kvp => kvp.Value.Select(mapping => (
@@ -881,9 +883,18 @@ namespace Bicep.Core.Emit
                     var writer = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel, this.settings);
                     writer.Write(jsonWriter);
 
-                    if (writer is TemplateWriter templateWriter)
+                    if (writer is TemplateWriter templateWriter && moduleSemanticModel is SemanticModel moduleSemanticModelObj)
                     {
-                        this.rawSourceMap.AddNestedSourceMap(templateWriter.rawSourceMap, nestedTemplateOffset);
+                        var childAbsolutePath = moduleSemanticModelObj.SourceFile.FileUri.AbsolutePath;
+                        var parentAbsolutePath = Path.GetDirectoryName(this.context.SemanticModel.SourceFile.FileUri.AbsolutePath)!;
+                        var modulePathRelativetoParent = Path.GetRelativePath(
+                            parentAbsolutePath,
+                            childAbsolutePath);
+
+                        this.rawSourceMap.AddNestedSourceMap(
+                            templateWriter.rawSourceMap,
+                            (path) => path == childAbsolutePath ? modulePathRelativetoParent : path,
+                            nestedTemplateOffset);
                     }
                 }
 
