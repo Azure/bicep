@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
@@ -14,7 +15,7 @@ namespace Bicep.Core.Emit
 
         private class PositionTrackingTextWriter : TextWriter
         {
-            private readonly TextWriter _internalWriter;
+            private readonly TextWriter internalWriter;
 
             public int CurrentPos;
 
@@ -22,10 +23,10 @@ namespace Bicep.Core.Emit
 
             public PositionTrackingTextWriter(TextWriter textWriter)
             {
-                _internalWriter = textWriter;
+                this.internalWriter = textWriter;
             }
 
-            public override Encoding Encoding => _internalWriter.Encoding;
+            public override Encoding Encoding => this.internalWriter.Encoding;
 
             public override void Write(char value)
             {
@@ -34,7 +35,7 @@ namespace Bicep.Core.Emit
                     CommaPositions.Add(CurrentPos);
                 }
 
-                _internalWriter.Write(value);
+                this.internalWriter.Write(value);
 
                 CurrentPos++;
             }
