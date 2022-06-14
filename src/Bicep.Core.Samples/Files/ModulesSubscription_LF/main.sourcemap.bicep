@@ -1,34 +1,34 @@
 targetScope = 'subscription'
-//@[66:128]             "scriptName": {\r
+//@[66:128]             "scriptName": {
 
 param prefix string = 'majastrz'
-//@[11:142]     "prefix": {\r
+//@[11:142]     "prefix": {
 var groups = [
-//@[17:22]     "groups": [\r
+//@[17:22]     "groups": [
   'bicep1'
-//@[18:135]       "bicep1",\r
+//@[18:135]       "bicep1",
   'bicep2'
-//@[19:136]       "bicep2",\r
+//@[19:136]       "bicep2",
   'bicep3'
-//@[20:141]       "bicep3",\r
+//@[20:141]       "bicep3",
   'bicep4'
-//@[21:138]       "bicep4"\r
+//@[21:138]       "bicep4"
 ]
 
 var scripts = take(groups, 2)
-//@[23:23]     "scripts": "[take(variables('groups'), 2)]"\r
+//@[23:23]     "scripts": "[take(variables('groups'), 2)]"
 
 resource resourceGroups 'Microsoft.Resources/resourceGroups@2020-06-01' = [for name in groups: {
-//@[26:35]       "copy": {\r
+//@[26:35]       "copy": {
   name: '${prefix}-${name}'
   location: 'westus'
-//@[34:34]       "location": "westus"\r
+//@[34:34]       "location": "westus"
 }]
 
 module scopedToSymbolicName 'hello.bicep' = [for (name, i) in scripts: {
-//@[36:95]       "copy": {\r
+//@[36:95]       "copy": {
   name: '${prefix}-dep-${i}'
-//@[43:43]       "name": "[format('{0}-dep-{1}', parameters('prefix'), copyIndex())]",\r
+//@[43:43]       "name": "[format('{0}-dep-{1}', parameters('prefix'), copyIndex())]",
   params: {
     scriptName: 'test-${name}-${i}'
   }
@@ -36,9 +36,9 @@ module scopedToSymbolicName 'hello.bicep' = [for (name, i) in scripts: {
 }]
 
 module scopedToResourceGroupFunction 'hello.bicep' = [for (name, i) in scripts: {
-//@[96:152]       "copy": {\r
+//@[96:152]       "copy": {
   name: '${prefix}-dep-${i}'
-//@[103:103]       "name": "[format('{0}-dep-{1}', parameters('prefix'), copyIndex())]",\r
+//@[103:103]       "name": "[format('{0}-dep-{1}', parameters('prefix'), copyIndex())]",
   params: {
     scriptName: 'test-${name}-${i}'
   }
