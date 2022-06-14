@@ -28,9 +28,9 @@ namespace Bicep.Core.Emit
         private readonly EmitterContext context;
         private readonly ExpressionConverter converter;
 
-        public readonly IDictionary<string, IDictionary<int, IList<(int start, int end)>>> rawSourceMap;
+        public readonly IDictionary<string, IDictionary<int, IList<(int start, int end)>>>? rawSourceMap;
 
-        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context, IDictionary<string, IDictionary<int, IList<(int, int)>>> rawSourceMap)
+        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context, IDictionary<string, IDictionary<int, IList<(int, int)>>>? rawSourceMap = null)
         {
             this.writer = writer;
             this.context = context;
@@ -472,20 +472,7 @@ namespace Bicep.Core.Emit
 
         private void AddSourceMapping(SyntaxBase bicepSyntax, int startPosition)
         {
-            if (this.context.Settings.EnableSourceMapping)
-            {
-                SourceMapHelper.AddMapping(
-                    this.rawSourceMap,
-                    this.context.SemanticModel.SourceFile,
-                    bicepSyntax,
-                    this.writer,
-                    startPosition);
-            }
-        }
-
-        private void AddSourceMapping(SyntaxBase bicepSyntax, int startPosition)
-        {
-            if (this.context.Settings.EnableSourceMapping)
+            if (this.context.Settings.EnableSourceMapping && this.rawSourceMap != null)
             {
                 SourceMapHelper.AddMapping(
                     this.rawSourceMap,

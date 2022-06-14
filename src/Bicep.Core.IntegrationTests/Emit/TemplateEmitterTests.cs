@@ -67,27 +67,6 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // validate that the template is parseable by the deployment engine
             TemplateHelper.TemplateShouldBeValid(outputFile);
-
-            // validate source map
-            var actualSourceMapJson = JToken.FromObject(result.SourceMap!);
-
-            actualSourceMapJson.Should().EqualWithJsonDiffOutput(
-                TestContext,
-                JToken.Parse(dataSet.SourceMap!),
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
-                actualLocation: sourceMapFilePath);
-
-            // validate that the template is parseable by the deployment engine
-            TemplateHelper.TemplateShouldBeValid(outputFile);
-
-            // validate source map
-            var actualSourceMapJson = JToken.FromObject(result.SourceMap!);
-
-            actualSourceMapJson.Should().EqualWithJsonDiffOutput(
-                TestContext,
-                JToken.Parse(dataSet.SourceMap!),
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
-                actualLocation: sourceMapFilePath);
         }
 
         [DataTestMethod]

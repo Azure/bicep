@@ -11,8 +11,6 @@ namespace Bicep.Core.Emit
 {
     public class PositionTrackingJsonTextWriter : JsonTextWriter
     {
-
-
         private class PositionTrackingTextWriter : TextWriter
         {
             private readonly TextWriter internalWriter;
@@ -44,9 +42,12 @@ namespace Bicep.Core.Emit
         private readonly PositionTrackingTextWriter _trackingWriter;
 
         public int CurrentPos => _trackingWriter.CurrentPos;
-        public List<int> CommaPositions => _trackingWriter.CommaPositions;
-        
-        private readonly PositionTrackingTextWriter _trackingWriter;
+        public ImmutableArray<int> CommaPositions => _trackingWriter.CommaPositions.ToImmutableArray();
+
+        private PositionTrackingJsonTextWriter(PositionTrackingTextWriter textWriter) : base(textWriter)
+        {
+            _trackingWriter = textWriter;
+        }
 
         public static PositionTrackingJsonTextWriter Create(TextWriter textWriter)
         {
