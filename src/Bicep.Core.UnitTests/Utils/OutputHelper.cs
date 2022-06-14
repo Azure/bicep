@@ -89,7 +89,7 @@ namespace Bicep.Core.UnitTests.Utils
             where TPositionable : IPositionable
             => AddDiagsToSourceText(bicepOutput, newlineSequence, items, item => item.Span, diagsFunc);
 
-        public static string AddSourceMapToSourceText(string bicepOutput, string jsonOutput, ImmutableDictionary<int, (string, int)> sourceMap, string newlineSequence)
+        public static string AddSourceMapToSourceText(string bicepOutput, string newlineSequence, string[] jsonLines, ImmutableDictionary<int, (string, int)> sourceMap)
         {
             var sourceTextLines = bicepOutput.Split(newlineSequence);
             var mappingsStartLines = new int[sourceTextLines.Length];
@@ -119,7 +119,6 @@ namespace Bicep.Core.UnitTests.Utils
             });
 
             var sourceTextWithSourceMap = new StringBuilder();
-            var compiledJsonLines = jsonOutput.Split(newlineSequence);
             // "Content" is a line that contains word character that is not part of escape sequence
             var HasContentRegex = new Regex("(?<!\\\\)\\w", RegexOptions.Compiled);
 
@@ -140,7 +139,7 @@ namespace Bicep.Core.UnitTests.Utils
 
                     do
                     {
-                        jsonLine = OutputHelper.EscapeWhitespace(compiledJsonLines[jsonStartLine + offset]);
+                        jsonLine = OutputHelper.EscapeWhitespace(jsonLines[jsonStartLine + offset]);
                         offset++;
                     }
                     while (!HasContentRegex.IsMatch(jsonLine) && offset <= maxOffset);

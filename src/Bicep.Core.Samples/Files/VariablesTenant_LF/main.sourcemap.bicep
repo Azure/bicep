@@ -1,11 +1,11 @@
 targetScope='tenant'
 
 var deploymentLocation = deployment().location
-//@[11:11]     "deploymentLocation": "[deployment().location]",\r
+//@[11:11]     "deploymentLocation": "[deployment().location]",
 
 var scopesWithArmRepresentation = {
-//@[12:14]     "scopesWithArmRepresentation": {\r
+//@[12:14]     "scopesWithArmRepresentation": {
   tenant: tenant()
-//@[13:13]       "tenant": "[tenant()]"\r
+//@[13:13]       "tenant": "[tenant()]"
 }
 
