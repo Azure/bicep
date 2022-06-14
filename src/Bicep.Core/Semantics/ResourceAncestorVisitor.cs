@@ -41,18 +41,13 @@ namespace Bicep.Core.Semantics
             }
             else if (resource.Symbol.TryGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is { } referenceParentSyntax)
             {
-                SyntaxBase? indexExpression = null;
-                if (referenceParentSyntax is ArrayAccessSyntax arrayAccess)
-                {
-                    referenceParentSyntax = arrayAccess.BaseExpression;
-                    indexExpression = arrayAccess.IndexExpression;
-                }
+                var (baseSyntax, indexExpression) = SyntaxHelper.UnwrapArrayAccessSyntax(referenceParentSyntax);
 
                 // parent property reference syntax
                 //
                 // This check is safe because we don't allow resources declared as parameters to be used with the
                 // parent property. Resources provided as parameters have an unknown scope.
-                if (semanticModel.ResourceMetadata.TryLookup(referenceParentSyntax) is DeclaredResourceMetadata parentResource)
+                if (semanticModel.ResourceMetadata.TryLookup(baseSyntax) is DeclaredResourceMetadata parentResource)
                 {
                     this.ancestry.Add(resource, new ResourceAncestor(ResourceAncestorType.ParentProperty, parentResource, indexExpression));
                 }

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6570365507497931924"
+      "templateHash": "8642390233699218744"
     }
   },
   "parameters": {
@@ -86,8 +86,8 @@
       }
     },
     "administratorAccountPassword": {
-      "type": "secureString",
       "defaultValue": "",
+      "type": "secureString",
       "metadata": {
         "description": "The password that corresponds to the existing domain username."
       }
@@ -100,8 +100,8 @@
       }
     },
     "vmAdministratorAccountPassword": {
-      "type": "secureString",
       "defaultValue": "",
+      "type": "secureString",
       "metadata": {
         "description": "The password associated with the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used."
       }
@@ -978,8 +978,8 @@
               }
             },
             "vmAdministratorAccountPassword": {
-              "type": "secureString",
               "defaultValue": "",
+              "type": "secureString",
               "metadata": {
                 "description": "The password associated with the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used."
               }
@@ -1668,8 +1668,8 @@
               }
             },
             "vmAdministratorAccountPassword": {
-              "type": "secureString",
               "defaultValue": "",
+              "type": "secureString",
               "metadata": {
                 "description": "The password associated with the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used."
               }
@@ -2343,8 +2343,8 @@
               }
             },
             "vmAdministratorAccountPassword": {
-              "type": "secureString",
               "defaultValue": "",
+              "type": "secureString",
               "metadata": {
                 "description": "The password associated with the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used."
               }
@@ -3014,8 +3014,8 @@
               }
             },
             "vmAdministratorAccountPassword": {
-              "type": "secureString",
               "defaultValue": "",
+              "type": "secureString",
               "metadata": {
                 "description": "The password associated with the virtual machine administrator account. The vmAdministratorAccountUsername and  vmAdministratorAccountPassword parameters must both be provided. Otherwise, domain administrator credentials provided by administratorAccountUsername and administratorAccountPassword will be used."
               }

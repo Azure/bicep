@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10244203654925270193"
+      "templateHash": "9036125375840019027"
     }
   },
   "parameters": {
@@ -1744,8 +1744,8 @@
               "type": "secureString"
             },
             "secureStringParam2": {
-              "type": "secureString",
-              "defaultValue": ""
+              "defaultValue": "",
+              "type": "secureString"
             }
           },
           "resources": [],
@@ -1801,8 +1801,8 @@
               "type": "secureString"
             },
             "secureStringParam2": {
-              "type": "secureString",
-              "defaultValue": ""
+              "defaultValue": "",
+              "type": "secureString"
             }
           },
           "resources": [],
@@ -1862,8 +1862,8 @@
               "type": "secureString"
             },
             "secureStringParam2": {
-              "type": "secureString",
-              "defaultValue": ""
+              "defaultValue": "",
+              "type": "secureString"
             }
           },
           "resources": [],

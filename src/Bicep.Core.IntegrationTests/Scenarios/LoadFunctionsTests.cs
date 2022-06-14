@@ -522,7 +522,7 @@ output out string = script
   ""propInt"": 1073741824,
   ""propIntNegative"": -1073741824,
   ""propBigInt"": 4611686018427387904,
-  ""propBigIntNegative"": ""[json('-4611686018427387904')]"",
+  ""propBigIntNegative"": -4611686018427387904,
   ""propFloat"": ""[json('1.618033988749894')]"",
   ""propFloatNegative"": ""[json('-1.618033988749894')]"",
   ""propArrayString"": [

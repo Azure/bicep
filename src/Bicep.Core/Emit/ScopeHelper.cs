@@ -66,16 +66,8 @@ namespace Bicep.Core.Emit
                 return null;
             }
 
-            var (scopeSymbol, indexExpression) = scopeValue switch
-            {
-                // scope indexing can only happen with references to module or resource collections
-                ArrayAccessSyntax { BaseExpression: VariableAccessSyntax baseVariableAccess } arrayAccess => (semanticModel.GetSymbolInfo(baseVariableAccess), arrayAccess.IndexExpression),
-                ArrayAccessSyntax { BaseExpression: ResourceAccessSyntax baseVariableAccess } arrayAccess => (semanticModel.GetSymbolInfo(baseVariableAccess), arrayAccess.IndexExpression),
-
-                // all other scope expressions
-                _ => (semanticModel.GetSymbolInfo(scopeValue), null)
-            };
-
+            var (baseSyntax, indexExpression) = SyntaxHelper.UnwrapArrayAccessSyntax(scopeValue);
+            var scopeSymbol = semanticModel.GetSymbolInfo(baseSyntax);
             var scopeType = semanticModel.GetTypeInfo(scopeValue);
 
             switch (scopeType)

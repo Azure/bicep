@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5474777074424075084"
+      "templateHash": "10322473353118594870"
     }
   },
   "parameters": {
@@ -56,12 +56,12 @@
       {
         "name": "arrayOfHardCodedNumbers",
         "count": "[length(range(0, 10))]",
-        "input": "[int(3)]"
+        "input": 3
       },
       {
         "name": "arrayOfHardCodedBools",
         "count": "[length(range(0, 10))]",
-        "input": "[false()]"
+        "input": false
       },
       {
         "name": "arrayOfHardCodedStrings",
@@ -218,8 +218,8 @@
     "isFalse": "[not(variables('isTrue'))]",
     "someText": "[if(variables('isTrue'), concat('a', concat('b', 'c')), 'someText')]",
     "scopesWithoutArmRepresentation": {
-      "subscription": "[createObject()]",
-      "resourceGroup": "[createObject()]"
+      "subscription": {},
+      "resourceGroup": {}
     },
     "scopesWithArmRepresentation": {
       "tenant": "[tenant()]",

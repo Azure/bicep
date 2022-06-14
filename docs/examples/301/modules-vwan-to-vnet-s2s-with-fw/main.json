@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7935120756355915845"
+      "templateHash": "10649734997133352779"
     }
   },
   "parameters": {
@@ -31,11 +31,11 @@
       }
     },
     "psk": {
-      "type": "secureString",
       "defaultValue": "[uniqueString(subscription().id)]",
       "metadata": {
         "description": "Pre-Shared Key used to establish the site to site tunnel between the Virtual Hub and On-Prem VNet"
-      }
+      },
+      "type": "secureString"
     }
   },
   "variables": {
@@ -1648,10 +1648,10 @@
               "type": "string"
             },
             "psk": {
-              "type": "secureString",
               "metadata": {
                 "description": "Specifies the pre-shared key to use for the VPN Connection"
-              }
+              },
+              "type": "secureString"
             },
             "vpnsiteid": {
               "type": "string",
@@ -1771,10 +1771,10 @@
               }
             },
             "psk": {
-              "type": "secureString",
               "metadata": {
                 "description": "Specifies the pre-shared key to use for the VPN Connection"
-              }
+              },
+              "type": "secureString"
             },
             "remotesiteasn": {
               "type": "int",

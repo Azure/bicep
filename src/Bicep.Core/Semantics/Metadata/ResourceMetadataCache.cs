@@ -115,15 +115,10 @@ namespace Bicep.Core.Semantics.Metadata
                         }
                         else if (symbol.TryGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is { } referenceParentSyntax)
                         {
-                            SyntaxBase? indexExpression = null;
-                            if (referenceParentSyntax is ArrayAccessSyntax arrayAccess)
-                            {
-                                referenceParentSyntax = arrayAccess.BaseExpression;
-                                indexExpression = arrayAccess.IndexExpression;
-                            }
+                            var (baseSyntax, indexExpression) = SyntaxHelper.UnwrapArrayAccessSyntax(referenceParentSyntax);
 
                             // parent property reference syntax
-                            if (TryLookup(referenceParentSyntax) is { } parentMetadata)
+                            if (TryLookup(baseSyntax) is { } parentMetadata)
                             {
                                 return new DeclaredResourceMetadata(
                                     resourceType,
