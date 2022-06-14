@@ -89,7 +89,7 @@ namespace Bicep.Core.UnitTests.Utils
             where TPositionable : IPositionable
             => AddDiagsToSourceText(bicepOutput, newlineSequence, items, item => item.Span, diagsFunc);
 
-        public static string AddSourceMapToSourceText(string bicepOutput, string newlineSequence, string[] jsonLines, ImmutableDictionary<int, (string, int)> sourceMap)
+        public static string AddSourceMapToSourceText(string bicepOutput, string newlineSequence, ImmutableDictionary<int, (string, int)> sourceMap, string[] jsonLines)
         {
             var sourceTextLines = bicepOutput.Split(newlineSequence);
             var mappingsStartLines = new int[sourceTextLines.Length];
@@ -119,8 +119,6 @@ namespace Bicep.Core.UnitTests.Utils
             });
 
             var sourceTextWithSourceMap = new StringBuilder();
-            // "Content" is a line that contains word character that is not part of escape sequence
-            var HasContentRegex = new Regex("(?<!\\\\)\\w", RegexOptions.Compiled);
 
             for (var i = 0; i < sourceTextLines.Length; i++)
             {
@@ -128,7 +126,7 @@ namespace Bicep.Core.UnitTests.Utils
                 sourceTextWithSourceMap.Append(newlineSequence);
 
                 // only annotate lines that have both a mapping and content
-                if (mappingsEndLines[i] != 0 && HasContentRegex.IsMatch(sourceTextLines[i]))
+                if (mappingsEndLines[i] != 0 && sourceTextLines[i].Any(char.IsLetterOrDigit))
                 {
                     // show first line of mapped JSON with content in annotation
                     var jsonLine = string.Empty;
@@ -142,7 +140,7 @@ namespace Bicep.Core.UnitTests.Utils
                         jsonLine = OutputHelper.EscapeWhitespace(jsonLines[jsonStartLine + offset]);
                         offset++;
                     }
-                    while (!HasContentRegex.IsMatch(jsonLine) && offset <= maxOffset);
+                    while (!jsonLine.Any(char.IsLetterOrDigit) && offset <= maxOffset);
 
                     if (jsonLine != string.Empty)
                     {
