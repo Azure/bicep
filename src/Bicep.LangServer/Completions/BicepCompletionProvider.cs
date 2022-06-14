@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using Azure.Deployments.Core.Comparers;
@@ -322,6 +323,58 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
+        private bool TryGetFilesForPathCompletions(Uri baseUri, string entered, [NotNullWhen(true)] out Uri? cwd, out ICollection<Uri> files, out ICollection<Uri> dirs)
+        {
+            files = Enumerable.Empty<Uri>().ToList();
+            dirs = Enumerable.Empty<Uri>().ToList();
+            cwd = null;
+            if (FileResolver.TryResolveFilePath(baseUri, ".") is not { } cwdUri
+                || FileResolver.TryResolveFilePath(cwdUri, entered) is not { } query)
+            {
+                return false;
+            }
+
+            cwd = cwdUri;
+
+            // technically bicep files do not have to follow the bicep extension, so
+            // we are not enforcing *.bicep get files command
+            if (FileResolver.DirExists(query))
+            {
+                files = FileResolver.GetFiles(query, string.Empty).ToList();
+                dirs = FileResolver.GetDirectories(query, string.Empty).ToList();
+            }
+            else if (FileResolver.TryResolveFilePath(query, ".") is { } queryParent)
+            {
+                files = FileResolver.GetFiles(queryParent, "").ToList();
+                dirs = FileResolver.GetDirectories(queryParent, "").ToList();
+            }
+
+            return true;
+        }
+
+        private IEnumerable<CompletionItem> CreateFileCompletionItems(SemanticModel model, BicepCompletionContext context, string entered, IEnumerable<Uri> fileUris, Uri cwdUri, Predicate<Uri> predicate, CompletionPriority priority) => fileUris
+            .Where(fileUri => fileUri != model.SourceFile.FileUri && predicate(fileUri))
+            .Select(fileUri =>
+                CreateFilePathCompletionBuilder(
+                        fileUri.Segments.Last(),
+                        (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(fileUri),
+                        context.ReplacementRange,
+                        CompletionItemKind.File,
+                        priority)
+                    .Build());
+
+        private IEnumerable<CompletionItem> CreateDirectoryCompletionItems(SemanticModel model, BicepCompletionContext context, string entered, IEnumerable<Uri> dirUris, Uri cwdUri, CompletionPriority priority = CompletionPriority.Low) => dirUris
+            .Select(dir =>
+                CreateFilePathCompletionBuilder(
+                        dir.Segments.Last(),
+                        // "./" will not be preserved when making relative Uris. We have to go and manually add it.
+                        (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(dir),
+                        context.ReplacementRange,
+                        CompletionItemKind.Folder,
+                        priority)
+                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "file path completion" })
+                    .Build());
+        
         private IEnumerable<CompletionItem> GetModulePathCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath))
@@ -338,56 +391,20 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // These should only fail if we're not able to resolve cwd path or the entered string
-            if (FileResolver.TryResolveFilePath(model.SourceFile.FileUri, ".") is not { } cwdUri
-                || FileResolver.TryResolveFilePath(cwdUri, entered) is not { } query)
+            if (!TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered, out var cwdUri, out var files, out var dirs))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
-
-            var files = Enumerable.Empty<Uri>();
-            var dirs = Enumerable.Empty<Uri>();
-
-            // technically bicep files do not have to follow the bicep extension, so
-            // we are not enforcing *.bicep get files command
-            if (FileResolver.DirExists(query))
-            {
-                files = FileResolver.GetFiles(query, string.Empty);
-                dirs = FileResolver.GetDirectories(query, string.Empty);
-            }
-            else if (FileResolver.TryResolveFilePath(query, ".") is { } queryParent)
-            {
-                files = FileResolver.GetFiles(queryParent, "");
-                dirs = FileResolver.GetDirectories(queryParent, "");
-            }
-
+            
             // Prioritize .bicep files higher than other files.
-            var bicepFileItems = CreateFileCompletionItems(files, cwdUri, IsBicepFile, CompletionPriority.High);
-            var armTemplateFileItems = CreateFileCompletionItems(files, cwdUri, IsArmTemplateFileLike, CompletionPriority.Medium);
-            var dirItems = dirs
-                .Select(dir =>
-                    CreateModulePathCompletionBuilder(
-                        dir.Segments.Last(),
-                        // "./" will not be preserved when making relative Uris. We have to go and manually add it.
-                        (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(dir).ToString(),
-                        context.ReplacementRange,
-                        CompletionItemKind.Folder,
-                        CompletionPriority.Low)
-                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "module path completion" })
-                    .Build());
+            var bicepFileItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, IsBicepFile, CompletionPriority.High);
+            var armTemplateFileItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, IsArmTemplateFileLike, CompletionPriority.Medium);
+            var dirItems = CreateDirectoryCompletionItems(model, context, entered, dirs, cwdUri);
 
             return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
 
             // Local functions.
-            IEnumerable<CompletionItem> CreateFileCompletionItems(IEnumerable<Uri> fileUris, Uri cwdUri, Predicate<Uri> predicate, CompletionPriority priority) => fileUris
-                .Where(fileUri => fileUri != model.SourceFile.FileUri && predicate(fileUri))
-                .Select(fileUri =>
-                    CreateModulePathCompletionBuilder(
-                        fileUri.Segments.Last(),
-                        (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(fileUri).ToString(),
-                        context.ReplacementRange,
-                        CompletionItemKind.File,
-                        priority)
-                    .Build());
+
 
             bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
 
@@ -872,16 +889,54 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetFunctionParamCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.FunctionArgument) ||
-                context.FunctionCall is not { } functionCall ||
+            if (context.FunctionCall is not { } functionCall ||
                 model.GetSymbolInfo(functionCall) is not FunctionSymbol functionSymbol)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
 
             var argIndex = context.FunctionArgument is null ? 0 : functionCall.Arguments.IndexOf(context.FunctionArgument);
-            var argType = functionSymbol.GetDeclaredArgumentType(argIndex);
 
+            var functionOverload = model.TypeManager.GetMatchedFunctionOverload(functionCall) ?? functionSymbol.Overloads.FirstOrDefault();
+            var functionArgumentFlags = functionOverload?.FixedParameters.ElementAtOrDefault(argIndex)?.Flags ?? FunctionParameterFlags.Default;
+            if (functionArgumentFlags.HasFlag(FunctionParameterFlags.FilePath))
+            {
+                if (functionCall.Arguments.Length == 0
+                    || functionCall.Arguments[argIndex].Expression is not StringSyntax stringSyntax
+                    || stringSyntax.TryGetLiteralValue() is not { } entered)
+                {
+                    entered = "";
+                }
+
+                // These should only fail if we're not able to resolve cwd path or the entered string
+                if (!TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered, out var cwdUri, out var files, out var dirs))
+                {
+                    return Enumerable.Empty<CompletionItem>();
+                }
+
+                IEnumerable<CompletionItem> fileItems;
+                if (functionArgumentFlags.HasFlag(FunctionParameterFlags.ExpectedJsonFile))
+                {
+                    // Prioritize .json or .jsonc files higher than other files.
+                    var jsonItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, (file) => PathHelper.HasExtension(file, "json") || PathHelper.HasExtension(file, "jsonc"), CompletionPriority.High);
+                    var nonJsonItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, (file) => !PathHelper.HasExtension(file, "json") && !PathHelper.HasExtension(file, "jsonc"), CompletionPriority.Medium);
+                    fileItems = jsonItems.Concat(nonJsonItems);
+                }
+                else
+                {
+                    fileItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, (_) => true, CompletionPriority.High);
+                }
+
+                var dirItems = CreateDirectoryCompletionItems(model, context, entered, dirs, cwdUri, CompletionPriority.Medium);
+
+                return fileItems.Concat(dirItems);
+            }
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.FunctionArgument))
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+            var argType = functionSymbol.GetDeclaredArgumentType(argIndex);
+            
             return GetValueCompletionsForType(argType, context.ReplacementRange, loopsAllowed: false);
         }
 
@@ -1220,7 +1275,7 @@ namespace Bicep.LanguageServer.Completions
                 .Build();
         }
 
-        private static CompletionItemBuilder CreateModulePathCompletionBuilder(string name, string path, Range replacementRange, CompletionItemKind completionItemKind, CompletionPriority priority)
+        private static CompletionItemBuilder CreateFilePathCompletionBuilder(string name, string path, Range replacementRange, CompletionItemKind completionItemKind, CompletionPriority priority)
         {
             // unescape string according to https://stackoverflow.com/questions/575440/url-encoding-using-c-sharp
             path = StringUtils.EscapeBicepString(Uri.UnescapeDataString(path));
