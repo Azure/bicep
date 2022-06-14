@@ -1,0 +1,282 @@
+{
+  "12": {
+    "Item1": "main.bicep",
+    "Item2": 3
+  },
+  "13": {
+    "Item1": "main.bicep",
+    "Item2": 3
+  },
+  "14": {
+    "Item1": "main.bicep",
+    "Item2": 3
+  },
+  "15": {
+    "Item1": "main.bicep",
+    "Item2": 5
+  },
+  "16": {
+    "Item1": "main.bicep",
+    "Item2": 5
+  },
+  "17": {
+    "Item1": "main.bicep",
+    "Item2": 5
+  },
+  "18": {
+    "Item1": "main.bicep",
+    "Item2": 6
+  },
+  "19": {
+    "Item1": "main.bicep",
+    "Item2": 6
+  },
+  "20": {
+    "Item1": "main.bicep",
+    "Item2": 6
+  },
+  "23": {
+    "Item1": "main.bicep",
+    "Item2": 8
+  },
+  "24": {
+    "Item1": "main.bicep",
+    "Item2": 8
+  },
+  "25": {
+    "Item1": "main.bicep",
+    "Item2": 8
+  },
+  "26": {
+    "Item1": "main.bicep",
+    "Item2": 8
+  },
+  "27": {
+    "Item1": "main.bicep",
+    "Item2": 10
+  },
+  "28": {
+    "Item1": "main.bicep",
+    "Item2": 11
+  },
+  "29": {
+    "Item1": "main.bicep",
+    "Item2": 12
+  },
+  "30": {
+    "Item1": "main.bicep",
+    "Item2": 10
+  },
+  "31": {
+    "Item1": "main.bicep",
+    "Item2": 8
+  },
+  "32": {
+    "Item1": "main.bicep",
+    "Item2": 16
+  },
+  "33": {
+    "Item1": "main.bicep",
+    "Item2": 16
+  },
+  "34": {
+    "Item1": "main.bicep",
+    "Item2": 16
+  },
+  "35": {
+    "Item1": "main.bicep",
+    "Item2": 16
+  },
+  "36": {
+    "Item1": "main.bicep",
+    "Item2": 16
+  },
+  "37": {
+    "Item1": "main.bicep",
+    "Item2": 16
+  },
+  "38": {
+    "Item1": "main.bicep",
+    "Item2": 16
+  },
+  "39": {
+    "Item1": "main.bicep",
+    "Item2": 16
+  },
+  "40": {
+    "Item1": "main.bicep",
+    "Item2": 18
+  },
+  "41": {
+    "Item1": "main.bicep",
+    "Item2": 19
+  },
+  "42": {
+    "Item1": "main.bicep",
+    "Item2": 20
+  },
+  "43": {
+    "Item1": "main.bicep",
+    "Item2": 18
+  },
+  "44": {
+    "Item1": "main.bicep",
+    "Item2": 16
+  },
+  "45": {
+    "Item1": "main.bicep",
+    "Item2": 16
+  },
+  "46": {
+    "Item1": "main.bicep",
+    "Item2": 16
+  },
+  "47": {
+    "Item1": "main.bicep",
+    "Item2": 16
+  },
+  "48": {
+    "Item1": "main.bicep",
+    "Item2": 27
+  },
+  "49": {
+    "Item1": "main.bicep",
+    "Item2": 27
+  },
+  "50": {
+    "Item1": "main.bicep",
+    "Item2": 27
+  },
+  "51": {
+    "Item1": "main.bicep",
+    "Item2": 27
+  },
+  "52": {
+    "Item1": "main.bicep",
+    "Item2": 27
+  },
+  "53": {
+    "Item1": "main.bicep",
+    "Item2": 27
+  },
+  "54": {
+    "Item1": "main.bicep",
+    "Item2": 27
+  },
+  "55": {
+    "Item1": "main.bicep",
+    "Item2": 27
+  },
+  "56": {
+    "Item1": "main.bicep",
+    "Item2": 29
+  },
+  "57": {
+    "Item1": "main.bicep",
+    "Item2": 30
+  },
+  "58": {
+    "Item1": "main.bicep",
+    "Item2": 31
+  },
+  "59": {
+    "Item1": "main.bicep",
+    "Item2": 29
+  },
+  "60": {
+    "Item1": "main.bicep",
+    "Item2": 27
+  },
+  "61": {
+    "Item1": "main.bicep",
+    "Item2": 27
+  },
+  "62": {
+    "Item1": "main.bicep",
+    "Item2": 27
+  },
+  "63": {
+    "Item1": "main.bicep",
+    "Item2": 27
+  },
+  "64": {
+    "Item1": "main.bicep",
+    "Item2": 27
+  },
+  "65": {
+    "Item1": "main.bicep",
+    "Item2": 39
+  },
+  "66": {
+    "Item1": "main.bicep",
+    "Item2": 39
+  },
+  "67": {
+    "Item1": "main.bicep",
+    "Item2": 39
+  },
+  "68": {
+    "Item1": "main.bicep",
+    "Item2": 39
+  },
+  "69": {
+    "Item1": "main.bicep",
+    "Item2": 39
+  },
+  "70": {
+    "Item1": "main.bicep",
+    "Item2": 39
+  },
+  "71": {
+    "Item1": "main.bicep",
+    "Item2": 45
+  },
+  "72": {
+    "Item1": "main.bicep",
+    "Item2": 45
+  },
+  "73": {
+    "Item1": "main.bicep",
+    "Item2": 45
+  },
+  "74": {
+    "Item1": "main.bicep",
+    "Item2": 45
+  },
+  "75": {
+    "Item1": "main.bicep",
+    "Item2": 45
+  },
+  "76": {
+    "Item1": "main.bicep",
+    "Item2": 47
+  },
+  "77": {
+    "Item1": "main.bicep",
+    "Item2": 45
+  },
+  "78": {
+    "Item1": "main.bicep",
+    "Item2": 51
+  },
+  "79": {
+    "Item1": "main.bicep",
+    "Item2": 51
+  },
+  "80": {
+    "Item1": "main.bicep",
+    "Item2": 51
+  },
+  "81": {
+    "Item1": "main.bicep",
+    "Item2": 51
+  },
+  "82": {
+    "Item1": "main.bicep",
+    "Item2": 53
+  },
+  "83": {
+    "Item1": "main.bicep",
+    "Item2": 51
+  }
+}
