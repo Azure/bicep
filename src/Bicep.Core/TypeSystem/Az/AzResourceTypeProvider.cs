@@ -9,7 +9,6 @@ using System.Collections.Immutable;
 using System.Collections.Concurrent;
 using Bicep.Core.Emit;
 using System.Text.RegularExpressions;
-//using Azure.Deployments.Core.Definitions.Resources;
 
 namespace Bicep.Core.TypeSystem.Az
 {

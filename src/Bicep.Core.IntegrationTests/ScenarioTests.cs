@@ -3093,9 +3093,10 @@ resource auth 'Microsoft.Web/sites/config@2021-03-01' = [for (c, i) in configs: 
         /// https://github.com/Azure/bicep/issues/3356
         /// </summary>
         [TestMethod]
-        public void Test_Issue_3356()
+        public void Test_Issue_3356_Accept_Correct_Type_Definitions()
         {
             var result = CompilationHelper.Compile(@"
+#disable-next-line BCP081
 resource foo 'Microsoft.Storage/storageAccounts@2021-09-00' = {
   name: 'test'
   kind: 'StorageV2'
@@ -3120,16 +3121,14 @@ resource foo 'Microsoft.Storage/storageAccounts@2021-09-00' = {
   }
 }
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2021-09-00\" does not have types available.")
-            });
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
         /// <summary>
         /// https://github.com/Azure/bicep/issues/3356
         /// </summary>
         [TestMethod]
-        public void Test_Issue_3356_2()
+        public void Test_Issue_3356_Warn_On_Bad_Type_Definitions()
         {
             var result = CompilationHelper.Compile(@"
 resource foo 'Microsoft.Storage/storageAccounts@2021-09-00' = {
