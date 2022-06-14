@@ -134,11 +134,11 @@ namespace Bicep.Core.IntegrationTests.Emit
             var sourceMap = emitter.Emit(memoryStream).SourceMap!;
             
             using var streamReader = new StreamReader(new MemoryStream(memoryStream.ToArray()));
-            var jsonLines = (await streamReader.ReadToEndAsync()).Split(System.Environment.NewLine);
+            var compiledJson = await streamReader.ReadToEndAsync();
 
-            var sourceTextWithSourceMap = OutputHelper.AddSourceMapToSourceText(dataSet.Bicep, dataSet.HasCrLfNewlines() ? "\r\n" : "\n", sourceMap, jsonLines);
-            var sourceTextWithSourceMapFileName = Path.Combine(outputDirectory, DataSet.TestFileMainSourceMap);
-            File.WriteAllText(sourceTextWithSourceMapFileName, sourceTextWithSourceMap.ToString());
+            var sourceTextWithSourceMap = OutputHelper.AddSourceMapToSourceText(dataSet.Bicep, compiledJson, sourceMap, dataSet.HasCrLfNewlines() ? "\r\n" : "\n");
+            var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainSourceMap);
+            File.WriteAllText(resultsFile, sourceTextWithSourceMap.ToString());
 
             // validate source file annotated with source map
             sourceTextWithSourceMap.Should().EqualWithLineByLineDiffOutput(

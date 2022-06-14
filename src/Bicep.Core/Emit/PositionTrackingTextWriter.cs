@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
@@ -9,19 +10,20 @@ namespace Bicep.Core.Emit
 {
     public class PositionTrackingJsonTextWriter : JsonTextWriter
     {
-        public int CurrentPos;
+        private class PositionTrackingTextWriter : TextWriter
+        {
+            private readonly TextWriter _internalWriter;
+
+            public int CurrentPos;
 
             public List<int> CommaPositions = new();
 
-        public string _debugString = string.Empty;
-        public List<int> CommaPositions = new List<int>();
+            public PositionTrackingTextWriter(TextWriter textWriter)
+            {
+                _internalWriter = textWriter;
+            }
 
-        public PositionTrackingTextWriter(TextWriter textWriter)
-        {
-            _internalWriter = textWriter;
-        }
-
-            public override Encoding Encoding => _internalWriter.Encoding;
+            public override Encoding Encoding => this.internalWriter.Encoding;
 
             public override void Write(char value)
             {
@@ -30,8 +32,7 @@ namespace Bicep.Core.Emit
                     CommaPositions.Add(CurrentPos);
                 }
 
-            _internalWriter.Write(value);
-            _debugString += value;
+                _internalWriter.Write(value);
 
                 CurrentPos++;
             }
@@ -40,7 +41,7 @@ namespace Bicep.Core.Emit
         private readonly PositionTrackingTextWriter _trackingWriter;
 
         public int CurrentPos => _trackingWriter.CurrentPos;
-        public IReadOnlyList<int> CommaPositions => _trackingWriter.CommaPositions.AsReadOnly();
+        public ImmutableArray<int> CommaPositions => _trackingWriter.CommaPositions.ToImmutableArray();
 
         private PositionTrackingJsonTextWriter(PositionTrackingTextWriter textWriter) : base(textWriter)
         {
