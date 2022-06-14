@@ -3,9 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
@@ -28,7 +26,7 @@ namespace Bicep.Core.Emit
                 throw new ArgumentNullException(nameof(rawSourceMap));
             }
 
-            var bicepFileName = Path.GetFileName(bicepFile.FileUri.AbsolutePath);
+            var bicepFilePath = bicepFile.FileUri.AbsolutePath;
             (int bicepLine, _) = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, bicepSyntax.GetPosition());
 
             // account for leading nodes (decorators)
@@ -46,7 +44,7 @@ namespace Bicep.Core.Emit
             var jsonEndPos = jsonWriter.CurrentPos - 1;
 
             rawSourceMap.AddMapping(
-                bicepFileName,
+                bicepFilePath,
                 bicepLine,
                 jsonStartPos,
                 jsonEndPos);
@@ -63,7 +61,7 @@ namespace Bicep.Core.Emit
                     lineKvp.Value.ForEach(mapping =>
                     {
                         parentSourceMap.AddMapping(
-                            fileKvp.Key,
+                            toRelativePath(fileKvp.Key),
                             lineKvp.Key,
                             mapping.start + offset,
                             mapping.end + offset);

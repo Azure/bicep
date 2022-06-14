@@ -8,7 +8,7 @@ namespace Bicep.Core.Emit
 {
     public class EmitResult
     {
-        public EmitResult(EmitStatus status, IEnumerable<IDiagnostic> diagnostics, Dictionary<int, (string, int)>? sourceMap = null)
+        public EmitResult(EmitStatus status, IEnumerable<IDiagnostic> diagnostics, ImmutableDictionary<int, (string, int)>? sourceMap = null)
         {
             this.Status = status;
             this.Diagnostics = diagnostics.ToImmutableArray();
@@ -28,7 +28,7 @@ namespace Bicep.Core.Emit
         /// <summary>
         /// Source map created during the emit operation.
         /// </summary>
-        public Dictionary<int, (string, int)>? SourceMap { get; }
+        public ImmutableDictionary<int, (string, int)>? SourceMap { get; }
         
     }
 }
