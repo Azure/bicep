@@ -126,21 +126,32 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
             {
-                // Look for usage of a list*() member function for a resource value, e.g.:
-                //
-                //   output badResult object = stg.listKeys().keys[0].value
-                //
-                // or usage of a built-in list*() function as a member of the built-in "az" module, e.g.:
-                //
-                //   output badResult object = az.listKeys(resourceId('Microsoft.Storage/storageAccounts', 'storageName'), '2021-02-01')
-                //
-
-                if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix)
-                    && (model.ResourceMetadata.TryLookup(syntax.BaseExpression) is { } resource
-                       || SemanticModelHelper.TryGetFunctionInNamespace(model, AzNamespaceType.BuiltInName, syntax) is FunctionCallSyntaxBase listFunction))
+                if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix))
                 {
-                    string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsFunction, syntax.Name.IdentifierName);
-                    this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, foundMessage));
+                    bool isFailure = false;
+
+                    if (model.ResourceMetadata.TryLookup(syntax.BaseExpression) is { })
+                    {
+                        // It's a usage of a list*() member function for a resource value, e.g.:
+                        //
+                        //   output badResult object = stg.listKeys().keys[0].value
+                        //
+                        isFailure = true;
+                    }
+                    else if (SemanticModelHelper.TryGetFunctionInNamespace(model, AzNamespaceType.BuiltInName, syntax) is FunctionCallSyntaxBase listFunction)
+                    {
+                        // It's a usage of a built-in list*() function as a member of the built-in "az" module, e.g.:
+                        //
+                        //   output badResult object = az.listKeys(resourceId('Microsoft.Storage/storageAccounts', 'storageName'), '2021-02-01')
+                        //
+                        isFailure = true;
+                    }
+
+                    if (isFailure)
+                    {
+                        string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsFunction, syntax.Name.IdentifierName);
+                        this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, foundMessage));
+                    }
                 }
 
                 base.VisitInstanceFunctionCallSyntax(syntax);
