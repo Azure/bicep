@@ -463,7 +463,8 @@ resource ap|p2 'Microsoft.Web/sites@2021-03-01' existing = {
             }",
             @"resource app1 'Microsoft.Web/sites@2021-03-01' = {
                 name: 'app1'
-            }")]
+            }
+")]
         [DataTestMethod]
         public async Task Unused_existing_resource_actions_are_suggested(string fileWithCursors, string expectedText)
         {
