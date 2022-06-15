@@ -96,13 +96,16 @@ namespace Bicep.Core.Emit
         private readonly EmitterSettings settings;
         private readonly IDictionary<string, IDictionary<int, IList<(int start, int end)>>> rawSourceMap;
 
-        public Dictionary<int, (string, int)>? SourceMap; // ARM JSON line => (Bicep File, Bicep Line)
+        public IDictionary<int, (string, int)>? SourceMap; // ARM JSON line => (Bicep File, Bicep Line)
 
-        public TemplateWriter(SemanticModel semanticModel, EmitterSettings settings)
+        public TemplateWriter(SemanticModel semanticModel, EmitterSettings settings, IDictionary<int, (string, int)>? sourceMap = null)
         {
             this.context = new EmitterContext(semanticModel, settings);
             this.settings = settings;
             this.rawSourceMap = new Dictionary<string, IDictionary<int, IList<(int, int)>>>();
+            this.SourceMap = sourceMap is null && settings.EnableSourceMapping
+                ? new Dictionary<int, (string, int)>()
+                : sourceMap;
         }
 
         public void Write(JsonTextWriter writer)
@@ -190,9 +193,9 @@ namespace Bicep.Core.Emit
                 .FirstOrDefault();
 
             // increment all positions in mappings by templateHashLength that occur after hash start position
-            this.rawSourceMap.Keys.ForEach(file =>
+            foreach (var file in this.rawSourceMap.Keys)
             {
-                this.rawSourceMap[file].Keys.ForEach(line =>
+                foreach (var line in this.rawSourceMap[file].Keys)
                 {
                     for (int i = 0; i < rawSourceMap[file][line].Count; i++)
                     {
@@ -204,8 +207,8 @@ namespace Bicep.Core.Emit
                                 (start + templateHashLength, end + templateHashLength);
                         }
                     }
-                });
-            });
+                }
+            }
 
             // transform offsets in rawSourceMap to line numbers for formatted JSON using unformattedLineStarts
             // add 1 to all line numbers to convert to 1-indexing
@@ -220,26 +223,29 @@ namespace Bicep.Core.Emit
                         TextCoordinateConverter.GetPosition(unformattedLineStarts, mapping.end).line + 1))));
 
             // unfold key-values in bicep-to-json map to convert to json-to-bicep map
-            this.SourceMap = new();
             var weights = new int[unformattedLineStarts.Count];
             Array.Fill(weights, int.MaxValue);
 
-            formattedSourceMap.ForEach(fileKvp =>
-                fileKvp.Value.ForEach(lineKvp =>
-                    lineKvp.Value.ForEach(mapping =>
+            foreach (var fileKvp in formattedSourceMap)
+            {
+                foreach (var lineKvp in fileKvp.Value)
+                {
+                    foreach (var (start, end) in lineKvp.Value)
                     {
                         // write most specific mapping available for each json line (less lines => stronger weight)
-                        int weight = mapping.Item2 - mapping.Item1;
-                        for (int i = mapping.Item1; i <= mapping.Item2; i++)
+                        int weight = end - start;
+                        for (int i = start; i <= end; i++)
                         {
                             // write new mapping if weight is stronger than existing mapping
                             if (weight < weights[i])
                             {
-                                this.SourceMap[i] = (fileKvp.Key, lineKvp.Key);
+                                this.SourceMap![i] = (fileKvp.Key, lineKvp.Key);
                                 weights[i] = weight;
                             }
                         }
-                    })));
+                    }
+                }
+            }
         }
 
         private void EmitParametersIfPresent(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)

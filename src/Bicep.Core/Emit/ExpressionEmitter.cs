@@ -308,8 +308,6 @@ namespace Bicep.Core.Emit
             // emit loop properties first (if any)
             if (propertyLookup.Contains(true))
             {
-                // TODO: bicep 
-
                 // we have properties whose value is a for-expression
                 this.EmitProperty("copy", () =>
                 {

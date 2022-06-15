@@ -120,7 +120,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.EmitterSettingsWithSourceMapping);
             using var memoryStream = new MemoryStream();
             var sourceMap = emitter.Emit(memoryStream).SourceMap!;
-            
+
             using var streamReader = new StreamReader(new MemoryStream(memoryStream.ToArray()));
             var jsonLines = (await streamReader.ReadToEndAsync()).Split(System.Environment.NewLine);
 
