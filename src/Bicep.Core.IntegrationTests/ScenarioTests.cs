@@ -2375,6 +2375,7 @@ output test string = res.id
             result.Should().HaveDiagnostics(new[]
             {
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/virtualNetworks\" but the provided value is of type \"module\"."),
+                ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"res2\" is declared but never used."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/virtualNetworks\" but the provided value is of type \"tenant\"."),
             });
         }
