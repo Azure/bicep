@@ -18,6 +18,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -147,7 +148,13 @@ namespace Bicep.Core.IntegrationTests.Emit
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
                 actualLocation: sourceTextWithSourceMapFileName);
 
-            var actualSourceMapJson = JToken.FromObject(sourceMap);
+            // update file paths in source map to match baseline, regardless of platform
+            var updatedSourceMap = sourceMap.ToDictionary(
+                kvp => kvp.Key,
+                kvp => (kvp.Value.Item1.Replace("/", @"\"), kvp.Value.Item2)
+            );
+
+            var actualSourceMapJson = JToken.FromObject(updatedSourceMap);
             var actualSourceMapJsonFileName = Path.Combine(outputDirectory, DataSet.TestFileMainCompiledSourceMap);
             File.WriteAllText(actualSourceMapJsonFileName, actualSourceMapJson.ToString());
 
