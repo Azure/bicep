@@ -10,29 +10,29 @@ using System.Linq;
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public class NoUnusedResourcesRuleTests : LinterRuleTestsBase
+    public class NoUnusedExistingResourcesRuleTests : LinterRuleTestsBase
     {
 
         [TestMethod]
         public void ResourceNameInFormattedMessage()
         {
-            var ruleToTest = new NoUnusedResourcesRule();
-            ruleToTest.GetMessage(nameof(ruleToTest)).Should().Be($"Resource \"{nameof(ruleToTest)}\" is declared but never used.");
+            var ruleToTest = new NoUnusedExistingResourcesRule();
+            ruleToTest.GetMessage(nameof(ruleToTest)).Should().Be($"Existing resource \"{nameof(ruleToTest)}\" is declared but never used.");
         }
 
-        private void CompileAndTest(string text, params string[] unusedResources)
+        private void CompileAndTest(string text, params string[] unusedExistingResources)
         {
-            CompileAndTest(text, OnCompileErrors.Fail, unusedResources);
+            CompileAndTest(text, OnCompileErrors.Fail, unusedExistingResources);
         }
 
-        private void CompileAndTest(string text, OnCompileErrors onCompileErrors, params string[] unusedResources)
+        private void CompileAndTest(string text, OnCompileErrors onCompileErrors, params string[] unusedExistingResources)
         {
-            AssertLinterRuleDiagnostics(NoUnusedResourcesRule.Code, text, onCompileErrors, diags =>
+            AssertLinterRuleDiagnostics(NoUnusedExistingResourcesRule.Code, text, onCompileErrors, diags =>
             {
-                if (unusedResources.Any())
+                if (unusedExistingResources.Any())
                 {
-                    var rule = new NoUnusedResourcesRule();
-                    string[] expectedMessages = unusedResources.Select(p => rule.GetMessage(p)).ToArray();
+                    var rule = new NoUnusedExistingResourcesRule();
+                    string[] expectedMessages = unusedExistingResources.Select(p => rule.GetMessage(p)).ToArray();
                     diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
                 }
                 else
@@ -64,23 +64,37 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             var appName = app.name
             ")]
         [DataRow(@"
-            resource app 'Microsoft.Web/sites@2021-03-01' existing = {
-                name: 'app'
+            resource app1 'Microsoft.Web/sites@2021-03-01' existing = {
+                name: 'app1'
             }
             resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
                 name: 'diagnosticSettings'
-                scope: app
+                scope: app1
             }
             ")]
+        [DataRow(@"
+            resource app1 'Microsoft.Web/sites@2021-03-01' existing = {
+                name: 'app1'
+            }
+            resource diagnosticSettings 'Microsoft.Insights/diagnosticSettings@2017-05-01-preview' = {
+                name: 'diagnosticSettings'
+                scope: app1
+            }
+
+            resource app2 'Microsoft.Web/sites@2021-03-01' existing = {
+                name: 'app2'
+            }
+            ",
+            "app2")]
         [DataRow(@"
             resource newApp 'Microsoft.Web/sites@2021-03-01' = {
                 name: 'newApp'
             }
             ")]
         [DataTestMethod]
-        public void TestRule(string text, params string[] unusedResources)
+        public void TestRule(string text, params string[] unusedExistingResources)
         {
-            CompileAndTest(text, unusedResources);
+            CompileAndTest(text, unusedExistingResources);
         }
 
         [DataRow(@"resource abc1 'Microsoft.Web/sites@2021-03-01' existing", "abc1")]
@@ -88,9 +102,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(@"resource abc3 'Microsoft.Web/sites@2021-03-01' existing = {", "abc3")]
         [DataRow(@"resource abc4 'Microsoft.Web/sites@2021-03-01' existing = {}", "abc4")]
         [DataTestMethod]
-        public void SyntaxErrors(string text, params string[] unusedResources)
+        public void SyntaxErrors(string text, params string[] unusedExistingResources)
         {
-            CompileAndTest(text, OnCompileErrors.Ignore, unusedResources);
+            CompileAndTest(text, OnCompileErrors.Ignore, unusedExistingResources);
         }
 
         [DataRow(@"resource")]

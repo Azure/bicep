@@ -286,11 +286,11 @@
   <data name="MaxNumberResourcesRuleMessageFormat" xml:space="preserve">
     <value>Too many resources. Number of resources is limited to {0}.</value>
   </data>
-  <data name="UnusedResourceRuleDescription" xml:space="preserve">
-    <value>All resources must be used.</value>
+  <data name="UnusedExistingResourceRuleDescription" xml:space="preserve">
+    <value>All existing resources must be used.</value>
   </data>
-  <data name="UnusedResourceRuleMessageFormat" xml:space="preserve">
-    <value>Resource "{0}" is declared but never used.</value>
+  <data name="UnusedExistingResourceRuleMessageFormat" xml:space="preserve">
+    <value>Existing resource "{0}" is declared but never used.</value>
     <comment>{0} is the resource name</comment>
   </data>
 </root>

@@ -9,13 +9,13 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class NoUnusedResourcesRule : NoUnusedRuleBase
+    public sealed class NoUnusedExistingResourcesRule : NoUnusedRuleBase
     {
-        public new const string Code = "no-unused-resources";
+        public new const string Code = "no-unused-existing-resources";
 
-        public NoUnusedResourcesRule() : base(
+        public NoUnusedExistingResourcesRule() : base(
             code: Code,
-            description: CoreResources.UnusedResourceRuleDescription,
+            description: CoreResources.UnusedExistingResourceRuleDescription,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
             diagnosticStyling: Diagnostics.DiagnosticStyling.ShowCodeAsUnused)
         { }
@@ -23,7 +23,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override string FormatMessage(params object[] values)
         {
-            return string.Format(CoreResources.UnusedResourceRuleMessageFormat, values);
+            return string.Format(CoreResources.UnusedExistingResourceRuleMessageFormat, values);
         }
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
@@ -44,7 +44,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override protected string GetCodeFixDescription(string name)
         {
-            return $"Remove unused resource {name}";
+            return $"Remove unused existing resource {name}";
         }
     }
 }

@@ -466,20 +466,20 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to All resources must be used..
+        ///   Looks up a localized string similar to All existing resources must be used..
         /// </summary>
-        internal static string UnusedResourceRuleDescription {
+        internal static string UnusedExistingResourceRuleDescription {
             get {
-                return ResourceManager.GetString("UnusedResourceRuleDescription", resourceCulture);
+                return ResourceManager.GetString("UnusedExistingResourceRuleDescription", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Resource &quot;{0}&quot; is declared but never used..
+        ///   Looks up a localized string similar to Existing resource &quot;{0}&quot; is declared but never used..
         /// </summary>
-        internal static string UnusedResourceRuleMessageFormat {
+        internal static string UnusedExistingResourceRuleMessageFormat {
             get {
-                return ResourceManager.GetString("UnusedResourceRuleMessageFormat", resourceCulture);
+                return ResourceManager.GetString("UnusedExistingResourceRuleMessageFormat", resourceCulture);
             }
         }
         
