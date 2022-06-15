@@ -21,6 +21,10 @@ namespace Bicep.LanguageServer.Completions
 {
     public class BicepCompletionContext
     {
+        public record FunctionArgumentContext(
+            FunctionCallSyntaxBase Function,
+            int ArgumentIndex);
+
         // completions will replace only these token types
         // all others will result in an insertion upon completion commit
         private static readonly ImmutableHashSet<TokenType> ReplaceableTokens = new[]
@@ -42,7 +46,7 @@ namespace Bicep.LanguageServer.Completions
             ArrayAccessSyntax? arrayAccess,
             TargetScopeSyntax? targetScope,
             FunctionCallSyntaxBase? functionCall,
-            FunctionArgumentSyntax? functionArgument,
+            FunctionArgumentContext? functionArgument,
             ImmutableArray<ILanguageScope> activeScopes)
         {
             this.Kind = kind;
@@ -80,7 +84,7 @@ namespace Bicep.LanguageServer.Completions
 
         public FunctionCallSyntaxBase? FunctionCall { get; }
 
-        public FunctionArgumentSyntax? FunctionArgument { get; }
+        public FunctionArgumentContext? FunctionArgument { get; }
 
         public ImmutableArray<ILanguageScope> ActiveScopes { get; }
 
@@ -142,8 +146,8 @@ namespace Bicep.LanguageServer.Completions
             var arrayAccessInfo = SyntaxMatcher.FindLastNodeOfType<ArrayAccessSyntax, ArrayAccessSyntax>(matchingNodes);
             var targetScopeInfo = SyntaxMatcher.FindLastNodeOfType<TargetScopeSyntax, TargetScopeSyntax>(matchingNodes);
             var functionCallInfo = SyntaxMatcher.FindLastNodeOfType<FunctionCallSyntaxBase, FunctionCallSyntaxBase>(matchingNodes);
-            var functionArgumentInfo = SyntaxMatcher.FindLastNodeOfType<FunctionArgumentSyntax, FunctionArgumentSyntax>(matchingNodes);
             var activeScopes = ActiveScopesVisitor.GetActiveScopes(compilation.GetEntrypointSemanticModel().Root, offset);
+            var functionArgumentContext = TryGetFunctionArgumentContext(matchingNodes, offset);
 
             var kind = ConvertFlag(IsTopLevelDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.TopLevelDeclarationStart) |
                        ConvertFlag(IsNestedResourceStartContext(matchingNodes, topLevelDeclarationInfo, objectInfo, offset), BicepCompletionContextKind.NestedResourceDeclarationStart) |
@@ -163,7 +167,7 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsOuterExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope) |
                        ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName) |
-                       ConvertFlag(IsFunctionArgumentContext(matchingNodes, offset), BicepCompletionContextKind.FunctionArgument | BicepCompletionContextKind.Expression);
+                       ConvertFlag(functionArgumentContext is not null, BicepCompletionContextKind.FunctionArgument | BicepCompletionContextKind.Expression);
 
             if (featureProvider.ImportsEnabled)
             {
@@ -196,7 +200,7 @@ namespace Bicep.LanguageServer.Completions
                 arrayAccessInfo.node,
                 targetScopeInfo.node,
                 functionCallInfo.node,
-                functionArgumentInfo.node,
+                functionArgumentContext,
                 activeScopes);
         }
 
@@ -684,16 +688,44 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<DecoratorSyntax, PropertyAccessSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Dot) ||
             SyntaxMatcher.IsTailMatch<DecoratorSyntax, PropertyAccessSyntax>(matchingNodes, (_, propertyAccessSyntax) => offset > propertyAccessSyntax.Dot.Span.Position);
 
-        private static bool IsFunctionArgumentContext(List<SyntaxBase> matchingNodes, int offset) =>
+        internal static FunctionArgumentContext? TryGetFunctionArgumentContext(List<SyntaxBase> matchingNodes, int offset)
+        {
             // someFunc(|)
             // abc.someFunc(|)
-            SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, Token>(matchingNodes, (func, _) => true) ||
+            if (SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, Token>(matchingNodes, (func, token) => token == func.OpenParen))
+            {
+                return new(
+                    Function: (FunctionCallSyntaxBase)matchingNodes[^2],
+                    ArgumentIndex: 0);
+            }
+
             // someFunc(x, |)
             // abc.someFunc(x, |)
-            SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, FunctionArgumentSyntax>(matchingNodes, (func, _) => true) ||
+            if (SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, FunctionArgumentSyntax>(matchingNodes, (func, _) => true))
+            {
+                var function = (FunctionCallSyntaxBase)matchingNodes[^2];
+                var args = function.Arguments.ToImmutableArray();
+
+                return new(
+                    Function: function,
+                    ArgumentIndex: args.IndexOf((FunctionArgumentSyntax)matchingNodes[^1]));
+            }
+
             // someFunc(x,|)
             // abc.someFunc(x,|)
-            SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, FunctionArgumentSyntax, Token>(matchingNodes, (func, _, _) => true);
+            if (SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, Token>(matchingNodes, (func, _) => true))
+            {
+                var function = (FunctionCallSyntaxBase)matchingNodes[^2];
+                var args = function.Arguments.ToImmutableArray();
+                var previousArg = args.LastOrDefault(x => x.Span.Position < offset);
+
+                return new(
+                    Function: function,
+                    ArgumentIndex: previousArg is null ? 0 : (args.IndexOf(previousArg) + 1));
+            }
+
+            return null;
+        }
 
         private static bool IsImportProviderFollower(List<SyntaxBase> matchingNodes, int offset) =>
             // import foo |

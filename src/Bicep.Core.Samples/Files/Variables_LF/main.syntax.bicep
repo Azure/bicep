@@ -249,14 +249,14 @@ var bracketStringInExpression = concat('[', '\'test\'',']')
 //@[032:0038) | | ├─IdentifierSyntax
 //@[032:0038) | | | └─Token(Identifier) |concat|
 //@[038:0039) | | ├─Token(LeftParen) |(|
-//@[039:0043) | | ├─FunctionArgumentSyntax
-//@[039:0042) | | | ├─StringSyntax
+//@[039:0042) | | ├─FunctionArgumentSyntax
+//@[039:0042) | | | └─StringSyntax
 //@[039:0042) | | | | └─Token(StringComplete) |'['|
-//@[042:0043) | | | └─Token(Comma) |,|
-//@[044:0055) | | ├─FunctionArgumentSyntax
-//@[044:0054) | | | ├─StringSyntax
+//@[042:0043) | | ├─Token(Comma) |,|
+//@[044:0054) | | ├─FunctionArgumentSyntax
+//@[044:0054) | | | └─StringSyntax
 //@[044:0054) | | | | └─Token(StringComplete) |'\'test\''|
-//@[054:0055) | | | └─Token(Comma) |,|
+//@[054:0055) | | ├─Token(Comma) |,|
 //@[055:0058) | | ├─FunctionArgumentSyntax
 //@[055:0058) | | | └─StringSyntax
 //@[055:0058) | | | | └─Token(StringComplete) |']'|
@@ -915,8 +915,8 @@ var functionOnIndexer1 = concat([
 //@[025:0031) | | ├─IdentifierSyntax
 //@[025:0031) | | | └─Token(Identifier) |concat|
 //@[031:0032) | | ├─Token(LeftParen) |(|
-//@[032:0045) | | ├─FunctionArgumentSyntax
-//@[032:0044) | | | ├─ArrayAccessSyntax
+//@[032:0044) | | ├─FunctionArgumentSyntax
+//@[032:0044) | | | └─ArrayAccessSyntax
 //@[032:0041) | | | | ├─ArraySyntax
 //@[032:0033) | | | | | ├─Token(LeftSquare) |[|
 //@[033:0034) | | | | | ├─Token(NewLine) |\n|
@@ -931,7 +931,7 @@ var functionOnIndexer1 = concat([
 //@[002:0003) | | | | ├─IntegerLiteralSyntax
 //@[002:0003) | | | | | └─Token(Integer) |0|
 //@[003:0004) | | | | └─Token(RightSquare) |]|
-//@[004:0005) | | | └─Token(Comma) |,|
+//@[004:0005) | | ├─Token(Comma) |,|
 //@[006:0009) | | ├─FunctionArgumentSyntax
 //@[006:0009) | | | └─StringSyntax
 //@[006:0009) | | | | └─Token(StringComplete) |'s'|
@@ -948,8 +948,8 @@ var functionOnIndexer2 = concat([
 //@[025:0031) | | ├─IdentifierSyntax
 //@[025:0031) | | | └─Token(Identifier) |concat|
 //@[031:0032) | | ├─Token(LeftParen) |(|
-//@[032:0039) | | ├─FunctionArgumentSyntax
-//@[032:0038) | | | ├─ArrayAccessSyntax
+//@[032:0038) | | ├─FunctionArgumentSyntax
+//@[032:0038) | | | └─ArrayAccessSyntax
 //@[032:0035) | | | | ├─ArraySyntax
 //@[032:0033) | | | | | ├─Token(LeftSquare) |[|
 //@[033:0034) | | | | | ├─Token(NewLine) |\n|
@@ -959,7 +959,7 @@ var functionOnIndexer2 = concat([
 //@[002:0003) | | | | ├─IntegerLiteralSyntax
 //@[002:0003) | | | | | └─Token(Integer) |0|
 //@[003:0004) | | | | └─Token(RightSquare) |]|
-//@[004:0005) | | | └─Token(Comma) |,|
+//@[004:0005) | | ├─Token(Comma) |,|
 //@[006:0009) | | ├─FunctionArgumentSyntax
 //@[006:0009) | | | └─StringSyntax
 //@[006:0009) | | | | └─Token(StringComplete) |'s'|
@@ -976,8 +976,8 @@ var functionOnIndexer3 = concat([
 //@[025:0031) | | ├─IdentifierSyntax
 //@[025:0031) | | | └─Token(Identifier) |concat|
 //@[031:0032) | | ├─Token(LeftParen) |(|
-//@[032:0039) | | ├─FunctionArgumentSyntax
-//@[032:0038) | | | ├─ArrayAccessSyntax
+//@[032:0038) | | ├─FunctionArgumentSyntax
+//@[032:0038) | | | └─ArrayAccessSyntax
 //@[032:0035) | | | | ├─ArraySyntax
 //@[032:0033) | | | | | ├─Token(LeftSquare) |[|
 //@[033:0034) | | | | | ├─Token(NewLine) |\n|
@@ -987,7 +987,7 @@ var functionOnIndexer3 = concat([
 //@[002:0003) | | | | ├─IntegerLiteralSyntax
 //@[002:0003) | | | | | └─Token(Integer) |0|
 //@[003:0004) | | | | └─Token(RightSquare) |]|
-//@[004:0005) | | | └─Token(Comma) |,|
+//@[004:0005) | | ├─Token(Comma) |,|
 //@[006:0014) | | ├─FunctionArgumentSyntax
 //@[006:0014) | | | └─FunctionCallSyntax
 //@[006:0009) | | | | ├─IdentifierSyntax
@@ -1037,20 +1037,20 @@ var unusedIntermediate = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-
 //@[025:0033) | | ├─IdentifierSyntax
 //@[025:0033) | | | └─Token(Identifier) |listKeys|
 //@[033:0034) | | ├─Token(LeftParen) |(|
-//@[034:0070) | | ├─FunctionArgumentSyntax
-//@[034:0069) | | | ├─FunctionCallSyntax
+//@[034:0069) | | ├─FunctionArgumentSyntax
+//@[034:0069) | | | └─FunctionCallSyntax
 //@[034:0044) | | | | ├─IdentifierSyntax
 //@[034:0044) | | | | | └─Token(Identifier) |resourceId|
 //@[044:0045) | | | | ├─Token(LeftParen) |(|
-//@[045:0060) | | | | ├─FunctionArgumentSyntax
-//@[045:0059) | | | | | ├─StringSyntax
+//@[045:0059) | | | | ├─FunctionArgumentSyntax
+//@[045:0059) | | | | | └─StringSyntax
 //@[045:0059) | | | | | | └─Token(StringComplete) |'Mock.RP/type'|
-//@[059:0060) | | | | | └─Token(Comma) |,|
+//@[059:0060) | | | | ├─Token(Comma) |,|
 //@[061:0068) | | | | ├─FunctionArgumentSyntax
 //@[061:0068) | | | | | └─StringSyntax
 //@[061:0068) | | | | | | └─Token(StringComplete) |'steve'|
 //@[068:0069) | | | | └─Token(RightParen) |)|
-//@[069:0070) | | | └─Token(Comma) |,|
+//@[069:0070) | | ├─Token(Comma) |,|
 //@[071:0083) | | ├─FunctionArgumentSyntax
 //@[071:0083) | | | └─StringSyntax
 //@[071:0083) | | | | └─Token(StringComplete) |'2020-01-01'|
@@ -1137,8 +1137,8 @@ var previousEmitLimit = [
 //@[009:0015) | | | | | | | | ├─IdentifierSyntax
 //@[009:0015) | | | | | | | | | └─Token(Identifier) |concat|
 //@[015:0016) | | | | | | | | ├─Token(LeftParen) |(|
-//@[016:0041) | | | | | | | | ├─FunctionArgumentSyntax
-//@[016:0040) | | | | | | | | | ├─ArraySyntax
+//@[016:0040) | | | | | | | | ├─FunctionArgumentSyntax
+//@[016:0040) | | | | | | | | | └─ArraySyntax
 //@[016:0017) | | | | | | | | | | ├─Token(LeftSquare) |[|
 //@[017:0018) | | | | | | | | | | ├─Token(NewLine) |\n|
         12 + 3
@@ -1152,7 +1152,7 @@ var previousEmitLimit = [
 //@[014:0015) | | | | | | | | | | ├─Token(NewLine) |\n|
       ], [
 //@[006:0007) | | | | | | | | | | └─Token(RightSquare) |]|
-//@[007:0008) | | | | | | | | | └─Token(Comma) |,|
+//@[007:0008) | | | | | | | | ├─Token(Comma) |,|
 //@[009:0048) | | | | | | | | ├─FunctionArgumentSyntax
 //@[009:0048) | | | | | | | | | └─ArraySyntax
 //@[009:0010) | | | | | | | | | | ├─Token(LeftSquare) |[|
@@ -1316,8 +1316,8 @@ var previousEmitLimit2 = [
 //@[009:0014) | | | | | | | | ├─IdentifierSyntax
 //@[009:0014) | | | | | | | | | └─Token(Identifier) |union|
 //@[014:0015) | | | | | | | | ├─Token(LeftParen) |(|
-//@[015:0043) | | | | | | | | ├─FunctionArgumentSyntax
-//@[015:0042) | | | | | | | | | ├─ObjectSyntax
+//@[015:0042) | | | | | | | | ├─FunctionArgumentSyntax
+//@[015:0042) | | | | | | | | | └─ObjectSyntax
 //@[015:0016) | | | | | | | | | | ├─Token(LeftBrace) |{|
 //@[016:0017) | | | | | | | | | | ├─Token(NewLine) |\n|
         a: 12 + 3
@@ -1334,7 +1334,7 @@ var previousEmitLimit2 = [
 //@[017:0018) | | | | | | | | | | ├─Token(NewLine) |\n|
       }, {
 //@[006:0007) | | | | | | | | | | └─Token(RightBrace) |}|
-//@[007:0008) | | | | | | | | | └─Token(Comma) |,|
+//@[007:0008) | | | | | | | | ├─Token(Comma) |,|
 //@[009:0054) | | | | | | | | ├─FunctionArgumentSyntax
 //@[009:0054) | | | | | | | | | └─ObjectSyntax
 //@[009:0010) | | | | | | | | | | ├─Token(LeftBrace) |{|
@@ -1389,8 +1389,8 @@ var previousEmitLimit2 = [
 //@[009:0014) | | | | | | | | ├─IdentifierSyntax
 //@[009:0014) | | | | | | | | | └─Token(Identifier) |union|
 //@[014:0015) | | | | | | | | ├─Token(LeftParen) |(|
-//@[015:0041) | | | | | | | | ├─FunctionArgumentSyntax
-//@[015:0040) | | | | | | | | | ├─ObjectSyntax
+//@[015:0040) | | | | | | | | ├─FunctionArgumentSyntax
+//@[015:0040) | | | | | | | | | └─ObjectSyntax
 //@[015:0016) | | | | | | | | | | ├─Token(LeftBrace) |{|
 //@[016:0017) | | | | | | | | | | ├─Token(NewLine) |\n|
         x: true
@@ -1403,7 +1403,7 @@ var previousEmitLimit2 = [
 //@[015:0016) | | | | | | | | | | ├─Token(NewLine) |\n|
       }, {})
 //@[006:0007) | | | | | | | | | | └─Token(RightBrace) |}|
-//@[007:0008) | | | | | | | | | └─Token(Comma) |,|
+//@[007:0008) | | | | | | | | ├─Token(Comma) |,|
 //@[009:0011) | | | | | | | | ├─FunctionArgumentSyntax
 //@[009:0011) | | | | | | | | | └─ObjectSyntax
 //@[009:0010) | | | | | | | | | | ├─Token(LeftBrace) |{|
@@ -1419,8 +1419,8 @@ var previousEmitLimit2 = [
 //@[009:0021) | | | | | | | | ├─IdentifierSyntax
 //@[009:0021) | | | | | | | | | └─Token(Identifier) |intersection|
 //@[021:0022) | | | | | | | | ├─Token(LeftParen) |(|
-//@[022:0053) | | | | | | | | ├─FunctionArgumentSyntax
-//@[022:0052) | | | | | | | | | ├─ObjectSyntax
+//@[022:0052) | | | | | | | | ├─FunctionArgumentSyntax
+//@[022:0052) | | | | | | | | | └─ObjectSyntax
 //@[022:0023) | | | | | | | | | | ├─Token(LeftBrace) |{|
 //@[023:0024) | | | | | | | | | | ├─Token(NewLine) |\n|
         q: 's' == 12
@@ -1437,7 +1437,7 @@ var previousEmitLimit2 = [
 //@[020:0021) | | | | | | | | | | ├─Token(NewLine) |\n|
       }, {})
 //@[006:0007) | | | | | | | | | | └─Token(RightBrace) |}|
-//@[007:0008) | | | | | | | | | └─Token(Comma) |,|
+//@[007:0008) | | | | | | | | ├─Token(Comma) |,|
 //@[009:0011) | | | | | | | | ├─FunctionArgumentSyntax
 //@[009:0011) | | | | | | | | | └─ObjectSyntax
 //@[009:0010) | | | | | | | | | | ├─Token(LeftBrace) |{|
@@ -1516,14 +1516,14 @@ var previousEmitLimit3 = {
 //@[007:0013) | | | | | | ├─IdentifierSyntax
 //@[007:0013) | | | | | | | └─Token(Identifier) |concat|
 //@[013:0014) | | | | | | ├─Token(LeftParen) |(|
-//@[014:0023) | | | | | | ├─FunctionArgumentSyntax
-//@[014:0022) | | | | | | | ├─ArraySyntax
+//@[014:0022) | | | | | | ├─FunctionArgumentSyntax
+//@[014:0022) | | | | | | | └─ArraySyntax
 //@[014:0015) | | | | | | | | ├─Token(LeftSquare) |[|
 //@[015:0017) | | | | | | | | ├─Token(NewLine) |\n\n|
 
     ], [
 //@[004:0005) | | | | | | | | └─Token(RightSquare) |]|
-//@[005:0006) | | | | | | | └─Token(Comma) |,|
+//@[005:0006) | | | | | | ├─Token(Comma) |,|
 //@[007:0025) | | | | | | ├─FunctionArgumentSyntax
 //@[007:0025) | | | | | | | └─ArraySyntax
 //@[007:0008) | | | | | | | | ├─Token(LeftSquare) |[|
@@ -1636,10 +1636,10 @@ var myVar4 = length(any(concat('s','a')))
 //@[024:0030) | | | | | | ├─IdentifierSyntax
 //@[024:0030) | | | | | | | └─Token(Identifier) |concat|
 //@[030:0031) | | | | | | ├─Token(LeftParen) |(|
-//@[031:0035) | | | | | | ├─FunctionArgumentSyntax
-//@[031:0034) | | | | | | | ├─StringSyntax
+//@[031:0034) | | | | | | ├─FunctionArgumentSyntax
+//@[031:0034) | | | | | | | └─StringSyntax
 //@[031:0034) | | | | | | | | └─Token(StringComplete) |'s'|
-//@[034:0035) | | | | | | | └─Token(Comma) |,|
+//@[034:0035) | | | | | | ├─Token(Comma) |,|
 //@[035:0038) | | | | | | ├─FunctionArgumentSyntax
 //@[035:0038) | | | | | | | └─StringSyntax
 //@[035:0038) | | | | | | | | └─Token(StringComplete) |'a'|
@@ -2059,10 +2059,10 @@ var isTrue = sys.max(1, 2) == 3
 //@[017:0020) | | | ├─IdentifierSyntax
 //@[017:0020) | | | | └─Token(Identifier) |max|
 //@[020:0021) | | | ├─Token(LeftParen) |(|
-//@[021:0023) | | | ├─FunctionArgumentSyntax
-//@[021:0022) | | | | ├─IntegerLiteralSyntax
+//@[021:0022) | | | ├─FunctionArgumentSyntax
+//@[021:0022) | | | | └─IntegerLiteralSyntax
 //@[021:0022) | | | | | └─Token(Integer) |1|
-//@[022:0023) | | | | └─Token(Comma) |,|
+//@[022:0023) | | | ├─Token(Comma) |,|
 //@[024:0025) | | | ├─FunctionArgumentSyntax
 //@[024:0025) | | | | └─IntegerLiteralSyntax
 //@[024:0025) | | | | | └─Token(Integer) |2|
@@ -2102,10 +2102,10 @@ var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
 //@[028:0034) | | | ├─IdentifierSyntax
 //@[028:0034) | | | | └─Token(Identifier) |concat|
 //@[034:0035) | | | ├─Token(LeftParen) |(|
-//@[035:0039) | | | ├─FunctionArgumentSyntax
-//@[035:0038) | | | | ├─StringSyntax
+//@[035:0038) | | | ├─FunctionArgumentSyntax
+//@[035:0038) | | | | └─StringSyntax
 //@[035:0038) | | | | | └─Token(StringComplete) |'a'|
-//@[038:0039) | | | | └─Token(Comma) |,|
+//@[038:0039) | | | ├─Token(Comma) |,|
 //@[040:0060) | | | ├─FunctionArgumentSyntax
 //@[040:0060) | | | | └─InstanceFunctionCallSyntax
 //@[040:0043) | | | | | ├─VariableAccessSyntax
@@ -2115,10 +2115,10 @@ var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
 //@[044:0050) | | | | | ├─IdentifierSyntax
 //@[044:0050) | | | | | | └─Token(Identifier) |concat|
 //@[050:0051) | | | | | ├─Token(LeftParen) |(|
-//@[051:0055) | | | | | ├─FunctionArgumentSyntax
-//@[051:0054) | | | | | | ├─StringSyntax
+//@[051:0054) | | | | | ├─FunctionArgumentSyntax
+//@[051:0054) | | | | | | └─StringSyntax
 //@[051:0054) | | | | | | | └─Token(StringComplete) |'b'|
-//@[054:0055) | | | | | | └─Token(Comma) |,|
+//@[054:0055) | | | | | ├─Token(Comma) |,|
 //@[056:0059) | | | | | ├─FunctionArgumentSyntax
 //@[056:0059) | | | | | | └─StringSyntax
 //@[056:0059) | | | | | | | └─Token(StringComplete) |'c'|
@@ -2167,10 +2167,10 @@ var scopesWithoutArmRepresentation = {
 //@[020:0033) | | | | ├─IdentifierSyntax
 //@[020:0033) | | | | | └─Token(Identifier) |resourceGroup|
 //@[033:0034) | | | | ├─Token(LeftParen) |(|
-//@[034:0073) | | | | ├─FunctionArgumentSyntax
-//@[034:0072) | | | | | ├─StringSyntax
+//@[034:0072) | | | | ├─FunctionArgumentSyntax
+//@[034:0072) | | | | | └─StringSyntax
 //@[034:0072) | | | | | | └─Token(StringComplete) |'10b57a01-6350-4ce2-972a-6a13642f00bf'|
-//@[072:0073) | | | | | └─Token(Comma) |,|
+//@[072:0073) | | | | ├─Token(Comma) |,|
 //@[074:0084) | | | | ├─FunctionArgumentSyntax
 //@[074:0084) | | | | | └─StringSyntax
 //@[074:0084) | | | | | | └─Token(StringComplete) |'myRgName'|
@@ -2356,10 +2356,10 @@ var incrementingNumbers = [for i in range(0,10) : i]
 //@[036:0041) | | | ├─IdentifierSyntax
 //@[036:0041) | | | | └─Token(Identifier) |range|
 //@[041:0042) | | | ├─Token(LeftParen) |(|
-//@[042:0044) | | | ├─FunctionArgumentSyntax
-//@[042:0043) | | | | ├─IntegerLiteralSyntax
+//@[042:0043) | | | ├─FunctionArgumentSyntax
+//@[042:0043) | | | | └─IntegerLiteralSyntax
 //@[042:0043) | | | | | └─Token(Integer) |0|
-//@[043:0044) | | | | └─Token(Comma) |,|
+//@[043:0044) | | | ├─Token(Comma) |,|
 //@[044:0046) | | | ├─FunctionArgumentSyntax
 //@[044:0046) | | | | └─IntegerLiteralSyntax
 //@[044:0046) | | | | | └─Token(Integer) |10|
@@ -2603,10 +2603,10 @@ var arrayOfHardCodedNumbers = [for i in range(0,10): 3]
 //@[040:0045) | | | ├─IdentifierSyntax
 //@[040:0045) | | | | └─Token(Identifier) |range|
 //@[045:0046) | | | ├─Token(LeftParen) |(|
-//@[046:0048) | | | ├─FunctionArgumentSyntax
-//@[046:0047) | | | | ├─IntegerLiteralSyntax
+//@[046:0047) | | | ├─FunctionArgumentSyntax
+//@[046:0047) | | | | └─IntegerLiteralSyntax
 //@[046:0047) | | | | | └─Token(Integer) |0|
-//@[047:0048) | | | | └─Token(Comma) |,|
+//@[047:0048) | | | ├─Token(Comma) |,|
 //@[048:0050) | | | ├─FunctionArgumentSyntax
 //@[048:0050) | | | | └─IntegerLiteralSyntax
 //@[048:0050) | | | | | └─Token(Integer) |10|
@@ -2633,10 +2633,10 @@ var arrayOfHardCodedBools = [for i in range(0,10): false]
 //@[038:0043) | | | ├─IdentifierSyntax
 //@[038:0043) | | | | └─Token(Identifier) |range|
 //@[043:0044) | | | ├─Token(LeftParen) |(|
-//@[044:0046) | | | ├─FunctionArgumentSyntax
-//@[044:0045) | | | | ├─IntegerLiteralSyntax
+//@[044:0045) | | | ├─FunctionArgumentSyntax
+//@[044:0045) | | | | └─IntegerLiteralSyntax
 //@[044:0045) | | | | | └─Token(Integer) |0|
-//@[045:0046) | | | | └─Token(Comma) |,|
+//@[045:0046) | | | ├─Token(Comma) |,|
 //@[046:0048) | | | ├─FunctionArgumentSyntax
 //@[046:0048) | | | | └─IntegerLiteralSyntax
 //@[046:0048) | | | | | └─Token(Integer) |10|
@@ -2663,10 +2663,10 @@ var arrayOfHardCodedStrings = [for i in range(0,3): 'hi']
 //@[040:0045) | | | ├─IdentifierSyntax
 //@[040:0045) | | | | └─Token(Identifier) |range|
 //@[045:0046) | | | ├─Token(LeftParen) |(|
-//@[046:0048) | | | ├─FunctionArgumentSyntax
-//@[046:0047) | | | | ├─IntegerLiteralSyntax
+//@[046:0047) | | | ├─FunctionArgumentSyntax
+//@[046:0047) | | | | └─IntegerLiteralSyntax
 //@[046:0047) | | | | | └─Token(Integer) |0|
-//@[047:0048) | | | | └─Token(Comma) |,|
+//@[047:0048) | | | ├─Token(Comma) |,|
 //@[048:0049) | | | ├─FunctionArgumentSyntax
 //@[048:0049) | | | | └─IntegerLiteralSyntax
 //@[048:0049) | | | | | └─Token(Integer) |3|
@@ -2693,10 +2693,10 @@ var arrayOfNonRuntimeFunctionCalls = [for i in range(0,3): concat('hi', i)]
 //@[047:0052) | | | ├─IdentifierSyntax
 //@[047:0052) | | | | └─Token(Identifier) |range|
 //@[052:0053) | | | ├─Token(LeftParen) |(|
-//@[053:0055) | | | ├─FunctionArgumentSyntax
-//@[053:0054) | | | | ├─IntegerLiteralSyntax
+//@[053:0054) | | | ├─FunctionArgumentSyntax
+//@[053:0054) | | | | └─IntegerLiteralSyntax
 //@[053:0054) | | | | | └─Token(Integer) |0|
-//@[054:0055) | | | | └─Token(Comma) |,|
+//@[054:0055) | | | ├─Token(Comma) |,|
 //@[055:0056) | | | ├─FunctionArgumentSyntax
 //@[055:0056) | | | | └─IntegerLiteralSyntax
 //@[055:0056) | | | | | └─Token(Integer) |3|
@@ -2706,10 +2706,10 @@ var arrayOfNonRuntimeFunctionCalls = [for i in range(0,3): concat('hi', i)]
 //@[059:0065) | | | ├─IdentifierSyntax
 //@[059:0065) | | | | └─Token(Identifier) |concat|
 //@[065:0066) | | | ├─Token(LeftParen) |(|
-//@[066:0071) | | | ├─FunctionArgumentSyntax
-//@[066:0070) | | | | ├─StringSyntax
+//@[066:0070) | | | ├─FunctionArgumentSyntax
+//@[066:0070) | | | | └─StringSyntax
 //@[066:0070) | | | | | └─Token(StringComplete) |'hi'|
-//@[070:0071) | | | | └─Token(Comma) |,|
+//@[070:0071) | | | ├─Token(Comma) |,|
 //@[072:0073) | | | ├─FunctionArgumentSyntax
 //@[072:0073) | | | | └─VariableAccessSyntax
 //@[072:0073) | | | | | └─IdentifierSyntax
@@ -2796,15 +2796,15 @@ var multilineFormatted = format('''
 //@[025:0031) | | ├─IdentifierSyntax
 //@[025:0031) | | | └─Token(Identifier) |format|
 //@[031:0032) | | ├─Token(LeftParen) |(|
-//@[032:0062) | | ├─FunctionArgumentSyntax
-//@[032:0061) | | | ├─StringSyntax
+//@[032:0061) | | ├─FunctionArgumentSyntax
+//@[032:0061) | | | └─StringSyntax
 //@[032:0061) | | | | └─Token(MultilineString) |'''\nHello,\nmy\nname is\n{0}\n'''|
 Hello,
 my
 name is
 {0}
 ''', 'Anthony')
-//@[003:0004) | | | └─Token(Comma) |,|
+//@[003:0004) | | ├─Token(Comma) |,|
 //@[005:0014) | | ├─FunctionArgumentSyntax
 //@[005:0014) | | | └─StringSyntax
 //@[005:0014) | | | | └─Token(StringComplete) |'Anthony'|

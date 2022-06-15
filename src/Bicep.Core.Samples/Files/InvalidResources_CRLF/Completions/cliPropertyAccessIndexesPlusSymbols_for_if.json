@@ -41,7 +41,7 @@
     "detail": "cleanupPreference",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Always' | 'OnExpiration' | 'OnSuccess'`  \nThe clean up preference when the script execution gets in a terminal state. Default setting is 'Always'.  \n"
+      "value": "Type: `'Always' | 'OnExpiration' | 'OnSuccess' | string`  \nThe clean up preference when the script execution gets in a terminal state. Default setting is 'Always'.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -149,7 +149,7 @@
     "detail": "provisioningState",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Canceled' | 'Creating' | 'Failed' | 'ProvisioningResources' | 'Running' | 'Succeeded'`  \nRead-only property  \nState of the script execution. This only appears in the response.  \n"
+      "value": "Type: `'Canceled' | 'Creating' | 'Failed' | 'ProvisioningResources' | 'Running' | 'Succeeded' | string`  \nRead-only property  \nState of the script execution. This only appears in the response.  \n"
     },
     "deprecated": false,
     "preselect": false,

@@ -114,21 +114,19 @@ namespace Bicep.LanguageServer.Handlers
                     new Range { Start = new Position(0, 0), End = new Position(0, 0) }));
             }
 
-            if (SyntaxMatcher.FindLastNodeOfType<FunctionCallSyntaxBase, FunctionCallSyntaxBase>(matchingNodes).node is { } functionCall
-                && SyntaxMatcher.FindLastNodeOfType<FunctionArgumentSyntax, FunctionArgumentSyntax>(matchingNodes).node is { } functionArgument
-                && functionArgument.Expression is StringSyntax functionArgumentExpression
+            if (BicepCompletionContext.TryGetFunctionArgumentContext(matchingNodes, offset) is {} functionArgumentContext
+                && functionArgumentContext.Function.GetArgumentByPosition(functionArgumentContext.ArgumentIndex).Expression is StringSyntax functionArgumentExpression
                 && functionArgumentExpression.TryGetLiteralValue() is {} functionArgumentValue
                 && !string.IsNullOrWhiteSpace(functionArgumentValue)
-                && context.Compilation.GetEntrypointSemanticModel().GetSymbolInfo(functionCall) is FunctionSymbol functionSymbol
-                && context.Compilation.GetEntrypointSemanticModel().TypeManager.GetMatchedFunctionOverload(functionCall) is { } functionOverload
-                && functionOverload.FixedParameters.ElementAtOrDefault(functionCall.Arguments.IndexOf(functionArgument)) is {} functionParameter
+                && context.Compilation.GetEntrypointSemanticModel().TypeManager.GetMatchedFunctionOverload(functionArgumentContext.Function) is { } functionOverload
+                && functionOverload.FixedParameters.ElementAtOrDefault(functionArgumentContext.ArgumentIndex) is {} functionParameter
                 && functionParameter.Flags.HasFlag(FunctionParameterFlags.FilePath)
                 && fileResolver.TryResolveFilePath(context.Compilation.SourceFileGrouping.EntryPoint.FileUri, functionArgumentValue) is {} fileUri
                 && fileResolver.FileExists(fileUri))
             {
                 return Task.FromResult(GetFileDefinitionLocation(
                     fileUri,
-                    functionArgument,
+                    functionArgumentContext.Function.GetArgumentByPosition(functionArgumentContext.ArgumentIndex),
                     context,
                     new Range { Start = new Position(0, 0), End = new Position(0, 0) }));
             }

@@ -9,7 +9,8 @@ resource baseName 'Microsoft.Storage/storageAccounts@2019-04-01' = [for i in ran
     name: 'Standard_LRS'
   }
   kind: 'Storage'
-  properties: {}
+  properties: {
+  }
 }]
 
 output storageEndpoints array = [for i in range(0, storageCount): reference(resourceId('Microsoft.Storage/storageAccounts', concat(i, baseName_var))).primaryEndpoints.blob]

@@ -628,8 +628,8 @@ var complex = test(2 + 3*4, true || false && null)
 //@[14:0018) | | ├─IdentifierSyntax
 //@[14:0018) | | | └─Token(Identifier) |test|
 //@[18:0019) | | ├─Token(LeftParen) |(|
-//@[19:0027) | | ├─FunctionArgumentSyntax
-//@[19:0026) | | | ├─BinaryOperationSyntax
+//@[19:0026) | | ├─FunctionArgumentSyntax
+//@[19:0026) | | | └─BinaryOperationSyntax
 //@[19:0020) | | | | ├─IntegerLiteralSyntax
 //@[19:0020) | | | | | └─Token(Integer) |2|
 //@[21:0022) | | | | ├─Token(Plus) |+|
@@ -639,7 +639,7 @@ var complex = test(2 + 3*4, true || false && null)
 //@[24:0025) | | | | | ├─Token(Asterisk) |*|
 //@[25:0026) | | | | | └─IntegerLiteralSyntax
 //@[25:0026) | | | | | | └─Token(Integer) |4|
-//@[26:0027) | | | └─Token(Comma) |,|
+//@[26:0027) | | ├─Token(Comma) |,|
 //@[28:0049) | | ├─FunctionArgumentSyntax
 //@[28:0049) | | | └─BinaryOperationSyntax
 //@[28:0032) | | | | ├─BooleanLiteralSyntax
@@ -1221,11 +1221,11 @@ var fakeVar = concat(totallyFakeVar, 's')
 //@[14:0020) | | ├─IdentifierSyntax
 //@[14:0020) | | | └─Token(Identifier) |concat|
 //@[20:0021) | | ├─Token(LeftParen) |(|
-//@[21:0036) | | ├─FunctionArgumentSyntax
-//@[21:0035) | | | ├─VariableAccessSyntax
+//@[21:0035) | | ├─FunctionArgumentSyntax
+//@[21:0035) | | | └─VariableAccessSyntax
 //@[21:0035) | | | | └─IdentifierSyntax
 //@[21:0035) | | | | | └─Token(Identifier) |totallyFakeVar|
-//@[35:0036) | | | └─Token(Comma) |,|
+//@[35:0036) | | ├─Token(Comma) |,|
 //@[37:0040) | | ├─FunctionArgumentSyntax
 //@[37:0040) | | | └─StringSyntax
 //@[37:0040) | | | | └─Token(StringComplete) |'s'|
@@ -1271,21 +1271,21 @@ var takeTooMany = take([
 //@[18:0022) | | ├─IdentifierSyntax
 //@[18:0022) | | | └─Token(Identifier) |take|
 //@[22:0023) | | ├─Token(LeftParen) |(|
-//@[23:0027) | | ├─FunctionArgumentSyntax
-//@[23:0026) | | | ├─ArraySyntax
+//@[23:0026) | | ├─FunctionArgumentSyntax
+//@[23:0026) | | | └─ArraySyntax
 //@[23:0024) | | | | ├─Token(LeftSquare) |[|
 //@[24:0025) | | | | ├─Token(NewLine) |\n|
 ],1,2,'s')
 //@[00:0001) | | | | └─Token(RightSquare) |]|
-//@[01:0002) | | | └─Token(Comma) |,|
-//@[02:0004) | | ├─FunctionArgumentSyntax
-//@[02:0003) | | | ├─IntegerLiteralSyntax
+//@[01:0002) | | ├─Token(Comma) |,|
+//@[02:0003) | | ├─FunctionArgumentSyntax
+//@[02:0003) | | | └─IntegerLiteralSyntax
 //@[02:0003) | | | | └─Token(Integer) |1|
-//@[03:0004) | | | └─Token(Comma) |,|
-//@[04:0006) | | ├─FunctionArgumentSyntax
-//@[04:0005) | | | ├─IntegerLiteralSyntax
+//@[03:0004) | | ├─Token(Comma) |,|
+//@[04:0005) | | ├─FunctionArgumentSyntax
+//@[04:0005) | | | └─IntegerLiteralSyntax
 //@[04:0005) | | | | └─Token(Integer) |2|
-//@[05:0006) | | | └─Token(Comma) |,|
+//@[05:0006) | | ├─Token(Comma) |,|
 //@[06:0009) | | ├─FunctionArgumentSyntax
 //@[06:0009) | | | └─StringSyntax
 //@[06:0009) | | | | └─Token(StringComplete) |'s'|
@@ -1304,10 +1304,10 @@ var trailingArgumentComma = format('s',)
 //@[28:0034) | | ├─IdentifierSyntax
 //@[28:0034) | | | └─Token(Identifier) |format|
 //@[34:0035) | | ├─Token(LeftParen) |(|
-//@[35:0039) | | ├─FunctionArgumentSyntax
-//@[35:0038) | | | ├─StringSyntax
+//@[35:0038) | | ├─FunctionArgumentSyntax
+//@[35:0038) | | | └─StringSyntax
 //@[35:0038) | | | | └─Token(StringComplete) |'s'|
-//@[38:0039) | | | └─Token(Comma) |,|
+//@[38:0039) | | ├─Token(Comma) |,|
 //@[39:0039) | | ├─FunctionArgumentSyntax
 //@[39:0039) | | | └─SkippedTriviaSyntax
 //@[39:0040) | | └─Token(RightParen) |)|
@@ -1322,9 +1322,9 @@ var onlyArgumentComma = concat(,)
 //@[24:0030) | | ├─IdentifierSyntax
 //@[24:0030) | | | └─Token(Identifier) |concat|
 //@[30:0031) | | ├─Token(LeftParen) |(|
-//@[31:0032) | | ├─FunctionArgumentSyntax
-//@[31:0031) | | | ├─SkippedTriviaSyntax
-//@[31:0032) | | | └─Token(Comma) |,|
+//@[31:0031) | | ├─FunctionArgumentSyntax
+//@[31:0031) | | | └─SkippedTriviaSyntax
+//@[31:0032) | | ├─Token(Comma) |,|
 //@[32:0032) | | ├─FunctionArgumentSyntax
 //@[32:0032) | | | └─SkippedTriviaSyntax
 //@[32:0033) | | └─Token(RightParen) |)|
@@ -1339,21 +1339,21 @@ var multipleArgumentCommas = concat(,,,,,)
 //@[29:0035) | | ├─IdentifierSyntax
 //@[29:0035) | | | └─Token(Identifier) |concat|
 //@[35:0036) | | ├─Token(LeftParen) |(|
-//@[36:0037) | | ├─FunctionArgumentSyntax
-//@[36:0036) | | | ├─SkippedTriviaSyntax
-//@[36:0037) | | | └─Token(Comma) |,|
-//@[37:0038) | | ├─FunctionArgumentSyntax
-//@[37:0037) | | | ├─SkippedTriviaSyntax
-//@[37:0038) | | | └─Token(Comma) |,|
-//@[38:0039) | | ├─FunctionArgumentSyntax
-//@[38:0038) | | | ├─SkippedTriviaSyntax
-//@[38:0039) | | | └─Token(Comma) |,|
-//@[39:0040) | | ├─FunctionArgumentSyntax
-//@[39:0039) | | | ├─SkippedTriviaSyntax
-//@[39:0040) | | | └─Token(Comma) |,|
-//@[40:0041) | | ├─FunctionArgumentSyntax
-//@[40:0040) | | | ├─SkippedTriviaSyntax
-//@[40:0041) | | | └─Token(Comma) |,|
+//@[36:0036) | | ├─FunctionArgumentSyntax
+//@[36:0036) | | | └─SkippedTriviaSyntax
+//@[36:0037) | | ├─Token(Comma) |,|
+//@[37:0037) | | ├─FunctionArgumentSyntax
+//@[37:0037) | | | └─SkippedTriviaSyntax
+//@[37:0038) | | ├─Token(Comma) |,|
+//@[38:0038) | | ├─FunctionArgumentSyntax
+//@[38:0038) | | | └─SkippedTriviaSyntax
+//@[38:0039) | | ├─Token(Comma) |,|
+//@[39:0039) | | ├─FunctionArgumentSyntax
+//@[39:0039) | | | └─SkippedTriviaSyntax
+//@[39:0040) | | ├─Token(Comma) |,|
+//@[40:0040) | | ├─FunctionArgumentSyntax
+//@[40:0040) | | | └─SkippedTriviaSyntax
+//@[40:0041) | | ├─Token(Comma) |,|
 //@[41:0041) | | ├─FunctionArgumentSyntax
 //@[41:0041) | | | └─SkippedTriviaSyntax
 //@[41:0042) | | └─Token(RightParen) |)|
@@ -1368,13 +1368,13 @@ var emptyArgInBetween = concat(true,,false)
 //@[24:0030) | | ├─IdentifierSyntax
 //@[24:0030) | | | └─Token(Identifier) |concat|
 //@[30:0031) | | ├─Token(LeftParen) |(|
-//@[31:0036) | | ├─FunctionArgumentSyntax
-//@[31:0035) | | | ├─BooleanLiteralSyntax
+//@[31:0035) | | ├─FunctionArgumentSyntax
+//@[31:0035) | | | └─BooleanLiteralSyntax
 //@[31:0035) | | | | └─Token(TrueKeyword) |true|
-//@[35:0036) | | | └─Token(Comma) |,|
-//@[36:0037) | | ├─FunctionArgumentSyntax
-//@[36:0036) | | | ├─SkippedTriviaSyntax
-//@[36:0037) | | | └─Token(Comma) |,|
+//@[35:0036) | | ├─Token(Comma) |,|
+//@[36:0036) | | ├─FunctionArgumentSyntax
+//@[36:0036) | | | └─SkippedTriviaSyntax
+//@[36:0037) | | ├─Token(Comma) |,|
 //@[37:0042) | | ├─FunctionArgumentSyntax
 //@[37:0042) | | | └─BooleanLiteralSyntax
 //@[37:0042) | | | | └─Token(FalseKeyword) |false|
@@ -1390,9 +1390,9 @@ var leadingEmptyArg = concat(,[])
 //@[22:0028) | | ├─IdentifierSyntax
 //@[22:0028) | | | └─Token(Identifier) |concat|
 //@[28:0029) | | ├─Token(LeftParen) |(|
-//@[29:0030) | | ├─FunctionArgumentSyntax
-//@[29:0029) | | | ├─SkippedTriviaSyntax
-//@[29:0030) | | | └─Token(Comma) |,|
+//@[29:0029) | | ├─FunctionArgumentSyntax
+//@[29:0029) | | | └─SkippedTriviaSyntax
+//@[29:0030) | | ├─Token(Comma) |,|
 //@[30:0032) | | ├─FunctionArgumentSyntax
 //@[30:0032) | | | └─ArraySyntax
 //@[30:0031) | | | | ├─Token(LeftSquare) |[|
@@ -1409,13 +1409,13 @@ var leadingAndTrailingEmptyArg = concat(,'s',)
 //@[33:0039) | | ├─IdentifierSyntax
 //@[33:0039) | | | └─Token(Identifier) |concat|
 //@[39:0040) | | ├─Token(LeftParen) |(|
-//@[40:0041) | | ├─FunctionArgumentSyntax
-//@[40:0040) | | | ├─SkippedTriviaSyntax
-//@[40:0041) | | | └─Token(Comma) |,|
-//@[41:0045) | | ├─FunctionArgumentSyntax
-//@[41:0044) | | | ├─StringSyntax
+//@[40:0040) | | ├─FunctionArgumentSyntax
+//@[40:0040) | | | └─SkippedTriviaSyntax
+//@[40:0041) | | ├─Token(Comma) |,|
+//@[41:0044) | | ├─FunctionArgumentSyntax
+//@[41:0044) | | | └─StringSyntax
 //@[41:0044) | | | | └─Token(StringComplete) |'s'|
-//@[44:0045) | | | └─Token(Comma) |,|
+//@[44:0045) | | ├─Token(Comma) |,|
 //@[45:0045) | | ├─FunctionArgumentSyntax
 //@[45:0045) | | | └─SkippedTriviaSyntax
 //@[45:0046) | | └─Token(RightParen) |)|
@@ -1451,10 +1451,10 @@ var concatWrongTypesContradiction = concat('s', [
 //@[36:0042) | | ├─IdentifierSyntax
 //@[36:0042) | | | └─Token(Identifier) |concat|
 //@[42:0043) | | ├─Token(LeftParen) |(|
-//@[43:0047) | | ├─FunctionArgumentSyntax
-//@[43:0046) | | | ├─StringSyntax
+//@[43:0046) | | ├─FunctionArgumentSyntax
+//@[43:0046) | | | └─StringSyntax
 //@[43:0046) | | | | └─Token(StringComplete) |'s'|
-//@[46:0047) | | | └─Token(Comma) |,|
+//@[46:0047) | | ├─Token(Comma) |,|
 //@[48:0051) | | ├─FunctionArgumentSyntax
 //@[48:0051) | | | └─ArraySyntax
 //@[48:0049) | | | | ├─Token(LeftSquare) |[|
@@ -1473,10 +1473,10 @@ var indexOfWrongTypes = indexOf(1,1)
 //@[24:0031) | | ├─IdentifierSyntax
 //@[24:0031) | | | └─Token(Identifier) |indexOf|
 //@[31:0032) | | ├─Token(LeftParen) |(|
-//@[32:0034) | | ├─FunctionArgumentSyntax
-//@[32:0033) | | | ├─IntegerLiteralSyntax
+//@[32:0033) | | ├─FunctionArgumentSyntax
+//@[32:0033) | | | └─IntegerLiteralSyntax
 //@[32:0033) | | | | └─Token(Integer) |1|
-//@[33:0034) | | | └─Token(Comma) |,|
+//@[33:0034) | | ├─Token(Comma) |,|
 //@[34:0035) | | ├─FunctionArgumentSyntax
 //@[34:0035) | | | └─IntegerLiteralSyntax
 //@[34:0035) | | | | └─Token(Integer) |1|
@@ -1513,10 +1513,10 @@ var test2 = lsitKeys('abcd', '2020-01-01')
 //@[12:0020) | | ├─IdentifierSyntax
 //@[12:0020) | | | └─Token(Identifier) |lsitKeys|
 //@[20:0021) | | ├─Token(LeftParen) |(|
-//@[21:0028) | | ├─FunctionArgumentSyntax
-//@[21:0027) | | | ├─StringSyntax
+//@[21:0027) | | ├─FunctionArgumentSyntax
+//@[21:0027) | | | └─StringSyntax
 //@[21:0027) | | | | └─Token(StringComplete) |'abcd'|
-//@[27:0028) | | | └─Token(Comma) |,|
+//@[27:0028) | | ├─Token(Comma) |,|
 //@[29:0041) | | ├─FunctionArgumentSyntax
 //@[29:0041) | | | └─StringSyntax
 //@[29:0041) | | | | └─Token(StringComplete) |'2020-01-01'|
@@ -1535,10 +1535,10 @@ var test3 = lis('abcd', '2020-01-01')
 //@[12:0015) | | ├─IdentifierSyntax
 //@[12:0015) | | | └─Token(Identifier) |lis|
 //@[15:0016) | | ├─Token(LeftParen) |(|
-//@[16:0023) | | ├─FunctionArgumentSyntax
-//@[16:0022) | | | ├─StringSyntax
+//@[16:0022) | | ├─FunctionArgumentSyntax
+//@[16:0022) | | | └─StringSyntax
 //@[16:0022) | | | | └─Token(StringComplete) |'abcd'|
-//@[22:0023) | | | └─Token(Comma) |,|
+//@[22:0023) | | ├─Token(Comma) |,|
 //@[24:0036) | | ├─FunctionArgumentSyntax
 //@[24:0036) | | | └─StringSyntax
 //@[24:0036) | | | | └─Token(StringComplete) |'2020-01-01'|
@@ -2018,10 +2018,10 @@ var bannedFunctions = {
 //@[10:0012) | | | | ├─IdentifierSyntax
 //@[10:0012) | | | | | └─Token(Identifier) |if|
 //@[12:0013) | | | | ├─Token(LeftParen) |(|
-//@[13:0018) | | | | ├─FunctionArgumentSyntax
-//@[13:0017) | | | | | ├─NullLiteralSyntax
+//@[13:0017) | | | | ├─FunctionArgumentSyntax
+//@[13:0017) | | | | | └─NullLiteralSyntax
 //@[13:0017) | | | | | | └─Token(NullKeyword) |null|
-//@[17:0018) | | | | | └─Token(Comma) |,|
+//@[17:0018) | | | | ├─Token(Comma) |,|
 //@[18:0022) | | | | ├─FunctionArgumentSyntax
 //@[18:0022) | | | | | └─NullLiteralSyntax
 //@[18:0022) | | | | | | └─Token(NullKeyword) |null|
@@ -2087,10 +2087,10 @@ var bannedFunctions = {
 //@[28:0031) | | | | | | | | ├─IdentifierSyntax
 //@[28:0031) | | | | | | | | | └─Token(Identifier) |sub|
 //@[31:0032) | | | | | | | | ├─Token(LeftParen) |(|
-//@[32:0034) | | | | | | | | ├─FunctionArgumentSyntax
-//@[32:0033) | | | | | | | | | ├─IntegerLiteralSyntax
+//@[32:0033) | | | | | | | | ├─FunctionArgumentSyntax
+//@[32:0033) | | | | | | | | | └─IntegerLiteralSyntax
 //@[32:0033) | | | | | | | | | | └─Token(Integer) |2|
-//@[33:0034) | | | | | | | | | └─Token(Comma) |,|
+//@[33:0034) | | | | | | | | ├─Token(Comma) |,|
 //@[34:0035) | | | | | | | | ├─FunctionArgumentSyntax
 //@[34:0035) | | | | | | | | | └─IntegerLiteralSyntax
 //@[34:0035) | | | | | | | | | | └─Token(Integer) |3|
@@ -2104,10 +2104,10 @@ var bannedFunctions = {
 //@[43:0046) | | | | | | | ├─IdentifierSyntax
 //@[43:0046) | | | | | | | | └─Token(Identifier) |mul|
 //@[46:0047) | | | | | | | ├─Token(LeftParen) |(|
-//@[47:0049) | | | | | | | ├─FunctionArgumentSyntax
-//@[47:0048) | | | | | | | | ├─IntegerLiteralSyntax
+//@[47:0048) | | | | | | | ├─FunctionArgumentSyntax
+//@[47:0048) | | | | | | | | └─IntegerLiteralSyntax
 //@[47:0048) | | | | | | | | | └─Token(Integer) |8|
-//@[48:0049) | | | | | | | | └─Token(Comma) |,|
+//@[48:0049) | | | | | | | ├─Token(Comma) |,|
 //@[49:0052) | | | | | | | ├─FunctionArgumentSyntax
 //@[49:0052) | | | | | | | | └─StringSyntax
 //@[49:0052) | | | | | | | | | └─Token(StringComplete) |'s'|
@@ -2134,10 +2134,10 @@ var bannedFunctions = {
 //@[76:0079) | | | | | ├─IdentifierSyntax
 //@[76:0079) | | | | | | └─Token(Identifier) |mod|
 //@[79:0080) | | | | | ├─Token(LeftParen) |(|
-//@[80:0085) | | | | | ├─FunctionArgumentSyntax
-//@[80:0084) | | | | | | ├─NullLiteralSyntax
+//@[80:0084) | | | | | ├─FunctionArgumentSyntax
+//@[80:0084) | | | | | | └─NullLiteralSyntax
 //@[80:0084) | | | | | | | └─Token(NullKeyword) |null|
-//@[84:0085) | | | | | | └─Token(Comma) |,|
+//@[84:0085) | | | | | ├─Token(Comma) |,|
 //@[86:0091) | | | | | ├─FunctionArgumentSyntax
 //@[86:0091) | | | | | | └─BooleanLiteralSyntax
 //@[86:0091) | | | | | | | └─Token(FalseKeyword) |false|

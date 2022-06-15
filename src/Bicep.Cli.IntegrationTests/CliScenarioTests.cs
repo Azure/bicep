@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace Bicep.Cli.IntegrationTests
 {
     [TestClass]
-    public class ScenarioTests : TestBase
+    public class CliScenarioTests : TestBase
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -150,7 +150,8 @@ param roleAssignmentName string = guid(principalId, roleDefinitionId, rgName)
 resource rgName_resource 'Microsoft.Resources/resourceGroups@2019-10-01' = {
   name: rgName
   location: rgLocation
-  properties: {}
+  properties: {
+  }
 }
 
 module applyLock './nested_applyLock.bicep' = {

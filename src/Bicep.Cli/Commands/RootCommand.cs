@@ -101,6 +101,26 @@ Usage:
       bicep decompile file.json --outdir dir1
       bicep decompile file.json --force
       bicep decompile file.json --outfile file.bicep
+
+  {exeName} generate-params [options] <file>
+    Builds .parameters.json file from the given bicep file, updates if there is an existing parameters.json file.
+
+    Arguments:
+      <file>        The input file
+
+    Options:
+      --no-restore      Generates the parameters file without restoring external modules.
+      --outdir <dir>    Saves the output at the specified directory.
+      --outfile <file>  Saves the output as the specified file path.
+      --stdout          Prints the output to stdout.
+
+    Examples:
+      bicep generate-params file.bicep
+      bicep generate-params file.bicep --no-restore
+      bicep generate-params file.bicep --stdout
+      bicep generate-params file.bicep --outdir dir1
+      bicep generate-params file.bicep --outfile file.parameters.json
+
 {registryPlaceholder}  {exeName} [options]
     Options:
       --version  -v   Shows bicep version information

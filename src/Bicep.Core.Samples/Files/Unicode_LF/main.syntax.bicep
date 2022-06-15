@@ -102,14 +102,14 @@ output concatUnicodeStrings string = concat('Θμ', '二头肌', 'α')
 //@[37:043) | | ├─IdentifierSyntax
 //@[37:043) | | | └─Token(Identifier) |concat|
 //@[43:044) | | ├─Token(LeftParen) |(|
-//@[44:049) | | ├─FunctionArgumentSyntax
-//@[44:048) | | | ├─StringSyntax
+//@[44:048) | | ├─FunctionArgumentSyntax
+//@[44:048) | | | └─StringSyntax
 //@[44:048) | | | | └─Token(StringComplete) |'Θμ'|
-//@[48:049) | | | └─Token(Comma) |,|
-//@[50:056) | | ├─FunctionArgumentSyntax
-//@[50:055) | | | ├─StringSyntax
+//@[48:049) | | ├─Token(Comma) |,|
+//@[50:055) | | ├─FunctionArgumentSyntax
+//@[50:055) | | | └─StringSyntax
 //@[50:055) | | | | └─Token(StringComplete) |'二头肌'|
-//@[55:056) | | | └─Token(Comma) |,|
+//@[55:056) | | ├─Token(Comma) |,|
 //@[57:060) | | ├─FunctionArgumentSyntax
 //@[57:060) | | | └─StringSyntax
 //@[57:060) | | | | └─Token(StringComplete) |'α'|

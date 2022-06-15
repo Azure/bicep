@@ -3,9 +3,6 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>Bicep.LanguageServer</RootNamespace>
-	<EnableNuget>true</EnableNuget>
-	<PackageTags>Azure;ResourceManager;ARM;Deployments;Templates;Bicep</PackageTags>
-	<Description>Bicep language server</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -37,6 +34,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.4.255" />
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.5.107" />
   </ItemGroup>
 </Project>

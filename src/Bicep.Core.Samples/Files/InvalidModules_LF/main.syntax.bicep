@@ -444,10 +444,10 @@ module modWithReferenceInCondition './main.bicep' = if (reference('Micorosft.Man
 //@[056:00065) | | | | | | ├─IdentifierSyntax
 //@[056:00065) | | | | | | | └─Token(Identifier) |reference|
 //@[065:00066) | | | | | | ├─Token(LeftParen) |(|
-//@[066:00109) | | | | | | ├─FunctionArgumentSyntax
-//@[066:00108) | | | | | | | ├─StringSyntax
+//@[066:00108) | | | | | | ├─FunctionArgumentSyntax
+//@[066:00108) | | | | | | | └─StringSyntax
 //@[066:00108) | | | | | | | | └─Token(StringComplete) |'Micorosft.Management/managementGroups/MG'|
-//@[108:00109) | | | | | | | └─Token(Comma) |,|
+//@[108:00109) | | | | | | ├─Token(Comma) |,|
 //@[110:00122) | | | | | | ├─FunctionArgumentSyntax
 //@[110:00122) | | | | | | | └─StringSyntax
 //@[110:00122) | | | | | | | | └─Token(StringComplete) |'2020-05-01'|
@@ -485,10 +485,10 @@ module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-
 //@[055:00063) | | | | | | ├─IdentifierSyntax
 //@[055:00063) | | | | | | | └─Token(Identifier) |listKeys|
 //@[063:00064) | | | | | | ├─Token(LeftParen) |(|
-//@[064:00070) | | | | | | ├─FunctionArgumentSyntax
-//@[064:00069) | | | | | | | ├─StringSyntax
+//@[064:00069) | | | | | | ├─FunctionArgumentSyntax
+//@[064:00069) | | | | | | | └─StringSyntax
 //@[064:00069) | | | | | | | | └─Token(StringComplete) |'foo'|
-//@[069:00070) | | | | | | | └─Token(Comma) |,|
+//@[069:00070) | | | | | | ├─Token(Comma) |,|
 //@[071:00083) | | | | | | ├─FunctionArgumentSyntax
 //@[071:00083) | | | | | | | └─StringSyntax
 //@[071:00083) | | | | | | | | └─Token(StringComplete) |'2020-05-01'|
@@ -525,7 +525,6 @@ module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[042:00054) | | | | ├─PropertyAccessSyntax
 //@[042:00052) | | | | | ├─ObjectSyntax
 //@[042:00043) | | | | | | ├─Token(LeftBrace) |{|
-//@[044:00044) | | | | | | ├─SkippedTriviaSyntax
 //@[044:00050) | | | | | | ├─ObjectPropertySyntax
 //@[044:00047) | | | | | | | ├─StringSyntax
 //@[044:00047) | | | | | | | | └─Token(StringComplete) |'a'|
@@ -533,7 +532,6 @@ module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[049:00050) | | | | | | | └─VariableAccessSyntax
 //@[049:00050) | | | | | | | | └─IdentifierSyntax
 //@[049:00050) | | | | | | | | | └─Token(Identifier) |b|
-//@[051:00051) | | | | | | ├─SkippedTriviaSyntax
 //@[051:00052) | | | | | | └─Token(RightBrace) |}|
 //@[052:00053) | | | | | ├─Token(Dot) |.|
 //@[053:00054) | | | | | └─IdentifierSyntax
@@ -1267,20 +1265,20 @@ module runtimeValidModule1 'empty.bicep' = {
 //@[008:00014) | | | | ├─IdentifierSyntax
 //@[008:00014) | | | | | └─Token(Identifier) |concat|
 //@[014:00015) | | | | ├─Token(LeftParen) |(|
-//@[015:00066) | | | | ├─FunctionArgumentSyntax
-//@[015:00065) | | | | | ├─FunctionCallSyntax
+//@[015:00065) | | | | ├─FunctionArgumentSyntax
+//@[015:00065) | | | | | └─FunctionCallSyntax
 //@[015:00021) | | | | | | ├─IdentifierSyntax
 //@[015:00021) | | | | | | | └─Token(Identifier) |concat|
 //@[021:00022) | | | | | | ├─Token(LeftParen) |(|
-//@[022:00042) | | | | | | ├─FunctionArgumentSyntax
-//@[022:00041) | | | | | | | ├─PropertyAccessSyntax
+//@[022:00041) | | | | | | ├─FunctionArgumentSyntax
+//@[022:00041) | | | | | | | └─PropertyAccessSyntax
 //@[022:00038) | | | | | | | | ├─VariableAccessSyntax
 //@[022:00038) | | | | | | | | | └─IdentifierSyntax
 //@[022:00038) | | | | | | | | | | └─Token(Identifier) |runtimeValidRes1|
 //@[038:00039) | | | | | | | | ├─Token(Dot) |.|
 //@[039:00041) | | | | | | | | └─IdentifierSyntax
 //@[039:00041) | | | | | | | | | └─Token(Identifier) |id|
-//@[041:00042) | | | | | | | └─Token(Comma) |,|
+//@[041:00042) | | | | | | ├─Token(Comma) |,|
 //@[043:00064) | | | | | | ├─FunctionArgumentSyntax
 //@[043:00064) | | | | | | | └─PropertyAccessSyntax
 //@[043:00059) | | | | | | | | ├─VariableAccessSyntax
@@ -1290,7 +1288,7 @@ module runtimeValidModule1 'empty.bicep' = {
 //@[060:00064) | | | | | | | | └─IdentifierSyntax
 //@[060:00064) | | | | | | | | | └─Token(Identifier) |name|
 //@[064:00065) | | | | | | └─Token(RightParen) |)|
-//@[065:00066) | | | | | └─Token(Comma) |,|
+//@[065:00066) | | | | ├─Token(Comma) |,|
 //@[067:00088) | | | | ├─FunctionArgumentSyntax
 //@[067:00088) | | | | | └─PropertyAccessSyntax
 //@[067:00083) | | | | | | ├─VariableAccessSyntax
@@ -1682,8 +1680,8 @@ module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
 //@[008:00014) | | | | | ├─IdentifierSyntax
 //@[008:00014) | | | | | | └─Token(Identifier) |concat|
 //@[014:00015) | | | | | ├─Token(LeftParen) |(|
-//@[015:00066) | | | | | ├─FunctionArgumentSyntax
-//@[015:00065) | | | | | | ├─PropertyAccessSyntax
+//@[015:00065) | | | | | ├─FunctionArgumentSyntax
+//@[015:00065) | | | | | | └─PropertyAccessSyntax
 //@[015:00051) | | | | | | | ├─PropertyAccessSyntax
 //@[015:00043) | | | | | | | | ├─ArrayAccessSyntax
 //@[015:00040) | | | | | | | | | ├─VariableAccessSyntax
@@ -1699,7 +1697,7 @@ module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
 //@[051:00052) | | | | | | | ├─Token(Dot) |.|
 //@[052:00065) | | | | | | | └─IdentifierSyntax
 //@[052:00065) | | | | | | | | └─Token(Identifier) |stringOutputB|
-//@[065:00066) | | | | | | └─Token(Comma) |,|
+//@[065:00066) | | | | | ├─Token(Comma) |,|
 //@[067:00117) | | | | | ├─FunctionArgumentSyntax
 //@[067:00117) | | | | | | └─PropertyAccessSyntax
 //@[067:00103) | | | | | | | ├─PropertyAccessSyntax
@@ -3217,11 +3215,11 @@ module directRefToCollectionViaSingleBody 'modulea.bicep' = {
 //@[016:00022) | | | | | | ├─IdentifierSyntax
 //@[016:00022) | | | | | | | └─Token(Identifier) |concat|
 //@[022:00023) | | | | | | ├─Token(LeftParen) |(|
-//@[023:00050) | | | | | | ├─FunctionArgumentSyntax
-//@[023:00049) | | | | | | | ├─VariableAccessSyntax
+//@[023:00049) | | | | | | ├─FunctionArgumentSyntax
+//@[023:00049) | | | | | | | └─VariableAccessSyntax
 //@[023:00049) | | | | | | | | └─IdentifierSyntax
 //@[023:00049) | | | | | | | | | └─Token(Identifier) |wrongModuleParameterInLoop|
-//@[049:00050) | | | | | | | └─Token(Comma) |,|
+//@[049:00050) | | | | | | ├─Token(Comma) |,|
 //@[051:00068) | | | | | | ├─FunctionArgumentSyntax
 //@[051:00068) | | | | | | | └─VariableAccessSyntax
 //@[051:00068) | | | | | | | | └─IdentifierSyntax
@@ -3295,11 +3293,11 @@ module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' = if(true) 
 //@[016:00022) | | | | | | | ├─IdentifierSyntax
 //@[016:00022) | | | | | | | | └─Token(Identifier) |concat|
 //@[022:00023) | | | | | | | ├─Token(LeftParen) |(|
-//@[023:00050) | | | | | | | ├─FunctionArgumentSyntax
-//@[023:00049) | | | | | | | | ├─VariableAccessSyntax
+//@[023:00049) | | | | | | | ├─FunctionArgumentSyntax
+//@[023:00049) | | | | | | | | └─VariableAccessSyntax
 //@[023:00049) | | | | | | | | | └─IdentifierSyntax
 //@[023:00049) | | | | | | | | | | └─Token(Identifier) |wrongModuleParameterInLoop|
-//@[049:00050) | | | | | | | | └─Token(Comma) |,|
+//@[049:00050) | | | | | | | ├─Token(Comma) |,|
 //@[051:00068) | | | | | | | ├─FunctionArgumentSyntax
 //@[051:00068) | | | | | | | | └─VariableAccessSyntax
 //@[051:00068) | | | | | | | | | └─IdentifierSyntax
@@ -3377,11 +3375,11 @@ module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
 //@[016:00022) | | | | | | | ├─IdentifierSyntax
 //@[016:00022) | | | | | | | | └─Token(Identifier) |concat|
 //@[022:00023) | | | | | | | ├─Token(LeftParen) |(|
-//@[023:00050) | | | | | | | ├─FunctionArgumentSyntax
-//@[023:00049) | | | | | | | | ├─VariableAccessSyntax
+//@[023:00049) | | | | | | | ├─FunctionArgumentSyntax
+//@[023:00049) | | | | | | | | └─VariableAccessSyntax
 //@[023:00049) | | | | | | | | | └─IdentifierSyntax
 //@[023:00049) | | | | | | | | | | └─Token(Identifier) |wrongModuleParameterInLoop|
-//@[049:00050) | | | | | | | | └─Token(Comma) |,|
+//@[049:00050) | | | | | | | ├─Token(Comma) |,|
 //@[051:00068) | | | | | | | ├─FunctionArgumentSyntax
 //@[051:00068) | | | | | | | | └─VariableAccessSyntax
 //@[051:00068) | | | | | | | | | └─IdentifierSyntax
@@ -3460,11 +3458,11 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
 //@[016:00022) | | | | | | | ├─IdentifierSyntax
 //@[016:00022) | | | | | | | | └─Token(Identifier) |concat|
 //@[022:00023) | | | | | | | ├─Token(LeftParen) |(|
-//@[023:00050) | | | | | | | ├─FunctionArgumentSyntax
-//@[023:00049) | | | | | | | | ├─VariableAccessSyntax
+//@[023:00049) | | | | | | | ├─FunctionArgumentSyntax
+//@[023:00049) | | | | | | | | └─VariableAccessSyntax
 //@[023:00049) | | | | | | | | | └─IdentifierSyntax
 //@[023:00049) | | | | | | | | | | └─Token(Identifier) |wrongModuleParameterInLoop|
-//@[049:00050) | | | | | | | | └─Token(Comma) |,|
+//@[049:00050) | | | | | | | ├─Token(Comma) |,|
 //@[051:00068) | | | | | | | ├─FunctionArgumentSyntax
 //@[051:00068) | | | | | | | | └─VariableAccessSyntax
 //@[051:00068) | | | | | | | | | └─IdentifierSyntax

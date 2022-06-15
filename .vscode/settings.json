@@ -3,5 +3,8 @@
     "eslint.lintTask.enable": true,
     "[typescript]": {
         "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+    },
+    "yaml.schemas": {
+        "https://json.schemastore.org/github-workflow.json": "/.github/workflows/*.yml"
     }
 }

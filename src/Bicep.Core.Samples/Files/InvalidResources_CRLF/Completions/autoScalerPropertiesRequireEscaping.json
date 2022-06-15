@@ -32,7 +32,7 @@
     "detail": "expander",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'least-waste' | 'most-pods' | 'random'`  \n"
+      "value": "Type: `'least-waste' | 'most-pods' | 'random' | string`  \n"
     },
     "deprecated": false,
     "preselect": false,

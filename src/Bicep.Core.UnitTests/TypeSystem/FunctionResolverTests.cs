@@ -96,7 +96,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [DynamicData(nameof(GetStringLiteralTransformations), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void StringLiteralTransformationsYieldStringLiteralReturnType(string displayName, string functionName, string[] argumentTypeLiterals, string returnTypeLiteral)
         {
-            var arguments = argumentTypeLiterals.Select(atl => new FunctionArgumentSyntax(TestSyntaxFactory.CreateString(atl), default)).ToList();
+            var arguments = argumentTypeLiterals.Select(atl => new FunctionArgumentSyntax(TestSyntaxFactory.CreateString(atl))).ToList();
             var argumentTypes = argumentTypeLiterals.Select(atl => new StringLiteralType(atl) as TypeSymbol).ToList();
 
             var matches = GetMatches(functionName, argumentTypes, out _, out _);

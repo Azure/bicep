@@ -889,20 +889,18 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetFunctionParamCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.FunctionCall is not { } functionCall ||
-                model.GetSymbolInfo(functionCall) is not FunctionSymbol functionSymbol)
+            if (context.FunctionArgument is null ||
+                model.GetSymbolInfo(context.FunctionArgument.Function) is not FunctionSymbol functionSymbol)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            var argIndex = context.FunctionArgument is null ? 0 : functionCall.Arguments.IndexOf(context.FunctionArgument);
 
-            var functionOverload = model.TypeManager.GetMatchedFunctionOverload(functionCall) ?? functionSymbol.Overloads.FirstOrDefault();
-            var functionArgumentFlags = functionOverload?.FixedParameters.ElementAtOrDefault(argIndex)?.Flags ?? FunctionParameterFlags.Default;
+            var functionOverload = model.TypeManager.GetMatchedFunctionOverload(context.FunctionArgument.Function) ?? functionSymbol.Overloads.FirstOrDefault();
+            var functionArgumentFlags = functionOverload?.FixedParameters.ElementAtOrDefault(context.FunctionArgument.ArgumentIndex)?.Flags ?? FunctionParameterFlags.Default;
             if (functionArgumentFlags.HasFlag(FunctionParameterFlags.FilePath))
             {
-                if (functionCall.Arguments.Length == 0
-                    || functionCall.Arguments[argIndex].Expression is not StringSyntax stringSyntax
+                if (context.FunctionArgument.Function.Arguments.ElementAtOrDefault(context.FunctionArgument.ArgumentIndex)?.Expression is not StringSyntax stringSyntax
                     || stringSyntax.TryGetLiteralValue() is not { } entered)
                 {
                     entered = "";
@@ -935,7 +933,8 @@ namespace Bicep.LanguageServer.Completions
             {
                 return Enumerable.Empty<CompletionItem>();
             }
-            var argType = functionSymbol.GetDeclaredArgumentType(argIndex);
+
+            var argType = functionSymbol.GetDeclaredArgumentType(context.FunctionArgument.ArgumentIndex);
             
             return GetValueCompletionsForType(argType, context.ReplacementRange, loopsAllowed: false);
         }

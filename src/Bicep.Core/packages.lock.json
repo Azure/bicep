@@ -4,20 +4,20 @@
     "net6.0": {
       "Azure.Bicep.Types": {
         "type": "Direct",
-        "requested": "[0.1.486, )",
-        "resolved": "0.1.486",
-        "contentHash": "j7z9D4a47OfXzSFx0nBRqImRkpGzmaOwiiaeogb3obwA5/OQNU2sSU7LKENjV7Ew7nJ3rpwAWRcz39WA4m0gNw==",
+        "requested": "[0.1.538, )",
+        "resolved": "0.1.538",
+        "contentHash": "JHEcmh6WQO9JurMsb0jouKBSOW/BTCKwvlPE/Yf9xjNMrVOVq52jo/RzRovVvG/KKUyCRFDPShh/KMDRQJHXXw==",
         "dependencies": {
-          "System.Text.Json": "6.0.3"
+          "System.Text.Json": "6.0.4"
         }
       },
       "Azure.Bicep.Types.Az": {
         "type": "Direct",
-        "requested": "[0.1.486, )",
-        "resolved": "0.1.486",
-        "contentHash": "rwLCeSZNtBWsJbMz8qZl/rYZd//uAobprQEHNjAv8eRpJGPhgnu7aQ75DStDCoUWMsLYRSxpCQ3Dyhp948rdAw==",
+        "requested": "[0.1.538, )",
+        "resolved": "0.1.538",
+        "contentHash": "xyGLBuR9hGhqya5Prt0pfiFK+p3ZU+GckP8qFsPzGWexIZEix+clAmmU22lCAjOkHlFHoMvfZDv0xGL6roi6gg==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.1.486"
+          "Azure.Bicep.Types": "0.1.538"
         }
       },
       "Azure.Bicep.Types.K8s": {
@@ -172,9 +172,9 @@
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.4.255, )",
-        "resolved": "3.4.255",
-        "contentHash": "7aJa6+VzdKNDVJqGIWGtvIDh2HsIx8DIDfUg4yWViXc798awhSohPMk1oiAZqSntnrKThKJtn4vAMRdsCj8dtg=="
+        "requested": "[3.5.107, )",
+        "resolved": "3.5.107",
+        "contentHash": "oMWWTe9aTUJ1CwU4fpfpduqx7Hzve320PU2SUyFFDzlHXTdjEouWHtFrRbaXV4LysL0lBtlzJM/nmHm47p2KWw=="
       },
       "Newtonsoft.Json": {
         "type": "Direct",
@@ -1591,8 +1591,8 @@
       },
       "System.Text.Json": {
         "type": "Transitive",
-        "resolved": "6.0.3",
-        "contentHash": "1Bi8pSdTTVNVKcGFiU1o9Iq6FwFyGQmgBgGHxy9pPvZANXc1cT6D72j+r/H/NsyVnWxKIxOgI3o7DrAwC3zcaA==",
+        "resolved": "6.0.4",
+        "contentHash": "krM+rxZPl5MQqGmHbj/gLis58IqGrLQGm7CIvNJ72Wj1MCdXNu1uMco5wRr7PmPOL/ITF/uEkB/3S1nSGFNvHg==",
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "6.0.0",
           "System.Text.Encodings.Web": "6.0.0"

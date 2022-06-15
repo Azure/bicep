@@ -23,11 +23,11 @@ var q = base64(q, !q)
 //@[08:014) | | ├─IdentifierSyntax
 //@[08:014) | | | └─Token(Identifier) |base64|
 //@[14:015) | | ├─Token(LeftParen) |(|
-//@[15:017) | | ├─FunctionArgumentSyntax
-//@[15:016) | | | ├─VariableAccessSyntax
+//@[15:016) | | ├─FunctionArgumentSyntax
+//@[15:016) | | | └─VariableAccessSyntax
 //@[15:016) | | | | └─IdentifierSyntax
 //@[15:016) | | | | | └─Token(Identifier) |q|
-//@[16:017) | | | └─Token(Comma) |,|
+//@[16:017) | | ├─Token(Comma) |,|
 //@[18:020) | | ├─FunctionArgumentSyntax
 //@[18:020) | | | └─UnaryOperationSyntax
 //@[18:019) | | | | ├─Token(Exclamation) |!|
@@ -59,11 +59,11 @@ var b = max(a,1)
 //@[08:011) | | ├─IdentifierSyntax
 //@[08:011) | | | └─Token(Identifier) |max|
 //@[11:012) | | ├─Token(LeftParen) |(|
-//@[12:014) | | ├─FunctionArgumentSyntax
-//@[12:013) | | | ├─VariableAccessSyntax
+//@[12:013) | | ├─FunctionArgumentSyntax
+//@[12:013) | | | └─VariableAccessSyntax
 //@[12:013) | | | | └─IdentifierSyntax
 //@[12:013) | | | | | └─Token(Identifier) |a|
-//@[13:014) | | | └─Token(Comma) |,|
+//@[13:014) | | ├─Token(Comma) |,|
 //@[14:015) | | ├─FunctionArgumentSyntax
 //@[14:015) | | | └─IntegerLiteralSyntax
 //@[14:015) | | | | └─Token(Integer) |1|

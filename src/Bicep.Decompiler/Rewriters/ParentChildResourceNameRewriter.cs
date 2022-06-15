@@ -114,16 +114,16 @@ namespace Bicep.Core.Decompiler.Rewriters
                 }
 
                 var replacementNameProp = new ObjectPropertySyntax(resourceNameProp.Key, resourceNameProp.Colon, newName);
-                var parentProp = new ObjectPropertySyntax(
-                    SyntaxFactory.CreateIdentifier(LanguageConstants.ResourceParentPropertyName),
-                    SyntaxFactory.ColonToken,
+                var parentProp = SyntaxFactory.CreateObjectProperty(
+                    LanguageConstants.ResourceParentPropertyName,
                     SyntaxFactory.CreateVariableAccess(otherResourceSymbol.Name));
 
-                var replacementBody = new ObjectSyntax(
-                    resourceBody.OpenBrace,
-                    // parent prop comes first!
-                    parentProp.AsEnumerable().Concat(resourceBody.Children.Replace(resourceNameProp, replacementNameProp)),
-                    resourceBody.CloseBrace);
+                // parent prop comes first!
+                var newProperties = parentProp.AsEnumerable()
+                    .Concat(resourceBody.Children.Replace(resourceNameProp, replacementNameProp))
+                    .OfType<ObjectPropertySyntax>();
+
+                var replacementBody = SyntaxFactory.CreateObject(newProperties);
 
                 // at the top we just checked if there is a legitimate body
                 // but to do the replacement correctly we may need to wrap it inside an IfConditionSyntax
