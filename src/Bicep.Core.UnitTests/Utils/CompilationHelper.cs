@@ -68,10 +68,10 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static CompilationResult CompileParameters(CompilationHelperContext context, params (string fileName, string fileContents)[] files)
         {
-            var bicepFiles = files.Where(x => x.fileName.EndsWith(".bicepparam", StringComparison.InvariantCultureIgnoreCase));
-            bicepFiles.Select(x => x.fileName).Should().Contain("main.bicepparam");
+            var bicepFiles = files.Where(x => x.fileName.EndsWith(".bicep", StringComparison.InvariantCultureIgnoreCase));
+            bicepFiles.Select(x => x.fileName).Should().Contain("main.bicep");
 
-            var systemFiles = files.Where(x => !x.fileName.EndsWith(".bicepparam", StringComparison.InvariantCultureIgnoreCase));
+            var systemFiles = files.Where(x => !x.fileName.EndsWith(".bicep", StringComparison.InvariantCultureIgnoreCase));
 
             var (uriDictionary, entryUri) = CreateFileDictionary(bicepFiles);
             var fileResolver = new InMemoryFileResolver(CreateFileDictionary(systemFiles).files);
@@ -79,7 +79,7 @@ namespace Bicep.Core.UnitTests.Utils
             var configuration = BicepTestConstants.BuiltInConfiguration;
             var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(uriDictionary, entryUri, fileResolver, configuration, context.GetFeatures());
 
-            return Compile(context, new Compilation(context.Features ?? BicepTestConstants.Features, context.GetNamespaceProvider(), sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer));
+            return CompileParameters(context, new Compilation(context.Features ?? BicepTestConstants.Features, context.GetNamespaceProvider(), sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer));
         }
 
         public static CompilationResult Compile(IAzResourceTypeLoader resourceTypeLoader, params (string fileName, string fileContents)[] files)
@@ -114,6 +114,30 @@ namespace Bicep.Core.UnitTests.Utils
             {
                 using var stream = new MemoryStream();
                 var emitResult = emitter.Emit(stream);
+
+                if (emitResult.Status != EmitStatus.Failed)
+                {
+                    stream.Position = 0;
+                    var jsonOutput = new StreamReader(stream).ReadToEnd();
+
+                    template = JToken.Parse(jsonOutput);
+                }
+            }
+
+            return new(template, diagnostics, compilation);
+        }
+
+        private static CompilationResult CompileParameters(CompilationHelperContext context, Compilation compilation)
+        {
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), context.GetEmitterSettings());
+
+            var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
+
+            JToken? template = null;
+            if (!compilation.GetEntrypointSemanticModel().HasErrors())
+            {
+                using var stream = new MemoryStream();
+                var emitResult = emitter.EmitParams(stream);
 
                 if (emitResult.Status != EmitStatus.Failed)
                 {

@@ -107,6 +107,64 @@ namespace Bicep.Core.Emit
             templateJToken.WriteTo(writer);
         }
 
+        public void WriteParams(JsonTextWriter writer){
+            var paramsJToken = GenerateParamsFile();
+            paramsJToken.WriteTo(writer);
+        }
+
+        private JToken GenerateParamsFile(){
+            using var stringWriter = new StringWriter();
+            using var jsonWriter = new JsonTextWriter(stringWriter);
+            var emitter = new ExpressionEmitter(jsonWriter, this.context);
+
+            jsonWriter.WriteStartObject();
+
+            emitter.EmitProperty("$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#");
+
+            emitter.EmitProperty("contentVersion", "1.0.0.0");
+
+            this.EmitParameters(jsonWriter, emitter);
+            // /context.SemanticModel.Root.Syntax.Children.OfType<ParameterSetSyntax>()
+            jsonWriter.WriteEndObject();
+
+            var content = stringWriter.ToString();
+            return (content.FromJson<JToken>());
+        }
+
+        private void EmitParameters(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
+        {
+            if (this.context.SemanticModel.Root.Syntax.Children.Length == 0)
+            {
+                return;
+            }
+
+            jsonWriter.WritePropertyName("parameters");
+            jsonWriter.WriteStartObject();
+            
+            //how to filter out the set declaration syntax??
+            // List<ParameterSetDeclarationSyntax> parameterDeclarations = this.context.SemanticModel.Root.Syntax.Children.OfType<ParameterSetDeclarationSyntax>();
+
+            foreach(var syntax in this.context.SemanticModel.Root.Syntax.Children){
+                if(syntax is ParameterSetDeclarationSyntax parameterSymbol){ //parameterSymbol.OfType<ParameterSetDeclarationSyntax>()
+                    jsonWriter.WritePropertyName(parameterSymbol.Name.IdentifierName);
+                    jsonWriter.WriteStartObject();
+                    jsonWriter.WritePropertyName("value");
+                    jsonWriter.WriteValue(parameterSymbol.Value);
+                    jsonWriter.WriteEndObject();
+                }
+            }
+
+            // foreach (var parameterSymbol in this.context.SemanticModel.Root.ParameterDeclarations)
+            // {
+            //     jsonWriter.WritePropertyName(parameterSymbol.Name);
+            //     this.EmitParameter(jsonWriter, parameterSymbol, emitter);
+            // }
+
+            jsonWriter.WriteEndObject();
+        }
+
+
+
         private (Template, JToken) GenerateTemplateWithoutHash()
         {
             // TODO: since we merely return a JToken, refactor the emitter logic to add properties to a JObject

@@ -397,7 +397,7 @@ Hello from Bicep!"));
         [TestMethod]
         public void params_file_end_to_end_test()
         {
-          var result = CompilationHelper.Compile(GetCompilationContext(),
+          var result = CompilationHelper. CompileParameters(GetCompilationContext(),
                   ("main.bicep", @"
 set paramTest = 'test value'
 "),
