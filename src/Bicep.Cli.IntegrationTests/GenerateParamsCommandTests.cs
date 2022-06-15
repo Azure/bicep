@@ -442,5 +442,47 @@ namespace Bicep.Cli.IntegrationTests
 }".ReplaceLineEndings());
             }
         }
+
+        [TestMethod]
+        public async Task Parameters_file_should_be_overwritten_in_full()
+        {
+            // https://github.com/Azure/bicep/issues/7239
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "main.bicep");
+            File.WriteAllText(bicepFilePath, @"
+param foo string
+param bar string
+");
+            var (output, error, result) = await Bicep("generate-params", bicepFilePath);
+
+            File.WriteAllText(bicepFilePath, @"
+param foo string
+// param bar string
+");
+            (output, error, result) = await Bicep("generate-params", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "main.parameters.json")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""foo"": {
+      ""value"": """"
+    },
+    ""bar"": {
+      ""value"": """"
+    }
+  }
+}".ReplaceLineEndings());
+            }
+        }
     }
 }
