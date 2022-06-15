@@ -69,7 +69,7 @@ describe("visualizer", (): void => {
     const examplePath = resolveExamplePath("201", "sql");
     const textDocument = await vscode.workspace.openTextDocument(examplePath);
 
-    await executeShowVisualizerCommand(textDocument.uri);
+    await executeShowVisualizerToSideCommand(textDocument.uri);
     const sourceEditor = await executeShowSourceCommand();
 
     expectDefined(sourceEditor);
