@@ -136,7 +136,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 //
 
                 if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix)
-                    && model.ResourceMetadata.TryLookup(syntax.BaseExpression) is { })
+                    && (model.ResourceMetadata.TryLookup(syntax.BaseExpression) is { } resource
+                       || SemanticModelHelper.TryGetFunctionInNamespace(model, AzNamespaceType.BuiltInName, syntax) is FunctionCallSyntaxBase listFunction))
                 {
                     string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsFunction, syntax.Name.IdentifierName);
                     this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, foundMessage));
