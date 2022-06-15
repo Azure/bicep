@@ -476,9 +476,6 @@ param foo string
   ""parameters"": {
     ""foo"": {
       ""value"": """"
-    },
-    ""bar"": {
-      ""value"": """"
     }
   }
 }".ReplaceLineEndings());
