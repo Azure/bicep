@@ -56,16 +56,20 @@ namespace Bicep.Core.Emit
             Func<string,string> toRelativePath,
             int offset)
         {
-            nestedSourceMap.ForEach(fileKvp =>
-                fileKvp.Value.ForEach(lineKvp =>
-                    lineKvp.Value.ForEach(mapping =>
+            foreach (var fileKvp in nestedSourceMap)
+            {
+                foreach (var lineKvp in fileKvp.Value)
+                {
+                    foreach (var (start, end) in lineKvp.Value)
                     {
                         parentSourceMap.AddMapping(
                             toRelativePath(fileKvp.Key),
                             lineKvp.Key,
-                            mapping.start + offset,
-                            mapping.end + offset);
-                    })));
+                            start + offset,
+                            end + offset);
+                    }
+                }
+            }
         }
 
         private static void AddMapping(
