@@ -107,9 +107,28 @@ namespace Bicep.LanguageServer.Handlers
                 && this.moduleDispatcher.TryGetModuleReference(moduleDeclarationSyntax, context.Compilation.Configuration, out _) is { } moduleReference)
             {
                 // goto beginning of the module file.
-                return Task.FromResult(GetModuleDefinitionLocation(
+                return Task.FromResult(GetFileDefinitionLocation(
                     GetDocumentLinkUri(sourceFile, moduleReference),
                     stringToken,
+                    context,
+                    new Range { Start = new Position(0, 0), End = new Position(0, 0) }));
+            }
+
+            if (SyntaxMatcher.FindLastNodeOfType<FunctionCallSyntaxBase, FunctionCallSyntaxBase>(matchingNodes).node is { } functionCall
+                && SyntaxMatcher.FindLastNodeOfType<FunctionArgumentSyntax, FunctionArgumentSyntax>(matchingNodes).node is { } functionArgument
+                && functionArgument.Expression is StringSyntax functionArgumentExpression
+                && functionArgumentExpression.TryGetLiteralValue() is {} functionArgumentValue
+                && !string.IsNullOrWhiteSpace(functionArgumentValue)
+                && context.Compilation.GetEntrypointSemanticModel().GetSymbolInfo(functionCall) is FunctionSymbol functionSymbol
+                && context.Compilation.GetEntrypointSemanticModel().TypeManager.GetMatchedFunctionOverload(functionCall) is { } functionOverload
+                && functionOverload.FixedParameters.ElementAtOrDefault(functionCall.Arguments.IndexOf(functionArgument)) is {} functionParameter
+                && functionParameter.Flags.HasFlag(FunctionParameterFlags.FilePath)
+                && fileResolver.TryResolveFilePath(context.Compilation.SourceFileGrouping.EntryPoint.FileUri, functionArgumentValue) is {} fileUri
+                && fileResolver.FileExists(fileUri))
+            {
+                return Task.FromResult(GetFileDefinitionLocation(
+                    fileUri,
+                    functionArgument,
                     context,
                     new Range { Start = new Position(0, 0), End = new Position(0, 0) }));
             }
@@ -245,7 +264,7 @@ namespace Bicep.LanguageServer.Handlers
                         if (moduleModel.Root.OutputDeclarations
                             .FirstOrDefault(d => string.Equals(d.Name, propertyName)) is OutputSymbol outputSymbol)
                         {
-                            return Task.FromResult(GetModuleDefinitionLocation(
+                            return Task.FromResult(GetFileDefinitionLocation(
                                 bicepFile.FileUri,
                                 underlinedSyntax,
                                 context,
@@ -256,7 +275,7 @@ namespace Bicep.LanguageServer.Handlers
                         if (moduleModel.Root.ParameterDeclarations
                             .FirstOrDefault(d => string.Equals(d.Name, propertyName)) is ParameterSymbol parameterSymbol)
                         {
-                            return Task.FromResult(GetModuleDefinitionLocation(
+                            return Task.FromResult(GetFileDefinitionLocation(
                                 bicepFile.FileUri,
                                 underlinedSyntax,
                                 context,
@@ -270,18 +289,18 @@ namespace Bicep.LanguageServer.Handlers
             return Task.FromResult(new LocationOrLocationLinks());
         }
 
-        private LocationOrLocationLinks GetModuleDefinitionLocation(
-            Uri moduleUri,
+        private LocationOrLocationLinks GetFileDefinitionLocation(
+            Uri fileUri,
             SyntaxBase originalSelectionSyntax,
             CompilationContext context,
-            Range targetTange)
+            Range targetRange)
         {
             return new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
             {
                 OriginSelectionRange = originalSelectionSyntax.ToRange(context.LineStarts),
-                TargetUri = DocumentUri.From(moduleUri),
-                TargetRange = targetTange,
-                TargetSelectionRange = targetTange
+                TargetUri = DocumentUri.From(fileUri),
+                TargetRange = targetRange,
+                TargetSelectionRange = targetRange
             }));
         }
 
