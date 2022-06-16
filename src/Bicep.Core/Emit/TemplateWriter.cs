@@ -347,7 +347,7 @@ namespace Bicep.Core.Emit
 
                 if (context.Settings.EnableSymbolicNames)
                 {
-                    jsonWriter.WritePropertyName(resource.Symbol.Name);
+                    jsonWriter.WritePropertyName(emitter.GetSymbolicName(resource));
                 }
 
                 this.EmitResource(jsonWriter, resource, emitter);
@@ -717,13 +717,13 @@ namespace Bicep.Core.Emit
                     switch ((resourceDependency.IsCollection, dependency.IndexExpression))
                     {
                         case (false, _):
-                            jsonWriter.WriteValue(resourceDependency.Name);
+                            emitter.EmitSymbolReference(resource);
                             Debug.Assert(dependency.IndexExpression is null);
                             break;
                         // dependency is on the entire resource collection
                         // write the name of the resource collection as the dependency
                         case (true, null):
-                            jsonWriter.WriteValue(resourceDependency.Name);
+                            emitter.EmitSymbolReference(resource);
                             break;
                         case (true, { } indexExpression):
                             emitter.EmitIndexedSymbolReference(resource, indexExpression, newContext);
