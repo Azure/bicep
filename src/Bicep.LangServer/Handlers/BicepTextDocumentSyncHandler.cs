@@ -55,14 +55,15 @@ namespace Bicep.LanguageServer.Handlers
 
         public override Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
+            //either check the extension from (file://foo/bar/something.bicepparam) or language id from textdocumentItem
             var documentUri = request.TextDocument.Uri;
 
             // If the documentUri corresponds to bicepconfig.json, we'll add an entry to activeBicepConfigCache.
-            if (ConfigurationHelper.IsBicepConfigFile(documentUri))
+            if (ConfigurationHelper.IsBicepConfigFile(documentUri)) //potentialy copy this for bicep params
             {
                 bicepConfigChangeHandler.HandleBicepConfigOpenEvent(documentUri);
             }
-
+            //new compliation manager 
             this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
 
             return Unit.Task;

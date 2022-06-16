@@ -11,6 +11,7 @@ namespace Bicep.LanguageServer.Utils
             LanguageConstants.LanguageId);
 
         public static DocumentSelector CreateForTextDocumentSync() => DocumentSelector.ForLanguage(
+            //for future: register bicepparam language id
             LanguageConstants.LanguageId,
             LanguageConstants.JsonLanguageId,
             LanguageConstants.JsoncLanguageId,

@@ -19,7 +19,11 @@ namespace Bicep.Core.Semantics
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
 
         public Compilation(IFeatureProvider features, INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, RootConfiguration configuration, IBicepAnalyzer linterAnalyzer, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
-        {
+        { 
+        /*
+        1 - duplicate this class (avoid conflicts with main)
+        2 - fit info about bicep params file in here (linkage already present)
+        */
             this.Features = features;
             this.SourceFileGrouping = sourceFileGrouping;
             this.NamespaceProvider = namespaceProvider;
@@ -27,6 +31,7 @@ namespace Bicep.Core.Semantics
 
             var fileResolver = SourceFileGrouping.FileResolver;
 
+            //copy of this for params file
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile,
                 sourceFile => (modelLookup is not null && modelLookup.TryGetValue(sourceFile, out var existingModel)) ?

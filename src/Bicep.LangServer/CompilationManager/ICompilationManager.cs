@@ -16,7 +16,7 @@ namespace Bicep.LanguageServer.CompilationManager
 
         void CloseCompilation(DocumentUri uri);
 
-        CompilationContext? GetCompilation(DocumentUri uri);
+        CompilationContext? GetCompilation(DocumentUri uri); //potentailly have different version for bicep params
     }
 }
 

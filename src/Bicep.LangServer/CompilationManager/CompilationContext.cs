@@ -13,7 +13,7 @@ namespace Bicep.LanguageServer.CompilationManager
             this.Compilation = compilation;
         }
 
-        public Compilation Compilation { get; }
+        public Compilation Compilation { get; } //everything we know about bicep file (all language server analysis)
 
         public ProgramSyntax ProgramSyntax => Compilation.SourceFileGrouping.EntryPoint.ProgramSyntax;
 
