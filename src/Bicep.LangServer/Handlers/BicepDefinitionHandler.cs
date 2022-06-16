@@ -94,41 +94,50 @@ namespace Bicep.LanguageServer.Handlers
 
         private Task<LocationOrLocationLinks> HandleUnboundSymbolLocationAsync(DefinitionParams request, CompilationContext context)
         {
-            // Currently we only definition handler for a non symbol bound to implement module path goto.
-            // try to resolve module path syntax from given offset using tail matching.
+            
             int offset = PositionHelper.GetOffset(context.LineStarts, request.Position);
             var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(context.Compilation.SourceFileGrouping.EntryPoint.ProgramSyntax, offset);
-            if (SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, StringSyntax, Token>(
-                matchingNodes,
-                (moduleSyntax, stringSyntax, token) => moduleSyntax.Path == stringSyntax && token.Type == TokenType.StringComplete)
-                && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
-                && matchingNodes[^2] is StringSyntax stringToken
-                && context.Compilation.SourceFileGrouping.TryLookUpModuleSourceFile(moduleDeclarationSyntax) is ISourceFile sourceFile
-                && this.moduleDispatcher.TryGetModuleReference(moduleDeclarationSyntax, context.Compilation.Configuration, out _) is { } moduleReference)
-            {
-                // goto beginning of the module file.
-                return Task.FromResult(GetFileDefinitionLocation(
-                    GetDocumentLinkUri(sourceFile, moduleReference),
-                    stringToken,
-                    context,
-                    new Range { Start = new Position(0, 0), End = new Position(0, 0) }));
+            { // Definition handler for a non symbol bound to implement module path goto.
+                // try to resolve module path syntax from given offset using tail matching.
+                if (SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, StringSyntax, Token>(
+                     matchingNodes,
+                     (moduleSyntax, stringSyntax, token) => moduleSyntax.Path == stringSyntax && token.Type == TokenType.StringComplete)
+                 && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
+                 && matchingNodes[^2] is StringSyntax stringToken
+                 && context.Compilation.SourceFileGrouping.TryLookUpModuleSourceFile(moduleDeclarationSyntax) is ISourceFile sourceFile
+                 && this.moduleDispatcher.TryGetModuleReference(moduleDeclarationSyntax, context.Compilation.Configuration, out _) is { } moduleReference)
+                {
+                    // goto beginning of the module file.
+                    return Task.FromResult(GetFileDefinitionLocation(
+                        GetDocumentLinkUri(sourceFile, moduleReference),
+                        stringToken,
+                        context,
+                        new Range { Start = new Position(0, 0), End = new Position(0, 0) }));
+                }
             }
-
-            if (BicepCompletionContext.TryGetFunctionArgumentContext(matchingNodes, offset) is {} functionArgumentContext
-                && functionArgumentContext.Function.GetArgumentByPosition(functionArgumentContext.ArgumentIndex).Expression is StringSyntax functionArgumentExpression
-                && functionArgumentExpression.TryGetLiteralValue() is {} functionArgumentValue
-                && !string.IsNullOrWhiteSpace(functionArgumentValue)
-                && context.Compilation.GetEntrypointSemanticModel().TypeManager.GetMatchedFunctionOverload(functionArgumentContext.Function) is { } functionOverload
-                && functionOverload.FixedParameters.ElementAtOrDefault(functionArgumentContext.ArgumentIndex) is {} functionParameter
-                && functionParameter.Flags.HasFlag(FunctionParameterFlags.FilePath)
-                && fileResolver.TryResolveFilePath(context.Compilation.SourceFileGrouping.EntryPoint.FileUri, functionArgumentValue) is {} fileUri
-                && fileResolver.FileExists(fileUri))
-            {
-                return Task.FromResult(GetFileDefinitionLocation(
-                    fileUri,
-                    functionArgumentContext.Function.GetArgumentByPosition(functionArgumentContext.ArgumentIndex),
-                    context,
-                    new Range { Start = new Position(0, 0), End = new Position(0, 0) }));
+            {  // Definition handler for a non symbol bound to implement load* functions file argument path goto.
+                if (SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, FunctionArgumentSyntax, StringSyntax, Token>(
+                        matchingNodes, (_, functionArgumentSyntax, stringSyntax, token) =>
+                            functionArgumentSyntax.Expression == stringSyntax
+                            && !stringSyntax.IsInterpolated()
+                            && token.Type == TokenType.StringComplete)
+                    && matchingNodes[^2] is StringSyntax stringToken
+                    && matchingNodes[^3] is FunctionArgumentSyntax functionArgument
+                    && matchingNodes[^4] is FunctionCallSyntaxBase functionCall
+                    && stringToken.TryGetLiteralValue() is { } stringTokenValue
+                    && !string.IsNullOrWhiteSpace(stringTokenValue)
+                    && context.Compilation.GetEntrypointSemanticModel().TypeManager.GetMatchedFunctionOverload(functionCall) is { } functionOverload
+                    && functionOverload.FixedParameters.ElementAtOrDefault(functionCall.Arguments.ToList().IndexOf(functionArgument)) is { } functionParameter
+                    && functionParameter.Flags.HasFlag(FunctionParameterFlags.FilePath)
+                    && fileResolver.TryResolveFilePath(context.Compilation.SourceFileGrouping.EntryPoint.FileUri, stringTokenValue) is { } fileUri
+                    && fileResolver.FileExists(fileUri))
+                {
+                    return Task.FromResult(GetFileDefinitionLocation(
+                        fileUri,
+                        functionArgument,
+                        context,
+                        new Range { Start = new Position(0, 0), End = new Position(0, 0) }));
+                }
             }
 
             // all other unbound syntax nodes return no 

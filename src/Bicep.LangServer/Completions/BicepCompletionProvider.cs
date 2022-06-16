@@ -374,7 +374,7 @@ namespace Bicep.LanguageServer.Completions
                         priority)
                     .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "file path completion" })
                     .Build());
-        
+
         private IEnumerable<CompletionItem> GetModulePathCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath))
@@ -395,7 +395,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 return Enumerable.Empty<CompletionItem>();
             }
-            
+
             // Prioritize .bicep files higher than other files.
             var bicepFileItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, IsBicepFile, CompletionPriority.High);
             var armTemplateFileItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, IsArmTemplateFileLike, CompletionPriority.Medium);
@@ -889,53 +889,56 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetFunctionParamCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.FunctionArgument is null ||
-                model.GetSymbolInfo(context.FunctionArgument.Function) is not FunctionSymbol functionSymbol)
+            if (context.FunctionArgument is not { } functionArgument
+                || model.GetSymbolInfo(functionArgument.Function) is not FunctionSymbol functionSymbol)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
 
-
-            var functionOverload = model.TypeManager.GetMatchedFunctionOverload(context.FunctionArgument.Function) ?? functionSymbol.Overloads.FirstOrDefault();
-            var functionArgumentFlags = functionOverload?.FixedParameters.ElementAtOrDefault(context.FunctionArgument.ArgumentIndex)?.Flags ?? FunctionParameterFlags.Default;
-            if (functionArgumentFlags.HasFlag(FunctionParameterFlags.FilePath))
+            //functionArgument flag indicates that we are about to type a function argument. But path completions should be also shown when on a argument value
+            if (functionArgument.ArgumentNodes.IsEmpty
+                || !(functionArgument.ArgumentNodes[0] is StringSyntax stringSyntax && stringSyntax.IsInterpolated())) //we discard path completions when string is interpolated (although it shouldn't). here are too many cases to handle and this situation should not happen
             {
-                if (context.FunctionArgument.Function.Arguments.ElementAtOrDefault(context.FunctionArgument.ArgumentIndex)?.Expression is not StringSyntax stringSyntax
-                    || stringSyntax.TryGetLiteralValue() is not { } entered)
+                var functionOverload = model.TypeManager.GetMatchedFunctionOverload(context.FunctionArgument.Function) ?? functionSymbol.Overloads.FirstOrDefault();
+                var functionArgumentFlags = functionOverload?.FixedParameters.ElementAtOrDefault(context.FunctionArgument.ArgumentIndex)?.Flags ?? FunctionParameterFlags.Default;
+                if (functionArgumentFlags.HasFlag(FunctionParameterFlags.FilePath))
                 {
-                    entered = "";
-                }
+                    //try get entered text. we need to provide path completions when something else than string is entered and in that case we use the token value to get what's currently entered
+                    //(token value for string will have single quotes, so we need to avoid it)
+                    var entered = (functionArgument.ArgumentNodes.ElementAtOrDefault(0) as StringSyntax)?.TryGetLiteralValue() ?? (functionArgument.ArgumentNodes.LastOrDefault() as Token)?.Text ?? string.Empty;
 
-                // These should only fail if we're not able to resolve cwd path or the entered string
-                if (!TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered, out var cwdUri, out var files, out var dirs))
-                {
-                    return Enumerable.Empty<CompletionItem>();
-                }
+                    // These should only fail if we're not able to resolve cwd path or the entered string
+                    if (!TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered, out var cwdUri, out var files, out var dirs))
+                    {
+                        return Enumerable.Empty<CompletionItem>();
+                    }
 
-                IEnumerable<CompletionItem> fileItems;
-                if (functionArgumentFlags.HasFlag(FunctionParameterFlags.ExpectedJsonFile))
-                {
-                    // Prioritize .json or .jsonc files higher than other files.
-                    var jsonItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, (file) => PathHelper.HasExtension(file, "json") || PathHelper.HasExtension(file, "jsonc"), CompletionPriority.High);
-                    var nonJsonItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, (file) => !PathHelper.HasExtension(file, "json") && !PathHelper.HasExtension(file, "jsonc"), CompletionPriority.Medium);
-                    fileItems = jsonItems.Concat(nonJsonItems);
-                }
-                else
-                {
-                    fileItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, (_) => true, CompletionPriority.High);
-                }
+                    IEnumerable<CompletionItem> fileItems;
+                    if (functionArgumentFlags.HasFlag(FunctionParameterFlags.ExpectedJsonFile))
+                    {
+                        // Prioritize .json or .jsonc files higher than other files.
+                        var jsonItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, (file) => PathHelper.HasExtension(file, "json") || PathHelper.HasExtension(file, "jsonc"), CompletionPriority.High);
+                        var nonJsonItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, (file) => !PathHelper.HasExtension(file, "json") && !PathHelper.HasExtension(file, "jsonc"), CompletionPriority.Medium);
+                        fileItems = jsonItems.Concat(nonJsonItems);
+                    }
+                    else
+                    {
+                        fileItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, (_) => true, CompletionPriority.High);
+                    }
 
-                var dirItems = CreateDirectoryCompletionItems(model, context, entered, dirs, cwdUri, CompletionPriority.Medium);
+                    var dirItems = CreateDirectoryCompletionItems(model, context, entered, dirs, cwdUri, CompletionPriority.Medium);
 
-                return fileItems.Concat(dirItems);
+                    return fileItems.Concat(dirItems);
+                }
             }
+
             if (!context.Kind.HasFlag(BicepCompletionContextKind.FunctionArgument))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
 
             var argType = functionSymbol.GetDeclaredArgumentType(context.FunctionArgument.ArgumentIndex);
-            
+
             return GetValueCompletionsForType(argType, context.ReplacementRange, loopsAllowed: false);
         }
 
