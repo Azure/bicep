@@ -44,9 +44,11 @@ namespace Bicep.Core.Tracing
             // ensure User-Agent mentions us
             options.ApplicationId = $"{LanguageConstants.LanguageId}/{ThisAssembly.AssemblyFileVersion}";
 
+            // This option just controls whether the User-Agent header is sent
+            options.IsTelemetryEnabled = true;
+
             options.IsLoggingContentEnabled = false;
             options.IsDistributedTracingEnabled = false;
-            options.IsTelemetryEnabled = false;
 
             foreach (var header in additionalHeaders)
             {

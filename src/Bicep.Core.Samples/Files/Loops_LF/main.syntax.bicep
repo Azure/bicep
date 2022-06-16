@@ -403,10 +403,10 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for i
 //@[084:00089) | | | ├─IdentifierSyntax
 //@[084:00089) | | | | └─Token(Identifier) |range|
 //@[089:00090) | | | ├─Token(LeftParen) |(|
-//@[090:00092) | | | ├─FunctionArgumentSyntax
-//@[090:00091) | | | | ├─IntegerLiteralSyntax
+//@[090:00091) | | | ├─FunctionArgumentSyntax
+//@[090:00091) | | | | └─IntegerLiteralSyntax
 //@[090:00091) | | | | | └─Token(Integer) |0|
-//@[091:00092) | | | | └─Token(Comma) |,|
+//@[091:00092) | | | ├─Token(Comma) |,|
 //@[092:00093) | | | ├─FunctionArgumentSyntax
 //@[092:00093) | | | | └─IntegerLiteralSyntax
 //@[092:00093) | | | | | └─Token(Integer) |1|
@@ -505,10 +505,10 @@ resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for i in ran
 //@[077:00082) | | | ├─IdentifierSyntax
 //@[077:00082) | | | | └─Token(Identifier) |range|
 //@[082:00083) | | | ├─Token(LeftParen) |(|
-//@[083:00085) | | | ├─FunctionArgumentSyntax
-//@[083:00084) | | | | ├─IntegerLiteralSyntax
+//@[083:00084) | | | ├─FunctionArgumentSyntax
+//@[083:00084) | | | | └─IntegerLiteralSyntax
 //@[083:00084) | | | | | └─Token(Integer) |0|
-//@[084:00085) | | | | └─Token(Comma) |,|
+//@[084:00085) | | | ├─Token(Comma) |,|
 //@[085:00086) | | | ├─FunctionArgumentSyntax
 //@[085:00086) | | | | └─IntegerLiteralSyntax
 //@[085:00086) | | | | | └─Token(Integer) |1|
@@ -977,10 +977,10 @@ resource firstSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in ran
 //@[077:00082) | | | ├─IdentifierSyntax
 //@[077:00082) | | | | └─Token(Identifier) |range|
 //@[082:00083) | | | ├─Token(LeftParen) |(|
-//@[083:00085) | | | ├─FunctionArgumentSyntax
-//@[083:00084) | | | | ├─IntegerLiteralSyntax
+//@[083:00084) | | | ├─FunctionArgumentSyntax
+//@[083:00084) | | | | └─IntegerLiteralSyntax
 //@[083:00084) | | | | | └─Token(Integer) |0|
-//@[084:00085) | | | | └─Token(Comma) |,|
+//@[084:00085) | | | ├─Token(Comma) |,|
 //@[086:00102) | | | ├─FunctionArgumentSyntax
 //@[086:00102) | | | | └─FunctionCallSyntax
 //@[086:00092) | | | | | ├─IdentifierSyntax
@@ -1078,10 +1078,10 @@ resource secondSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in ra
 //@[078:00083) | | | ├─IdentifierSyntax
 //@[078:00083) | | | | └─Token(Identifier) |range|
 //@[083:00084) | | | ├─Token(LeftParen) |(|
-//@[084:00086) | | | ├─FunctionArgumentSyntax
-//@[084:00085) | | | | ├─IntegerLiteralSyntax
+//@[084:00085) | | | ├─FunctionArgumentSyntax
+//@[084:00085) | | | | └─IntegerLiteralSyntax
 //@[084:00085) | | | | | └─Token(Integer) |0|
-//@[085:00086) | | | | └─Token(Comma) |,|
+//@[085:00086) | | | ├─Token(Comma) |,|
 //@[087:00103) | | | ├─FunctionArgumentSyntax
 //@[087:00103) | | | | └─FunctionCallSyntax
 //@[087:00093) | | | | | ├─IdentifierSyntax
@@ -1917,8 +1917,8 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 //@[013:00019) | | | | | | ├─IdentifierSyntax
 //@[013:00019) | | | | | | | └─Token(Identifier) |concat|
 //@[019:00020) | | | | | | ├─Token(LeftParen) |(|
-//@[020:00087) | | | | | | ├─FunctionArgumentSyntax
-//@[020:00086) | | | | | | | ├─PropertyAccessSyntax
+//@[020:00086) | | | | | | ├─FunctionArgumentSyntax
+//@[020:00086) | | | | | | | └─PropertyAccessSyntax
 //@[020:00077) | | | | | | | | ├─PropertyAccessSyntax
 //@[020:00069) | | | | | | | | | ├─ArrayAccessSyntax
 //@[020:00062) | | | | | | | | | | ├─VariableAccessSyntax
@@ -1935,7 +1935,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 //@[077:00078) | | | | | | | | ├─Token(Dot) |.|
 //@[078:00086) | | | | | | | | └─IdentifierSyntax
 //@[078:00086) | | | | | | | | | └─Token(Identifier) |myOutput|
-//@[086:00087) | | | | | | | └─Token(Comma) |,|
+//@[086:00087) | | | | | | ├─Token(Comma) |,|
 //@[088:00136) | | | | | | ├─FunctionArgumentSyntax
 //@[088:00136) | | | | | | | └─PropertyAccessSyntax
 //@[088:00125) | | | | | | | | ├─PropertyAccessSyntax
@@ -2662,10 +2662,10 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
 //@[034:00039) | | | | | | | | | | | | | ├─IdentifierSyntax
 //@[034:00039) | | | | | | | | | | | | | | └─Token(Identifier) |range|
 //@[039:00040) | | | | | | | | | | | | | ├─Token(LeftParen) |(|
-//@[040:00042) | | | | | | | | | | | | | ├─FunctionArgumentSyntax
-//@[040:00041) | | | | | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[040:00041) | | | | | | | | | | | | | ├─FunctionArgumentSyntax
+//@[040:00041) | | | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[040:00041) | | | | | | | | | | | | | | | └─Token(Integer) |0|
-//@[041:00042) | | | | | | | | | | | | | | └─Token(Comma) |,|
+//@[041:00042) | | | | | | | | | | | | | ├─Token(Comma) |,|
 //@[043:00058) | | | | | | | | | | | | | ├─FunctionArgumentSyntax
 //@[043:00058) | | | | | | | | | | | | | | └─FunctionCallSyntax
 //@[043:00049) | | | | | | | | | | | | | | | ├─IdentifierSyntax
@@ -2804,10 +2804,10 @@ resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05
 //@[101:00106) | | | ├─IdentifierSyntax
 //@[101:00106) | | | | └─Token(Identifier) |range|
 //@[106:00107) | | | ├─Token(LeftParen) |(|
-//@[107:00109) | | | ├─FunctionArgumentSyntax
-//@[107:00108) | | | | ├─IntegerLiteralSyntax
+//@[107:00108) | | | ├─FunctionArgumentSyntax
+//@[107:00108) | | | | └─IntegerLiteralSyntax
 //@[107:00108) | | | | | └─Token(Integer) |0|
-//@[108:00109) | | | | └─Token(Comma) |,|
+//@[108:00109) | | | ├─Token(Comma) |,|
 //@[110:00125) | | | ├─FunctionArgumentSyntax
 //@[110:00125) | | | | └─FunctionCallSyntax
 //@[110:00116) | | | | | ├─IdentifierSyntax
@@ -3083,10 +3083,10 @@ resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoor
 //@[034:00039) | | | | | | | | | | | | | ├─IdentifierSyntax
 //@[034:00039) | | | | | | | | | | | | | | └─Token(Identifier) |range|
 //@[039:00040) | | | | | | | | | | | | | ├─Token(LeftParen) |(|
-//@[040:00042) | | | | | | | | | | | | | ├─FunctionArgumentSyntax
-//@[040:00041) | | | | | | | | | | | | | | ├─IntegerLiteralSyntax
+//@[040:00041) | | | | | | | | | | | | | ├─FunctionArgumentSyntax
+//@[040:00041) | | | | | | | | | | | | | | └─IntegerLiteralSyntax
 //@[040:00041) | | | | | | | | | | | | | | | └─Token(Integer) |0|
-//@[041:00042) | | | | | | | | | | | | | | └─Token(Comma) |,|
+//@[041:00042) | | | | | | | | | | | | | ├─Token(Comma) |,|
 //@[043:00059) | | | | | | | | | | | | | ├─FunctionArgumentSyntax
 //@[043:00059) | | | | | | | | | | | | | | └─FunctionCallSyntax
 //@[043:00049) | | | | | | | | | | | | | | | ├─IdentifierSyntax
@@ -3241,10 +3241,10 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
 //@[103:00108) | | | ├─IdentifierSyntax
 //@[103:00108) | | | | └─Token(Identifier) |range|
 //@[108:00109) | | | ├─Token(LeftParen) |(|
-//@[109:00111) | | | ├─FunctionArgumentSyntax
-//@[109:00110) | | | | ├─IntegerLiteralSyntax
+//@[109:00110) | | | ├─FunctionArgumentSyntax
+//@[109:00110) | | | | └─IntegerLiteralSyntax
 //@[109:00110) | | | | | └─Token(Integer) |0|
-//@[110:00111) | | | | └─Token(Comma) |,|
+//@[110:00111) | | | ├─Token(Comma) |,|
 //@[112:00128) | | | ├─FunctionArgumentSyntax
 //@[112:00128) | | | | └─FunctionCallSyntax
 //@[112:00118) | | | | | ├─IdentifierSyntax
@@ -3474,10 +3474,10 @@ resource filteredZones 'Microsoft.Network/dnsZones@2018-05-01' = [for i in range
 //@[075:00080) | | | ├─IdentifierSyntax
 //@[075:00080) | | | | └─Token(Identifier) |range|
 //@[080:00081) | | | ├─Token(LeftParen) |(|
-//@[081:00083) | | | ├─FunctionArgumentSyntax
-//@[081:00082) | | | | ├─IntegerLiteralSyntax
+//@[081:00082) | | | ├─FunctionArgumentSyntax
+//@[081:00082) | | | | └─IntegerLiteralSyntax
 //@[081:00082) | | | | | └─Token(Integer) |0|
-//@[082:00083) | | | | └─Token(Comma) |,|
+//@[082:00083) | | | ├─Token(Comma) |,|
 //@[083:00085) | | | ├─FunctionArgumentSyntax
 //@[083:00085) | | | | └─IntegerLiteralSyntax
 //@[083:00085) | | | | | └─Token(Integer) |10|
@@ -3553,10 +3553,10 @@ module filteredModules 'passthrough.bicep' = [for i in range(0,6): if(i % 2 == 0
 //@[055:00060) | | | ├─IdentifierSyntax
 //@[055:00060) | | | | └─Token(Identifier) |range|
 //@[060:00061) | | | ├─Token(LeftParen) |(|
-//@[061:00063) | | | ├─FunctionArgumentSyntax
-//@[061:00062) | | | | ├─IntegerLiteralSyntax
+//@[061:00062) | | | ├─FunctionArgumentSyntax
+//@[061:00062) | | | | └─IntegerLiteralSyntax
 //@[061:00062) | | | | | └─Token(Integer) |0|
-//@[062:00063) | | | | └─Token(Comma) |,|
+//@[062:00063) | | | ├─Token(Comma) |,|
 //@[063:00064) | | | ├─FunctionArgumentSyntax
 //@[063:00064) | | | | └─IntegerLiteralSyntax
 //@[063:00064) | | | | | └─Token(Integer) |6|

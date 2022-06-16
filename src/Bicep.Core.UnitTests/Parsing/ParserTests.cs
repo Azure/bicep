@@ -106,7 +106,6 @@ namespace Bicep.Core.UnitTests.Parsing
 
         [DataTestMethod]
         [DataRow("'${>}def'")]
-        [DataRow("'${concat(}def'")]
         [DataRow("'${concat)}def'")]
         [DataRow("'${'nest\\ed'}def'")]
         [DataRow("'${a b c}def'")]
@@ -144,7 +143,7 @@ namespace Bicep.Core.UnitTests.Parsing
         public void FunctionsShouldParseCorrectly(string text, string expected, int expectedArgumentCount)
         {
             var expression = (FunctionCallSyntax)RunExpressionTest(text, expected, typeof(FunctionCallSyntax));
-            expression.Arguments.Length.Should().Be(expectedArgumentCount);
+            expression.Arguments.Count().Should().Be(expectedArgumentCount);
         }
 
         [DataTestMethod]

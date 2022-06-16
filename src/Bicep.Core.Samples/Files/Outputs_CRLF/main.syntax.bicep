@@ -464,20 +464,20 @@ var secondaryKeyIntermediateVar = listKeys(resourceId('Mock.RP/type', 'steve'), 
 //@[034:0042) | | | ├─IdentifierSyntax
 //@[034:0042) | | | | └─Token(Identifier) |listKeys|
 //@[042:0043) | | | ├─Token(LeftParen) |(|
-//@[043:0079) | | | ├─FunctionArgumentSyntax
-//@[043:0078) | | | | ├─FunctionCallSyntax
+//@[043:0078) | | | ├─FunctionArgumentSyntax
+//@[043:0078) | | | | └─FunctionCallSyntax
 //@[043:0053) | | | | | ├─IdentifierSyntax
 //@[043:0053) | | | | | | └─Token(Identifier) |resourceId|
 //@[053:0054) | | | | | ├─Token(LeftParen) |(|
-//@[054:0069) | | | | | ├─FunctionArgumentSyntax
-//@[054:0068) | | | | | | ├─StringSyntax
+//@[054:0068) | | | | | ├─FunctionArgumentSyntax
+//@[054:0068) | | | | | | └─StringSyntax
 //@[054:0068) | | | | | | | └─Token(StringComplete) |'Mock.RP/type'|
-//@[068:0069) | | | | | | └─Token(Comma) |,|
+//@[068:0069) | | | | | ├─Token(Comma) |,|
 //@[070:0077) | | | | | ├─FunctionArgumentSyntax
 //@[070:0077) | | | | | | └─StringSyntax
 //@[070:0077) | | | | | | | └─Token(StringComplete) |'steve'|
 //@[077:0078) | | | | | └─Token(RightParen) |)|
-//@[078:0079) | | | | └─Token(Comma) |,|
+//@[078:0079) | | | ├─Token(Comma) |,|
 //@[080:0092) | | | ├─FunctionArgumentSyntax
 //@[080:0092) | | | | └─StringSyntax
 //@[080:0092) | | | | | └─Token(StringComplete) |'2020-01-01'|
@@ -500,20 +500,20 @@ output primaryKey string = listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-0
 //@[027:0035) | | | ├─IdentifierSyntax
 //@[027:0035) | | | | └─Token(Identifier) |listKeys|
 //@[035:0036) | | | ├─Token(LeftParen) |(|
-//@[036:0072) | | | ├─FunctionArgumentSyntax
-//@[036:0071) | | | | ├─FunctionCallSyntax
+//@[036:0071) | | | ├─FunctionArgumentSyntax
+//@[036:0071) | | | | └─FunctionCallSyntax
 //@[036:0046) | | | | | ├─IdentifierSyntax
 //@[036:0046) | | | | | | └─Token(Identifier) |resourceId|
 //@[046:0047) | | | | | ├─Token(LeftParen) |(|
-//@[047:0062) | | | | | ├─FunctionArgumentSyntax
-//@[047:0061) | | | | | | ├─StringSyntax
+//@[047:0061) | | | | | ├─FunctionArgumentSyntax
+//@[047:0061) | | | | | | └─StringSyntax
 //@[047:0061) | | | | | | | └─Token(StringComplete) |'Mock.RP/type'|
-//@[061:0062) | | | | | | └─Token(Comma) |,|
+//@[061:0062) | | | | | ├─Token(Comma) |,|
 //@[063:0070) | | | | | ├─FunctionArgumentSyntax
 //@[063:0070) | | | | | | └─StringSyntax
 //@[063:0070) | | | | | | | └─Token(StringComplete) |'nigel'|
 //@[070:0071) | | | | | └─Token(RightParen) |)|
-//@[071:0072) | | | | └─Token(Comma) |,|
+//@[071:0072) | | | ├─Token(Comma) |,|
 //@[073:0085) | | | ├─FunctionArgumentSyntax
 //@[073:0085) | | | | └─StringSyntax
 //@[073:0085) | | | | | └─Token(StringComplete) |'2020-01-01'|
@@ -599,10 +599,10 @@ output generatedArray array = [for i in range(0,10): i]
 //@[040:0045) | | | ├─IdentifierSyntax
 //@[040:0045) | | | | └─Token(Identifier) |range|
 //@[045:0046) | | | ├─Token(LeftParen) |(|
-//@[046:0048) | | | ├─FunctionArgumentSyntax
-//@[046:0047) | | | | ├─IntegerLiteralSyntax
+//@[046:0047) | | | ├─FunctionArgumentSyntax
+//@[046:0047) | | | | └─IntegerLiteralSyntax
 //@[046:0047) | | | | | └─Token(Integer) |0|
-//@[047:0048) | | | | └─Token(Comma) |,|
+//@[047:0048) | | | ├─Token(Comma) |,|
 //@[048:0050) | | | ├─FunctionArgumentSyntax
 //@[048:0050) | | | | └─IntegerLiteralSyntax
 //@[048:0050) | | | | | └─Token(Integer) |10|

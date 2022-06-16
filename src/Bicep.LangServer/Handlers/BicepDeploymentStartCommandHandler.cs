@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.ResourceManager;
+using Bicep.Core.Tracing;
 using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Telemetry;
 using MediatR;
@@ -52,8 +53,11 @@ namespace Bicep.LanguageServer.Handlers
         {
             PostDeployStartTelemetryEvent(request.deployId);
 
+            var options = new ArmClientOptions();
+            options.Diagnostics.ApplySharedResourceManagerSettings();
+
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
-            var armClient = new ArmClient(credential);
+            var armClient = new ArmClient(credential, default, options);
 
             string deploymentName = "bicep_deployment_" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
 

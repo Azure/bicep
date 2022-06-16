@@ -1172,11 +1172,11 @@ param paramAccessingVar string = concat(sampleVar, 's')
 //@[033:0039) | | | ├─IdentifierSyntax
 //@[033:0039) | | | | └─Token(Identifier) |concat|
 //@[039:0040) | | | ├─Token(LeftParen) |(|
-//@[040:0050) | | | ├─FunctionArgumentSyntax
-//@[040:0049) | | | | ├─VariableAccessSyntax
+//@[040:0049) | | | ├─FunctionArgumentSyntax
+//@[040:0049) | | | | └─VariableAccessSyntax
 //@[040:0049) | | | | | └─IdentifierSyntax
 //@[040:0049) | | | | | | └─Token(Identifier) |sampleVar|
-//@[049:0050) | | | | └─Token(Comma) |,|
+//@[049:0050) | | | ├─Token(Comma) |,|
 //@[051:0054) | | | ├─FunctionArgumentSyntax
 //@[051:0054) | | | | └─StringSyntax
 //@[051:0054) | | | | | └─Token(StringComplete) |'s'|
@@ -1276,8 +1276,8 @@ param defaultValueOneLinerCompletions string =
 //@[002:0007) | | | | | ├─ArrayItemSyntax
 //@[002:0007) | | | | | | └─StringSyntax
 //@[002:0007) | | | | | | | └─Token(StringComplete) |'abc'|
-//@[007:0008) | | | | | ├─SkippedTriviaSyntax
-//@[007:0008) | | | | | | └─Token(Comma) |,|
+//@[007:0008) | | | | | ├─Token(Comma) |,|
+//@[008:0008) | | | | | ├─SkippedTriviaSyntax
 //@[008:0009) | | | | | ├─Token(NewLine) |\n|
   'def'
 //@[002:0007) | | | | | ├─ArrayItemSyntax
@@ -1346,10 +1346,10 @@ param incompleteDecorators string
 //@[001:0007) | | | ├─IdentifierSyntax
 //@[001:0007) | | | | └─Token(Identifier) |concat|
 //@[007:0008) | | | ├─Token(LeftParen) |(|
-//@[008:0010) | | | ├─FunctionArgumentSyntax
-//@[008:0009) | | | | ├─IntegerLiteralSyntax
+//@[008:0009) | | | ├─FunctionArgumentSyntax
+//@[008:0009) | | | | └─IntegerLiteralSyntax
 //@[008:0009) | | | | | └─Token(Integer) |1|
-//@[009:0010) | | | | └─Token(Comma) |,|
+//@[009:0010) | | | ├─Token(Comma) |,|
 //@[011:0012) | | | ├─FunctionArgumentSyntax
 //@[011:0012) | | | | └─IntegerLiteralSyntax
 //@[011:0012) | | | | | └─Token(Integer) |2|
@@ -1366,10 +1366,10 @@ param incompleteDecorators string
 //@[005:0011) | | | ├─IdentifierSyntax
 //@[005:0011) | | | | └─Token(Identifier) |concat|
 //@[011:0012) | | | ├─Token(LeftParen) |(|
-//@[012:0016) | | | ├─FunctionArgumentSyntax
-//@[012:0015) | | | | ├─StringSyntax
+//@[012:0015) | | | ├─FunctionArgumentSyntax
+//@[012:0015) | | | | └─StringSyntax
 //@[012:0015) | | | | | └─Token(StringComplete) |'a'|
-//@[015:0016) | | | | └─Token(Comma) |,|
+//@[015:0016) | | | ├─Token(Comma) |,|
 //@[017:0020) | | | ├─FunctionArgumentSyntax
 //@[017:0020) | | | | └─StringSyntax
 //@[017:0020) | | | | | └─Token(StringComplete) |'b'|
@@ -1486,16 +1486,16 @@ param someInteger int = 20
 //@[001:0008) | | | ├─IdentifierSyntax
 //@[001:0008) | | | | └─Token(Identifier) |allowed|
 //@[008:0009) | | | ├─Token(LeftParen) |(|
-//@[009:0012) | | | ├─FunctionArgumentSyntax
-//@[009:0011) | | | | ├─ArraySyntax
+//@[009:0011) | | | ├─FunctionArgumentSyntax
+//@[009:0011) | | | | └─ArraySyntax
 //@[009:0010) | | | | | ├─Token(LeftSquare) |[|
 //@[010:0011) | | | | | └─Token(RightSquare) |]|
-//@[011:0012) | | | | └─Token(Comma) |,|
-//@[013:0016) | | | ├─FunctionArgumentSyntax
-//@[013:0015) | | | | ├─ArraySyntax
+//@[011:0012) | | | ├─Token(Comma) |,|
+//@[013:0015) | | | ├─FunctionArgumentSyntax
+//@[013:0015) | | | | └─ArraySyntax
 //@[013:0014) | | | | | ├─Token(LeftSquare) |[|
 //@[014:0015) | | | | | └─Token(RightSquare) |]|
-//@[015:0016) | | | | └─Token(Comma) |,|
+//@[015:0016) | | | ├─Token(Comma) |,|
 //@[017:0018) | | | ├─FunctionArgumentSyntax
 //@[017:0018) | | | | └─IntegerLiteralSyntax
 //@[017:0018) | | | | | └─Token(Integer) |2|
@@ -1534,16 +1534,16 @@ param tooManyArguments1 int = 20
 //@[001:0009) | | | ├─IdentifierSyntax
 //@[001:0009) | | | | └─Token(Identifier) |metadata|
 //@[009:0010) | | | ├─Token(LeftParen) |(|
-//@[010:0013) | | | ├─FunctionArgumentSyntax
-//@[010:0012) | | | | ├─ObjectSyntax
+//@[010:0012) | | | ├─FunctionArgumentSyntax
+//@[010:0012) | | | | └─ObjectSyntax
 //@[010:0011) | | | | | ├─Token(LeftBrace) |{|
 //@[011:0012) | | | | | └─Token(RightBrace) |}|
-//@[012:0013) | | | | └─Token(Comma) |,|
-//@[014:0017) | | | ├─FunctionArgumentSyntax
-//@[014:0016) | | | | ├─ObjectSyntax
+//@[012:0013) | | | ├─Token(Comma) |,|
+//@[014:0016) | | | ├─FunctionArgumentSyntax
+//@[014:0016) | | | | └─ObjectSyntax
 //@[014:0015) | | | | | ├─Token(LeftBrace) |{|
 //@[015:0016) | | | | | └─Token(RightBrace) |}|
-//@[016:0017) | | | | └─Token(Comma) |,|
+//@[016:0017) | | | ├─Token(Comma) |,|
 //@[018:0022) | | | ├─FunctionArgumentSyntax
 //@[018:0022) | | | | └─BooleanLiteralSyntax
 //@[018:0022) | | | | | └─Token(TrueKeyword) |true|

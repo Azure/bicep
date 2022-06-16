@@ -4,10 +4,12 @@
   "devDependencies": {
     "@types/cross-spawn": "^6.0.2",
     "@types/jest": "^27.4.1",
+    "@types/minimist": "^1.2.2",
     "@types/rimraf": "^3.0.2",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.27.1",
     "@typescript-eslint/parser": "^5.27.1",
+    "cross-env": "^7.0.3",
     "cross-spawn": "^7.0.3",
     "eslint": "^8.17.0",
     "eslint-config-prettier": "^8.5.0",
@@ -24,7 +26,8 @@
   },
   "scripts": {
     "test": "jest --group=CI --runInBand",
-    "test:live": "jest --group=Live --runInBand",
+    "test:live:prod": "cross-env TEST_ENVIRONMENT=prod jest --group=live --runInBand",
+    "test:live:ff": "cross-env TEST_ENVIRONMENT=fairfax jest --group=live --runInBand",
     "lint": "eslint src --ext ts",
     "lint:fix": "eslint src --ext ts --fix"
   }
