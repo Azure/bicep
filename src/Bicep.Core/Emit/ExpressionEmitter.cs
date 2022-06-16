@@ -115,15 +115,25 @@ namespace Bicep.Core.Emit
         public void EmitIndexedSymbolReference(DeclaredResourceMetadata resource, SyntaxBase indexExpression, SyntaxBase newContext)
         {
             var expression = converter.CreateConverterForIndexReplacement(resource.Symbol.NameSyntax, indexExpression, newContext)
-                .GenerateSymbolicReference(resource.Symbol.Name, indexExpression);
+                .GenerateSymbolicReference(resource, indexExpression);
 
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
         }
 
+        public void EmitSymbolReference(DeclaredResourceMetadata resource)
+        {
+            var expression = converter.GenerateSymbolicReference(resource, null);
+
+            writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
+        }
+
+        public string GetSymbolicName(DeclaredResourceMetadata resource)
+            =>  converter.GetSymbolicName(resource);
+
         public void EmitIndexedSymbolReference(ModuleSymbol moduleSymbol, SyntaxBase indexExpression, SyntaxBase newContext)
         {
             var expression = converter.CreateConverterForIndexReplacement(ExpressionConverter.GetModuleNameSyntax(moduleSymbol), indexExpression, newContext)
-                .GenerateSymbolicReference(moduleSymbol.Name, indexExpression);
+                .GenerateSymbolicReference(moduleSymbol, indexExpression);
 
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
         }

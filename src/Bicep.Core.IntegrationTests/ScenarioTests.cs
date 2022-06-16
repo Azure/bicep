@@ -2799,6 +2799,79 @@ output contentVersion string = deployment().properties.template.contentVersion
             result.Template.Should().HaveValueAtPath("$.outputs['contentVersion'].value", "[deployment().properties.template.contentVersion]");
         }
 
+        // https://github.com/Azure/bicep/issues/6044
+        [TestMethod]
+        public void Test_Issue6044()
+        {
+            var context = new CompilationHelper.CompilationHelperContext(
+                Features: BicepTestConstants.CreateFeaturesProvider(TestContext, symbolicNameCodegenEnabled: true));
+
+            var result = CompilationHelper.Compile(context, @"
+var adminUsername = 'cooluser'
+var adminPassword = 'p@ssw0rd'
+
+resource server 'Microsoft.Sql/servers@2021-02-01-preview' = {
+  name: 'sql-${uniqueString(resourceGroup().id)}'
+  location: resourceGroup().location
+  properties: {
+    administratorLogin: adminUsername
+    administratorLoginPassword: adminPassword
+  }
+
+  resource db 'databases' = {
+    name: 'cool-database'
+    location: resourceGroup().location
+  }
+
+  resource firewall 'firewallRules' = {
+    name: 'allow'
+    properties: {
+      startIpAddress: '0.0.0.0'
+      endIpAddress: '0.0.0.0'
+    }
+  }
+}
+
+resource server2 'Microsoft.Sql/servers@2021-02-01-preview' = {
+  name: 'sql'
+  location: resourceGroup().location
+  properties: {
+    administratorLogin: adminUsername
+    administratorLoginPassword: adminPassword
+  }
+
+  resource db 'databases' = {
+    name: 'cool-database2'
+    location: resourceGroup().location
+  }
+
+  resource firewall 'firewallRules' = {
+    name: 'test'
+    properties: {
+      startIpAddress: '0.0.0.0'
+      endIpAddress: '0.0.0.0'
+    }
+  }
+}
+
+output foo string = server2::firewall.name
+output bar string = server2::firewall.properties.startIpAddress
+");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().NotHaveValueAtPath("$.resources.db");
+            result.Template.Should().NotHaveValueAtPath("$.resources.firewall");
+
+            result.Template.Should().HaveValueAtPath("$.resources['server::db'].name", "[format('{0}/{1}', format('sql-{0}', uniqueString(resourceGroup().id)), 'cool-database')]");
+            result.Template.Should().HaveValueAtPath("$.resources['server::firewall'].name", "[format('{0}/{1}', format('sql-{0}', uniqueString(resourceGroup().id)), 'allow')]");
+            result.Template.Should().HaveValueAtPath("$.resources['server2::db'].name", "[format('{0}/{1}', 'sql', 'cool-database2')]");
+            result.Template.Should().HaveValueAtPath("$.resources['server2::firewall'].name", "[format('{0}/{1}', 'sql', 'test')]");
+
+            result.Template.Should().HaveValueAtPath("$.outputs['foo'].value", "[resourceInfo('server2::firewall').name]");
+            result.Template.Should().HaveValueAtPath("$.outputs['bar'].value", "[reference('server2::firewall').startIpAddress]");
+        }
+
         // https://github.com/Azure/bicep/issues/4833
         [TestMethod]
         public void Test_Issue4833()
