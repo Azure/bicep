@@ -1406,6 +1406,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP238",
                 "Unexpected new line character after a comma.");
+
+            public ErrorDiagnostic InvalidValueForParentProperty() => new(
+                TextSpan,
+                "BCP239",
+                "Unexpected value for parent property.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

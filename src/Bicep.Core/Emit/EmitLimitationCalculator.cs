@@ -33,6 +33,7 @@ namespace Bicep.Core.Emit
             DetectUnexpectedResourceLoopInvariantProperties(model, diagnosticWriter);
             DetectUnexpectedModuleLoopInvariantProperties(model, diagnosticWriter);
             DetectUnsupportedModuleParameterAssignments(model, diagnosticWriter);
+            DetectInvalidValueForParentProperty(model, diagnosticWriter);
 
             return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
@@ -312,6 +313,28 @@ namespace Bicep.Core.Emit
                         // ideally we would add a runtime function to take care of the conversion in these cases, but it doesn't exist yet
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(paramsValue).ModuleParametersPropertyRequiresObjectLiteral());
                         break;
+                }
+            }
+        }
+
+        public static void DetectInvalidValueForParentProperty(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            foreach (var resourceDeclarationSymbol in semanticModel.Root.ResourceDeclarations)
+            {
+                if (resourceDeclarationSymbol.TryGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is { } referenceParentSyntax)
+                {
+                    /*SyntaxBase? indexExpression = null;*/
+                    if (referenceParentSyntax is ArrayAccessSyntax arrayAccess)
+                    {
+                        referenceParentSyntax = arrayAccess.BaseExpression;
+                        /*indexExpression = arrayAccess.IndexExpression;*/
+                    }
+
+                    // throw a diagnostic if parent syntax can not be found
+                    if (semanticModel.ResourceMetadata.TryLookup(referenceParentSyntax) is not { })
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(referenceParentSyntax.Span).InvalidValueForParentProperty());
+                    }
                 }
             }
         }

@@ -3251,5 +3251,161 @@ resource vaultAssignments 'Microsoft.Authorization/roleAssignments@2020-10-01-pr
                 ("BCP179", DiagnosticLevel.Warning, "Unique resource or deployment name is required when looping. The loop item variable \"roleId\" or the index variable \"index\" must be referenced in at least one of the value expressions of the following properties in the loop body: \"name\", \"scope\"")
             });
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/7154
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_7154_Ternary_Syntax_Produces_Error()
+        {
+            var result = CompilationHelper.Compile(@"
+var deployServerlessCosmosDb = true
+
+resource cosmosDbServer 'Microsoft.DocumentDB/databaseAccounts@2021-07-01-preview' = {
+  kind: 'GlobalDocumentDB'
+  name: 'cosmosdbname'
+  location: resourceGroup().location
+  properties: {
+    createMode: 'Default'
+    locations: [
+      {
+        locationName: resourceGroup().location
+        failoverPriority: 0
+      }
+    ]
+    databaseAccountOfferType: 'Standard'
+    consistencyPolicy: {
+      defaultConsistencyLevel: 'Session'
+      maxIntervalInSeconds: 5
+      maxStalenessPrefix: 100
+    }
+    diagnosticLogSettings: {
+      enableFullTextQuery: 'None'
+    }
+  }
+}
+
+resource PassDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-07-01-preview' = {
+  parent: cosmosDbServer
+  name: 'PassDb'
+  properties: {
+    resource: {
+      id: 'PassDb'
+    }
+  }
+}
+
+resource QPDB 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-07-01-preview' = if(!deployServerlessCosmosDb) {
+  parent: cosmosDbServer
+  name: 'QPDB'
+  properties: {
+    resource: {
+      id: 'QPDB'
+    }
+  }
+}
+
+resource container_ActorColdStorage 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-07-01-preview' = {
+  parent: deployServerlessCosmosDb? PassDb: QPDB
+  name: 'ActorColdStorage'
+  properties: {
+    resource: {
+      id: 'ActorColdStorage'
+      partitionKey: {
+        paths: [
+          '/Type'
+        ]
+        kind: 'Hash'
+      }
+      conflictResolutionPolicy: {
+        mode: 'LastWriterWins'
+        conflictResolutionPath: '/_ts'
+      }
+    }
+  }
+}
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP239", DiagnosticLevel.Error, "Unexpected value for parent property.")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/7154
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_7154_2_Ternary_Syntax_With_Parentheses_Produces_Error()
+        {
+            var result = CompilationHelper.Compile(@"
+var deployServerlessCosmosDb = true
+
+resource cosmosDbServer 'Microsoft.DocumentDB/databaseAccounts@2021-07-01-preview' = {
+  kind: 'GlobalDocumentDB'
+  name: 'cosmosdbname'
+  location: resourceGroup().location
+  properties: {
+    createMode: 'Default'
+    locations: [
+      {
+        locationName: resourceGroup().location
+        failoverPriority: 0
+      }
+    ]
+    databaseAccountOfferType: 'Standard'
+    consistencyPolicy: {
+      defaultConsistencyLevel: 'Session'
+      maxIntervalInSeconds: 5
+      maxStalenessPrefix: 100
+    }
+    diagnosticLogSettings: {
+      enableFullTextQuery: 'None'
+    }
+  }
+}
+
+resource PassDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-07-01-preview' = {
+  parent: cosmosDbServer
+  name: 'PassDb'
+  properties: {
+    resource: {
+      id: 'PassDb'
+    }
+  }
+}
+
+resource QPDB 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-07-01-preview' = if(!deployServerlessCosmosDb) {
+  parent: cosmosDbServer
+  name: 'QPDB'
+  properties: {
+    resource: {
+      id: 'QPDB'
+    }
+  }
+}
+
+resource container_ActorColdStorage 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-07-01-preview' = {
+  parent: (deployServerlessCosmosDb)? PassDb: QPDB
+  name: 'ActorColdStorage'
+  properties: {
+    resource: {
+      id: 'ActorColdStorage'
+      partitionKey: {
+        paths: [
+          '/Type'
+        ]
+        kind: 'Hash'
+      }
+      conflictResolutionPolicy: {
+        mode: 'LastWriterWins'
+        conflictResolutionPath: '/_ts'
+      }
+    }
+  }
+}
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP239", DiagnosticLevel.Error, "Unexpected value for parent property.")
+            });
+        }
     }
 }
