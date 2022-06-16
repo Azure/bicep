@@ -306,12 +306,12 @@
       "properties": {
         "displayName": "examplesubscription2",
         "productId": "[resourceInfo('exampleProduct').id]",
-        "userId": "[resourceInfo('exampleUser1').id]"
+        "userId": "[resourceInfo('exampleUser3').id]"
       },
       "dependsOn": [
         "apiManagementService",
         "exampleProduct",
-        "exampleUser1"
+        "exampleUser3"
       ]
     },
     "certificate": {
