@@ -323,14 +323,11 @@ namespace Bicep.Core.Emit
             {
                 if (resourceDeclarationSymbol.TryGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is { } referenceParentSyntax)
                 {
-                    /*SyntaxBase? indexExpression = null;*/
                     if (referenceParentSyntax is ArrayAccessSyntax arrayAccess)
                     {
                         referenceParentSyntax = arrayAccess.BaseExpression;
-                        /*indexExpression = arrayAccess.IndexExpression;*/
                     }
 
-                    // throw a diagnostic if parent syntax can not be found
                     if (semanticModel.ResourceMetadata.TryLookup(referenceParentSyntax) is not { })
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(referenceParentSyntax.Span).InvalidValueForParentProperty());
