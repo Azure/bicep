@@ -1167,15 +1167,15 @@
       },
       "System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "16.1.25",
-        "contentHash": "PZ3y8SgASqtIlJyhss47FGLwBMXMWvxL9MKk9dEqIZT/vrfQr5yhKwdJ/vNm2H8FqsWJoxu0P12nYGXFj0irkA=="
+        "resolved": "17.0.18",
+        "contentHash": "x0iIMdP+PCLIkz8h13xHCecaiysFgHPe9mM3FdyfSmkl5+MtMCmgFFIe38Aibkzd0UAY/OMoXMKGR2RK10rebQ=="
       },
       "System.IO.Abstractions.TestingHelpers": {
         "type": "Transitive",
-        "resolved": "16.1.25",
-        "contentHash": "brRQOCtC9i2vGD31uS/tcdRMKd/6Hd0cj89BgBu+xCu42B+JjNvKROnrFsPjSCchyq0nZPMUG96yP1pXysniWQ==",
+        "resolved": "17.0.18",
+        "contentHash": "n5lZbRpXQrPdqs/9zJ9LwzuOK4ceQhvgsO0vv+CEyX3bgRQgsDv85ZOZqYghRlDkfwvTCemcdDdgUwXv39/GzA==",
         "dependencies": {
-          "System.IO.Abstractions": "16.1.25"
+          "System.IO.Abstractions": "17.0.18"
         }
       },
       "System.IO.Compression": {
@@ -2030,7 +2030,7 @@
           "Microsoft.Extensions.Configuration.Json": "6.0.0",
           "Newtonsoft.Json": "13.0.1",
           "System.Collections.Immutable": "6.0.0",
-          "System.IO.Abstractions": "16.1.25"
+          "System.IO.Abstractions": "17.0.18"
         }
       },
       "Azure.Bicep.Decompiler": {
@@ -2075,7 +2075,7 @@
           "Microsoft.NET.Test.Sdk": "17.2.0",
           "Moq": "4.18.1",
           "Newtonsoft.Json": "13.0.1",
-          "System.IO.Abstractions.TestingHelpers": "16.1.25"
+          "System.IO.Abstractions.TestingHelpers": "17.0.18"
         }
       },
       "bicep.langserver": {
