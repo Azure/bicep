@@ -1,46 +1,41 @@
 targetScope = 'tenant'
-//@[246:1058]                             "myOutput": {
 
 module myManagementGroupMod 'modules/managementgroup.bicep' = {
-//@[11:1153]       "type": "Microsoft.Resources/deployments",
+//@[12:124]       "type": "Microsoft.Resources/deployments",
   name: 'myManagementGroupMod'
-//@[14:1004]       "name": "myManagementGroupMod",
+//@[15:15]       "name": "myManagementGroupMod",
   scope: managementGroup('myManagementGroup')
 }
 module myManagementGroupModWithDuplicatedNameButDifferentScope 'modules/managementgroup_empty.bicep' = {
-//@[64:148]               "type": "Microsoft.Resources/deployments",
+//@[125:149]       "type": "Microsoft.Resources/deployments",
   name: 'myManagementGroupMod'
-//@[67:1062]               "name": "myManagementGroupMod",
+//@[128:128]       "name": "myManagementGroupMod",
   scope: managementGroup('myManagementGroup2')
-//@[226:1035]                       "name": "myOtherResourceGroup",
 }
 module mySubscriptionMod 'modules/subscription.bicep' = {
-//@[89:661]               "type": "Microsoft.Resources/deployments",
+//@[150:662]       "type": "Microsoft.Resources/deployments",
   name: 'mySubscriptionMod'
-//@[92:152]               "name": "mySubscriptionMod",
+//@[153:153]       "name": "mySubscriptionMod",
   scope: subscription('ee44cd78-68c6-43d9-874e-e684ec8d1191')
-//@[254:1126]                       "type": "Microsoft.Resources/deployments",
 }
 
 module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length('foo') == 3) {
-//@[116:1175]             "myOutput": {
+//@[663:1176]       "condition": "[equals(length('foo'), 3)]",
   name: 'mySubscriptionModWithCondition'
-//@[666:666]       "name": "mySubscriptionModWithCondition",
+//@[667:667]       "name": "mySubscriptionModWithCondition",
   scope: subscription('ee44cd78-68c6-43d9-874e-e684ec8d1191')
-//@[279:1112]                       "type": "Microsoft.Resources/deployments",
 }
 
 module mySubscriptionModWithDuplicatedNameButDifferentScope 'modules/subscription_empty.bicep' = {
-//@[1176:1200]       "type": "Microsoft.Resources/deployments",
+//@[1177:1201]       "type": "Microsoft.Resources/deployments",
   name: 'mySubscriptionMod'
-//@[1179:1179]       "name": "mySubscriptionMod",
+//@[1180:1180]       "name": "mySubscriptionMod",
   scope: subscription('1ad827ac-2669-4c2f-9970-282b93c3c550')
-//@[306:1118]                     "myOutput": {
 }
 
 
 output myManagementGroupOutput string = myManagementGroupMod.outputs.myOutput
-//@[1203:1206]     "myManagementGroupOutput": {
+//@[1204:1207]     "myManagementGroupOutput": {
 output mySubscriptionOutput string = mySubscriptionMod.outputs.myOutput
-//@[1207:1210]     "mySubscriptionOutput": {
+//@[1208:1211]     "mySubscriptionOutput": {
 
