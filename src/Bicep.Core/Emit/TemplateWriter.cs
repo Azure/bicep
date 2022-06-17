@@ -90,7 +90,7 @@ namespace Bicep.Core.Emit
 
         private readonly EmitterContext context;
         private readonly EmitterSettings settings;
-        private readonly IDictionary<string, IDictionary<int, IList<(int start, int end)>>> rawSourceMap;
+        private readonly Dictionary<string, Dictionary<IPositionable, IList<(int start, int end)>>> rawSourceMap;
 
         public IDictionary<int, (string, int)>? SourceMap; // ARM JSON line => (Bicep File, Bicep Line)
 
@@ -98,7 +98,7 @@ namespace Bicep.Core.Emit
         {
             this.context = new EmitterContext(semanticModel, settings);
             this.settings = settings;
-            this.rawSourceMap = new Dictionary<string, IDictionary<int, IList<(int, int)>>>();
+            this.rawSourceMap = new Dictionary<string, Dictionary<IPositionable, IList<(int, int)>>>();
             this.SourceMap = sourceMap is null && settings.EnableSourceMapping
                 ? new Dictionary<int, (string, int)>()
                 : sourceMap;
@@ -121,7 +121,7 @@ namespace Bicep.Core.Emit
                 SourceMapHelper.ProcessRawSourceMap(
                     this.rawSourceMap,
                     templateJToken,
-                    this.context.SemanticModel.SourceFile.FileUri.AbsolutePath,
+                    this.context.SemanticModel.SourceFile,
                     this.SourceMap!);
             }
 

@@ -89,7 +89,7 @@ namespace Bicep.Core.UnitTests.Utils
             where TPositionable : IPositionable
             => AddDiagsToSourceText(bicepOutput, newlineSequence, items, item => item.Span, diagsFunc);
 
-        public static string AddSourceMapToSourceText(string bicepOutput, string newlineSequence, ImmutableDictionary<int, (string, int)> sourceMap, string[] jsonLines)
+        public static string AddSourceMapToSourceText(string bicepOutput, string bicepFileName, string newlineSequence, ImmutableDictionary<int, (string, int)> sourceMap, string[] jsonLines)
         {
             var sourceTextLines = bicepOutput.Split(newlineSequence);
             var mappingsStartLines = new int[sourceTextLines.Length];
@@ -102,6 +102,12 @@ namespace Bicep.Core.UnitTests.Utils
             {
                 int armLine = kvp.Key;
                 (string bicepFile, int bicepLine) = kvp.Value;
+
+                // skip lines mapped in other referenced bicep files
+                if (string.Compare(bicepFile, bicepFileName) != 0)
+                {
+                    return;
+                }
 
                 // convert line numbers from 1-indexing to 0-indexing
                 armLine--;
@@ -129,7 +135,7 @@ namespace Bicep.Core.UnitTests.Utils
                 if (mappingsEndLines[i] != 0 && sourceTextLines[i].Any(char.IsLetterOrDigit))
                 {
                     // show first line of mapped JSON with content in annotation
-                    var jsonLine = string.Empty;
+                    var jsonLineText = string.Empty;
                     var jsonStartLine = mappingsStartLines[i];
                     var jsonEndLine = mappingsEndLines[i];
                     var offset = 0;
@@ -137,14 +143,15 @@ namespace Bicep.Core.UnitTests.Utils
 
                     do
                     {
-                        jsonLine = OutputHelper.EscapeWhitespace(jsonLines[jsonStartLine + offset]);
+                        jsonLineText = OutputHelper.EscapeWhitespace(jsonLines[jsonStartLine + offset]);
                         offset++;
                     }
-                    while (!jsonLine.Any(char.IsLetterOrDigit) && offset <= maxOffset);
+                    while (!jsonLineText.Any(char.IsLetterOrDigit) && offset <= maxOffset);
 
-                    if (jsonLine != string.Empty)
+                    if (jsonLineText != string.Empty)
                     {
-                        sourceTextWithSourceMap.Append($"//@[{jsonStartLine}:{jsonEndLine}] {jsonLine}");
+                        // convert json line numbers back to 1-indexing (TODO remove)
+                        sourceTextWithSourceMap.Append($"//@[{jsonStartLine+1}:{jsonEndLine+1}] {jsonLineText}");
                         sourceTextWithSourceMap.Append(newlineSequence);
                     }
                 }
