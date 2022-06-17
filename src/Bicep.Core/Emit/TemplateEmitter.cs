@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,13 +17,14 @@ namespace Bicep.Core.Emit
 
         private readonly EmitterSettings settings;
 
-        private Dictionary<int, (string, int)>? sourceMap;
+        private ImmutableDictionary<int, (string, int)>? sourceMap;
 
         public TemplateEmitter(SemanticModel model, EmitterSettings settings)
         {
             this.model = model;
             this.settings = settings;
-            this.sourceMap = null;
+            this.sourceMap = settings.EnableSourceMapping ?
+                new Dictionary<int, (string, int)>() : default;
         }
 
         /// <summary>
@@ -66,9 +68,10 @@ namespace Bicep.Core.Emit
                 Formatting = Formatting.Indented
             };
 
-            var emitter = new TemplateWriter(this.model, this.settings);
+            var emitter = new TemplateWriter(this.model, this.settings, this.sourceMap);
             emitter.Write(writer);
-            this.sourceMap = emitter.SourceMap;
+
+            this.sourceMap = emitter.SourceMap?.ToImmutableDictionary(); ;
         });
 
         /// <summary>
@@ -84,9 +87,11 @@ namespace Bicep.Core.Emit
                 Formatting = Formatting.Indented
             };
 
-            var emitter = new TemplateWriter(this.model, this.settings);
+            var emitter = new TemplateWriter(this.model, this.settings, this.sourceMap);
             emitter.Write(writer);
-            this.sourceMap = emitter.SourceMap;
+            writer.Flush();
+
+            this.sourceMap = emitter.SourceMap?.ToImmutableDictionary();
         });
 
         /// <summary>
@@ -95,9 +100,9 @@ namespace Bicep.Core.Emit
         /// <param name="writer">The json writer to write the template</param>
         public EmitResult Emit(JsonTextWriter writer) => this.EmitOrFail(() =>
         {
-            var emitter = new TemplateWriter(this.model, this.settings);
+            var emitter = new TemplateWriter(this.model, this.settings, this.sourceMap);
             emitter.Write(writer);
-            this.sourceMap = emitter.SourceMap;
+            this.sourceMap = emitter.SourceMap?.ToImmutableDictionary();
         });
 
         private EmitResult EmitOrFail(Action write)
@@ -112,7 +117,7 @@ namespace Bicep.Core.Emit
 
             write();
 
-            return new EmitResult(EmitStatus.Succeeded, diagnostics, sourceMap);
+            return new EmitResult(EmitStatus.Succeeded, diagnostics, sourceMap?.ToImmutableDictionary());
         }
     }
 }
