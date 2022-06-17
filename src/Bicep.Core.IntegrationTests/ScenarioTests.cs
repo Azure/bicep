@@ -3326,7 +3326,7 @@ resource container_ActorColdStorage 'Microsoft.DocumentDB/databaseAccounts/sqlDa
 }
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP239", DiagnosticLevel.Error, "Unexpected value for parent property.")
+                ("BCP239", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported.")
             });
         }
 
@@ -3404,7 +3404,25 @@ resource container_ActorColdStorage 'Microsoft.DocumentDB/databaseAccounts/sqlDa
 }
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP239", DiagnosticLevel.Error, "Unexpected value for parent property.")
+                ("BCP239", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported.")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/7154
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_7154_3_Both_Type_Check_And_Parent_Errors_Should_Raise()
+        {
+            var result = CompilationHelper.Compile(@"
+resource foo 'Microsoft.Storage/storageAccounts/blobServices@2021-09-01' = {
+  parent: 123
+  name: 'default'
+}
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Storage/storageAccounts\" but the provided value is of type \"int\"."),
+                ("BCP239", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported.")
             });
         }
     }

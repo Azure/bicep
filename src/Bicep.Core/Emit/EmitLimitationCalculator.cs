@@ -323,14 +323,13 @@ namespace Bicep.Core.Emit
             {
                 if (resourceDeclarationSymbol.TryGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is { } referenceParentSyntax)
                 {
-                    if (referenceParentSyntax is ArrayAccessSyntax arrayAccess)
-                    {
-                        referenceParentSyntax = arrayAccess.BaseExpression;
-                    }
+                    var (baseSyntax, _) = SyntaxHelper.UnwrapArrayAccessSyntax(referenceParentSyntax);
 
-                    if (semanticModel.ResourceMetadata.TryLookup(referenceParentSyntax) is not { })
+                    if (semanticModel.ResourceMetadata.TryLookup(referenceParentSyntax) is not { } && !semanticModel.GetTypeInfo(referenceParentSyntax).IsError())
                     {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(referenceParentSyntax.Span).InvalidValueForParentProperty());
+                        // we throw an error diagnostic when the parent property contains a value that cannot be computed or does not directly reference another resource.
+                        // this includes ternary operator expressions, which Bicep does not support 
+                        diagnosticWriter.Write(referenceParentSyntax, x => x.InvalidValueForParentProperty());
                     }
                 }
             }

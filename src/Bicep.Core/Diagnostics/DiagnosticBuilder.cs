@@ -1410,7 +1410,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidValueForParentProperty() => new(
                 TextSpan,
                 "BCP239",
-                "Unexpected value for parent property.");
+                "The \"parent\" property only permits direct references to resources. Expressions are not supported.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
