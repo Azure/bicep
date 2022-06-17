@@ -7,7 +7,6 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Expression.Expressions;
@@ -17,7 +16,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
-using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
@@ -59,8 +57,6 @@ namespace Bicep.Core.Emit
             LanguageConstants.ParameterMetadataPropertyName,
             LanguageConstants.MetadataDescriptionPropertyName,
         }.ToImmutableHashSet();
-
-        private static readonly Regex JsonWhitespaceStrippingRegex = new(@"(""(?:[^""\\]|\\.)*"")|\s+", RegexOptions.Compiled);
 
         private static ISemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
         {
@@ -122,7 +118,11 @@ namespace Bicep.Core.Emit
 
             if (this.context.Settings.EnableSourceMapping)
             {
-                ProcessRawSourceMap(templateJToken);
+                SourceMapHelper.ProcessRawSourceMap(
+                    this.rawSourceMap,
+                    templateJToken,
+                    this.context.SemanticModel.SourceFile.FileUri.AbsolutePath,
+                    this.SourceMap!);
             }
 
             templateJToken.WriteTo(writer);
@@ -161,91 +161,6 @@ namespace Bicep.Core.Emit
 
             var content = stringWriter.ToString();
             return (Template.FromJson<Template>(content), content.FromJson<JToken>());
-        }
-
-        private void ProcessRawSourceMap(JToken rawTemplate)
-        {
-            var formattedTemplateLines = rawTemplate
-                .ToString(Formatting.Indented)
-                .Split(Environment.NewLine, StringSplitOptions.None);
-
-            // get line starts of unformatted JSON by stripping formatting from each line of formatted JSON
-            var unformattedLineStarts = formattedTemplateLines
-                .Aggregate(
-                    new List<int>() { 0 }, // first line starts at position 0
-                    (lineStarts, line) =>
-                    {
-                        var unformattedLine = JsonWhitespaceStrippingRegex.Replace(line, "$1");
-                        lineStarts.Add(lineStarts.Last() + unformattedLine.Length);
-                        return lineStarts;
-                    });
-
-            // get position and length of template hash (relying on the first occurence)
-            (var templateHashStartPosition, var templateHashLength) = formattedTemplateLines
-                .Select((value, index) => new { lineNumber = index, lineValue = value })
-                .Where(item => item.lineValue.Contains(TemplateHashPropertyName))
-                .Select(item =>
-                {
-                    var startPosition = unformattedLineStarts[item.lineNumber];
-                    var unformattedLineLength = unformattedLineStarts[item.lineNumber + 1] - startPosition;
-                    return (startPosition, unformattedLineLength + 1); // account for comma by adding 1 to length
-                })
-                .FirstOrDefault();
-
-            // increment all positions in mappings by templateHashLength that occur after hash start position
-            foreach (var file in this.rawSourceMap.Keys)
-            {
-                foreach (var line in this.rawSourceMap[file].Keys)
-                {
-                    for (int i = 0; i < rawSourceMap[file][line].Count; i++)
-                    {
-                        var (start, end) = this.rawSourceMap[file][line][i];
-
-                        if (start >= templateHashStartPosition)
-                        {
-                            this.rawSourceMap[file][line][i] =
-                                (start + templateHashLength, end + templateHashLength);
-                        }
-                    }
-                }
-            }
-
-            // transform offsets in rawSourceMap to line numbers for formatted JSON using unformattedLineStarts
-            // add 1 to all line numbers to convert to 1-indexing
-            // strip full path from main bicep source file
-            string getFileName(string file) => (file == this.context.SemanticModel.SourceFile.FileUri.AbsolutePath) ? Path.GetFileName(file) : file;
-            var formattedSourceMap = this.rawSourceMap.ToDictionary(
-                kvp => getFileName(kvp.Key),
-                kvp => kvp.Value.ToDictionary(
-                    kvp => kvp.Key + 1,
-                    kvp => kvp.Value.Select(mapping => (
-                        TextCoordinateConverter.GetPosition(unformattedLineStarts, mapping.start).line + 1,
-                        TextCoordinateConverter.GetPosition(unformattedLineStarts, mapping.end).line + 1))));
-
-            // unfold key-values in bicep-to-json map to convert to json-to-bicep map
-            var weights = new int[unformattedLineStarts.Count];
-            Array.Fill(weights, int.MaxValue);
-
-            foreach (var fileKvp in formattedSourceMap)
-            {
-                foreach (var lineKvp in fileKvp.Value)
-                {
-                    foreach (var (start, end) in lineKvp.Value)
-                    {
-                        // write most specific mapping available for each json line (less lines => stronger weight)
-                        int weight = end - start;
-                        for (int i = start; i <= end; i++)
-                        {
-                            // write new mapping if weight is stronger than existing mapping
-                            if (weight < weights[i])
-                            {
-                                this.SourceMap![i] = (fileKvp.Key, lineKvp.Key);
-                                weights[i] = weight;
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         private void EmitParametersIfPresent(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
