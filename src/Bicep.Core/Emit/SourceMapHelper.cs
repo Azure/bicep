@@ -106,6 +106,7 @@ namespace Bicep.Core.Emit
                         return lineStarts;
                     });
 
+            // TODO remove soon
             // get position and length of template hash (relying on the first occurence)
             (var templateHashStartPosition, var templateHashLength) = formattedTemplateLines
                 .Select((value, index) => new { lineNumber = index, lineValue = value })
@@ -119,12 +120,17 @@ namespace Bicep.Core.Emit
                 .FirstOrDefault();
 
             // strip full path from main bicep source file
-            string getFileName(string file) => (file == sourceFile.FileUri.AbsolutePath) ? Path.GetFileName(file) : file;
+            // TODO: better name for this
+            string getRelativeFileName(string file) => (file == sourceFile.FileUri.AbsolutePath) ? Path.GetFileName(file) : file;
             var formattedSourceMap = new Dictionary<string, Dictionary<int, IList<(int start, int end)>>>();
+
+            // unfold key-values in bicep-to-json map to convert to json-to-bicep map
+            var weights = new int[unformattedLineStarts.Count];
+            Array.Fill(weights, int.MaxValue);
 
             foreach (var bicepFileName in rawSourceMap.Keys)
             {
-                var bicepLocalFileName = getFileName(bicepFileName);
+                var bicepRelativeFileName = getRelativeFileName(bicepFileName);
 
                 foreach (var bicepPosition in rawSourceMap[bicepFileName].Keys)
                 {
@@ -135,6 +141,7 @@ namespace Bicep.Core.Emit
                     {
                         var (jsonStartPos, jsonEndPos) = mapping;
 
+                        // TODO remove once filler hash is added
                         // increment positions by templateHashLength that occur after hash start position
                         if (jsonStartPos >= templateHashStartPosition)
                         {
@@ -147,29 +154,14 @@ namespace Bicep.Core.Emit
                         var jsonStartLine = TextCoordinateConverter.GetPosition(unformattedLineStarts, jsonStartPos).line + 1;
                         var jsonEndLine = TextCoordinateConverter.GetPosition(unformattedLineStarts, jsonEndPos).line + 1;
 
-                        formattedSourceMap.AddMapping(bicepLocalFileName, bicepLine, jsonStartLine, jsonEndLine);
-                    }
-                }
-            }
-
-            // unfold key-values in bicep-to-json map to convert to json-to-bicep map
-            var weights = new int[unformattedLineStarts.Count];
-            Array.Fill(weights, int.MaxValue);
-
-            foreach (var bicepFile in formattedSourceMap.Keys)
-            {
-                foreach (var bicepLine in formattedSourceMap[bicepFile].Keys)
-                {
-                    foreach (var (jsonStartPos, jsonEndPos) in formattedSourceMap[bicepFile][bicepLine])
-                    {
                         // write most specific mapping available for each json line (less lines => stronger weight)
-                        int weight = jsonEndPos - jsonStartPos;
-                        for (int i = jsonStartPos; i <= jsonEndPos; i++)
+                        int weight = jsonEndLine - jsonStartLine;
+                        for (int i = jsonStartLine; i <= jsonEndLine; i++)
                         {
                             // write new mapping if weight is stronger than existing mapping
                             if (weight < weights[i])
                             {
-                                sourceMap![i] = (bicepFile, bicepLine);
+                                sourceMap![i] = (bicepRelativeFileName, bicepLine);
                                 weights[i] = weight;
                             }
                         }
