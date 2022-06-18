@@ -599,10 +599,21 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 try
                 {
-                    token = token.SelectToken(tokenSelectorPath, false);
-                    if (token is null)
+                    var selectTokens = token.SelectTokens(tokenSelectorPath, false).ToList();
+                    switch (selectTokens.Count)
                     {
-                        return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
+                        case 0:
+                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
+                        case 1:
+                            token = selectTokens.First();
+                            break;
+                        default:
+                            token = new JArray();
+                            foreach (var selectToken in selectTokens)
+                            {
+                                ((JArray)token).Add(selectToken);
+                            }
+                            break;
                     }
                 }
                 catch (JsonException)
