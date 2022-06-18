@@ -127,8 +127,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     bool isFailure = false;
 
-                    Symbol? baseSymbol = model.GetSymbolInfo(syntax.BaseExpression);
-                    if (baseSymbol is ResourceSymbol)
+                    if (model.ResourceMetadata.TryLookup(syntax.BaseExpression) is { })
                     {
                         // It's a usage of a list*() member function for a resource value, e.g.:
                         //
@@ -136,7 +135,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         //
                         isFailure = true;
                     }
-                    else if (baseSymbol is BuiltInNamespaceSymbol)
+                    else if (SemanticModelHelper.TryGetFunctionInNamespace(model, AzNamespaceType.BuiltInName, syntax) is FunctionCallSyntaxBase listFunction)
                     {
                         // It's a usage of a built-in list*() function as a member of the built-in "az" module, e.g.:
                         //

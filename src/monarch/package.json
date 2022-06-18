@@ -4,9 +4,9 @@
   "devDependencies": {
     "@types/html-escaper": "^3.0.0",
     "@types/jest": "^28.1.1",
-    "@types/node": "^17.0.41",
-    "@typescript-eslint/eslint-plugin": "^5.27.1",
-    "@typescript-eslint/parser": "^5.27.1",
+    "@types/node": "^18.0.0",
+    "@typescript-eslint/eslint-plugin": "^5.28.0",
+    "@typescript-eslint/parser": "^5.28.0",
     "eslint": "^8.17.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^26.5.3",
@@ -14,7 +14,7 @@
     "jest": "^28.1.1",
     "jest-environment-jsdom": "^28.1.1",
     "monaco-editor-core": "^0.33.0",
-    "ts-jest": "^28.0.4",
+    "ts-jest": "^28.0.5",
     "ts-node": "^10.8.1",
     "typescript": "^4.7.3"
   },
@@ -28,7 +28,7 @@
     "lint:fix": "eslint src"
   },
   "dependencies": {
-    "@babel/core": "^7.18.2",
+    "@babel/core": "^7.18.5",
     "@babel/plugin-transform-modules-commonjs": "^7.18.2",
     "babel-jest": "^28.1.1"
   }

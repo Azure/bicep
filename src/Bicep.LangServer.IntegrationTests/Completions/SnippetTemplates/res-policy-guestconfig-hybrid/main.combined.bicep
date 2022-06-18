@@ -13,7 +13,7 @@ resource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {
   location: location
 }
 
-resource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {
+resource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25' = {
   name: 'name'
   scope: arcEnabledMachine
   location: location
