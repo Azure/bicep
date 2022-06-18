@@ -116,39 +116,17 @@ namespace Bicep.Core.Emit
                 })
                 .FirstOrDefault();
 
-            
-            foreach (var bicepFile in rawSourceMap.Keys)
-            {
-                foreach (var bicepLine in rawSourceMap[bicepFile].Keys)
-                {
-                    for (int i = 0; i < rawSourceMap[bicepFile][bicepLine].Count; i++)
-                    {
-                        var (jsonStartPos, jsonEndPos) = rawSourceMap[bicepFile][bicepLine][i];
-
-
-                    }
-                }
-            }
-
-            // transform offsets in rawSourceMap to line numbers for formatted JSON using unformattedLineStarts
-            // add 1 to all line numbers to convert to 1-indexing
             // strip full path from main bicep source file
             string getFileName(string file) => (file == sourceFile.FileUri.AbsolutePath) ? Path.GetFileName(file) : file;
-            //var formattedSourceMap = rawSourceMap.ToDictionary(
-            //    kvp => getFileName(kvp.Key),
-            //    kvp => kvp.Value.ToDictionary(
-            //        kvp => TextCoordinateConverter.GetPosition(sourceFile.LineStarts, kvp.Key.GetPosition()).line + 1,
-            //        kvp => kvp.Value.Select(mapping => (
-            //            TextCoordinateConverter.GetPosition(unformattedLineStarts, mapping.start).line + 1,
-            //            TextCoordinateConverter.GetPosition(unformattedLineStarts, mapping.end).line + 1))));
-
             var formattedSourceMap = new Dictionary<string, Dictionary<int, IList<(int start, int end)>>>();
+
             foreach (var bicepFileName in rawSourceMap.Keys)
             {
                 var bicepLocalFileName = getFileName(bicepFileName);
 
                 foreach (var bicepPosition in rawSourceMap[bicepFileName].Keys)
                 {
+                    // add 1 to all line numbers to convert to 1-indexing TODO REMOVE
                     var bicepLine = TextCoordinateConverter.GetPosition(sourceFile.LineStarts, bicepPosition.GetPosition()).line + 1;
 
                     foreach(var mapping in rawSourceMap[bicepFileName][bicepPosition])
@@ -162,6 +140,8 @@ namespace Bicep.Core.Emit
                             jsonEndPos += templateHashLength;
                         }
 
+                        // add 1 to all line numbers to convert to 1-indexing TODO REMOVE
+                        // transform offsets in rawSourceMap to line numbers for formatted JSON using unformattedLineStarts
                         var jsonStartLine = TextCoordinateConverter.GetPosition(unformattedLineStarts, jsonStartPos).line + 1;
                         var jsonEndLine = TextCoordinateConverter.GetPosition(unformattedLineStarts, jsonEndPos).line + 1;
 
