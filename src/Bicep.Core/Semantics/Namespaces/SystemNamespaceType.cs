@@ -470,7 +470,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             new FunctionOverloadBuilder("loadTextContent")
                 .WithGenericDescription($"Loads the content of the specified file into a string. Content loading occurs during compilation, not at runtime. The maximum allowed content size is {LanguageConstants.MaxLiteralCharacterLimit} characters (including line endings).")
-                .WithParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded", FunctionParameterFlags.Required | FunctionParameterFlags.FilePath)
+                .WithRequiredParameter("filePath", LanguageConstants.StringFilePath, "The path to the file that will be loaded.")
                 .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
                 .WithReturnResultBuilder(LoadTextContentResultBuilder, LanguageConstants.String)
                 .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
@@ -479,14 +479,14 @@ namespace Bicep.Core.Semantics.Namespaces
 
             new FunctionOverloadBuilder("loadFileAsBase64")
                 .WithGenericDescription($"Loads the specified file as base64 string. File loading occurs during compilation, not at runtime. The maximum allowed size is {LanguageConstants.MaxLiteralCharacterLimit / 4 * 3 / 1024} Kb.")
-                .WithParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded", FunctionParameterFlags.Required | FunctionParameterFlags.FilePath)
+                .WithRequiredParameter("filePath", LanguageConstants.StringFilePath, "The path to the file that will be loaded.")
                 .WithReturnResultBuilder(LoadContentAsBase64ResultBuilder, LanguageConstants.String)
                 .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
                 .WithVariableGenerator(StringLiteralFunctionVariableGenerator)
                 .Build(),
             new FunctionOverloadBuilder("loadJsonContent")
                 .WithGenericDescription($"Loads the specified JSON file as bicep object. File loading occurs during compilation, not at runtime.")
-                .WithParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded", FunctionParameterFlags.Required | FunctionParameterFlags.FilePath | FunctionParameterFlags.ExpectedJsonFile)
+                .WithRequiredParameter("filePath", LanguageConstants.StringJsonFilePath, "The path to the file that will be loaded.")
                 .WithOptionalParameter("jsonPath", LanguageConstants.String, "JSONPath expression to narrow down the loaded file. If not provided, a root element indicator '$' is used")
                 .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
                 .WithReturnResultBuilder(LoadJsonContentResultBuilder, LanguageConstants.Any)

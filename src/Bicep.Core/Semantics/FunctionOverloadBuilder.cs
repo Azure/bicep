@@ -91,21 +91,15 @@ namespace Bicep.Core.Semantics
             return this;
         }
 
-        public FunctionOverloadBuilder WithParameter(string name, TypeSymbol type, string description, FunctionParameterFlags flags)
-        {
-            FixedParameters.Add(new(name, description, type, flags));
-            return this;
-        }
-
         public FunctionOverloadBuilder WithRequiredParameter(string name, TypeSymbol type, string description)
         {
-            FixedParameters.Add(new(name, description, type, FunctionParameterFlags.Required));
+            FixedParameters.Add(new(name, description, type, true));
             return this;
         }
 
         public FunctionOverloadBuilder WithOptionalParameter(string name, TypeSymbol type, string description)
         {
-            FixedParameters.Add(new(name, description, type, FunctionParameterFlags.Default));
+            FixedParameters.Add(new(name, description, type, false));
             return this;
         }
 

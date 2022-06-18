@@ -7,11 +7,11 @@ namespace Bicep.Core.Semantics
 {
     public class FixedFunctionParameter
     {
-        public FixedFunctionParameter(string name, string description, TypeSymbol type, FunctionParameterFlags flags)
+        public FixedFunctionParameter(string name, string description, TypeSymbol type, bool required)
         {
             this.Name = name;
             this.Type = type;
-            this.Flags = flags;
+            this.Required = required;
             this.Description = description;
         }
 
@@ -21,20 +21,10 @@ namespace Bicep.Core.Semantics
 
         public TypeSymbol Type { get; }
 
-        public FunctionParameterFlags Flags { get; }
-
-        public bool Required => Flags.HasFlag(FunctionParameterFlags.Required);
+        public bool Required { get; }
 
         public string Signature => this.Required
             ? $"{this.Name}: {this.Type}"
             : $"[{this.Name}: {this.Type}]";
-    }
-
-    public enum FunctionParameterFlags
-    {
-        Default = 0,
-        Required = 1 << 0,
-        FilePath = 1 << 1,
-        ExpectedJsonFile = 1 << 2,
     }
 }

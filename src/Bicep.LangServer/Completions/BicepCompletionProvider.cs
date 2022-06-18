@@ -895,13 +895,13 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
+            var argType = functionSymbol.GetDeclaredArgumentType(context.FunctionArgument.ArgumentIndex);
+
             //functionArgument flag indicates that we are about to type a function argument. But path completions should be also shown when on a argument value
             if (functionArgument.ArgumentNodes.IsEmpty
                 || !(functionArgument.ArgumentNodes[0] is StringSyntax stringSyntax && stringSyntax.IsInterpolated())) //we discard path completions when string is interpolated (although it shouldn't). here are too many cases to handle and this situation should not happen
             {
-                var functionOverload = model.TypeManager.GetMatchedFunctionOverload(context.FunctionArgument.Function) ?? functionSymbol.Overloads.FirstOrDefault();
-                var functionArgumentFlags = functionOverload?.FixedParameters.ElementAtOrDefault(context.FunctionArgument.ArgumentIndex)?.Flags ?? FunctionParameterFlags.Default;
-                if (functionArgumentFlags.HasFlag(FunctionParameterFlags.FilePath))
+                if (argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath))
                 {
                     //try get entered text. we need to provide path completions when something else than string is entered and in that case we use the token value to get what's currently entered
                     //(token value for string will have single quotes, so we need to avoid it)
@@ -914,7 +914,7 @@ namespace Bicep.LanguageServer.Completions
                     }
 
                     IEnumerable<CompletionItem> fileItems;
-                    if (functionArgumentFlags.HasFlag(FunctionParameterFlags.ExpectedJsonFile))
+                    if (argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringJsonFilePath))
                     {
                         // Prioritize .json or .jsonc files higher than other files.
                         var jsonItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, (file) => PathHelper.HasExtension(file, "json") || PathHelper.HasExtension(file, "jsonc"), CompletionPriority.High);
@@ -936,8 +936,6 @@ namespace Bicep.LanguageServer.Completions
             {
                 return Enumerable.Empty<CompletionItem>();
             }
-
-            var argType = functionSymbol.GetDeclaredArgumentType(context.FunctionArgument.ArgumentIndex);
 
             return GetValueCompletionsForType(argType, context.ReplacementRange, loopsAllowed: false);
         }

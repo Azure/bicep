@@ -27,6 +27,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Modules;
 using System.Net;
 using Bicep.Core.Navigation;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -94,7 +95,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private Task<LocationOrLocationLinks> HandleUnboundSymbolLocationAsync(DefinitionParams request, CompilationContext context)
         {
-            
+
             int offset = PositionHelper.GetOffset(context.LineStarts, request.Position);
             var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(context.Compilation.SourceFileGrouping.EntryPoint.ProgramSyntax, offset);
             { // Definition handler for a non symbol bound to implement module path goto.
@@ -126,9 +127,9 @@ namespace Bicep.LanguageServer.Handlers
                     && matchingNodes[^4] is FunctionCallSyntaxBase functionCall
                     && stringToken.TryGetLiteralValue() is { } stringTokenValue
                     && !string.IsNullOrWhiteSpace(stringTokenValue)
-                    && context.Compilation.GetEntrypointSemanticModel().TypeManager.GetMatchedFunctionOverload(functionCall) is { } functionOverload
-                    && functionOverload.FixedParameters.ElementAtOrDefault(functionCall.Arguments.ToList().IndexOf(functionArgument)) is { } functionParameter
-                    && functionParameter.Flags.HasFlag(FunctionParameterFlags.FilePath)
+                    && context.Compilation.GetEntrypointSemanticModel().GetSymbolInfo(functionCall) is FunctionSymbol functionSymbol
+                    && functionSymbol.GetDeclaredArgumentType(functionCall.Arguments.ToList().IndexOf(functionArgument)) is { } argumentType
+                    && argumentType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath)
                     && fileResolver.TryResolveFilePath(context.Compilation.SourceFileGrouping.EntryPoint.FileUri, stringTokenValue) is { } fileUri
                     && fileResolver.FileExists(fileUri))
                 {
