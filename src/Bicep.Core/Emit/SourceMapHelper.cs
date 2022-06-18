@@ -20,7 +20,7 @@ namespace Bicep.Core.Emit
         private static readonly Regex JsonWhitespaceStrippingRegex = new(@"(""(?:[^""\\]|\\.)*"")|\s+", RegexOptions.Compiled);
 
         public static void AddMapping(
-            Dictionary<string, Dictionary<IPositionable, IList<(int start, int end)>>> rawSourceMap,
+            Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>> rawSourceMap,
             BicepFile bicepFile,
             SyntaxBase bicepSyntax,
             PositionTrackingJsonTextWriter jsonWriter,
@@ -32,7 +32,7 @@ namespace Bicep.Core.Emit
             }
 
             var bicepFilePath = bicepFile.FileUri.AbsolutePath;
-            IPositionable bicepLocation = bicepSyntax;
+            TextSpan bicepLocation = bicepSyntax.Span;
 
             // account for leading nodes (decorators)
             if (bicepSyntax is StatementSyntax syntax)
@@ -53,17 +53,17 @@ namespace Bicep.Core.Emit
             }
 
             var jsonEndPos = jsonWriter.CurrentPos - 1;
+            var jsonPos = new TextSpan(jsonStartPos, jsonEndPos - jsonStartPos);
 
             rawSourceMap.AddMapping(
                 bicepFilePath,
                 bicepLocation,
-                jsonStartPos,
-                jsonEndPos);
+                jsonPos);
         }
 
         public static void AddNestedSourceMap(
-            this Dictionary<string, Dictionary<IPositionable, IList<(int start, int end)>>> parentSourceMap,
-            Dictionary<string, Dictionary<IPositionable, IList<(int start, int end)>>> nestedSourceMap,
+            this Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>> parentSourceMap,
+            Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>> nestedSourceMap,
             Func<string,string> toRelativePath,
             int offset)
         {
@@ -71,20 +71,23 @@ namespace Bicep.Core.Emit
             {
                 foreach (var lineKvp in fileKvp.Value)
                 {
-                    foreach (var (start, end) in lineKvp.Value)
+                    foreach (var position in lineKvp.Value)
                     {
+                        var positionWithOffset = new TextSpan(
+                            position.Position + offset,
+                            position.Length);
+
                         parentSourceMap.AddMapping(
                             toRelativePath(fileKvp.Key),
                             lineKvp.Key,
-                            start + offset,
-                            end + offset);
+                            positionWithOffset);
                     }
                 }
             }
         }
 
         public static void ProcessRawSourceMap(
-            Dictionary<string, Dictionary<IPositionable, IList<(int start, int end)>>> rawSourceMap,
+            Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>> rawSourceMap,
             JToken rawTemplate,
             BicepFile sourceFile,
             IDictionary<int,(string,int)> sourceMap)
@@ -135,9 +138,10 @@ namespace Bicep.Core.Emit
                     // add 1 to all line numbers to convert to 1-indexing TODO REMOVE
                     var bicepLine = TextCoordinateConverter.GetPosition(sourceFile.LineStarts, bicepPosition.GetPosition()).line + 1;
 
-                    foreach(var mapping in rawSourceMap[bicepFileName][bicepPosition])
+                    foreach(var jsonPosition in rawSourceMap[bicepFileName][bicepPosition])
                     {
-                        var (jsonStartPos, jsonEndPos) = mapping;
+                        var jsonStartPos = jsonPosition.Position;
+                        var jsonEndPos = jsonStartPos + jsonPosition.Length;
 
                         // TODO remove once filler hash is added
                         // increment positions by templateHashLength that occur after hash start position
@@ -169,23 +173,22 @@ namespace Bicep.Core.Emit
         }
 
         private static void AddMapping<T>(
-            this Dictionary<string, Dictionary<T, IList<(int start, int end)>>> rawSourceMap,
+            this Dictionary<string, Dictionary<T, IList<TextSpan>>> rawSourceMap,
             string bicepFileName,
             T bicepLocation,
-            int jsonStartPos,
-            int jsonEndPos) where T : notnull
+            TextSpan jsonPosition) where T : notnull
         {
             if (!rawSourceMap.TryGetValue(bicepFileName, out var bicepFileDict))
             {
-                rawSourceMap[bicepFileName] = bicepFileDict = new Dictionary<T, IList<(int, int)>>();
+                rawSourceMap[bicepFileName] = bicepFileDict = new Dictionary<T, IList<TextSpan>>();
             }
 
             if (!bicepFileDict.TryGetValue(bicepLocation, out var mappingList))
             {
-                bicepFileDict[bicepLocation] = mappingList = new List<(int, int)>();
+                bicepFileDict[bicepLocation] = mappingList = new List<TextSpan>();
             }
 
-            mappingList.Add((jsonStartPos, jsonEndPos));
+            mappingList.Add(jsonPosition);
         }
     }
 }
