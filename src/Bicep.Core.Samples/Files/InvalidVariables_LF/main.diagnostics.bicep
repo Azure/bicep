@@ -406,3 +406,12 @@ var keyVaultSecretArrayInterpolatedVar = [
 //@[05:29) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
 ]
 
+var copy = [
+//@[04:08) [BCP239 (Error)] Identifier "copy" is a reserved Bicep symbol name and cannot be used in this context. (CodeDescription: none) |copy|
+//@[04:08) [no-unused-vars (Warning)] Variable "copy" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |copy|
+  {
+    name: 'one'
+    count: '[notAFunction()]'
+    input: {}
+  }
+]
