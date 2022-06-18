@@ -90,7 +90,7 @@ namespace Bicep.Core.Emit
 
         private readonly EmitterContext context;
         private readonly EmitterSettings settings;
-        private readonly Dictionary<string, Dictionary<IPositionable, IList<(int start, int end)>>> rawSourceMap;
+        private readonly Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>> rawSourceMap;
 
         public IDictionary<int, (string, int)>? SourceMap; // ARM JSON line => (Bicep File, Bicep Line)
 
@@ -98,7 +98,7 @@ namespace Bicep.Core.Emit
         {
             this.context = new EmitterContext(semanticModel, settings);
             this.settings = settings;
-            this.rawSourceMap = new Dictionary<string, Dictionary<IPositionable, IList<(int, int)>>>();
+            this.rawSourceMap = new Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>>();
             this.SourceMap = sourceMap is null && settings.EnableSourceMapping
                 ? new Dictionary<int, (string, int)>()
                 : sourceMap;

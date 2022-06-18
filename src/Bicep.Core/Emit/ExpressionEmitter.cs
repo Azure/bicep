@@ -29,9 +29,9 @@ namespace Bicep.Core.Emit
         private readonly EmitterContext context;
         private readonly ExpressionConverter converter;
 
-        public readonly Dictionary<string, Dictionary<IPositionable, IList<(int start, int end)>>>? rawSourceMap;
+        public readonly Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>>? rawSourceMap;
 
-        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context, Dictionary<string, Dictionary<IPositionable, IList<(int, int)>>>? rawSourceMap = null)
+        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context, Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>>? rawSourceMap = null)
         {
             this.writer = writer;
             this.context = context;
