@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -319,7 +321,7 @@ namespace Bicep.Core.Emit
 
         private static void DetectCopyVariableName(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
-            var copyVariableSymbol = semanticModel.Root.VariableDeclarations.FirstOrDefault(x => x.Name.Equals(LanguageConstants.CopyLoopIdentifier, LanguageConstants.IdentifierComparison));
+            var copyVariableSymbol = semanticModel.Root.VariableDeclarations.FirstOrDefault(x => x.Name.Equals(LanguageConstants.CopyLoopIdentifier, StringComparison.OrdinalIgnoreCase));
             if (copyVariableSymbol is not null)
             {
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(copyVariableSymbol.NameSyntax).ReservedIdentifier(LanguageConstants.CopyLoopIdentifier));
