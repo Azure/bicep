@@ -59,6 +59,8 @@ namespace Bicep.Core
         public const string TargetScopeTypeSubscription = "subscription";
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
 
+        public const string CopyLoopIdentifier = "copy";
+
         public const string BicepConfigurationFileName = "bicepconfig.json";
 
         // An internal-only command used in code actions to edit a particular rule in the bicepconfig.json file
@@ -168,7 +170,7 @@ namespace Bicep.Core
 
         // types allowed to use in output and parameter declarations
         public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] { String, Object, Int, Bool, Array }.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
-
+        
         public static TypeSymbol? TryGetDeclarationType(string? typeName)
         {
             if (typeName != null && DeclarationTypes.TryGetValue(typeName, out var primitiveType))

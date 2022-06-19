@@ -312,6 +312,20 @@
     }
   },
   {
+    "label": "copy",
+    "kind": "variable",
+    "detail": "copy",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_copy",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "copy"
+    }
+  },
+  {
     "label": "dataUri",
     "kind": "function",
     "documentation": {

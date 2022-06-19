@@ -63,7 +63,6 @@ namespace Bicep.LanguageServer.Snippets
             "scale",
             "plan",
             "identity",
-            "copy",
             "dependsOn",
             "tags",
             "properties"

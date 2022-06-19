@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -33,8 +35,9 @@ namespace Bicep.Core.Emit
             DetectUnexpectedResourceLoopInvariantProperties(model, diagnosticWriter);
             DetectUnexpectedModuleLoopInvariantProperties(model, diagnosticWriter);
             DetectUnsupportedModuleParameterAssignments(model, diagnosticWriter);
+            DetectCopyVariableName(model, diagnosticWriter);
 
-            return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
+            return new(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
@@ -130,7 +133,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static void DetectIncorrectlyFormattedNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        private static void DetectIncorrectlyFormattedNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
             // TODO move into Az extension
             foreach (var resource in semanticModel.DeclaredResources)
@@ -188,7 +191,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static void DetectUnexpectedResourceLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        private static void DetectUnexpectedResourceLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
             foreach (var resource in semanticModel.DeclaredResources)
             {
@@ -241,7 +244,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static void DetectUnexpectedModuleLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        private static void DetectUnexpectedModuleLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
             foreach (var module in semanticModel.Root.ModuleDeclarations)
             {
@@ -286,7 +289,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static void DetectUnsupportedModuleParameterAssignments(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        private static void DetectUnsupportedModuleParameterAssignments(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
             foreach (var moduleSymbol in semanticModel.Root.ModuleDeclarations)
             {
@@ -313,6 +316,15 @@ namespace Bicep.Core.Emit
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(paramsValue).ModuleParametersPropertyRequiresObjectLiteral());
                         break;
                 }
+            }
+        }
+
+        private static void DetectCopyVariableName(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            var copyVariableSymbol = semanticModel.Root.VariableDeclarations.FirstOrDefault(x => x.Name.Equals(LanguageConstants.CopyLoopIdentifier, StringComparison.OrdinalIgnoreCase));
+            if (copyVariableSymbol is not null)
+            {
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(copyVariableSymbol.NameSyntax).ReservedIdentifier(LanguageConstants.CopyLoopIdentifier));
             }
         }
 

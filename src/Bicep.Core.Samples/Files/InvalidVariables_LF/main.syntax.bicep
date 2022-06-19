@@ -1,5 +1,5 @@
 
-//@[00:5341) ProgramSyntax
+//@[00:5424) ProgramSyntax
 //@[00:0001) ├─Token(NewLine) |\n|
 // unknown declaration
 //@[22:0023) ├─Token(NewLine) |\n|
@@ -1839,6 +1839,50 @@ var keyVaultSecretArrayInterpolatedVar = [
 //@[31:0032) | | ├─Token(NewLine) |\n|
 ]
 //@[00:0001) | | └─Token(RightSquare) |]|
-//@[01:0002) ├─Token(NewLine) |\n|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
-//@[00:0000) └─Token(EndOfFile) ||
+var copy = [
+//@[00:0082) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0008) | ├─IdentifierSyntax
+//@[04:0008) | | └─Token(Identifier) |copy|
+//@[09:0010) | ├─Token(Assignment) |=|
+//@[11:0082) | └─ArraySyntax
+//@[11:0012) | | ├─Token(LeftSquare) |[|
+//@[12:0013) | | ├─Token(NewLine) |\n|
+  {
+//@[02:0067) | | ├─ArrayItemSyntax
+//@[02:0067) | | | └─ObjectSyntax
+//@[02:0003) | | | | ├─Token(LeftBrace) |{|
+//@[03:0004) | | | | ├─Token(NewLine) |\n|
+    name: 'one'
+//@[04:0015) | | | | ├─ObjectPropertySyntax
+//@[04:0008) | | | | | ├─IdentifierSyntax
+//@[04:0008) | | | | | | └─Token(Identifier) |name|
+//@[08:0009) | | | | | ├─Token(Colon) |:|
+//@[10:0015) | | | | | └─StringSyntax
+//@[10:0015) | | | | | | └─Token(StringComplete) |'one'|
+//@[15:0016) | | | | ├─Token(NewLine) |\n|
+    count: '[notAFunction()]'
+//@[04:0029) | | | | ├─ObjectPropertySyntax
+//@[04:0009) | | | | | ├─IdentifierSyntax
+//@[04:0009) | | | | | | └─Token(Identifier) |count|
+//@[09:0010) | | | | | ├─Token(Colon) |:|
+//@[11:0029) | | | | | └─StringSyntax
+//@[11:0029) | | | | | | └─Token(StringComplete) |'[notAFunction()]'|
+//@[29:0030) | | | | ├─Token(NewLine) |\n|
+    input: {}
+//@[04:0013) | | | | ├─ObjectPropertySyntax
+//@[04:0009) | | | | | ├─IdentifierSyntax
+//@[04:0009) | | | | | | └─Token(Identifier) |input|
+//@[09:0010) | | | | | ├─Token(Colon) |:|
+//@[11:0013) | | | | | └─ObjectSyntax
+//@[11:0012) | | | | | | ├─Token(LeftBrace) |{|
+//@[12:0013) | | | | | | └─Token(RightBrace) |}|
+//@[13:0014) | | | | ├─Token(NewLine) |\n|
+  }
+//@[02:0003) | | | | └─Token(RightBrace) |}|
+//@[03:0004) | | ├─Token(NewLine) |\n|
+]
+//@[00:0001) | | └─Token(RightSquare) |]|
+//@[01:0001) └─Token(EndOfFile) ||

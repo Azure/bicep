@@ -494,6 +494,20 @@
     }
   },
   {
+    "label": "copyBlockInObject",
+    "kind": "variable",
+    "detail": "copyBlockInObject",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_copyBlockInObject",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "copyBlockInObject"
+    }
+  },
+  {
     "label": "createArray",
     "kind": "variable",
     "detail": "createArray",
