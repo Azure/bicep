@@ -1881,7 +1881,6 @@ resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
 // parent property self-cycle
 resource p3_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
   parent: p3_vmExt
-//@[010:018) [BCP239 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |p3_vmExt|
 //@[010:018) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. (CodeDescription: none) |p3_vmExt|
   location: 'eastus'
 //@[012:020) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus'|
@@ -1890,7 +1889,6 @@ resource p3_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
 // parent property 2-cycle
 resource p4_vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   parent: p4_vmExt
-//@[010:018) [BCP239 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |p4_vmExt|
 //@[010:018) [BCP080 (Error)] The expression is involved in a cycle ("p4_vmExt" -> "p4_vm"). (CodeDescription: none) |p4_vmExt|
   location: 'eastus'
 //@[012:020) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus'|
@@ -1898,7 +1896,6 @@ resource p4_vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
 
 resource p4_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
   parent: p4_vm
-//@[010:015) [BCP239 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |p4_vm|
 //@[010:015) [BCP080 (Error)] The expression is involved in a cycle ("p4_vm" -> "p4_vmExt"). (CodeDescription: none) |p4_vm|
   location: 'eastus'
 //@[012:020) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus'|
@@ -1927,7 +1924,6 @@ resource p6_res1 '${true}' = {
 resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
 //@[017:060) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child2@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1/child2@2020-06-01'|
   parent: p6_res1
-//@[010:017) [BCP239 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |p6_res1|
 //@[010:017) [BCP062 (Error)] The referenced declaration with name "p6_res1" is not valid. (CodeDescription: none) |p6_res1|
   name: 'res2'
 }
