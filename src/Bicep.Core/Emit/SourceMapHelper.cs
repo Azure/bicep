@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -17,12 +18,36 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
 {
+    // TODO: how to reduce duplication
+    public record SourceMap(
+        string Entrypoint,
+        ImmutableArray<SourceMapFileEntry> Entries);
+
+    public record SourceMapFileEntry(
+        string FilePath,
+        ImmutableArray<SourceMapEntry> SourceMap);
+
+    public record SourceMapEntry(
+        int SourceLine,
+        int TargetLine);
+
+    public record RawSourceMap(
+        IList<RawSourceMapFileEntry> Entries);
+
+    public record RawSourceMapFileEntry(
+        string FilePath,
+        IList<SourceMapRawEntry> SourceMap);
+
+    public record SourceMapRawEntry(
+        TextSpan SourcePosition,
+        IList<TextSpan> TargetPositions);
+
     public static class SourceMapHelper
     {
         private static readonly Regex JsonWhitespaceStrippingRegex = new(@"(""(?:[^""\\]|\\.)*"")|\s+", RegexOptions.Compiled);
 
         public static void AddMapping(
-            Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>> rawSourceMap,
+            RawSourceMap rawSourceMap,
             BicepFile bicepFile,
             SyntaxBase bicepSyntax,
             PositionTrackingJsonTextWriter jsonWriter,
@@ -63,36 +88,34 @@ namespace Bicep.Core.Emit
                 jsonPos);
         }
 
-        public static void AddNestedSourceMap(
-            this Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>> parentSourceMap,
-            Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>> nestedSourceMap,
-            Func<string,string> toRelativePath,
+        public static void AddNestedRawSourceMap(
+            this RawSourceMap parentSourceMap,
+            RawSourceMap nestedSourceMap,
             int offset)
         {
-            foreach (var fileKvp in nestedSourceMap)
+            foreach (var fileEntry in nestedSourceMap.Entries)
             {
-                foreach (var lineKvp in fileKvp.Value)
+                foreach (var sourceMapEntry in fileEntry.SourceMap)
                 {
-                    foreach (var position in lineKvp.Value)
+                    foreach (var position in sourceMapEntry.TargetPositions)
                     {
                         var positionWithOffset = new TextSpan(
                             position.Position + offset,
                             position.Length);
 
                         parentSourceMap.AddMapping(
-                            toRelativePath(fileKvp.Key),
-                            lineKvp.Key,
+                            fileEntry.FilePath,
+                            sourceMapEntry.SourcePosition,
                             positionWithOffset);
                     }
                 }
             }
         }
 
-        public static void ProcessRawSourceMap(
-            Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>> rawSourceMap,
+        public static SourceMap ProcessRawSourceMap(
+            RawSourceMap rawSourceMap,
             JToken rawTemplate,
-            BicepFile sourceFile,
-            IDictionary<int,(string,int)> sourceMap)
+            BicepFile sourceFile)
         {
             var formattedTemplateLines = rawTemplate
                 .ToString(Formatting.Indented)
@@ -122,25 +145,26 @@ namespace Bicep.Core.Emit
                 })
                 .FirstOrDefault();
 
-            // strip full path from main bicep source file
-            // TODO: better name for this
-            string getRelativeFileName(string file) => (file == sourceFile.FileUri.AbsolutePath) ? Path.GetFileName(file) : file;
-            var formattedSourceMap = new Dictionary<string, Dictionary<int, IList<(int start, int end)>>>();
 
-            // unfold key-values in bicep-to-json map to convert to json-to-bicep map
             var weights = new int[unformattedLineStarts.Count];
             Array.Fill(weights, int.MaxValue);
 
-            foreach (var bicepFileName in rawSourceMap.Keys)
-            {
-                var bicepRelativeFileName = getRelativeFileName(bicepFileName);
+            var sourceMapFileEntries = new List<SourceMapFileEntry>();
+            var entrypointFileName = Path.GetFileName(sourceFile.FileUri.AbsolutePath);
+            var entrypointAbsolutePath = Path.GetDirectoryName(sourceFile.FileUri.AbsolutePath)!;
 
-                foreach (var bicepPosition in rawSourceMap[bicepFileName].Keys)
+            foreach (var bicepFileEntry in rawSourceMap.Entries)
+            {
+                var bicepFilePath = Path.GetRelativePath(entrypointAbsolutePath, bicepFileEntry.FilePath).Replace('\\', '/'); // TODO: IFileResolver
+                var sourceMapEntries = new List<SourceMapEntry>();
+
+                foreach (var sourceMapEntry in bicepFileEntry.SourceMap)
                 {
                     // add 1 to all line numbers to convert to 1-indexing TODO REMOVE
-                    var bicepLine = TextCoordinateConverter.GetPosition(sourceFile.LineStarts, bicepPosition.GetPosition()).line + 1;
+                    var bicepLine = TextCoordinateConverter.GetPosition(
+                        sourceFile.LineStarts, sourceMapEntry.SourcePosition.GetPosition()).line + 1;
 
-                    foreach(var jsonPosition in rawSourceMap[bicepFileName][bicepPosition])
+                    foreach(var jsonPosition in sourceMapEntry.TargetPositions)
                     {
                         var jsonStartPos = jsonPosition.Position;
                         var jsonEndPos = jsonStartPos + jsonPosition.Length;
@@ -160,37 +184,54 @@ namespace Bicep.Core.Emit
 
                         // write most specific mapping available for each json line (less lines => stronger weight)
                         int weight = jsonEndLine - jsonStartLine;
-                        for (int i = jsonStartLine; i <= jsonEndLine; i++)
+                        for (int jsonLine = jsonStartLine; jsonLine <= jsonEndLine; jsonLine++)
                         {
                             // write new mapping if weight is stronger than existing mapping
-                            if (weight < weights[i])
+                            if (weight < weights[jsonLine])
                             {
-                                sourceMap![i] = (bicepRelativeFileName, bicepLine);
-                                weights[i] = weight;
+                                sourceMapEntries.RemoveAll(i => i.TargetLine == jsonLine);
+                                sourceMapEntries.Add(new SourceMapEntry(bicepLine, jsonLine));
+                                weights[jsonLine] = weight;
                             }
                         }
                     }
                 }
+
+                var fileEntry = new SourceMapFileEntry(
+                    bicepFilePath,
+                    sourceMapEntries.ToImmutableArray());
+                sourceMapFileEntries.Add(fileEntry);
             }
+
+            return new SourceMap(
+                entrypointFileName,
+                sourceMapFileEntries.ToImmutableArray());
         }
 
-        private static void AddMapping<T>(
-            this Dictionary<string, Dictionary<T, IList<TextSpan>>> rawSourceMap,
+        public static void AddMapping(
+            this RawSourceMap rawSourceMap,
             string bicepFileName,
-            T bicepLocation,
-            TextSpan jsonPosition) where T : notnull
+            TextSpan bicepPosition,
+            TextSpan jsonPosition)
         {
-            if (!rawSourceMap.TryGetValue(bicepFileName, out var bicepFileDict))
+            var fileEntry = rawSourceMap.Entries.FirstOrDefault(
+                i => i.FilePath.Equals(bicepFileName, StringComparison.OrdinalIgnoreCase));
+            if (fileEntry is null)
             {
-                rawSourceMap[bicepFileName] = bicepFileDict = new Dictionary<T, IList<TextSpan>>();
+                fileEntry = new RawSourceMapFileEntry(bicepFileName, new List<SourceMapRawEntry>());
+
+                rawSourceMap.Entries.Add(fileEntry);
             }
 
-            if (!bicepFileDict.TryGetValue(bicepLocation, out var mappingList))
+            var sourceMapEntry = fileEntry.SourceMap.FirstOrDefault(i => i.SourcePosition == bicepPosition);
+            if (sourceMapEntry is null)
             {
-                bicepFileDict[bicepLocation] = mappingList = new List<TextSpan>();
+                sourceMapEntry = new SourceMapRawEntry(bicepPosition, new List<TextSpan>());
+
+                fileEntry.SourceMap.Add(sourceMapEntry);
             }
 
-            mappingList.Add(jsonPosition);
+            sourceMapEntry.TargetPositions.Add(jsonPosition);
         }
     }
 }

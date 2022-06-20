@@ -90,18 +90,16 @@ namespace Bicep.Core.Emit
 
         private readonly EmitterContext context;
         private readonly EmitterSettings settings;
-        private readonly Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>> rawSourceMap;
+        private readonly RawSourceMap rawSourceMap;
 
-        public IDictionary<int, (string, int)>? SourceMap; // ARM JSON line => (Bicep File, Bicep Line)
+        public SourceMap? SourceMap; // ARM JSON line => (Bicep File, Bicep Line)
 
-        public TemplateWriter(SemanticModel semanticModel, EmitterSettings settings, IDictionary<int, (string, int)>? sourceMap = null)
+        public TemplateWriter(SemanticModel semanticModel, EmitterSettings settings)
         {
             this.context = new EmitterContext(semanticModel, settings);
             this.settings = settings;
-            this.rawSourceMap = new Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>>();
-            this.SourceMap = sourceMap is null && settings.EnableSourceMapping
-                ? new Dictionary<int, (string, int)>()
-                : sourceMap;
+            this.rawSourceMap = new(new List<RawSourceMapFileEntry>());
+            this.SourceMap = null;
         }
 
         public void Write(JsonTextWriter writer)
@@ -118,11 +116,10 @@ namespace Bicep.Core.Emit
 
             if (this.context.Settings.EnableSourceMapping)
             {
-                SourceMapHelper.ProcessRawSourceMap(
+                this.SourceMap = SourceMapHelper.ProcessRawSourceMap(
                     this.rawSourceMap,
                     templateJToken,
-                    this.context.SemanticModel.SourceFile,
-                    this.SourceMap!);
+                    this.context.SemanticModel.SourceFile!);
             }
 
             templateJToken.WriteTo(writer);
@@ -715,23 +712,15 @@ namespace Bicep.Core.Emit
                 // If it is a template spec module, emit templateLink instead of template contents.
                 jsonWriter.WritePropertyName(moduleSemanticModel is TemplateSpecSemanticModel ? "templateLink" : "template");
                 {
-                    var nestedTemplateOffset = jsonWriter.CurrentPos;
-
                     var writer = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel, this.settings);
                     writer.Write(jsonWriter);
 
-                    if (writer is TemplateWriter templateWriter && moduleSemanticModel is SemanticModel moduleSemanticModelObj)
+                    if (writer is TemplateWriter templateWriter)
                     {
-                        var childAbsolutePath = moduleSemanticModelObj.SourceFile.FileUri.AbsolutePath;
-                        var parentAbsolutePath = Path.GetDirectoryName(this.context.SemanticModel.SourceFile.FileUri.AbsolutePath)!;
-                        var modulePathRelativetoParent = Path.GetRelativePath(
-                            parentAbsolutePath,
-                            childAbsolutePath);
-
-                        this.rawSourceMap.AddNestedSourceMap(
+                        var offset = jsonWriter.CurrentPos;
+                        this.rawSourceMap.AddNestedRawSourceMap(
                             templateWriter.rawSourceMap,
-                            (path) => path == childAbsolutePath ? modulePathRelativetoParent : path,
-                            nestedTemplateOffset);
+                            offset);
                     }
                 }
 

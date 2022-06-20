@@ -1,22 +1,30 @@
 {
-  "12": {
-    "Item1": "main.bicep",
-    "Item2": 3
-  },
-  "13": {
-    "Item1": "main.bicep",
-    "Item2": 5
-  },
-  "14": {
-    "Item1": "main.bicep",
-    "Item2": 6
-  },
-  "15": {
-    "Item1": "main.bicep",
-    "Item2": 7
-  },
-  "16": {
-    "Item1": "main.bicep",
-    "Item2": 5
-  }
+  "Entrypoint": "main.bicep",
+  "Entries": [
+    {
+      "FilePath": "main.bicep",
+      "SourceMap": [
+        {
+          "SourceLine": 3,
+          "TargetLine": 12
+        },
+        {
+          "SourceLine": 6,
+          "TargetLine": 14
+        },
+        {
+          "SourceLine": 7,
+          "TargetLine": 15
+        },
+        {
+          "SourceLine": 5,
+          "TargetLine": 13
+        },
+        {
+          "SourceLine": 5,
+          "TargetLine": 16
+        }
+      ]
+    }
+  ]
 }

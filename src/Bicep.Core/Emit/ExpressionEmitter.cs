@@ -6,7 +6,6 @@ using System.Linq;
 using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Serializers;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -29,9 +28,9 @@ namespace Bicep.Core.Emit
         private readonly EmitterContext context;
         private readonly ExpressionConverter converter;
 
-        public readonly Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>>? rawSourceMap;
+        public readonly RawSourceMap? rawSourceMap;
 
-        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context, Dictionary<string, Dictionary<TextSpan, IList<TextSpan>>>? rawSourceMap = null)
+        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context, RawSourceMap? rawSourceMap = null)
         {
             this.writer = writer;
             this.context = context;

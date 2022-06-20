@@ -2,16 +2,16 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Text;
-using System.Collections.Immutable;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.UnitTests.Utils
@@ -89,7 +89,7 @@ namespace Bicep.Core.UnitTests.Utils
             where TPositionable : IPositionable
             => AddDiagsToSourceText(bicepOutput, newlineSequence, items, item => item.Span, diagsFunc);
 
-        public static string AddSourceMapToSourceText(string bicepOutput, string bicepFileName, string newlineSequence, ImmutableDictionary<int, (string, int)> sourceMap, string[] jsonLines)
+        public static string AddSourceMapToSourceText(string bicepOutput, string bicepFilePath, string newlineSequence, SourceMap sourceMap, string[] jsonLines)
         {
             var sourceTextLines = bicepOutput.Split(newlineSequence);
             var mappingsStartLines = new int[sourceTextLines.Length];
@@ -97,17 +97,18 @@ namespace Bicep.Core.UnitTests.Utils
             Array.Fill(mappingsStartLines, int.MaxValue);
             Array.Fill(mappingsEndLines, 0);
 
-            // traverse the source map to determine the JSON line range of each mapped bicep line
-            sourceMap.ForEach(kvp =>
+            // get source map entries for bicep file to annotate
+            var fileEntry = sourceMap.Entries.FirstOrDefault(entry => string.Compare(entry.FilePath, bicepFilePath) == 0);
+            if (fileEntry is null)
             {
-                int armLine = kvp.Key;
-                (string bicepFile, int bicepLine) = kvp.Value;
+                return bicepOutput;
+            }
 
-                // skip lines mapped in other referenced bicep files
-                if (string.Compare(bicepFile, bicepFileName) != 0)
-                {
-                    return;
-                }
+            // traverse the source map to determine the JSON line range of each mapped bicep line
+            foreach (var entry in fileEntry.SourceMap)
+            {
+                int bicepLine = entry.SourceLine;
+                int armLine = entry.TargetLine;
 
                 // convert line numbers from 1-indexing to 0-indexing
                 armLine--;
@@ -122,7 +123,7 @@ namespace Bicep.Core.UnitTests.Utils
                 {
                     mappingsEndLines[bicepLine] = armLine;
                 }
-            });
+            }
 
             var sourceTextWithSourceMap = new StringBuilder();
 
