@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
@@ -150,10 +151,11 @@ namespace Bicep.Core.Emit
             var sourceMapFileEntries = new List<SourceMapFileEntry>();
             var entrypointFileName = Path.GetFileName(sourceFile.FileUri.AbsolutePath);
             var entrypointAbsolutePath = Path.GetDirectoryName(sourceFile.FileUri.AbsolutePath)!;
+            var fileResolver = new FileResolver();
 
             foreach (var bicepFileEntry in rawSourceMap.Entries)
             {
-                var bicepFilePath = Path.GetRelativePath(entrypointAbsolutePath, bicepFileEntry.FilePath).Replace('\\', '/'); // TODO: IFileResolver
+                var bicepFilePath = fileResolver.GetRelativePath(entrypointAbsolutePath, bicepFileEntry.FilePath);
                 var sourceMapEntries = new List<SourceMapEntry>();
 
                 foreach (var sourceMapEntry in bicepFileEntry.SourceMap)
