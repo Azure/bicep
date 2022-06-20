@@ -158,9 +158,8 @@ namespace Bicep.Core.Emit
 
                 foreach (var sourceMapEntry in bicepFileEntry.SourceMap)
                 {
-                    // add 1 to all line numbers to convert to 1-indexing TODO REMOVE
                     var bicepLine = TextCoordinateConverter.GetPosition(
-                        sourceFile.LineStarts, sourceMapEntry.SourcePosition.GetPosition()).line + 1;
+                        sourceFile.LineStarts, sourceMapEntry.SourcePosition.GetPosition()).line;
 
                     foreach(var jsonPosition in sourceMapEntry.TargetPositions)
                     {
@@ -175,10 +174,9 @@ namespace Bicep.Core.Emit
                             jsonEndPos += templateHashLength;
                         }
 
-                        // add 1 to all line numbers to convert to 1-indexing TODO REMOVE
                         // transform offsets in rawSourceMap to line numbers for formatted JSON using unformattedLineStarts
-                        var jsonStartLine = TextCoordinateConverter.GetPosition(unformattedLineStarts, jsonStartPos).line + 1;
-                        var jsonEndLine = TextCoordinateConverter.GetPosition(unformattedLineStarts, jsonEndPos).line + 1;
+                        var jsonStartLine = TextCoordinateConverter.GetPosition(unformattedLineStarts, jsonStartPos).line ;
+                        var jsonEndLine = TextCoordinateConverter.GetPosition(unformattedLineStarts, jsonEndPos).line;
 
                         // write most specific mapping available for each json line (less lines => stronger weight)
                         int weight = jsonEndLine - jsonStartLine;

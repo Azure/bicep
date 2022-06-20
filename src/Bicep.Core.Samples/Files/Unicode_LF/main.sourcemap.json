@@ -5,27 +5,31 @@
       "FilePath": "main.bicep",
       "SourceMap": [
         {
+          "SourceLine": 0,
+          "TargetLine": 11
+        },
+        {
           "SourceLine": 1,
           "TargetLine": 12
         },
         {
-          "SourceLine": 2,
-          "TargetLine": 13
-        },
-        {
-          "SourceLine": 13,
-          "TargetLine": 15
-        },
-        {
-          "SourceLine": 15,
-          "TargetLine": 17
+          "SourceLine": 12,
+          "TargetLine": 14
         },
         {
           "SourceLine": 14,
           "TargetLine": 16
         },
         {
-          "SourceLine": 14,
+          "SourceLine": 13,
+          "TargetLine": 15
+        },
+        {
+          "SourceLine": 13,
+          "TargetLine": 17
+        },
+        {
+          "SourceLine": 16,
           "TargetLine": 18
         },
         {
@@ -33,19 +37,19 @@
           "TargetLine": 19
         },
         {
-          "SourceLine": 18,
+          "SourceLine": 19,
           "TargetLine": 20
         },
         {
-          "SourceLine": 20,
+          "SourceLine": 11,
+          "TargetLine": 13
+        },
+        {
+          "SourceLine": 11,
           "TargetLine": 21
         },
         {
-          "SourceLine": 12,
-          "TargetLine": 14
-        },
-        {
-          "SourceLine": 12,
+          "SourceLine": 26,
           "TargetLine": 22
         },
         {
@@ -57,23 +61,23 @@
           "TargetLine": 24
         },
         {
-          "SourceLine": 29,
+          "SourceLine": 31,
           "TargetLine": 25
         },
         {
-          "SourceLine": 32,
-          "TargetLine": 26
+          "SourceLine": 22,
+          "TargetLine": 29
         },
         {
-          "SourceLine": 23,
+          "SourceLine": 22,
           "TargetLine": 30
         },
         {
-          "SourceLine": 23,
+          "SourceLine": 22,
           "TargetLine": 31
         },
         {
-          "SourceLine": 23,
+          "SourceLine": 22,
           "TargetLine": 32
         },
         {
@@ -81,20 +85,16 @@
           "TargetLine": 33
         },
         {
-          "SourceLine": 24,
+          "SourceLine": 23,
           "TargetLine": 34
         },
         {
-          "SourceLine": 24,
+          "SourceLine": 23,
           "TargetLine": 35
         },
         {
-          "SourceLine": 24,
+          "SourceLine": 23,
           "TargetLine": 36
-        },
-        {
-          "SourceLine": 24,
-          "TargetLine": 37
         }
       ]
     }

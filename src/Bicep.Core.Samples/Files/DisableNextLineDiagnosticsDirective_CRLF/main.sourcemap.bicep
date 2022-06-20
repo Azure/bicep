@@ -1,38 +1,38 @@
 var vmProperties = {
-//@[30:39]     "vmProperties": {
+//@[29:38]     "vmProperties": {
   diagnosticsProfile: {
-//@[31:37]       "diagnosticsProfile": {
+//@[30:36]       "diagnosticsProfile": {
     bootDiagnostics: {
-//@[32:36]         "bootDiagnostics": {
+//@[31:35]         "bootDiagnostics": {
       enabled: 123
-//@[33:33]           "enabled": 123,
+//@[32:32]           "enabled": 123,
       storageUri: true
-//@[34:34]           "storageUri": true,
+//@[33:33]           "storageUri": true,
       unknownProp: 'asdf'
-//@[35:35]           "unknownProp": "asdf"
+//@[34:34]           "unknownProp": "asdf"
     }
   }
   evictionPolicy: 'Deallocate'
-//@[38:38]       "evictionPolicy": "Deallocate"
+//@[37:37]       "evictionPolicy": "Deallocate"
 }
 resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
-//@[42:48]       "type": "Microsoft.Compute/virtualMachines",
+//@[41:47]       "type": "Microsoft.Compute/virtualMachines",
   name: 'vm'
   location: 'West US'
-//@[46:46]       "location": "West US",
+//@[45:45]       "location": "West US",
 #disable-next-line BCP036 BCP037
   properties: vmProperties
-//@[47:47]       "properties": "[variables('vmProperties')]"
+//@[46:46]       "properties": "[variables('vmProperties')]"
 }
 #disable-next-line no-unused-params
 param storageAccount1 string = 'testStorageAccount'
-//@[12:15]     "storageAccount1": {
+//@[11:14]     "storageAccount1": {
 #disable-next-line          no-unused-params
 param storageAccount2 string = 'testStorageAccount'
-//@[16:19]     "storageAccount2": {
+//@[15:18]     "storageAccount2": {
 #disable-next-line   no-unused-params                /* Test comment 1 */
 param storageAccount3 string = 'testStorageAccount'
-//@[20:23]     "storageAccount3": {
+//@[19:22]     "storageAccount3": {
          #disable-next-line   no-unused-params                // Test comment 2
 param storageAccount5 string = 'testStorageAccount'
-//@[24:27]     "storageAccount5": {
+//@[23:26]     "storageAccount5": {

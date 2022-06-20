@@ -5,56 +5,60 @@
       "FilePath": "main.bicep",
       "SourceMap": [
         {
+          "SourceLine": 20,
+          "TargetLine": 16
+        },
+        {
           "SourceLine": 21,
           "TargetLine": 17
-        },
-        {
-          "SourceLine": 22,
-          "TargetLine": 18
-        },
-        {
-          "SourceLine": 24,
-          "TargetLine": 20
-        },
-        {
-          "SourceLine": 25,
-          "TargetLine": 21
         },
         {
           "SourceLine": 23,
           "TargetLine": 19
         },
         {
-          "SourceLine": 23,
-          "TargetLine": 22
+          "SourceLine": 24,
+          "TargetLine": 20
         },
         {
-          "SourceLine": 20,
+          "SourceLine": 22,
+          "TargetLine": 18
+        },
+        {
+          "SourceLine": 22,
+          "TargetLine": 21
+        },
+        {
+          "SourceLine": 19,
+          "TargetLine": 12
+        },
+        {
+          "SourceLine": 19,
           "TargetLine": 13
         },
         {
-          "SourceLine": 20,
+          "SourceLine": 19,
           "TargetLine": 14
         },
         {
-          "SourceLine": 20,
+          "SourceLine": 19,
           "TargetLine": 15
         },
         {
-          "SourceLine": 20,
-          "TargetLine": 16
+          "SourceLine": 19,
+          "TargetLine": 22
         },
         {
-          "SourceLine": 20,
+          "SourceLine": 19,
           "TargetLine": 23
         },
         {
-          "SourceLine": 20,
-          "TargetLine": 24
+          "SourceLine": 0,
+          "TargetLine": 25
         },
         {
-          "SourceLine": 1,
-          "TargetLine": 26
+          "SourceLine": 5,
+          "TargetLine": 29
         },
         {
           "SourceLine": 6,
@@ -65,28 +69,12 @@
           "TargetLine": 31
         },
         {
-          "SourceLine": 8,
-          "TargetLine": 32
-        },
-        {
-          "SourceLine": 5,
-          "TargetLine": 29
-        },
-        {
-          "SourceLine": 5,
-          "TargetLine": 33
-        },
-        {
           "SourceLine": 4,
           "TargetLine": 28
         },
         {
           "SourceLine": 4,
-          "TargetLine": 34
-        },
-        {
-          "SourceLine": 11,
-          "TargetLine": 35
+          "TargetLine": 32
         },
         {
           "SourceLine": 3,
@@ -94,79 +82,83 @@
         },
         {
           "SourceLine": 3,
-          "TargetLine": 36
+          "TargetLine": 33
+        },
+        {
+          "SourceLine": 10,
+          "TargetLine": 34
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 26
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 35
+        },
+        {
+          "SourceLine": 15,
+          "TargetLine": 42
         },
         {
           "SourceLine": 16,
           "TargetLine": 43
         },
         {
-          "SourceLine": 17,
-          "TargetLine": 44
+          "SourceLine": 13,
+          "TargetLine": 38
         },
         {
-          "SourceLine": 14,
+          "SourceLine": 13,
           "TargetLine": 39
         },
         {
-          "SourceLine": 14,
+          "SourceLine": 13,
           "TargetLine": 40
         },
         {
-          "SourceLine": 14,
+          "SourceLine": 13,
           "TargetLine": 41
         },
         {
-          "SourceLine": 14,
-          "TargetLine": 42
-        },
-        {
-          "SourceLine": 14,
-          "TargetLine": 45
-        },
-        {
-          "SourceLine": 32,
-          "TargetLine": 51
+          "SourceLine": 13,
+          "TargetLine": 44
         },
         {
           "SourceLine": 31,
           "TargetLine": 50
         },
         {
-          "SourceLine": 31,
-          "TargetLine": 52
-        },
-        {
-          "SourceLine": 29,
-          "TargetLine": 46
-        },
-        {
-          "SourceLine": 29,
-          "TargetLine": 47
-        },
-        {
-          "SourceLine": 29,
-          "TargetLine": 48
-        },
-        {
-          "SourceLine": 29,
+          "SourceLine": 30,
           "TargetLine": 49
         },
         {
-          "SourceLine": 29,
-          "TargetLine": 53
+          "SourceLine": 30,
+          "TargetLine": 51
         },
         {
-          "SourceLine": 41,
-          "TargetLine": 64
+          "SourceLine": 28,
+          "TargetLine": 45
         },
         {
-          "SourceLine": 39,
+          "SourceLine": 28,
+          "TargetLine": 46
+        },
+        {
+          "SourceLine": 28,
+          "TargetLine": 47
+        },
+        {
+          "SourceLine": 28,
+          "TargetLine": 48
+        },
+        {
+          "SourceLine": 28,
+          "TargetLine": 52
+        },
+        {
+          "SourceLine": 40,
           "TargetLine": 63
-        },
-        {
-          "SourceLine": 39,
-          "TargetLine": 65
         },
         {
           "SourceLine": 38,
@@ -174,55 +166,55 @@
         },
         {
           "SourceLine": 38,
-          "TargetLine": 66
+          "TargetLine": 64
         },
         {
-          "SourceLine": 36,
-          "TargetLine": 54
-        },
-        {
-          "SourceLine": 36,
-          "TargetLine": 55
-        },
-        {
-          "SourceLine": 36,
-          "TargetLine": 56
-        },
-        {
-          "SourceLine": 36,
-          "TargetLine": 57
-        },
-        {
-          "SourceLine": 36,
-          "TargetLine": 58
-        },
-        {
-          "SourceLine": 36,
-          "TargetLine": 59
-        },
-        {
-          "SourceLine": 36,
-          "TargetLine": 60
-        },
-        {
-          "SourceLine": 36,
+          "SourceLine": 37,
           "TargetLine": 61
         },
         {
-          "SourceLine": 36,
-          "TargetLine": 67
+          "SourceLine": 37,
+          "TargetLine": 65
         },
         {
-          "SourceLine": 51,
-          "TargetLine": 78
+          "SourceLine": 35,
+          "TargetLine": 53
         },
         {
-          "SourceLine": 49,
+          "SourceLine": 35,
+          "TargetLine": 54
+        },
+        {
+          "SourceLine": 35,
+          "TargetLine": 55
+        },
+        {
+          "SourceLine": 35,
+          "TargetLine": 56
+        },
+        {
+          "SourceLine": 35,
+          "TargetLine": 57
+        },
+        {
+          "SourceLine": 35,
+          "TargetLine": 58
+        },
+        {
+          "SourceLine": 35,
+          "TargetLine": 59
+        },
+        {
+          "SourceLine": 35,
+          "TargetLine": 60
+        },
+        {
+          "SourceLine": 35,
+          "TargetLine": 66
+        },
+        {
+          "SourceLine": 50,
           "TargetLine": 77
-        },
-        {
-          "SourceLine": 49,
-          "TargetLine": 79
         },
         {
           "SourceLine": 48,
@@ -230,43 +222,51 @@
         },
         {
           "SourceLine": 48,
-          "TargetLine": 80
+          "TargetLine": 78
         },
         {
-          "SourceLine": 46,
-          "TargetLine": 68
-        },
-        {
-          "SourceLine": 46,
-          "TargetLine": 69
-        },
-        {
-          "SourceLine": 46,
-          "TargetLine": 70
-        },
-        {
-          "SourceLine": 46,
-          "TargetLine": 71
-        },
-        {
-          "SourceLine": 46,
-          "TargetLine": 72
-        },
-        {
-          "SourceLine": 46,
-          "TargetLine": 73
-        },
-        {
-          "SourceLine": 46,
-          "TargetLine": 74
-        },
-        {
-          "SourceLine": 46,
+          "SourceLine": 47,
           "TargetLine": 75
         },
         {
-          "SourceLine": 46,
-          "TargetLine": 81
+          "SourceLine": 47,
+          "TargetLine": 79
+        },
+        {
+          "SourceLine": 45,
+          "TargetLine": 67
+        },
+        {
+          "SourceLine": 45,
+          "TargetLine": 68
+        },
+        {
+          "SourceLine": 45,
+          "TargetLine": 69
+        },
+        {
+          "SourceLine": 45,
+          "TargetLine": 70
+        },
+        {
+          "SourceLine": 45,
+          "TargetLine": 71
+        },
+        {
+          "SourceLine": 45,
+          "TargetLine": 72
+        },
+        {
+          "SourceLine": 45,
+          "TargetLine": 73
+        },
+        {
+          "SourceLine": 45,
+          "TargetLine": 74
+        },
+        {
+          "SourceLine": 45,
+          "TargetLine": 80
         }
       ]
     }

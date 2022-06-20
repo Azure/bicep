@@ -1,96 +1,96 @@
 param deployTimeParam string = 'steve'
-//@[12:15]     "deployTimeParam": {
+//@[11:14]     "deployTimeParam": {
 var deployTimeVar = 'nigel'
-//@[18:18]     "deployTimeVar": "nigel",
+//@[17:17]     "deployTimeVar": "nigel",
 var dependentVar = {
-//@[19:24]     "dependentVar": {
+//@[18:23]     "dependentVar": {
   dependencies: [
-//@[20:23]       "dependencies": [
+//@[19:22]       "dependencies": [
     deployTimeVar
-//@[21:21]         "[variables('deployTimeVar')]",
+//@[20:20]         "[variables('deployTimeVar')]",
     deployTimeParam
-//@[22:22]         "[parameters('deployTimeParam')]"
+//@[21:21]         "[parameters('deployTimeParam')]"
   ]
 }
 
 var resourceDependency = {
   dependenciesA: [
-//@[46:52]           "dependenciesA": [
+//@[45:51]           "dependenciesA": [
     resA.id
-//@[47:47]             "[resourceId('My.Rp/myResourceType', 'resA')]",
+//@[46:46]             "[resourceId('My.Rp/myResourceType', 'resA')]",
     resA.name
-//@[48:48]             "resA",
+//@[47:47]             "resA",
     resA.type
-//@[49:49]             "My.Rp/myResourceType",
+//@[48:48]             "My.Rp/myResourceType",
     resA.properties.deployTime
-//@[50:50]             "[reference(resourceId('My.Rp/myResourceType', 'resA')).deployTime]",
+//@[49:49]             "[reference(resourceId('My.Rp/myResourceType', 'resA')).deployTime]",
     resA.properties.eTag
-//@[51:51]             "[reference(resourceId('My.Rp/myResourceType', 'resA')).eTag]"
+//@[50:50]             "[reference(resourceId('My.Rp/myResourceType', 'resA')).eTag]"
   ]
 }
 
 output resourceAType string = resA.type
-//@[93:96]     "resourceAType": {
+//@[92:95]     "resourceAType": {
 resource resA 'My.Rp/myResourceType@2020-01-01' = {
-//@[31:39]       "type": "My.Rp/myResourceType",
+//@[30:38]       "type": "My.Rp/myResourceType",
   name: 'resA'
   properties: {
-//@[35:38]       "properties": {
+//@[34:37]       "properties": {
     deployTime: dependentVar
-//@[36:36]         "deployTime": "[variables('dependentVar')]",
+//@[35:35]         "deployTime": "[variables('dependentVar')]",
     eTag: '1234'
-//@[37:37]         "eTag": "1234"
+//@[36:36]         "eTag": "1234"
   }
 }
 
 output resourceBId string = resB.id
-//@[97:100]     "resourceBId": {
+//@[96:99]     "resourceBId": {
 resource resB 'My.Rp/myResourceType@2020-01-01' = {
-//@[40:58]       "type": "My.Rp/myResourceType",
+//@[39:57]       "type": "My.Rp/myResourceType",
   name: 'resB'
   properties: {
-//@[44:54]       "properties": {
+//@[43:53]       "properties": {
     dependencies: resourceDependency
-//@[45:53]         "dependencies": {
+//@[44:52]         "dependencies": {
   }
 }
 
 var resourceIds = {
-//@[25:28]     "resourceIds": {
+//@[24:27]     "resourceIds": {
   a: resA.id
-//@[26:26]       "a": "[resourceId('My.Rp/myResourceType', 'resA')]",
+//@[25:25]       "a": "[resourceId('My.Rp/myResourceType', 'resA')]",
   b: resB.id
-//@[27:27]       "b": "[resourceId('My.Rp/myResourceType', 'resB')]"
+//@[26:26]       "b": "[resourceId('My.Rp/myResourceType', 'resB')]"
 }
 
 resource resC 'My.Rp/myResourceType@2020-01-01' = {
-//@[59:70]       "type": "My.Rp/myResourceType",
+//@[58:69]       "type": "My.Rp/myResourceType",
   name: 'resC'
   properties: {
-//@[63:65]       "properties": {
+//@[62:64]       "properties": {
     resourceIds: resourceIds
-//@[64:64]         "resourceIds": "[variables('resourceIds')]"
+//@[63:63]         "resourceIds": "[variables('resourceIds')]"
   }
 }
 
 resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
-//@[71:79]       "type": "My.Rp/myResourceType/childType",
+//@[70:78]       "type": "My.Rp/myResourceType/childType",
   name: '${resC.name}/resD'
   properties: {
-//@[75:75]       "properties": {},
+//@[74:74]       "properties": {},
   }
 }
 
 resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
-//@[80:90]       "type": "My.Rp/myResourceType/childType",
+//@[79:89]       "type": "My.Rp/myResourceType/childType",
   name: 'resC/resD'
   properties: {
-//@[84:86]       "properties": {
+//@[83:85]       "properties": {
     resDRef: resD.id
-//@[85:85]         "resDRef": "[resourceId('My.Rp/myResourceType/childType', split(format('{0}/resD', 'resC'), '/')[0], split(format('{0}/resD', 'resC'), '/')[1])]"
+//@[84:84]         "resDRef": "[resourceId('My.Rp/myResourceType/childType', split(format('{0}/resD', 'resC'), '/')[0], split(format('{0}/resD', 'resC'), '/')[1])]"
   }
 }
 
 output resourceCProperties object = resC.properties
-//@[101:104]     "resourceCProperties": {
+//@[100:103]     "resourceCProperties": {
 

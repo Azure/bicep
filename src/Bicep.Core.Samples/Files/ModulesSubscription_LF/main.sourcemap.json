@@ -1,554 +1,627 @@
 {
-  "12": {
-    "Item1": "main.bicep",
-    "Item2": 3
-  },
-  "13": {
-    "Item1": "main.bicep",
-    "Item2": 3
-  },
-  "14": {
-    "Item1": "main.bicep",
-    "Item2": 3
-  },
-  "15": {
-    "Item1": "main.bicep",
-    "Item2": 3
-  },
-  "18": {
-    "Item1": "main.bicep",
-    "Item2": 4
-  },
-  "19": {
-    "Item1": "main.bicep",
-    "Item2": 5
-  },
-  "20": {
-    "Item1": "main.bicep",
-    "Item2": 6
-  },
-  "21": {
-    "Item1": "main.bicep",
-    "Item2": 7
-  },
-  "22": {
-    "Item1": "main.bicep",
-    "Item2": 8
-  },
-  "23": {
-    "Item1": "main.bicep",
-    "Item2": 4
-  },
-  "24": {
-    "Item1": "main.bicep",
-    "Item2": 11
-  },
-  "27": {
-    "Item1": "main.bicep",
-    "Item2": 13
-  },
-  "28": {
-    "Item1": "main.bicep",
-    "Item2": 13
-  },
-  "29": {
-    "Item1": "main.bicep",
-    "Item2": 13
-  },
-  "30": {
-    "Item1": "main.bicep",
-    "Item2": 13
-  },
-  "31": {
-    "Item1": "main.bicep",
-    "Item2": 13
-  },
-  "32": {
-    "Item1": "main.bicep",
-    "Item2": 13
-  },
-  "33": {
-    "Item1": "main.bicep",
-    "Item2": 13
-  },
-  "34": {
-    "Item1": "main.bicep",
-    "Item2": 13
-  },
-  "35": {
-    "Item1": "main.bicep",
-    "Item2": 15
-  },
-  "36": {
-    "Item1": "main.bicep",
-    "Item2": 13
-  },
-  "37": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "38": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "39": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "40": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "41": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "42": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "43": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "44": {
-    "Item1": "main.bicep",
-    "Item2": 19
-  },
-  "45": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "46": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "47": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "48": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "49": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "50": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "51": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "52": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "53": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "54": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "55": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "56": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "57": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "58": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "59": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "60": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "61": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "62": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "63": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "64": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "65": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "66": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "67": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "68": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "69": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "70": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "71": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "72": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "73": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "74": {
-    "Item1": "hello.bicep",
-    "Item2": 8
-  },
-  "75": {
-    "Item1": "hello.bicep",
-    "Item2": 8
-  },
-  "76": {
-    "Item1": "hello.bicep",
-    "Item2": 11
-  },
-  "77": {
-    "Item1": "hello.bicep",
-    "Item2": 13
-  },
-  "78": {
-    "Item1": "hello.bicep",
-    "Item2": 13
-  },
-  "79": {
-    "Item1": "hello.bicep",
-    "Item2": 13
-  },
-  "80": {
-    "Item1": "hello.bicep",
-    "Item2": 14
-  },
-  "81": {
-    "Item1": "hello.bicep",
-    "Item2": 14
-  },
-  "82": {
-    "Item1": "hello.bicep",
-    "Item2": 18
-  },
-  "83": {
-    "Item1": "hello.bicep",
-    "Item2": 18
-  },
-  "84": {
-    "Item1": "hello.bicep",
-    "Item2": 18
-  },
-  "85": {
-    "Item1": "hello.bicep",
-    "Item2": 18
-  },
-  "86": {
-    "Item1": "hello.bicep",
-    "Item2": 18
-  },
-  "87": {
-    "Item1": "hello.bicep",
-    "Item2": 18
-  },
-  "88": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "89": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "90": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "91": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "92": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "93": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "94": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "95": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "96": {
-    "Item1": "main.bicep",
-    "Item2": 18
-  },
-  "97": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "98": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "99": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "100": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "101": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "102": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "103": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "104": {
-    "Item1": "main.bicep",
-    "Item2": 27
-  },
-  "105": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "106": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "107": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "108": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "109": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "110": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "111": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "112": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "113": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "114": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "115": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "116": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "117": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "118": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "119": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "120": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "121": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "122": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "123": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "124": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "125": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "126": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "127": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "128": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "129": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "130": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "131": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "132": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "133": {
-    "Item1": "hello.bicep",
-    "Item2": 1
-  },
-  "134": {
-    "Item1": "hello.bicep",
-    "Item2": 8
-  },
-  "135": {
-    "Item1": "hello.bicep",
-    "Item2": 8
-  },
-  "136": {
-    "Item1": "hello.bicep",
-    "Item2": 11
-  },
-  "137": {
-    "Item1": "hello.bicep",
-    "Item2": 13
-  },
-  "138": {
-    "Item1": "hello.bicep",
-    "Item2": 13
-  },
-  "139": {
-    "Item1": "hello.bicep",
-    "Item2": 13
-  },
-  "140": {
-    "Item1": "hello.bicep",
-    "Item2": 14
-  },
-  "141": {
-    "Item1": "hello.bicep",
-    "Item2": 14
-  },
-  "142": {
-    "Item1": "hello.bicep",
-    "Item2": 18
-  },
-  "143": {
-    "Item1": "hello.bicep",
-    "Item2": 18
-  },
-  "144": {
-    "Item1": "hello.bicep",
-    "Item2": 18
-  },
-  "145": {
-    "Item1": "hello.bicep",
-    "Item2": 18
-  },
-  "146": {
-    "Item1": "hello.bicep",
-    "Item2": 18
-  },
-  "147": {
-    "Item1": "hello.bicep",
-    "Item2": 18
-  },
-  "148": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "149": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "150": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "151": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "152": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  },
-  "153": {
-    "Item1": "main.bicep",
-    "Item2": 26
-  }
+  "Entrypoint": "main.bicep",
+  "Entries": [
+    {
+      "FilePath": "main.bicep",
+      "SourceMap": [
+        {
+          "SourceLine": 2,
+          "TargetLine": 11
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 12
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 13
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 14
+        },
+        {
+          "SourceLine": 4,
+          "TargetLine": 18
+        },
+        {
+          "SourceLine": 5,
+          "TargetLine": 19
+        },
+        {
+          "SourceLine": 6,
+          "TargetLine": 20
+        },
+        {
+          "SourceLine": 7,
+          "TargetLine": 21
+        },
+        {
+          "SourceLine": 3,
+          "TargetLine": 17
+        },
+        {
+          "SourceLine": 3,
+          "TargetLine": 22
+        },
+        {
+          "SourceLine": 10,
+          "TargetLine": 23
+        },
+        {
+          "SourceLine": 14,
+          "TargetLine": 34
+        },
+        {
+          "SourceLine": 12,
+          "TargetLine": 26
+        },
+        {
+          "SourceLine": 12,
+          "TargetLine": 27
+        },
+        {
+          "SourceLine": 12,
+          "TargetLine": 28
+        },
+        {
+          "SourceLine": 12,
+          "TargetLine": 29
+        },
+        {
+          "SourceLine": 12,
+          "TargetLine": 30
+        },
+        {
+          "SourceLine": 12,
+          "TargetLine": 31
+        },
+        {
+          "SourceLine": 12,
+          "TargetLine": 32
+        },
+        {
+          "SourceLine": 12,
+          "TargetLine": 33
+        },
+        {
+          "SourceLine": 12,
+          "TargetLine": 35
+        },
+        {
+          "SourceLine": 18,
+          "TargetLine": 43
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 36
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 37
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 38
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 39
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 40
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 41
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 42
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 44
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 45
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 46
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 47
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 48
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 49
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 50
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 51
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 52
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 53
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 54
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 55
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 56
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 57
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 58
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 59
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 60
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 61
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 62
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 63
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 64
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 65
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 66
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 67
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 68
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 69
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 70
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 71
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 72
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 73
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 74
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 75
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 76
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 77
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 78
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 79
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 80
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 81
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 82
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 83
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 84
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 85
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 86
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 87
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 88
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 89
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 90
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 91
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 92
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 93
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 94
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 95
+        },
+        {
+          "SourceLine": 26,
+          "TargetLine": 103
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 96
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 97
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 98
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 99
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 100
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 101
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 102
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 104
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 105
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 106
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 107
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 108
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 109
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 110
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 111
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 112
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 113
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 114
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 115
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 116
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 117
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 118
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 119
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 120
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 121
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 122
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 123
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 124
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 125
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 126
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 127
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 128
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 129
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 130
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 131
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 132
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 133
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 134
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 135
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 136
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 137
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 138
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 139
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 140
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 141
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 142
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 143
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 144
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 145
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 146
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 147
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 148
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 149
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 150
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 151
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 152
+        }
+      ]
+    },
+    {
+      "FilePath": "hello.bicep",
+      "SourceMap": [
+        {
+          "SourceLine": 0,
+          "TargetLine": 99
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 98
+        },
+        {
+          "SourceLine": 12,
+          "TargetLine": 104
+        },
+        {
+          "SourceLine": 12,
+          "TargetLine": 105
+        },
+        {
+          "SourceLine": 12,
+          "TargetLine": 106
+        },
+        {
+          "SourceLine": 13,
+          "TargetLine": 107
+        },
+        {
+          "SourceLine": 13,
+          "TargetLine": 108
+        },
+        {
+          "SourceLine": 13,
+          "TargetLine": 109
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 100
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 101
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 102
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 111
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 112
+        },
+        {
+          "SourceLine": 17,
+          "TargetLine": 110
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 155
+        }
+      ]
+    }
+  ]
 }

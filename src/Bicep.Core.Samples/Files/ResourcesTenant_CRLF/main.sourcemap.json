@@ -5,36 +5,12 @@
       "FilePath": "main.bicep",
       "SourceMap": [
         {
-          "SourceLine": 5,
-          "TargetLine": 14
-        },
-        {
-          "SourceLine": 6,
-          "TargetLine": 15
-        },
-        {
           "SourceLine": 4,
           "TargetLine": 13
         },
         {
-          "SourceLine": 4,
-          "TargetLine": 16
-        },
-        {
-          "SourceLine": 9,
-          "TargetLine": 18
-        },
-        {
-          "SourceLine": 10,
-          "TargetLine": 19
-        },
-        {
-          "SourceLine": 8,
-          "TargetLine": 17
-        },
-        {
-          "SourceLine": 8,
-          "TargetLine": 20
+          "SourceLine": 5,
+          "TargetLine": 14
         },
         {
           "SourceLine": 3,
@@ -42,267 +18,291 @@
         },
         {
           "SourceLine": 3,
-          "TargetLine": 21
+          "TargetLine": 15
         },
         {
-          "SourceLine": 17,
-          "TargetLine": 29
+          "SourceLine": 8,
+          "TargetLine": 17
+        },
+        {
+          "SourceLine": 9,
+          "TargetLine": 18
+        },
+        {
+          "SourceLine": 7,
+          "TargetLine": 16
+        },
+        {
+          "SourceLine": 7,
+          "TargetLine": 19
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 11
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 20
         },
         {
           "SourceLine": 16,
           "TargetLine": 28
         },
         {
-          "SourceLine": 16,
-          "TargetLine": 30
-        },
-        {
-          "SourceLine": 14,
-          "TargetLine": 24
-        },
-        {
-          "SourceLine": 14,
-          "TargetLine": 25
-        },
-        {
-          "SourceLine": 14,
-          "TargetLine": 26
-        },
-        {
-          "SourceLine": 14,
+          "SourceLine": 15,
           "TargetLine": 27
         },
         {
-          "SourceLine": 14,
-          "TargetLine": 31
+          "SourceLine": 15,
+          "TargetLine": 29
         },
         {
-          "SourceLine": 24,
-          "TargetLine": 41
+          "SourceLine": 13,
+          "TargetLine": 23
+        },
+        {
+          "SourceLine": 13,
+          "TargetLine": 24
+        },
+        {
+          "SourceLine": 13,
+          "TargetLine": 25
+        },
+        {
+          "SourceLine": 13,
+          "TargetLine": 26
+        },
+        {
+          "SourceLine": 13,
+          "TargetLine": 30
         },
         {
           "SourceLine": 23,
           "TargetLine": 40
         },
         {
-          "SourceLine": 23,
-          "TargetLine": 42
-        },
-        {
-          "SourceLine": 21,
-          "TargetLine": 32
-        },
-        {
-          "SourceLine": 21,
-          "TargetLine": 33
-        },
-        {
-          "SourceLine": 21,
-          "TargetLine": 34
-        },
-        {
-          "SourceLine": 21,
-          "TargetLine": 35
-        },
-        {
-          "SourceLine": 21,
-          "TargetLine": 36
-        },
-        {
-          "SourceLine": 21,
-          "TargetLine": 37
-        },
-        {
-          "SourceLine": 21,
-          "TargetLine": 38
-        },
-        {
-          "SourceLine": 21,
+          "SourceLine": 22,
           "TargetLine": 39
         },
         {
-          "SourceLine": 21,
+          "SourceLine": 22,
+          "TargetLine": 41
+        },
+        {
+          "SourceLine": 20,
+          "TargetLine": 31
+        },
+        {
+          "SourceLine": 20,
+          "TargetLine": 32
+        },
+        {
+          "SourceLine": 20,
+          "TargetLine": 33
+        },
+        {
+          "SourceLine": 20,
+          "TargetLine": 34
+        },
+        {
+          "SourceLine": 20,
+          "TargetLine": 35
+        },
+        {
+          "SourceLine": 20,
+          "TargetLine": 36
+        },
+        {
+          "SourceLine": 20,
+          "TargetLine": 37
+        },
+        {
+          "SourceLine": 20,
+          "TargetLine": 38
+        },
+        {
+          "SourceLine": 20,
+          "TargetLine": 42
+        },
+        {
+          "SourceLine": 20,
           "TargetLine": 43
         },
         {
-          "SourceLine": 21,
+          "SourceLine": 20,
           "TargetLine": 44
         },
         {
-          "SourceLine": 21,
+          "SourceLine": 20,
           "TargetLine": 45
-        },
-        {
-          "SourceLine": 21,
-          "TargetLine": 46
-        },
-        {
-          "SourceLine": 31,
-          "TargetLine": 56
         },
         {
           "SourceLine": 30,
           "TargetLine": 55
         },
         {
-          "SourceLine": 30,
-          "TargetLine": 57
-        },
-        {
-          "SourceLine": 28,
-          "TargetLine": 47
-        },
-        {
-          "SourceLine": 28,
-          "TargetLine": 48
-        },
-        {
-          "SourceLine": 28,
-          "TargetLine": 49
-        },
-        {
-          "SourceLine": 28,
-          "TargetLine": 50
-        },
-        {
-          "SourceLine": 28,
-          "TargetLine": 51
-        },
-        {
-          "SourceLine": 28,
-          "TargetLine": 52
-        },
-        {
-          "SourceLine": 28,
-          "TargetLine": 53
-        },
-        {
-          "SourceLine": 28,
+          "SourceLine": 29,
           "TargetLine": 54
         },
         {
-          "SourceLine": 28,
+          "SourceLine": 29,
+          "TargetLine": 56
+        },
+        {
+          "SourceLine": 27,
+          "TargetLine": 46
+        },
+        {
+          "SourceLine": 27,
+          "TargetLine": 47
+        },
+        {
+          "SourceLine": 27,
+          "TargetLine": 48
+        },
+        {
+          "SourceLine": 27,
+          "TargetLine": 49
+        },
+        {
+          "SourceLine": 27,
+          "TargetLine": 50
+        },
+        {
+          "SourceLine": 27,
+          "TargetLine": 51
+        },
+        {
+          "SourceLine": 27,
+          "TargetLine": 52
+        },
+        {
+          "SourceLine": 27,
+          "TargetLine": 53
+        },
+        {
+          "SourceLine": 27,
+          "TargetLine": 57
+        },
+        {
+          "SourceLine": 27,
           "TargetLine": 58
         },
         {
-          "SourceLine": 28,
+          "SourceLine": 27,
           "TargetLine": 59
         },
         {
-          "SourceLine": 28,
+          "SourceLine": 27,
           "TargetLine": 60
         },
         {
-          "SourceLine": 28,
+          "SourceLine": 27,
           "TargetLine": 61
-        },
-        {
-          "SourceLine": 28,
-          "TargetLine": 62
-        },
-        {
-          "SourceLine": 41,
-          "TargetLine": 72
         },
         {
           "SourceLine": 40,
           "TargetLine": 71
         },
         {
-          "SourceLine": 40,
-          "TargetLine": 73
-        },
-        {
-          "SourceLine": 38,
-          "TargetLine": 63
-        },
-        {
-          "SourceLine": 38,
-          "TargetLine": 64
-        },
-        {
-          "SourceLine": 38,
-          "TargetLine": 65
-        },
-        {
-          "SourceLine": 38,
-          "TargetLine": 66
-        },
-        {
-          "SourceLine": 38,
-          "TargetLine": 67
-        },
-        {
-          "SourceLine": 38,
-          "TargetLine": 68
-        },
-        {
-          "SourceLine": 38,
-          "TargetLine": 69
-        },
-        {
-          "SourceLine": 38,
+          "SourceLine": 39,
           "TargetLine": 70
         },
         {
-          "SourceLine": 38,
+          "SourceLine": 39,
+          "TargetLine": 72
+        },
+        {
+          "SourceLine": 37,
+          "TargetLine": 62
+        },
+        {
+          "SourceLine": 37,
+          "TargetLine": 63
+        },
+        {
+          "SourceLine": 37,
+          "TargetLine": 64
+        },
+        {
+          "SourceLine": 37,
+          "TargetLine": 65
+        },
+        {
+          "SourceLine": 37,
+          "TargetLine": 66
+        },
+        {
+          "SourceLine": 37,
+          "TargetLine": 67
+        },
+        {
+          "SourceLine": 37,
+          "TargetLine": 68
+        },
+        {
+          "SourceLine": 37,
+          "TargetLine": 69
+        },
+        {
+          "SourceLine": 37,
+          "TargetLine": 73
+        },
+        {
+          "SourceLine": 37,
           "TargetLine": 74
         },
         {
-          "SourceLine": 38,
+          "SourceLine": 37,
           "TargetLine": 75
         },
         {
-          "SourceLine": 38,
+          "SourceLine": 37,
           "TargetLine": 76
         },
         {
-          "SourceLine": 38,
+          "SourceLine": 37,
           "TargetLine": 77
-        },
-        {
-          "SourceLine": 38,
-          "TargetLine": 78
-        },
-        {
-          "SourceLine": 49,
-          "TargetLine": 86
-        },
-        {
-          "SourceLine": 50,
-          "TargetLine": 87
-        },
-        {
-          "SourceLine": 48,
-          "TargetLine": 81
-        },
-        {
-          "SourceLine": 48,
-          "TargetLine": 82
-        },
-        {
-          "SourceLine": 48,
-          "TargetLine": 83
-        },
-        {
-          "SourceLine": 48,
-          "TargetLine": 84
         },
         {
           "SourceLine": 48,
           "TargetLine": 85
         },
         {
-          "SourceLine": 48,
+          "SourceLine": 49,
+          "TargetLine": 86
+        },
+        {
+          "SourceLine": 47,
+          "TargetLine": 80
+        },
+        {
+          "SourceLine": 47,
+          "TargetLine": 81
+        },
+        {
+          "SourceLine": 47,
+          "TargetLine": 82
+        },
+        {
+          "SourceLine": 47,
+          "TargetLine": 83
+        },
+        {
+          "SourceLine": 47,
+          "TargetLine": 84
+        },
+        {
+          "SourceLine": 47,
+          "TargetLine": 87
+        },
+        {
+          "SourceLine": 47,
           "TargetLine": 88
         },
         {
-          "SourceLine": 48,
+          "SourceLine": 47,
           "TargetLine": 89
-        },
-        {
-          "SourceLine": 48,
-          "TargetLine": 90
         }
       ]
     }

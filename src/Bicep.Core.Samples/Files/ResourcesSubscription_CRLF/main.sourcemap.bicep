@@ -1,34 +1,34 @@
 targetScope = 'subscription'
 
 param ownerPrincipalId string
-//@[12:14]     "ownerPrincipalId": {
+//@[11:13]     "ownerPrincipalId": {
 
 param contributorPrincipals array
-//@[15:17]     "contributorPrincipals": {
+//@[14:16]     "contributorPrincipals": {
 param readerPrincipals array
-//@[18:20]     "readerPrincipals": {
+//@[17:19]     "readerPrincipals": {
 
 resource owner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-//@[23:31]       "type": "Microsoft.Authorization/roleAssignments",
+//@[22:30]       "type": "Microsoft.Authorization/roleAssignments",
   name: guid('owner', ownerPrincipalId)
   properties: {
-//@[27:30]       "properties": {
+//@[26:29]       "properties": {
     principalId: ownerPrincipalId
-//@[28:28]         "principalId": "[parameters('ownerPrincipalId')]",
+//@[27:27]         "principalId": "[parameters('ownerPrincipalId')]",
     roleDefinitionId: '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
-//@[29:29]         "roleDefinitionId": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+//@[28:28]         "roleDefinitionId": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
   }
 }
 
 resource contributors 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for contributor in contributorPrincipals: {
-//@[32:47]       "copy": {
+//@[31:46]       "copy": {
   name: guid('contributor', contributor)
   properties: {
-//@[40:43]       "properties": {
+//@[39:42]       "properties": {
     principalId: contributor
-//@[41:41]         "principalId": "[parameters('contributorPrincipals')[copyIndex()]]",
+//@[40:40]         "principalId": "[parameters('contributorPrincipals')[copyIndex()]]",
     roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
-//@[42:42]         "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c"
+//@[41:41]         "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c"
   }
   dependsOn: [
     owner
@@ -36,14 +36,14 @@ resource contributors 'Microsoft.Authorization/roleAssignments@2020-04-01-previe
 }]
 
 resource readers 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for reader in readerPrincipals: {
-//@[48:64]       "copy": {
+//@[47:63]       "copy": {
   name: guid('reader', reader)
   properties: {
-//@[56:59]       "properties": {
+//@[55:58]       "properties": {
     principalId: reader
-//@[57:57]         "principalId": "[parameters('readerPrincipals')[copyIndex()]]",
+//@[56:56]         "principalId": "[parameters('readerPrincipals')[copyIndex()]]",
     roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
-//@[58:58]         "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c"
+//@[57:57]         "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c"
   }
   dependsOn: [
     owner
