@@ -26,7 +26,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [TestMethod]
-        public void testDeclaringParams()
+        public void TestDeclaringParams()
         {
             Trace.WriteLine("Test running!");
             
@@ -37,18 +37,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [TestMethod]
-        public void testShouldFailParams()
-        {
-            Trace.WriteLine("Test running!");
-            
-            var paramFaultyIntTest = ParamsParserHelper.ParamsParse("parm myint = 12 \n");
-            var paramIntTest = ParamsParserHelper.ParamsParse("param mystr = 'hello world' \n");
-            
-            Trace.WriteLine("Test ended");
-        }
-
-        [TestMethod]
-        public void testUsingParams()
+        public void TestUsingParams()
         {
             Trace.WriteLine("Test running!");
             

@@ -23,11 +23,10 @@ namespace Bicep.Core.Syntax
         public Token Keyword { get; }
 
         public IdentifierSyntax Name { get; }
+        
         public SyntaxBase Assignment { get; }
+        
         public SyntaxBase Value { get; }
-
-        // This is a modifier of the parameter and not a modifier of the type
-        public SyntaxBase? Modifier { get; }
 
         public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitParameterAssignmentSyntax(this);

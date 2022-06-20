@@ -140,25 +140,12 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WritePropertyName("parameters");
             jsonWriter.WriteStartObject();
-            
-            //how to filter out the set declaration syntax??
-            // List<ParameterSetDeclarationSyntax> parameterDeclarations = this.context.SemanticModel.Root.Syntax.Children.OfType<ParameterSetDeclarationSyntax>();
 
-            foreach(var syntax in this.context.SemanticModel.Root.Syntax.Children){
-                if(syntax is ParameterSetDeclarationSyntax parameterSymbol){ //parameterSymbol.OfType<ParameterSetDeclarationSyntax>()
-                    jsonWriter.WritePropertyName(parameterSymbol.Name.IdentifierName);
-                    jsonWriter.WriteStartObject();
-                    jsonWriter.WritePropertyName("value");
-                    jsonWriter.WriteValue(parameterSymbol.Value);
-                    jsonWriter.WriteEndObject();
-                }
+            foreach (var parameterSymbol in this.context.SemanticModel.Root.ParameterDeclarations)
+            {
+                jsonWriter.WritePropertyName(parameterSymbol.Name);
+                this.EmitParameter(jsonWriter, parameterSymbol, emitter);
             }
-
-            // foreach (var parameterSymbol in this.context.SemanticModel.Root.ParameterDeclarations)
-            // {
-            //     jsonWriter.WritePropertyName(parameterSymbol.Name);
-            //     this.EmitParameter(jsonWriter, parameterSymbol, emitter);
-            // }
 
             jsonWriter.WriteEndObject();
         }

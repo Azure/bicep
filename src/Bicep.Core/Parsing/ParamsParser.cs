@@ -8,7 +8,6 @@ using System.Globalization;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
@@ -33,30 +32,30 @@ namespace Bicep.Core.Parsing
 
         public ProgramSyntax Program()
         {
-            var declarationsOrTokens = new List<SyntaxBase>();
+            var statementsOrTokens = new List<SyntaxBase>();
 
             while (!this.IsAtEnd())
             {
                 // this produces either a declaration node, skipped tokens node or just a token
-                var declarationOrToken = Statement();
-                declarationsOrTokens.Add(declarationOrToken);
+                var statementOrToken = Statement();
+                statementsOrTokens.Add(statementOrToken);
 
                 // if skipped node is returned above, the newline is not consumed
                 // if newline token is returned, we must not expect another (could be a beginning of a declaration)
-                if (declarationOrToken is ITopLevelDeclarationSyntax)
+                if (statementOrToken is StatementSyntax)
                 {
                     // declarations must be followed by a newline or the file must end
                     var newLine = this.WithRecoveryNullable(this.NewLineOrEof, RecoveryFlags.ConsumeTerminator, TokenType.NewLine);
                     if (newLine != null)
                     {
-                        declarationsOrTokens.Add(newLine);
+                        statementsOrTokens.Add(newLine);
                     }
                 }
             }
 
             var endOfFile = reader.Read();
 
-            return new ProgramSyntax(declarationsOrTokens, endOfFile, this.lexerDiagnostics);
+            return new ProgramSyntax(statementsOrTokens, endOfFile, this.lexerDiagnostics);
         }
 
         public SyntaxBase Statement() =>
