@@ -150,6 +150,21 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax) => ReplaceCurrent(syntax, ReplaceParameterDefaultValueSyntax);
 
+        public void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void VisitParameterLiteralValueSyntax(ParameterLiteralValueSyntax syntax)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
+        {
+            throw new NotImplementedException();
+        }
+        
         protected virtual SyntaxBase ReplaceVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
@@ -180,6 +195,8 @@ namespace Bicep.Core.Syntax
 
             return new VariableDeclarationSyntax(keyword, name, assignment, value);
         }
+
+        
         void ISyntaxVisitor.VisitParameterSetDeclarationSyntax(ParameterSetDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceParameterSetDeclarationSyntax);
     
 
