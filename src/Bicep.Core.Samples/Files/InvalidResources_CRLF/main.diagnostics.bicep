@@ -1989,14 +1989,14 @@ resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
 resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
 //@[009:024) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |anyTypeInParent|
   parent: any(true)
-//@[010:019) [BCP239 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |any(true)|
+//@[010:019) [BCP240 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |any(true)|
 //@[010:019) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(true)|
 }
 
 resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
 //@[009:028) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |anyTypeInParentLoop|
   parent: any(true)
-//@[010:019) [BCP239 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |any(true)|
+//@[010:019) [BCP240 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |any(true)|
 //@[010:019) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(true)|
 }]
 
@@ -2015,7 +2015,7 @@ resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = 
 resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = {
 //@[009:031) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |anyTypeInExistingScope|
   parent: any('')
-//@[010:017) [BCP239 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |any('')|
+//@[010:017) [BCP240 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |any('')|
 //@[010:017) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any('')|
   scope: any(false)
 //@[009:019) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(false)|
@@ -2024,7 +2024,7 @@ resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' exi
 resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = [for thing in []: {
 //@[009:035) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |anyTypeInExistingScopeLoop|
   parent: any('')
-//@[010:017) [BCP239 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |any('')|
+//@[010:017) [BCP240 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |any('')|
 //@[010:017) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any('')|
   scope: any(false)
 //@[009:019) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(false)|

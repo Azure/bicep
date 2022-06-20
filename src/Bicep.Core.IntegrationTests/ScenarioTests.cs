@@ -1947,6 +1947,7 @@ resource cname 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
                 ("BCP036", DiagnosticLevel.Error, "The property \"scope\" expected a value of type \"resource | tenant\" but the provided value is of type \"null\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"null\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/dnsZones\" but the provided value is of type \"null\"."),
+                ("BCP240", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported."),
             });
         }
 
@@ -2417,7 +2418,9 @@ output test string = res.id
             result.Should().HaveDiagnostics(new[]
             {
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/virtualNetworks\" but the provided value is of type \"module\"."),
+                ("BCP240", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/virtualNetworks\" but the provided value is of type \"tenant\"."),
+                ("BCP240", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported."),
             });
         }
 
