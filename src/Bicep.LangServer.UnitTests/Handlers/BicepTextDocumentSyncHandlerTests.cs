@@ -209,7 +209,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
                                                                         telemetryProvider.Object,
                                                                         new Workspace());
 
-            var bicepTextDocumentSyncHandler = new BicepTextDocumentSyncHandler(compilationManager, bicepConfigChangeHandler);
+            var paramsCompilationManager = BicepCompilationManagerHelper.CreateParamsCompilationManager();
+
+            var bicepTextDocumentSyncHandler = new BicepTextDocumentSyncHandler(compilationManager,  paramsCompilationManager ,bicepConfigChangeHandler);
 
             await bicepTextDocumentSyncHandler.Handle(TextDocumentParamHelper.CreateDidOpenDocumentParams(bicepConfigUri, prevBicepConfigFileContents, 1), CancellationToken.None);
 

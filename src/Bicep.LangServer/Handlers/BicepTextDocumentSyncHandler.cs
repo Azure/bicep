@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,11 +21,13 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly ICompilationManager compilationManager;
         private readonly IBicepConfigChangeHandler bicepConfigChangeHandler;
+        private readonly IParamsCompilationManager paramsCompilationManager;
 
-        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler)
+        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, IParamsCompilationManager paramsCompilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler) //add param manager 
         {
             this.bicepConfigChangeHandler = bicepConfigChangeHandler;
             this.compilationManager = compilationManager;
+            this.paramsCompilationManager = paramsCompilationManager;
         }
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
@@ -32,14 +35,24 @@ namespace Bicep.LanguageServer.Handlers
             return new TextDocumentAttributes(uri, LanguageConstants.LanguageId);
         }
 
-        public override Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken token)
+        public override Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken token) //this?? if this config where the change at?
         {
             // we have full sync enabled, so apparently first change is the whole document
             var contents = request.ContentChanges.First().Text;
 
             var documentUri = request.TextDocument.Uri;
 
-            this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, contents);
+            var fileExtension = Path.GetExtension(request.TextDocument.Uri.Path);
+
+            if (fileExtension == ".bicep")
+            {
+                this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, contents);
+            }
+
+            if (fileExtension == ".bicepparam")
+            {
+                this.paramsCompilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, contents);
+            }
 
             // Handle scenario where the bicepconfig.json file was opened prior to
             // language service activation. If the config file was opened before the language server
@@ -53,7 +66,7 @@ namespace Bicep.LanguageServer.Handlers
             return Unit.Task;
         }
 
-        public override Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
+        public override Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken) //this
         {
             //either check the extension from (file://foo/bar/something.bicepparam) or language id from textdocumentItem
             var documentUri = request.TextDocument.Uri;
@@ -63,8 +76,19 @@ namespace Bicep.LanguageServer.Handlers
             {
                 bicepConfigChangeHandler.HandleBicepConfigOpenEvent(documentUri);
             }
+
             //new compliation manager 
-            this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
+            var fileExtension = Path.GetExtension(request.TextDocument.Uri.Path);
+
+            if (fileExtension == ".bicep")
+            {
+                this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
+            }
+
+            if (fileExtension == ".bicepparam")
+            {
+                this.paramsCompilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
+            }
 
             return Unit.Task;
         }
@@ -85,7 +109,7 @@ namespace Bicep.LanguageServer.Handlers
             return Unit.Task;
         }
 
-        public override Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken)
+        public override Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken) //this
         {
             var documentUri = request.TextDocument.Uri;
 
@@ -93,6 +117,18 @@ namespace Bicep.LanguageServer.Handlers
             if (ConfigurationHelper.IsBicepConfigFile(documentUri))
             {
                 bicepConfigChangeHandler.HandleBicepConfigCloseEvent(documentUri);
+            }
+
+            var fileExtension = Path.GetExtension(request.TextDocument.Uri.Path);
+
+            if (fileExtension == ".bicep")
+            {
+                this.compilationManager.CloseCompilation(request.TextDocument.Uri);
+            }
+
+            if (fileExtension == ".bicepparam")
+            {
+                this.paramsCompilationManager.CloseCompilation(request.TextDocument.Uri);
             }
 
             this.compilationManager.CloseCompilation(request.TextDocument.Uri);

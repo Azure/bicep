@@ -32,6 +32,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override Task Tokenize(SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier, CancellationToken cancellationToken)
         {
+            //add info to distinguish b/w bicep and params files 
             var compilationContext = this.compilationManager.GetCompilation(identifier.TextDocument.Uri);
 
             if (compilationContext != null)
