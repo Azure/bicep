@@ -1,24 +1,24 @@
 @allowed(['abc', 'def', 'ghi'])
-//@[15:17]         "abc",
+//@[14:16]         "abc",
 param foo string
-//@[12:19]     "foo": {
+//@[11:18]     "foo": {
 
 var singleLineFunction = concat('abc', 'def')
-//@[22:22]     "singleLineFunction": "[concat('abc', 'def')]",
+//@[21:21]     "singleLineFunction": "[concat('abc', 'def')]",
 
 var multiLineFunction = concat(
-//@[23:23]     "multiLineFunction": "[concat('abc', 'def')]",
+//@[22:22]     "multiLineFunction": "[concat('abc', 'def')]",
   'abc',
   'def'
 )
 
 var multiLineFunctionUnusualFormatting = concat(
-//@[24:24]     "multiLineFunctionUnusualFormatting": "[concat('abc', createArray('hello'), 'def')]",
+//@[23:23]     "multiLineFunctionUnusualFormatting": "[concat('abc', createArray('hello'), 'def')]",
               'abc',          any(['hello']),
 'def')
 
 var nestedTest = concat(
-//@[25:25]     "nestedTest": "[concat(concat(concat(concat(concat('level', 'one'), 'two'), 'three'), 'four'), 'five')]",
+//@[24:24]     "nestedTest": "[concat(concat(concat(concat(concat('level', 'one'), 'two'), 'three'), 'four'), 'five')]",
 concat(
 concat(
 concat(
@@ -31,65 +31,65 @@ concat(
 'five')
 
 var singleLineArray = ['abc', 'def']
-//@[26:29]     "singleLineArray": [
+//@[25:28]     "singleLineArray": [
 var singleLineArrayTrailingCommas = ['abc', 'def',]
-//@[30:33]     "singleLineArrayTrailingCommas": [
+//@[29:32]     "singleLineArrayTrailingCommas": [
 
 var multiLineArray = [
-//@[34:37]     "multiLineArray": [
+//@[33:36]     "multiLineArray": [
   'abc'
-//@[35:35]       "abc",
+//@[34:34]       "abc",
   'def'
-//@[36:36]       "def"
+//@[35:35]       "def"
 ]
 
 var mixedArray = ['abc', 'def'
-//@[38:44]     "mixedArray": [
+//@[37:43]     "mixedArray": [
 'ghi', 'jkl'
-//@[41:42]       "ghi",
+//@[40:41]       "ghi",
 'lmn']
-//@[43:43]       "lmn"
+//@[42:42]       "lmn"
 
 var singleLineObject = { abc: 'def', ghi: 'jkl'}
-//@[45:48]     "singleLineObject": {
+//@[44:47]     "singleLineObject": {
 var singleLineObjectTrailingCommas = { abc: 'def', ghi: 'jkl',}
-//@[49:52]     "singleLineObjectTrailingCommas": {
+//@[48:51]     "singleLineObjectTrailingCommas": {
 var multiLineObject = {
-//@[53:56]     "multiLineObject": {
+//@[52:55]     "multiLineObject": {
   abc: 'def'
-//@[54:54]       "abc": "def",
+//@[53:53]       "abc": "def",
   ghi: 'jkl'
-//@[55:55]       "ghi": "jkl"
+//@[54:54]       "ghi": "jkl"
 }
 var mixedObject = { abc: 'abc', def: 'def'
-//@[57:63]     "mixedObject": {
+//@[56:62]     "mixedObject": {
 ghi: 'ghi', jkl: 'jkl'
-//@[60:61]       "ghi": "ghi",
+//@[59:60]       "ghi": "ghi",
 lmn: 'lmn' }
-//@[62:62]       "lmn": "lmn"
+//@[61:61]       "lmn": "lmn"
 
 var nestedMixed = {
-//@[64:73]     "nestedMixed": {
+//@[63:72]     "nestedMixed": {
   abc: { 'def': 'ghi', abc: 'def', foo: [
-//@[65:72]       "abc": {
+//@[64:71]       "abc": {
     'bar', 'blah'
-//@[69:70]           "bar",
+//@[68:69]           "bar",
   ] }
 }
 
 var brokenFormatting = [      /*foo */ 'bar'   /*
-//@[74:83]     "brokenFormatting": [
+//@[73:82]     "brokenFormatting": [
 
 hello
 
 */,        'asdfdsf',             12324,       /*   asdf*/ '',     '''
-//@[76:79]       "asdfdsf",
+//@[75:78]       "asdfdsf",
 
 
 '''
 123,      233535
-//@[80:81]       123,
+//@[79:80]       123,
 true
-//@[82:82]       true
+//@[81:81]       true
               ]
 

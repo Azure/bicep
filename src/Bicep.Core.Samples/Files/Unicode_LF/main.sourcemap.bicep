@@ -1,7 +1,7 @@
 var emojis = '💪😊😈🍕☕'
-//@[12:12]     "emojis": "💪😊😈🍕☕",
+//@[11:11]     "emojis": "💪😊😈🍕☕",
 var ninjaCat = '🐱‍👤'
-//@[13:13]     "ninjaCat": "🐱‍👤",
+//@[12:12]     "ninjaCat": "🐱‍👤",
 
 /*
 朝辞白帝彩云间
@@ -12,36 +12,36 @@ var ninjaCat = '🐱‍👤'
 
 // greek letters in comment: Π π Φ φ plus emoji 😎
 var variousAlphabets = {
-//@[14:22]     "variousAlphabets": {
+//@[13:21]     "variousAlphabets": {
   'α': 'α'
-//@[15:15]       "α": "α",
+//@[14:14]       "α": "α",
   'Ωω': [
-//@[16:18]       "Ωω": [
+//@[15:17]       "Ωω": [
     'Θμ'
-//@[17:17]         "Θμ"
+//@[16:16]         "Θμ"
   ]
   'ążźćłóę': 'Cześć!'
-//@[19:19]       "ążźćłóę": "Cześć!",
+//@[18:18]       "ążźćłóę": "Cześć!",
   'áéóúñü': '¡Hola!'
-//@[20:20]       "áéóúñü": "¡Hola!",
+//@[19:19]       "áéóúñü": "¡Hola!",
 
   '二头肌': '二头肌'
-//@[21:21]       "二头肌": "二头肌"
+//@[20:20]       "二头肌": "二头肌"
 }
 
 output concatUnicodeStrings string = concat('Θμ', '二头肌', 'α')
-//@[30:33]     "concatUnicodeStrings": {
+//@[29:32]     "concatUnicodeStrings": {
 output interpolateUnicodeStrings string = 'Θμ二${emojis}头肌${ninjaCat}α'
-//@[34:37]     "interpolateUnicodeStrings": {
+//@[33:36]     "interpolateUnicodeStrings": {
 
 // all of these should produce the same string
 var surrogate_char      = '𐐷'
-//@[23:23]     "surrogate_char": "𐐷",
+//@[22:22]     "surrogate_char": "𐐷",
 var surrogate_codepoint = '\u{10437}'
-//@[24:24]     "surrogate_codepoint": "𐐷",
+//@[23:23]     "surrogate_codepoint": "𐐷",
 var surrogate_pairs     = '\u{D801}\u{DC37}'
-//@[25:25]     "surrogate_pairs": "𐐷",
+//@[24:24]     "surrogate_pairs": "𐐷",
 
 // ascii escapes
 var hello = '❆ Hello\u{20}World\u{21} ❁'
-//@[26:26]     "hello": "❆ Hello World! ❁"
+//@[25:25]     "hello": "❆ Hello World! ❁"

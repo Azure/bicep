@@ -1,81 +1,81 @@
 
 @sys.description('string output description')
 output myStr string = 'hello'
-//@[21:27]     "myStr": {
+//@[20:26]     "myStr": {
 
 @sys.description('int output description')
 output myInt int = 7
-//@[28:34]     "myInt": {
+//@[27:33]     "myInt": {
 output myOtherInt int = 20 / 13 + 80 % -4
-//@[35:38]     "myOtherInt": {
+//@[34:37]     "myOtherInt": {
 
 @sys.description('bool output description')
 output myBool bool = !false
-//@[39:45]     "myBool": {
+//@[38:44]     "myBool": {
 output myOtherBool bool = true
-//@[46:49]     "myOtherBool": {
+//@[45:48]     "myOtherBool": {
 
 @sys.description('object array description')
 output suchEmpty array = [
-//@[50:56]     "suchEmpty": {
+//@[49:55]     "suchEmpty": {
 ]
 
 output suchEmpty2 object = {
-//@[57:60]     "suchEmpty2": {
+//@[56:59]     "suchEmpty2": {
 }
 
 @sys.description('object output description')
 output obj object = {
-//@[61:84]     "obj": {
+//@[60:83]     "obj": {
   a: 'a'
-//@[64:64]         "a": "a",
+//@[63:63]         "a": "a",
   b: 12
-//@[65:65]         "b": 12,
+//@[64:64]         "b": 12,
   c: true
-//@[66:66]         "c": true,
+//@[65:65]         "c": true,
   d: null
-//@[67:67]         "d": null,
+//@[66:66]         "d": null,
   list: [
-//@[68:74]         "list": [
+//@[67:73]         "list": [
     1
-//@[69:69]           1,
+//@[68:68]           1,
     2
-//@[70:70]           2,
+//@[69:69]           2,
     3
-//@[71:71]           3,
+//@[70:70]           3,
     null
-//@[72:72]           null,
+//@[71:71]           null,
     {
     }
   ]
   obj: {
-//@[75:79]         "obj": {
+//@[74:78]         "obj": {
     nested: [
-//@[76:78]           "nested": [
+//@[75:77]           "nested": [
       'hello'
-//@[77:77]             "hello"
+//@[76:76]             "hello"
     ]
   }
 }
 
 output myArr array = [
-//@[85:92]     "myArr": {
+//@[84:91]     "myArr": {
   'pirates'
-//@[88:88]         "pirates",
+//@[87:87]         "pirates",
   'say'
-//@[89:89]         "say",
+//@[88:88]         "say",
    false ? 'arr2' : 'arr'
-//@[90:90]         "[if(false(), 'arr2', 'arr')]"
+//@[89:89]         "[if(false(), 'arr2', 'arr')]"
 ]
 
 output rgLocation string = resourceGroup().location
-//@[93:96]     "rgLocation": {
+//@[92:95]     "rgLocation": {
 
 output isWestUs bool = resourceGroup().location != 'westus' ? false : true
-//@[97:100]     "isWestUs": {
+//@[96:99]     "isWestUs": {
 
 output expressionBasedIndexer string = {
-//@[101:104]     "expressionBasedIndexer": {
+//@[100:103]     "expressionBasedIndexer": {
   eastus: {
     foo: true
   }
@@ -87,21 +87,21 @@ output expressionBasedIndexer string = {
 var secondaryKeyIntermediateVar = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01').secondaryKey
 
 output primaryKey string = listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-01-01').primaryKey
-//@[105:108]     "primaryKey": {
+//@[104:107]     "primaryKey": {
 output secondaryKey string = secondaryKeyIntermediateVar
-//@[109:112]     "secondaryKey": {
+//@[108:111]     "secondaryKey": {
 
 var varWithOverlappingOutput = 'hello'
-//@[17:17]     "varWithOverlappingOutput": "hello"
+//@[16:16]     "varWithOverlappingOutput": "hello"
 param paramWithOverlappingOutput string
-//@[12:14]     "paramWithOverlappingOutput": {
+//@[11:13]     "paramWithOverlappingOutput": {
 
 output varWithOverlappingOutput string = varWithOverlappingOutput
-//@[113:116]     "varWithOverlappingOutput": {
+//@[112:115]     "varWithOverlappingOutput": {
 output paramWithOverlappingOutput string = paramWithOverlappingOutput
-//@[117:120]     "paramWithOverlappingOutput": {
+//@[116:119]     "paramWithOverlappingOutput": {
 
 // top-level output loops are supported
 output generatedArray array = [for i in range(0,10): i]
-//@[121:127]     "generatedArray": {
+//@[120:126]     "generatedArray": {
 

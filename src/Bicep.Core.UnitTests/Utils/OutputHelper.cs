@@ -110,10 +110,6 @@ namespace Bicep.Core.UnitTests.Utils
                 int bicepLine = entry.SourceLine;
                 int armLine = entry.TargetLine;
 
-                // convert line numbers from 1-indexing to 0-indexing
-                armLine--;
-                bicepLine--;
-
                 if (armLine < mappingsStartLines[bicepLine])
                 {
                     mappingsStartLines[bicepLine] = armLine;
@@ -151,8 +147,7 @@ namespace Bicep.Core.UnitTests.Utils
 
                     if (jsonLineText != string.Empty)
                     {
-                        // convert json line numbers back to 1-indexing (TODO remove)
-                        sourceTextWithSourceMap.Append($"//@[{jsonStartLine+1}:{jsonEndLine+1}] {jsonLineText}");
+                        sourceTextWithSourceMap.Append($"//@[{jsonStartLine}:{jsonEndLine}] {jsonLineText}");
                         sourceTextWithSourceMap.Append(newlineSequence);
                     }
                 }

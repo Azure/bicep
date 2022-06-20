@@ -5,11 +5,15 @@
       "FilePath": "main.bicep",
       "SourceMap": [
         {
-          "SourceLine": 6,
+          "SourceLine": 5,
+          "TargetLine": 11
+        },
+        {
+          "SourceLine": 5,
           "TargetLine": 12
         },
         {
-          "SourceLine": 6,
+          "SourceLine": 5,
           "TargetLine": 13
         },
         {
@@ -17,11 +21,11 @@
           "TargetLine": 14
         },
         {
-          "SourceLine": 7,
+          "SourceLine": 6,
           "TargetLine": 15
         },
         {
-          "SourceLine": 7,
+          "SourceLine": 6,
           "TargetLine": 16
         },
         {
@@ -29,27 +33,27 @@
           "TargetLine": 17
         },
         {
-          "SourceLine": 8,
+          "SourceLine": 7,
           "TargetLine": 18
         },
         {
-          "SourceLine": 8,
+          "SourceLine": 7,
           "TargetLine": 19
         },
         {
-          "SourceLine": 8,
+          "SourceLine": 10,
           "TargetLine": 20
         },
         {
-          "SourceLine": 11,
+          "SourceLine": 10,
           "TargetLine": 21
         },
         {
-          "SourceLine": 11,
+          "SourceLine": 10,
           "TargetLine": 22
         },
         {
-          "SourceLine": 11,
+          "SourceLine": 10,
           "TargetLine": 23
         },
         {
@@ -57,15 +61,15 @@
           "TargetLine": 24
         },
         {
-          "SourceLine": 12,
+          "SourceLine": 11,
           "TargetLine": 25
         },
         {
-          "SourceLine": 12,
+          "SourceLine": 11,
           "TargetLine": 26
         },
         {
-          "SourceLine": 12,
+          "SourceLine": 11,
           "TargetLine": 27
         },
         {
@@ -73,15 +77,15 @@
           "TargetLine": 28
         },
         {
-          "SourceLine": 13,
+          "SourceLine": 12,
           "TargetLine": 29
         },
         {
-          "SourceLine": 13,
+          "SourceLine": 12,
           "TargetLine": 30
         },
         {
-          "SourceLine": 13,
+          "SourceLine": 12,
           "TargetLine": 31
         },
         {
@@ -89,15 +93,15 @@
           "TargetLine": 32
         },
         {
-          "SourceLine": 14,
+          "SourceLine": 13,
           "TargetLine": 33
         },
         {
-          "SourceLine": 14,
+          "SourceLine": 13,
           "TargetLine": 34
         },
         {
-          "SourceLine": 14,
+          "SourceLine": 13,
           "TargetLine": 35
         },
         {
@@ -105,20 +109,20 @@
           "TargetLine": 36
         },
         {
-          "SourceLine": 15,
+          "SourceLine": 14,
           "TargetLine": 37
         },
         {
-          "SourceLine": 15,
+          "SourceLine": 14,
           "TargetLine": 38
         },
         {
-          "SourceLine": 15,
+          "SourceLine": 14,
           "TargetLine": 39
         },
         {
-          "SourceLine": 15,
-          "TargetLine": 40
+          "SourceLine": 18,
+          "TargetLine": 43
         },
         {
           "SourceLine": 19,
@@ -129,24 +133,24 @@
           "TargetLine": 45
         },
         {
-          "SourceLine": 21,
-          "TargetLine": 46
-        },
-        {
-          "SourceLine": 23,
-          "TargetLine": 48
-        },
-        {
           "SourceLine": 22,
           "TargetLine": 47
         },
         {
-          "SourceLine": 22,
+          "SourceLine": 21,
+          "TargetLine": 46
+        },
+        {
+          "SourceLine": 21,
+          "TargetLine": 48
+        },
+        {
+          "SourceLine": 24,
           "TargetLine": 49
         },
         {
-          "SourceLine": 25,
-          "TargetLine": 50
+          "SourceLine": 27,
+          "TargetLine": 51
         },
         {
           "SourceLine": 28,
@@ -157,64 +161,64 @@
           "TargetLine": 53
         },
         {
-          "SourceLine": 30,
-          "TargetLine": 54
+          "SourceLine": 31,
+          "TargetLine": 55
         },
         {
           "SourceLine": 32,
           "TargetLine": 56
         },
         {
-          "SourceLine": 33,
+          "SourceLine": 30,
+          "TargetLine": 54
+        },
+        {
+          "SourceLine": 30,
           "TargetLine": 57
-        },
-        {
-          "SourceLine": 31,
-          "TargetLine": 55
-        },
-        {
-          "SourceLine": 31,
-          "TargetLine": 58
-        },
-        {
-          "SourceLine": 36,
-          "TargetLine": 60
         },
         {
           "SourceLine": 35,
           "TargetLine": 59
         },
         {
-          "SourceLine": 35,
+          "SourceLine": 34,
+          "TargetLine": 58
+        },
+        {
+          "SourceLine": 34,
+          "TargetLine": 60
+        },
+        {
+          "SourceLine": 26,
+          "TargetLine": 50
+        },
+        {
+          "SourceLine": 26,
           "TargetLine": 61
         },
         {
-          "SourceLine": 27,
-          "TargetLine": 51
+          "SourceLine": 17,
+          "TargetLine": 40
         },
         {
-          "SourceLine": 27,
-          "TargetLine": 62
-        },
-        {
-          "SourceLine": 18,
+          "SourceLine": 17,
           "TargetLine": 41
         },
         {
-          "SourceLine": 18,
+          "SourceLine": 17,
           "TargetLine": 42
         },
         {
-          "SourceLine": 18,
-          "TargetLine": 43
+          "SourceLine": 17,
+          "TargetLine": 62
         },
         {
-          "SourceLine": 18,
+          "SourceLine": 17,
           "TargetLine": 63
         },
         {
-          "SourceLine": 18,
-          "TargetLine": 64
+          "SourceLine": 42,
+          "TargetLine": 67
         },
         {
           "SourceLine": 43,
@@ -225,184 +229,184 @@
           "TargetLine": 69
         },
         {
-          "SourceLine": 45,
-          "TargetLine": 70
+          "SourceLine": 41,
+          "TargetLine": 64
         },
         {
-          "SourceLine": 42,
+          "SourceLine": 41,
           "TargetLine": 65
         },
         {
-          "SourceLine": 42,
+          "SourceLine": 41,
           "TargetLine": 66
         },
         {
-          "SourceLine": 42,
-          "TargetLine": 67
+          "SourceLine": 41,
+          "TargetLine": 70
         },
         {
-          "SourceLine": 42,
+          "SourceLine": 41,
           "TargetLine": 71
         },
         {
-          "SourceLine": 42,
+          "SourceLine": 49,
           "TargetLine": 72
         },
         {
-          "SourceLine": 50,
+          "SourceLine": 49,
           "TargetLine": 73
         },
         {
-          "SourceLine": 50,
+          "SourceLine": 49,
           "TargetLine": 74
         },
         {
-          "SourceLine": 50,
+          "SourceLine": 53,
           "TargetLine": 75
         },
         {
-          "SourceLine": 54,
+          "SourceLine": 53,
           "TargetLine": 76
         },
         {
-          "SourceLine": 54,
+          "SourceLine": 53,
           "TargetLine": 77
         },
         {
-          "SourceLine": 54,
-          "TargetLine": 78
+          "SourceLine": 57,
+          "TargetLine": 81
         },
         {
           "SourceLine": 58,
           "TargetLine": 82
         },
         {
-          "SourceLine": 59,
-          "TargetLine": 83
+          "SourceLine": 60,
+          "TargetLine": 78
         },
         {
-          "SourceLine": 61,
+          "SourceLine": 60,
           "TargetLine": 79
         },
         {
-          "SourceLine": 61,
+          "SourceLine": 60,
           "TargetLine": 80
         },
         {
-          "SourceLine": 61,
-          "TargetLine": 81
+          "SourceLine": 60,
+          "TargetLine": 83
         },
         {
-          "SourceLine": 61,
+          "SourceLine": 60,
           "TargetLine": 84
         },
         {
-          "SourceLine": 61,
+          "SourceLine": 65,
           "TargetLine": 85
         },
         {
-          "SourceLine": 66,
+          "SourceLine": 65,
           "TargetLine": 86
         },
         {
-          "SourceLine": 66,
+          "SourceLine": 65,
           "TargetLine": 87
         },
         {
-          "SourceLine": 66,
+          "SourceLine": 65,
           "TargetLine": 88
         },
         {
-          "SourceLine": 66,
+          "SourceLine": 65,
           "TargetLine": 89
         },
         {
-          "SourceLine": 66,
+          "SourceLine": 70,
           "TargetLine": 90
         },
         {
-          "SourceLine": 71,
+          "SourceLine": 70,
           "TargetLine": 91
         },
         {
-          "SourceLine": 71,
+          "SourceLine": 70,
           "TargetLine": 92
         },
         {
-          "SourceLine": 71,
+          "SourceLine": 70,
           "TargetLine": 93
         },
         {
-          "SourceLine": 71,
+          "SourceLine": 70,
           "TargetLine": 94
         },
         {
-          "SourceLine": 71,
+          "SourceLine": 74,
           "TargetLine": 95
         },
         {
-          "SourceLine": 75,
+          "SourceLine": 74,
           "TargetLine": 96
         },
         {
-          "SourceLine": 75,
+          "SourceLine": 74,
           "TargetLine": 97
         },
         {
-          "SourceLine": 75,
+          "SourceLine": 74,
           "TargetLine": 98
         },
         {
-          "SourceLine": 75,
-          "TargetLine": 99
-        },
-        {
-          "SourceLine": 79,
-          "TargetLine": 103
-        },
-        {
-          "SourceLine": 81,
-          "TargetLine": 100
-        },
-        {
-          "SourceLine": 81,
-          "TargetLine": 101
-        },
-        {
-          "SourceLine": 81,
+          "SourceLine": 78,
           "TargetLine": 102
         },
         {
-          "SourceLine": 81,
+          "SourceLine": 80,
+          "TargetLine": 99
+        },
+        {
+          "SourceLine": 80,
+          "TargetLine": 100
+        },
+        {
+          "SourceLine": 80,
+          "TargetLine": 101
+        },
+        {
+          "SourceLine": 80,
+          "TargetLine": 103
+        },
+        {
+          "SourceLine": 80,
           "TargetLine": 104
         },
         {
-          "SourceLine": 81,
-          "TargetLine": 105
-        },
-        {
-          "SourceLine": 1,
-          "TargetLine": 109
-        },
-        {
-          "SourceLine": 84,
-          "TargetLine": 106
-        },
-        {
-          "SourceLine": 84,
-          "TargetLine": 107
-        },
-        {
-          "SourceLine": 84,
+          "SourceLine": 0,
           "TargetLine": 108
         },
         {
-          "SourceLine": 84,
+          "SourceLine": 83,
+          "TargetLine": 105
+        },
+        {
+          "SourceLine": 83,
+          "TargetLine": 106
+        },
+        {
+          "SourceLine": 83,
+          "TargetLine": 107
+        },
+        {
+          "SourceLine": 83,
+          "TargetLine": 109
+        },
+        {
+          "SourceLine": 83,
           "TargetLine": 110
         },
         {
-          "SourceLine": 84,
-          "TargetLine": 111
+          "SourceLine": 87,
+          "TargetLine": 114
         },
         {
           "SourceLine": 88,
@@ -417,44 +421,44 @@
           "TargetLine": 117
         },
         {
-          "SourceLine": 91,
-          "TargetLine": 118
-        },
-        {
-          "SourceLine": 94,
-          "TargetLine": 120
-        },
-        {
           "SourceLine": 93,
           "TargetLine": 119
         },
         {
-          "SourceLine": 93,
-          "TargetLine": 121
+          "SourceLine": 92,
+          "TargetLine": 118
         },
         {
-          "SourceLine": 97,
+          "SourceLine": 92,
+          "TargetLine": 120
+        },
+        {
+          "SourceLine": 96,
+          "TargetLine": 111
+        },
+        {
+          "SourceLine": 96,
           "TargetLine": 112
         },
         {
-          "SourceLine": 97,
+          "SourceLine": 96,
           "TargetLine": 113
         },
         {
-          "SourceLine": 97,
-          "TargetLine": 114
+          "SourceLine": 96,
+          "TargetLine": 121
         },
         {
-          "SourceLine": 97,
+          "SourceLine": 96,
           "TargetLine": 122
         },
         {
-          "SourceLine": 97,
-          "TargetLine": 123
+          "SourceLine": 108,
+          "TargetLine": 126
         },
         {
-          "SourceLine": 109,
-          "TargetLine": 127
+          "SourceLine": 103,
+          "TargetLine": 129
         },
         {
           "SourceLine": 104,
@@ -465,88 +469,88 @@
           "TargetLine": 131
         },
         {
-          "SourceLine": 106,
-          "TargetLine": 132
+          "SourceLine": 110,
+          "TargetLine": 123
         },
         {
-          "SourceLine": 111,
+          "SourceLine": 110,
           "TargetLine": 124
         },
         {
-          "SourceLine": 111,
+          "SourceLine": 110,
           "TargetLine": 125
         },
         {
-          "SourceLine": 111,
-          "TargetLine": 126
+          "SourceLine": 110,
+          "TargetLine": 127
         },
         {
-          "SourceLine": 111,
+          "SourceLine": 110,
           "TargetLine": 128
         },
         {
-          "SourceLine": 111,
-          "TargetLine": 129
+          "SourceLine": 110,
+          "TargetLine": 132
         },
         {
-          "SourceLine": 111,
+          "SourceLine": 110,
           "TargetLine": 133
         },
         {
-          "SourceLine": 111,
+          "SourceLine": 110,
           "TargetLine": 134
         },
         {
-          "SourceLine": 111,
+          "SourceLine": 110,
           "TargetLine": 135
         },
         {
-          "SourceLine": 111,
+          "SourceLine": 112,
           "TargetLine": 136
         },
         {
-          "SourceLine": 113,
+          "SourceLine": 112,
           "TargetLine": 137
         },
         {
-          "SourceLine": 113,
+          "SourceLine": 112,
           "TargetLine": 138
         },
         {
-          "SourceLine": 113,
+          "SourceLine": 112,
           "TargetLine": 139
         },
         {
-          "SourceLine": 113,
-          "TargetLine": 140
+          "SourceLine": 115,
+          "TargetLine": 143
         },
         {
           "SourceLine": 116,
           "TargetLine": 144
         },
         {
-          "SourceLine": 117,
-          "TargetLine": 145
+          "SourceLine": 118,
+          "TargetLine": 140
         },
         {
-          "SourceLine": 119,
+          "SourceLine": 118,
           "TargetLine": 141
         },
         {
-          "SourceLine": 119,
+          "SourceLine": 118,
           "TargetLine": 142
         },
         {
-          "SourceLine": 119,
-          "TargetLine": 143
+          "SourceLine": 118,
+          "TargetLine": 145
         },
         {
-          "SourceLine": 119,
+          "SourceLine": 118,
           "TargetLine": 146
         },
         {
-          "SourceLine": 119,
-          "TargetLine": 147
+          "SourceLine": 121,
+          "TargetLine": 151
         },
         {
           "SourceLine": 122,
@@ -557,116 +561,116 @@
           "TargetLine": 153
         },
         {
-          "SourceLine": 124,
-          "TargetLine": 154
+          "SourceLine": 125,
+          "TargetLine": 147
         },
         {
-          "SourceLine": 126,
+          "SourceLine": 125,
           "TargetLine": 148
         },
         {
-          "SourceLine": 126,
+          "SourceLine": 125,
           "TargetLine": 149
         },
         {
-          "SourceLine": 126,
+          "SourceLine": 125,
           "TargetLine": 150
         },
         {
-          "SourceLine": 126,
-          "TargetLine": 151
+          "SourceLine": 125,
+          "TargetLine": 154
         },
         {
-          "SourceLine": 126,
+          "SourceLine": 125,
           "TargetLine": 155
         },
         {
-          "SourceLine": 126,
-          "TargetLine": 156
+          "SourceLine": 131,
+          "TargetLine": 159
         },
         {
           "SourceLine": 132,
           "TargetLine": 160
         },
         {
-          "SourceLine": 133,
-          "TargetLine": 161
+          "SourceLine": 134,
+          "TargetLine": 156
         },
         {
-          "SourceLine": 135,
+          "SourceLine": 134,
           "TargetLine": 157
         },
         {
-          "SourceLine": 135,
+          "SourceLine": 134,
           "TargetLine": 158
         },
         {
-          "SourceLine": 135,
-          "TargetLine": 159
+          "SourceLine": 134,
+          "TargetLine": 161
         },
         {
-          "SourceLine": 135,
+          "SourceLine": 134,
           "TargetLine": 162
         },
         {
-          "SourceLine": 135,
+          "SourceLine": 134,
           "TargetLine": 163
         },
         {
-          "SourceLine": 135,
+          "SourceLine": 134,
           "TargetLine": 164
         },
         {
-          "SourceLine": 135,
+          "SourceLine": 137,
           "TargetLine": 165
         },
         {
-          "SourceLine": 138,
+          "SourceLine": 137,
           "TargetLine": 166
         },
         {
-          "SourceLine": 138,
+          "SourceLine": 137,
           "TargetLine": 167
         },
         {
-          "SourceLine": 138,
+          "SourceLine": 137,
           "TargetLine": 168
         },
         {
-          "SourceLine": 138,
+          "SourceLine": 137,
           "TargetLine": 169
         },
         {
-          "SourceLine": 138,
+          "SourceLine": 142,
           "TargetLine": 170
         },
         {
-          "SourceLine": 143,
+          "SourceLine": 142,
           "TargetLine": 171
         },
         {
-          "SourceLine": 143,
+          "SourceLine": 142,
           "TargetLine": 172
         },
         {
-          "SourceLine": 143,
+          "SourceLine": 142,
           "TargetLine": 173
         },
         {
-          "SourceLine": 143,
+          "SourceLine": 142,
           "TargetLine": 174
         },
         {
-          "SourceLine": 143,
-          "TargetLine": 175
+          "SourceLine": 0,
+          "TargetLine": 179
         },
         {
-          "SourceLine": 1,
+          "SourceLine": 147,
           "TargetLine": 180
         },
         {
-          "SourceLine": 148,
-          "TargetLine": 181
+          "SourceLine": 149,
+          "TargetLine": 182
         },
         {
           "SourceLine": 150,
@@ -677,40 +681,40 @@
           "TargetLine": 184
         },
         {
-          "SourceLine": 152,
+          "SourceLine": 148,
+          "TargetLine": 181
+        },
+        {
+          "SourceLine": 148,
           "TargetLine": 185
         },
         {
-          "SourceLine": 149,
-          "TargetLine": 182
+          "SourceLine": 154,
+          "TargetLine": 175
         },
         {
-          "SourceLine": 149,
-          "TargetLine": 186
-        },
-        {
-          "SourceLine": 155,
+          "SourceLine": 154,
           "TargetLine": 176
         },
         {
-          "SourceLine": 155,
+          "SourceLine": 154,
           "TargetLine": 177
         },
         {
-          "SourceLine": 155,
+          "SourceLine": 154,
           "TargetLine": 178
         },
         {
-          "SourceLine": 155,
-          "TargetLine": 179
+          "SourceLine": 154,
+          "TargetLine": 186
         },
         {
-          "SourceLine": 155,
+          "SourceLine": 154,
           "TargetLine": 187
         },
         {
-          "SourceLine": 155,
-          "TargetLine": 188
+          "SourceLine": 158,
+          "TargetLine": 191
         },
         {
           "SourceLine": 159,
@@ -721,24 +725,24 @@
           "TargetLine": 193
         },
         {
-          "SourceLine": 161,
-          "TargetLine": 194
-        },
-        {
-          "SourceLine": 163,
-          "TargetLine": 196
-        },
-        {
           "SourceLine": 162,
           "TargetLine": 195
         },
         {
-          "SourceLine": 162,
+          "SourceLine": 161,
+          "TargetLine": 194
+        },
+        {
+          "SourceLine": 161,
+          "TargetLine": 196
+        },
+        {
+          "SourceLine": 164,
           "TargetLine": 197
         },
         {
-          "SourceLine": 165,
-          "TargetLine": 198
+          "SourceLine": 167,
+          "TargetLine": 199
         },
         {
           "SourceLine": 168,
@@ -749,108 +753,104 @@
           "TargetLine": 201
         },
         {
-          "SourceLine": 170,
-          "TargetLine": 202
+          "SourceLine": 171,
+          "TargetLine": 203
         },
         {
           "SourceLine": 172,
           "TargetLine": 204
         },
         {
-          "SourceLine": 173,
+          "SourceLine": 170,
+          "TargetLine": 202
+        },
+        {
+          "SourceLine": 170,
           "TargetLine": 205
-        },
-        {
-          "SourceLine": 171,
-          "TargetLine": 203
-        },
-        {
-          "SourceLine": 171,
-          "TargetLine": 206
-        },
-        {
-          "SourceLine": 176,
-          "TargetLine": 208
         },
         {
           "SourceLine": 175,
           "TargetLine": 207
         },
         {
-          "SourceLine": 175,
+          "SourceLine": 174,
+          "TargetLine": 206
+        },
+        {
+          "SourceLine": 174,
+          "TargetLine": 208
+        },
+        {
+          "SourceLine": 166,
+          "TargetLine": 198
+        },
+        {
+          "SourceLine": 166,
           "TargetLine": 209
         },
         {
-          "SourceLine": 167,
-          "TargetLine": 199
+          "SourceLine": 157,
+          "TargetLine": 188
         },
         {
-          "SourceLine": 167,
-          "TargetLine": 210
-        },
-        {
-          "SourceLine": 158,
+          "SourceLine": 157,
           "TargetLine": 189
         },
         {
-          "SourceLine": 158,
+          "SourceLine": 157,
           "TargetLine": 190
         },
         {
-          "SourceLine": 158,
-          "TargetLine": 191
+          "SourceLine": 157,
+          "TargetLine": 210
         },
         {
-          "SourceLine": 158,
+          "SourceLine": 157,
           "TargetLine": 211
-        },
-        {
-          "SourceLine": 158,
-          "TargetLine": 212
-        },
-        {
-          "SourceLine": 187,
-          "TargetLine": 216
-        },
-        {
-          "SourceLine": 188,
-          "TargetLine": 217
-        },
-        {
-          "SourceLine": 1,
-          "TargetLine": 220
-        },
-        {
-          "SourceLine": 186,
-          "TargetLine": 213
-        },
-        {
-          "SourceLine": 186,
-          "TargetLine": 214
         },
         {
           "SourceLine": 186,
           "TargetLine": 215
         },
         {
-          "SourceLine": 186,
-          "TargetLine": 218
+          "SourceLine": 187,
+          "TargetLine": 216
         },
         {
-          "SourceLine": 186,
+          "SourceLine": 0,
           "TargetLine": 219
         },
         {
-          "SourceLine": 186,
+          "SourceLine": 185,
+          "TargetLine": 212
+        },
+        {
+          "SourceLine": 185,
+          "TargetLine": 213
+        },
+        {
+          "SourceLine": 185,
+          "TargetLine": 214
+        },
+        {
+          "SourceLine": 185,
+          "TargetLine": 217
+        },
+        {
+          "SourceLine": 185,
+          "TargetLine": 218
+        },
+        {
+          "SourceLine": 185,
+          "TargetLine": 220
+        },
+        {
+          "SourceLine": 185,
           "TargetLine": 221
         },
         {
-          "SourceLine": 186,
+          "SourceLine": 185,
           "TargetLine": 222
-        },
-        {
-          "SourceLine": 186,
-          "TargetLine": 223
         }
       ]
     }
