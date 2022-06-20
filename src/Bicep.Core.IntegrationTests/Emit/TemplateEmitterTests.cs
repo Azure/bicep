@@ -148,13 +148,7 @@ namespace Bicep.Core.IntegrationTests.Emit
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
                 actualLocation: sourceTextWithSourceMapFileName);
 
-            // update file paths in source map to match baseline, regardless of platform
-            var updatedSourceMap = sourceMap.ToDictionary(
-                kvp => kvp.Key,
-                kvp => (kvp.Value.Item1.Replace("/", @"\"), kvp.Value.Item2)
-            );
-
-            var actualSourceMapJson = JToken.FromObject(updatedSourceMap);
+            var actualSourceMapJson = JToken.FromObject(sourceMap);
             var actualSourceMapJsonFileName = Path.Combine(outputDirectory, DataSet.TestFileMainCompiledSourceMap);
             File.WriteAllText(actualSourceMapJsonFileName, actualSourceMapJson.ToString());
 
