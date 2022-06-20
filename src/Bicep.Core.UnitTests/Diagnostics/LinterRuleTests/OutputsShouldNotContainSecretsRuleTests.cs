@@ -111,17 +111,16 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             var v = {}
 
             output badResult object = {
-            value: v.listAnything().keys[0].value // storage is not a resource, so no failure
+            value: v.listAnything().keys[0].value // variable is not a resource, so no failure
             }
         "
         )]
         [DataTestMethod]
-        public void If_ListFunctionInOutput_AsResourceMethod_ShouldFail(string text, params string[] expectedMessages)
+        public void If_ListFunctionInOutput_AsResourceMethod_ShouldPass(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);
         }
 
-        [Ignore("TODO: blocked by https://github.com/Azure/bicep/issues/4833")]
         [DataRow(@"
             param storageName string
 

@@ -322,3 +322,13 @@ module.exports = function (context) {
     context.done();
 }
 '''
+
+var copyBlockInObject = {
+  copy: [
+    {
+      name: 'blah'
+      count: '[notAFunction()]'
+      input: {}
+    }
+  ]
+}

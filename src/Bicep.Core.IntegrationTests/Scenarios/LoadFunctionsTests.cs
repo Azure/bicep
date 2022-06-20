@@ -687,5 +687,46 @@ var fileObj = loadJsonContent('message.txt', '$', '" + encoding + @"')'
                 diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
             }
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/7208
+        /// </summary>
+        [TestMethod]
+        public void LoadJsonFunction_withPath_selectingMultipleTokens()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+var fileObj = loadJsonContent('file.json',  '.products[?(@.price > 3)].name')
+"),
+                ("file.json", @"
+{
+    ""products"" : [
+        {
+            ""name"": ""pizza"",
+            ""price"": 5.00
+        },
+        {
+            ""name"": ""salad"",
+            ""price"": 3.99
+        },
+        {
+            ""name"": ""bread"",
+            ""price"": 2.00
+        }
+    ]
+}
+"));
+
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.ExcludingLinterDiagnostics().Should().BeEmpty();
+            }
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.variables.fileObj").Should().DeepEqual("[variables('$fxv#0')]");
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(new JArray("pizza", "salad"));
+            }
+        }
     }
 }

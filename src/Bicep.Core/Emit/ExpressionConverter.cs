@@ -323,7 +323,7 @@ namespace Bicep.Core.Emit
                     case ("name", true):
                     case ("type", true):
                     case ("apiVersion", true):
-                        var symbolExpression = GenerateSymbolicReference(declaredResource.Symbol.Name, indexExpression);
+                        var symbolExpression = GenerateSymbolicReference(declaredResource, indexExpression);
 
                         return AppendProperties(
                             CreateFunction("resourceInfo", symbolExpression),
@@ -792,7 +792,7 @@ namespace Bicep.Core.Emit
                     new JTokenExpression("value")),
 
                 DeclaredResourceMetadata declared when context.Settings.EnableSymbolicNames =>
-                    GenerateSymbolicReference(declared.Symbol.Name, indexExpression),
+                    GenerateSymbolicReference(declared, indexExpression),
                 DeclaredResourceMetadata => GetFullyQualifiedResourceId(resource),
 
                 _ => throw new InvalidOperationException($"Unexpected resource metadata type: {resource.GetType()}"),
@@ -1173,7 +1173,19 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public LanguageExpression GenerateSymbolicReference(string symbolName, SyntaxBase? indexExpression)
+        public string GetSymbolicName(DeclaredResourceMetadata resource)
+        {
+            var nestedHierarchy = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource)
+                .Reverse()
+                .TakeWhile(x => x.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested)
+                .Select(x => x.Resource)
+                .Reverse()
+                .Concat(resource);
+
+            return string.Join("::", nestedHierarchy.Select(x => x.Symbol.Name));
+        }
+
+        private LanguageExpression GenerateSymbolicReference(string symbolName, SyntaxBase? indexExpression)
         {
             if (indexExpression is null)
             {
@@ -1185,6 +1197,12 @@ namespace Bicep.Core.Emit
                 new JTokenExpression($"{symbolName}[{{0}}]"),
                 ConvertExpression(indexExpression));
         }
+
+        public LanguageExpression GenerateSymbolicReference(DeclaredResourceMetadata resource, SyntaxBase? indexExpression)
+            => GenerateSymbolicReference(GetSymbolicName(resource), indexExpression);
+
+        public LanguageExpression GenerateSymbolicReference(ModuleSymbol module, SyntaxBase? indexExpression)
+            => GenerateSymbolicReference(module.Name, indexExpression);
 
         public static LanguageExpression GenerateUnqualifiedResourceId(string fullyQualifiedType, IEnumerable<LanguageExpression> nameSegments)
         {

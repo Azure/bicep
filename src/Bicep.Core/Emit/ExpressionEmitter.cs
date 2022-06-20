@@ -115,15 +115,25 @@ namespace Bicep.Core.Emit
         public void EmitIndexedSymbolReference(DeclaredResourceMetadata resource, SyntaxBase indexExpression, SyntaxBase newContext)
         {
             var expression = converter.CreateConverterForIndexReplacement(resource.Symbol.NameSyntax, indexExpression, newContext)
-                .GenerateSymbolicReference(resource.Symbol.Name, indexExpression);
+                .GenerateSymbolicReference(resource, indexExpression);
 
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
         }
 
+        public void EmitSymbolReference(DeclaredResourceMetadata resource)
+        {
+            var expression = converter.GenerateSymbolicReference(resource, null);
+
+            writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
+        }
+
+        public string GetSymbolicName(DeclaredResourceMetadata resource)
+            => converter.GetSymbolicName(resource);
+
         public void EmitIndexedSymbolReference(ModuleSymbol moduleSymbol, SyntaxBase indexExpression, SyntaxBase newContext)
         {
             var expression = converter.CreateConverterForIndexReplacement(ExpressionConverter.GetModuleNameSyntax(moduleSymbol), indexExpression, newContext)
-                .GenerateSymbolicReference(moduleSymbol.Name, indexExpression);
+                .GenerateSymbolicReference(moduleSymbol, indexExpression);
 
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
         }
@@ -305,7 +315,7 @@ namespace Bicep.Core.Emit
             if (propertyLookup.Contains(true))
             {
                 // we have properties whose value is a for-expression
-                this.EmitProperty("copy", () =>
+                this.EmitCopyProperty(() =>
                 {
                     this.writer.WriteStartArray();
 
@@ -417,6 +427,9 @@ namespace Bicep.Core.Emit
         public void EmitProperty(string name, Action valueFunc)
             => EmitPropertyInternal(new JTokenExpression(name), valueFunc);
 
+        public void EmitCopyProperty(Action valueFunc)
+            => EmitPropertyInternal(new JTokenExpression(LanguageConstants.CopyLoopIdentifier), valueFunc, skipCopyCheck: true);
+
         public void EmitProperty(string name, string value)
             => EmitPropertyInternal(new JTokenExpression(name), value);
 
@@ -426,9 +439,14 @@ namespace Bicep.Core.Emit
         public void EmitProperty(SyntaxBase syntaxKey, SyntaxBase syntaxValue)
             => EmitPropertyInternal(converter.ConvertExpression(syntaxKey), syntaxValue);
 
-        private void EmitPropertyInternal(LanguageExpression expressionKey, Action valueFunc)
+        private void EmitPropertyInternal(LanguageExpression expressionKey, Action valueFunc, bool skipCopyCheck = false)
         {
             var serializedName = ExpressionSerializer.SerializeExpression(expressionKey);
+            if (!skipCopyCheck && serializedName.Equals(LanguageConstants.CopyLoopIdentifier, StringComparison.OrdinalIgnoreCase))
+            {
+                // we escape "copy" property name with a ARM expression to avoid it being interpreted by ARM as a copy instruction
+                serializedName = $"[string('{serializedName}')]";
+            }
             writer.WritePropertyName(serializedName);
 
             valueFunc();

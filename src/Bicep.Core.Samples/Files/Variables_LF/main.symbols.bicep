@@ -442,3 +442,13 @@ module.exports = function (context) {
 }
 '''
 
+var copyBlockInObject = {
+//@[04:21) Variable copyBlockInObject. Type: object. Declaration start char: 0, length: 120
+  copy: [
+    {
+      name: 'blah'
+      count: '[notAFunction()]'
+      input: {}
+    }
+  ]
+}

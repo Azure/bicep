@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Core;
 using Bicep.Decompiler.Exceptions;
 using Newtonsoft.Json.Linq;
 
@@ -100,9 +101,9 @@ namespace Bicep.Decompiler.ArmHelpers
 
                 var (childType, childName, _) = ParseResource(childResourceObject);
 
-                if (GetProperty(resource, "copy") is { } copyProperty)
+                if (GetProperty(resource, LanguageConstants.CopyLoopIdentifier) is { } copyProperty)
                 {
-                    childResourceObject["copy"] = copyProperty.Value;
+                    childResourceObject[LanguageConstants.CopyLoopIdentifier] = copyProperty.Value;
                 }
                 if (GetProperty(resource, "condition") is { } conditionProperty)
                 {
