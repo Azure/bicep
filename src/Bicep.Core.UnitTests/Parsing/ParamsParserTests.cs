@@ -25,13 +25,10 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [TestMethod]
-        public void TestDeclaringParams()
+        public void TestAssigningParams()
         {
             var paramIntTest = ParamsParserHelper.ParamsParse("param myint = 12 \n");
             var paramStringTest = ParamsParserHelper.ParamsParse("param mystr = 'hello world' \n");
-            
-            paramIntTest.Should().BeOfType(typeof(ProgramSyntax));
-            paramStringTest.Should().BeOfType(typeof(ProgramSyntax));
 
             paramIntTest.Children.OfType<ParameterAssignmentSyntax>().Should().HaveCount(1);
             paramStringTest.Children.OfType<ParameterAssignmentSyntax>().Should().HaveCount(1);
@@ -40,11 +37,9 @@ namespace Bicep.Core.UnitTests.Parsing
         [TestMethod]
         public void TestUsingKeyword()
         {
-            var usingTest = ParamsParserHelper.ParamsParse("using './bicep.main' \n");
+            var programSyntax = ParamsParserHelper.ParamsParse("using './bicep.main' \n");
 
-            usingTest.Should().BeOfType(typeof(ProgramSyntax));
-
-            usingTest.Children.OfType<UsingDeclarationSyntax>().Should().HaveCount(1);
+            programSyntax.Children.OfType<UsingDeclarationSyntax>().Should().HaveCount(1);
         }
 
 
