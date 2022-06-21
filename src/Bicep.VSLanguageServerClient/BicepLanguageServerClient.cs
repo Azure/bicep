@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.VSLanguageServerClient.ContentType;
+using Bicep.VSLanguageServerClient.MiddleLayerProviders;
 using Bicep.VSLanguageServerClient.ProcessTracker;
 using Bicep.VSLanguageServerClient.Threading;
 using Bicep.VSLanguageServerClient.Tracing;
@@ -25,7 +26,7 @@ namespace Bicep.VSLanguageServerClient
     public class BicepLanguageServerClient : ILanguageClient, ILanguageClientCustomMessage2
     {
         private readonly IProcessTracker _processTracker;
-        //private readonly ILanguageClientMiddleLayer _middleLayer;
+        private readonly ILanguageClientMiddleLayer _middleLayer;
         private readonly IThreadingContext _threadingContext;
 
         [ImportingConstructor]
@@ -33,10 +34,7 @@ namespace Bicep.VSLanguageServerClient
         {
             _processTracker = processTracker;
             _threadingContext = threadingContext;
-            //_middleLayer = new AggregatingMiddleLayer(
-            //    new CodeActionMiddleLayer(),
-            //    //new HoverMiddleLayer(),
-            //    new RemoveSnippetCompletionsMiddleLayer()); ;
+            _middleLayer = new AggregatingMiddleLayer(new HandleSnippetCompletionsMiddleLayer()); ;
         }
 
         public string Name => "Bicep Language Server";
@@ -116,7 +114,7 @@ namespace Bicep.VSLanguageServerClient
             return Task.CompletedTask;
         }
 
-        public object MiddleLayer => null!;
+        public object MiddleLayer => _middleLayer!;
 
         public object CustomMessageTarget => null!;
     }

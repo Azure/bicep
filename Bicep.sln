@@ -88,7 +88,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.VSLanguageServerClien
 		{36BDFD77-510C-410D-9D15-4DF2DD8C2959} = {36BDFD77-510C-410D-9D15-4DF2DD8C2959}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.VSLanguageServerClient", "src\Bicep.VSLanguageServerClient\Bicep.VSLanguageServerClient.csproj", "{36BDFD77-510C-410D-9D15-4DF2DD8C2959}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.VSLanguageServerClient", "src\Bicep.VSLanguageServerClient\Bicep.VSLanguageServerClient.csproj", "{36BDFD77-510C-410D-9D15-4DF2DD8C2959}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.VSLanguageServerClient.UnitTests", "src\Bicep.VSLanguageServerClient.UnitTests\Bicep.VSLanguageServerClient.UnitTests.csproj", "{6A8A0449-41A3-4F75-9C0B-F762A035570B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -266,6 +268,14 @@ Global
 		{36BDFD77-510C-410D-9D15-4DF2DD8C2959}.Release|Any CPU.Build.0 = Release|Any CPU
 		{36BDFD77-510C-410D-9D15-4DF2DD8C2959}.Release|x86.ActiveCfg = Release|Any CPU
 		{36BDFD77-510C-410D-9D15-4DF2DD8C2959}.Release|x86.Build.0 = Release|Any CPU
+		{6A8A0449-41A3-4F75-9C0B-F762A035570B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A8A0449-41A3-4F75-9C0B-F762A035570B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A8A0449-41A3-4F75-9C0B-F762A035570B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6A8A0449-41A3-4F75-9C0B-F762A035570B}.Debug|x86.Build.0 = Debug|Any CPU
+		{6A8A0449-41A3-4F75-9C0B-F762A035570B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A8A0449-41A3-4F75-9C0B-F762A035570B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A8A0449-41A3-4F75-9C0B-F762A035570B}.Release|x86.ActiveCfg = Release|Any CPU
+		{6A8A0449-41A3-4F75-9C0B-F762A035570B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -292,6 +302,7 @@ Global
 		{9F596D8D-5CDB-4830-B73C-26C33C0227D7} = {90126655-7A34-4F5B-A41A-50A468F4632D}
 		{A722010A-27D3-433E-8469-465E72AB0E8E} = {90DACFCC-CDDF-4FFD-8F4D-07CFC7FB767D}
 		{36BDFD77-510C-410D-9D15-4DF2DD8C2959} = {90DACFCC-CDDF-4FFD-8F4D-07CFC7FB767D}
+		{6A8A0449-41A3-4F75-9C0B-F762A035570B} = {90DACFCC-CDDF-4FFD-8F4D-07CFC7FB767D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {21F77282-91E7-4304-B1EF-FADFA4F39E37}
