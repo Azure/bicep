@@ -35,6 +35,24 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
+        [DataRow("param myobj = {\nname : 'vm1'\nlocation : 'westus'\n} \n")]
+        public void TestParameterObjectAssignment(String text)
+        {
+            var programSyntax = ParamsParserHelper.ParamsParse(text);
+
+            programSyntax.Children.OfType<ParameterAssignmentSyntax>().Should().HaveCount(1);
+        }
+
+        [DataTestMethod]
+        [DataRow("param myarr = [ 1\n2\n3\n4\n5 ] \n")]
+        public void TestParameterArrayAssignment(String text)
+        {
+            var programSyntax = ParamsParserHelper.ParamsParse(text);
+
+            programSyntax.Children.OfType<ParameterAssignmentSyntax>().Should().HaveCount(1);
+        }
+
+        [DataTestMethod]
         [DataRow("using './bicep.main' \n")]
         public void TestParsingUsingKeyword(String text)
         {
@@ -42,7 +60,6 @@ namespace Bicep.Core.UnitTests.Parsing
 
             programSyntax.Children.OfType<UsingDeclarationSyntax>().Should().HaveCount(1);
         }
-
 
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)
         {
