@@ -36,6 +36,7 @@ namespace Bicep.Core.Emit
             DetectUnexpectedModuleLoopInvariantProperties(model, diagnosticWriter);
             DetectUnsupportedModuleParameterAssignments(model, diagnosticWriter);
             DetectCopyVariableName(model, diagnosticWriter);
+            DetectInvalidValueForParentProperty(model, diagnosticWriter);
 
             return new(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
@@ -325,6 +326,24 @@ namespace Bicep.Core.Emit
             if (copyVariableSymbol is not null)
             {
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(copyVariableSymbol.NameSyntax).ReservedIdentifier(LanguageConstants.CopyLoopIdentifier));
+            }
+        }
+
+        public static void DetectInvalidValueForParentProperty(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            foreach (var resourceDeclarationSymbol in semanticModel.Root.ResourceDeclarations)
+            {
+                if (resourceDeclarationSymbol.TryGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is { } referenceParentSyntax)
+                {
+                    var (baseSyntax, _) = SyntaxHelper.UnwrapArrayAccessSyntax(referenceParentSyntax);
+
+                    if (semanticModel.ResourceMetadata.TryLookup(baseSyntax) is not { } && !semanticModel.GetTypeInfo(baseSyntax).IsError())
+                    {
+                        // we throw an error diagnostic when the parent property contains a value that cannot be computed or does not directly reference another resource.
+                        // this includes ternary operator expressions, which Bicep does not support 
+                        diagnosticWriter.Write(referenceParentSyntax, x => x.InvalidValueForParentProperty());
+                    }
+                }
             }
         }
 
