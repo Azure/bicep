@@ -63,6 +63,26 @@ namespace Bicep.Core.Emit
             return new PositionTrackingJsonTextWriter(trackingWriter, rawSourceMap, sourceFile);
         }
 
+        public void WriteExpression(SyntaxBase? sourcePosition, Action expressionFunc)
+        {
+            var startPos = this.trackingWriter.CurrentPos;
+
+            expressionFunc();
+
+            AddSourceMapping(sourcePosition, startPos);
+        }
+
+        public void WriteObject(SyntaxBase? sourcePosition, Action propertiesFunc)
+        {
+            var startPos = this.trackingWriter.CurrentPos;
+
+            base.WriteStartObject();
+            propertiesFunc();
+            base.WriteEndObject();
+
+            AddSourceMapping(sourcePosition, startPos);
+        }
+
         public void WriteProperty(SyntaxBase? keyPosition, string name, Action valueFunc)
         {
             var startPos = this.trackingWriter.CurrentPos;
@@ -73,7 +93,7 @@ namespace Bicep.Core.Emit
             AddSourceMapping(keyPosition, startPos);
         }
 
-        public void AddSourceMapping(SyntaxBase? bicepSyntax, int startPosition)
+        private void AddSourceMapping(SyntaxBase? bicepSyntax, int startPosition)
         {
             if (bicepSyntax != null && this.rawSourceMap != null && this.sourceFile != null)
             {

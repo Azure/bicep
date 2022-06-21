@@ -470,7 +470,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
   properties: {
 //@[374:384]       "properties": {
     subnets: [for j in range(0, 4): {
-//@[378:381]             "count": "[length(range(0, 4))]",
+//@[376:382]             "name": "subnets",
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
      
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
@@ -487,7 +487,7 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
   properties: {
 //@[397:407]       "properties": {
     subnets: [for i in range(0, 4): {
-//@[401:404]             "count": "[length(range(0, 4))]",
+//@[399:405]             "name": "subnets",
       name: 'subnet-${i}-${i}'
 //@[403:403]               "name": "[format('subnet-{0}-{1}', range(0, 4)[copyIndex('subnets')], range(0, 4)[copyIndex('subnets')])]"
     }]
@@ -503,7 +503,7 @@ resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-
   properties: {
 //@[417:427]       "properties": {
     subnets: [for i in range(0, 4): {
-//@[421:424]             "count": "[length(range(0, 4))]",
+//@[419:425]             "name": "subnets",
       name: 'subnet-${i}-${i}'
 //@[423:423]               "name": "[format('subnet-{0}-{1}', range(0, 4)[copyIndex('subnets')], range(0, 4)[copyIndex('subnets')])]"
     }]
@@ -519,7 +519,7 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
   properties: {
 //@[437:447]       "properties": {
     subnets: [for duplicatesEverywhere in range(0, 4): {
-//@[441:444]             "count": "[length(range(0, 4))]",
+//@[439:445]             "name": "subnets",
       name: 'subnet-${duplicatesEverywhere}'
 //@[443:443]               "name": "[format('subnet-{0}', range(0, 4)[copyIndex('subnets')])]"
     }]

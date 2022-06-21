@@ -258,7 +258,7 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@[961:961]       "name": "[variables('myModules')[copyIndex()].name]",
   params: {
     arrayParam: [for i in range(0,3): concat('test-', i, '-', module.name)]
-//@[972:973]                 "count": "[length(range(0, 3))]",
+//@[970:974]                 "name": "value",
     objParam: module
 //@[978:978]             "value": "[variables('myModules')[copyIndex()]]"
     stringParamB: module.location
@@ -279,7 +279,7 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
     stringParamB: 'test'
 //@[1068:1068]             "value": "test"
     arrayParam: [for x in emptyArray: x]
-//@[1074:1075]                 "count": "[length(variables('emptyArray'))]",
+//@[1072:1076]                 "name": "value",
   }
 }]
 
@@ -298,7 +298,7 @@ module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes 
     stringParamB: 'test'
 //@[1164:1164]             "value": "test"
     arrayParam: [for x in emptyArray: x]
-//@[1170:1171]                 "count": "[length(variables('emptyArray'))]",
+//@[1168:1172]                 "name": "value",
   }
 }]
 
@@ -316,7 +316,7 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
     stringParamB: 'test'
 //@[1257:1257]             "value": "test"
     arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
-//@[1263:1264]                 "count": "[length(variables('emptyArray'))]",
+//@[1261:1265]                 "name": "value",
   }
 }]
 
@@ -328,16 +328,16 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
     objParam: {
 //@[1343:1372]             "value": {
       a: [for i in range(0,10): i]
-//@[1347:1348]                   "count": "[length(range(0, 10))]",
+//@[1345:1349]                   "name": "a",
       b: [for i in range(1,2): i]
-//@[1352:1353]                   "count": "[length(range(1, 2))]",
+//@[1350:1354]                   "name": "b",
       c: {
 //@[1363:1371]               "c": {
         d: [for j in range(2,3): j]
-//@[1367:1368]                     "count": "[length(range(2, 3))]",
+//@[1365:1369]                     "name": "d",
       }
       e: [for k in range(4,4): {
-//@[1357:1360]                   "count": "[length(range(4, 4))]",
+//@[1355:1361]                   "name": "e",
         f: k
 //@[1359:1359]                     "f": "[range(4, 4)[copyIndex('e')]]"
       }]
@@ -348,7 +348,7 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@[1378:1388]             "value": [
       {
         e: [for j in range(7,7): j]
-//@[1383:1384]                     "count": "[length(range(7, 7))]",
+//@[1381:1385]                     "name": "e",
       }
     ]
   }
@@ -362,16 +362,16 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
     objParam: {
 //@[1465:1495]             "value": {
       a: [for (i, i2) in range(0,10): i + i2]
-//@[1469:1470]                   "count": "[length(range(0, 10))]",
+//@[1467:1471]                   "name": "a",
       b: [for (i, i2) in range(1,2): i / i2]
-//@[1474:1475]                   "count": "[length(range(1, 2))]",
+//@[1472:1476]                   "name": "b",
       c: {
 //@[1486:1494]               "c": {
         d: [for (j, j2) in range(2,3): j * j2]
-//@[1490:1491]                     "count": "[length(range(2, 3))]",
+//@[1488:1492]                     "name": "d",
       }
       e: [for (k, k2) in range(4,4): {
-//@[1479:1483]                   "count": "[length(range(4, 4))]",
+//@[1477:1484]                   "name": "e",
         f: k
 //@[1481:1481]                     "f": "[range(4, 4)[copyIndex('e')]]",
         g: k2
@@ -384,7 +384,7 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[1501:1511]             "value": [
       {
         e: [for j in range(7,7): j]
-//@[1506:1507]                     "count": "[length(range(7, 7))]",
+//@[1504:1508]                     "name": "e",
       }
     ]
   }
@@ -398,16 +398,16 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
     objParam: {
 //@[1592:1621]             "value": {
       a: [for i in range(0,10): i + thing]
-//@[1596:1597]                   "count": "[length(range(0, 10))]",
+//@[1594:1598]                   "name": "a",
       b: [for i in range(1,2): i * thing]
-//@[1601:1602]                   "count": "[length(range(1, 2))]",
+//@[1599:1603]                   "name": "b",
       c: {
 //@[1612:1620]               "c": {
         d: [for j in range(2,3): j]
-//@[1616:1617]                     "count": "[length(range(2, 3))]",
+//@[1614:1618]                     "name": "d",
       }
       e: [for k in range(4,4): {
-//@[1606:1609]                   "count": "[length(range(4, 4))]",
+//@[1604:1610]                   "name": "e",
         f: k - thing
 //@[1608:1608]                     "f": "[sub(range(4, 4)[copyIndex('e')], range(0, 1)[copyIndex()])]"
       }]
@@ -418,7 +418,7 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[1627:1637]             "value": [
       {
         e: [for j in range(7,7): j % thing]
-//@[1632:1633]                     "count": "[length(range(7, 7))]",
+//@[1630:1634]                     "name": "e",
       }
     ]
   }

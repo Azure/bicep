@@ -417,7 +417,7 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
         properties: {
 //@[280:295]             "properties": {
           backends: [for index in range(0, length(regions)): {
-//@[284:292]                   "count": "[length(range(0, length(variables('regions'))))]",
+//@[282:293]                   "name": "backends",
             // we cannot codegen index correctly because the generated dependsOn property
             // would be outside of the scope of the property loop
             // as a result, this will generate a dependency on the entire collection
@@ -494,7 +494,7 @@ resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoor
         properties: {
 //@[345:360]             "properties": {
           backends: [for index in range(0, length(accounts)): {
-//@[349:357]                   "count": "[length(range(0, length(parameters('accounts'))))]",
+//@[347:358]                   "name": "backends",
             // we cannot codegen index correctly because the generated dependsOn property
             // would be outside of the scope of the property loop
             // as a result, this will generate a dependency on the entire collection
