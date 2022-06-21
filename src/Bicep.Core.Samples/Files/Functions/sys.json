@@ -397,6 +397,32 @@
     ]
   },
   {
+    "name": "filter",
+    "description": "Filters an array with a custom filtering function.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array to filter",
+        "type": "array",
+        "required": true
+      },
+      {
+        "name": "lambda",
+        "description": "The filtering function",
+        "type": "any => bool",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(array: array, lambda: any => bool): array",
+    "parameterTypeSignatures": [
+      "array: array",
+      "lambda: any => bool"
+    ]
+  },
+  {
     "name": "first",
     "description": "Returns the first element of the array.",
     "fixedParameters": [
@@ -432,6 +458,23 @@
     "typeSignature": "(string: string): string",
     "parameterTypeSignatures": [
       "string: string"
+    ]
+  },
+  {
+    "name": "flatten",
+    "description": "Flattens an array of arrays into an array containing all of the individual array elements in the original order.",
+    "fixedParameters": [],
+    "minimumArgumentCount": 0,
+    "variableParameter": {
+      "namePrefix": "array",
+      "description": "TBD",
+      "type": "array",
+      "minimumCount": 0
+    },
+    "flags": "default",
+    "typeSignature": "(... : array): array",
+    "parameterTypeSignatures": [
+      "... : array"
     ]
   },
   {
@@ -833,6 +876,32 @@
     ]
   },
   {
+    "name": "map",
+    "description": "Applies a custom mapping function to each element of an array and returns the result array.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array to map",
+        "type": "array",
+        "required": true
+      },
+      {
+        "name": "lambda",
+        "description": "The mapping function",
+        "type": "any => any",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(array: array, lambda: any => any): array",
+    "parameterTypeSignatures": [
+      "array: array",
+      "lambda: any => any"
+    ]
+  },
+  {
     "name": "max",
     "description": "Returns the maximum value from the specified integers.",
     "fixedParameters": [],
@@ -974,6 +1043,39 @@
     ]
   },
   {
+    "name": "reduce",
+    "description": "Reduces an array with a custom reduce function.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array to reduce",
+        "type": "array",
+        "required": true
+      },
+      {
+        "name": "initialValue",
+        "description": "The initial value",
+        "type": "any",
+        "required": true
+      },
+      {
+        "name": "lambda",
+        "description": "The reduce function",
+        "type": "(any, any) => any",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 3,
+    "maximumArgumentCount": 3,
+    "flags": "default",
+    "typeSignature": "(array: array, initialValue: any, lambda: (any, any) => any): array",
+    "parameterTypeSignatures": [
+      "array: array",
+      "initialValue: any",
+      "lambda: (any, any) => any"
+    ]
+  },
+  {
     "name": "replace",
     "description": "Returns a new string with all instances of one string replaced by another string.",
     "fixedParameters": [
@@ -1056,6 +1158,32 @@
     "parameterTypeSignatures": [
       "originalValue: string",
       "numberToSkip: int"
+    ]
+  },
+  {
+    "name": "sort",
+    "description": "Sorts an array with a custom sort function.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array to sort",
+        "type": "array",
+        "required": true
+      },
+      {
+        "name": "lambda",
+        "description": "The sorting function",
+        "type": "(any, any) => bool",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(array: array, lambda: (any, any) => bool): array",
+    "parameterTypeSignatures": [
+      "array: array",
+      "lambda: (any, any) => bool"
     ]
   },
   {

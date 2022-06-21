@@ -173,25 +173,47 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var parent = this.binder.GetParent(syntax);
-                var @for = parent switch
+
+
+                switch (localVariableSymbol.LocalKind)
                 {
-                    ForSyntax forParent => forParent,
-                    ForVariableBlockSyntax block when this.binder.GetParent(block) is ForSyntax forParent => forParent,
-                    _ => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}")
-                };
+                    case LocalKind.ForExpressionItemVariable:
+                        // this local variable is a loop item variable
+                        // we should return item type of the array (if feasible)
+                        var @for = parent switch
+                        {
+                            ForSyntax forParent => forParent,
+                            ForVariableBlockSyntax block when this.binder.GetParent(block) is ForSyntax forParent => forParent,
+                            _ => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}")
+                        };
 
-                return localVariableSymbol.LocalKind switch
-                {
-                    // this local variable is a loop item variable
-                    // we should return item type of the array (if feasible)
-                    LocalKind.ForExpressionItemVariable => GetItemType(@for),
+                        return GetItemType(@for);
 
-                    // the local variable is an index variable
-                    // index variables are always of type int
-                    LocalKind.ForExpressionIndexVariable => LanguageConstants.Int,
+                    case LocalKind.ForExpressionIndexVariable:
+                        // the local variable is an index variable
+                        // index variables are always of type int
+                        return LanguageConstants.Int;
 
-                    _ => throw new InvalidOperationException($"Unexpected local kind '{localVariableSymbol.LocalKind}'.")
-                };
+                    case LocalKind.LambdaItemVariable:
+                        var (lambda, argumentIndex) = parent switch
+                        {
+                            LambdaSyntax lambdaSyntax => (lambdaSyntax, 0),
+                            VariableBlockSyntax block when this.binder.GetParent(block) is LambdaSyntax lambdaSyntax => (lambdaSyntax, block.Arguments.IndexOf(syntax)),
+                            _ => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}"),
+                        };
+
+                        if (binder.GetParent(lambda) is {} lambdaParent &&
+                            typeManager.GetDeclaredType(lambdaParent) is LambdaType lambdaType &&
+                            argumentIndex < lambdaType.ArgumentTypes.Length)
+                        {
+                            return lambdaType.ArgumentTypes[argumentIndex];
+                        }
+
+                        return LanguageConstants.Any;
+
+                    default:
+                        throw new InvalidOperationException($"Unexpected local kind '{localVariableSymbol.LocalKind}'.");
+                }
             });
 
         public override void VisitForSyntax(ForSyntax syntax)
@@ -1057,6 +1079,15 @@ namespace Bicep.Core.TypeSystem
                     default:
                         return ErrorType.Create(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
                 }
+            });
+
+        public override void VisitLambdaSyntax(LambdaSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var argumentTypes = syntax.GetLocalVariables().Select(x => typeManager.GetTypeInfo(x));
+                var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Body, LanguageConstants.Any);
+
+                return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), returnType);
             });
 
         private Symbol? GetSymbolForDecorator(DecoratorSyntax decorator)

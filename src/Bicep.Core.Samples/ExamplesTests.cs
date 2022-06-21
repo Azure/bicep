@@ -193,7 +193,7 @@ namespace Bicep.Core.Samples
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName), configuration);
             var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.EmitterSettingsWithSymbolicNames);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new EmitterSettings(BicepTestConstants.Features with { SymbolicNameCodegenEnabled = true }));
 
             foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
             {

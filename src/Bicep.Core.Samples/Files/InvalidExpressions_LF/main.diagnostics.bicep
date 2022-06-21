@@ -61,7 +61,6 @@ var bad = (null)[0]
 var bad = ()
 //@[04:07) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |bad|
 //@[04:07) [no-unused-vars (Warning)] Variable "bad" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |bad|
-//@[11:12) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |)|
 var bad = 
 //@[04:07) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |bad|
 //@[04:07) [no-unused-vars (Warning)] Variable "bad" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |bad|
@@ -514,12 +513,10 @@ var missingIndexerOnIdentifier = nonExistentIdentifier[][1][]
 // empty parens - should produce expected expression diagnostic
 var emptyParens = ()
 //@[04:15) [no-unused-vars (Warning)] Variable "emptyParens" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |emptyParens|
-//@[19:20) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |)|
 
 // #completionTest(26) -> symbols
 var anotherEmptyParens = ()
 //@[04:22) [no-unused-vars (Warning)] Variable "anotherEmptyParens" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |anotherEmptyParens|
-//@[26:27) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |)|
 
 // keywords can't be called like functions
 var nullness = null()

@@ -362,9 +362,8 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 //@[050:00051) | ├─Token(Assignment) |=|
 //@[052:00077) | └─IfConditionSyntax
 //@[052:00054) | | ├─Token(Identifier) |if|
-//@[055:00057) | | ├─ParenthesizedExpressionSyntax
+//@[055:00057) | | ├─SkippedTriviaSyntax
 //@[055:00056) | | | ├─Token(LeftParen) |(|
-//@[056:00056) | | | ├─SkippedTriviaSyntax
 //@[056:00057) | | | └─Token(RightParen) |)|
 //@[058:00077) | | └─ObjectSyntax
 //@[058:00059) | | | ├─Token(LeftBrace) |{|
@@ -393,9 +392,8 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
 //@[050:00051) | ├─Token(Assignment) |=|
 //@[052:00082) | └─IfConditionSyntax
 //@[052:00054) | | ├─Token(Identifier) |if|
-//@[055:00062) | | ├─ParenthesizedExpressionSyntax
+//@[055:00062) | | ├─SkippedTriviaSyntax
 //@[055:00056) | | | ├─Token(LeftParen) |(|
-//@[061:00061) | | | ├─SkippedTriviaSyntax
 //@[061:00062) | | | └─Token(RightParen) |)|
 //@[063:00082) | | └─ObjectSyntax
 //@[063:00064) | | | ├─Token(LeftBrace) |{|
@@ -7395,9 +7393,8 @@ resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2
 //@[104:00105) | | ├─Token(Colon) |:|
 //@[106:00110) | | ├─IfConditionSyntax
 //@[106:00108) | | | ├─Token(Identifier) |if|
-//@[108:00110) | | | ├─ParenthesizedExpressionSyntax
+//@[108:00110) | | | ├─SkippedTriviaSyntax
 //@[108:00109) | | | | ├─Token(LeftParen) |(|
-//@[109:00109) | | | | ├─SkippedTriviaSyntax
 //@[109:00110) | | | | └─Token(RightParen) |)|
 //@[110:00110) | | | └─SkippedTriviaSyntax
 //@[110:00111) | | └─Token(RightSquare) |]|
@@ -7430,9 +7427,8 @@ resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05
 //@[103:00104) | | ├─Token(Colon) |:|
 //@[105:00109) | | ├─IfConditionSyntax
 //@[105:00107) | | | ├─Token(Identifier) |if|
-//@[107:00109) | | | ├─ParenthesizedExpressionSyntax
+//@[107:00109) | | | ├─SkippedTriviaSyntax
 //@[107:00108) | | | | ├─Token(LeftParen) |(|
-//@[108:00108) | | | | ├─SkippedTriviaSyntax
 //@[108:00109) | | | | └─Token(RightParen) |)|
 //@[109:00109) | | | └─SkippedTriviaSyntax
 //@[109:00110) | | └─Token(RightSquare) |]|

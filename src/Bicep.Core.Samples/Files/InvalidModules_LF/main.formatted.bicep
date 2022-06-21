@@ -341,8 +341,8 @@ module expectedLoopBody2 'modulea.bicep' = [for (x,y) in z:]
 module expectedLoopFilterOpenParen 'modulea.bicep' = [for x in y: if]
 module expectedLoopFilterOpenParen2 'modulea.bicep' = [for (x,y) in z: if]
 
-module expectedLoopFilterPredicateAndBody 'modulea.bicep' = [for x in y: if()]
-module expectedLoopFilterPredicateAndBody2 'modulea.bicep' = [for (x,y) in z: if()]
+module expectedLoopFilterPredicateAndBody 'modulea.bicep' = [for x in y: if   ( )]
+module expectedLoopFilterPredicateAndBody2 'modulea.bicep' = [for (x, y) in z: if   ( )]
 
 // wrong loop body type
 var emptyArray = []

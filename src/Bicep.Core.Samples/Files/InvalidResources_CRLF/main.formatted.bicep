@@ -53,12 +53,12 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 
 // empty condition
 // #completionTest(56) -> symbols
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if   ( )   {
   name: 'foo'
 }
 
 // #completionTest(57, 59) -> symbols
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if   (       )   {
   name: 'foo'
 }
 
@@ -1048,8 +1048,8 @@ resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)
 resource expectedLoopFilterOpenParen 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if]
 resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if]
 
-resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if()]
-resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if()]
+resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if   ( )]
+resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if   ( )]
 
 // wrong body type
 var emptyArray = []

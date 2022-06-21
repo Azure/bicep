@@ -13,6 +13,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
 using Bicep.Core.Extensions;
+using Bicep.Core.Syntax.Visitors;
 
 namespace Bicep.Core.Emit
 {
@@ -37,6 +38,7 @@ namespace Bicep.Core.Emit
             DetectUnsupportedModuleParameterAssignments(model, diagnosticWriter);
             DetectCopyVariableName(model, diagnosticWriter);
             DetectInvalidValueForParentProperty(model, diagnosticWriter);
+            BlockLambdasOutsideFunctionArguments(model, diagnosticWriter);
 
             return new(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
@@ -340,11 +342,24 @@ namespace Bicep.Core.Emit
                     if (semanticModel.ResourceMetadata.TryLookup(baseSyntax) is not { } && !semanticModel.GetTypeInfo(baseSyntax).IsError())
                     {
                         // we throw an error diagnostic when the parent property contains a value that cannot be computed or does not directly reference another resource.
-                        // this includes ternary operator expressions, which Bicep does not support 
+                        // this includes ternary operator expressions, which Bicep does not support
                         diagnosticWriter.Write(referenceParentSyntax, x => x.InvalidValueForParentProperty());
                     }
                 }
             }
+        }
+
+        private static void BlockLambdasOutsideFunctionArguments(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            CallbackVisitor.Visit(model.Root.Syntax, syntax => {
+                if (syntax is LambdaSyntax lambdaSyntax &&
+                    model.Binder.GetParent(lambdaSyntax) is not FunctionArgumentSyntax functionArgument)
+                {
+                    diagnostics.Write(lambdaSyntax, x => x.LambdaFunctionsOnlyValidInFunctionArguments());
+                }
+
+                return true;
+            });
         }
 
         private static bool IsInvariant(SemanticModel semanticModel, LocalVariableSyntax itemVariable, LocalVariableSyntax? indexVariable, SyntaxBase expression)

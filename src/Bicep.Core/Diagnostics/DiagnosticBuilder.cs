@@ -1416,6 +1416,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP240",
                 "The \"parent\" property only permits direct references to resources. Expressions are not supported.");
+
+            public ErrorDiagnostic LambdaFunctionsOnlyValidInFunctionArguments() => new(
+                TextSpan,
+                "BCP241",
+                $"Lambda functions may only be specified directly as function arguments.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
