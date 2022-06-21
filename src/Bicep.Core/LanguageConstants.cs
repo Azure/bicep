@@ -16,6 +16,8 @@ namespace Bicep.Core
         public const string LanguageId = "bicep";
         public const string LanguageFileExtension = ".bicep";
 
+        public const string ParamsFileExtension = ".bicepparam";
+
         public const string JsonLanguageId = "json";
         public const string JsoncLanguageId = "jsonc";
         public const string ArmTemplateLanguageId = "arm-template"; // Provided by the ARM Tools VSCode extension.
