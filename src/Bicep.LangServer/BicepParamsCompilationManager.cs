@@ -20,15 +20,15 @@ namespace Bicep.LanguageServer
 
         public void HandleFileChanges(IEnumerable<FileEvent> fileEvents) 
         {
-            //delay for now
+            //TODO: complete later, not required for basic file interaction
         } 
 
         public void RefreshCompilation(DocumentUri uri, bool reloadBicepConfig = false)
         {
-            //delay for now
+            //TODO: complete later, not required for basic file interaction
         } 
 
-        public void UpsertCompilation(DocumentUri uri, int? version, string text/*source code -> invoke parser directly*/, string? languageId = null)
+        public void UpsertCompilation(DocumentUri uri, int? version, string text, string? languageId = null)
         {
             var parser = new Parser(text);
             var syntax = parser.Program();
