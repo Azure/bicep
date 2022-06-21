@@ -421,7 +421,7 @@ export class DeployCommand implements Command {
         const viewDeploymentInPortalMessage =
           deploymentStartResponse.viewDeploymentInPortalMessage;
 
-        if (viewDeploymentInPortalMessage !== null) {
+        if (viewDeploymentInPortalMessage) {
           this.outputChannelManager.appendToOutputChannel(
             viewDeploymentInPortalMessage
           );
