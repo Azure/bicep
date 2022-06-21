@@ -34,7 +34,7 @@ namespace Bicep.VSLanguageServerClient
         {
             _processTracker = processTracker;
             _threadingContext = threadingContext;
-            _middleLayer = new AggregatingMiddleLayer(new HandleSnippetCompletionsMiddleLayer()); ;
+            _middleLayer = new HandleSnippetCompletionsMiddleLayer(); ;
         }
 
         public string Name => "Bicep Language Server";
@@ -114,7 +114,7 @@ namespace Bicep.VSLanguageServerClient
             return Task.CompletedTask;
         }
 
-        public object MiddleLayer => _middleLayer!;
+        public object MiddleLayer => _middleLayer;
 
         public object CustomMessageTarget => null!;
     }

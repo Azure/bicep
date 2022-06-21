@@ -50,7 +50,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <!--<PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.0.32112.339" ExcludeAssets="runtime" />-->
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.3.1061-preview2" />
   </ItemGroup>
   <ItemGroup>
