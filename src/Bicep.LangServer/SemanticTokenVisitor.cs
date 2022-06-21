@@ -295,14 +295,7 @@ namespace Bicep.LanguageServer
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitVariableDeclarationSyntax(syntax);
         }
-
-        public override void VisitParameterSetDeclarationSyntax(ParameterSetDeclarationSyntax syntax)
-        {
-            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
-            AddTokenType(syntax.Name, SemanticTokenType.Variable);
-            base.VisitParameterSetDeclarationSyntax(syntax);
-        }
-
+        
         public override void VisitTargetScopeSyntax(TargetScopeSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);

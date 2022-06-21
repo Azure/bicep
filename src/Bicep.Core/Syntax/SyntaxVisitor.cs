@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -69,15 +70,6 @@ namespace Bicep.Core.Syntax
         }
 
         public virtual void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
-        {
-            this.VisitNodes(syntax.LeadingNodes);
-            this.Visit(syntax.Keyword);
-            this.Visit(syntax.Name);
-            this.Visit(syntax.Assignment);
-            this.Visit(syntax.Value);
-        }
-
-        public virtual void VisitParameterSetDeclarationSyntax(ParameterSetDeclarationSyntax syntax)
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
@@ -337,6 +329,16 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.AsKeyword);
             this.Visit(syntax.AliasName);
             this.Visit(syntax.Config);
+        }
+
+        public virtual void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
+        {
+            throw new NotImplementedException();
         }
 
         protected void VisitTokens(IEnumerable<Token> tokens)

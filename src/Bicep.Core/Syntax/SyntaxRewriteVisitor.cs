@@ -150,6 +150,16 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax) => ReplaceCurrent(syntax, ReplaceParameterDefaultValueSyntax);
 
+        public void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
+        {
+            throw new NotImplementedException();
+        }
+        
         protected virtual SyntaxBase ReplaceVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
@@ -165,23 +175,6 @@ namespace Bicep.Core.Syntax
             return new VariableDeclarationSyntax(keyword, name, assignment, value);
         }
         void ISyntaxVisitor.VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceVariableDeclarationSyntax);
-
-        protected virtual SyntaxBase ReplaceParameterSetDeclarationSyntax(ParameterSetDeclarationSyntax syntax)
-        {
-            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
-            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
-            hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
-            hasChanges |= TryRewrite(syntax.Value, out var value);
-
-            if (!hasChanges)
-            {
-                return syntax;
-            }
-
-            return new VariableDeclarationSyntax(keyword, name, assignment, value);
-        }
-        void ISyntaxVisitor.VisitParameterSetDeclarationSyntax(ParameterSetDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceParameterSetDeclarationSyntax);
-    
 
         protected virtual SyntaxBase ReplaceLocalVariableSyntax(LocalVariableSyntax syntax)
         {
