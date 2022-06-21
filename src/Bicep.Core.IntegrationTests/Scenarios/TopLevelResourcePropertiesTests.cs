@@ -43,12 +43,12 @@ namespace Bicep.Core.IntegrationTests.Scenarios
                 yield return new object[] { "kind", "''" };
                 yield return new object[] { "managedBy", "''" };
                 yield return new object[] { "managedByExtended", "[]" };
-                yield return new object[] { "extendedLocation", "{}" };
+                yield return new object[] { "extendedLocation", "{'type': 'NotSpecified'}" };
                 yield return new object[] { "zones", "[]" };
                 yield return new object[] { "plan", "{}" };
                 yield return new object[] { "eTag", "''" };
-                yield return new object[] { "scale", "{}" };
-                yield return new object[] { "identity", "{}" };
+                yield return new object[] { "scale", "{'capacity': 1}" };
+                yield return new object[] { "identity", "{'type': 'NotSpecified'}" };
             }
         }
 

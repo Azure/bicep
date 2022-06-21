@@ -338,3 +338,11 @@ var keyVaultSecretArrayInterpolatedVar = [
   '${kv.getSecret('mySecret')}'
 ]
 
+var copy = [
+//@[04:08) Variable copy. Type: object[]. Declaration start char: 0, length: 82
+  {
+    name: 'one'
+    count: '[notAFunction()]'
+    input: {}
+  }
+]

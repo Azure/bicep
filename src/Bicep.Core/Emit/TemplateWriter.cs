@@ -324,7 +324,7 @@ Do not enable this setting for any production usage, or you may be unexpectedly 
             if (GetNonInlinedVariables(valueIsLoop: true).Any())
             {
                 // we have variables whose values are loops
-                emitter.EmitProperty("copy", () =>
+                emitter.EmitCopyProperty(() =>
                 {
                     jsonWriter.WriteStartArray();
 
@@ -402,7 +402,7 @@ Do not enable this setting for any production usage, or you may be unexpectedly 
 
                 if (context.Settings.EnableSymbolicNames)
                 {
-                    jsonWriter.WritePropertyName(resource.Symbol.Name);
+                    jsonWriter.WritePropertyName(emitter.GetSymbolicName(resource));
                 }
 
                 this.EmitResource(jsonWriter, resource, emitter);
@@ -521,7 +521,7 @@ Do not enable this setting for any production usage, or you may be unexpectedly 
             if (loops.Count == 1)
             {
                 var batchSize = GetBatchSize(resource.Symbol.DeclaringResource);
-                emitter.EmitProperty("copy", () => emitter.EmitCopyObject(loops[0].name, loops[0].@for, loops[0].input, batchSize: batchSize));
+                emitter.EmitCopyProperty(() => emitter.EmitCopyObject(loops[0].name, loops[0].@for, loops[0].input, batchSize: batchSize));
             }
             else if (loops.Count > 1)
             {
@@ -618,7 +618,7 @@ Do not enable this setting for any production usage, or you may be unexpectedly 
                 {
                     // the value is a for-expression
                     // write a single property copy loop
-                    emitter.EmitProperty("copy", () =>
+                    emitter.EmitCopyProperty(() =>
                     {
                         jsonWriter.WriteStartArray();
                         emitter.EmitCopyObject("value", @for, @for.Body, "value");
@@ -670,7 +670,7 @@ Do not enable this setting for any production usage, or you may be unexpectedly 
                     }
 
                     var batchSize = GetBatchSize(moduleSymbol.DeclaringModule);
-                    emitter.EmitProperty("copy", () => emitter.EmitCopyObject(moduleSymbol.Name, @for, input: null, batchSize: batchSize));
+                    emitter.EmitCopyProperty(() => emitter.EmitCopyObject(moduleSymbol.Name, @for, input: null, batchSize: batchSize));
                     break;
             }
 
@@ -772,13 +772,13 @@ Do not enable this setting for any production usage, or you may be unexpectedly 
                     switch ((resourceDependency.IsCollection, dependency.IndexExpression))
                     {
                         case (false, _):
-                            jsonWriter.WriteValue(resourceDependency.Name);
+                            emitter.EmitSymbolReference(resource);
                             Debug.Assert(dependency.IndexExpression is null);
                             break;
                         // dependency is on the entire resource collection
                         // write the name of the resource collection as the dependency
                         case (true, null):
-                            jsonWriter.WriteValue(resourceDependency.Name);
+                            emitter.EmitSymbolReference(resource);
                             break;
                         case (true, { } indexExpression):
                             emitter.EmitIndexedSymbolReference(resource, indexExpression, newContext);
@@ -917,7 +917,7 @@ Do not enable this setting for any production usage, or you may be unexpectedly 
 
             if (outputSymbol.Value is ForSyntax @for)
             {
-                emitter.EmitProperty("copy", () => emitter.EmitCopyObject(name: null, @for, @for.Body));
+                emitter.EmitCopyProperty(() => emitter.EmitCopyObject(name: null, @for, @for.Body));
             }
             else
             {

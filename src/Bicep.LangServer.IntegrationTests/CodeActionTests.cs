@@ -25,6 +25,7 @@ using Bicep.LanguageServer;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -561,14 +562,14 @@ param foo string
 ")]
         [DataRow(@"
 var nested = [
-  { foo: [ ['bar'], 12|3 ]}
+  { foo: [ ['bar'], 12|3 ] }
 ]
 ", @"
 var nested = [
   { foo: [
-  [ 'bar' ]
-  123
-]}
+    [ 'bar' ]
+    123
+  ] }
 ]
 ")]
         [DataTestMethod]
@@ -692,6 +693,59 @@ var foo = [ |abc def ]
             codeActions.Should().NotContain(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToMultiLineDescription);
         }
 
+        [DataTestMethod]
+        [DataRow(MultilineObjectsAndArraysCodeFixProvider.ConvertToSingleLineDescription, @"var foo = {
+  abc: 'def'
+  ghi:| 'jkl'
+  deep: [|
+    {|
+      nesting: {|
+        here: '!!!'
+      }
+    }
+  ]
+}
+")]
+        [DataRow(MultilineObjectsAndArraysCodeFixProvider.ConvertToMultiLineDescription, @"var foo = {
+  abc: 'def'
+  ghi:| 'jkl'
+  deep: [|
+    {|
+      nesting: {|
+        here: '!!!', same: 'line'
+      }, same: 'line'
+    }, 'same line'
+  ], same: 'line'
+}
+")]
+        public async Task Single_and_multi_line_actions_should_indent_to_match_the_formatter(string codeActionName, string fileWithCursors)
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file://{TestContext.TestName}_{Guid.NewGuid():D}/main.bicep"), file);
+            bicepFile.Should().NotHaveParseErrors("this test is only designed for valid Bicep files");
+
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, bicepFile);
+            var fileVersion = 0;
+
+            foreach (var cursor in cursors)
+            {
+                using (new AssertionScope().WithVisualCursor(bicepFile, new TextSpan(cursor, 0)))
+                {
+                    await helper.ChangeFileAsync(TestContext, bicepFile, ++fileVersion);
+                    var codeActions = await RequestCodeActions(helper.Client, bicepFile, cursor);
+                    var codeAction = GetSingleCodeAction(codeActions, codeActionName);
+
+                    var codeActionUpdatedFile = ApplyCodeAction(bicepFile, codeAction);
+
+                    await helper.ChangeFileAsync(TestContext, codeActionUpdatedFile, ++fileVersion);
+                    var formattedFile = await FormatDocument(helper.Client, codeActionUpdatedFile);
+
+                    codeActionUpdatedFile.Should().HaveEquivalentSourceText(formattedFile);
+                }
+            }
+        }
+
         private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunParameterSyntaxTest(string paramType, string? decorator = null)
         {
             string fileWithCursors = @$"
@@ -783,6 +837,29 @@ param fo|o {paramType}
             var replaced = originalFile.Substring(0, start) + textToInsert + originalFile.Substring(end);
 
             return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, replaced);
+        }
+
+        private static CodeAction GetSingleCodeAction(IEnumerable<CodeAction> codeActions, string codeActionName)
+        {
+            codeActions.Should().ContainSingle(x => x.Title == codeActionName);
+
+            return codeActions.Single(x => x.Title == codeActionName);
+        }
+
+        private static async Task<BicepFile> FormatDocument(ILanguageClient client, BicepFile bicepFile)
+        {
+            var textEditContainer = await client.TextDocument.RequestDocumentFormatting(new DocumentFormattingParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Options = new FormattingOptions
+                {
+                    TabSize = 2,
+                    InsertSpaces = true,
+                    InsertFinalNewline = true,
+                },
+            });
+
+            return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, textEditContainer!.Single().NewText);
         }
     }
 }

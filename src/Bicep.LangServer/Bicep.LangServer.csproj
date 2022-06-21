@@ -3,9 +3,6 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>Bicep.LanguageServer</RootNamespace>
-	<EnableNuget>true</EnableNuget>
-	<PackageTags>Azure;ResourceManager;ARM;Deployments;Templates;Bicep</PackageTags>
-	<Description>Bicep language server</Description>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.5" />
-    <PackageReference Include="CommandLineParser" Version="2.8.0" />
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
   </ItemGroup>
 
   <ItemGroup>

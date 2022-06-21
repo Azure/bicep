@@ -605,6 +605,18 @@ var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object
 //@[070:071) Comma |,|
 //@[072:094) StringComplete |'.object.nestedString'|
 //@[094:095) RightParen |)|
-//@[095:097) NewLine |\r\n|
+//@[095:099) NewLine |\r\n\r\n|
+
+var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.products[?(@.price > 3)].name')
+//@[000:003) Identifier |var|
+//@[004:025) Identifier |testJsonTokensAsArray|
+//@[026:027) Assignment |=|
+//@[028:043) Identifier |loadJsonContent|
+//@[043:044) LeftParen |(|
+//@[044:069) StringComplete |'./Assets/test2.json.txt'|
+//@[069:070) Comma |,|
+//@[071:103) StringComplete |'.products[?(@.price > 3)].name'|
+//@[103:104) RightParen |)|
+//@[104:106) NewLine |\r\n|
 
 //@[000:000) EndOfFile ||

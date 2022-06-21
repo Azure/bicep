@@ -1,5 +1,5 @@
 var loadedText1 = loadTextContent('Assets/TextFile.CRLF.txt')
-//@[000:3682) ProgramSyntax
+//@[000:3790) ProgramSyntax
 //@[000:0061) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0015) | ├─IdentifierSyntax
@@ -1007,6 +1007,26 @@ var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object
 //@[072:0094) | | | └─StringSyntax
 //@[072:0094) | | | | └─Token(StringComplete) |'.object.nestedString'|
 //@[094:0095) | | └─Token(RightParen) |)|
-//@[095:0097) ├─Token(NewLine) |\r\n|
+//@[095:0099) ├─Token(NewLine) |\r\n\r\n|
+
+var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.products[?(@.price > 3)].name')
+//@[000:0104) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0025) | ├─IdentifierSyntax
+//@[004:0025) | | └─Token(Identifier) |testJsonTokensAsArray|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0104) | └─FunctionCallSyntax
+//@[028:0043) | | ├─IdentifierSyntax
+//@[028:0043) | | | └─Token(Identifier) |loadJsonContent|
+//@[043:0044) | | ├─Token(LeftParen) |(|
+//@[044:0069) | | ├─FunctionArgumentSyntax
+//@[044:0069) | | | └─StringSyntax
+//@[044:0069) | | | | └─Token(StringComplete) |'./Assets/test2.json.txt'|
+//@[069:0070) | | ├─Token(Comma) |,|
+//@[071:0103) | | ├─FunctionArgumentSyntax
+//@[071:0103) | | | └─StringSyntax
+//@[071:0103) | | | | └─Token(StringComplete) |'.products[?(@.price > 3)].name'|
+//@[103:0104) | | └─Token(RightParen) |)|
+//@[104:0106) ├─Token(NewLine) |\r\n|
 
 //@[000:0000) └─Token(EndOfFile) ||
