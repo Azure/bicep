@@ -334,10 +334,6 @@
         },
         {
           "SourceLine": 77,
-          "TargetLine": 96
-        },
-        {
-          "SourceLine": 77,
           "TargetLine": 97
         },
         {
@@ -347,6 +343,10 @@
         {
           "SourceLine": 77,
           "TargetLine": 100
+        },
+        {
+          "SourceLine": 77,
+          "TargetLine": 96
         },
         {
           "SourceLine": 77,

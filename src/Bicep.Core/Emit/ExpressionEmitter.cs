@@ -66,9 +66,9 @@ namespace Bicep.Core.Emit
 
                     foreach (ArrayItemSyntax itemSyntax in arraySyntax.Items)
                     {
-                        var startPos = writer.CurrentPos;
-                        EmitExpression(itemSyntax.Value);
-                        writer.AddSourceMapping(itemSyntax, startPos);
+                        writer.WriteExpression(
+                            itemSyntax.Value,
+                            () => EmitExpression(itemSyntax.Value));
                     }
 
                     writer.WriteEndArray();
@@ -228,76 +228,75 @@ namespace Bicep.Core.Emit
                 };
             }
 
-            writer.WriteStartObject();
-
-            if (name is not null)
+            writer.WriteObject(syntax, () =>
             {
-                this.EmitProperty("name", name);
-            }
-
-            // construct the length ARM expression from the Bicep array expression
-            // type check has already ensured that the array expression is an array
-            this.EmitPropertyWithTransform(
-                "count",
-                syntax.Expression,
-                arrayExpression => new FunctionExpression("length", new[] { arrayExpression }, Array.Empty<LanguageExpression>()));
-
-            if (batchSize.HasValue)
-            {
-                this.EmitProperty("mode", "serial");
-                this.EmitProperty("batchSize", () => writer.WriteValue(batchSize.Value));
-            }
-
-            if (input != null)
-            {
-                if (copyIndexOverride == null)
+                if (name is not null)
                 {
-                    if (CanEmitAsInputDirectly(input))
+                    this.EmitProperty("name", name);
+                }
+
+                // construct the length ARM expression from the Bicep array expression
+                // type check has already ensured that the array expression is an array
+                this.EmitPropertyWithTransform(
+                    "count",
+                    syntax.Expression,
+                    arrayExpression => new FunctionExpression("length", new[] { arrayExpression }, Array.Empty<LanguageExpression>()));
+
+                if (batchSize.HasValue)
+                {
+                    this.EmitProperty("mode", "serial");
+                    this.EmitProperty("batchSize", () => writer.WriteValue(batchSize.Value));
+                }
+
+                if (input != null)
+                {
+                    if (copyIndexOverride == null)
                     {
-                        this.EmitProperty("input", input);
+                        if (CanEmitAsInputDirectly(input))
+                        {
+                            this.EmitProperty("input", input);
+                        }
+                        else
+                        {
+                            this.EmitPropertyWithTransform("input", input, converted => ExpressionConverter.ToFunctionExpression(converted));
+                        }
                     }
                     else
                     {
-                        this.EmitPropertyWithTransform("input", input, converted => ExpressionConverter.ToFunctionExpression(converted));
+                        this.EmitPropertyWithTransform("input", input, expression =>
+                        {
+                            if (!CanEmitAsInputDirectly(input))
+                            {
+                                expression = ExpressionConverter.ToFunctionExpression(expression);
+                            }
+
+                            // the named copy index in the serialized expression is incorrect
+                            // because the object syntax here does not match the JSON equivalent due to the presence of { "value": ... } wrappers
+                            // for now, we will manually replace the copy index in the converted expression
+                            // this approach will not work for nested property loops
+                            var visitor = new LanguageExpressionVisitor
+                            {
+                                OnFunctionExpression = function =>
+                                {
+                                    if (string.Equals(function.Function, "copyIndex") &&
+                                        function.Parameters.Length == 1 &&
+                                        function.Parameters[0] is JTokenExpression)
+                                    {
+                                        // it's an invocation of the copyIndex function with 1 argument with a literal value
+                                        // replace the argument with the correct value
+                                        function.Parameters = new LanguageExpression[] { new JTokenExpression("value") };
+                                    }
+                                }
+                            };
+
+                            // mutate the expression
+                            expression.Accept(visitor);
+
+                            return expression;
+                        });
                     }
                 }
-                else
-                {
-                    this.EmitPropertyWithTransform("input", input, expression =>
-                    {
-                        if (!CanEmitAsInputDirectly(input))
-                        {
-                            expression = ExpressionConverter.ToFunctionExpression(expression);
-                        }
-
-                        // the named copy index in the serialized expression is incorrect
-                        // because the object syntax here does not match the JSON equivalent due to the presence of { "value": ... } wrappers
-                        // for now, we will manually replace the copy index in the converted expression
-                        // this approach will not work for nested property loops
-                        var visitor = new LanguageExpressionVisitor
-                        {
-                            OnFunctionExpression = function =>
-                            {
-                                if (string.Equals(function.Function, "copyIndex") &&
-                                    function.Parameters.Length == 1 &&
-                                    function.Parameters[0] is JTokenExpression)
-                                {
-                                    // it's an invocation of the copyIndex function with 1 argument with a literal value
-                                    // replace the argument with the correct value
-                                    function.Parameters = new LanguageExpression[] { new JTokenExpression("value") };
-                                }
-                            }
-                        };
-
-                        // mutate the expression
-                        expression.Accept(visitor);
-
-                        return expression;
-                    });
-                }
-            }
-
-            writer.WriteEndObject();
+            });
         }
 
         public void EmitObjectProperties(ObjectSyntax objectSyntax, ISet<string>? propertiesToOmit = null)
