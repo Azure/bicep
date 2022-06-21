@@ -42,8 +42,6 @@ namespace Bicep.Core.Syntax
 
         void VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax);
 
-        //void VisitParameterLiteralValueSyntax(ParameterLiteralValueSyntax syntax);
-
         void VisitParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax);
 
         void VisitProgramSyntax(ProgramSyntax syntax);

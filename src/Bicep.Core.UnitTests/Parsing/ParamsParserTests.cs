@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.Diagnostics;
 using System.Text;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
@@ -28,22 +27,24 @@ namespace Bicep.Core.UnitTests.Parsing
         [TestMethod]
         public void TestDeclaringParams()
         {
-            Trace.WriteLine("Test running!");
-            
             var paramIntTest = ParamsParserHelper.ParamsParse("param myint = 12 \n");
             var paramStringTest = ParamsParserHelper.ParamsParse("param mystr = 'hello world' \n");
+            
+            paramIntTest.Should().BeOfType(typeof(ProgramSyntax));
+            paramStringTest.Should().BeOfType(typeof(ProgramSyntax));
 
-            Trace.WriteLine("Test ended");
+            paramIntTest.Children.OfType<ParameterAssignmentSyntax>().Should().HaveCount(1);
+            paramStringTest.Children.OfType<ParameterAssignmentSyntax>().Should().HaveCount(1);
         }
 
         [TestMethod]
-        public void TestUsingParams()
+        public void TestUsingKeyword()
         {
-            Trace.WriteLine("Test running!");
-            
-            var paramUsingTest = ParamsParserHelper.ParamsParse("using './bicep.main' \n");
-            
-            Trace.WriteLine("Test ended");
+            var usingTest = ParamsParserHelper.ParamsParse("using './bicep.main' \n");
+
+            usingTest.Should().BeOfType(typeof(ProgramSyntax));
+
+            usingTest.Children.OfType<UsingDeclarationSyntax>().Should().HaveCount(1);
         }
 
 
