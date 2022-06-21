@@ -5,16 +5,16 @@
       "FilePath": "main.bicep",
       "SourceMap": [
         {
-          "SourceLine": 2,
-          "TargetLine": 11
-        },
-        {
-          "SourceLine": 2,
+          "SourceLine": 0,
           "TargetLine": 12
         },
         {
           "SourceLine": 2,
           "TargetLine": 13
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 11
         },
         {
           "SourceLine": 2,
@@ -49,6 +49,10 @@
           "TargetLine": 23
         },
         {
+          "SourceLine": 12,
+          "TargetLine": 29
+        },
+        {
           "SourceLine": 14,
           "TargetLine": 34
         },
@@ -63,10 +67,6 @@
         {
           "SourceLine": 12,
           "TargetLine": 28
-        },
-        {
-          "SourceLine": 12,
-          "TargetLine": 29
         },
         {
           "SourceLine": 12,
@@ -89,8 +89,16 @@
           "TargetLine": 35
         },
         {
+          "SourceLine": 17,
+          "TargetLine": 39
+        },
+        {
           "SourceLine": 18,
           "TargetLine": 43
+        },
+        {
+          "SourceLine": 20,
+          "TargetLine": 52
         },
         {
           "SourceLine": 17,
@@ -103,10 +111,6 @@
         {
           "SourceLine": 17,
           "TargetLine": 38
-        },
-        {
-          "SourceLine": 17,
-          "TargetLine": 39
         },
         {
           "SourceLine": 17,
@@ -151,10 +155,6 @@
         {
           "SourceLine": 17,
           "TargetLine": 51
-        },
-        {
-          "SourceLine": 17,
-          "TargetLine": 52
         },
         {
           "SourceLine": 17,
@@ -329,8 +329,16 @@
           "TargetLine": 95
         },
         {
+          "SourceLine": 25,
+          "TargetLine": 99
+        },
+        {
           "SourceLine": 26,
           "TargetLine": 103
+        },
+        {
+          "SourceLine": 28,
+          "TargetLine": 112
         },
         {
           "SourceLine": 25,
@@ -343,10 +351,6 @@
         {
           "SourceLine": 25,
           "TargetLine": 98
-        },
-        {
-          "SourceLine": 25,
-          "TargetLine": 99
         },
         {
           "SourceLine": 25,
@@ -391,10 +395,6 @@
         {
           "SourceLine": 25,
           "TargetLine": 111
-        },
-        {
-          "SourceLine": 25,
-          "TargetLine": 112
         },
         {
           "SourceLine": 25,
@@ -563,10 +563,6 @@
       "SourceMap": [
         {
           "SourceLine": 0,
-          "TargetLine": 99
-        },
-        {
-          "SourceLine": 0,
           "TargetLine": 98
         },
         {
@@ -607,19 +603,15 @@
         },
         {
           "SourceLine": 17,
+          "TargetLine": 155
+        },
+        {
+          "SourceLine": 17,
           "TargetLine": 111
         },
         {
           "SourceLine": 17,
-          "TargetLine": 112
-        },
-        {
-          "SourceLine": 17,
           "TargetLine": 110
-        },
-        {
-          "SourceLine": 0,
-          "TargetLine": 155
         }
       ]
     }

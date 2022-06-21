@@ -1,5 +1,5 @@
 @allowed(['abc', 'def', 'ghi'])
-//@[14:16]         "abc",
+//@[12:17]       "type": "string",
 param foo string
 //@[11:18]     "foo": {
 

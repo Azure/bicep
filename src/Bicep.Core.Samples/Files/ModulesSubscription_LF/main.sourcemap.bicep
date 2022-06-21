@@ -1,4 +1,5 @@
 targetScope = 'subscription'
+//@[12:12]       "type": "string",
 
 param prefix string = 'majastrz'
 //@[11:14]     "prefix": {
@@ -30,6 +31,7 @@ module scopedToSymbolicName 'hello.bicep' = [for (name, i) in scripts: {
 //@[43:43]       "name": "[format('{0}-dep-{1}', parameters('prefix'), copyIndex())]",
   params: {
     scriptName: 'test-${name}-${i}'
+//@[52:52]             "value": "[format('test-{0}-{1}', variables('scripts')[copyIndex()], copyIndex())]"
   }
   scope: resourceGroups[i]
 }]
@@ -40,6 +42,7 @@ module scopedToResourceGroupFunction 'hello.bicep' = [for (name, i) in scripts: 
 //@[103:103]       "name": "[format('{0}-dep-{1}', parameters('prefix'), copyIndex())]",
   params: {
     scriptName: 'test-${name}-${i}'
+//@[112:112]             "value": "[format('test-{0}-{1}', variables('scripts')[copyIndex()], copyIndex())]"
   }
   scope: resourceGroup(concat(name, '-extra'))
 }]

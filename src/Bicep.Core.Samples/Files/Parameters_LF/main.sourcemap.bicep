@@ -4,6 +4,7 @@
 
 // parameters without default value
 @sys.description('''
+//@[14:14]         "description": "this is my multi line \ndescription for my myString\n"
 this is my multi line 
 description for my myString
 ''')
@@ -16,6 +17,7 @@ param myBool bool
 
 // parameters with default value
 @sys.description('this is myString2')
+//@[27:27]         "description": "this is myString2"
 @metadata({
   description: 'overwrite but still valid'
 })
@@ -32,6 +34,7 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 
 // object default value
 @sys.description('this is foo')
+//@[70:70]         "description": "this is foo",
 @metadata({
   description: 'overwrite but still valid'
   another: 'just for fun'
@@ -97,6 +100,7 @@ param secretObject object
 
 // enum parameter
 @allowed([
+//@[90:93]       "allowedValues": [
   'Standard_LRS'
 //@[91:91]         "Standard_LRS",
   'Standard_GRS'
@@ -107,23 +111,29 @@ param storageSku string
 
 // length constraint on a string
 @minLength(3)
+//@[98:98]       "minLength": 3
 @maxLength(24)
+//@[97:97]       "maxLength": 24,
 param storageName string
 //@[95:99]     "storageName": {
 
 // length constraint on an array
 @minLength(3)
+//@[103:103]       "minLength": 3
 @maxLength(24)
+//@[102:102]       "maxLength": 24,
 param someArray array
 //@[100:104]     "someArray": {
 
 // empty metadata
 @metadata({})
+//@[107:107]       "metadata": {}
 param emptyMetadata string
 //@[105:108]     "emptyMetadata": {
 
 // description
 @metadata({
+//@[111:113]       "metadata": {
   description: 'my description'
 //@[112:112]         "description": "my description"
 })
@@ -131,11 +141,13 @@ param description string
 //@[109:114]     "description": {
 
 @sys.description('my description')
+//@[118:118]         "description": "my description"
 param description2 string
 //@[115:120]     "description2": {
 
 // random extra metadata
 @metadata({
+//@[123:131]       "metadata": {
   description: 'my description'
 //@[124:124]         "description": "my description",
   a: 1
@@ -157,8 +169,11 @@ param additionalMetadata string
 // all modifiers together
 @secure()
 @minLength(3)
+//@[144:144]       "minLength": 3
 @maxLength(24)
+//@[143:143]       "maxLength": 24,
 @allowed([
+//@[138:142]       "allowedValues": [
   'one'
 //@[139:139]         "one",
   'two'
@@ -167,6 +182,7 @@ param additionalMetadata string
 //@[141:141]         "three"
 ])
 @metadata({
+//@[135:137]       "metadata": {
   description: 'Name of the storage account'
 //@[136:136]         "description": "Name of the storage account"
 })
@@ -177,6 +193,7 @@ param defaultExpression bool = 18 != (true || false)
 //@[146:149]     "defaultExpression": {
 
 @allowed([
+//@[152:155]       "allowedValues": [
   'abc'
 //@[153:153]         "abc",
   'def'
@@ -186,6 +203,7 @@ param stringLiteral string
 //@[150:156]     "stringLiteral": {
 
 @allowed([
+//@[160:164]       "allowedValues": [
   'abc'
 //@[161:161]         "abc",
   'def'
@@ -198,8 +216,11 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 
 @secure()
 @minLength(2)
+//@[173:173]       "minLength": 2
   @maxLength(10)
+//@[172:172]       "maxLength": 10,
 @allowed([
+//@[168:171]       "allowedValues": [
   'Apple'
 //@[169:169]         "Apple",
   'Banana'
@@ -209,16 +230,20 @@ param decoratedString string
 //@[166:174]     "decoratedString": {
 
 @minValue(200)
+//@[178:178]       "minValue": 200
 param decoratedInt int = 123
 //@[175:179]     "decoratedInt": {
 
 // negative integer literals are allowed as decorator values
 @minValue(-10)
+//@[183:183]       "minValue": -10
 @maxValue(-3)
+//@[182:182]       "maxValue": -3,
 param negativeValues int
 //@[180:184]     "negativeValues": {
 
 @sys.description('A boolean.')
+//@[189:189]         "description": "A boolean.",
 @metadata({
     description: 'I will be overrode.'
     foo: 'something'
@@ -275,8 +300,10 @@ param decoratedObject object = {
 
 @sys.metadata({
     description: 'An array.'
+//@[229:229]         "description": "An array."
 })
 @sys.maxLength(20)
+//@[231:231]       "maxLength": 20
 @sys.description('I will be overrode.')
 param decoratedArray array = [
 //@[222:232]     "decoratedArray": {

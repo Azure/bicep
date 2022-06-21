@@ -90,7 +90,7 @@ namespace Bicep.Core.Emit
 
         private readonly EmitterContext context;
         private readonly EmitterSettings settings;
-        private readonly RawSourceMap rawSourceMap;
+        private readonly RawSourceMap? rawSourceMap;
 
         public SourceMap? SourceMap; // ARM JSON line => (Bicep File, Bicep Line)
 
@@ -98,7 +98,9 @@ namespace Bicep.Core.Emit
         {
             this.context = new EmitterContext(semanticModel, settings);
             this.settings = settings;
-            this.rawSourceMap = new(new List<RawSourceMapFileEntry>());
+            this.rawSourceMap = (this.context.Settings.EnableSourceMapping)
+                ? new(new List<RawSourceMapFileEntry>())
+                : null;
             this.SourceMap = null;
         }
 
@@ -117,7 +119,7 @@ namespace Bicep.Core.Emit
             if (this.context.Settings.EnableSourceMapping)
             {
                 this.SourceMap = SourceMapHelper.ProcessRawSourceMap(
-                    this.rawSourceMap,
+                    this.rawSourceMap!,
                     templateJToken,
                     this.context.SemanticModel.SourceFile!);
             }
@@ -128,8 +130,8 @@ namespace Bicep.Core.Emit
         private (Template, JToken) GenerateTemplateWithoutHash()
         {
             using var stringWriter = new StringWriter();
-            using var jsonWriter = PositionTrackingJsonTextWriter.Create(stringWriter);
-            var emitter = new ExpressionEmitter(jsonWriter, this.context, this.rawSourceMap);
+            using var jsonWriter = PositionTrackingJsonTextWriter.Create(stringWriter, this.rawSourceMap, this.context.SemanticModel.SourceFile);
+            var emitter = new ExpressionEmitter(jsonWriter, this.context);
 
             jsonWriter.WriteStartObject();
 
@@ -177,7 +179,7 @@ namespace Bicep.Core.Emit
                 jsonWriter.WritePropertyName(parameterSymbol.Name);
                 this.EmitParameter(jsonWriter, parameterSymbol, emitter);
 
-                AddSourceMapping(parameterSymbol.DeclaringParameter, jsonWriter, startPos);
+                jsonWriter.AddSourceMapping(parameterSymbol.DeclaringParameter, startPos);
             }
 
             jsonWriter.WriteEndObject();
@@ -263,7 +265,7 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteEndObject();
 
-            AddSourceMapping(parameterSymbol.DeclaringParameter, jsonWriter, startPos);
+            jsonWriter.AddSourceMapping(parameterSymbol.DeclaringParameter, startPos);
         }
 
         private void EmitVariablesIfPresent(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
@@ -306,7 +308,7 @@ namespace Bicep.Core.Emit
 
                         emitter.EmitCopyObject(variableSymbol.Name, @for, @for.Body);
 
-                        AddSourceMapping(variableSymbol.DeclaringVariable, jsonWriter, startPos);
+                        jsonWriter.AddSourceMapping(variableSymbol.DeclaringVariable, startPos);
                     }
 
                     jsonWriter.WriteEndArray();
@@ -321,7 +323,7 @@ namespace Bicep.Core.Emit
                 jsonWriter.WritePropertyName(variableSymbol.Name);
                 emitter.EmitExpression(variableSymbol.Value);
 
-                AddSourceMapping(variableSymbol.DeclaringVariable, jsonWriter, startPos);
+                jsonWriter.AddSourceMapping(variableSymbol.DeclaringVariable, startPos);
             }
 
             jsonWriter.WriteEndObject();
@@ -356,7 +358,7 @@ namespace Bicep.Core.Emit
 
                 jsonWriter.WriteEndObject();
 
-                AddSourceMapping(import.DeclaringSyntax, jsonWriter, startPos);
+                jsonWriter.AddSourceMapping(import.DeclaringSyntax, startPos);
             }
 
             jsonWriter.WriteEndObject();
@@ -571,7 +573,7 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteEndObject();
 
-            AddSourceMapping(resource.Symbol.DeclaringResource, jsonWriter, startPos);
+            jsonWriter.AddSourceMapping(resource.Symbol.DeclaringResource, startPos);
         }
 
         private void EmitModuleParameters(JsonTextWriter jsonWriter, ModuleSymbol moduleSymbol, ExpressionEmitter emitter)
@@ -715,11 +717,11 @@ namespace Bicep.Core.Emit
                     var writer = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel, this.settings);
                     writer.Write(jsonWriter);
 
-                    if (writer is TemplateWriter templateWriter)
+                    if (writer is TemplateWriter templateWriter && this.rawSourceMap != null)
                     {
                         var offset = jsonWriter.CurrentPos;
                         this.rawSourceMap.AddNestedRawSourceMap(
-                            templateWriter.rawSourceMap,
+                            templateWriter.rawSourceMap!,
                             offset);
                     }
                 }
@@ -741,7 +743,7 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteEndObject();
 
-            AddSourceMapping(moduleSymbol.DeclaringModule, jsonWriter, startPos);
+            jsonWriter.AddSourceMapping(moduleSymbol.DeclaringModule, startPos);
         }
 
         private static bool ShouldGenerateDependsOn(ResourceDependency dependency)
@@ -887,7 +889,7 @@ namespace Bicep.Core.Emit
                 jsonWriter.WritePropertyName(outputSymbol.Name);
                 EmitOutput(jsonWriter, outputSymbol, emitter);
 
-                AddSourceMapping(outputSymbol.DeclaringSyntax, jsonWriter, startPos);
+                jsonWriter.AddSourceMapping(outputSymbol.DeclaringSyntax, startPos);
             }
 
             jsonWriter.WriteEndObject();
@@ -949,7 +951,7 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteEndObject();
 
-            AddSourceMapping(outputSymbol.DeclaringSyntax, jsonWriter, startPos);
+            jsonWriter.AddSourceMapping(outputSymbol.DeclaringSyntax, startPos);
         }
 
         public void EmitMetadata(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
@@ -971,19 +973,6 @@ namespace Bicep.Core.Emit
                 jsonWriter.WriteEndObject();
             }
             jsonWriter.WriteEndObject();
-        }
-
-        private void AddSourceMapping(SyntaxBase bicepSyntax, PositionTrackingJsonTextWriter jsonWriter, int startPosition)
-        {
-            if (this.context.Settings.EnableSourceMapping)
-            {
-                SourceMapHelper.AddMapping(
-                    this.rawSourceMap,
-                    this.context.SemanticModel.SourceFile,
-                    bicepSyntax,
-                    jsonWriter,
-                    startPosition);
-            }
         }
     }
 }

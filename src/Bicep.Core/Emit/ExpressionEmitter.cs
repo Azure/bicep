@@ -30,12 +30,11 @@ namespace Bicep.Core.Emit
 
         public readonly RawSourceMap? rawSourceMap;
 
-        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context, RawSourceMap? rawSourceMap = null)
+        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context)
         {
             this.writer = writer;
             this.context = context;
             this.converter = new ExpressionConverter(context);
-            this.rawSourceMap = rawSourceMap;
         }
 
         public void EmitExpression(SyntaxBase syntax)
@@ -69,7 +68,7 @@ namespace Bicep.Core.Emit
                     {
                         var startPos = writer.CurrentPos;
                         EmitExpression(itemSyntax.Value);
-                        AddSourceMapping(itemSyntax, startPos);
+                        writer.AddSourceMapping(itemSyntax, startPos);
                     }
 
                     writer.WriteEndArray();
@@ -322,9 +321,7 @@ namespace Bicep.Core.Emit
                             throw new InvalidOperationException("Encountered a property with an expression-based key whose value is a for-expression.");
                         }
 
-                        int startPos = this.writer.CurrentPos;
                         this.EmitCopyObject(key, @for, @for.Body);
-                        AddSourceMapping(property, startPos);
                     }
 
                     this.writer.WriteEndArray();
@@ -335,8 +332,6 @@ namespace Bicep.Core.Emit
             foreach (ObjectPropertySyntax propertySyntax in propertyLookup[false])
             {
                 // property whose value is not a for-expression
-
-                int startPos = this.writer.CurrentPos;
 
                 if (propertySyntax.TryGetKeyText() is string keyName)
                 {
@@ -351,8 +346,6 @@ namespace Bicep.Core.Emit
                 {
                     EmitProperty(propertySyntax.Key, propertySyntax.Value);
                 }
-
-                AddSourceMapping(propertySyntax, startPos);
             }
         }
 
@@ -422,7 +415,8 @@ namespace Bicep.Core.Emit
                 var serialized = ExpressionSerializer.SerializeExpression(transformed);
 
                 this.writer.WriteValue(serialized);
-            });
+            },
+            value);
 
         public void EmitProperty(string name, Action valueFunc)
             => EmitPropertyInternal(new JTokenExpression(name), valueFunc);
@@ -440,14 +434,10 @@ namespace Bicep.Core.Emit
             EmitPropertyInternal(converter.ConvertExpression(syntaxKey), syntaxValue);
         }
 
-        private void EmitPropertyInternal(LanguageExpression expressionKey, Action valueFunc)
+        private void EmitPropertyInternal(LanguageExpression expressionKey, Action valueFunc, SyntaxBase? location = null)
         {
-            // cannot create mapping without access to SyntaxBase object (use IPositionable to get position in bicep)
-
             var serializedName = ExpressionSerializer.SerializeExpression(expressionKey);
-            writer.WritePropertyName(serializedName);
-
-            valueFunc();
+            writer.WriteProperty(location, serializedName, valueFunc);
         }
 
         private void EmitPropertyInternal(LanguageExpression expressionKey, string value)
@@ -458,26 +448,13 @@ namespace Bicep.Core.Emit
             });
 
         private void EmitPropertyInternal(LanguageExpression expressionKey, SyntaxBase syntaxValue)
-            => EmitPropertyInternal(expressionKey, () => EmitExpression(syntaxValue));
+            => EmitPropertyInternal(expressionKey, () => EmitExpression(syntaxValue), syntaxValue);
 
         public void EmitOptionalPropertyExpression(string name, SyntaxBase? expression)
         {
             if (expression != null)
             {
                 EmitProperty(name, expression);
-            }
-        }
-
-        private void AddSourceMapping(SyntaxBase bicepSyntax, int startPosition)
-        {
-            if (this.context.Settings.EnableSourceMapping && this.rawSourceMap != null)
-            {
-                SourceMapHelper.AddMapping(
-                    this.rawSourceMap,
-                    this.context.SemanticModel.SourceFile,
-                    bicepSyntax,
-                    this.writer,
-                    startPosition);
             }
         }
     }

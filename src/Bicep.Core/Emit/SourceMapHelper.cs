@@ -208,7 +208,7 @@ namespace Bicep.Core.Emit
                 sourceMapFileEntries.ToImmutableArray());
         }
 
-        public static void AddMapping(
+        private static void AddMapping(
             this RawSourceMap rawSourceMap,
             string bicepFileName,
             TextSpan bicepPosition,

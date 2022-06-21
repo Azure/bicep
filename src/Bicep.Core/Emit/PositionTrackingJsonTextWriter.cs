@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Text;
+using Bicep.Core.Syntax;
+using Bicep.Core.Workspaces;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
@@ -39,20 +42,49 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private readonly PositionTrackingTextWriter _trackingWriter;
+        private readonly RawSourceMap? rawSourceMap;
+        private readonly BicepFile? sourceFile;
+        private readonly PositionTrackingTextWriter trackingWriter;
 
-        public int CurrentPos => _trackingWriter.CurrentPos;
-        public ImmutableArray<int> CommaPositions => _trackingWriter.CommaPositions.ToImmutableArray();
+        public int CurrentPos => this.trackingWriter.CurrentPos;
+        public ImmutableArray<int> CommaPositions => this.trackingWriter.CommaPositions.ToImmutableArray();
 
-        private PositionTrackingJsonTextWriter(PositionTrackingTextWriter textWriter) : base(textWriter)
+        private PositionTrackingJsonTextWriter(PositionTrackingTextWriter textWriter,
+            RawSourceMap? rawSourceMap, BicepFile? sourceFile) : base(textWriter)
         {
-            _trackingWriter = textWriter;
+            this.rawSourceMap = rawSourceMap;
+            this.sourceFile = sourceFile;
+            this.trackingWriter = textWriter;
         }
 
-        public static PositionTrackingJsonTextWriter Create(TextWriter textWriter)
+        public static PositionTrackingJsonTextWriter Create(TextWriter textWriter,
+            RawSourceMap? rawSourceMap = null, BicepFile? sourceFile = null)
         {
             var trackingWriter = new PositionTrackingTextWriter(textWriter);
-            return new PositionTrackingJsonTextWriter(trackingWriter);
+            return new PositionTrackingJsonTextWriter(trackingWriter, rawSourceMap, sourceFile);
+        }
+
+        public void WriteProperty(SyntaxBase? keyPosition, string name, Action valueFunc)
+        {
+            var startPos = this.trackingWriter.CurrentPos;
+
+            base.WritePropertyName(name);
+            valueFunc();
+
+            AddSourceMapping(keyPosition, startPos);
+        }
+
+        public void AddSourceMapping(SyntaxBase? bicepSyntax, int startPosition)
+        {
+            if (bicepSyntax != null && this.rawSourceMap != null && this.sourceFile != null)
+            {
+                SourceMapHelper.AddMapping(
+                    this.rawSourceMap,
+                    this.sourceFile,
+                    bicepSyntax,
+                    this,
+                    startPosition);
+            }
         }
     }
 }

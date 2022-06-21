@@ -305,6 +305,10 @@
           "TargetLine": 114
         },
         {
+          "SourceLine": 49,
+          "TargetLine": 122
+        },
+        {
           "SourceLine": 46,
           "TargetLine": 111
         },
@@ -343,10 +347,6 @@
         {
           "SourceLine": 46,
           "TargetLine": 121
-        },
-        {
-          "SourceLine": 46,
-          "TargetLine": 122
         },
         {
           "SourceLine": 46,
@@ -437,6 +437,10 @@
           "TargetLine": 147
         },
         {
+          "SourceLine": 56,
+          "TargetLine": 155
+        },
+        {
           "SourceLine": 53,
           "TargetLine": 144
         },
@@ -475,10 +479,6 @@
         {
           "SourceLine": 53,
           "TargetLine": 154
-        },
-        {
-          "SourceLine": 53,
-          "TargetLine": 155
         },
         {
           "SourceLine": 53,
@@ -569,10 +569,6 @@
     {
       "FilePath": "modulea.bicep",
       "SourceMap": [
-        {
-          "SourceLine": 0,
-          "TargetLine": 155
-        },
         {
           "SourceLine": 0,
           "TargetLine": 179

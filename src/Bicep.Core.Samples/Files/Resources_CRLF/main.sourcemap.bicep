@@ -1,5 +1,6 @@
 
 @sys.description('this is basicStorage')
+//@[67:67]         "description": "this is basicStorage"
 resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 //@[57:69]       "type": "Microsoft.Storage/storageAccounts",
   name: 'basicblobs'
@@ -15,6 +16,7 @@ resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 }
 
 @sys.description('this is dnsZone')
+//@[76:76]         "description": "this is dnsZone"
 resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
 //@[70:78]       "type": "Microsoft.Network/dnsZones",
   name: 'myZone'
@@ -338,6 +340,7 @@ param shouldDeployVm bool = true
 //@[27:30]     "shouldDeployVm": {
 
 @sys.description('this is vmWithCondition')
+//@[284:284]         "description": "this is vmWithCondition"
 resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (shouldDeployVm) {
 //@[270:286]       "condition": "[parameters('shouldDeployVm')]",
   name: 'vmName'
@@ -426,6 +429,7 @@ var storageAccounts = [
 
 // just a storage account loop
 @sys.description('this is just a storage account loop')
+//@[346:346]         "description": "this is just a storage account loop"
 resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
 //@[332:348]       "copy": {
   name: account.name
@@ -442,6 +446,7 @@ resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 
 // storage account loop with index
 @sys.description('this is just a storage account loop with index')
+//@[363:363]         "description": "this is just a storage account loop with index"
 resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
 //@[349:365]       "copy": {
   name: '${account.name}${i}'
@@ -458,13 +463,14 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 
 // basic nested loop
 @sys.description('this is just a basic nested loop')
+//@[386:386]         "description": "this is just a basic nested loop"
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
 //@[366:388]       "copy": {
   name: 'vnet-${i}'
   properties: {
 //@[374:384]       "properties": {
     subnets: [for j in range(0, 4): {
-//@[376:382]             "name": "subnets",
+//@[378:381]             "count": "[length(range(0, 4))]",
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
      
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
@@ -481,7 +487,7 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
   properties: {
 //@[397:407]       "properties": {
     subnets: [for i in range(0, 4): {
-//@[399:405]             "name": "subnets",
+//@[401:404]             "count": "[length(range(0, 4))]",
       name: 'subnet-${i}-${i}'
 //@[403:403]               "name": "[format('subnet-{0}-{1}', range(0, 4)[copyIndex('subnets')], range(0, 4)[copyIndex('subnets')])]"
     }]
@@ -497,7 +503,7 @@ resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-
   properties: {
 //@[417:427]       "properties": {
     subnets: [for i in range(0, 4): {
-//@[419:425]             "name": "subnets",
+//@[421:424]             "count": "[length(range(0, 4))]",
       name: 'subnet-${i}-${i}'
 //@[423:423]               "name": "[format('subnet-{0}-{1}', range(0, 4)[copyIndex('subnets')], range(0, 4)[copyIndex('subnets')])]"
     }]
@@ -513,7 +519,7 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
   properties: {
 //@[437:447]       "properties": {
     subnets: [for duplicatesEverywhere in range(0, 4): {
-//@[439:445]             "name": "subnets",
+//@[441:444]             "count": "[length(range(0, 4))]",
       name: 'subnet-${duplicatesEverywhere}'
 //@[443:443]               "name": "[format('subnet-{0}', range(0, 4)[copyIndex('subnets')])]"
     }]

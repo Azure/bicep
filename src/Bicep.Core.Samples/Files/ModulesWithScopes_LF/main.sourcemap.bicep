@@ -17,6 +17,7 @@ module mySubscriptionMod 'modules/subscription.bicep' = {
   name: 'mySubscriptionMod'
 //@[152:152]       "name": "mySubscriptionMod",
   scope: subscription('ee44cd78-68c6-43d9-874e-e684ec8d1191')
+//@[153:153]       "subscriptionId": "ee44cd78-68c6-43d9-874e-e684ec8d1191",
 }
 
 module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length('foo') == 3) {
@@ -24,6 +25,7 @@ module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length(
   name: 'mySubscriptionModWithCondition'
 //@[666:666]       "name": "mySubscriptionModWithCondition",
   scope: subscription('ee44cd78-68c6-43d9-874e-e684ec8d1191')
+//@[667:667]       "subscriptionId": "ee44cd78-68c6-43d9-874e-e684ec8d1191",
 }
 
 module mySubscriptionModWithDuplicatedNameButDifferentScope 'modules/subscription_empty.bicep' = {
@@ -31,6 +33,7 @@ module mySubscriptionModWithDuplicatedNameButDifferentScope 'modules/subscriptio
   name: 'mySubscriptionMod'
 //@[1179:1179]       "name": "mySubscriptionMod",
   scope: subscription('1ad827ac-2669-4c2f-9970-282b93c3c550')
+//@[1180:1180]       "subscriptionId": "1ad827ac-2669-4c2f-9970-282b93c3c550",
 }
 
 

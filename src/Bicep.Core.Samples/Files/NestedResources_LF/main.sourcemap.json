@@ -5,16 +5,20 @@
       "FilePath": "main.bicep",
       "SourceMap": [
         {
+          "SourceLine": 0,
+          "TargetLine": 12
+        },
+        {
           "SourceLine": 51,
           "TargetLine": 11
         },
         {
           "SourceLine": 51,
-          "TargetLine": 12
+          "TargetLine": 13
         },
         {
-          "SourceLine": 51,
-          "TargetLine": 13
+          "SourceLine": 0,
+          "TargetLine": 15
         },
         {
           "SourceLine": 52,
@@ -22,19 +26,15 @@
         },
         {
           "SourceLine": 52,
-          "TargetLine": 15
+          "TargetLine": 16
         },
         {
-          "SourceLine": 52,
-          "TargetLine": 16
+          "SourceLine": 0,
+          "TargetLine": 18
         },
         {
           "SourceLine": 53,
           "TargetLine": 17
-        },
-        {
-          "SourceLine": 53,
-          "TargetLine": 18
         },
         {
           "SourceLine": 53,
@@ -241,6 +241,10 @@
           "TargetLine": 73
         },
         {
+          "SourceLine": 54,
+          "TargetLine": 75
+        },
+        {
           "SourceLine": 63,
           "TargetLine": 80
         },
@@ -259,10 +263,6 @@
         {
           "SourceLine": 60,
           "TargetLine": 74
-        },
-        {
-          "SourceLine": 60,
-          "TargetLine": 75
         },
         {
           "SourceLine": 60,
@@ -293,12 +293,12 @@
           "TargetLine": 86
         },
         {
-          "SourceLine": 57,
-          "TargetLine": 87
+          "SourceLine": 54,
+          "TargetLine": 88
         },
         {
           "SourceLine": 57,
-          "TargetLine": 88
+          "TargetLine": 87
         },
         {
           "SourceLine": 57,
@@ -330,6 +330,10 @@
         },
         {
           "SourceLine": 77,
+          "TargetLine": 99
+        },
+        {
+          "SourceLine": 77,
           "TargetLine": 96
         },
         {
@@ -339,10 +343,6 @@
         {
           "SourceLine": 77,
           "TargetLine": 98
-        },
-        {
-          "SourceLine": 77,
-          "TargetLine": 99
         },
         {
           "SourceLine": 77,
@@ -410,11 +410,11 @@
         },
         {
           "SourceLine": 54,
-          "TargetLine": 116
+          "TargetLine": 117
         },
         {
           "SourceLine": 54,
-          "TargetLine": 117
+          "TargetLine": 116
         },
         {
           "SourceLine": 54,
@@ -454,6 +454,10 @@
         },
         {
           "SourceLine": 31,
+          "TargetLine": 131
+        },
+        {
+          "SourceLine": 31,
           "TargetLine": 129
         },
         {
@@ -462,11 +466,11 @@
         },
         {
           "SourceLine": 31,
-          "TargetLine": 131
+          "TargetLine": 132
         },
         {
-          "SourceLine": 31,
-          "TargetLine": 132
+          "SourceLine": 33,
+          "TargetLine": 135
         },
         {
           "SourceLine": 33,
@@ -478,11 +482,11 @@
         },
         {
           "SourceLine": 33,
-          "TargetLine": 135
+          "TargetLine": 136
         },
         {
-          "SourceLine": 33,
-          "TargetLine": 136
+          "SourceLine": 82,
+          "TargetLine": 139
         },
         {
           "SourceLine": 82,
@@ -491,10 +495,6 @@
         {
           "SourceLine": 82,
           "TargetLine": 138
-        },
-        {
-          "SourceLine": 82,
-          "TargetLine": 139
         },
         {
           "SourceLine": 82,

@@ -1,5 +1,5 @@
 param name string
-//@[11:13]     "name": {
+//@[11:18]     "name": {
 param accounts array
 //@[14:16]     "accounts": {
 param index int
@@ -272,6 +272,7 @@ module singleModule 'passthrough.bicep' = {
 //@[404:404]       "name": "test",
   params: {
     myInput: 'hello'
+//@[412:412]             "value": "hello"
   }
 }
 
@@ -293,6 +294,7 @@ module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for (moduleNa
 //@[449:449]       "name": "[concat(variables('moduleSetup')[copyIndex()], copyIndex())]",
   params: {
     myInput: 'in-${moduleName}-${moduleIndex}'
+//@[457:457]             "value": "[format('in-{0}-{1}', variables('moduleSetup')[copyIndex()], copyIndex())]"
   }
   dependsOn: [
     singleModule
@@ -307,6 +309,7 @@ module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [for (mo
 //@[496:496]       "name": "[concat(variables('moduleSetup')[copyIndex()], copyIndex())]",
   params: {
     myInput: 'in-${moduleName}-${moduleIndex}'
+//@[504:504]             "value": "[format('in-{0}-{1}', variables('moduleSetup')[copyIndex()], copyIndex())]"
   }
   dependsOn: [
     storageAccounts
@@ -320,6 +323,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 //@[539:539]       "name": "hello",
   params: {
     myInput: concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)
+//@[547:547]             "value": "[concat(reference(resourceId('Microsoft.Resources/deployments', concat(variables('moduleSetup')[parameters('index')], parameters('index')))).outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name, mul(parameters('index'), 3)))).accessTier)]"
   }
   dependsOn: [
     storageAccounts2[index - 10]
@@ -332,6 +336,7 @@ module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for (modul
 //@[587:587]       "name": "[concat(variables('moduleSetup')[copyIndex()], copyIndex())]",
   params: {
     myInput: '${moduleCollectionWithCollectionDependencies[index].outputs.myOutput} - ${storageAccounts[index * 3].properties.accessTier} - ${moduleName} - ${moduleIndex}'
+//@[595:595]             "value": "[format('{0} - {1} - {2} - {3}', reference(resourceId('Microsoft.Resources/deployments', concat(variables('moduleSetup')[parameters('index')], parameters('index')))).outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name, mul(parameters('index'), 3)))).accessTier, variables('moduleSetup')[copyIndex()], copyIndex())]"
   }
   dependsOn: [
     storageAccounts2[index - 9]
@@ -393,6 +398,7 @@ module apim 'passthrough.bicep' = [for (region, i) in regions: {
 //@[635:635]       "name": "[format('apim-{0}-{1}-{2}', variables('regions')[copyIndex()], parameters('name'), copyIndex())]",
   params: {
     myInput: region
+//@[643:643]             "value": "[variables('regions')[copyIndex()]]"
   }
 }]
 
@@ -411,7 +417,7 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
         properties: {
 //@[280:295]             "properties": {
           backends: [for (index,i) in range(0, length(regions)): {
-//@[282:293]                   "name": "backends",
+//@[284:292]                   "count": "[length(range(0, length(variables('regions'))))]",
             // we cannot codegen index correctly because the generated dependsOn property
             // would be outside of the scope of the property loop
             // as a result, this will generate a dependency on the entire collection
@@ -488,7 +494,7 @@ resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoor
         properties: {
 //@[345:360]             "properties": {
           backends: [for index in range(0, length(accounts)): {
-//@[347:358]                   "name": "backends",
+//@[349:357]                   "count": "[length(range(0, length(parameters('accounts'))))]",
             // we cannot codegen index correctly because the generated dependsOn property
             // would be outside of the scope of the property loop
             // as a result, this will generate a dependency on the entire collection

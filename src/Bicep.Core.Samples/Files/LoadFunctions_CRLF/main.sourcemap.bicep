@@ -80,6 +80,7 @@ module module1 'modulea.bicep' = {
 //@[114:114]       "name": "module1",
   params: {
     text: loadTextContent('Assets/TextFile.LF.txt')
+//@[122:122]             "value": "[variables('$fxv#13')]"
   }
 }
 
@@ -89,6 +90,7 @@ module module2 'modulea.bicep' = {
 //@[147:147]       "name": "module2",
   params: {
     text: loadFileAsBase64('Assets/binary')
+//@[155:155]             "value": "[variables('$fxv#14')]"
   }
 }
 
