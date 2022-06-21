@@ -24,20 +24,21 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, expectedRootType);
         }
 
-        [TestMethod]
-        public void TestAssigningParams()
+        [DataTestMethod]
+        [DataRow("param myint = 12 \n")]
+        [DataRow("param mystr = 'hello world' \n")]
+        public void TestParsingParameterAssignment(String text)
         {
-            var paramIntTest = ParamsParserHelper.ParamsParse("param myint = 12 \n");
-            var paramStringTest = ParamsParserHelper.ParamsParse("param mystr = 'hello world' \n");
+            var programSyntax = ParamsParserHelper.ParamsParse(text);
 
-            paramIntTest.Children.OfType<ParameterAssignmentSyntax>().Should().HaveCount(1);
-            paramStringTest.Children.OfType<ParameterAssignmentSyntax>().Should().HaveCount(1);
+            programSyntax.Children.OfType<ParameterAssignmentSyntax>().Should().HaveCount(1);
         }
 
-        [TestMethod]
-        public void TestUsingKeyword()
+        [DataTestMethod]
+        [DataRow("using './bicep.main' \n")]
+        public void TestParsingUsingKeyword(String text)
         {
-            var programSyntax = ParamsParserHelper.ParamsParse("using './bicep.main' \n");
+            var programSyntax = ParamsParserHelper.ParamsParse(text);
 
             programSyntax.Children.OfType<UsingDeclarationSyntax>().Should().HaveCount(1);
         }
