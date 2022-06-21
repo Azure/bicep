@@ -1,5 +1,5 @@
 resource basicParent 'My.Rp/parentType@2020-12-01' = {
-//@[108:115]       "type": "My.Rp/parentType",
+//@[12:115]       "type": "bool"
   name: 'basicParent'
   properties: {
 //@[112:114]       "properties": {
@@ -77,7 +77,7 @@ param createChild bool
 param createGrandchild bool
 //@[17:19]     "createGrandchild": {
 resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
-//@[116:121]       "condition": "[parameters('createParent')]",
+//@[75:121]       "condition": "[and(and(parameters('createParent'), parameters('createChild')), parameters('createGrandchild'))]",
   name: 'conditionParent'
 
   resource conditionChild 'childType' = if (createChild) {

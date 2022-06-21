@@ -5,16 +5,20 @@
       "FilePath": "main.bicep",
       "SourceMap": [
         {
+          "SourceLine": 0,
+          "TargetLine": 12
+        },
+        {
           "SourceLine": 2,
           "TargetLine": 11
         },
         {
           "SourceLine": 2,
-          "TargetLine": 12
+          "TargetLine": 13
         },
         {
-          "SourceLine": 2,
-          "TargetLine": 13
+          "SourceLine": 0,
+          "TargetLine": 15
         },
         {
           "SourceLine": 4,
@@ -22,19 +26,15 @@
         },
         {
           "SourceLine": 4,
-          "TargetLine": 15
+          "TargetLine": 16
         },
         {
-          "SourceLine": 4,
-          "TargetLine": 16
+          "SourceLine": 0,
+          "TargetLine": 18
         },
         {
           "SourceLine": 5,
           "TargetLine": 17
-        },
-        {
-          "SourceLine": 5,
-          "TargetLine": 18
         },
         {
           "SourceLine": 5,
@@ -77,6 +77,10 @@
           "TargetLine": 30
         },
         {
+          "SourceLine": 15,
+          "TargetLine": 34
+        },
+        {
           "SourceLine": 18,
           "TargetLine": 40
         },
@@ -103,10 +107,6 @@
         {
           "SourceLine": 15,
           "TargetLine": 33
-        },
-        {
-          "SourceLine": 15,
-          "TargetLine": 34
         },
         {
           "SourceLine": 15,
@@ -141,6 +141,10 @@
           "TargetLine": 46
         },
         {
+          "SourceLine": 26,
+          "TargetLine": 50
+        },
+        {
           "SourceLine": 29,
           "TargetLine": 56
         },
@@ -167,10 +171,6 @@
         {
           "SourceLine": 26,
           "TargetLine": 49
-        },
-        {
-          "SourceLine": 26,
-          "TargetLine": 50
         },
         {
           "SourceLine": 26,

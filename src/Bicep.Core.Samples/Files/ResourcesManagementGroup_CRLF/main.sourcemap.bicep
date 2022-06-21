@@ -1,4 +1,5 @@
 targetScope = 'managementGroup'
+//@[12:18]       "type": "string"
 
 param ownerPrincipalId string
 //@[11:13]     "ownerPrincipalId": {

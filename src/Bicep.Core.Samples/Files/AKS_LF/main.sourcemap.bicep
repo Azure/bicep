@@ -1,4 +1,5 @@
 // mandatory params
+//@[12:47]       "type": "string"
 param dnsPrefix string
 //@[11:13]     "dnsPrefix": {
 param linuxAdminUsername string
@@ -21,12 +22,16 @@ param location string = resourceGroup().location
 //@[30:33]     "location": {
 
 @minValue(0)
+//@[38:38]       "minValue": 0
 @maxValue(1023)
+//@[37:37]       "maxValue": 1023,
 param osDiskSizeGB int = 0
 //@[34:39]     "osDiskSizeGB": {
 
 @minValue(1)
+//@[44:44]       "minValue": 1
 @maxValue(50)
+//@[43:43]       "maxValue": 50,
 param agentCount int = 3
 //@[40:45]     "agentCount": {
 

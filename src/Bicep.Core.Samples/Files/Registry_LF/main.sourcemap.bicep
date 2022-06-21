@@ -14,6 +14,7 @@ module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {
   scope: rg
   params: {
     namePrefix: 'hello'
+//@[51:51]             "value": "hello"
   }
 }
 
@@ -24,6 +25,7 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
   scope: rg
   params: {
     namePrefix: 'hello'
+//@[112:112]             "value": "hello"
   }
 }
 
@@ -50,9 +52,13 @@ module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in web
   scope: rg
   params: {
     appPlanId: appPlanDeploy.outputs.planId
+//@[177:177]             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy')).outputs.planId.value]"
     namePrefix: site.name
+//@[180:180]             "value": "[variables('websites')[copyIndex()].name]"
     dockerImage: 'nginxdemos/hello'
+//@[183:183]             "value": "nginxdemos/hello"
     dockerImageTag: site.tag
+//@[186:186]             "value": "[variables('websites')[copyIndex()].tag]"
   }
 }]
 
@@ -63,9 +69,13 @@ module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
   scope: rg
   params: {
     appPlanId: appPlanDeploy.outputs.planId
+//@[278:278]             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy')).outputs.planId.value]"
     namePrefix: site.name
+//@[281:281]             "value": "[variables('websites')[copyIndex()].name]"
     dockerImage: 'nginxdemos/hello'
+//@[284:284]             "value": "nginxdemos/hello"
     dockerImageTag: site.tag
+//@[287:287]             "value": "[variables('websites')[copyIndex()].tag]"
   }
 }]
 
@@ -76,6 +86,7 @@ module storageDeploy 'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-sp
   scope: rg
   params: {
     location: 'eastus'
+//@[375:375]             "value": "eastus"
   }
 }
 
@@ -86,6 +97,7 @@ module storageDeploy2 'ts/mySpecRG:storage-spec:1.0' = {
   scope: rg
   params: {
     location: 'eastus'
+//@[398:398]             "value": "eastus"
   }
 }
 
@@ -112,7 +124,9 @@ module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'
   scope: rg
   params: {
     vnetName: vnet.name
+//@[425:425]             "value": "[variables('vnets')[copyIndex()].name]"
     subnetName: vnet.subnetName
+//@[428:428]             "value": "[variables('vnets')[copyIndex()].subnetName]"
   }
 }]
 
@@ -126,6 +140,7 @@ module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
 //@[442:442]       "name": "port",
   params: {
     port: 'test'
+//@[451:451]             "value": "test"
   }
 }
 
@@ -136,6 +151,7 @@ module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
 //@[485:485]       "name": "ipv4",
   params: {
     ipv4: 'test'
+//@[494:494]             "value": "test"
   }
 }
 
@@ -146,6 +162,7 @@ module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
 //@[528:528]       "name": "ipv4port",
   params: {
     ipv4port: 'test'
+//@[537:537]             "value": "test"
   }
 }
 
@@ -156,6 +173,7 @@ module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
 //@[571:571]       "name": "ipv6",
   params: {
     ipv6: 'test'
+//@[580:580]             "value": "test"
   }
 }
 
@@ -166,5 +184,6 @@ module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
 //@[614:614]       "name": "ipv6port",
   params: {
     ipv6port: 'test'
+//@[623:623]             "value": "test"
   }
 }

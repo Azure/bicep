@@ -1,5 +1,5 @@
 param name string
-//@[11:13]     "name": {
+//@[11:18]     "name": {
 param accounts array
 //@[14:16]     "accounts": {
 param index int
@@ -272,6 +272,7 @@ module singleModule 'passthrough.bicep' = {
 //@[426:426]       "name": "test",
   params: {
     myInput: 'hello'
+//@[434:434]             "value": "hello"
   }
 }
 
@@ -293,6 +294,7 @@ module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for moduleNam
 //@[471:471]       "name": "[variables('moduleSetup')[copyIndex()]]",
   params: {
     myInput: 'in-${moduleName}'
+//@[479:479]             "value": "[format('in-{0}', variables('moduleSetup')[copyIndex()])]"
   }
   dependsOn: [
     singleModule
@@ -307,6 +309,7 @@ module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [for mod
 //@[518:518]       "name": "[variables('moduleSetup')[copyIndex()]]",
   params: {
     myInput: 'in-${moduleName}'
+//@[526:526]             "value": "[format('in-{0}', variables('moduleSetup')[copyIndex()])]"
   }
   dependsOn: [
     storageAccounts
@@ -320,6 +323,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 //@[561:561]       "name": "hello",
   params: {
     myInput: concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)
+//@[569:569]             "value": "[concat(reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')])).outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name))).accessTier)]"
   }
   dependsOn: [
     storageAccounts2[index - 10]
@@ -332,6 +336,7 @@ module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for module
 //@[609:609]       "name": "[variables('moduleSetup')[copyIndex()]]",
   params: {
     myInput: '${moduleCollectionWithCollectionDependencies[index].outputs.myOutput} - ${storageAccounts[index * 3].properties.accessTier} - ${moduleName}'
+//@[617:617]             "value": "[format('{0} - {1} - {2}', reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')])).outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name))).accessTier, variables('moduleSetup')[copyIndex()])]"
   }
   dependsOn: [
     storageAccounts2[index - 9]
@@ -393,6 +398,7 @@ module apim 'passthrough.bicep' = [for region in regions: {
 //@[657:657]       "name": "[format('apim-{0}-{1}', variables('regions')[copyIndex()], parameters('name'))]",
   params: {
     myInput: region
+//@[665:665]             "value": "[variables('regions')[copyIndex()]]"
   }
 }]
 
@@ -411,7 +417,7 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
         properties: {
 //@[280:295]             "properties": {
           backends: [for index in range(0, length(regions)): {
-//@[282:293]                   "name": "backends",
+//@[284:292]                   "count": "[length(range(0, length(variables('regions'))))]",
             // we cannot codegen index correctly because the generated dependsOn property
             // would be outside of the scope of the property loop
             // as a result, this will generate a dependency on the entire collection
@@ -488,7 +494,7 @@ resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoor
         properties: {
 //@[345:360]             "properties": {
           backends: [for index in range(0, length(accounts)): {
-//@[347:358]                   "name": "backends",
+//@[349:357]                   "count": "[length(range(0, length(parameters('accounts'))))]",
             // we cannot codegen index correctly because the generated dependsOn property
             // would be outside of the scope of the property loop
             // as a result, this will generate a dependency on the entire collection
@@ -563,6 +569,7 @@ module filteredModules 'passthrough.bicep' = [for i in range(0,6): if(i % 2 == 0
 //@[701:701]       "name": "[format('stuff{0}', range(0, 6)[copyIndex()])]",
   params: {
     myInput: 'script-${i}'
+//@[709:709]             "value": "[format('script-{0}', range(0, 6)[copyIndex()])]"
   }
 }]
 
@@ -582,6 +589,7 @@ module filteredIndexedModules 'passthrough.bicep' = [for (account, i) in account
 //@[745:745]       "name": "[format('stuff-{0}', copyIndex())]",
   params: {
     myInput: 'script-${account.name}-${i}'
+//@[753:753]             "value": "[format('script-{0}-{1}', parameters('accounts')[copyIndex()].name, copyIndex())]"
   }
 }]
 
