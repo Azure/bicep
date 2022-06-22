@@ -62,10 +62,15 @@ var myEmptyArray = [ ]
 var myObj = {
 //@[97:116]     "myObj": {
   a: 'a'
+//@[98:98]       "a": "a",
   b: -12
+//@[99:99]       "b": -12,
   c: true
+//@[100:100]       "c": true,
   d: !true
+//@[101:101]       "d": "[not(true())]",
   list: [
+//@[102:110]       "list": [
     1
 //@[103:103]         1,
     2
@@ -74,12 +79,15 @@ var myObj = {
 //@[105:105]         "[add(2, 1)]",
     {
       test: 144 > 33 && true || 99 <= 199
+//@[107:107]           "test": "[or(and(greater(144, 33), true()), lessOrEquals(99, 199))]"
     }
     'a' =~ 'b'
 //@[109:109]         "[equals(toLower('a'), toLower('b'))]"
   ]
   obj: {
+//@[111:115]       "obj": {
     nested: [
+//@[112:114]         "nested": [
       'hello'
 //@[113:113]           "hello"
     ]
@@ -90,8 +98,11 @@ var myObj = {
 var objWithInterp = {
 //@[117:121]     "objWithInterp": {
   '${myStr}': 1
+//@[118:118]       "[format('{0}', variables('myStr'))]": 1,
   'abc${myStr}def': 2
+//@[119:119]       "[format('abc{0}def', variables('myStr'))]": 2,
   '${interp1}abc${interp2}': '${interp1}abc${interp2}'
+//@[120:120]       "[format('{0}abc{1}', variables('interp1'), variables('interp2'))]": "[format('{0}abc{1}', variables('interp1'), variables('interp2'))]"
 }
 
 // array
@@ -110,11 +121,15 @@ var myArrWithObjects = [
 //@[127:136]     "myArrWithObjects": [
   {
     name: 'one'
+//@[129:129]         "name": "one",
     enable: true
+//@[130:130]         "enable": true
   }
   {
     name: 'two'
+//@[133:133]         "name": "two",
     enable: false && false || 'two' !~ 'three'
+//@[134:134]         "enable": "[or(and(false(), false()), not(equals(toLower('two'), toLower('three'))))]"
   }
 ]
 
@@ -179,18 +194,24 @@ var previousEmitLimit = [
 //@[154:154]       "[format('{0}', 4)]",
   {
     a: {
+//@[156:162]         "a": {
       b: base64('s')
+//@[157:157]           "b": "[base64('s')]",
       c: concat([
+//@[158:158]           "c": "[concat(createArray(add(12, 3)), createArray(not(true()), 'hello'))]",
         12 + 3
       ], [
         !true
         'hello'
       ])
       d: az.resourceGroup().location
+//@[159:159]           "d": "[resourceGroup().location]",
       e: concat([
+//@[160:160]           "e": "[concat(createArray(true()))]",
         true
       ])
       f: concat([
+//@[161:161]           "f": "[concat(createArray(equals('s', 12)))]"
         's' == 12
       ])
     }
@@ -206,18 +227,24 @@ var previousEmitLimit2 = [
 //@[167:167]       "[format('{0}', 4)]",
   {
     a: {
+//@[169:175]         "a": {
       b: base64('s')
+//@[170:170]           "b": "[base64('s')]",
       c: union({
+//@[171:171]           "c": "[union(createObject('a', add(12, 3)), createObject('b', not(true()), 'c', 'hello'))]",
         a: 12 + 3
       }, {
         b: !true
         c: 'hello'
       })
       d: az.resourceGroup().location
+//@[172:172]           "d": "[resourceGroup().location]",
       e: union({
+//@[173:173]           "e": "[union(createObject('x', true()), createObject())]",
         x: true
       }, {})
       f: intersection({
+//@[174:174]           "f": "[intersection(createObject('q', equals('s', 12)), createObject())]"
         q: 's' == 12
       }, {})
     }
@@ -228,10 +255,13 @@ var previousEmitLimit2 = [
 var previousEmitLimit3 = {
 //@[178:183]     "previousEmitLimit3": {
   a: {
+//@[179:182]       "a": {
     b: {
+//@[180:180]         "b": "[equals(createObject('a', resourceGroup().location), 2)]",
       a: az.resourceGroup().location
     } == 2
     c: concat([
+//@[181:181]         "c": "[concat(createArray(), createArray(true()))]"
 
     ], [
       true
@@ -246,10 +276,12 @@ var myVar = 'hello'
 var myVar2 = any({
 //@[185:187]     "myVar2": {
   something: myVar
+//@[186:186]       "something": "[variables('myVar')]"
 })
 var myVar3 = any(any({
 //@[188:190]     "myVar3": {
   something: myVar
+//@[189:189]       "something": "[variables('myVar')]"
 }))
 var myVar4 = length(any(concat('s','a')))
 //@[191:191]     "myVar4": "[length(concat('s', 'a'))]",
@@ -324,14 +356,19 @@ var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
 var scopesWithoutArmRepresentation = {
 //@[219:222]     "scopesWithoutArmRepresentation": {
   subscription: subscription('10b57a01-6350-4ce2-972a-6a13642f00bf')
+//@[220:220]       "subscription": "[createObject()]",
   resourceGroup: az.resourceGroup('10b57a01-6350-4ce2-972a-6a13642f00bf', 'myRgName')
+//@[221:221]       "resourceGroup": "[createObject()]"
 }
 
 var scopesWithArmRepresentation = {
 //@[223:227]     "scopesWithArmRepresentation": {
   tenant: tenant()
+//@[224:224]       "tenant": "[tenant()]",
   subscription: subscription()
+//@[225:225]       "subscription": "[subscription()]",
   resourceGroup: az.resourceGroup()
+//@[226:226]       "resourceGroup": "[resourceGroup()]"
 }
 
 // Issue #1332
@@ -369,8 +406,11 @@ var arrayOfStringsViaLoop = [for (name, i) in loopInput: 'prefix-${i}-${name}']
 var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
 //@[36:44]         "name": "arrayOfObjectsViaLoop",
   index: i
+//@[40:40]           "index": "[copyIndex('arrayOfObjectsViaLoop')]",
   name: name
+//@[41:41]           "name": "[variables('loopInput')[copyIndex('arrayOfObjectsViaLoop')]]",
   value: 'prefix-${i}-${name}-suffix'
+//@[42:42]           "value": "[format('prefix-{0}-{1}-suffix', copyIndex('arrayOfObjectsViaLoop'), variables('loopInput')[copyIndex('arrayOfObjectsViaLoop')])]"
 }]
 var arrayOfArraysViaLoop = [for (name, i) in loopInput: [
 //@[45:49]         "name": "arrayOfArraysViaLoop",
@@ -444,10 +484,14 @@ module.exports = function (context) {
 var copyBlockInObject = {
 //@[246:254]     "copyBlockInObject": {
   copy: [
+//@[247:253]       "[string('copy')]": [
     {
       name: 'blah'
+//@[249:249]           "name": "blah",
       count: '[notAFunction()]'
+//@[250:250]           "count": "[[notAFunction()]",
       input: {}
+//@[251:251]           "input": {}
     }
   ]
 }

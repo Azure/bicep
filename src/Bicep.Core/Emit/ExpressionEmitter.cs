@@ -460,7 +460,7 @@ namespace Bicep.Core.Emit
             });
 
         private void EmitPropertyInternal(LanguageExpression expressionKey, SyntaxBase syntaxValue)
-            => EmitPropertyInternal(expressionKey, () => EmitExpression(syntaxValue));
+            => EmitPropertyInternal(expressionKey, () => EmitExpression(syntaxValue), syntaxValue);
 
         public void EmitOptionalPropertyExpression(string name, SyntaxBase? expression)
         {

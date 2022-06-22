@@ -26,14 +26,17 @@ var loadedTextInterpolation2 = 'Text: ${loadTextContent('Assets/TextFile.LF.txt'
 var loadedTextObject1 = {
 //@[60:62]     "loadedTextObject1": {
   'text' : loadTextContent('Assets/TextFile.CRLF.txt')
+//@[61:61]       "text": "[variables('$fxv#2')]"
 }
 var loadedTextObject2 = {
 //@[63:65]     "loadedTextObject2": {
   'text' : loadTextContent('Assets/TextFile.LF.txt')  
+//@[64:64]       "text": "[variables('$fxv#3')]"
 }
 var loadedBinaryInObject = {
 //@[66:68]     "loadedBinaryInObject": {
   file: loadFileAsBase64('Assets/binary')
+//@[67:67]       "file": "[variables('$fxv#4')]"
 }
 
 var loadedTextArray = [
@@ -47,6 +50,7 @@ var loadedTextArray = [
 var loadedTextArrayInObject = {
 //@[73:78]     "loadedTextArrayInObject": {
   'files' : [
+//@[74:77]       "files": [
     loadTextContent('Assets/TextFile.CRLF.txt')
 //@[75:75]         "[variables('$fxv#7')]",
     loadFileAsBase64('Assets/binary')
@@ -57,6 +61,7 @@ var loadedTextArrayInObject = {
 var loadedTextArrayInObjectFunctions = {
 //@[79:86]     "loadedTextArrayInObjectFunctions": {
   'files' : [
+//@[80:85]       "files": [
     length(loadTextContent('Assets/TextFile.CRLF.txt'))
 //@[81:81]         "[length(variables('$fxv#9'))]",
     sys.length(loadTextContent('Assets/TextFile.LF.txt'))
@@ -72,16 +77,20 @@ var loadedTextArrayInObjectFunctions = {
 module module1 'modulea.bicep' = {
 //@[116:148]       "type": "Microsoft.Resources/deployments",
   name: 'module1'
+//@[119:119]       "name": "module1",
   params: {
     text: loadTextContent('Assets/TextFile.LF.txt')
+//@[127:127]             "value": "[variables('$fxv#13')]"
   }
 }
 
 module module2 'modulea.bicep' = {
 //@[149:181]       "type": "Microsoft.Resources/deployments",
   name: 'module2'
+//@[152:152]       "name": "module2",
   params: {
     text: loadFileAsBase64('Assets/binary')
+//@[160:160]             "value": "[variables('$fxv#14')]"
   }
 }
 

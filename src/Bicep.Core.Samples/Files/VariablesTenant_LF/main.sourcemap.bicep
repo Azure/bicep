@@ -6,5 +6,6 @@ var deploymentLocation = deployment().location
 var scopesWithArmRepresentation = {
 //@[12:14]     "scopesWithArmRepresentation": {
   tenant: tenant()
+//@[13:13]       "tenant": "[tenant()]"
 }
 
