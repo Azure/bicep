@@ -53,7 +53,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
-        [DataRow("using './bicep.main' \n")]
+        [DataRow("using './main.bicep' \n")]
         public void TestParsingUsingKeyword(String text)
         {
             var programSyntax = ParamsParserHelper.ParamsParse(text);
