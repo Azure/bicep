@@ -6,10 +6,10 @@ export function removePropertiesWithPossibleUserInfoInDeployParams(
 ): string {
   const matches = deployParamsPattern.exec(value);
 
-  if (matches) {
+  if (matches != null) {
     const groups = matches.groups;
 
-    if (groups) {
+    if (groups != null) {
       const token = groups["token"];
 
       return value.replace(token, "<REDACTED: token>");

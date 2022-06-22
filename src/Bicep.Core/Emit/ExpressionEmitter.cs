@@ -28,8 +28,6 @@ namespace Bicep.Core.Emit
         private readonly EmitterContext context;
         private readonly ExpressionConverter converter;
 
-        public readonly RawSourceMap? rawSourceMap;
-
         public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context)
         {
             this.writer = writer;
@@ -438,14 +436,10 @@ namespace Bicep.Core.Emit
             => EmitPropertyInternal(new JTokenExpression(name), value);
 
         public void EmitProperty(string name, SyntaxBase expressionValue)
-        {
-            EmitPropertyInternal(new JTokenExpression(name), expressionValue);
-        }
+            => EmitPropertyInternal(new JTokenExpression(name), expressionValue);
 
         public void EmitProperty(SyntaxBase syntaxKey, SyntaxBase syntaxValue)
-        {
-            EmitPropertyInternal(converter.ConvertExpression(syntaxKey), syntaxValue);
-        }
+            => EmitPropertyInternal(converter.ConvertExpression(syntaxKey), syntaxValue);
 
         private void EmitPropertyInternal(LanguageExpression expressionKey, Action valueFunc, SyntaxBase? location = null, bool skipCopyCheck = false)
         {

@@ -25,7 +25,6 @@ module.exports = {
         " Licensed under the MIT License.",
       ],
     ],
-    eqeqeq: "error",
   },
   overrides: [
     {

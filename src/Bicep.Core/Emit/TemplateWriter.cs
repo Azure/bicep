@@ -370,7 +370,7 @@ namespace Bicep.Core.Emit
 
                 if (context.Settings.EnableSymbolicNames)
                 {
-                    jsonWriter.WritePropertyName(resource.Symbol.Name);
+                    jsonWriter.WritePropertyName(emitter.GetSymbolicName(resource));
                 }
 
                 this.EmitResource(jsonWriter, resource, emitter);
