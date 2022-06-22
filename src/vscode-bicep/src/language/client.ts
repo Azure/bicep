@@ -128,7 +128,7 @@ async function launchLanguageService(
         ),
     },
     synchronize: {
-      // These file watcher globs should be kept in-sync with those defined in BicepDidChangeWatchedFilesHander.cs
+      // These file watcher globs should be kept in-sync with those defined in BicepDidChangeWatchedFilesHandler.cs
       fileEvents: [
         vscode.workspace.createFileSystemWatcher("**/"), // folder changes
         vscode.workspace.createFileSystemWatcher("**/*.bicep"), // .bicep file changes
@@ -161,6 +161,10 @@ async function launchLanguageService(
     "deploymentComplete",
     writeDeploymentOutputMessageToBicepOperationsOutputChannel
   );
+
+  client.onNotification("bicep/triggerEditorCompletion", () => {
+    vscode.commands.executeCommand("editor.action.triggerSuggest");
+  });
 
   getLogger().info("Bicep language service ready.");
 
