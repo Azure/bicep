@@ -11,9 +11,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.VSLanguageServerClient.ContentType;
 using Bicep.VSLanguageServerClient.MiddleLayerProviders;
+using Bicep.VSLanguageServerClient.ProcessLauncher;
 using Bicep.VSLanguageServerClient.ProcessTracker;
 using Bicep.VSLanguageServerClient.Threading;
-using Bicep.VSLanguageServerClient.Tracing;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
@@ -25,8 +25,9 @@ namespace Bicep.VSLanguageServerClient
     [ContentType(BicepContentTypeDefinition.ContentType)]
     public class BicepLanguageServerClient : ILanguageClient, ILanguageClientCustomMessage2
     {
-        private readonly IProcessTracker _processTracker;
+        private IClientProcess? _process;
         private readonly ILanguageClientMiddleLayer _middleLayer;
+        private readonly IProcessTracker _processTracker;
         private readonly IThreadingContext _threadingContext;
 
         [ImportingConstructor]
@@ -60,38 +61,18 @@ namespace Bicep.VSLanguageServerClient
             string vsixInstallPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string languageServerExePath = Path.Combine(vsixInstallPath, "Bicep.LangServer.exe");
 
-            ProcessStartInfo info = new ProcessStartInfo
-            {
-                FileName = languageServerExePath,
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                UseShellExecute = false,
-                CreateNoWindow = true
-            };
+            var launchServerArguments = $" --contentType {BicepContentTypeDefinition.ContentType}" +
+                $" --lcid {Thread.CurrentThread.CurrentUICulture.LCID}";
 
-            Process process = new Process()
-            {
-                StartInfo = info
-            };
+            _process = ClientProcessLauncher.CreateClientProcess(languageServerExePath, launchServerArguments, null, null);
 
-            try
-            {
-                if (process.Start())
-                {
-                    _processTracker.AddProcess(process);
-                    Connection connection = new Connection(new EtwTeeStream(process.StandardOutput.BaseStream, Name),
-                        new EtwTeeStream(process.StandardInput.BaseStream, Name));
+            _processTracker.AddProcess(_process.Process);
 
-                    return connection;
-                }
-            }
-            catch (Exception)
-            {
-                // TODO: log failure
-            }
+            Debug.WriteLine($"Started {BicepContentTypeDefinition.ContentType} server with process ID {_process.Process.Id}");
 
-            return null;
+            Connection connection = new Connection(_process.StandardOutput.BaseStream,
+                                                   _process.StandardInput.BaseStream);
+            return connection;
         }
 
         public async Task OnLoadedAsync()
