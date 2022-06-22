@@ -218,7 +218,7 @@ var emptyArray = []
 
 // simple module loop
 module storageResources 'modulea.bicep' = [for module in myModules: {
-//@[775:861]       "[string('copy')]": {
+//@[775:861]       "copy": {
   name: module.name
 //@[782:782]       "name": "[variables('myModules')[copyIndex()].name]",
   params: {
@@ -233,7 +233,7 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
 
 // simple indexed module loop
 module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules: {
-//@[862:953]       "[string('copy')]": {
+//@[862:953]       "copy": {
   name: module.name
 //@[869:869]       "name": "[variables('myModules')[copyIndex()].name]",
   params: {
@@ -253,7 +253,7 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
 
 // nested module loop
 module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
-//@[954:1046]       "[string('copy')]": {
+//@[954:1046]       "copy": {
   name: module.name
 //@[961:961]       "name": "[variables('myModules')[copyIndex()].name]",
   params: {
@@ -268,7 +268,7 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 
 // duplicate identifiers across scopes are allowed (inner hides the outer)
 module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
-//@[1047:1142]       "[string('copy')]": {
+//@[1047:1142]       "copy": {
   name: 'hello-${x}'
 //@[1054:1054]       "name": "[format('hello-{0}', variables('emptyArray')[copyIndex()])]",
   params: {
@@ -287,7 +287,7 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 var duplicateAcrossScopes = 'hello'
 //@[31:31]     "duplicateAcrossScopes": "hello",
 module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
-//@[1143:1238]       "[string('copy')]": {
+//@[1143:1238]       "copy": {
   name: 'hello-${duplicateAcrossScopes}'
 //@[1150:1150]       "name": "[format('hello-{0}', createArray()[copyIndex()])]",
   params: {
@@ -307,7 +307,7 @@ var someDuplicate = true
 var otherDuplicate = false
 //@[33:33]     "otherDuplicate": false,
 module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
-//@[1239:1331]       "[string('copy')]": {
+//@[1239:1331]       "copy": {
   name: 'hello-${someDuplicate}'
 //@[1246:1246]       "name": "[format('hello-{0}', createArray()[copyIndex()])]",
   params: {
@@ -391,7 +391,7 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 }
 
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
-//@[1577:1702]       "[string('copy')]": {
+//@[1577:1702]       "copy": {
   name: 'propertyLoopInsideParameterValueInsideModuleLoop'
 //@[1584:1584]       "name": "propertyLoopInsideParameterValueInsideModuleLoop",
   params: {
@@ -498,7 +498,7 @@ resource loopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = [for vault i
 }]
 
 module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secrets: {
-//@[1817:1877]       "[string('copy')]": {
+//@[1817:1877]       "copy": {
   name: 'secureModuleLooped-${i}'
 //@[1824:1824]       "name": "[format('secureModuleLooped-{0}', copyIndex())]",
   params: {

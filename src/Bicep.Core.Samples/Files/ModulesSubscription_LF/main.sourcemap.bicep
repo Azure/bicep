@@ -25,7 +25,7 @@ resource resourceGroups 'Microsoft.Resources/resourceGroups@2020-06-01' = [for n
 }]
 
 module scopedToSymbolicName 'hello.bicep' = [for (name, i) in scripts: {
-//@[36:95]       "[string('copy')]": {
+//@[36:95]       "copy": {
   name: '${prefix}-dep-${i}'
 //@[43:43]       "name": "[format('{0}-dep-{1}', parameters('prefix'), copyIndex())]",
   params: {
@@ -36,7 +36,7 @@ module scopedToSymbolicName 'hello.bicep' = [for (name, i) in scripts: {
 }]
 
 module scopedToResourceGroupFunction 'hello.bicep' = [for (name, i) in scripts: {
-//@[96:152]       "[string('copy')]": {
+//@[96:152]       "copy": {
   name: '${prefix}-dep-${i}'
 //@[103:103]       "name": "[format('{0}-dep-{1}', parameters('prefix'), copyIndex())]",
   params: {

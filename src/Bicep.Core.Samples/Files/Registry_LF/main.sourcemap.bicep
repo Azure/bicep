@@ -46,7 +46,7 @@ var websites = [
 ]
 
 module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in websites: {
-//@[161:261]       "[string('copy')]": {
+//@[161:261]       "copy": {
   name: '${site.name}siteDeploy'
 //@[168:168]       "name": "[format('{0}siteDeploy', variables('websites')[copyIndex()].name)]",
   scope: rg
@@ -63,7 +63,7 @@ module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in web
 }]
 
 module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
-//@[262:362]       "[string('copy')]": {
+//@[262:362]       "copy": {
   name: '${site.name}siteDeploy2'
 //@[269:269]       "name": "[format('{0}siteDeploy2', variables('websites')[copyIndex()].name)]",
   scope: rg
@@ -118,7 +118,7 @@ var vnets = [
 ]
 
 module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2' = [for vnet in vnets: {
-//@[409:438]       "[string('copy')]": {
+//@[409:438]       "copy": {
   name: '${vnet.name}Deploy'
 //@[416:416]       "name": "[format('{0}Deploy', variables('vnets')[copyIndex()].name)]",
   scope: rg

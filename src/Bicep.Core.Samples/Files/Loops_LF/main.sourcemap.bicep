@@ -289,7 +289,7 @@ var moduleSetup = [
 // module collection plus explicit dependency on single module
 @sys.batchSize(3)
 module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for moduleName in moduleSetup: {
-//@[462:510]       "[string('copy')]": {
+//@[462:510]       "copy": {
   name: moduleName
 //@[471:471]       "name": "[variables('moduleSetup')[copyIndex()]]",
   params: {
@@ -304,7 +304,7 @@ module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for moduleNam
 
 // another module collection with dependency on another module collection
 module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [for moduleName in moduleSetup: {
-//@[511:557]       "[string('copy')]": {
+//@[511:557]       "copy": {
   name: moduleName
 //@[518:518]       "name": "[variables('moduleSetup')[copyIndex()]]",
   params: {
@@ -331,7 +331,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 }
 
 module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for moduleName in moduleSetup: {
-//@[602:649]       "[string('copy')]": {
+//@[602:649]       "copy": {
   name: moduleName
 //@[609:609]       "name": "[variables('moduleSetup')[copyIndex()]]",
   params: {
@@ -393,7 +393,7 @@ var regions = [
 ]
 
 module apim 'passthrough.bicep' = [for region in regions: {
-//@[650:692]       "[string('copy')]": {
+//@[650:692]       "copy": {
   name: 'apim-${region}-${name}'
 //@[657:657]       "name": "[format('apim-{0}-{1}', variables('regions')[copyIndex()], parameters('name'))]",
   params: {
