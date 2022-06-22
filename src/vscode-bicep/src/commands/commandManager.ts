@@ -82,7 +82,7 @@ export class CommandManager extends Disposable {
     assert(!!activationEvents, "Missing activationEvents in package.json");
     const activationKey = `onCommand:${command.id}`;
     const activation: string | undefined = activationEvents.find(
-      (a) => a == activationKey
+      (a) => a === activationKey
     );
     assert(
       !!activation,

@@ -83,7 +83,7 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
 
     const contextValue = "azureCommand";
 
-    if (azureAccount.status != "LoggedIn") {
+    if (azureAccount.status !== "LoggedIn") {
       return [
         new GenericTreeItem(this, {
           label: "$(sign-in) " + signInLabel,
