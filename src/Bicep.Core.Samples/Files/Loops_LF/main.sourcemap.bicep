@@ -1,5 +1,5 @@
 param name string
-//@[11:18]     "name": {
+//@[11:13]     "name": {
 param accounts array
 //@[14:16]     "accounts": {
 param index int

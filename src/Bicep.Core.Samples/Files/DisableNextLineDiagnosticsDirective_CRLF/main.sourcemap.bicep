@@ -1,5 +1,5 @@
 var vmProperties = {
-//@[12:38]       "type": "string",
+//@[29:38]     "vmProperties": {
   diagnosticsProfile: {
 //@[30:36]       "diagnosticsProfile": {
     bootDiagnostics: {

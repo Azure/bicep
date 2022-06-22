@@ -5,20 +5,16 @@
       "FilePath": "main.bicep",
       "SourceMap": [
         {
-          "SourceLine": 0,
-          "TargetLine": 12
-        },
-        {
           "SourceLine": 1,
           "TargetLine": 11
         },
         {
           "SourceLine": 1,
-          "TargetLine": 13
+          "TargetLine": 12
         },
         {
-          "SourceLine": 0,
-          "TargetLine": 15
+          "SourceLine": 1,
+          "TargetLine": 13
         },
         {
           "SourceLine": 2,
@@ -26,11 +22,11 @@
         },
         {
           "SourceLine": 2,
-          "TargetLine": 16
+          "TargetLine": 15
         },
         {
-          "SourceLine": 0,
-          "TargetLine": 18
+          "SourceLine": 2,
+          "TargetLine": 16
         },
         {
           "SourceLine": 3,
@@ -38,11 +34,11 @@
         },
         {
           "SourceLine": 3,
-          "TargetLine": 19
+          "TargetLine": 18
         },
         {
-          "SourceLine": 0,
-          "TargetLine": 21
+          "SourceLine": 3,
+          "TargetLine": 19
         },
         {
           "SourceLine": 6,
@@ -50,11 +46,11 @@
         },
         {
           "SourceLine": 6,
-          "TargetLine": 22
+          "TargetLine": 21
         },
         {
-          "SourceLine": 0,
-          "TargetLine": 24
+          "SourceLine": 6,
+          "TargetLine": 22
         },
         {
           "SourceLine": 9,
@@ -62,11 +58,11 @@
         },
         {
           "SourceLine": 9,
-          "TargetLine": 25
+          "TargetLine": 24
         },
         {
-          "SourceLine": 0,
-          "TargetLine": 27
+          "SourceLine": 9,
+          "TargetLine": 25
         },
         {
           "SourceLine": 12,
@@ -78,11 +74,11 @@
         },
         {
           "SourceLine": 12,
-          "TargetLine": 29
+          "TargetLine": 27
         },
         {
-          "SourceLine": 0,
-          "TargetLine": 31
+          "SourceLine": 12,
+          "TargetLine": 29
         },
         {
           "SourceLine": 13,
@@ -94,11 +90,11 @@
         },
         {
           "SourceLine": 13,
-          "TargetLine": 33
+          "TargetLine": 31
         },
         {
-          "SourceLine": 0,
-          "TargetLine": 35
+          "SourceLine": 13,
+          "TargetLine": 33
         },
         {
           "SourceLine": 17,
@@ -118,11 +114,11 @@
         },
         {
           "SourceLine": 17,
-          "TargetLine": 39
+          "TargetLine": 35
         },
         {
-          "SourceLine": 0,
-          "TargetLine": 41
+          "SourceLine": 17,
+          "TargetLine": 39
         },
         {
           "SourceLine": 21,
@@ -142,11 +138,11 @@
         },
         {
           "SourceLine": 21,
-          "TargetLine": 45
+          "TargetLine": 41
         },
         {
-          "SourceLine": 0,
-          "TargetLine": 47
+          "SourceLine": 21,
+          "TargetLine": 45
         },
         {
           "SourceLine": 23,
@@ -155,6 +151,10 @@
         {
           "SourceLine": 23,
           "TargetLine": 46
+        },
+        {
+          "SourceLine": 23,
+          "TargetLine": 47
         },
         {
           "SourceLine": 23,

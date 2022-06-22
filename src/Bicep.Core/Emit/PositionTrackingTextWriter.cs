@@ -95,7 +95,7 @@ namespace Bicep.Core.Emit
 
         private void AddSourceMapping(SyntaxBase? bicepSyntax, int startPosition)
         {
-            if (bicepSyntax != null && this.rawSourceMap != null && this.sourceFile != null)
+            if (this.rawSourceMap != null && this.sourceFile != null && bicepSyntax?.Span.Length > 0)
             {
                 SourceMapHelper.AddMapping(
                     this.rawSourceMap,

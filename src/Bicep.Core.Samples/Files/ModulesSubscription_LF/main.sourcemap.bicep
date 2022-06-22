@@ -1,5 +1,4 @@
 targetScope = 'subscription'
-//@[12:12]       "type": "string",
 
 param prefix string = 'majastrz'
 //@[11:14]     "prefix": {

@@ -5,12 +5,12 @@
       "FilePath": "main.bicep",
       "SourceMap": [
         {
-          "SourceLine": 0,
-          "TargetLine": 12
+          "SourceLine": 65,
+          "TargetLine": 11
         },
         {
           "SourceLine": 65,
-          "TargetLine": 11
+          "TargetLine": 12
         },
         {
           "SourceLine": 65,
@@ -29,20 +29,20 @@
           "TargetLine": 24
         },
         {
-          "SourceLine": 0,
-          "TargetLine": 23
-        },
-        {
-          "SourceLine": 0,
-          "TargetLine": 25
-        },
-        {
           "SourceLine": 2,
           "TargetLine": 20
         },
         {
           "SourceLine": 2,
           "TargetLine": 21
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 23
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 25
         },
         {
           "SourceLine": 2,
@@ -57,20 +57,20 @@
           "TargetLine": 31
         },
         {
-          "SourceLine": 0,
-          "TargetLine": 30
-        },
-        {
-          "SourceLine": 0,
-          "TargetLine": 32
-        },
-        {
           "SourceLine": 5,
           "TargetLine": 27
         },
         {
           "SourceLine": 5,
           "TargetLine": 28
+        },
+        {
+          "SourceLine": 5,
+          "TargetLine": 30
+        },
+        {
+          "SourceLine": 5,
+          "TargetLine": 32
         },
         {
           "SourceLine": 5,
@@ -101,20 +101,20 @@
           "TargetLine": 42
         },
         {
-          "SourceLine": 0,
-          "TargetLine": 41
-        },
-        {
-          "SourceLine": 0,
-          "TargetLine": 43
-        },
-        {
           "SourceLine": 9,
           "TargetLine": 38
         },
         {
           "SourceLine": 9,
           "TargetLine": 39
+        },
+        {
+          "SourceLine": 9,
+          "TargetLine": 41
+        },
+        {
+          "SourceLine": 9,
+          "TargetLine": 43
         },
         {
           "SourceLine": 9,
@@ -145,20 +145,20 @@
           "TargetLine": 53
         },
         {
-          "SourceLine": 0,
-          "TargetLine": 52
-        },
-        {
-          "SourceLine": 0,
-          "TargetLine": 54
-        },
-        {
           "SourceLine": 13,
           "TargetLine": 49
         },
         {
           "SourceLine": 13,
           "TargetLine": 50
+        },
+        {
+          "SourceLine": 13,
+          "TargetLine": 52
+        },
+        {
+          "SourceLine": 13,
+          "TargetLine": 54
         },
         {
           "SourceLine": 13,
@@ -257,20 +257,20 @@
           "TargetLine": 81
         },
         {
-          "SourceLine": 0,
-          "TargetLine": 80
-        },
-        {
-          "SourceLine": 0,
-          "TargetLine": 82
-        },
-        {
           "SourceLine": 20,
           "TargetLine": 60
         },
         {
           "SourceLine": 20,
           "TargetLine": 61
+        },
+        {
+          "SourceLine": 20,
+          "TargetLine": 80
+        },
+        {
+          "SourceLine": 20,
+          "TargetLine": 82
         },
         {
           "SourceLine": 20,
