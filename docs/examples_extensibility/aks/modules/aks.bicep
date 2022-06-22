@@ -18,7 +18,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
         name: 'agentpool'
         osDiskSizeGB: osDiskSizeGB
         count: agentCount
-#disable-next-line BCP036
+        #disable-next-line BCP036
         vmSize: agentVMSize
         osType: 'Linux'
         mode: 'System'
