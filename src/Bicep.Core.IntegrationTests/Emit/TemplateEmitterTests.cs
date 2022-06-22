@@ -135,9 +135,10 @@ namespace Bicep.Core.IntegrationTests.Emit
             var sourceMap = emitter.Emit(memoryStream).SourceMap!;
 
             using var streamReader = new StreamReader(new MemoryStream(memoryStream.ToArray()));
-            var compiledJson = await streamReader.ReadToEndAsync();
+            var jsonLines = (await streamReader.ReadToEndAsync()).Split(System.Environment.NewLine);
 
-            var sourceTextWithSourceMap = OutputHelper.AddSourceMapToSourceText(dataSet.Bicep, dataSet.HasCrLfNewlines() ? "\r\n" : "\n", sourceMap, jsonLines);
+            var sourceTextWithSourceMap = OutputHelper.AddSourceMapToSourceText(
+                dataSet.Bicep, DataSet.TestFileMain, dataSet.HasCrLfNewlines() ? "\r\n" : "\n", sourceMap, jsonLines);
             var sourceTextWithSourceMapFileName = Path.Combine(outputDirectory, DataSet.TestFileMainSourceMap);
             File.WriteAllText(sourceTextWithSourceMapFileName, sourceTextWithSourceMap.ToString());
 
@@ -148,13 +149,7 @@ namespace Bicep.Core.IntegrationTests.Emit
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
                 actualLocation: sourceTextWithSourceMapFileName);
 
-            // update file paths in source map to match baseline, regardless of platform
-            var updatedSourceMap = sourceMap.ToDictionary(
-                kvp => kvp.Key,
-                kvp => (kvp.Value.Item1.Replace("/", @"\"), kvp.Value.Item2)
-            );
-
-            var actualSourceMapJson = JToken.FromObject(updatedSourceMap);
+            var actualSourceMapJson = JToken.FromObject(sourceMap);
             var actualSourceMapJsonFileName = Path.Combine(outputDirectory, DataSet.TestFileMainCompiledSourceMap);
             File.WriteAllText(actualSourceMapJsonFileName, actualSourceMapJson.ToString());
 

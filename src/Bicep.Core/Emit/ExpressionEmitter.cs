@@ -6,7 +6,6 @@ using System.Linq;
 using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Serializers;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -29,14 +28,13 @@ namespace Bicep.Core.Emit
         private readonly EmitterContext context;
         private readonly ExpressionConverter converter;
 
-        public readonly IDictionary<string, IDictionary<int, IList<(int start, int end)>>>? rawSourceMap;
+        public readonly RawSourceMap? rawSourceMap;
 
-        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context, IDictionary<string, IDictionary<int, IList<(int, int)>>>? rawSourceMap = null)
+        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context)
         {
             this.writer = writer;
             this.context = context;
             this.converter = new ExpressionConverter(context);
-            this.rawSourceMap = rawSourceMap;
         }
 
         public void EmitExpression(SyntaxBase syntax)
@@ -68,9 +66,9 @@ namespace Bicep.Core.Emit
 
                     foreach (ArrayItemSyntax itemSyntax in arraySyntax.Items)
                     {
-                        var startPos = writer.CurrentPos;
-                        EmitExpression(itemSyntax.Value);
-                        AddSourceMapping(itemSyntax, startPos);
+                        writer.WriteExpression(
+                            itemSyntax.Value,
+                            () => EmitExpression(itemSyntax.Value));
                     }
 
                     writer.WriteEndArray();
@@ -219,6 +217,7 @@ namespace Bicep.Core.Emit
 
             writer.WriteValue(serialized);
         }
+
         public void EmitCopyObject(string? name, ForSyntax syntax, SyntaxBase? input, string? copyIndexOverride = null, ulong? batchSize = null)
         {
             // local function
@@ -240,76 +239,75 @@ namespace Bicep.Core.Emit
                 };
             }
 
-            writer.WriteStartObject();
-
-            if (name is not null)
+            writer.WriteObject(syntax, () =>
             {
-                this.EmitProperty("name", name);
-            }
-
-            // construct the length ARM expression from the Bicep array expression
-            // type check has already ensured that the array expression is an array
-            this.EmitPropertyWithTransform(
-                "count",
-                syntax.Expression,
-                arrayExpression => new FunctionExpression("length", new[] { arrayExpression }, Array.Empty<LanguageExpression>()));
-
-            if (batchSize.HasValue)
-            {
-                this.EmitProperty("mode", "serial");
-                this.EmitProperty("batchSize", () => writer.WriteValue(batchSize.Value));
-            }
-
-            if (input != null)
-            {
-                if (copyIndexOverride == null)
+                if (name is not null)
                 {
-                    if (CanEmitAsInputDirectly(input))
+                    this.EmitProperty("name", name);
+                }
+
+                // construct the length ARM expression from the Bicep array expression
+                // type check has already ensured that the array expression is an array
+                this.EmitPropertyWithTransform(
+                    "count",
+                    syntax.Expression,
+                    arrayExpression => new FunctionExpression("length", new[] { arrayExpression }, Array.Empty<LanguageExpression>()));
+
+                if (batchSize.HasValue)
+                {
+                    this.EmitProperty("mode", "serial");
+                    this.EmitProperty("batchSize", () => writer.WriteValue(batchSize.Value));
+                }
+
+                if (input != null)
+                {
+                    if (copyIndexOverride == null)
                     {
-                        this.EmitProperty("input", input);
+                        if (CanEmitAsInputDirectly(input))
+                        {
+                            this.EmitProperty("input", input);
+                        }
+                        else
+                        {
+                            this.EmitPropertyWithTransform("input", input, converted => ExpressionConverter.ToFunctionExpression(converted));
+                        }
                     }
                     else
                     {
-                        this.EmitPropertyWithTransform("input", input, converted => ExpressionConverter.ToFunctionExpression(converted));
+                        this.EmitPropertyWithTransform("input", input, expression =>
+                        {
+                            if (!CanEmitAsInputDirectly(input))
+                            {
+                                expression = ExpressionConverter.ToFunctionExpression(expression);
+                            }
+
+                            // the named copy index in the serialized expression is incorrect
+                            // because the object syntax here does not match the JSON equivalent due to the presence of { "value": ... } wrappers
+                            // for now, we will manually replace the copy index in the converted expression
+                            // this approach will not work for nested property loops
+                            var visitor = new LanguageExpressionVisitor
+                            {
+                                OnFunctionExpression = function =>
+                                {
+                                    if (string.Equals(function.Function, "copyIndex") &&
+                                        function.Parameters.Length == 1 &&
+                                        function.Parameters[0] is JTokenExpression)
+                                    {
+                                        // it's an invocation of the copyIndex function with 1 argument with a literal value
+                                        // replace the argument with the correct value
+                                        function.Parameters = new LanguageExpression[] { new JTokenExpression("value") };
+                                    }
+                                }
+                            };
+
+                            // mutate the expression
+                            expression.Accept(visitor);
+
+                            return expression;
+                        });
                     }
                 }
-                else
-                {
-                    this.EmitPropertyWithTransform("input", input, expression =>
-                    {
-                        if (!CanEmitAsInputDirectly(input))
-                        {
-                            expression = ExpressionConverter.ToFunctionExpression(expression);
-                        }
-
-                        // the named copy index in the serialized expression is incorrect
-                        // because the object syntax here does not match the JSON equivalent due to the presence of { "value": ... } wrappers
-                        // for now, we will manually replace the copy index in the converted expression
-                        // this approach will not work for nested property loops
-                        var visitor = new LanguageExpressionVisitor
-                        {
-                            OnFunctionExpression = function =>
-                            {
-                                if (string.Equals(function.Function, "copyIndex") &&
-                                    function.Parameters.Length == 1 &&
-                                    function.Parameters[0] is JTokenExpression)
-                                {
-                                    // it's an invocation of the copyIndex function with 1 argument with a literal value
-                                    // replace the argument with the correct value
-                                    function.Parameters = new LanguageExpression[] { new JTokenExpression("value") };
-                                }
-                            }
-                        };
-
-                        // mutate the expression
-                        expression.Accept(visitor);
-
-                        return expression;
-                    });
-                }
-            }
-
-            writer.WriteEndObject();
+            });
         }
 
         public void EmitObjectProperties(ObjectSyntax objectSyntax, ISet<string>? propertiesToOmit = null)
@@ -333,9 +331,7 @@ namespace Bicep.Core.Emit
                             throw new InvalidOperationException("Encountered a property with an expression-based key whose value is a for-expression.");
                         }
 
-                        int startPos = this.writer.CurrentPos;
                         this.EmitCopyObject(key, @for, @for.Body);
-                        AddSourceMapping(property, startPos);
                     }
 
                     this.writer.WriteEndArray();
@@ -346,8 +342,6 @@ namespace Bicep.Core.Emit
             foreach (ObjectPropertySyntax propertySyntax in propertyLookup[false])
             {
                 // property whose value is not a for-expression
-
-                int startPos = this.writer.CurrentPos;
 
                 if (propertySyntax.TryGetKeyText() is string keyName)
                 {
@@ -362,8 +356,6 @@ namespace Bicep.Core.Emit
                 {
                     EmitProperty(propertySyntax.Key, propertySyntax.Value);
                 }
-
-                AddSourceMapping(propertySyntax, startPos);
             }
         }
 
@@ -433,7 +425,8 @@ namespace Bicep.Core.Emit
                 var serialized = ExpressionSerializer.SerializeExpression(transformed);
 
                 this.writer.WriteValue(serialized);
-            });
+            },
+            value);
 
         public void EmitProperty(string name, Action valueFunc)
             => EmitPropertyInternal(new JTokenExpression(name), valueFunc);
@@ -445,46 +438,24 @@ namespace Bicep.Core.Emit
             => EmitPropertyInternal(new JTokenExpression(name), value);
 
         public void EmitProperty(string name, SyntaxBase expressionValue)
-            => EmitPropertyInternal(new JTokenExpression(name), expressionValue);
+        {
             EmitPropertyInternal(new JTokenExpression(name), expressionValue);
-
-        {
-            int startPos = this.writer.CurrentPos;
-
-            EmitPropertyInternal(converter.ConvertExpression(syntaxKey), syntaxValue);
-
-            //AddSourceMapping(syntaxKey, startPos);
         }
 
-        {
-            int startPos = this.writer.CurrentPos;
-
-            EmitPropertyInternal(converter.ConvertExpression(syntaxKey), syntaxValue);
-
-            //AddSourceMapping(syntaxKey, startPos);
-        }
         public void EmitProperty(SyntaxBase syntaxKey, SyntaxBase syntaxValue)
         {
-            int startPos = this.writer.CurrentPos;
-
             EmitPropertyInternal(converter.ConvertExpression(syntaxKey), syntaxValue);
-
-            //AddSourceMapping(syntaxKey, startPos);
         }
 
-        private void EmitPropertyInternal(LanguageExpression expressionKey, Action valueFunc, bool skipCopyCheck = false)
+        private void EmitPropertyInternal(LanguageExpression expressionKey, Action valueFunc, SyntaxBase? location = null, bool skipCopyCheck = false)
         {
-            // cannot create mapping without access to SyntaxBase object (use IPositionable to get position in bicep)
-
             var serializedName = ExpressionSerializer.SerializeExpression(expressionKey);
             if (!skipCopyCheck && serializedName.Equals(LanguageConstants.CopyLoopIdentifier, StringComparison.OrdinalIgnoreCase))
             {
                 // we escape "copy" property name with a ARM expression to avoid it being interpreted by ARM as a copy instruction
                 serializedName = $"[string('{serializedName}')]";
             }
-            writer.WritePropertyName(serializedName);
-
-            valueFunc();
+            writer.WriteProperty(location, serializedName, valueFunc);
         }
 
         private void EmitPropertyInternal(LanguageExpression expressionKey, string value)
@@ -503,31 +474,6 @@ namespace Bicep.Core.Emit
             {
                 EmitProperty(name, expression);
             }
-        }
-
-        private void AddSourceMapping(IPositionable bicepPosition, int startPosition)
-        {
-            var bicepFileName = Path.GetFileName(this.context.SemanticModel.SourceFile.FileUri.AbsolutePath);
-            (int bicepLine, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, bicepPosition.GetPosition());
-
-            // increment start position if starting on a comma (happens when outputting successive items in objects and arrays)
-            if (this.writer.CommaPositions.Contains(startPosition))
-            {
-                startPosition++;
-            }
-
-            if (!this.rawSourceMap.ContainsKey(bicepFileName))
-            {
-                this.rawSourceMap[bicepFileName] = new Dictionary<int, IList<(int, int, string)>>();
-            }
-
-            if (!this.rawSourceMap[bicepFileName].ContainsKey(bicepLine))
-            {
-                this.rawSourceMap[bicepFileName][bicepLine] = new List<(int, int, string)>();
-            }
-
-            string content = this.writer._trackingWriter._debugString[startPosition..(this.writer.CurrentPos - 1)];
-            this.rawSourceMap[bicepFileName][bicepLine].Add((startPosition, this.writer.CurrentPos - 1, content));
         }
     }
 }
