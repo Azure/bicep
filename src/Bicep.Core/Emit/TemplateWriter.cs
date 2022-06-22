@@ -637,7 +637,7 @@ namespace Bicep.Core.Emit
                         }
 
                         var batchSize = GetBatchSize(moduleSymbol.DeclaringModule);
-                        emitter.EmitProperty("copy", () => emitter.EmitCopyObject(moduleSymbol.Name, @for, input: null, batchSize: batchSize));
+                        emitter.EmitCopyProperty(() => emitter.EmitCopyObject(moduleSymbol.Name, @for, input: null, batchSize: batchSize));
                         break;
                 }
 
