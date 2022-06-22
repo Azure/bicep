@@ -1,5 +1,5 @@
 resource basicParent 'My.Rp/parentType@2020-12-01' = {
-//@[12:115]       "type": "bool"
+//@[108:115]       "type": "My.Rp/parentType",
   name: 'basicParent'
   properties: {
 //@[112:114]       "properties": {

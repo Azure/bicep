@@ -1,5 +1,4 @@
 // mandatory params
-//@[12:47]       "type": "string"
 param dnsPrefix string
 //@[11:13]     "dnsPrefix": {
 param linuxAdminUsername string

@@ -6,10 +6,6 @@
       "SourceMap": [
         {
           "SourceLine": 0,
-          "TargetLine": 12
-        },
-        {
-          "SourceLine": 0,
           "TargetLine": 14
         },
         {
@@ -31,6 +27,10 @@
         {
           "SourceLine": 1,
           "TargetLine": 11
+        },
+        {
+          "SourceLine": 1,
+          "TargetLine": 12
         },
         {
           "SourceLine": 1,
