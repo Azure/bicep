@@ -104,7 +104,6 @@ namespace Bicep.Core.Samples
 
         public static IEnumerable<DataSet> NonStressDataSets => AllDataSets.Where(ds => !ds.IsStress);
 
-        // TODO: create new ParamsDataSet
         public static IEnumerable<DataSet> ParamDataSets => AllDataSets.Where(ds => ds.HasParamFile);
 
         public static ImmutableDictionary<string, string> Completions => DataSet.ReadDataSetDictionary($"{DataSet.Prefix}{DataSet.TestCompletionsPrefix}");

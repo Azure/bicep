@@ -73,7 +73,7 @@ namespace Bicep.Core.Samples
             this.Name = name;
 
             this.lazyBicep = this.CreateRequired(TestFileMain);
-            this.lazyBicepParam = this.CreateOptional(TestFileMainParam); // TODO: not sure what to pass here
+            this.lazyBicepParam = this.CreateOptional(TestFileMainParam);
             this.lazyTokens = this.CreateRequired(TestFileMainTokens);
             this.lazyDiagnostics = this.CreateRequired(TestFileMainDiagnostics);
             this.lazyCompiled = this.CreateIffValid(TestFileMainCompiled);

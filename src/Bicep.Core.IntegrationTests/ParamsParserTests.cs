@@ -64,7 +64,7 @@ namespace Bicep.Core.IntegrationTests
                 return;
             }
 
-            var program = ParamsParserHelper.ParamsParse(dataSet.BicepParam); // TODO: make dataSet.Bicep nullable (rename to BicepParam)
+            var program = ParamsParserHelper.ParamsParse(dataSet.BicepParam);
             var syntaxList = SyntaxCollectorVisitor.Build(program);
             var syntaxByParent = syntaxList.ToLookup(x => x.Parent);
 
@@ -98,7 +98,7 @@ namespace Bicep.Core.IntegrationTests
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 TestContext,
                 dataSet.Syntax,
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainParamSyntax), // and here
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainParamSyntax),
                 actualLocation: resultsFile);
         }
 
