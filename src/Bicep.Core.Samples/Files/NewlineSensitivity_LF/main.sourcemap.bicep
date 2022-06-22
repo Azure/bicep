@@ -1,5 +1,5 @@
 @allowed(['abc', 'def', 'ghi'])
-//@[13:17]       "allowedValues": [
+//@[14:16]         "abc",
 param foo string
 //@[11:18]     "foo": {
 
@@ -57,21 +57,16 @@ var singleLineObjectTrailingCommas = { abc: 'def', ghi: 'jkl',}
 var multiLineObject = {
 //@[52:55]     "multiLineObject": {
   abc: 'def'
-//@[53:53]       "abc": "def",
   ghi: 'jkl'
-//@[54:54]       "ghi": "jkl"
 }
 var mixedObject = { abc: 'abc', def: 'def'
 //@[56:62]     "mixedObject": {
 ghi: 'ghi', jkl: 'jkl'
-//@[59:60]       "ghi": "ghi",
 lmn: 'lmn' }
-//@[61:61]       "lmn": "lmn"
 
 var nestedMixed = {
 //@[63:72]     "nestedMixed": {
   abc: { 'def': 'ghi', abc: 'def', foo: [
-//@[64:71]       "abc": {
     'bar', 'blah'
 //@[68:69]           "bar",
   ] }

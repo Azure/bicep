@@ -21,27 +21,22 @@ resource resourceGroups 'Microsoft.Resources/resourceGroups@2020-06-01' = [for n
 //@[26:35]       "copy": {
   name: '${prefix}-${name}'
   location: 'westus'
-//@[34:34]       "location": "westus"
 }]
 
 module scopedToSymbolicName 'hello.bicep' = [for (name, i) in scripts: {
-//@[36:95]       "copy": {
+//@[36:95]       "[string('copy')]": {
   name: '${prefix}-dep-${i}'
-//@[43:43]       "name": "[format('{0}-dep-{1}', parameters('prefix'), copyIndex())]",
   params: {
     scriptName: 'test-${name}-${i}'
-//@[52:52]             "value": "[format('test-{0}-{1}', variables('scripts')[copyIndex()], copyIndex())]"
   }
   scope: resourceGroups[i]
 }]
 
 module scopedToResourceGroupFunction 'hello.bicep' = [for (name, i) in scripts: {
-//@[96:152]       "copy": {
+//@[96:152]       "[string('copy')]": {
   name: '${prefix}-dep-${i}'
-//@[103:103]       "name": "[format('{0}-dep-{1}', parameters('prefix'), copyIndex())]",
   params: {
     scriptName: 'test-${name}-${i}'
-//@[112:112]             "value": "[format('test-{0}-{1}', variables('scripts')[copyIndex()], copyIndex())]"
   }
   scope: resourceGroup(concat(name, '-extra'))
 }]
