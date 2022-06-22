@@ -114,11 +114,16 @@ namespace Bicep.Core.Emit
         private readonly EmitterSettings settings;
         private readonly IDictionary<string, IDictionary<int, IList<(int start, int end)>>> rawSourceMap;
 
+        public Dictionary<int, (string, int)>? SourceMap; // ARM JSON line => (Bicep File, Bicep Line)
+
         public TemplateWriter(SemanticModel semanticModel, EmitterSettings settings)
         {
             this.context = new EmitterContext(semanticModel, settings);
             this.settings = settings;
             this.rawSourceMap = new Dictionary<string, IDictionary<int, IList<(int, int)>>>();
+            this.SourceMap = sourceMap is null && settings.EnableSourceMapping
+                ? new Dictionary<int, (string, int)>()
+                : sourceMap;
         }
 
         public void Write(JsonTextWriter writer)
@@ -205,16 +210,23 @@ namespace Bicep.Core.Emit
                 })
                 .FirstOrDefault();
 
-            //var updatedRawSourceMap = this.rawSourceMap.ToDictionary(
-            //    kvp => kvp.Key,
-            //    kvp => kvp.Value.ToDictionary(
-            //        kvp => kvp.Key + 1,
-            //        kvp => kvp.Value
-            //            // increment all positions in mappings by template hash length if they were after)
-            //            .Select(mapping => (mapping.start >= templateHashStartPosition)
-            //                ? (start: mapping.start + templateHashLength, end: mapping.end + templateHashLength)
-            //                : mapping
-            //            )));
+            // increment all positions in mappings by templateHashLength that occur after hash start position
+            this.rawSourceMap.Keys.ForEach(file =>
+            {
+                this.rawSourceMap[file].Keys.ForEach(line =>
+                {
+                    for (int i = 0; i < rawSourceMap[file][line].Count; i++)
+                    {
+                        var (start, end) = this.rawSourceMap[file][line][i];
+
+                        if (start >= templateHashStartPosition)
+                        {
+                            this.rawSourceMap[file][line][i] =
+                                (start + templateHashLength, end + templateHashLength);
+                        }
+                    }
+                });
+            });
 
             // transform offsets in rawSourceMap to line numbers for formatted JSON using unformattedLineStarts
             // add 1 to all line numbers to convert to 1-indexing
@@ -234,24 +246,26 @@ namespace Bicep.Core.Emit
                             //unformattedTemplate[kvp.Value.start..kvp.Value.end] // DEBUG
                         )));
 
-            // unfold key-values in bicep-to-json map to reverse to json-to-bicep map
-            this.sourceMap = new (string, int)[unformattedLineStarts.Count];
+            // unfold key-values in bicep-to-json map to convert to json-to-bicep map
+            this.SourceMap = new();
             var weights = new int[unformattedLineStarts.Count];
             Array.Clear(this.sourceMap);
             Array.Fill(weights, int.MaxValue);
 
-            formattedSourceMap.ForEach(fileKvp =>
-                fileKvp.Value.ForEach(lineKvp =>
-                    lineKvp.Value.ForEach(mapping =>
+            foreach (var fileKvp in formattedSourceMap)
+            {
+                foreach (var lineKvp in fileKvp.Value)
+                {
+                    foreach (var (start, end) in lineKvp.Value)
                     {
-                        // write most specific mapping available for each json (less lines => higher weight)
-                        int weight = mapping.Item2 - mapping.Item1 + 1;
+                        // write most specific mapping available for each json line (less lines => stronger weight)
+                        int weight = mapping.Item2 - mapping.Item1;
                         for (int i = mapping.Item1; i <= mapping.Item2; i++)
                         {
                             // write new mapping if weight is stronger than existing mapping
                             if (weight < weights[i])
                             {
-                                this.sourceMap[i] = (fileKvp.Key, lineKvp.Key);
+                                this.SourceMap[i] = (fileKvp.Key, lineKvp.Key);
                                 weights[i] = weight;
                             }
                             else if (weight == weights[i])
@@ -259,7 +273,9 @@ namespace Bicep.Core.Emit
 
                             }
                         }
-                    })));
+                    }
+                }
+            }
         }
 
         private void EmitParametersIfPresent(JsonTextWriter jsonWriter, ExpressionEmitter emitter)

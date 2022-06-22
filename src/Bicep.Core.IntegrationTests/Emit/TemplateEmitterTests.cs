@@ -137,9 +137,9 @@ namespace Bicep.Core.IntegrationTests.Emit
             using var streamReader = new StreamReader(new MemoryStream(memoryStream.ToArray()));
             var compiledJson = await streamReader.ReadToEndAsync();
 
-            var sourceTextWithSourceMap = OutputHelper.AddSourceMapToSourceText(dataSet.Bicep, compiledJson, sourceMap, dataSet.HasCrLfNewlines() ? "\r\n" : "\n");
-            var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainSourceMap);
-            File.WriteAllText(resultsFile, sourceTextWithSourceMap.ToString());
+            var sourceTextWithSourceMap = OutputHelper.AddSourceMapToSourceText(dataSet.Bicep, dataSet.HasCrLfNewlines() ? "\r\n" : "\n", sourceMap, jsonLines);
+            var sourceTextWithSourceMapFileName = Path.Combine(outputDirectory, DataSet.TestFileMainSourceMap);
+            File.WriteAllText(sourceTextWithSourceMapFileName, sourceTextWithSourceMap.ToString());
 
             // validate source file annotated with source map
             sourceTextWithSourceMap.Should().EqualWithLineByLineDiffOutput(
@@ -148,7 +148,13 @@ namespace Bicep.Core.IntegrationTests.Emit
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
                 actualLocation: sourceTextWithSourceMapFileName);
 
-            var actualSourceMapJson = JToken.FromObject(sourceMap);
+            // update file paths in source map to match baseline, regardless of platform
+            var updatedSourceMap = sourceMap.ToDictionary(
+                kvp => kvp.Key,
+                kvp => (kvp.Value.Item1.Replace("/", @"\"), kvp.Value.Item2)
+            );
+
+            var actualSourceMapJson = JToken.FromObject(updatedSourceMap);
             var actualSourceMapJsonFileName = Path.Combine(outputDirectory, DataSet.TestFileMainCompiledSourceMap);
             File.WriteAllText(actualSourceMapJsonFileName, actualSourceMapJson.ToString());
 
