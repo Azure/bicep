@@ -1989,12 +1989,14 @@ resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
 resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
 //@[009:024) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |anyTypeInParent|
   parent: any(true)
+//@[010:019) [BCP240 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |any(true)|
 //@[010:019) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(true)|
 }
 
 resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
 //@[009:028) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |anyTypeInParentLoop|
   parent: any(true)
+//@[010:019) [BCP240 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |any(true)|
 //@[010:019) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(true)|
 }]
 
@@ -2014,6 +2016,7 @@ resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' exi
 //@[009:031) [no-unused-existing-resources (Warning)] Existing resource "anyTypeInExistingScope" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-existing-resources)) |anyTypeInExistingScope|
 //@[009:031) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |anyTypeInExistingScope|
   parent: any('')
+//@[010:017) [BCP240 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |any('')|
 //@[010:017) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any('')|
   scope: any(false)
 //@[009:019) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(false)|
@@ -2023,6 +2026,7 @@ resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01'
 //@[009:035) [no-unused-existing-resources (Warning)] Existing resource "anyTypeInExistingScopeLoop" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-existing-resources)) |anyTypeInExistingScopeLoop|
 //@[009:035) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |anyTypeInExistingScopeLoop|
   parent: any('')
+//@[010:017) [BCP240 (Error)] The "parent" property only permits direct references to resources. Expressions are not supported. (CodeDescription: none) |any('')|
 //@[010:017) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any('')|
   scope: any(false)
 //@[009:019) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(false)|
@@ -2087,6 +2091,7 @@ resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
   }
   extendedLocation: {}
 //@[002:018) [BCP187 (Warning)] The property "extendedLocation" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |extendedLocation|
+//@[002:018) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "type". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |extendedLocation|
   sku: {}
 //@[002:005) [BCP187 (Warning)] The property "sku" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |sku|
   kind: 'V1'
@@ -2109,6 +2114,7 @@ resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
 //@[002:006) [BCP187 (Warning)] The property "eTag" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |eTag|
   scale: {}  
 //@[002:007) [BCP187 (Warning)] The property "scale" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |scale|
+//@[002:007) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "capacity". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |scale|
 }
 
 resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
@@ -2123,10 +2129,10 @@ resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
 //@[012:028) [BCP036 (Warning)] The property "identity" expected a value of type "ManagedServiceIdentity | null" but the provided value is of type "'SystemAssigned'". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |'SystemAssigned'|
   extendedLocation: 'eastus'
 //@[002:018) [BCP187 (Warning)] The property "extendedLocation" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |extendedLocation|
-//@[020:028) [BCP036 (Warning)] The property "extendedLocation" expected a value of type "object" but the provided value is of type "'eastus'". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |'eastus'|
+//@[020:028) [BCP036 (Warning)] The property "extendedLocation" expected a value of type "extendedLocation" but the provided value is of type "'eastus'". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |'eastus'|
   sku: 'Basic'
 //@[002:005) [BCP187 (Warning)] The property "sku" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |sku|
-//@[007:014) [BCP036 (Warning)] The property "sku" expected a value of type "object" but the provided value is of type "'Basic'". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |'Basic'|
+//@[007:014) [BCP036 (Warning)] The property "sku" expected a value of type "sku" but the provided value is of type "'Basic'". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |'Basic'|
   kind: {
 //@[002:006) [BCP187 (Warning)] The property "kind" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |kind|
 //@[008:030) [BCP036 (Warning)] The property "kind" expected a value of type "string" but the provided value is of type "object". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |{\r\n    name: 'V1'\r\n  }|
@@ -2155,7 +2161,7 @@ resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
 //@[008:010) [BCP036 (Warning)] The property "eTag" expected a value of type "string" but the provided value is of type "object". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |{}|
   scale: [
 //@[002:007) [BCP187 (Warning)] The property "scale" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |scale|
-//@[009:021) [BCP036 (Warning)] The property "scale" expected a value of type "object" but the provided value is of type "object[]". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |[\r\n  {}\r\n  ]|
+//@[009:021) [BCP036 (Warning)] The property "scale" expected a value of type "scale" but the provided value is of type "object[]". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |[\r\n  {}\r\n  ]|
   {}
   ]  
 }

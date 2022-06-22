@@ -133,3 +133,6 @@ var testJsonNestedString2_1 = testJsonObject2_1.nestedString
 var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object.nestedString')
 //@[4:27) Variable testJsonNestedString2_2. Type: 'someVal'. Declaration start char: 0, length: 95
 
+var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.products[?(@.price > 3)].name')
+//@[4:25) Variable testJsonTokensAsArray. Type: ('pizza' | 'salad')[]. Declaration start char: 0, length: 104
+

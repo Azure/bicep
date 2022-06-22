@@ -1181,6 +1181,36 @@ var keyVaultSecretArrayInterpolatedVar = [
 //@[31:32) NewLine |\n|
 ]
 //@[00:01) RightSquare |]|
-//@[01:02) NewLine |\n|
+//@[01:03) NewLine |\n\n|
 
-//@[00:00) EndOfFile ||
+var copy = [
+//@[00:03) Identifier |var|
+//@[04:08) Identifier |copy|
+//@[09:10) Assignment |=|
+//@[11:12) LeftSquare |[|
+//@[12:13) NewLine |\n|
+  {
+//@[02:03) LeftBrace |{|
+//@[03:04) NewLine |\n|
+    name: 'one'
+//@[04:08) Identifier |name|
+//@[08:09) Colon |:|
+//@[10:15) StringComplete |'one'|
+//@[15:16) NewLine |\n|
+    count: '[notAFunction()]'
+//@[04:09) Identifier |count|
+//@[09:10) Colon |:|
+//@[11:29) StringComplete |'[notAFunction()]'|
+//@[29:30) NewLine |\n|
+    input: {}
+//@[04:09) Identifier |input|
+//@[09:10) Colon |:|
+//@[11:12) LeftBrace |{|
+//@[12:13) RightBrace |}|
+//@[13:14) NewLine |\n|
+  }
+//@[02:03) RightBrace |}|
+//@[03:04) NewLine |\n|
+]
+//@[00:01) RightSquare |]|
+//@[01:01) EndOfFile ||

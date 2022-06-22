@@ -1,6 +1,8 @@
 # Contributing to Bicep
 
-We are very happy to accept community contributions to Bicep, whether those are [Pull Requests](#pull-requests), [Example Files](#example-files), [Feature Suggestions](#feature-suggestions) or [Bug Reports](#bug-reports)! Please note that by participating in this project, you agree to abide by the [Code of Conduct](./CODE_OF_CONDUCT.md), as well as the terms of the [CLA](#cla).
+> The [Example Files](#example-files) are added to [Azure QuickStart Templates](https://github.com/Azure/azure-quickstart-templates), so we are not taking examples contributions anymore, but free free to contribute to QuickStart templates repository.
+
+We are very happy to accept community contributions to Bicep, whether those are [Pull Requests](#pull-requests), [Feature Suggestions](#feature-suggestions) or [Bug Reports](#bug-reports)! Please note that by participating in this project, you agree to abide by the [Code of Conduct](./CODE_OF_CONDUCT.md), as well as the terms of the [CLA](#cla).
 
 ## Getting Started
 

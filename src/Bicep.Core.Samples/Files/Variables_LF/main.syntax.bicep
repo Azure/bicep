@@ -1,5 +1,5 @@
 
-//@[000:7120) ProgramSyntax
+//@[000:7241) ProgramSyntax
 //@[000:0001) ├─Token(NewLine) |\n|
 // int
 //@[006:0007) ├─Token(NewLine) |\n|
@@ -2836,6 +2836,61 @@ module.exports = function (context) {
     context.done();
 }
 '''
-//@[003:0004) ├─Token(NewLine) |\n|
+//@[003:0005) ├─Token(NewLine) |\n\n|
 
-//@[000:0000) └─Token(EndOfFile) ||
+var copyBlockInObject = {
+//@[000:0120) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0021) | ├─IdentifierSyntax
+//@[004:0021) | | └─Token(Identifier) |copyBlockInObject|
+//@[022:0023) | ├─Token(Assignment) |=|
+//@[024:0120) | └─ObjectSyntax
+//@[024:0025) | | ├─Token(LeftBrace) |{|
+//@[025:0026) | | ├─Token(NewLine) |\n|
+  copy: [
+//@[002:0092) | | ├─ObjectPropertySyntax
+//@[002:0006) | | | ├─IdentifierSyntax
+//@[002:0006) | | | | └─Token(Identifier) |copy|
+//@[006:0007) | | | ├─Token(Colon) |:|
+//@[008:0092) | | | └─ArraySyntax
+//@[008:0009) | | | | ├─Token(LeftSquare) |[|
+//@[009:0010) | | | | ├─Token(NewLine) |\n|
+    {
+//@[004:0078) | | | | ├─ArrayItemSyntax
+//@[004:0078) | | | | | └─ObjectSyntax
+//@[004:0005) | | | | | | ├─Token(LeftBrace) |{|
+//@[005:0006) | | | | | | ├─Token(NewLine) |\n|
+      name: 'blah'
+//@[006:0018) | | | | | | ├─ObjectPropertySyntax
+//@[006:0010) | | | | | | | ├─IdentifierSyntax
+//@[006:0010) | | | | | | | | └─Token(Identifier) |name|
+//@[010:0011) | | | | | | | ├─Token(Colon) |:|
+//@[012:0018) | | | | | | | └─StringSyntax
+//@[012:0018) | | | | | | | | └─Token(StringComplete) |'blah'|
+//@[018:0019) | | | | | | ├─Token(NewLine) |\n|
+      count: '[notAFunction()]'
+//@[006:0031) | | | | | | ├─ObjectPropertySyntax
+//@[006:0011) | | | | | | | ├─IdentifierSyntax
+//@[006:0011) | | | | | | | | └─Token(Identifier) |count|
+//@[011:0012) | | | | | | | ├─Token(Colon) |:|
+//@[013:0031) | | | | | | | └─StringSyntax
+//@[013:0031) | | | | | | | | └─Token(StringComplete) |'[notAFunction()]'|
+//@[031:0032) | | | | | | ├─Token(NewLine) |\n|
+      input: {}
+//@[006:0015) | | | | | | ├─ObjectPropertySyntax
+//@[006:0011) | | | | | | | ├─IdentifierSyntax
+//@[006:0011) | | | | | | | | └─Token(Identifier) |input|
+//@[011:0012) | | | | | | | ├─Token(Colon) |:|
+//@[013:0015) | | | | | | | └─ObjectSyntax
+//@[013:0014) | | | | | | | | ├─Token(LeftBrace) |{|
+//@[014:0015) | | | | | | | | └─Token(RightBrace) |}|
+//@[015:0016) | | | | | | ├─Token(NewLine) |\n|
+    }
+//@[004:0005) | | | | | | └─Token(RightBrace) |}|
+//@[005:0006) | | | | ├─Token(NewLine) |\n|
+  ]
+//@[002:0003) | | | | └─Token(RightSquare) |]|
+//@[003:0004) | | ├─Token(NewLine) |\n|
+}
+//@[000:0001) | | └─Token(RightBrace) |}|
+//@[001:0001) └─Token(EndOfFile) ||

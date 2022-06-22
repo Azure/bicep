@@ -1784,6 +1784,44 @@ module.exports = function (context) {
     context.done();
 }
 '''
-//@[003:004) NewLine |\n|
+//@[003:005) NewLine |\n\n|
 
-//@[000:000) EndOfFile ||
+var copyBlockInObject = {
+//@[000:003) Identifier |var|
+//@[004:021) Identifier |copyBlockInObject|
+//@[022:023) Assignment |=|
+//@[024:025) LeftBrace |{|
+//@[025:026) NewLine |\n|
+  copy: [
+//@[002:006) Identifier |copy|
+//@[006:007) Colon |:|
+//@[008:009) LeftSquare |[|
+//@[009:010) NewLine |\n|
+    {
+//@[004:005) LeftBrace |{|
+//@[005:006) NewLine |\n|
+      name: 'blah'
+//@[006:010) Identifier |name|
+//@[010:011) Colon |:|
+//@[012:018) StringComplete |'blah'|
+//@[018:019) NewLine |\n|
+      count: '[notAFunction()]'
+//@[006:011) Identifier |count|
+//@[011:012) Colon |:|
+//@[013:031) StringComplete |'[notAFunction()]'|
+//@[031:032) NewLine |\n|
+      input: {}
+//@[006:011) Identifier |input|
+//@[011:012) Colon |:|
+//@[013:014) LeftBrace |{|
+//@[014:015) RightBrace |}|
+//@[015:016) NewLine |\n|
+    }
+//@[004:005) RightBrace |}|
+//@[005:006) NewLine |\n|
+  ]
+//@[002:003) RightSquare |]|
+//@[003:004) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:001) EndOfFile ||

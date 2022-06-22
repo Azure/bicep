@@ -129,3 +129,6 @@ var testJsonNestedString2_1 = testJsonObject2_1.nestedString
 var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object.nestedString')
 //@[4:27) [no-unused-vars (Warning)] Variable "testJsonNestedString2_2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonNestedString2_2|
 
+var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.products[?(@.price > 3)].name')
+//@[4:25) [no-unused-vars (Warning)] Variable "testJsonTokensAsArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonTokensAsArray|
+
