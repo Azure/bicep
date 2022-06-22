@@ -20,10 +20,12 @@ namespace Bicep.Core.Samples
     public class DataSet
     {
         public const string TestFileMain = "main.bicep";
+        public const string TestFileMainParam = "main.bicepparam";
         public const string TestFileMainDiagnostics = "main.diagnostics.bicep";
         public const string TestFileMainTokens = "main.tokens.bicep";
         public const string TestFileMainSymbols = "main.symbols.bicep";
         public const string TestFileMainSyntax = "main.syntax.bicep";
+        public const string TestFileMainParamSyntax = "main.syntax.bicepparam";
         public const string TestFileMainFormatted = "main.formatted.bicep";
         public const string TestFileMainCompiled = "main.json";
         public const string TestFileMainCompiledWithSymbolicNames = "main.symbolicnames.json";
@@ -43,6 +45,8 @@ namespace Bicep.Core.Samples
         public static readonly string Prefix = typeof(DataSet).Namespace == null ? string.Empty : typeof(DataSet).Namespace + '/';
 
         private readonly Lazy<string> lazyBicep;
+
+        private readonly Lazy<string>? lazyBicepParam;
 
         private readonly Lazy<string> lazyTokens;
 
@@ -69,6 +73,7 @@ namespace Bicep.Core.Samples
             this.Name = name;
 
             this.lazyBicep = this.CreateRequired(TestFileMain);
+            this.lazyBicepParam = this.CreateOptional(TestFileMainParam); // TODO: not sure what to pass here
             this.lazyTokens = this.CreateRequired(TestFileMainTokens);
             this.lazyDiagnostics = this.CreateRequired(TestFileMainDiagnostics);
             this.lazyCompiled = this.CreateIffValid(TestFileMainCompiled);
@@ -86,6 +91,8 @@ namespace Bicep.Core.Samples
         public string DisplayName => this.Name;
 
         public string Bicep => this.lazyBicep.Value;
+
+        public string? BicepParam => this.lazyBicepParam?.Value;
 
         public string Tokens => this.lazyTokens.Value;
 
@@ -119,12 +126,16 @@ namespace Bicep.Core.Samples
 
         public bool IsStress => this.Name.Contains("Stress", StringComparison.Ordinal);
 
+        public bool HasParamFile => this.BicepParam is not null;
+
         private Lazy<string> CreateRequired(string fileName)
         {
             return new Lazy<string>(() => this.ReadDataSetFile(fileName), LazyThreadSafetyMode.PublicationOnly);
         }
 
         private Lazy<string>? CreateIffValid(string fileName) => this.IsValid ? this.CreateRequired(fileName) : null;
+
+        private Lazy<string>? CreateOptional(string fileName) => ExistsFile(GetStreamName(fileName)) ? this.CreateRequired(fileName) : null;
 
         public static string GetDisplayName(MethodInfo info, object[] data) => $"{info.Name}_{((DataSet)data[0]).Name}";
 
@@ -142,6 +153,13 @@ namespace Bicep.Core.Samples
             using var reader = new StreamReader(stream ?? Stream.Null);
 
             return reader.ReadToEnd();
+        }
+
+        public static bool ExistsFile(string streamName)
+        {
+            using Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(streamName);
+
+            return stream is not null;
         }
 
         public static ImmutableDictionary<string, string> ReadDataSetDictionary(string streamNamePrefix)
