@@ -571,7 +571,7 @@ namespace Bicep.Core.Emit
 
             foreach (var propertySyntax in paramsObjectSyntax.Properties)
             {
-                if (propertySyntax.TryGetKeyText() is not string keyName)
+                if (!(propertySyntax.TryGetKeyText() is string keyName))
                 {
                     // should have been caught by earlier validation
                     throw new ArgumentException("Disallowed interpolation in module parameter");
@@ -644,7 +644,7 @@ namespace Bicep.Core.Emit
                 emitter.EmitProperty("type", NestedDeploymentResourceType);
                 emitter.EmitProperty("apiVersion", NestedDeploymentResourceApiVersion);
 
-                // emit all properties apart from 'params'. In practice, this currently only allows 'name', but we may choose to allow other top-level resource properties in future.
+                // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
                 // params requires special handling (see below).
                 emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);
 
@@ -699,8 +699,8 @@ namespace Bicep.Core.Emit
                         {
                             var offset = jsonWriter.CurrentPos;
                             this.rawSourceMap.AddNestedRawSourceMap(
-                                templateWriter.rawSourceMap!,
-                                offset);
+                            templateWriter.rawSourceMap!,
+                            offset);
                         }
                     }
 
@@ -719,9 +719,6 @@ namespace Bicep.Core.Emit
                     emitter.EmitProperty(property, val);
                 }
             });
-
-
-
         }
 
         private static bool ShouldGenerateDependsOn(ResourceDependency dependency)
@@ -751,13 +748,13 @@ namespace Bicep.Core.Emit
                     switch ((resourceDependency.IsCollection, dependency.IndexExpression))
                     {
                         case (false, _):
-                            jsonWriter.WriteValue(resourceDependency.Name);
+                            emitter.EmitSymbolReference(resource);
                             Debug.Assert(dependency.IndexExpression is null);
                             break;
                         // dependency is on the entire resource collection
                         // write the name of the resource collection as the dependency
                         case (true, null):
-                            jsonWriter.WriteValue(resourceDependency.Name);
+                            emitter.EmitSymbolReference(resource);
                             break;
                         case (true, { } indexExpression):
                             emitter.EmitIndexedSymbolReference(resource, indexExpression, newContext);
