@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Bicep.VSLanguageServerClient.MiddleLayerProviders;
 using FluentAssertions;
 using Microsoft.VisualStudio.LanguageServer.Protocol;
@@ -12,92 +11,71 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
     [TestClass]
     public class HandleSnippetCompletionsMiddleLayerTests
     {
-        [TestMethod]
-        public void GetUpdatedCompletionItems_WithEmptyListOfCompletionItems_DoesNothing()
+        [DataTestMethod]
+        [DataRow(null)]
+        [DataRow("")]
+        [DataRow("    ")]
+        public void GetUpdatedCompletionItem_InvalidText_DoesNothing(string text)
         {
             var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer();
-            var completionItems = Array.Empty<CompletionItem>();
+            var completionItem = new CompletionItem
+            {
+                Label = "author",
+                InsertTextFormat = InsertTextFormat.Snippet,
+                TextEdit = new TextEdit()
+                {
+                    NewText = text,
+                    Range = new Range()
+                    {
+                        Start = new Position(0, 1),
+                        End = new Position(0, 4)
+                    }
+                }
+            };
 
-            handleSnippetCompletionsMiddleLayer.GetUpdatedCompletionItems(completionItems).Should().BeEmpty();
+            handleSnippetCompletionsMiddleLayer.GetUpdatedCompletionItem(completionItem).Should().Be(completionItem);
         }
 
         [TestMethod]
-        public void GetUpdatedCompletionItems_WithOnlyPlainTextCompletionItems_DoesNothing()
+        public void GetUpdatedCompletionItem_WithPlainTextCompletionItem_DoesNothing()
         {
             var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer();
-            var completionItem1 = new CompletionItem
+            var completionItem = new CompletionItem
             {
                 InsertText = "author",
                 Label = "author",
                 InsertTextFormat = InsertTextFormat.Plaintext
             };
 
-            var completionItem2 = new CompletionItem
-            {
-                InsertText = "branding",
-                Label = "branding",
-                InsertTextFormat = InsertTextFormat.Plaintext
-            };
-            var completionItems = new CompletionItem[] { completionItem1, completionItem2 };
-
-            var result = handleSnippetCompletionsMiddleLayer.GetUpdatedCompletionItems(completionItems);
-
-            result.Should().SatisfyRespectively(
-                c =>
-                {
-                    c.Label.Should().Be("author");
-                    c.InsertText.Should().Be("author");
-                    c.InsertTextFormat.Should().Be(InsertTextFormat.Plaintext);;
-                },
-                c =>
-                {
-                    c.Label.Should().Be("branding");
-                    c.InsertText.Should().Be("branding");
-                    c.InsertTextFormat.Should().Be(InsertTextFormat.Plaintext); ;
-                });
+            handleSnippetCompletionsMiddleLayer.GetUpdatedCompletionItem(completionItem).Should().Be(completionItem);
         }
 
         [TestMethod]
-        public void GetUpdatedCompletionItems_WithNonChoiceSnippetSyntaxInCompletionItems_DoesNothing()
+        public void GetUpdatedCompletionItem_WithNonChoiceSnippetSyntaxInCompletionItem_DoesNothing()
         {
             var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer();
 
             var resourceText = "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\r\n  name: $5\r\n  $0\r\n}";
-            var completionItem1 = new CompletionItem
+            var completionItem = new CompletionItem
             {
-                InsertText = resourceText,
                 Label = "resource",
-                InsertTextFormat = InsertTextFormat.Snippet
+                InsertTextFormat = InsertTextFormat.Snippet,
+                TextEdit = new TextEdit()
+                {
+                    NewText = resourceText,
+                    Range = new Range()
+                    {
+                        Start = new Position(0, 1),
+                        End = new Position(0, 4)
+                    }
+                }
             };
 
-            var outputText = "output ${1:Identifier} ${2:Type} = $0";
-            var completionItem2 = new CompletionItem
-            {
-                InsertText = outputText,
-                Label = "output",
-                InsertTextFormat = InsertTextFormat.Snippet
-            };
-            var completionItems = new CompletionItem[] { completionItem1, completionItem2 };
-
-            var result = handleSnippetCompletionsMiddleLayer.GetUpdatedCompletionItems(completionItems);
-
-            result.Should().SatisfyRespectively(
-                c =>
-                {
-                    c.Label.Should().Be("resource");
-                    c.InsertText.Should().Be(resourceText);
-                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                },
-                c =>
-                {
-                    c.Label.Should().Be("output");
-                    c.InsertText.Should().Be(outputText);
-                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                });
+            handleSnippetCompletionsMiddleLayer.GetUpdatedCompletionItem(completionItem).Should().Be(completionItem);
         }
 
         [TestMethod]
-        public void GetUpdatedCompletionItems_WithChoiceSnippetSyntaxInCompletionItems_ConvertsChoiceSyntaxToPlaceholderSyntax()
+        public void GetUpdatedCompletionItem_WithChoiceSnippetSyntaxInCompletionItem_ConvertsChoiceSyntaxToPlaceholderSyntax()
         {
             var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer();
 
@@ -111,25 +89,28 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
             {
                 InsertText = resourceText,
                 Label = "resource",
-                InsertTextFormat = InsertTextFormat.Snippet
+                TextEdit = new TextEdit()
+                {
+                    NewText = resourceText,
+                    Range = new Range()
+                    {
+                        Start = new Position(0, 1),
+                        End = new Position(0, 4)
+                    }
+                }
             };
 
-            var completionItems = new CompletionItem[] { completionItem };
+            var result = handleSnippetCompletionsMiddleLayer.GetUpdatedCompletionItem(completionItem);
+            var textEdit = result.TextEdit;
+            textEdit.Should().NotBeNull();
 
-            var result = handleSnippetCompletionsMiddleLayer.GetUpdatedCompletionItems(completionItems);
             var expectedInsertText = @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {
   name: ${5:'test1'}
   Application_Type: '${6:web}'
   kubernetesVersion: '${7:1.19.7}'
  $0
 }";
-            result.Should().SatisfyRespectively(
-                c =>
-                {
-                    c.Label.Should().Be("resource");
-                    c.InsertText.Should().Be(expectedInsertText);
-                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
-                });
+            textEdit!.NewText.Should().Be(expectedInsertText);
         }
     }
 }

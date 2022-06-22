@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.LanguageServer.Client;
@@ -11,6 +12,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
 {
+    [Export(typeof(HandleSnippetCompletionsMiddleLayer))]
     public class HandleSnippetCompletionsMiddleLayer : ILanguageClientMiddleLayer
     {
         private static readonly Regex ChoiceSnippetPlaceholderPattern = new Regex(@"\${\d+\|(.*)\|}", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
@@ -47,7 +49,7 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
                         {
                             continue;
                         }
-                        if (completionItem.InsertTextFormat == InsertTextFormat.Snippet)
+                        if (completionItem.InsertTextFormat == InsertTextFormat.Snippet && completionItem.Label == "res-aks-cluster")
                         {
                             completionItem = GetUpdatedCompletionItem(completionItem);
                             updatedCompletions.Add(completionItem);
@@ -67,11 +69,11 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
 
         public CompletionItem GetUpdatedCompletionItem(CompletionItem completionItem)
         {
-            var insertText = completionItem.InsertText;
-
-            if (insertText is not null)
+            if (completionItem.TextEdit is TextEdit textEdit &&
+                textEdit.NewText is string newText &&
+                !string.IsNullOrEmpty(newText))
             {
-                string updatedInsertText = GetUpdatedInsertText(insertText);
+                string updatedInsertText = GetUpdatedInsertText(newText);
 
                 completionItem.InsertText = updatedInsertText;
 
@@ -84,32 +86,7 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
             return completionItem;
         }
 
-        public CompletionItem[] GetUpdatedCompletionItems(CompletionItem[] completionItems)
-        {
-            foreach (CompletionItem completionItem in completionItems)
-            {
-                if (completionItem is not null && completionItem.InsertTextFormat == InsertTextFormat.Snippet)
-                {
-                    var insertText = completionItem.InsertText;
-
-                    if (insertText is not null)
-                    {
-                        string updatedInsertText = GetUpdatedInsertText(insertText);
-
-                        completionItem.InsertText = updatedInsertText;
-
-                        if (completionItem.TextEdit != null)
-                        {
-                            completionItem.TextEdit.NewText = updatedInsertText;
-                        }
-                    }
-                }
-            }
-
-            return completionItems;
-        }
-
-        internal static string GetUpdatedInsertText(string text)
+        private string GetUpdatedInsertText(string text)
         {
             var matches = ChoiceSnippetPlaceholderPattern.Matches(text);
 
