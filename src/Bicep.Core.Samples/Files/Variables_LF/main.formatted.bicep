@@ -332,3 +332,5 @@ var copyBlockInObject = {
     }
   ]
 }
+
+var joinedString = join([ 'I', 'love', 'Bicep!' ], ' ')
