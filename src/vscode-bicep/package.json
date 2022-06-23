@@ -83,11 +83,6 @@
           "description": "Prepend each line displayed in the Bicep Operations output channel with a timestamp.",
           "default": true,
           "$comment": "This is used by vscode-azuretools package and has to be in the following format: <extensionPrefix>.enableOutputTimestamps"
-        },
-        "bicep.enableDeploy": {
-          "type": "boolean",
-          "description": "(Preview) Enable/disable Bicep Deploy feature",
-          "default": false
         }
       }
     },
@@ -271,7 +266,7 @@
         },
         {
           "command": "bicep.deploy",
-          "when": "resourceLangId == bicep && config.bicep.enableDeploy",
+          "when": "resourceLangId == bicep",
           "group": "0_bicep"
         },
         {
@@ -308,7 +303,7 @@
         },
         {
           "command": "bicep.deploy",
-          "when": "resourceLangId == bicep && config.bicep.enableDeploy",
+          "when": "resourceLangId == bicep",
           "group": "0_bicep"
         },
         {
@@ -335,7 +330,7 @@
         },
         {
           "command": "bicep.deploy",
-          "when": "resourceLangId == bicep && config.bicep.enableDeploy",
+          "when": "resourceLangId == bicep",
           "group": "0_bicep"
         },
         {
@@ -370,7 +365,6 @@
         },
         {
           "command": "bicep.deploy",
-          "when": "config.bicep.enableDeploy",
           "group": "0_bicep"
         },
         {
@@ -483,7 +477,7 @@
           {
             "id": "deployToAzure",
             "title": "Deploy to Azure",
-            "description": "Bicep right-click deploy is in preview! To enable this feature, navigate to settings (``Ctrl/CMD + ,``) and select Bicep: Enable Deploy. If you don't have the [Azure Account Extension](command:extension.open?%5B%22ms-vscode.azure-account%22%5D) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy?%7B%22walkthrough%22%3A%22true%22%7D)",
+            "description": "It's time to get these resources into Azure. If you don't have the [Azure Account Extension](command:extension.open?%5B%22ms-vscode.azure-account%22%5D) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy?%7B%22walkthrough%22%3A%22true%22%7D)",
             "media": {
               "image": "media/walkthroughs/gettingStarted/5_Deploy.gif",
               "altText": "Example of deploying Bicep file to Azure"
