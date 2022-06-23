@@ -43,6 +43,8 @@ namespace Bicep.Core.Samples
 
         public static DataSet Outputs_CRLF => CreateDataSet();
 
+        public static DataSet Metadata_CRLF => CreateDataSet();
+
         public static DataSet NestedResources_LF => CreateDataSet();
 
         public static DataSet Parameters_CRLF => CreateDataSet();
@@ -58,8 +60,6 @@ namespace Bicep.Core.Samples
         public static DataSet ResourcesManagementGroup_CRLF => CreateDataSet();
 
         public static DataSet ResourcesTenant_CRLF => CreateDataSet();
-
-        public static DataSet TemplateMetadata_CRLF => CreateDataSet();
 
         public static DataSet Unicode_LF => CreateDataSet();
 

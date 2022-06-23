@@ -69,9 +69,9 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        public override void VisitTemplateMetadataSyntax(TemplateMetadataSyntax syntax)
-            => VisitDeclaration(syntax, base.VisitTemplateMetadataSyntax);
-
+        public override void VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax)
+            => VisitDeclaration(syntax, base.VisitMetadataDeclarationSyntax);
+        
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
             => VisitDeclaration(syntax, base.VisitVariableDeclarationSyntax);
 

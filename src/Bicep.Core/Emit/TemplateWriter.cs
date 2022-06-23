@@ -908,10 +908,10 @@ namespace Bicep.Core.Emit
                 }
                 jsonWriter.WriteEndObject();
 
-                foreach (var templateMetadataSymbol in this.context.SemanticModel.Root.TemplateMetadataDeclarations)
+                foreach (var metadataSymbol in this.context.SemanticModel.Root.MetadataDeclarations)
                 {
-                    jsonWriter.WritePropertyName(templateMetadataSymbol.Name);
-                    emitter.EmitExpression(templateMetadataSymbol.Value);
+                    jsonWriter.WritePropertyName(metadataSymbol.Name);
+                    emitter.EmitExpression(metadataSymbol.Value);
                 }
             }
             jsonWriter.WriteEndObject();

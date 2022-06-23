@@ -53,6 +53,15 @@ namespace Bicep.Core.Syntax
             }
         }
 
+        public virtual void VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Assignment);
+            this.Visit(syntax.Value);
+        }
+
         public virtual void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
             this.VisitNodes(syntax.LeadingNodes);
@@ -66,15 +75,6 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.AssignmentToken);
             this.Visit(syntax.DefaultValue);
-        }
-
-        public virtual void VisitTemplateMetadataSyntax(TemplateMetadataSyntax syntax)
-        {
-            this.VisitNodes(syntax.LeadingNodes);
-            this.Visit(syntax.Keyword);
-            this.Visit(syntax.Name);
-            this.Visit(syntax.Assignment);
-            this.Visit(syntax.Value);
         }
 
         public virtual void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)

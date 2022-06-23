@@ -31,7 +31,7 @@ namespace Bicep.Core.Semantics
 
             // TODO: Avoid looping 6 times?
             this.ImportDeclarations = declarations.OfType<ImportedNamespaceSymbol>().ToImmutableArray();
-            this.TemplateMetadataDeclarations = declarations.OfType<TemplateMetadataSymbol>().ToImmutableArray();
+            this.MetadataDeclarations = declarations.OfType<MetadataSymbol>().ToImmutableArray();
             this.ParameterDeclarations = declarations.OfType<ParameterSymbol>().ToImmutableArray();
             this.VariableDeclarations = declarations.OfType<VariableSymbol>().ToImmutableArray();
             this.ResourceDeclarations = declarations.OfType<ResourceSymbol>().ToImmutableArray();
@@ -65,7 +65,7 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<ImportedNamespaceSymbol> ImportDeclarations { get; }
 
-        public ImmutableArray<TemplateMetadataSymbol> TemplateMetadataDeclarations { get; }
+        public ImmutableArray<MetadataSymbol> MetadataDeclarations { get; }
 
         public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
 

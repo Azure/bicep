@@ -1,11 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
   "contentVersion": "1.0.0.0",
   "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11034486757332027255"
+      "templateHash": "4900293356761624512"
     },
     "myString2": "string value",
     "myInt2": 42,
@@ -33,7 +35,7 @@
         }
       ]
     },
-    "myArrayParam": [
+    "myArrayMetadata": [
       "a",
       "b",
       "c"
@@ -41,5 +43,5 @@
     "myEmptyObj": {},
     "myEmptyArray": []
   },
-  "resources": []
+  "resources": {}
 }

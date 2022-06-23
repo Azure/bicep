@@ -121,7 +121,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP012",
                 $"Expected the \"{keyword}\" keyword at this location.");
-
+            
             public ErrorDiagnostic ExpectedParameterIdentifier() => new(
                 TextSpan,
                 "BCP013",
@@ -1411,6 +1411,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP239",
                 $"Identifier \"{name}\" is a reserved Bicep symbol name and cannot be used in this context.");
+
+            public ErrorDiagnostic ExpectedMetadataIdentifier() => new(
+                TextSpan,
+                "BCP240",
+                "Expected a metadata identifier at this location.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

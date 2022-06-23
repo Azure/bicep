@@ -44,16 +44,16 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 this.model = model;
             }
 
+            public override void VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax)
+            {
+                AddCodeFixIfSingleInterpolatedString(syntax.Value);
+                base.VisitMetadataDeclarationSyntax(syntax);
+            }
+
             public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
             {
                 AddCodeFixIfSingleInterpolatedString(syntax.Value);
                 base.VisitObjectPropertySyntax(syntax);
-            }
-
-            public override void VisitTemplateMetadataSyntax(TemplateMetadataSyntax syntax)
-            {
-                AddCodeFixIfSingleInterpolatedString(syntax.Value);
-                base.VisitTemplateMetadataSyntax(syntax);
             }
 
             public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)

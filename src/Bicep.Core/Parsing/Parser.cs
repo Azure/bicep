@@ -89,7 +89,7 @@ namespace Bicep.Core.Parsing
                         TokenType.Identifier => current.Text switch
                         {
                             LanguageConstants.TargetScopeKeyword => this.TargetScope(leadingNodes),
-                            LanguageConstants.TemplateMetadataKeyword => this.TemplateMetadata(leadingNodes),
+                            LanguageConstants.MetadataKeyword => this.MetadataDeclaration(leadingNodes),
                             LanguageConstants.ParameterKeyword => this.ParameterDeclaration(leadingNodes),
                             LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
                             LanguageConstants.ResourceKeyword => this.ResourceDeclaration(leadingNodes),
@@ -230,6 +230,16 @@ namespace Bicep.Core.Parsing
             return new DecoratorSyntax(at, expression);
         }
 
+        private SyntaxBase MetadataDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = ExpectKeyword(LanguageConstants.MetadataKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedMetadataIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
+            var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
+
+            return new MetadataDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
+        }
+
         private SyntaxBase ParameterDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);
@@ -265,16 +275,6 @@ namespace Bicep.Core.Parsing
             SyntaxBase defaultValue = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine);
 
             return new ParameterDefaultValueSyntax(assignmentToken, defaultValue);
-        }
-
-        private SyntaxBase TemplateMetadata(IEnumerable<SyntaxBase> leadingNodes)
-        {
-            var keyword = ExpectKeyword(LanguageConstants.TemplateMetadataKeyword);
-            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
-            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
-            var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
-
-            return new TemplateMetadataSyntax(leadingNodes, keyword, name, assignment, value);
         }
 
         private SyntaxBase VariableDeclaration(IEnumerable<SyntaxBase> leadingNodes)

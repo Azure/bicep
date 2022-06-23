@@ -179,6 +179,18 @@ namespace Bicep.Core.Semantics
             allowedFlags = FunctionFlags.Default;
         }
 
+        public override void VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax)
+        {
+            allowedFlags = FunctionFlags.Default;
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Assignment);
+            allowedFlags = FunctionFlags.RequiresInlining;
+            this.Visit(syntax.Value);
+            allowedFlags = FunctionFlags.Default;
+        }
+
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
             allowedFlags = FunctionFlags.VariableDecorator;
@@ -225,18 +237,6 @@ namespace Bicep.Core.Semantics
             this.Visit(syntax.Type);
             allowedFlags = FunctionFlags.ParamDefaultsOnly;
             this.Visit(syntax.Modifier);
-            allowedFlags = FunctionFlags.Default;
-        }
-
-        public override void VisitTemplateMetadataSyntax(TemplateMetadataSyntax syntax)
-        {
-            allowedFlags = FunctionFlags.Default;
-            this.VisitNodes(syntax.LeadingNodes);
-            this.Visit(syntax.Keyword);
-            this.Visit(syntax.Name);
-            this.Visit(syntax.Assignment);
-            allowedFlags = FunctionFlags.RequiresInlining;
-            this.Visit(syntax.Value);
             allowedFlags = FunctionFlags.Default;
         }
 

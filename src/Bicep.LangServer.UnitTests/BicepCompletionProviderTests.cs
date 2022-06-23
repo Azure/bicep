@@ -50,6 +50,15 @@ namespace Bicep.LangServer.UnitTests
             keywordCompletions.Should().SatisfyRespectively(
                 c =>
                 {
+                    c.Label.Should().Be("meta");
+                    c.Kind.Should().Be(CompletionItemKind.Keyword);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().Be("Metadata keyword");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("meta");
+                },
+                c =>
+                {
                     c.Label.Should().Be("module");
                     c.Kind.Should().Be(CompletionItemKind.Keyword);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
@@ -92,15 +101,6 @@ namespace Bicep.LangServer.UnitTests
                     c.InsertText.Should().BeNull();
                     c.Detail.Should().Be("Target Scope keyword");
                     c.TextEdit!.TextEdit!.NewText.Should().Be("targetScope");
-                },
-                c =>
-                {
-                    c.Label.Should().Be("templateMetadata");
-                    c.Kind.Should().Be(CompletionItemKind.Keyword);
-                    c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
-                    c.InsertText.Should().BeNull();
-                    c.Detail.Should().Be("templateMetadata keyword");
-                    c.TextEdit!.TextEdit!.NewText.Should().Be("templateMetadata");
                 },
                 c =>
                 {

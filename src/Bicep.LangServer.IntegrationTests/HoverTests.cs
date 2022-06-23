@@ -565,6 +565,11 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
 
                 switch (symbol)
                 {
+                    
+                    case MetadataSymbol metadata:
+                        tooltip.Should().Contain($"meta {metadata.Name}: {metadata.Type}");
+                        break;
+
                     case ParameterSymbol parameter:
                         tooltip.Should().Contain($"param {parameter.Name}: {parameter.Type}");
                         break;
@@ -572,10 +577,6 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
                     case VariableSymbol variable:
                         // the hovers with errors don't appear in VS code and only occur in tests
                         tooltip.Should().ContainAny(new[] { $"var {variable.Name}: {variable.Type}", $"var {variable.Name}: error" });
-                        break;
-                    
-                    case TemplateMetadataSymbol templateMetadata:
-                        tooltip.Should().Contain($"templateMetadata {templateMetadata.Name}: {templateMetadata.Type}");
                         break;
 
                     case ResourceSymbol resource:

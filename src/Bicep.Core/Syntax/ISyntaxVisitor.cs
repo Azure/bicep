@@ -24,6 +24,8 @@ namespace Bicep.Core.Syntax
 
         void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax);
 
+        void VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax);
+
         void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax);
 
         void VisitNullLiteralSyntax(NullLiteralSyntax syntax);
@@ -57,8 +59,6 @@ namespace Bicep.Core.Syntax
         void VisitStringSyntax(StringSyntax syntax);
 
         void VisitTargetScopeSyntax(TargetScopeSyntax syntax);
-
-        void VisitTemplateMetadataSyntax(TemplateMetadataSyntax syntax);
 
         void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax);
 

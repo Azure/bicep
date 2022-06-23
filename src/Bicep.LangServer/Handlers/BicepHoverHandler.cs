@@ -69,6 +69,11 @@ namespace Bicep.LanguageServer.Handlers
                 case ImportedNamespaceSymbol import:
                     return WithMarkdown(CodeBlockWithDescription(
                         $"import {import.Name}", TryGetDescriptionMarkdown(result, import)));
+                
+                case MetadataSymbol metadata:
+                    return WithMarkdown(CodeBlockWithDescription(
+                        $"meta {metadata.Name}: {metadata.Type}", TryGetDescriptionMarkdown(result, metadata)));
+
 
                 case ParameterSymbol parameter:
                     return WithMarkdown(CodeBlockWithDescription(
@@ -97,10 +102,6 @@ namespace Bicep.LanguageServer.Handlers
                 case OutputSymbol output:
                     return WithMarkdown(CodeBlockWithDescription(
                         $"output {output.Name}: {output.Type}", TryGetDescriptionMarkdown(result, output)));
-
-                case TemplateMetadataSymbol templateMetadata:
-                    return CodeBlockWithDescription(
-                        $"templateMetadata {templateMetadata.Name}: {templateMetadata.Type}", TryGetDescriptionMarkdown(result, templateMetadata));
 
                 case BuiltInNamespaceSymbol builtInNamespace:
                     return WithMarkdown(CodeBlock($"{builtInNamespace.Name} namespace"));
