@@ -24,6 +24,8 @@ namespace Bicep.Core.TypeSystem
 
         public ResourceScope Scope => ResourceScope.Module;
 
+        public override TypeSymbolValidationFlags ValidationFlags => TypeSymbolValidationFlags.PreventAssignment;
+
         public static ModuleType? TryUnwrap(TypeSymbol typeSymbol)
             => typeSymbol switch
             {

@@ -232,7 +232,7 @@ namespace Bicep.Core
             // If none of the params are reqired, we can allow the 'params' declaration to be omitted entirely
             var paramsRequiredFlag = paramsProperties.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)) ? TypePropertyFlags.Required : TypePropertyFlags.None;
 
-            var outputsType = new ObjectType(ModuleOutputsPropertyName, TypeSymbolValidationFlags.Default, outputProperties, null);
+            var outputsType = new ObjectType(ModuleOutputsPropertyName, TypeSymbolValidationFlags.PreventAssignment, outputProperties, null);
 
             var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant;
             if (moduleScope != containingScope)
@@ -243,7 +243,7 @@ namespace Bicep.Core
 
             var moduleBody = new ObjectType(
                 typeName,
-                TypeSymbolValidationFlags.Default,
+                TypeSymbolValidationFlags.PreventAssignment,
                 new[]
                 {
                     new TypeProperty(ModuleNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),

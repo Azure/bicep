@@ -3599,5 +3599,75 @@ resource container_ActorColdStorage 'Microsoft.DocumentDB/databaseAccounts/sqlDa
                 ("BCP240", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported.")
             });
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/4320
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_4320_mod_Should_Have_Error()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+module mod 'module.bicep' = {
+  name: 'testmod1'
+}
+
+output test object = {
+  mod: mod
+}
+"),
+                ("module.bicep", @"
+output foo string = 'foo'
+"));
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"module\" but the provided value is of type \"object\".")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/4320
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_4320_mod_outputs_Should_Have_Error()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+module mod 'module.bicep' = {
+  name: 'testmod1'
+}
+
+output test object = {
+  mod: mod.outputs
+}
+"),
+                ("module.bicep", @"
+output foo string = 'foo'
+"));
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"module\" but the provided value is of type \"object\".")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/4320
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_4320_3_mod_outputs_foo_Should_Have_No_Errors()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+module mod 'module.bicep' = {
+  name: 'testmod1'
+}
+
+output test object = {
+  mod: mod.outputs.foo
+}
+"),
+                ("module.bicep", @"
+output foo string = 'foo'
+"));
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
     }
 }
