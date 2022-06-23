@@ -766,8 +766,13 @@ namespace Bicep.Core.TypeSystem
 
                 // operands don't appear to have errors
                 // let's match the operator now
-                var operatorInfo = BinaryOperationResolver.TryMatchExact(syntax.Operator, operandType1, operandType2);
-                if (operatorInfo != null)
+                // we may receive multiple matches when an overloaded operator (such as <, <=, >, or >=) is used with operands of "any" type
+                // however, overloaded operators MUST have the same return type, so we can use the first match
+                // (the return type constraint on overloaded operators has a corresponding test assertion to prevent future regressions)
+                var operatorInfo = BinaryOperationResolver
+                    .GetMatches(syntax.Operator, operandType1, operandType2)
+                    .FirstOrDefault();
+                if (operatorInfo is not null)
                 {
                     // we found a match - use its return type
                     return operatorInfo.ReturnType;
