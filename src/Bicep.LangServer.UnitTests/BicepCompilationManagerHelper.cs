@@ -47,7 +47,11 @@ namespace Bicep.LangServer.UnitTests
         }
 
         public static BicepParamsCompilationManager CreateParamsCompilationManager(){
-            return new BicepParamsCompilationManager();
+            PublishDiagnosticsParams? receivedParams = null;
+            var document = CreateMockDocument(p => receivedParams = p);
+            var server = CreateMockServer(document);
+
+            return new BicepParamsCompilationManager(server.Object);
         }
 
         public static Mock<ITextDocumentLanguageServer> CreateMockDocument(Action<PublishDiagnosticsParams> callback)
