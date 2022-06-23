@@ -12,6 +12,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
+using System;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -92,12 +93,12 @@ namespace Bicep.Core.IntegrationTests
 
             TextSpan getSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
 
-            var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, syntaxList, getSpan, getLoggingString);
+            var sourceTextWithDiags = DataSet.AddDiagsToParamSourceText(dataSet, syntaxList, getSpan, getLoggingString);
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainParamSyntax), sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 TestContext,
-                dataSet.Syntax,
+                dataSet.ParamSyntax ?? throw new InvalidOperationException($"Expected {nameof(dataSet.ParamSyntax)} to be non-null."),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainParamSyntax),
                 actualLocation: resultsFile);
         }

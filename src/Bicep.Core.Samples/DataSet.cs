@@ -58,6 +58,8 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<string> lazySyntax;
 
+        private readonly Lazy<string>? lazyParamSyntax;
+
         private readonly Lazy<string> lazySymbols;
 
         private readonly Lazy<string> lazyFormatted;
@@ -80,6 +82,7 @@ namespace Bicep.Core.Samples
             this.lazyCompiledWithSymbolicNames = this.CreateIffValid(TestFileMainCompiledWithSymbolicNames);
             this.lazySymbols = this.CreateRequired(TestFileMainSymbols);
             this.lazySyntax = this.CreateRequired(TestFileMainSyntax);
+            this.lazyParamSyntax = this.CreateOptional(TestFileMainParamSyntax);
             this.lazyFormatted = this.CreateRequired(TestFileMainFormatted);
             this.lazyCompletions = new(() => ReadDataSetDictionary(GetStreamName(TestCompletionsPrefix)), LazyThreadSafetyMode.PublicationOnly);
             this.lazyModulesToPublish = new(() => ReadPublishData(GetStreamName(TestPublishPrefix)), LazyThreadSafetyMode.PublicationOnly);
@@ -105,6 +108,8 @@ namespace Bicep.Core.Samples
         public string Symbols => this.lazySymbols.Value;
 
         public string Syntax => this.lazySyntax.Value;
+
+        public string? ParamSyntax => this.lazyParamSyntax?.Value;
 
         public string Formatted => this.lazyFormatted.Value;
 
@@ -178,6 +183,13 @@ namespace Bicep.Core.Samples
 
             return builder.ToImmutable();
         }
+
+        public static string AddDiagsToParamSourceText<T>(DataSet dataSet, IEnumerable<T> items, Func<T, TextSpan> getSpanFunc, Func<T, string> diagsFunc)
+            => OutputHelper.AddDiagsToSourceText(dataSet.BicepParam ?? throw new ArgumentException($"{nameof(dataSet.BicepParam)} is null."), dataSet.HasCrLfNewlines() ? "\r\n" : "\n", items, getSpanFunc, diagsFunc);
+
+        public static string AddDiagsToParamSourceText<TPositionable>(DataSet dataSet, IEnumerable<TPositionable> items, Func<TPositionable, string> diagsFunc)
+            where TPositionable : IPositionable
+            => OutputHelper.AddDiagsToSourceText(dataSet.BicepParam ?? throw new ArgumentException($"{nameof(dataSet.BicepParam)} is null."), dataSet.HasCrLfNewlines() ? "\r\n" : "\n", items, item => item.Span, diagsFunc);
 
         public static string AddDiagsToSourceText<T>(DataSet dataSet, IEnumerable<T> items, Func<T, TextSpan> getSpanFunc, Func<T, string> diagsFunc)
             => OutputHelper.AddDiagsToSourceText<T>(dataSet.Bicep, dataSet.HasCrLfNewlines() ? "\r\n" : "\n", items, getSpanFunc, diagsFunc);
