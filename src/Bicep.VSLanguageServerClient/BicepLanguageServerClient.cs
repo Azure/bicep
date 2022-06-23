@@ -15,6 +15,7 @@ using Bicep.VSLanguageServerClient.ProcessLauncher;
 using Bicep.VSLanguageServerClient.ProcessTracker;
 using Bicep.VSLanguageServerClient.Threading;
 using Microsoft.VisualStudio.LanguageServer.Client;
+using Microsoft.VisualStudio.Setup.Configuration;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
 using StreamJsonRpc;
@@ -35,7 +36,9 @@ namespace Bicep.VSLanguageServerClient
         {
             _processTracker = processTracker;
             _threadingContext = threadingContext;
-            _middleLayer = new HandleSnippetCompletionsMiddleLayer(); ;
+
+            var setupConfiguration = new SetupConfiguration();
+            _middleLayer = new HandleSnippetCompletionsMiddleLayer(setupConfiguration.GetInstanceForCurrentProcess().GetInstallationVersion());
         }
 
         public string Name => "Bicep Language Server";

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.LanguageServer.Client;
@@ -16,6 +17,12 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
     public class HandleSnippetCompletionsMiddleLayer : ILanguageClientMiddleLayer
     {
         private static readonly Regex ChoiceSnippetPlaceholderPattern = new Regex(@"\${\d+\|(.*)\|}", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private readonly bool ShouldShowSnippets;
+
+        public HandleSnippetCompletionsMiddleLayer(string vsInstallationVersion)
+        {
+            ShouldShowSnippets = DoesVSLspSupportSnippets(vsInstallationVersion);
+        }
 
         public bool CanHandle(string methodName)
         {
@@ -49,8 +56,13 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
                         {
                             continue;
                         }
-                        if (completionItem.InsertTextFormat == InsertTextFormat.Snippet && completionItem.Label == "res-aks-cluster")
+                        if (completionItem.InsertTextFormat == InsertTextFormat.Snippet)
                         {
+                            if (!ShouldShowSnippets)
+                            {
+                                continue;
+                            }
+
                             completionItem = GetUpdatedCompletionItem(completionItem);
                             updatedCompletions.Add(completionItem);
                         }
@@ -108,6 +120,42 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
             }
 
             return text;
+        }
+
+        public bool DoesVSLspSupportSnippets(string vsInstallationVersion)
+        {
+            var valuesAfterSplittingOnDot = vsInstallationVersion.Split('.');
+
+            if (!valuesAfterSplittingOnDot.Any() || valuesAfterSplittingOnDot.Length < 2)
+            {
+                return false;
+            }
+
+            if (int.TryParse(valuesAfterSplittingOnDot[0], out int majorVersion) &&
+                majorVersion < 17)
+            {
+                return false;
+            }
+
+            if (majorVersion > 17)
+            {
+                return true;
+            }
+
+            if (int.TryParse(valuesAfterSplittingOnDot[1], out int minorVersion))
+            {
+                if (valuesAfterSplittingOnDot.Length == 2 && minorVersion == 0)
+                {
+                    return true;
+                }
+
+                if (minorVersion >= 3)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

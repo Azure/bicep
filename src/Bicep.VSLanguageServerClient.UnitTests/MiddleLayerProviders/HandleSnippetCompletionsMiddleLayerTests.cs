@@ -17,7 +17,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
         [DataRow("    ")]
         public void GetUpdatedCompletionItem_InvalidText_DoesNothing(string text)
         {
-            var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer();
+            var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer("17.3.345678");
             var completionItem = new CompletionItem
             {
                 Label = "author",
@@ -39,7 +39,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
         [TestMethod]
         public void GetUpdatedCompletionItem_WithPlainTextCompletionItem_DoesNothing()
         {
-            var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer();
+            var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer("17.3.345678");
             var completionItem = new CompletionItem
             {
                 InsertText = "author",
@@ -53,7 +53,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
         [TestMethod]
         public void GetUpdatedCompletionItem_WithNonChoiceSnippetSyntaxInCompletionItem_DoesNothing()
         {
-            var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer();
+            var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer("17.3.345678");
 
             var resourceText = "resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {\r\n  name: $5\r\n  $0\r\n}";
             var completionItem = new CompletionItem
@@ -77,7 +77,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
         [TestMethod]
         public void GetUpdatedCompletionItem_WithChoiceSnippetSyntaxInCompletionItem_ConvertsChoiceSyntaxToPlaceholderSyntax()
         {
-            var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer();
+            var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer("17.3.345678");
 
             var resourceText = @"resource ${1:Identifier} 'Microsoft.${2:Provider}/${3:Type}@${4:Version}' = {
   name: ${5|'test1','test2'|}
@@ -111,6 +111,26 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
  $0
 }";
             textEdit!.NewText.Should().Be(expectedInsertText);
+        }
+
+        [DataTestMethod]
+        [DataRow("17.3.345678", true)]
+        [DataRow("17.3.11", true)]
+        [DataRow("17.4.123", true)]
+        [DataRow("17.4", true)]
+        [DataRow("17.0", true)]
+        [DataRow("17.2.345678", false)]
+        [DataRow("17.2", false)]
+        [DataRow("16.2.345678", false)]
+        [DataRow("17", false)]
+        [DataRow("  ", false)]
+        [DataRow("", false)]
+        [DataRow(null, false)]
+        public void DoesVSLspSupportSnippets(string version, bool expected)
+        {
+            var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer(version);
+
+            handleSnippetCompletionsMiddleLayer.DoesVSLspSupportSnippets(version).Should().Be(expected);
         }
     }
 }
