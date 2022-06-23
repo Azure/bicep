@@ -122,7 +122,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             yield return CreateRow("IEZpenog", "base64", " Fizz ");
             yield return CreateRow(" Fizz ", "base64ToString", "IEZpenog");
-            yield return CreateRow("data:text/plain;charset=utf8;base64,IEZpenog", "dataUri", " Fizz ");
+            yield return CreateRow("data:text/plain;charset=utf-8;base64,IEZpenog", "dataUri", " Fizz ");
             yield return CreateRow(" Fizz ", "dataUriToString", "data:text/plain;charset=utf-8;base64,IEZpenog");
             yield return CreateRow("F", "first", "Fizz");
             yield return CreateRow("z", "last", "Fizz");

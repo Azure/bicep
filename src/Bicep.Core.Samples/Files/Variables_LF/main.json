@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1821257246828594867"
+      "templateHash": "12492446740314478854"
     }
   },
   "parameters": {
@@ -252,7 +252,8 @@
           "input": {}
         }
       ]
-    }
+    },
+    "joinedString": "[join(createArray('I', 'love', 'Bicep!'), ' ')]"
   },
   "resources": []
 }

@@ -269,57 +269,81 @@ output abcVal string = testRes.properties.abc
         [TestMethod]
         public void Items_function_evaluation_works()
         {
-            var (template, _, _) = CompilationHelper.Compile(@"
+            var result = CompilationHelper.Compile(@"
 param inputObj object
 
 output inputObjKeys array = [for item in items(inputObj): item.key]
 output inputObjValues array = [for item in items(inputObj): item.value]
 ");
 
-            using (new AssertionScope())
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with
             {
-                var evaluated = TemplateEvaluator.Evaluate(template, config => config with
+                Parameters = new()
                 {
-                    Parameters = new()
+                    ["inputObj"] = new JObject
                     {
-                        ["inputObj"] = new JObject
-                        {
-                            ["ghiKey"] = "ghiValue",
-                            ["defKey"] = "defValue",
-                            ["abcKey"] = "abcValue",
-                            ["123Key"] = "123Value",
-                            ["GHIKey"] = "GHIValue",
-                            ["DEFKey"] = "DEFValue",
-                            ["ABCKey"] = "ABCValue",
-                            ["456Key"] = "456Value",
-                        }
+                        ["ghiKey"] = "ghiValue",
+                        ["defKey"] = "defValue",
+                        ["abcKey"] = "abcValue",
+                        ["123Key"] = "123Value",
+                        ["GHIKey"] = "GHIValue",
+                        ["DEFKey"] = "DEFValue",
+                        ["ABCKey"] = "ABCValue",
+                        ["456Key"] = "456Value",
                     }
-                });
+                }
+            });
 
-                evaluated.Should().HaveValueAtPath("$.outputs['inputObjKeys'].value", new JArray
-                {
-                    "123Key",
-                    "456Key",
-                    "abcKey",
-                    "ABCKey",
-                    "defKey",
-                    "DEFKey",
-                    "ghiKey",
-                    "GHIKey",
-                });
+            evaluated.Should().HaveValueAtPath("$.outputs['inputObjKeys'].value", new JArray
+            {
+                "123Key",
+                "456Key",
+                "abcKey",
+                "ABCKey",
+                "defKey",
+                "DEFKey",
+                "ghiKey",
+                "GHIKey",
+            });
 
-                evaluated.Should().HaveValueAtPath("$.outputs['inputObjValues'].value", new JArray
-                {
-                    "123Value",
-                    "456Value",
-                    "abcValue",
-                    "ABCValue",
-                    "defValue",
-                    "DEFValue",
-                    "ghiValue",
-                    "GHIValue",
-                });
-            }
+            evaluated.Should().HaveValueAtPath("$.outputs['inputObjValues'].value", new JArray
+            {
+                "123Value",
+                "456Value",
+                "abcValue",
+                "ABCValue",
+                "defValue",
+                "DEFValue",
+                "ghiValue",
+                "GHIValue",
+            });
+        }
+
+        [TestMethod]
+        public void Join_function_evaluation_works()
+        {
+            var result = CompilationHelper.Compile(@"
+var foo = [
+  'abc'
+  'def'
+  'ghi'
+]
+
+output joined1 string = join(foo, '')
+output joined2 string = join(foo, ',')
+output joined3 string = join([
+  'I'
+  'love'
+  'Bicep'
+], ' ')
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+            evaluated.Should().HaveValueAtPath("$.outputs['joined1'].value", "abcdefghi");
+            evaluated.Should().HaveValueAtPath("$.outputs['joined2'].value", "abc,def,ghi");
+            evaluated.Should().HaveValueAtPath("$.outputs['joined3'].value", "I love Bicep");
         }
 
         [TestMethod]
