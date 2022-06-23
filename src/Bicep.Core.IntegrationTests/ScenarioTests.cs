@@ -3599,5 +3599,20 @@ resource container_ActorColdStorage 'Microsoft.DocumentDB/databaseAccounts/sqlDa
                 ("BCP240", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported.")
             });
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/7271
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue7271()
+        {
+            var result = CompilationHelper.Compile(@"
+var less           = any(1) < any(2)
+var lessOrEqual    = any(1) <= any(2)
+var greater        = any(1) > any(2)
+var greaterOrEqual = any(1) >= any(2)");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
     }
 }
