@@ -36,11 +36,4 @@
   <ItemGroup>
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.5.107" />
   </ItemGroup>
-	
-  <Target Name="CopyBicepLangServerExe" AfterTargets="AfterBuild">
-    <ItemGroup>
-      <BicepLangServerDllPath Include="bin\Debug\**\Bicep.LangServer.exe" />
-    </ItemGroup>
-    <Copy SourceFiles="@(BicepLangServerDllPath)" DestinationFolder="$(VSLanguageServerClientAssemblyPath)" />
-  </Target>	
 </Project>
