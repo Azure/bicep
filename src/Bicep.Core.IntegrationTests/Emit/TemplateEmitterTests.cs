@@ -42,7 +42,6 @@ namespace Bicep.Core.IntegrationTests.Emit
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             var bicepFileUri = PathHelper.FilePathToFileUrl(bicepFilePath);
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
-            var sourceMapFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainSourceMap));
             var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(bicepFileUri);
 
             // emitting the template should be successful

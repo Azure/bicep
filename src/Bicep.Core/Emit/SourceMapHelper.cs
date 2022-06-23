@@ -19,7 +19,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
 {
-    // TODO: how to reduce duplication
+
     public record SourceMap(
         string Entrypoint,
         ImmutableArray<SourceMapFileEntry> Entries);
@@ -133,7 +133,6 @@ namespace Bicep.Core.Emit
                         return lineStarts;
                     });
 
-            // TODO remove soon
             // get position and length of template hash (relying on the first occurence)
             (var templateHashStartPosition, var templateHashLength) = formattedTemplateLines
                 .Select((value, index) => new { lineNumber = index, lineValue = value })
@@ -170,7 +169,6 @@ namespace Bicep.Core.Emit
                         var jsonStartPos = jsonPosition.Position;
                         var jsonEndPos = jsonStartPos + jsonPosition.Length;
 
-                        // TODO remove once filler hash is added
                         // increment positions by templateHashLength that occur after hash start position
                         if (jsonStartPos >= templateHashStartPosition)
                         {
