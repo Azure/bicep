@@ -18,6 +18,7 @@ using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LanguageServer.Extensions;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Helpers;
+using System;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -75,6 +76,32 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
+        [DataTestMethod]
+        [DynamicData(nameof(GetParamsData), DynamicDataSourceType.Method)]
+        public async Task Correct_semantic_tokens_are_returned_for_params_file(string text, TextSpan[] spans)
+        {
+            var uri = new Uri($"file://{TestContext.TestName}_{Guid.NewGuid():D}/main.bicepparam");
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, text, uri);
+
+            var semanticTokens = await helper.Client.TextDocument.RequestSemanticTokens(new SemanticTokensParams
+            {
+                TextDocument = new TextDocumentIdentifier(uri),
+            });
+
+            var lineStarts = TextCoordinateConverter.GetLineStarts(text);
+            var tokenSpans = CalculateTokenTextSpans(lineStarts, semanticTokens!.Data).ToArray();
+
+            for (var i = 0; i < tokenSpans.Length; i++)
+            {
+                TextSpan returnedSpan = tokenSpans[i];
+                TextSpan expectedSpan = spans[i];
+
+                returnedSpan.Position.Should().Be(expectedSpan.Position);
+                returnedSpan.Length.Should().Be(expectedSpan.Length);
+            }
+        }
+
         private static IEnumerable<TextSpan> CalculateTokenTextSpans(IReadOnlyList<int> lineStarts, IEnumerable<int> semanticTokenData)
         {
             var lineDeltas = semanticTokenData.Where((x, i) => i % 5 == 0).ToArray();
@@ -105,5 +132,12 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static IEnumerable<object[]> GetData()
             => DataSets.AllDataSets.ToDynamicTestData();
+
+        private static IEnumerable<object[]> GetParamsData()
+        {
+            yield return new object[] { "using './bicep.main' \n", new TextSpan[] { new TextSpan(0, 5) } };
+            yield return new object[] { "param myint = 12 \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 5) } };
+            yield return new object[] { "using './bicep.main' \n param myint = 12 \n param mystr = 'test'", new TextSpan[] { new TextSpan(0, 5), new TextSpan(23, 5), new TextSpan(29, 5), new TextSpan(42, 5), new TextSpan(48, 5) } };
+        }
     }
 }

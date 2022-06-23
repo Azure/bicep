@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -333,12 +332,12 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
         {
-            throw new NotImplementedException();
+            //TODO: unsure what implementation would mean here
         }
 
         public virtual void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
         {
-            throw new NotImplementedException();
+            //TODO: unsure what implementation would mean here
         }
 
         protected void VisitTokens(IEnumerable<Token> tokens)
