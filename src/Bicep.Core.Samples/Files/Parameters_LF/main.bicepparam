@@ -56,3 +56,13 @@ param myComplexArr = [
 		]
 	}
 ]
+param myFunction = union({}, {})
+param myComplexArrWithFunction = [
+	{
+		foo: resourceGroup()
+	}
+	true
+	[
+    	42
+  	]
+]
