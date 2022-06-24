@@ -495,3 +495,7 @@ var copyBlockInObject = {
     }
   ]
 }
+
+var joinedString = join(['I', 'love', 'Bicep!'], ' ')
+//@[255:255]     "joinedString": "[join(createArray('I', 'love', 'Bicep!'), ' ')]"
+
