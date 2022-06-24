@@ -18,6 +18,8 @@ using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LanguageServer.Extensions;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Helpers;
+using System;
+using System.Collections.Immutable;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -57,12 +59,12 @@ namespace Bicep.LangServer.IntegrationTests
                 TextDocument = new TextDocumentIdentifier(uri),
             });
 
-            var tokenSpans = CalculateTokenTextSpans(bicepFile.LineStarts, semanticTokens!.Data).ToArray();
+            var tokenInfos = CalculateSemanticTokenInfos(bicepFile.LineStarts, semanticTokens!.Data, helper).ToArray();
 
-            for (var i = 1; i < tokenSpans.Length; i++)
+            for (var i = 1; i < tokenInfos.Length; i++)
             {
-                var currentSpan = tokenSpans[i];
-                var prevSpan = tokenSpans[i - 1];
+                var currentSpan = tokenInfos[i].Span;
+                var prevSpan = tokenInfos[i - 1].Span;
 
                 if (TextSpan.AreOverlapping(prevSpan, currentSpan))
                 {
@@ -75,8 +77,45 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        private static IEnumerable<TextSpan> CalculateTokenTextSpans(IReadOnlyList<int> lineStarts, IEnumerable<int> semanticTokenData)
+        [DataTestMethod]
+        [DynamicData(nameof(GetParamsData), DynamicDataSourceType.Method)]
+        public async Task Correct_semantic_tokens_are_returned_for_params_file(string text, TextSpan[] spans, string[] tokenTypeStrs)
         {
+            var uri = new Uri($"file://{TestContext.TestName}_{Guid.NewGuid():D}/main.bicepparam");
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, text, uri);
+
+            var semanticTokens = await helper.Client.TextDocument.RequestSemanticTokens(new SemanticTokensParams
+            {
+                TextDocument = new TextDocumentIdentifier(uri),
+            });
+
+            var lineStarts = TextCoordinateConverter.GetLineStarts(text);
+            var tokenInfos = CalculateSemanticTokenInfos(lineStarts, semanticTokens!.Data, helper).ToArray();
+
+            for (var i = 0; i < tokenInfos.Length; i++)
+            {
+                TextSpan returnedSpan = tokenInfos[i].Span;
+                TextSpan expectedSpan = spans[i];
+    
+                returnedSpan.Position.Should().Be(expectedSpan.Position);
+                returnedSpan.Length.Should().Be(expectedSpan.Length);
+
+                string returnedType = tokenInfos[i].Type.ToString();
+                string expectedType = tokenTypeStrs[i];
+
+                returnedType.Should().Be(expectedType);
+            }
+        }
+
+        private static IEnumerable<SemanticTokenInfo> CalculateSemanticTokenInfos(IReadOnlyList<int> lineStarts, IEnumerable<int> semanticTokenData, MultiFileLanguageServerHelper helper)
+        {
+            var legend = helper.Client.ServerSettings.Capabilities.SemanticTokensProvider!.Legend;
+            var tokenTypesLegend = legend.TokenTypes.ToImmutableArray();
+            var tokenModifiersLegend = legend.TokenModifiers.ToImmutableArray();
+            var tokenTypes = semanticTokenData.Where((x, i) => i % 5 == 3).Select(x => tokenTypesLegend[x]).ToArray();
+            var tokenModifiers = semanticTokenData.Where((x, i) => i % 5 == 4).Select(x => tokenModifiersLegend[x]).ToArray();
+
             var lineDeltas = semanticTokenData.Where((x, i) => i % 5 == 0).ToArray();
             var charDeltas = semanticTokenData.Where((x, i) => i % 5 == 1).ToArray();
             var lengths = semanticTokenData.Where((x, i) => i % 5 == 2).ToArray();
@@ -99,11 +138,20 @@ namespace Bicep.LangServer.IntegrationTests
                 var position = TextCoordinateConverter.GetOffset(lineStarts, currentLine, currentChar);
                 var length = lengths[i];
 
-                yield return new TextSpan(position, length);
+                yield return new SemanticTokenInfo(new TextSpan(position, length), tokenTypes[i], tokenModifiers[i]);
             }
         }
 
         private static IEnumerable<object[]> GetData()
             => DataSets.AllDataSets.ToDynamicTestData();
+
+        private static IEnumerable<object[]> GetParamsData()
+        {
+            yield return new object[] { "using './bicep.main' \n", new TextSpan[] { new TextSpan(0, 5) }, new string[] {"keyword"} };
+            yield return new object[] { "param myint = 12 \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 5)}, new string[] {"keyword", "variable"}};
+            yield return new object[] { "using './bicep.main' \n param myint = 12 \n param mystr = 'test'", 
+                                        new TextSpan[] { new TextSpan(0, 5), new TextSpan(23, 5), new TextSpan(29, 5), new TextSpan(42, 5), new TextSpan(48, 5)}, 
+                                        new string[] {"keyword", "keyword", "variable", "keyword", "variable"}};
+        }
     }
 }
