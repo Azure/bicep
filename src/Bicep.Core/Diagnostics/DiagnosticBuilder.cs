@@ -1406,6 +1406,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP238",
                 "Unexpected new line character after a comma.");
+
+            public ErrorDiagnostic ReservedIdentifier(string name) => new(
+                TextSpan,
+                "BCP239",
+                $"Identifier \"{name}\" is a reserved Bicep symbol name and cannot be used in this context.");
+
+            public ErrorDiagnostic InvalidValueForParentProperty() => new(
+                TextSpan,
+                "BCP240",
+                "The \"parent\" property only permits direct references to resources. Expressions are not supported.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

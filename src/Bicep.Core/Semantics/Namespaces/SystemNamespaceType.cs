@@ -119,6 +119,13 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("delimiter", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array), "The delimiter to use for splitting the string.")
                 .Build(),
 
+            new FunctionOverloadBuilder("join")
+                .WithReturnType(LanguageConstants.String)
+                .WithGenericDescription("Joins multiple strings into a single string, separated using a delimiter.")
+                .WithRequiredParameter("inputArray", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default), "An array of strings to join.")
+                .WithRequiredParameter("delimiter", LanguageConstants.String, "The delimiter to use to join the string.")
+                .Build(),
+
             new FunctionOverloadBuilder("string")
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription("Converts the specified value to a string.")
@@ -530,10 +537,11 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 if (arguments.Length > 0 && argumentTypes.All(s => s is StringLiteralType))
                 {
-                    var parameters = argumentTypes.OfType<StringLiteralType>().Select(slt => JValue.CreateString(slt.RawStringValue)).ToArray();
+                    var parameters = argumentTypes.OfType<StringLiteralType>()
+                        .Select(slt => new FunctionArgument(JValue.CreateString(slt.RawStringValue))).ToArray();
                     try
                     {
-                        if (ExpressionBuiltInFunctions.Functions.EvaluateFunction(armFunctionName, parameters) is JValue { Value: string stringValue })
+                        if (ExpressionBuiltInFunctions.Functions.EvaluateFunction(armFunctionName, parameters, new()) is JValue { Value: string stringValue })
                         {
                             return new(new StringLiteralType(stringValue));
                         }
@@ -599,10 +607,21 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 try
                 {
-                    token = token.SelectToken(tokenSelectorPath, false);
-                    if (token is null)
+                    var selectTokens = token.SelectTokens(tokenSelectorPath, false).ToList();
+                    switch (selectTokens.Count)
                     {
-                        return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
+                        case 0:
+                            return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
+                        case 1:
+                            token = selectTokens.First();
+                            break;
+                        default:
+                            token = new JArray();
+                            foreach (var selectToken in selectTokens)
+                            {
+                                ((JArray)token).Add(selectToken);
+                            }
+                            break;
                     }
                 }
                 catch (JsonException)

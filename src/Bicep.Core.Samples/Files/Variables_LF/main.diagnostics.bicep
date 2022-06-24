@@ -405,3 +405,17 @@ module.exports = function (context) {
 }
 '''
 
+var copyBlockInObject = {
+//@[04:21) [no-unused-vars (Warning)] Variable "copyBlockInObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |copyBlockInObject|
+  copy: [
+    {
+      name: 'blah'
+      count: '[notAFunction()]'
+      input: {}
+    }
+  ]
+}
+
+var joinedString = join(['I', 'love', 'Bicep!'], ' ')
+//@[04:16) [no-unused-vars (Warning)] Variable "joinedString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |joinedString|
+

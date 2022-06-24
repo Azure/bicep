@@ -1784,6 +1784,64 @@ module.exports = function (context) {
     context.done();
 }
 '''
+//@[003:005) NewLine |\n\n|
+
+var copyBlockInObject = {
+//@[000:003) Identifier |var|
+//@[004:021) Identifier |copyBlockInObject|
+//@[022:023) Assignment |=|
+//@[024:025) LeftBrace |{|
+//@[025:026) NewLine |\n|
+  copy: [
+//@[002:006) Identifier |copy|
+//@[006:007) Colon |:|
+//@[008:009) LeftSquare |[|
+//@[009:010) NewLine |\n|
+    {
+//@[004:005) LeftBrace |{|
+//@[005:006) NewLine |\n|
+      name: 'blah'
+//@[006:010) Identifier |name|
+//@[010:011) Colon |:|
+//@[012:018) StringComplete |'blah'|
+//@[018:019) NewLine |\n|
+      count: '[notAFunction()]'
+//@[006:011) Identifier |count|
+//@[011:012) Colon |:|
+//@[013:031) StringComplete |'[notAFunction()]'|
+//@[031:032) NewLine |\n|
+      input: {}
+//@[006:011) Identifier |input|
+//@[011:012) Colon |:|
+//@[013:014) LeftBrace |{|
+//@[014:015) RightBrace |}|
+//@[015:016) NewLine |\n|
+    }
+//@[004:005) RightBrace |}|
+//@[005:006) NewLine |\n|
+  ]
+//@[002:003) RightSquare |]|
 //@[003:004) NewLine |\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
+
+var joinedString = join(['I', 'love', 'Bicep!'], ' ')
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |joinedString|
+//@[017:018) Assignment |=|
+//@[019:023) Identifier |join|
+//@[023:024) LeftParen |(|
+//@[024:025) LeftSquare |[|
+//@[025:028) StringComplete |'I'|
+//@[028:029) Comma |,|
+//@[030:036) StringComplete |'love'|
+//@[036:037) Comma |,|
+//@[038:046) StringComplete |'Bicep!'|
+//@[046:047) RightSquare |]|
+//@[047:048) Comma |,|
+//@[049:052) StringComplete |' '|
+//@[052:053) RightParen |)|
+//@[053:054) NewLine |\n|
 
 //@[000:000) EndOfFile ||

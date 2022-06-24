@@ -330,6 +330,20 @@
     }
   },
   {
+    "label": "copy",
+    "kind": "variable",
+    "detail": "copy",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_copy",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "copy"
+    }
+  },
+  {
     "label": "dataUri",
     "kind": "function",
     "documentation": {
@@ -840,6 +854,27 @@
     "textEdit": {
       "range": {},
       "newText": "items($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "join",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\njoin(inputArray: string[], delimiter: string): string\n\n```\nJoins multiple strings into a single string, separated using a delimiter.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_join",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "join($0)"
     },
     "command": {
       "title": "signature help",

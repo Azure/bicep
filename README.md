@@ -56,7 +56,6 @@ For more detail on taking advantage of new Bicep constructs that replace an equi
 
 ## Known limitations
 
-* No support for single-line object and arrays (i.e. `['a', 'b', 'c']`) ([#586](https://github.com/Azure/bicep/issues/586)).
 * Bicep is newline sensitive. We are exploring ways we can remove/relax this restriction ([#146](https://github.com/Azure/bicep/issues/146))
 * No support for the concept of apiProfile which is used to map a single apiProfile to a set apiVersion for each resource type. We are looking to bring support for this type of capability, but suspect it will work slightly differently. Discussion is in [#622](https://github.com/Azure/bicep/issues/622)
 
