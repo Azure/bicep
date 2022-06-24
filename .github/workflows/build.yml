@@ -85,15 +85,15 @@ jobs:
         uses: actions/setup-dotnet@v2
 
       - name: Build
-        run: dotnet build --configuration ${{ matrix.configuration }}
+        run: dotnet build Bicep.sln --configuration ${{ matrix.configuration }}
 
       - name: Pack
         if: matrix.publishPackages
-        run: dotnet pack --configuration ${{ matrix.configuration }}
+        run: dotnet pack Bicep.sln --configuration ${{ matrix.configuration }}
 
       - name: Test
         if: matrix.runTests
-        run: dotnet test --configuration ${{ matrix.configuration }} --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
+        run: dotnet test Bicep.sln --configuration ${{ matrix.configuration }} --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v3
@@ -105,10 +105,10 @@ jobs:
 
       - name: Publish Language Server
         if: matrix.publishLanguageServer
-        run: dotnet publish --configuration ${{ matrix.configuration }} ./src/Bicep.LangServer/Bicep.LangServer.csproj
+        run: dotnet publish Bicep.sln --configuration ${{ matrix.configuration }} ./src/Bicep.LangServer/Bicep.LangServer.csproj
 
       - name: Publish Bicep
-        run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
+        run: dotnet publish Bicep.sln --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
       - name: Run Bicep E2E Tests
         if: matrix.rid != 'linux-musl-x64' && matrix.runTests
