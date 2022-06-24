@@ -452,3 +452,7 @@ var copyBlockInObject = {
     }
   ]
 }
+
+var joinedString = join(['I', 'love', 'Bicep!'], ' ')
+//@[04:16) Variable joinedString. Type: string. Declaration start char: 0, length: 53
+

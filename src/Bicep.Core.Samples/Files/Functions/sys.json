@@ -601,6 +601,32 @@
     ]
   },
   {
+    "name": "join",
+    "description": "Joins multiple strings into a single string, separated using a delimiter.",
+    "fixedParameters": [
+      {
+        "name": "inputArray",
+        "description": "An array of strings to join.",
+        "type": "string[]",
+        "required": true
+      },
+      {
+        "name": "delimiter",
+        "description": "The delimiter to use to join the string.",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(inputArray: string[], delimiter: string): string",
+    "parameterTypeSignatures": [
+      "inputArray: string[]",
+      "delimiter: string"
+    ]
+  },
+  {
     "name": "json",
     "description": "Converts a valid JSON string into a JSON data type.",
     "fixedParameters": [
