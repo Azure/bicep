@@ -23,8 +23,7 @@ namespace Bicep.LanguageServer.Completions
     {
         public record FunctionArgumentContext(
             FunctionCallSyntaxBase Function,
-            int ArgumentIndex,
-            ImmutableArray<SyntaxBase> ArgumentNodes
+            int ArgumentIndex
         );
 
         // completions will replace only these token types
@@ -164,7 +163,7 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsOuterExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope) |
                        ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName) |
-                       ConvertFlag(functionArgumentContext?.ArgumentNodes.IsEmpty ?? false, BicepCompletionContextKind.FunctionArgument | BicepCompletionContextKind.Expression);
+                       ConvertFlag(functionArgumentContext is not null, BicepCompletionContextKind.FunctionArgument | BicepCompletionContextKind.Expression);
 
             if (featureProvider.ImportsEnabled)
             {
@@ -690,10 +689,7 @@ namespace Bicep.LanguageServer.Completions
             // abc.someFunc(|)
             if (SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, Token>(matchingNodes, (func, token) => token == func.OpenParen))
             {
-                return new(
-                    Function: (FunctionCallSyntaxBase)matchingNodes[^2],
-                    ArgumentIndex: 0,
-                    ArgumentNodes: ImmutableArray<SyntaxBase>.Empty);
+                return new(Function: (FunctionCallSyntaxBase)matchingNodes[^2], ArgumentIndex: 0);
             }
 
             // someFunc(x, |)
@@ -703,10 +699,7 @@ namespace Bicep.LanguageServer.Completions
                 var function = (FunctionCallSyntaxBase)matchingNodes[^2];
                 var args = function.Arguments.ToImmutableArray();
 
-                return new(
-                    Function: function,
-                    ArgumentIndex: args.IndexOf((FunctionArgumentSyntax)matchingNodes[^1]),
-                    ArgumentNodes: ImmutableArray<SyntaxBase>.Empty);
+                return new(Function: function, ArgumentIndex: args.IndexOf((FunctionArgumentSyntax)matchingNodes[^1]));
             }
 
             // someFunc(x,|)
@@ -717,25 +710,27 @@ namespace Bicep.LanguageServer.Completions
                 var args = function.Arguments.ToImmutableArray();
                 var previousArg = args.LastOrDefault(x => x.Span.Position < offset);
 
-                return new(
-                    Function: function,
-                    ArgumentIndex: previousArg is null ? 0 : (args.IndexOf(previousArg) + 1),
-                    ArgumentNodes: ImmutableArray<SyntaxBase>.Empty);
+                return new(Function: function, ArgumentIndex: previousArg is null ? 0 : (args.IndexOf(previousArg) + 1));
             }
 
-            // someFunc(x|yz) or someFunc(xy|z) or someFunc(xyz|)
-            // abc.someFunc(x|yz) or abc.someFunc(xy|z) or abc.someFunc(xyz|)
-            var (argumentNode, argumentIndex) = SyntaxMatcher.FindLastNodeOfType<FunctionArgumentSyntax, FunctionArgumentSyntax>(matchingNodes);
-            if (argumentNode is not null)
+            // someFunc(x, 'a|bc')
+            // abc.someFunc(x, 'de|f')
+            if (SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, FunctionArgumentSyntax, StringSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.StringComplete))
             {
-                var function = (FunctionCallSyntaxBase)matchingNodes[argumentIndex-1];
+                var function = (FunctionCallSyntaxBase)matchingNodes[^4];
                 var args = function.Arguments.ToImmutableArray();
-                var argumentNodes = matchingNodes.Skip(argumentIndex + 1).ToImmutableArray();
 
-                return new(
-                    Function: function,
-                    ArgumentIndex: args.IndexOf(argumentNode),
-                    argumentNodes);
+                return new(Function: function, ArgumentIndex: args.IndexOf((FunctionArgumentSyntax)matchingNodes[^3]));
+            }
+
+            // someFunc(x, ab|c)
+            // abc.someFunc(x, de|f)
+            if (SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, FunctionArgumentSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, _, token) => token.Type == TokenType.Identifier))
+            {
+                var function = (FunctionCallSyntaxBase)matchingNodes[^5];
+                var args = function.Arguments.ToImmutableArray();
+
+                return new(Function: function, ArgumentIndex: args.IndexOf((FunctionArgumentSyntax)matchingNodes[^4]));
             }
 
             return null;
