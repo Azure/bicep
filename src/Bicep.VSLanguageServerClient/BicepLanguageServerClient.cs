@@ -13,7 +13,6 @@ using Bicep.VSLanguageServerClient.ContentType;
 using Bicep.VSLanguageServerClient.MiddleLayerProviders;
 using Bicep.VSLanguageServerClient.ProcessLauncher;
 using Bicep.VSLanguageServerClient.ProcessTracker;
-using Bicep.VSLanguageServerClient.Threading;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Setup.Configuration;
 using Microsoft.VisualStudio.Threading;
@@ -29,13 +28,11 @@ namespace Bicep.VSLanguageServerClient
         private IClientProcess? _process;
         private readonly ILanguageClientMiddleLayer _middleLayer;
         private readonly IProcessTracker _processTracker;
-        private readonly IThreadingContext _threadingContext;
 
         [ImportingConstructor]
-        public BicepLanguageServerClient(IProcessTracker processTracker, IThreadingContext threadingContext)
+        public BicepLanguageServerClient(IProcessTracker processTracker)
         {
             _processTracker = processTracker;
-            _threadingContext = threadingContext;
 
             var setupConfiguration = new SetupConfiguration();
             _middleLayer = new HandleSnippetCompletionsMiddleLayer(setupConfiguration.GetInstanceForCurrentProcess().GetInstallationVersion());
@@ -57,10 +54,8 @@ namespace Bicep.VSLanguageServerClient
         public event AsyncEventHandler<EventArgs>? StopAsync;
 #pragma warning restore 0067
 
-        public async Task<Connection?> ActivateAsync(CancellationToken token)
+        public Task<Connection?> ActivateAsync(CancellationToken token)
         {
-            await _threadingContext.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
-
             string vsixInstallPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string languageServerExePath = Path.Combine(vsixInstallPath, "Bicep.LangServer.exe");
 
@@ -75,7 +70,8 @@ namespace Bicep.VSLanguageServerClient
 
             Connection connection = new Connection(_process.StandardOutput.BaseStream,
                                                    _process.StandardInput.BaseStream);
-            return connection;
+
+            return Task.FromResult<Connection?>(connection);
         }
 
         public async Task OnLoadedAsync()
