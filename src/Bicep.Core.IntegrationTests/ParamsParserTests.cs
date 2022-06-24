@@ -27,7 +27,7 @@ namespace Bicep.Core.IntegrationTests
         {
             if (dataSet.BicepParam is null)
             {
-                throw new InvalidOperationException();
+                throw new InvalidOperationException($"Expected {dataSet.BicepParam} to be non-null");
             }
 
             var program = ParamsParserHelper.ParamsParse(dataSet.BicepParam);
