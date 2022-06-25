@@ -215,6 +215,13 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
+            if(syntax.BaseExpression is ForSyntax)
+            {
+                // in certain parser recovery scenarios, the parser can produce a PropertyAccessSyntax operating on a ForSyntax
+                // this leads to a stack overflow which we don't really want, so let's short circuit here.
+                return null;
+            }
+
             var baseExpressionAssignment = GetDeclaredTypeAssignment(syntax.BaseExpression);
 
             // As a special case, a 'resource' parameter or output is a reference to an existing resource
