@@ -1,5 +1,5 @@
 var doggos = [
-//@[000:2624) ProgramSyntax
+//@[000:2669) ProgramSyntax
 //@[000:0054) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0010) | ├─IdentifierSyntax
@@ -1687,6 +1687,42 @@ var modLoopNames = map(range(0, 5), i => modLoop[i].name)
 //@[052:0056) | | | | | └─IdentifierSyntax
 //@[052:0056) | | | | | | └─Token(Identifier) |name|
 //@[056:0057) | | └─Token(RightParen) |)|
-//@[057:0058) ├─Token(NewLine) |\n|
+//@[057:0059) ├─Token(NewLine) |\n\n|
+
+var parentheses = map([123], (i => '${i}'))
+//@[000:0043) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0015) | ├─IdentifierSyntax
+//@[004:0015) | | └─Token(Identifier) |parentheses|
+//@[016:0017) | ├─Token(Assignment) |=|
+//@[018:0043) | └─FunctionCallSyntax
+//@[018:0021) | | ├─IdentifierSyntax
+//@[018:0021) | | | └─Token(Identifier) |map|
+//@[021:0022) | | ├─Token(LeftParen) |(|
+//@[022:0027) | | ├─FunctionArgumentSyntax
+//@[022:0027) | | | └─ArraySyntax
+//@[022:0023) | | | | ├─Token(LeftSquare) |[|
+//@[023:0026) | | | | ├─ArrayItemSyntax
+//@[023:0026) | | | | | └─IntegerLiteralSyntax
+//@[023:0026) | | | | | | └─Token(Integer) |123|
+//@[026:0027) | | | | └─Token(RightSquare) |]|
+//@[027:0028) | | ├─Token(Comma) |,|
+//@[029:0042) | | ├─FunctionArgumentSyntax
+//@[029:0042) | | | └─ParenthesizedExpressionSyntax
+//@[029:0030) | | | | ├─Token(LeftParen) |(|
+//@[030:0041) | | | | ├─LambdaSyntax
+//@[030:0031) | | | | | ├─LocalVariableSyntax
+//@[030:0031) | | | | | | └─IdentifierSyntax
+//@[030:0031) | | | | | | | └─Token(Identifier) |i|
+//@[032:0034) | | | | | ├─Token(Arrow) |=>|
+//@[035:0041) | | | | | └─StringSyntax
+//@[035:0038) | | | | | | ├─Token(StringLeftPiece) |'${|
+//@[038:0039) | | | | | | ├─VariableAccessSyntax
+//@[038:0039) | | | | | | | └─IdentifierSyntax
+//@[038:0039) | | | | | | | | └─Token(Identifier) |i|
+//@[039:0041) | | | | | | └─Token(StringRightPiece) |}'|
+//@[041:0042) | | | | └─Token(RightParen) |)|
+//@[042:0043) | | └─Token(RightParen) |)|
+//@[043:0044) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

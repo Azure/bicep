@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests
         bool RegistryEnabled,
         bool SymbolicNameCodegenEnabled,
         bool ImportsEnabled,
-        bool LambdasEnabled,
+        bool AdvancedListComprehensionEnabled,
         bool ResourceTypedParamsAndOutputsEnabled) : IFeatureProvider;
 
     public static class BicepTestConstants

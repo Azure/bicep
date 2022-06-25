@@ -19,7 +19,7 @@ namespace Bicep.Core.IntegrationTests
         [TestMethod]
         public void Lambdas_cannot_be_used_with_feature_disabled()
         {
-            var features = BicepTestConstants.Features with { LambdasEnabled = false };
+            var features = BicepTestConstants.Features with { AdvancedListComprehensionEnabled = false };
             var context = new CompilationHelper.CompilationHelperContext(Features: features);
 
             CompilationHelper.Compile(context, "var foo = map([123], i => i)")
@@ -82,6 +82,37 @@ namespace Bicep.Core.IntegrationTests
                     ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
                     ("BCP242", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
                     ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
+                });
+        }
+
+        [TestMethod]
+        public void Lambdas_can_be_placed_inside_parentheses_and_nothing_else()
+        {
+            CompilationHelper.Compile("var noParens = map([1], i => i)")
+                .ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            CompilationHelper.Compile("var noParens = map([1], (i => i))")
+                .ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            CompilationHelper.Compile("var noParens = map([1], (((i => i))))")
+                .ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            CompilationHelper.Compile("var asfsasdf = map([1], true ? i => i + 1 : i => i)")
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                    ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
+                    ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
+                });
+
+            CompilationHelper.Compile("var asfsasdf = map([1], true ? (i => i + 1) : (i => i))")
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                    ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
+                    ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
+                });
+
+            CompilationHelper.Compile("var asfsasdf = map([1], [i => i])")
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                    ("BCP070", DiagnosticLevel.Error, "Argument of type \"(any => any)[]\" is not assignable to parameter of type \"any => any\"."),
+                    ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                 });
         }
 
@@ -158,14 +189,12 @@ var foo2 = map(['foo'], () => 'Hi!')
         }
 
         [TestMethod]
-        public void Lambdas_are_blocked_in_ternary_or_parenthesized_expressions()
+        public void Lambdas_are_blocked_in_ternary_expressions()
         {
             var result = CompilationHelper.Compile(@"
 var ternary = map([123], true ? abc => '${abc}' : def => 'hello!')
-var parentheses = map([123], (foo => '${foo}'))
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                 ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                 ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
             });

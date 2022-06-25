@@ -25,5 +25,7 @@ namespace Bicep.Core.TypeSystem
             => argumentTypes.Length == 1 ?
                 $"{argumentTypes.Single().Type.FormatNameForCompoundTypes()} => {bodyType.Type.FormatNameForCompoundTypes()}" :
                 $"({string.Join(", ", argumentTypes.Select(x => x.Type.FormatNameForCompoundTypes()))}) => {bodyType.Type.FormatNameForCompoundTypes()}";
+
+        public override string FormatNameForCompoundTypes() => this.WrapTypeName();
     }
 }

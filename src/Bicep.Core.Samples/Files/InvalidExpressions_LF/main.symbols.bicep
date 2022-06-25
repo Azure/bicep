@@ -371,12 +371,8 @@ var partialObject = {
 xxxxx
 
 
-@minLength()
-
-
-
 var noElements = ()
-//@[4:14) Variable noElements. Type: error. Declaration start char: 0, length: 35
+//@[4:14) Variable noElements. Type: error. Declaration start char: 0, length: 19
 var justAComma = (,)
 //@[4:14) Variable justAComma. Type: error. Declaration start char: 0, length: 20
 var twoElements = (1, 2)
@@ -387,4 +383,10 @@ var unterminated1 = (
 //@[4:17) Variable unterminated1. Type: error. Declaration start char: 0, length: 21
 var unterminated2 = (,
 //@[4:17) Variable unterminated2. Type: error. Declaration start char: 0, length: 22
+
+// trailing decorator with no declaration
+@minLength()
+
+
+
 

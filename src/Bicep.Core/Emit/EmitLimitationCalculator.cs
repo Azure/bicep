@@ -352,10 +352,28 @@ namespace Bicep.Core.Emit
         private static void BlockLambdasOutsideFunctionArguments(SemanticModel model, IDiagnosticWriter diagnostics)
         {
             CallbackVisitor.Visit(model.Root.Syntax, syntax => {
-                if (syntax is LambdaSyntax lambdaSyntax &&
-                    model.Binder.GetParent(lambdaSyntax) is not FunctionArgumentSyntax functionArgument)
+                if (syntax is LambdaSyntax lambdaSyntax)
                 {
-                    diagnostics.Write(lambdaSyntax, x => x.LambdaFunctionsOnlyValidInFunctionArguments());
+                    var parent = model.Binder.GetParent(lambdaSyntax);
+                    while (parent is not null)
+                    {
+                        if (parent is FunctionArgumentSyntax)
+                        {
+                            // we're inside a function argument - all good
+                            return true;
+                        }
+
+                        if (parent is ParenthesizedExpressionSyntax)
+                        {
+                            // we've got a parenthesized expression - keep searching upwards
+                            parent = model.Binder.GetParent(parent);
+                            continue;
+                        }
+
+                        // lambdas are not valid inside any other syntax - raise an error and exit
+                        diagnostics.Write(lambdaSyntax, x => x.LambdaFunctionsOnlyValidInFunctionArguments());
+                        return true;
+                    }
                 }
 
                 return true;

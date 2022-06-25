@@ -83,3 +83,5 @@ module modLoop './test.bicep' = [for item in range(0, 5): {
   }
 }]
 var modLoopNames = map(range(0, 5), i => modLoop[i].name)
+
+var parentheses = map([123], (i => '${i}'))

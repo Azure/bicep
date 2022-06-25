@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8667955918319446100"
+      "templateHash": "621519600320590411"
     }
   },
   "variables": {
@@ -48,7 +48,8 @@
     "reduceEmpty": "[reduce(createArray(), 0, lambda('cur', 'next', lambdaVariables('cur')))]",
     "filteredLoop": "[filter(variables('itemForLoop'), lambda('i', greater(lambdaVariables('i'), 5)))]",
     "resLoopNames": "[map(range(0, 5), lambda('i', resourceInfo(format('resLoop[{0}]', lambdaVariables('i'))).name))]",
-    "modLoopNames": "[map(range(0, 5), lambda('i', format('foo{0}', range(0, 5)[lambdaVariables('i')])))]"
+    "modLoopNames": "[map(range(0, 5), lambda('i', format('foo{0}', range(0, 5)[lambdaVariables('i')])))]",
+    "parentheses": "[map(createArray(123), lambda('i', format('{0}', lambdaVariables('i'))))]"
   },
   "resources": {
     "storageAcc": {

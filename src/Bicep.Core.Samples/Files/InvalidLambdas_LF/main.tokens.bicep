@@ -368,26 +368,7 @@ var ternary = map([123], true ? i => '${i}' : i => 'hello!')
 //@[048:050) Arrow |=>|
 //@[051:059) StringComplete |'hello!'|
 //@[059:060) RightParen |)|
-//@[060:061) NewLine |\n|
-var parentheses = map([123], (i => '${i}'))
-//@[000:003) Identifier |var|
-//@[004:015) Identifier |parentheses|
-//@[016:017) Assignment |=|
-//@[018:021) Identifier |map|
-//@[021:022) LeftParen |(|
-//@[022:023) LeftSquare |[|
-//@[023:026) Integer |123|
-//@[026:027) RightSquare |]|
-//@[027:028) Comma |,|
-//@[029:030) LeftParen |(|
-//@[030:031) Identifier |i|
-//@[032:034) Arrow |=>|
-//@[035:038) StringLeftPiece |'${|
-//@[038:039) Identifier |i|
-//@[039:041) StringRightPiece |}'|
-//@[041:042) RightParen |)|
-//@[042:043) RightParen |)|
-//@[043:045) NewLine |\n\n|
+//@[060:062) NewLine |\n\n|
 
 var outsideArgs = i => 123
 //@[000:003) Identifier |var|

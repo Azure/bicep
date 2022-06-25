@@ -75,9 +75,6 @@ var ternary = map([123], true ? i => '${i}' : i => 'hello!')
 //@[04:11) [no-unused-vars (Warning)] Variable "ternary" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |ternary|
 //@[32:43) [BCP241 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i => '${i}'|
 //@[46:59) [BCP241 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i => 'hello!'|
-var parentheses = map([123], (i => '${i}'))
-//@[04:15) [no-unused-vars (Warning)] Variable "parentheses" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |parentheses|
-//@[30:41) [BCP241 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i => '${i}'|
 
 var outsideArgs = i => 123
 //@[04:15) [no-unused-vars (Warning)] Variable "outsideArgs" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |outsideArgs|
@@ -87,6 +84,7 @@ var outsideArgs2 = (x, y, z) => '${x}${y}${z}'
 //@[19:46) [BCP241 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |(x, y, z) => '${x}${y}${z}'|
 var partial = i =>
 //@[04:11) [no-unused-vars (Warning)] Variable "partial" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |partial|
+//@[14:18) [BCP241 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i =>|
 //@[18:18) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 

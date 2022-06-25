@@ -1589,15 +1589,6 @@ xxxxx
 //@[05:08) NewLine |\n\n\n|
 
 
-@minLength()
-//@[00:01) At |@|
-//@[01:10) Identifier |minLength|
-//@[10:11) LeftParen |(|
-//@[11:12) RightParen |)|
-//@[12:16) NewLine |\n\n\n\n|
-
-
-
 var noElements = ()
 //@[00:03) Identifier |var|
 //@[04:14) Identifier |noElements|
@@ -1647,6 +1638,18 @@ var unterminated2 = (,
 //@[18:19) Assignment |=|
 //@[20:21) LeftParen |(|
 //@[21:22) Comma |,|
-//@[22:23) NewLine |\n|
+//@[22:24) NewLine |\n\n|
+
+// trailing decorator with no declaration
+//@[41:42) NewLine |\n|
+@minLength()
+//@[00:01) At |@|
+//@[01:10) Identifier |minLength|
+//@[10:11) LeftParen |(|
+//@[11:12) RightParen |)|
+//@[12:16) NewLine |\n\n\n\n|
+
+
+
 
 //@[00:00) EndOfFile ||

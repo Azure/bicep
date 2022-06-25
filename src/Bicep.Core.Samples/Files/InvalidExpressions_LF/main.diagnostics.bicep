@@ -584,10 +584,6 @@ xxxxx
 //@[00:05) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |xxxxx|
 
 
-@minLength()
-
-
-
 var noElements = ()
 //@[04:14) [no-unused-vars (Warning)] Variable "noElements" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |noElements|
 //@[18:18) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
@@ -609,4 +605,12 @@ var unterminated2 = (,
 //@[21:22) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |,|
 //@[21:22) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |,|
 //@[22:22) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
+
+// trailing decorator with no declaration
+@minLength()
+//@[00:12) [BCP147 (Error)] Expected a parameter declaration after the decorator. (CodeDescription: none) |@minLength()|
+//@[10:12) [BCP071 (Error)] Expected 1 argument, but got 0. (CodeDescription: none) |()|
+
+
+
 

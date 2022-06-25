@@ -919,6 +919,26 @@ var modLoopNames = map(range(0, 5), i => modLoop[i].name)
 //@[051:052) Dot |.|
 //@[052:056) Identifier |name|
 //@[056:057) RightParen |)|
-//@[057:058) NewLine |\n|
+//@[057:059) NewLine |\n\n|
+
+var parentheses = map([123], (i => '${i}'))
+//@[000:003) Identifier |var|
+//@[004:015) Identifier |parentheses|
+//@[016:017) Assignment |=|
+//@[018:021) Identifier |map|
+//@[021:022) LeftParen |(|
+//@[022:023) LeftSquare |[|
+//@[023:026) Integer |123|
+//@[026:027) RightSquare |]|
+//@[027:028) Comma |,|
+//@[029:030) LeftParen |(|
+//@[030:031) Identifier |i|
+//@[032:034) Arrow |=>|
+//@[035:038) StringLeftPiece |'${|
+//@[038:039) Identifier |i|
+//@[039:041) StringRightPiece |}'|
+//@[041:042) RightParen |)|
+//@[042:043) RightParen |)|
+//@[043:044) NewLine |\n|
 
 //@[000:000) EndOfFile ||

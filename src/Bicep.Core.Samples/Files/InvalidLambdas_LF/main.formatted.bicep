@@ -27,7 +27,6 @@ var reduce4 = reduce(range(0, 10), 0, () => null)
 var reduce5 = reduce(range(0, 10), 0, i => i)
 
 var ternary = map([ 123 ], true ? i => '${i}' : i => 'hello!')
-var parentheses = map([ 123 ], (i => '${i}'))
 
 var outsideArgs = i => 123
 var outsideArgs2 = (x, y, z) => '${x}${y}${z}'

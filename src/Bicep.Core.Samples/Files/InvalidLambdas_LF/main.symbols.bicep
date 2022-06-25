@@ -59,9 +59,6 @@ var ternary = map([123], true ? i => '${i}' : i => 'hello!')
 //@[32:33) Local i. Type: int. Declaration start char: 32, length: 1
 //@[46:47) Local i. Type: int. Declaration start char: 46, length: 1
 //@[04:11) Variable ternary. Type: any. Declaration start char: 0, length: 60
-var parentheses = map([123], (i => '${i}'))
-//@[30:31) Local i. Type: int. Declaration start char: 30, length: 1
-//@[04:15) Variable parentheses. Type: string[]. Declaration start char: 0, length: 43
 
 var outsideArgs = i => 123
 //@[18:19) Local i. Type: any. Declaration start char: 18, length: 1
@@ -72,7 +69,8 @@ var outsideArgs2 = (x, y, z) => '${x}${y}${z}'
 //@[26:27) Local z. Type: any. Declaration start char: 26, length: 1
 //@[04:16) Variable outsideArgs2. Type: (any, any, any) => string. Declaration start char: 0, length: 46
 var partial = i =>
-//@[04:11) Variable partial. Type: error. Declaration start char: 0, length: 18
+//@[14:15) Local i. Type: any. Declaration start char: 14, length: 1
+//@[04:11) Variable partial. Type: any => any. Declaration start char: 0, length: 18
 
 
 var inObject = {

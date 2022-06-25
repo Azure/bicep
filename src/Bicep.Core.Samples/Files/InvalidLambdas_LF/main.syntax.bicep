@@ -1,5 +1,5 @@
 var flatten1 = flatten('abc')
-//@[000:1447) ProgramSyntax
+//@[000:1403) ProgramSyntax
 //@[000:0029) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0012) | ├─IdentifierSyntax
@@ -669,42 +669,7 @@ var ternary = map([123], true ? i => '${i}' : i => 'hello!')
 //@[051:0059) | | | | | └─StringSyntax
 //@[051:0059) | | | | | | └─Token(StringComplete) |'hello!'|
 //@[059:0060) | | └─Token(RightParen) |)|
-//@[060:0061) ├─Token(NewLine) |\n|
-var parentheses = map([123], (i => '${i}'))
-//@[000:0043) ├─VariableDeclarationSyntax
-//@[000:0003) | ├─Token(Identifier) |var|
-//@[004:0015) | ├─IdentifierSyntax
-//@[004:0015) | | └─Token(Identifier) |parentheses|
-//@[016:0017) | ├─Token(Assignment) |=|
-//@[018:0043) | └─FunctionCallSyntax
-//@[018:0021) | | ├─IdentifierSyntax
-//@[018:0021) | | | └─Token(Identifier) |map|
-//@[021:0022) | | ├─Token(LeftParen) |(|
-//@[022:0027) | | ├─FunctionArgumentSyntax
-//@[022:0027) | | | └─ArraySyntax
-//@[022:0023) | | | | ├─Token(LeftSquare) |[|
-//@[023:0026) | | | | ├─ArrayItemSyntax
-//@[023:0026) | | | | | └─IntegerLiteralSyntax
-//@[023:0026) | | | | | | └─Token(Integer) |123|
-//@[026:0027) | | | | └─Token(RightSquare) |]|
-//@[027:0028) | | ├─Token(Comma) |,|
-//@[029:0042) | | ├─FunctionArgumentSyntax
-//@[029:0042) | | | └─ParenthesizedExpressionSyntax
-//@[029:0030) | | | | ├─Token(LeftParen) |(|
-//@[030:0041) | | | | ├─LambdaSyntax
-//@[030:0031) | | | | | ├─LocalVariableSyntax
-//@[030:0031) | | | | | | └─IdentifierSyntax
-//@[030:0031) | | | | | | | └─Token(Identifier) |i|
-//@[032:0034) | | | | | ├─Token(Arrow) |=>|
-//@[035:0041) | | | | | └─StringSyntax
-//@[035:0038) | | | | | | ├─Token(StringLeftPiece) |'${|
-//@[038:0039) | | | | | | ├─VariableAccessSyntax
-//@[038:0039) | | | | | | | └─IdentifierSyntax
-//@[038:0039) | | | | | | | | └─Token(Identifier) |i|
-//@[039:0041) | | | | | | └─Token(StringRightPiece) |}'|
-//@[041:0042) | | | | └─Token(RightParen) |)|
-//@[042:0043) | | └─Token(RightParen) |)|
-//@[043:0045) ├─Token(NewLine) |\n\n|
+//@[060:0062) ├─Token(NewLine) |\n\n|
 
 var outsideArgs = i => 123
 //@[000:0026) ├─VariableDeclarationSyntax
@@ -763,9 +728,12 @@ var partial = i =>
 //@[004:0011) | ├─IdentifierSyntax
 //@[004:0011) | | └─Token(Identifier) |partial|
 //@[012:0013) | ├─Token(Assignment) |=|
-//@[014:0018) | └─SkippedTriviaSyntax
-//@[014:0015) | | ├─Token(Identifier) |i|
-//@[016:0018) | | └─Token(Arrow) |=>|
+//@[014:0018) | └─LambdaSyntax
+//@[014:0015) | | ├─LocalVariableSyntax
+//@[014:0015) | | | └─IdentifierSyntax
+//@[014:0015) | | | | └─Token(Identifier) |i|
+//@[016:0018) | | ├─Token(Arrow) |=>|
+//@[018:0018) | | └─SkippedTriviaSyntax
 //@[018:0021) ├─Token(NewLine) |\n\n\n|
 
 

@@ -616,7 +616,7 @@ namespace Bicep.Core.Parsing
             if (Check(TokenType.Arrow))
             {
                 var arrow = this.Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>"));
-                var expression = Expression(expressionFlags);
+                var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
 
                 var rewrittenList = new List<SyntaxBase>();
                 foreach (var item in expressionsOrCommas)
@@ -713,7 +713,7 @@ namespace Bicep.Core.Parsing
             if (Check(TokenType.Arrow))
             {
                 var arrow = this.Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>"));
-                var expression = Expression(expressionFlags);
+                var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
 
                 return new LambdaSyntax(new LocalVariableSyntax(identifier), arrow, expression);
             }

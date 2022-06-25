@@ -110,3 +110,6 @@ module modLoop './test.bicep' = [for item in range(0, 5): {
 var modLoopNames = map(range(0, 5), i => modLoop[i].name)
 //@[04:16) [no-unused-vars (Warning)] Variable "modLoopNames" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |modLoopNames|
 
+var parentheses = map([123], (i => '${i}'))
+//@[04:15) [no-unused-vars (Warning)] Variable "parentheses" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |parentheses|
+

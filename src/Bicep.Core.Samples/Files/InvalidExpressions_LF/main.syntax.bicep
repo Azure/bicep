@@ -1,5 +1,5 @@
 /*
-//@[00:5941) ProgramSyntax
+//@[00:5984) ProgramSyntax
   This tests the various cases of invalid expressions.
 */
 //@[02:0004) ├─Token(NewLine) |\n\n|
@@ -2577,20 +2577,8 @@ xxxxx
 //@[05:0008) ├─Token(NewLine) |\n\n\n|
 
 
-@minLength()
-//@[00:0035) ├─VariableDeclarationSyntax
-//@[00:0012) | ├─DecoratorSyntax
-//@[00:0001) | | ├─Token(At) |@|
-//@[01:0012) | | └─FunctionCallSyntax
-//@[01:0010) | | | ├─IdentifierSyntax
-//@[01:0010) | | | | └─Token(Identifier) |minLength|
-//@[10:0011) | | | ├─Token(LeftParen) |(|
-//@[11:0012) | | | └─Token(RightParen) |)|
-//@[12:0016) | ├─Token(NewLine) |\n\n\n\n|
-
-
-
 var noElements = ()
+//@[00:0019) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0014) | ├─IdentifierSyntax
 //@[04:0014) | | └─Token(Identifier) |noElements|
@@ -2672,6 +2660,22 @@ var unterminated2 = (,
 //@[21:0022) | | | ├─Token(Comma) |,|
 //@[22:0022) | | | └─SkippedTriviaSyntax
 //@[22:0022) | | └─SkippedTriviaSyntax
-//@[22:0023) ├─Token(NewLine) |\n|
+//@[22:0024) ├─Token(NewLine) |\n\n|
+
+// trailing decorator with no declaration
+//@[41:0042) ├─Token(NewLine) |\n|
+@minLength()
+//@[00:0016) ├─MissingDeclarationSyntax
+//@[00:0012) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0012) | | └─FunctionCallSyntax
+//@[01:0010) | | | ├─IdentifierSyntax
+//@[01:0010) | | | | └─Token(Identifier) |minLength|
+//@[10:0011) | | | ├─Token(LeftParen) |(|
+//@[11:0012) | | | └─Token(RightParen) |)|
+//@[12:0016) | └─Token(NewLine) |\n\n\n\n|
+
+
+
 
 //@[00:0000) └─Token(EndOfFile) ||
