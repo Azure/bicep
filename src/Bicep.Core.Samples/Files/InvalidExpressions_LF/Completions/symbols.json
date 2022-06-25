@@ -903,7 +903,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nfilter(array: array, lambda: any => bool): array\n\n```\nFilters an array with a custom filtering function.\n"
+      "value": "```bicep\nfilter(array: array, predicate: any => bool): array\n\n```\nFilters an array with a custom filtering function.\n"
     },
     "deprecated": false,
     "preselect": false,
@@ -945,7 +945,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nflatten(... : array): array\n\n```\nFlattens an array of arrays into an array containing all of the individual array elements in the original order.\n"
+      "value": "```bicep\nflatten(... : array[]): array\n\n```\nTakes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.\n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1336,6 +1336,20 @@
     }
   },
   {
+    "label": "justAComma",
+    "kind": "variable",
+    "detail": "justAComma",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_justAComma",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "justAComma"
+    }
+  },
+  {
     "label": "last",
     "kind": "function",
     "documentation": {
@@ -1578,7 +1592,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nmap(array: array, lambda: any => any): array\n\n```\nApplies a custom mapping function to each element of an array and returns the result array.\n"
+      "value": "```bicep\nmap(array: array, predicate: any => any): array\n\n```\nApplies a custom mapping function to each element of an array and returns the result array.\n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1791,6 +1805,20 @@
     }
   },
   {
+    "label": "noElements",
+    "kind": "variable",
+    "detail": "noElements",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_noElements",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "noElements"
+    }
+  },
+  {
     "label": "not",
     "kind": "variable",
     "detail": "not",
@@ -1991,7 +2019,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nreduce(array: array, initialValue: any, lambda: (any, any) => any): array\n\n```\nReduces an array with a custom reduce function.\n"
+      "value": "```bicep\nreduce(array: array, initialValue: any, predicate: (any, any) => any): array\n\n```\nReduces an array with a custom reduce function.\n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2131,7 +2159,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nsort(array: array, lambda: (any, any) => bool): array\n\n```\nSorts an array with a custom sort function.\n"
+      "value": "```bicep\nsort(array: array, predicate: (any, any) => bool): array\n\n```\nSorts an array with a custom sort function.\n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2477,6 +2505,20 @@
     }
   },
   {
+    "label": "threeElements",
+    "kind": "variable",
+    "detail": "threeElements",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_threeElements",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "threeElements"
+    }
+  },
+  {
     "label": "toLower",
     "kind": "function",
     "documentation": {
@@ -2568,6 +2610,20 @@
     }
   },
   {
+    "label": "twoElements",
+    "kind": "variable",
+    "detail": "twoElements",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_twoElements",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "twoElements"
+    }
+  },
+  {
     "label": "union",
     "kind": "function",
     "documentation": {
@@ -2607,6 +2663,34 @@
     "command": {
       "title": "signature help",
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "unterminated1",
+    "kind": "variable",
+    "detail": "unterminated1",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_unterminated1",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "unterminated1"
+    }
+  },
+  {
+    "label": "unterminated2",
+    "kind": "variable",
+    "detail": "unterminated2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_unterminated2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "unterminated2"
     }
   },
   {

@@ -1421,6 +1421,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP241",
                 $"Lambda functions may only be specified directly as function arguments.");
+
+            public ErrorDiagnostic ParenthesesMustHaveExactlyOneItem() => new(
+                TextSpan,
+                "BCP242",
+                "Parentheses must contain exactly one expression.");
+
+            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int expectedArgCount, int actualArgCount) => new (
+                TextSpan,
+                "BCP243",
+                $"Expected lambda expression of type \"{lambdaType}\" with {expectedArgCount} arguments but received {actualArgCount} arguments.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

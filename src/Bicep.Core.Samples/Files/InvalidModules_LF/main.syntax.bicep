@@ -348,8 +348,9 @@ module './main.bicep' = if () {
 //@[022:00023) | ├─Token(Assignment) |=|
 //@[024:00034) | └─IfConditionSyntax
 //@[024:00026) | | ├─Token(Identifier) |if|
-//@[027:00029) | | ├─SkippedTriviaSyntax
+//@[027:00029) | | ├─ParenthesizedExpressionSyntax
 //@[027:00028) | | | ├─Token(LeftParen) |(|
+//@[028:00028) | | | ├─SkippedTriviaSyntax
 //@[028:00029) | | | └─Token(RightParen) |)|
 //@[030:00034) | | └─ObjectSyntax
 //@[030:00031) | | | ├─Token(LeftBrace) |{|
@@ -2408,8 +2409,9 @@ module expectedLoopFilterPredicateAndBody 'modulea.bicep' = [for x in y: if()]
 //@[071:00072) | | ├─Token(Colon) |:|
 //@[073:00077) | | ├─IfConditionSyntax
 //@[073:00075) | | | ├─Token(Identifier) |if|
-//@[075:00077) | | | ├─SkippedTriviaSyntax
+//@[075:00077) | | | ├─ParenthesizedExpressionSyntax
 //@[075:00076) | | | | ├─Token(LeftParen) |(|
+//@[076:00076) | | | | ├─SkippedTriviaSyntax
 //@[076:00077) | | | | └─Token(RightParen) |)|
 //@[077:00077) | | | └─SkippedTriviaSyntax
 //@[077:00078) | | └─Token(RightSquare) |]|
@@ -2442,8 +2444,9 @@ module expectedLoopFilterPredicateAndBody2 'modulea.bicep' = [for (x,y) in z: if
 //@[076:00077) | | ├─Token(Colon) |:|
 //@[078:00082) | | ├─IfConditionSyntax
 //@[078:00080) | | | ├─Token(Identifier) |if|
-//@[080:00082) | | | ├─SkippedTriviaSyntax
+//@[080:00082) | | | ├─ParenthesizedExpressionSyntax
 //@[080:00081) | | | | ├─Token(LeftParen) |(|
+//@[081:00081) | | | | ├─SkippedTriviaSyntax
 //@[081:00082) | | | | └─Token(RightParen) |)|
 //@[082:00082) | | | └─SkippedTriviaSyntax
 //@[082:00083) | | └─Token(RightSquare) |]|

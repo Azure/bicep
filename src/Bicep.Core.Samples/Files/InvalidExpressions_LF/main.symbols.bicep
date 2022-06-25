@@ -375,9 +375,16 @@ xxxxx
 
 
 
-
-
-
-
-
+var noElements = ()
+//@[4:14) Variable noElements. Type: error. Declaration start char: 0, length: 35
+var justAComma = (,)
+//@[4:14) Variable justAComma. Type: error. Declaration start char: 0, length: 20
+var twoElements = (1, 2)
+//@[4:15) Variable twoElements. Type: error. Declaration start char: 0, length: 24
+var threeElements = (1, 2, 3)
+//@[4:17) Variable threeElements. Type: error. Declaration start char: 0, length: 29
+var unterminated1 = (
+//@[4:17) Variable unterminated1. Type: error. Declaration start char: 0, length: 21
+var unterminated2 = (,
+//@[4:17) Variable unterminated2. Type: error. Declaration start char: 0, length: 22
 

@@ -49,6 +49,43 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [TestMethod]
+        public void Parentheses_without_arrow_are_not_interpreted_as_lambdas()
+        {
+            CompilationHelper.Compile("var noElements = ()")
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                    ("BCP242", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
+                });
+
+            CompilationHelper.Compile("var justAComma = (,)")
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                    ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
+                    ("BCP242", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
+                });
+
+            CompilationHelper.Compile("var twoElements = (1, 2)")
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                    ("BCP242", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
+                });
+
+            CompilationHelper.Compile("var threeElements = (1, 2, 3)")
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                    ("BCP242", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
+                });
+
+            CompilationHelper.Compile("var unterminated1 = (")
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                    ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
+                });
+
+            CompilationHelper.Compile("var unterminated2 = (,")
+                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                    ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
+                    ("BCP242", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
+                    ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
+                });
+        }
+
+        [TestMethod]
         public void Map_function_preserves_types_accurately_integers()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"

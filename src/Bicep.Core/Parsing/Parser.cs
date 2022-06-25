@@ -634,29 +634,26 @@ namespace Bicep.Core.Parsing
                 return new LambdaSyntax(new VariableBlockSyntax(openParen, rewrittenList, closeParen), arrow, expression);
             }
 
-            var bodyExpression = expressionsOrCommas.Length == 1 ?
-                expressionsOrCommas[0] :
-                new SkippedTriviaSyntax(
-                    TextSpan.BetweenExclusive(openParen, closeParen),
-                    expressionsOrCommas,
-                    Enumerable.Empty<IDiagnostic>());
-
-            return new ParenthesizedExpressionSyntax(openParen, bodyExpression, closeParen);
+            return GetParenthesizedExpressionSyntax(openParen, expressionsOrCommas, closeParen);
         }
 
         private SyntaxBase ParenthesizedExpression(ExpressionFlags expressionFlags)
         {
             var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(expressionFlags);
 
-            if (expressionsOrCommas.Length == 1)
-            {
-                return new ParenthesizedExpressionSyntax(openParen, expressionsOrCommas[0], closeParen);
-            }
+            return GetParenthesizedExpressionSyntax(openParen, expressionsOrCommas, closeParen);
+        }
 
-            return new SkippedTriviaSyntax(
-                TextSpan.Between(openParen, closeParen),
-                openParen.AsEnumerable().Concat(expressionsOrCommas).Concat(closeParen),
-                Enumerable.Empty<IDiagnostic>());
+        private ParenthesizedExpressionSyntax GetParenthesizedExpressionSyntax(Token openParen, ImmutableArray<SyntaxBase> expressionsOrCommas, SyntaxBase closeParen)
+        {
+            var bodyExpression = expressionsOrCommas.Length switch {
+                0 => SkipEmpty(openParen.Span.GetEndPosition(), x => x.ParenthesesMustHaveExactlyOneItem()),
+                1 when expressionsOrCommas[0] is Token token => Skip(token.AsEnumerable()),
+                1 => expressionsOrCommas[0],
+                _ => Skip(expressionsOrCommas, x => x.ParenthesesMustHaveExactlyOneItem()),
+            };
+
+            return new ParenthesizedExpressionSyntax(openParen, bodyExpression, closeParen);
         }
 
         private (Token openParen, ImmutableArray<SyntaxBase> expressionsOrCommas, SyntaxBase closeParen) ParenthesizedExpressionList(ExpressionFlags expressionFlags)
@@ -798,9 +795,26 @@ namespace Bicep.Core.Parsing
         }
 
         private SkippedTriviaSyntax SkipEmpty(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+            => SkipEmpty(this.reader.Peek().Span.Position, errorFunc);
+
+        private SkippedTriviaSyntax SkipEmpty(int position, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
         {
-            var span = new TextSpan(this.reader.Peek().Span.Position, 0);
+            var span = new TextSpan(position, 0);
             return new SkippedTriviaSyntax(span, ImmutableArray<SyntaxBase>.Empty, errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable());
+        }
+
+        private SkippedTriviaSyntax Skip(IEnumerable<SyntaxBase> syntax, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        {
+            var syntaxArray = syntax.ToImmutableArray();
+            var span = TextSpan.Between(syntaxArray.First(), syntaxArray.Last());
+            return new SkippedTriviaSyntax(span, syntaxArray, errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable());
+        }
+
+        private SkippedTriviaSyntax Skip(IEnumerable<SyntaxBase> syntax)
+        {
+            var syntaxArray = syntax.ToImmutableArray();
+            var span = TextSpan.Between(syntaxArray.First(), syntaxArray.Last());
+            return new SkippedTriviaSyntax(span, syntaxArray, Enumerable.Empty<Diagnostic>());
         }
 
         private TypeSyntax Type(DiagnosticBuilder.ErrorBuilderDelegate errorFunc, bool allowOptionalResourceType)

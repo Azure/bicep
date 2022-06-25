@@ -92,6 +92,7 @@ module './main.bicep' = if {
 
 module './main.bicep' = if () {
 //@[007:021) [BCP096 (Error)] Expected a module identifier at this location. (CodeDescription: none) |'./main.bicep'|
+//@[028:028) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
 
 }
 
@@ -482,8 +483,12 @@ module expectedLoopFilterOpenParen2 'modulea.bicep' = [for (x,y) in z: if]
 
 module expectedLoopFilterPredicateAndBody 'modulea.bicep' = [for x in y: if()]
 //@[070:071) [BCP057 (Error)] The name "y" does not exist in the current context. (CodeDescription: none) |y|
+//@[076:076) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
+//@[077:078) [BCP018 (Error)] Expected the "{" character at this location. (CodeDescription: none) |]|
 module expectedLoopFilterPredicateAndBody2 'modulea.bicep' = [for (x,y) in z: if()]
 //@[075:076) [BCP057 (Error)] The name "z" does not exist in the current context. (CodeDescription: none) |z|
+//@[081:081) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
+//@[082:083) [BCP018 (Error)] Expected the "{" character at this location. (CodeDescription: none) |]|
 
 // wrong loop body type
 var emptyArray = []

@@ -1,9 +1,9 @@
 var flatten1 = flatten('abc')
 //@[04:12) [no-unused-vars (Warning)] Variable "flatten1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |flatten1|
-//@[23:28) [BCP070 (Error)] Argument of type "'abc'" is not assignable to parameter of type "array". (CodeDescription: none) |'abc'|
+//@[23:28) [BCP070 (Error)] Argument of type "'abc'" is not assignable to parameter of type "array[]". (CodeDescription: none) |'abc'|
 var flatten2 = flatten(['abc'], 'def')
 //@[04:12) [no-unused-vars (Warning)] Variable "flatten2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |flatten2|
-//@[32:37) [BCP070 (Error)] Argument of type "'def'" is not assignable to parameter of type "array". (CodeDescription: none) |'def'|
+//@[32:37) [BCP070 (Error)] Argument of type "'def'" is not assignable to parameter of type "array[]". (CodeDescription: none) |'def'|
 
 var map1 = map('abc')
 //@[04:08) [no-unused-vars (Warning)] Variable "map1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |map1|

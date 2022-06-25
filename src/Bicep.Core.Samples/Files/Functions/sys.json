@@ -402,13 +402,13 @@
     "fixedParameters": [
       {
         "name": "array",
-        "description": "The array to filter",
+        "description": "The array to filter.",
         "type": "array",
         "required": true
       },
       {
-        "name": "lambda",
-        "description": "The filtering function",
+        "name": "predicate",
+        "description": "The predicate applied to each input array element. If false, the item will be filtered out of the output array.",
         "type": "any => bool",
         "required": true
       }
@@ -416,10 +416,10 @@
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
     "flags": "default",
-    "typeSignature": "(array: array, lambda: any => bool): array",
+    "typeSignature": "(array: array, predicate: any => bool): array",
     "parameterTypeSignatures": [
       "array: array",
-      "lambda: any => bool"
+      "predicate: any => bool"
     ]
   },
   {
@@ -462,19 +462,19 @@
   },
   {
     "name": "flatten",
-    "description": "Flattens an array of arrays into an array containing all of the individual array elements in the original order.",
+    "description": "Takes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.",
     "fixedParameters": [],
     "minimumArgumentCount": 0,
     "variableParameter": {
       "namePrefix": "array",
-      "description": "TBD",
-      "type": "array",
+      "description": "The array of sub-arrays to flatte.",
+      "type": "array[]",
       "minimumCount": 0
     },
     "flags": "default",
-    "typeSignature": "(... : array): array",
+    "typeSignature": "(... : array[]): array",
     "parameterTypeSignatures": [
-      "... : array"
+      "... : array[]"
     ]
   },
   {
@@ -881,13 +881,13 @@
     "fixedParameters": [
       {
         "name": "array",
-        "description": "The array to map",
+        "description": "The array to map.",
         "type": "array",
         "required": true
       },
       {
-        "name": "lambda",
-        "description": "The mapping function",
+        "name": "predicate",
+        "description": "The predicate applied to each input array element, in order to generate the output array.",
         "type": "any => any",
         "required": true
       }
@@ -895,10 +895,10 @@
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
     "flags": "default",
-    "typeSignature": "(array: array, lambda: any => any): array",
+    "typeSignature": "(array: array, predicate: any => any): array",
     "parameterTypeSignatures": [
       "array: array",
-      "lambda: any => any"
+      "predicate: any => any"
     ]
   },
   {
@@ -1048,19 +1048,19 @@
     "fixedParameters": [
       {
         "name": "array",
-        "description": "The array to reduce",
+        "description": "The array to reduce.",
         "type": "array",
         "required": true
       },
       {
         "name": "initialValue",
-        "description": "The initial value",
+        "description": "The initial value.",
         "type": "any",
         "required": true
       },
       {
-        "name": "lambda",
-        "description": "The reduce function",
+        "name": "predicate",
+        "description": "The predicate used to aggregate the current value and the next value. ",
         "type": "(any, any) => any",
         "required": true
       }
@@ -1068,11 +1068,11 @@
     "minimumArgumentCount": 3,
     "maximumArgumentCount": 3,
     "flags": "default",
-    "typeSignature": "(array: array, initialValue: any, lambda: (any, any) => any): array",
+    "typeSignature": "(array: array, initialValue: any, predicate: (any, any) => any): array",
     "parameterTypeSignatures": [
       "array: array",
       "initialValue: any",
-      "lambda: (any, any) => any"
+      "predicate: (any, any) => any"
     ]
   },
   {
@@ -1166,13 +1166,13 @@
     "fixedParameters": [
       {
         "name": "array",
-        "description": "The array to sort",
+        "description": "The array to sort.",
         "type": "array",
         "required": true
       },
       {
-        "name": "lambda",
-        "description": "The sorting function",
+        "name": "predicate",
+        "description": "The predicate used to compare two array elements for ordering. If true, the second element will be ordered after the first in the output array.",
         "type": "(any, any) => bool",
         "required": true
       }
@@ -1180,10 +1180,10 @@
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
     "flags": "default",
-    "typeSignature": "(array: array, lambda: (any, any) => bool): array",
+    "typeSignature": "(array: array, predicate: (any, any) => bool): array",
     "parameterTypeSignatures": [
       "array: array",
-      "lambda: (any, any) => bool"
+      "predicate: (any, any) => bool"
     ]
   },
   {

@@ -365,8 +365,7 @@ namespace Bicep.Core.TypeSystem
             var variables = lambdaSyntax.GetLocalVariables().ToImmutableArray();
             if (variables.Length != targetType.ArgumentTypes.Length)
             {
-                // TODO error message
-                diagnosticWriter.Write(lambdaSyntax.VariableSection, x => x.AnyTypeIsNotAllowed());
+                diagnosticWriter.Write(lambdaSyntax.VariableSection, x => x.LambdaExpectedArgCountMismatch(targetType, targetType.ArgumentTypes.Length, variables.Length));
                 return targetType;
             }
 

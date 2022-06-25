@@ -61,6 +61,7 @@ var bad = (null)[0]
 var bad = ()
 //@[04:07) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |bad|
 //@[04:07) [no-unused-vars (Warning)] Variable "bad" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |bad|
+//@[11:11) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
 var bad = 
 //@[04:07) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |bad|
 //@[04:07) [no-unused-vars (Warning)] Variable "bad" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |bad|
@@ -513,10 +514,12 @@ var missingIndexerOnIdentifier = nonExistentIdentifier[][1][]
 // empty parens - should produce expected expression diagnostic
 var emptyParens = ()
 //@[04:15) [no-unused-vars (Warning)] Variable "emptyParens" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |emptyParens|
+//@[19:19) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
 
 // #completionTest(26) -> symbols
 var anotherEmptyParens = ()
 //@[04:22) [no-unused-vars (Warning)] Variable "anotherEmptyParens" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |anotherEmptyParens|
+//@[26:26) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
 
 // keywords can't be called like functions
 var nullness = null()
@@ -582,14 +585,28 @@ xxxxx
 
 
 @minLength()
-//@[00:12) [BCP147 (Error)] Expected a parameter declaration after the decorator. (CodeDescription: none) |@minLength()|
-//@[10:12) [BCP071 (Error)] Expected 1 argument, but got 0. (CodeDescription: none) |()|
 
 
 
-
-
-
-
-
+var noElements = ()
+//@[04:14) [no-unused-vars (Warning)] Variable "noElements" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |noElements|
+//@[18:18) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
+var justAComma = (,)
+//@[04:14) [no-unused-vars (Warning)] Variable "justAComma" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |justAComma|
+//@[18:19) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |,|
+//@[18:19) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |,|
+var twoElements = (1, 2)
+//@[04:15) [no-unused-vars (Warning)] Variable "twoElements" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |twoElements|
+//@[19:23) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |1, 2|
+var threeElements = (1, 2, 3)
+//@[04:17) [no-unused-vars (Warning)] Variable "threeElements" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |threeElements|
+//@[21:28) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |1, 2, 3|
+var unterminated1 = (
+//@[04:17) [no-unused-vars (Warning)] Variable "unterminated1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |unterminated1|
+//@[21:21) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
+var unterminated2 = (,
+//@[04:17) [no-unused-vars (Warning)] Variable "unterminated2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |unterminated2|
+//@[21:22) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |,|
+//@[21:22) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |,|
+//@[22:22) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 

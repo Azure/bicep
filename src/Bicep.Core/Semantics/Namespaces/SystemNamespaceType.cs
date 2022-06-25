@@ -512,15 +512,15 @@ namespace Bicep.Core.Semantics.Namespaces
             if (featureProvider.LambdasEnabled)
             {
                 yield return new FunctionOverloadBuilder("flatten")
-                    .WithGenericDescription("Flattens an array of arrays into an array containing all of the individual array elements in the original order.")
-                    .WithVariableParameter("array", LanguageConstants.Array, 0, "TBD")
+                    .WithGenericDescription("Takes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.")
+                    .WithVariableParameter("array", new TypedArrayType(LanguageConstants.Array, TypeSymbolValidationFlags.Default), 0, "The array of sub-arrays to flatte.")
                     .WithReturnType(LanguageConstants.Array)
                     .Build();
 
                 yield return new FunctionOverloadBuilder("filter")
                     .WithGenericDescription("Filters an array with a custom filtering function.")
-                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to filter")
-                    .WithRequiredParameter("lambda", OneParamLambda(LanguageConstants.Any, LanguageConstants.Bool), "The filtering function",
+                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to filter.")
+                    .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Bool), "The predicate applied to each input array element. If false, the item will be filtered out of the output array.",
                         calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Bool)))
                     .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
                         return new(argumentTypes[0]);
@@ -529,8 +529,8 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 yield return new FunctionOverloadBuilder("map")
                     .WithGenericDescription("Applies a custom mapping function to each element of an array and returns the result array.")
-                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to map")
-                    .WithRequiredParameter("lambda", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The mapping function",
+                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to map.")
+                    .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The predicate applied to each input array element, in order to generate the output array.",
                         calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
                     .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => argumentTypes[1] switch {
                         LambdaType lambdaType => new(new TypedArrayType(lambdaType.ReturnType.Type, TypeSymbolValidationFlags.Default)),
@@ -540,8 +540,8 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 yield return new FunctionOverloadBuilder("sort")
                     .WithGenericDescription("Sorts an array with a custom sort function.")
-                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to sort")
-                    .WithRequiredParameter("lambda", TwoParamLambda(LanguageConstants.Any, LanguageConstants.Any, LanguageConstants.Bool), "The sorting function",
+                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to sort.")
+                    .WithRequiredParameter("predicate", TwoParamLambda(LanguageConstants.Any, LanguageConstants.Any, LanguageConstants.Bool), "The predicate used to compare two array elements for ordering. If true, the second element will be ordered after the first in the output array.",
                         calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TwoParamLambda(t, t, LanguageConstants.Bool)))
                     .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
                         return new(argumentTypes[0]);
@@ -550,9 +550,9 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 yield return new FunctionOverloadBuilder("reduce")
                     .WithGenericDescription("Reduces an array with a custom reduce function.")
-                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to reduce")
-                    .WithRequiredParameter("initialValue", LanguageConstants.Any, "The initial value")
-                    .WithRequiredParameter("lambda", TwoParamLambda(LanguageConstants.Any, LanguageConstants.Any, LanguageConstants.Any), "The reduce function",
+                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to reduce.")
+                    .WithRequiredParameter("initialValue", LanguageConstants.Any, "The initial value.")
+                    .WithRequiredParameter("predicate", TwoParamLambda(LanguageConstants.Any, LanguageConstants.Any, LanguageConstants.Any), "The predicate used to aggregate the current value and the next value. ",
                         calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TwoParamLambda(t, t, LanguageConstants.Any)))
                     .WithReturnType(LanguageConstants.Any)
                     .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => argumentTypes[2] switch {
