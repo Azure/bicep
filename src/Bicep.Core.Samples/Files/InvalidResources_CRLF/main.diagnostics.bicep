@@ -71,7 +71,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[009:012) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |foo|
 //@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[058:061) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |'a'|
+//@[058:061) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'a'|
 //@[063:064) [BCP057 (Error)] The name "b" does not exist in the current context. (CodeDescription: none) |b|
 }
 
@@ -167,7 +167,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
   name: 'foo'
 //@[002:006) [BCP025 (Error)] The property "name" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |name|
   'name': true
-//@[002:008) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |'name'|
+//@[002:008) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'name'|
 //@[002:008) [BCP025 (Error)] The property "name" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |'name'|
 }
 
@@ -195,7 +195,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
     foo: 'a'
 //@[004:007) [BCP025 (Error)] The property "foo" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |foo|
     'foo': 'a'
-//@[004:009) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |'foo'|
+//@[004:009) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'foo'|
 //@[004:009) [BCP025 (Error)] The property "foo" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |'foo'|
   }
 }
@@ -380,7 +380,7 @@ resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-0
 resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: concat(validModule['name'], 'v1')
 //@[008:041) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(validModule['name'], 'v1')|
-//@[026:034) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['name']|
+//@[026:034) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['name']|
 }
 
 resource runtimeValidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -395,7 +395,7 @@ resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020
 resource runtimeInvalidRes2 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['location']
 //@[008:036) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['location']|
-//@[024:036) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['location']|
+//@[024:036) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['location']|
 }
 
 resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -413,20 +413,20 @@ resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' =
 resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['properties'].evictionPolicy
 //@[008:038) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['properties']|
-//@[024:038) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[024:038) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 }
 
 resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1['properties']['evictionPolicy']
 //@[008:038) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['properties']|
-//@[024:038) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
-//@[038:056) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['evictionPolicy']|
+//@[024:038) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
+//@[038:056) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['evictionPolicy']|
 }
 
 resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
   name: runtimeValidRes1.properties['evictionPolicy']
 //@[008:035) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.properties|
-//@[035:053) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['evictionPolicy']|
+//@[035:053) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['evictionPolicy']|
 }
 
 resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -458,7 +458,7 @@ resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@202
   name: validModule.params['name']
 //@[008:026) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of validModule which can be calculated at the start include "name". (CodeDescription: none) |validModule.params|
 //@[020:026) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. (CodeDescription: none) |params|
-//@[026:034) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['name']|
+//@[026:034) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['name']|
 }
 
 resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -466,9 +466,9 @@ resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@202
 //@[008:143) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)|
 //@[015:040) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.location|
 //@[042:070) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes2 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2['location']|
-//@[058:070) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['location']|
+//@[058:070) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['location']|
 //@[072:104) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeInvalidRes3 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalidRes3['properties']|
-//@[090:104) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[090:104) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[119:137) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of validModule which can be calculated at the start include "name". (CodeDescription: none) |validModule.params|
 //@[131:137) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. (CodeDescription: none) |params|
 }
@@ -477,19 +477,19 @@ resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@202
   name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
 //@[011:036) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.location|
 //@[039:067) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes2 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2['location']|
-//@[055:067) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['location']|
+//@[055:067) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['location']|
 //@[070:099) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeInvalidRes3 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalidRes3.properties|
-//@[099:115) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['azCliVersion']|
+//@[099:115) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['azCliVersion']|
 //@[118:139) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of validModule which can be calculated at the start include "name". (CodeDescription: none) |validModule['params']|
-//@[129:139) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['params']|
+//@[129:139) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['params']|
 //@[130:138) [BCP077 (Error)] The property "params" on type "module" is write-only. Write-only properties cannot be accessed. (CodeDescription: none) |'params'|
 }
 
 // variable related runtime validation
 var runtimefoo1 = runtimeValidRes1['location']
-//@[034:046) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['location']|
+//@[034:046) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['location']|
 var runtimefoo2 = runtimeValidRes2['properties'].azCliVersion
-//@[034:048) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[034:048) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 var runtimefoo3 = runtimeValidRes2
 var runtimefoo4 = {
   hop: runtimefoo2
@@ -535,7 +535,7 @@ resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@202
 //@[008:129) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(runtimeInvalid.foo1, runtimeValidRes2['properties'].azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)|
 //@[015:029) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimeInvalid" -> "runtimefoo1" -> "runtimeValidRes1"). Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeInvalid|
 //@[036:066) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes2 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes2['properties']|
-//@[052:066) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[052:066) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[084:109) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.location|
 //@[113:124) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "Microsoft.Advisor/recommendations/suppressions" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start ("runtimefoo4" -> "runtimefoo2" -> "runtimeValidRes2"). Properties of runtimeValidRes2 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimefoo4|
 }
@@ -912,12 +912,12 @@ var discriminatorKeySetTwoCompletions2 = discriminatorKeySetTwo.properties.
 // #completionTest(90) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
 //@[004:049) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer|
-//@[074:088) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[074:088) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[089:090) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(90) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2 = discriminatorKeySetTwo['properties'].
 //@[004:050) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer2|
-//@[075:089) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[075:089) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[090:090) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 /*
@@ -946,12 +946,12 @@ var discriminatorKeySetTwoCompletions2_if = discriminatorKeySetTwo_if.properties
 // #completionTest(96) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer_if = discriminatorKeySetTwo_if['properties'].a
 //@[004:052) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer_if|
-//@[080:094) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[080:094) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[095:096) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(96) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2_if = discriminatorKeySetTwo_if['properties'].
 //@[004:053) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer2_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer2_if|
-//@[081:095) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[081:095) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[096:096) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 
@@ -981,12 +981,12 @@ var discriminatorKeySetTwoCompletions2_for = discriminatorKeySetTwo_for[0].prope
 // #completionTest(101) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer_for = discriminatorKeySetTwo_for[0]['properties'].a
 //@[004:053) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer_for|
-//@[085:099) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[085:099) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[100:101) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(101) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2_for = discriminatorKeySetTwo_for[0]['properties'].
 //@[004:054) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer2_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer2_for|
-//@[086:100) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[086:100) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[101:101) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 
@@ -1016,12 +1016,12 @@ var discriminatorKeySetTwoCompletions2_for_if = discriminatorKeySetTwo_for_if[0]
 // #completionTest(107) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer_for_if = discriminatorKeySetTwo_for_if[0]['properties'].a
 //@[004:056) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer_for_if|
-//@[091:105) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[091:105) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[106:107) [BCP053 (Warning)] The type "AzurePowerShellScriptProperties" does not contain property "a". Available properties include "arguments", "azPowerShellVersion", "cleanupPreference", "containerSettings", "environmentVariables", "forceUpdateTag", "outputs", "primaryScriptUri", "provisioningState", "retentionInterval", "scriptContent", "status", "storageAccountSettings", "supportingScriptUris", "timeout". (CodeDescription: none) |a|
 // #completionTest(107) -> powershellPropertyAccess
 var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetTwo_for_if[0]['properties'].
 //@[004:057) [no-unused-vars (Warning)] Variable "discriminatorKeySetTwoCompletionsArrayIndexer2_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |discriminatorKeySetTwoCompletionsArrayIndexer2_for_if|
-//@[092:106) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[092:106) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[107:107) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 
@@ -1121,7 +1121,7 @@ var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.pro
 // #completionTest(92) -> createMode
 var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].
 //@[004:045) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyCompletions2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions2|
-//@[077:091) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[077:091) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[092:092) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(94) -> createModeIndexPlusSymbols
@@ -1148,7 +1148,7 @@ var nestedDiscriminatorMissingKeyCompletions_if = nestedDiscriminatorMissingKey_
 // #completionTest(98) -> createMode
 var nestedDiscriminatorMissingKeyCompletions2_if = nestedDiscriminatorMissingKey_if['properties'].
 //@[004:048) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyCompletions2_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions2_if|
-//@[083:097) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[083:097) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[098:098) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(100) -> createModeIndexPlusSymbols_if
@@ -1176,7 +1176,7 @@ var nestedDiscriminatorMissingKeyCompletions_for = nestedDiscriminatorMissingKey
 // #completionTest(103) -> createMode
 var nestedDiscriminatorMissingKeyCompletions2_for = nestedDiscriminatorMissingKey_for[0]['properties'].
 //@[004:049) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyCompletions2_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions2_for|
-//@[088:102) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[088:102) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[103:103) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(105) -> createModeIndexPlusSymbols_for
@@ -1205,7 +1205,7 @@ var nestedDiscriminatorMissingKeyCompletions_for_if = nestedDiscriminatorMissing
 // #completionTest(109) -> createMode
 var nestedDiscriminatorMissingKeyCompletions2_for_if = nestedDiscriminatorMissingKey_for_if[0]['properties'].
 //@[004:052) [no-unused-vars (Warning)] Variable "nestedDiscriminatorMissingKeyCompletions2_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorMissingKeyCompletions2_for_if|
-//@[094:108) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[094:108) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[109:109) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(111) -> createModeIndexPlusSymbols_for_if
@@ -1234,7 +1234,7 @@ var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
 // #completionTest(73) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
 //@[004:035) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions2|
-//@[057:071) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[057:071) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[072:073) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". (CodeDescription: none) |a|
 // #completionTest(69) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions3 = nestedDiscriminator.properties.
@@ -1243,7 +1243,7 @@ var nestedDiscriminatorCompletions3 = nestedDiscriminator.properties.
 // #completionTest(72) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
 //@[004:035) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions4" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions4|
-//@[057:071) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[057:071) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[072:072) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(79) -> defaultCreateModeIndexes
@@ -1272,7 +1272,7 @@ var nestedDiscriminatorCompletions_if = nestedDiscriminator_if.properties.a
 // #completionTest(79) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions2_if = nestedDiscriminator_if['properties'].a
 //@[004:038) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions2_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions2_if|
-//@[063:077) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[063:077) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[078:079) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". (CodeDescription: none) |a|
 // #completionTest(75) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions3_if = nestedDiscriminator_if.properties.
@@ -1281,7 +1281,7 @@ var nestedDiscriminatorCompletions3_if = nestedDiscriminator_if.properties.
 // #completionTest(78) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions4_if = nestedDiscriminator_if['properties'].
 //@[004:038) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions4_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions4_if|
-//@[063:077) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[063:077) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[078:078) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(85) -> defaultCreateModeIndexes_if
@@ -1312,7 +1312,7 @@ var nestedDiscriminatorCompletions_for = nestedDiscriminator_for[0].properties.a
 // #completionTest(84) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions2_for = nestedDiscriminator_for[0]['properties'].a
 //@[004:039) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions2_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions2_for|
-//@[068:082) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[068:082) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[083:084) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". (CodeDescription: none) |a|
 // #completionTest(80) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions3_for = nestedDiscriminator_for[0].properties.
@@ -1321,7 +1321,7 @@ var nestedDiscriminatorCompletions3_for = nestedDiscriminator_for[0].properties.
 // #completionTest(83) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions4_for = nestedDiscriminator_for[0]['properties'].
 //@[004:039) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions4_for" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions4_for|
-//@[068:082) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[068:082) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[083:083) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(90) -> defaultCreateModeIndexes_for
@@ -1352,7 +1352,7 @@ var nestedDiscriminatorCompletions_for_if = nestedDiscriminator_for_if[0].proper
 // #completionTest(90) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions2_for_if = nestedDiscriminator_for_if[0]['properties'].a
 //@[004:042) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions2_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions2_for_if|
-//@[074:088) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[074:088) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[089:090) [BCP053 (Warning)] The type "Default" does not contain property "a". Available properties include "apiProperties", "backupPolicy", "capabilities", "connectorOffer", "consistencyPolicy", "cors", "createMode", "databaseAccountOfferType", "disableKeyBasedMetadataWriteAccess", "documentEndpoint", "enableAnalyticalStorage", "enableAutomaticFailover", "enableCassandraConnector", "enableFreeTier", "enableMultipleWriteLocations", "failoverPolicies", "instanceId", "ipRules", "isVirtualNetworkFilterEnabled", "keyVaultKeyUri", "locations", "privateEndpointConnections", "provisioningState", "publicNetworkAccess", "readLocations", "restoreParameters", "virtualNetworkRules", "writeLocations". (CodeDescription: none) |a|
 // #completionTest(86) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions3_for_if = nestedDiscriminator_for_if[0].properties.
@@ -1361,7 +1361,7 @@ var nestedDiscriminatorCompletions3_for_if = nestedDiscriminator_for_if[0].prope
 // #completionTest(89) -> defaultCreateModeProperties
 var nestedDiscriminatorCompletions4_for_if = nestedDiscriminator_for_if[0]['properties'].
 //@[004:042) [no-unused-vars (Warning)] Variable "nestedDiscriminatorCompletions4_for_if" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedDiscriminatorCompletions4_for_if|
-//@[074:088) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['properties']|
+//@[074:088) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['properties']|
 //@[089:089) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // #completionTest(96) -> defaultCreateModeIndexes_for_if
