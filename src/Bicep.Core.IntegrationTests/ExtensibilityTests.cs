@@ -397,16 +397,11 @@ Hello from Bicep!"));
         [TestMethod]
         public void params_file_end_to_end_test()
         {
-//           var result = CompilationHelper. CompileParameters(GetCompilationContext(),
-//                   ("main.bicep", @"
-// param paramTest = 'test value'
-// "),
-//                 ("blob.txt", @"
-// Hello from Bicep!"));
 
-//             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+//           string paramsInput = @"
+// param paramTest = 'test value'";
 
-//             result.Template.Should().DeepEqual(JToken.Parse(@"
+//           string jsonOuput = @"
 // {
 //   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
 //   ""contentVersion"": ""1.0.0.0"",
@@ -415,7 +410,7 @@ Hello from Bicep!"));
 //       ""value"": ""test value""
 //     }
 //   }
-// }"));
+// }";
 
         }
     }
