@@ -142,7 +142,14 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
 
       - name: Build BicepInVisualStudio.sln
-        run: msbuild BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
+        run: msbuild BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=${{ matrix.configuration }}
+
+      - name: Upload BicepLanguageServerClient VSIX
+        uses: actions/upload-artifact@v3
+        with:
+          name: Bicep.VSLanguageServerClient.Vsix.vsix
+          path: bin\${{ matrix.configuration }}\Bicep.VSLanguageServerClient.Vsix.vsix
+          if-no-files-found: error
 
   can-run-live-tests:
     name: Check secret access
