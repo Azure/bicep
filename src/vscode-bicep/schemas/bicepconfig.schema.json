@@ -362,10 +362,10 @@
                     }
                   ]
                 },
-                "prefer-property-names-no-quotation": {
+                "prefer-unquoted-property-names": {
                   "allOf": [
                     {
-                      "description": "Properties that are valid identifiers should be declared without quotations and accessed using dot notation. See https://aka.ms/bicep/linter/prefer-property-names-no-quotation"
+                      "description": "Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. See https://aka.ms/bicep/linter/prefer-unquoted-property-names"
                     },
                     {
                       "$ref": "#/definitions/rule"

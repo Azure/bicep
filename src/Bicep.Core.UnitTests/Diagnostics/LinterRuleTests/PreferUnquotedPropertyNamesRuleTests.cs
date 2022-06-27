@@ -12,16 +12,16 @@ using System.Linq;
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public class PreferPropertyNamesNoQuotationRuleTests : LinterRuleTestsBase
+    public class PreferUnquotedPropertyNamesRuleTests : LinterRuleTestsBase
     {
         private void ExpectPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
         {
-            AssertLinterRuleDiagnostics(PreferPropertyNamesNoQuotationRule.Code, text, Array.Empty<string>(), onCompileErrors);
+            AssertLinterRuleDiagnostics(PreferUnquotedPropertyNamesRule.Code, text, Array.Empty<string>(), onCompileErrors);
         }
 
         private void ExpectDiagnosticWithFix(string text, string expectedFix)
         {
-            AssertLinterRuleDiagnostics(PreferPropertyNamesNoQuotationRule.Code, text, diags =>
+            AssertLinterRuleDiagnostics(PreferUnquotedPropertyNamesRule.Code, text, diags =>
             {
                 diags.Should().HaveCount(1, $"expected one fix per testcase");
 

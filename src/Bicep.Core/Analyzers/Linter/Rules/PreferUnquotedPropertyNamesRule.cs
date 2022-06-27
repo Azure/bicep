@@ -14,13 +14,13 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class PreferPropertyNamesNoQuotationRule : LinterRuleBase
+    public sealed class PreferUnquotedPropertyNamesRule : LinterRuleBase
     {
-        public new const string Code = "prefer-property-names-no-quotation";
+        public new const string Code = "prefer-unquoted-property-names";
 
-        public PreferPropertyNamesNoQuotationRule() : base(
+        public PreferUnquotedPropertyNamesRule() : base(
             code: Code,
-            description: CoreResources.PreferPropertyNamesNoQuotationRuleDescription,
+            description: CoreResources.PreferUnquotedPropertyNamesRuleDescription,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 
@@ -46,7 +46,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 if (TryGetValidIdentifierToken(syntax.Key, out string? literal))
                 {
-                    AddCodeFix(syntax.Key.Span, literal, string.Format(CoreResources.PreferPropertyNamesNoQuotationDeclarationFixTitle, literal));
+                    AddCodeFix(syntax.Key.Span, literal, string.Format(CoreResources.PreferUnquotedPropertyNamesDeclarationFixTitle, literal));
                 }
 
                 base.VisitObjectPropertySyntax(syntax);
@@ -57,7 +57,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 if (TryGetValidIdentifierToken(syntax.IndexExpression, out string? literal))
                 {
                     var replacement = $".{literal}";
-                    var message = string.Format(CoreResources.PreferPropertyNamesNoQuotationDereferenceFixTitle, $"{syntax.BaseExpression.ToText()}{replacement}");
+                    var message = string.Format(CoreResources.PreferUnquotedPropertyNamesDereferenceFixTitle, $"{syntax.BaseExpression.ToText()}{replacement}");
                     AddCodeFix(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare), replacement, message);
                 }
 
