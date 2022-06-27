@@ -79,7 +79,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetParamsData), DynamicDataSourceType.Method)]
-        public async Task Correct_semantic_tokens_are_returned_for_params_file(string text, TextSpan[] spans, string[] tokenTypeStrs)
+        public async Task Correct_semantic_tokens_are_returned_for_params_file(string text, TextSpan[] spans, SemanticTokenType[] tokenType)
         {
             var uri = new Uri($"file://{TestContext.TestName}_{Guid.NewGuid():D}/main.bicepparam");
             var helper = await DefaultServer.GetAsync();
@@ -101,8 +101,8 @@ namespace Bicep.LangServer.IntegrationTests
                 returnedSpan.Position.Should().Be(expectedSpan.Position);
                 returnedSpan.Length.Should().Be(expectedSpan.Length);
 
-                string returnedType = tokenInfos[i].Type.ToString();
-                string expectedType = tokenTypeStrs[i];
+                SemanticTokenType returnedType = tokenInfos[i].Type;
+                SemanticTokenType expectedType = tokenType[i];
 
                 returnedType.Should().Be(expectedType);
             }
@@ -147,11 +147,11 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static IEnumerable<object[]> GetParamsData()
         {
-            yield return new object[] { "using './bicep.main' \n", new TextSpan[] { new TextSpan(0, 5) }, new string[] {"keyword"} };
-            yield return new object[] { "param myint = 12 \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 5)}, new string[] {"keyword", "variable"}};
+            yield return new object[] { "using './bicep.main' \n", new TextSpan[] { new TextSpan(0, 5) }, new SemanticTokenType[] {SemanticTokenType.Keyword} };
+            yield return new object[] { "param myint = 12 \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 5)}, new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.Variable}};
             yield return new object[] { "using './bicep.main' \n param myint = 12 \n param mystr = 'test'", 
                                         new TextSpan[] { new TextSpan(0, 5), new TextSpan(23, 5), new TextSpan(29, 5), new TextSpan(42, 5), new TextSpan(48, 5)}, 
-                                        new string[] {"keyword", "keyword", "variable", "keyword", "variable"}};
+                                        new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.Keyword, SemanticTokenType.Variable}};
         }
     }
 }
