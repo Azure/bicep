@@ -3599,5 +3599,63 @@ resource container_ActorColdStorage 'Microsoft.DocumentDB/databaseAccounts/sqlDa
                 ("BCP240", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported.")
             });
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/7271
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue7271()
+        {
+            var result = CompilationHelper.Compile(@"
+var less           = any(1) < any(2)
+var lessOrEqual    = any(1) <= any(2)
+var greater        = any(1) > any(2)
+var greaterOrEqual = any(1) >= any(2)");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/6951
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue6951()
+        {
+            const string Main = @"
+param SfAppCertificateSubjectNames array
+
+module SfAppCertificates './certificate-generation.bicep' = [for cert in SfAppCertificateSubjectNames: {
+  name: 'sfdsf'
+  params: {
+    
+  }
+}]
+
+var nodeTypes = []
+
+resource SFNodeTypes 'Microsoft.ServiceFabric/managedClusters/nodeTypes@2022-02-01-preview' = [for node in nodeTypes: if (node.instanceCount > 0) {
+  name: node.name
+  parent: SF
+  properties: {
+    //...
+    vmSecrets: [for (subjectName, i) in SfAppCertificateSubjectNames if (contains(SfAppCertificateSubjectNames[i].targetNodeTypes, node.name)): {
+      sourceVault: {
+        id: resourceId('Microsoft.KeyVault/vaults', SfAppCertificates[i].outputs.KeyVaultName)
+      }
+      vaultCertificates: [
+        {
+          certificateStore: 'My'
+          certificateUrl: SfAppCertificates[i].outputs.PublicCertificateUrl
+        }
+      ]
+    }]
+  }
+}]
+";
+            var result = CompilationHelper.Compile(("main.bicep", Main), ("certificate-generation.bicep", string.Empty));
+
+            // the above snippet is malformed but should not throw
+            result.Diagnostics.Should().NotBeEmpty();
+        }
     }
 }

@@ -117,8 +117,8 @@
       },
       "Azure.Deployments.Core": {
         "type": "Transitive",
-        "resolved": "1.0.594",
-        "contentHash": "e6HS0qT/wi+KZX63aNe3+8tJxqLrKkwcWF8mvk0AFzQiAVx0HxS/36ghITOwXNch3sDJvCONTZPiUnQQ9kj6zA==",
+        "resolved": "1.0.635",
+        "contentHash": "K6rePAyDh2hes6OPK9MkxfAtEgfYIXSiBNfJn3VxH7O3/aq2l0it7TXcKjGbQDn0hBoxBkFCysm/sjL8xMSV2g==",
         "dependencies": {
           "Microsoft.PowerPlatform.ResourceStack": "6.0.0.1323",
           "Newtonsoft.Json": "11.0.2",
@@ -127,20 +127,20 @@
       },
       "Azure.Deployments.Expression": {
         "type": "Transitive",
-        "resolved": "1.0.594",
-        "contentHash": "Uj+sz/GecPkEelKa9OJfCMryxXRMvYi7rOl9+xa9KoZqItRotxdzGj9IHU2bciu0R8GQ+L9U9iQNBFhBneP9Nw==",
+        "resolved": "1.0.635",
+        "contentHash": "ce73OMZeYkbPlFuCePQlgWBwnd/IARyxFqRYXFRtaW0W5UX70dhbGKN8aKwq8fE8Ery1HpQ8RyeKwV1GfiPVIA==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.0.594",
+          "Azure.Deployments.Core": "1.0.635",
           "Newtonsoft.Json": "11.0.2"
         }
       },
       "Azure.Deployments.Templates": {
         "type": "Transitive",
-        "resolved": "1.0.594",
-        "contentHash": "TXyxoWAlGH07mIqF8Rn7hrK5ytuOfIL2AZEZjAYtOpzUWHPNHpkj2rBE06WL9w7BkHo4g63s0KQzNzvjA0AQig==",
+        "resolved": "1.0.635",
+        "contentHash": "8Hc8+Kl61vPcEc6mjToyPeU77XA+BpZulSQVSLvZ7pZoFzucMe5OCpZoFbfnhI65P6FNVfSNfyZ6ObYWIW4EkQ==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.0.594",
-          "Azure.Deployments.Expression": "1.0.594",
+          "Azure.Deployments.Core": "1.0.635",
+          "Azure.Deployments.Expression": "1.0.635",
           "Newtonsoft.Json": "11.0.2"
         }
       },
@@ -169,8 +169,8 @@
       },
       "Azure.ResourceManager.Resources": {
         "type": "Transitive",
-        "resolved": "1.0.0",
-        "contentHash": "oNQRWfh05v9BiY8DMQjV+++kVafR+3ry2FGfMKObovKNfAb4i5J6DQpv0CUIx4jeIZe0fnhxyXRRCe293YtMqw==",
+        "resolved": "1.1.0",
+        "contentHash": "TUgp2ygf/L+eCVdPvDEqaTfjsPl8AfW27CPukNorPcqz3pGg1Gv53AejiSMRzUEB1dr3wu3hA1vz3idsYKFrqQ==",
         "dependencies": {
           "Azure.Core": "1.24.0",
           "Azure.ResourceManager": "1.0.0",
@@ -2015,11 +2015,11 @@
           "Azure.Bicep.Types.Az": "0.1.538",
           "Azure.Bicep.Types.K8s": "0.1.11",
           "Azure.Containers.ContainerRegistry": "1.1.0-beta.4",
-          "Azure.Deployments.Core": "1.0.594",
-          "Azure.Deployments.Expression": "1.0.594",
-          "Azure.Deployments.Templates": "1.0.594",
+          "Azure.Deployments.Core": "1.0.635",
+          "Azure.Deployments.Expression": "1.0.635",
+          "Azure.Deployments.Templates": "1.0.635",
           "Azure.Identity": "1.6.0",
-          "Azure.ResourceManager.Resources": "1.0.0",
+          "Azure.ResourceManager.Resources": "1.1.0",
           "JsonPatch.Net": "1.1.2",
           "JsonPath.Net": "0.2.1",
           "Microsoft.Extensions.Configuration": "6.0.1",

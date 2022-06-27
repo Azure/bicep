@@ -2,9 +2,9 @@ name: Build
 
 on:
   push:
-    branches: [main]
+    branches: [main, Bicep-params-file]
   pull_request:
-    branches: [main]
+    branches: [main, Bicep-params-file]
   workflow_dispatch:
 
 permissions:
