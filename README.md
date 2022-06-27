@@ -36,11 +36,11 @@ To get going with Bicep:
 1. **Start by [installing the tooling](https://docs.microsoft.com/azure/azure-resource-manager/bicep/install).**
 2. **Complete the [Bicep Learning Path](https://docs.microsoft.com/learn/paths/bicep-deploy/)**
 
-Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo) or use the [VS Code Devcontainer/Codespaces](https://github.com/Azure/vscode-remote-try-bicep) repo to get a preconfigured environment.
+Alternatively, you can use the [VS Code Devcontainer/Codespaces](https://github.com/Azure/vscode-remote-try-bicep) repo to get a preconfigured environment.
 
 If you have an existing ARM Template or set of resources that you would like to convert to `.bicep` format, see [Decompiling an ARM Template](https://docs.microsoft.com/azure/azure-resource-manager/bicep/decompile).
 
-Also, there is a rich library of [examples](https://github.com/Azure/bicep/tree/main/docs/examples) to help you get started.
+Also, there is a rich library of examples in the [azure-quickstart-templates](https://github.com/Azure/azure-quickstart-templates) repo to help you get started.
 
 ## How does Bicep work?
 

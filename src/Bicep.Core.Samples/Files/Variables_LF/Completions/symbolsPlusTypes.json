@@ -2230,6 +2230,34 @@
     }
   },
   {
+    "label": "providersTest",
+    "kind": "variable",
+    "detail": "providersTest",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_providersTest",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "providersTest"
+    }
+  },
+  {
+    "label": "providersTest2",
+    "kind": "variable",
+    "detail": "providersTest2",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_providersTest2",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "providersTest2"
+    }
+  },
+  {
     "label": "range",
     "kind": "function",
     "documentation": {

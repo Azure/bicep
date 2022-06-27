@@ -77,6 +77,18 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Value);
             });
 
+        public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax) =>
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.ProviderName);
+                this.Visit(syntax.AsKeyword);
+                this.Visit(syntax.AliasName);
+                this.Visit(syntax.Config);
+            });
+
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax) =>
             this.BuildStatement(syntax, () =>
             {

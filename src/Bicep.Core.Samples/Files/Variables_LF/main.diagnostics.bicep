@@ -405,6 +405,13 @@ module.exports = function (context) {
 }
 '''
 
+var providersTest = providers('Microsoft.Resources').namespace
+//@[04:17) [no-unused-vars (Warning)] Variable "providersTest" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |providersTest|
+//@[20:29) [BCP241 (Warning)] The "providers" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow. (CodeDescription: none) |providers|
+var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
+//@[04:18) [no-unused-vars (Warning)] Variable "providersTest2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |providersTest2|
+//@[21:30) [BCP241 (Warning)] The "providers" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow. (CodeDescription: none) |providers|
+
 var copyBlockInObject = {
 //@[04:21) [no-unused-vars (Warning)] Variable "copyBlockInObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |copyBlockInObject|
   copy: [
