@@ -91,41 +91,6 @@ jobs:
         if: matrix.publishPackages
         run: dotnet pack Bicep.sln --configuration ${{ matrix.configuration }}
 
-      - name: Test
-        if: matrix.runTests
-        run: dotnet test Bicep.sln --configuration ${{ matrix.configuration }} --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
-
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v3
-        if: always() && matrix.runTests
-        with:
-          name: Bicep.TestResults.${{ matrix.rid }}
-          path: ./TestResults/**/*.trx
-          if-no-files-found: error
-
-      - name: Publish Language Server
-        if: matrix.publishLanguageServer
-        run: dotnet publish --configuration ${{ matrix.configuration }} ./src/Bicep.LangServer/Bicep.LangServer.csproj
-
-      - name: Publish Bicep
-        run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
-
-      - name: Run Bicep E2E Tests
-        if: matrix.rid != 'linux-musl-x64' && matrix.runTests
-        run: npm ci && npm test
-        env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
-        working-directory: ./src/Bicep.Cli.E2eTests
-
-      - name: Run Bicep E2E Tests (linux-musl-x64)
-        if: matrix.rid == 'linux-musl-x64' && matrix.runTests
-        uses: docker://mcr.microsoft.com/azure-cli:latest
-        with:
-          entrypoint: sh
-          args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
-        env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
-
       - name: Upload Language Server
         uses: actions/upload-artifact@v3
         if: matrix.publishLanguageServer
@@ -154,6 +119,23 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           flags: dotnet
+
+  build-bicep-in-visual-studio:
+    name: Build bicep in visual studio
+    runs-on: windows-latest
+    needs: build-bicep
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Build BicepInVisualStudio.sln
+        run: msbuild BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
 
   can-run-live-tests:
     name: Check secret access
@@ -268,23 +250,6 @@ jobs:
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
-
-  build-bicep-in-visual-studio:
-    name: Build bicep in visual studio
-    runs-on: windows-latest
-    needs: build-bicep
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
-          submodules: true
-
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
-
-      - name: Build app for release
-        run: msbuild BicepInVisualStudio.sln -t:rebuild -verbosity:diag -property:Configuration=Release
 
   build-windows-setup:
     name: Build Windows Setup
