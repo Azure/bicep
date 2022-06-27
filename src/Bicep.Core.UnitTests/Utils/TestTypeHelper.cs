@@ -62,7 +62,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .Concat(new TypeProperty("properties", new ObjectType("properties", validationFlags, customProperties, null), TypePropertyFlags.Required));
 
             var bodyType = new ObjectType(reference.FormatName(), validationFlags, resourceProperties, null);
-            return new ResourceTypeComponents(reference, ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource, bodyType);
+            return new ResourceTypeComponents(reference, ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource, ResourceScope.None, ResourceFlags.None, bodyType);
         }
 
         public static ObjectType CreateObjectType(string name, params (string name, ITypeReference type)[] properties)
