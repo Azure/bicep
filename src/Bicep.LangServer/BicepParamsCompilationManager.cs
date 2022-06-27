@@ -2,13 +2,17 @@
 // Licensed under the MIT License.
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Bicep.Core.Parsing;
+using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using Bicep.LanguageServer.Extensions;
+using Bicep.Core.Diagnostics;
 
 namespace Bicep.LanguageServer
 {
@@ -36,13 +40,11 @@ namespace Bicep.LanguageServer
             var programSyntax = parser.Program();
             var lineStarts = TextCoordinateConverter.GetLineStarts(text);
 
-            this.activeContexts.AddOrUpdate(uri, 
+            var foo = this.activeContexts.AddOrUpdate(uri, 
             (uri) => new ParamsCompilationContext(programSyntax, lineStarts), 
             (uri, prevContext) => new ParamsCompilationContext(programSyntax, lineStarts));
 
-            //Publishing empty diagnostics for integration tests
-            //TODO: Publish real diagnostics when we have implemented real validations 
-            this.PublishEmptyDocumentDiagnostics(uri, version);  
+            this.PublishDocumentDiagnostics(uri, version, foo.ProgramSyntax.GetParseDiagnostics(),lineStarts);  
         } 
 
         public void CloseCompilation(DocumentUri uri)
@@ -56,13 +58,13 @@ namespace Bicep.LanguageServer
             return context;
         }
 
-        private void PublishEmptyDocumentDiagnostics(DocumentUri uri, int? version)
-        {
+        private void PublishDocumentDiagnostics(DocumentUri uri, int? version, IEnumerable<IDiagnostic> diagnostics, ImmutableArray<int> lineStarts)
+        {   
             server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
             {
                 Uri = uri,
                 Version = version,
-                Diagnostics = new Container<Diagnostic>()
+                Diagnostics = new (diagnostics.ToDiagnostics(lineStarts))
             });
         }
     }
