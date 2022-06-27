@@ -1786,6 +1786,45 @@ module.exports = function (context) {
 '''
 //@[003:005) NewLine |\n\n|
 
+var providersTest = providers('Microsoft.Resources').namespace
+//@[000:003) Identifier |var|
+//@[004:017) Identifier |providersTest|
+//@[018:019) Assignment |=|
+//@[020:029) Identifier |providers|
+//@[029:030) LeftParen |(|
+//@[030:051) StringComplete |'Microsoft.Resources'|
+//@[051:052) RightParen |)|
+//@[052:053) Dot |.|
+//@[053:062) Identifier |namespace|
+//@[062:063) NewLine |\n|
+var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
+//@[000:003) Identifier |var|
+//@[004:018) Identifier |providersTest2|
+//@[019:020) Assignment |=|
+//@[021:030) Identifier |providers|
+//@[030:031) LeftParen |(|
+//@[031:052) StringComplete |'Microsoft.Resources'|
+//@[052:053) Comma |,|
+//@[054:067) StringComplete |'deployments'|
+//@[067:068) RightParen |)|
+//@[068:069) Dot |.|
+//@[069:078) Identifier |locations|
+//@[078:080) NewLine |\n\n|
+
+var pickZonesTest = pickZones('Microsoft.Resources', 'deployments', 'West US')
+//@[000:003) Identifier |var|
+//@[004:017) Identifier |pickZonesTest|
+//@[018:019) Assignment |=|
+//@[020:029) Identifier |pickZones|
+//@[029:030) LeftParen |(|
+//@[030:051) StringComplete |'Microsoft.Resources'|
+//@[051:052) Comma |,|
+//@[053:066) StringComplete |'deployments'|
+//@[066:067) Comma |,|
+//@[068:077) StringComplete |'West US'|
+//@[077:078) RightParen |)|
+//@[078:080) NewLine |\n\n|
+
 var copyBlockInObject = {
 //@[000:003) Identifier |var|
 //@[004:021) Identifier |copyBlockInObject|

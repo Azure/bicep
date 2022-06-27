@@ -323,6 +323,11 @@ module.exports = function (context) {
 }
 '''
 
+var providersTest = providers('Microsoft.Resources').namespace
+var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
+
+var pickZonesTest = pickZones('Microsoft.Resources', 'deployments', 'West US')
+
 var copyBlockInObject = {
   copy: [
     {

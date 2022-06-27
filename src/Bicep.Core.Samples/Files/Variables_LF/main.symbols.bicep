@@ -442,6 +442,14 @@ module.exports = function (context) {
 }
 '''
 
+var providersTest = providers('Microsoft.Resources').namespace
+//@[04:17) Variable providersTest. Type: string. Declaration start char: 0, length: 62
+var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
+//@[04:18) Variable providersTest2. Type: string[]. Declaration start char: 0, length: 78
+
+var pickZonesTest = pickZones('Microsoft.Resources', 'deployments', 'West US')
+//@[04:17) Variable pickZonesTest. Type: array. Declaration start char: 0, length: 78
+
 var copyBlockInObject = {
 //@[04:21) Variable copyBlockInObject. Type: object. Declaration start char: 0, length: 120
   copy: [

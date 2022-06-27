@@ -1,5 +1,5 @@
 
-//@[000:7297) ProgramSyntax
+//@[000:7520) ProgramSyntax
 //@[000:0001) ├─Token(NewLine) |\n|
 // int
 //@[006:0007) ├─Token(NewLine) |\n|
@@ -2837,6 +2837,73 @@ module.exports = function (context) {
 }
 '''
 //@[003:0005) ├─Token(NewLine) |\n\n|
+
+var providersTest = providers('Microsoft.Resources').namespace
+//@[000:0062) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0017) | ├─IdentifierSyntax
+//@[004:0017) | | └─Token(Identifier) |providersTest|
+//@[018:0019) | ├─Token(Assignment) |=|
+//@[020:0062) | └─PropertyAccessSyntax
+//@[020:0052) | | ├─FunctionCallSyntax
+//@[020:0029) | | | ├─IdentifierSyntax
+//@[020:0029) | | | | └─Token(Identifier) |providers|
+//@[029:0030) | | | ├─Token(LeftParen) |(|
+//@[030:0051) | | | ├─FunctionArgumentSyntax
+//@[030:0051) | | | | └─StringSyntax
+//@[030:0051) | | | | | └─Token(StringComplete) |'Microsoft.Resources'|
+//@[051:0052) | | | └─Token(RightParen) |)|
+//@[052:0053) | | ├─Token(Dot) |.|
+//@[053:0062) | | └─IdentifierSyntax
+//@[053:0062) | | | └─Token(Identifier) |namespace|
+//@[062:0063) ├─Token(NewLine) |\n|
+var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
+//@[000:0078) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0018) | ├─IdentifierSyntax
+//@[004:0018) | | └─Token(Identifier) |providersTest2|
+//@[019:0020) | ├─Token(Assignment) |=|
+//@[021:0078) | └─PropertyAccessSyntax
+//@[021:0068) | | ├─FunctionCallSyntax
+//@[021:0030) | | | ├─IdentifierSyntax
+//@[021:0030) | | | | └─Token(Identifier) |providers|
+//@[030:0031) | | | ├─Token(LeftParen) |(|
+//@[031:0052) | | | ├─FunctionArgumentSyntax
+//@[031:0052) | | | | └─StringSyntax
+//@[031:0052) | | | | | └─Token(StringComplete) |'Microsoft.Resources'|
+//@[052:0053) | | | ├─Token(Comma) |,|
+//@[054:0067) | | | ├─FunctionArgumentSyntax
+//@[054:0067) | | | | └─StringSyntax
+//@[054:0067) | | | | | └─Token(StringComplete) |'deployments'|
+//@[067:0068) | | | └─Token(RightParen) |)|
+//@[068:0069) | | ├─Token(Dot) |.|
+//@[069:0078) | | └─IdentifierSyntax
+//@[069:0078) | | | └─Token(Identifier) |locations|
+//@[078:0080) ├─Token(NewLine) |\n\n|
+
+var pickZonesTest = pickZones('Microsoft.Resources', 'deployments', 'West US')
+//@[000:0078) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0017) | ├─IdentifierSyntax
+//@[004:0017) | | └─Token(Identifier) |pickZonesTest|
+//@[018:0019) | ├─Token(Assignment) |=|
+//@[020:0078) | └─FunctionCallSyntax
+//@[020:0029) | | ├─IdentifierSyntax
+//@[020:0029) | | | └─Token(Identifier) |pickZones|
+//@[029:0030) | | ├─Token(LeftParen) |(|
+//@[030:0051) | | ├─FunctionArgumentSyntax
+//@[030:0051) | | | └─StringSyntax
+//@[030:0051) | | | | └─Token(StringComplete) |'Microsoft.Resources'|
+//@[051:0052) | | ├─Token(Comma) |,|
+//@[053:0066) | | ├─FunctionArgumentSyntax
+//@[053:0066) | | | └─StringSyntax
+//@[053:0066) | | | | └─Token(StringComplete) |'deployments'|
+//@[066:0067) | | ├─Token(Comma) |,|
+//@[068:0077) | | ├─FunctionArgumentSyntax
+//@[068:0077) | | | └─StringSyntax
+//@[068:0077) | | | | └─Token(StringComplete) |'West US'|
+//@[077:0078) | | └─Token(RightParen) |)|
+//@[078:0080) ├─Token(NewLine) |\n\n|
 
 var copyBlockInObject = {
 //@[000:0120) ├─VariableDeclarationSyntax
