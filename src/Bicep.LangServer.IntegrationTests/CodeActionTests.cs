@@ -95,48 +95,55 @@ namespace Bicep.LangServer.IntegrationTests
 
             // construct a parallel compilation
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
-            var fixables = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().OfType<IFixable>();
+            var fixables = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().OfType<IFixable>().ToList();
 
             foreach (var fixable in fixables)
             {
                 foreach (var span in GetOverlappingSpans(fixable.Span))
                 {
+                    var range = span.ToRange(lineStarts);
                     var quickFixes = await client.RequestCodeAction(new CodeActionParams
                     {
                         TextDocument = new TextDocumentIdentifier(uri),
-                        Range = span.ToRange(lineStarts),
+                        Range = range,
                     });
 
                     // Assert.
                     quickFixes.Should().NotBeNull();
 
+                    var bicepFixes = fixables.Where(f => TextSpan.AreOverlapping(span, f.Span) || TextSpan.AreNeighbors(span, f.Span) || TextSpan.AreNeighbors(f.Span, span)).SelectMany(f => f.Fixes).ToHashSet();
                     var quickFixList = quickFixes.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
-                    var bicepFixList = fixable.Fixes.ToList();
 
-                    quickFixList.Should().HaveSameCount(bicepFixList);
+                    quickFixList.Should().HaveSameCount(bicepFixes);
 
                     for (int i = 0; i < quickFixList.Count; i++)
                     {
                         var quickFix = quickFixList[i];
-                        var bicepFix = bicepFixList[i];
 
                         quickFix.IsCodeAction.Should().BeTrue();
                         quickFix.CodeAction!.Kind.Should().Be(CodeActionKind.QuickFix);
-                        quickFix.CodeAction.Title.Should().Be(bicepFix.Description);
                         quickFix.CodeAction.Edit!.Changes.Should().ContainKey(uri);
 
                         var textEditList = quickFix.CodeAction.Edit.Changes![uri].ToList();
-                        var replacementList = bicepFix.Replacements.ToList();
 
-                        for (int j = 0; j < textEditList.Count; j++)
+                        bicepFixes.RemoveWhere(fix =>
                         {
-                            var textEdit = textEditList[j];
-                            var replacement = replacementList[j];
+                            if (fix.Description != quickFix.CodeAction.Title)
+                            {
+                                return false;
+                            }
 
-                            textEdit.Range.Should().Be(replacement.ToRange(lineStarts));
-                            textEdit.NewText.Should().Be(replacement.Text);
-                        }
+                            var replacementSet = fix.Replacements.ToHashSet();
+                            foreach (var edit in textEditList)
+                            {
+                                replacementSet.RemoveWhere(replacement => edit.Range == replacement.ToRange(lineStarts) && edit.NewText == replacement.Text);
+                            }
+
+                            return replacementSet.Count == 0;
+                        }).Should().Be(1, "No matching fix found.");
                     }
+
+                    bicepFixes.Count.Should().Be(0);
                 }
             }
         }
