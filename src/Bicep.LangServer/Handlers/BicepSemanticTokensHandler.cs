@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core;
+using Bicep.Core.FileSystem;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.Logging;
@@ -15,14 +17,16 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly ILogger<BicepSemanticTokensHandler> logger;
         private readonly ICompilationManager compilationManager;
+        private readonly IParamsCompilationManager paramsCompilationManager;
 
         // TODO: Not sure if this needs to be shared.
         private readonly SemanticTokensLegend legend = new();
 
-        public BicepSemanticTokensHandler(ILogger<BicepSemanticTokensHandler> logger, ICompilationManager compilationManager)
+        public BicepSemanticTokensHandler(ILogger<BicepSemanticTokensHandler> logger, ICompilationManager compilationManager, IParamsCompilationManager paramsCompilationManager)
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
+            this.paramsCompilationManager = paramsCompilationManager;
         }
 
         protected override Task<SemanticTokensDocument> GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken)
@@ -32,13 +36,24 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override Task Tokenize(SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier, CancellationToken cancellationToken)
         {
-            //TODO: add info to distinguish b/w bicep and params files 
-            var compilationContext = this.compilationManager.GetCompilation(identifier.TextDocument.Uri);
+            var documentUri = identifier.TextDocument.Uri;
 
-            if (compilationContext != null)
+            if (PathHelper.HasExtension(documentUri.ToUri(), LanguageConstants.ParamsFileExtension))
             {
-                SemanticTokenVisitor.BuildSemanticTokens(builder, compilationContext.Compilation.SourceFileGrouping.EntryPoint);
+                var compilationContext = this.paramsCompilationManager.GetCompilation(identifier.TextDocument.Uri);
+                if (compilationContext != null)
+                {
+                    SemanticTokenVisitor.BuildSemanticTokens(builder, compilationContext.ProgramSyntax, compilationContext.LineStarts);
+                }
             }
+            else
+            {
+                var compilationContext = this.compilationManager.GetCompilation(identifier.TextDocument.Uri);
+                if (compilationContext != null)
+                {
+                    SemanticTokenVisitor.BuildSemanticTokens(builder, compilationContext.Compilation.SourceFileGrouping.EntryPoint);
+                }
+            }            
 
             return Task.CompletedTask;
         }

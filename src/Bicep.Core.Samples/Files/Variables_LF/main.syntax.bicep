@@ -1,5 +1,5 @@
 
-//@[000:7241) ProgramSyntax
+//@[000:7297) ProgramSyntax
 //@[000:0001) ├─Token(NewLine) |\n|
 // int
 //@[006:0007) ├─Token(NewLine) |\n|
@@ -2893,4 +2893,38 @@ var copyBlockInObject = {
 //@[003:0004) | | ├─Token(NewLine) |\n|
 }
 //@[000:0001) | | └─Token(RightBrace) |}|
-//@[001:0001) └─Token(EndOfFile) ||
+//@[001:0003) ├─Token(NewLine) |\n\n|
+
+var joinedString = join(['I', 'love', 'Bicep!'], ' ')
+//@[000:0053) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0016) | ├─IdentifierSyntax
+//@[004:0016) | | └─Token(Identifier) |joinedString|
+//@[017:0018) | ├─Token(Assignment) |=|
+//@[019:0053) | └─FunctionCallSyntax
+//@[019:0023) | | ├─IdentifierSyntax
+//@[019:0023) | | | └─Token(Identifier) |join|
+//@[023:0024) | | ├─Token(LeftParen) |(|
+//@[024:0047) | | ├─FunctionArgumentSyntax
+//@[024:0047) | | | └─ArraySyntax
+//@[024:0025) | | | | ├─Token(LeftSquare) |[|
+//@[025:0028) | | | | ├─ArrayItemSyntax
+//@[025:0028) | | | | | └─StringSyntax
+//@[025:0028) | | | | | | └─Token(StringComplete) |'I'|
+//@[028:0029) | | | | ├─Token(Comma) |,|
+//@[030:0036) | | | | ├─ArrayItemSyntax
+//@[030:0036) | | | | | └─StringSyntax
+//@[030:0036) | | | | | | └─Token(StringComplete) |'love'|
+//@[036:0037) | | | | ├─Token(Comma) |,|
+//@[038:0046) | | | | ├─ArrayItemSyntax
+//@[038:0046) | | | | | └─StringSyntax
+//@[038:0046) | | | | | | └─Token(StringComplete) |'Bicep!'|
+//@[046:0047) | | | | └─Token(RightSquare) |]|
+//@[047:0048) | | ├─Token(Comma) |,|
+//@[049:0052) | | ├─FunctionArgumentSyntax
+//@[049:0052) | | | └─StringSyntax
+//@[049:0052) | | | | └─Token(StringComplete) |' '|
+//@[052:0053) | | └─Token(RightParen) |)|
+//@[053:0054) ├─Token(NewLine) |\n|
+
+//@[000:0000) └─Token(EndOfFile) ||

@@ -1824,4 +1824,24 @@ var copyBlockInObject = {
 //@[003:004) NewLine |\n|
 }
 //@[000:001) RightBrace |}|
-//@[001:001) EndOfFile ||
+//@[001:003) NewLine |\n\n|
+
+var joinedString = join(['I', 'love', 'Bicep!'], ' ')
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |joinedString|
+//@[017:018) Assignment |=|
+//@[019:023) Identifier |join|
+//@[023:024) LeftParen |(|
+//@[024:025) LeftSquare |[|
+//@[025:028) StringComplete |'I'|
+//@[028:029) Comma |,|
+//@[030:036) StringComplete |'love'|
+//@[036:037) Comma |,|
+//@[038:046) StringComplete |'Bicep!'|
+//@[046:047) RightSquare |]|
+//@[047:048) Comma |,|
+//@[049:052) StringComplete |' '|
+//@[052:053) RightParen |)|
+//@[053:054) NewLine |\n|
+
+//@[000:000) EndOfFile ||
