@@ -3,7 +3,6 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 import { version as buildVersion } from './package.json';
 import path from 'path';
-import exampleIndex from '../../docs/examples/index.json';
 import { Configuration } from 'webpack';
 
 const config: Configuration = {
@@ -37,8 +36,6 @@ const config: Configuration = {
       patterns: [
         // copy across the Blazor code for the compiler
         { from: '../Bicep.Wasm/bin/Release/net6.0/wwwroot/_framework', to: './_framework/' },
-        // copy all the examples so that they can be loaded by the frontend
-        ...exampleIndex.map(({ filePath }) => ({ from: `../../docs/examples/${filePath}`, to: `./examples/${filePath}`})),
       ],
     }),
     new HtmlWebpackPlugin({

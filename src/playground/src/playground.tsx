@@ -1,10 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, ButtonGroup, Col, Container, Dropdown, FormControl, Nav, Navbar, OverlayTrigger, Row, Spinner, Tooltip } from 'react-bootstrap';
+import { Button, Container, Nav, Navbar, OverlayTrigger, Row, Spinner, Tooltip } from 'react-bootstrap';
 
 import './playground.css';
-import examples from '../../../docs/examples/index.json';
 import { JsonEditor } from './jsonEditor';
 import { BicepEditor } from './bicepEditor';
 import { copyShareLinkToClipboard, handleShareLink } from './utils';
@@ -16,7 +15,6 @@ export const Playground : React.FC = () => {
   const [initialContent, setInitialContent] = useState('');
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [filterText, setFilterText] = useState('');
   const uploadInputRef = useRef<HTMLInputElement>();
 
   async function withLoader(action: () => Promise<void>) {
@@ -26,19 +24,6 @@ export const Playground : React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }
-
-  async function loadExample(filePath: string) {
-    withLoader(async () => {
-      const response = await fetch(`examples/${filePath}`);
-
-      if (!response.ok) {
-        throw response.text();
-      }
-
-      const bicepText = await response.text();
-      setInitialContent(bicepText);
-    });
   }
 
   useEffect(() => {
@@ -52,7 +37,7 @@ export const Playground : React.FC = () => {
       if (content !== null) {
         setInitialContent(content);
       } else {
-        loadExample('101/1vm-2nics-2subnets-1vnet/main.bicep');
+        setInitialContent('')
       }
     });
   }, []);
@@ -80,14 +65,6 @@ export const Playground : React.FC = () => {
     reader.readAsText(file);
   }
 
-  const filteredExamples = examples
-    .filter(x => x.description.toLowerCase().indexOf(filterText.toLowerCase()) !== -1)
-    .sort((a, b) => a.description > b.description ? 1 : -1);
-
-  const dropdownItems = filteredExamples.map(({ filePath, description }) => (
-    <Dropdown.Item key={filePath} eventKey={filePath} active={false}>{description}</Dropdown.Item>
-  ));
-
   const createTooltip = (text: string) => (
     <Tooltip id="button-tooltip">
       {text}
@@ -105,21 +82,6 @@ export const Playground : React.FC = () => {
         <OverlayTrigger placement="bottom" overlay={createTooltip('Upload an ARM template JSON file to decompile to Bicep')}>
           <Button size="sm" variant="primary" className="mx-1" onClick={() => uploadInputRef.current.click()}>Decompile</Button>
         </OverlayTrigger>
-        <Dropdown as={ButtonGroup} onSelect={loadExample} onToggle={() => setFilterText('')}>
-          <OverlayTrigger placement="bottom" overlay={createTooltip('Select a sample Bicep file to start')}>
-            <Dropdown.Toggle as={Button} size="sm" variant="primary" className="mx-1">Sample Template</Dropdown.Toggle>
-          </OverlayTrigger>
-          <Dropdown.Menu align="end">
-          <Col>
-            <FormControl
-              autoFocus
-              placeholder="Type to filter..."
-              onChange={(e) => setFilterText(e.target.value)}
-              value={filterText} />
-          </Col>
-            {dropdownItems}
-          </Dropdown.Menu>
-        </Dropdown>
       </Nav>
     </Navbar>
     <div className="playground-container">
