@@ -65,7 +65,7 @@
 
   <Target Name="IncludeLanguageServerDependencies" AfterTargets="GetVsixSourceItems">
     <ItemGroup>
-      <VSIXSourceItem Include="..\Bicep.LangServer\bin\**\**\*" />
+      <VSIXSourceItem Include="$(VSLanguageServerClientAssemblyPath)\*" />
     </ItemGroup>
   </Target>  
 </Project>

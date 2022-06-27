@@ -25,6 +25,12 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup>
+	<BicepProjectRoot Condition=" '$(BicepProjectRoot)' == '' ">$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))</BicepProjectRoot>
+    <BicepProjectRootBin Condition=" '$(BicepProjectRootBin)' == '' ">$(BicepProjectRoot)\bin</BicepProjectRootBin>
+    <VSLanguageServerClientAssemblyPath Condition=" '$(VSLanguageServerClientAssemblyPath)' == '' ">$(BicepProjectRootBin)\VSLanguageServerClient</VSLanguageServerClientAssemblyPath>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.5.107" PrivateAssets="All" />
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.3"  PrivateAssets="All" />
