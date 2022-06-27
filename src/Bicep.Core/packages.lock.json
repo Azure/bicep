@@ -88,9 +88,9 @@
       },
       "Azure.ResourceManager.Resources": {
         "type": "Direct",
-        "requested": "[1.0.0, )",
-        "resolved": "1.0.0",
-        "contentHash": "oNQRWfh05v9BiY8DMQjV+++kVafR+3ry2FGfMKObovKNfAb4i5J6DQpv0CUIx4jeIZe0fnhxyXRRCe293YtMqw==",
+        "requested": "[1.1.0, )",
+        "resolved": "1.1.0",
+        "contentHash": "TUgp2ygf/L+eCVdPvDEqaTfjsPl8AfW27CPukNorPcqz3pGg1Gv53AejiSMRzUEB1dr3wu3hA1vz3idsYKFrqQ==",
         "dependencies": {
           "Azure.Core": "1.24.0",
           "Azure.ResourceManager": "1.0.0",
