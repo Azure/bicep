@@ -148,7 +148,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Bicep.VSLanguageServerClient.Vsix.vsix
-          path: bin\Release\Bicep.VSLanguageServerClient.Vsix.vsix
+          path: ./src/Bicep.VSLanguageServerClient.Vsix/bin/Release/Bicep.VSLanguageServerClient.Vsix.vsix
           if-no-files-found: error
 
   can-run-live-tests:
