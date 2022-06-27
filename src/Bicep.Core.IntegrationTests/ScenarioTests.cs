@@ -3675,14 +3675,11 @@ resource SFNodeTypes 'Microsoft.ServiceFabric/managedClusters/nodeTypes@2022-02-
             var result = CompilationHelper.Compile(@"
 var providersTest = providers('Microsoft.Resources').namespace
 var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
-
-var pickZonesTest = pickZones('Microsoft.Resources', 'deployments', 'West US')
 ").ExcludingLinterDiagnostics();
 
             result.Should().HaveDiagnostics(new [] {
                 ("BCP241", DiagnosticLevel.Warning, "The \"providers\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow."),
                 ("BCP241", DiagnosticLevel.Warning, "The \"providers\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow."),
-                ("BCP241", DiagnosticLevel.Warning, "The \"pickZones\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow."),
             });
 
             result.Diagnostics.Should().OnlyContain(x => x.Styling == DiagnosticStyling.ShowCodeDeprecated);

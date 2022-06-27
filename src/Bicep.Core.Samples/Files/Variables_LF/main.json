@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4668616998812395950"
+      "templateHash": "12464920247071268950"
     }
   },
   "parameters": {
@@ -246,7 +246,6 @@
     "multilineJavaScript": "// NOT RECOMMENDED PATTERN\nconst fs = require('fs');\n\nmodule.exports = function (context) {\n    fs.readFile('./hello.txt', (err, data) => {\n        if (err) {\n            context.log.error('ERROR', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: ${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends\n    context.done();\n}\n",
     "providersTest": "[providers('Microsoft.Resources').namespace]",
     "providersTest2": "[providers('Microsoft.Resources', 'deployments').locations]",
-    "pickZonesTest": "[pickZones('Microsoft.Resources', 'deployments', 'West US')]",
     "copyBlockInObject": {
       "[string('copy')]": [
         {

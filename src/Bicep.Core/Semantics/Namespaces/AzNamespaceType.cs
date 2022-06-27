@@ -399,13 +399,13 @@ namespace Bicep.Core.Semantics.Namespaces
 
             const string providersDescription = "Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.";
             yield return new FunctionOverloadBuilder("providers")
-                .WithReturnResultBuilder(AddDiagnosticsAndReturnResult(GetProvidersSingleProviderReturnType(), x => x.DeprecatedPickZonesOrProvidersFunction("providers")), GetProvidersSingleProviderReturnType())
+                .WithReturnResultBuilder(AddDiagnosticsAndReturnResult(GetProvidersSingleProviderReturnType(), x => x.DeprecatedProvidersFunction("providers")), GetProvidersSingleProviderReturnType())
                 .WithGenericDescription(providersDescription)
                 .WithRequiredParameter("providerNamespace", LanguageConstants.String, "the namespace of the provider")
                 .Build();
 
             yield return new FunctionOverloadBuilder("providers")
-                .WithReturnResultBuilder(AddDiagnosticsAndReturnResult(GetProvidersSingleResourceReturnType(), x => x.DeprecatedPickZonesOrProvidersFunction("providers")), GetProvidersSingleResourceReturnType())
+                .WithReturnResultBuilder(AddDiagnosticsAndReturnResult(GetProvidersSingleResourceReturnType(), x => x.DeprecatedProvidersFunction("providers")), GetProvidersSingleResourceReturnType())
                 .WithGenericDescription(providersDescription)
                 .WithRequiredParameter("providerNamespace", LanguageConstants.String, "the namespace of the provider")
                 .WithRequiredParameter("resourceType", LanguageConstants.String, "The type of resource within the specified namespace")
@@ -414,7 +414,7 @@ namespace Bicep.Core.Semantics.Namespaces
             // TODO: return type is string[]
             // TODO: Location param should be of location type if we ever add it
             yield return new FunctionOverloadBuilder("pickZones")
-                .WithReturnResultBuilder(AddDiagnosticsAndReturnResult(LanguageConstants.Array, x => x.DeprecatedPickZonesOrProvidersFunction("pickZones")), LanguageConstants.Array)
+                .WithReturnType(LanguageConstants.Array)
                 .WithGenericDescription("Determines whether a resource type supports zones for a region.")
                 .WithRequiredParameter("providerNamespace", LanguageConstants.String, "The resource provider namespace for the resource type to check for zone support")
                 .WithRequiredParameter("resourceType", LanguageConstants.String, "The resource type to check for zone support")

@@ -1417,7 +1417,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP240",
                 "The \"parent\" property only permits direct references to resources. Expressions are not supported.");
 
-            public Diagnostic DeprecatedPickZonesOrProvidersFunction(string functionName) => new(
+            public Diagnostic DeprecatedProvidersFunction(string functionName) => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP241",

@@ -2139,20 +2139,6 @@
     }
   },
   {
-    "label": "pickZonesTest",
-    "kind": "variable",
-    "detail": "pickZonesTest",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_pickZonesTest",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "pickZonesTest"
-    }
-  },
-  {
     "label": "portalEndpoint",
     "kind": "variable",
     "detail": "portalEndpoint",
