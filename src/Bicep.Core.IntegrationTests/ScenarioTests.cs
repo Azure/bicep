@@ -965,7 +965,9 @@ var foo = 42
         public void Test_Issue1630()
         {
             var result = CompilationHelper.Compile(@"
+#disable-next-line BCP241
 var singleResource = providers('Microsoft.Insights', 'components')
+#disable-next-line BCP241
 var allResources = providers('Microsoft.Insights')
 
 // singleResource is an object!
@@ -1309,8 +1311,9 @@ output badArray array = [for (name, i) in jsonArrayBad : {
 param providerNamespace string = 'Microsoft.Web'
 
 output providerOutput object = {
+#disable-next-line BCP241
   thing: providers(providerNamespace)
-
+#disable-next-line BCP241
   otherThing: providers(providerNamespace, 'sites')
 }
 ");
@@ -1369,11 +1372,16 @@ output providerOutput object = {
         public void Test_Issue2009_expanded()
         {
             var result = CompilationHelper.Compile(@"
+#disable-next-line BCP241
 output providersNamespace string = providers('Test.Rp').namespace
+#disable-next-line BCP241
 output providersResources array = providers('Test.Rp').resourceTypes
 
+#disable-next-line BCP241
 output providersResourceType string = providers('Test.Rp', 'fakeResource').resourceType
+#disable-next-line BCP241
 output providersApiVersionFirst string = providers('Test.Rp', 'fakeResource').apiVersions[0]
+#disable-next-line BCP241
 output providersLocationFirst string = providers('Test.Rp', 'fakeResource').locations[0]
 ");
 
@@ -3627,7 +3635,7 @@ param SfAppCertificateSubjectNames array
 module SfAppCertificates './certificate-generation.bicep' = [for cert in SfAppCertificateSubjectNames: {
   name: 'sfdsf'
   params: {
-    
+
   }
 }]
 
@@ -3656,6 +3664,25 @@ resource SFNodeTypes 'Microsoft.ServiceFabric/managedClusters/nodeTypes@2022-02-
 
             // the above snippet is malformed but should not throw
             result.Diagnostics.Should().NotBeEmpty();
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/2017
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue2017()
+        {
+            var result = CompilationHelper.Compile(@"
+var providersTest = providers('Microsoft.Resources').namespace
+var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
+").ExcludingLinterDiagnostics();
+
+            result.Should().HaveDiagnostics(new [] {
+                ("BCP241", DiagnosticLevel.Warning, "The \"providers\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow."),
+                ("BCP241", DiagnosticLevel.Warning, "The \"providers\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow."),
+            });
+
+            result.Diagnostics.Should().OnlyContain(x => x.Styling == DiagnosticStyling.ShowCodeDeprecated);
         }
     }
 }

@@ -38,6 +38,9 @@ The Bicep solution is comprised of the following main components:
 
 Many of the bicep integration tests rely on baseline test assertion files that are checked into the repo. Code changes in some areas will require updates to the baseline assertions.
 
+#### In VSCode
+* Open the Command Palette and use `Task: Run Task` to run the task named `Update Baselines`
+
 #### Manually
 
 * If you see a test failure with a message containing Windows and *nix copy commands, you have encountered such a test. You have the following options to fix the test:
