@@ -269,6 +269,23 @@ jobs:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
 
+  build-bicep-in-visual-studio:
+    name: Build bicep in visual studio
+    runs-on: windows-latest
+    needs: build-bicep
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Build app for release
+        run: msbuild BicepInVisualStudio.sln -t:rebuild -verbosity:diag -property:Configuration=Release
+
   build-windows-setup:
     name: Build Windows Setup
     runs-on: windows-latest
