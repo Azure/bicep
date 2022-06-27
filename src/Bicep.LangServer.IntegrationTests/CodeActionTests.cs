@@ -111,17 +111,7 @@ namespace Bicep.LangServer.IntegrationTests
                     // Assert.
                     quickFixes.Should().NotBeNull();
 
-                    var spansOverlap = (IFixable f) =>
-                    {
-                        if (span.Position <= f.Span.Position)
-                        {
-                            return span.GetEndPosition() >= f.Span.Position;
-                        }
-
-                        return f.Span.GetEndPosition() >= span.Position;
-                    };
-
-                    var bicepFixes = fixables.Where(spansOverlap).SelectMany(f => f.Fixes).ToHashSet();
+                    var bicepFixes = fixables.Where(f => TextSpan.AreOverlapping(span, f.Span) || TextSpan.AreNeighbors(span, f.Span) || TextSpan.AreNeighbors(f.Span, span)).SelectMany(f => f.Fixes).ToHashSet();
                     var quickFixList = quickFixes.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
 
                     quickFixList.Should().HaveSameCount(bicepFixes);
