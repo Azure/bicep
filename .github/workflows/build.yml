@@ -133,16 +133,8 @@ jobs:
     needs: build-bicep
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
-          submodules: true
-
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
-
-      - name: Build Bicep.LangServer.csproj
-        run: msbuild src\Bicep.LangServer\Bicep.LangServer.csproj -restore -t:rebuild -verbosity:diag -property:Configuration=Release
 
       - name: Build BicepInVisualStudio.sln
         run: msbuild BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
