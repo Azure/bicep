@@ -513,7 +513,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 yield return new FunctionOverloadBuilder("flatten")
                     .WithGenericDescription("Takes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.")
-                    .WithVariableParameter("array", new TypedArrayType(LanguageConstants.Array, TypeSymbolValidationFlags.Default), 0, "The array of sub-arrays to flatte.")
+                    .WithVariableParameter("array", new TypedArrayType(LanguageConstants.Array, TypeSymbolValidationFlags.Default), 0, "The array of sub-arrays to flatten.")
                     .WithReturnType(LanguageConstants.Array)
                     .Build();
 
