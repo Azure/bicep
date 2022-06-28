@@ -481,21 +481,26 @@ module.exports = function (context) {
 }
 '''
 
+var providersTest = providers('Microsoft.Resources').namespace
+//@[246:246]     "providersTest": "[providers('Microsoft.Resources').namespace]",
+var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
+//@[247:247]     "providersTest2": "[providers('Microsoft.Resources', 'deployments').locations]",
+
 var copyBlockInObject = {
-//@[246:254]     "copyBlockInObject": {
+//@[248:256]     "copyBlockInObject": {
   copy: [
-//@[247:253]       "[string('copy')]": [
+//@[249:255]       "[string('copy')]": [
     {
       name: 'blah'
-//@[249:249]           "name": "blah",
+//@[251:251]           "name": "blah",
       count: '[notAFunction()]'
-//@[250:250]           "count": "[[notAFunction()]",
+//@[252:252]           "count": "[[notAFunction()]",
       input: {}
-//@[251:251]           "input": {}
+//@[253:253]           "input": {}
     }
   ]
 }
 
 var joinedString = join(['I', 'love', 'Bicep!'], ' ')
-//@[255:255]     "joinedString": "[join(createArray('I', 'love', 'Bicep!'), ' ')]"
+//@[257:257]     "joinedString": "[join(createArray('I', 'love', 'Bicep!'), ' ')]"
 
