@@ -88,15 +88,15 @@ jobs:
         run: dotnet build Bicep.sln --configuration ${{ matrix.configuration }}
 
       - name: Add msbuild to PATH
-        if: matrix.os == 'windows-latest'
+        if: runner.os == 'Microsoft Windows'
         uses: microsoft/setup-msbuild@v1.1
 
       - name: Build BicepInVisualStudio.sln
-        if: matrix.os == 'windows-latest'
+        if: runner.os == 'Microsoft Windows'
         run: msbuild BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
 
       - name: Upload BicepLanguageServerClient VSIX
-        if: matrix.os == 'windows-latest'
+        if: runner.os == 'Microsoft Windows'
         uses: actions/upload-artifact@v3
         with:
           name: Bicep.VSLanguageServerClient.Vsix.vsix
