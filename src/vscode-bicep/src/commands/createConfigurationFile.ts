@@ -12,8 +12,8 @@ import path from "path";
 import * as fse from "fs-extra";
 import {
   GetRecommendedConfigLocationResult,
-  createBicepConfigRequestType,
   getRecommendedConfigLocationRequestType,
+  CreateBicepConfigParams,
 } from "../language/protocol";
 
 const bicepConfig = "bicepconfig.json";
@@ -33,10 +33,17 @@ export class CreateBicepConfigurationFile implements Command {
 
     documentUri ??= window.activeTextEditor?.document.uri;
 
-    const recommendation: GetRecommendedConfigLocationResult =
-      await this.client.sendRequest(getRecommendedConfigLocationRequestType, {
-        bicepFilePath: documentUri?.fsPath,
-      });
+    let recommendation: GetRecommendedConfigLocationResult;
+    try {
+      recommendation = await this.client.sendRequest(
+        getRecommendedConfigLocationRequestType,
+        {
+          bicepFilePath: documentUri?.fsPath,
+        }
+      );
+    } catch (err) {
+      throw new Error("Failed determining recommended configuration location");
+    }
     if (recommendation.error || !recommendation.recommendedFolder) {
       throw new Error(
         `Could not determine recommended configuration location: ${
@@ -84,8 +91,13 @@ export class CreateBicepConfigurationFile implements Command {
       recommendation.recommendedFolder === path.dirname(selectedPath)
     );
 
-    await this.client.sendRequest(createBicepConfigRequestType, {
-      destinationPath: selectedPath,
+    await this.client.sendRequest("workspace/executeCommand", {
+      command: "createConfigFile",
+      arguments: [
+        <CreateBicepConfigParams>{
+          destinationPath: selectedPath,
+        },
+      ],
     });
 
     if (await fse.pathExists(selectedPath)) {

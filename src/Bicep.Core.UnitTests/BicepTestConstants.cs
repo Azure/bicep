@@ -22,6 +22,16 @@ using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests
 {
+    public record TestFeatureProvider(
+        string AssemblyVersion,
+        string CacheRootDirectory,
+        bool RegistryEnabled,
+        bool SymbolicNameCodegenEnabled,
+        bool ImportsEnabled,
+        bool AdvancedListComprehensionEnabled,
+        bool ResourceTypedParamsAndOutputsEnabled,
+        bool SourceMappingEnabled) : IFeatureProvider;
+
     public static class BicepTestConstants
     {
         public const string DevAssemblyFileVersion = "dev";
@@ -30,15 +40,9 @@ namespace Bicep.Core.UnitTests
 
         public static readonly FileResolver FileResolver = new();
 
-        public static readonly IFeatureProvider Features = CreateMockFeaturesProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion, sourceMappingEnabled: false).Object;
+        public static readonly TestFeatureProvider Features = CreateFeatureProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, sourceMappingEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
 
         public static readonly EmitterSettings EmitterSettings = new EmitterSettings(Features);
-
-        public static readonly EmitterSettings EmitterSettingsWithSourceMapping = new EmitterSettings(
-            CreateMockFeaturesProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion, sourceMappingEnabled: true).Object);
-
-        public static readonly EmitterSettings EmitterSettingsWithSymbolicNames = new EmitterSettings(
-            CreateMockFeaturesProvider(registryEnabled: false, symbolicNameCodegenEnabled: true, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion, sourceMappingEnabled: false).Object);
 
         public static readonly IAzResourceTypeLoader AzResourceTypeLoader = new AzResourceTypeLoader();
 
@@ -59,29 +63,6 @@ namespace Bicep.Core.UnitTests
         public static readonly RootConfiguration BuiltInConfigurationWithAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
-
-        public static IFeatureProvider CreateFeaturesProvider(
-            TestContext testContext,
-            bool registryEnabled = false,
-            bool symbolicNameCodegenEnabled = false,
-            bool importsEnabled = false,
-            bool resourceTypedParamsAndOutputsEnabled = false,
-            bool sourceMappingEnabled = false,
-            string assemblyFileVersion = DevAssemblyFileVersion)
-        {
-            var mock = CreateMockFeaturesProvider(
-                registryEnabled: registryEnabled,
-                symbolicNameCodegenEnabled: symbolicNameCodegenEnabled,
-                importsEnabled: importsEnabled,
-                resourceTypedParamsAndOutputsEnabled: resourceTypedParamsAndOutputsEnabled,
-                sourceMappingEnabled: sourceMappingEnabled,
-                assemblyFileVersion: assemblyFileVersion);
-
-            var testPath = FileHelper.GetCacheRootPath(testContext);
-            mock.SetupGet(m => m.CacheRootDirectory).Returns(testPath);
-
-            return mock.Object;
-        }
 
         public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)
         {
@@ -113,7 +94,30 @@ namespace Bicep.Core.UnitTests
             return RootConfiguration.Bind(element, configurationPath);
         }
 
-        private static Mock<IFeatureProvider> CreateMockFeaturesProvider(
+        public static TestFeatureProvider CreateFeaturesProvider(
+            TestContext testContext,
+            bool registryEnabled = false,
+            bool symbolicNameCodegenEnabled = false,
+            bool importsEnabled = false,
+            bool resourceTypedParamsAndOutputsEnabled = false,
+            bool sourceMappingEnabled = false,
+            string assemblyFileVersion = DevAssemblyFileVersion)
+        {
+            var features = CreateFeatureProvider(
+                registryEnabled,
+                symbolicNameCodegenEnabled,
+                importsEnabled,
+                resourceTypedParamsAndOutputsEnabled,
+                sourceMappingEnabled,
+                assemblyFileVersion);
+
+            return features with
+            {
+                CacheRootDirectory = FileHelper.GetCacheRootPath(testContext),
+            };
+        }
+
+        private static TestFeatureProvider CreateFeatureProvider(
             bool registryEnabled,
             bool symbolicNameCodegenEnabled,
             bool importsEnabled,
@@ -121,15 +125,15 @@ namespace Bicep.Core.UnitTests
             bool sourceMappingEnabled,
             string assemblyFileVersion)
         {
-            var mock = StrictMock.Of<IFeatureProvider>();
-            mock.SetupGet(m => m.RegistryEnabled).Returns(registryEnabled);
-            mock.SetupGet(m => m.SymbolicNameCodegenEnabled).Returns(symbolicNameCodegenEnabled);
-            mock.SetupGet(m => m.ImportsEnabled).Returns(importsEnabled);
-            mock.SetupGet(m => m.AssemblyVersion).Returns(assemblyFileVersion);
-            mock.SetupGet(m => m.ResourceTypedParamsAndOutputsEnabled).Returns(resourceTypedParamsAndOutputsEnabled);
-            mock.SetupGet(m => m.SourceMappingEnabled).Returns(sourceMappingEnabled);
-
-            return mock;
+            return new TestFeatureProvider(
+                assemblyFileVersion,
+                string.Empty,
+                registryEnabled,
+                symbolicNameCodegenEnabled,
+                importsEnabled,
+                true,
+                resourceTypedParamsAndOutputsEnabled,
+                sourceMappingEnabled);
         }
 
         private static IModuleRestoreScheduler CreateMockModuleRestoreScheduler()

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
@@ -39,14 +40,14 @@ namespace Bicep.Core.UnitTests.Utils
         public static IAzResourceTypeLoader CreateAzResourceTypeLoaderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
             => new TestResourceTypeLoader(resourceTypes);
 
-        public static INamespaceProvider CreateProviderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
-            => new DefaultNamespaceProvider(CreateAzResourceTypeLoaderWithTypes(resourceTypes), BicepTestConstants.Features);
+        public static INamespaceProvider CreateProviderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes, IFeatureProvider? features = null)
+            => new DefaultNamespaceProvider(CreateAzResourceTypeLoaderWithTypes(resourceTypes), features ?? BicepTestConstants.Features);
 
-        public static INamespaceProvider CreateEmptyProvider()
-            => CreateProviderWithTypes(Enumerable.Empty<ResourceTypeComponents>());
+        public static INamespaceProvider CreateEmptyProvider(IFeatureProvider? features = null)
+            => CreateProviderWithTypes(Enumerable.Empty<ResourceTypeComponents>(), features);
 
-        public static INamespaceProvider CreateWithAzTypes()
-            => new DefaultNamespaceProvider(new AzResourceTypeLoader(), BicepTestConstants.Features);
+        public static INamespaceProvider CreateWithAzTypes(IFeatureProvider? features = null)
+            => new DefaultNamespaceProvider(new AzResourceTypeLoader(), features ?? BicepTestConstants.Features);
 
         public static ResourceTypeComponents CreateCustomResourceType(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, params TypeProperty[] customProperties)
         {
