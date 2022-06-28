@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Navigation;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
@@ -31,9 +33,22 @@ namespace Bicep.LanguageServer.Handlers
         public override Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken)
         {
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
+
             if (result == null)
             {
                 return Task.FromResult<Hover?>(null);
+            }
+
+            // We will not provide hover information on keywords
+            if (result.Origin is ITopLevelNamedDeclarationSyntax topLevelNamedDeclarationSyntax &&
+                topLevelNamedDeclarationSyntax.Keyword is Token keyword)
+            {
+                var position = PositionHelper.GetOffset(result.Context.LineStarts, request.Position);
+
+                if (keyword.Span.ContainsInclusive(position))
+                {
+                    return Task.FromResult<Hover?>(null);
+                }
             }
 
             var markdown = GetMarkdown(request, result);

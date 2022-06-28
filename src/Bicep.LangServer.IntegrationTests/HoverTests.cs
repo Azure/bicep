@@ -89,11 +89,24 @@ namespace Bicep.LangServer.IntegrationTests
 
             foreach (var symbolReference in symbolReferences)
             {
+                // Verify hover information is not available on keywords
+                if (symbolReference is ITopLevelDeclarationSyntax topLevelDeclarationSyntax)
+                {
+                    var hoverOnKeyword = await helper.Client.RequestHover(new HoverParams
+                    {
+                        TextDocument = new TextDocumentIdentifier(uri),
+                        Position = TextCoordinateConverter.GetPosition(lineStarts, topLevelDeclarationSyntax.Keyword.Span.Position)
+                    });
+
+                    hoverOnKeyword.Should().BeNull();
+
+                    continue;
+                }
+
                 // by default, request a hover on the first character of the syntax, but for certain syntaxes, this doesn't make sense.
                 // for example on an instance function call 'az.resourceGroup()', it only makes sense to request a hover on the 3rd character.
                 var nodeForHover = symbolReference switch
                 {
-                    ITopLevelDeclarationSyntax d => d.Keyword,
                     ResourceAccessSyntax r => r.ResourceName,
                     FunctionCallSyntaxBase f => f.Name,
                     _ => symbolReference,
