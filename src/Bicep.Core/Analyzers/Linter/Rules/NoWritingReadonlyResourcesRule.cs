@@ -10,11 +10,11 @@ using System.Collections.Generic;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class NoWritingReadonlyResources : LinterRuleBase
+    public sealed class NoWritingReadonlyResourcesRule : LinterRuleBase
     {
         public new const string Code = "no-writing-readonly-resources";
 
-        public NoWritingReadonlyResources() : base(
+        public NoWritingReadonlyResourcesRule() : base(
             code: Code,
             description: CoreResources.NoWritingReadonlyResourcesDescription,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
