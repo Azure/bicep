@@ -588,8 +588,9 @@ namespace Bicep.Core.Semantics.Namespaces
         }
 
         private static FunctionOverload.ResultBuilderDelegate PerformArmConversionOfStringLiterals(string armFunctionName) =>
-            (_, _, diagnostics, arguments, argumentTypes) =>
+            (_, _, diagnostics, functionCall, argumentTypes) =>
             {
+                var arguments = functionCall.Arguments.ToImmutableArray();
                 if (arguments.Length > 0 && argumentTypes.All(s => s is StringLiteralType))
                 {
                     var parameters = argumentTypes.OfType<StringLiteralType>()
@@ -636,8 +637,9 @@ namespace Bicep.Core.Semantics.Namespaces
         private static LambdaType TwoParamLambda(TypeSymbol param1Type, TypeSymbol param2Type, TypeSymbol returnType)
             => new LambdaType(ImmutableArray.Create<ITypeReference>(param1Type, param2Type), returnType);
 
-        private static FunctionResult LoadTextContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult LoadTextContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
+            var arguments = functionCall.Arguments.ToImmutableArray();
             return TryLoadTextContentFromFile(binder, fileResolver, diagnostics,
                 (arguments[0], argumentTypes[0]),
                 arguments.Length > 1 ? (arguments[1], argumentTypes[1]) : null,
@@ -648,8 +650,9 @@ namespace Bicep.Core.Semantics.Namespaces
                 : new(ErrorType.Create(errorDiagnostic));
         }
 
-        private static FunctionResult LoadJsonContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult LoadJsonContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
+            var arguments = functionCall.Arguments.ToImmutableArray();
             string? tokenSelectorPath = null;
             if (arguments.Length > 1)
             {
@@ -749,8 +752,9 @@ namespace Bicep.Core.Semantics.Namespaces
             return true;
         }
 
-        private static FunctionResult LoadContentAsBase64ResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult LoadContentAsBase64ResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
+            var arguments = functionCall.Arguments.ToImmutableArray();
             if (argumentTypes[0] is not StringLiteralType filePathType)
             {
                 diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired());
@@ -848,7 +852,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     null),
                 TypeSymbolValidationFlags.Default);
 
-        private static FunctionResult ItemsResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult ItemsResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
             if (argumentTypes[0] is not ObjectType objectType)
             {
@@ -904,8 +908,9 @@ namespace Bicep.Core.Semantics.Namespaces
                 _ => LanguageConstants.Any,
             };
 
-        private static FunctionResult JsonResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult JsonResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
+            var arguments = functionCall.Arguments.ToImmutableArray();
             if (argumentTypes.Length != 1 || argumentTypes[0] is not StringLiteralType stringLiteral)
             {
                 return new(LanguageConstants.Any);

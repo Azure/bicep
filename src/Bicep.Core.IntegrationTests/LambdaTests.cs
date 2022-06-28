@@ -53,23 +53,23 @@ namespace Bicep.Core.IntegrationTests
         {
             CompilationHelper.Compile("var noElements = ()")
                 .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
-                    ("BCP242", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
+                    ("BCP243", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
                 });
 
             CompilationHelper.Compile("var justAComma = (,)")
                 .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
                     ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
-                    ("BCP242", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
+                    ("BCP243", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
                 });
 
             CompilationHelper.Compile("var twoElements = (1, 2)")
                 .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
-                    ("BCP242", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
+                    ("BCP243", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
                 });
 
             CompilationHelper.Compile("var threeElements = (1, 2, 3)")
                 .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
-                    ("BCP242", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
+                    ("BCP243", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
                 });
 
             CompilationHelper.Compile("var unterminated1 = (")
@@ -80,7 +80,7 @@ namespace Bicep.Core.IntegrationTests
             CompilationHelper.Compile("var unterminated2 = (,")
                 .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
                     ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
-                    ("BCP242", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
+                    ("BCP243", DiagnosticLevel.Error, "Parentheses must contain exactly one expression."),
                     ("BCP009", DiagnosticLevel.Error, "Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location."),
                 });
         }
@@ -99,20 +99,20 @@ namespace Bicep.Core.IntegrationTests
 
             CompilationHelper.Compile("var asfsasdf = map([1], true ? i => i + 1 : i => i)")
                 .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
-                    ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
-                    ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
+                    ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
+                    ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                 });
 
             CompilationHelper.Compile("var asfsasdf = map([1], true ? (i => i + 1) : (i => i))")
                 .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
-                    ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
-                    ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
+                    ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
+                    ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                 });
 
             CompilationHelper.Compile("var asfsasdf = map([1], [i => i])")
                 .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
                     ("BCP070", DiagnosticLevel.Error, "Argument of type \"(any => any)[]\" is not assignable to parameter of type \"any => any\"."),
-                    ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
+                    ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                 });
         }
 
@@ -195,8 +195,8 @@ var foo2 = map(['foo'], () => 'Hi!')
 var ternary = map([123], true ? abc => '${abc}' : def => 'hello!')
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
-                ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
+                ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
+                ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
             });
         }
 
@@ -208,7 +208,7 @@ var foo = i => 123
 ");
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP241", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
+                ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
             });
         }
 

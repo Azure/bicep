@@ -109,7 +109,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[056:056) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
+//@[056:056) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
   name: 'foo'
 //@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
 }
@@ -118,7 +118,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
 //@[009:012) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[056:056) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
+//@[056:056) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
   name: 'foo'
 //@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
 }
@@ -1519,11 +1519,11 @@ resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = 
 
 resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if()]
 //@[103:104) [BCP057 (Error)] The name "y" does not exist in the current context. (CodeDescription: none) |y|
-//@[109:109) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
+//@[109:109) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
 //@[110:111) [BCP018 (Error)] Expected the "{" character at this location. (CodeDescription: none) |]|
 resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if()]
 //@[102:103) [BCP057 (Error)] The name "z" does not exist in the current context. (CodeDescription: none) |z|
-//@[108:108) [BCP242 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
+//@[108:108) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
 //@[109:110) [BCP018 (Error)] Expected the "{" character at this location. (CodeDescription: none) |]|
 
 // wrong body type

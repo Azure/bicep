@@ -166,8 +166,8 @@
       },
       "Azure.ResourceManager.Resources": {
         "type": "Transitive",
-        "resolved": "1.0.0",
-        "contentHash": "oNQRWfh05v9BiY8DMQjV+++kVafR+3ry2FGfMKObovKNfAb4i5J6DQpv0CUIx4jeIZe0fnhxyXRRCe293YtMqw==",
+        "resolved": "1.1.0",
+        "contentHash": "TUgp2ygf/L+eCVdPvDEqaTfjsPl8AfW27CPukNorPcqz3pGg1Gv53AejiSMRzUEB1dr3wu3hA1vz3idsYKFrqQ==",
         "dependencies": {
           "Azure.Core": "1.24.0",
           "Azure.ResourceManager": "1.0.0",
@@ -1841,7 +1841,7 @@
           "Azure.Deployments.Expression": "1.0.635",
           "Azure.Deployments.Templates": "1.0.635",
           "Azure.Identity": "1.6.0",
-          "Azure.ResourceManager.Resources": "1.0.0",
+          "Azure.ResourceManager.Resources": "1.1.0",
           "JsonPatch.Net": "1.1.2",
           "JsonPath.Net": "0.2.1",
           "Microsoft.Extensions.Configuration": "6.0.1",

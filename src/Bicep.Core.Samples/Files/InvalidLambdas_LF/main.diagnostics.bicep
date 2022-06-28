@@ -73,33 +73,33 @@ var reduce5 = reduce(range(0, 10), 0, i => i)
 
 var ternary = map([123], true ? i => '${i}' : i => 'hello!')
 //@[04:11) [no-unused-vars (Warning)] Variable "ternary" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |ternary|
-//@[32:43) [BCP241 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i => '${i}'|
-//@[46:59) [BCP241 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i => 'hello!'|
+//@[32:43) [BCP242 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i => '${i}'|
+//@[46:59) [BCP242 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i => 'hello!'|
 
 var outsideArgs = i => 123
 //@[04:15) [no-unused-vars (Warning)] Variable "outsideArgs" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |outsideArgs|
-//@[18:26) [BCP241 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i => 123|
+//@[18:26) [BCP242 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i => 123|
 var outsideArgs2 = (x, y, z) => '${x}${y}${z}'
 //@[04:16) [no-unused-vars (Warning)] Variable "outsideArgs2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |outsideArgs2|
-//@[19:46) [BCP241 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |(x, y, z) => '${x}${y}${z}'|
+//@[19:46) [BCP242 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |(x, y, z) => '${x}${y}${z}'|
 var partial = i =>
 //@[04:11) [no-unused-vars (Warning)] Variable "partial" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |partial|
-//@[14:18) [BCP241 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i =>|
+//@[14:18) [BCP242 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i =>|
 //@[18:18) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 
 var inObject = {
 //@[04:12) [no-unused-vars (Warning)] Variable "inObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |inObject|
   a: i => i
-//@[05:11) [BCP241 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i => i|
+//@[05:11) [BCP242 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i => i|
 }
 
 var inArray = [
 //@[04:11) [no-unused-vars (Warning)] Variable "inArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |inArray|
   i => i
-//@[02:08) [BCP241 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i => i|
+//@[02:08) [BCP242 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |i => i|
   j => j
-//@[02:08) [BCP241 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |j => j|
+//@[02:08) [BCP242 (Error)] Lambda functions may only be specified directly as function arguments. (CodeDescription: none) |j => j|
 ]
 
 resource resLoop 'Microsoft.Storage/storageAccounts@2021-09-01' existing = [for item in range(0, 5): {
