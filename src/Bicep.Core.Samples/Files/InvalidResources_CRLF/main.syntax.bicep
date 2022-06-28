@@ -395,7 +395,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
 //@[052:00054) | | ├─Token(Identifier) |if|
 //@[055:00062) | | ├─ParenthesizedExpressionSyntax
 //@[055:00056) | | | ├─Token(LeftParen) |(|
-//@[061:00061) | | | ├─SkippedTriviaSyntax
+//@[056:00056) | | | ├─SkippedTriviaSyntax
 //@[061:00062) | | | └─Token(RightParen) |)|
 //@[063:00082) | | └─ObjectSyntax
 //@[063:00064) | | | ├─Token(LeftBrace) |{|
