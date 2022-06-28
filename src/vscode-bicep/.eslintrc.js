@@ -29,12 +29,14 @@ module.exports = {
   },
   overrides: [
     {
+      // Typescript-specific overrides
       files: ["*.ts", "*.tsx"],
       extends: [
         "plugin:react/recommended",
         "plugin:@typescript-eslint/recommended",
         "plugin:jest/all",
         "plugin:prettier/recommended",
+        "plugin:promise/recommended",
       ],
       rules: {
         "react/prop-types": "off",
