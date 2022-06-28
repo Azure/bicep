@@ -87,14 +87,6 @@ jobs:
       - name: Build
         run: dotnet build Bicep.sln --configuration ${{ matrix.configuration }}
 
-      - name: Add msbuild to PATH
-        if: runner.os == 'Windows'
-        uses: microsoft/setup-msbuild@v1.1
-
-      - name: Build BicepInVisualStudio.sln
-        if: runner.os == 'Windows'
-        run: msbuild BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
-
       - name: Pack
         if: matrix.publishPackages
         run: dotnet pack Bicep.sln --configuration ${{ matrix.configuration }}
@@ -134,6 +126,33 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           flags: dotnet
+
+  build-bicep-in-visual-studio:
+    name: Build bicep in visual studio
+    runs-on: windows-latest
+    needs: build-bicep
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Build Bicep.LangServer.csproj
+        run: msbuild src\Bicep.LangServer\Bicep.LangServer.csproj -restore -t:rebuild -verbosity:diag -property:Configuration=Release
+
+      - name: Build BicepInVisualStudio.sln
+        run: msbuild BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
+
+      - name: Upload BicepLanguageServerClient VSIX
+        uses: actions/upload-artifact@v3
+        with:
+          name: Bicep.VSLanguageServerClient.Vsix.vsix
+          path: ./src/Bicep.VSLanguageServerClient.Vsix/bin/Release/Bicep.VSLanguageServerClient.Vsix.vsix
+          if-no-files-found: error
 
   can-run-live-tests:
     name: Check secret access
