@@ -28,7 +28,7 @@ namespace Bicep.Core.TypeSystem.Az
                 bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, objectType.Properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, resourceFunctions);
             }
 
-            return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), ResourceScope.None, ResourceFlags.None, bodyType);
+            return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), ToResourceScope(resourceType.ReadOnlyScopes), ToResourceFlags(resourceType.Flags), bodyType);
         }
 
         public IEnumerable<FunctionOverload> GetResourceFunctionOverloads(Azure.Bicep.Types.Concrete.ResourceFunctionType resourceFunctionType)
@@ -164,6 +164,16 @@ namespace Bicep.Core.TypeSystem.Az
             return TypeSymbolValidationFlags.WarnOnTypeMismatch;
         }
 
+        private static ResourceFlags ToResourceFlags(Azure.Bicep.Types.Concrete.ResourceFlags input)
+        {
+            var output = ResourceFlags.None;
+            if (input.HasFlag(Azure.Bicep.Types.Concrete.ResourceFlags.ReadOnly)) {
+                output |= ResourceFlags.ReadOnly;
+            }
+
+            return output;
+        }
+
         private static ResourceScope ToResourceScope(Azure.Bicep.Types.Concrete.ScopeType input)
         {
             if (input == Azure.Bicep.Types.Concrete.ScopeType.Unknown)
@@ -180,5 +190,8 @@ namespace Bicep.Core.TypeSystem.Az
 
             return output;
         }
+
+        private static ResourceScope ToResourceScope(Azure.Bicep.Types.Concrete.ScopeType? input)
+            => input.HasValue ? ToResourceScope(input.Value) : ResourceScope.None;
     }
 }

@@ -22,7 +22,7 @@ namespace Bicep.Core.TypeSystem.K8s
             var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
             var bodyType = GetTypeSymbol(resourceType.Body.Type, true);
 
-            return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), ResourceScope.None, ResourceFlags.None, bodyType);
+            return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), ToResourceScope(resourceType.ReadOnlyScopes), ToResourceFlags(resourceType.Flags), bodyType);
         }
 
         private TypeSymbol GetTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase serializedType, bool isResourceBodyType)
@@ -139,6 +139,16 @@ namespace Bicep.Core.TypeSystem.K8s
             return TypeSymbolValidationFlags.WarnOnTypeMismatch;
         }
 
+        private static ResourceFlags ToResourceFlags(Azure.Bicep.Types.Concrete.ResourceFlags input)
+        {
+            var output = ResourceFlags.None;
+            if (input.HasFlag(Azure.Bicep.Types.Concrete.ResourceFlags.ReadOnly)) {
+                output |= ResourceFlags.ReadOnly;
+            }
+
+            return output;
+        }
+
         private static ResourceScope ToResourceScope(Azure.Bicep.Types.Concrete.ScopeType input)
         {
             if (input == Azure.Bicep.Types.Concrete.ScopeType.Unknown)
@@ -155,5 +165,8 @@ namespace Bicep.Core.TypeSystem.K8s
 
             return output;
         }
+
+        private static ResourceScope ToResourceScope(Azure.Bicep.Types.Concrete.ScopeType? input)
+            => input.HasValue ? ToResourceScope(input.Value) : ResourceScope.None;
     }
 }

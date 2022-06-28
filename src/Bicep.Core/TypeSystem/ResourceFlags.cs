@@ -13,7 +13,7 @@ namespace Bicep.Core.TypeSystem
         None = 0,
 
         /// <summary>
-        /// The property is read-only.
+        /// The resource must be used with the 'existing' keyword.
         /// </summary>
         ReadOnly = 1 << 0,
     }
