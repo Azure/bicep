@@ -436,6 +436,12 @@ namespace Bicep.Core.Emit
             {
                 writeScopeDiagnostic(x => x.InvalidCrossResourceScope());
             }
+
+            if (IsReadonlyAtScope(resource, scopeData))
+            {
+                writeScopeDiagnostic(x => x.ResourceTypeIsReadonlyAtScope(resource.Type.TypeReference.FormatName(),
+                    resource.Type.Scope ^ resource.Type.ReadOnlyScopes));
+            }
         }
 
         private static bool IsDeployableResourceScope(SemanticModel semanticModel, ScopeData scopeData)
@@ -455,6 +461,9 @@ namespace Bicep.Core.Emit
 
             return matchesTargetScope;
         }
+
+        private static bool IsReadonlyAtScope(DeclaredResourceMetadata resource, ScopeData scopeData)
+            => (resource.Type.ReadOnlyScopes & scopeData.RequestedScope) == scopeData.RequestedScope;
 
         public static ImmutableDictionary<DeclaredResourceMetadata, ScopeData> GetResourceScopeInfo(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {

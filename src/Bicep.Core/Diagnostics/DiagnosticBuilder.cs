@@ -1438,6 +1438,13 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP244",
                 $"Expected lambda expression of type \"{lambdaType}\" with {expectedArgCount} arguments but received {actualArgCount} arguments.");
+
+            public Diagnostic ResourceTypeIsReadonlyAtScope(string resourceName, ResourceScope writableScopes) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP245",
+                $"Resource type \"{resourceName}\" can only be used with the 'existing' keyword at the requested scope."
+                    + $" Permitted scopes for deployment: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(writableScopes))}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
