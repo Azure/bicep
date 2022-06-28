@@ -29,7 +29,7 @@
   },
   "dependencies": {
     "@babel/core": "^7.18.6",
-    "@babel/plugin-transform-modules-commonjs": "^7.18.2",
+    "@babel/plugin-transform-modules-commonjs": "^7.18.6",
     "babel-jest": "^28.1.1"
   }
 }
