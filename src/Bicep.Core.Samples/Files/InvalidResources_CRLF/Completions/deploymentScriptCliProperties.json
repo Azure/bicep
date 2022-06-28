@@ -59,7 +59,7 @@
     "detail": "containerSettings",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `ContainerConfiguration`  \nSettings to customize ACI container instance.  \n"
+      "value": "Type: `ContainerConfiguration`  \nContainer settings.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -167,7 +167,7 @@
     "detail": "storageAccountSettings",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `StorageAccountConfiguration`  \nSettings to use an existing storage account. Valid storage account kinds are: Storage, StorageV2 and FileStorage  \n"
+      "value": "Type: `StorageAccountConfiguration`  \nStorage Account settings.  \n"
     },
     "deprecated": false,
     "preselect": false,
