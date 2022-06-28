@@ -467,7 +467,7 @@
     "minimumArgumentCount": 0,
     "variableParameter": {
       "namePrefix": "array",
-      "description": "The array of sub-arrays to flatte.",
+      "description": "The array of sub-arrays to flatten.",
       "type": "array[]",
       "minimumCount": 0
     },
