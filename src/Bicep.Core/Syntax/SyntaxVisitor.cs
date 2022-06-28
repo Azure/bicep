@@ -332,6 +332,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
         {
+            this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Assignment);
@@ -340,6 +341,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
         {
+            this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Path);
         }
