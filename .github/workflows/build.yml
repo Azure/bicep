@@ -141,6 +141,9 @@ jobs:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
 
+      - name: Build Bicep.LangServer.csproj
+        run: msbuild src\Bicep.LangServer\Bicep.LangServer.csproj -restore -t:rebuild -verbosity:diag -property:Configuration=Release
+
       - name: Build BicepInVisualStudio.sln
         run: msbuild BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
 
