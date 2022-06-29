@@ -1014,7 +1014,7 @@ namespace Bicep.LanguageServer.Completions
             (var line, _) = TextCoordinateConverter.GetPosition(lineStarts, position);
             var nextLineSpan = GetNextLineSpan(lineStarts, line, model.SourceFile.ProgramSyntax);
 
-            if (nextLineSpan is null)
+            if (nextLineSpan == TextSpan.Empty)
             {
                 return Enumerable.Empty<IDiagnostic>();
             }
@@ -1030,7 +1030,7 @@ namespace Bicep.LanguageServer.Completions
             return lineStarts[rangeStart.Line] + rangeStart.Character;
         }
 
-        private TextSpan? GetNextLineSpan(ImmutableArray<int> lineStarts, int line, ProgramSyntax programSyntax)
+        private TextSpan GetNextLineSpan(ImmutableArray<int> lineStarts, int line, ProgramSyntax programSyntax)
         {
             var nextLine = line + 1;
             if (lineStarts.Length > nextLine)
@@ -1051,7 +1051,7 @@ namespace Bicep.LanguageServer.Completions
                 return new TextSpan(nextLineStart, nextLineEnd - nextLineStart);
             }
 
-            return null;
+            return TextSpan.Empty;
         }
 
         private static CompletionItem CreateResourceOrModuleConditionCompletion(Range replacementRange)

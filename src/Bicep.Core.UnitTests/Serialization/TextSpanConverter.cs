@@ -8,15 +8,15 @@ namespace Bicep.Core.UnitTests.Serialization
 {
     public class TextSpanConverter : JsonConverter<TextSpan>
     {
-        public override void WriteJson(JsonWriter writer, TextSpan? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, TextSpan value, JsonSerializer serializer)
         {
-            if (value != null)
+            if (value != TextSpan.Empty)
             {
                 writer.WriteToken(JsonToken.String, value.ToString());
             }
         }
 
-        public override TextSpan ReadJson(JsonReader reader, Type objectType, TextSpan? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override TextSpan ReadJson(JsonReader reader, Type objectType, TextSpan existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             if (reader.TokenType != JsonToken.String)
             {
@@ -25,7 +25,7 @@ namespace Bicep.Core.UnitTests.Serialization
 
             var value = reader.ReadAsString();
             TextSpan.TryParse(value, out var span);
-            if (span == null)
+            if (span == TextSpan.Empty)
             {
                 throw new JsonException($"The string '{value}' is not a valid {nameof(TextSpan)}.");
             }
