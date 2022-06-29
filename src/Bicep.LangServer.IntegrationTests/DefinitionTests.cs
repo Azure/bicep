@@ -26,6 +26,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using Bicep.Core.Text;
 using Bicep.Core.Navigation;
 using Bicep.LangServer.IntegrationTests.Helpers;
+using Bicep.Core.FileSystem;
+using Bicep.LanguageServer;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -210,15 +212,29 @@ module appPlanDeploy2 'wrong|.bicep' = {
   }
 }
 ";
-            await RunDefinitionScenarioTest(this.TestContext, text, results => results.Should().SatisfyRespectively(
+            await RunDefinitionScenarioTest(TestContext, text, results => results.Should().SatisfyRespectively(
                 x => x.Should().BeEmpty(),
                 x => x.Should().BeEmpty()));
+        }
+
+        [DataTestMethod]
+        [DataRow("loadTextContent")]
+        [DataRow("loadFileAsBase64")]
+        [DataRow("loadJsonContent")]
+        public async Task GoToDefinition_onLoadFunctionArgument_shouldNotThrow(string functionCall)
+        {
+            var text = $"var file = {functionCall}('file.j|son')";
+            var files = new[] { ("file.json", "{\"test\":1235}") };
+            await RunDefinitionScenarioTestWithFiles(TestContext, text,
+                results => results.Should().SatisfyRespectively(
+                    x => x.Should().NotBeEmpty().And.Subject.ElementAt(0).LocationLink!.TargetUri.Path.Should().EndWith("file.json")),
+            files);
         }
 
         private static async Task RunDefinitionScenarioTest(TestContext testContext, string fileWithCursors, Action<List<LocationOrLocationLinks>> assertAction)
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{testContext.TestName}/path/to/main.bicep"), file);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new($"file:///{testContext.TestName}/path/to/main.bicep"), file);
 
             var helper = await DefaultServer.GetAsync();
             await helper.OpenFileOnceAsync(testContext, file, bicepFile.FileUri);
@@ -226,6 +242,31 @@ module appPlanDeploy2 'wrong|.bicep' = {
             var results = await RequestDefinitions(helper.Client, bicepFile, cursors);
 
             assertAction(results);
+        }
+        
+        private static async Task RunDefinitionScenarioTestWithFiles(
+            TestContext testContext,
+            string fileWithCursors,
+            Action<List<LocationOrLocationLinks>> assertAction,
+            IEnumerable<(string fileName, string fileBody)> additionalFiles)
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new($"file:///{testContext.TestName}/path/to/main.bicep"), file);
+
+            var langServerOptions = new Server.CreationOptions
+            {
+                FileResolver = new InMemoryFileResolver(additionalFiles.ToDictionary(x => new Uri($"file:///{testContext.TestName}/path/to/{x.fileName}"), x => x.fileBody))
+            };
+            var server = new SharedLanguageHelperManager();
+            server.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, langServerOptions));
+
+            var helper = await server.GetAsync();
+            await helper.OpenFileOnceAsync(testContext, file, bicepFile.FileUri);
+            var results = await RequestDefinitions(helper.Client, bicepFile, cursors);
+
+            assertAction(results);
+
+            await server.DisposeAsync();
         }
 
         private static async Task<List<LocationOrLocationLinks>> RequestDefinitions(ILanguageClient client, BicepFile bicepFile, IEnumerable<int> cursors)
@@ -271,7 +312,7 @@ module appPlanDeploy2 'wrong|.bicep' = {
 
         private static IEnumerable<object[]> GetData()
         {
-            return DataSets.NonStressDataSets.ToDynamicTestData();
+            return DataSets.NonStressDataSets.Where(x => x.Name == "LoadFunctions_CRLF").ToDynamicTestData();
         }
     }
 }

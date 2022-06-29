@@ -2384,7 +2384,7 @@ var file = " + functionName + @"('|')
             var completionLists = await RequestCompletions(client, mainFile, cursors);
             completionLists.Should().HaveCount(1);
 
-            var completionItems = completionLists.Single()!.Items.OrderBy(x => x.SortText);
+            var completionItems = completionLists.Single()!.Items.Where(x => x.Kind == CompletionItemKind.File).OrderBy(x => x.SortText);
             if (jsonOnTop)
             {
                 completionItems.Should().SatisfyRespectively(

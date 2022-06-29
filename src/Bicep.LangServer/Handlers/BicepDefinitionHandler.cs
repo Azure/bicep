@@ -113,31 +113,25 @@ namespace Bicep.LanguageServer.Handlers
                         GetDocumentLinkUri(sourceFile, moduleReference),
                         stringToken,
                         context,
-                        new Range { Start = new Position(0, 0), End = new Position(0, 0) }));
+                        new() { Start = new(0, 0), End = new(0, 0) }));
                 }
             }
             {  // Definition handler for a non symbol bound to implement load* functions file argument path goto.
-                if (SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, FunctionArgumentSyntax, StringSyntax, Token>(
-                        matchingNodes, (_, functionArgumentSyntax, stringSyntax, token) =>
-                            functionArgumentSyntax.Expression == stringSyntax
-                            && !stringSyntax.IsInterpolated()
-                            && token.Type == TokenType.StringComplete)
+                if (SyntaxMatcher.IsTailMatch<StringSyntax, Token>(
+                        matchingNodes,
+                        (stringSyntax, token) => !stringSyntax.IsInterpolated() && token.Type == TokenType.StringComplete)
                     && matchingNodes[^2] is StringSyntax stringToken
-                    && matchingNodes[^3] is FunctionArgumentSyntax functionArgument
-                    && matchingNodes[^4] is FunctionCallSyntaxBase functionCall
+                    && context.Compilation.GetEntrypointSemanticModel().GetDeclaredType(stringToken) is { } stringType
+                    && stringType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath)
                     && stringToken.TryGetLiteralValue() is { } stringTokenValue
-                    && !string.IsNullOrWhiteSpace(stringTokenValue)
-                    && context.Compilation.GetEntrypointSemanticModel().GetSymbolInfo(functionCall) is FunctionSymbol functionSymbol
-                    && functionSymbol.GetDeclaredArgumentType(functionCall.Arguments.ToList().IndexOf(functionArgument)) is { } argumentType
-                    && argumentType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath)
                     && fileResolver.TryResolveFilePath(context.Compilation.SourceFileGrouping.EntryPoint.FileUri, stringTokenValue) is { } fileUri
                     && fileResolver.FileExists(fileUri))
                 {
                     return Task.FromResult(GetFileDefinitionLocation(
                         fileUri,
-                        functionArgument,
+                        stringToken,
                         context,
-                        new Range { Start = new Position(0, 0), End = new Position(0, 0) }));
+                        new() { Start = new(0, 0), End = new(0, 0) }));
                 }
             }
 
