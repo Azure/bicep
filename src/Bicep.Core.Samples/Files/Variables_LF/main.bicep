@@ -324,6 +324,9 @@ module.exports = function (context) {
 }
 '''
 
+var providersTest = providers('Microsoft.Resources').namespace
+var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
+
 var copyBlockInObject = {
   copy: [
     {

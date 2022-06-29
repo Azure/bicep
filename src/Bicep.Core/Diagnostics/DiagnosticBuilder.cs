@@ -1416,6 +1416,28 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP240",
                 "The \"parent\" property only permits direct references to resources. Expressions are not supported.");
+
+            public Diagnostic DeprecatedProvidersFunction(string functionName) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP241",
+                $"The \"{functionName}\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow.",
+                styling: DiagnosticStyling.ShowCodeDeprecated);
+
+            public ErrorDiagnostic LambdaFunctionsOnlyValidInFunctionArguments() => new(
+                TextSpan,
+                "BCP242",
+                $"Lambda functions may only be specified directly as function arguments.");
+
+            public ErrorDiagnostic ParenthesesMustHaveExactlyOneItem() => new(
+                TextSpan,
+                "BCP243",
+                "Parentheses must contain exactly one expression.");
+
+            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int expectedArgCount, int actualArgCount) => new (
+                TextSpan,
+                "BCP244",
+                $"Expected lambda expression of type \"{lambdaType}\" with {expectedArgCount} arguments but received {actualArgCount} arguments.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

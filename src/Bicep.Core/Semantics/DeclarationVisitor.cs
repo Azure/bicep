@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -63,7 +64,7 @@ namespace Bicep.Core.Semantics
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            // Create a scope for each resource body - this ensures that nested resources 
+            // Create a scope for each resource body - this ensures that nested resources
             // are contained within the appropriate scope.
             //
             // There may be additional scopes nested inside this between the resource declaration
@@ -125,6 +126,28 @@ namespace Bicep.Core.Semantics
 
             var symbol = new ImportedNamespaceSymbol(this.context, syntax.Name.IdentifierName, declaredType, syntax);
             DeclareSymbol(symbol);
+        }
+
+        public override void VisitLambdaSyntax(LambdaSyntax syntax)
+        {
+            // create new scope without any descendants
+            var scope = new LocalScope(string.Empty, syntax, syntax.Body, ImmutableArray<DeclaredSymbol>.Empty, ImmutableArray<LocalScope>.Empty);
+            this.PushScope(scope);
+
+            /*
+             * We cannot add the local symbol to the list of declarations because it will
+             * break name binding at the global namespace level
+            */
+            foreach (var variable in syntax.GetLocalVariables())
+            {
+                var itemVariableSymbol = new LocalVariableSymbol(this.context, variable.Name.IdentifierName, variable, LocalKind.LambdaItemVariable);
+                DeclareSymbol(itemVariableSymbol);
+            }
+
+            // visit the children
+            base.VisitLambdaSyntax(syntax);
+
+            this.PopScope();
         }
 
         public override void VisitForSyntax(ForSyntax syntax)

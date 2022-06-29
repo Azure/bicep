@@ -999,7 +999,19 @@ namespace Bicep.LanguageServer.Completions
                     {
                         yield return completion;
                     }
+                    break;
 
+                case LambdaType lambda:
+                    var (snippet, label) = lambda.ArgumentTypes.Length switch {
+                        1 => (
+                            "${1:arg} => $0",
+                            "arg => ..."),
+                        _ => (
+                            $"({string.Join(", ", lambda.ArgumentTypes.Select((x, i) => $"${{{i + 1}:arg{i + 1}}}"))}) => $0",
+                            $"({string.Join(", ", lambda.ArgumentTypes.Select((x, i) => $"arg{i + 1}"))}) => ..."),
+                    };
+
+                    yield return CreateContextualSnippetCompletion(label, label, snippet, replacementRange, CompletionPriority.High);
                     break;
             }
         }

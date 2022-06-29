@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
+using FluentAssertions;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -32,6 +34,14 @@ namespace Bicep.Core.UnitTests.Utils
             }
 
             return (bicepFile, cursors);
+        }
+
+        public static (string file, int cursor) GetFileWithSingleCursor(string fileWithCursors)
+        {
+            var (file, cursors) = GetFileWithCursors(fileWithCursors);
+            cursors.Should().HaveCount(1);
+
+            return (file, cursors.Single());
         }
     }
 }

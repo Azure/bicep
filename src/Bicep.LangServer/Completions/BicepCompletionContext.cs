@@ -571,9 +571,9 @@ namespace Bicep.LanguageServer.Completions
             if ((SyntaxMatcher.IsTailMatch<TernaryOperationSyntax>(matchingNodes) ||
                 SyntaxMatcher.IsTailMatch<TernaryOperationSyntax, Token>(matchingNodes) ||
                 SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax>(matchingNodes) ||
-                SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax, Token>(matchingNodes) || 
+                SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax, Token>(matchingNodes) ||
                 SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax, SkippedTriviaSyntax>(matchingNodes, (parenthesizedExpression, _) =>
-                    parenthesizedExpression.Expression is SkippedTriviaSyntax)) && 
+                    parenthesizedExpression.Expression is SkippedTriviaSyntax)) &&
                 matchingNodes.Skip(propertyInfo.index + 1).SkipLast(1).All(node => node is TernaryOperationSyntax or ParenthesizedExpressionSyntax))
             {
                 return true;
@@ -1033,7 +1033,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 // use binding syntax because this is used to find accessible symbols
                 // in a child scope
-                if (symbol.BindingSyntax.Span.Contains(this.offset))
+                if (symbol.BindingSyntax.Span.ContainsInclusive(this.offset))
                 {
                     // the offset is inside the binding scope
                     // this scope is active

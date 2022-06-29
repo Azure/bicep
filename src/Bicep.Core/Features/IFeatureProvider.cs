@@ -15,6 +15,8 @@ namespace Bicep.Core.Features
 
         bool ImportsEnabled { get; }
 
+        bool AdvancedListComprehensionEnabled { get; }
+
         bool ResourceTypedParamsAndOutputsEnabled { get; }
     }
 }

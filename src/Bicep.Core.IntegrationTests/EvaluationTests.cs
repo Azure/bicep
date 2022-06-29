@@ -416,5 +416,194 @@ output containsArr123 bool = contains(inputArray, 123)
                 evaluated.Should().HaveValueAtPath("$.outputs['containsArr123'].value", new JValue(false));
             }
         }
+
+        [TestMethod]
+        public void List_comprehension_function_evaluation_works()
+        {
+            var (template, _, _) = CompilationHelper.Compile(@"
+var doggos = [
+  'Evie'
+  'Casper'
+  'Indy'
+  'Kira'
+]
+
+var numbers = range(0, 4)
+
+var sayHello = map(doggos, i => 'Hello ${i}!')
+
+var isEven = filter(numbers, i => 0 == i % 2)
+
+var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, j => 0 == j % 2), i)), x => doggos[x])
+
+var flattenedArrayOfArrays = flatten([[0, 1], [2, 3], [4, 5]])
+var flattenedEmptyArray = flatten([])
+
+var mapSayHi = map(['abc', 'def', 'ghi'], foo => 'Hi ${foo}!')
+var mapEmpty = map([], foo => 'Hi ${foo}!')
+var mapObject = map(range(0, length(doggos)), i => {
+  i: i
+  doggo: doggos[i]
+  greeting: 'Ahoy, ${doggos[i]}!'
+})
+var mapArray = flatten(map(range(1, 3), i => [i * 2, (i * 2) + 1]))
+var mapMultiLineArray = flatten(map(range(1, 3), i => [
+  i * 3
+  (i * 3) + 1
+  (i * 3) + 2
+]))
+
+var filterEqualityCheck = filter(['abc', 'def', 'ghi'], foo => 'def' == foo)
+var filterEmpty = filter([], foo => 'def' == foo)
+
+var sortNumeric = sort([8, 3, 10, -13, 5], (x, y) => x < y)
+var sortAlpha = sort(['ghi', 'abc', 'def'], (x, y) => x < y)
+var sortAlphaReverse = sort(['ghi', 'abc', 'def'], (x, y) => x > y)
+var sortByObjectKey = sort([
+  { key: 124, name: 'Second' }
+  { key: 298, name: 'Third' }
+  { key: 24, name: 'First' }
+  { key: 1232, name: 'Fourth' }
+], (x, y) => int(x.key) < int(y.key))
+var sortEmpty = sort([], (x, y) => int(x) < int(y))
+
+var reduceStringConcat = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat(cur, next))
+var reduceFactorial = reduce(range(1, 5), 1, (cur, next) => cur * next)
+var reduceObjectUnion = reduce([
+  { foo: 123 }
+  { bar: 456 }
+  { baz: 789 }
+], {}, (cur, next) => union(cur, next))
+var reduceEmpty = reduce([], 0, (cur, next) => cur)
+");
+
+            using (new AssertionScope())
+            {
+                var evaluated = TemplateEvaluator.Evaluate(template);
+
+                evaluated.Should().HaveValueAtPath("$.variables['sayHello']", new JArray
+                {
+                    "Hello Evie!",
+                    "Hello Casper!",
+                    "Hello Indy!",
+                    "Hello Kira!",
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['isEven']", new JArray
+                {
+                    0,
+                    2,
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['evenDoggosNestedLambdas']", new JArray
+                {
+                    "Evie",
+                    "Indy",
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['flattenedArrayOfArrays']", new JArray {
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['flattenedEmptyArray']", new JArray { });
+                evaluated.Should().HaveValueAtPath("$.variables['mapSayHi']", new JArray {
+                    "Hi abc!",
+                    "Hi def!",
+                    "Hi ghi!"
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['mapEmpty']", new JArray { });
+                evaluated.Should().HaveValueAtPath("$.variables['mapObject']", new JArray {
+                    new JObject {
+                        ["i"] = 0,
+                        ["doggo"] = "Evie",
+                        ["greeting"] = "Ahoy, Evie!"
+                    },
+                    new JObject {
+                        ["i"] = 1,
+                        ["doggo"] = "Casper",
+                        ["greeting"] = "Ahoy, Casper!"
+                    },
+                    new JObject {
+                        ["i"] = 2,
+                        ["doggo"] = "Indy",
+                        ["greeting"] = "Ahoy, Indy!"
+                    },
+                    new JObject {
+                        ["i"] = 3,
+                        ["doggo"] = "Kira",
+                        ["greeting"] = "Ahoy, Kira!"
+                    }
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['mapArray']", new JArray {
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['mapMultiLineArray']", new JArray {
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['filterEqualityCheck']", new JArray {
+                    "def"
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['filterEmpty']", new JArray { });
+                evaluated.Should().HaveValueAtPath("$.variables['sortNumeric']", new JArray {
+                    -13,
+                    3,
+                    5,
+                    8,
+                    10
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['sortAlpha']", new JArray {
+                    "abc",
+                    "def",
+                    "ghi"
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['sortAlphaReverse']", new JArray {
+                    "ghi",
+                    "def",
+                    "abc"
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['sortByObjectKey']", new JArray {
+                    new JObject {
+                        ["key"] = 24,
+                        ["name"] = "First"
+                    },
+                    new JObject {
+                        ["key"] = 124,
+                        ["name"] = "Second"
+                    },
+                    new JObject {
+                        ["key"] = 298,
+                        ["name"] = "Third"
+                    },
+                    new JObject {
+                        ["key"] = 1232,
+                        ["name"] = "Fourth"
+                    }
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['sortEmpty']", new JArray { });
+                evaluated.Should().HaveValueAtPath("$.variables['reduceStringConcat']", "abcdefghi");
+                evaluated.Should().HaveValueAtPath("$.variables['reduceFactorial']", 120);
+                evaluated.Should().HaveValueAtPath("$.variables['reduceObjectUnion']", new JObject
+                {
+                    ["foo"] = 123,
+                    ["bar"] = 456,
+                    ["baz"] = 789
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['reduceEmpty']", 0);
+            }
+        }
     }
 }

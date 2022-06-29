@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -24,6 +24,10 @@ namespace Bicep.LanguageServer.Handlers
     /// <summary>
     /// Handles the internal command for code actions to edit a particular linter rule in the bicepconfig.json file
     /// </summary>
+    /// <remarks>
+    /// Using ExecuteTypedResponseCommandHandlerBase instead of IJsonRpcRequestHandler because IJsonRpcRequestHandler will throw "Content modified" if text changes are detected, and for this command
+    /// that is expected.
+    /// </remarks>
     public class BicepEditLinterRuleCommandHandler : ExecuteTypedCommandHandlerBase<DocumentUri, string, string>
     {
         private readonly string DefaultBicepConfig;
@@ -31,7 +35,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ITelemetryProvider telemetryProvider;
 
         public BicepEditLinterRuleCommandHandler(ISerializer serializer, ILanguageServerFacade server, ITelemetryProvider telemetryProvider)
-            : base(LanguageConstants.EditLinterRuleCommandName, serializer)
+            : base(LangServerConstants.EditLinterRuleCommandName, serializer)
         {
             DefaultBicepConfig = DefaultBicepConfigHelper.GetDefaultBicepConfig();
             this.server = server;
@@ -68,8 +72,7 @@ namespace Bicep.LanguageServer.Handlers
                     return Unit.Value;
                 }
 
-
-                newRuleAdded = await AddAndSelectRuleLevel(bicepConfigFilePath, ruleCode);
+                newRuleAdded = await AddAndSelectRuleLevel(server, bicepConfigFilePath, ruleCode);
 
                 error = null;
                 return Unit.Value;
@@ -86,10 +89,11 @@ namespace Bicep.LanguageServer.Handlers
             }
         }
 
+        //asdfg move
         // Returns true if the rule was added to the config file
-        public async Task<bool> AddAndSelectRuleLevel(string bicepConfigFilePath, string ruleCode)
+        public static async Task<bool> AddAndSelectRuleLevel(ILanguageServerFacade server, string bicepConfigFilePath, string ruleCode)
         {
-            if (await SelectRuleLevelIfExists(ruleCode, bicepConfigFilePath))
+            if (await SelectRuleLevelIfExists(server, ruleCode, bicepConfigFilePath))
             {
                 // The rule already exists and has been shown/selected
                 return false;
@@ -115,7 +119,7 @@ namespace Bicep.LanguageServer.Handlers
                 }
             }
 
-            await SelectRuleLevelIfExists(ruleCode, bicepConfigFilePath);
+            await SelectRuleLevelIfExists(server, ruleCode, bicepConfigFilePath);
             return added;
         }
 
@@ -126,7 +130,7 @@ namespace Bicep.LanguageServer.Handlers
         /// <param name="ruleCode"></param>
         /// <param name="configFilePath"></param>
         /// <returns>True if the rule exists and displaying/highlighting succeeds, otherwise false.</returns>
-        private async Task<bool> SelectRuleLevelIfExists(string ruleCode, string configFilePath)
+        private static async Task<bool> SelectRuleLevelIfExists(ILanguageServerFacade server, string ruleCode, string configFilePath)
         {
             // Inspect the JSON to figure out the location of the rule's level value
             Range? rangeOfRuleLevelValue = FindRangeOfPropertyValueInJson($"analyzers.core.rules.{ruleCode}.level", configFilePath);
@@ -142,9 +146,16 @@ namespace Bicep.LanguageServer.Handlers
                 await server.Window.ShowDocument(new()
                 {
                     Uri = DocumentUri.File(configFilePath),
-                    Selection = rangeOfRuleLevelValue,
+                    // Put the selection at the beginning of the rule's "level" value ("warning, "off", etc.),
+                    //  don't select the entire string, or else editor completion will not show all possible values
+                    //  when we trigger it.
+                    Selection = new Range(rangeOfRuleLevelValue.Start, rangeOfRuleLevelValue.Start),
                     TakeFocus = true
                 });
+
+                // If the client supports it, trigger completion of the rule's level value (call is ignored
+                //   if the client doesn't know about it)
+                server.SendNotification("bicep/triggerEditorCompletion");
 
                 return true;
             }

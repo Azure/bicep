@@ -23,7 +23,7 @@ namespace Bicep.Core.Semantics.Namespaces
             switch (providerName)
             {
                 case SystemNamespaceType.BuiltInName:
-                    return SystemNamespaceType.Create(aliasName);
+                    return SystemNamespaceType.Create(aliasName, featureProvider);
                 case AzNamespaceType.BuiltInName:
                     return AzNamespaceType.Create(aliasName, resourceScope, azResourceTypeProvider);
                 case K8sNamespaceType.BuiltInName:
