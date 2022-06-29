@@ -283,7 +283,7 @@ namespace Bicep.Core.TypeSystem
 
                         if (resourceType.DeclaringNamespace.ProviderName == AzNamespaceType.BuiltInName &&
                             typeSegments.Length > 2 &&
-                            typeSegments.Where((type, i) => i > 1 && i < (typeSegments.Length - 1) && StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
+                            typeSegments.Any((type, i) => i > 1 && i < (typeSegments.Length - 1) && StringComparer.OrdinalIgnoreCase.Equals(type, "providers")))
                         {
                             // Special check for (<type>/)+providers(/<type>)+
                             // This indicates someone is trying to deploy an extension resource without using the 'scope' property.
