@@ -1,5 +1,5 @@
 /*
-//@[00:768) ProgramSyntax
+//@[00:769) ProgramSyntax
 This is a
 multiline comment!
 */
@@ -28,19 +28,20 @@ param myInt = 42
 //@[14:016) | └─IntegerLiteralSyntax
 //@[14:016) | | └─Token(Integer) |42|
 //@[16:017) ├─Token(NewLine) |\n|
-param myStr = "hello world!"
-//@[00:028) ├─ParameterAssignmentSyntax
+param myStr = "hello world!!"
+//@[00:029) ├─ParameterAssignmentSyntax
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:011) | ├─IdentifierSyntax
 //@[06:011) | | └─Token(Identifier) |myStr|
 //@[12:013) | ├─Token(Assignment) |=|
-//@[14:028) | └─SkippedTriviaSyntax
+//@[14:029) | └─SkippedTriviaSyntax
 //@[14:015) | | ├─Token(Unrecognized) |"|
 //@[15:020) | | ├─Token(Identifier) |hello|
 //@[21:026) | | ├─Token(Identifier) |world|
 //@[26:027) | | ├─Token(Exclamation) |!|
-//@[27:028) | | └─Token(Unrecognized) |"|
-//@[28:029) ├─Token(NewLine) |\n|
+//@[27:028) | | ├─Token(Exclamation) |!|
+//@[28:029) | | └─Token(Unrecognized) |"|
+//@[29:030) ├─Token(NewLine) |\n|
 param myBool = true
 //@[00:019) ├─ParameterAssignmentSyntax
 //@[00:005) | ├─Token(Identifier) |param|
