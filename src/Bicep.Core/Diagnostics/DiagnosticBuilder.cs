@@ -1439,11 +1439,17 @@ namespace Bicep.Core.Diagnostics
                 "BCP244",
                 $"Expected lambda expression of type \"{lambdaType}\" with {expectedArgCount} arguments but received {actualArgCount} arguments.");
 
-            public Diagnostic ResourceTypeIsReadonlyAtScope(string resourceName, ResourceScope writableScopes) => new(
+            public Diagnostic ResourceTypeIsReadonly(ResourceTypeReference resourceTypeReference) => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP245",
-                $"Resource type \"{resourceName}\" can only be used with the 'existing' keyword at the requested scope."
+                $"Resource type \"{resourceTypeReference.FormatName()}\" can only be used with the 'existing' keyword.");
+
+            public Diagnostic ResourceTypeIsReadonlyAtScope(ResourceTypeReference resourceTypeReference, ResourceScope writableScopes) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP246",
+                $"Resource type \"{resourceTypeReference.FormatName()}\" can only be used with the 'existing' keyword at the requested scope."
                     + $" Permitted scopes for deployment: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(writableScopes))}.");
         }
 

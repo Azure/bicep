@@ -43,6 +43,24 @@ namespace Bicep.Core.UnitTests.Utils
                     }), null));
         }
 
+        private static ResourceTypeComponents ReadOnlyTestsType()
+        {
+            var resourceType = ResourceTypeReference.Parse("Test.Rp/readOnlyTests@2020-01-01");
+
+            var propertiesType = new ObjectType("Properties", TypeSymbolValidationFlags.WarnOnTypeMismatch, new[] {
+                new TypeProperty("readwrite", LanguageConstants.String, TypePropertyFlags.None, "This is a property which supports reading AND writing!"),
+                new TypeProperty("readonly", LanguageConstants.String, TypePropertyFlags.ReadOnly, "This is a property which only supports reading."),
+                new TypeProperty("writeonly", LanguageConstants.String, TypePropertyFlags.WriteOnly, "This is a property which only supports writing."),
+                new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "This is a property which is required."),
+            }, null);
+
+            return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.ReadOnly,
+                new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
+                    AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new[] {
+                        new TypeProperty("properties", propertiesType, TypePropertyFlags.ReadOnly, "properties property"),
+                    }), null));
+        }
+
         private static ResourceTypeComponents DiscriminatorTestsType()
         {
             var resourceType = ResourceTypeReference.Parse("Test.Rp/discriminatorTests@2020-01-01");
@@ -228,6 +246,7 @@ namespace Bicep.Core.UnitTests.Utils
             => TestTypeHelper.CreateProviderWithTypes(new[] {
                 BasicTestsType(),
                 ReadWriteTestsType(),
+                ReadOnlyTestsType(),
                 DiscriminatorTestsType(),
                 DiscriminatedPropertiesTestsType(),
                 DiscriminatedPropertiesTestsType2(),

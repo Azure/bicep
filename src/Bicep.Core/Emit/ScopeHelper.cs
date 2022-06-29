@@ -439,8 +439,7 @@ namespace Bicep.Core.Emit
 
             if (IsReadonlyAtScope(resource, scopeData))
             {
-                writeScopeDiagnostic(x => x.ResourceTypeIsReadonlyAtScope(resource.Type.TypeReference.FormatName(),
-                    resource.Type.Scope ^ resource.Type.ReadOnlyScopes));
+                writeScopeDiagnostic(x => x.ResourceTypeIsReadonlyAtScope(resource.TypeReference, resource.Type.ValidParentScopes ^ resource.Type.ReadOnlyScopes));
             }
         }
 

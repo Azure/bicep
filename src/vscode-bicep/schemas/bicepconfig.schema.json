@@ -352,16 +352,6 @@
                     }
                   ]
                 },
-                "no-writing-readonly-resources": {
-                  "allOf": [
-                    {
-                      "description": "Readonly resources can only be used with the 'existing' keyword. See https://aka.ms/bicep/linter/no-writing-readonly-resources"
-                    },
-                    {
-                      "$ref": "#/definitions/rule"
-                    }
-                  ]
-                },
                 "outputs-should-not-contain-secrets": {
                   "allOf": [
                     {
