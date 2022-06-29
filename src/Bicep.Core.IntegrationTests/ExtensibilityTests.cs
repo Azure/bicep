@@ -393,25 +393,5 @@ Hello from Bicep!"));
   }
 }"));
         }
-
-        [TestMethod]
-        public void params_file_end_to_end_test()
-        {
-
-//           string paramsInput = @"
-// param paramTest = 'test value'";
-
-//           string jsonOuput = @"
-// {
-//   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
-//   ""contentVersion"": ""1.0.0.0"",
-//   ""parameters"": {
-//     ""paramTest"": {
-//       ""value"": ""test value""
-//     }
-//   }
-// }";
-
-        }
     }
 }
