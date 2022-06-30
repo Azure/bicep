@@ -102,6 +102,43 @@ namespace Bicep.Core.IntegrationTests.Emit
             TemplateHelper.TemplateShouldBeValid(outputFile);
         }
 
+        [DataTestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task ValidBicep_TemplateEmitterShouldProduceExpectedSourceMap(DataSet dataSet)
+        {
+            var (compilation, outputDirectory, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new EmitterSettings(BicepTestConstants.Features with { SourceMappingEnabled = true }));
+            using var memoryStream = new MemoryStream();
+            var sourceMap = emitter.Emit(memoryStream).SourceMap!;
+
+            using var streamReader = new StreamReader(new MemoryStream(memoryStream.ToArray()));
+            var jsonLines = (await streamReader.ReadToEndAsync()).Split(System.Environment.NewLine);
+
+            var sourceTextWithSourceMap = OutputHelper.AddSourceMapToSourceText(
+                dataSet.Bicep, DataSet.TestFileMain, dataSet.HasCrLfNewlines() ? "\r\n" : "\n", sourceMap, jsonLines);
+            var sourceTextWithSourceMapFileName = Path.Combine(outputDirectory, DataSet.TestFileMainSourceMap);
+            File.WriteAllText(sourceTextWithSourceMapFileName, sourceTextWithSourceMap.ToString());
+
+            // validate source file annotated with source map
+            sourceTextWithSourceMap.Should().EqualWithLineByLineDiffOutput(
+                TestContext,
+                dataSet.SourceMap!,
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
+                actualLocation: sourceTextWithSourceMapFileName);
+
+            var actualSourceMapJson = JToken.FromObject(sourceMap);
+            var actualSourceMapJsonFileName = Path.Combine(outputDirectory, DataSet.TestFileMainCompiledSourceMap);
+            File.WriteAllText(actualSourceMapJsonFileName, actualSourceMapJson.ToString());
+
+            // validate source map
+            actualSourceMapJson.Should().EqualWithJsonDiffOutput(
+                TestContext,
+                JToken.Parse(dataSet.CompiledSourceMap!),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiledSourceMap),
+                actualLocation: actualSourceMapJsonFileName);
+        }
+
         [TestMethod]
         public void TemplateEmitter_output_should_not_include_UTF8_BOM()
         {
@@ -225,4 +262,3 @@ this
             .ToDynamicTestData();
     }
 }
-

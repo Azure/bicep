@@ -84,6 +84,11 @@ namespace Bicep.Core.FileSystem
             return relativeUri;
         }
 
+        public string GetRelativePath(string relativeTo, string path)
+        {
+            return Path.GetRelativePath(relativeTo, path).Replace('\\', '/');
+        }
+
         public bool DirExists(Uri fileUri) => this.fileLookup.Keys.Any(key => key.ToString().StartsWith(fileUri.ToString()));
 
         public bool FileExists(Uri uri) => this.fileLookup.ContainsKey(uri);

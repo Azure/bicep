@@ -29,7 +29,8 @@ namespace Bicep.Core.UnitTests
         bool SymbolicNameCodegenEnabled,
         bool ImportsEnabled,
         bool AdvancedListComprehensionEnabled,
-        bool ResourceTypedParamsAndOutputsEnabled) : IFeatureProvider;
+        bool ResourceTypedParamsAndOutputsEnabled,
+        bool SourceMappingEnabled) : IFeatureProvider;
 
     public static class BicepTestConstants
     {
@@ -39,7 +40,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly FileResolver FileResolver = new();
 
-        public static readonly TestFeatureProvider Features = CreateFeatureProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
+        public static readonly TestFeatureProvider Features = CreateFeatureProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, sourceMappingEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
 
         public static readonly EmitterSettings EmitterSettings = new EmitterSettings(Features);
 
@@ -99,6 +100,7 @@ namespace Bicep.Core.UnitTests
             bool symbolicNameCodegenEnabled = false,
             bool importsEnabled = false,
             bool resourceTypedParamsAndOutputsEnabled = false,
+            bool sourceMappingEnabled = false,
             string assemblyFileVersion = DevAssemblyFileVersion)
         {
             var features = CreateFeatureProvider(
@@ -106,9 +108,11 @@ namespace Bicep.Core.UnitTests
                 symbolicNameCodegenEnabled,
                 importsEnabled,
                 resourceTypedParamsAndOutputsEnabled,
+                sourceMappingEnabled,
                 assemblyFileVersion);
 
-            return features with {
+            return features with
+            {
                 CacheRootDirectory = FileHelper.GetCacheRootPath(testContext),
             };
         }
@@ -118,6 +122,7 @@ namespace Bicep.Core.UnitTests
             bool symbolicNameCodegenEnabled,
             bool importsEnabled,
             bool resourceTypedParamsAndOutputsEnabled,
+            bool sourceMappingEnabled,
             string assemblyFileVersion)
         {
             return new TestFeatureProvider(
@@ -127,7 +132,8 @@ namespace Bicep.Core.UnitTests
                 symbolicNameCodegenEnabled,
                 importsEnabled,
                 true,
-                resourceTypedParamsAndOutputsEnabled);
+                resourceTypedParamsAndOutputsEnabled,
+                sourceMappingEnabled);
         }
 
         private static IModuleRestoreScheduler CreateMockModuleRestoreScheduler()
