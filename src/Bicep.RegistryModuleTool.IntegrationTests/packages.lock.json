@@ -67,18 +67,18 @@
       },
       "Azure.Bicep.Types": {
         "type": "Transitive",
-        "resolved": "0.1.538",
-        "contentHash": "JHEcmh6WQO9JurMsb0jouKBSOW/BTCKwvlPE/Yf9xjNMrVOVq52jo/RzRovVvG/KKUyCRFDPShh/KMDRQJHXXw==",
+        "resolved": "0.2.2",
+        "contentHash": "lT5J9OUoYGTb9zaRat1In2Nu5gaqo4jciuM7rnG3ExgVGtY9AlDRltx8h5al2kffEPGWoNdE9rP9nwodqiuQxw==",
         "dependencies": {
-          "System.Text.Json": "6.0.4"
+          "System.Text.Json": "6.0.5"
         }
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",
-        "resolved": "0.1.538",
-        "contentHash": "xyGLBuR9hGhqya5Prt0pfiFK+p3ZU+GckP8qFsPzGWexIZEix+clAmmU22lCAjOkHlFHoMvfZDv0xGL6roi6gg==",
+        "resolved": "0.2.2",
+        "contentHash": "FxN37Yxbhx+rr7OnwqKlmRanqFFq3/ZgAAj+DScz+g8pxkHtx90hGO2/4AsdXtYNDW8unBZS5mS7lov1P8adiw==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.1.538"
+          "Azure.Bicep.Types": "0.2.2"
         }
       },
       "Azure.Bicep.Types.K8s": {
@@ -1982,8 +1982,8 @@
       },
       "System.Text.Json": {
         "type": "Transitive",
-        "resolved": "6.0.4",
-        "contentHash": "krM+rxZPl5MQqGmHbj/gLis58IqGrLQGm7CIvNJ72Wj1MCdXNu1uMco5wRr7PmPOL/ITF/uEkB/3S1nSGFNvHg==",
+        "resolved": "6.0.5",
+        "contentHash": "SSH+YYrMpvLcy7Orzb5K1tSyffnFacWahyxCCjYH1PbSHdAF4dekmIetBurFKgtTHDmwEe/J2Csi/7niRH6d/g==",
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "6.0.0",
           "System.Text.Encodings.Web": "6.0.0"
@@ -2101,8 +2101,8 @@
       "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Types": "0.1.538",
-          "Azure.Bicep.Types.Az": "0.1.538",
+          "Azure.Bicep.Types": "0.2.2",
+          "Azure.Bicep.Types.Az": "0.2.2",
           "Azure.Bicep.Types.K8s": "0.1.11",
           "Azure.Containers.ContainerRegistry": "1.1.0-beta.4",
           "Azure.Deployments.Core": "1.0.635",

@@ -59,7 +59,7 @@
     "detail": "containerSettings",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `ContainerConfiguration`  \nSettings to customize ACI container instance.  \n"
+      "value": "Type: `ContainerConfiguration`  \nContainer settings.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -203,7 +203,7 @@
     "detail": "status",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `ScriptStatus`  \nRead-only property  \nGeneric object modeling results of script execution.  \n"
+      "value": "Type: `ScriptStatus`  \nRead-only property  \nContains the results of script execution.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -221,7 +221,7 @@
     "detail": "storageAccountSettings",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `StorageAccountConfiguration`  \nSettings to use an existing storage account. Valid storage account kinds are: Storage, StorageV2 and FileStorage  \n"
+      "value": "Type: `StorageAccountConfiguration`  \nStorage Account settings.  \n"
     },
     "deprecated": false,
     "preselect": false,

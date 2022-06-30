@@ -31,6 +31,8 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                 new ResourceTypeComponents(
                     ResourceTypeReference.Parse("application"),
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
+                    ResourceScope.None,
+                    ResourceFlags.None,
                     new ObjectType("application", TypeSymbolValidationFlags.Default, new[]
                     {
                         new TypeProperty("uniqueName", LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty),
@@ -48,7 +50,14 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                     return null;
                 }
 
-                return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body, UniqueIdentifierProperties);
+                return new(
+                    declaringNamespace,
+                    resourceType.TypeReference,
+                    resourceType.ValidParentScopes,
+                    resourceType.ReadOnlyScopes,
+                    resourceType.Flags,
+                    resourceType.Body,
+                    UniqueIdentifierProperties);
             }
 
             public bool HasDefinedType(ResourceTypeReference typeReference)
