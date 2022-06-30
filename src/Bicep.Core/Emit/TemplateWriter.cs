@@ -107,51 +107,6 @@ namespace Bicep.Core.Emit
             templateJToken.WriteTo(writer);
         }
 
-        public void WriteParams(JsonTextWriter writer){
-            var paramsJToken = GenerateParamsFile();
-            paramsJToken.WriteTo(writer);
-        }
-
-        private JToken GenerateParamsFile(){
-            using var stringWriter = new StringWriter();
-            using var jsonWriter = new JsonTextWriter(stringWriter);
-            var emitter = new ExpressionEmitter(jsonWriter, this.context);
-
-            jsonWriter.WriteStartObject();
-
-            emitter.EmitProperty("$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#");
-
-            emitter.EmitProperty("contentVersion", "1.0.0.0");
-
-            this.EmitParameters(jsonWriter, emitter);
-            // /context.SemanticModel.Root.Syntax.Children.OfType<ParameterSetSyntax>()
-            jsonWriter.WriteEndObject();
-
-            var content = stringWriter.ToString();
-            return (content.FromJson<JToken>());
-        }
-
-        private void EmitParameters(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
-        {
-            if (this.context.SemanticModel.Root.Syntax.Children.Length == 0)
-            {
-                return;
-            }
-
-            jsonWriter.WritePropertyName("parameters");
-            jsonWriter.WriteStartObject();
-
-            foreach (var parameterSymbol in this.context.SemanticModel.Root.ParameterDeclarations)
-            {
-                jsonWriter.WritePropertyName(parameterSymbol.Name);
-                this.EmitParameter(jsonWriter, parameterSymbol, emitter);
-            }
-
-            jsonWriter.WriteEndObject();
-        }
-
-
-
         private (Template, JToken) GenerateTemplateWithoutHash()
         {
             // TODO: since we merely return a JToken, refactor the emitter logic to add properties to a JObject
@@ -236,16 +191,6 @@ namespace Bicep.Core.Emit
 
             return result;
         }
-/*
-"{\r\n  \"$schema\": \"https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#\",\r\n  
-\"languageVersion\": \"1.9-experimental\",\r\n  \"contentVersion\": \"1.0.0.0\",\r\n  \"metadata\": {\r\n    
-\"EXPERIMENTAL_WARNING\": \"Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. 
-Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!\",\r\n    
-\"_generator\": {\r\n      \"name\": \"bicep\",\r\n      \"version\": \"dev\",\r\n      \"templateHash\": \"1249206478152780556\"\r\n    }\r\n  },\r\n  \"resources\": {}\r\n}"
-
-
-
-*/
 
         private void EmitParameter(JsonTextWriter jsonWriter, ParameterSymbol parameterSymbol, ExpressionEmitter emitter)
         {
