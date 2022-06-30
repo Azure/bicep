@@ -90,7 +90,8 @@ primaryExpression ->
   array |
   forExpression |
   object |
-  parenthesizedExpression
+  parenthesizedExpression |
+  lambdaExpression
 
 decoratorExpression -> functionCall | memberExpression "." functionCall
 
@@ -99,6 +100,8 @@ functionCall -> IDENTIFIER "(" argumentList? ")"
 argumentList -> expression ("," expression)*
 
 parenthesizedExpression -> "(" expression ")"
+
+lambdaExpression -> ( "(" argumentList? ")" | IDENTIFIER ) "=>" expression
 
 ifCondition -> "if" parenthesizedExpression object
 

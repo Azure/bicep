@@ -17,7 +17,7 @@ resource dnsRecord 'Microsoft.Network/dnsZones/A@2018-05-01' = {
   name: 'name'
   properties: {
     TTL: 3600
-    'ARecords': []
+    ARecords: []
   }
 }
 // Insert snippet here

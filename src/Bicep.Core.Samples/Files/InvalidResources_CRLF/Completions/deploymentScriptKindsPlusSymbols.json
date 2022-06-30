@@ -2308,6 +2308,27 @@
     }
   },
   {
+    "label": "filter",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nfilter(array: array, predicate: any => bool): array\n\n```\nFilters an array with a custom filtering function.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_filter",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "filter($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "first",
     "kind": "function",
     "documentation": {
@@ -2326,6 +2347,23 @@
     "command": {
       "title": "signature help",
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "flatten",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nflatten(... : array[]): array\n\n```\nTakes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_flatten",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "flatten()$0"
     }
   },
   {
@@ -2890,6 +2928,27 @@
     }
   },
   {
+    "label": "join",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\njoin(inputArray: string[], delimiter: string): string\n\n```\nJoins multiple strings into a single string, separated using a delimiter.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_join",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "join($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "json",
     "kind": "function",
     "documentation": {
@@ -3213,6 +3272,27 @@
     "textEdit": {
       "range": {},
       "newText": "managementGroupResourceId($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "map",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmap(array: array, predicate: any => any): array\n\n```\nApplies a custom mapping function to each element of an array and returns the result array.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_map",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "map($0)"
     },
     "command": {
       "title": "signature help",
@@ -4550,6 +4630,27 @@
     ]
   },
   {
+    "label": "reduce",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nreduce(array: array, initialValue: any, predicate: (any, any) => any): array\n\n```\nReduces an array with a custom reduce function.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_reduce",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "reduce($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "reference",
     "kind": "function",
     "documentation": {
@@ -5323,6 +5424,27 @@
     "textEdit": {
       "range": {},
       "newText": "skip($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "sort",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsort(array: array, predicate: (any, any) => bool): array\n\n```\nSorts an array with a custom sort function.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_sort",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "sort($0)"
     },
     "command": {
       "title": "signature help",

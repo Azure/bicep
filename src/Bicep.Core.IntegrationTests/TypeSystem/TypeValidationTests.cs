@@ -479,6 +479,43 @@ var singleItemValue = itemsOutput[0].value
             GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("string");
         }
 
+        [TestMethod]
+        public void Existing_keyword_enforced_for_readonly_resources()
+        {
+            var program = @"
+resource testRes 'Test.Rp/readOnlyTests@2020-01-01' = {
+    name: 'default'
+}
+";
+
+            var model = GetSemanticModelForTest(program, BuiltInTestTypes.Create());
+            model.GetAllDiagnostics().Should().SatisfyRespectively(
+                x => x.Should().HaveCodeAndSeverity("BCP245", DiagnosticLevel.Warning).And.HaveMessage(@"Resource type ""Test.Rp/readOnlyTests@2020-01-01"" can only be used with the 'existing' keyword.")
+            );
+        }
+
+        [TestMethod]
+        public void Existing_keyword_enforced_for_resources_that_are_readonly_at_target_scope()
+        {
+            var customTypes = new[] {
+                TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", TypeSymbolValidationFlags.Default, ResourceScope.Tenant | ResourceScope.Subscription, ResourceScope.Tenant, ResourceFlags.None),
+            };
+
+            var program = @"
+targetScope = 'tenant'
+
+resource testRes 'My.Rp/myType@2020-01-01' = {
+    name: 'default'
+}
+";
+
+            var model = GetSemanticModelForTest(program, customTypes);
+            var diagnostics = model.GetAllDiagnostics().ToList();
+            model.GetAllDiagnostics().Should().SatisfyRespectively(
+                x => x.Should().HaveCodeAndSeverity("BCP246", DiagnosticLevel.Warning).And.HaveMessage(@"Resource type ""My.Rp/myType@2020-01-01"" can only be used with the 'existing' keyword at the requested scope. Permitted scopes for deployment: ""subscription"".")
+            );
+        }
+
         private static TypeSymbol GetTypeForNamedSymbol(SemanticModel model, string symbolName)
         {
             var symbol = model.Root.GetDeclarationsByName(symbolName).Single();

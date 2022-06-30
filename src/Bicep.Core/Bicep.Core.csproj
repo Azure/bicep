@@ -18,7 +18,7 @@
   <ItemGroup>
     <PackageReference Include="Azure.Containers.ContainerRegistry" Version="1.1.0-beta.4" />
     <PackageReference Include="Azure.Identity" Version="1.6.0" />
-    <PackageReference Include="Azure.ResourceManager.Resources" Version="1.0.0" />
+    <PackageReference Include="Azure.ResourceManager.Resources" Version="1.1.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2022.1.0">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -29,11 +29,11 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
-    <PackageReference Include="Azure.Deployments.Core" Version="1.0.594" />
-    <PackageReference Include="Azure.Deployments.Templates" Version="1.0.594" />
-    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.594" />
-    <PackageReference Include="Azure.Bicep.Types" Version="0.1.538" />
-    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.538" />
+    <PackageReference Include="Azure.Deployments.Core" Version="1.0.635" />
+    <PackageReference Include="Azure.Deployments.Templates" Version="1.0.635" />
+    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.635" />
+    <PackageReference Include="Azure.Bicep.Types" Version="0.2.2" />
+    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.2" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.11" />
     <PackageReference Include="System.IO.Abstractions" Version="17.0.18" />
   </ItemGroup>

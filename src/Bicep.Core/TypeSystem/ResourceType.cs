@@ -8,16 +8,27 @@ namespace Bicep.Core.TypeSystem
     public record ResourceTypeComponents(
         ResourceTypeReference TypeReference,
         ResourceScope ValidParentScopes,
+        ResourceScope ReadOnlyScopes,
+        ResourceFlags Flags,
         ITypeReference Body);
 
     public class ResourceType : TypeSymbol, IScopeReference
     {
-        public ResourceType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceScope validParentScopes, ITypeReference body, ImmutableHashSet<string> uniqueIdentifierProperties)
-            : base(typeReference.FormatName())
+        public ResourceType(
+            NamespaceType declaringNamespace,
+            ResourceTypeReference typeReference,
+            ResourceScope validParentScopes,
+            ResourceScope readOnlyScopes,
+            ResourceFlags flags,
+            ITypeReference body,
+            ImmutableHashSet<string> uniqueIdentifierProperties
+        ) : base(typeReference.FormatName())
         {
             DeclaringNamespace = declaringNamespace;
             TypeReference = typeReference;
             ValidParentScopes = validParentScopes;
+            ReadOnlyScopes = readOnlyScopes;
+            Flags = flags;
             Body = body;
             UniqueIdentifierProperties = uniqueIdentifierProperties;
         }
@@ -35,6 +46,13 @@ namespace Bicep.Core.TypeSystem
         /// Does not account for cross-scope deployment limitations.
         /// </summary>
         public ResourceScope ValidParentScopes { get; }
+
+        /// <summary>
+        /// Represents the scopes in which this resource type may only be used with the `existing` keyword.
+        /// </summary>
+        public ResourceScope ReadOnlyScopes { get; }
+
+        public ResourceFlags Flags { get; }
 
         public ITypeReference Body { get; }
 

@@ -69,7 +69,7 @@ namespace Bicep.Core.Emit
         private JToken GenerateTemplate(string contentVersion)
         {
             using var stringWriter = new StringWriter();
-            using var jsonWriter = new JsonTextWriter(stringWriter);
+            using var jsonWriter = PositionTrackingJsonTextWriter.Create(stringWriter);
             var emitter = new ExpressionEmitter(jsonWriter, this.context);
 
             jsonWriter.WriteStartObject();
@@ -97,7 +97,7 @@ namespace Bicep.Core.Emit
                                 break;
                             case "int":
                                 emitter.EmitProperty("value", () => jsonWriter.WriteValue(0));
-                                break;
+                            break;
                             case "bool":
                                 emitter.EmitProperty("value", () => jsonWriter.WriteValue(false));
                                 break;
