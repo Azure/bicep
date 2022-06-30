@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Bicep.Core.Extensions;
@@ -20,39 +19,6 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ParserTests
     {
-        private class SyntaxCollectorVisitor : SyntaxVisitor
-        {
-            public record SyntaxItem(SyntaxBase Syntax, SyntaxBase? Parent, int Depth);
-
-            private readonly IList<SyntaxItem> syntaxList = new List<SyntaxItem>();
-            private SyntaxBase? parent = null;
-            private int depth = 0;
-
-            private SyntaxCollectorVisitor()
-            {
-            }
-
-            public static ImmutableArray<SyntaxItem> Build(ProgramSyntax syntax)
-            {
-                var visitor = new SyntaxCollectorVisitor();
-                visitor.Visit(syntax);
-
-                return visitor.syntaxList.ToImmutableArray();
-            }
-
-            protected override void VisitInternal(SyntaxBase syntax)
-            {
-                syntaxList.Add(new(Syntax: syntax, Parent: parent, Depth: depth));
-
-                var prevParent = parent;
-                parent = syntax;
-                depth++;
-                base.VisitInternal(syntax);
-                depth--;
-                parent = prevParent;
-            }
-        }
-
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -91,10 +57,10 @@ namespace Bicep.Core.IntegrationTests
         public void Parser_should_produce_expected_syntax(DataSet dataSet)
         {
             var program = ParserHelper.Parse(dataSet.Bicep);
-            var syntaxList = SyntaxCollectorVisitor.Build(program);
+            var syntaxList = SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.Build(program);
             var syntaxByParent = syntaxList.ToLookup(x => x.Parent);
 
-            string getLoggingString(SyntaxCollectorVisitor.SyntaxItem data)
+            string getLoggingString(SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem data)
             {
                 // Build a visual graph with lines to help understand the syntax hierarchy
                 var graphPrefix = "";
@@ -116,7 +82,7 @@ namespace Bicep.Core.IntegrationTests
                 };
             }
 
-            TextSpan getSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
+            TextSpan getSpan(SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
 
             var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, syntaxList, getSpan, getLoggingString);
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainSyntax), sourceTextWithDiags);

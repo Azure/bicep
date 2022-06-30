@@ -1,6 +1,6 @@
 *.bicep -text
+*.bicepparam -text
 *.ts text eol=lf
 *.cs text eol=lf
 *.sh text eol=lf
 /src/Bicep.Core.Samples/Files/**/Assets/**/*.txt -text
-

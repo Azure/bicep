@@ -8,6 +8,7 @@
     <!-- Bicep.Core.Samples -->
     <EmbeddedResource Include="./Files/**/*.json" LogicalName="$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
     <EmbeddedResource Include="./Files/**/*.bicep" LogicalName="$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+    <EmbeddedResource Include="./Files/**/*.bicepparam" LogicalName="$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
     <EmbeddedResource Include="./Files/**/Assets/**/*" LogicalName="$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
 
     <!-- Path prefix: user_submitted -->

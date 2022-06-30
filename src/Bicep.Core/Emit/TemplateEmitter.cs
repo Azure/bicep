@@ -65,16 +65,6 @@ namespace Bicep.Core.Emit
 
             new TemplateWriter(this.model, this.settings).Write(writer);
         });
-
-        public EmitResult EmitParams(Stream stream) => EmitOrFail(() => {
-             using var writer = new JsonTextWriter(new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true))
-            {
-                Formatting = Formatting.Indented
-            };
-
-            new TemplateWriter(this.model, this.settings).WriteParams(writer);
-        });
-
         /// <summary>
         /// Emits a template to the specified text writer if there are no errors. No writes are made to the writer if there are compilation errors.
         /// </summary>
