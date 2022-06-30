@@ -312,7 +312,7 @@ module appPlanDeploy2 'wrong|.bicep' = {
 
         private static IEnumerable<object[]> GetData()
         {
-            return DataSets.NonStressDataSets.Where(x => x.Name == "LoadFunctions_CRLF").ToDynamicTestData();
+            return DataSets.NonStressDataSets.ToDynamicTestData();
         }
     }
 }
