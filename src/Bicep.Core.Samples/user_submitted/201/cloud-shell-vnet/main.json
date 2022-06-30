@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9584729251604657934"
+      "templateHash": "16410081052836356591"
     }
   },
   "parameters": {
@@ -94,6 +94,26 @@
       "apiVersion": "2020-04-01",
       "name": "[format('{0}/{1}', parameters('existingVNETName'), parameters('containerSubnetName'))]",
       "properties": {
+        "networkSecurityGroup": {
+          "location": "[parameters('location')]",
+          "properties": {
+            "securityRules": [
+              {
+                "name": "rulesHttp",
+                "properties": {
+                  "description": "Allow HTTP flows",
+                  "protocol": "Tcp",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "80",
+                  "sourceAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 100,
+                  "direction": "Inbound"
+                }
+              }
+            ]
+          }
+        },
         "addressPrefix": "[parameters('containerSubnetAddressPrefix')]",
         "serviceEndpoints": [
           {
