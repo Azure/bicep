@@ -109,7 +109,7 @@ namespace Bicep.Core.Semantics
 
         public FunctionOverloadBuilder WithVariableParameter(string namePrefix, TypeSymbol type, int minimumCount, string description)
         {
-            VariableParameter = new VariableFunctionParameter(namePrefix, description, type, minimumCount);
+            VariableParameter = new(namePrefix, description, type, minimumCount);
             return this;
         }
 

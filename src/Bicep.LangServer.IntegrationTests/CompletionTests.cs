@@ -2242,5 +2242,166 @@ Returns the unique identifier of a resource. You use this function when the reso
             Global,
             DataSet
         }
+
+
+        [DataTestMethod]
+        [DataRow("loadTextContent")]
+        [DataRow("loadFileAsBase64")]
+        [DataRow("loadJsonContent", true)]
+        public async Task LoadFunctionsPathArgument_returnsFilesInCompletions(string functionName, bool jsonOnTop = false)
+        {
+            var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
+            var armTemplateUri1 = DocumentUri.FromFileSystemPath("/path/to/template1.arm");
+            var armTemplateUri2 = DocumentUri.FromFileSystemPath("/path/to/template2.json");
+            var armTemplateUri3 = DocumentUri.FromFileSystemPath("/path/to/template3.jsonc");
+            var armTemplateUri4 = DocumentUri.FromFileSystemPath("/path/to/template4.json");
+            var armTemplateUri5 = DocumentUri.FromFileSystemPath("/path/to/template5.json");
+            var jsonUri1 = DocumentUri.FromFileSystemPath("/path/to/json1.json");
+            var jsonUri2 = DocumentUri.FromFileSystemPath("/path/to/json2.json");
+            var bicepModuleUri1 = DocumentUri.FromFileSystemPath("/path/to/module1.txt");
+            var bicepModuleUri2 = DocumentUri.FromFileSystemPath("/path/to/module2.bicep");
+            var bicepModuleUri3 = DocumentUri.FromFileSystemPath("/path/to/module3.bicep");
+
+            var (mainFileText, cursor) = ParserHelper.GetFileWithSingleCursor(@"
+var file = " + functionName + @"('|')
+");
+            var mainFile = SourceFileFactory.CreateBicepFile(mainUri.ToUri(), mainFileText);
+            var schema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
+
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [mainUri.ToUri()] = mainFileText,
+                [armTemplateUri1.ToUri()] = "",
+                [armTemplateUri2.ToUri()] = @$"{{ ""schema"": ""{schema}"" }}",
+                [armTemplateUri3.ToUri()] = @"{}",
+                [armTemplateUri4.ToUri()] = new string('x', 2000 - schema.Length) + schema,
+                [armTemplateUri5.ToUri()] = new string('x', 2002 - schema.Length) + schema,
+                [jsonUri1.ToUri()] = "{}",
+                [jsonUri2.ToUri()] = @"[{ ""name"": ""value"" }]",
+                [bicepModuleUri1.ToUri()] = "param foo string",
+                [bicepModuleUri2.ToUri()] = "param bar bool",
+                [bicepModuleUri3.ToUri()] = "",
+            };
+
+            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
+
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+                TestContext,
+                mainFileText,
+                mainUri,
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
+
+            var file = new FileRequestHelper(helper.Client, mainFile);
+
+            var completions = await file.RequestCompletion(cursor);
+
+            var completionItems = completions.Where(x => x.Kind == CompletionItemKind.File).OrderBy(x => x.SortText);
+            if (jsonOnTop)
+            {
+                completionItems.Should().SatisfyRespectively(
+                    x => x.Label.Should().Be("json1.json"),
+                    x => x.Label.Should().Be("json2.json"),
+                    x => x.Label.Should().Be("template2.json"),
+                    x => x.Label.Should().Be("template3.jsonc"),
+                    x => x.Label.Should().Be("template4.json"),
+                    x => x.Label.Should().Be("template5.json"),
+                    x => x.Label.Should().Be("module1.txt"),
+                    x => x.Label.Should().Be("module2.bicep"),
+                    x => x.Label.Should().Be("module3.bicep"),
+                    x => x.Label.Should().Be("template1.arm")
+                );
+            }
+            else
+            {
+                completionItems.Should().SatisfyRespectively(
+                    x => x.Label.Should().Be("json1.json"),
+                    x => x.Label.Should().Be("json2.json"),
+                    x => x.Label.Should().Be("module1.txt"),
+                    x => x.Label.Should().Be("module2.bicep"),
+                    x => x.Label.Should().Be("module3.bicep"),
+                    x => x.Label.Should().Be("template1.arm"),
+                    x => x.Label.Should().Be("template2.json"),
+                    x => x.Label.Should().Be("template3.jsonc"),
+                    x => x.Label.Should().Be("template4.json"),
+                    x => x.Label.Should().Be("template5.json")
+                    );
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow("loadTextContent")]
+        [DataRow("loadFileAsBase64")]
+        [DataRow("loadJsonContent", true)]
+        public async Task LoadFunctionsPathArgument_returnsSymbolsAndFilePathsInCompletions(string functionName, bool jsonOnTop = false)
+        {
+            var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
+            var armTemplateUri1 = DocumentUri.FromFileSystemPath("/path/to/template1.arm");
+            var armTemplateUri2 = DocumentUri.FromFileSystemPath("/path/to/template2.json");
+            var armTemplateUri3 = DocumentUri.FromFileSystemPath("/path/to/template3.jsonc");
+            var armTemplateUri4 = DocumentUri.FromFileSystemPath("/path/to/template4.json");
+            var armTemplateUri5 = DocumentUri.FromFileSystemPath("/path/to/template5.json");
+            var jsonUri1 = DocumentUri.FromFileSystemPath("/path/to/json1.json");
+            var jsonUri2 = DocumentUri.FromFileSystemPath("/path/to/json2.json");
+            var bicepModuleUri1 = DocumentUri.FromFileSystemPath("/path/to/module1.txt");
+            var bicepModuleUri2 = DocumentUri.FromFileSystemPath("/path/to/module2.bicep");
+            var bicepModuleUri3 = DocumentUri.FromFileSystemPath("/path/to/module3.bicep");
+
+            var (mainFileText, cursor) = ParserHelper.GetFileWithSingleCursor(@"
+var template = 'template1.json'
+var file = " + functionName + @"(templ|)
+");
+            var mainFile = SourceFileFactory.CreateBicepFile(mainUri.ToUri(), mainFileText);
+            var schema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
+
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [mainUri.ToUri()] = mainFileText,
+                [armTemplateUri1.ToUri()] = "",
+                [armTemplateUri2.ToUri()] = @$"{{ ""schema"": ""{schema}"" }}",
+                [armTemplateUri3.ToUri()] = @"{}",
+                [armTemplateUri4.ToUri()] = new string('x', 2000 - schema.Length) + schema,
+                [armTemplateUri5.ToUri()] = new string('x', 2002 - schema.Length) + schema,
+                [jsonUri1.ToUri()] = "{}",
+                [jsonUri2.ToUri()] = @"[{ ""name"": ""value"" }]",
+                [bicepModuleUri1.ToUri()] = "param foo string",
+                [bicepModuleUri2.ToUri()] = "param bar bool",
+                [bicepModuleUri3.ToUri()] = "",
+            };
+
+            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
+
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+                TestContext,
+                mainFileText,
+                mainUri,
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
+            var file = new FileRequestHelper(helper.Client, mainFile);
+
+            var completions = await file.RequestCompletion(cursor);
+
+            var completionItems = completions.OrderBy(x => x.SortText).Where(x => x.Label.StartsWith("templ"));
+            if (jsonOnTop)
+            {
+                completionItems.Should().SatisfyRespectively(
+                    x => x.Label.Should().Be("template2.json"),
+                    x => x.Label.Should().Be("template3.jsonc"),
+                    x => x.Label.Should().Be("template4.json"),
+                    x => x.Label.Should().Be("template5.json"),
+                    x => x.Label.Should().Be("template"),
+                    x => x.Label.Should().Be("template1.arm")
+                );
+            }
+            else
+            {
+                completionItems.Should().SatisfyRespectively(
+                    x => x.Label.Should().Be("template1.arm"),
+                    x => x.Label.Should().Be("template2.json"),
+                    x => x.Label.Should().Be("template3.jsonc"),
+                    x => x.Label.Should().Be("template4.json"),
+                    x => x.Label.Should().Be("template5.json"),
+                    x => x.Label.Should().Be("template")
+                );
+            }
+        }
     }
 }
