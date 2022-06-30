@@ -108,6 +108,7 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
+
         private static IEnumerable<SemanticTokenInfo> CalculateSemanticTokenInfos(IReadOnlyList<int> lineStarts, IEnumerable<int> semanticTokenData, MultiFileLanguageServerHelper helper)
         {
             var legend = helper.Client.ServerSettings.Capabilities.SemanticTokensProvider!.Legend;
@@ -147,11 +148,10 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static IEnumerable<object[]> GetParamsData()
         {
-            yield return new object[] { "using './bicep.main' \n", new TextSpan[] { new TextSpan(0, 5) }, new SemanticTokenType[] {SemanticTokenType.Keyword} };
-            yield return new object[] { "param myint = 12 \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 5)}, new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.Variable}};
+            //yield return new object[] { "using './bicep.main' \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 14) }, new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.String} };
+            //yield return new object[] { "param myint = 12 \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 5), new TextSpan(14, 2)}, new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.Number}};
             yield return new object[] { "using './bicep.main' \n param myint = 12 \n param mystr = 'test'", 
-                                        new TextSpan[] { new TextSpan(0, 5), new TextSpan(23, 5), new TextSpan(29, 5), new TextSpan(42, 5), new TextSpan(48, 5)}, 
-                                        new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.Keyword, SemanticTokenType.Variable}};
-        }
+                                        new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 14), new TextSpan(23, 5), new TextSpan(29, 5), new TextSpan(37, 2), new TextSpan(42, 5), new TextSpan(48, 5), new TextSpan(56, 6)},
+                                        new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.String, SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.Number, SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.String}};        }
     }
 }

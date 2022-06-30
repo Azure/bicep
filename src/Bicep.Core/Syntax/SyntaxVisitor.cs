@@ -332,12 +332,18 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
         {
-            //TODO: unsure what implementation would mean here
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Assignment);
+            this.Visit(syntax.Value);
         }
 
         public virtual void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
         {
-            //TODO: unsure what implementation would mean here
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Path);
         }
 
         protected void VisitTokens(IEnumerable<Token> tokens)
