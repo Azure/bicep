@@ -17,6 +17,7 @@ namespace Bicep.LangServer.IntegrationTests.Completions
 
         public string SnippetText { get; }
 
-        public static string GetDisplayName(MethodInfo methodInfo, object[] data) => ((CompletionData)data[0]).Prefix!;
+        public static string GetDisplayName(MethodInfo info, object[] data)
+            => $"{info.Name}_{((CompletionData)data[0]).Prefix}";
     }
 }

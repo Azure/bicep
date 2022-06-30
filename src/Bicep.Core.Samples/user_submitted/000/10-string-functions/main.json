@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "6743810072432383776"
+    }
+  },
+  "variables": {
+    "list": "a,b,c,d",
+    "arrayFromString": "[split(variables('list'), ',')]",
+    "find": "findThisInString",
+    "found": "[contains(variables('find'), 'This')]",
+    "index": "[indexOf(variables('find'), 'This')]",
+    "indexNotFound": "[indexOf(variables('find'), 'NotFound')]",
+    "len": "[length(variables('find'))]",
+    "substr": "[substring(variables('find'), variables('index'), sub(variables('len'), variables('index')))]"
+  },
+  "resources": [],
+  "outputs": {
+    "arrayFromString": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('arrayFromString'))]",
+        "input": {
+          "element": "[variables('arrayFromString')[copyIndex()]]"
+        }
+      }
+    },
+    "found": {
+      "type": "string",
+      "value": "[if(equals(variables('found'), true()), 'Found \"this\"', 'Did not find \"This\"')]"
+    },
+    "index": {
+      "type": "int",
+      "value": "[variables('index')]"
+    },
+    "indexNotFound": {
+      "type": "int",
+      "value": "[variables('indexNotFound')]"
+    },
+    "substr": {
+      "type": "string",
+      "value": "[variables('substr')]"
+    }
+  }
+}

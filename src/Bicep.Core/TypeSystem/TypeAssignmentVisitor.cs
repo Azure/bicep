@@ -1337,7 +1337,7 @@ namespace Bicep.Core.TypeSystem
                 matchedFunctionOverloads.TryAdd(syntax, matchedOverload);
 
                 // return its type
-                var result = matchedOverload.ResultBuilder(binder, fileResolver, diagnosticWriter, syntax.Arguments.ToImmutableArray(), argumentTypes);
+                var result = matchedOverload.ResultBuilder(binder, fileResolver, diagnosticWriter, syntax, argumentTypes);
                 if (result.Value is not null)
                 {
                     matchedFunctionResultValues.TryAdd(syntax, result.Value);
