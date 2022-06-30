@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Collections.Immutable;
 using System.IO;
+using System;
 
 namespace Bicep.Core.Emit
 {
@@ -22,7 +23,6 @@ namespace Bicep.Core.Emit
         {
             using var stringWriter = new StringWriter();
             using var jsonWriter = new JsonTextWriter(stringWriter);
-            //var emitter = new ExpressionEmitter(jsonWriter, this.context);
 
             jsonWriter.WriteStartObject();
 
@@ -32,7 +32,7 @@ namespace Bicep.Core.Emit
             jsonWriter.WritePropertyName("contentVersion");
             jsonWriter.WriteValue("1.0.0.0");
 
-            var parameters =  syntax.Children.OfType<ParameterAssignmentSyntax>().ToImmutableList();
+            var parameters = syntax.Children.OfType<ParameterAssignmentSyntax>().ToImmutableList();
 
             if (parameters.Count > 0)
             {
@@ -62,7 +62,7 @@ namespace Bicep.Core.Emit
         public void EmitExpression(SyntaxBase syntax, JsonTextWriter jsonWriter)
         {
             switch (syntax)
-            {      
+            {
                 case BooleanLiteralSyntax booleanLiteralSyntax:
                 {
                     jsonWriter.WriteValue(booleanLiteralSyntax.Value);
@@ -75,7 +75,7 @@ namespace Bicep.Core.Emit
                 }
                 case StringSyntax stringSyntax:
                 {
-                    jsonWriter.WriteValue(string.Join("", stringSyntax.SegmentValues));
+                    jsonWriter.WriteValue(extractString(stringSyntax));
                     break;
                 }
                 case ObjectSyntax objectSyntax:
@@ -100,54 +100,21 @@ namespace Bicep.Core.Emit
                     jsonWriter.WriteNull();
                     break;
                 }
+                default:
+                    throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}"); 
             }
         }
 
-        public void EmitObjectProperties(ObjectSyntax objectSyntax, JsonTextWriter jsonWriter/*, ISet<string>? propertiesToOmit = null*/)
+        public void EmitObjectProperties(ObjectSyntax objectSyntax, JsonTextWriter jsonWriter)
         {
-            // var propertyLookup = objectSyntax.Properties.ToLookup(property => property.Value is ForSyntax);
-
-            // // emit loop properties first (if any)
-            // if (propertyLookup.Contains(true))
-            // {
-            //     // we have properties whose value is a for-expression
-            //     this.EmitCopyProperty(() =>
-            //     {
-            //         this.writer.WriteStartArray();
-
-            //         foreach (var property in propertyLookup[true])
-            //         {
-            //             var key = property.TryGetKeyText();
-            //             if (key is null || property.Value is not ForSyntax @for)
-            //             {
-            //                 // should be caught by loop emit limitation checks
-            //                 throw new InvalidOperationException("Encountered a property with an expression-based key whose value is a for-expression.");
-            //             }
-
-            //             this.EmitCopyObject(key, @for, @for.Body);
-            //         }
-
-            //         this.writer.WriteEndArray();
-            //     });
-            // }
-
             foreach (ObjectPropertySyntax propertySyntax in objectSyntax.Properties)
             {
-                switch(propertySyntax.Key)
-                {
-                    case IdentifierSyntax identifierSyntax:
-                    {
-                        jsonWriter.WritePropertyName(identifierSyntax.IdentifierName);
-                        break;
-                    }
-                    case StringSyntax stringSyntax:
-                    {
-                        jsonWriter.WritePropertyName(string.Join("", stringSyntax.SegmentValues));
-                        break;
-                    }
-                }
+                string key = propertySyntax.TryGetKeyText() ?? throw new InvalidOperationException($"Interpolation is not currently supported for object keys");
+                jsonWriter.WritePropertyName(key);
                 EmitExpression(propertySyntax.Value, jsonWriter);
             }
         }
+
+        private string extractString(StringSyntax stringSyntax) => stringSyntax.TryGetLiteralValue() ?? throw new InvalidOperationException($"Interpolation is not currently supported for string values");
     }
 }

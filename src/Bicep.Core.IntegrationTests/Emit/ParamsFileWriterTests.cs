@@ -105,8 +105,7 @@ param myParam = {
 
           var expectedJsonOuput = JToken.Parse(jsonText);
 
-        jsonOuput.Should().DeepEqual(expectedJsonOuput);
-
+          jsonOuput.Should().DeepEqual(expectedJsonOuput);
         }
     }
 }
