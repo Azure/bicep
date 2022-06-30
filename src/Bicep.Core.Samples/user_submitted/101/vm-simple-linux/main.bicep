@@ -4,16 +4,9 @@ param vmName string = 'simpleLinuxVM'
 @description('Username for the Virtual Machine.')
 param adminUsername string
 
-@description('Type of authentication to use on the Virtual Machine. SSH key is recommended.')
-@allowed([
-  'sshPublicKey'
-  'password'
-])
-param authenticationType string = 'password'
-
 @description('SSH Key or password for the Virtual Machine. SSH key is recommended.')
 @secure()
-param adminPasswordOrKey string
+param vmSshKey string
 
 @description('Unique DNS Name for the Public IP used to access the Virtual Machine.')
 param dnsLabelPrefix string = toLower('simplelinuxvm-${uniqueString(resourceGroup().id)}')
@@ -53,7 +46,7 @@ var linuxConfiguration = {
     publicKeys: [
       {
         path: '/home/${adminUsername}/.ssh/authorized_keys'
-        keyData: adminPasswordOrKey
+        keyData: vmSshKey
       }
     ]
   }
@@ -121,6 +114,9 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
   parent: vnet
   name: subnetName
   properties: {
+    networkSecurityGroup: {
+      id: nsg.id
+    }
     addressPrefix: subnetAddressPrefix
     privateEndpointNetworkPolicies: 'Enabled'
     privateLinkServiceNetworkPolicies: 'Enabled'
@@ -174,8 +170,8 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
     osProfile: {
       computerName: vmName
       adminUsername: adminUsername
-      adminPassword: adminPasswordOrKey
-      linuxConfiguration: ((authenticationType == 'password') ? null : linuxConfiguration)
+      adminPassword: vmSshKey
+      linuxConfiguration: linuxConfiguration
     }
   }
 }
