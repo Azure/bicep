@@ -16,8 +16,6 @@ namespace Bicep.Core.Emit
 
         private readonly EmitterSettings settings;
 
-        private SourceMap? sourceMap;
-
         public TemplateEmitter(SemanticModel model, EmitterSettings settings)
         {
             this.model = model;
@@ -60,14 +58,16 @@ namespace Bicep.Core.Emit
         /// <param name="stream">The stream to write the template</param>
         public EmitResult Emit(Stream stream) => EmitOrFail(() =>
         {
-            using var writer = new JsonTextWriter(new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true))
+            var sourceFileToTrack = this.settings.EnableSourceMapping ? this.model.SourceFile : default;
+            using var writer = new SourceAwareJsonTextWriter(new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true), sourceFileToTrack)
             {
                 Formatting = Formatting.Indented
             };
 
             var emitter = new TemplateWriter(this.model, this.settings);
             emitter.Write(writer);
-            this.sourceMap = emitter.SourceMap;
+
+            return writer.SourceMap;
         });
 
         /// <summary>
@@ -76,31 +76,41 @@ namespace Bicep.Core.Emit
         /// <param name="textWriter">The text writer to write the template</param>
         public EmitResult Emit(TextWriter textWriter) => EmitOrFail(() =>
         {
-            using var writer = new JsonTextWriter(textWriter)
+            var sourceFileToTrack = this.settings.EnableSourceMapping ? this.model.SourceFile : default;
+            using var writer = new SourceAwareJsonTextWriter(textWriter, sourceFileToTrack)
             {
                 // don't close the textWriter when writer is disposed
                 CloseOutput = false,
                 Formatting = Formatting.Indented
             };
 
+
             var emitter = new TemplateWriter(this.model, this.settings);
             emitter.Write(writer);
             writer.Flush();
-            this.sourceMap = emitter.SourceMap;
+
+            return writer.SourceMap;
         });
 
         /// <summary>
         /// Emits a template to the specified json writer if there are no errors. No writes are made to the writer if there are compilation errors.
         /// </summary>
         /// <param name="writer">The json writer to write the template</param>
-        public EmitResult Emit(JsonTextWriter writer) => this.EmitOrFail(() =>
+        public EmitResult Emit(SourceAwareJsonTextWriter writer) => this.EmitOrFail(() =>
         {
             var emitter = new TemplateWriter(this.model, this.settings);
             emitter.Write(writer);
-            this.sourceMap = emitter.SourceMap;
+
+            return writer.SourceMap;
         });
 
-        private EmitResult EmitOrFail(Action write)
+        private EmitResult EmitOrFail(Action write) => this.EmitOrFail(() =>
+        {
+            write();
+            return default;
+        });
+
+        private EmitResult EmitOrFail(Func<SourceMap?> write)
         {
             // collect all the diagnostics
             var diagnostics = this.model.GetAllDiagnostics();
@@ -110,9 +120,9 @@ namespace Bicep.Core.Emit
                 return new EmitResult(EmitStatus.Failed, diagnostics);
             }
 
-            write();
+            var sourceMap = write();
 
-            return new EmitResult(EmitStatus.Succeeded, diagnostics, this.sourceMap);
+            return new EmitResult(EmitStatus.Succeeded, diagnostics, sourceMap);
         }
     }
 }

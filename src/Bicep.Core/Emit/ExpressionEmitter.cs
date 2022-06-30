@@ -64,7 +64,7 @@ namespace Bicep.Core.Emit
 
                     foreach (ArrayItemSyntax itemSyntax in arraySyntax.Items)
                     {
-                        writer.WriteExpression(
+                        writer.WriteExpressionWithPosition(
                             itemSyntax.Value,
                             () => EmitExpression(itemSyntax.Value));
                     }
@@ -236,7 +236,7 @@ namespace Bicep.Core.Emit
                 };
             }
 
-            writer.WriteObject(syntax, () =>
+            writer.WriteObjectWithPosition(syntax, () =>
             {
                 if (name is not null)
                 {
@@ -448,7 +448,7 @@ namespace Bicep.Core.Emit
                 // we escape "copy" property name with a ARM expression to avoid it being interpreted by ARM as a copy instruction
                 serializedName = $"[string('{serializedName}')]";
             }
-            writer.WriteProperty(location, serializedName, valueFunc);
+            writer.WritePropertyWithPosition(location, serializedName, valueFunc);
         }
 
         private void EmitPropertyInternal(LanguageExpression expressionKey, string value)

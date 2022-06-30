@@ -90,47 +90,29 @@ namespace Bicep.Core.Emit
 
         private readonly EmitterContext context;
         private readonly EmitterSettings settings;
-        private readonly RawSourceMap? rawSourceMap;
-
-        public SourceMap? SourceMap; // ARM JSON line => (Bicep File, Bicep Line)
 
         public TemplateWriter(SemanticModel semanticModel, EmitterSettings settings)
         {
             this.context = new EmitterContext(semanticModel, settings);
             this.settings = settings;
-            this.rawSourceMap = (this.context.Settings.EnableSourceMapping)
-                ? new(new List<RawSourceMapFileEntry>())
-                : null;
-            this.SourceMap = null;
         }
 
-        public void Write(JsonTextWriter writer)
+        public void Write(SourceAwareJsonTextWriter writer)
         {
-            // Template is used for calculating template hash, template JToken is used for writing to file.
-            var (template, templateJToken) = GenerateTemplateWithoutHash();
-
+            // Template is used for calcualting template hash, template jtoken is used for writing to file.
+            var (template, templateJToken) = GenerateTemplateWithoutHash(writer.TrackingJsonWriter);
             var templateHash = TemplateHelpers.ComputeTemplateHash(template.ToJToken());
             if (templateJToken.SelectToken(GeneratorMetadataPath) is not JObject generatorObject)
             {
                 throw new InvalidOperationException($"generated template doesn't contain a generator object at the path {GeneratorMetadataPath}");
             }
-            generatorObject.Add(TemplateHashPropertyName, templateHash);
-
-            if (this.context.Settings.EnableSourceMapping)
-            {
-                this.SourceMap = SourceMapHelper.ProcessRawSourceMap(
-                    this.rawSourceMap!,
-                    templateJToken,
-                    this.context.SemanticModel.SourceFile!);
-            }
-
+            generatorObject.Add("templateHash", templateHash);
             templateJToken.WriteTo(writer);
+            writer.ProcessSourceMap(templateJToken);
         }
 
-        private (Template, JToken) GenerateTemplateWithoutHash()
+        private (Template, JToken) GenerateTemplateWithoutHash(PositionTrackingJsonTextWriter jsonWriter)
         {
-            using var stringWriter = new StringWriter();
-            using var jsonWriter = PositionTrackingJsonTextWriter.Create(stringWriter, this.rawSourceMap, this.context.SemanticModel.SourceFile);
             var emitter = new ExpressionEmitter(jsonWriter, this.context);
 
             jsonWriter.WriteStartObject();
@@ -158,7 +140,7 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteEndObject();
 
-            var content = stringWriter.ToString();
+            var content = jsonWriter.ToString();
             return (Template.FromJson<Template>(content), content.FromJson<JToken>());
         }
 
@@ -174,7 +156,7 @@ namespace Bicep.Core.Emit
 
             foreach (var parameterSymbol in this.context.SemanticModel.Root.ParameterDeclarations)
             {
-                jsonWriter.WriteProperty(
+                jsonWriter.WritePropertyWithPosition(
                     parameterSymbol.DeclaringParameter,
                     parameterSymbol.Name,
                     () => this.EmitParameter(jsonWriter, parameterSymbol, emitter));
@@ -308,7 +290,7 @@ namespace Bicep.Core.Emit
             // emit non-loop variables
             foreach (var variableSymbol in GetNonInlinedVariables(valueIsLoop: false))
             {
-                jsonWriter.WriteProperty(
+                jsonWriter.WritePropertyWithPosition(
                     variableSymbol.DeclaringVariable,
                     variableSymbol.Name,
                     () => emitter.EmitExpression(variableSymbol.Value));
@@ -332,9 +314,9 @@ namespace Bicep.Core.Emit
                 var namespaceType = context.SemanticModel.GetTypeInfo(import.DeclaringSyntax) as NamespaceType
                     ?? throw new ArgumentException("Imported namespace does not have namespace type");
 
-                jsonWriter.WriteProperty(import.DeclaringSyntax, import.DeclaringImport.AliasName.IdentifierName, () =>
+                jsonWriter.WritePropertyWithPosition(import.DeclaringSyntax, import.DeclaringImport.AliasName.IdentifierName, () =>
                 {
-                    jsonWriter.WriteObject(import.DeclaringSyntax, () =>
+                    jsonWriter.WriteObjectWithPosition(import.DeclaringSyntax, () =>
                     {
                         emitter.EmitProperty("provider", namespaceType.Settings.ArmTemplateProviderName);
                         emitter.EmitProperty("version", namespaceType.Settings.ArmTemplateProviderVersion);
@@ -415,7 +397,7 @@ namespace Bicep.Core.Emit
 
         private void EmitResource(PositionTrackingJsonTextWriter jsonWriter, DeclaredResourceMetadata resource, ExpressionEmitter emitter)
         {
-            jsonWriter.WriteObject(resource.Symbol.DeclaringResource, () =>
+            jsonWriter.WriteObjectWithPosition(resource.Symbol.DeclaringResource, () =>
             {
                 // Note: conditions STACK with nesting.
                 //
@@ -615,7 +597,7 @@ namespace Bicep.Core.Emit
 
         private void EmitModule(PositionTrackingJsonTextWriter jsonWriter, ModuleSymbol moduleSymbol, ExpressionEmitter emitter)
         {
-            jsonWriter.WriteObject(moduleSymbol.DeclaringModule, () =>
+            jsonWriter.WriteObjectWithPosition(moduleSymbol.DeclaringModule, () =>
             {
                 var body = moduleSymbol.DeclaringModule.Value;
                 switch (body)
@@ -692,16 +674,16 @@ namespace Bicep.Core.Emit
                     // If it is a template spec module, emit templateLink instead of template contents.
                     jsonWriter.WritePropertyName(moduleSemanticModel is TemplateSpecSemanticModel ? "templateLink" : "template");
                     {
-                        var writer = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel, this.settings);
-                        writer.Write(jsonWriter);
+                        var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel, this.settings);
+                        var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
+                        var moduleTextWriter = new StringWriter();
+                        var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);
 
-                        if (writer is TemplateWriter templateWriter && this.rawSourceMap != null)
-                        {
-                            var offset = jsonWriter.CurrentPos;
-                            this.rawSourceMap.AddNestedRawSourceMap(
-                            templateWriter.rawSourceMap!,
-                            offset);
-                        }
+                        moduleWriter.Write(moduleJsonWriter);
+                        jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
+
+                        var nestedTemplate = moduleTextWriter.ToString().FromJson<JToken>();
+                        nestedTemplate.WriteTo(jsonWriter);
                     }
 
                     jsonWriter.WriteEndObject();
@@ -859,7 +841,7 @@ namespace Bicep.Core.Emit
 
             foreach (var outputSymbol in this.context.SemanticModel.Root.OutputDeclarations)
             {
-                jsonWriter.WriteProperty(
+                jsonWriter.WritePropertyWithPosition(
                     outputSymbol.DeclaringSyntax,
                     outputSymbol.Name,
                     () => EmitOutput(jsonWriter, outputSymbol, emitter));
@@ -870,7 +852,7 @@ namespace Bicep.Core.Emit
 
         private void EmitOutput(PositionTrackingJsonTextWriter jsonWriter, OutputSymbol outputSymbol, ExpressionEmitter emitter)
         {
-            jsonWriter.WriteObject(outputSymbol.DeclaringSyntax, () =>
+            jsonWriter.WriteObjectWithPosition(outputSymbol.DeclaringSyntax, () =>
             {
                 var properties = new List<ObjectPropertySyntax>();
                 if (outputSymbol.Type is ResourceType resourceType)
