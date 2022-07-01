@@ -11,14 +11,16 @@ using System;
 
 namespace Bicep.Core.Emit
 {
-    public class ParamsFileWriter
+    public class ParamsFileTemplateWriter
     {
         private readonly ProgramSyntax syntax;
-        public ParamsFileWriter(ProgramSyntax syntax)
+        public ParamsFileTemplateWriter(ProgramSyntax syntax)
         {
             this.syntax = syntax;
         }
 
+        public void Write(JsonTextWriter writer) => GenerateTemplate().WriteTo(writer);
+        
         public JToken GenerateTemplate()
         {
             using var stringWriter = new StringWriter();

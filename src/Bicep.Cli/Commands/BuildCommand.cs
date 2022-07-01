@@ -17,19 +17,22 @@ namespace Bicep.Cli.Commands
         private readonly InvocationContext invocationContext;
         private readonly CompilationService compilationService;
         private readonly CompilationWriter writer;
+        private readonly ParamsFileWriter paramsWriter;
 
         public BuildCommand(
             ILogger logger,
             IDiagnosticLogger diagnosticLogger,
             InvocationContext invocationContext,
             CompilationService compilationService,
-            CompilationWriter writer)
+            CompilationWriter writer,
+            ParamsFileWriter paramsWriter)
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
             this.invocationContext = invocationContext;
             this.compilationService = compilationService;
             this.writer = writer;
+            this.paramsWriter = paramsWriter;
         }
 
         public async Task<int> RunAsync(BuildArguments args)
@@ -46,8 +49,21 @@ namespace Bicep.Cli.Commands
                 logger.LogWarning(CliResources.ResourceTypesDisclaimerMessage);
             }
 
+
             if (!IsBicepFile(inputPath))
             {
+                if(IsBicepparamsFile(inputPath))
+                {
+                    var syntax = compilationService.CompileParams(inputPath, args.NoRestore);
+                    static string DefaultOutputPath(string path) => PathHelper.GetDefaultBuildOutputPath(path);
+
+                    var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, args.OutputDir, args.OutputFile, DefaultOutputPath);
+
+                    paramsWriter.ToFile(syntax, outputPath);
+
+                    return 0;
+                }
+
                 logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
                 return 1;
             }
@@ -75,5 +91,7 @@ namespace Bicep.Cli.Commands
         }
 
         private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));
+
+        private bool IsBicepparamsFile(string inputPath) => PathHelper.HasBicepparamsExension(PathHelper.FilePathToFileUrl(inputPath));
     }
 }

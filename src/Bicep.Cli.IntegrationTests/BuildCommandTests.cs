@@ -182,6 +182,50 @@ namespace Bicep.Cli.IntegrationTests
                 actualLocation: compiledFilePath);
         }
 
+        [DataTestMethod]
+        // [DynamicData(nameof(GetParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task Build_Valid_Params_File_Should_Succeed(/*DataSet dataSet*/)
+        {
+        
+            // var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+            // var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParam);
+
+            // var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            
+            var paramsFilePath = "c:\\Users\\t-musman\\Downloads\\project\\bicep\\src\\Bicep.Cli.IntegrationTests\\test.bicepparam";
+
+
+            var (output, error, result) = await Bicep("build", paramsFilePath);
+            // var (output, error, result) = await Bicep(settings, "build", bicepFilePath);
+
+            // using (new AssertionScope())
+            // {
+            //     result.Should().Be(0);
+            //     output.Should().BeEmpty();
+            //     AssertNoErrors(error);
+            // }
+
+            // if (dataSet.HasExternalModules)
+            // {
+            //     // ensure something got restored
+            //     Directory.Exists(settings.Features.CacheRootDirectory).Should().BeTrue();
+            //     Directory.EnumerateFiles(settings.Features.CacheRootDirectory, "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
+            // }
+
+            // var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
+            // File.Exists(compiledFilePath).Should().BeTrue();
+
+            // var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
+
+            // actual.Should().EqualWithJsonDiffOutput(
+            //     TestContext,
+            //     JToken.Parse(dataSet.Compiled!),
+            //     expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
+            //     actualLocation: compiledFilePath);
+        }
+
+
+
         [TestMethod]
         public async Task Build_Valid_SingleFile_WithDigestReference_ShouldSucceed()
         {
@@ -440,5 +484,7 @@ output myOutput string = 'hello!'
             .AllDataSets
             .Where(ds => ds.IsValid && ds.HasExternalModules)
             .ToDynamicTestData();
+
+        private static IEnumerable<object[]> GetParamData() => DataSets.ParamDataSets.ToDynamicTestData();
     }
 }

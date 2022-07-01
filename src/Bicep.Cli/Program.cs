@@ -130,6 +130,7 @@ namespace Bicep.Cli
                 .AddSingleton<DecompilationWriter>()
                 .AddSingleton<CompilationWriter>()
                 .AddSingleton<ParametersFileWriter>()
+                .AddSingleton<ParamsFileWriter>()
                 .AddSingleton<CompilationService>()
                 .BuildServiceProvider();
         }

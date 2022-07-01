@@ -191,7 +191,7 @@ param myInt = 1", @"
         {
           var syntax = ParamsParserHelper.ParamsParse(paramsText);
 
-          var paramsWriter = new ParamsFileWriter(syntax);
+          var paramsWriter = new ParamsFileTemplateWriter(syntax);
 
           var jsonOuput = paramsWriter.GenerateTemplate();
 
@@ -205,7 +205,7 @@ param myInt = 1", @"
         {
           var syntax = ParamsParserHelper.ParamsParse("param foo = 1 + 2");
 
-          var paramsWriter = new ParamsFileWriter(syntax);
+          var paramsWriter = new ParamsFileTemplateWriter(syntax);
 
           Action act = () => paramsWriter.GenerateTemplate();
           act.Should().Throw<NotImplementedException>().WithMessage("Cannot emit unexpected expression of type BinaryOperationSyntax");

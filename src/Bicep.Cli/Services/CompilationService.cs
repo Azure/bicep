@@ -7,6 +7,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -15,6 +16,7 @@ using Bicep.Decompiler;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -93,6 +95,35 @@ namespace Bicep.Cli.Services
 
             return compilation;
         }
+
+
+        public ProgramSyntax CompileParams(string inputPath, bool skipRestore)
+        {
+            // var inputUri = PathHelper.FilePathToFileUrl(inputPath);
+            // var configuration = this.configurationManager.GetConfiguration(inputUri);
+
+            // var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri, configuration);
+            // if (!skipRestore)
+            // {
+            //     // module references in the file may be malformed
+            //     // however we still want to surface as many errors as we can for the module refs that are valid
+            //     // so we will try to restore modules with valid refs and skip everything else
+            //     // (the diagnostics will be collected during compilation)
+            //     if (await moduleDispatcher.RestoreModules(configuration, moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
+            //     {
+            //         // modules had to be restored - recompile
+            //         sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, this.workspace, sourceFileGrouping, configuration);
+            //     }
+            // // }
+            // var compilation = new Compilation(this.invocationContext.Features, this.invocationContext.NamespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
+            // LogDiagnostics(compilation);
+
+            var fileText = File.ReadAllText(inputPath);
+
+            var parser = new ParamsParser(fileText);
+
+            return parser.Program();
+        } 
 
         public async Task<(Uri, ImmutableDictionary<Uri, string>)> DecompileAsync(string inputPath, string outputPath)
         {
