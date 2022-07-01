@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
@@ -60,8 +59,8 @@ namespace Bicep.Core.Semantics
         public ISemanticModel GetSemanticModel(ISourceFile sourceFile)
             => this.lazySemanticModelLookup[sourceFile].Value;
 
-        public IReadOnlyDictionary<BicepFile, IEnumerable<IDiagnostic>> GetAllDiagnosticsByBicepFile()
-            => SourceFileGrouping.SourceFiles.OfType<BicepFile>().ToDictionary(
+        public ImmutableDictionary<BicepFile, ImmutableArray<IDiagnostic>> GetAllDiagnosticsByBicepFile()
+            => SourceFileGrouping.SourceFiles.OfType<BicepFile>().ToImmutableDictionary(
                 bicepFile => bicepFile,
                 bicepFile => this.GetSemanticModel(bicepFile).GetAllDiagnostics());
 

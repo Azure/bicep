@@ -58,7 +58,8 @@ namespace Bicep.Core.IntegrationTests.Semantics
         public void EndOfFileFollowingSpaceAfterParameterKeyWordShouldNotThrow()
         {
             var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText("parameter ", BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
-            compilation.GetEntrypointSemanticModel().GetParseDiagnostics();
+
+            FluentActions.Invoking(() => compilation.GetEntrypointSemanticModel().GetAllDiagnostics()).Should().NotThrow();
         }
 
         [DataTestMethod]
