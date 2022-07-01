@@ -116,7 +116,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         public async Task<FileRequestHelper> OpenFile(string text)
             => await OpenFile(
-                new Uri($"file://{Guid.NewGuid():D}/{testContext.TestName}/main.bicep"),
+                new Uri($"file:///{Guid.NewGuid():D}/{testContext.TestName}/main.bicep"),
                 text);
 
         public async Task<FileRequestHelper> OpenFile(Uri fileUri, string text)

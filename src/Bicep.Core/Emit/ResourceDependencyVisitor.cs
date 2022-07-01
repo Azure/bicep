@@ -65,6 +65,21 @@ namespace Bicep.Core.Emit
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
+            static int GetIndexOfLastNonExistingAncestor(ImmutableArray<ResourceAncestorGraph.ResourceAncestor> ancestors)
+            {
+                for (int i = ancestors.Length - 1; i >= 0; i--)
+                {
+                    if (!ancestors[i].Resource.IsExistingResource)
+                    {
+                        // we found the non-existing resource - we're done
+                        return i;
+                    }
+                }
+
+                // no non-existing resources are found in the ancestors list
+                return -1;
+            }
+
             if (model.ResourceMetadata.TryLookup(syntax) is not DeclaredResourceMetadata resource)
             {
                 // When invoked by BicepDeploymentGraphHandler, it's possible that the declaration is unbound.
@@ -73,13 +88,13 @@ namespace Bicep.Core.Emit
 
             // Resource ancestors are always dependencies.
             var ancestors = this.model.ResourceAncestors.GetAncestors(resource);
-            var lastAncestorIndex = ancestors.Length - 1;
+            var lastNonExistingAncestorIndex = GetIndexOfLastNonExistingAncestor(ancestors);
 
             // save previous declaration as we may call this recursively
             var prevDeclaration = this.currentDeclaration;
 
             this.currentDeclaration = resource.Symbol;
-            this.resourceDependencies[resource.Symbol] = new HashSet<ResourceDependency>(ancestors.Select((a, i) => new ResourceDependency(a.Resource.Symbol, a.IndexExpression, i == lastAncestorIndex ? ResourceDependencyKind.Primary : ResourceDependencyKind.Transitive)));
+            this.resourceDependencies[resource.Symbol] = new HashSet<ResourceDependency>(ancestors.Select((a, i) => new ResourceDependency(a.Resource.Symbol, a.IndexExpression, i == lastNonExistingAncestorIndex ? ResourceDependencyKind.Primary : ResourceDependencyKind.Transitive)));
             base.VisitResourceDeclarationSyntax(syntax);
 
             // restore previous declaration

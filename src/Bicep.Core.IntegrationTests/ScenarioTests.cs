@@ -3684,5 +3684,69 @@ var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
 
             result.Diagnostics.Should().OnlyContain(x => x.Styling == DiagnosticStyling.ShowCodeDeprecated);
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/6477
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue6477()
+        {
+            var result = CompilationHelper.Compile(@"
+param storageAccountName string
+
+@allowed([
+  'Standard_GRS'
+  'Standard_ZRS'
+])
+@description('Storage account SKU.  Standard_ZRS should be used if region supports, else Standard_GRS.')
+param storageAccountSku string
+
+resource storageAccountName_resource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: storageAccountName
+  #disable-next-line no-loc-expr-outside-params
+  location: resourceGroup().location
+  sku: {
+    name: storageAccountSku
+    #disable-next-line BCP073
+    tier: 'Standard'
+  }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: true // Ibiza requires anonymous access to the container
+    minimumTlsVersion: 'TLS1_2'
+    supportsHttpsTrafficOnly: true
+    encryption: {
+      services: {
+        file: {
+          enabled: true
+        }
+        blob: {
+          enabled: true
+        }
+      }
+      keySource: 'Microsoft.Storage'
+    }
+    accessTier: 'Hot'
+  }
+
+  resource blobs 'blobServices' existing = {
+    name: 'default'
+
+    resource containers 'containers' = {
+      name: 'extension'
+      properties: {
+        publicAccess: 'Container'
+      }
+    }
+  }
+}
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.resources[0].type", "Microsoft.Storage/storageAccounts/blobServices/containers");
+            result.Template.Should().HaveValueAtPath("$.resources[0].dependsOn", new JArray("[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"));
+
+            result.Template.Should().HaveValueAtPath("$.resources[1].type", "Microsoft.Storage/storageAccounts");
+            result.Template.Should().NotHaveValueAtPath("$.resources[1].dependsOn");
+        }
     }
 }
