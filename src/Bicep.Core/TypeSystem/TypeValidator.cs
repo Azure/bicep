@@ -9,6 +9,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 
@@ -91,6 +92,9 @@ namespace Bicep.Core.TypeSystem
                 case (_, AnyType):
                     // values of all types can be assigned to the "any" type
                     return true;
+
+                case (LambdaType sourceLambda, LambdaType targetLambda):
+                    return AreLambdaTypesAssignable(sourceLambda, targetLambda);
 
                 case (IScopeReference, IScopeReference):
                     // checking for valid combinations of scopes happens after type checking. this allows us to provide a richer & more intuitive error message.
@@ -218,7 +222,14 @@ namespace Bicep.Core.TypeSystem
                     {
                         var narrowedBody = NarrowType(config, expression, targetResourceType.Body.Type);
 
-                        return new ResourceType(targetResourceType.DeclaringNamespace, targetResourceType.TypeReference, targetResourceType.ValidParentScopes, narrowedBody, targetResourceType.UniqueIdentifierProperties);
+                        return new ResourceType(
+                            targetResourceType.DeclaringNamespace,
+                            targetResourceType.TypeReference,
+                            targetResourceType.ValidParentScopes,
+                            targetResourceType.ReadOnlyScopes,
+                            targetResourceType.Flags,
+                            narrowedBody,
+                            targetResourceType.UniqueIdentifierProperties);
                     }
                 case ModuleType targetModuleType:
                     {
@@ -297,7 +308,33 @@ namespace Bicep.Core.TypeSystem
                     .Select(x => NarrowType(config, expression, x.Type)));
             }
 
-            return targetType;
+            if (expression is LambdaSyntax sourceLambda && targetType is LambdaType targetLambdaType)
+            {
+                return NarrowLambdaType(config, sourceLambda, targetLambdaType);
+            }
+
+            return expressionType;
+        }
+
+        private static bool AreLambdaTypesAssignable(LambdaType source, LambdaType target)
+        {
+            if (source.ArgumentTypes.Length != target.ArgumentTypes.Length)
+            {
+                return false;
+            }
+
+            if (!AreTypesAssignable(source.ReturnType.Type, target.ReturnType.Type))
+            {
+                return false;
+            }
+
+            var pairs = source.ArgumentTypes.Select((x, i) => (source: x, target: target.ArgumentTypes[i]));
+            if (pairs.Any(x => !AreTypesAssignable(x.source.Type, x.target.Type)))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private TypeSymbol NarrowArrayAssignmentType(TypeValidatorConfig config, ArraySyntax expression, ArrayType targetType)
@@ -328,6 +365,26 @@ namespace Bicep.Core.TypeSystem
             return new TypedArrayType(TypeHelper.CreateTypeUnion(arrayProperties), targetType.ValidationFlags);
         }
 
+        private TypeSymbol NarrowLambdaType(TypeValidatorConfig config, LambdaSyntax lambdaSyntax, LambdaType targetType)
+        {
+            var returnType = NarrowType(config, lambdaSyntax.Body, targetType.ReturnType.Type);
+
+            var variables = lambdaSyntax.GetLocalVariables().ToImmutableArray();
+            if (variables.Length != targetType.ArgumentTypes.Length)
+            {
+                diagnosticWriter.Write(lambdaSyntax.VariableSection, x => x.LambdaExpectedArgCountMismatch(targetType, targetType.ArgumentTypes.Length, variables.Length));
+                return targetType;
+            }
+
+            var narrowedVariables = new ITypeReference[variables.Length];
+            for (var i = 0; i < variables.Length; i++)
+            {
+                narrowedVariables[i] = NarrowType(config, variables[i], targetType.ArgumentTypes[i].Type);
+            }
+
+            return new LambdaType(narrowedVariables.ToImmutableArray(), returnType);
+        }
+
         private TypeSymbol NarrowVariableAccessType(TypeValidatorConfig config, VariableAccessSyntax variableAccess, TypeSymbol targetType)
         {
             var newConfig = new TypeValidatorConfig(
@@ -343,6 +400,8 @@ namespace Bicep.Core.TypeSystem
             {
                 case VariableSymbol variableSymbol:
                     return NarrowType(newConfig, variableSymbol.DeclaringVariable.Value, targetType);
+                case LocalVariableSymbol localVariableSymbol:
+                    return NarrowType(newConfig, localVariableSymbol.DeclaringLocalVariable, targetType);
             }
 
             return targetType;
@@ -396,7 +455,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         // no matches
                         var discriminatorCandidates = targetType.UnionMembersByKey.Keys.OrderBy(x => x);
-                        
+
 
                         diagnosticWriter.Write(
                             config.OriginSyntax ?? discriminatorProperty.Value,
@@ -469,7 +528,7 @@ namespace Bicep.Core.TypeSystem
             var missingRequiredProperties = targetType.Properties.Values
                 .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) && !namedPropertyMap.ContainsKey(p.Name))
                 .ToList();
-                
+
 
             if (missingRequiredProperties.Count > 0)
             {

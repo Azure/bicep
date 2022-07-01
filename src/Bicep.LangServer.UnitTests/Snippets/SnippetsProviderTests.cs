@@ -134,6 +134,8 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                 azNamespaceType,
                 ResourceTypeReference.Parse("Microsoft.DataLakeStore/accounts@2016-11-01"),
                 ResourceScope.ResourceGroup,
+                ResourceScope.None,
+                ResourceFlags.None,
                 CreateObjectType(
                     "Microsoft.DataLakeStore/accounts@2016-11-01",
                     ("name", LanguageConstants.String, TypePropertyFlags.Required),
@@ -184,6 +186,8 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                 azNamespaceType,
                 ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/modules@2015-10-31"),
                 ResourceScope.ResourceGroup,
+                ResourceScope.None,
+                ResourceFlags.None,
                 CreateObjectType(
                     "Microsoft.Automation/automationAccounts/modules@2015-10-31",
                     ("name", LanguageConstants.String, TypePropertyFlags.Required),
@@ -238,6 +242,8 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 azNamespaceType,
                 ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/certificates@2019-06-01"),
                 ResourceScope.ResourceGroup,
+                ResourceScope.None,
+                ResourceFlags.None,
                 CreateObjectType(
                     "Microsoft.Automation/automationAccounts/certificates@2019-06-01",
                     ("name", LanguageConstants.String, TypePropertyFlags.Required),
@@ -288,6 +294,8 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,
+                ResourceScope.None,
+                ResourceFlags.None,
                 CreateObjectType(
                     "microsoft.aadiam/azureADMetrics@2020-07-01-preview",
                     ("name", LanguageConstants.String, TypePropertyFlags.Required),
@@ -342,6 +350,8 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,
+                ResourceScope.None,
+                ResourceFlags.None,
                 CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 AzResourceTypeProvider.UniqueIdentifierProperties);
 
@@ -438,6 +448,8 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,
+                ResourceScope.None,
+                ResourceFlags.None,
                 discriminatedObjectType,
                 AzResourceTypeProvider.UniqueIdentifierProperties);
 
@@ -478,6 +490,8 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,
+                ResourceScope.None,
+                ResourceFlags.None,
                 discriminatedObjectType,
                 AzResourceTypeProvider.UniqueIdentifierProperties);
 

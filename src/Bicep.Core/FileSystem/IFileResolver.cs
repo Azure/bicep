@@ -47,6 +47,13 @@ namespace Bicep.Core.FileSystem
         Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath);
 
         /// <summary>
+        /// Resolves a relative path, keeping it OS-agnostic.
+        /// </summary>
+        /// <param name="relativeTo">The file absolute path.</param>
+        /// <param name="path">The file path to resolve.</param>
+        string GetRelativePath(string relativeTo, string path);
+
+        /// <summary>
         /// Tries to get Directories given a uri and pattern. Both argument and returned URIs MUST have a trailing '/'
         /// </summary>
         /// <param name="fileUri">The base fileUri</param>

@@ -132,6 +132,7 @@ var namedPropertyIndexer = {
 //@[04:24) [no-unused-vars (Warning)] Variable "namedPropertyIndexer" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |namedPropertyIndexer|
   foo: 's'
 }['foo']
+//@[01:08) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['foo']|
 
 var intIndexer = [
 //@[04:14) [no-unused-vars (Warning)] Variable "intIndexer" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |intIndexer|

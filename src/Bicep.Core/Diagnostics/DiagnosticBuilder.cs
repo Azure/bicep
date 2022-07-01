@@ -1423,6 +1423,34 @@ namespace Bicep.Core.Diagnostics
                 "BCP241",
                 $"The \"{functionName}\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow.",
                 styling: DiagnosticStyling.ShowCodeDeprecated);
+
+            public ErrorDiagnostic LambdaFunctionsOnlyValidInFunctionArguments() => new(
+                TextSpan,
+                "BCP242",
+                $"Lambda functions may only be specified directly as function arguments.");
+
+            public ErrorDiagnostic ParenthesesMustHaveExactlyOneItem() => new(
+                TextSpan,
+                "BCP243",
+                "Parentheses must contain exactly one expression.");
+
+            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int expectedArgCount, int actualArgCount) => new (
+                TextSpan,
+                "BCP244",
+                $"Expected lambda expression of type \"{lambdaType}\" with {expectedArgCount} arguments but received {actualArgCount} arguments.");
+
+            public Diagnostic ResourceTypeIsReadonly(ResourceTypeReference resourceTypeReference) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP245",
+                $"Resource type \"{resourceTypeReference.FormatName()}\" can only be used with the 'existing' keyword.");
+
+            public Diagnostic ResourceTypeIsReadonlyAtScope(ResourceTypeReference resourceTypeReference, ResourceScope writableScopes) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP246",
+                $"Resource type \"{resourceTypeReference.FormatName()}\" can only be used with the 'existing' keyword at the requested scope."
+                    + $" Permitted scopes for deployment: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(writableScopes))}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

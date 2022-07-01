@@ -61,7 +61,7 @@ var bad = (null)[0]
 var bad = ()
 //@[04:07) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |bad|
 //@[04:07) [no-unused-vars (Warning)] Variable "bad" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |bad|
-//@[11:12) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |)|
+//@[11:11) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
 var bad = 
 //@[04:07) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |bad|
 //@[04:07) [no-unused-vars (Warning)] Variable "bad" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |bad|
@@ -239,6 +239,7 @@ var integerIndexOnNonArray = (null)[0]
 var stringIndexOnNonObject = 'test'['test']
 //@[04:26) [no-unused-vars (Warning)] Variable "stringIndexOnNonObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |stringIndexOnNonObject|
 //@[29:35) [BCP076 (Error)] Cannot index over expression of type "'test'". Arrays or objects are required. (CodeDescription: none) |'test'|
+//@[35:43) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['test']|
 var malformedStringIndex = {
 //@[04:24) [no-unused-vars (Warning)] Variable "malformedStringIndex" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |malformedStringIndex|
 }['test\e']
@@ -251,6 +252,7 @@ var badIndexOverArray = [][null]
 //@[27:31) [BCP074 (Error)] Indexing over arrays requires an index of type "int" but the provided index was of type "null". (CodeDescription: none) |null|
 var badIndexOverArray2 = []['s']
 //@[04:22) [no-unused-vars (Warning)] Variable "badIndexOverArray2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badIndexOverArray2|
+//@[27:32) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['s']|
 //@[28:31) [BCP074 (Error)] Indexing over arrays requires an index of type "int" but the provided index was of type "'s'". (CodeDescription: none) |'s'|
 var badIndexOverObj = {}[true]
 //@[04:19) [no-unused-vars (Warning)] Variable "badIndexOverObj" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badIndexOverObj|
@@ -405,6 +407,7 @@ var badSpelling = sampleObject.myNul
 //@[31:36) [BCP083 (Error)] The type "object" does not contain property "myNul". Did you mean "myNull"? (CodeDescription: none) |myNul|
 var badPropertyIndexer = sampleObject['fake']
 //@[04:22) [no-unused-vars (Warning)] Variable "badPropertyIndexer" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badPropertyIndexer|
+//@[37:45) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['fake']|
 //@[38:44) [BCP053 (Error)] The type "object" does not contain property "fake". Available properties include "myArr", "myBool", "myInner", "myInt", "myNull", "myStr". (CodeDescription: none) |'fake'|
 var badType = sampleObject.myStr / 32
 //@[04:11) [no-unused-vars (Warning)] Variable "badType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badType|
@@ -417,16 +420,20 @@ var badInnerType = sampleObject.myInner.anotherStr + 2
 //@[19:54) [BCP045 (Error)] Cannot apply operator "+" to operands of type "'a'" and "int". (CodeDescription: none) |sampleObject.myInner.anotherStr + 2|
 var badArrayIndexer = sampleObject.myArr['s']
 //@[04:19) [no-unused-vars (Warning)] Variable "badArrayIndexer" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badArrayIndexer|
+//@[40:45) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['s']|
 //@[41:44) [BCP074 (Error)] Indexing over arrays requires an index of type "int" but the provided index was of type "'s'". (CodeDescription: none) |'s'|
 var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
 //@[04:24) [no-unused-vars (Warning)] Variable "badInnerArrayIndexer" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badInnerArrayIndexer|
+//@[56:61) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['s']|
 //@[57:60) [BCP074 (Error)] Indexing over arrays requires an index of type "int" but the provided index was of type "'s'". (CodeDescription: none) |'s'|
 var badIndexer = sampleObject.myStr['s']
 //@[04:14) [no-unused-vars (Warning)] Variable "badIndexer" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badIndexer|
 //@[17:35) [BCP076 (Error)] Cannot index over expression of type "'s'". Arrays or objects are required. (CodeDescription: none) |sampleObject.myStr|
+//@[35:40) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['s']|
 var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[04:17) [no-unused-vars (Warning)] Variable "badInnerArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badInnerArray|
 //@[41:48) [BCP053 (Error)] The type "object" does not contain property "fakeArr". Available properties include "anotherStr", "otherArr". (CodeDescription: none) |fakeArr|
+//@[48:53) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['s']|
 var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
 //@[04:47) [no-unused-vars (Warning)] Variable "invalidPropertyCallOnInstanceFunctionAccess" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |invalidPropertyCallOnInstanceFunctionAccess|
 //@[50:51) [BCP057 (Error)] The name "a" does not exist in the current context. (CodeDescription: none) |a|
@@ -514,12 +521,12 @@ var missingIndexerOnIdentifier = nonExistentIdentifier[][1][]
 // empty parens - should produce expected expression diagnostic
 var emptyParens = ()
 //@[04:15) [no-unused-vars (Warning)] Variable "emptyParens" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |emptyParens|
-//@[19:20) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |)|
+//@[19:19) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
 
 // #completionTest(26) -> symbols
 var anotherEmptyParens = ()
 //@[04:22) [no-unused-vars (Warning)] Variable "anotherEmptyParens" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |anotherEmptyParens|
-//@[26:27) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |)|
+//@[26:26) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
 
 // keywords can't be called like functions
 var nullness = null()
@@ -543,17 +550,21 @@ var partialObject = {
 //@[02:03) [BCP022 (Error)] Expected a property name at this location. (CodeDescription: none) |3|
   
   's' 
+//@[02:05) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'s'|
 //@[02:05) [BCP025 (Error)] The property "s" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |'s'|
 //@[06:06) [BCP018 (Error)] Expected the ":" character at this location. (CodeDescription: none) ||
   's' \
+//@[02:05) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'s'|
 //@[02:05) [BCP025 (Error)] The property "s" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |'s'|
 //@[06:07) [BCP018 (Error)] Expected the ":" character at this location. (CodeDescription: none) |\|
 //@[06:07) [BCP001 (Error)] The following token is not recognized: "\". (CodeDescription: none) |\|
 //@[07:07) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
   'e'   =
+//@[02:05) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'e'|
 //@[08:09) [BCP018 (Error)] Expected the ":" character at this location. (CodeDescription: none) |=|
 //@[09:09) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
   's' :
+//@[02:05) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'s'|
 //@[02:05) [BCP025 (Error)] The property "s" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |'s'|
 //@[07:07) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
@@ -584,14 +595,32 @@ xxxxx
 //@[00:05) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |xxxxx|
 
 
+var noElements = ()
+//@[04:14) [no-unused-vars (Warning)] Variable "noElements" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |noElements|
+//@[18:18) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
+var justAComma = (,)
+//@[04:14) [no-unused-vars (Warning)] Variable "justAComma" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |justAComma|
+//@[18:19) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |,|
+//@[18:19) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |,|
+var twoElements = (1, 2)
+//@[04:15) [no-unused-vars (Warning)] Variable "twoElements" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |twoElements|
+//@[19:23) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |1, 2|
+var threeElements = (1, 2, 3)
+//@[04:17) [no-unused-vars (Warning)] Variable "threeElements" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |threeElements|
+//@[21:28) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |1, 2, 3|
+var unterminated1 = (
+//@[04:17) [no-unused-vars (Warning)] Variable "unterminated1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |unterminated1|
+//@[21:21) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
+var unterminated2 = (,
+//@[04:17) [no-unused-vars (Warning)] Variable "unterminated2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |unterminated2|
+//@[21:22) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |,|
+//@[21:22) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) |,|
+//@[22:22) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
+
+// trailing decorator with no declaration
 @minLength()
 //@[00:12) [BCP147 (Error)] Expected a parameter declaration after the decorator. (CodeDescription: none) |@minLength()|
 //@[10:12) [BCP071 (Error)] Expected 1 argument, but got 0. (CodeDescription: none) |()|
-
-
-
-
-
 
 
 

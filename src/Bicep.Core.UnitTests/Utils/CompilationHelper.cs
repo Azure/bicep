@@ -10,6 +10,8 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.Workspaces;
@@ -27,6 +29,11 @@ namespace Bicep.Core.UnitTests.Utils
         {
             public BicepFile BicepFile => Compilation.SourceFileGrouping.EntryPoint;
         }
+
+        public record CursorLookupResult(
+            SyntaxBase Node,
+            Symbol Symbol,
+            TypeSymbol Type);
 
         public record CompilationHelperContext(
             IAzResourceTypeLoader? AzResourceTypeLoader = null,
