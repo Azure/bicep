@@ -28,7 +28,7 @@ namespace Bicep.Core.Semantics
 
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
-        private readonly Lazy<IEnumerable<IDiagnostic>> allDiagnostics;
+        private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
 
         public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer)
         {
@@ -68,7 +68,7 @@ namespace Bicep.Core.Semantics
             this.declaredResourcesLazy = new Lazy<ImmutableArray<DeclaredResourceMetadata>>(() => this.AllResources.OfType<DeclaredResourceMetadata>().ToImmutableArray());
 
             // lazy load single use diagnostic set
-            this.allDiagnostics = new Lazy<IEnumerable<IDiagnostic>>(() => AssembleDiagnostics());
+            this.allDiagnostics = new Lazy<ImmutableArray<IDiagnostic>>(() => AssembleDiagnostics());
 
             this.parametersLazy = new Lazy<ImmutableArray<ParameterMetadata>>(() =>
             {
@@ -156,13 +156,13 @@ namespace Bicep.Core.Semantics
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
         /// </summary>
-        public IEnumerable<IDiagnostic> GetParseDiagnostics() => this.Root.Syntax.GetParseDiagnostics();
+        private IEnumerable<IDiagnostic> GetParseDiagnostics() => this.Root.Syntax.GetParseDiagnostics();
 
         /// <summary>
         /// Gets all the semantic diagnostics unsorted. Does not include parser and lexer diagnostics.
         /// </summary>
         /// <returns></returns>
-        public IReadOnlyList<IDiagnostic> GetSemanticDiagnostics()
+        private IReadOnlyList<IDiagnostic> GetSemanticDiagnostics()
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
@@ -186,7 +186,7 @@ namespace Bicep.Core.Semantics
         /// Gets all the analyzer diagnostics unsorted.
         /// </summary>
         /// <returns></returns>
-        public IReadOnlyList<IDiagnostic> GetAnalyzerDiagnostics()
+        private IReadOnlyList<IDiagnostic> GetAnalyzerDiagnostics()
         {
             var diagnostics = LinterAnalyzer.Analyze(this);
 
@@ -199,12 +199,9 @@ namespace Bicep.Core.Semantics
         /// <summary>
         /// Cached diagnostics from compilation
         /// </summary>
-        public IEnumerable<IDiagnostic> GetAllDiagnostics()
-        {
-            return AssembleDiagnostics();
-        }
+        public ImmutableArray<IDiagnostic> GetAllDiagnostics() => allDiagnostics.Value;
 
-        private IReadOnlyList<IDiagnostic> AssembleDiagnostics()
+        private ImmutableArray<IDiagnostic> AssembleDiagnostics()
         {
             var diagnostics = GetParseDiagnostics()
                 .Concat(GetSemanticDiagnostics())
@@ -232,7 +229,7 @@ namespace Bicep.Core.Semantics
                 filteredDiagnostics.Add(diagnostic);
             }
 
-            return filteredDiagnostics;
+            return filteredDiagnostics.ToImmutableArray();
         }
 
         /// <summary>

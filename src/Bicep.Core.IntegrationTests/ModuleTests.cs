@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -753,7 +754,7 @@ output out string = p.properties.minimalTlsVersion
             return stringBuilder.ToString();
         }
 
-        private static (bool success, IDictionary<Uri, IEnumerable<IDiagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByFile(Compilation compilation)
+        private static (bool success, IDictionary<Uri, ImmutableArray<IDiagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByFile(Compilation compilation)
         {
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
             var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => d.Level != DiagnosticLevel.Error);
