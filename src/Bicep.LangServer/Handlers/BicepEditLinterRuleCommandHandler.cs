@@ -127,8 +127,6 @@ namespace Bicep.LanguageServer.Handlers
         /// If the given rule has an entry for its error level in the configuration file, show that file and select the current
         /// level value (so that the end user can immediatey edit it).
         /// </summary>
-        /// <param name="ruleCode"></param>
-        /// <param name="configFilePath"></param>
         /// <returns>True if the rule exists and displaying/highlighting succeeds, otherwise false.</returns>
         private static async Task<bool> SelectRuleLevelIfExists(ILanguageServerFacade server, string ruleCode, string configFilePath)
         {

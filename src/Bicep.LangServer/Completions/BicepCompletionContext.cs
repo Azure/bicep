@@ -797,7 +797,6 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// Determines if we are inside an expression. Will not produce a correct result if context kind is set is already set to something.
         /// </summary>
-        /// <param name="matchingNodes">The matching nodes</param>
         private static bool IsInnerExpressionContext(List<SyntaxBase> matchingNodes, int offset)
         {
             if (!matchingNodes.OfType<ExpressionSyntax>().Any())
