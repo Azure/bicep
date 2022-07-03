@@ -45,6 +45,7 @@ namespace Bicep.Core.Semantics
             this.NamespaceResolver.BuiltIns.Values
             .Concat<Symbol>(this.ImportDeclarations)
             .Concat(this.LocalScopes)
+            .Concat(this.MetadataDeclarations)
             .Concat(this.ParameterDeclarations)
             .Concat(this.VariableDeclarations)
             .Concat(this.ResourceDeclarations)

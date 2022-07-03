@@ -13,8 +13,6 @@ namespace Bicep.Core.Semantics
             this.Value = value;
         }
 
-        public MetadataDeclarationSyntax DeclaringVariable => (MetadataDeclarationSyntax)this.DeclaringSyntax;
-
         public SyntaxBase Value { get; }
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitMetadataSymbol(this);
