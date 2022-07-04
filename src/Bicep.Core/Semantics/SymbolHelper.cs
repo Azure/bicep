@@ -12,6 +12,8 @@ namespace Bicep.Core.Semantics
         /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,
         /// a symbol will always be returned. Binding failures are represented with a non-null error symbol.
         /// </summary>
+        /// <param name="binder">the binder </param>
+        /// <param name="getDeclaredTypeFunc">lambda to retrieve declared type from syntax base (to avoid cyclic dependencies)</param>
         /// <param name="syntax">the syntax node</param>
         public static Symbol? TryGetSymbolInfo(IBinder binder, Func<SyntaxBase, TypeSymbol?> getDeclaredTypeFunc, SyntaxBase syntax)
         {

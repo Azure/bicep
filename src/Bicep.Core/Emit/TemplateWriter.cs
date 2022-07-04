@@ -2,25 +2,26 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Expression.Expressions;
-using Azure.Deployments.Core.Definitions.Schema;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Bicep.Core.Semantics.Metadata;
-using System.Diagnostics;
-using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.Core.Emit
 {
@@ -29,6 +30,7 @@ namespace Bicep.Core.Emit
     {
         public const string GeneratorMetadataPath = "metadata._generator";
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
+        public const string TemplateHashPropertyName = "templateHash";
 
         // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
         public const string NestedDeploymentResourceApiVersion = "2020-10-01";
@@ -85,6 +87,7 @@ namespace Bicep.Core.Emit
 
             return "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
         }
+
         private readonly EmitterContext context;
         private readonly EmitterSettings settings;
 
@@ -94,10 +97,10 @@ namespace Bicep.Core.Emit
             this.settings = settings;
         }
 
-        public void Write(JsonTextWriter writer)
+        public void Write(SourceAwareJsonTextWriter writer)
         {
             // Template is used for calcualting template hash, template jtoken is used for writing to file.
-            var (template, templateJToken) = GenerateTemplateWithoutHash();
+            var (template, templateJToken) = GenerateTemplateWithoutHash(writer.TrackingJsonWriter);
             var templateHash = TemplateHelpers.ComputeTemplateHash(template.ToJToken());
             if (templateJToken.SelectToken(GeneratorMetadataPath) is not JObject generatorObject)
             {
@@ -105,14 +108,11 @@ namespace Bicep.Core.Emit
             }
             generatorObject.Add("templateHash", templateHash);
             templateJToken.WriteTo(writer);
+            writer.ProcessSourceMap(templateJToken);
         }
 
-        private (Template, JToken) GenerateTemplateWithoutHash()
+        private (Template, JToken) GenerateTemplateWithoutHash(PositionTrackingJsonTextWriter jsonWriter)
         {
-            // TODO: since we merely return a JToken, refactor the emitter logic to add properties to a JObject
-            // instead of writing to a JsonWriter and converting it to JToken at the end
-            using var stringWriter = new StringWriter();
-            using var jsonWriter = new JsonTextWriter(stringWriter);
             var emitter = new ExpressionEmitter(jsonWriter, this.context);
 
             jsonWriter.WriteStartObject();
@@ -140,11 +140,11 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteEndObject();
 
-            var content = stringWriter.ToString();
+            var content = jsonWriter.ToString();
             return (Template.FromJson<Template>(content), content.FromJson<JToken>());
         }
 
-        private void EmitParametersIfPresent(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
+        private void EmitParametersIfPresent(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
         {
             if (this.context.SemanticModel.Root.ParameterDeclarations.Length == 0)
             {
@@ -156,8 +156,10 @@ namespace Bicep.Core.Emit
 
             foreach (var parameterSymbol in this.context.SemanticModel.Root.ParameterDeclarations)
             {
-                jsonWriter.WritePropertyName(parameterSymbol.Name);
-                this.EmitParameter(jsonWriter, parameterSymbol, emitter);
+                jsonWriter.WritePropertyWithPosition(
+                    parameterSymbol.DeclaringParameter,
+                    parameterSymbol.Name,
+                    () => this.EmitParameter(jsonWriter, parameterSymbol, emitter));
             }
 
             jsonWriter.WriteEndObject();
@@ -242,7 +244,7 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndObject();
         }
 
-        private void EmitVariablesIfPresent(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
+        private void EmitVariablesIfPresent(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
         {
             if (!this.context.SemanticModel.Root.VariableDeclarations.Any(symbol => !this.context.VariablesToInline.Contains(symbol)) &&
                 this.context.FunctionVariables.Count == 0)
@@ -288,14 +290,16 @@ namespace Bicep.Core.Emit
             // emit non-loop variables
             foreach (var variableSymbol in GetNonInlinedVariables(valueIsLoop: false))
             {
-                jsonWriter.WritePropertyName(variableSymbol.Name);
-                emitter.EmitExpression(variableSymbol.Value);
+                jsonWriter.WritePropertyWithPosition(
+                    variableSymbol.DeclaringVariable,
+                    variableSymbol.Name,
+                    () => emitter.EmitExpression(variableSymbol.Value));
             }
 
             jsonWriter.WriteEndObject();
         }
 
-        private void EmitImports(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
+        private void EmitImports(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
         {
             if (!context.SemanticModel.Root.ImportDeclarations.Any())
             {
@@ -310,23 +314,24 @@ namespace Bicep.Core.Emit
                 var namespaceType = context.SemanticModel.GetTypeInfo(import.DeclaringSyntax) as NamespaceType
                     ?? throw new ArgumentException("Imported namespace does not have namespace type");
 
-                jsonWriter.WritePropertyName(import.DeclaringImport.AliasName.IdentifierName);
-                jsonWriter.WriteStartObject();
-
-                emitter.EmitProperty("provider", namespaceType.Settings.ArmTemplateProviderName);
-                emitter.EmitProperty("version", namespaceType.Settings.ArmTemplateProviderVersion);
-                if (import.DeclaringImport.Config is { } config)
+                jsonWriter.WritePropertyWithPosition(import.DeclaringSyntax, import.DeclaringImport.AliasName.IdentifierName, () =>
                 {
-                    emitter.EmitProperty("config", config);
-                }
-
-                jsonWriter.WriteEndObject();
+                    jsonWriter.WriteObjectWithPosition(import.DeclaringSyntax, () =>
+                    {
+                        emitter.EmitProperty("provider", namespaceType.Settings.ArmTemplateProviderName);
+                        emitter.EmitProperty("version", namespaceType.Settings.ArmTemplateProviderVersion);
+                        if (import.DeclaringImport.Config is { } config)
+                        {
+                            emitter.EmitProperty("config", config);
+                        }
+                    });
+                });
             }
 
             jsonWriter.WriteEndObject();
         }
 
-        private void EmitResources(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
+        private void EmitResources(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
         {
             jsonWriter.WritePropertyName("resources");
             if (context.Settings.EnableSymbolicNames)
@@ -390,148 +395,147 @@ namespace Bicep.Core.Emit
             return null;
         }
 
-        private void EmitResource(JsonTextWriter jsonWriter, DeclaredResourceMetadata resource, ExpressionEmitter emitter)
+        private void EmitResource(PositionTrackingJsonTextWriter jsonWriter, DeclaredResourceMetadata resource, ExpressionEmitter emitter)
         {
-            jsonWriter.WriteStartObject();
-
-            // Note: conditions STACK with nesting.
-            //
-            // Children inherit the conditions of their parents, etc. This avoids a problem
-            // where we emit a dependsOn to something that's not in the template, or not
-            // being evaulated i the template.
-            var conditions = new List<SyntaxBase>();
-            var loops = new List<(string name, ForSyntax @for, SyntaxBase? input)>();
-
-            var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
-            foreach (var ancestor in ancestors)
+            jsonWriter.WriteObjectWithPosition(resource.Symbol.DeclaringResource, () =>
             {
-                if (ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested &&
-                    ancestor.Resource.Symbol.DeclaringResource.Value is IfConditionSyntax ifCondition)
+                // Note: conditions STACK with nesting.
+                //
+                // Children inherit the conditions of their parents, etc. This avoids a problem
+                // where we emit a dependsOn to something that's not in the template, or not
+                // being evaulated i the template.
+                var conditions = new List<SyntaxBase>();
+                var loops = new List<(string name, ForSyntax @for, SyntaxBase? input)>();
+
+                var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
+                foreach (var ancestor in ancestors)
                 {
-                    conditions.Add(ifCondition.ConditionExpression);
-                }
-
-                if (ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested &&
-                    ancestor.Resource.Symbol.DeclaringResource.Value is ForSyntax @for)
-                {
-                    loops.Add((ancestor.Resource.Symbol.Name, @for, null));
-                }
-            }
-
-            // Unwrap the 'real' resource body if there's a condition
-            var body = resource.Symbol.DeclaringResource.Value;
-            switch (body)
-            {
-                case IfConditionSyntax ifCondition:
-                    body = ifCondition.Body;
-                    conditions.Add(ifCondition.ConditionExpression);
-                    break;
-
-                case ForSyntax @for:
-                    loops.Add((resource.Symbol.Name, @for, null));
-                    if (@for.Body is IfConditionSyntax loopFilter)
+                    if (ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested &&
+                        ancestor.Resource.Symbol.DeclaringResource.Value is IfConditionSyntax ifCondition)
                     {
-                        body = loopFilter.Body;
-                        conditions.Add(loopFilter.ConditionExpression);
-                    }
-                    else
-                    {
-                        body = @for.Body;
+                        conditions.Add(ifCondition.ConditionExpression);
                     }
 
-                    break;
-            }
+                    if (ancestor.AncestorType == ResourceAncestorGraph.ResourceAncestorType.Nested &&
+                        ancestor.Resource.Symbol.DeclaringResource.Value is ForSyntax @for)
+                    {
+                        loops.Add((ancestor.Resource.Symbol.Name, @for, null));
+                    }
+                }
 
-            if (conditions.Count == 1)
-            {
-                emitter.EmitProperty("condition", conditions[0]);
-            }
-            else if (conditions.Count > 1)
-            {
-                var @operator = new BinaryOperationSyntax(
-                    conditions[0],
-                    SyntaxFactory.CreateToken(TokenType.LogicalAnd),
-                    conditions[1]);
-                for (var i = 2; i < conditions.Count; i++)
+                // Unwrap the 'real' resource body if there's a condition
+                var body = resource.Symbol.DeclaringResource.Value;
+                switch (body)
                 {
-                    @operator = new BinaryOperationSyntax(
-                        @operator,
+                    case IfConditionSyntax ifCondition:
+                        body = ifCondition.Body;
+                        conditions.Add(ifCondition.ConditionExpression);
+                        break;
+
+                    case ForSyntax @for:
+                        loops.Add((resource.Symbol.Name, @for, null));
+                        if (@for.Body is IfConditionSyntax loopFilter)
+                        {
+                            body = loopFilter.Body;
+                            conditions.Add(loopFilter.ConditionExpression);
+                        }
+                        else
+                        {
+                            body = @for.Body;
+                        }
+
+                        break;
+                }
+
+                if (conditions.Count == 1)
+                {
+                    emitter.EmitProperty("condition", conditions[0]);
+                }
+                else if (conditions.Count > 1)
+                {
+                    var @operator = new BinaryOperationSyntax(
+                        conditions[0],
                         SyntaxFactory.CreateToken(TokenType.LogicalAnd),
-                        conditions[i]);
+                        conditions[1]);
+                    for (var i = 2; i < conditions.Count; i++)
+                    {
+                        @operator = new BinaryOperationSyntax(
+                            @operator,
+                            SyntaxFactory.CreateToken(TokenType.LogicalAnd),
+                            conditions[i]);
+                    }
+
+                    emitter.EmitProperty("condition", @operator);
                 }
 
-                emitter.EmitProperty("condition", @operator);
-            }
-
-            if (loops.Count == 1)
-            {
-                var batchSize = GetBatchSize(resource.Symbol.DeclaringResource);
-                emitter.EmitCopyProperty(() => emitter.EmitCopyObject(loops[0].name, loops[0].@for, loops[0].input, batchSize: batchSize));
-            }
-            else if (loops.Count > 1)
-            {
-                throw new InvalidOperationException("nested loops are not supported");
-            }
-
-            if (context.Settings.EnableSymbolicNames && resource.IsExistingResource)
-            {
-                jsonWriter.WritePropertyName("existing");
-                jsonWriter.WriteValue(true);
-            }
-
-            var importSymbol = context.SemanticModel.Root.ImportDeclarations.FirstOrDefault(i => resource.Type.DeclaringNamespace.AliasNameEquals(i.Name));
-
-            if (importSymbol is not null)
-            {
-                emitter.EmitProperty("import", importSymbol.Name);
-            }
-
-            if (resource.IsAzResource)
-            {
-                emitter.EmitProperty("type", resource.TypeReference.FormatType());
-                if (resource.TypeReference.ApiVersion is not null)
+                if (loops.Count == 1)
                 {
-                    emitter.EmitProperty("apiVersion", resource.TypeReference.ApiVersion);
+                    var batchSize = GetBatchSize(resource.Symbol.DeclaringResource);
+                    emitter.EmitCopyProperty(() => emitter.EmitCopyObject(loops[0].name, loops[0].@for, loops[0].input, batchSize: batchSize));
                 }
-            }
-            else
-            {
-                emitter.EmitProperty("type", resource.TypeReference.FormatName());
-            }
+                else if (loops.Count > 1)
+                {
+                    throw new InvalidOperationException("nested loops are not supported");
+                }
 
-            if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resource, out var scopeData))
-            {
-                ScopeHelper.EmitResourceScopeProperties(context.SemanticModel, scopeData, emitter, body);
-            }
+                if (context.Settings.EnableSymbolicNames && resource.IsExistingResource)
+                {
+                    jsonWriter.WritePropertyName("existing");
+                    jsonWriter.WriteValue(true);
+                }
 
-            if (resource.IsAzResource)
-            {
-                emitter.EmitProperty(AzResourceTypeProvider.ResourceNamePropertyName, emitter.GetFullyQualifiedResourceName(resource));
-                emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit.Add(AzResourceTypeProvider.ResourceNamePropertyName));
-            }
-            else
-            {
-                jsonWriter.WritePropertyName("properties");
-                jsonWriter.WriteStartObject();
+                var importSymbol = context.SemanticModel.Root.ImportDeclarations.FirstOrDefault(i => resource.Type.DeclaringNamespace.AliasNameEquals(i.Name));
 
-                emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit);
+                if (importSymbol is not null)
+                {
+                    emitter.EmitProperty("import", importSymbol.Name);
+                }
 
-                jsonWriter.WriteEndObject();
-            }
+                if (resource.IsAzResource)
+                {
+                    emitter.EmitProperty("type", resource.TypeReference.FormatType());
+                    if (resource.TypeReference.ApiVersion is not null)
+                    {
+                        emitter.EmitProperty("apiVersion", resource.TypeReference.ApiVersion);
+                    }
+                }
+                else
+                {
+                    emitter.EmitProperty("type", resource.TypeReference.FormatName());
+                }
 
-            this.EmitDependsOn(jsonWriter, resource.Symbol, emitter, body);
+                if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resource, out var scopeData))
+                {
+                    ScopeHelper.EmitResourceScopeProperties(context.SemanticModel, scopeData, emitter, body);
+                }
 
-            // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
-            // and emit its properties to merge decorator properties.
-            foreach (var (property, val) in AddDecoratorsToBody(
-                resource.Symbol.DeclaringResource,
-                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()),
-                resource.Symbol.Type).ToNamedPropertyValueDictionary())
-            {
-                emitter.EmitProperty(property, val);
-            }
+                if (resource.IsAzResource)
+                {
+                    emitter.EmitProperty(AzResourceTypeProvider.ResourceNamePropertyName, emitter.GetFullyQualifiedResourceName(resource));
+                    emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit.Add(AzResourceTypeProvider.ResourceNamePropertyName));
+                }
+                else
+                {
+                    jsonWriter.WritePropertyName("properties");
+                    jsonWriter.WriteStartObject();
 
-            jsonWriter.WriteEndObject();
+                    emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit);
+
+                    jsonWriter.WriteEndObject();
+                }
+
+                this.EmitDependsOn(jsonWriter, resource.Symbol, emitter, body);
+
+                // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
+                // and emit its properties to merge decorator properties.
+                foreach (var (property, val) in AddDecoratorsToBody(
+                    resource.Symbol.DeclaringResource,
+                    SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()),
+                    resource.Symbol.Type).ToNamedPropertyValueDictionary())
+                {
+                    emitter.EmitProperty(property, val);
+                }
+            });
         }
 
         private void EmitModuleParameters(JsonTextWriter jsonWriter, ModuleSymbol moduleSymbol, ExpressionEmitter emitter)
@@ -571,7 +575,7 @@ namespace Bicep.Core.Emit
                     });
                 }
                 else if (
-                    this.context.SemanticModel.ResourceMetadata.TryLookup(propertySyntax.Value) is {} resourceMetadata &&
+                    this.context.SemanticModel.ResourceMetadata.TryLookup(propertySyntax.Value) is { } resourceMetadata &&
                     moduleSymbol.TryGetModuleType() is ModuleType moduleType &&
                     moduleType.TryGetParameterType(keyName) is ResourceParameterType parameterType)
                 {
@@ -591,108 +595,117 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndObject();
         }
 
-        private void EmitModule(JsonTextWriter jsonWriter, ModuleSymbol moduleSymbol, ExpressionEmitter emitter)
+        private void EmitModule(PositionTrackingJsonTextWriter jsonWriter, ModuleSymbol moduleSymbol, ExpressionEmitter emitter)
         {
-            jsonWriter.WriteStartObject();
-
-            var body = moduleSymbol.DeclaringModule.Value;
-            switch (body)
+            jsonWriter.WriteObjectWithPosition(moduleSymbol.DeclaringModule, () =>
             {
-                case IfConditionSyntax ifCondition:
-                    body = ifCondition.Body;
-                    emitter.EmitProperty("condition", ifCondition.ConditionExpression);
-                    break;
+                var body = moduleSymbol.DeclaringModule.Value;
+                switch (body)
+                {
+                    case IfConditionSyntax ifCondition:
+                        body = ifCondition.Body;
+                        emitter.EmitProperty("condition", ifCondition.ConditionExpression);
+                        break;
 
-                case ForSyntax @for:
-                    if (@for.Body is IfConditionSyntax loopFilter)
+                    case ForSyntax @for:
+                        if (@for.Body is IfConditionSyntax loopFilter)
+                        {
+                            body = loopFilter.Body;
+                            emitter.EmitProperty("condition", loopFilter.ConditionExpression);
+                        }
+                        else
+                        {
+                            body = @for.Body;
+                        }
+
+                        var batchSize = GetBatchSize(moduleSymbol.DeclaringModule);
+                        emitter.EmitCopyProperty(() => emitter.EmitCopyObject(moduleSymbol.Name, @for, input: null, batchSize: batchSize));
+                        break;
+                }
+
+                emitter.EmitProperty("type", NestedDeploymentResourceType);
+                emitter.EmitProperty("apiVersion", NestedDeploymentResourceApiVersion);
+
+                // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
+                // params requires special handling (see below).
+                emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);
+
+                var scopeData = context.ModuleScopeData[moduleSymbol];
+                ScopeHelper.EmitModuleScopeProperties(context.SemanticModel, scopeData, emitter, body);
+
+                if (scopeData.RequestedScope != ResourceScope.ResourceGroup)
+                {
+                    // if we're deploying to a scope other than resource group, we need to supply a location
+                    if (this.context.SemanticModel.TargetScope == ResourceScope.ResourceGroup)
                     {
-                        body = loopFilter.Body;
-                        emitter.EmitProperty("condition", loopFilter.ConditionExpression);
+                        // the deployment() object at resource group scope does not contain a property named 'location', so we have to use resourceGroup().location
+                        emitter.EmitProperty("location", new FunctionExpression(
+                            "resourceGroup",
+                            Array.Empty<LanguageExpression>(),
+                            new LanguageExpression[] { new JTokenExpression("location") }));
                     }
                     else
                     {
-                        body = @for.Body;
+                        // at all other scopes we can just use deployment().location
+                        emitter.EmitProperty("location", new FunctionExpression(
+                            "deployment",
+                            Array.Empty<LanguageExpression>(),
+                            new LanguageExpression[] { new JTokenExpression("location") }));
                     }
-
-                    var batchSize = GetBatchSize(moduleSymbol.DeclaringModule);
-                    emitter.EmitCopyProperty(() => emitter.EmitCopyObject(moduleSymbol.Name, @for, input: null, batchSize: batchSize));
-                    break;
-            }
-
-            emitter.EmitProperty("type", NestedDeploymentResourceType);
-            emitter.EmitProperty("apiVersion", NestedDeploymentResourceApiVersion);
-
-            // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
-            // params requires special handling (see below).
-            emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);
-
-            var scopeData = context.ModuleScopeData[moduleSymbol];
-            ScopeHelper.EmitModuleScopeProperties(context.SemanticModel, scopeData, emitter, body);
-
-            if (scopeData.RequestedScope != ResourceScope.ResourceGroup)
-            {
-                // if we're deploying to a scope other than resource group, we need to supply a location
-                if (this.context.SemanticModel.TargetScope == ResourceScope.ResourceGroup)
-                {
-                    // the deployment() object at resource group scope does not contain a property named 'location', so we have to use resourceGroup().location
-                    emitter.EmitProperty("location", new FunctionExpression(
-                        "resourceGroup",
-                        Array.Empty<LanguageExpression>(),
-                        new LanguageExpression[] { new JTokenExpression("location") }));
                 }
-                else
-                {
-                    // at all other scopes we can just use deployment().location
-                    emitter.EmitProperty("location", new FunctionExpression(
-                        "deployment",
-                        Array.Empty<LanguageExpression>(),
-                        new LanguageExpression[] { new JTokenExpression("location") }));
-                }
-            }
 
-            jsonWriter.WritePropertyName("properties");
-            {
-                jsonWriter.WriteStartObject();
-
-                jsonWriter.WritePropertyName("expressionEvaluationOptions");
+                jsonWriter.WritePropertyName("properties");
                 {
                     jsonWriter.WriteStartObject();
-                    emitter.EmitProperty("scope", "inner");
+
+                    jsonWriter.WritePropertyName("expressionEvaluationOptions");
+                    {
+                        jsonWriter.WriteStartObject();
+                        emitter.EmitProperty("scope", "inner");
+                        jsonWriter.WriteEndObject();
+                    }
+
+                    emitter.EmitProperty("mode", "Incremental");
+
+                    EmitModuleParameters(jsonWriter, moduleSymbol, emitter);
+
+                    var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
+
+                    // If it is a template spec module, emit templateLink instead of template contents.
+                    jsonWriter.WritePropertyName(moduleSemanticModel is TemplateSpecSemanticModel ? "templateLink" : "template");
+                    {
+                        var moduleWriter = TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel, this.settings);
+                        var moduleBicepFile = (moduleSemanticModel as SemanticModel)?.SourceFile;
+                        var moduleTextWriter = new StringWriter();
+                        var moduleJsonWriter = new SourceAwareJsonTextWriter(moduleTextWriter, moduleBicepFile);
+
+                        moduleWriter.Write(moduleJsonWriter);
+                        jsonWriter.AddNestedSourceMap(moduleJsonWriter.TrackingJsonWriter);
+
+                        var nestedTemplate = moduleTextWriter.ToString().FromJson<JToken>();
+                        nestedTemplate.WriteTo(jsonWriter);
+                    }
+
                     jsonWriter.WriteEndObject();
                 }
 
-                emitter.EmitProperty("mode", "Incremental");
+                this.EmitDependsOn(jsonWriter, moduleSymbol, emitter, body);
 
-                EmitModuleParameters(jsonWriter, moduleSymbol, emitter);
-
-                var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
-
-                // If it is a template spec module, emit templateLink instead of template contents.
-                jsonWriter.WritePropertyName(moduleSemanticModel is TemplateSpecSemanticModel ? "templateLink" : "template");
+                // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
+                // and emit its properties to merge decorator properties.
+                foreach (var (property, val) in AddDecoratorsToBody(
+                    moduleSymbol.DeclaringModule,
+                    SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()),
+                    moduleSymbol.Type).ToNamedPropertyValueDictionary())
                 {
-                    TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel, this.settings).Write(jsonWriter);
+                    emitter.EmitProperty(property, val);
                 }
-
-                jsonWriter.WriteEndObject();
-            }
-
-            this.EmitDependsOn(jsonWriter, moduleSymbol, emitter, body);
-
-            // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
-            // and emit its properties to merge decorator properties.
-            foreach (var (property, val) in AddDecoratorsToBody(
-                moduleSymbol.DeclaringModule,
-                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()),
-                moduleSymbol.Type).ToNamedPropertyValueDictionary())
-            {
-                emitter.EmitProperty(property, val);
-            }
-
-            jsonWriter.WriteEndObject();
+            });
         }
+
         private static bool ShouldGenerateDependsOn(ResourceDependency dependency)
         {
-            if(dependency.Kind == ResourceDependencyKind.Transitive)
+            if (dependency.Kind == ResourceDependencyKind.Transitive)
             {
                 // transitive dependencies do not have to be emitted
                 return false;
@@ -816,7 +829,7 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndArray();
         }
 
-        private void EmitOutputsIfPresent(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
+        private void EmitOutputsIfPresent(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
         {
             if (this.context.SemanticModel.Root.OutputDeclarations.Length == 0)
             {
@@ -828,66 +841,67 @@ namespace Bicep.Core.Emit
 
             foreach (var outputSymbol in this.context.SemanticModel.Root.OutputDeclarations)
             {
-                jsonWriter.WritePropertyName(outputSymbol.Name);
-                EmitOutput(jsonWriter, outputSymbol, emitter);
+                jsonWriter.WritePropertyWithPosition(
+                    outputSymbol.DeclaringSyntax,
+                    outputSymbol.Name,
+                    () => EmitOutput(jsonWriter, outputSymbol, emitter));
             }
 
             jsonWriter.WriteEndObject();
         }
 
-        private void EmitOutput(JsonTextWriter jsonWriter, OutputSymbol outputSymbol, ExpressionEmitter emitter)
+        private void EmitOutput(PositionTrackingJsonTextWriter jsonWriter, OutputSymbol outputSymbol, ExpressionEmitter emitter)
         {
-            jsonWriter.WriteStartObject();
-
-            var properties = new List<ObjectPropertySyntax>();
-            if (outputSymbol.Type is ResourceType resourceType)
+            jsonWriter.WriteObjectWithPosition(outputSymbol.DeclaringSyntax, () =>
             {
-                // Resource-typed outputs are encoded as strings
-                emitter.EmitProperty("type", LanguageConstants.String.Name);
+                var properties = new List<ObjectPropertySyntax>();
+                if (outputSymbol.Type is ResourceType resourceType)
+                {
+                    // Resource-typed outputs are encoded as strings
+                    emitter.EmitProperty("type", LanguageConstants.String.Name);
 
-                properties.Add(SyntaxFactory.CreateObjectProperty(
-                    LanguageConstants.ParameterMetadataPropertyName,
-                    SyntaxFactory.CreateObject(new[]
-                    {
+                    properties.Add(SyntaxFactory.CreateObjectProperty(
+                        LanguageConstants.ParameterMetadataPropertyName,
+                        SyntaxFactory.CreateObject(new[]
+                        {
                         SyntaxFactory.CreateObjectProperty(
                             LanguageConstants.MetadataResourceTypePropertyName,
                             SyntaxFactory.CreateStringLiteral(resourceType.TypeReference.FormatName())),
-                    })));
-            }
-            else
-            {
-                emitter.EmitProperty("type", outputSymbol.Type.Name);
-            }
-
-
-            if (outputSymbol.Value is ForSyntax @for)
-            {
-                emitter.EmitCopyProperty(() => emitter.EmitCopyObject(name: null, @for, @for.Body));
-            }
-            else
-            {
-                if (outputSymbol.Type is ResourceType)
-                {
-                    // Resource-typed outputs are serialized using the resource id.
-                    var value = new PropertyAccessSyntax(outputSymbol.Value, SyntaxFactory.DotToken, SyntaxFactory.CreateIdentifier("id"));
-                    emitter.EmitProperty("value", value);
+                        })));
                 }
                 else
                 {
-                    emitter.EmitProperty("value", outputSymbol.Value);
+                    emitter.EmitProperty("type", outputSymbol.Type.Name);
                 }
-            }
 
-            // emit any decorators on this output
-            foreach (var (property, val) in AddDecoratorsToBody(
-                outputSymbol.DeclaringOutput,
-                SyntaxFactory.CreateObject(properties),
-                outputSymbol.Type).ToNamedPropertyValueDictionary())
-            {
-                emitter.EmitProperty(property, val);
-            }
 
-            jsonWriter.WriteEndObject();
+                if (outputSymbol.Value is ForSyntax @for)
+                {
+                    emitter.EmitCopyProperty(() => emitter.EmitCopyObject(name: null, @for, @for.Body));
+                }
+                else
+                {
+                    if (outputSymbol.Type is ResourceType)
+                    {
+                        // Resource-typed outputs are serialized using the resource id.
+                        var value = new PropertyAccessSyntax(outputSymbol.Value, SyntaxFactory.DotToken, SyntaxFactory.CreateIdentifier("id"));
+                        emitter.EmitProperty("value", value);
+                    }
+                    else
+                    {
+                        emitter.EmitProperty("value", outputSymbol.Value);
+                    }
+                }
+
+                // emit any decorators on this output
+                foreach (var (property, val) in AddDecoratorsToBody(
+                    outputSymbol.DeclaringOutput,
+                    SyntaxFactory.CreateObject(properties),
+                    outputSymbol.Type).ToNamedPropertyValueDictionary())
+                {
+                    emitter.EmitProperty(property, val);
+                }
+            });
         }
 
         public void EmitMetadata(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
@@ -918,4 +932,3 @@ namespace Bicep.Core.Emit
         }
     }
 }
-

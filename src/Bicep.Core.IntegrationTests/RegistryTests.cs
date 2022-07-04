@@ -22,7 +22,6 @@ using Bicep.Core.Workspaces;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using static Bicep.Core.Samples.DataSet;
 
 namespace Bicep.Core.IntegrationTests
@@ -53,11 +52,12 @@ namespace Bicep.Core.IntegrationTests
             File.Exists(badCachePath).Should().BeTrue();
 
             // cache root points to a file
-            var features = new Mock<IFeatureProvider>(MockBehavior.Strict);
-            features.Setup(m => m.RegistryEnabled).Returns(true);
-            features.SetupGet(m => m.CacheRootDirectory).Returns(badCachePath);
+            var features = BicepTestConstants.Features with {
+                RegistryEnabled = true,
+                CacheRootDirectory = badCachePath
+            };
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, features.Object));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, features));
 
             var workspace = new Workspace();
             var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(fileUri);
@@ -396,7 +396,7 @@ namespace Bicep.Core.IntegrationTests
             {
                 dispatcher.GetModuleRestoreStatus(moduleReference, configuration, out _).Should().Be(ModuleRestoreStatus.Succeeded);
             }
-        }        
+        }
 
         public static IEnumerable<object[]> GetModuleInfoData()
         {

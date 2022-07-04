@@ -32,7 +32,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var matches = GetMatches(functionName, argumentTypes, out _, out _);
             matches.Should().HaveCount(1);
 
-            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, Enumerable.Empty<FunctionArgumentSyntax>().ToImmutableArray(), Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type.Should().BeSameAs(expectedReturnType);
+            var functionCall = SyntaxFactory.CreateFunctionCall("foo");
+            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, functionCall, Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type.Should().BeSameAs(expectedReturnType);
         }
 
         [DataTestMethod]
@@ -42,7 +43,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var matches = GetMatches(functionName, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToList(), out _, out _);
             matches.Should().HaveCount(expectedReturnTypes.Count);
 
-            matches.Select(m => m.ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, Enumerable.Empty<FunctionArgumentSyntax>().ToImmutableArray(), Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
+            var functionCall = SyntaxFactory.CreateFunctionCall("foo");
+            matches.Select(m => m.ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, functionCall, Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
         }
 
         [DataTestMethod]
@@ -106,7 +108,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 Repository.Create<IBinder>().Object,
                 Repository.Create<IFileResolver>().Object,
                 Repository.Create<IDiagnosticWriter>().Object,
-                arguments.ToImmutableArray(),
+                SyntaxFactory.CreateFunctionCall("foo", arguments.ToArray()),
                 argumentTypes.ToImmutableArray()
             );
             returnType.Should().NotBeNull().And.Subject.As<FunctionResult>().Type.Should().BeAssignableTo<StringLiteralType>().Subject.RawStringValue.Should().Be(returnTypeLiteral);
@@ -122,7 +124,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
             yield return CreateRow("IEZpenog", "base64", " Fizz ");
             yield return CreateRow(" Fizz ", "base64ToString", "IEZpenog");
-            yield return CreateRow("data:text/plain;charset=utf8;base64,IEZpenog", "dataUri", " Fizz ");
+            yield return CreateRow("data:text/plain;charset=utf-8;base64,IEZpenog", "dataUri", " Fizz ");
             yield return CreateRow(" Fizz ", "dataUriToString", "data:text/plain;charset=utf-8;base64,IEZpenog");
             yield return CreateRow("F", "first", "Fizz");
             yield return CreateRow("z", "last", "Fizz");

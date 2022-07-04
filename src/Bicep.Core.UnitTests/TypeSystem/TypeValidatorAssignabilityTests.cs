@@ -537,7 +537,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, stringLiteralSyntax, unionType);
 
                 diagnostics.Should().BeEmpty();
-                narrowedType.Should().Be(LanguageConstants.String);
+                narrowedType.Should().BeOfType<StringLiteralType>();
+                (narrowedType as StringLiteralType)!.Name.Should().Be("'abc'");
             }
 
             var stringLiteralUnionType = TypeHelper.CreateTypeUnion(

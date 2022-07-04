@@ -77,6 +77,18 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Value);
             });
 
+        public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax) =>
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.ProviderName);
+                this.Visit(syntax.AsKeyword);
+                this.Visit(syntax.AliasName);
+                this.Visit(syntax.Config);
+            });
+
         public override void VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax) =>
             this.BuildStatement(syntax, () =>
             {
@@ -87,7 +99,7 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Assignment);
                 this.Visit(syntax.Value);
             });
-        
+
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax) =>
             this.BuildStatement(syntax, () =>
             {
@@ -200,6 +212,25 @@ namespace Bicep.Core.PrettyPrint
                  ILinkedDocument closeParen = children[4];
 
                  return Spread(Concat(openParen, itemVariable, comma), Concat(indexVariable, closeParen));
+             });
+
+        public override void VisitVariableBlockSyntax(VariableBlockSyntax syntax) =>
+            this.BuildWithConcat(() => {
+                this.Visit(syntax.OpenParen);
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: false);
+                this.Visit(syntax.CloseParen);
+            });
+
+        public override void VisitLambdaSyntax(LambdaSyntax syntax) =>
+            this.Build(() => base.VisitLambdaSyntax(syntax), children =>
+             {
+                 Debug.Assert(children.Length == 3);
+
+                 ILinkedDocument token = children[0];
+                 ILinkedDocument arrow = children[1];
+                 ILinkedDocument body = children[2];
+
+                 return Spread(token, arrow, body);
              });
 
         private void VisitCommaAndNewLineSeparated(ImmutableArray<SyntaxBase> nodes, bool leadingAndTrailingSpace)

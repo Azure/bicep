@@ -7,5 +7,6 @@ namespace Bicep.Core.Semantics
     {
         ForExpressionItemVariable,
         ForExpressionIndexVariable,
+        LambdaItemVariable,
     }
 }

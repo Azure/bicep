@@ -371,9 +371,9 @@ resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@202
 
 // variable related runtime validation
 var runtimefoo1 = runtimeValidRes1['location']
-//@[004:015) Variable runtimefoo1. Type: string. Declaration start char: 0, length: 46
+//@[004:015) Variable runtimefoo1. Type: 'eastus'. Declaration start char: 0, length: 46
 var runtimefoo2 = runtimeValidRes2['properties'].azCliVersion
-//@[004:015) Variable runtimefoo2. Type: string. Declaration start char: 0, length: 61
+//@[004:015) Variable runtimefoo2. Type: '2.0'. Declaration start char: 0, length: 61
 var runtimefoo3 = runtimeValidRes2
 //@[004:015) Variable runtimefoo3. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 34
 var runtimefoo4 = {

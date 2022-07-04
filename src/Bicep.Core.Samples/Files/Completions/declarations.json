@@ -1141,7 +1141,7 @@
     "detail": "DNS Record",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: 'name'\n  location: location\n}\n\nresource dnsRecord 'Microsoft.Network/dnsZones/A@2018-05-01' = {\n  parent: dnsZone\n  name: 'name'\n  properties: {\n    TTL: 3600\n    'ARecords': []\n  }\n}\n\n```"
+      "value": "```bicep\nresource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: 'name'\n  location: location\n}\n\nresource dnsRecord 'Microsoft.Network/dnsZones/A@2018-05-01' = {\n  parent: dnsZone\n  name: 'name'\n  properties: {\n    TTL: 3600\n    ARecords: []\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -1150,7 +1150,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:dnsRecord} 'Microsoft.Network/dnsZones/${4|A,AAAA,CNAME,MX,NS,PTR,SOA,SRV,TXT|}@2018-05-01' = {\n  parent: dnsZone\n  name: ${5:'name'}\n  properties: {\n    TTL: 3600\n    '${6|ARecords,AAAARecords,MXRecords,NSRecords,PTRRecords,SRVRecords,TXTRecords,CNAMERecord,SOARecord|}': []\n  }\n}\n"
+      "newText": "resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:dnsRecord} 'Microsoft.Network/dnsZones/${4|A,AAAA,CNAME,MX,NS,PTR,SOA,SRV,TXT|}@2018-05-01' = {\n  parent: dnsZone\n  name: ${5:'name'}\n  properties: {\n    TTL: 3600\n    ${6|ARecords,AAAARecords,MXRecords,NSRecords,PTRRecords,SRVRecords,TXTRecords,CNAMERecord,SOARecord|}: []\n  }\n}\n"
     },
     "command": {
       "title": "top level snippet completion",

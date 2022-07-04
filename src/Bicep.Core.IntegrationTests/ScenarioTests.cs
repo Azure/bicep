@@ -965,7 +965,9 @@ var foo = 42
         public void Test_Issue1630()
         {
             var result = CompilationHelper.Compile(@"
+#disable-next-line BCP241
 var singleResource = providers('Microsoft.Insights', 'components')
+#disable-next-line BCP241
 var allResources = providers('Microsoft.Insights')
 
 // singleResource is an object!
@@ -1309,8 +1311,9 @@ output badArray array = [for (name, i) in jsonArrayBad : {
 param providerNamespace string = 'Microsoft.Web'
 
 output providerOutput object = {
+#disable-next-line BCP241
   thing: providers(providerNamespace)
-
+#disable-next-line BCP241
   otherThing: providers(providerNamespace, 'sites')
 }
 ");
@@ -1369,11 +1372,16 @@ output providerOutput object = {
         public void Test_Issue2009_expanded()
         {
             var result = CompilationHelper.Compile(@"
+#disable-next-line BCP241
 output providersNamespace string = providers('Test.Rp').namespace
+#disable-next-line BCP241
 output providersResources array = providers('Test.Rp').resourceTypes
 
+#disable-next-line BCP241
 output providersResourceType string = providers('Test.Rp', 'fakeResource').resourceType
+#disable-next-line BCP241
 output providersApiVersionFirst string = providers('Test.Rp', 'fakeResource').apiVersions[0]
+#disable-next-line BCP241
 output providersLocationFirst string = providers('Test.Rp', 'fakeResource').locations[0]
 ");
 
@@ -1947,6 +1955,7 @@ resource cname 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
                 ("BCP036", DiagnosticLevel.Error, "The property \"scope\" expected a value of type \"resource | tenant\" but the provided value is of type \"null\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"null\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/dnsZones\" but the provided value is of type \"null\"."),
+                ("BCP240", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported."),
             });
         }
 
@@ -2417,7 +2426,9 @@ output test string = res.id
             result.Should().HaveDiagnostics(new[]
             {
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/virtualNetworks\" but the provided value is of type \"module\"."),
+                ("BCP240", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/virtualNetworks\" but the provided value is of type \"tenant\"."),
+                ("BCP240", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported."),
             });
         }
 
@@ -2783,7 +2794,7 @@ var myValue = 2147483647
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[]
             {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new[]
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new[]
                 {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                     new TypeProperty("tags", LanguageConstants.Array, TypePropertyFlags.ReadOnly, "tags property"),
@@ -3427,18 +3438,315 @@ var bar = {
         public void Test_Issue_7241_2(string copy)
         {
             var result = CompilationHelper.Compile(@"
-var "+copy+@" = {}
+var " + copy + @" = {}
 ");
 
 
             using (new AssertionScope())
             {
-                result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+                result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
                 {
                     ("BCP239", DiagnosticLevel.Error, "Identifier \"copy\" is a reserved Bicep symbol name and cannot be used in this context.")
                 });
                 result.Template.Should().BeNull();
             }
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/7154
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_7154_Ternary_Syntax_Produces_Error()
+        {
+            var result = CompilationHelper.Compile(@"
+var deployServerlessCosmosDb = true
+
+resource cosmosDbServer 'Microsoft.DocumentDB/databaseAccounts@2021-07-01-preview' = {
+  kind: 'GlobalDocumentDB'
+  name: 'cosmosdbname'
+  location: resourceGroup().location
+  properties: {
+    createMode: 'Default'
+    locations: [
+      {
+        locationName: resourceGroup().location
+        failoverPriority: 0
+      }
+    ]
+    databaseAccountOfferType: 'Standard'
+    consistencyPolicy: {
+      defaultConsistencyLevel: 'Session'
+      maxIntervalInSeconds: 5
+      maxStalenessPrefix: 100
+    }
+    diagnosticLogSettings: {
+      enableFullTextQuery: 'None'
+    }
+  }
+}
+
+resource PassDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-07-01-preview' = {
+  parent: cosmosDbServer
+  name: 'PassDb'
+  properties: {
+    resource: {
+      id: 'PassDb'
+    }
+  }
+}
+
+resource QPDB 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-07-01-preview' = if(!deployServerlessCosmosDb) {
+  parent: cosmosDbServer
+  name: 'QPDB'
+  properties: {
+    resource: {
+      id: 'QPDB'
+    }
+  }
+}
+
+resource container_ActorColdStorage 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-07-01-preview' = {
+  parent: deployServerlessCosmosDb? PassDb: QPDB
+  name: 'ActorColdStorage'
+  properties: {
+    resource: {
+      id: 'ActorColdStorage'
+      partitionKey: {
+        paths: [
+          '/Type'
+        ]
+        kind: 'Hash'
+      }
+      conflictResolutionPolicy: {
+        mode: 'LastWriterWins'
+        conflictResolutionPath: '/_ts'
+      }
+    }
+  }
+}
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP240", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported.")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/7154
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_7154_2_Ternary_Syntax_With_Parentheses_Produces_Error()
+        {
+            var result = CompilationHelper.Compile(@"
+var deployServerlessCosmosDb = true
+
+resource cosmosDbServer 'Microsoft.DocumentDB/databaseAccounts@2021-07-01-preview' = {
+  kind: 'GlobalDocumentDB'
+  name: 'cosmosdbname'
+  location: resourceGroup().location
+  properties: {
+    createMode: 'Default'
+    locations: [
+      {
+        locationName: resourceGroup().location
+        failoverPriority: 0
+      }
+    ]
+    databaseAccountOfferType: 'Standard'
+    consistencyPolicy: {
+      defaultConsistencyLevel: 'Session'
+      maxIntervalInSeconds: 5
+      maxStalenessPrefix: 100
+    }
+    diagnosticLogSettings: {
+      enableFullTextQuery: 'None'
+    }
+  }
+}
+
+resource PassDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-07-01-preview' = {
+  parent: cosmosDbServer
+  name: 'PassDb'
+  properties: {
+    resource: {
+      id: 'PassDb'
+    }
+  }
+}
+
+resource QPDB 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-07-01-preview' = if(!deployServerlessCosmosDb) {
+  parent: cosmosDbServer
+  name: 'QPDB'
+  properties: {
+    resource: {
+      id: 'QPDB'
+    }
+  }
+}
+
+resource container_ActorColdStorage 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-07-01-preview' = {
+  parent: (deployServerlessCosmosDb)? PassDb: QPDB
+  name: 'ActorColdStorage'
+  properties: {
+    resource: {
+      id: 'ActorColdStorage'
+      partitionKey: {
+        paths: [
+          '/Type'
+        ]
+        kind: 'Hash'
+      }
+      conflictResolutionPolicy: {
+        mode: 'LastWriterWins'
+        conflictResolutionPath: '/_ts'
+      }
+    }
+  }
+}
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP240", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported.")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/7271
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue7271()
+        {
+            var result = CompilationHelper.Compile(@"
+var less           = any(1) < any(2)
+var lessOrEqual    = any(1) <= any(2)
+var greater        = any(1) > any(2)
+var greaterOrEqual = any(1) >= any(2)");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/6951
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue6951()
+        {
+            const string Main = @"
+param SfAppCertificateSubjectNames array
+
+module SfAppCertificates './certificate-generation.bicep' = [for cert in SfAppCertificateSubjectNames: {
+  name: 'sfdsf'
+  params: {
+
+  }
+}]
+
+var nodeTypes = []
+
+resource SFNodeTypes 'Microsoft.ServiceFabric/managedClusters/nodeTypes@2022-02-01-preview' = [for node in nodeTypes: if (node.instanceCount > 0) {
+  name: node.name
+  parent: SF
+  properties: {
+    //...
+    vmSecrets: [for (subjectName, i) in SfAppCertificateSubjectNames if (contains(SfAppCertificateSubjectNames[i].targetNodeTypes, node.name)): {
+      sourceVault: {
+        id: resourceId('Microsoft.KeyVault/vaults', SfAppCertificates[i].outputs.KeyVaultName)
+      }
+      vaultCertificates: [
+        {
+          certificateStore: 'My'
+          certificateUrl: SfAppCertificates[i].outputs.PublicCertificateUrl
+        }
+      ]
+    }]
+  }
+}]
+";
+            var result = CompilationHelper.Compile(("main.bicep", Main), ("certificate-generation.bicep", string.Empty));
+
+            // the above snippet is malformed but should not throw
+            result.Diagnostics.Should().NotBeEmpty();
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/2017
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue2017()
+        {
+            var result = CompilationHelper.Compile(@"
+var providersTest = providers('Microsoft.Resources').namespace
+var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
+").ExcludingLinterDiagnostics();
+
+            result.Should().HaveDiagnostics(new [] {
+                ("BCP241", DiagnosticLevel.Warning, "The \"providers\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow."),
+                ("BCP241", DiagnosticLevel.Warning, "The \"providers\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow."),
+            });
+
+            result.Diagnostics.Should().OnlyContain(x => x.Styling == DiagnosticStyling.ShowCodeDeprecated);
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/6477
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue6477()
+        {
+            var result = CompilationHelper.Compile(@"
+param storageAccountName string
+
+@allowed([
+  'Standard_GRS'
+  'Standard_ZRS'
+])
+@description('Storage account SKU.  Standard_ZRS should be used if region supports, else Standard_GRS.')
+param storageAccountSku string
+
+resource storageAccountName_resource 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: storageAccountName
+  #disable-next-line no-loc-expr-outside-params
+  location: resourceGroup().location
+  sku: {
+    name: storageAccountSku
+    #disable-next-line BCP073
+    tier: 'Standard'
+  }
+  kind: 'StorageV2'
+  properties: {
+    allowBlobPublicAccess: true // Ibiza requires anonymous access to the container
+    minimumTlsVersion: 'TLS1_2'
+    supportsHttpsTrafficOnly: true
+    encryption: {
+      services: {
+        file: {
+          enabled: true
+        }
+        blob: {
+          enabled: true
+        }
+      }
+      keySource: 'Microsoft.Storage'
+    }
+    accessTier: 'Hot'
+  }
+
+  resource blobs 'blobServices' existing = {
+    name: 'default'
+
+    resource containers 'containers' = {
+      name: 'extension'
+      properties: {
+        publicAccess: 'Container'
+      }
+    }
+  }
+}
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.resources[0].type", "Microsoft.Storage/storageAccounts/blobServices/containers");
+            result.Template.Should().HaveValueAtPath("$.resources[0].dependsOn", new JArray("[resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName'))]"));
+
+            result.Template.Should().HaveValueAtPath("$.resources[1].type", "Microsoft.Storage/storageAccounts");
+            result.Template.Should().NotHaveValueAtPath("$.resources[1].dependsOn");
         }
     }
 }

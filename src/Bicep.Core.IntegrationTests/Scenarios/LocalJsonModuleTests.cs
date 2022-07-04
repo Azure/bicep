@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
-using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Assertions;
@@ -125,7 +124,7 @@ module mod 'module.json' = {
             }
         }
 
-        private static IReadOnlyDictionary<string, IEnumerable<IDiagnostic>> GetDiagnosticsByFileName(Compilation compilation) =>
-            compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => Path.GetFileName(kvp.Key.FileUri.LocalPath), kvp => kvp.Value);
+        private static ImmutableDictionary<string, ImmutableArray<IDiagnostic>> GetDiagnosticsByFileName(Compilation compilation) =>
+            compilation.GetAllDiagnosticsByBicepFile().ToImmutableDictionary(kvp => Path.GetFileName(kvp.Key.FileUri.LocalPath), kvp => kvp.Value);
     }
 }

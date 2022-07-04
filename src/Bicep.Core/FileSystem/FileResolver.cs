@@ -212,6 +212,11 @@ namespace Bicep.Core.FileSystem
             return relativeUri;
         }
 
+        public string GetRelativePath(string relativeTo, string path)
+        {
+            return Path.GetRelativePath(relativeTo, path).Replace('\\', '/');
+        }
+
         public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern = "")
         {
             if (!fileUri.IsFile)

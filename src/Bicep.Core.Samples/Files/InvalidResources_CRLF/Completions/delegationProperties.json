@@ -41,7 +41,7 @@
     "detail": "properties",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `ServiceDelegationPropertiesFormat`  \nProperties of a service delegation.  \n"
+      "value": "Type: `ServiceDelegationPropertiesFormat`  \nProperties of the subnet.  \n"
     },
     "deprecated": false,
     "preselect": false,

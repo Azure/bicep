@@ -23,7 +23,7 @@
     "detail": "identity",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `ManagedServiceIdentity`  \nManaged identity generic object.  \n"
+      "value": "Type: `ManagedServiceIdentity`  \nOptional property. Managed identity to be used for this deployment script. Currently, only user-assigned MSI is supported.  \n"
     },
     "deprecated": false,
     "preselect": false,

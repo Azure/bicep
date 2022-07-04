@@ -691,6 +691,22 @@ namespace Bicep.Core.Syntax
 
         void ISyntaxVisitor.VisitForVariableBlockSyntax(ForVariableBlockSyntax syntax) => ReplaceCurrent(syntax, ReplaceForVariableBlockSyntax);
 
+        protected virtual SyntaxBase ReplaceVariableBlockSyntax(VariableBlockSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.OpenParen, out var openParen);
+            hasChanges |= TryRewriteStrict(syntax.Children, out var children);
+            hasChanges |= TryRewrite(syntax.CloseParen, out var closeParen);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new VariableBlockSyntax(openParen, children, closeParen);
+        }
+
+        void ISyntaxVisitor.VisitVariableBlockSyntax(VariableBlockSyntax syntax) => ReplaceCurrent(syntax, ReplaceVariableBlockSyntax);
+
         protected virtual SyntaxBase ReplaceDecoratorSyntax(DecoratorSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.At, out var at);
@@ -717,5 +733,20 @@ namespace Bicep.Core.Syntax
             return new MissingDeclarationSyntax(leadingNodes);
         }
         void ISyntaxVisitor.VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceMissingDeclarationSyntax);
+
+        protected virtual SyntaxBase ReplaceLambdaSyntax(LambdaSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.VariableSection, out var variableSection);
+            hasChanges |= TryRewriteStrict(syntax.Arrow, out var arrow);
+            hasChanges |= TryRewrite(syntax.Body, out var body);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new LambdaSyntax(variableSection, arrow, body);
+        }
+        void ISyntaxVisitor.VisitLambdaSyntax(LambdaSyntax syntax) => ReplaceCurrent(syntax, ReplaceLambdaSyntax);
     }
 }

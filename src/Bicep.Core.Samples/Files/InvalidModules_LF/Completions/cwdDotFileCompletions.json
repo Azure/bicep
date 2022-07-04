@@ -13,7 +13,7 @@
       "newText": "'./ChildModules/$0'"
     },
     "command": {
-      "title": "module path completion",
+      "title": "file path completion",
       "command": "editor.action.triggerSuggest"
     }
   },
@@ -31,7 +31,7 @@
       "newText": "'./Completions/$0'"
     },
     "command": {
-      "title": "module path completion",
+      "title": "file path completion",
       "command": "editor.action.triggerSuggest"
     }
   },

@@ -1786,6 +1786,31 @@ module.exports = function (context) {
 '''
 //@[003:005) NewLine |\n\n|
 
+var providersTest = providers('Microsoft.Resources').namespace
+//@[000:003) Identifier |var|
+//@[004:017) Identifier |providersTest|
+//@[018:019) Assignment |=|
+//@[020:029) Identifier |providers|
+//@[029:030) LeftParen |(|
+//@[030:051) StringComplete |'Microsoft.Resources'|
+//@[051:052) RightParen |)|
+//@[052:053) Dot |.|
+//@[053:062) Identifier |namespace|
+//@[062:063) NewLine |\n|
+var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
+//@[000:003) Identifier |var|
+//@[004:018) Identifier |providersTest2|
+//@[019:020) Assignment |=|
+//@[021:030) Identifier |providers|
+//@[030:031) LeftParen |(|
+//@[031:052) StringComplete |'Microsoft.Resources'|
+//@[052:053) Comma |,|
+//@[054:067) StringComplete |'deployments'|
+//@[067:068) RightParen |)|
+//@[068:069) Dot |.|
+//@[069:078) Identifier |locations|
+//@[078:080) NewLine |\n\n|
+
 var copyBlockInObject = {
 //@[000:003) Identifier |var|
 //@[004:021) Identifier |copyBlockInObject|
@@ -1824,4 +1849,24 @@ var copyBlockInObject = {
 //@[003:004) NewLine |\n|
 }
 //@[000:001) RightBrace |}|
-//@[001:001) EndOfFile ||
+//@[001:003) NewLine |\n\n|
+
+var joinedString = join(['I', 'love', 'Bicep!'], ' ')
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |joinedString|
+//@[017:018) Assignment |=|
+//@[019:023) Identifier |join|
+//@[023:024) LeftParen |(|
+//@[024:025) LeftSquare |[|
+//@[025:028) StringComplete |'I'|
+//@[028:029) Comma |,|
+//@[030:036) StringComplete |'love'|
+//@[036:037) Comma |,|
+//@[038:046) StringComplete |'Bicep!'|
+//@[046:047) RightSquare |]|
+//@[047:048) Comma |,|
+//@[049:052) StringComplete |' '|
+//@[052:053) RightParen |)|
+//@[053:054) NewLine |\n|
+
+//@[000:000) EndOfFile ||

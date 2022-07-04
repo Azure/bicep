@@ -18,6 +18,7 @@ namespace Bicep.Core.Syntax
             this.OpenParen = openParen;
             this.Children = children.ToImmutableArray();
             this.CloseParen = closeParen;
+            this.Arguments = children.OfType<FunctionArgumentSyntax>().ToImmutableArray();
         }
 
         public IdentifierSyntax Name { get; }
@@ -26,10 +27,10 @@ namespace Bicep.Core.Syntax
 
         public ImmutableArray<SyntaxBase> Children { get; }
 
-        public IEnumerable<FunctionArgumentSyntax> Arguments => this.Children.OfType<FunctionArgumentSyntax>();
+        public ImmutableArray<FunctionArgumentSyntax> Arguments { get; }
 
         public Token CloseParen { get; }
 
-        public FunctionArgumentSyntax GetArgumentByPosition(int index) => Arguments.Skip(index).First();
+        public FunctionArgumentSyntax GetArgumentByPosition(int index) => Arguments[index];
     }
 }

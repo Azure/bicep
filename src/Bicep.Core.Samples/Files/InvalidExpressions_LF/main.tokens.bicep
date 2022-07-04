@@ -1589,17 +1589,65 @@ xxxxx
 //@[05:08) NewLine |\n\n\n|
 
 
+var noElements = ()
+//@[00:03) Identifier |var|
+//@[04:14) Identifier |noElements|
+//@[15:16) Assignment |=|
+//@[17:18) LeftParen |(|
+//@[18:19) RightParen |)|
+//@[19:20) NewLine |\n|
+var justAComma = (,)
+//@[00:03) Identifier |var|
+//@[04:14) Identifier |justAComma|
+//@[15:16) Assignment |=|
+//@[17:18) LeftParen |(|
+//@[18:19) Comma |,|
+//@[19:20) RightParen |)|
+//@[20:21) NewLine |\n|
+var twoElements = (1, 2)
+//@[00:03) Identifier |var|
+//@[04:15) Identifier |twoElements|
+//@[16:17) Assignment |=|
+//@[18:19) LeftParen |(|
+//@[19:20) Integer |1|
+//@[20:21) Comma |,|
+//@[22:23) Integer |2|
+//@[23:24) RightParen |)|
+//@[24:25) NewLine |\n|
+var threeElements = (1, 2, 3)
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |threeElements|
+//@[18:19) Assignment |=|
+//@[20:21) LeftParen |(|
+//@[21:22) Integer |1|
+//@[22:23) Comma |,|
+//@[24:25) Integer |2|
+//@[25:26) Comma |,|
+//@[27:28) Integer |3|
+//@[28:29) RightParen |)|
+//@[29:30) NewLine |\n|
+var unterminated1 = (
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |unterminated1|
+//@[18:19) Assignment |=|
+//@[20:21) LeftParen |(|
+//@[21:22) NewLine |\n|
+var unterminated2 = (,
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |unterminated2|
+//@[18:19) Assignment |=|
+//@[20:21) LeftParen |(|
+//@[21:22) Comma |,|
+//@[22:24) NewLine |\n\n|
+
+// trailing decorator with no declaration
+//@[41:42) NewLine |\n|
 @minLength()
 //@[00:01) At |@|
 //@[01:10) Identifier |minLength|
 //@[10:11) LeftParen |(|
 //@[11:12) RightParen |)|
-//@[12:21) NewLine |\n\n\n\n\n\n\n\n\n|
-
-
-
-
-
+//@[12:16) NewLine |\n\n\n\n|
 
 
 
