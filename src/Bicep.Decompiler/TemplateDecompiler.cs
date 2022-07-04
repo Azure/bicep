@@ -41,20 +41,20 @@ namespace Bicep.Decompiler
             this.configurationManager = configurationManager;
         }
 
-        public (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(Uri entryJsonUri, Uri entryBicepUri)
+        public (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(Uri entryUri, Uri entryBicepUri)
         {
             var workspace = new Workspace();
             var decompileQueue = new Queue<(Uri, Uri)>();
 
-            decompileQueue.Enqueue((entryJsonUri, entryBicepUri));
+            decompileQueue.Enqueue((entryUri, entryBicepUri));
 
             while (decompileQueue.Count > 0)
             {
-                var (jsonUri, bicepUri) = decompileQueue.Dequeue();
+                var (inputUri, bicepUri) = decompileQueue.Dequeue();
 
-                if (PathHelper.HasBicepExtension(jsonUri))
+                if (PathHelper.HasBicepExtension(inputUri))
                 {
-                    throw new InvalidOperationException($"Cannot decompile the file with .bicep extension: {jsonUri}.");
+                    throw new InvalidOperationException($"Cannot decompile the file with .bicep extension: {inputUri}.");
                 }
 
                 if (workspace.TryGetSourceFile(bicepUri, out _))
@@ -62,12 +62,21 @@ namespace Bicep.Decompiler
                     continue;
                 }
 
-                if (!fileResolver.TryRead(jsonUri, out var jsonInput, out _))
+                if (!fileResolver.TryRead(inputUri, out var input, out _))
                 {
-                    throw new InvalidOperationException($"Failed to read {jsonUri}");
+                    throw new InvalidOperationException($"Failed to read {inputUri}");
                 }
 
-                var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, fileResolver, bicepUri, jsonInput);
+                ProgramSyntax program;
+                IReadOnlyDictionary<ModuleDeclarationSyntax, Uri> templateUrisByModule;
+                if (PathHelper.HasExtension(inputUri, ".yml") || PathHelper.HasExtension(inputUri, ".yaml"))
+                {
+                    (program, templateUrisByModule) = K8sYamlConverter.DecompileTemplate(workspace, fileResolver, bicepUri, input);
+                } else
+                {
+                    (program, templateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, fileResolver, bicepUri, input);
+                }
+
                 var bicepFile = SourceFileFactory.CreateBicepFile(bicepUri, program.ToText());
                 workspace.UpsertSourceFile(bicepFile);
 
@@ -82,7 +91,7 @@ namespace Bicep.Decompiler
                         continue;
                     }
 
-                    if (!workspace.TryGetSourceFile(moduleUri, out _) && jsonTemplateUrisByModule.TryGetValue(module, out var linkedTemplateUri))
+                    if (!workspace.TryGetSourceFile(moduleUri, out _) && templateUrisByModule.TryGetValue(module, out var linkedTemplateUri))
                     {
                         decompileQueue.Enqueue((linkedTemplateUri, moduleUri));
                     }

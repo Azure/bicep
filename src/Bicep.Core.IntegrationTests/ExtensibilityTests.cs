@@ -397,5 +397,105 @@ Hello from Bicep!"));
   }
 }"));
         }
+
+        [TestMethod]
+        public void K8s_no_symbolic_name()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(),
+                ("main.bicep", @"
+@secure()
+param kubeConfig string
+param context string
+
+import kubernetes as k8s {
+  kubeConfig: kubeConfig
+  namespace: 'shared'
+  context: context
+}
+
+resource clusterRole 'rbac.authorization.k8s.io/ClusterRole@v1' = {
+  metadata: {
+    name: 'cluster-reader'
+  }
+  rules: []
+}
+
+resource crb 'rbac.authorization.k8s.io/ClusterRoleBinding@v1' = {
+  roleRef: {
+    apiGroup: 'rbac.authorization.k8s.io'
+    kind: clusterRole.kind
+    name: clusterRole.metadata.name
+  }
+  metadata: {
+    name: 'cluster-reader-rolebinding'
+  }
+  subjects: []
+}
+"));
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().DeepEqual(JToken.Parse(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""languageVersion"": ""1.9-experimental"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""metadata"": {
+    ""EXPERIMENTAL_WARNING"": ""Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!"",
+    ""_generator"": {
+      ""name"": ""bicep"",
+      ""version"": ""dev"",
+      ""templateHash"": ""4272033090273710949""
+    }
+  },
+  ""parameters"": {
+    ""kubeConfig"": {
+      ""type"": ""secureString""
+    },
+    ""context"": {
+      ""type"": ""string""
+    }
+  },
+  ""imports"": {
+    ""k8s"": {
+      ""provider"": ""Kubernetes"",
+      ""version"": ""1.0"",
+      ""config"": {
+        ""kubeConfig"": ""[parameters('kubeConfig')]"",
+        ""namespace"": ""shared"",
+        ""context"": ""[parameters('context')]""
+      }
+    }
+  },
+  ""resources"": {
+    ""clusterRole"": {
+      ""import"": ""k8s"",
+      ""type"": ""rbac.authorization.k8s.io/ClusterRole@v1"",
+      ""properties"": {
+        ""metadata"": {
+          ""name"": ""cluster-reader""
+        },
+        ""rules"": []
+      }
+    },
+    ""crb"": {
+      ""import"": ""k8s"",
+      ""type"": ""rbac.authorization.k8s.io/ClusterRoleBinding@v1"",
+      ""properties"": {
+        ""roleRef"": {
+          ""apiGroup"": ""rbac.authorization.k8s.io"",
+          ""kind"": ""ClusterRole"",
+          ""name"": ""cluster-reader""
+        },
+        ""metadata"": {
+          ""name"": ""cluster-reader-rolebinding""
+        },
+        ""subjects"": []
+      },
+      ""dependsOn"": [
+        ""clusterRole""
+      ]
+    }
+  }
+}"));
+        }
     }
 }

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Azure.Bicep.Decompiler</AssemblyName>
     <RootNamespace>Bicep.Decompiler</RootNamespace>
@@ -14,6 +14,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
+    <PackageReference Include="KubernetesClient.Models" Version="8.0.12" />
   </ItemGroup>
 
   <ItemGroup>
