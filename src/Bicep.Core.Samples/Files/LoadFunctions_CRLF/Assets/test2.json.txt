@@ -1,0 +1,16 @@
+{
+  "products": [
+    {
+      "name": "pizza",
+      "price": 5.00
+    },
+    {
+      "name": "salad",
+      "price": 3.99
+    },
+    {
+      "name": "bread",
+      "price": 2.00
+    }
+  ]
+}

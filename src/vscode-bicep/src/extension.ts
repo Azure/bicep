@@ -12,6 +12,8 @@ import {
   BuildCommand,
   CommandManager,
   DeployCommand,
+  ForceModulesRestoreCommand,
+  GenerateParamsCommand,
   InsertResourceCommand,
   ShowSourceCommand,
   ShowVisualizerCommand,
@@ -95,8 +97,10 @@ export async function activate(
       .register(new CommandManager(context))
       .registerCommands(
         new BuildCommand(languageClient, outputChannelManager),
+        new GenerateParamsCommand(languageClient, outputChannelManager),
         new CreateBicepConfigurationFile(languageClient),
         new DeployCommand(languageClient, outputChannelManager, treeManager),
+        new ForceModulesRestoreCommand(languageClient, outputChannelManager),
         new InsertResourceCommand(languageClient),
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),

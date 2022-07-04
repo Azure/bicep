@@ -45,6 +45,7 @@ namespace Bicep.Core.TypeSystem
         private readonly IFileResolver fileResolver;
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
+        private readonly ConcurrentDictionary<FunctionCallSyntaxBase, object> matchedFunctionResultValues;
 
         public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IFileResolver fileResolver)
         {
@@ -54,6 +55,7 @@ namespace Bicep.Core.TypeSystem
             this.fileResolver = fileResolver;
             assignedTypes = new();
             matchedFunctionOverloads = new();
+            matchedFunctionResultValues = new();
         }
 
         private TypeAssignment GetTypeAssignment(SyntaxBase syntax)
@@ -83,6 +85,11 @@ namespace Bicep.Core.TypeSystem
         {
             Visit(syntax);
             return matchedFunctionOverloads.TryGetValue(syntax, out var overload) ? overload : null;
+        }
+        public object? GetMatchedFunctionResultValue(FunctionCallSyntaxBase syntax)
+        {
+            Visit(syntax);
+            return matchedFunctionResultValues.TryGetValue(syntax, out var metadata) ? metadata : null;
         }
 
         private void AssignTypeWithCaching(SyntaxBase syntax, Func<TypeAssignment> assignFunc) =>
@@ -166,25 +173,47 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 var parent = this.binder.GetParent(syntax);
-                var @for = parent switch
+
+
+                switch (localVariableSymbol.LocalKind)
                 {
-                    ForSyntax forParent => forParent,
-                    ForVariableBlockSyntax block when this.binder.GetParent(block) is ForSyntax forParent => forParent,
-                    _ => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}")
-                };
+                    case LocalKind.ForExpressionItemVariable:
+                        // this local variable is a loop item variable
+                        // we should return item type of the array (if feasible)
+                        var @for = parent switch
+                        {
+                            ForSyntax forParent => forParent,
+                            ForVariableBlockSyntax block when this.binder.GetParent(block) is ForSyntax forParent => forParent,
+                            _ => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}")
+                        };
 
-                return localVariableSymbol.LocalKind switch
-                {
-                    // this local variable is a loop item variable
-                    // we should return item type of the array (if feasible)
-                    LocalKind.ForExpressionItemVariable => GetItemType(@for),
+                        return GetItemType(@for);
 
-                    // the local variable is an index variable
-                    // index variables are always of type int
-                    LocalKind.ForExpressionIndexVariable => LanguageConstants.Int,
+                    case LocalKind.ForExpressionIndexVariable:
+                        // the local variable is an index variable
+                        // index variables are always of type int
+                        return LanguageConstants.Int;
 
-                    _ => throw new InvalidOperationException($"Unexpected local kind '{localVariableSymbol.LocalKind}'.")
-                };
+                    case LocalKind.LambdaItemVariable:
+                        var (lambda, argumentIndex) = parent switch
+                        {
+                            LambdaSyntax lambdaSyntax => (lambdaSyntax, 0),
+                            VariableBlockSyntax block when this.binder.GetParent(block) is LambdaSyntax lambdaSyntax => (lambdaSyntax, block.Arguments.IndexOf(syntax)),
+                            _ => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}"),
+                        };
+
+                        if (binder.GetParent(lambda) is {} lambdaParent &&
+                            typeManager.GetDeclaredType(lambdaParent) is LambdaType lambdaType &&
+                            argumentIndex < lambdaType.ArgumentTypes.Length)
+                        {
+                            return lambdaType.ArgumentTypes[argumentIndex];
+                        }
+
+                        return LanguageConstants.Any;
+
+                    default:
+                        throw new InvalidOperationException($"Unexpected local kind '{localVariableSymbol.LocalKind}'.");
+                }
             });
 
         public override void VisitForSyntax(ForSyntax syntax)
@@ -245,24 +274,31 @@ namespace Bicep.Core.TypeSystem
                     return singleDeclaredType;
                 }
 
-                if (singleDeclaredType is ResourceType resourceType &&
-                    !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
+                if (singleDeclaredType is ResourceType resourceType)
                 {
-                    // TODO move into Az extension
-                    var typeSegments = resourceType.TypeReference.TypeSegments;
+                    if (!resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
+                    {
+                        // TODO move into Az extension
+                        var typeSegments = resourceType.TypeReference.TypeSegments;
 
-                    if (resourceType.DeclaringNamespace.ProviderName == AzNamespaceType.BuiltInName &&
-                        typeSegments.Length > 2 &&
-                        typeSegments.Where((type, i) => i > 1 && i < (typeSegments.Length - 1) && StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
-                    {
-                        // Special check for (<type>/)+providers(/<type>)+
-                        // This indicates someone is trying to deploy an extension resource without using the 'scope' property.
-                        // We should instead point them towards documentation on the 'scope' property.
-                        diagnostics.Write(syntax.Type, x => x.ResourceTypeContainsProvidersSegment());
+                        if (resourceType.DeclaringNamespace.ProviderName == AzNamespaceType.BuiltInName &&
+                            typeSegments.Length > 2 &&
+                            typeSegments.Where((type, i) => i > 1 && i < (typeSegments.Length - 1) && StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
+                        {
+                            // Special check for (<type>/)+providers(/<type>)+
+                            // This indicates someone is trying to deploy an extension resource without using the 'scope' property.
+                            // We should instead point them towards documentation on the 'scope' property.
+                            diagnostics.Write(syntax.Type, x => x.ResourceTypeContainsProvidersSegment());
+                        }
+                        else
+                        {
+                            diagnostics.Write(syntax.Type, x => x.ResourceTypesUnavailable(resourceType.TypeReference));
+                        }
                     }
-                    else
+
+                    if (!syntax.IsExistingResource() && resourceType.Flags.HasFlag(ResourceFlags.ReadOnly))
                     {
-                        diagnostics.Write(syntax.Type, x => x.ResourceTypesUnavailable(resourceType.TypeReference));
+                        diagnostics.Write(syntax.Type, x => x.ResourceTypeIsReadonly(resourceType.TypeReference));
                     }
                 }
 
@@ -368,7 +404,7 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     if (syntax.Type is ResourceTypeSyntax resourceTypeSyntax &&
-                        resourceTypeSyntax.Type is {} &&
+                        resourceTypeSyntax.Type is { } &&
                         !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
                     {
                         diagnostics.Write(DiagnosticBuilder.ForPosition(resourceTypeSyntax.Type!).ResourceTypesUnavailable(resourceType.TypeReference));
@@ -759,8 +795,13 @@ namespace Bicep.Core.TypeSystem
 
                 // operands don't appear to have errors
                 // let's match the operator now
-                var operatorInfo = BinaryOperationResolver.TryMatchExact(syntax.Operator, operandType1, operandType2);
-                if (operatorInfo != null)
+                // we may receive multiple matches when an overloaded operator (such as <, <=, >, or >=) is used with operands of "any" type
+                // however, overloaded operators MUST have the same return type, so we can use the first match
+                // (the return type constraint on overloaded operators has a corresponding test assertion to prevent future regressions)
+                var operatorInfo = BinaryOperationResolver
+                    .GetMatches(syntax.Operator, operandType1, operandType2)
+                    .FirstOrDefault();
+                if (operatorInfo is not null)
                 {
                     // we found a match - use its return type
                     return operatorInfo.ReturnType;
@@ -1047,6 +1088,15 @@ namespace Bicep.Core.TypeSystem
                 }
             });
 
+        public override void VisitLambdaSyntax(LambdaSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var argumentTypes = syntax.GetLocalVariables().Select(x => typeManager.GetTypeInfo(x));
+                var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Body, LanguageConstants.Any);
+
+                return new LambdaType(argumentTypes.ToImmutableArray<ITypeReference>(), returnType);
+            });
+
         private Symbol? GetSymbolForDecorator(DecoratorSyntax decorator)
         {
             if (binder.GetSymbolInfo(decorator.Expression) is { } symbol)
@@ -1291,7 +1341,7 @@ namespace Bicep.Core.TypeSystem
                         var parameterTypes = typeMismatches.Select(tm => tm.ParameterType).ToList();
                         var argumentType = typeMismatches[0].ArgumentType;
                         var signatures = typeMismatches.Select(tm => tm.Source.TypeSignature).ToList();
-                        var argumentSyntax = syntax.Arguments[typeMismatches[0].ArgumentIndex];
+                        var argumentSyntax = syntax.GetArgumentByPosition(typeMismatches[0].ArgumentIndex);
 
                         errors.Add(DiagnosticBuilder.ForPosition(argumentSyntax).CannotResolveFunctionOverload(signatures, argumentType, parameterTypes));
                     }
@@ -1300,7 +1350,7 @@ namespace Bicep.Core.TypeSystem
                         // Choose the type mismatch that has the largest index as the best one.
                         var (_, argumentIndex, argumentType, parameterType) = typeMismatches.OrderBy(tm => tm.ArgumentIndex).Last();
 
-                        errors.Add(DiagnosticBuilder.ForPosition(syntax.Arguments[argumentIndex]).ArgumentTypeMismatch(argumentType, parameterType));
+                        errors.Add(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(argumentIndex)).ArgumentTypeMismatch(argumentType, parameterType));
                     }
                 }
                 else
@@ -1325,7 +1375,12 @@ namespace Bicep.Core.TypeSystem
                 matchedFunctionOverloads.TryAdd(syntax, matchedOverload);
 
                 // return its type
-                return matchedOverload.ReturnTypeBuilder(binder, fileResolver, diagnosticWriter, syntax.Arguments, argumentTypes);
+                var result = matchedOverload.ResultBuilder(binder, fileResolver, diagnosticWriter, syntax, argumentTypes);
+                if (result.Value is not null)
+                {
+                    matchedFunctionResultValues.TryAdd(syntax, result.Value);
+                }
+                return result.Type;
             }
 
             // function arguments are ambiguous (due to "any" type)
@@ -1458,7 +1513,7 @@ namespace Bicep.Core.TypeSystem
 
                 // As a special case of outputs, we don't want to double-up diagnostics on inferred resource types.
                 // The inference is based on another declaration in the file, and so the user should fix that instead.
-                if (resourceTypeSyntax.Type is {}
+                if (resourceTypeSyntax.Type is { }
                     && !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
                 {
                     diagnostics.Add(DiagnosticBuilder.ForPosition(resourceTypeSyntax.Type!).ResourceTypesUnavailable(resourceType.TypeReference));

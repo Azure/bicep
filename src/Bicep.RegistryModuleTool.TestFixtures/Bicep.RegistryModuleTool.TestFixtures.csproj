@@ -25,11 +25,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FluentAssertions" Version="6.5.1" />
+    <PackageReference Include="FluentAssertions" Version="6.7.0" />
     <PackageReference Include="JsonPatch.Net" Version="1.1.2" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
-    <PackageReference Include="Moq" Version="4.16.1" />
-    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="16.1.10" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
+    <PackageReference Include="Moq" Version="4.18.1" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="17.0.18" />
   </ItemGroup>
 
   <ItemGroup>
@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.4.255" />
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.5.107" />
   </ItemGroup>
 
 </Project>

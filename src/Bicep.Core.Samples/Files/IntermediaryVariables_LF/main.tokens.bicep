@@ -1,263 +1,263 @@
 var boolVal = true
-//@[0:3) Identifier |var|
-//@[4:11) Identifier |boolVal|
-//@[12:13) Assignment |=|
-//@[14:18) TrueKeyword |true|
-//@[18:20) NewLine |\n\n|
+//@[000:003) Identifier |var|
+//@[004:011) Identifier |boolVal|
+//@[012:013) Assignment |=|
+//@[014:018) TrueKeyword |true|
+//@[018:020) NewLine |\n\n|
 
 var vmProperties = {
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |vmProperties|
-//@[17:18) Assignment |=|
-//@[19:20) LeftBrace |{|
-//@[20:21) NewLine |\n|
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |vmProperties|
+//@[017:018) Assignment |=|
+//@[019:020) LeftBrace |{|
+//@[020:021) NewLine |\n|
   diagnosticsProfile: {
-//@[2:20) Identifier |diagnosticsProfile|
-//@[20:21) Colon |:|
-//@[22:23) LeftBrace |{|
-//@[23:24) NewLine |\n|
+//@[002:020) Identifier |diagnosticsProfile|
+//@[020:021) Colon |:|
+//@[022:023) LeftBrace |{|
+//@[023:024) NewLine |\n|
     bootDiagnostics: {
-//@[4:19) Identifier |bootDiagnostics|
-//@[19:20) Colon |:|
-//@[21:22) LeftBrace |{|
-//@[22:23) NewLine |\n|
+//@[004:019) Identifier |bootDiagnostics|
+//@[019:020) Colon |:|
+//@[021:022) LeftBrace |{|
+//@[022:023) NewLine |\n|
       enabled: 123
-//@[6:13) Identifier |enabled|
-//@[13:14) Colon |:|
-//@[15:18) Integer |123|
-//@[18:19) NewLine |\n|
+//@[006:013) Identifier |enabled|
+//@[013:014) Colon |:|
+//@[015:018) Integer |123|
+//@[018:019) NewLine |\n|
       storageUri: true
-//@[6:16) Identifier |storageUri|
-//@[16:17) Colon |:|
-//@[18:22) TrueKeyword |true|
-//@[22:23) NewLine |\n|
+//@[006:016) Identifier |storageUri|
+//@[016:017) Colon |:|
+//@[018:022) TrueKeyword |true|
+//@[022:023) NewLine |\n|
       unknownProp: 'asdf'
-//@[6:17) Identifier |unknownProp|
-//@[17:18) Colon |:|
-//@[19:25) StringComplete |'asdf'|
-//@[25:26) NewLine |\n|
+//@[006:017) Identifier |unknownProp|
+//@[017:018) Colon |:|
+//@[019:025) StringComplete |'asdf'|
+//@[025:026) NewLine |\n|
     }
-//@[4:5) RightBrace |}|
-//@[5:6) NewLine |\n|
+//@[004:005) RightBrace |}|
+//@[005:006) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
   evictionPolicy: boolVal
-//@[2:16) Identifier |evictionPolicy|
-//@[16:17) Colon |:|
-//@[18:25) Identifier |boolVal|
-//@[25:26) NewLine |\n|
+//@[002:016) Identifier |evictionPolicy|
+//@[016:017) Colon |:|
+//@[018:025) Identifier |boolVal|
+//@[025:026) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
-//@[0:8) Identifier |resource|
-//@[9:11) Identifier |vm|
-//@[12:58) StringComplete |'Microsoft.Compute/virtualMachines@2020-12-01'|
-//@[59:60) Assignment |=|
-//@[61:62) LeftBrace |{|
-//@[62:63) NewLine |\n|
+//@[000:008) Identifier |resource|
+//@[009:011) Identifier |vm|
+//@[012:058) StringComplete |'Microsoft.Compute/virtualMachines@2020-12-01'|
+//@[059:060) Assignment |=|
+//@[061:062) LeftBrace |{|
+//@[062:063) NewLine |\n|
   name: 'vm'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:12) StringComplete |'vm'|
-//@[12:13) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:012) StringComplete |'vm'|
+//@[012:013) NewLine |\n|
   location: 'West US'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:21) StringComplete |'West US'|
-//@[21:22) NewLine |\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:021) StringComplete |'West US'|
+//@[021:022) NewLine |\n|
   properties: vmProperties
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:26) Identifier |vmProperties|
-//@[26:27) NewLine |\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:026) Identifier |vmProperties|
+//@[026:027) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 var ipConfigurations = [for i in range(0, 2): {
-//@[0:3) Identifier |var|
-//@[4:20) Identifier |ipConfigurations|
-//@[21:22) Assignment |=|
-//@[23:24) LeftSquare |[|
-//@[24:27) Identifier |for|
-//@[28:29) Identifier |i|
-//@[30:32) Identifier |in|
-//@[33:38) Identifier |range|
-//@[38:39) LeftParen |(|
-//@[39:40) Integer |0|
-//@[40:41) Comma |,|
-//@[42:43) Integer |2|
-//@[43:44) RightParen |)|
-//@[44:45) Colon |:|
-//@[46:47) LeftBrace |{|
-//@[47:48) NewLine |\n|
+//@[000:003) Identifier |var|
+//@[004:020) Identifier |ipConfigurations|
+//@[021:022) Assignment |=|
+//@[023:024) LeftSquare |[|
+//@[024:027) Identifier |for|
+//@[028:029) Identifier |i|
+//@[030:032) Identifier |in|
+//@[033:038) Identifier |range|
+//@[038:039) LeftParen |(|
+//@[039:040) Integer |0|
+//@[040:041) Comma |,|
+//@[042:043) Integer |2|
+//@[043:044) RightParen |)|
+//@[044:045) Colon |:|
+//@[046:047) LeftBrace |{|
+//@[047:048) NewLine |\n|
   id: true
-//@[2:4) Identifier |id|
-//@[4:5) Colon |:|
-//@[6:10) TrueKeyword |true|
-//@[10:11) NewLine |\n|
+//@[002:004) Identifier |id|
+//@[004:005) Colon |:|
+//@[006:010) TrueKeyword |true|
+//@[010:011) NewLine |\n|
   name: 'asdf${i}'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:15) StringLeftPiece |'asdf${|
-//@[15:16) Identifier |i|
-//@[16:18) StringRightPiece |}'|
-//@[18:19) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:015) StringLeftPiece |'asdf${|
+//@[015:016) Identifier |i|
+//@[016:018) StringRightPiece |}'|
+//@[018:019) NewLine |\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:16) NewLine |\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:016) NewLine |\n|
     madeUpProperty: boolVal
-//@[4:18) Identifier |madeUpProperty|
-//@[18:19) Colon |:|
-//@[20:27) Identifier |boolVal|
-//@[27:28) NewLine |\n|
+//@[004:018) Identifier |madeUpProperty|
+//@[018:019) Colon |:|
+//@[020:027) Identifier |boolVal|
+//@[027:028) NewLine |\n|
     subnet: 'hello'
-//@[4:10) Identifier |subnet|
-//@[10:11) Colon |:|
-//@[12:19) StringComplete |'hello'|
-//@[19:20) NewLine |\n|
+//@[004:010) Identifier |subnet|
+//@[010:011) Colon |:|
+//@[012:019) StringComplete |'hello'|
+//@[019:020) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\n\n|
 
 resource nic 'Microsoft.Network/networkInterfaces@2020-11-01' = {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |nic|
-//@[13:61) StringComplete |'Microsoft.Network/networkInterfaces@2020-11-01'|
-//@[62:63) Assignment |=|
-//@[64:65) LeftBrace |{|
-//@[65:66) NewLine |\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |nic|
+//@[013:061) StringComplete |'Microsoft.Network/networkInterfaces@2020-11-01'|
+//@[062:063) Assignment |=|
+//@[064:065) LeftBrace |{|
+//@[065:066) NewLine |\n|
   name: 'abc'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:13) StringComplete |'abc'|
-//@[13:14) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'abc'|
+//@[013:014) NewLine |\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:16) NewLine |\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:016) NewLine |\n|
     ipConfigurations: ipConfigurations
-//@[4:20) Identifier |ipConfigurations|
-//@[20:21) Colon |:|
-//@[22:38) Identifier |ipConfigurations|
-//@[38:39) NewLine |\n|
+//@[004:020) Identifier |ipConfigurations|
+//@[020:021) Colon |:|
+//@[022:038) Identifier |ipConfigurations|
+//@[038:039) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 resource nicLoop 'Microsoft.Network/networkInterfaces@2020-11-01' = [for i in range(0, 2): {
-//@[0:8) Identifier |resource|
-//@[9:16) Identifier |nicLoop|
-//@[17:65) StringComplete |'Microsoft.Network/networkInterfaces@2020-11-01'|
-//@[66:67) Assignment |=|
-//@[68:69) LeftSquare |[|
-//@[69:72) Identifier |for|
-//@[73:74) Identifier |i|
-//@[75:77) Identifier |in|
-//@[78:83) Identifier |range|
-//@[83:84) LeftParen |(|
-//@[84:85) Integer |0|
-//@[85:86) Comma |,|
-//@[87:88) Integer |2|
-//@[88:89) RightParen |)|
-//@[89:90) Colon |:|
-//@[91:92) LeftBrace |{|
-//@[92:93) NewLine |\n|
+//@[000:008) Identifier |resource|
+//@[009:016) Identifier |nicLoop|
+//@[017:065) StringComplete |'Microsoft.Network/networkInterfaces@2020-11-01'|
+//@[066:067) Assignment |=|
+//@[068:069) LeftSquare |[|
+//@[069:072) Identifier |for|
+//@[073:074) Identifier |i|
+//@[075:077) Identifier |in|
+//@[078:083) Identifier |range|
+//@[083:084) LeftParen |(|
+//@[084:085) Integer |0|
+//@[085:086) Comma |,|
+//@[087:088) Integer |2|
+//@[088:089) RightParen |)|
+//@[089:090) Colon |:|
+//@[091:092) LeftBrace |{|
+//@[092:093) NewLine |\n|
   name: 'abc${i}'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringLeftPiece |'abc${|
-//@[14:15) Identifier |i|
-//@[15:17) StringRightPiece |}'|
-//@[17:18) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringLeftPiece |'abc${|
+//@[014:015) Identifier |i|
+//@[015:017) StringRightPiece |}'|
+//@[017:018) NewLine |\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:16) NewLine |\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:016) NewLine |\n|
     ipConfigurations: [
-//@[4:20) Identifier |ipConfigurations|
-//@[20:21) Colon |:|
-//@[22:23) LeftSquare |[|
-//@[23:24) NewLine |\n|
+//@[004:020) Identifier |ipConfigurations|
+//@[020:021) Colon |:|
+//@[022:023) LeftSquare |[|
+//@[023:024) NewLine |\n|
       // TODO: fix this
-//@[23:24) NewLine |\n|
+//@[023:024) NewLine |\n|
       ipConfigurations[i]
-//@[6:22) Identifier |ipConfigurations|
-//@[22:23) LeftSquare |[|
-//@[23:24) Identifier |i|
-//@[24:25) RightSquare |]|
-//@[25:26) NewLine |\n|
+//@[006:022) Identifier |ipConfigurations|
+//@[022:023) LeftSquare |[|
+//@[023:024) Identifier |i|
+//@[024:025) RightSquare |]|
+//@[025:026) NewLine |\n|
     ]
-//@[4:5) RightSquare |]|
-//@[5:6) NewLine |\n|
+//@[004:005) RightSquare |]|
+//@[005:006) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\n\n|
 
 resource nicLoop2 'Microsoft.Network/networkInterfaces@2020-11-01' = [for ipConfig in ipConfigurations: {
-//@[0:8) Identifier |resource|
-//@[9:17) Identifier |nicLoop2|
-//@[18:66) StringComplete |'Microsoft.Network/networkInterfaces@2020-11-01'|
-//@[67:68) Assignment |=|
-//@[69:70) LeftSquare |[|
-//@[70:73) Identifier |for|
-//@[74:82) Identifier |ipConfig|
-//@[83:85) Identifier |in|
-//@[86:102) Identifier |ipConfigurations|
+//@[000:008) Identifier |resource|
+//@[009:017) Identifier |nicLoop2|
+//@[018:066) StringComplete |'Microsoft.Network/networkInterfaces@2020-11-01'|
+//@[067:068) Assignment |=|
+//@[069:070) LeftSquare |[|
+//@[070:073) Identifier |for|
+//@[074:082) Identifier |ipConfig|
+//@[083:085) Identifier |in|
+//@[086:102) Identifier |ipConfigurations|
 //@[102:103) Colon |:|
 //@[104:105) LeftBrace |{|
 //@[105:106) NewLine |\n|
   name: 'abc${ipConfig.name}'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringLeftPiece |'abc${|
-//@[14:22) Identifier |ipConfig|
-//@[22:23) Dot |.|
-//@[23:27) Identifier |name|
-//@[27:29) StringRightPiece |}'|
-//@[29:30) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringLeftPiece |'abc${|
+//@[014:022) Identifier |ipConfig|
+//@[022:023) Dot |.|
+//@[023:027) Identifier |name|
+//@[027:029) StringRightPiece |}'|
+//@[029:030) NewLine |\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:16) NewLine |\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:016) NewLine |\n|
     ipConfigurations: [
-//@[4:20) Identifier |ipConfigurations|
-//@[20:21) Colon |:|
-//@[22:23) LeftSquare |[|
-//@[23:24) NewLine |\n|
+//@[004:020) Identifier |ipConfigurations|
+//@[020:021) Colon |:|
+//@[022:023) LeftSquare |[|
+//@[023:024) NewLine |\n|
       // TODO: fix this
-//@[23:24) NewLine |\n|
+//@[023:024) NewLine |\n|
       ipConfig
-//@[6:14) Identifier |ipConfig|
-//@[14:15) NewLine |\n|
+//@[006:014) Identifier |ipConfig|
+//@[014:015) NewLine |\n|
     ]
-//@[4:5) RightSquare |]|
-//@[5:6) NewLine |\n|
+//@[004:005) RightSquare |]|
+//@[005:006) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:3) NewLine |\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:003) NewLine |\n|
 
-//@[0:0) EndOfFile ||
+//@[000:000) EndOfFile ||

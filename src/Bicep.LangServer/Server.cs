@@ -24,6 +24,7 @@ using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using System;
@@ -72,8 +73,14 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepSemanticTokensHandler>()
                     .WithHandler<BicepTelemetryHandler>()
                     .WithHandler<BicepBuildCommandHandler>()
-                    .WithHandler<BicepDeployCommandHandler>()
+                    .WithHandler<BicepGenerateParamsCommandHandler>()
+                    .WithHandler<BicepDeploymentStartCommandHandler>()
+                    // Base handler - ExecuteTypedResponseCommandHandlerBase is serial. This blocks other commands on the client side.
+                    // To avoid the above issue, we'll change the RequestProcessType to parallel
+                    .WithHandler<BicepDeploymentWaitForCompletionCommandHandler>(new JsonRpcHandlerOptions() { RequestProcessType = RequestProcessType.Parallel })
                     .WithHandler<BicepDeploymentScopeRequestHandler>()
+                    .WithHandler<BicepDeploymentParametersHandler>()
+                    .WithHandler<BicepForceModulesRestoreCommandHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
                     .WithHandler<InsertResourceHandler>()
                     .WithServices(services => RegisterServices(creationOptions, services));
@@ -132,6 +139,8 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
             services.AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>();
             services.AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>();
+            services.AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>();
+            services.AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>();
         }
 
         public void Dispose()

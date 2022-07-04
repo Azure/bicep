@@ -340,6 +340,30 @@ namespace Bicep.Decompiler
                 return true;
             }
 
+            if (StringComparer.OrdinalIgnoreCase.Equals(expression.Function, "createArray"))
+            {
+                syntax = SyntaxFactory.CreateArray(expression.Parameters.Select(ParseLanguageExpression));
+                return true;
+            }
+
+            if (StringComparer.OrdinalIgnoreCase.Equals(expression.Function, "createObject"))
+            {
+                syntax = SyntaxFactory.CreateObject(expression.Parameters.Select(ParseLanguageExpression).Chunk(2).Select(pair =>
+                {
+                    if (pair[0] is StringSyntax keyString)
+                    {
+                        var keyLiteral = keyString.TryGetLiteralValue();
+                        if (keyLiteral is not null)
+                        {
+                            return SyntaxFactory.CreateObjectProperty(keyLiteral, pair[1]);
+                        }
+                    }
+
+                    return new ObjectPropertySyntax(pair[0], SyntaxFactory.ColonToken, pair[1]);
+                }));
+                return true;
+            }
+
             syntax = null;
             return false;
         }
@@ -589,10 +613,9 @@ namespace Bicep.Decompiler
             }
         }
 
-        private static IntegerLiteralSyntax ParseIntegerJToken(JValue value)
+        private static ExpressionSyntax ParseIntegerJToken(JValue value)
         {
-            var ulongValue = value.Value<ulong>();
-            return SyntaxFactory.CreateIntegerLiteral(ulongValue);
+            return SyntaxFactory.CreatePositiveOrNegativeInteger(value.Value<long>());
         }
 
         private SyntaxBase ParseJValue(JValue value)
@@ -676,7 +699,7 @@ namespace Bicep.Decompiler
             {
                 var expressionValue = valueLookupFunc(functionName);
                 if (TryParseJToken(expressionValue) is SyntaxBase expression &&
-                    transformFunc((functionName, expression)) is {} transformOutput)
+                    transformFunc((functionName, expression)) is { } transformOutput)
                 {
                     var (newFunctionName, newExpression) = transformOutput;
 
@@ -690,11 +713,12 @@ namespace Bicep.Decompiler
             => ProcessDecoratorsWithTransform(
                 new[] { "metadata" },
                 valueLookupFunc,
-                input => {
+                input =>
+                {
                     var (name, expression) = input;
 
                     if (expression is ObjectSyntax metadataObject &&
-                        metadataObject.TryGetPropertyByName("description") is {} descriptionProperty)
+                        metadataObject.TryGetPropertyByName("description") is { } descriptionProperty)
                     {
                         // Replace metadata decorator with description decorator if the metadata object only contains description.
                         return ("description", descriptionProperty.Value);
@@ -707,7 +731,8 @@ namespace Bicep.Decompiler
             => ProcessDecoratorsWithTransform(
                 new[] { "metadata" },
                 valueLookupFunc,
-                input => {
+                input =>
+                {
                     var (name, expression) = input;
 
                     if (expression is ObjectSyntax metadataObject &&
@@ -735,7 +760,8 @@ namespace Bicep.Decompiler
                 ProcessDecoratorsWithTransform(
                 new[] { "minValue", "maxValue", "minLength", "maxLength", "allowedValues" },
                 name => value.Value?[name],
-                input => {
+                input =>
+                {
                     var (name, expression) = input;
 
                     if (name == "allowedValues")
@@ -941,7 +967,7 @@ namespace Bicep.Decompiler
 
         private (SyntaxBase body, IEnumerable<SyntaxBase> decorators) ProcessResourceCopy(JObject resource, Func<JObject, SyntaxBase> resourceBodyFunc)
         {
-            if (TemplateHelpers.GetProperty(resource, "copy")?.Value is not JObject copyProperty)
+            if (TemplateHelpers.GetProperty(resource, LanguageConstants.CopyLoopIdentifier)?.Value is not JObject copyProperty)
             {
                 return (resourceBodyFunc(resource), Enumerable.Empty<SyntaxBase>());
             }
@@ -963,7 +989,7 @@ namespace Bicep.Decompiler
             return (bodySyntax, decoratorAndNewLines);
         }
 
-        private static IntegerLiteralSyntax ParseBatchSize(JToken? batchSize, JObject resource)
+        private static ExpressionSyntax ParseBatchSize(JToken? batchSize, JObject resource)
         {
             if (batchSize is null)
             {
@@ -1117,7 +1143,7 @@ namespace Bicep.Decompiler
 
             var propsToOmit = new HashSet<string>(new[] {
                 "condition",
-                "copy",
+                LanguageConstants.CopyLoopIdentifier,
                 "resourceGroup",
                 "subscriptionId",
             }, StringComparer.OrdinalIgnoreCase);
@@ -1383,7 +1409,7 @@ namespace Bicep.Decompiler
             var resourcePropsToOmit = new HashSet<string>(new[]
             {
                 "condition",
-                "copy",
+                LanguageConstants.CopyLoopIdentifier,
                 "type",
                 "apiVersion",
                 "dependsOn",
@@ -1437,7 +1463,7 @@ namespace Bicep.Decompiler
             var identifier = nameResolver.TryLookupName(NameType.Output, value.Name) ?? throw new ConversionFailedException($"Unable to find output {value.Name}", value);
 
             SyntaxBase valueSyntax;
-            var copyVal = value.Value?["copy"];
+            var copyVal = value.Value?[LanguageConstants.CopyLoopIdentifier];
             if (copyVal is null)
             {
                 valueSyntax = ParseJToken(value.Value?["value"]);
@@ -1523,13 +1549,13 @@ namespace Bicep.Decompiler
 
         private static IEnumerable<(string name, JToken value, bool isCopyVariable)> GetVariables(IEnumerable<JProperty> variables)
         {
-            var nonCopyVariables = variables.Where(x => !StringComparer.OrdinalIgnoreCase.Equals(x.Name, "copy"));
+            var nonCopyVariables = variables.Where(x => !StringComparer.OrdinalIgnoreCase.Equals(x.Name, LanguageConstants.CopyLoopIdentifier));
             foreach (var nonCopyVariable in nonCopyVariables)
             {
                 yield return (nonCopyVariable.Name, nonCopyVariable.Value, false);
             }
 
-            var copyVariables = variables.FirstOrDefault(x => StringComparer.OrdinalIgnoreCase.Equals(x.Name, "copy"))?.Value as JArray;
+            var copyVariables = variables.FirstOrDefault(x => StringComparer.OrdinalIgnoreCase.Equals(x.Name, LanguageConstants.CopyLoopIdentifier))?.Value as JArray;
             foreach (var copyVariable in copyVariables ?? Enumerable.Empty<JToken>())
             {
                 if (copyVariable is not JObject variableObject)
@@ -1578,7 +1604,7 @@ namespace Bicep.Decompiler
             var copyResourceLookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             foreach (var resource in resources.OfType<JObject>())
             {
-                var loopName = TemplateHelpers.GetNestedProperty(resource, "copy", "name")?.ToString();
+                var loopName = TemplateHelpers.GetNestedProperty(resource, LanguageConstants.CopyLoopIdentifier, "name")?.ToString();
                 if (loopName is null)
                 {
                     continue;

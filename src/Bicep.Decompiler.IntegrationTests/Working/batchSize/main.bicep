@@ -9,7 +9,8 @@ resource storagePrefix_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [for 
     name: 'Standard_LRS'
   }
   kind: 'Storage'
-  properties: {}
+  properties: {
+  }
 }]
 
 @batchSize(1)
@@ -20,7 +21,8 @@ resource one_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [for i in range
     name: 'Standard_LRS'
   }
   kind: 'Storage'
-  properties: {}
+  properties: {
+  }
 }]
 
 resource two_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [for i in range(0, storageCount): {
@@ -30,5 +32,6 @@ resource two_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [for i in range
     name: 'Standard_LRS'
   }
   kind: 'Storage'
-  properties: {}
+  properties: {
+  }
 }]

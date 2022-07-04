@@ -9,6 +9,6 @@ resource /*${3:dnsRecord}*/dnsRecord /*'Microsoft.Network/dnsZones/${4|A,AAAA,CN
   name: /*${5:'name'}*/'name'
   properties: {
     TTL: 3600
-    /*'${6|ARecords,AAAARecords,MXRecords,NSRecords,PTRRecords,SRVRecords,TXTRecords,CNAMERecord,SOARecord|}'*/'ARecords': []
+    /*${6|ARecords,AAAARecords,MXRecords,NSRecords,PTRRecords,SRVRecords,TXTRecords,CNAMERecord,SOARecord|}*/ARecords: []
   }
 }

@@ -14,9 +14,7 @@ param FlowLogName string = 'FlowLog1'
 param existingNSG string
 
 @description('Retention period in days. Default is zero which stands for permanent retention. Can be any Integer from 0 to 365')
-@metadata({
-  range: 'From 0 to 365.'
-})
+@metadata({ range: 'From 0 to 365.' })
 @minValue(0)
 @maxValue(365)
 param RetentionDays int = 0
@@ -70,22 +68,22 @@ resource baz 'Foo.Rp/bar@2019-06-01' = if (something == foo) {
 module module1Deploy 'nested/module1.bicep' = if ((1 + 2) == 3) {
   name: 'module1Deploy'
   params: {
-//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar", "baz", "foo". (CodeDescription: none) |params|
+//@[02:08) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar", "baz", "foo". (CodeDescription: none) |params|
     location: location
-//@[4:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |location|
+//@[04:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |location|
     objectParam: objectVar
-//@[4:15) [BCP037 (Error)] The property "objectParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |objectParam|
+//@[04:15) [BCP037 (Error)] The property "objectParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |objectParam|
     arrayParam: arrayVar
-//@[4:14) [BCP037 (Error)] The property "arrayParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |arrayParam|
+//@[04:14) [BCP037 (Error)] The property "arrayParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |arrayParam|
   }
 }
 
 module module2Deploy 'nested/module2.bicep' = if ((1 + 2) == 3) {
   name: 'module2Deploy'
   params: {
-//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "stringParam". (CodeDescription: none) |params|
+//@[02:08) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "stringParam". (CodeDescription: none) |params|
     location: location
-//@[4:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "stringParam". (CodeDescription: none) |location|
+//@[04:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "stringParam". (CodeDescription: none) |location|
     objectParam: objectVar
     arrayParam: arrayVar
   }
@@ -97,8 +95,9 @@ resource storageaccountname 'microsoft.storage/storageaccounts@2019-06-01' = {
   sku: {
     name: storageAccountType
   }
-  kind: 'StorageV2'
-  properties: {}
+  kind: 'storagev2'
+  properties: {
+  }
 }
 
 module deployFlowLogs './nested_deployFlowLogs.bicep' = if (true) {

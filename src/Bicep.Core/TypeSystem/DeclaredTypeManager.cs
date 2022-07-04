@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -34,6 +35,16 @@ namespace Bicep.Core.TypeSystem
             this.declaredTypes.GetOrAdd(syntax, key => GetTypeAssignment(key));
 
         public TypeSymbol? GetDeclaredType(SyntaxBase syntax) => this.GetDeclaredTypeAssignment(syntax)?.Reference.Type;
+
+        private DeclaredTypeAssignment? GetParentTypeAssignment(SyntaxBase syntax)
+        {
+            if (binder.GetParent(syntax) is {} parent)
+            {
+                return GetTypeAssignment(parent);
+            }
+
+            return null;
+        }
 
         private DeclaredTypeAssignment? GetTypeAssignment(SyntaxBase syntax)
         {
@@ -77,15 +88,14 @@ namespace Bicep.Core.TypeSystem
                 case ArrayAccessSyntax arrayAccess:
                     return GetArrayAccessType(arrayAccess);
 
-                case VariableDeclarationSyntax variable:
-                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(variable.Value), variable);
-
                 case LocalVariableSyntax localVariable:
                     return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(localVariable), localVariable);
 
-                case FunctionCallSyntax _:
-                case InstanceFunctionCallSyntax _:
-                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(syntax), declaringSyntax: null);
+                case FunctionCallSyntax functionCall:
+                    return GetFunctionType(functionCall);
+
+                case InstanceFunctionCallSyntax instanceFunctionCall:
+                    return GetFunctionType(instanceFunctionCall);
 
                 case ArraySyntax array:
                     return GetArrayType(array);
@@ -104,6 +114,20 @@ namespace Bicep.Core.TypeSystem
 
                 case FunctionArgumentSyntax functionArgument:
                     return GetFunctionArgumentType(functionArgument);
+
+                case ParenthesizedExpressionSyntax:
+                case TernaryOperationSyntax:
+                    return GetParentTypeAssignment(syntax);
+            }
+
+            var parent = binder.GetParent(syntax);
+            switch (parent)
+            {
+                // These expressions do not modify the declared type - we can get more accurate validation by checking the parent declared type
+                case ParenthesizedExpressionSyntax parenthesizedExpression:
+                    return GetTypeAssignment(parent);
+                case TernaryOperationSyntax ternary when (syntax == ternary.TrueExpression || syntax == ternary.FalseExpression):
+                    return GetTypeAssignment(parent);
             }
 
             return null;
@@ -194,6 +218,10 @@ namespace Bicep.Core.TypeSystem
                     var innerModuleBody = moduleSymbol.DeclaringModule.Value;
                     return this.GetDeclaredTypeAssignment(innerModuleBody);
 
+                case VariableSymbol variableSymbol when IsCycleFree(variableSymbol):
+                    var variableType = this.typeManager.GetTypeInfo(variableSymbol.DeclaringVariable.Value);
+                    return new DeclaredTypeAssignment(variableType, variableSymbol.DeclaringVariable);
+
                 case DeclaredSymbol declaredSymbol when IsCycleFree(declaredSymbol):
                     // the syntax node is referencing a declared symbol
                     // use its declared type
@@ -211,6 +239,13 @@ namespace Bicep.Core.TypeSystem
         {
             if (!syntax.PropertyName.IsValid)
             {
+                return null;
+            }
+
+            if(syntax.BaseExpression is ForSyntax)
+            {
+                // in certain parser recovery scenarios, the parser can produce a PropertyAccessSyntax operating on a ForSyntax
+                // this leads to a stack overflow which we don't really want, so let's short circuit here.
                 return null;
             }
 
@@ -355,6 +390,11 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
+        private DeclaredTypeAssignment? GetFunctionType(FunctionCallSyntaxBase syntax)
+        {
+            return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(syntax), declaringSyntax: null);
+        }
+
         private DeclaredTypeAssignment? GetFunctionArgumentType(FunctionArgumentSyntax syntax)
         {
             var parent = this.binder.GetParent(syntax);
@@ -364,8 +404,11 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
-            var argIndex = parentFunction.Arguments.IndexOf(syntax);
-            var declaredType = functionSymbol.GetDeclaredArgumentType(argIndex);
+            var arguments = parentFunction.Arguments.ToImmutableArray();
+            var argIndex = arguments.IndexOf(syntax);
+            var declaredType = functionSymbol.GetDeclaredArgumentType(
+                argIndex,
+                getAssignedArgumentType: i => typeManager.GetTypeInfo(parentFunction.Arguments[i]));
 
             return new DeclaredTypeAssignment(declaredType, declaringSyntax: null);
         }
@@ -731,7 +774,6 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// Returns the declared type of the parameter/output based on a resource type.
         /// </summary>
-        /// <param name="resourceTypeProvider">resource type provider</param>
         private TypeSymbol GetDeclaredResourceType(IBinder binder, ResourceTypeSyntax typeSyntax)
         {
             // NOTE: this is closely related to the logic in the other overload. Keep them in sync.
@@ -758,7 +800,6 @@ namespace Bicep.Core.TypeSystem
         /// Returns the declared type of the resource body (based on the type string).
         /// Returns the same value for single resource or resource loops declarations.
         /// </summary>
-        /// <param name="resourceTypeProvider">resource type provider</param>
         private TypeSymbol GetDeclaredResourceType(ResourceDeclarationSyntax resource)
         {
             // NOTE: this is closely related to the logic in the other overload. Keep them in sync.
@@ -917,7 +958,8 @@ namespace Bicep.Core.TypeSystem
             else if (binder.GetSymbolInfo(resource) is ResourceSymbol resourceSymbol &&
                 binder.TryGetCycle(resourceSymbol) is null &&
                 resourceSymbol.TryGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is { } referenceParentSyntax &&
-                binder.GetSymbolInfo(referenceParentSyntax) is ResourceSymbol parentResourceSymbol)
+                SyntaxHelper.UnwrapArrayAccessSyntax(referenceParentSyntax) is {} result &&
+                binder.GetSymbolInfo(result.baseSyntax) is ResourceSymbol parentResourceSymbol)
             {
                 parentResource = parentResourceSymbol.DeclaringResource;
                 parentType = GetDeclaredType(referenceParentSyntax);

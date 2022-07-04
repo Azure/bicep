@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ExtensionContext } from "vscode";
+import { ExtensionContext, Uri } from "vscode";
 import * as fse from "fs-extra";
 import { Disposable } from "../utils/disposable";
 import { Command } from "./types";
@@ -32,7 +32,38 @@ export class CommandManager extends Disposable {
     azureextensionui.registerCommand(
       command.id,
       async (context: azureextensionui.IActionContext, ...args: unknown[]) => {
-        return await command.execute(context, ...args);
+        let documentUri: Uri | undefined = undefined;
+        let isFromWalkthrough = false;
+
+        if (args[0] instanceof Uri) {
+          // First argument is a Uri (this is how VsCode communicates the target URI for a comment invoked through a menu, context menu, etc.)
+          documentUri = args[0];
+          args = args.slice(1);
+        }
+
+        // If the command is coming from a [command:xxx] inside a markdown file (e.g. from
+        //   a walkthrough), and the command contains a query string, the query string values
+        //   will be in an object in the next argument.
+        if (
+          !!args[0] &&
+          args[0] instanceof Object &&
+          "walkthrough" in args[0] &&
+          args[0]["walkthrough"] === "true"
+        ) {
+          // Marked as a walkthrough via query string in markdow
+          isFromWalkthrough = true;
+        }
+
+        // Commands starting with bicep.gettingStarted are obviously from the walkthrough
+        if (command.id.startsWith("bicep.gettingStarted")) {
+          isFromWalkthrough = true;
+        }
+
+        if (isFromWalkthrough) {
+          context.telemetry.properties.contextValue = "walkthrough";
+        }
+
+        return await command.execute(context, documentUri, ...args);
       },
       undefined,
       telemetryId
@@ -51,7 +82,7 @@ export class CommandManager extends Disposable {
     assert(!!activationEvents, "Missing activationEvents in package.json");
     const activationKey = `onCommand:${command.id}`;
     const activation: string | undefined = activationEvents.find(
-      (a) => a == activationKey
+      (a) => a === activationKey
     );
     assert(
       !!activation,

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Visitors;
@@ -10,7 +11,7 @@ using System.Linq;
 namespace Bicep.Core.Rewriters
 {
     // Looks for resources where a dependency can already be inferred by the structure of the resource declaration.
-    // 
+    //
     // As an example, because the below resource already has a reference to 'otherRes' in the name property, the dependsOn is not adding anything:
     //   resource myRes 'My.Rp/myResource@2020-01-01' = {
     //     name: otherRes.name
@@ -118,6 +119,15 @@ namespace Bicep.Core.Rewriters
                                 newDependsOnArrayChildren,
                                 dependsOnArray.CloseBracket)));
                     }
+
+                    // if the dependsOn array is now empty, then we skip emitting it entirely
+                    continue;
+                }
+
+                if (child is Token { Type: TokenType.NewLine } &&
+                    newChildren.LastOrDefault() is Token { Type: TokenType.NewLine })
+                {
+                    // collapse blank lines
                     continue;
                 }
 

@@ -37,7 +37,7 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
   another: 'just for fun'
 })
 param foo object = {
-//@[6:9) Parameter foo. Type: object. Declaration start char: 0, length: 348
+//@[6:09) Parameter foo. Type: object. Declaration start char: 0, length: 348
   enabled: true
   name: 'this is my object'
   priority: 3

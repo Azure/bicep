@@ -323,3 +323,18 @@ module.exports = function (context) {
     context.done();
 }
 '''
+
+var providersTest = providers('Microsoft.Resources').namespace
+var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
+
+var copyBlockInObject = {
+  copy: [
+    {
+      name: 'blah'
+      count: '[notAFunction()]'
+      input: {}
+    }
+  ]
+}
+
+var joinedString = join(['I', 'love', 'Bicep!'], ' ')

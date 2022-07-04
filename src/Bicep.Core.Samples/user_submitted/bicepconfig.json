@@ -1,0 +1,29 @@
+{
+  "analyzers": {
+    "core": {
+      "rules": {
+        "adminusername-should-not-be-literal": {
+          "level": "warning"
+        },
+        "no-hardcoded-env-urls": {
+          "level": "warning"
+        },
+        "no-unused-params": {
+          "level": "warning"
+        },
+        "no-unused-vars": {
+          "level": "warning"
+        },
+        "prefer-interpolation": {
+          "level": "warning"
+        },
+        "secure-parameter-default": {
+          "level": "warning"
+        },
+        "simplify-interpolation": {
+          "level": "warning"
+        }
+      }
+    }
+  }
+}

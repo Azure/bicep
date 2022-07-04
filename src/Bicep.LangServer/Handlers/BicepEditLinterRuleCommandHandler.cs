@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.LanguageServer.Configuration;
+using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -23,81 +24,111 @@ namespace Bicep.LanguageServer.Handlers
     /// <summary>
     /// Handles the internal command for code actions to edit a particular linter rule in the bicepconfig.json file
     /// </summary>
+    /// <remarks>
+    /// Using ExecuteTypedResponseCommandHandlerBase instead of IJsonRpcRequestHandler because IJsonRpcRequestHandler will throw "Content modified" if text changes are detected, and for this command
+    /// that is expected.
+    /// </remarks>
     public class BicepEditLinterRuleCommandHandler : ExecuteTypedCommandHandlerBase<DocumentUri, string, string>
     {
         private readonly string DefaultBicepConfig;
         private readonly ILanguageServerFacade server;
+        private readonly ITelemetryProvider telemetryProvider;
 
-        public BicepEditLinterRuleCommandHandler(ISerializer serializer, ILanguageServerFacade server)
-            : base(LanguageConstants.EditLinterRuleCommandName, serializer)
+        public BicepEditLinterRuleCommandHandler(ISerializer serializer, ILanguageServerFacade server, ITelemetryProvider telemetryProvider)
+            : base(LangServerConstants.EditLinterRuleCommandName, serializer)
         {
             DefaultBicepConfig = DefaultBicepConfigHelper.GetDefaultBicepConfig();
             this.server = server;
+            this.telemetryProvider = telemetryProvider;
         }
 
         public override async Task<Unit> Handle(DocumentUri documentUri, string ruleCode, string bicepConfigFilePath, CancellationToken cancellationToken)
         {
-            // bicepConfigFilePath will be empty string if no current configuration file was found
-            if (string.IsNullOrEmpty(bicepConfigFilePath))
+            string? error = "unknown";
+            bool newConfigFile = false;
+            bool newRuleAdded = false;
+            try
             {
-                // There is no configuration file currently - create one in the default location
-                var targetFolder = await BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(this.server, documentUri.GetFileSystemPath());
-                bicepConfigFilePath = Path.Combine(targetFolder, LanguageConstants.BicepConfigurationFileName);
-            }
+                // bicepConfigFilePath will be empty string if no current configuration file was found
+                if (string.IsNullOrEmpty(bicepConfigFilePath))
+                {
+                    // There is no configuration file currently - create one in the default location
+                    var targetFolder = await BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(this.server, documentUri.GetFileSystemPath());
+                    bicepConfigFilePath = Path.Combine(targetFolder, LanguageConstants.BicepConfigurationFileName);
+                }
 
-            if (!File.Exists(bicepConfigFilePath))
-            {
                 try
                 {
-                    File.WriteAllText(bicepConfigFilePath, DefaultBicepConfig);
+                    if (!File.Exists(bicepConfigFilePath))
+                    {
+                        newConfigFile = true;
+                        File.WriteAllText(bicepConfigFilePath, DefaultBicepConfig);
+                    }
                 }
                 catch (Exception ex)
                 {
+                    error = ex.GetType().Name;
                     server.Window.ShowError($"Unable to create configuration file \"{bicepConfigFilePath}\": {ex.Message}");
+                    return Unit.Value;
                 }
-            }
 
-            await AddAndSelectRuleLevel(bicepConfigFilePath, ruleCode);
-            return Unit.Value;
+                newRuleAdded = await AddAndSelectRuleLevel(server, bicepConfigFilePath, ruleCode);
+
+                error = null;
+                return Unit.Value;
+            }
+            catch (Exception ex)
+            {
+                error = ex.GetType().Name;
+                server.Window.ShowError(ex.Message);
+                return Unit.Value;
+            }
+            finally
+            {
+                telemetryProvider.PostEvent(BicepTelemetryEvent.EditLinterRule(ruleCode, newConfigFile, newRuleAdded, error));
+            }
         }
 
-        public async Task AddAndSelectRuleLevel(string bicepConfigFilePath, string ruleCode)
+        //asdfg move
+        // Returns true if the rule was added to the config file
+        public static async Task<bool> AddAndSelectRuleLevel(ILanguageServerFacade server, string bicepConfigFilePath, string ruleCode)
         {
-            if (await SelectRuleLevelIfExists(ruleCode, bicepConfigFilePath))
+            if (await SelectRuleLevelIfExists(server, ruleCode, bicepConfigFilePath))
             {
                 // The rule already exists and has been shown/selected
-                return;
+                return false;
             }
 
             string json = File.ReadAllText(bicepConfigFilePath);
             (int line, int column, string text)? insertion = new JsonEditor(json).InsertIfNotExist(
-                new string[] { "analyzers", "core", "rules", ruleCode },
-                new { level = "warning" });
+                new string[] { "analyzers", "core", "rules", ruleCode, "level" },
+                "warning");
 
+            bool added = false;
             if (insertion.HasValue)
             {
                 var (line, column, insertText) = insertion.Value;
                 try
                 {
                     File.WriteAllText(bicepConfigFilePath, JsonEditor.ApplyInsertion(json, (line, column, insertText)));
+                    added = true;
                 }
                 catch (Exception ex)
                 {
                     server.Window.ShowError($"Unable to write to configuration file \"{bicepConfigFilePath}\": {ex.Message}");
                 }
-
-                await SelectRuleLevelIfExists(ruleCode, bicepConfigFilePath);
             }
+
+            await SelectRuleLevelIfExists(server, ruleCode, bicepConfigFilePath);
+            return added;
         }
 
         /// <summary>
         /// If the given rule has an entry for its error level in the configuration file, show that file and select the current
         /// level value (so that the end user can immediatey edit it).
         /// </summary>
-        /// <param name="ruleCode"></param>
-        /// <param name="configFilePath"></param>
         /// <returns>True if the rule exists and displaying/highlighting succeeds, otherwise false.</returns>
-        private async Task<bool> SelectRuleLevelIfExists(string ruleCode, string configFilePath)
+        private static async Task<bool> SelectRuleLevelIfExists(ILanguageServerFacade server, string ruleCode, string configFilePath)
         {
             // Inspect the JSON to figure out the location of the rule's level value
             Range? rangeOfRuleLevelValue = FindRangeOfPropertyValueInJson($"analyzers.core.rules.{ruleCode}.level", configFilePath);
@@ -113,9 +144,16 @@ namespace Bicep.LanguageServer.Handlers
                 await server.Window.ShowDocument(new()
                 {
                     Uri = DocumentUri.File(configFilePath),
-                    Selection = rangeOfRuleLevelValue,
+                    // Put the selection at the beginning of the rule's "level" value ("warning, "off", etc.),
+                    //  don't select the entire string, or else editor completion will not show all possible values
+                    //  when we trigger it.
+                    Selection = new Range(rangeOfRuleLevelValue.Start, rangeOfRuleLevelValue.Start),
                     TakeFocus = true
                 });
+
+                // If the client supports it, trigger completion of the rule's level value (call is ignored
+                //   if the client doesn't know about it)
+                server.SendNotification("bicep/triggerEditorCompletion");
 
                 return true;
             }

@@ -23,7 +23,7 @@ namespace Bicep.Cli.Helpers
         /// <returns>The service collection, for chaining.</returns>
         /// <remarks>
         /// We are using convention to register the commands; essentially everything in the same namespace as the
-        /// <see cref="BuildCommand"/> and that implements <see cref="ICommand"/> will be registered. 
+        /// <see cref="BuildCommand"/> and that implements <see cref="ICommand"/> will be registered.
         ///
         /// See https://endjin.com/blog/2020/09/simple-pattern-for-using-system-commandline-with-dependency-injection for reference.
         /// </remarks>
@@ -35,7 +35,7 @@ namespace Bicep.Cli.Helpers
             IEnumerable<Type> commands = grabCommandType
                 .Assembly
                 .GetExportedTypes()
-                 .Where(x => x.Namespace == grabCommandType.Namespace && x.GetInterfaces().Contains(commandType));
+                .Where(x => x.Namespace == grabCommandType.Namespace && x.GetInterfaces().Contains(commandType));
 
             foreach (Type command in commands)
             {

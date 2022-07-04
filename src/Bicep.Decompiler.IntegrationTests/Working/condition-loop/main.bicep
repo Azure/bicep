@@ -8,5 +8,6 @@ resource storagePrefix_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [for 
     name: 'Standard_LRS'
   }
   kind: 'Storage'
-  properties: {}
+  properties: {
+  }
 }]

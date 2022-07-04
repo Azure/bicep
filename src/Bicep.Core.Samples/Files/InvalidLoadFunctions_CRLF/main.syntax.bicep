@@ -1,805 +1,896 @@
 var textLoadDirectory = loadTextContent('Assets/path/to/nothing')
-//@[0:65) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:21)  IdentifierSyntax
-//@[4:21)   Identifier |textLoadDirectory|
-//@[22:23)  Assignment |=|
-//@[24:65)  FunctionCallSyntax
-//@[24:39)   IdentifierSyntax
-//@[24:39)    Identifier |loadTextContent|
-//@[39:40)   LeftParen |(|
-//@[40:64)   FunctionArgumentSyntax
-//@[40:64)    StringSyntax
-//@[40:64)     StringComplete |'Assets/path/to/nothing'|
-//@[64:65)   RightParen |)|
-//@[65:67) NewLine |\r\n|
+//@[00:4068) ProgramSyntax
+//@[00:0065) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0021) | ├─IdentifierSyntax
+//@[04:0021) | | └─Token(Identifier) |textLoadDirectory|
+//@[22:0023) | ├─Token(Assignment) |=|
+//@[24:0065) | └─FunctionCallSyntax
+//@[24:0039) | | ├─IdentifierSyntax
+//@[24:0039) | | | └─Token(Identifier) |loadTextContent|
+//@[39:0040) | | ├─Token(LeftParen) |(|
+//@[40:0064) | | ├─FunctionArgumentSyntax
+//@[40:0064) | | | └─StringSyntax
+//@[40:0064) | | | | └─Token(StringComplete) |'Assets/path/to/nothing'|
+//@[64:0065) | | └─Token(RightParen) |)|
+//@[65:0067) ├─Token(NewLine) |\r\n|
 var binaryLoadDirectory = loadFileAsBase64('Assets/path/to/nothing')
-//@[0:68) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:23)  IdentifierSyntax
-//@[4:23)   Identifier |binaryLoadDirectory|
-//@[24:25)  Assignment |=|
-//@[26:68)  FunctionCallSyntax
-//@[26:42)   IdentifierSyntax
-//@[26:42)    Identifier |loadFileAsBase64|
-//@[42:43)   LeftParen |(|
-//@[43:67)   FunctionArgumentSyntax
-//@[43:67)    StringSyntax
-//@[43:67)     StringComplete |'Assets/path/to/nothing'|
-//@[67:68)   RightParen |)|
-//@[68:72) NewLine |\r\n\r\n|
+//@[00:0068) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0023) | ├─IdentifierSyntax
+//@[04:0023) | | └─Token(Identifier) |binaryLoadDirectory|
+//@[24:0025) | ├─Token(Assignment) |=|
+//@[26:0068) | └─FunctionCallSyntax
+//@[26:0042) | | ├─IdentifierSyntax
+//@[26:0042) | | | └─Token(Identifier) |loadFileAsBase64|
+//@[42:0043) | | ├─Token(LeftParen) |(|
+//@[43:0067) | | ├─FunctionArgumentSyntax
+//@[43:0067) | | | └─StringSyntax
+//@[43:0067) | | | | └─Token(StringComplete) |'Assets/path/to/nothing'|
+//@[67:0068) | | └─Token(RightParen) |)|
+//@[68:0072) ├─Token(NewLine) |\r\n\r\n|
 
 var textLoadFileMissing = loadTextContent('Assets/nothing.file')
-//@[0:64) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:23)  IdentifierSyntax
-//@[4:23)   Identifier |textLoadFileMissing|
-//@[24:25)  Assignment |=|
-//@[26:64)  FunctionCallSyntax
-//@[26:41)   IdentifierSyntax
-//@[26:41)    Identifier |loadTextContent|
-//@[41:42)   LeftParen |(|
-//@[42:63)   FunctionArgumentSyntax
-//@[42:63)    StringSyntax
-//@[42:63)     StringComplete |'Assets/nothing.file'|
-//@[63:64)   RightParen |)|
-//@[64:66) NewLine |\r\n|
+//@[00:0064) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0023) | ├─IdentifierSyntax
+//@[04:0023) | | └─Token(Identifier) |textLoadFileMissing|
+//@[24:0025) | ├─Token(Assignment) |=|
+//@[26:0064) | └─FunctionCallSyntax
+//@[26:0041) | | ├─IdentifierSyntax
+//@[26:0041) | | | └─Token(Identifier) |loadTextContent|
+//@[41:0042) | | ├─Token(LeftParen) |(|
+//@[42:0063) | | ├─FunctionArgumentSyntax
+//@[42:0063) | | | └─StringSyntax
+//@[42:0063) | | | | └─Token(StringComplete) |'Assets/nothing.file'|
+//@[63:0064) | | └─Token(RightParen) |)|
+//@[64:0066) ├─Token(NewLine) |\r\n|
 var binaryLoadFileMissing = loadFileAsBase64('Assets/nothing.file')
-//@[0:67) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:25)  IdentifierSyntax
-//@[4:25)   Identifier |binaryLoadFileMissing|
-//@[26:27)  Assignment |=|
-//@[28:67)  FunctionCallSyntax
-//@[28:44)   IdentifierSyntax
-//@[28:44)    Identifier |loadFileAsBase64|
-//@[44:45)   LeftParen |(|
-//@[45:66)   FunctionArgumentSyntax
-//@[45:66)    StringSyntax
-//@[45:66)     StringComplete |'Assets/nothing.file'|
-//@[66:67)   RightParen |)|
-//@[67:71) NewLine |\r\n\r\n|
+//@[00:0067) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0025) | ├─IdentifierSyntax
+//@[04:0025) | | └─Token(Identifier) |binaryLoadFileMissing|
+//@[26:0027) | ├─Token(Assignment) |=|
+//@[28:0067) | └─FunctionCallSyntax
+//@[28:0044) | | ├─IdentifierSyntax
+//@[28:0044) | | | └─Token(Identifier) |loadFileAsBase64|
+//@[44:0045) | | ├─Token(LeftParen) |(|
+//@[45:0066) | | ├─FunctionArgumentSyntax
+//@[45:0066) | | | └─StringSyntax
+//@[45:0066) | | | | └─Token(StringComplete) |'Assets/nothing.file'|
+//@[66:0067) | | └─Token(RightParen) |)|
+//@[67:0071) ├─Token(NewLine) |\r\n\r\n|
 
 var textLoadFilePathEmpty = loadTextContent('')
-//@[0:47) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:25)  IdentifierSyntax
-//@[4:25)   Identifier |textLoadFilePathEmpty|
-//@[26:27)  Assignment |=|
-//@[28:47)  FunctionCallSyntax
-//@[28:43)   IdentifierSyntax
-//@[28:43)    Identifier |loadTextContent|
-//@[43:44)   LeftParen |(|
-//@[44:46)   FunctionArgumentSyntax
-//@[44:46)    StringSyntax
-//@[44:46)     StringComplete |''|
-//@[46:47)   RightParen |)|
-//@[47:49) NewLine |\r\n|
+//@[00:0047) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0025) | ├─IdentifierSyntax
+//@[04:0025) | | └─Token(Identifier) |textLoadFilePathEmpty|
+//@[26:0027) | ├─Token(Assignment) |=|
+//@[28:0047) | └─FunctionCallSyntax
+//@[28:0043) | | ├─IdentifierSyntax
+//@[28:0043) | | | └─Token(Identifier) |loadTextContent|
+//@[43:0044) | | ├─Token(LeftParen) |(|
+//@[44:0046) | | ├─FunctionArgumentSyntax
+//@[44:0046) | | | └─StringSyntax
+//@[44:0046) | | | | └─Token(StringComplete) |''|
+//@[46:0047) | | └─Token(RightParen) |)|
+//@[47:0049) ├─Token(NewLine) |\r\n|
 var binaryLoadFilePathEmpty = loadFileAsBase64('')
-//@[0:50) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |binaryLoadFilePathEmpty|
-//@[28:29)  Assignment |=|
-//@[30:50)  FunctionCallSyntax
-//@[30:46)   IdentifierSyntax
-//@[30:46)    Identifier |loadFileAsBase64|
-//@[46:47)   LeftParen |(|
-//@[47:49)   FunctionArgumentSyntax
-//@[47:49)    StringSyntax
-//@[47:49)     StringComplete |''|
-//@[49:50)   RightParen |)|
-//@[50:54) NewLine |\r\n\r\n|
+//@[00:0050) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |binaryLoadFilePathEmpty|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0050) | └─FunctionCallSyntax
+//@[30:0046) | | ├─IdentifierSyntax
+//@[30:0046) | | | └─Token(Identifier) |loadFileAsBase64|
+//@[46:0047) | | ├─Token(LeftParen) |(|
+//@[47:0049) | | ├─FunctionArgumentSyntax
+//@[47:0049) | | | └─StringSyntax
+//@[47:0049) | | | | └─Token(StringComplete) |''|
+//@[49:0050) | | └─Token(RightParen) |)|
+//@[50:0054) ├─Token(NewLine) |\r\n\r\n|
 
 var textLoadInvalidCharactersPath1 = loadTextContent('Assets\\TextFile.txt')
-//@[0:76) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:34)  IdentifierSyntax
-//@[4:34)   Identifier |textLoadInvalidCharactersPath1|
-//@[35:36)  Assignment |=|
-//@[37:76)  FunctionCallSyntax
-//@[37:52)   IdentifierSyntax
-//@[37:52)    Identifier |loadTextContent|
-//@[52:53)   LeftParen |(|
-//@[53:75)   FunctionArgumentSyntax
-//@[53:75)    StringSyntax
-//@[53:75)     StringComplete |'Assets\\TextFile.txt'|
-//@[75:76)   RightParen |)|
-//@[76:78) NewLine |\r\n|
+//@[00:0076) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0034) | ├─IdentifierSyntax
+//@[04:0034) | | └─Token(Identifier) |textLoadInvalidCharactersPath1|
+//@[35:0036) | ├─Token(Assignment) |=|
+//@[37:0076) | └─FunctionCallSyntax
+//@[37:0052) | | ├─IdentifierSyntax
+//@[37:0052) | | | └─Token(Identifier) |loadTextContent|
+//@[52:0053) | | ├─Token(LeftParen) |(|
+//@[53:0075) | | ├─FunctionArgumentSyntax
+//@[53:0075) | | | └─StringSyntax
+//@[53:0075) | | | | └─Token(StringComplete) |'Assets\\TextFile.txt'|
+//@[75:0076) | | └─Token(RightParen) |)|
+//@[76:0078) ├─Token(NewLine) |\r\n|
 var binaryLoadInvalidCharactersPath1 = loadFileAsBase64('Assets\\binary')
-//@[0:73) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:36)  IdentifierSyntax
-//@[4:36)   Identifier |binaryLoadInvalidCharactersPath1|
-//@[37:38)  Assignment |=|
-//@[39:73)  FunctionCallSyntax
-//@[39:55)   IdentifierSyntax
-//@[39:55)    Identifier |loadFileAsBase64|
-//@[55:56)   LeftParen |(|
-//@[56:72)   FunctionArgumentSyntax
-//@[56:72)    StringSyntax
-//@[56:72)     StringComplete |'Assets\\binary'|
-//@[72:73)   RightParen |)|
-//@[73:77) NewLine |\r\n\r\n|
+//@[00:0073) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0036) | ├─IdentifierSyntax
+//@[04:0036) | | └─Token(Identifier) |binaryLoadInvalidCharactersPath1|
+//@[37:0038) | ├─Token(Assignment) |=|
+//@[39:0073) | └─FunctionCallSyntax
+//@[39:0055) | | ├─IdentifierSyntax
+//@[39:0055) | | | └─Token(Identifier) |loadFileAsBase64|
+//@[55:0056) | | ├─Token(LeftParen) |(|
+//@[56:0072) | | ├─FunctionArgumentSyntax
+//@[56:0072) | | | └─StringSyntax
+//@[56:0072) | | | | └─Token(StringComplete) |'Assets\\binary'|
+//@[72:0073) | | └─Token(RightParen) |)|
+//@[73:0077) ├─Token(NewLine) |\r\n\r\n|
 
 var textLoadInvalidCharactersPath2 = loadTextContent('/Assets/TextFile.txt')
-//@[0:76) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:34)  IdentifierSyntax
-//@[4:34)   Identifier |textLoadInvalidCharactersPath2|
-//@[35:36)  Assignment |=|
-//@[37:76)  FunctionCallSyntax
-//@[37:52)   IdentifierSyntax
-//@[37:52)    Identifier |loadTextContent|
-//@[52:53)   LeftParen |(|
-//@[53:75)   FunctionArgumentSyntax
-//@[53:75)    StringSyntax
-//@[53:75)     StringComplete |'/Assets/TextFile.txt'|
-//@[75:76)   RightParen |)|
-//@[76:78) NewLine |\r\n|
+//@[00:0076) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0034) | ├─IdentifierSyntax
+//@[04:0034) | | └─Token(Identifier) |textLoadInvalidCharactersPath2|
+//@[35:0036) | ├─Token(Assignment) |=|
+//@[37:0076) | └─FunctionCallSyntax
+//@[37:0052) | | ├─IdentifierSyntax
+//@[37:0052) | | | └─Token(Identifier) |loadTextContent|
+//@[52:0053) | | ├─Token(LeftParen) |(|
+//@[53:0075) | | ├─FunctionArgumentSyntax
+//@[53:0075) | | | └─StringSyntax
+//@[53:0075) | | | | └─Token(StringComplete) |'/Assets/TextFile.txt'|
+//@[75:0076) | | └─Token(RightParen) |)|
+//@[76:0078) ├─Token(NewLine) |\r\n|
 var binaryLoadInvalidCharactersPath2 = loadFileAsBase64('/Assets/binary')
-//@[0:73) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:36)  IdentifierSyntax
-//@[4:36)   Identifier |binaryLoadInvalidCharactersPath2|
-//@[37:38)  Assignment |=|
-//@[39:73)  FunctionCallSyntax
-//@[39:55)   IdentifierSyntax
-//@[39:55)    Identifier |loadFileAsBase64|
-//@[55:56)   LeftParen |(|
-//@[56:72)   FunctionArgumentSyntax
-//@[56:72)    StringSyntax
-//@[56:72)     StringComplete |'/Assets/binary'|
-//@[72:73)   RightParen |)|
-//@[73:77) NewLine |\r\n\r\n|
+//@[00:0073) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0036) | ├─IdentifierSyntax
+//@[04:0036) | | └─Token(Identifier) |binaryLoadInvalidCharactersPath2|
+//@[37:0038) | ├─Token(Assignment) |=|
+//@[39:0073) | └─FunctionCallSyntax
+//@[39:0055) | | ├─IdentifierSyntax
+//@[39:0055) | | | └─Token(Identifier) |loadFileAsBase64|
+//@[55:0056) | | ├─Token(LeftParen) |(|
+//@[56:0072) | | ├─FunctionArgumentSyntax
+//@[56:0072) | | | └─StringSyntax
+//@[56:0072) | | | | └─Token(StringComplete) |'/Assets/binary'|
+//@[72:0073) | | └─Token(RightParen) |)|
+//@[73:0077) ├─Token(NewLine) |\r\n\r\n|
 
 var textLoadInvalidCharactersPath3 = loadTextContent('file://Assets/TextFile.txt')
-//@[0:82) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:34)  IdentifierSyntax
-//@[4:34)   Identifier |textLoadInvalidCharactersPath3|
-//@[35:36)  Assignment |=|
-//@[37:82)  FunctionCallSyntax
-//@[37:52)   IdentifierSyntax
-//@[37:52)    Identifier |loadTextContent|
-//@[52:53)   LeftParen |(|
-//@[53:81)   FunctionArgumentSyntax
-//@[53:81)    StringSyntax
-//@[53:81)     StringComplete |'file://Assets/TextFile.txt'|
-//@[81:82)   RightParen |)|
-//@[82:84) NewLine |\r\n|
+//@[00:0082) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0034) | ├─IdentifierSyntax
+//@[04:0034) | | └─Token(Identifier) |textLoadInvalidCharactersPath3|
+//@[35:0036) | ├─Token(Assignment) |=|
+//@[37:0082) | └─FunctionCallSyntax
+//@[37:0052) | | ├─IdentifierSyntax
+//@[37:0052) | | | └─Token(Identifier) |loadTextContent|
+//@[52:0053) | | ├─Token(LeftParen) |(|
+//@[53:0081) | | ├─FunctionArgumentSyntax
+//@[53:0081) | | | └─StringSyntax
+//@[53:0081) | | | | └─Token(StringComplete) |'file://Assets/TextFile.txt'|
+//@[81:0082) | | └─Token(RightParen) |)|
+//@[82:0084) ├─Token(NewLine) |\r\n|
 var binaryLoadInvalidCharactersPath3 = loadFileAsBase64('file://Assets/binary')
-//@[0:79) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:36)  IdentifierSyntax
-//@[4:36)   Identifier |binaryLoadInvalidCharactersPath3|
-//@[37:38)  Assignment |=|
-//@[39:79)  FunctionCallSyntax
-//@[39:55)   IdentifierSyntax
-//@[39:55)    Identifier |loadFileAsBase64|
-//@[55:56)   LeftParen |(|
-//@[56:78)   FunctionArgumentSyntax
-//@[56:78)    StringSyntax
-//@[56:78)     StringComplete |'file://Assets/binary'|
-//@[78:79)   RightParen |)|
-//@[79:85) NewLine |\r\n\r\n\r\n|
+//@[00:0079) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0036) | ├─IdentifierSyntax
+//@[04:0036) | | └─Token(Identifier) |binaryLoadInvalidCharactersPath3|
+//@[37:0038) | ├─Token(Assignment) |=|
+//@[39:0079) | └─FunctionCallSyntax
+//@[39:0055) | | ├─IdentifierSyntax
+//@[39:0055) | | | └─Token(Identifier) |loadFileAsBase64|
+//@[55:0056) | | ├─Token(LeftParen) |(|
+//@[56:0078) | | ├─FunctionArgumentSyntax
+//@[56:0078) | | | └─StringSyntax
+//@[56:0078) | | | | └─Token(StringComplete) |'file://Assets/binary'|
+//@[78:0079) | | └─Token(RightParen) |)|
+//@[79:0085) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
 var textLoadUnsupportedEncoding = loadTextContent('Assets/TextFile.txt', 'windows-1250')
-//@[0:88) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:31)  IdentifierSyntax
-//@[4:31)   Identifier |textLoadUnsupportedEncoding|
-//@[32:33)  Assignment |=|
-//@[34:88)  FunctionCallSyntax
-//@[34:49)   IdentifierSyntax
-//@[34:49)    Identifier |loadTextContent|
-//@[49:50)   LeftParen |(|
-//@[50:72)   FunctionArgumentSyntax
-//@[50:71)    StringSyntax
-//@[50:71)     StringComplete |'Assets/TextFile.txt'|
-//@[71:72)    Comma |,|
-//@[73:87)   FunctionArgumentSyntax
-//@[73:87)    StringSyntax
-//@[73:87)     StringComplete |'windows-1250'|
-//@[87:88)   RightParen |)|
-//@[88:92) NewLine |\r\n\r\n|
+//@[00:0088) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0031) | ├─IdentifierSyntax
+//@[04:0031) | | └─Token(Identifier) |textLoadUnsupportedEncoding|
+//@[32:0033) | ├─Token(Assignment) |=|
+//@[34:0088) | └─FunctionCallSyntax
+//@[34:0049) | | ├─IdentifierSyntax
+//@[34:0049) | | | └─Token(Identifier) |loadTextContent|
+//@[49:0050) | | ├─Token(LeftParen) |(|
+//@[50:0071) | | ├─FunctionArgumentSyntax
+//@[50:0071) | | | └─StringSyntax
+//@[50:0071) | | | | └─Token(StringComplete) |'Assets/TextFile.txt'|
+//@[71:0072) | | ├─Token(Comma) |,|
+//@[73:0087) | | ├─FunctionArgumentSyntax
+//@[73:0087) | | | └─StringSyntax
+//@[73:0087) | | | | └─Token(StringComplete) |'windows-1250'|
+//@[87:0088) | | └─Token(RightParen) |)|
+//@[88:0092) ├─Token(NewLine) |\r\n\r\n|
 
 var textLoadWrongEncoding01 = loadTextContent('Assets/encoding-iso.txt', 'us-ascii')
-//@[0:84) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding01|
-//@[28:29)  Assignment |=|
-//@[30:84)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:72)   FunctionArgumentSyntax
-//@[46:71)    StringSyntax
-//@[46:71)     StringComplete |'Assets/encoding-iso.txt'|
-//@[71:72)    Comma |,|
-//@[73:83)   FunctionArgumentSyntax
-//@[73:83)    StringSyntax
-//@[73:83)     StringComplete |'us-ascii'|
-//@[83:84)   RightParen |)|
-//@[84:86) NewLine |\r\n|
+//@[00:0084) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding01|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0084) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0071) | | ├─FunctionArgumentSyntax
+//@[46:0071) | | | └─StringSyntax
+//@[46:0071) | | | | └─Token(StringComplete) |'Assets/encoding-iso.txt'|
+//@[71:0072) | | ├─Token(Comma) |,|
+//@[73:0083) | | ├─FunctionArgumentSyntax
+//@[73:0083) | | | └─StringSyntax
+//@[73:0083) | | | | └─Token(StringComplete) |'us-ascii'|
+//@[83:0084) | | └─Token(RightParen) |)|
+//@[84:0086) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding02 = loadTextContent('Assets/encoding-iso.txt', 'utf-8')
-//@[0:81) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding02|
-//@[28:29)  Assignment |=|
-//@[30:81)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:72)   FunctionArgumentSyntax
-//@[46:71)    StringSyntax
-//@[46:71)     StringComplete |'Assets/encoding-iso.txt'|
-//@[71:72)    Comma |,|
-//@[73:80)   FunctionArgumentSyntax
-//@[73:80)    StringSyntax
-//@[73:80)     StringComplete |'utf-8'|
-//@[80:81)   RightParen |)|
-//@[81:83) NewLine |\r\n|
+//@[00:0081) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding02|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0081) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0071) | | ├─FunctionArgumentSyntax
+//@[46:0071) | | | └─StringSyntax
+//@[46:0071) | | | | └─Token(StringComplete) |'Assets/encoding-iso.txt'|
+//@[71:0072) | | ├─Token(Comma) |,|
+//@[73:0080) | | ├─FunctionArgumentSyntax
+//@[73:0080) | | | └─StringSyntax
+//@[73:0080) | | | | └─Token(StringComplete) |'utf-8'|
+//@[80:0081) | | └─Token(RightParen) |)|
+//@[81:0083) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding03 = loadTextContent('Assets/encoding-iso.txt', 'utf-16BE')
-//@[0:84) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding03|
-//@[28:29)  Assignment |=|
-//@[30:84)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:72)   FunctionArgumentSyntax
-//@[46:71)    StringSyntax
-//@[46:71)     StringComplete |'Assets/encoding-iso.txt'|
-//@[71:72)    Comma |,|
-//@[73:83)   FunctionArgumentSyntax
-//@[73:83)    StringSyntax
-//@[73:83)     StringComplete |'utf-16BE'|
-//@[83:84)   RightParen |)|
-//@[84:86) NewLine |\r\n|
+//@[00:0084) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding03|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0084) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0071) | | ├─FunctionArgumentSyntax
+//@[46:0071) | | | └─StringSyntax
+//@[46:0071) | | | | └─Token(StringComplete) |'Assets/encoding-iso.txt'|
+//@[71:0072) | | ├─Token(Comma) |,|
+//@[73:0083) | | ├─FunctionArgumentSyntax
+//@[73:0083) | | | └─StringSyntax
+//@[73:0083) | | | | └─Token(StringComplete) |'utf-16BE'|
+//@[83:0084) | | └─Token(RightParen) |)|
+//@[84:0086) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding04 = loadTextContent('Assets/encoding-iso.txt', 'utf-16')
-//@[0:82) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding04|
-//@[28:29)  Assignment |=|
-//@[30:82)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:72)   FunctionArgumentSyntax
-//@[46:71)    StringSyntax
-//@[46:71)     StringComplete |'Assets/encoding-iso.txt'|
-//@[71:72)    Comma |,|
-//@[73:81)   FunctionArgumentSyntax
-//@[73:81)    StringSyntax
-//@[73:81)     StringComplete |'utf-16'|
-//@[81:82)   RightParen |)|
-//@[82:84) NewLine |\r\n|
+//@[00:0082) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding04|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0082) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0071) | | ├─FunctionArgumentSyntax
+//@[46:0071) | | | └─StringSyntax
+//@[46:0071) | | | | └─Token(StringComplete) |'Assets/encoding-iso.txt'|
+//@[71:0072) | | ├─Token(Comma) |,|
+//@[73:0081) | | ├─FunctionArgumentSyntax
+//@[73:0081) | | | └─StringSyntax
+//@[73:0081) | | | | └─Token(StringComplete) |'utf-16'|
+//@[81:0082) | | └─Token(RightParen) |)|
+//@[82:0084) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding05 = loadTextContent('Assets/encoding-ascii.txt', 'iso-8859-1')
-//@[0:88) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding05|
-//@[28:29)  Assignment |=|
-//@[30:88)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
-//@[46:73)    StringSyntax
-//@[46:73)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[73:74)    Comma |,|
-//@[75:87)   FunctionArgumentSyntax
-//@[75:87)    StringSyntax
-//@[75:87)     StringComplete |'iso-8859-1'|
-//@[87:88)   RightParen |)|
-//@[88:90) NewLine |\r\n|
+//@[00:0088) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding05|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0088) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
+//@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-ascii.txt'|
+//@[73:0074) | | ├─Token(Comma) |,|
+//@[75:0087) | | ├─FunctionArgumentSyntax
+//@[75:0087) | | | └─StringSyntax
+//@[75:0087) | | | | └─Token(StringComplete) |'iso-8859-1'|
+//@[87:0088) | | └─Token(RightParen) |)|
+//@[88:0090) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding06 = loadTextContent('Assets/encoding-ascii.txt', 'utf-8')
-//@[0:83) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding06|
-//@[28:29)  Assignment |=|
-//@[30:83)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
-//@[46:73)    StringSyntax
-//@[46:73)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[73:74)    Comma |,|
-//@[75:82)   FunctionArgumentSyntax
-//@[75:82)    StringSyntax
-//@[75:82)     StringComplete |'utf-8'|
-//@[82:83)   RightParen |)|
-//@[83:85) NewLine |\r\n|
+//@[00:0083) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding06|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0083) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
+//@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-ascii.txt'|
+//@[73:0074) | | ├─Token(Comma) |,|
+//@[75:0082) | | ├─FunctionArgumentSyntax
+//@[75:0082) | | | └─StringSyntax
+//@[75:0082) | | | | └─Token(StringComplete) |'utf-8'|
+//@[82:0083) | | └─Token(RightParen) |)|
+//@[83:0085) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding07 = loadTextContent('Assets/encoding-ascii.txt', 'utf-16BE')
-//@[0:86) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding07|
-//@[28:29)  Assignment |=|
-//@[30:86)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
-//@[46:73)    StringSyntax
-//@[46:73)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[73:74)    Comma |,|
-//@[75:85)   FunctionArgumentSyntax
-//@[75:85)    StringSyntax
-//@[75:85)     StringComplete |'utf-16BE'|
-//@[85:86)   RightParen |)|
-//@[86:88) NewLine |\r\n|
+//@[00:0086) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding07|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0086) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
+//@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-ascii.txt'|
+//@[73:0074) | | ├─Token(Comma) |,|
+//@[75:0085) | | ├─FunctionArgumentSyntax
+//@[75:0085) | | | └─StringSyntax
+//@[75:0085) | | | | └─Token(StringComplete) |'utf-16BE'|
+//@[85:0086) | | └─Token(RightParen) |)|
+//@[86:0088) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding08 = loadTextContent('Assets/encoding-ascii.txt', 'utf-16')
-//@[0:84) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding08|
-//@[28:29)  Assignment |=|
-//@[30:84)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
-//@[46:73)    StringSyntax
-//@[46:73)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[73:74)    Comma |,|
-//@[75:83)   FunctionArgumentSyntax
-//@[75:83)    StringSyntax
-//@[75:83)     StringComplete |'utf-16'|
-//@[83:84)   RightParen |)|
-//@[84:86) NewLine |\r\n|
+//@[00:0084) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding08|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0084) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
+//@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-ascii.txt'|
+//@[73:0074) | | ├─Token(Comma) |,|
+//@[75:0083) | | ├─FunctionArgumentSyntax
+//@[75:0083) | | | └─StringSyntax
+//@[75:0083) | | | | └─Token(StringComplete) |'utf-16'|
+//@[83:0084) | | └─Token(RightParen) |)|
+//@[84:0086) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding09 = loadTextContent('Assets/encoding-utf16.txt', 'iso-8859-1')
-//@[0:88) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding09|
-//@[28:29)  Assignment |=|
-//@[30:88)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
-//@[46:73)    StringSyntax
-//@[46:73)     StringComplete |'Assets/encoding-utf16.txt'|
-//@[73:74)    Comma |,|
-//@[75:87)   FunctionArgumentSyntax
-//@[75:87)    StringSyntax
-//@[75:87)     StringComplete |'iso-8859-1'|
-//@[87:88)   RightParen |)|
-//@[88:90) NewLine |\r\n|
+//@[00:0088) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding09|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0088) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
+//@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-utf16.txt'|
+//@[73:0074) | | ├─Token(Comma) |,|
+//@[75:0087) | | ├─FunctionArgumentSyntax
+//@[75:0087) | | | └─StringSyntax
+//@[75:0087) | | | | └─Token(StringComplete) |'iso-8859-1'|
+//@[87:0088) | | └─Token(RightParen) |)|
+//@[88:0090) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding10 = loadTextContent('Assets/encoding-utf16.txt', 'utf-8')
-//@[0:83) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding10|
-//@[28:29)  Assignment |=|
-//@[30:83)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
-//@[46:73)    StringSyntax
-//@[46:73)     StringComplete |'Assets/encoding-utf16.txt'|
-//@[73:74)    Comma |,|
-//@[75:82)   FunctionArgumentSyntax
-//@[75:82)    StringSyntax
-//@[75:82)     StringComplete |'utf-8'|
-//@[82:83)   RightParen |)|
-//@[83:85) NewLine |\r\n|
+//@[00:0083) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding10|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0083) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
+//@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-utf16.txt'|
+//@[73:0074) | | ├─Token(Comma) |,|
+//@[75:0082) | | ├─FunctionArgumentSyntax
+//@[75:0082) | | | └─StringSyntax
+//@[75:0082) | | | | └─Token(StringComplete) |'utf-8'|
+//@[82:0083) | | └─Token(RightParen) |)|
+//@[83:0085) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding11 = loadTextContent('Assets/encoding-utf16.txt', 'utf-16BE')
-//@[0:86) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding11|
-//@[28:29)  Assignment |=|
-//@[30:86)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
-//@[46:73)    StringSyntax
-//@[46:73)     StringComplete |'Assets/encoding-utf16.txt'|
-//@[73:74)    Comma |,|
-//@[75:85)   FunctionArgumentSyntax
-//@[75:85)    StringSyntax
-//@[75:85)     StringComplete |'utf-16BE'|
-//@[85:86)   RightParen |)|
-//@[86:88) NewLine |\r\n|
+//@[00:0086) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding11|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0086) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
+//@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-utf16.txt'|
+//@[73:0074) | | ├─Token(Comma) |,|
+//@[75:0085) | | ├─FunctionArgumentSyntax
+//@[75:0085) | | | └─StringSyntax
+//@[75:0085) | | | | └─Token(StringComplete) |'utf-16BE'|
+//@[85:0086) | | └─Token(RightParen) |)|
+//@[86:0088) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding12 = loadTextContent('Assets/encoding-utf16.txt', 'us-ascii')
-//@[0:86) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding12|
-//@[28:29)  Assignment |=|
-//@[30:86)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
-//@[46:73)    StringSyntax
-//@[46:73)     StringComplete |'Assets/encoding-utf16.txt'|
-//@[73:74)    Comma |,|
-//@[75:85)   FunctionArgumentSyntax
-//@[75:85)    StringSyntax
-//@[75:85)     StringComplete |'us-ascii'|
-//@[85:86)   RightParen |)|
-//@[86:88) NewLine |\r\n|
+//@[00:0086) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding12|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0086) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0073) | | ├─FunctionArgumentSyntax
+//@[46:0073) | | | └─StringSyntax
+//@[46:0073) | | | | └─Token(StringComplete) |'Assets/encoding-utf16.txt'|
+//@[73:0074) | | ├─Token(Comma) |,|
+//@[75:0085) | | ├─FunctionArgumentSyntax
+//@[75:0085) | | | └─StringSyntax
+//@[75:0085) | | | | └─Token(StringComplete) |'us-ascii'|
+//@[85:0086) | | └─Token(RightParen) |)|
+//@[86:0088) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding13 = loadTextContent('Assets/encoding-utf16be.txt', 'utf-16')
-//@[0:86) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding13|
-//@[28:29)  Assignment |=|
-//@[30:86)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:76)   FunctionArgumentSyntax
-//@[46:75)    StringSyntax
-//@[46:75)     StringComplete |'Assets/encoding-utf16be.txt'|
-//@[75:76)    Comma |,|
-//@[77:85)   FunctionArgumentSyntax
-//@[77:85)    StringSyntax
-//@[77:85)     StringComplete |'utf-16'|
-//@[85:86)   RightParen |)|
-//@[86:88) NewLine |\r\n|
+//@[00:0086) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding13|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0086) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0075) | | ├─FunctionArgumentSyntax
+//@[46:0075) | | | └─StringSyntax
+//@[46:0075) | | | | └─Token(StringComplete) |'Assets/encoding-utf16be.txt'|
+//@[75:0076) | | ├─Token(Comma) |,|
+//@[77:0085) | | ├─FunctionArgumentSyntax
+//@[77:0085) | | | └─StringSyntax
+//@[77:0085) | | | | └─Token(StringComplete) |'utf-16'|
+//@[85:0086) | | └─Token(RightParen) |)|
+//@[86:0088) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding14 = loadTextContent('Assets/encoding-utf16be.txt', 'utf-8')
-//@[0:85) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding14|
-//@[28:29)  Assignment |=|
-//@[30:85)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:76)   FunctionArgumentSyntax
-//@[46:75)    StringSyntax
-//@[46:75)     StringComplete |'Assets/encoding-utf16be.txt'|
-//@[75:76)    Comma |,|
-//@[77:84)   FunctionArgumentSyntax
-//@[77:84)    StringSyntax
-//@[77:84)     StringComplete |'utf-8'|
-//@[84:85)   RightParen |)|
-//@[85:87) NewLine |\r\n|
+//@[00:0085) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding14|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0085) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0075) | | ├─FunctionArgumentSyntax
+//@[46:0075) | | | └─StringSyntax
+//@[46:0075) | | | | └─Token(StringComplete) |'Assets/encoding-utf16be.txt'|
+//@[75:0076) | | ├─Token(Comma) |,|
+//@[77:0084) | | ├─FunctionArgumentSyntax
+//@[77:0084) | | | └─StringSyntax
+//@[77:0084) | | | | └─Token(StringComplete) |'utf-8'|
+//@[84:0085) | | └─Token(RightParen) |)|
+//@[85:0087) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding15 = loadTextContent('Assets/encoding-utf16be.txt', 'us-ascii')
-//@[0:88) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding15|
-//@[28:29)  Assignment |=|
-//@[30:88)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:76)   FunctionArgumentSyntax
-//@[46:75)    StringSyntax
-//@[46:75)     StringComplete |'Assets/encoding-utf16be.txt'|
-//@[75:76)    Comma |,|
-//@[77:87)   FunctionArgumentSyntax
-//@[77:87)    StringSyntax
-//@[77:87)     StringComplete |'us-ascii'|
-//@[87:88)   RightParen |)|
-//@[88:90) NewLine |\r\n|
+//@[00:0088) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding15|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0088) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0075) | | ├─FunctionArgumentSyntax
+//@[46:0075) | | | └─StringSyntax
+//@[46:0075) | | | | └─Token(StringComplete) |'Assets/encoding-utf16be.txt'|
+//@[75:0076) | | ├─Token(Comma) |,|
+//@[77:0087) | | ├─FunctionArgumentSyntax
+//@[77:0087) | | | └─StringSyntax
+//@[77:0087) | | | | └─Token(StringComplete) |'us-ascii'|
+//@[87:0088) | | └─Token(RightParen) |)|
+//@[88:0090) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding16 = loadTextContent('Assets/encoding-utf16be.txt', 'iso-8859-1')
-//@[0:90) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding16|
-//@[28:29)  Assignment |=|
-//@[30:90)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:76)   FunctionArgumentSyntax
-//@[46:75)    StringSyntax
-//@[46:75)     StringComplete |'Assets/encoding-utf16be.txt'|
-//@[75:76)    Comma |,|
-//@[77:89)   FunctionArgumentSyntax
-//@[77:89)    StringSyntax
-//@[77:89)     StringComplete |'iso-8859-1'|
-//@[89:90)   RightParen |)|
-//@[90:92) NewLine |\r\n|
+//@[00:0090) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding16|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0090) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0075) | | ├─FunctionArgumentSyntax
+//@[46:0075) | | | └─StringSyntax
+//@[46:0075) | | | | └─Token(StringComplete) |'Assets/encoding-utf16be.txt'|
+//@[75:0076) | | ├─Token(Comma) |,|
+//@[77:0089) | | ├─FunctionArgumentSyntax
+//@[77:0089) | | | └─StringSyntax
+//@[77:0089) | | | | └─Token(StringComplete) |'iso-8859-1'|
+//@[89:0090) | | └─Token(RightParen) |)|
+//@[90:0092) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding17 = loadTextContent('Assets/encoding-windows1250.txt', 'utf-16BE')
-//@[0:92) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding17|
-//@[28:29)  Assignment |=|
-//@[30:92)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:80)   FunctionArgumentSyntax
-//@[46:79)    StringSyntax
-//@[46:79)     StringComplete |'Assets/encoding-windows1250.txt'|
-//@[79:80)    Comma |,|
-//@[81:91)   FunctionArgumentSyntax
-//@[81:91)    StringSyntax
-//@[81:91)     StringComplete |'utf-16BE'|
-//@[91:92)   RightParen |)|
-//@[92:94) NewLine |\r\n|
+//@[00:0092) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding17|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0092) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0079) | | ├─FunctionArgumentSyntax
+//@[46:0079) | | | └─StringSyntax
+//@[46:0079) | | | | └─Token(StringComplete) |'Assets/encoding-windows1250.txt'|
+//@[79:0080) | | ├─Token(Comma) |,|
+//@[81:0091) | | ├─FunctionArgumentSyntax
+//@[81:0091) | | | └─StringSyntax
+//@[81:0091) | | | | └─Token(StringComplete) |'utf-16BE'|
+//@[91:0092) | | └─Token(RightParen) |)|
+//@[92:0094) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding18 = loadTextContent('Assets/encoding-windows1250.txt', 'utf-16')
-//@[0:90) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding18|
-//@[28:29)  Assignment |=|
-//@[30:90)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:80)   FunctionArgumentSyntax
-//@[46:79)    StringSyntax
-//@[46:79)     StringComplete |'Assets/encoding-windows1250.txt'|
-//@[79:80)    Comma |,|
-//@[81:89)   FunctionArgumentSyntax
-//@[81:89)    StringSyntax
-//@[81:89)     StringComplete |'utf-16'|
-//@[89:90)   RightParen |)|
-//@[90:92) NewLine |\r\n|
+//@[00:0090) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding18|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0090) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0079) | | ├─FunctionArgumentSyntax
+//@[46:0079) | | | └─StringSyntax
+//@[46:0079) | | | | └─Token(StringComplete) |'Assets/encoding-windows1250.txt'|
+//@[79:0080) | | ├─Token(Comma) |,|
+//@[81:0089) | | ├─FunctionArgumentSyntax
+//@[81:0089) | | | └─StringSyntax
+//@[81:0089) | | | | └─Token(StringComplete) |'utf-16'|
+//@[89:0090) | | └─Token(RightParen) |)|
+//@[90:0092) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding19 = loadTextContent('Assets/encoding-windows1250.txt', 'utf-8')
-//@[0:89) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding19|
-//@[28:29)  Assignment |=|
-//@[30:89)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:80)   FunctionArgumentSyntax
-//@[46:79)    StringSyntax
-//@[46:79)     StringComplete |'Assets/encoding-windows1250.txt'|
-//@[79:80)    Comma |,|
-//@[81:88)   FunctionArgumentSyntax
-//@[81:88)    StringSyntax
-//@[81:88)     StringComplete |'utf-8'|
-//@[88:89)   RightParen |)|
-//@[89:91) NewLine |\r\n|
+//@[00:0089) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding19|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0089) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0079) | | ├─FunctionArgumentSyntax
+//@[46:0079) | | | └─StringSyntax
+//@[46:0079) | | | | └─Token(StringComplete) |'Assets/encoding-windows1250.txt'|
+//@[79:0080) | | ├─Token(Comma) |,|
+//@[81:0088) | | ├─FunctionArgumentSyntax
+//@[81:0088) | | | └─StringSyntax
+//@[81:0088) | | | | └─Token(StringComplete) |'utf-8'|
+//@[88:0089) | | └─Token(RightParen) |)|
+//@[89:0091) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding20 = loadTextContent('Assets/encoding-windows1250.txt', 'us-ascii')
-//@[0:92) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding20|
-//@[28:29)  Assignment |=|
-//@[30:92)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:80)   FunctionArgumentSyntax
-//@[46:79)    StringSyntax
-//@[46:79)     StringComplete |'Assets/encoding-windows1250.txt'|
-//@[79:80)    Comma |,|
-//@[81:91)   FunctionArgumentSyntax
-//@[81:91)    StringSyntax
-//@[81:91)     StringComplete |'us-ascii'|
-//@[91:92)   RightParen |)|
-//@[92:94) NewLine |\r\n|
+//@[00:0092) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding20|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0092) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0079) | | ├─FunctionArgumentSyntax
+//@[46:0079) | | | └─StringSyntax
+//@[46:0079) | | | | └─Token(StringComplete) |'Assets/encoding-windows1250.txt'|
+//@[79:0080) | | ├─Token(Comma) |,|
+//@[81:0091) | | ├─FunctionArgumentSyntax
+//@[81:0091) | | | └─StringSyntax
+//@[81:0091) | | | | └─Token(StringComplete) |'us-ascii'|
+//@[91:0092) | | └─Token(RightParen) |)|
+//@[92:0094) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding21 = loadTextContent('Assets/encoding-windows1250.txt', 'iso-8859-1')
-//@[0:94) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding21|
-//@[28:29)  Assignment |=|
-//@[30:94)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:80)   FunctionArgumentSyntax
-//@[46:79)    StringSyntax
-//@[46:79)     StringComplete |'Assets/encoding-windows1250.txt'|
-//@[79:80)    Comma |,|
-//@[81:93)   FunctionArgumentSyntax
-//@[81:93)    StringSyntax
-//@[81:93)     StringComplete |'iso-8859-1'|
-//@[93:94)   RightParen |)|
-//@[94:96) NewLine |\r\n|
+//@[00:0094) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding21|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0094) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0079) | | ├─FunctionArgumentSyntax
+//@[46:0079) | | | └─StringSyntax
+//@[46:0079) | | | | └─Token(StringComplete) |'Assets/encoding-windows1250.txt'|
+//@[79:0080) | | ├─Token(Comma) |,|
+//@[81:0093) | | ├─FunctionArgumentSyntax
+//@[81:0093) | | | └─StringSyntax
+//@[81:0093) | | | | └─Token(StringComplete) |'iso-8859-1'|
+//@[93:0094) | | └─Token(RightParen) |)|
+//@[94:0096) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding22 = loadTextContent('Assets/encoding-utf8.txt', 'iso-8859-1')
-//@[0:87) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding22|
-//@[28:29)  Assignment |=|
-//@[30:87)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:73)   FunctionArgumentSyntax
-//@[46:72)    StringSyntax
-//@[46:72)     StringComplete |'Assets/encoding-utf8.txt'|
-//@[72:73)    Comma |,|
-//@[74:86)   FunctionArgumentSyntax
-//@[74:86)    StringSyntax
-//@[74:86)     StringComplete |'iso-8859-1'|
-//@[86:87)   RightParen |)|
-//@[87:89) NewLine |\r\n|
+//@[00:0087) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding22|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0087) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0072) | | ├─FunctionArgumentSyntax
+//@[46:0072) | | | └─StringSyntax
+//@[46:0072) | | | | └─Token(StringComplete) |'Assets/encoding-utf8.txt'|
+//@[72:0073) | | ├─Token(Comma) |,|
+//@[74:0086) | | ├─FunctionArgumentSyntax
+//@[74:0086) | | | └─StringSyntax
+//@[74:0086) | | | | └─Token(StringComplete) |'iso-8859-1'|
+//@[86:0087) | | └─Token(RightParen) |)|
+//@[87:0089) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding23 = loadTextContent('Assets/encoding-utf8.txt', 'utf-16')
-//@[0:83) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding23|
-//@[28:29)  Assignment |=|
-//@[30:83)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:73)   FunctionArgumentSyntax
-//@[46:72)    StringSyntax
-//@[46:72)     StringComplete |'Assets/encoding-utf8.txt'|
-//@[72:73)    Comma |,|
-//@[74:82)   FunctionArgumentSyntax
-//@[74:82)    StringSyntax
-//@[74:82)     StringComplete |'utf-16'|
-//@[82:83)   RightParen |)|
-//@[83:85) NewLine |\r\n|
+//@[00:0083) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding23|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0083) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0072) | | ├─FunctionArgumentSyntax
+//@[46:0072) | | | └─StringSyntax
+//@[46:0072) | | | | └─Token(StringComplete) |'Assets/encoding-utf8.txt'|
+//@[72:0073) | | ├─Token(Comma) |,|
+//@[74:0082) | | ├─FunctionArgumentSyntax
+//@[74:0082) | | | └─StringSyntax
+//@[74:0082) | | | | └─Token(StringComplete) |'utf-16'|
+//@[82:0083) | | └─Token(RightParen) |)|
+//@[83:0085) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding24 = loadTextContent('Assets/encoding-utf8.txt', 'utf-16BE')
-//@[0:85) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding24|
-//@[28:29)  Assignment |=|
-//@[30:85)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:73)   FunctionArgumentSyntax
-//@[46:72)    StringSyntax
-//@[46:72)     StringComplete |'Assets/encoding-utf8.txt'|
-//@[72:73)    Comma |,|
-//@[74:84)   FunctionArgumentSyntax
-//@[74:84)    StringSyntax
-//@[74:84)     StringComplete |'utf-16BE'|
-//@[84:85)   RightParen |)|
-//@[85:87) NewLine |\r\n|
+//@[00:0085) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding24|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0085) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0072) | | ├─FunctionArgumentSyntax
+//@[46:0072) | | | └─StringSyntax
+//@[46:0072) | | | | └─Token(StringComplete) |'Assets/encoding-utf8.txt'|
+//@[72:0073) | | ├─Token(Comma) |,|
+//@[74:0084) | | ├─FunctionArgumentSyntax
+//@[74:0084) | | | └─StringSyntax
+//@[74:0084) | | | | └─Token(StringComplete) |'utf-16BE'|
+//@[84:0085) | | └─Token(RightParen) |)|
+//@[85:0087) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding25 = loadTextContent('Assets/encoding-utf8.txt', 'us-ascii')
-//@[0:85) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding25|
-//@[28:29)  Assignment |=|
-//@[30:85)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:73)   FunctionArgumentSyntax
-//@[46:72)    StringSyntax
-//@[46:72)     StringComplete |'Assets/encoding-utf8.txt'|
-//@[72:73)    Comma |,|
-//@[74:84)   FunctionArgumentSyntax
-//@[74:84)    StringSyntax
-//@[74:84)     StringComplete |'us-ascii'|
-//@[84:85)   RightParen |)|
-//@[85:87) NewLine |\r\n|
+//@[00:0085) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding25|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0085) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0072) | | ├─FunctionArgumentSyntax
+//@[46:0072) | | | └─StringSyntax
+//@[46:0072) | | | | └─Token(StringComplete) |'Assets/encoding-utf8.txt'|
+//@[72:0073) | | ├─Token(Comma) |,|
+//@[74:0084) | | ├─FunctionArgumentSyntax
+//@[74:0084) | | | └─StringSyntax
+//@[74:0084) | | | | └─Token(StringComplete) |'us-ascii'|
+//@[84:0085) | | └─Token(RightParen) |)|
+//@[85:0087) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding26 = loadTextContent('Assets/encoding-utf8-bom.txt', 'iso-8859-1')
-//@[0:91) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding26|
-//@[28:29)  Assignment |=|
-//@[30:91)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:77)   FunctionArgumentSyntax
-//@[46:76)    StringSyntax
-//@[46:76)     StringComplete |'Assets/encoding-utf8-bom.txt'|
-//@[76:77)    Comma |,|
-//@[78:90)   FunctionArgumentSyntax
-//@[78:90)    StringSyntax
-//@[78:90)     StringComplete |'iso-8859-1'|
-//@[90:91)   RightParen |)|
-//@[91:93) NewLine |\r\n|
+//@[00:0091) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding26|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0091) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0076) | | ├─FunctionArgumentSyntax
+//@[46:0076) | | | └─StringSyntax
+//@[46:0076) | | | | └─Token(StringComplete) |'Assets/encoding-utf8-bom.txt'|
+//@[76:0077) | | ├─Token(Comma) |,|
+//@[78:0090) | | ├─FunctionArgumentSyntax
+//@[78:0090) | | | └─StringSyntax
+//@[78:0090) | | | | └─Token(StringComplete) |'iso-8859-1'|
+//@[90:0091) | | └─Token(RightParen) |)|
+//@[91:0093) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding27 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-16')
-//@[0:87) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding27|
-//@[28:29)  Assignment |=|
-//@[30:87)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:77)   FunctionArgumentSyntax
-//@[46:76)    StringSyntax
-//@[46:76)     StringComplete |'Assets/encoding-utf8-bom.txt'|
-//@[76:77)    Comma |,|
-//@[78:86)   FunctionArgumentSyntax
-//@[78:86)    StringSyntax
-//@[78:86)     StringComplete |'utf-16'|
-//@[86:87)   RightParen |)|
-//@[87:89) NewLine |\r\n|
+//@[00:0087) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding27|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0087) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0076) | | ├─FunctionArgumentSyntax
+//@[46:0076) | | | └─StringSyntax
+//@[46:0076) | | | | └─Token(StringComplete) |'Assets/encoding-utf8-bom.txt'|
+//@[76:0077) | | ├─Token(Comma) |,|
+//@[78:0086) | | ├─FunctionArgumentSyntax
+//@[78:0086) | | | └─StringSyntax
+//@[78:0086) | | | | └─Token(StringComplete) |'utf-16'|
+//@[86:0087) | | └─Token(RightParen) |)|
+//@[87:0089) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding28 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-16BE')
-//@[0:89) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding28|
-//@[28:29)  Assignment |=|
-//@[30:89)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:77)   FunctionArgumentSyntax
-//@[46:76)    StringSyntax
-//@[46:76)     StringComplete |'Assets/encoding-utf8-bom.txt'|
-//@[76:77)    Comma |,|
-//@[78:88)   FunctionArgumentSyntax
-//@[78:88)    StringSyntax
-//@[78:88)     StringComplete |'utf-16BE'|
-//@[88:89)   RightParen |)|
-//@[89:91) NewLine |\r\n|
+//@[00:0089) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding28|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0089) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0076) | | ├─FunctionArgumentSyntax
+//@[46:0076) | | | └─StringSyntax
+//@[46:0076) | | | | └─Token(StringComplete) |'Assets/encoding-utf8-bom.txt'|
+//@[76:0077) | | ├─Token(Comma) |,|
+//@[78:0088) | | ├─FunctionArgumentSyntax
+//@[78:0088) | | | └─StringSyntax
+//@[78:0088) | | | | └─Token(StringComplete) |'utf-16BE'|
+//@[88:0089) | | └─Token(RightParen) |)|
+//@[89:0091) ├─Token(NewLine) |\r\n|
 var textLoadWrongEncoding29 = loadTextContent('Assets/encoding-utf8-bom.txt', 'us-ascii')
-//@[0:89) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |textLoadWrongEncoding29|
-//@[28:29)  Assignment |=|
-//@[30:89)  FunctionCallSyntax
-//@[30:45)   IdentifierSyntax
-//@[30:45)    Identifier |loadTextContent|
-//@[45:46)   LeftParen |(|
-//@[46:77)   FunctionArgumentSyntax
-//@[46:76)    StringSyntax
-//@[46:76)     StringComplete |'Assets/encoding-utf8-bom.txt'|
-//@[76:77)    Comma |,|
-//@[78:88)   FunctionArgumentSyntax
-//@[78:88)    StringSyntax
-//@[78:88)     StringComplete |'us-ascii'|
-//@[88:89)   RightParen |)|
-//@[89:93) NewLine |\r\n\r\n|
+//@[00:0089) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0027) | ├─IdentifierSyntax
+//@[04:0027) | | └─Token(Identifier) |textLoadWrongEncoding29|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0089) | └─FunctionCallSyntax
+//@[30:0045) | | ├─IdentifierSyntax
+//@[30:0045) | | | └─Token(Identifier) |loadTextContent|
+//@[45:0046) | | ├─Token(LeftParen) |(|
+//@[46:0076) | | ├─FunctionArgumentSyntax
+//@[46:0076) | | | └─StringSyntax
+//@[46:0076) | | | | └─Token(StringComplete) |'Assets/encoding-utf8-bom.txt'|
+//@[76:0077) | | ├─Token(Comma) |,|
+//@[78:0088) | | ├─FunctionArgumentSyntax
+//@[78:0088) | | | └─StringSyntax
+//@[78:0088) | | | | └─Token(StringComplete) |'us-ascii'|
+//@[88:0089) | | └─Token(RightParen) |)|
+//@[89:0093) ├─Token(NewLine) |\r\n\r\n|
 
 var textOversize = loadTextContent('Assets/oversizeText.txt')
-//@[0:61) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:16)  IdentifierSyntax
-//@[4:16)   Identifier |textOversize|
-//@[17:18)  Assignment |=|
-//@[19:61)  FunctionCallSyntax
-//@[19:34)   IdentifierSyntax
-//@[19:34)    Identifier |loadTextContent|
-//@[34:35)   LeftParen |(|
-//@[35:60)   FunctionArgumentSyntax
-//@[35:60)    StringSyntax
-//@[35:60)     StringComplete |'Assets/oversizeText.txt'|
-//@[60:61)   RightParen |)|
-//@[61:63) NewLine |\r\n|
+//@[00:0061) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0016) | ├─IdentifierSyntax
+//@[04:0016) | | └─Token(Identifier) |textOversize|
+//@[17:0018) | ├─Token(Assignment) |=|
+//@[19:0061) | └─FunctionCallSyntax
+//@[19:0034) | | ├─IdentifierSyntax
+//@[19:0034) | | | └─Token(Identifier) |loadTextContent|
+//@[34:0035) | | ├─Token(LeftParen) |(|
+//@[35:0060) | | ├─FunctionArgumentSyntax
+//@[35:0060) | | | └─StringSyntax
+//@[35:0060) | | | | └─Token(StringComplete) |'Assets/oversizeText.txt'|
+//@[60:0061) | | └─Token(RightParen) |)|
+//@[61:0063) ├─Token(NewLine) |\r\n|
 var binaryOversize = loadFileAsBase64('Assets/oversizeBinary')
-//@[0:62) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:18)  IdentifierSyntax
-//@[4:18)   Identifier |binaryOversize|
-//@[19:20)  Assignment |=|
-//@[21:62)  FunctionCallSyntax
-//@[21:37)   IdentifierSyntax
-//@[21:37)    Identifier |loadFileAsBase64|
-//@[37:38)   LeftParen |(|
-//@[38:61)   FunctionArgumentSyntax
-//@[38:61)    StringSyntax
-//@[38:61)     StringComplete |'Assets/oversizeBinary'|
-//@[61:62)   RightParen |)|
-//@[62:66) NewLine |\r\n\r\n|
+//@[00:0062) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0018) | ├─IdentifierSyntax
+//@[04:0018) | | └─Token(Identifier) |binaryOversize|
+//@[19:0020) | ├─Token(Assignment) |=|
+//@[21:0062) | └─FunctionCallSyntax
+//@[21:0037) | | ├─IdentifierSyntax
+//@[21:0037) | | | └─Token(Identifier) |loadFileAsBase64|
+//@[37:0038) | | ├─Token(LeftParen) |(|
+//@[38:0061) | | ├─FunctionArgumentSyntax
+//@[38:0061) | | | └─StringSyntax
+//@[38:0061) | | | | └─Token(StringComplete) |'Assets/oversizeBinary'|
+//@[61:0062) | | └─Token(RightParen) |)|
+//@[62:0066) ├─Token(NewLine) |\r\n\r\n|
 
 var binaryAsText = loadTextContent('Assets/binary')
-//@[0:51) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:16)  IdentifierSyntax
-//@[4:16)   Identifier |binaryAsText|
-//@[17:18)  Assignment |=|
-//@[19:51)  FunctionCallSyntax
-//@[19:34)   IdentifierSyntax
-//@[19:34)    Identifier |loadTextContent|
-//@[34:35)   LeftParen |(|
-//@[35:50)   FunctionArgumentSyntax
-//@[35:50)    StringSyntax
-//@[35:50)     StringComplete |'Assets/binary'|
-//@[50:51)   RightParen |)|
-//@[51:51) EndOfFile ||
+//@[00:0051) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0016) | ├─IdentifierSyntax
+//@[04:0016) | | └─Token(Identifier) |binaryAsText|
+//@[17:0018) | ├─Token(Assignment) |=|
+//@[19:0051) | └─FunctionCallSyntax
+//@[19:0034) | | ├─IdentifierSyntax
+//@[19:0034) | | | └─Token(Identifier) |loadTextContent|
+//@[34:0035) | | ├─Token(LeftParen) |(|
+//@[35:0050) | | ├─FunctionArgumentSyntax
+//@[35:0050) | | | └─StringSyntax
+//@[35:0050) | | | | └─Token(StringComplete) |'Assets/binary'|
+//@[50:0051) | | └─Token(RightParen) |)|
+//@[51:0055) ├─Token(NewLine) |\r\n\r\n|
+
+var jsonObject1 = loadJsonContent('Assets/jsonInvalid.json.txt')
+//@[00:0064) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |jsonObject1|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0064) | └─FunctionCallSyntax
+//@[18:0033) | | ├─IdentifierSyntax
+//@[18:0033) | | | └─Token(Identifier) |loadJsonContent|
+//@[33:0034) | | ├─Token(LeftParen) |(|
+//@[34:0063) | | ├─FunctionArgumentSyntax
+//@[34:0063) | | | └─StringSyntax
+//@[34:0063) | | | | └─Token(StringComplete) |'Assets/jsonInvalid.json.txt'|
+//@[63:0064) | | └─Token(RightParen) |)|
+//@[64:0066) ├─Token(NewLine) |\r\n|
+var jsonObject2 = loadJsonContent('Assets/jsonValid.json.txt', '.')
+//@[00:0067) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |jsonObject2|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0067) | └─FunctionCallSyntax
+//@[18:0033) | | ├─IdentifierSyntax
+//@[18:0033) | | | └─Token(Identifier) |loadJsonContent|
+//@[33:0034) | | ├─Token(LeftParen) |(|
+//@[34:0061) | | ├─FunctionArgumentSyntax
+//@[34:0061) | | | └─StringSyntax
+//@[34:0061) | | | | └─Token(StringComplete) |'Assets/jsonValid.json.txt'|
+//@[61:0062) | | ├─Token(Comma) |,|
+//@[63:0066) | | ├─FunctionArgumentSyntax
+//@[63:0066) | | | └─StringSyntax
+//@[63:0066) | | | | └─Token(StringComplete) |'.'|
+//@[66:0067) | | └─Token(RightParen) |)|
+//@[67:0069) ├─Token(NewLine) |\r\n|
+var jsonObject3 = loadJsonContent('Assets/jsonValid.json.txt', '$.')
+//@[00:0068) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |jsonObject3|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0068) | └─FunctionCallSyntax
+//@[18:0033) | | ├─IdentifierSyntax
+//@[18:0033) | | | └─Token(Identifier) |loadJsonContent|
+//@[33:0034) | | ├─Token(LeftParen) |(|
+//@[34:0061) | | ├─FunctionArgumentSyntax
+//@[34:0061) | | | └─StringSyntax
+//@[34:0061) | | | | └─Token(StringComplete) |'Assets/jsonValid.json.txt'|
+//@[61:0062) | | ├─Token(Comma) |,|
+//@[63:0067) | | ├─FunctionArgumentSyntax
+//@[63:0067) | | | └─StringSyntax
+//@[63:0067) | | | | └─Token(StringComplete) |'$.'|
+//@[67:0068) | | └─Token(RightParen) |)|
+//@[68:0070) ├─Token(NewLine) |\r\n|
+var jsonObject4 = loadJsonContent('Assets/jsonValid.json.txt', '.propertyThatDoesNotExist')
+//@[00:0091) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |jsonObject4|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0091) | └─FunctionCallSyntax
+//@[18:0033) | | ├─IdentifierSyntax
+//@[18:0033) | | | └─Token(Identifier) |loadJsonContent|
+//@[33:0034) | | ├─Token(LeftParen) |(|
+//@[34:0061) | | ├─FunctionArgumentSyntax
+//@[34:0061) | | | └─StringSyntax
+//@[34:0061) | | | | └─Token(StringComplete) |'Assets/jsonValid.json.txt'|
+//@[61:0062) | | ├─Token(Comma) |,|
+//@[63:0090) | | ├─FunctionArgumentSyntax
+//@[63:0090) | | | └─StringSyntax
+//@[63:0090) | | | | └─Token(StringComplete) |'.propertyThatDoesNotExist'|
+//@[90:0091) | | └─Token(RightParen) |)|
+//@[91:0093) ├─Token(NewLine) |\r\n|
+var jsonObject5 = loadJsonContent('Assets/fileNotExists')
+//@[00:0057) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |jsonObject5|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0057) | └─FunctionCallSyntax
+//@[18:0033) | | ├─IdentifierSyntax
+//@[18:0033) | | | └─Token(Identifier) |loadJsonContent|
+//@[33:0034) | | ├─Token(LeftParen) |(|
+//@[34:0056) | | ├─FunctionArgumentSyntax
+//@[34:0056) | | | └─StringSyntax
+//@[34:0056) | | | | └─Token(StringComplete) |'Assets/fileNotExists'|
+//@[56:0057) | | └─Token(RightParen) |)|
+//@[57:0059) ├─Token(NewLine) |\r\n|
+
+//@[00:0000) └─Token(EndOfFile) ||

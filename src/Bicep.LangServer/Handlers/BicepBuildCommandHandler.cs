@@ -2,14 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Core.Helpers;
-using Azure.Deployments.Core.Json;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -22,6 +20,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -104,7 +103,7 @@ namespace Bicep.LanguageServer.Handlers
                 compilation = context.Compilation;
             }
 
-            KeyValuePair<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
+            var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
                 .FirstOrDefault(x => x.Key.FileUri == fileUri);
 
             if (diagnosticsByFile.Value.Any(x => x.Level == DiagnosticLevel.Error))

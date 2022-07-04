@@ -1,6 +1,8 @@
 # Contributing to Bicep
 
-We are very happy to accept community contributions to Bicep, whether those are [Pull Requests](#pull-requests), [Example Files](#example-files), [Feature Suggestions](#feature-suggestions) or [Bug Reports](#bug-reports)! Please note that by participating in this project, you agree to abide by the [Code of Conduct](./CODE_OF_CONDUCT.md), as well as the terms of the [CLA](#cla).
+> The [Example Files](#example-files) are added to [Azure QuickStart Templates](https://github.com/Azure/azure-quickstart-templates), so we are not taking examples contributions anymore, but feel free to contribute to QuickStart templates repository.
+
+We are very happy to accept community contributions to Bicep, whether those are [Pull Requests](#pull-requests), [Feature Suggestions](#feature-suggestions) or [Bug Reports](#bug-reports)! Please note that by participating in this project, you agree to abide by the [Code of Conduct](./CODE_OF_CONDUCT.md), as well as the terms of the [CLA](#cla).
 
 ## Getting Started
 
@@ -24,7 +26,6 @@ The Bicep solution is comprised of the following main components:
 * **Bicep Language Server** (`src/Bicep.LangServer`): the LanguageServer used by the VSCode extension for parsing and providing information about a Bicep file.
 * **Bicep Core** (`src/Bicep.Core`): the library containing the majority of the Bicep compiler code.
 * **Bicep VSCode Extension** (`src/vscode-bicep`): the VSCode extension itself. This is mostly a thin wrapper around the Bicep Language Server.
-* **Playground** (`src/playground`): the web-based playground hosted at `https://aka.ms/bicepdemo`.
 * A number of different test suites.
 
 ### Running the tests
@@ -35,6 +36,9 @@ The Bicep solution is comprised of the following main components:
 ### Updating test baselines
 
 Many of the bicep integration tests rely on baseline test assertion files that are checked into the repo. Code changes in some areas will require updates to the baseline assertions.
+
+#### In VSCode
+* Open the Command Palette and use `Task: Run Task` to run the task named `Update Baselines`
 
 #### Manually
 
@@ -80,13 +84,6 @@ If you have an active branch pushed to your GitHub fork, you can use the "Update
 
 * In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "Bicep CLI" task, and press the "Start" button. This will build and run the Bicep CLI and allow you to step through the code.
 * Note that usually you will want to pass your own custom arguments to the Bicep CLI. This can be done by modifying the `launch.json` configuration to add arguments to the "args" array for the "Bicep CLI" task. 
-
-### Running the Playground
-
-* On the first run, you'll need to ensure you have installed all the npm packages required by the Bicep Playground with the following:
-  * `cd src/playground`
-  * `npm i`
-* In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "Bicep Playground" task, and press the "Start" button. This will launch a browser window with the Playground containing your changes.
 
 ## Pull Requests
 

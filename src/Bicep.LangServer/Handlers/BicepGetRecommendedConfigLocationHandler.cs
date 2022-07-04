@@ -57,52 +57,59 @@ namespace Bicep.LanguageServer.Handlers
 
         public static string GetRecommendedConfigFileLocation(string[]? workspaceFolderPaths, string? bicepFilePath)
         {
-            if (bicepFilePath is null && workspaceFolderPaths?.Length > 0)
+            var bicepFileFolder = Path.GetDirectoryName(bicepFilePath);
+            if (string.IsNullOrWhiteSpace(bicepFileFolder))
             {
-                // No bicep source file indicated - use first workspace folder root
-                return workspaceFolderPaths.First();
-            }
-
-            // If the bicep source file indicated is contained in a workspace folder, use its root
-            var applicableWorkspaceFolder = GetFolderContainingPath(workspaceFolderPaths, bicepFilePath);
-            if (applicableWorkspaceFolder is not null)
-            {
-                return applicableWorkspaceFolder;
-            }
-
-            // No workspace folder exists, use folder containing the bicep file source
-            if (bicepFilePath is not null)
-            {
-                var dir = Path.GetDirectoryName(bicepFilePath);
-                if (dir is not null)
+                // No bicep source file provided, or it wasn't an absolute path (e.g. an unsaved file)...
+          
+                // Use first workspace folder root if one exists
+                if (workspaceFolderPaths?.Length > 0)
                 {
-                    return dir;
+                    return workspaceFolderPaths.First();
                 }
-            }
 
-            // If all else fails
-            return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create);
+                // Just use user folder
+                return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create);
+            }
+            else
+            {
+                // If the bicep source file is contained in a workspace folder, use that workspace folder's root
+                var applicableWorkspaceFolder = GetFolderContainingPath(workspaceFolderPaths, bicepFileFolder);
+                if (applicableWorkspaceFolder is not null)
+                {
+                    return applicableWorkspaceFolder;
+                }
+
+                // No matching workspace folders, use folder containing the bicep file source
+                return bicepFileFolder;
+            }
         }
 
-        private static string? GetFolderContainingPath(string[]? workspaceFolderPaths, string? bicepFilePath)
+        private static string? GetFolderContainingPath(string[]? workspaceFolderPaths, string bicepFolder)
         {
-            bool caseSensitive = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-
-            if (workspaceFolderPaths is null || bicepFilePath is null)
+            if (workspaceFolderPaths is null)
             {
                 return null;
             }
 
+            bool caseSensitive = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            bicepFolder = AddSeparator(bicepFolder);
+
             foreach (var folder in workspaceFolderPaths)
             {
-                string folderWithSeparator = folder[folder.Length - 1] == Path.DirectorySeparatorChar ? folder : folder + Path.DirectorySeparatorChar;
-                if (bicepFilePath.Contains(folderWithSeparator, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase))
+                string folderWithSeparator = AddSeparator(folder);
+                if (bicepFolder.Contains(folderWithSeparator, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase))
                 {
                     return folder;
                 }
             }
 
             return null;
+        }
+
+        private static string AddSeparator(string folder)
+        {
+            return folder[folder.Length - 1] == Path.DirectorySeparatorChar ? folder : folder + Path.DirectorySeparatorChar;
         }
     }
 }
