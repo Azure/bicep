@@ -20,7 +20,7 @@
     "@types/react-dom": "^18.0.5",
     "@types/webpack": "^5.28.0",
     "@types/webpack-dev-server": "^4.7.2",
-    "@typescript-eslint/eslint-plugin": "^5.30.0",
+    "@typescript-eslint/eslint-plugin": "^5.30.5",
     "@typescript-eslint/parser": "^5.30.0",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.1",
