@@ -3,6 +3,7 @@
 
 using Bicep.Core.Parsing;
 using System;
+using System.Linq;
 
 namespace Bicep.Core.Syntax
 {
@@ -20,7 +21,7 @@ namespace Bicep.Core.Syntax
         {
             AssertTokenType(openSquare, nameof(openSquare), TokenType.LeftSquare);
             AssertKeyword(forKeyword, nameof(forKeyword), LanguageConstants.ForKeyword);
-            AssertSyntaxType(variableSection, nameof(variableSection), typeof(LocalVariableSyntax), typeof(ForVariableBlockSyntax), typeof(SkippedTriviaSyntax));
+            AssertSyntaxType(variableSection, nameof(variableSection), typeof(LocalVariableSyntax), typeof(VariableBlockSyntax), typeof(SkippedTriviaSyntax));
             AssertSyntaxType(inKeyword, nameof(inKeyword), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertKeyword(inKeyword as Token, nameof(inKeyword), LanguageConstants.InKeyword);
             AssertSyntaxType(colon, nameof(colon), typeof(Token), typeof(SkippedTriviaSyntax));
@@ -61,7 +62,7 @@ namespace Bicep.Core.Syntax
         public LocalVariableSyntax? ItemVariable => this.VariableSection switch
         {
             LocalVariableSyntax itemVariable => itemVariable,
-            ForVariableBlockSyntax block => block.ItemVariable,
+            VariableBlockSyntax block => block.Arguments.FirstOrDefault(),
             SkippedTriviaSyntax => null,
             _ => throw new NotImplementedException($"Unexpected loop variable section type '{this.VariableSection.GetType().Name}'.")
         };
@@ -69,7 +70,7 @@ namespace Bicep.Core.Syntax
         public LocalVariableSyntax? IndexVariable => this.VariableSection switch
         {
             LocalVariableSyntax itemVariable => null,
-            ForVariableBlockSyntax block => block.IndexVariable,
+            VariableBlockSyntax block => block.Arguments.Skip(1).FirstOrDefault(),
             SkippedTriviaSyntax => null,
             _ => throw new NotImplementedException($"Unexpected loop variable section type '{this.VariableSection.GetType().Name}'.")
         };

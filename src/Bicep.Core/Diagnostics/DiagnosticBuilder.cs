@@ -981,11 +981,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP162",
                 "Expected a loop item variable identifier or \"(\" at this location.");
 
-            public ErrorDiagnostic ExpectedLoopIndexIdentifier() => new(
-                TextSpan,
-                "BCP163",
-                "Expected a loop index variable identifier at this location.");
-
             public ErrorDiagnostic ScopeUnsupportedOnChildResource(string parentIdentifier) => new(
                 TextSpan,
                 "BCP164",
@@ -1451,6 +1446,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP246",
                 $"Resource type \"{resourceTypeReference.FormatName()}\" can only be used with the 'existing' keyword at the requested scope."
                     + $" Permitted scopes for deployment: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(writableScopes))}.");
+
+            public ErrorDiagnostic ExpectedLoopVariableBlockWith2Elements(int actualCount) => new(
+                TextSpan,
+                "BCP247",
+                $"Expected loop variable block to consist of exactly 2 elements (item variable and index variable), but found {actualCount}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -617,21 +617,9 @@ namespace Bicep.Core.Parsing
             {
                 var arrow = this.Expect(TokenType.Arrow, b => b.ExpectedCharacter("=>"));
                 var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
+                var variableBlock = GetVariableBlock(openParen, expressionsOrCommas, closeParen);
 
-                var rewrittenList = new List<SyntaxBase>();
-                foreach (var item in expressionsOrCommas)
-                {
-                    var rewritten = item switch {
-                        VariableAccessSyntax varAccess => new LocalVariableSyntax(varAccess.Name),
-                        Token { Type: TokenType.Comma } => item,
-                        SkippedTriviaSyntax => item,
-                        _ => new SkippedTriviaSyntax(item.Span, item.AsEnumerable(), Enumerable.Empty<IDiagnostic>()),
-                    };
-
-                    rewrittenList.Add(rewritten);
-                }
-
-                return new LambdaSyntax(new VariableBlockSyntax(openParen, rewrittenList, closeParen), arrow, expression);
+                return new LambdaSyntax(variableBlock, arrow, expression);
             }
 
             return GetParenthesizedExpressionSyntax(openParen, expressionsOrCommas, closeParen);
@@ -654,6 +642,18 @@ namespace Bicep.Core.Parsing
             };
 
             return new ParenthesizedExpressionSyntax(openParen, bodyExpression, closeParen);
+        }
+
+        private VariableBlockSyntax GetVariableBlock(Token openParen, ImmutableArray<SyntaxBase> expressionsOrCommas, SyntaxBase closeParen)
+        {
+            var rewritten = expressionsOrCommas.Select(item => item switch {
+                VariableAccessSyntax varAccess => new LocalVariableSyntax(varAccess.Name),
+                Token { Type: TokenType.Comma } => item,
+                SkippedTriviaSyntax => item,
+                _ => new SkippedTriviaSyntax(item.Span, item.AsEnumerable(), Enumerable.Empty<IDiagnostic>()),
+            });
+
+            return new VariableBlockSyntax(openParen, rewritten, closeParen);
         }
 
         private (Token openParen, ImmutableArray<SyntaxBase> expressionsOrCommas, SyntaxBase closeParen) ParenthesizedExpressionList(ExpressionFlags expressionFlags)
@@ -1017,9 +1017,9 @@ namespace Bicep.Core.Parsing
         {
             var openBracket = this.Expect(TokenType.LeftSquare, b => b.ExpectedCharacter("["));
             var forKeyword = this.ExpectKeyword(LanguageConstants.ForKeyword);
-            var variableSection = this.reader.Peek().Type switch
+            SyntaxBase variableSection = this.reader.Peek().Type switch
             {
-                TokenType.Identifier => (SyntaxBase)new LocalVariableSyntax(this.Identifier(b => b.ExpectedLoopVariableIdentifier())),
+                TokenType.Identifier => new LocalVariableSyntax(this.Identifier(b => b.ExpectedLoopVariableIdentifier())),
                 TokenType.LeftParen => this.ForVariableBlock(),
                 _ => this.SkipEmpty(b => b.ExpectedLoopItemIdentifierOrVariableBlockStart())
             };
@@ -1036,15 +1036,18 @@ namespace Bicep.Core.Parsing
             return new(openBracket, forKeyword, variableSection, inKeyword, expression, colon, body, closeBracket);
         }
 
-        private ForVariableBlockSyntax ForVariableBlock()
+        private SyntaxBase ForVariableBlock()
         {
-            var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
-            var itemVariable = new LocalVariableSyntax(this.IdentifierWithRecovery(b => b.ExpectedLoopVariableIdentifier(), RecoveryFlags.None, TokenType.Comma, TokenType.RightParen, TokenType.NewLine));
-            var comma = this.WithRecovery(() => this.Expect(TokenType.Comma, b => b.ExpectedCharacter(",")), GetSuppressionFlag(itemVariable.Name), TokenType.Identifier, TokenType.RightParen, TokenType.NewLine);
-            var indexVariable = new LocalVariableSyntax(this.IdentifierWithRecovery(b => b.ExpectedLoopIndexIdentifier(), GetSuppressionFlag(comma), TokenType.RightParen, TokenType.NewLine));
-            var closeParen = this.WithRecovery(() => this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")")), GetSuppressionFlag(indexVariable.Name), TokenType.NewLine);
+            var (openParen, expressionsOrCommas, closeParen) = ParenthesizedExpressionList(ExpressionFlags.None);
 
-            return new(openParen, itemVariable, comma, indexVariable, closeParen);
+            var variableBlock = GetVariableBlock(openParen, expressionsOrCommas, closeParen);
+
+            if (variableBlock.Arguments.Length != 2 && !variableBlock.HasParseErrors())
+            {
+                return Skip(variableBlock.AsEnumerable(), x => x.ExpectedLoopVariableBlockWith2Elements(variableBlock.Arguments.Length));
+            }
+
+            return variableBlock;
         }
 
         private SyntaxBase ForBody(ExpressionFlags expressionFlags, bool isResourceOrModuleContext)
