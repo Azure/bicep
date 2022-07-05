@@ -36,16 +36,6 @@ namespace Bicep.Core.TypeSystem
 
         public TypeSymbol? GetDeclaredType(SyntaxBase syntax) => this.GetDeclaredTypeAssignment(syntax)?.Reference.Type;
 
-        private DeclaredTypeAssignment? GetParentTypeAssignment(SyntaxBase syntax)
-        {
-            if (binder.GetParent(syntax) is {} parent)
-            {
-                return GetTypeAssignment(parent);
-            }
-
-            return null;
-        }
-
         private DeclaredTypeAssignment? GetTypeAssignment(SyntaxBase syntax)
         {
             RuntimeHelpers.EnsureSufficientExecutionStack();
@@ -114,20 +104,6 @@ namespace Bicep.Core.TypeSystem
 
                 case FunctionArgumentSyntax functionArgument:
                     return GetFunctionArgumentType(functionArgument);
-
-                case ParenthesizedExpressionSyntax:
-                case TernaryOperationSyntax:
-                    return GetParentTypeAssignment(syntax);
-            }
-
-            var parent = binder.GetParent(syntax);
-            switch (parent)
-            {
-                // These expressions do not modify the declared type - we can get more accurate validation by checking the parent declared type
-                case ParenthesizedExpressionSyntax parenthesizedExpression:
-                    return GetTypeAssignment(parent);
-                case TernaryOperationSyntax ternary when (syntax == ternary.TrueExpression || syntax == ternary.FalseExpression):
-                    return GetTypeAssignment(parent);
             }
 
             return null;

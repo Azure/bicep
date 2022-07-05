@@ -159,6 +159,6 @@ var modLoopNames = map(range(0, 5), i => modLoop[i].name)
 //@[004:016) Variable modLoopNames. Type: string[]. Declaration start char: 0, length: 57
 
 var parentheses = map([123], (i => '${i}'))
-//@[030:031) Local i. Type: int. Declaration start char: 30, length: 1
+//@[030:031) Local i. Type: any. Declaration start char: 30, length: 1
 //@[004:015) Variable parentheses. Type: string[]. Declaration start char: 0, length: 43
 
