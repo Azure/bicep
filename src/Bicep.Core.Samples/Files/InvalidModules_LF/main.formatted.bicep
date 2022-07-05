@@ -329,25 +329,25 @@ module expectedComma 'modulea.bicep' = [for (x)]
 
 module expectedIndexVarName 'modulea.bicep' = [for (x,)]
 
-module expectedInKeyword3 'modulea.bicep' = [for (x,y)]
+module expectedInKeyword3 'modulea.bicep' = [for (x, y)]
 
-module expectedArrayExpression2 'modulea.bicep' = [for (x,y) in ]
+module expectedArrayExpression2 'modulea.bicep' = [for (x, y) in ]
 
-module expectedColon2 'modulea.bicep' = [for (x,y) in z]
+module expectedColon2 'modulea.bicep' = [for (x, y) in z]
 
-module expectedLoopBody2 'modulea.bicep' = [for (x,y) in z:]
+module expectedLoopBody2 'modulea.bicep' = [for (x, y) in z:]
 
 // loop filter parsing cases
 module expectedLoopFilterOpenParen 'modulea.bicep' = [for x in y: if]
-module expectedLoopFilterOpenParen2 'modulea.bicep' = [for (x,y) in z: if]
+module expectedLoopFilterOpenParen2 'modulea.bicep' = [for (x, y) in z: if]
 
 module expectedLoopFilterPredicateAndBody 'modulea.bicep' = [for x in y: if()]
-module expectedLoopFilterPredicateAndBody2 'modulea.bicep' = [for (x,y) in z: if()]
+module expectedLoopFilterPredicateAndBody2 'modulea.bicep' = [for (x, y) in z: if()]
 
 // wrong loop body type
 var emptyArray = []
 module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
-module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
+module wrongLoopBodyType2 'modulea.bicep' = [for (x, i) in emptyArray:4]
 
 // missing loop body properties
 module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray: {
@@ -473,8 +473,8 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
 // module body that isn't an object
 module nonObjectModuleBody 'modulea.bicep' = [for thing in []: 'hello']
 module nonObjectModuleBody2 'modulea.bicep' = [for thing in []: concat()]
-module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
-module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
+module nonObjectModuleBody3 'modulea.bicep' = [for (thing, i) in []: 'hello']
+module nonObjectModuleBody4 'modulea.bicep' = [for (thing, i) in []: concat()]
 
 module anyTypeInScope 'empty.bicep' = {
   dependsOn: [

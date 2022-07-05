@@ -1216,7 +1216,7 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
 //@[051:0256) | └─ForSyntax
 //@[051:0052) | | ├─Token(LeftSquare) |[|
 //@[052:0055) | | ├─Token(Identifier) |for|
-//@[056:0067) | | ├─ForVariableBlockSyntax
+//@[056:0067) | | ├─VariableBlockSyntax
 //@[056:0057) | | | ├─Token(LeftParen) |(|
 //@[057:0063) | | | ├─LocalVariableSyntax
 //@[057:0063) | | | | └─IdentifierSyntax
@@ -2058,7 +2058,7 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[009:0045) | | | | | | | └─ForSyntax
 //@[009:0010) | | | | | | | | ├─Token(LeftSquare) |[|
 //@[010:0013) | | | | | | | | ├─Token(Identifier) |for|
-//@[014:0021) | | | | | | | | ├─ForVariableBlockSyntax
+//@[014:0021) | | | | | | | | ├─VariableBlockSyntax
 //@[014:0015) | | | | | | | | | ├─Token(LeftParen) |(|
 //@[015:0016) | | | | | | | | | ├─LocalVariableSyntax
 //@[015:0016) | | | | | | | | | | └─IdentifierSyntax
@@ -2100,7 +2100,7 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[009:0044) | | | | | | | └─ForSyntax
 //@[009:0010) | | | | | | | | ├─Token(LeftSquare) |[|
 //@[010:0013) | | | | | | | | ├─Token(Identifier) |for|
-//@[014:0021) | | | | | | | | ├─ForVariableBlockSyntax
+//@[014:0021) | | | | | | | | ├─VariableBlockSyntax
 //@[014:0015) | | | | | | | | | ├─Token(LeftParen) |(|
 //@[015:0016) | | | | | | | | | ├─LocalVariableSyntax
 //@[015:0016) | | | | | | | | | | └─IdentifierSyntax
@@ -2150,7 +2150,7 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[011:0046) | | | | | | | | | └─ForSyntax
 //@[011:0012) | | | | | | | | | | ├─Token(LeftSquare) |[|
 //@[012:0015) | | | | | | | | | | ├─Token(Identifier) |for|
-//@[016:0023) | | | | | | | | | | ├─ForVariableBlockSyntax
+//@[016:0023) | | | | | | | | | | ├─VariableBlockSyntax
 //@[016:0017) | | | | | | | | | | | ├─Token(LeftParen) |(|
 //@[017:0018) | | | | | | | | | | | ├─LocalVariableSyntax
 //@[017:0018) | | | | | | | | | | | | └─IdentifierSyntax
@@ -2195,7 +2195,7 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[009:0077) | | | | | | | └─ForSyntax
 //@[009:0010) | | | | | | | | ├─Token(LeftSquare) |[|
 //@[010:0013) | | | | | | | | ├─Token(Identifier) |for|
-//@[014:0021) | | | | | | | | ├─ForVariableBlockSyntax
+//@[014:0021) | | | | | | | | ├─VariableBlockSyntax
 //@[014:0015) | | | | | | | | | ├─Token(LeftParen) |(|
 //@[015:0016) | | | | | | | | | ├─LocalVariableSyntax
 //@[015:0016) | | | | | | | | | | └─IdentifierSyntax
@@ -3029,7 +3029,7 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 //@[055:0278) | └─ForSyntax
 //@[055:0056) | | ├─Token(LeftSquare) |[|
 //@[056:0059) | | ├─Token(Identifier) |for|
-//@[060:0071) | | ├─ForVariableBlockSyntax
+//@[060:0071) | | ├─VariableBlockSyntax
 //@[060:0061) | | | ├─Token(LeftParen) |(|
 //@[061:0067) | | | ├─LocalVariableSyntax
 //@[061:0067) | | | | └─IdentifierSyntax

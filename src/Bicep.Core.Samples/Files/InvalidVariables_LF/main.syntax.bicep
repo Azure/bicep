@@ -1258,7 +1258,7 @@ var runtimeLoop = [for (item, index) in []: indirection]
 //@[18:0056) | └─ForSyntax
 //@[18:0019) | | ├─Token(LeftSquare) |[|
 //@[19:0022) | | ├─Token(Identifier) |for|
-//@[23:0036) | | ├─ForVariableBlockSyntax
+//@[23:0036) | | ├─VariableBlockSyntax
 //@[23:0024) | | | ├─Token(LeftParen) |(|
 //@[24:0028) | | | ├─LocalVariableSyntax
 //@[24:0028) | | | | └─IdentifierSyntax
@@ -1287,7 +1287,7 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
 //@[19:0063) | └─ForSyntax
 //@[19:0020) | | ├─Token(LeftSquare) |[|
 //@[20:0023) | | ├─Token(Identifier) |for|
-//@[24:0037) | | ├─ForVariableBlockSyntax
+//@[24:0037) | | ├─VariableBlockSyntax
 //@[24:0025) | | | ├─Token(LeftParen) |(|
 //@[25:0029) | | | ├─LocalVariableSyntax
 //@[25:0029) | | | | └─IdentifierSyntax
@@ -1332,7 +1332,7 @@ resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneI
 //@[57:0143) | └─ForSyntax
 //@[57:0058) | | ├─Token(LeftSquare) |[|
 //@[58:0061) | | ├─Token(Identifier) |for|
-//@[62:0071) | | ├─ForVariableBlockSyntax
+//@[62:0071) | | ├─VariableBlockSyntax
 //@[62:0063) | | | ├─Token(LeftParen) |(|
 //@[63:0067) | | | ├─LocalVariableSyntax
 //@[63:0067) | | | | └─IdentifierSyntax
@@ -1415,7 +1415,7 @@ var runtimeLoop3 = [for (zone, i) in zoneInput: {
 //@[19:0073) | └─ForSyntax
 //@[19:0020) | | ├─Token(LeftSquare) |[|
 //@[20:0023) | | ├─Token(Identifier) |for|
-//@[24:0033) | | ├─ForVariableBlockSyntax
+//@[24:0033) | | ├─VariableBlockSyntax
 //@[24:0025) | | | ├─Token(LeftParen) |(|
 //@[25:0029) | | | ├─LocalVariableSyntax
 //@[25:0029) | | | | └─IdentifierSyntax
@@ -1456,7 +1456,7 @@ var runtimeLoop4 = [for (zone, i) in zones[0].properties.registrationVirtualNetw
 //@[19:0097) | └─ForSyntax
 //@[19:0020) | | ├─Token(LeftSquare) |[|
 //@[20:0023) | | ├─Token(Identifier) |for|
-//@[24:0033) | | ├─ForVariableBlockSyntax
+//@[24:0033) | | ├─VariableBlockSyntax
 //@[24:0025) | | | ├─Token(LeftParen) |(|
 //@[25:0029) | | | ├─LocalVariableSyntax
 //@[25:0029) | | | | └─IdentifierSyntax
@@ -1597,7 +1597,7 @@ var runtimeLoop5 = [for (item, index) in myRef: 's']
 //@[19:0052) | └─ForSyntax
 //@[19:0020) | | ├─Token(LeftSquare) |[|
 //@[20:0023) | | ├─Token(Identifier) |for|
-//@[24:0037) | | ├─ForVariableBlockSyntax
+//@[24:0037) | | ├─VariableBlockSyntax
 //@[24:0025) | | | ├─Token(LeftParen) |(|
 //@[25:0029) | | | ├─LocalVariableSyntax
 //@[25:0029) | | | | └─IdentifierSyntax

@@ -2230,7 +2230,7 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 //@[084:00250) | └─ForSyntax
 //@[084:00085) | | ├─Token(LeftSquare) |[|
 //@[085:00088) | | ├─Token(Identifier) |for|
-//@[089:00101) | | ├─ForVariableBlockSyntax
+//@[089:00101) | | ├─VariableBlockSyntax
 //@[089:00090) | | | ├─Token(LeftParen) |(|
 //@[090:00097) | | | ├─LocalVariableSyntax
 //@[090:00097) | | | | └─IdentifierSyntax
@@ -2938,7 +2938,7 @@ resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (loc
 //@[071:00196) | └─ForSyntax
 //@[071:00072) | | ├─Token(LeftSquare) |[|
 //@[072:00075) | | ├─Token(Identifier) |for|
-//@[076:00085) | | ├─ForVariableBlockSyntax
+//@[076:00085) | | ├─VariableBlockSyntax
 //@[076:00077) | | | ├─Token(LeftParen) |(|
 //@[077:00081) | | | ├─LocalVariableSyntax
 //@[077:00081) | | | | └─IdentifierSyntax

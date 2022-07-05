@@ -200,7 +200,7 @@ resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for (m
 //@[073:0319) | └─ForSyntax
 //@[073:0074) | | ├─Token(LeftSquare) |[|
 //@[074:0077) | | ├─Token(Identifier) |for|
-//@[078:0089) | | ├─ForVariableBlockSyntax
+//@[078:0089) | | ├─VariableBlockSyntax
 //@[078:0079) | | | ├─Token(LeftParen) |(|
 //@[079:0081) | | | ├─LocalVariableSyntax
 //@[079:0081) | | | | └─IdentifierSyntax

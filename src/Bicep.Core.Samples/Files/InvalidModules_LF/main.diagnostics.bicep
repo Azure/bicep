@@ -457,13 +457,13 @@ module expectedLoopBody 'modulea.bicep' = [for x in y:]
 
 // indexed loop parsing cases
 module expectedItemVarName 'modulea.bicep' = [for ()]
-//@[051:052) [BCP136 (Error)] Expected a loop item variable identifier at this location. (CodeDescription: none) |)|
+//@[050:052) [BCP247 (Error)] Expected loop variable block to consist of exactly 2 elements (item variable and index variable), but found 0. (CodeDescription: none) |()|
 
 module expectedComma 'modulea.bicep' = [for (x)]
-//@[046:047) [BCP018 (Error)] Expected the "," character at this location. (CodeDescription: none) |)|
+//@[044:047) [BCP247 (Error)] Expected loop variable block to consist of exactly 2 elements (item variable and index variable), but found 1. (CodeDescription: none) |(x)|
 
 module expectedIndexVarName 'modulea.bicep' = [for (x,)]
-//@[054:055) [BCP163 (Error)] Expected a loop index variable identifier at this location. (CodeDescription: none) |)|
+//@[051:055) [BCP247 (Error)] Expected loop variable block to consist of exactly 2 elements (item variable and index variable), but found 1. (CodeDescription: none) |(x,)|
 
 module expectedInKeyword3 'modulea.bicep' = [for (x,y)]
 //@[054:055) [BCP012 (Error)] Expected the "in" keyword at this location. (CodeDescription: none) |]|
