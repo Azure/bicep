@@ -15,6 +15,7 @@ using Bicep.VSLanguageServerClient.ProcessLauncher;
 using Bicep.VSLanguageServerClient.ProcessTracker;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Setup.Configuration;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
 using StreamJsonRpc;
@@ -54,13 +55,16 @@ namespace Bicep.VSLanguageServerClient
         public event AsyncEventHandler<EventArgs>? StopAsync;
 #pragma warning restore 0067
 
-        public Task<Connection?> ActivateAsync(CancellationToken token)
+        public async Task<Connection?> ActivateAsync(CancellationToken token)
         {
             string vsixInstallPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string languageServerExePath = Path.Combine(vsixInstallPath, "Bicep.LangServer.exe");
 
+            
             var launchServerArguments = $" --contentType {BicepContentTypeDefinition.ContentType}" +
                 $" --lcid {Thread.CurrentThread.CurrentUICulture.LCID}";
+
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             _process = ClientProcessLauncher.CreateClientProcess(languageServerExePath, launchServerArguments, null, null);
 
@@ -71,7 +75,7 @@ namespace Bicep.VSLanguageServerClient
             Connection connection = new Connection(_process.StandardOutput.BaseStream,
                                                    _process.StandardInput.BaseStream);
 
-            return Task.FromResult<Connection?>(connection);
+            return connection;
         }
 
         public async Task OnLoadedAsync()

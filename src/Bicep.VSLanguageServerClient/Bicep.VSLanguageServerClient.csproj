@@ -9,6 +9,7 @@
 	<PackageReference Include="Microsoft.VisualStudio.LanguageServer.Client" Version="17.2.2105" PrivateAssets="all" />
 	<PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol" Version="17.1.8" PrivateAssets="all" />
 	<PackageReference Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="3.2.2146" PrivateAssets="all" />
+	<PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.2.32505.113" PrivateAssets="all" />
 	<PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.2.32" PrivateAssets="all" />
 	<PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.2.32505.113" PrivateAssets="all" />
 	<PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.5" PrivateAssets="all" />

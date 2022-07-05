@@ -1,8 +1,32 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
 		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="TestSolution\**\*" />
+		<None Remove="TestSolution\**\*" />
+		<Content Remove="TestSolution\**\*" />
+	</ItemGroup>
+	<ItemGroup>
+		<Content Include="TestSolution\**\*">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" ExcludeAssets="all" />
+		<PackageReference Include="Microsoft.Test.Apex.VisualStudio" Version="17.3.32628.68" PrivateAssets="all" />
+		<PackageReference Include="MSTest.TestAdapter" Version="2.1.2" ExcludeAssets="all" />
+		<PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
+		<PackageReference Include="Microsoft.VisualStudio.Settings.15.0" Version="17.2.32505.113" ExcludeAssets="all" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<!-- other property settings -->
+		<ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
 	</PropertyGroup>
 	
 </Project>
