@@ -30,6 +30,8 @@ namespace Bicep.Core.Registry
         /// <summary>
         /// Attempts to parse the specified unqualified reference or returns a failure builder.
         /// </summary>
+        /// <param name="aliasName">The alias name</param>
+        /// <param name="configuration">The root configuration</param>
         /// <param name="reference">The unqualified module reference</param>
         /// <param name="failureBuilder">set to an error builder if parsing fails when null is returned</param>
         ModuleReference? TryParseModuleReference(string? aliasName, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);

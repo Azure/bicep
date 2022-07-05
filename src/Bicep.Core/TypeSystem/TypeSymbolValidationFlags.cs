@@ -34,5 +34,15 @@ namespace Bicep.Core.TypeSystem
         /// Allows assigning a secret reference
         /// </summary>
         IsSecure = 1 << 3,
+
+        /// <summary>
+        /// Indicates that this type will be a String file path and we should offer completions for it
+        /// </summary>
+        IsStringFilePath = 1 << 4,
+
+        /// <summary>
+        /// Indicates that this type will be a String file path to a JSON file and we should offer completions for it where files wih .json extension are prioritised
+        /// </summary>
+        IsStringJsonFilePath = 1 << 5,
     }
 }

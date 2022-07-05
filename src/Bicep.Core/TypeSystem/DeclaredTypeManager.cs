@@ -78,15 +78,14 @@ namespace Bicep.Core.TypeSystem
                 case ArrayAccessSyntax arrayAccess:
                     return GetArrayAccessType(arrayAccess);
 
-                case VariableDeclarationSyntax variable:
-                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(variable.Value), variable);
-
                 case LocalVariableSyntax localVariable:
                     return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(localVariable), localVariable);
 
-                case FunctionCallSyntax _:
-                case InstanceFunctionCallSyntax _:
-                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(syntax), declaringSyntax: null);
+                case FunctionCallSyntax functionCall:
+                    return GetFunctionType(functionCall);
+
+                case InstanceFunctionCallSyntax instanceFunctionCall:
+                    return GetFunctionType(instanceFunctionCall);
 
                 case ArraySyntax array:
                     return GetArrayType(array);
@@ -105,6 +104,9 @@ namespace Bicep.Core.TypeSystem
 
                 case FunctionArgumentSyntax functionArgument:
                     return GetFunctionArgumentType(functionArgument);
+
+                case ParenthesizedExpressionSyntax parenthesizedExpression:
+                    return GetTypeAssignment(parenthesizedExpression.Expression);
             }
 
             return null;
@@ -194,6 +196,10 @@ namespace Bicep.Core.TypeSystem
                     // the declared type of the module/loop/if body is more useful to us than the declared type of the module itself
                     var innerModuleBody = moduleSymbol.DeclaringModule.Value;
                     return this.GetDeclaredTypeAssignment(innerModuleBody);
+
+                case VariableSymbol variableSymbol when IsCycleFree(variableSymbol):
+                    var variableType = this.typeManager.GetTypeInfo(variableSymbol.DeclaringVariable.Value);
+                    return new DeclaredTypeAssignment(variableType, variableSymbol.DeclaringVariable);
 
                 case DeclaredSymbol declaredSymbol when IsCycleFree(declaredSymbol):
                     // the syntax node is referencing a declared symbol
@@ -363,6 +369,11 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
+        private DeclaredTypeAssignment? GetFunctionType(FunctionCallSyntaxBase syntax)
+        {
+            return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(syntax), declaringSyntax: null);
+        }
+
         private DeclaredTypeAssignment? GetFunctionArgumentType(FunctionArgumentSyntax syntax)
         {
             var parent = this.binder.GetParent(syntax);
@@ -374,7 +385,9 @@ namespace Bicep.Core.TypeSystem
 
             var arguments = parentFunction.Arguments.ToImmutableArray();
             var argIndex = arguments.IndexOf(syntax);
-            var declaredType = functionSymbol.GetDeclaredArgumentType(argIndex);
+            var declaredType = functionSymbol.GetDeclaredArgumentType(
+                argIndex,
+                getAssignedArgumentType: i => typeManager.GetTypeInfo(parentFunction.Arguments[i]));
 
             return new DeclaredTypeAssignment(declaredType, declaringSyntax: null);
         }

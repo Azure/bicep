@@ -10,6 +10,10 @@ namespace Bicep.Core.Semantics
 {
     public class FunctionOverloadBuilder
     {
+        public delegate TypeSymbol GetFunctionArgumentType(int argIndex);
+
+        public delegate TypeSymbol? FunctionArgumentTypeCalculator(GetFunctionArgumentType getArgumentTypeFunc);
+
         public FunctionOverloadBuilder(string name)
         {
             Name = name;
@@ -91,21 +95,21 @@ namespace Bicep.Core.Semantics
             return this;
         }
 
-        public FunctionOverloadBuilder WithRequiredParameter(string name, TypeSymbol type, string description)
+        public FunctionOverloadBuilder WithRequiredParameter(string name, TypeSymbol type, string description, FunctionArgumentTypeCalculator? calculator = null)
         {
-            FixedParameters.Add(new FixedFunctionParameter(name, description, type, required: true));
+            FixedParameters.Add(new FixedFunctionParameter(name, description, type, Required: true, Calculator: calculator));
             return this;
         }
 
-        public FunctionOverloadBuilder WithOptionalParameter(string name, TypeSymbol type, string description)
+        public FunctionOverloadBuilder WithOptionalParameter(string name, TypeSymbol type, string description, FunctionArgumentTypeCalculator? calculator = null)
         {
-            FixedParameters.Add(new FixedFunctionParameter(name, description, type, required: false));
+            FixedParameters.Add(new FixedFunctionParameter(name, description, type, Required: false, Calculator: calculator));
             return this;
         }
 
         public FunctionOverloadBuilder WithVariableParameter(string namePrefix, TypeSymbol type, int minimumCount, string description)
         {
-            VariableParameter = new VariableFunctionParameter(namePrefix, description, type, minimumCount);
+            VariableParameter = new(namePrefix, description, type, minimumCount);
             return this;
         }
 
