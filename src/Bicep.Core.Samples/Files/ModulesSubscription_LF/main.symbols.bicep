@@ -3,7 +3,7 @@ targetScope = 'subscription'
 param prefix string = 'majastrz'
 //@[06:12) Parameter prefix. Type: string. Declaration start char: 0, length: 32
 var groups = [
-//@[04:10) Variable groups. Type: string[]. Declaration start char: 0, length: 60
+//@[04:10) Variable groups. Type: ('bicep1' | 'bicep2' | 'bicep3' | 'bicep4')[]. Declaration start char: 0, length: 60
   'bicep1'
   'bicep2'
   'bicep3'
@@ -14,7 +14,7 @@ var scripts = take(groups, 2)
 //@[04:11) Variable scripts. Type: array. Declaration start char: 0, length: 29
 
 resource resourceGroups 'Microsoft.Resources/resourceGroups@2020-06-01' = [for name in groups: {
-//@[79:83) Local name. Type: string. Declaration start char: 79, length: 4
+//@[79:83) Local name. Type: 'bicep1' | 'bicep2' | 'bicep3' | 'bicep4'. Declaration start char: 79, length: 4
 //@[09:23) Resource resourceGroups. Type: Microsoft.Resources/resourceGroups@2020-06-01[]. Declaration start char: 0, length: 148
   name: '${prefix}-${name}'
   location: 'westus'

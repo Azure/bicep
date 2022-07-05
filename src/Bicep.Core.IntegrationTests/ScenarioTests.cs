@@ -3686,6 +3686,93 @@ var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
         }
 
         /// <summary>
+        /// https://github.com/Azure/bicep/issues/7482
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue7482()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+module optionModuleLoop 'module.bicep' = [for item in ['option:a','option:b']: {
+  name: 'myOptionModule-${uniqueString(item)}'
+  params: {
+    option: item
+  }
+}]
+"),
+                ("module.bicep", @"
+@allowed(['option:a','option:b', 'option:c', 'option:d'])
+param option string
+
+var optionsLUT = {
+  'option:a': {
+    text: 'Option A'
+    value: 'a'
+  }
+  'option:b': {
+    text: 'Option B'
+    value: 'b'
+  }
+  'option:c': {
+    text: 'Option C'
+    value: 'c'
+  }
+}
+
+var optionType = optionsLUT[option]
+
+output optionTypeText string = optionType.text
+output optionTypeValue string = optionType.value
+")).ExcludingLinterDiagnostics();
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/7482
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue7482_alternative()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+var options = ['option:a','option:b']
+module optionModuleLoop 'module.bicep' = [for item in options: {
+  name: 'myOptionModule-${uniqueString(item)}'
+  params: {
+    option: item
+  }
+}]
+"),
+                ("module.bicep", @"
+@allowed(['option:a','option:b', 'option:c', 'option:d'])
+param option string
+
+var optionsLUT = {
+  'option:a': {
+    text: 'Option A'
+    value: 'a'
+  }
+  'option:b': {
+    text: 'Option B'
+    value: 'b'
+  }
+  'option:c': {
+    text: 'Option C'
+    value: 'c'
+  }
+}
+
+var optionType = optionsLUT[option]
+
+output optionTypeText string = optionType.text
+output optionTypeValue string = optionType.value
+")).ExcludingLinterDiagnostics();
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        /// <summary>
         /// https://github.com/Azure/bicep/issues/6477
         /// </summary>
         [TestMethod]

@@ -239,7 +239,7 @@ module singleModule 'passthrough.bicep' = {
 }
 
 var moduleSetup = [
-//@[004:015) Variable moduleSetup. Type: string[]. Declaration start char: 0, length: 47
+//@[004:015) Variable moduleSetup. Type: ('one' | 'three' | 'two')[]. Declaration start char: 0, length: 47
   'one'
   'two'
   'three'
@@ -248,7 +248,7 @@ var moduleSetup = [
 // module collection plus explicit dependency on single module
 @sys.batchSize(3)
 module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for (moduleName, moduleIndex) in moduleSetup: {
-//@[072:082) Local moduleName. Type: string. Declaration start char: 72, length: 10
+//@[072:082) Local moduleName. Type: 'one' | 'three' | 'two'. Declaration start char: 72, length: 10
 //@[084:095) Local moduleIndex. Type: int. Declaration start char: 84, length: 11
 //@[007:043) Module moduleCollectionWithSingleDependency. Type: module[]. Declaration start char: 0, length: 293
   name: concat(moduleName, moduleIndex)
@@ -263,7 +263,7 @@ module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for (moduleNa
 
 // another module collection with dependency on another module collection
 module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [for (moduleName, moduleIndex) in moduleSetup: {
-//@[078:088) Local moduleName. Type: string. Declaration start char: 78, length: 10
+//@[078:088) Local moduleName. Type: 'one' | 'three' | 'two'. Declaration start char: 78, length: 10
 //@[090:101) Local moduleIndex. Type: int. Declaration start char: 90, length: 11
 //@[007:049) Module moduleCollectionWithCollectionDependencies. Type: module[]. Declaration start char: 0, length: 306
   name: concat(moduleName, moduleIndex)
@@ -288,7 +288,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 }
 
 module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for (moduleName, moduleIndex) in moduleSetup: {
-//@[075:085) Local moduleName. Type: string. Declaration start char: 75, length: 10
+//@[075:085) Local moduleName. Type: 'one' | 'three' | 'two'. Declaration start char: 75, length: 10
 //@[087:098) Local moduleIndex. Type: int. Declaration start char: 87, length: 11
 //@[007:046) Module moduleCollectionWithIndexedDependencies. Type: module[]. Declaration start char: 0, length: 399
   name: concat(moduleName, moduleIndex)
@@ -347,13 +347,13 @@ resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [fo
 }]
 
 var regions = [
-//@[004:011) Variable regions. Type: string[]. Declaration start char: 0, length: 39
+//@[004:011) Variable regions. Type: ('eastus' | 'westus')[]. Declaration start char: 0, length: 39
   'eastus'
   'westus'
 ]
 
 module apim 'passthrough.bicep' = [for (region, i) in regions: {
-//@[040:046) Local region. Type: string. Declaration start char: 40, length: 6
+//@[040:046) Local region. Type: 'eastus' | 'westus'. Declaration start char: 40, length: 6
 //@[048:049) Local i. Type: int. Declaration start char: 48, length: 1
 //@[007:011) Module apim. Type: module[]. Declaration start char: 0, length: 141
   name: 'apim-${region}-${name}-${i}'
