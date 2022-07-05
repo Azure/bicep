@@ -232,7 +232,7 @@ module singleModule 'passthrough.bicep' = {
 }
 
 var moduleSetup = [
-//@[04:015) Variable moduleSetup. Type: string[]. Declaration start char: 0, length: 47
+//@[04:015) Variable moduleSetup. Type: ('one' | 'three' | 'two')[]. Declaration start char: 0, length: 47
   'one'
   'two'
   'three'
@@ -241,7 +241,7 @@ var moduleSetup = [
 // module collection plus explicit dependency on single module
 @sys.batchSize(3)
 module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for moduleName in moduleSetup: {
-//@[71:081) Local moduleName. Type: string. Declaration start char: 71, length: 10
+//@[71:081) Local moduleName. Type: 'one' | 'three' | 'two'. Declaration start char: 71, length: 10
 //@[07:043) Module moduleCollectionWithSingleDependency. Type: module[]. Declaration start char: 0, length: 242
   name: moduleName
   params: {
@@ -255,7 +255,7 @@ module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for moduleNam
 
 // another module collection with dependency on another module collection
 module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [for moduleName in moduleSetup: {
-//@[77:087) Local moduleName. Type: string. Declaration start char: 77, length: 10
+//@[77:087) Local moduleName. Type: 'one' | 'three' | 'two'. Declaration start char: 77, length: 10
 //@[07:049) Module moduleCollectionWithCollectionDependencies. Type: module[]. Declaration start char: 0, length: 255
   name: moduleName
   params: {
@@ -279,7 +279,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 }
 
 module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for moduleName in moduleSetup: {
-//@[74:084) Local moduleName. Type: string. Declaration start char: 74, length: 10
+//@[74:084) Local moduleName. Type: 'one' | 'three' | 'two'. Declaration start char: 74, length: 10
 //@[07:046) Module moduleCollectionWithIndexedDependencies. Type: module[]. Declaration start char: 0, length: 346
   name: moduleName
   params: {
@@ -334,13 +334,13 @@ resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [fo
 }]
 
 var regions = [
-//@[04:011) Variable regions. Type: string[]. Declaration start char: 0, length: 39
+//@[04:011) Variable regions. Type: ('eastus' | 'westus')[]. Declaration start char: 0, length: 39
   'eastus'
   'westus'
 ]
 
 module apim 'passthrough.bicep' = [for region in regions: {
-//@[39:045) Local region. Type: string. Declaration start char: 39, length: 6
+//@[39:045) Local region. Type: 'eastus' | 'westus'. Declaration start char: 39, length: 6
 //@[07:011) Module apim. Type: module[]. Declaration start char: 0, length: 131
   name: 'apim-${region}-${name}'
   params: {
