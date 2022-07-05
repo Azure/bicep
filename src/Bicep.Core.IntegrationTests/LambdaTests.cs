@@ -148,10 +148,10 @@ var fo|o2 = map(['abc', 'def'], a|bc => length(abc))
             var info = result.GetInfoAtCursors(cursors);
 
             info.Should().SatisfyRespectively(
-                x => x.Type.Name.Should().Be("string[]"),
-                x => x.Type.Name.Should().Be("string"),
+                x => x.Type.Name.Should().Be("('abc' | 'def')[]"),
+                x => x.Type.Name.Should().Be("'abc' | 'def'"),
                 x => x.Type.Name.Should().Be("int[]"),
-                x => x.Type.Name.Should().Be("string"));
+                x => x.Type.Name.Should().Be("'abc' | 'def'"));
         }
 
         [TestMethod]
@@ -227,8 +227,8 @@ var fo|o2 = filter(['abc', 'def'], a|bc => abc == '123')
             info.Should().SatisfyRespectively(
                 x => x.Type.Name.Should().Be("int[]"),
                 x => x.Type.Name.Should().Be("int"),
-                x => x.Type.Name.Should().Be("string[]"),
-                x => x.Type.Name.Should().Be("string"));
+                x => x.Type.Name.Should().Be("('abc' | 'def')[]"),
+                x => x.Type.Name.Should().Be("'abc' | 'def'"));
         }
 
         [TestMethod]
@@ -246,8 +246,8 @@ var fo|o2 = sort(['bar', 'foo'], (abc, def) => abc < d|ef)
             info.Should().SatisfyRespectively(
                 x => x.Type.Name.Should().Be("int[]"),
                 x => x.Type.Name.Should().Be("int"),
-                x => x.Type.Name.Should().Be("string[]"),
-                x => x.Type.Name.Should().Be("string"));
+                x => x.Type.Name.Should().Be("('bar' | 'foo')[]"),
+                x => x.Type.Name.Should().Be("'bar' | 'foo'"));
         }
 
         [TestMethod]
@@ -266,7 +266,7 @@ var fo|o2 = reduce(['abc', 'def'], '', (cur, nex|t) => concat(cur, next))
                 x => x.Type.Name.Should().Be("int"),
                 x => x.Type.Name.Should().Be("int"),
                 x => x.Type.Name.Should().Be("string"),
-                x => x.Type.Name.Should().Be("string"));
+                x => x.Type.Name.Should().Be("'abc' | 'def'"));
         }
 
         [TestMethod]
