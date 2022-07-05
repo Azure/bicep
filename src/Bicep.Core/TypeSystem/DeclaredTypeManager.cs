@@ -104,6 +104,9 @@ namespace Bicep.Core.TypeSystem
 
                 case FunctionArgumentSyntax functionArgument:
                     return GetFunctionArgumentType(functionArgument);
+
+                case ParenthesizedExpressionSyntax parenthesizedExpression:
+                    return GetTypeAssignment(parenthesizedExpression.Expression);
             }
 
             return null;
