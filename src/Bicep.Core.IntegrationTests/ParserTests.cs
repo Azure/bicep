@@ -13,6 +13,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
+using System.Text;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -60,25 +61,41 @@ namespace Bicep.Core.IntegrationTests
             var syntaxList = SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.Build(program);
             var syntaxByParent = syntaxList.ToLookup(x => x.Parent);
 
-            string getLoggingString(SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem data)
+            static IEnumerable<SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem> getAncestors(SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem data)
+            {
+                while (data.Parent is {} parent)
+                {
+                    yield return parent;
+                    data = parent;
+                }
+            }
+
+            string getLoggingString(SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem syntax)
             {
                 // Build a visual graph with lines to help understand the syntax hierarchy
-                var graphPrefix = "";
-                if (data.Depth > 0)
-                {
-                    var lastSibling = syntaxByParent[data.Parent].Last();
-                    var isLast = data.Syntax == lastSibling.Syntax;
+                var graphPrefix = new StringBuilder();
 
-                    graphPrefix = string.Concat(Enumerable.Repeat("| ", data.Depth - 1));
-                    graphPrefix += isLast switch {
-                        true => "└─",
-                        _ => "├─",
-                    };
+                foreach (var ancestor in getAncestors(syntax).Reverse().Skip(1))
+                {
+                    var isLast = (ancestor.Depth > 0 && ancestor == syntaxByParent[ancestor.Parent].Last());
+                    graphPrefix.Append(isLast switch {
+                        true => "  ",
+                        _ => "| ",
+                    });
                 }
 
-                return data.Syntax switch {
+                if (syntax.Depth > 0)
+                {
+                    var isLast = syntax == syntaxByParent[syntax.Parent].Last();
+                    graphPrefix.Append(isLast switch {
+                        true => "└─",
+                        _ => "├─",
+                    });
+                }
+
+                return syntax.Syntax switch {
                     Token token => $"{graphPrefix}Token({token.Type}) |{OutputHelper.EscapeWhitespace(token.Text)}|",
-                    _ => $"{graphPrefix}{data.Syntax.GetType().Name}",
+                    _ => $"{graphPrefix}{syntax.Syntax.GetType().Name}",
                 };
             }
 

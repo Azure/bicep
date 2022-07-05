@@ -10,10 +10,10 @@ namespace Bicep.Core.IntegrationTests
     {
         public class SyntaxCollectorVisitor : SyntaxVisitor
         {
-            public record SyntaxItem(SyntaxBase Syntax, SyntaxBase? Parent, int Depth);
+            public record SyntaxItem(SyntaxBase Syntax, SyntaxItem? Parent, int Depth);
 
             private readonly IList<SyntaxItem> syntaxList = new List<SyntaxItem>();
-            private SyntaxBase? parent = null;
+            private SyntaxItem? parent = null;
             private int depth = 0;
 
             private SyntaxCollectorVisitor()
@@ -30,10 +30,11 @@ namespace Bicep.Core.IntegrationTests
 
             protected override void VisitInternal(SyntaxBase syntax)
             {
-                syntaxList.Add(new(Syntax: syntax, Parent: parent, Depth: depth));
+                var syntaxItem = new SyntaxItem(Syntax: syntax, Parent: parent, Depth: depth);
+                syntaxList.Add(syntaxItem);
 
                 var prevParent = parent;
-                parent = syntax;
+                parent = syntaxItem;
                 depth++;
                 base.VisitInternal(syntax);
                 depth--;

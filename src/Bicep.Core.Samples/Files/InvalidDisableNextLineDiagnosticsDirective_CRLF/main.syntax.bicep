@@ -9,9 +9,9 @@ param storageAccount1 string = 'testStorageAccount'
 //@[22:028) | ├─SimpleTypeSyntax
 //@[22:028) | | └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax
-//@[29:030) | | ├─Token(Assignment) |=|
-//@[31:051) | | └─StringSyntax
-//@[31:051) | | | └─Token(StringComplete) |'testStorageAccount'|
+//@[29:030) |   ├─Token(Assignment) |=|
+//@[31:051) |   └─StringSyntax
+//@[31:051) |     └─Token(StringComplete) |'testStorageAccount'|
 //@[51:055) ├─Token(NewLine) |\r\n\r\n|
 
 #  disable-next-line  no-unused-params
@@ -36,9 +36,9 @@ param storageAccount2 string = 'testStorageAccount'
 //@[22:028) | ├─SimpleTypeSyntax
 //@[22:028) | | └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax
-//@[29:030) | | ├─Token(Assignment) |=|
-//@[31:051) | | └─StringSyntax
-//@[31:051) | | | └─Token(StringComplete) |'testStorageAccount'|
+//@[29:030) |   ├─Token(Assignment) |=|
+//@[31:051) |   └─StringSyntax
+//@[31:051) |     └─Token(StringComplete) |'testStorageAccount'|
 //@[51:055) ├─Token(NewLine) |\r\n\r\n|
 
 /* comment before */#disable-next-line no-unused-params
@@ -63,9 +63,9 @@ param storageAccount3 string = 'testStorageAccount'
 //@[22:028) | ├─SimpleTypeSyntax
 //@[22:028) | | └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax
-//@[29:030) | | ├─Token(Assignment) |=|
-//@[31:051) | | └─StringSyntax
-//@[31:051) | | | └─Token(StringComplete) |'testStorageAccount'|
+//@[29:030) |   ├─Token(Assignment) |=|
+//@[31:051) |   └─StringSyntax
+//@[31:051) |     └─Token(StringComplete) |'testStorageAccount'|
 //@[51:055) ├─Token(NewLine) |\r\n\r\n|
 
 #disable-next-line/* comment between */ no-unused-params
@@ -85,9 +85,9 @@ param storageAccount4 string = 'testStorageAccount'
 //@[22:028) | ├─SimpleTypeSyntax
 //@[22:028) | | └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax
-//@[29:030) | | ├─Token(Assignment) |=|
-//@[31:051) | | └─StringSyntax
-//@[31:051) | | | └─Token(StringComplete) |'testStorageAccount'|
+//@[29:030) |   ├─Token(Assignment) |=|
+//@[31:051) |   └─StringSyntax
+//@[31:051) |     └─Token(StringComplete) |'testStorageAccount'|
 //@[51:055) ├─Token(NewLine) |\r\n\r\n|
 
 //#disable-next-line no-unused-params
@@ -100,9 +100,9 @@ param storageAccount5 string = 'testStorageAccount'
 //@[22:028) | ├─SimpleTypeSyntax
 //@[22:028) | | └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax
-//@[29:030) | | ├─Token(Assignment) |=|
-//@[31:051) | | └─StringSyntax
-//@[31:051) | | | └─Token(StringComplete) |'testStorageAccount'|
+//@[29:030) |   ├─Token(Assignment) |=|
+//@[31:051) |   └─StringSyntax
+//@[31:051) |     └─Token(StringComplete) |'testStorageAccount'|
 //@[51:055) ├─Token(NewLine) |\r\n\r\n|
 
 #disable-next-line 
@@ -123,9 +123,9 @@ param storageAccount6 string = 'testStorageAccount'
 //@[22:028) | ├─SimpleTypeSyntax
 //@[22:028) | | └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax
-//@[29:030) | | ├─Token(Assignment) |=|
-//@[31:051) | | └─StringSyntax
-//@[31:051) | | | └─Token(StringComplete) |'testStorageAccount'|
+//@[29:030) |   ├─Token(Assignment) |=|
+//@[31:051) |   └─StringSyntax
+//@[31:051) |     └─Token(StringComplete) |'testStorageAccount'|
 //@[51:055) ├─Token(NewLine) |\r\n\r\n|
 
 #madeup-directive
@@ -143,9 +143,9 @@ param storageAccount7 string = 'testStorageAccount'
 //@[22:028) | ├─SimpleTypeSyntax
 //@[22:028) | | └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax
-//@[29:030) | | ├─Token(Assignment) |=|
-//@[31:051) | | └─StringSyntax
-//@[31:051) | | | └─Token(StringComplete) |'testStorageAccount'|
+//@[29:030) |   ├─Token(Assignment) |=|
+//@[31:051) |   └─StringSyntax
+//@[31:051) |     └─Token(StringComplete) |'testStorageAccount'|
 //@[51:055) ├─Token(NewLine) |\r\n\r\n|
 
 var terminatedWithDirective = 'foo' #disable-next-line no-unused-params
@@ -155,7 +155,7 @@ var terminatedWithDirective = 'foo' #disable-next-line no-unused-params
 //@[04:027) | | └─Token(Identifier) |terminatedWithDirective|
 //@[28:029) | ├─Token(Assignment) |=|
 //@[30:035) | └─StringSyntax
-//@[30:035) | | └─Token(StringComplete) |'foo'|
+//@[30:035) |   └─Token(StringComplete) |'foo'|
 //@[36:073) ├─SkippedTriviaSyntax
 //@[36:037) | ├─Token(Unrecognized) |#|
 //@[37:044) | ├─Token(Identifier) |disable|
@@ -177,7 +177,7 @@ param storageAccount8 string = 'testStorageAccount'
 //@[22:028) | ├─SimpleTypeSyntax
 //@[22:028) | | └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax
-//@[29:030) | | ├─Token(Assignment) |=|
-//@[31:051) | | └─StringSyntax
-//@[31:051) | | | └─Token(StringComplete) |'testStorageAccount'|
+//@[29:030) |   ├─Token(Assignment) |=|
+//@[31:051) |   └─StringSyntax
+//@[31:051) |     └─Token(StringComplete) |'testStorageAccount'|
 //@[51:051) └─Token(EndOfFile) ||
