@@ -3748,5 +3748,28 @@ resource storageAccountName_resource 'Microsoft.Storage/storageAccounts@2021-04-
             result.Template.Should().HaveValueAtPath("$.resources[1].type", "Microsoft.Storage/storageAccounts");
             result.Template.Should().NotHaveValueAtPath("$.resources[1].dependsOn");
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/7455
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue7455()
+        {
+            var result = CompilationHelper.Compile(@"
+var test1  = {
+  'tata':'loco'
+}
+
+var test2 = {
+  'tata':'cola'
+}
+
+param useFirst bool = true
+
+var value = (useFirst ? test1 : test2).tata
+").ExcludingLinterDiagnostics();
+
+            result.Should().NotHaveAnyDiagnostics();
+       }
     }
 }
