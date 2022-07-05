@@ -461,6 +461,16 @@
                       "$ref": "#/definitions/rule-def-error-level"
                     }
                   ]
+                },
+                "use-stable-resource-identifiers": {
+                  "allOf": [
+                    {
+                      "description": "Resources identifiers should be reproducible outside of their initial deployment context. See https://aka.ms/bicep/linter/use-stable-resource-identifiers"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
                 }
               }
             }
