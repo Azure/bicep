@@ -1,5 +1,5 @@
 resource basicParent 'My.Rp/parentType@2020-12-01' = {
-//@[9:20) Resource basicParent. Type: My.Rp/parentType@2020-12-01. Declaration start char: 0, length: 659
+//@[09:20) Resource basicParent. Type: My.Rp/parentType@2020-12-01. Declaration start char: 0, length: 659
   name: 'basicParent'
   properties: {
     size: 'large'
@@ -34,13 +34,13 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
 }
 // #completionTest(50) -> childResources
 output referenceBasicChild string = basicParent::basicChild.properties.size
-//@[7:26) Output referenceBasicChild. Type: string. Declaration start char: 0, length: 75
+//@[07:26) Output referenceBasicChild. Type: string. Declaration start char: 0, length: 75
 // #completionTest(67) -> grandChildResources
 output referenceBasicGrandchild string = basicParent::basicChild::basicGrandchild.properties.style
-//@[7:31) Output referenceBasicGrandchild. Type: string. Declaration start char: 0, length: 98
+//@[07:31) Output referenceBasicGrandchild. Type: string. Declaration start char: 0, length: 98
 
 resource existingParent 'My.Rp/parentType@2020-12-01' existing = {
-//@[9:23) Resource existingParent. Type: My.Rp/parentType@2020-12-01. Declaration start char: 0, length: 386
+//@[09:23) Resource existingParent. Type: My.Rp/parentType@2020-12-01. Declaration start char: 0, length: 386
   name: 'existingParent'
 
   resource existingChild 'childType' existing = {
@@ -59,13 +59,13 @@ resource existingParent 'My.Rp/parentType@2020-12-01' existing = {
 }
 
 param createParent bool
-//@[6:18) Parameter createParent. Type: bool. Declaration start char: 0, length: 23
+//@[06:18) Parameter createParent. Type: bool. Declaration start char: 0, length: 23
 param createChild bool
-//@[6:17) Parameter createChild. Type: bool. Declaration start char: 0, length: 22
+//@[06:17) Parameter createChild. Type: bool. Declaration start char: 0, length: 22
 param createGrandchild bool
-//@[6:22) Parameter createGrandchild. Type: bool. Declaration start char: 0, length: 27
+//@[06:22) Parameter createGrandchild. Type: bool. Declaration start char: 0, length: 27
 resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
-//@[9:24) Resource conditionParent. Type: My.Rp/parentType@2020-12-01. Declaration start char: 0, length: 433
+//@[09:24) Resource conditionParent. Type: My.Rp/parentType@2020-12-01. Declaration start char: 0, length: 433
   name: 'conditionParent'
 
   resource conditionChild 'childType' = if (createChild) {
@@ -84,20 +84,20 @@ resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
 }
 
 var items = [
-//@[4:9) Variable items. Type: array. Declaration start char: 0, length: 27
+//@[04:09) Variable items. Type: string[]. Declaration start char: 0, length: 27
   'a'
   'b'
 ]
 resource loopParent 'My.Rp/parentType@2020-12-01' = {
-//@[9:19) Resource loopParent. Type: My.Rp/parentType@2020-12-01. Declaration start char: 0, length: 161
+//@[09:19) Resource loopParent. Type: My.Rp/parentType@2020-12-01. Declaration start char: 0, length: 161
   name: 'loopParent'
 
   resource loopChild 'childType' = [for item in items: {
-//@[40:44) Local item. Type: any. Declaration start char: 40, length: 4
+//@[40:44) Local item. Type: string. Declaration start char: 40, length: 4
 //@[11:20) Resource loopChild. Type: My.Rp/parentType/childType@2020-12-01[]. Declaration start char: 2, length: 81
     name: 'loopChild'
   }]
 }
 
 output loopChildOutput string = loopParent::loopChild[0].name
-//@[7:22) Output loopChildOutput. Type: string. Declaration start char: 0, length: 61
+//@[07:22) Output loopChildOutput. Type: string. Declaration start char: 0, length: 61

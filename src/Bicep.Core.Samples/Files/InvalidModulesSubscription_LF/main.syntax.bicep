@@ -1,389 +1,390 @@
 targetScope = 'subscription'
-//@[0:28) TargetScopeSyntax
-//@[0:11)  Identifier |targetScope|
-//@[12:13)  Assignment |=|
-//@[14:28)  StringSyntax
-//@[14:28)   StringComplete |'subscription'|
-//@[28:30) NewLine |\n\n|
+//@[00:1524) ProgramSyntax
+//@[00:0028) ├─TargetScopeSyntax
+//@[00:0011) | ├─Token(Identifier) |targetScope|
+//@[12:0013) | ├─Token(Assignment) |=|
+//@[14:0028) | └─StringSyntax
+//@[14:0028) |   └─Token(StringComplete) |'subscription'|
+//@[28:0030) ├─Token(NewLine) |\n\n|
 
 module subscriptionModuleDuplicateName1 'modules/subscription.bicep' = {
-//@[0:178) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:39)  IdentifierSyntax
-//@[7:39)   Identifier |subscriptionModuleDuplicateName1|
-//@[40:68)  StringSyntax
-//@[40:68)   StringComplete |'modules/subscription.bicep'|
-//@[69:70)  Assignment |=|
-//@[71:178)  ObjectSyntax
-//@[71:72)   LeftBrace |{|
-//@[72:73)   NewLine |\n|
+//@[00:0178) ├─ModuleDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |module|
+//@[07:0039) | ├─IdentifierSyntax
+//@[07:0039) | | └─Token(Identifier) |subscriptionModuleDuplicateName1|
+//@[40:0068) | ├─StringSyntax
+//@[40:0068) | | └─Token(StringComplete) |'modules/subscription.bicep'|
+//@[69:0070) | ├─Token(Assignment) |=|
+//@[71:0178) | └─ObjectSyntax
+//@[71:0072) |   ├─Token(LeftBrace) |{|
+//@[72:0073) |   ├─Token(NewLine) |\n|
   name: 'subscriptionModuleDuplicateName'
-//@[2:41)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:41)    StringSyntax
-//@[8:41)     StringComplete |'subscriptionModuleDuplicateName'|
-//@[41:42)   NewLine |\n|
+//@[02:0041) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0041) |   | └─StringSyntax
+//@[08:0041) |   |   └─Token(StringComplete) |'subscriptionModuleDuplicateName'|
+//@[41:0042) |   ├─Token(NewLine) |\n|
   scope: subscription('ced92236-c4d9-46ab-a299-a59c387fd1ee')
-//@[2:61)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:61)    FunctionCallSyntax
-//@[9:21)     IdentifierSyntax
-//@[9:21)      Identifier |subscription|
-//@[21:22)     LeftParen |(|
-//@[22:60)     FunctionArgumentSyntax
-//@[22:60)      StringSyntax
-//@[22:60)       StringComplete |'ced92236-c4d9-46ab-a299-a59c387fd1ee'|
-//@[60:61)     RightParen |)|
-//@[61:62)   NewLine |\n|
+//@[02:0061) |   ├─ObjectPropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |scope|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0061) |   | └─FunctionCallSyntax
+//@[09:0021) |   |   ├─IdentifierSyntax
+//@[09:0021) |   |   | └─Token(Identifier) |subscription|
+//@[21:0022) |   |   ├─Token(LeftParen) |(|
+//@[22:0060) |   |   ├─FunctionArgumentSyntax
+//@[22:0060) |   |   | └─StringSyntax
+//@[22:0060) |   |   |   └─Token(StringComplete) |'ced92236-c4d9-46ab-a299-a59c387fd1ee'|
+//@[60:0061) |   |   └─Token(RightParen) |)|
+//@[61:0062) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 module subscriptionModuleDuplicateName2 'modules/subscription.bicep' = {
-//@[0:178) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:39)  IdentifierSyntax
-//@[7:39)   Identifier |subscriptionModuleDuplicateName2|
-//@[40:68)  StringSyntax
-//@[40:68)   StringComplete |'modules/subscription.bicep'|
-//@[69:70)  Assignment |=|
-//@[71:178)  ObjectSyntax
-//@[71:72)   LeftBrace |{|
-//@[72:73)   NewLine |\n|
+//@[00:0178) ├─ModuleDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |module|
+//@[07:0039) | ├─IdentifierSyntax
+//@[07:0039) | | └─Token(Identifier) |subscriptionModuleDuplicateName2|
+//@[40:0068) | ├─StringSyntax
+//@[40:0068) | | └─Token(StringComplete) |'modules/subscription.bicep'|
+//@[69:0070) | ├─Token(Assignment) |=|
+//@[71:0178) | └─ObjectSyntax
+//@[71:0072) |   ├─Token(LeftBrace) |{|
+//@[72:0073) |   ├─Token(NewLine) |\n|
   name: 'subscriptionModuleDuplicateName'
-//@[2:41)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:41)    StringSyntax
-//@[8:41)     StringComplete |'subscriptionModuleDuplicateName'|
-//@[41:42)   NewLine |\n|
+//@[02:0041) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0041) |   | └─StringSyntax
+//@[08:0041) |   |   └─Token(StringComplete) |'subscriptionModuleDuplicateName'|
+//@[41:0042) |   ├─Token(NewLine) |\n|
   scope: subscription('ced92236-c4d9-46ab-a299-a59c387fd1ee')
-//@[2:61)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:61)    FunctionCallSyntax
-//@[9:21)     IdentifierSyntax
-//@[9:21)      Identifier |subscription|
-//@[21:22)     LeftParen |(|
-//@[22:60)     FunctionArgumentSyntax
-//@[22:60)      StringSyntax
-//@[22:60)       StringComplete |'ced92236-c4d9-46ab-a299-a59c387fd1ee'|
-//@[60:61)     RightParen |)|
-//@[61:62)   NewLine |\n|
+//@[02:0061) |   ├─ObjectPropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |scope|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0061) |   | └─FunctionCallSyntax
+//@[09:0021) |   |   ├─IdentifierSyntax
+//@[09:0021) |   |   | └─Token(Identifier) |subscription|
+//@[21:0022) |   |   ├─Token(LeftParen) |(|
+//@[22:0060) |   |   ├─FunctionArgumentSyntax
+//@[22:0060) |   |   | └─StringSyntax
+//@[22:0060) |   |   |   └─Token(StringComplete) |'ced92236-c4d9-46ab-a299-a59c387fd1ee'|
+//@[60:0061) |   |   └─Token(RightParen) |)|
+//@[61:0062) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 module subscriptionModuleDuplicateName3 'modules/subscription.bicep' = {
-//@[0:140) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:39)  IdentifierSyntax
-//@[7:39)   Identifier |subscriptionModuleDuplicateName3|
-//@[40:68)  StringSyntax
-//@[40:68)   StringComplete |'modules/subscription.bicep'|
-//@[69:70)  Assignment |=|
-//@[71:140)  ObjectSyntax
-//@[71:72)   LeftBrace |{|
-//@[72:73)   NewLine |\n|
+//@[00:0140) ├─ModuleDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |module|
+//@[07:0039) | ├─IdentifierSyntax
+//@[07:0039) | | └─Token(Identifier) |subscriptionModuleDuplicateName3|
+//@[40:0068) | ├─StringSyntax
+//@[40:0068) | | └─Token(StringComplete) |'modules/subscription.bicep'|
+//@[69:0070) | ├─Token(Assignment) |=|
+//@[71:0140) | └─ObjectSyntax
+//@[71:0072) |   ├─Token(LeftBrace) |{|
+//@[72:0073) |   ├─Token(NewLine) |\n|
   name: 'subscriptionModuleDuplicateName'
-//@[2:41)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:41)    StringSyntax
-//@[8:41)     StringComplete |'subscriptionModuleDuplicateName'|
-//@[41:42)   NewLine |\n|
+//@[02:0041) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0041) |   | └─StringSyntax
+//@[08:0041) |   |   └─Token(StringComplete) |'subscriptionModuleDuplicateName'|
+//@[41:0042) |   ├─Token(NewLine) |\n|
   scope: subscription()
-//@[2:23)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:23)    FunctionCallSyntax
-//@[9:21)     IdentifierSyntax
-//@[9:21)      Identifier |subscription|
-//@[21:22)     LeftParen |(|
-//@[22:23)     RightParen |)|
-//@[23:24)   NewLine |\n|
+//@[02:0023) |   ├─ObjectPropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |scope|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0023) |   | └─FunctionCallSyntax
+//@[09:0021) |   |   ├─IdentifierSyntax
+//@[09:0021) |   |   | └─Token(Identifier) |subscription|
+//@[21:0022) |   |   ├─Token(LeftParen) |(|
+//@[22:0023) |   |   └─Token(RightParen) |)|
+//@[23:0024) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0002) ├─Token(NewLine) |\n|
 module subscriptionModuleDuplicateName4 'modules/subscription.bicep' = {
-//@[0:140) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:39)  IdentifierSyntax
-//@[7:39)   Identifier |subscriptionModuleDuplicateName4|
-//@[40:68)  StringSyntax
-//@[40:68)   StringComplete |'modules/subscription.bicep'|
-//@[69:70)  Assignment |=|
-//@[71:140)  ObjectSyntax
-//@[71:72)   LeftBrace |{|
-//@[72:73)   NewLine |\n|
+//@[00:0140) ├─ModuleDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |module|
+//@[07:0039) | ├─IdentifierSyntax
+//@[07:0039) | | └─Token(Identifier) |subscriptionModuleDuplicateName4|
+//@[40:0068) | ├─StringSyntax
+//@[40:0068) | | └─Token(StringComplete) |'modules/subscription.bicep'|
+//@[69:0070) | ├─Token(Assignment) |=|
+//@[71:0140) | └─ObjectSyntax
+//@[71:0072) |   ├─Token(LeftBrace) |{|
+//@[72:0073) |   ├─Token(NewLine) |\n|
   name: 'subscriptionModuleDuplicateName'
-//@[2:41)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:41)    StringSyntax
-//@[8:41)     StringComplete |'subscriptionModuleDuplicateName'|
-//@[41:42)   NewLine |\n|
+//@[02:0041) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0041) |   | └─StringSyntax
+//@[08:0041) |   |   └─Token(StringComplete) |'subscriptionModuleDuplicateName'|
+//@[41:0042) |   ├─Token(NewLine) |\n|
   scope: subscription()
-//@[2:23)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:23)    FunctionCallSyntax
-//@[9:21)     IdentifierSyntax
-//@[9:21)      Identifier |subscription|
-//@[21:22)     LeftParen |(|
-//@[22:23)     RightParen |)|
-//@[23:24)   NewLine |\n|
+//@[02:0023) |   ├─ObjectPropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |scope|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0023) |   | └─FunctionCallSyntax
+//@[09:0021) |   |   ├─IdentifierSyntax
+//@[09:0021) |   |   | └─Token(Identifier) |subscription|
+//@[21:0022) |   |   ├─Token(LeftParen) |(|
+//@[22:0023) |   |   └─Token(RightParen) |)|
+//@[23:0024) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0002) ├─Token(NewLine) |\n|
 module subscriptionModuleDuplicateName5 'modules/subscription.bicep' = {
-//@[0:116) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:39)  IdentifierSyntax
-//@[7:39)   Identifier |subscriptionModuleDuplicateName5|
-//@[40:68)  StringSyntax
-//@[40:68)   StringComplete |'modules/subscription.bicep'|
-//@[69:70)  Assignment |=|
-//@[71:116)  ObjectSyntax
-//@[71:72)   LeftBrace |{|
-//@[72:73)   NewLine |\n|
+//@[00:0116) ├─ModuleDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |module|
+//@[07:0039) | ├─IdentifierSyntax
+//@[07:0039) | | └─Token(Identifier) |subscriptionModuleDuplicateName5|
+//@[40:0068) | ├─StringSyntax
+//@[40:0068) | | └─Token(StringComplete) |'modules/subscription.bicep'|
+//@[69:0070) | ├─Token(Assignment) |=|
+//@[71:0116) | └─ObjectSyntax
+//@[71:0072) |   ├─Token(LeftBrace) |{|
+//@[72:0073) |   ├─Token(NewLine) |\n|
   name: 'subscriptionModuleDuplicateName'
-//@[2:41)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:41)    StringSyntax
-//@[8:41)     StringComplete |'subscriptionModuleDuplicateName'|
-//@[41:42)   NewLine |\n|
+//@[02:0041) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0041) |   | └─StringSyntax
+//@[08:0041) |   |   └─Token(StringComplete) |'subscriptionModuleDuplicateName'|
+//@[41:0042) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 module resourceGroupModuleDuplicateName1 'modules/resourceGroup.bicep' = {
-//@[0:148) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:40)  IdentifierSyntax
-//@[7:40)   Identifier |resourceGroupModuleDuplicateName1|
-//@[41:70)  StringSyntax
-//@[41:70)   StringComplete |'modules/resourceGroup.bicep'|
-//@[71:72)  Assignment |=|
-//@[73:148)  ObjectSyntax
-//@[73:74)   LeftBrace |{|
-//@[74:75)   NewLine |\n|
+//@[00:0148) ├─ModuleDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |module|
+//@[07:0040) | ├─IdentifierSyntax
+//@[07:0040) | | └─Token(Identifier) |resourceGroupModuleDuplicateName1|
+//@[41:0070) | ├─StringSyntax
+//@[41:0070) | | └─Token(StringComplete) |'modules/resourceGroup.bicep'|
+//@[71:0072) | ├─Token(Assignment) |=|
+//@[73:0148) | └─ObjectSyntax
+//@[73:0074) |   ├─Token(LeftBrace) |{|
+//@[74:0075) |   ├─Token(NewLine) |\n|
   name: 'resourceGroupModuleDuplicateName'
-//@[2:42)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:42)    StringSyntax
-//@[8:42)     StringComplete |'resourceGroupModuleDuplicateName'|
-//@[42:43)   NewLine |\n|
+//@[02:0042) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0042) |   | └─StringSyntax
+//@[08:0042) |   |   └─Token(StringComplete) |'resourceGroupModuleDuplicateName'|
+//@[42:0043) |   ├─Token(NewLine) |\n|
   scope: resourceGroup('RG')
-//@[2:28)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:28)    FunctionCallSyntax
-//@[9:22)     IdentifierSyntax
-//@[9:22)      Identifier |resourceGroup|
-//@[22:23)     LeftParen |(|
-//@[23:27)     FunctionArgumentSyntax
-//@[23:27)      StringSyntax
-//@[23:27)       StringComplete |'RG'|
-//@[27:28)     RightParen |)|
-//@[28:29)   NewLine |\n|
+//@[02:0028) |   ├─ObjectPropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |scope|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0028) |   | └─FunctionCallSyntax
+//@[09:0022) |   |   ├─IdentifierSyntax
+//@[09:0022) |   |   | └─Token(Identifier) |resourceGroup|
+//@[22:0023) |   |   ├─Token(LeftParen) |(|
+//@[23:0027) |   |   ├─FunctionArgumentSyntax
+//@[23:0027) |   |   | └─StringSyntax
+//@[23:0027) |   |   |   └─Token(StringComplete) |'RG'|
+//@[27:0028) |   |   └─Token(RightParen) |)|
+//@[28:0029) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0002) ├─Token(NewLine) |\n|
 module resourceGroupModuleDuplicateName2 'modules/resourceGroup.bicep' = {
-//@[0:148) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:40)  IdentifierSyntax
-//@[7:40)   Identifier |resourceGroupModuleDuplicateName2|
-//@[41:70)  StringSyntax
-//@[41:70)   StringComplete |'modules/resourceGroup.bicep'|
-//@[71:72)  Assignment |=|
-//@[73:148)  ObjectSyntax
-//@[73:74)   LeftBrace |{|
-//@[74:75)   NewLine |\n|
+//@[00:0148) ├─ModuleDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |module|
+//@[07:0040) | ├─IdentifierSyntax
+//@[07:0040) | | └─Token(Identifier) |resourceGroupModuleDuplicateName2|
+//@[41:0070) | ├─StringSyntax
+//@[41:0070) | | └─Token(StringComplete) |'modules/resourceGroup.bicep'|
+//@[71:0072) | ├─Token(Assignment) |=|
+//@[73:0148) | └─ObjectSyntax
+//@[73:0074) |   ├─Token(LeftBrace) |{|
+//@[74:0075) |   ├─Token(NewLine) |\n|
   name: 'resourceGroupModuleDuplicateName'
-//@[2:42)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:42)    StringSyntax
-//@[8:42)     StringComplete |'resourceGroupModuleDuplicateName'|
-//@[42:43)   NewLine |\n|
+//@[02:0042) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0042) |   | └─StringSyntax
+//@[08:0042) |   |   └─Token(StringComplete) |'resourceGroupModuleDuplicateName'|
+//@[42:0043) |   ├─Token(NewLine) |\n|
   scope: resourceGroup('RG')
-//@[2:28)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:28)    FunctionCallSyntax
-//@[9:22)     IdentifierSyntax
-//@[9:22)      Identifier |resourceGroup|
-//@[22:23)     LeftParen |(|
-//@[23:27)     FunctionArgumentSyntax
-//@[23:27)      StringSyntax
-//@[23:27)       StringComplete |'RG'|
-//@[27:28)     RightParen |)|
-//@[28:29)   NewLine |\n|
+//@[02:0028) |   ├─ObjectPropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |scope|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0028) |   | └─FunctionCallSyntax
+//@[09:0022) |   |   ├─IdentifierSyntax
+//@[09:0022) |   |   | └─Token(Identifier) |resourceGroup|
+//@[22:0023) |   |   ├─Token(LeftParen) |(|
+//@[23:0027) |   |   ├─FunctionArgumentSyntax
+//@[23:0027) |   |   | └─StringSyntax
+//@[23:0027) |   |   |   └─Token(StringComplete) |'RG'|
+//@[27:0028) |   |   └─Token(RightParen) |)|
+//@[28:0029) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 module unsupportedScopeManagementGroup 'modules/managementGroup.bicep' = {
-//@[0:149) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:38)  IdentifierSyntax
-//@[7:38)   Identifier |unsupportedScopeManagementGroup|
-//@[39:70)  StringSyntax
-//@[39:70)   StringComplete |'modules/managementGroup.bicep'|
-//@[71:72)  Assignment |=|
-//@[73:149)  ObjectSyntax
-//@[73:74)   LeftBrace |{|
-//@[74:75)   NewLine |\n|
+//@[00:0149) ├─ModuleDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |module|
+//@[07:0038) | ├─IdentifierSyntax
+//@[07:0038) | | └─Token(Identifier) |unsupportedScopeManagementGroup|
+//@[39:0070) | ├─StringSyntax
+//@[39:0070) | | └─Token(StringComplete) |'modules/managementGroup.bicep'|
+//@[71:0072) | ├─Token(Assignment) |=|
+//@[73:0149) | └─ObjectSyntax
+//@[73:0074) |   ├─Token(LeftBrace) |{|
+//@[74:0075) |   ├─Token(NewLine) |\n|
   name: 'unsupportedScopeManagementGroup'
-//@[2:41)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:41)    StringSyntax
-//@[8:41)     StringComplete |'unsupportedScopeManagementGroup'|
-//@[41:42)   NewLine |\n|
+//@[02:0041) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0041) |   | └─StringSyntax
+//@[08:0041) |   |   └─Token(StringComplete) |'unsupportedScopeManagementGroup'|
+//@[41:0042) |   ├─Token(NewLine) |\n|
   scope: managementGroup('MG')
-//@[2:30)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:30)    FunctionCallSyntax
-//@[9:24)     IdentifierSyntax
-//@[9:24)      Identifier |managementGroup|
-//@[24:25)     LeftParen |(|
-//@[25:29)     FunctionArgumentSyntax
-//@[25:29)      StringSyntax
-//@[25:29)       StringComplete |'MG'|
-//@[29:30)     RightParen |)|
-//@[30:31)   NewLine |\n|
+//@[02:0030) |   ├─ObjectPropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |scope|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0030) |   | └─FunctionCallSyntax
+//@[09:0024) |   |   ├─IdentifierSyntax
+//@[09:0024) |   |   | └─Token(Identifier) |managementGroup|
+//@[24:0025) |   |   ├─Token(LeftParen) |(|
+//@[25:0029) |   |   ├─FunctionArgumentSyntax
+//@[25:0029) |   |   | └─StringSyntax
+//@[25:0029) |   |   |   └─Token(StringComplete) |'MG'|
+//@[29:0030) |   |   └─Token(RightParen) |)|
+//@[30:0031) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 module singleRgModule 'modules/passthrough.bicep' = {
-//@[0:143) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:21)  IdentifierSyntax
-//@[7:21)   Identifier |singleRgModule|
-//@[22:49)  StringSyntax
-//@[22:49)   StringComplete |'modules/passthrough.bicep'|
-//@[50:51)  Assignment |=|
-//@[52:143)  ObjectSyntax
-//@[52:53)   LeftBrace |{|
-//@[53:54)   NewLine |\n|
+//@[00:0143) ├─ModuleDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |module|
+//@[07:0021) | ├─IdentifierSyntax
+//@[07:0021) | | └─Token(Identifier) |singleRgModule|
+//@[22:0049) | ├─StringSyntax
+//@[22:0049) | | └─Token(StringComplete) |'modules/passthrough.bicep'|
+//@[50:0051) | ├─Token(Assignment) |=|
+//@[52:0143) | └─ObjectSyntax
+//@[52:0053) |   ├─Token(LeftBrace) |{|
+//@[53:0054) |   ├─Token(NewLine) |\n|
   name: 'single-rg'
-//@[2:19)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:19)    StringSyntax
-//@[8:19)     StringComplete |'single-rg'|
-//@[19:20)   NewLine |\n|
+//@[02:0019) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0019) |   | └─StringSyntax
+//@[08:0019) |   |   └─Token(StringComplete) |'single-rg'|
+//@[19:0020) |   ├─Token(NewLine) |\n|
   params: {
-//@[2:36)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:36)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:12)     NewLine |\n|
+//@[02:0036) |   ├─ObjectPropertySyntax
+//@[02:0008) |   | ├─IdentifierSyntax
+//@[02:0008) |   | | └─Token(Identifier) |params|
+//@[08:0009) |   | ├─Token(Colon) |:|
+//@[10:0036) |   | └─ObjectSyntax
+//@[10:0011) |   |   ├─Token(LeftBrace) |{|
+//@[11:0012) |   |   ├─Token(NewLine) |\n|
     myInput: 'stuff'
-//@[4:20)     ObjectPropertySyntax
-//@[4:11)      IdentifierSyntax
-//@[4:11)       Identifier |myInput|
-//@[11:12)      Colon |:|
-//@[13:20)      StringSyntax
-//@[13:20)       StringComplete |'stuff'|
-//@[20:21)     NewLine |\n|
+//@[04:0020) |   |   ├─ObjectPropertySyntax
+//@[04:0011) |   |   | ├─IdentifierSyntax
+//@[04:0011) |   |   | | └─Token(Identifier) |myInput|
+//@[11:0012) |   |   | ├─Token(Colon) |:|
+//@[13:0020) |   |   | └─StringSyntax
+//@[13:0020) |   |   |   └─Token(StringComplete) |'stuff'|
+//@[20:0021) |   |   ├─Token(NewLine) |\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:4)   NewLine |\n|
+//@[02:0003) |   |   └─Token(RightBrace) |}|
+//@[03:0004) |   ├─Token(NewLine) |\n|
   scope: resourceGroup('test')
-//@[2:30)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:30)    FunctionCallSyntax
-//@[9:22)     IdentifierSyntax
-//@[9:22)      Identifier |resourceGroup|
-//@[22:23)     LeftParen |(|
-//@[23:29)     FunctionArgumentSyntax
-//@[23:29)      StringSyntax
-//@[23:29)       StringComplete |'test'|
-//@[29:30)     RightParen |)|
-//@[30:31)   NewLine |\n|
+//@[02:0030) |   ├─ObjectPropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |scope|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0030) |   | └─FunctionCallSyntax
+//@[09:0022) |   |   ├─IdentifierSyntax
+//@[09:0022) |   |   | └─Token(Identifier) |resourceGroup|
+//@[22:0023) |   |   ├─Token(LeftParen) |(|
+//@[23:0029) |   |   ├─FunctionArgumentSyntax
+//@[23:0029) |   |   | └─StringSyntax
+//@[23:0029) |   |   |   └─Token(StringComplete) |'test'|
+//@[29:0030) |   |   └─Token(RightParen) |)|
+//@[30:0031) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 module singleRgModule2 'modules/passthrough.bicep' = {
-//@[0:138) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:22)  IdentifierSyntax
-//@[7:22)   Identifier |singleRgModule2|
-//@[23:50)  StringSyntax
-//@[23:50)   StringComplete |'modules/passthrough.bicep'|
-//@[51:52)  Assignment |=|
-//@[53:138)  ObjectSyntax
-//@[53:54)   LeftBrace |{|
-//@[54:55)   NewLine |\n|
+//@[00:0138) ├─ModuleDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |module|
+//@[07:0022) | ├─IdentifierSyntax
+//@[07:0022) | | └─Token(Identifier) |singleRgModule2|
+//@[23:0050) | ├─StringSyntax
+//@[23:0050) | | └─Token(StringComplete) |'modules/passthrough.bicep'|
+//@[51:0052) | ├─Token(Assignment) |=|
+//@[53:0138) | └─ObjectSyntax
+//@[53:0054) |   ├─Token(LeftBrace) |{|
+//@[54:0055) |   ├─Token(NewLine) |\n|
   name: 'single-rg2'
-//@[2:20)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:20)    StringSyntax
-//@[8:20)     StringComplete |'single-rg2'|
-//@[20:21)   NewLine |\n|
+//@[02:0020) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0020) |   | └─StringSyntax
+//@[08:0020) |   |   └─Token(StringComplete) |'single-rg2'|
+//@[20:0021) |   ├─Token(NewLine) |\n|
   params: {
-//@[2:36)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:36)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:12)     NewLine |\n|
+//@[02:0036) |   ├─ObjectPropertySyntax
+//@[02:0008) |   | ├─IdentifierSyntax
+//@[02:0008) |   | | └─Token(Identifier) |params|
+//@[08:0009) |   | ├─Token(Colon) |:|
+//@[10:0036) |   | └─ObjectSyntax
+//@[10:0011) |   |   ├─Token(LeftBrace) |{|
+//@[11:0012) |   |   ├─Token(NewLine) |\n|
     myInput: 'stuff'
-//@[4:20)     ObjectPropertySyntax
-//@[4:11)      IdentifierSyntax
-//@[4:11)       Identifier |myInput|
-//@[11:12)      Colon |:|
-//@[13:20)      StringSyntax
-//@[13:20)       StringComplete |'stuff'|
-//@[20:21)     NewLine |\n|
+//@[04:0020) |   |   ├─ObjectPropertySyntax
+//@[04:0011) |   |   | ├─IdentifierSyntax
+//@[04:0011) |   |   | | └─Token(Identifier) |myInput|
+//@[11:0012) |   |   | ├─Token(Colon) |:|
+//@[13:0020) |   |   | └─StringSyntax
+//@[13:0020) |   |   |   └─Token(StringComplete) |'stuff'|
+//@[20:0021) |   |   ├─Token(NewLine) |\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:4)   NewLine |\n|
+//@[02:0003) |   |   └─Token(RightBrace) |}|
+//@[03:0004) |   ├─Token(NewLine) |\n|
   scope: singleRgModule
-//@[2:23)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:23)    VariableAccessSyntax
-//@[9:23)     IdentifierSyntax
-//@[9:23)      Identifier |singleRgModule|
-//@[23:24)   NewLine |\n|
+//@[02:0023) |   ├─ObjectPropertySyntax
+//@[02:0007) |   | ├─IdentifierSyntax
+//@[02:0007) |   | | └─Token(Identifier) |scope|
+//@[07:0008) |   | ├─Token(Colon) |:|
+//@[09:0023) |   | └─VariableAccessSyntax
+//@[09:0023) |   |   └─IdentifierSyntax
+//@[09:0023) |   |     └─Token(Identifier) |singleRgModule|
+//@[23:0024) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0002) ├─Token(NewLine) |\n|
 
-//@[0:0) EndOfFile ||
+//@[00:0000) └─Token(EndOfFile) ||

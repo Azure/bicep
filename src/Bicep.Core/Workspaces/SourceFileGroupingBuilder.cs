@@ -36,7 +36,9 @@ namespace Bicep.Core.Workspaces
 
         private readonly RootConfiguration configuration;
 
-        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, RootConfiguration configuration)
+        private readonly bool forceModulesRestore;
+
+        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, RootConfiguration configuration, bool forceforceModulesRestore = false)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
@@ -47,9 +49,10 @@ namespace Bicep.Core.Workspaces
             this.modulesToRestore = new();
             this.sourceFilesByUri = new();
             this.errorBuildersByUri = new();
+            this.forceModulesRestore = forceforceModulesRestore;
         }
 
-        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current, RootConfiguration configuration)
+        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current, RootConfiguration configuration, bool forceforceModulesRestore = false)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
@@ -63,11 +66,13 @@ namespace Bicep.Core.Workspaces
 
             this.sourceFilesByUri = current.SourceFiles.ToDictionary(tree => tree.FileUri);
             this.errorBuildersByUri = new();
+
+            this.forceModulesRestore = forceforceModulesRestore;
         }
 
-        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, RootConfiguration configuration)
+        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, RootConfiguration configuration, bool forceModulesRestore = false)
         {
-            var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, configuration);
+            var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, configuration, forceModulesRestore);
 
             return builder.Build(entryFileUri);
         }
@@ -187,7 +192,19 @@ namespace Bicep.Core.Workspaces
                     continue;
                 }
 
-                var restoreStatus = this.moduleDispatcher.GetModuleRestoreStatus(childModuleReference, this.configuration, out var restoreErrorBuilder);
+                ModuleRestoreStatus restoreStatus;
+                ErrorBuilderDelegate? restoreErrorBuilder;
+                if(this.forceModulesRestore) {
+                    //override the status to force restore
+                    restoreStatus = ModuleRestoreStatus.Unknown;
+
+                    // module is not present on the local file system
+                    restoreErrorBuilder = x => x.ModuleRequiresRestore(childModuleReference.FullyQualifiedReference);
+                }
+                else {
+                    restoreStatus = this.moduleDispatcher.GetModuleRestoreStatus(childModuleReference, this.configuration, out restoreErrorBuilder);
+                }
+
                 if (restoreStatus != ModuleRestoreStatus.Succeeded)
                 {
                     if (restoreStatus == ModuleRestoreStatus.Unknown)

@@ -21,11 +21,12 @@ namespace Bicep.Core.Semantics
                 GenericDescription,
                 Description,
                 WildcardRegex,
-                ReturnTypeBuilder,
+                ResultBuilder,
                 ReturnType,
                 FixedParameters.ToImmutable(),
                 VariableParameter,
                 Evaluator,
+                VariableGenerator,
                 Flags);
         }
     }

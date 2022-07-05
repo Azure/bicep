@@ -1,401 +1,402 @@
 targetScope = 'managementGroup'
-//@[0:31) TargetScopeSyntax
-//@[0:11)  Identifier |targetScope|
-//@[12:13)  Assignment |=|
-//@[14:31)  StringSyntax
-//@[14:31)   StringComplete |'managementGroup'|
-//@[31:35) NewLine |\r\n\r\n|
+//@[000:1517) ProgramSyntax
+//@[000:0031) ├─TargetScopeSyntax
+//@[000:0011) | ├─Token(Identifier) |targetScope|
+//@[012:0013) | ├─Token(Assignment) |=|
+//@[014:0031) | └─StringSyntax
+//@[014:0031) |   └─Token(StringComplete) |'managementGroup'|
+//@[031:0035) ├─Token(NewLine) |\r\n\r\n|
 
 param ownerPrincipalId string
-//@[0:29) ParameterDeclarationSyntax
-//@[0:5)  Identifier |param|
-//@[6:22)  IdentifierSyntax
-//@[6:22)   Identifier |ownerPrincipalId|
-//@[23:29)  SimpleTypeSyntax
-//@[23:29)   Identifier |string|
-//@[29:33) NewLine |\r\n\r\n|
+//@[000:0029) ├─ParameterDeclarationSyntax
+//@[000:0005) | ├─Token(Identifier) |param|
+//@[006:0022) | ├─IdentifierSyntax
+//@[006:0022) | | └─Token(Identifier) |ownerPrincipalId|
+//@[023:0029) | └─SimpleTypeSyntax
+//@[023:0029) |   └─Token(Identifier) |string|
+//@[029:0033) ├─Token(NewLine) |\r\n\r\n|
 
 param contributorPrincipals array
-//@[0:33) ParameterDeclarationSyntax
-//@[0:5)  Identifier |param|
-//@[6:27)  IdentifierSyntax
-//@[6:27)   Identifier |contributorPrincipals|
-//@[28:33)  SimpleTypeSyntax
-//@[28:33)   Identifier |array|
-//@[33:35) NewLine |\r\n|
+//@[000:0033) ├─ParameterDeclarationSyntax
+//@[000:0005) | ├─Token(Identifier) |param|
+//@[006:0027) | ├─IdentifierSyntax
+//@[006:0027) | | └─Token(Identifier) |contributorPrincipals|
+//@[028:0033) | └─SimpleTypeSyntax
+//@[028:0033) |   └─Token(Identifier) |array|
+//@[033:0035) ├─Token(NewLine) |\r\n|
 param readerPrincipals array
-//@[0:28) ParameterDeclarationSyntax
-//@[0:5)  Identifier |param|
-//@[6:22)  IdentifierSyntax
-//@[6:22)   Identifier |readerPrincipals|
-//@[23:28)  SimpleTypeSyntax
-//@[23:28)   Identifier |array|
-//@[28:32) NewLine |\r\n\r\n|
+//@[000:0028) ├─ParameterDeclarationSyntax
+//@[000:0005) | ├─Token(Identifier) |param|
+//@[006:0022) | ├─IdentifierSyntax
+//@[006:0022) | | └─Token(Identifier) |readerPrincipals|
+//@[023:0028) | └─SimpleTypeSyntax
+//@[023:0028) |   └─Token(Identifier) |array|
+//@[028:0032) ├─Token(NewLine) |\r\n\r\n|
 
 resource owner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-//@[0:242) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:14)  IdentifierSyntax
-//@[9:14)   Identifier |owner|
-//@[15:75)  StringSyntax
-//@[15:75)   StringComplete |'Microsoft.Authorization/roleAssignments@2020-04-01-preview'|
-//@[76:77)  Assignment |=|
-//@[78:242)  ObjectSyntax
-//@[78:79)   LeftBrace |{|
-//@[79:81)   NewLine |\r\n|
+//@[000:0242) ├─ResourceDeclarationSyntax
+//@[000:0008) | ├─Token(Identifier) |resource|
+//@[009:0014) | ├─IdentifierSyntax
+//@[009:0014) | | └─Token(Identifier) |owner|
+//@[015:0075) | ├─StringSyntax
+//@[015:0075) | | └─Token(StringComplete) |'Microsoft.Authorization/roleAssignments@2020-04-01-preview'|
+//@[076:0077) | ├─Token(Assignment) |=|
+//@[078:0242) | └─ObjectSyntax
+//@[078:0079) |   ├─Token(LeftBrace) |{|
+//@[079:0081) |   ├─Token(NewLine) |\r\n|
   name: guid('owner', ownerPrincipalId)
-//@[2:39)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:39)    FunctionCallSyntax
-//@[8:12)     IdentifierSyntax
-//@[8:12)      Identifier |guid|
-//@[12:13)     LeftParen |(|
-//@[13:21)     FunctionArgumentSyntax
-//@[13:20)      StringSyntax
-//@[13:20)       StringComplete |'owner'|
-//@[20:21)      Comma |,|
-//@[22:38)     FunctionArgumentSyntax
-//@[22:38)      VariableAccessSyntax
-//@[22:38)       IdentifierSyntax
-//@[22:38)        Identifier |ownerPrincipalId|
-//@[38:39)     RightParen |)|
-//@[39:41)   NewLine |\r\n|
+//@[002:0039) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0039) |   | └─FunctionCallSyntax
+//@[008:0012) |   |   ├─IdentifierSyntax
+//@[008:0012) |   |   | └─Token(Identifier) |guid|
+//@[012:0013) |   |   ├─Token(LeftParen) |(|
+//@[013:0020) |   |   ├─FunctionArgumentSyntax
+//@[013:0020) |   |   | └─StringSyntax
+//@[013:0020) |   |   |   └─Token(StringComplete) |'owner'|
+//@[020:0021) |   |   ├─Token(Comma) |,|
+//@[022:0038) |   |   ├─FunctionArgumentSyntax
+//@[022:0038) |   |   | └─VariableAccessSyntax
+//@[022:0038) |   |   |   └─IdentifierSyntax
+//@[022:0038) |   |   |     └─Token(Identifier) |ownerPrincipalId|
+//@[038:0039) |   |   └─Token(RightParen) |)|
+//@[039:0041) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:117)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:117)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:0117) |   ├─ObjectPropertySyntax
+//@[002:0012) |   | ├─IdentifierSyntax
+//@[002:0012) |   | | └─Token(Identifier) |properties|
+//@[012:0013) |   | ├─Token(Colon) |:|
+//@[014:0117) |   | └─ObjectSyntax
+//@[014:0015) |   |   ├─Token(LeftBrace) |{|
+//@[015:0017) |   |   ├─Token(NewLine) |\r\n|
     principalId: ownerPrincipalId
-//@[4:33)     ObjectPropertySyntax
-//@[4:15)      IdentifierSyntax
-//@[4:15)       Identifier |principalId|
-//@[15:16)      Colon |:|
-//@[17:33)      VariableAccessSyntax
-//@[17:33)       IdentifierSyntax
-//@[17:33)        Identifier |ownerPrincipalId|
-//@[33:35)     NewLine |\r\n|
+//@[004:0033) |   |   ├─ObjectPropertySyntax
+//@[004:0015) |   |   | ├─IdentifierSyntax
+//@[004:0015) |   |   | | └─Token(Identifier) |principalId|
+//@[015:0016) |   |   | ├─Token(Colon) |:|
+//@[017:0033) |   |   | └─VariableAccessSyntax
+//@[017:0033) |   |   |   └─IdentifierSyntax
+//@[017:0033) |   |   |     └─Token(Identifier) |ownerPrincipalId|
+//@[033:0035) |   |   ├─Token(NewLine) |\r\n|
     roleDefinitionId: '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
-//@[4:60)     ObjectPropertySyntax
-//@[4:20)      IdentifierSyntax
-//@[4:20)       Identifier |roleDefinitionId|
-//@[20:21)      Colon |:|
-//@[22:60)      StringSyntax
-//@[22:60)       StringComplete |'8e3af657-a8ff-443c-a75c-2fe8c4bcb635'|
-//@[60:62)     NewLine |\r\n|
+//@[004:0060) |   |   ├─ObjectPropertySyntax
+//@[004:0020) |   |   | ├─IdentifierSyntax
+//@[004:0020) |   |   | | └─Token(Identifier) |roleDefinitionId|
+//@[020:0021) |   |   | ├─Token(Colon) |:|
+//@[022:0060) |   |   | └─StringSyntax
+//@[022:0060) |   |   |   └─Token(StringComplete) |'8e3af657-a8ff-443c-a75c-2fe8c4bcb635'|
+//@[060:0062) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 resource contributors 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for contributor in contributorPrincipals: {
-//@[0:321) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:21)  IdentifierSyntax
-//@[9:21)   Identifier |contributors|
-//@[22:82)  StringSyntax
-//@[22:82)   StringComplete |'Microsoft.Authorization/roleAssignments@2020-04-01-preview'|
-//@[83:84)  Assignment |=|
-//@[85:321)  ForSyntax
-//@[85:86)   LeftSquare |[|
-//@[86:89)   Identifier |for|
-//@[90:101)   LocalVariableSyntax
-//@[90:101)    IdentifierSyntax
-//@[90:101)     Identifier |contributor|
-//@[102:104)   Identifier |in|
-//@[105:126)   VariableAccessSyntax
-//@[105:126)    IdentifierSyntax
-//@[105:126)     Identifier |contributorPrincipals|
-//@[126:127)   Colon |:|
-//@[128:320)   ObjectSyntax
-//@[128:129)    LeftBrace |{|
-//@[129:131)    NewLine |\r\n|
+//@[000:0321) ├─ResourceDeclarationSyntax
+//@[000:0008) | ├─Token(Identifier) |resource|
+//@[009:0021) | ├─IdentifierSyntax
+//@[009:0021) | | └─Token(Identifier) |contributors|
+//@[022:0082) | ├─StringSyntax
+//@[022:0082) | | └─Token(StringComplete) |'Microsoft.Authorization/roleAssignments@2020-04-01-preview'|
+//@[083:0084) | ├─Token(Assignment) |=|
+//@[085:0321) | └─ForSyntax
+//@[085:0086) |   ├─Token(LeftSquare) |[|
+//@[086:0089) |   ├─Token(Identifier) |for|
+//@[090:0101) |   ├─LocalVariableSyntax
+//@[090:0101) |   | └─IdentifierSyntax
+//@[090:0101) |   |   └─Token(Identifier) |contributor|
+//@[102:0104) |   ├─Token(Identifier) |in|
+//@[105:0126) |   ├─VariableAccessSyntax
+//@[105:0126) |   | └─IdentifierSyntax
+//@[105:0126) |   |   └─Token(Identifier) |contributorPrincipals|
+//@[126:0127) |   ├─Token(Colon) |:|
+//@[128:0320) |   ├─ObjectSyntax
+//@[128:0129) |   | ├─Token(LeftBrace) |{|
+//@[129:0131) |   | ├─Token(NewLine) |\r\n|
   name: guid('contributor', contributor)
-//@[2:40)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:40)     FunctionCallSyntax
-//@[8:12)      IdentifierSyntax
-//@[8:12)       Identifier |guid|
-//@[12:13)      LeftParen |(|
-//@[13:27)      FunctionArgumentSyntax
-//@[13:26)       StringSyntax
-//@[13:26)        StringComplete |'contributor'|
-//@[26:27)       Comma |,|
-//@[28:39)      FunctionArgumentSyntax
-//@[28:39)       VariableAccessSyntax
-//@[28:39)        IdentifierSyntax
-//@[28:39)         Identifier |contributor|
-//@[39:40)      RightParen |)|
-//@[40:42)    NewLine |\r\n|
+//@[002:0040) |   | ├─ObjectPropertySyntax
+//@[002:0006) |   | | ├─IdentifierSyntax
+//@[002:0006) |   | | | └─Token(Identifier) |name|
+//@[006:0007) |   | | ├─Token(Colon) |:|
+//@[008:0040) |   | | └─FunctionCallSyntax
+//@[008:0012) |   | |   ├─IdentifierSyntax
+//@[008:0012) |   | |   | └─Token(Identifier) |guid|
+//@[012:0013) |   | |   ├─Token(LeftParen) |(|
+//@[013:0026) |   | |   ├─FunctionArgumentSyntax
+//@[013:0026) |   | |   | └─StringSyntax
+//@[013:0026) |   | |   |   └─Token(StringComplete) |'contributor'|
+//@[026:0027) |   | |   ├─Token(Comma) |,|
+//@[028:0039) |   | |   ├─FunctionArgumentSyntax
+//@[028:0039) |   | |   | └─VariableAccessSyntax
+//@[028:0039) |   | |   |   └─IdentifierSyntax
+//@[028:0039) |   | |   |     └─Token(Identifier) |contributor|
+//@[039:0040) |   | |   └─Token(RightParen) |)|
+//@[040:0042) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:112)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:112)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:0112) |   | ├─ObjectPropertySyntax
+//@[002:0012) |   | | ├─IdentifierSyntax
+//@[002:0012) |   | | | └─Token(Identifier) |properties|
+//@[012:0013) |   | | ├─Token(Colon) |:|
+//@[014:0112) |   | | └─ObjectSyntax
+//@[014:0015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:0017) |   | |   ├─Token(NewLine) |\r\n|
     principalId: contributor
-//@[4:28)      ObjectPropertySyntax
-//@[4:15)       IdentifierSyntax
-//@[4:15)        Identifier |principalId|
-//@[15:16)       Colon |:|
-//@[17:28)       VariableAccessSyntax
-//@[17:28)        IdentifierSyntax
-//@[17:28)         Identifier |contributor|
-//@[28:30)      NewLine |\r\n|
+//@[004:0028) |   | |   ├─ObjectPropertySyntax
+//@[004:0015) |   | |   | ├─IdentifierSyntax
+//@[004:0015) |   | |   | | └─Token(Identifier) |principalId|
+//@[015:0016) |   | |   | ├─Token(Colon) |:|
+//@[017:0028) |   | |   | └─VariableAccessSyntax
+//@[017:0028) |   | |   |   └─IdentifierSyntax
+//@[017:0028) |   | |   |     └─Token(Identifier) |contributor|
+//@[028:0030) |   | |   ├─Token(NewLine) |\r\n|
     roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
-//@[4:60)      ObjectPropertySyntax
-//@[4:20)       IdentifierSyntax
-//@[4:20)        Identifier |roleDefinitionId|
-//@[20:21)       Colon |:|
-//@[22:60)       StringSyntax
-//@[22:60)        StringComplete |'b24988ac-6180-42a0-ab88-20f7382dd24c'|
-//@[60:62)      NewLine |\r\n|
+//@[004:0060) |   | |   ├─ObjectPropertySyntax
+//@[004:0020) |   | |   | ├─IdentifierSyntax
+//@[004:0020) |   | |   | | └─Token(Identifier) |roleDefinitionId|
+//@[020:0021) |   | |   | ├─Token(Colon) |:|
+//@[022:0060) |   | |   | └─StringSyntax
+//@[022:0060) |   | |   |   └─Token(StringComplete) |'b24988ac-6180-42a0-ab88-20f7382dd24c'|
+//@[060:0062) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:0003) |   | |   └─Token(RightBrace) |}|
+//@[003:0005) |   | ├─Token(NewLine) |\r\n|
   dependsOn: [
-//@[2:30)    ObjectPropertySyntax
-//@[2:11)     IdentifierSyntax
-//@[2:11)      Identifier |dependsOn|
-//@[11:12)     Colon |:|
-//@[13:30)     ArraySyntax
-//@[13:14)      LeftSquare |[|
-//@[14:16)      NewLine |\r\n|
+//@[002:0030) |   | ├─ObjectPropertySyntax
+//@[002:0011) |   | | ├─IdentifierSyntax
+//@[002:0011) |   | | | └─Token(Identifier) |dependsOn|
+//@[011:0012) |   | | ├─Token(Colon) |:|
+//@[013:0030) |   | | └─ArraySyntax
+//@[013:0014) |   | |   ├─Token(LeftSquare) |[|
+//@[014:0016) |   | |   ├─Token(NewLine) |\r\n|
     owner
-//@[4:9)      ArrayItemSyntax
-//@[4:9)       VariableAccessSyntax
-//@[4:9)        IdentifierSyntax
-//@[4:9)         Identifier |owner|
-//@[9:11)      NewLine |\r\n|
+//@[004:0009) |   | |   ├─ArrayItemSyntax
+//@[004:0009) |   | |   | └─VariableAccessSyntax
+//@[004:0009) |   | |   |   └─IdentifierSyntax
+//@[004:0009) |   | |   |     └─Token(Identifier) |owner|
+//@[009:0011) |   | |   ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)      RightSquare |]|
-//@[3:5)    NewLine |\r\n|
+//@[002:0003) |   | |   └─Token(RightSquare) |]|
+//@[003:0005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:0001) |   | └─Token(RightBrace) |}|
+//@[001:0002) |   └─Token(RightSquare) |]|
+//@[002:0006) ├─Token(NewLine) |\r\n\r\n|
 
 resource readers 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for reader in readerPrincipals: {
-//@[0:312) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:16)  IdentifierSyntax
-//@[9:16)   Identifier |readers|
-//@[17:77)  StringSyntax
-//@[17:77)   StringComplete |'Microsoft.Authorization/roleAssignments@2020-04-01-preview'|
-//@[78:79)  Assignment |=|
-//@[80:312)  ForSyntax
-//@[80:81)   LeftSquare |[|
-//@[81:84)   Identifier |for|
-//@[85:91)   LocalVariableSyntax
-//@[85:91)    IdentifierSyntax
-//@[85:91)     Identifier |reader|
-//@[92:94)   Identifier |in|
-//@[95:111)   VariableAccessSyntax
-//@[95:111)    IdentifierSyntax
-//@[95:111)     Identifier |readerPrincipals|
-//@[111:112)   Colon |:|
-//@[113:311)   ObjectSyntax
-//@[113:114)    LeftBrace |{|
-//@[114:116)    NewLine |\r\n|
+//@[000:0312) ├─ResourceDeclarationSyntax
+//@[000:0008) | ├─Token(Identifier) |resource|
+//@[009:0016) | ├─IdentifierSyntax
+//@[009:0016) | | └─Token(Identifier) |readers|
+//@[017:0077) | ├─StringSyntax
+//@[017:0077) | | └─Token(StringComplete) |'Microsoft.Authorization/roleAssignments@2020-04-01-preview'|
+//@[078:0079) | ├─Token(Assignment) |=|
+//@[080:0312) | └─ForSyntax
+//@[080:0081) |   ├─Token(LeftSquare) |[|
+//@[081:0084) |   ├─Token(Identifier) |for|
+//@[085:0091) |   ├─LocalVariableSyntax
+//@[085:0091) |   | └─IdentifierSyntax
+//@[085:0091) |   |   └─Token(Identifier) |reader|
+//@[092:0094) |   ├─Token(Identifier) |in|
+//@[095:0111) |   ├─VariableAccessSyntax
+//@[095:0111) |   | └─IdentifierSyntax
+//@[095:0111) |   |   └─Token(Identifier) |readerPrincipals|
+//@[111:0112) |   ├─Token(Colon) |:|
+//@[113:0311) |   ├─ObjectSyntax
+//@[113:0114) |   | ├─Token(LeftBrace) |{|
+//@[114:0116) |   | ├─Token(NewLine) |\r\n|
   name: guid('reader', reader)
-//@[2:30)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:30)     FunctionCallSyntax
-//@[8:12)      IdentifierSyntax
-//@[8:12)       Identifier |guid|
-//@[12:13)      LeftParen |(|
-//@[13:22)      FunctionArgumentSyntax
-//@[13:21)       StringSyntax
-//@[13:21)        StringComplete |'reader'|
-//@[21:22)       Comma |,|
-//@[23:29)      FunctionArgumentSyntax
-//@[23:29)       VariableAccessSyntax
-//@[23:29)        IdentifierSyntax
-//@[23:29)         Identifier |reader|
-//@[29:30)      RightParen |)|
-//@[30:32)    NewLine |\r\n|
+//@[002:0030) |   | ├─ObjectPropertySyntax
+//@[002:0006) |   | | ├─IdentifierSyntax
+//@[002:0006) |   | | | └─Token(Identifier) |name|
+//@[006:0007) |   | | ├─Token(Colon) |:|
+//@[008:0030) |   | | └─FunctionCallSyntax
+//@[008:0012) |   | |   ├─IdentifierSyntax
+//@[008:0012) |   | |   | └─Token(Identifier) |guid|
+//@[012:0013) |   | |   ├─Token(LeftParen) |(|
+//@[013:0021) |   | |   ├─FunctionArgumentSyntax
+//@[013:0021) |   | |   | └─StringSyntax
+//@[013:0021) |   | |   |   └─Token(StringComplete) |'reader'|
+//@[021:0022) |   | |   ├─Token(Comma) |,|
+//@[023:0029) |   | |   ├─FunctionArgumentSyntax
+//@[023:0029) |   | |   | └─VariableAccessSyntax
+//@[023:0029) |   | |   |   └─IdentifierSyntax
+//@[023:0029) |   | |   |     └─Token(Identifier) |reader|
+//@[029:0030) |   | |   └─Token(RightParen) |)|
+//@[030:0032) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:107)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:107)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:0107) |   | ├─ObjectPropertySyntax
+//@[002:0012) |   | | ├─IdentifierSyntax
+//@[002:0012) |   | | | └─Token(Identifier) |properties|
+//@[012:0013) |   | | ├─Token(Colon) |:|
+//@[014:0107) |   | | └─ObjectSyntax
+//@[014:0015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:0017) |   | |   ├─Token(NewLine) |\r\n|
     principalId: reader
-//@[4:23)      ObjectPropertySyntax
-//@[4:15)       IdentifierSyntax
-//@[4:15)        Identifier |principalId|
-//@[15:16)       Colon |:|
-//@[17:23)       VariableAccessSyntax
-//@[17:23)        IdentifierSyntax
-//@[17:23)         Identifier |reader|
-//@[23:25)      NewLine |\r\n|
+//@[004:0023) |   | |   ├─ObjectPropertySyntax
+//@[004:0015) |   | |   | ├─IdentifierSyntax
+//@[004:0015) |   | |   | | └─Token(Identifier) |principalId|
+//@[015:0016) |   | |   | ├─Token(Colon) |:|
+//@[017:0023) |   | |   | └─VariableAccessSyntax
+//@[017:0023) |   | |   |   └─IdentifierSyntax
+//@[017:0023) |   | |   |     └─Token(Identifier) |reader|
+//@[023:0025) |   | |   ├─Token(NewLine) |\r\n|
     roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
-//@[4:60)      ObjectPropertySyntax
-//@[4:20)       IdentifierSyntax
-//@[4:20)        Identifier |roleDefinitionId|
-//@[20:21)       Colon |:|
-//@[22:60)       StringSyntax
-//@[22:60)        StringComplete |'b24988ac-6180-42a0-ab88-20f7382dd24c'|
-//@[60:62)      NewLine |\r\n|
+//@[004:0060) |   | |   ├─ObjectPropertySyntax
+//@[004:0020) |   | |   | ├─IdentifierSyntax
+//@[004:0020) |   | |   | | └─Token(Identifier) |roleDefinitionId|
+//@[020:0021) |   | |   | ├─Token(Colon) |:|
+//@[022:0060) |   | |   | └─StringSyntax
+//@[022:0060) |   | |   |   └─Token(StringComplete) |'b24988ac-6180-42a0-ab88-20f7382dd24c'|
+//@[060:0062) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:0003) |   | |   └─Token(RightBrace) |}|
+//@[003:0005) |   | ├─Token(NewLine) |\r\n|
   dependsOn: [
-//@[2:51)    ObjectPropertySyntax
-//@[2:11)     IdentifierSyntax
-//@[2:11)      Identifier |dependsOn|
-//@[11:12)     Colon |:|
-//@[13:51)     ArraySyntax
-//@[13:14)      LeftSquare |[|
-//@[14:16)      NewLine |\r\n|
+//@[002:0051) |   | ├─ObjectPropertySyntax
+//@[002:0011) |   | | ├─IdentifierSyntax
+//@[002:0011) |   | | | └─Token(Identifier) |dependsOn|
+//@[011:0012) |   | | ├─Token(Colon) |:|
+//@[013:0051) |   | | └─ArraySyntax
+//@[013:0014) |   | |   ├─Token(LeftSquare) |[|
+//@[014:0016) |   | |   ├─Token(NewLine) |\r\n|
     owner
-//@[4:9)      ArrayItemSyntax
-//@[4:9)       VariableAccessSyntax
-//@[4:9)        IdentifierSyntax
-//@[4:9)         Identifier |owner|
-//@[9:11)      NewLine |\r\n|
+//@[004:0009) |   | |   ├─ArrayItemSyntax
+//@[004:0009) |   | |   | └─VariableAccessSyntax
+//@[004:0009) |   | |   |   └─IdentifierSyntax
+//@[004:0009) |   | |   |     └─Token(Identifier) |owner|
+//@[009:0011) |   | |   ├─Token(NewLine) |\r\n|
     contributors[0]
-//@[4:19)      ArrayItemSyntax
-//@[4:19)       ArrayAccessSyntax
-//@[4:16)        VariableAccessSyntax
-//@[4:16)         IdentifierSyntax
-//@[4:16)          Identifier |contributors|
-//@[16:17)        LeftSquare |[|
-//@[17:18)        IntegerLiteralSyntax
-//@[17:18)         Integer |0|
-//@[18:19)        RightSquare |]|
-//@[19:21)      NewLine |\r\n|
+//@[004:0019) |   | |   ├─ArrayItemSyntax
+//@[004:0019) |   | |   | └─ArrayAccessSyntax
+//@[004:0016) |   | |   |   ├─VariableAccessSyntax
+//@[004:0016) |   | |   |   | └─IdentifierSyntax
+//@[004:0016) |   | |   |   |   └─Token(Identifier) |contributors|
+//@[016:0017) |   | |   |   ├─Token(LeftSquare) |[|
+//@[017:0018) |   | |   |   ├─IntegerLiteralSyntax
+//@[017:0018) |   | |   |   | └─Token(Integer) |0|
+//@[018:0019) |   | |   |   └─Token(RightSquare) |]|
+//@[019:0021) |   | |   ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)      RightSquare |]|
-//@[3:5)    NewLine |\r\n|
+//@[002:0003) |   | |   └─Token(RightSquare) |]|
+//@[003:0005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:0001) |   | └─Token(RightBrace) |}|
+//@[001:0002) |   └─Token(RightSquare) |]|
+//@[002:0006) ├─Token(NewLine) |\r\n\r\n|
 
 resource single_mg 'Microsoft.Management/managementGroups@2020-05-01' = {
-//@[0:113) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:18)  IdentifierSyntax
-//@[9:18)   Identifier |single_mg|
-//@[19:69)  StringSyntax
-//@[19:69)   StringComplete |'Microsoft.Management/managementGroups@2020-05-01'|
-//@[70:71)  Assignment |=|
-//@[72:113)  ObjectSyntax
-//@[72:73)   LeftBrace |{|
-//@[73:75)   NewLine |\r\n|
+//@[000:0113) ├─ResourceDeclarationSyntax
+//@[000:0008) | ├─Token(Identifier) |resource|
+//@[009:0018) | ├─IdentifierSyntax
+//@[009:0018) | | └─Token(Identifier) |single_mg|
+//@[019:0069) | ├─StringSyntax
+//@[019:0069) | | └─Token(StringComplete) |'Microsoft.Management/managementGroups@2020-05-01'|
+//@[070:0071) | ├─Token(Assignment) |=|
+//@[072:0113) | └─ObjectSyntax
+//@[072:0073) |   ├─Token(LeftBrace) |{|
+//@[073:0075) |   ├─Token(NewLine) |\r\n|
   scope: tenant()
-//@[2:17)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:17)    FunctionCallSyntax
-//@[9:15)     IdentifierSyntax
-//@[9:15)      Identifier |tenant|
-//@[15:16)     LeftParen |(|
-//@[16:17)     RightParen |)|
-//@[17:19)   NewLine |\r\n|
+//@[002:0017) |   ├─ObjectPropertySyntax
+//@[002:0007) |   | ├─IdentifierSyntax
+//@[002:0007) |   | | └─Token(Identifier) |scope|
+//@[007:0008) |   | ├─Token(Colon) |:|
+//@[009:0017) |   | └─FunctionCallSyntax
+//@[009:0015) |   |   ├─IdentifierSyntax
+//@[009:0015) |   |   | └─Token(Identifier) |tenant|
+//@[015:0016) |   |   ├─Token(LeftParen) |(|
+//@[016:0017) |   |   └─Token(RightParen) |)|
+//@[017:0019) |   ├─Token(NewLine) |\r\n|
   name: 'one-mg'
-//@[2:16)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:16)    StringSyntax
-//@[8:16)     StringComplete |'one-mg'|
-//@[16:18)   NewLine |\r\n|
+//@[002:0016) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0016) |   | └─StringSyntax
+//@[008:0016) |   |   └─Token(StringComplete) |'one-mg'|
+//@[016:0018) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 // Blueprints are read-only at tenant Scope, but it's a convenient example to use to validate this.
-//@[99:101) NewLine |\r\n|
+//@[099:0101) ├─Token(NewLine) |\r\n|
 resource tenant_blueprint 'Microsoft.Blueprint/blueprints@2018-11-01-preview' = {
-//@[0:149) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:25)  IdentifierSyntax
-//@[9:25)   Identifier |tenant_blueprint|
-//@[26:77)  StringSyntax
-//@[26:77)   StringComplete |'Microsoft.Blueprint/blueprints@2018-11-01-preview'|
-//@[78:79)  Assignment |=|
-//@[80:149)  ObjectSyntax
-//@[80:81)   LeftBrace |{|
-//@[81:83)   NewLine |\r\n|
+//@[000:0149) ├─ResourceDeclarationSyntax
+//@[000:0008) | ├─Token(Identifier) |resource|
+//@[009:0025) | ├─IdentifierSyntax
+//@[009:0025) | | └─Token(Identifier) |tenant_blueprint|
+//@[026:0077) | ├─StringSyntax
+//@[026:0077) | | └─Token(StringComplete) |'Microsoft.Blueprint/blueprints@2018-11-01-preview'|
+//@[078:0079) | ├─Token(Assignment) |=|
+//@[080:0149) | └─ObjectSyntax
+//@[080:0081) |   ├─Token(LeftBrace) |{|
+//@[081:0083) |   ├─Token(NewLine) |\r\n|
   name: 'tenant-blueprint'
-//@[2:26)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:26)    StringSyntax
-//@[8:26)     StringComplete |'tenant-blueprint'|
-//@[26:28)   NewLine |\r\n|
+//@[002:0026) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0026) |   | └─StringSyntax
+//@[008:0026) |   |   └─Token(StringComplete) |'tenant-blueprint'|
+//@[026:0028) |   ├─Token(NewLine) |\r\n|
   properties: {}
-//@[2:16)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:16)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:16)     RightBrace |}|
-//@[16:18)   NewLine |\r\n|
+//@[002:0016) |   ├─ObjectPropertySyntax
+//@[002:0012) |   | ├─IdentifierSyntax
+//@[002:0012) |   | | └─Token(Identifier) |properties|
+//@[012:0013) |   | ├─Token(Colon) |:|
+//@[014:0016) |   | └─ObjectSyntax
+//@[014:0015) |   |   ├─Token(LeftBrace) |{|
+//@[015:0016) |   |   └─Token(RightBrace) |}|
+//@[016:0018) |   ├─Token(NewLine) |\r\n|
   scope: tenant()
-//@[2:17)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:17)    FunctionCallSyntax
-//@[9:15)     IdentifierSyntax
-//@[9:15)      Identifier |tenant|
-//@[15:16)     LeftParen |(|
-//@[16:17)     RightParen |)|
-//@[17:19)   NewLine |\r\n|
+//@[002:0017) |   ├─ObjectPropertySyntax
+//@[002:0007) |   | ├─IdentifierSyntax
+//@[002:0007) |   | | └─Token(Identifier) |scope|
+//@[007:0008) |   | ├─Token(Colon) |:|
+//@[009:0017) |   | └─FunctionCallSyntax
+//@[009:0015) |   |   ├─IdentifierSyntax
+//@[009:0015) |   |   | └─Token(Identifier) |tenant|
+//@[015:0016) |   |   ├─Token(LeftParen) |(|
+//@[016:0017) |   |   └─Token(RightParen) |)|
+//@[017:0019) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 resource mg_blueprint 'Microsoft.Blueprint/blueprints@2018-11-01-preview' = {
-//@[0:122) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:21)  IdentifierSyntax
-//@[9:21)   Identifier |mg_blueprint|
-//@[22:73)  StringSyntax
-//@[22:73)   StringComplete |'Microsoft.Blueprint/blueprints@2018-11-01-preview'|
-//@[74:75)  Assignment |=|
-//@[76:122)  ObjectSyntax
-//@[76:77)   LeftBrace |{|
-//@[77:79)   NewLine |\r\n|
+//@[000:0122) ├─ResourceDeclarationSyntax
+//@[000:0008) | ├─Token(Identifier) |resource|
+//@[009:0021) | ├─IdentifierSyntax
+//@[009:0021) | | └─Token(Identifier) |mg_blueprint|
+//@[022:0073) | ├─StringSyntax
+//@[022:0073) | | └─Token(StringComplete) |'Microsoft.Blueprint/blueprints@2018-11-01-preview'|
+//@[074:0075) | ├─Token(Assignment) |=|
+//@[076:0122) | └─ObjectSyntax
+//@[076:0077) |   ├─Token(LeftBrace) |{|
+//@[077:0079) |   ├─Token(NewLine) |\r\n|
   name: 'mg-blueprint'
-//@[2:22)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:22)    StringSyntax
-//@[8:22)     StringComplete |'mg-blueprint'|
-//@[22:24)   NewLine |\r\n|
+//@[002:0022) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0022) |   | └─StringSyntax
+//@[008:0022) |   |   └─Token(StringComplete) |'mg-blueprint'|
+//@[022:0024) |   ├─Token(NewLine) |\r\n|
   properties: {}
-//@[2:16)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:16)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:16)     RightBrace |}|
-//@[16:18)   NewLine |\r\n|
+//@[002:0016) |   ├─ObjectPropertySyntax
+//@[002:0012) |   | ├─IdentifierSyntax
+//@[002:0012) |   | | └─Token(Identifier) |properties|
+//@[012:0013) |   | ├─Token(Colon) |:|
+//@[014:0016) |   | └─ObjectSyntax
+//@[014:0015) |   |   ├─Token(LeftBrace) |{|
+//@[015:0016) |   |   └─Token(RightBrace) |}|
+//@[016:0018) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 
-//@[0:0) EndOfFile ||
+//@[000:0000) └─Token(EndOfFile) ||

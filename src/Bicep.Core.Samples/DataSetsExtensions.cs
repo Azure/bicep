@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Json;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
@@ -57,7 +56,7 @@ namespace Bicep.Core.Samples
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
-            return (new Compilation(BicepTestConstants.Features, namespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration)), outputDirectory, fileUri);
+            return (new Compilation(features, namespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration)), outputDirectory, fileUri);
         }
 
         public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, TestContext testContext, params (Uri registryUri, string repository)[] additionalClients)
@@ -112,13 +111,10 @@ namespace Bicep.Core.Samples
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }
 
-                var templateSpecElement = JsonElementFactory.CreateElement(templateSpecInfo.ModuleSource);
-                var templateSpecEntity = TemplateSpecEntity.FromJsonElement(templateSpecElement);
-
                 repositoryMocksBySubscription.TryAdd(reference.SubscriptionId, StrictMock.Of<ITemplateSpecRepository>());
                 repositoryMocksBySubscription[reference.SubscriptionId]
                     .Setup(x => x.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId, It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(templateSpecEntity);
+                    .ReturnsAsync(new TemplateSpecEntity(templateSpecInfo.ModuleSource));
             }
 
             var repositoryFactoryMock = StrictMock.Of<ITemplateSpecRepositoryFactory>();

@@ -15,7 +15,7 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 {
     public sealed class JsonSchemaValidator : IModuleFileValidator
     {
-        private const string AdditionalPropertiesSchemaLocationSuffix = "/additionalProperties/$false";
+        private const string AdditionalPropertiesSchemaLocationSuffix = "/additionalProperties";
 
         private const string RegexSchemaLocationSuffix = "/pattern";
 

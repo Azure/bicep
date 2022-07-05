@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Telemetry
 {
@@ -53,6 +55,18 @@ namespace Bicep.LanguageServer.Telemetry
             }
 
             return telemetryEvents;
+        }
+
+        // Per LSP spec - https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#command
+        // title and name are required
+        public static Command CreateCommand(string title, string name, JArray? args)
+        {
+            return new Command()
+            {
+                Title = title,
+                Name = name,
+                Arguments = args
+            };
         }
     }
 }

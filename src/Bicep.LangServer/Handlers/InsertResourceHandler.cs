@@ -36,6 +36,7 @@ using System.Text.RegularExpressions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Telemetry;
+using System.Diagnostics;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -89,23 +90,49 @@ namespace Bicep.LanguageServer.Handlers
                 return Unit.Value;
             }
 
-            JsonElement resource;
+            JsonElement? resource = null;
             try
             {
+                // First attempt a direct GET on the resource using the Bicep type API version.
                 resource = await azResourceProvider.GetGenericResource(
                     context.Compilation.Configuration,
                     resourceId,
-                    matchedType.ApiVersion,
+                    apiVersion: matchedType.ApiVersion,
                     cancellationToken);
             }
             catch (Exception exception)
             {
+                // We want to keep going here - we'll try again without the API version.
+                Trace.WriteLine($"Failed to fetch resource '{resourceId}' with API version {matchedType.ApiVersion}: {exception}");
+            }
+
+            try
+            {
+                // If the direct GET fails, attempt to look it up without the API version.
+                // This will use the latest version from the /providers/<provider> API.
+                if (resource is null)
+                {
+                    resource = await azResourceProvider.GetGenericResource(
+                        context.Compilation.Configuration,
+                        resourceId,
+                        apiVersion: null,
+                        cancellationToken);
+                }
+            }
+            catch (Exception exception)
+            {
+                Trace.WriteLine($"Failed to fetch resource '{resourceId}' without API version: {exception}");
+
                 server.Window.ShowError($"Caught exception fetching resource: {exception.Message}.");
                 telemetryProvider.PostEvent(BicepTelemetryEvent.InsertResourceFailure($"FetchResourceFailure"));
+            }
+
+            if (!resource.HasValue)
+            {
                 return Unit.Value;
             }
 
-            var resourceDeclaration = CreateResourceSyntax(resource, resourceId, matchedType);
+            var resourceDeclaration = CreateResourceSyntax(resource.Value, resourceId, matchedType);
             var insertContext = GetInsertContext(context, request.Position);
             var replacement = GenerateCodeReplacement(context.Compilation, resourceDeclaration, insertContext);
 
@@ -281,16 +308,9 @@ namespace Bicep.LanguageServer.Handlers
                 case JsonValueKind.String:
                     return SyntaxFactory.CreateStringLiteral(element.GetString()!);
                 case JsonValueKind.Number:
-                    if (element.TryGetInt64(out var intValue))
+                    if (element.TryGetInt64(out long intValue))
                     {
-                        if (intValue >= 0)
-                        {
-                            return SyntaxFactory.CreateIntegerLiteral((ulong)intValue);
-                        }
-                        else
-                        {
-                            return SyntaxFactory.CreateNegativeIntegerLiteral((ulong)-intValue);
-                        }
+                        return SyntaxFactory.CreatePositiveOrNegativeInteger(intValue);
                     }
                     return SyntaxFactory.CreateStringLiteral(element.ToString()!);
                 case JsonValueKind.True:

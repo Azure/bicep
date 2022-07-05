@@ -42,7 +42,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
                 TestContext,
-                typeof(ExamplesTests).Assembly,
+                typeof(DataSet).Assembly,
                 "Bicep.Core.Samples/Resources_CRLF");
 
             var bicepFilePath = Path.Combine(outputDirectory, "main.bicep");
@@ -82,7 +82,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
                 TestContext,
-                typeof(ExamplesTests).Assembly,
+                typeof(DataSet).Assembly,
                 "Bicep.Core.Samples/Resources_CRLF");
 
             var bicepFilePath = Path.Combine(outputDirectory, "main.bicep");

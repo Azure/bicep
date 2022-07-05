@@ -1075,8 +1075,8 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP179",
                 indexVariableName is null
-                    ? $"The loop item variable \"{itemVariableName}\" must be referenced in at least one of the value expressions of the following properties: {ToQuotedString(expectedVariantProperties)}"
-                    : $"The loop item variable \"{itemVariableName}\" or the index variable \"{indexVariableName}\" must be referenced in at least one of the value expressions of the following properties in the loop body: {ToQuotedString(expectedVariantProperties)}");
+                    ? $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" must be referenced in at least one of the value expressions of the following properties: {ToQuotedString(expectedVariantProperties)}"
+                    : $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" or the index variable \"{indexVariableName}\" must be referenced in at least one of the value expressions of the following properties in the loop body: {ToQuotedString(expectedVariantProperties)}");
 
             public ErrorDiagnostic FunctionOnlyValidInModuleSecureParameterAssignment(string functionName) => new(
                 TextSpan,
@@ -1370,6 +1370,87 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP231",
                 "Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature BICEP_RESOURCE_TYPED_PARAMS_AND_OUTPUTS_EXPERIMENTAL.");
+
+            public ErrorDiagnostic ModuleDeleteFailed(string moduleRef) => new(
+                TextSpan,
+                "BCP232",
+                $"Unable to delete the module with reference \"{moduleRef}\" from cache.");
+
+            public ErrorDiagnostic ModuleDeleteFailedWithMessage(string moduleRef, string message) => new(
+                TextSpan,
+                "BCP233",
+                $"Unable to delete the module with reference \"{moduleRef}\" from cache: {message}");
+
+            public Diagnostic ArmFunctionLiteralTypeConversionFailedWithMessage(string literalValue, string armFunctionName, string message) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP234",
+                $"The ARM function \"{armFunctionName}\" failed when invoked on the value [{literalValue}]: {message}");
+
+            public ErrorDiagnostic NoJsonTokenOnPathOrPathInvalid() => new(
+                TextSpan,
+                "BCP235",
+                $"Specified JSONPath does not exist in the given file or is invalid.");
+
+            public ErrorDiagnostic ExpectedNewLineOrCommaSeparator() => new(
+                TextSpan,
+                "BCP236",
+                "Expected a new line or comma character at this location.");
+
+            public ErrorDiagnostic ExpectedCommaSeparator() => new(
+                TextSpan,
+                "BCP237",
+                "Expected a comma character at this location.");
+
+            public ErrorDiagnostic UnexpectedNewLineAfterCommaSeparator() => new(
+                TextSpan,
+                "BCP238",
+                "Unexpected new line character after a comma.");
+
+            public ErrorDiagnostic ReservedIdentifier(string name) => new(
+                TextSpan,
+                "BCP239",
+                $"Identifier \"{name}\" is a reserved Bicep symbol name and cannot be used in this context.");
+
+            public ErrorDiagnostic InvalidValueForParentProperty() => new(
+                TextSpan,
+                "BCP240",
+                "The \"parent\" property only permits direct references to resources. Expressions are not supported.");
+
+            public Diagnostic DeprecatedProvidersFunction(string functionName) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP241",
+                $"The \"{functionName}\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow.",
+                styling: DiagnosticStyling.ShowCodeDeprecated);
+
+            public ErrorDiagnostic LambdaFunctionsOnlyValidInFunctionArguments() => new(
+                TextSpan,
+                "BCP242",
+                $"Lambda functions may only be specified directly as function arguments.");
+
+            public ErrorDiagnostic ParenthesesMustHaveExactlyOneItem() => new(
+                TextSpan,
+                "BCP243",
+                "Parentheses must contain exactly one expression.");
+
+            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int expectedArgCount, int actualArgCount) => new (
+                TextSpan,
+                "BCP244",
+                $"Expected lambda expression of type \"{lambdaType}\" with {expectedArgCount} arguments but received {actualArgCount} arguments.");
+
+            public Diagnostic ResourceTypeIsReadonly(ResourceTypeReference resourceTypeReference) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP245",
+                $"Resource type \"{resourceTypeReference.FormatName()}\" can only be used with the 'existing' keyword.");
+
+            public Diagnostic ResourceTypeIsReadonlyAtScope(ResourceTypeReference resourceTypeReference, ResourceScope writableScopes) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP246",
+                $"Resource type \"{resourceTypeReference.FormatName()}\" can only be used with the 'existing' keyword at the requested scope."
+                    + $" Permitted scopes for deployment: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(writableScopes))}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

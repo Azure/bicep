@@ -184,6 +184,11 @@ namespace Bicep.LangServer.UnitTests.Registry
                 throw new NotImplementedException();
             }
 
+            public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(RootConfiguration configuration, IEnumerable<ModuleReference> references)
+            {
+                throw new NotImplementedException();
+            }
+
             public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> references)
             {
                 this.ModuleRestores.Push(references);

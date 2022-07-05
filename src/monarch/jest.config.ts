@@ -5,7 +5,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "js"],
   transform: {
     "^.+\\.(ts|tsx)$": "ts-jest",
-    ".js": "jest-esm-transformer",
+    ".js": "babel-jest",
   },
   testMatch: ["<rootDir>/test/**/*.test.ts"],
   // "jsdom" is required for monaco-editor-core

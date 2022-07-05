@@ -240,3 +240,11 @@ var keyVaultSecretArrayVar = [
 var keyVaultSecretArrayInterpolatedVar = [
   '${kv.getSecret('mySecret')}'
 ]
+
+var copy = [
+  {
+    name: 'one'
+    count: '[notAFunction()]'
+    input: {}
+  }
+]

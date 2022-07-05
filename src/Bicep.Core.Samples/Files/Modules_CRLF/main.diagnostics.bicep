@@ -6,7 +6,7 @@ param deployTimeSuffix string = newGuid()
 module modATest './modulea.bicep' = {
   name: 'modATest'
   params: {
-//@[2:155) [explicit-values-for-loc-params (Warning)] Parameter 'stringParamA' of module 'modATest' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    stringParamB: 'hello!'\r\n    objParam: {\r\n      a: 'b'\r\n    }\r\n    arrayParam: [\r\n      {\r\n        a: 'b'\r\n      }\r\n      'abc'\r\n    ]\r\n  }|
+//@[02:155) [explicit-values-for-loc-params (Warning)] Parameter 'stringParamA' of module 'modATest' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    stringParamB: 'hello!'\r\n    objParam: {\r\n      a: 'b'\r\n    }\r\n    arrayParam: [\r\n      {\r\n        a: 'b'\r\n      }\r\n      'abc'\r\n    ]\r\n  }|
     stringParamB: 'hello!'
     objParam: {
       a: 'b'
@@ -72,7 +72,7 @@ module optionalWithAllParams './child/optionalParams.bicep'= {
 }
 
 resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
-//@[29:62) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/mockResource@2020-01-01'|
+//@[29:062) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/mockResource@2020-01-01'|
   name: 'harry'
   properties: {
     modADep: modATest.outputs.stringOutputA
@@ -99,7 +99,7 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
   name: 'optionalWithImplicitDependency'
   params: {
     optionalString: concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)
-//@[20:97) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)|
+//@[20:097) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)|
     optionalInt: 42
     optionalObj: { }
     optionalArray: [ ]
@@ -110,7 +110,7 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
   name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
   params: {
     optionalString: concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)
-//@[20:97) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)|
+//@[20:097) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)|
     optionalInt: 42
     optionalObj: { }
     optionalArray: [ ]
@@ -118,7 +118,7 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 }
 
 resource resWithCalculatedNameDependencies 'Mock.Rp/mockResource@2020-01-01' = {
-//@[43:76) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/mockResource@2020-01-01'|
+//@[43:076) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/mockResource@2020-01-01'|
   name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
   properties: {
     modADep: moduleWithCalculatedName.outputs.outputObj
@@ -153,7 +153,7 @@ var emptyArray = []
 module storageResources 'modulea.bicep' = [for module in myModules: {
   name: module.name
   params: {
-//@[2:93) [explicit-values-for-loc-params (Warning)] Parameter 'stringParamA' of module 'storageResources' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    arrayParam: []\r\n    objParam: module\r\n    stringParamB: module.location\r\n  }|
+//@[02:093) [explicit-values-for-loc-params (Warning)] Parameter 'stringParamA' of module 'storageResources' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    arrayParam: []\r\n    objParam: module\r\n    stringParamB: module.location\r\n  }|
     arrayParam: []
     objParam: module
     stringParamB: module.location
@@ -170,7 +170,7 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
     objParam: module
     stringParamB: module.location
     stringParamA: concat('a', i)
-//@[18:32) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('a', i)|
+//@[18:032) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('a', i)|
   }
 }]
 
@@ -178,9 +178,9 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
 module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
   name: module.name
   params: {
-//@[2:150) [explicit-values-for-loc-params (Warning)] Parameter 'stringParamA' of module 'nestedModuleLoop' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    arrayParam: [for i in range(0,3): concat('test-', i, '-', module.name)]\r\n    objParam: module\r\n    stringParamB: module.location\r\n  }|
+//@[02:150) [explicit-values-for-loc-params (Warning)] Parameter 'stringParamA' of module 'nestedModuleLoop' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    arrayParam: [for i in range(0,3): concat('test-', i, '-', module.name)]\r\n    objParam: module\r\n    stringParamB: module.location\r\n  }|
     arrayParam: [for i in range(0,3): concat('test-', i, '-', module.name)]
-//@[38:74) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('test-', i, '-', module.name)|
+//@[38:074) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('test-', i, '-', module.name)|
     objParam: module
     stringParamB: module.location
   }
@@ -192,7 +192,7 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
   params: {
     objParam: {}
     stringParamA: 'test'
-//@[18:24) [no-hardcoded-location (Warning)] Parameter 'stringParamA' may be used as a resource location in the module and should not be assigned a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'test' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'test'|
+//@[18:024) [no-hardcoded-location (Warning)] Parameter 'stringParamA' may be used as a resource location in the module and should not be assigned a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'test' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'test'|
     stringParamB: 'test'
     arrayParam: [for x in emptyArray: x]
   }
@@ -200,26 +200,26 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 
 // duplicate identifiers across scopes are allowed (inner hides the outer)
 var duplicateAcrossScopes = 'hello'
-//@[4:25) [no-unused-vars (Warning)] Variable "duplicateAcrossScopes" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |duplicateAcrossScopes|
+//@[04:025) [no-unused-vars (Warning)] Variable "duplicateAcrossScopes" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |duplicateAcrossScopes|
 module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
   name: 'hello-${duplicateAcrossScopes}'
   params: {
     objParam: {}
     stringParamA: 'test'
-//@[18:24) [no-hardcoded-location (Warning)] Parameter 'stringParamA' may be used as a resource location in the module and should not be assigned a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'test' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'test'|
+//@[18:024) [no-hardcoded-location (Warning)] Parameter 'stringParamA' may be used as a resource location in the module and should not be assigned a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'test' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'test'|
     stringParamB: 'test'
     arrayParam: [for x in emptyArray: x]
   }
 }]
 
 var someDuplicate = true
-//@[4:17) [no-unused-vars (Warning)] Variable "someDuplicate" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |someDuplicate|
+//@[04:017) [no-unused-vars (Warning)] Variable "someDuplicate" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |someDuplicate|
 var otherDuplicate = false
-//@[4:18) [no-unused-vars (Warning)] Variable "otherDuplicate" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |otherDuplicate|
+//@[04:018) [no-unused-vars (Warning)] Variable "otherDuplicate" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |otherDuplicate|
 module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
   name: 'hello-${someDuplicate}'
   params: {
-//@[2:150) [explicit-values-for-loc-params (Warning)] Parameter 'stringParamA' of module 'duplicatesEverywhere' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    objParam: {}\r\n    stringParamB: 'test'\r\n    arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']\r\n  }|
+//@[02:150) [explicit-values-for-loc-params (Warning)] Parameter 'stringParamA' of module 'duplicatesEverywhere' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    objParam: {}\r\n    stringParamB: 'test'\r\n    arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']\r\n  }|
     objParam: {}
     stringParamB: 'test'
     arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
@@ -229,7 +229,7 @@ module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
 module propertyLoopInsideParameterValue 'modulea.bicep' = {
   name: 'propertyLoopInsideParameterValue'
   params: {
-//@[2:330) [explicit-values-for-loc-params (Warning)] Parameter 'stringParamA' of module 'propertyLoopInsideParameterValue' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    objParam: {\r\n      a: [for i in range(0,10): i]\r\n      b: [for i in range(1,2): i]\r\n      c: {\r\n        d: [for j in range(2,3): j]\r\n      }\r\n      e: [for k in range(4,4): {\r\n        f: k\r\n      }]\r\n    }\r\n    stringParamB: ''\r\n    arrayParam: [\r\n      {\r\n        e: [for j in range(7,7): j]\r\n      }\r\n    ]\r\n  }|
+//@[02:330) [explicit-values-for-loc-params (Warning)] Parameter 'stringParamA' of module 'propertyLoopInsideParameterValue' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    objParam: {\r\n      a: [for i in range(0,10): i]\r\n      b: [for i in range(1,2): i]\r\n      c: {\r\n        d: [for j in range(2,3): j]\r\n      }\r\n      e: [for k in range(4,4): {\r\n        f: k\r\n      }]\r\n    }\r\n    stringParamB: ''\r\n    arrayParam: [\r\n      {\r\n        e: [for j in range(7,7): j]\r\n      }\r\n    ]\r\n  }|
     objParam: {
       a: [for i in range(0,10): i]
       b: [for i in range(1,2): i]
@@ -252,7 +252,7 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
   name: 'propertyLoopInsideParameterValueWithIndexes'
   params: {
-//@[2:384) [explicit-values-for-loc-params (Warning)] Parameter 'stringParamA' of module 'propertyLoopInsideParameterValueWithIndexes' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    objParam: {\r\n      a: [for (i, i2) in range(0,10): i + i2]\r\n      b: [for (i, i2) in range(1,2): i / i2]\r\n      c: {\r\n        d: [for (j, j2) in range(2,3): j * j2]\r\n      }\r\n      e: [for (k, k2) in range(4,4): {\r\n        f: k\r\n        g: k2\r\n      }]\r\n    }\r\n    stringParamB: ''\r\n    arrayParam: [\r\n      {\r\n        e: [for j in range(7,7): j]\r\n      }\r\n    ]\r\n  }|
+//@[02:384) [explicit-values-for-loc-params (Warning)] Parameter 'stringParamA' of module 'propertyLoopInsideParameterValueWithIndexes' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    objParam: {\r\n      a: [for (i, i2) in range(0,10): i + i2]\r\n      b: [for (i, i2) in range(1,2): i / i2]\r\n      c: {\r\n        d: [for (j, j2) in range(2,3): j * j2]\r\n      }\r\n      e: [for (k, k2) in range(4,4): {\r\n        f: k\r\n        g: k2\r\n      }]\r\n    }\r\n    stringParamB: ''\r\n    arrayParam: [\r\n      {\r\n        e: [for j in range(7,7): j]\r\n      }\r\n    ]\r\n  }|
     objParam: {
       a: [for (i, i2) in range(0,10): i + i2]
       b: [for (i, i2) in range(1,2): i / i2]
@@ -274,10 +274,10 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 }
 
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
-//@[7:55) [BCP179 (Warning)] The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |propertyLoopInsideParameterValueInsideModuleLoop|
+//@[07:055) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "thing" must be referenced in at least one of the value expressions of the following properties: "name", "scope" (CodeDescription: none) |propertyLoopInsideParameterValueInsideModuleLoop|
   name: 'propertyLoopInsideParameterValueInsideModuleLoop'
   params: {
-//@[2:362) [explicit-values-for-loc-params (Warning)] Parameter 'stringParamA' of module 'propertyLoopInsideParameterValueInsideModuleLoop' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    objParam: {\r\n      a: [for i in range(0,10): i + thing]\r\n      b: [for i in range(1,2): i * thing]\r\n      c: {\r\n        d: [for j in range(2,3): j]\r\n      }\r\n      e: [for k in range(4,4): {\r\n        f: k - thing\r\n      }]\r\n    }\r\n    stringParamB: ''\r\n    arrayParam: [\r\n      {\r\n        e: [for j in range(7,7): j % thing]\r\n      }\r\n    ]\r\n  }|
+//@[02:362) [explicit-values-for-loc-params (Warning)] Parameter 'stringParamA' of module 'propertyLoopInsideParameterValueInsideModuleLoop' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter. (CodeDescription: bicep core(https://aka.ms/bicep/linter/explicit-values-for-loc-params)) |params: {\r\n    objParam: {\r\n      a: [for i in range(0,10): i + thing]\r\n      b: [for i in range(1,2): i * thing]\r\n      c: {\r\n        d: [for j in range(2,3): j]\r\n      }\r\n      e: [for k in range(4,4): {\r\n        f: k - thing\r\n      }]\r\n    }\r\n    stringParamB: ''\r\n    arrayParam: [\r\n      {\r\n        e: [for j in range(7,7): j % thing]\r\n      }\r\n    ]\r\n  }|
     objParam: {
       a: [for i in range(0,10): i + thing]
       b: [for i in range(1,2): i * thing]

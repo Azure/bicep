@@ -19,12 +19,7 @@ export class InsertResourceCommand implements Command {
     documentUri = await findOrCreateActiveBicepFile(
       context,
       documentUri,
-      "Choose which Bicep file to insert a resource into",
-      {
-        // Since "Insert Resource" is acting on text in an editor, unlike most commands
-        //   we will choose the active editor if it's a bicep file
-        considerActiveEditor: true,
-      }
+      "Choose which Bicep file to insert a resource into"
     );
 
     const document = await workspace.openTextDocument(documentUri);

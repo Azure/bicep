@@ -79,6 +79,15 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Deployment started for {0}..
+        /// </summary>
+        public static string DeploymentStartedMessage {
+            get {
+                return ResourceManager.GetString("DeploymentStartedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Deployment succeeded for {0}..
         /// </summary>
         public static string DeploymentSucceededMessage {
@@ -99,18 +108,36 @@ namespace Bicep.LanguageServer {
         /// <summary>
         ///   Looks up a localized string similar to Edit {0} in bicepconfig.json.
         /// </summary>
-        internal static string EditLinterRuleActionTitle {
+        public static string EditLinterRuleActionTitle {
             get {
                 return ResourceManager.GetString("EditLinterRuleActionTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment failed. Please fix the following issues in the parameter file: {0}.
+        ///   Looks up a localized string similar to Encountered error while reading parameters file: {0}. Please fix the following issue: {1}.
+        /// </summary>
+        public static string InvalidParameterFile {
+            get {
+                return ResourceManager.GetString("InvalidParameterFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deployment failed for {0}. Please fix following issues in the parameter file {1}: {2}.
         /// </summary>
         public static string InvalidParameterFileDeploymentFailedMessage {
             get {
                 return ResourceManager.GetString("InvalidParameterFileDeploymentFailedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deployment failed for {0}. Please provide a valid value for parameter: {1}.
+        /// </summary>
+        public static string InvalidParameterValueDeploymentFailedMessage {
+            get {
+                return ResourceManager.GetString("InvalidParameterValueDeploymentFailedMessage", resourceCulture);
             }
         }
         
@@ -124,11 +151,29 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Parameters of type array or object should either contain a default value or must be specified in parameters.json file. Please update the value for the following parameters: {0}.
+        /// </summary>
+        public static string MissingParamValueForArrayOrObjectType {
+            get {
+                return ResourceManager.GetString("MissingParamValueForArrayOrObjectType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unsupported target scope: {0}..
         /// </summary>
         public static string UnsupportedTargetScopeMessage {
             get {
                 return ResourceManager.GetString("UnsupportedTargetScopeMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to View deployment in portal: {0}..
+        /// </summary>
+        public static string ViewDeploymentInPortalMessage {
+            get {
+                return ResourceManager.GetString("ViewDeploymentInPortalMessage", resourceCulture);
             }
         }
     }

@@ -91,6 +91,11 @@ namespace Bicep.Core.Registry
             return statuses;
         }
 
+        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(RootConfiguration configuration, IEnumerable<OciArtifactModuleReference> references)
+        {
+            return await base.InvalidateModulesCacheInternal(configuration, references);
+        }
+
         public override async Task PublishModule(RootConfiguration configuration, OciArtifactModuleReference moduleReference, Stream compiled)
         {
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);

@@ -13,6 +13,8 @@ using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
+using System.Text;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -21,21 +23,11 @@ namespace Bicep.Core.IntegrationTests
     {
         private class SyntaxCollectorVisitor : SyntaxVisitor
         {
-            public class SyntaxItem
-            {
-                public SyntaxItem(SyntaxBase syntax, int depth)
-                {
-                    Syntax = syntax;
-                    Depth = depth;
-                }
+            public record SyntaxItem(SyntaxBase Syntax, SyntaxItem? Parent, int Depth);
 
-                public SyntaxBase Syntax { get; }
-
-                public int Depth { get; }
-            }
-
-            private int depth = 0;
             private readonly IList<SyntaxItem> syntaxList = new List<SyntaxItem>();
+            private SyntaxItem? parent = null;
+            private int depth = 0;
 
             private SyntaxCollectorVisitor()
             {
@@ -44,18 +36,22 @@ namespace Bicep.Core.IntegrationTests
             public static ImmutableArray<SyntaxItem> Build(ProgramSyntax syntax)
             {
                 var visitor = new SyntaxCollectorVisitor();
-                visitor.VisitProgramSyntax(syntax);
+                visitor.Visit(syntax);
 
                 return visitor.syntaxList.ToImmutableArray();
             }
 
             protected override void VisitInternal(SyntaxBase syntax)
             {
-                syntaxList.Add(new SyntaxItem(syntax, depth));
+                var syntaxItem = new SyntaxItem(Syntax: syntax, Parent: parent, Depth: depth);
+                syntaxList.Add(syntaxItem);
 
+                var prevParent = parent;
+                parent = syntaxItem;
                 depth++;
                 base.VisitInternal(syntax);
                 depth--;
+                parent = prevParent;
             }
         }
 
@@ -98,17 +94,44 @@ namespace Bicep.Core.IntegrationTests
         {
             var program = ParserHelper.Parse(dataSet.Bicep);
             var syntaxList = SyntaxCollectorVisitor.Build(program);
+            var syntaxByParent = syntaxList.ToLookup(x => x.Parent);
 
-            string getLoggingString(SyntaxCollectorVisitor.SyntaxItem data)
+            static IEnumerable<SyntaxCollectorVisitor.SyntaxItem> getAncestors(SyntaxCollectorVisitor.SyntaxItem data)
             {
-                var depthPrefix = new string(' ', data.Depth);
-
-                if (data.Syntax is Token token)
+                while (data.Parent is {} parent)
                 {
-                    return $"{depthPrefix}{token.Type} |{OutputHelper.EscapeWhitespace(token.Text)}|";
+                    yield return parent;
+                    data = parent;
+                }
+            }
+
+            string getLoggingString(SyntaxCollectorVisitor.SyntaxItem syntax)
+            {
+                // Build a visual graph with lines to help understand the syntax hierarchy
+                var graphPrefix = new StringBuilder();
+
+                foreach (var ancestor in getAncestors(syntax).Reverse().Skip(1))
+                {
+                    var isLast = (ancestor.Depth > 0 && ancestor == syntaxByParent[ancestor.Parent].Last());
+                    graphPrefix.Append(isLast switch {
+                        true => "  ",
+                        _ => "| ",
+                    });
                 }
 
-                return $"{depthPrefix}{data.Syntax.GetType().Name}";
+                if (syntax.Depth > 0)
+                {
+                    var isLast = syntax == syntaxByParent[syntax.Parent].Last();
+                    graphPrefix.Append(isLast switch {
+                        true => "└─",
+                        _ => "├─",
+                    });
+                }
+
+                return syntax.Syntax switch {
+                    Token token => $"{graphPrefix}Token({token.Type}) |{OutputHelper.EscapeWhitespace(token.Text)}|",
+                    _ => $"{graphPrefix}{syntax.Syntax.GetType().Name}",
+                };
             }
 
             TextSpan getSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;

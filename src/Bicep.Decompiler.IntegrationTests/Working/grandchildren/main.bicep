@@ -100,7 +100,8 @@ resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_ll21w7on
   name: 'default'
   properties: {
     protocolSettings: {
-      smb: {}
+      smb: {
+      }
     }
     cors: {
       corsRules: []
@@ -117,7 +118,8 @@ resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_ll22w7on
   name: 'default'
   properties: {
     protocolSettings: {
-      smb: {}
+      smb: {
+      }
     }
     cors: {
       corsRules: []
@@ -178,6 +180,7 @@ resource storageAccounts_ll21w7onmmpv65q24_name_default_blobs11 'Microsoft.Stora
     publicAccess: 'None'
   }
   dependsOn: [
+
     storageAccounts_ll21w7onmmpv65q24_name_resource
   ]
 }
@@ -191,6 +194,7 @@ resource storageAccounts_ll21w7onmmpv65q24_name_default_blobs12 'Microsoft.Stora
     publicAccess: 'None'
   }
   dependsOn: [
+
     storageAccounts_ll21w7onmmpv65q24_name_resource
   ]
 }
@@ -204,6 +208,7 @@ resource storageAccounts_ll22w7onmmpv65q24_name_default_blobs21 'Microsoft.Stora
     publicAccess: 'None'
   }
   dependsOn: [
+
     storageAccounts_ll22w7onmmpv65q24_name_resource
   ]
 }
@@ -217,6 +222,7 @@ resource storageAccounts_ll22w7onmmpv65q24_name_default_blobs22 'Microsoft.Stora
     publicAccess: 'None'
   }
   dependsOn: [
+
     storageAccounts_ll22w7onmmpv65q24_name_resource
   ]
 }

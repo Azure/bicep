@@ -212,5 +212,10 @@ dotnet_diagnostic.CA5402.severity = warning
 # Do not hard-code certificate
 dotnet_diagnostic.CA5403.severity = warning
 
+# Parameter 'parameter' has no matching param tag in the XML comment for 'parameter' (but other parameters do)
+dotnet_diagnostic.CS1573.severity = suggestion
+# Missing XML comment for publicly visible type or member 'Type_or_Member'
+dotnet_diagnostic.CS1591.severity = none
+
 # VSTHRD200: Use "Async" suffix for async methods
 dotnet_diagnostic.VSTHRD200.severity = none

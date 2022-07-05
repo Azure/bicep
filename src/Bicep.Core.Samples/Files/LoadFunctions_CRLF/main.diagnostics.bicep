@@ -26,10 +26,12 @@ var loadedTextInterpolation2 = 'Text: ${loadTextContent('Assets/TextFile.LF.txt'
 var loadedTextObject1 = {
 //@[4:21) [no-unused-vars (Warning)] Variable "loadedTextObject1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadedTextObject1|
   'text' : loadTextContent('Assets/TextFile.CRLF.txt')
+//@[2:08) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'text'|
 }
 var loadedTextObject2 = {
 //@[4:21) [no-unused-vars (Warning)] Variable "loadedTextObject2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadedTextObject2|
   'text' : loadTextContent('Assets/TextFile.LF.txt')  
+//@[2:08) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'text'|
 }
 var loadedBinaryInObject = {
 //@[4:24) [no-unused-vars (Warning)] Variable "loadedBinaryInObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadedBinaryInObject|
@@ -45,6 +47,7 @@ var loadedTextArray = [
 var loadedTextArrayInObject = {
 //@[4:27) [no-unused-vars (Warning)] Variable "loadedTextArrayInObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadedTextArrayInObject|
   'files' : [
+//@[2:09) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'files'|
     loadTextContent('Assets/TextFile.CRLF.txt')
     loadFileAsBase64('Assets/binary')
   ]
@@ -53,6 +56,7 @@ var loadedTextArrayInObject = {
 var loadedTextArrayInObjectFunctions = {
 //@[4:36) [no-unused-vars (Warning)] Variable "loadedTextArrayInObjectFunctions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadedTextArrayInObjectFunctions|
   'files' : [
+//@[2:09) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'files'|
     length(loadTextContent('Assets/TextFile.CRLF.txt'))
     sys.length(loadTextContent('Assets/TextFile.LF.txt'))
     length(loadFileAsBase64('Assets/binary'))
@@ -104,4 +108,31 @@ var testJsonObject = testJson.object
 //@[4:18) [no-unused-vars (Warning)] Variable "testJsonObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonObject|
 var testJsonNestedString = testJson.object.nestedString
 //@[4:24) [no-unused-vars (Warning)] Variable "testJsonNestedString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonNestedString|
+
+var testJson2 = loadJsonContent('./Assets/test.json.txt')
+//@[4:13) [no-unused-vars (Warning)] Variable "testJson2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJson2|
+var testJsonString2 = testJson.string
+//@[4:19) [no-unused-vars (Warning)] Variable "testJsonString2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonString2|
+var testJsonString2_1 = loadJsonContent('./Assets/test.json.txt', '.string')
+//@[4:21) [no-unused-vars (Warning)] Variable "testJsonString2_1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonString2_1|
+var testJsonInt2 = testJson.int
+//@[4:16) [no-unused-vars (Warning)] Variable "testJsonInt2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonInt2|
+var testJsonInt2_1 = loadJsonContent('./Assets/test.json.txt', '.int')
+//@[4:18) [no-unused-vars (Warning)] Variable "testJsonInt2_1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonInt2_1|
+var testJsonArrayVal2 = testJson.array[0]
+//@[4:21) [no-unused-vars (Warning)] Variable "testJsonArrayVal2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonArrayVal2|
+var testJsonArrayVal2_1 = loadJsonContent('./Assets/test.json.txt', '.array[0]')
+//@[4:23) [no-unused-vars (Warning)] Variable "testJsonArrayVal2_1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonArrayVal2_1|
+var testJsonObject2 = testJson.object
+//@[4:19) [no-unused-vars (Warning)] Variable "testJsonObject2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonObject2|
+var testJsonObject2_1 = loadJsonContent('./Assets/test.json.txt', '.object')
+var testJsonNestedString2 = testJson.object.nestedString
+//@[4:25) [no-unused-vars (Warning)] Variable "testJsonNestedString2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonNestedString2|
+var testJsonNestedString2_1 = testJsonObject2_1.nestedString
+//@[4:27) [no-unused-vars (Warning)] Variable "testJsonNestedString2_1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonNestedString2_1|
+var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object.nestedString')
+//@[4:27) [no-unused-vars (Warning)] Variable "testJsonNestedString2_2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonNestedString2_2|
+
+var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.products[?(@.price > 3)].name')
+//@[4:25) [no-unused-vars (Warning)] Variable "testJsonTokensAsArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testJsonTokensAsArray|
 

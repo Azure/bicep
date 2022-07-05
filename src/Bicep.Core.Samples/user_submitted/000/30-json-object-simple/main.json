@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3992377844835363830"
+    }
+  },
+  "variables": {
+    "jsonString": "[\n  \"one\",\n  \"two\",\n  \"three\"\n]\n",
+    "jsonArray": "[json(variables('jsonString'))]",
+    "jsonString2": "[[\"four\",\"five\",\"six\"]",
+    "jsonArray2": "[json(variables('jsonString2'))]"
+  },
+  "resources": [],
+  "outputs": {
+    "jsonArray": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('jsonArray'))]",
+        "input": {
+          "name": "[variables('jsonArray')[copyIndex()]]"
+        }
+      }
+    },
+    "jsonArray2": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('jsonArray2'))]",
+        "input": {
+          "name": "[variables('jsonArray2')[copyIndex()]]"
+        }
+      }
+    }
+  }
+}

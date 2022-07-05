@@ -4,13 +4,13 @@ import vscode from "vscode";
 import path from "path";
 import fs from "fs";
 
-import { executeBuildCommand } from "./commands";
+import { executeBuildCommand, executeCloseAllEditors } from "./commands";
 import { resolveExamplePath } from "./examples";
 import { sleep } from "../utils/time";
 
 describe("build", (): void => {
   afterEach(async () => {
-    await vscode.commands.executeCommand("workbench.action.closeAllEditors");
+    await executeCloseAllEditors();
   });
 
   it("should generate compiled file if the source file has no errors", async () => {

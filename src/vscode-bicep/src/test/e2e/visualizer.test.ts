@@ -7,6 +7,7 @@ import fs from "fs";
 
 import { resolveExamplePath } from "./examples";
 import {
+  executeCloseAllEditors,
   executeShowSourceCommand,
   executeShowVisualizerCommand,
   executeShowVisualizerToSideCommand,
@@ -17,9 +18,7 @@ import { expectDefined } from "../utils/assert";
 const extensionLogPath = path.join(__dirname, "../../../bicep.log");
 
 describe("visualizer", (): void => {
-  afterEach(async () => {
-    await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-  });
+  afterEach(executeCloseAllEditors);
 
   it("should open visualizer webview", async () => {
     const examplePath = resolveExamplePath("101", "vm-simple-linux");
@@ -68,7 +67,7 @@ describe("visualizer", (): void => {
     const examplePath = resolveExamplePath("201", "sql");
     const textDocument = await vscode.workspace.openTextDocument(examplePath);
 
-    await executeShowVisualizerCommand(textDocument.uri);
+    await executeShowVisualizerToSideCommand(textDocument.uri);
     const sourceEditor = await executeShowSourceCommand();
 
     expectDefined(sourceEditor);

@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -11,6 +13,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
 using Bicep.Core.Extensions;
+using Bicep.Core.Syntax.Visitors;
 
 namespace Bicep.Core.Emit
 {
@@ -26,15 +29,18 @@ namespace Bicep.Core.Emit
             DeployTimeConstantValidator.Validate(model, diagnosticWriter);
             ForSyntaxValidatorVisitor.Validate(model, diagnosticWriter);
             FunctionPlacementValidatorVisitor.Validate(model, diagnosticWriter);
-            IntegerValidatorVisitor.Validate(model.SourceFile.ProgramSyntax, diagnosticWriter);
+            IntegerValidatorVisitor.Validate(model, diagnosticWriter);
 
             DetectDuplicateNames(model, diagnosticWriter, resourceScopeData, moduleScopeData);
             DetectIncorrectlyFormattedNames(model, diagnosticWriter);
             DetectUnexpectedResourceLoopInvariantProperties(model, diagnosticWriter);
             DetectUnexpectedModuleLoopInvariantProperties(model, diagnosticWriter);
             DetectUnsupportedModuleParameterAssignments(model, diagnosticWriter);
+            DetectCopyVariableName(model, diagnosticWriter);
+            DetectInvalidValueForParentProperty(model, diagnosticWriter);
+            BlockLambdasOutsideFunctionArguments(model, diagnosticWriter);
 
-            return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
+            return new(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
@@ -130,7 +136,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static void DetectIncorrectlyFormattedNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        private static void DetectIncorrectlyFormattedNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
             // TODO move into Az extension
             foreach (var resource in semanticModel.DeclaredResources)
@@ -188,7 +194,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static void DetectUnexpectedResourceLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        private static void DetectUnexpectedResourceLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
             foreach (var resource in semanticModel.DeclaredResources)
             {
@@ -241,7 +247,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static void DetectUnexpectedModuleLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        private static void DetectUnexpectedModuleLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
             foreach (var module in semanticModel.Root.ModuleDeclarations)
             {
@@ -286,7 +292,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static void DetectUnsupportedModuleParameterAssignments(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        private static void DetectUnsupportedModuleParameterAssignments(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
             foreach (var moduleSymbol in semanticModel.Root.ModuleDeclarations)
             {
@@ -314,6 +320,64 @@ namespace Bicep.Core.Emit
                         break;
                 }
             }
+        }
+
+        private static void DetectCopyVariableName(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            var copyVariableSymbol = semanticModel.Root.VariableDeclarations.FirstOrDefault(x => x.Name.Equals(LanguageConstants.CopyLoopIdentifier, StringComparison.OrdinalIgnoreCase));
+            if (copyVariableSymbol is not null)
+            {
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(copyVariableSymbol.NameSyntax).ReservedIdentifier(LanguageConstants.CopyLoopIdentifier));
+            }
+        }
+
+        public static void DetectInvalidValueForParentProperty(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            foreach (var resourceDeclarationSymbol in semanticModel.Root.ResourceDeclarations)
+            {
+                if (resourceDeclarationSymbol.TryGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is { } referenceParentSyntax)
+                {
+                    var (baseSyntax, _) = SyntaxHelper.UnwrapArrayAccessSyntax(referenceParentSyntax);
+
+                    if (semanticModel.ResourceMetadata.TryLookup(baseSyntax) is not { } && !semanticModel.GetTypeInfo(baseSyntax).IsError())
+                    {
+                        // we throw an error diagnostic when the parent property contains a value that cannot be computed or does not directly reference another resource.
+                        // this includes ternary operator expressions, which Bicep does not support
+                        diagnosticWriter.Write(referenceParentSyntax, x => x.InvalidValueForParentProperty());
+                    }
+                }
+            }
+        }
+
+        private static void BlockLambdasOutsideFunctionArguments(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            CallbackVisitor.Visit(model.Root.Syntax, syntax => {
+                if (syntax is LambdaSyntax lambdaSyntax)
+                {
+                    var parent = model.Binder.GetParent(lambdaSyntax);
+                    while (parent is not null)
+                    {
+                        if (parent is FunctionArgumentSyntax)
+                        {
+                            // we're inside a function argument - all good
+                            return true;
+                        }
+
+                        if (parent is ParenthesizedExpressionSyntax)
+                        {
+                            // we've got a parenthesized expression - keep searching upwards
+                            parent = model.Binder.GetParent(parent);
+                            continue;
+                        }
+
+                        // lambdas are not valid inside any other syntax - raise an error and exit
+                        diagnostics.Write(lambdaSyntax, x => x.LambdaFunctionsOnlyValidInFunctionArguments());
+                        return true;
+                    }
+                }
+
+                return true;
+            });
         }
 
         private static bool IsInvariant(SemanticModel semanticModel, LocalVariableSyntax itemVariable, LocalVariableSyntax? indexVariable, SyntaxBase expression)

@@ -80,10 +80,14 @@ namespace Bicep.Core.Syntax
 
         void VisitForVariableBlockSyntax(ForVariableBlockSyntax syntax);
 
+        void VisitVariableBlockSyntax(VariableBlockSyntax syntax);
+
         void VisitDecoratorSyntax(DecoratorSyntax syntax);
 
         void VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax);
 
         void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax);
+
+        void VisitLambdaSyntax(LambdaSyntax syntax);
     }
 }

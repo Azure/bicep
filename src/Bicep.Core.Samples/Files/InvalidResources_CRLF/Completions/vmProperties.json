@@ -5,7 +5,7 @@
     "detail": "additionalCapabilities",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `AdditionalCapabilities`  \nEnables or disables a capability on the virtual machine or virtual machine scale set.  \n"
+      "value": "Type: `AdditionalCapabilities`  \nSpecifies additional capabilities enabled or disabled on the virtual machine.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -26,7 +26,7 @@
     "detail": "availabilitySet",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `SubResource`  \n"
+      "value": "Type: `SubResource`  \nSpecifies information about the availability set that the virtual machine should be assigned to. Virtual machines specified in the same availability set are allocated to different nodes to maximize availability. For more information about availability sets, see [Manage the availability of virtual machines](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-manage-availability?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json). <br><br> For more information on Azure planned maintenance, see [Planned maintenance for virtual machines in Azure](https://docs.microsoft.com/azure/virtual-machines/virtual-machines-windows-planned-maintenance?toc=%2fazure%2fvirtual-machines%2fwindows%2ftoc.json) <br><br> Currently, a VM can only be added to availability set at creation time. The availability set to which the VM is being added should be under the same resource group as the availability set resource. An existing VM cannot be added to an availability set. <br><br>This property cannot exist along with a non-null properties.virtualMachineScaleSet reference.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -47,7 +47,7 @@
     "detail": "billingProfile",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `BillingProfile`  \nSpecifies the billing related details of a Azure Spot VM or VMSS. <br><br>Minimum api-version: 2019-03-01.  \n"
+      "value": "Type: `BillingProfile`  \nSpecifies the billing related details of a Azure Spot virtual machine. <br><br>Minimum api-version: 2019-03-01.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -89,7 +89,7 @@
     "detail": "evictionPolicy",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Deallocate' | 'Delete'`  \nSpecifies the eviction policy for the Azure Spot VM/VMSS  \n"
+      "value": "Type: `'Deallocate' | 'Delete' | string`  \nSpecifies the eviction policy for the Azure Spot virtual machine and Azure Spot scale set. <br><br>For Azure Spot virtual machines, both 'Deallocate' and 'Delete' are supported and the minimum api-version is 2019-03-01. <br><br>For Azure Spot scale sets, both 'Deallocate' and 'Delete' are supported and the minimum api-version is 2017-10-30-preview.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -152,7 +152,7 @@
     "detail": "host",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `SubResource`  \n"
+      "value": "Type: `SubResource`  \nSpecifies information about the dedicated host that the virtual machine resides in. <br><br>Minimum api-version: 2018-10-01.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -173,7 +173,7 @@
     "detail": "hostGroup",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `SubResource`  \n"
+      "value": "Type: `SubResource`  \nSpecifies information about the dedicated host group that the virtual machine resides in. <br><br>Minimum api-version: 2020-06-01. <br><br>NOTE: User cannot specify both host and hostGroup properties.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -194,7 +194,7 @@
     "detail": "instanceView",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `VirtualMachineInstanceView`  \nRead-only property  \nThe instance view of a virtual machine.  \n"
+      "value": "Type: `VirtualMachineInstanceView`  \nRead-only property  \nThe virtual machine instance view.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -257,7 +257,7 @@
     "detail": "osProfile",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `OSProfile`  \nSpecifies the operating system settings for the virtual machine. Some of the settings cannot be changed once VM is provisioned.  \n"
+      "value": "Type: `OSProfile`  \nSpecifies the operating system settings used while creating the virtual machine. Some of the settings cannot be changed once VM is provisioned.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -278,7 +278,7 @@
     "detail": "priority",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'Low' | 'Regular' | 'Spot'`  \nSpecifies the priority for a standalone virtual machine or the virtual machines in the scale set. <br><br> 'Low' enum will be deprecated in the future, please use 'Spot' as the enum to deploy Azure Spot VM/VMSS.  \n"
+      "value": "Type: `'Low' | 'Regular' | 'Spot' | string`  \nSpecifies the priority for the virtual machine. <br><br>Minimum api-version: 2019-03-01  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -320,7 +320,7 @@
     "detail": "proximityPlacementGroup",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `SubResource`  \n"
+      "value": "Type: `SubResource`  \nSpecifies information about the proximity placement group that the virtual machine should be assigned to. <br><br>Minimum api-version: 2018-04-01.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -341,7 +341,7 @@
     "detail": "securityProfile",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `SecurityProfile`  \nSpecifies the Security profile settings for the virtual machine or virtual machine scale set.  \n"
+      "value": "Type: `SecurityProfile`  \nSpecifies the Security related profile settings for the virtual machine.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -383,7 +383,7 @@
     "detail": "virtualMachineScaleSet",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `SubResource`  \n"
+      "value": "Type: `SubResource`  \nSpecifies information about the virtual machine scale set that the virtual machine should be assigned to. Virtual machines specified in the same virtual machine scale set are allocated to different nodes to maximize availability. Currently, a VM can only be added to virtual machine scale set at creation time. An existing VM cannot be added to a virtual machine scale set. <br><br>This property cannot exist along with a non-null properties.availabilitySet reference. <br><br>Minimum api‐version: 2019‐03‐01  \n"
     },
     "deprecated": false,
     "preselect": false,

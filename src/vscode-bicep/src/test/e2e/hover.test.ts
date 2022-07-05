@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 
 import { expectDefined, expectRange } from "../utils/assert";
 import { retryWhile, sleep } from "../utils/time";
-import { executeHoverProviderCommand } from "./commands";
+import { executeCloseAllEditors, executeHoverProvider } from "./commands";
 import { readExampleFile } from "./examples";
 
 describe("hover", (): void => {
@@ -25,7 +25,7 @@ describe("hover", (): void => {
   });
 
   afterAll(async () => {
-    await vscode.commands.executeCommand("workbench.action.closeAllEditors");
+    await executeCloseAllEditors();
   });
 
   it("should reveal type signature when hovering over a parameter name", async () => {
@@ -106,7 +106,7 @@ describe("hover", (): void => {
       endCharacter: 67,
       contents: [
         codeblockWithDescription(
-          "function uniqueString(string): string",
+          "function uniqueString(... : string): string",
           "Creates a deterministic hash string based on the values provided as parameters."
         ),
       ],
@@ -118,7 +118,7 @@ describe("hover", (): void => {
     position: vscode.Position
   ) {
     return retryWhile(
-      async () => await executeHoverProviderCommand(documentUri, position),
+      async () => await executeHoverProvider(documentUri, position),
       (hovers) => hovers === undefined || hovers.length === 0
     );
   }
