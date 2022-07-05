@@ -5,7 +5,7 @@ param location = 'westus'
 param storageAccountName = 'my-account'
 
 //cathy
-para myint = [
+param myint = [
   1
   2
   3

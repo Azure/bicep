@@ -183,16 +183,16 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataTestMethod]
-        // [DynamicData(nameof(GetParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Build_Valid_Params_File_Should_Succeed(/*DataSet dataSet*/)
+        [DynamicData(nameof(GetParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task Build_Valid_Params_File_Should_Succeed(DataSet dataSet)
         {
         
-            // var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            // var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParam);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+            var paramsFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParam);
 
             // var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
             
-            var paramsFilePath = "c:\\Users\\t-musman\\Downloads\\project\\bicep\\src\\Bicep.Cli.IntegrationTests\\test.bicepparam";
+            // var paramsFilePath = "c:\\Users\\t-musman\\Downloads\\project\\bicep\\src\\Bicep.Cli.IntegrationTests\\test.bicepparam";
 
 
             var (output, error, result) = await Bicep("build", paramsFilePath);
@@ -223,8 +223,6 @@ namespace Bicep.Cli.IntegrationTests
             //     expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
             //     actualLocation: compiledFilePath);
         }
-
-
 
         [TestMethod]
         public async Task Build_Valid_SingleFile_WithDigestReference_ShouldSucceed()
