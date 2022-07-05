@@ -397,6 +397,32 @@
     ]
   },
   {
+    "name": "filter",
+    "description": "Filters an array with a custom filtering function.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array to filter.",
+        "type": "array",
+        "required": true
+      },
+      {
+        "name": "predicate",
+        "description": "The predicate applied to each input array element. If false, the item will be filtered out of the output array.",
+        "type": "any => bool",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(array: array, predicate: any => bool): array",
+    "parameterTypeSignatures": [
+      "array: array",
+      "predicate: any => bool"
+    ]
+  },
+  {
     "name": "first",
     "description": "Returns the first element of the array.",
     "fixedParameters": [
@@ -432,6 +458,23 @@
     "typeSignature": "(string: string): string",
     "parameterTypeSignatures": [
       "string: string"
+    ]
+  },
+  {
+    "name": "flatten",
+    "description": "Takes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.",
+    "fixedParameters": [],
+    "minimumArgumentCount": 0,
+    "variableParameter": {
+      "namePrefix": "array",
+      "description": "The array of sub-arrays to flatten.",
+      "type": "array[]",
+      "minimumCount": 0
+    },
+    "flags": "default",
+    "typeSignature": "(... : array[]): array",
+    "parameterTypeSignatures": [
+      "... : array[]"
     ]
   },
   {
@@ -760,7 +803,7 @@
     "fixedParameters": [
       {
         "name": "filePath",
-        "description": "The path to the file that will be loaded",
+        "description": "The path to the file that will be loaded.",
         "type": "string",
         "required": true
       }
@@ -779,7 +822,7 @@
     "fixedParameters": [
       {
         "name": "filePath",
-        "description": "The path to the file that will be loaded",
+        "description": "The path to the file that will be loaded.",
         "type": "string",
         "required": true
       },
@@ -812,7 +855,7 @@
     "fixedParameters": [
       {
         "name": "filePath",
-        "description": "The path to the file that will be loaded",
+        "description": "The path to the file that will be loaded.",
         "type": "string",
         "required": true
       },
@@ -830,6 +873,32 @@
     "parameterTypeSignatures": [
       "filePath: string",
       "[encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']"
+    ]
+  },
+  {
+    "name": "map",
+    "description": "Applies a custom mapping function to each element of an array and returns the result array.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array to map.",
+        "type": "array",
+        "required": true
+      },
+      {
+        "name": "predicate",
+        "description": "The predicate applied to each input array element, in order to generate the output array.",
+        "type": "any => any",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(array: array, predicate: any => any): array",
+    "parameterTypeSignatures": [
+      "array: array",
+      "predicate: any => any"
     ]
   },
   {
@@ -974,6 +1043,39 @@
     ]
   },
   {
+    "name": "reduce",
+    "description": "Reduces an array with a custom reduce function.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array to reduce.",
+        "type": "array",
+        "required": true
+      },
+      {
+        "name": "initialValue",
+        "description": "The initial value.",
+        "type": "any",
+        "required": true
+      },
+      {
+        "name": "predicate",
+        "description": "The predicate used to aggregate the current value and the next value. ",
+        "type": "(any, any) => any",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 3,
+    "maximumArgumentCount": 3,
+    "flags": "default",
+    "typeSignature": "(array: array, initialValue: any, predicate: (any, any) => any): array",
+    "parameterTypeSignatures": [
+      "array: array",
+      "initialValue: any",
+      "predicate: (any, any) => any"
+    ]
+  },
+  {
     "name": "replace",
     "description": "Returns a new string with all instances of one string replaced by another string.",
     "fixedParameters": [
@@ -1056,6 +1158,32 @@
     "parameterTypeSignatures": [
       "originalValue: string",
       "numberToSkip: int"
+    ]
+  },
+  {
+    "name": "sort",
+    "description": "Sorts an array with a custom sort function.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array to sort.",
+        "type": "array",
+        "required": true
+      },
+      {
+        "name": "predicate",
+        "description": "The predicate used to compare two array elements for ordering. If true, the second element will be ordered after the first in the output array.",
+        "type": "(any, any) => bool",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(array: array, predicate: (any, any) => bool): array",
+    "parameterTypeSignatures": [
+      "array: array",
+      "predicate: (any, any) => bool"
     ]
   },
   {

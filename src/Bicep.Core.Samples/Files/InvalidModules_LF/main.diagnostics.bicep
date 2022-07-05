@@ -92,7 +92,7 @@ module './main.bicep' = if {
 
 module './main.bicep' = if () {
 //@[007:021) [BCP096 (Error)] Expected a module identifier at this location. (CodeDescription: none) |'./main.bicep'|
-//@[028:029) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |)|
+//@[028:028) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
 
 }
 
@@ -127,6 +127,7 @@ module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-
 
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[007:017) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |modANoName|
+//@[044:047) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'a'|
 
 }
 
@@ -293,6 +294,7 @@ module runtimeInvalidModule1 'empty.bicep' = {
 module runtimeInvalidModule2 'empty.bicep' = {
   name: runtimeValidRes1['location']
 //@[008:036) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['location']|
+//@[024:036) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['location']|
 }
 
 module runtimeInvalidModule3 'empty.bicep' = {
@@ -303,16 +305,20 @@ module runtimeInvalidModule3 'empty.bicep' = {
 module runtimeInvalidModule4 'empty.bicep' = {
   name: runtimeValidRes1.sku['name']
 //@[008:028) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.sku|
+//@[028:036) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['name']|
 }
 
 module runtimeInvalidModule5 'empty.bicep' = {
   name: runtimeValidRes1['sku']['name']
 //@[008:031) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['sku']|
+//@[024:031) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['sku']|
+//@[031:039) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['name']|
 }
 
 module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
 //@[008:031) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['sku']|
+//@[024:031) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['sku']|
 }
 
 module singleModuleForRuntimeCheck 'modulea.bicep' = {
@@ -483,11 +489,11 @@ module expectedLoopFilterOpenParen2 'modulea.bicep' = [for (x,y) in z: if]
 
 module expectedLoopFilterPredicateAndBody 'modulea.bicep' = [for x in y: if()]
 //@[070:071) [BCP057 (Error)] The name "y" does not exist in the current context. (CodeDescription: none) |y|
-//@[076:077) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |)|
+//@[076:076) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
 //@[077:078) [BCP018 (Error)] Expected the "{" character at this location. (CodeDescription: none) |]|
 module expectedLoopFilterPredicateAndBody2 'modulea.bicep' = [for (x,y) in z: if()]
 //@[075:076) [BCP057 (Error)] The name "z" does not exist in the current context. (CodeDescription: none) |z|
-//@[081:082) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |)|
+//@[081:081) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
 //@[082:083) [BCP018 (Error)] Expected the "{" character at this location. (CodeDescription: none) |]|
 
 // wrong loop body type

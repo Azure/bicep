@@ -27,8 +27,10 @@ namespace Bicep.Core.Samples
         public const string TestFileMainSyntax = "main.syntax.bicep";
         public const string TestFileMainParamSyntax = "main.syntax.bicepparam";
         public const string TestFileMainFormatted = "main.formatted.bicep";
+        public const string TestFileMainSourceMap = "main.sourcemap.bicep";
         public const string TestFileMainCompiled = "main.json";
         public const string TestFileMainCompiledWithSymbolicNames = "main.symbolicnames.json";
+        public const string TestFileMainCompiledSourceMap = "main.sourcemap.json";
         public const string TestCompletionsDirectory = "Completions";
         public const string TestCompletionsPrefix = TestCompletionsDirectory + "/";
         public const string TestFunctionsDirectory = "Functions";
@@ -56,6 +58,8 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<string>? lazyCompiledWithSymbolicNames;
 
+        private readonly Lazy<string>? lazyCompiledSourceMap;
+
         private readonly Lazy<string> lazySyntax;
 
         private readonly Lazy<string>? lazyParamSyntax;
@@ -63,6 +67,8 @@ namespace Bicep.Core.Samples
         private readonly Lazy<string> lazySymbols;
 
         private readonly Lazy<string> lazyFormatted;
+
+        private readonly Lazy<string>? lazySourceMap;
 
         private readonly Lazy<ImmutableDictionary<string, string>> lazyCompletions;
 
@@ -80,10 +86,12 @@ namespace Bicep.Core.Samples
             this.lazyDiagnostics = this.CreateRequired(TestFileMainDiagnostics);
             this.lazyCompiled = this.CreateIffValid(TestFileMainCompiled);
             this.lazyCompiledWithSymbolicNames = this.CreateIffValid(TestFileMainCompiledWithSymbolicNames);
+            this.lazyCompiledSourceMap = this.CreateIffValid(TestFileMainCompiledSourceMap);
             this.lazySymbols = this.CreateRequired(TestFileMainSymbols);
             this.lazySyntax = this.CreateRequired(TestFileMainSyntax);
             this.lazyParamSyntax = this.CreateOptional(TestFileMainParamSyntax);
             this.lazyFormatted = this.CreateRequired(TestFileMainFormatted);
+            this.lazySourceMap = this.CreateIffValid(TestFileMainSourceMap);
             this.lazyCompletions = new(() => ReadDataSetDictionary(GetStreamName(TestCompletionsPrefix)), LazyThreadSafetyMode.PublicationOnly);
             this.lazyModulesToPublish = new(() => ReadPublishData(GetStreamName(TestPublishPrefix)), LazyThreadSafetyMode.PublicationOnly);
             this.lazyTemplateSpecs = new(() => ReadTemplateSpecsData(GetStreamName(TestTemplateSpecsPrefix)), LazyThreadSafetyMode.PublicationOnly);
@@ -105,6 +113,8 @@ namespace Bicep.Core.Samples
 
         public string? CompiledWithSymbolicNames => this.lazyCompiledWithSymbolicNames?.Value;
 
+        public string? CompiledSourceMap => this.lazyCompiledSourceMap?.Value;
+
         public string Symbols => this.lazySymbols.Value;
 
         public string Syntax => this.lazySyntax.Value;
@@ -112,6 +122,8 @@ namespace Bicep.Core.Samples
         public string? ParamSyntax => this.lazyParamSyntax?.Value;
 
         public string Formatted => this.lazyFormatted.Value;
+
+        public string? SourceMap => this.lazySourceMap?.Value;
 
         public ImmutableDictionary<string, string> Completions => this.lazyCompletions.Value;
 

@@ -1,5 +1,5 @@
 /*
-//@[00:5805) ProgramSyntax
+//@[00:5984) ProgramSyntax
   This tests the various cases of invalid expressions.
 */
 //@[02:0004) ├─Token(NewLine) |\n\n|
@@ -2577,8 +2577,95 @@ xxxxx
 //@[05:0008) ├─Token(NewLine) |\n\n\n|
 
 
+var noElements = ()
+//@[00:0019) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0014) | ├─IdentifierSyntax
+//@[04:0014) | | └─Token(Identifier) |noElements|
+//@[15:0016) | ├─Token(Assignment) |=|
+//@[17:0019) | └─ParenthesizedExpressionSyntax
+//@[17:0018) | | ├─Token(LeftParen) |(|
+//@[18:0018) | | ├─SkippedTriviaSyntax
+//@[18:0019) | | └─Token(RightParen) |)|
+//@[19:0020) ├─Token(NewLine) |\n|
+var justAComma = (,)
+//@[00:0020) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0014) | ├─IdentifierSyntax
+//@[04:0014) | | └─Token(Identifier) |justAComma|
+//@[15:0016) | ├─Token(Assignment) |=|
+//@[17:0020) | └─ParenthesizedExpressionSyntax
+//@[17:0018) | | ├─Token(LeftParen) |(|
+//@[18:0019) | | ├─SkippedTriviaSyntax
+//@[18:0018) | | | ├─SkippedTriviaSyntax
+//@[18:0019) | | | └─Token(Comma) |,|
+//@[19:0020) | | └─Token(RightParen) |)|
+//@[20:0021) ├─Token(NewLine) |\n|
+var twoElements = (1, 2)
+//@[00:0024) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |twoElements|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0024) | └─ParenthesizedExpressionSyntax
+//@[18:0019) | | ├─Token(LeftParen) |(|
+//@[19:0023) | | ├─SkippedTriviaSyntax
+//@[19:0020) | | | ├─IntegerLiteralSyntax
+//@[19:0020) | | | | └─Token(Integer) |1|
+//@[20:0021) | | | ├─Token(Comma) |,|
+//@[22:0023) | | | └─IntegerLiteralSyntax
+//@[22:0023) | | | | └─Token(Integer) |2|
+//@[23:0024) | | └─Token(RightParen) |)|
+//@[24:0025) ├─Token(NewLine) |\n|
+var threeElements = (1, 2, 3)
+//@[00:0029) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0017) | ├─IdentifierSyntax
+//@[04:0017) | | └─Token(Identifier) |threeElements|
+//@[18:0019) | ├─Token(Assignment) |=|
+//@[20:0029) | └─ParenthesizedExpressionSyntax
+//@[20:0021) | | ├─Token(LeftParen) |(|
+//@[21:0028) | | ├─SkippedTriviaSyntax
+//@[21:0022) | | | ├─IntegerLiteralSyntax
+//@[21:0022) | | | | └─Token(Integer) |1|
+//@[22:0023) | | | ├─Token(Comma) |,|
+//@[24:0025) | | | ├─IntegerLiteralSyntax
+//@[24:0025) | | | | └─Token(Integer) |2|
+//@[25:0026) | | | ├─Token(Comma) |,|
+//@[27:0028) | | | └─IntegerLiteralSyntax
+//@[27:0028) | | | | └─Token(Integer) |3|
+//@[28:0029) | | └─Token(RightParen) |)|
+//@[29:0030) ├─Token(NewLine) |\n|
+var unterminated1 = (
+//@[00:0021) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0017) | ├─IdentifierSyntax
+//@[04:0017) | | └─Token(Identifier) |unterminated1|
+//@[18:0019) | ├─Token(Assignment) |=|
+//@[20:0021) | └─ParenthesizedExpressionSyntax
+//@[20:0021) | | ├─Token(LeftParen) |(|
+//@[21:0021) | | ├─SkippedTriviaSyntax
+//@[21:0021) | | └─SkippedTriviaSyntax
+//@[21:0022) ├─Token(NewLine) |\n|
+var unterminated2 = (,
+//@[00:0022) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0017) | ├─IdentifierSyntax
+//@[04:0017) | | └─Token(Identifier) |unterminated2|
+//@[18:0019) | ├─Token(Assignment) |=|
+//@[20:0022) | └─ParenthesizedExpressionSyntax
+//@[20:0021) | | ├─Token(LeftParen) |(|
+//@[21:0022) | | ├─SkippedTriviaSyntax
+//@[21:0021) | | | ├─SkippedTriviaSyntax
+//@[21:0022) | | | ├─Token(Comma) |,|
+//@[22:0022) | | | └─SkippedTriviaSyntax
+//@[22:0022) | | └─SkippedTriviaSyntax
+//@[22:0024) ├─Token(NewLine) |\n\n|
+
+// trailing decorator with no declaration
+//@[41:0042) ├─Token(NewLine) |\n|
 @minLength()
-//@[00:0021) ├─MissingDeclarationSyntax
+//@[00:0016) ├─MissingDeclarationSyntax
 //@[00:0012) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
 //@[01:0012) | | └─FunctionCallSyntax
@@ -2586,12 +2673,7 @@ xxxxx
 //@[01:0010) | | | | └─Token(Identifier) |minLength|
 //@[10:0011) | | | ├─Token(LeftParen) |(|
 //@[11:0012) | | | └─Token(RightParen) |)|
-//@[12:0021) | └─Token(NewLine) |\n\n\n\n\n\n\n\n\n|
-
-
-
-
-
+//@[12:0016) | └─Token(NewLine) |\n\n\n\n|
 
 
 

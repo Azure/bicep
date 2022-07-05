@@ -23,7 +23,7 @@
     "detail": "containerSettings",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `ContainerConfiguration`  \nSettings to customize ACI container instance.  \n"
+      "value": "Type: `ContainerConfiguration`  \nContainer settings.  \n"
     },
     "deprecated": false,
     "preselect": false,

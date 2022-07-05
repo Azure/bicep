@@ -190,7 +190,7 @@ namespace Bicep.LanguageServer.Handlers
                 Command = TelemetryHelper.CreateCommand
                 (
                     title: "edit linter rule code action",
-                    name: LanguageConstants.EditLinterRuleCommandName,
+                    name: LangServerConstants.EditLinterRuleCommandName,
                     args: JArray.FromObject(new List<object> { documentUri, ruleName, bicepConfigFilePath ?? string.Empty /* (passing null not allowed) */ })
                 )
             };

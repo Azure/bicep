@@ -230,6 +230,13 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.CloseParen);
         }
 
+        public virtual void VisitVariableBlockSyntax(VariableBlockSyntax syntax)
+        {
+            this.Visit(syntax.OpenParen);
+            this.VisitNodes(syntax.Children);
+            this.Visit(syntax.CloseParen);
+        }
+
         public virtual void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
         {
             this.Visit(syntax.ConditionExpression);
@@ -344,6 +351,13 @@ namespace Bicep.Core.Syntax
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Path);
+        }
+        
+        public virtual void VisitLambdaSyntax(LambdaSyntax syntax)
+        {
+            this.Visit(syntax.VariableSection);
+            this.Visit(syntax.Arrow);
+            this.Visit(syntax.Body);
         }
 
         protected void VisitTokens(IEnumerable<Token> tokens)

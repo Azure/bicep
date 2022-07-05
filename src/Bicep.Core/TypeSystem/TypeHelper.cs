@@ -16,9 +16,21 @@ namespace Bicep.Core.TypeSystem
         public static TypeSymbol? TryCollapseTypes(IEnumerable<ITypeReference> itemTypes)
         {
             var aggregatedItemType = CreateTypeUnion(itemTypes);
-            if (aggregatedItemType.TypeKind == TypeKind.Union || aggregatedItemType.TypeKind == TypeKind.Never || aggregatedItemType.TypeKind == TypeKind.Any)
+
+            if (aggregatedItemType.TypeKind == TypeKind.Never || aggregatedItemType.TypeKind == TypeKind.Any)
             {
-                // We have a mix of item types or none
+                // it doesn't really make sense to collapse 'never' or 'any'
+                return null;
+            }
+
+            if (aggregatedItemType is UnionType unionType)
+            {
+                if (unionType.Members.All(x => x is StringLiteralType || x == LanguageConstants.String))
+                {
+                    return LanguageConstants.String;
+                }
+
+                // We have a mix of item types that cannot be collapsed
                 return null;
             }
 
