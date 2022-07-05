@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
@@ -10,7 +11,11 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Logging;
-using System.Linq;
+
+using Bicep.Core.Diagnostics;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
+
 
 // TODO: delete this when done :D
 // Parse the param file
@@ -72,8 +77,7 @@ namespace Bicep.Cli.Commands
                     logger.LogError(CliResources.ResourceTypesDisclaimerMessage, inputPath);
                 }
                 // 3. Extract the path to the Bicep file from the using statement
-
-                var paramPath = program.Children[0];//.Path.SegmentValues[0];
+                var paramPath = TryGetUsingPath(usingDeclarations.ToList()[0], out var getUsingPathFailureBuilder);
             }
             
             if (invocationContext.EmitterSettings.EnableSymbolicNames)
@@ -128,6 +132,27 @@ namespace Bicep.Cli.Commands
             //var entryPointSemanticModel = compilation.GetEntrypointSemanticModel();
 
             return 0;
+        }
+
+        private static string? TryGetUsingPath(UsingDeclarationSyntax usingDeclarationSyntax, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        {
+            var pathSyntax = usingDeclarationSyntax.TryGetPath();
+            if (pathSyntax == null)
+            {
+                // TODO: change this error from module error to using error
+                failureBuilder = x => x.ModulePathHasNotBeenSpecified();
+                return null;
+            }
+
+            var pathValue = pathSyntax.TryGetLiteralValue();
+            if (pathValue == null)
+            {
+                failureBuilder = x => x.FilePathInterpolationUnsupported();
+                return null;
+            }
+
+            failureBuilder = null;
+            return pathValue;
         }
         private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));
     }
