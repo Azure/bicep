@@ -11,25 +11,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Logging;
-
 using Bicep.Core.Diagnostics;
-using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
-
-
-// TODO: delete this when done :D
-// Parse the param file
-// Get the path to the linked Bicep file
-// var compilation = compilationService.CompileAsync(inputPath, args.NoRestore);
-// var entryPointSemanticModel = compilation.GetEntrypointSemanticModel();
-// var declaredTypes = Get types from entryPointSemanticModel.Parameters
-
-// !!!!!!
-// var inferredTypes = Get types from the parameters file
-//   - Create a binder to get the symbols - IParamsBinder, ParamsBinder
-//   - Use a visitor to get the types of the symbols - ParamsTypeManager
-
-// Compare declaredType with inferredTypes, emit errors if types don't match
 
 namespace Bicep.Cli.Commands
 {
