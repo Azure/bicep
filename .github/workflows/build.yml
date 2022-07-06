@@ -91,17 +91,17 @@ jobs:
         if: matrix.publishPackages
         run: dotnet pack --configuration ${{ matrix.configuration }}
 
-      - name: Test
-        if: matrix.runTests
-        run: dotnet test --configuration ${{ matrix.configuration }} --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
+      # - name: Test
+      #   if: matrix.runTests
+      #   run: dotnet test --configuration ${{ matrix.configuration }} --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
 
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v3
-        if: always() && matrix.runTests
-        with:
-          name: Bicep.TestResults.${{ matrix.rid }}
-          path: ./TestResults/**/*.trx
-          if-no-files-found: error
+      # - name: Upload Test Results
+      #   uses: actions/upload-artifact@v3
+      #   if: always() && matrix.runTests
+      #   with:
+      #     name: Bicep.TestResults.${{ matrix.rid }}
+      #     path: ./TestResults/**/*.trx
+      #     if-no-files-found: error
 
       - name: Publish Language Server
         if: matrix.publishLanguageServer
@@ -110,21 +110,21 @@ jobs:
       - name: Publish Bicep
         run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
-      - name: Run Bicep E2E Tests
-        if: matrix.rid != 'linux-musl-x64' && matrix.runTests
-        run: npm ci && npm test
-        env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
-        working-directory: ./src/Bicep.Cli.E2eTests
+      # - name: Run Bicep E2E Tests
+      #   if: matrix.rid != 'linux-musl-x64' && matrix.runTests
+      #   run: npm ci && npm test
+      #   env:
+      #     BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
+      #   working-directory: ./src/Bicep.Cli.E2eTests
 
-      - name: Run Bicep E2E Tests (linux-musl-x64)
-        if: matrix.rid == 'linux-musl-x64' && matrix.runTests
-        uses: docker://mcr.microsoft.com/azure-cli:latest
-        with:
-          entrypoint: sh
-          args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
-        env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
+      # - name: Run Bicep E2E Tests (linux-musl-x64)
+      #   if: matrix.rid == 'linux-musl-x64' && matrix.runTests
+      #   uses: docker://mcr.microsoft.com/azure-cli:latest
+      #   with:
+      #     entrypoint: sh
+      #     args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
+      #   env:
+      #     BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
 
       - name: Upload Language Server
         uses: actions/upload-artifact@v3
@@ -149,11 +149,11 @@ jobs:
           path: out/*
           if-no-files-found: error
 
-      - name: Upload Code Coverage
-        if: matrix.runTests
-        uses: codecov/codecov-action@v3
-        with:
-          flags: dotnet
+      # - name: Upload Code Coverage
+      #   if: matrix.runTests
+      #   uses: codecov/codecov-action@v3
+      #   with:
+      #     flags: dotnet
 
   can-run-live-tests:
     name: Check secret access
@@ -167,107 +167,107 @@ jobs:
         if: env.SECRET_TO_CHECK != ''
         run: echo '::set-output name=verified::true'
 
-  test-cli-live:
-    name: Test CLI (live) (${{ matrix.runtime.rid }}) (${{ matrix.environment }})
-    strategy:
-      fail-fast: false
-      matrix:
-        environment: [prod, ff]
-        runtime:
-          # should be the list of RIDs that correspond to OSs supported by GitHub hosted runners
-          - os: windows-latest
-            rid: win-x64
-          - os: ubuntu-latest
-            rid: linux-x64
-          - os: macos-latest
-            rid: osx-x64
-    runs-on: ${{ matrix.runtime.os }}
-    needs:
-      - build-bicep
-      - can-run-live-tests
-    if: needs.can-run-live-tests.outputs.access_verified == 'true'
-    env:
-      BICEP_SPN_PASSWORD_FF: ${{ secrets.BICEP_SPN_PASSWORD_FF }}
+  # test-cli-live:
+  #   name: Test CLI (live) (${{ matrix.runtime.rid }}) (${{ matrix.environment }})
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       environment: [prod, ff]
+  #       runtime:
+  #         # should be the list of RIDs that correspond to OSs supported by GitHub hosted runners
+  #         - os: windows-latest
+  #           rid: win-x64
+  #         - os: ubuntu-latest
+  #           rid: linux-x64
+  #         - os: macos-latest
+  #           rid: osx-x64
+  #   runs-on: ${{ matrix.runtime.os }}
+  #   needs:
+  #     - build-bicep
+  #     - can-run-live-tests
+  #   if: needs.can-run-live-tests.outputs.access_verified == 'true'
+  #   env:
+  #     BICEP_SPN_PASSWORD_FF: ${{ secrets.BICEP_SPN_PASSWORD_FF }}
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v3
+  #       with:
+  #         node-version: 16
 
-      - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
-        with:
-          name: bicep-release-${{ matrix.runtime.rid }}
-          path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
+  #     - name: Download Bicep CLI
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: bicep-release-${{ matrix.runtime.rid }}
+  #         path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
 
-      - name: Make Bicep CLI executable
-        if: matrix.runtime.rid != 'win-x64'
-        run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+  #     - name: Make Bicep CLI executable
+  #       if: matrix.runtime.rid != 'win-x64'
+  #       run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
 
-      - name: Az CLI login
-        uses: azure/login@v1
-        if: matrix.environment == 'prod'
-        with:
-          client-id: ${{ secrets.LIVE_TEST_CLIENT_ID_PROD }}
-          tenant-id: ${{ secrets.LIVE_TEST_TENANT_ID_PROD }}
-          subscription-id: ${{ secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD }}
+  #     - name: Az CLI login
+  #       uses: azure/login@v1
+  #       if: matrix.environment == 'prod'
+  #       with:
+  #         client-id: ${{ secrets.LIVE_TEST_CLIENT_ID_PROD }}
+  #         tenant-id: ${{ secrets.LIVE_TEST_TENANT_ID_PROD }}
+  #         subscription-id: ${{ secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD }}
 
-      - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
-        run: npm ci && npm run test:live:${{ matrix.environment }}
-        env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
-        working-directory: ./src/Bicep.Cli.E2eTests
+  #     - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
+  #       run: npm ci && npm run test:live:${{ matrix.environment }}
+  #       env:
+  #         BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+  #       working-directory: ./src/Bicep.Cli.E2eTests
 
-  test-cli-live-linux-musl-x64:
-    name: Test CLI (live) (linux-musl-x64) (${{ matrix.environment }})
-    strategy:
-      matrix:
-        environment:
-          - prod
-          - ff
-    runs-on: ubuntu-latest
-    container:
-      # The azure-cli image is based on Alpine linux which uses musl libc.
-      image: mcr.microsoft.com/azure-cli:latest
-    needs:
-      - build-bicep
-      - can-run-live-tests
-    if: needs.can-run-live-tests.outputs.access_verified == 'true'
-    env:
-      BICEP_SPN_PASSWORD_FF: ${{ secrets.BICEP_SPN_PASSWORD_FF }}
+  # test-cli-live-linux-musl-x64:
+  #   name: Test CLI (live) (linux-musl-x64) (${{ matrix.environment }})
+  #   strategy:
+  #     matrix:
+  #       environment:
+  #         - prod
+  #         - ff
+  #   runs-on: ubuntu-latest
+  #   container:
+  #     # The azure-cli image is based on Alpine linux which uses musl libc.
+  #     image: mcr.microsoft.com/azure-cli:latest
+  #   needs:
+  #     - build-bicep
+  #     - can-run-live-tests
+  #   if: needs.can-run-live-tests.outputs.access_verified == 'true'
+  #   env:
+  #     BICEP_SPN_PASSWORD_FF: ${{ secrets.BICEP_SPN_PASSWORD_FF }}
 
-    steps:
-      - uses: actions/checkout@v3
+  #   steps:
+  #     - uses: actions/checkout@v3
 
-      # Cannot use actions/setup-node@v3 for linux-musl-x64
-      - name: Setup Node.js
-        run: apk add --update nodejs npm
+  #     # Cannot use actions/setup-node@v3 for linux-musl-x64
+  #     - name: Setup Node.js
+  #       run: apk add --update nodejs npm
 
-      - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
-        with:
-          name: bicep-release-linux-musl-x64
-          path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
+  #     - name: Download Bicep CLI
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: bicep-release-linux-musl-x64
+  #         path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
 
-      - name: Make Bicep CLI executable
-        run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+  #     - name: Make Bicep CLI executable
+  #       run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
 
-      - name: Az CLI login
-        uses: azure/login@v1
-        if: matrix.environment == 'prod'
-        with:
-          client-id: ${{ secrets.LIVE_TEST_CLIENT_ID_PROD }}
-          tenant-id: ${{ secrets.LIVE_TEST_TENANT_ID_PROD }}
-          subscription-id: ${{ secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD }}
+  #     - name: Az CLI login
+  #       uses: azure/login@v1
+  #       if: matrix.environment == 'prod'
+  #       with:
+  #         client-id: ${{ secrets.LIVE_TEST_CLIENT_ID_PROD }}
+  #         tenant-id: ${{ secrets.LIVE_TEST_TENANT_ID_PROD }}
+  #         subscription-id: ${{ secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD }}
 
-      - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
-        run: npm ci && npm run test:live:${{ matrix.environment }}
-        env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
-        working-directory: ./src/Bicep.Cli.E2eTests
+  #     - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
+  #       run: npm ci && npm run test:live:${{ matrix.environment }}
+  #       env:
+  #         BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+  #       working-directory: ./src/Bicep.Cli.E2eTests
 
   build-windows-setup:
     name: Build Windows Setup

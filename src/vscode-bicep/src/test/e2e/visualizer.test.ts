@@ -64,10 +64,19 @@ describe("visualizer", (): void => {
   it("should open source", async () => {
     expect(vscode.window.activeTextEditor).toBeUndefined();
 
-    const examplePath = resolveExamplePath("201", "sql");
-    const textDocument = await vscode.workspace.openTextDocument(examplePath);
+    const examplePath = resolveExamplePath("000", "empty");
+    const document = await vscode.workspace.openTextDocument(examplePath);
 
-    await executeShowVisualizerToSideCommand(textDocument.uri);
+    await vscode.window.showTextDocument(document);
+
+    // Give the language server sometime to finish compilation.
+    await sleep(2000);
+
+    await executeShowVisualizerToSideCommand(document.uri);
+    await until(() => visualizerIsReady(document.uri), {
+      interval: 100,
+    });
+
     const sourceEditor = await executeShowSourceCommand();
 
     expectDefined(sourceEditor);

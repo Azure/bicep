@@ -71,7 +71,9 @@ async function go() {
 
     process.exit(0);
   } catch (err) {
-    console.error(err);
+    console.log(typeof err);
+    console.log((err as Error).message ?? (err as Error).stack ?? "empty");
+    console.log("Failed to run tests.");
     process.exit(1);
   }
 }
