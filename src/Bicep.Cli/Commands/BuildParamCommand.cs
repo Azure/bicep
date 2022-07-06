@@ -57,27 +57,15 @@ namespace Bicep.Cli.Commands
 
         public async Task<int> RunAsync(BuildArguments args)
         {
-            // Get the path to the linked Bicep file
-
             var inputPath = PathHelper.ResolvePath(args.InputFile);
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
             if (PathHelper.HasExtension(inputUri, LanguageConstants.ParamsFileExtension))
             {
-                // 1. Parse the params file
                 var parser = new Parser(inputPath);
                 var program = parser.Program();
-
                 var usingDeclarations = program.Children.OfType<UsingDeclarationSyntax>();
-                
-                // 2. Check if there is only one using statement.
-                if (!(usingDeclarations.Count() == 1)) {
-                    // emit an error
-                    // TODO: create a new error log type?
-                    logger.LogError(CliResources.ResourceTypesDisclaimerMessage, inputPath);
-                }
-                // 3. Extract the path to the Bicep file from the using statement
-                var paramPath = TryGetUsingPath(usingDeclarations.ToList()[0], out var getUsingPathFailureBuilder);
+                var paramPath = TryGetUsingPath(usingDeclarations.SingleOrDefault(), out var getUsingPathFailureBuilder);
             }
             
             if (invocationContext.EmitterSettings.EnableSymbolicNames)
@@ -113,34 +101,18 @@ namespace Bicep.Cli.Commands
                     writer.ToFile(compilation, outputPath);
                 }
             }
-
-            // return non-zero exit code on errors
             if (diagnosticLogger.ErrorCount > 0) {
                 return 1;
             }
-
-            // 4. Invoke the binder to collect all parameter symbols (need a new version of Binder, NameBindingVisitor, need to update CyclicCheckVisitor).
-            // 5. Assign types to the parameter symbols (need a new TypeManager and TypeAssignmentVisitor. Refer to VisitVariableDeclarationSyntax.)
-            // 6. Create a new FileSymbol, ParameterAssignmentSymbol. Create a new semantic model to expose FileSymbol as Root.
-            // 7. Do validations
-            // 7.1. Query the Bicep compilation to get all required parameters, and check if they are all present in the params file
-            // 7.2. For each parameter assignment, check if it is declared in the linked Bicep file
-            // 7.3. For each parameter assignment, check if its type matches the type of the declared parameter in the linked Bicep file.
-
-            // TODO: make sure GetEntrypointSemanticModel() is being called on param version
-            // still need this?
-            //var entryPointSemanticModel = compilation.GetEntrypointSemanticModel();
-
             return 0;
         }
 
-        private static string? TryGetUsingPath(UsingDeclarationSyntax usingDeclarationSyntax, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private static string? TryGetUsingPath(UsingDeclarationSyntax? usingDeclarationSyntax, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            var pathSyntax = usingDeclarationSyntax.TryGetPath();
+            var pathSyntax = usingDeclarationSyntax?.TryGetPath();
             if (pathSyntax == null)
             {
-                // TODO: change this error from module error to using error
-                failureBuilder = x => x.ModulePathHasNotBeenSpecified();
+                failureBuilder = null;
                 return null;
             }
 
