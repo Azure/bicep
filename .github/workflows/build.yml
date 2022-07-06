@@ -103,6 +103,10 @@ jobs:
           path: ./src/Bicep.VSLanguageServerClient.Vsix/bin/Release/Bicep.VSLanguageServerClient.Vsix.vsix
           if-no-files-found: error
 
+      - name: Install bicep in Visual Studio
+        if: runner.os == 'Windows'
+        run: ./src/InstallBicepInVisualStudio.cmd
+
       - name: Pack
         if: matrix.publishPackages
         run: dotnet pack Bicep.sln --configuration ${{ matrix.configuration }}
