@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32621.23
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.VSLanguageServerClient.Vsix", "src\Bicep.VSLanguageServerClient.Vsix\Bicep.VSLanguageServerClient.Vsix.csproj", "{A722010A-27D3-433E-8469-465E72AB0E8E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bicep.VSLanguageServerClient.Vsix", "src\vs-bicep\Bicep.VSLanguageServerClient.Vsix\Bicep.VSLanguageServerClient.Vsix.csproj", "{A722010A-27D3-433E-8469-465E72AB0E8E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.VSLanguageServerClient", "src\Bicep.VSLanguageServerClient\Bicep.VSLanguageServerClient.csproj", "{BA111680-4C30-4CF9-A495-871066189984}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.VSLanguageServerClient", "src\vs-bicep\Bicep.VSLanguageServerClient\Bicep.VSLanguageServerClient.csproj", "{BA111680-4C30-4CF9-A495-871066189984}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.VSLanguageServerClient.UnitTests", "src\Bicep.VSLanguageServerClient.UnitTests\Bicep.VSLanguageServerClient.UnitTests.csproj", "{5EE062CF-BC61-412E-8757-740FC39655E1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.VSLanguageServerClient.UnitTests", "src\vs-bicep\Bicep.VSLanguageServerClient.UnitTests\Bicep.VSLanguageServerClient.UnitTests.csproj", "{5EE062CF-BC61-412E-8757-740FC39655E1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.VSLanguageServerClient.IntegrationTests", "src\Bicep.VSLanguageServerClient.IntegrationTests\Bicep.VSLanguageServerClient.IntegrationTests.csproj", "{F2815825-F0C7-4E5E-84AE-6D5E7663D988}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bicep.VSLanguageServerClient.IntegrationTests", "src\vs-bicep\Bicep.VSLanguageServerClient.IntegrationTests\Bicep.VSLanguageServerClient.IntegrationTests.csproj", "{F2815825-F0C7-4E5E-84AE-6D5E7663D988}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
