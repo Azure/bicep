@@ -105,7 +105,7 @@ jobs:
 
       - name: Install bicep in Visual Studio
         if: runner.os == 'Windows'
-        run: ./src/InstallBicepInVisualStudio.cmd
+        run: ./src/vs-bicep/InstallBicepInVisualStudio.cmd
 
       - name: Pack
         if: matrix.publishPackages

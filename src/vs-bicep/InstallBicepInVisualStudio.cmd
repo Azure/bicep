@@ -12,6 +12,8 @@ echo VSIXIntallerPath %VSIXInstallerExePath%
 if exist "%VSIXInstallerExePath%\VSIXInstaller.exe" (
   SET BicepVsixPath=%~dp0Bicep.VSLanguageServerClient.Vsix\bin\Release\Bicep.VSLanguageServerClient.Vsix.vsix
 
+  echo BicepVsixPath %BicepVsixPath%
+
   if exist %BicepVsixPath% (
     echo Installing: %BicepVsixPath%
       call "%VSIXInstallerExePath%\VSIXInstaller.exe" /quiet %BicepVsixPath%
