@@ -10,7 +10,7 @@ for /f "usebackq delims=" %%i in (`"%VsWhereExePath%" -latest -prerelease -produ
 echo VSIXIntallerPath %VSIXInstallerExePath%
 
 if exist "%VSIXInstallerExePath%\VSIXInstaller.exe" (
-  SET BicepVsixPath=%~dp0Bicep.VSLanguageServerClient.Vsix\bin\**\Bicep.VSLanguageServerClient.Vsix.vsix
+  SET BicepVsixPath=%~dp0Bicep.VSLanguageServerClient.Vsix\bin\Release\Bicep.VSLanguageServerClient.Vsix.vsix
 
   if exist %BicepVsixPath% (
     echo Installing: %BicepVsixPath%
