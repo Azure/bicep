@@ -34,7 +34,7 @@ namespace Bicep.Core.Emit
                 Formatting = Formatting.Indented
             };
 
-            this.EmitParamsFile(writer);
+            new ParamsFileTemplateWriter(syntax).Write(writer);
         });
 
         public EmitResult EmitParamsFile(JsonTextWriter writer) => this.EmitOrFail(() =>

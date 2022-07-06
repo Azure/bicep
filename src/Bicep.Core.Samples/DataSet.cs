@@ -28,6 +28,7 @@ namespace Bicep.Core.Samples
         public const string TestFileMainParamSyntax = "main.syntax.bicepparam";
         public const string TestFileMainFormatted = "main.formatted.bicep";
         public const string TestFileMainCompiled = "main.json";
+        public const string TestFileMainCompiledParm = "main.bicepparam.json";
         public const string TestFileMainCompiledWithSymbolicNames = "main.symbolicnames.json";
         public const string TestCompletionsDirectory = "Completions";
         public const string TestCompletionsPrefix = TestCompletionsDirectory + "/";

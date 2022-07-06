@@ -52,18 +52,19 @@ namespace Bicep.Cli.Commands
 
             if (!IsBicepFile(inputPath))
             {
+                
                 if(IsBicepparamsFile(inputPath))
                 {
                     var syntax = compilationService.CompileParams(inputPath, args.NoRestore);
-                    static string DefaultOutputPath(string path) => PathHelper.GetDefaultBuildOutputPath(path);
 
+                    static string DefaultOutputPath(string path) => PathHelper.GetDefaultParamBuildOutputPath(path);
                     var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, args.OutputDir, args.OutputFile, DefaultOutputPath);
 
                     paramsWriter.ToFile(syntax, outputPath);
 
-                    return 0;
+                    return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
                 }
-
+                
                 logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
                 return 1;
             }

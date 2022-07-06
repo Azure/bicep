@@ -21,11 +21,6 @@ namespace Bicep.Cli.Services
 
         public EmitResult ToFile(ProgramSyntax syntax, string outputPath)
         {
-            // var existingContent = string.Empty;
-            // if (File.Exists(outputPath))
-            // {
-            //     existingContent = File.ReadAllText(outputPath);
-            // }
             using var fileStream = CreateFileStream(outputPath);
             return new ParamsEmitter(syntax, invocationContext.EmitterSettings).EmitParamsFile(fileStream);
         }

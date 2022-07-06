@@ -1,5 +1,5 @@
 /*
-//@[00:769) ProgramSyntax
+//@[00:648) ProgramSyntax
 This is a
 multiline comment!
 */
@@ -28,19 +28,14 @@ param myInt = 42
 //@[14:016) | └─IntegerLiteralSyntax
 //@[14:016) | | └─Token(Integer) |42|
 //@[16:017) ├─Token(NewLine) |\n|
-param myStr = "hello world!!"
+param myStr = 'hello world!!'
 //@[00:029) ├─ParameterAssignmentSyntax
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:011) | ├─IdentifierSyntax
 //@[06:011) | | └─Token(Identifier) |myStr|
 //@[12:013) | ├─Token(Assignment) |=|
-//@[14:029) | └─SkippedTriviaSyntax
-//@[14:015) | | ├─Token(Unrecognized) |"|
-//@[15:020) | | ├─Token(Identifier) |hello|
-//@[21:026) | | ├─Token(Identifier) |world|
-//@[26:027) | | ├─Token(Exclamation) |!|
-//@[27:028) | | ├─Token(Exclamation) |!|
-//@[28:029) | | └─Token(Unrecognized) |"|
+//@[14:029) | └─StringSyntax
+//@[14:029) | | └─Token(StringComplete) |'hello world!!'|
 //@[29:030) ├─Token(NewLine) |\n|
 param myBool = true
 //@[00:019) ├─ParameterAssignmentSyntax
@@ -283,76 +278,6 @@ param myComplexArr = [
 	}
 //@[01:002) | | | | └─Token(RightBrace) |}|
 //@[02:003) | | ├─Token(NewLine) |\n|
-]
-//@[00:001) | | └─Token(RightSquare) |]|
-//@[01:002) ├─Token(NewLine) |\n|
-param myFunction = union({}, {})
-//@[00:032) ├─ParameterAssignmentSyntax
-//@[00:005) | ├─Token(Identifier) |param|
-//@[06:016) | ├─IdentifierSyntax
-//@[06:016) | | └─Token(Identifier) |myFunction|
-//@[17:018) | ├─Token(Assignment) |=|
-//@[19:032) | └─FunctionCallSyntax
-//@[19:024) | | ├─IdentifierSyntax
-//@[19:024) | | | └─Token(Identifier) |union|
-//@[24:025) | | ├─Token(LeftParen) |(|
-//@[25:027) | | ├─FunctionArgumentSyntax
-//@[25:027) | | | └─ObjectSyntax
-//@[25:026) | | | | ├─Token(LeftBrace) |{|
-//@[26:027) | | | | └─Token(RightBrace) |}|
-//@[27:028) | | ├─Token(Comma) |,|
-//@[29:031) | | ├─FunctionArgumentSyntax
-//@[29:031) | | | └─ObjectSyntax
-//@[29:030) | | | | ├─Token(LeftBrace) |{|
-//@[30:031) | | | | └─Token(RightBrace) |}|
-//@[31:032) | | └─Token(RightParen) |)|
-//@[32:033) ├─Token(NewLine) |\n|
-param myComplexArrWithFunction = [
-//@[00:087) ├─ParameterAssignmentSyntax
-//@[00:005) | ├─Token(Identifier) |param|
-//@[06:030) | ├─IdentifierSyntax
-//@[06:030) | | └─Token(Identifier) |myComplexArrWithFunction|
-//@[31:032) | ├─Token(Assignment) |=|
-//@[33:087) | └─ArraySyntax
-//@[33:034) | | ├─Token(LeftSquare) |[|
-//@[34:035) | | ├─Token(NewLine) |\n|
-	{
-//@[01:028) | | ├─ArrayItemSyntax
-//@[01:028) | | | └─ObjectSyntax
-//@[01:002) | | | | ├─Token(LeftBrace) |{|
-//@[02:003) | | | | ├─Token(NewLine) |\n|
-		foo: resourceGroup()
-//@[02:022) | | | | ├─ObjectPropertySyntax
-//@[02:005) | | | | | ├─IdentifierSyntax
-//@[02:005) | | | | | | └─Token(Identifier) |foo|
-//@[05:006) | | | | | ├─Token(Colon) |:|
-//@[07:022) | | | | | └─FunctionCallSyntax
-//@[07:020) | | | | | | ├─IdentifierSyntax
-//@[07:020) | | | | | | | └─Token(Identifier) |resourceGroup|
-//@[20:021) | | | | | | ├─Token(LeftParen) |(|
-//@[21:022) | | | | | | └─Token(RightParen) |)|
-//@[22:023) | | | | ├─Token(NewLine) |\n|
-	}
-//@[01:002) | | | | └─Token(RightBrace) |}|
-//@[02:003) | | ├─Token(NewLine) |\n|
-	true
-//@[01:005) | | ├─ArrayItemSyntax
-//@[01:005) | | | └─BooleanLiteralSyntax
-//@[01:005) | | | | └─Token(TrueKeyword) |true|
-//@[05:006) | | ├─Token(NewLine) |\n|
-	[
-//@[01:015) | | ├─ArrayItemSyntax
-//@[01:015) | | | └─ArraySyntax
-//@[01:002) | | | | ├─Token(LeftSquare) |[|
-//@[02:003) | | | | ├─Token(NewLine) |\n|
-    	42
-//@[05:007) | | | | ├─ArrayItemSyntax
-//@[05:007) | | | | | └─IntegerLiteralSyntax
-//@[05:007) | | | | | | └─Token(Integer) |42|
-//@[07:008) | | | | ├─Token(NewLine) |\n|
-  	]
-//@[03:004) | | | | └─Token(RightSquare) |]|
-//@[04:005) | | ├─Token(NewLine) |\n|
 ]
 //@[00:001) | | └─Token(RightSquare) |]|
 //@[01:001) └─Token(EndOfFile) ||

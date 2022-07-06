@@ -190,38 +190,26 @@ namespace Bicep.Cli.IntegrationTests
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var paramsFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParam);
 
-            // var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
-            
-            // var paramsFilePath = "c:\\Users\\t-musman\\Downloads\\project\\bicep\\src\\Bicep.Cli.IntegrationTests\\test.bicepparam";
-
-
             var (output, error, result) = await Bicep("build", paramsFilePath);
-            // var (output, error, result) = await Bicep(settings, "build", bicepFilePath);
 
-            // using (new AssertionScope())
-            // {
-            //     result.Should().Be(0);
-            //     output.Should().BeEmpty();
-            //     AssertNoErrors(error);
-            // }
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().BeEmpty();
+                AssertNoErrors(error);
+            }
 
-            // if (dataSet.HasExternalModules)
-            // {
-            //     // ensure something got restored
-            //     Directory.Exists(settings.Features.CacheRootDirectory).Should().BeTrue();
-            //     Directory.EnumerateFiles(settings.Features.CacheRootDirectory, "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
-            // }
+            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
+            File.Exists(compiledFilePath).Should().BeTrue();
 
-            // var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
-            // File.Exists(compiledFilePath).Should().BeTrue();
+            string content = File.ReadAllText(compiledFilePath);
+            var actual = JToken.Parse(content);
 
-            // var actual = JToken.Parse(File.ReadAllText(compiledFilePath));
-
-            // actual.Should().EqualWithJsonDiffOutput(
-            //     TestContext,
-            //     JToken.Parse(dataSet.Compiled!),
-            //     expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
-            //     actualLocation: compiledFilePath);
+            actual.Should().EqualWithJsonDiffOutput(
+                TestContext,
+                JToken.Parse(dataSet.Compiled!),
+                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
+                actualLocation: compiledFilePath);
         }
 
         [TestMethod]
@@ -279,7 +267,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [DynamicData(nameof(GetParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Build_Invalid_SingleFile_ShouldFail_WithExpectedErrorMessage(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
@@ -313,6 +301,25 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var diagnostics = GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
             error.Should().ContainAll(diagnostics);
         }
+
+        // [DataTestMethod]
+        // [DynamicData(nameof(GetParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        // public async Task Build_Invalid_Single_Params_File_ShouldFail_WithExpectedErrorMessage(DataSet dataSet)
+        // {
+        //     var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+        //     var paramsFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParam);
+        //     var defaultSettings = CreateDefaultSettings();
+        //     // var diagnostics = GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
+
+        //     var (output, error, result) = await Bicep("build", paramsFilePath);
+
+        //     using (new AssertionScope())
+        //     {
+        //         result.Should().Be(1);
+        //         output.Should().BeEmpty();
+        //         // error.Should().ContainAll(diagnostics);
+        //     }
+        // }
 
         [TestMethod]
         public async Task Build_WithOutFile_ShouldSucceed()
