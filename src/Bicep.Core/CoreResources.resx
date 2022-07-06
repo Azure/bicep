@@ -262,6 +262,13 @@
   <data name="UseStableVMImageRuleFixMessageFormat" xml:space="preserve">
     <value>Virtual machines shouldn't use preview images. Use stable version in imageReference property "{0}".</value>
   </data>
+  <data name="UnusedExistingResourceRuleDescription" xml:space="preserve">
+    <value>All existing resources must be used.</value>
+  </data>
+  <data name="UnusedExistingResourceRuleMessageFormat" xml:space="preserve">
+    <value>Existing resource "{0}" is declared but never used.</value>
+    <comment>{0} is the resource name</comment>
+  </data>
   <data name="MaxNumberParametersRuleDescription" xml:space="preserve">
     <value>Maximum number of parameters used.</value>
   </data>
