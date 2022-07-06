@@ -59,7 +59,6 @@ namespace Bicep.VSLanguageServerClient
         {
             string vsixInstallPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string languageServerExePath = Path.Combine(vsixInstallPath, "Bicep.LangServer.exe");
-
             
             var launchServerArguments = $" --contentType {BicepContentTypeDefinition.ContentType}" +
                 $" --lcid {Thread.CurrentThread.CurrentUICulture.LCID}";
