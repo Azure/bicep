@@ -109,7 +109,11 @@ jobs:
 
       - name: Run visual studio integration tests
         if: runner.os == 'Windows'
-        run: vstest.console.exe ./src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/Bicep.VSLanguageServerClient.IntegrationTests.dll
+        uses: microsoft-approved-actions/vstest@master
+        with:
+          testAssembly: ./src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/Bicep.VSLanguageServerClient.IntegrationTests.dll
+          searchFolder: ./tests/
+          runInParallel: true
 
       - name: Pack
         if: matrix.publishPackages
