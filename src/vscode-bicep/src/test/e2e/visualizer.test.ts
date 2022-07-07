@@ -62,25 +62,28 @@ describe("visualizer", (): void => {
   });
 
   it("should open source", async () => {
-    expect(vscode.window.activeTextEditor).toBeUndefined();
+    try {
+      const examplePath = resolveExamplePath("000", "empty");
+      const document = await vscode.workspace.openTextDocument(examplePath);
 
-    const examplePath = resolveExamplePath("000", "empty");
-    const document = await vscode.workspace.openTextDocument(examplePath);
+      await vscode.window.showTextDocument(document);
 
-    await vscode.window.showTextDocument(document);
+      // Give the language server sometime to finish compilation.
+      await sleep(2000);
 
-    // Give the language server sometime to finish compilation.
-    await sleep(2000);
+      await executeShowVisualizerToSideCommand(document.uri);
+      await until(() => visualizerIsReady(document.uri), {
+        interval: 100,
+      });
 
-    await executeShowVisualizerToSideCommand(document.uri);
-    await until(() => visualizerIsReady(document.uri), {
-      interval: 100,
-    });
+      const sourceEditor = await executeShowSourceCommand();
 
-    const sourceEditor = await executeShowSourceCommand();
-
-    expectDefined(sourceEditor);
-    expect(sourceEditor).toBe(vscode.window.activeTextEditor);
+      expectDefined(sourceEditor);
+      expect(sourceEditor).toBe(vscode.window.activeTextEditor);
+    } catch (error: unknown) {
+      console.log("Unexpected error");
+      console.log((error as Error).message ?? error);
+    }
   });
 
   function visualizerIsReady(documentUri: vscode.Uri): boolean {

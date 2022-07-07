@@ -72,7 +72,12 @@ async function go() {
     process.exit(0);
   } catch (err) {
     console.log(typeof err);
-    console.log((err as Error).message ?? (err as Error).stack ?? "empty");
+    console.log(
+      (err as Error).message ??
+        (err as Error).stack ??
+        (err as string) ??
+        "empty"
+    );
     console.log("Failed to run tests.");
     process.exit(1);
   }
