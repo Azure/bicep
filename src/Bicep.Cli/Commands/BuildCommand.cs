@@ -50,45 +50,47 @@ namespace Bicep.Cli.Commands
             }
 
 
-            if (!IsBicepFile(inputPath))
+
+
+            if (IsBicepFile(inputPath))
             {
-                
-                if(IsBicepparamsFile(inputPath))
+                var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
+
+                if (diagnosticLogger.ErrorCount < 1)
                 {
-                    var syntax = compilationService.CompileParams(inputPath, args.NoRestore);
+                    if (args.OutputToStdOut)
+                    {
+                        writer.ToStdout(compilation);
+                    }
+                    else
+                    {
+                        static string DefaultOutputPath(string path) => PathHelper.GetDefaultBuildOutputPath(path);
+                        var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, args.OutputDir, args.OutputFile, DefaultOutputPath);
 
-                    static string DefaultOutputPath(string path) => PathHelper.GetDefaultParamBuildOutputPath(path);
-                    var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, args.OutputDir, args.OutputFile, DefaultOutputPath);
-
-                    paramsWriter.ToFile(syntax, outputPath);
-
-                    return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+                        writer.ToFile(compilation, outputPath);
+                    }
                 }
-                
-                logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
-                return 1;
+
+                // return non-zero exit code on errors
+                return diagnosticLogger.ErrorCount > 0 ? 1 : 0;       
             }
-
-            var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
-
-            if (diagnosticLogger.ErrorCount < 1)
+            else if(IsBicepparamsFile(inputPath))
             {
-                if (args.OutputToStdOut)
-                {
-                    writer.ToStdout(compilation);
-                }
-                else
-                {
-                    static string DefaultOutputPath(string path) => PathHelper.GetDefaultBuildOutputPath(path);
+              
+                var syntax = compilationService.CompileParams(inputPath, args.NoRestore);
 
-                    var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, args.OutputDir, args.OutputFile, DefaultOutputPath);
+                static string DefaultOutputPath(string path) => PathHelper.GetDefaultBuildOutputPath(path);
+                var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, args.OutputDir, args.OutputFile, DefaultOutputPath);
 
-                    writer.ToFile(compilation, outputPath);
-                }
+                paramsWriter.ToFile(syntax, outputPath);
+
+                return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
             }
+            
+            logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
+            return 1;
 
-            // return non-zero exit code on errors
-            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+           
         }
 
         private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));

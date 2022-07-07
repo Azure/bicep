@@ -199,7 +199,7 @@ namespace Bicep.Cli.IntegrationTests
                 AssertNoErrors(error);
             }
 
-            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
+            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParamCompiled);
             File.Exists(compiledFilePath).Should().BeTrue();
 
             string content = File.ReadAllText(compiledFilePath);
@@ -207,9 +207,9 @@ namespace Bicep.Cli.IntegrationTests
 
             actual.Should().EqualWithJsonDiffOutput(
                 TestContext,
-                JToken.Parse(dataSet.Compiled!),
-                expectedLocation: Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, DataSet.TestFileMainCompiled),
-                actualLocation: compiledFilePath);
+                JToken.Parse(dataSet.CompliedParam!),
+                expectedLocation: "test",
+                actualLocation: "test");
         }
 
         [TestMethod]

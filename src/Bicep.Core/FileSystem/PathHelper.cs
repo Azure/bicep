@@ -11,8 +11,6 @@ namespace Bicep.Core.FileSystem
 
         private const string TemplateOutputExtension = ".json";
 
-        private const string ParamsOutputExtension = ".bicepparam.json";
-
         private const string BicepExtension = LanguageConstants.LanguageFileExtension;
 
         private const string BicepParamsExtension = LanguageConstants.ParamsFileExtension;
@@ -97,18 +95,6 @@ namespace Bicep.Core.FileSystem
 
             return Path.ChangeExtension(path, TemplateOutputExtension);
         }
-
-        public static string GetDefaultParamBuildOutputPath(string path)
-        {
-            if (string.Equals(Path.GetExtension(path), ParamsOutputExtension, PathComparison))
-            {
-                // throwing because this could lead to us destroying the input file if extensions get mixed up.
-                throw new ArgumentException($"The specified file already has the '{TemplateOutputExtension}' extension.");
-            }
-
-            return Path.ChangeExtension(path, ParamsOutputExtension);
-        }
-
         public static string GetDefaultDecompileOutputPath(string path)
         {
             if (string.Equals(Path.GetExtension(path), BicepExtension, PathComparison))

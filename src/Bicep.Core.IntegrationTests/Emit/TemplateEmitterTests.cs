@@ -70,6 +70,29 @@ namespace Bicep.Core.IntegrationTests.Emit
         }
 
         [DataTestMethod]
+        [DynamicData(nameof(GetParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void ValidBicepparam_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
+        {
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+            var paramFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParam);
+            var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainParamCompiled));
+
+            var result = this.EmitParam(paramFilePath, BicepTestConstants.EmitterSettings, compiledFilePath);
+            result.Diagnostics.Should().NotHaveErrors();
+            result.Status.Should().Be(EmitStatus.Succeeded);
+
+            var outputFile = File.ReadAllText(compiledFilePath);
+            var actual = JToken.Parse(outputFile);
+
+            actual.Should().EqualWithJsonDiffOutput(
+                TestContext,
+                JToken.Parse(dataSet.CompliedParam!),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
+                actualLocation: compiledFilePath);
+        }
+
+        [DataTestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidBicep_EmitTemplate_should_produce_expected_symbolicname_template(DataSet dataSet)
@@ -236,6 +259,17 @@ this
             return emitter.Emit(tw);
         }
 
+        private EmitResult EmitParam(string inputFilePath, EmitterSettings emitterSettings, string outputFilePath)
+        {
+            var fileText = File.ReadAllText(inputFilePath);
+            var parser = new ParamsParser(fileText);
+            var syntax = parser.Program();
+
+            var emitter = new ParamsEmitter(syntax, emitterSettings);
+            using var stream = new FileStream(outputFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+            return emitter.EmitParamsFile(stream);
+        }
+
         private static IEnumerable<object[]> GetValidDataSets() => DataSets
             .AllDataSets
             .Where(ds => ds.IsValid)
@@ -245,6 +279,8 @@ this
             .AllDataSets
             .Where(ds => ds.IsValid == false)
             .ToDynamicTestData();
+
+        private static IEnumerable<object[]> GetParamData() => DataSets.ParamDataSets.ToDynamicTestData();
     }
 }
 
