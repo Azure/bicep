@@ -1,5 +1,7 @@
 @echo off
 
+taskkill /im devenv.exe /t /f
+
 set VsWhereExePath=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe
 set "ExtensionsRoot=%~dp0"
 
