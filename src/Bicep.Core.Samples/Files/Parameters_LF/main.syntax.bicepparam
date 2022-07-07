@@ -35,7 +35,7 @@ param myStr = 'hello world!!'
 //@[06:011) | | └─Token(Identifier) |myStr|
 //@[12:013) | ├─Token(Assignment) |=|
 //@[14:029) | └─StringSyntax
-//@[14:029) | | └─Token(StringComplete) |'hello world!!'|
+//@[14:029) |   └─Token(StringComplete) |'hello world!!'|
 //@[29:030) ├─Token(NewLine) |\n|
 param myBool = true
 //@[00:019) ├─ParameterAssignmentSyntax
@@ -279,5 +279,5 @@ param myComplexArr = [
 //@[01:002) |   |   └─Token(RightBrace) |}|
 //@[02:003) |   ├─Token(NewLine) |\n|
 ]
-//@[00:001) | | └─Token(RightSquare) |]|
+//@[00:001) |   └─Token(RightSquare) |]|
 //@[01:001) └─Token(EndOfFile) ||
