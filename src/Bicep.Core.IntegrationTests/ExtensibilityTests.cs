@@ -164,6 +164,7 @@ resource myApp 'application' existing = {
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(new[] {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"uniqueName\"."),
+                ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"myApp\" is declared but never used."),
                 ("BCP037", DiagnosticLevel.Error, "The property \"name\" is not allowed on objects of type \"application\". Permissible properties include \"uniqueName\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
             });
 
@@ -177,7 +178,9 @@ resource myApp 'application' existing = {
 ");
 
             result.Should().GenerateATemplate();
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().HaveDiagnostics(new[] {
+                ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"myApp\" is declared but never used."),
+            });
         }
 
         [TestMethod]
