@@ -105,14 +105,26 @@ var inArray = [
 resource resLoop 'Microsoft.Storage/storageAccounts@2021-09-01' existing = [for item in range(0, 5): {
   name: 'foo${item}'
 }]
+
 var resLoopNames = map(resLoop, i => i.name)
 //@[04:16) [no-unused-vars (Warning)] Variable "resLoopNames" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |resLoopNames|
 //@[23:30) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |resLoop|
+output stgKeys array = map(range(0, 5), i => resLoop[i].listKeys().keys[0].value)
+//@[53:54) [BCP247 (Error)] Indexing into a resource or module collection with a lambda variable is not currently supported. Found the following lambda variable(s) being accessed: "i". (CodeDescription: none) |i|
+output stgKeys2 array = map(range(0, 5), j => resLoop[((j + 2) % 123)].listKeys().keys[0].value)
+//@[54:69) [BCP247 (Error)] Indexing into a resource or module collection with a lambda variable is not currently supported. Found the following lambda variable(s) being accessed: "j". (CodeDescription: none) |((j + 2) % 123)|
+output accessTiers array = map(range(0, 5), k => resLoop[k].properties.accessTier)
+//@[57:58) [BCP247 (Error)] Indexing into a resource or module collection with a lambda variable is not currently supported. Found the following lambda variable(s) being accessed: "k". (CodeDescription: none) |k|
+output accessTiers2 array = map(range(0, 5), x => map(range(0, 2), y => resLoop[x / y].properties.accessTier))
+//@[80:85) [BCP247 (Error)] Indexing into a resource or module collection with a lambda variable is not currently supported. Found the following lambda variable(s) being accessed: "x", "y". (CodeDescription: none) |x / y|
 
 module modLoop './empty.bicep' = [for item in range(0, 5): {
   name: 'foo${item}'
 }]
+
 var modLoopNames = map(modLoop, i => i.name)
 //@[04:16) [no-unused-vars (Warning)] Variable "modLoopNames" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |modLoopNames|
 //@[23:30) [BCP144 (Error)] Directly referencing a resource or module collection is not currently supported. Apply an array indexer to the expression. (CodeDescription: none) |modLoop|
+output modOutputs array = map(range(0, 5), i => myMod[i].outputs.foo)
+//@[48:53) [BCP057 (Error)] The name "myMod" does not exist in the current context. (CodeDescription: none) |myMod|
 

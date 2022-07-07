@@ -377,7 +377,7 @@ namespace Bicep.Core.Emit
 
         private static void BlockResourceIndexingInLambdaBody(SemanticModel model, IDiagnosticWriter diagnostics)
         {
-            var blockedVariables = new HashSet<VariableAccessSyntax>();
+            var blockedAccesses = new Dictionary<ArrayAccessSyntax, HashSet<LocalVariableSymbol>>();
             foreach (var lambda in SyntaxAggregator.AggregateByType<LambdaSyntax>(model.Root.Syntax))
             {
                 foreach (var arrayAccess in SyntaxAggregator.AggregateByType<ArrayAccessSyntax>(lambda))
@@ -387,20 +387,22 @@ namespace Bicep.Core.Emit
                         continue;
                     }
 
-                    foreach (var variableAccess in SyntaxAggregator.AggregateByType<VariableAccessSyntax>(arrayAccess.IndexExpression))
+                    var blockedSymbols = SyntaxAggregator.AggregateByType<VariableAccessSyntax>(arrayAccess.IndexExpression)
+                        .Select(v => model.Binder.GetSymbolInfo(v) as LocalVariableSymbol)
+                        .Where(symbol => symbol?.LocalKind == LocalKind.LambdaItemVariable)
+                        .OfType<LocalVariableSymbol>()
+                        .ToHashSet();
+
+                    if (blockedSymbols.Any())
                     {
-                        if (model.Binder.GetSymbolInfo(variableAccess) is LocalVariableSymbol localVariable &&
-                            localVariable.LocalKind == LocalKind.LambdaItemVariable)
-                        {
-                            blockedVariables.Add(variableAccess);
-                        }
+                        blockedAccesses[arrayAccess] = blockedSymbols;
                     }
                 }
             }
 
-            foreach (var variable in blockedVariables)
+            foreach (var (arrayAccess, symbols) in blockedAccesses)
             {
-                diagnostics.Write(variable, x => x.DoubleQuoteToken(variable.Name.IdentifierName));
+                diagnostics.Write(arrayAccess.IndexExpression, x => x.IndexingIntoResourceOrModuleCollectionUnsupported(symbols.Select(s => s.Name)));
             }
         }
 

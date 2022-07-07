@@ -45,9 +45,16 @@ var inArray = [
 resource resLoop 'Microsoft.Storage/storageAccounts@2021-09-01' existing = [for item in range(0, 5): {
   name: 'foo${item}'
 }]
+
 var resLoopNames = map(resLoop, i => i.name)
+output stgKeys array = map(range(0, 5), i => resLoop[i].listKeys().keys[0].value)
+output stgKeys2 array = map(range(0, 5), j => resLoop[((j + 2) % 123)].listKeys().keys[0].value)
+output accessTiers array = map(range(0, 5), k => resLoop[k].properties.accessTier)
+output accessTiers2 array = map(range(0, 5), x => map(range(0, 2), y => resLoop[x / y].properties.accessTier))
 
 module modLoop './empty.bicep' = [for item in range(0, 5): {
   name: 'foo${item}'
 }]
+
 var modLoopNames = map(modLoop, i => i.name)
+output modOutputs array = map(range(0, 5), i => myMod[i].outputs.foo)

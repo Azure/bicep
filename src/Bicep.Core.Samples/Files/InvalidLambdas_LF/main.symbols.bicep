@@ -92,16 +92,34 @@ resource resLoop 'Microsoft.Storage/storageAccounts@2021-09-01' existing = [for 
 //@[09:16) Resource resLoop. Type: Microsoft.Storage/storageAccounts@2021-09-01[]. Declaration start char: 0, length: 126
   name: 'foo${item}'
 }]
+
 var resLoopNames = map(resLoop, i => i.name)
 //@[32:33) Local i. Type: Microsoft.Storage/storageAccounts@2021-09-01. Declaration start char: 32, length: 1
 //@[04:16) Variable resLoopNames. Type: string[]. Declaration start char: 0, length: 44
+output stgKeys array = map(range(0, 5), i => resLoop[i].listKeys().keys[0].value)
+//@[40:41) Local i. Type: int. Declaration start char: 40, length: 1
+//@[07:14) Output stgKeys. Type: array. Declaration start char: 0, length: 81
+output stgKeys2 array = map(range(0, 5), j => resLoop[((j + 2) % 123)].listKeys().keys[0].value)
+//@[41:42) Local j. Type: int. Declaration start char: 41, length: 1
+//@[07:15) Output stgKeys2. Type: array. Declaration start char: 0, length: 96
+output accessTiers array = map(range(0, 5), k => resLoop[k].properties.accessTier)
+//@[44:45) Local k. Type: int. Declaration start char: 44, length: 1
+//@[07:18) Output accessTiers. Type: array. Declaration start char: 0, length: 82
+output accessTiers2 array = map(range(0, 5), x => map(range(0, 2), y => resLoop[x / y].properties.accessTier))
+//@[67:68) Local y. Type: int. Declaration start char: 67, length: 1
+//@[45:46) Local x. Type: int. Declaration start char: 45, length: 1
+//@[07:19) Output accessTiers2. Type: array. Declaration start char: 0, length: 110
 
 module modLoop './empty.bicep' = [for item in range(0, 5): {
 //@[38:42) Local item. Type: int. Declaration start char: 38, length: 4
 //@[07:14) Module modLoop. Type: module[]. Declaration start char: 0, length: 84
   name: 'foo${item}'
 }]
+
 var modLoopNames = map(modLoop, i => i.name)
 //@[32:33) Local i. Type: module. Declaration start char: 32, length: 1
 //@[04:16) Variable modLoopNames. Type: string[]. Declaration start char: 0, length: 44
+output modOutputs array = map(range(0, 5), i => myMod[i].outputs.foo)
+//@[43:44) Local i. Type: int. Declaration start char: 43, length: 1
+//@[07:17) Output modOutputs. Type: array. Declaration start char: 0, length: 69
 

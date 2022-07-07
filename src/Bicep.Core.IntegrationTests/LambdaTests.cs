@@ -306,5 +306,50 @@ var abc = map(
                                 "split(lambdaVariables('d'), ','), " +
                                 "lambda('e', format('Hello {0}', lambdaVariables('e'))))))))))))]");
         }
+
+        [TestMethod]
+        public void Lambda_functions_cannot_be_used_to_dynamically_access_resource_collections()
+        {
+            var result = CompilationHelper.Compile(@"
+resource stg 'Microsoft.Storage/storageAccounts@2021-09-01' = [for i in range(0, 2): {
+  name: 'antteststg${i}'
+  location: 'West US'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}]
+
+output stgKeys array = map(range(0, 2), i => stg[i].listKeys().keys[0].value)
+output stgKeys2 array = map(range(0, 2), j => stg[((j + 2) % 123)].listKeys().keys[0].value)
+output accessTiers array = map(range(0, 2), k => stg[k].properties.accessTier)
+output accessTiers2 array = map(range(0, 2), x => map(range(0, 2), y => stg[x / y].properties.accessTier))");
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                ("BCP247", DiagnosticLevel.Error, "Indexing into a resource or module collection with a lambda variable is not currently supported. Found the following lambda variable(s) being accessed: \"i\"."),
+                ("BCP247", DiagnosticLevel.Error, "Indexing into a resource or module collection with a lambda variable is not currently supported. Found the following lambda variable(s) being accessed: \"j\"."),
+                ("BCP247", DiagnosticLevel.Error, "Indexing into a resource or module collection with a lambda variable is not currently supported. Found the following lambda variable(s) being accessed: \"k\"."),
+                ("BCP247", DiagnosticLevel.Error, "Indexing into a resource or module collection with a lambda variable is not currently supported. Found the following lambda variable(s) being accessed: \"x\", \"y\"."),
+            });
+        }
+
+        [TestMethod]
+        public void Lambda_functions_cannot_be_used_to_dynamically_access_module_collections()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+module myMod './module.bicep' = [for i in range(0, 2): {
+  name: 'myMod${i}'
+}]
+
+output modOutputs array = map(range(0, 2), i => myMod[i].outputs.foo)"),
+                ("module.bicep", @"
+output foo string = 'HELLO!'
+"));
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                ("BCP247", DiagnosticLevel.Error, "Indexing into a resource or module collection with a lambda variable is not currently supported. Found the following lambda variable(s) being accessed: \"i\"."),
+            });
+        }
     }
 }

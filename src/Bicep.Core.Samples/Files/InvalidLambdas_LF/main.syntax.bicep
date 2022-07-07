@@ -1,5 +1,5 @@
 var flatten1 = flatten('abc')
-//@[000:1403) ProgramSyntax
+//@[000:1848) ProgramSyntax
 //@[000:0029) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0012) | ├─IdentifierSyntax
@@ -846,7 +846,8 @@ resource resLoop 'Microsoft.Storage/storageAccounts@2021-09-01' existing = [for 
 }]
 //@[000:0001) |   | └─Token(RightBrace) |}|
 //@[001:0002) |   └─Token(RightSquare) |]|
-//@[002:0003) ├─Token(NewLine) |\n|
+//@[002:0004) ├─Token(NewLine) |\n\n|
+
 var resLoopNames = map(resLoop, i => i.name)
 //@[000:0044) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
@@ -876,7 +877,277 @@ var resLoopNames = map(resLoop, i => i.name)
 //@[039:0043) |   |     └─IdentifierSyntax
 //@[039:0043) |   |       └─Token(Identifier) |name|
 //@[043:0044) |   └─Token(RightParen) |)|
-//@[044:0046) ├─Token(NewLine) |\n\n|
+//@[044:0045) ├─Token(NewLine) |\n|
+output stgKeys array = map(range(0, 5), i => resLoop[i].listKeys().keys[0].value)
+//@[000:0081) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0014) | ├─IdentifierSyntax
+//@[007:0014) | | └─Token(Identifier) |stgKeys|
+//@[015:0020) | ├─SimpleTypeSyntax
+//@[015:0020) | | └─Token(Identifier) |array|
+//@[021:0022) | ├─Token(Assignment) |=|
+//@[023:0081) | └─FunctionCallSyntax
+//@[023:0026) |   ├─IdentifierSyntax
+//@[023:0026) |   | └─Token(Identifier) |map|
+//@[026:0027) |   ├─Token(LeftParen) |(|
+//@[027:0038) |   ├─FunctionArgumentSyntax
+//@[027:0038) |   | └─FunctionCallSyntax
+//@[027:0032) |   |   ├─IdentifierSyntax
+//@[027:0032) |   |   | └─Token(Identifier) |range|
+//@[032:0033) |   |   ├─Token(LeftParen) |(|
+//@[033:0034) |   |   ├─FunctionArgumentSyntax
+//@[033:0034) |   |   | └─IntegerLiteralSyntax
+//@[033:0034) |   |   |   └─Token(Integer) |0|
+//@[034:0035) |   |   ├─Token(Comma) |,|
+//@[036:0037) |   |   ├─FunctionArgumentSyntax
+//@[036:0037) |   |   | └─IntegerLiteralSyntax
+//@[036:0037) |   |   |   └─Token(Integer) |5|
+//@[037:0038) |   |   └─Token(RightParen) |)|
+//@[038:0039) |   ├─Token(Comma) |,|
+//@[040:0080) |   ├─FunctionArgumentSyntax
+//@[040:0080) |   | └─LambdaSyntax
+//@[040:0041) |   |   ├─LocalVariableSyntax
+//@[040:0041) |   |   | └─IdentifierSyntax
+//@[040:0041) |   |   |   └─Token(Identifier) |i|
+//@[042:0044) |   |   ├─Token(Arrow) |=>|
+//@[045:0080) |   |   └─PropertyAccessSyntax
+//@[045:0074) |   |     ├─ArrayAccessSyntax
+//@[045:0071) |   |     | ├─PropertyAccessSyntax
+//@[045:0066) |   |     | | ├─InstanceFunctionCallSyntax
+//@[045:0055) |   |     | | | ├─ArrayAccessSyntax
+//@[045:0052) |   |     | | | | ├─VariableAccessSyntax
+//@[045:0052) |   |     | | | | | └─IdentifierSyntax
+//@[045:0052) |   |     | | | | |   └─Token(Identifier) |resLoop|
+//@[052:0053) |   |     | | | | ├─Token(LeftSquare) |[|
+//@[053:0054) |   |     | | | | ├─VariableAccessSyntax
+//@[053:0054) |   |     | | | | | └─IdentifierSyntax
+//@[053:0054) |   |     | | | | |   └─Token(Identifier) |i|
+//@[054:0055) |   |     | | | | └─Token(RightSquare) |]|
+//@[055:0056) |   |     | | | ├─Token(Dot) |.|
+//@[056:0064) |   |     | | | ├─IdentifierSyntax
+//@[056:0064) |   |     | | | | └─Token(Identifier) |listKeys|
+//@[064:0065) |   |     | | | ├─Token(LeftParen) |(|
+//@[065:0066) |   |     | | | └─Token(RightParen) |)|
+//@[066:0067) |   |     | | ├─Token(Dot) |.|
+//@[067:0071) |   |     | | └─IdentifierSyntax
+//@[067:0071) |   |     | |   └─Token(Identifier) |keys|
+//@[071:0072) |   |     | ├─Token(LeftSquare) |[|
+//@[072:0073) |   |     | ├─IntegerLiteralSyntax
+//@[072:0073) |   |     | | └─Token(Integer) |0|
+//@[073:0074) |   |     | └─Token(RightSquare) |]|
+//@[074:0075) |   |     ├─Token(Dot) |.|
+//@[075:0080) |   |     └─IdentifierSyntax
+//@[075:0080) |   |       └─Token(Identifier) |value|
+//@[080:0081) |   └─Token(RightParen) |)|
+//@[081:0082) ├─Token(NewLine) |\n|
+output stgKeys2 array = map(range(0, 5), j => resLoop[((j + 2) % 123)].listKeys().keys[0].value)
+//@[000:0096) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0015) | ├─IdentifierSyntax
+//@[007:0015) | | └─Token(Identifier) |stgKeys2|
+//@[016:0021) | ├─SimpleTypeSyntax
+//@[016:0021) | | └─Token(Identifier) |array|
+//@[022:0023) | ├─Token(Assignment) |=|
+//@[024:0096) | └─FunctionCallSyntax
+//@[024:0027) |   ├─IdentifierSyntax
+//@[024:0027) |   | └─Token(Identifier) |map|
+//@[027:0028) |   ├─Token(LeftParen) |(|
+//@[028:0039) |   ├─FunctionArgumentSyntax
+//@[028:0039) |   | └─FunctionCallSyntax
+//@[028:0033) |   |   ├─IdentifierSyntax
+//@[028:0033) |   |   | └─Token(Identifier) |range|
+//@[033:0034) |   |   ├─Token(LeftParen) |(|
+//@[034:0035) |   |   ├─FunctionArgumentSyntax
+//@[034:0035) |   |   | └─IntegerLiteralSyntax
+//@[034:0035) |   |   |   └─Token(Integer) |0|
+//@[035:0036) |   |   ├─Token(Comma) |,|
+//@[037:0038) |   |   ├─FunctionArgumentSyntax
+//@[037:0038) |   |   | └─IntegerLiteralSyntax
+//@[037:0038) |   |   |   └─Token(Integer) |5|
+//@[038:0039) |   |   └─Token(RightParen) |)|
+//@[039:0040) |   ├─Token(Comma) |,|
+//@[041:0095) |   ├─FunctionArgumentSyntax
+//@[041:0095) |   | └─LambdaSyntax
+//@[041:0042) |   |   ├─LocalVariableSyntax
+//@[041:0042) |   |   | └─IdentifierSyntax
+//@[041:0042) |   |   |   └─Token(Identifier) |j|
+//@[043:0045) |   |   ├─Token(Arrow) |=>|
+//@[046:0095) |   |   └─PropertyAccessSyntax
+//@[046:0089) |   |     ├─ArrayAccessSyntax
+//@[046:0086) |   |     | ├─PropertyAccessSyntax
+//@[046:0081) |   |     | | ├─InstanceFunctionCallSyntax
+//@[046:0070) |   |     | | | ├─ArrayAccessSyntax
+//@[046:0053) |   |     | | | | ├─VariableAccessSyntax
+//@[046:0053) |   |     | | | | | └─IdentifierSyntax
+//@[046:0053) |   |     | | | | |   └─Token(Identifier) |resLoop|
+//@[053:0054) |   |     | | | | ├─Token(LeftSquare) |[|
+//@[054:0069) |   |     | | | | ├─ParenthesizedExpressionSyntax
+//@[054:0055) |   |     | | | | | ├─Token(LeftParen) |(|
+//@[055:0068) |   |     | | | | | ├─BinaryOperationSyntax
+//@[055:0062) |   |     | | | | | | ├─ParenthesizedExpressionSyntax
+//@[055:0056) |   |     | | | | | | | ├─Token(LeftParen) |(|
+//@[056:0061) |   |     | | | | | | | ├─BinaryOperationSyntax
+//@[056:0057) |   |     | | | | | | | | ├─VariableAccessSyntax
+//@[056:0057) |   |     | | | | | | | | | └─IdentifierSyntax
+//@[056:0057) |   |     | | | | | | | | |   └─Token(Identifier) |j|
+//@[058:0059) |   |     | | | | | | | | ├─Token(Plus) |+|
+//@[060:0061) |   |     | | | | | | | | └─IntegerLiteralSyntax
+//@[060:0061) |   |     | | | | | | | |   └─Token(Integer) |2|
+//@[061:0062) |   |     | | | | | | | └─Token(RightParen) |)|
+//@[063:0064) |   |     | | | | | | ├─Token(Modulo) |%|
+//@[065:0068) |   |     | | | | | | └─IntegerLiteralSyntax
+//@[065:0068) |   |     | | | | | |   └─Token(Integer) |123|
+//@[068:0069) |   |     | | | | | └─Token(RightParen) |)|
+//@[069:0070) |   |     | | | | └─Token(RightSquare) |]|
+//@[070:0071) |   |     | | | ├─Token(Dot) |.|
+//@[071:0079) |   |     | | | ├─IdentifierSyntax
+//@[071:0079) |   |     | | | | └─Token(Identifier) |listKeys|
+//@[079:0080) |   |     | | | ├─Token(LeftParen) |(|
+//@[080:0081) |   |     | | | └─Token(RightParen) |)|
+//@[081:0082) |   |     | | ├─Token(Dot) |.|
+//@[082:0086) |   |     | | └─IdentifierSyntax
+//@[082:0086) |   |     | |   └─Token(Identifier) |keys|
+//@[086:0087) |   |     | ├─Token(LeftSquare) |[|
+//@[087:0088) |   |     | ├─IntegerLiteralSyntax
+//@[087:0088) |   |     | | └─Token(Integer) |0|
+//@[088:0089) |   |     | └─Token(RightSquare) |]|
+//@[089:0090) |   |     ├─Token(Dot) |.|
+//@[090:0095) |   |     └─IdentifierSyntax
+//@[090:0095) |   |       └─Token(Identifier) |value|
+//@[095:0096) |   └─Token(RightParen) |)|
+//@[096:0097) ├─Token(NewLine) |\n|
+output accessTiers array = map(range(0, 5), k => resLoop[k].properties.accessTier)
+//@[000:0082) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0018) | ├─IdentifierSyntax
+//@[007:0018) | | └─Token(Identifier) |accessTiers|
+//@[019:0024) | ├─SimpleTypeSyntax
+//@[019:0024) | | └─Token(Identifier) |array|
+//@[025:0026) | ├─Token(Assignment) |=|
+//@[027:0082) | └─FunctionCallSyntax
+//@[027:0030) |   ├─IdentifierSyntax
+//@[027:0030) |   | └─Token(Identifier) |map|
+//@[030:0031) |   ├─Token(LeftParen) |(|
+//@[031:0042) |   ├─FunctionArgumentSyntax
+//@[031:0042) |   | └─FunctionCallSyntax
+//@[031:0036) |   |   ├─IdentifierSyntax
+//@[031:0036) |   |   | └─Token(Identifier) |range|
+//@[036:0037) |   |   ├─Token(LeftParen) |(|
+//@[037:0038) |   |   ├─FunctionArgumentSyntax
+//@[037:0038) |   |   | └─IntegerLiteralSyntax
+//@[037:0038) |   |   |   └─Token(Integer) |0|
+//@[038:0039) |   |   ├─Token(Comma) |,|
+//@[040:0041) |   |   ├─FunctionArgumentSyntax
+//@[040:0041) |   |   | └─IntegerLiteralSyntax
+//@[040:0041) |   |   |   └─Token(Integer) |5|
+//@[041:0042) |   |   └─Token(RightParen) |)|
+//@[042:0043) |   ├─Token(Comma) |,|
+//@[044:0081) |   ├─FunctionArgumentSyntax
+//@[044:0081) |   | └─LambdaSyntax
+//@[044:0045) |   |   ├─LocalVariableSyntax
+//@[044:0045) |   |   | └─IdentifierSyntax
+//@[044:0045) |   |   |   └─Token(Identifier) |k|
+//@[046:0048) |   |   ├─Token(Arrow) |=>|
+//@[049:0081) |   |   └─PropertyAccessSyntax
+//@[049:0070) |   |     ├─PropertyAccessSyntax
+//@[049:0059) |   |     | ├─ArrayAccessSyntax
+//@[049:0056) |   |     | | ├─VariableAccessSyntax
+//@[049:0056) |   |     | | | └─IdentifierSyntax
+//@[049:0056) |   |     | | |   └─Token(Identifier) |resLoop|
+//@[056:0057) |   |     | | ├─Token(LeftSquare) |[|
+//@[057:0058) |   |     | | ├─VariableAccessSyntax
+//@[057:0058) |   |     | | | └─IdentifierSyntax
+//@[057:0058) |   |     | | |   └─Token(Identifier) |k|
+//@[058:0059) |   |     | | └─Token(RightSquare) |]|
+//@[059:0060) |   |     | ├─Token(Dot) |.|
+//@[060:0070) |   |     | └─IdentifierSyntax
+//@[060:0070) |   |     |   └─Token(Identifier) |properties|
+//@[070:0071) |   |     ├─Token(Dot) |.|
+//@[071:0081) |   |     └─IdentifierSyntax
+//@[071:0081) |   |       └─Token(Identifier) |accessTier|
+//@[081:0082) |   └─Token(RightParen) |)|
+//@[082:0083) ├─Token(NewLine) |\n|
+output accessTiers2 array = map(range(0, 5), x => map(range(0, 2), y => resLoop[x / y].properties.accessTier))
+//@[000:0110) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0019) | ├─IdentifierSyntax
+//@[007:0019) | | └─Token(Identifier) |accessTiers2|
+//@[020:0025) | ├─SimpleTypeSyntax
+//@[020:0025) | | └─Token(Identifier) |array|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0110) | └─FunctionCallSyntax
+//@[028:0031) |   ├─IdentifierSyntax
+//@[028:0031) |   | └─Token(Identifier) |map|
+//@[031:0032) |   ├─Token(LeftParen) |(|
+//@[032:0043) |   ├─FunctionArgumentSyntax
+//@[032:0043) |   | └─FunctionCallSyntax
+//@[032:0037) |   |   ├─IdentifierSyntax
+//@[032:0037) |   |   | └─Token(Identifier) |range|
+//@[037:0038) |   |   ├─Token(LeftParen) |(|
+//@[038:0039) |   |   ├─FunctionArgumentSyntax
+//@[038:0039) |   |   | └─IntegerLiteralSyntax
+//@[038:0039) |   |   |   └─Token(Integer) |0|
+//@[039:0040) |   |   ├─Token(Comma) |,|
+//@[041:0042) |   |   ├─FunctionArgumentSyntax
+//@[041:0042) |   |   | └─IntegerLiteralSyntax
+//@[041:0042) |   |   |   └─Token(Integer) |5|
+//@[042:0043) |   |   └─Token(RightParen) |)|
+//@[043:0044) |   ├─Token(Comma) |,|
+//@[045:0109) |   ├─FunctionArgumentSyntax
+//@[045:0109) |   | └─LambdaSyntax
+//@[045:0046) |   |   ├─LocalVariableSyntax
+//@[045:0046) |   |   | └─IdentifierSyntax
+//@[045:0046) |   |   |   └─Token(Identifier) |x|
+//@[047:0049) |   |   ├─Token(Arrow) |=>|
+//@[050:0109) |   |   └─FunctionCallSyntax
+//@[050:0053) |   |     ├─IdentifierSyntax
+//@[050:0053) |   |     | └─Token(Identifier) |map|
+//@[053:0054) |   |     ├─Token(LeftParen) |(|
+//@[054:0065) |   |     ├─FunctionArgumentSyntax
+//@[054:0065) |   |     | └─FunctionCallSyntax
+//@[054:0059) |   |     |   ├─IdentifierSyntax
+//@[054:0059) |   |     |   | └─Token(Identifier) |range|
+//@[059:0060) |   |     |   ├─Token(LeftParen) |(|
+//@[060:0061) |   |     |   ├─FunctionArgumentSyntax
+//@[060:0061) |   |     |   | └─IntegerLiteralSyntax
+//@[060:0061) |   |     |   |   └─Token(Integer) |0|
+//@[061:0062) |   |     |   ├─Token(Comma) |,|
+//@[063:0064) |   |     |   ├─FunctionArgumentSyntax
+//@[063:0064) |   |     |   | └─IntegerLiteralSyntax
+//@[063:0064) |   |     |   |   └─Token(Integer) |2|
+//@[064:0065) |   |     |   └─Token(RightParen) |)|
+//@[065:0066) |   |     ├─Token(Comma) |,|
+//@[067:0108) |   |     ├─FunctionArgumentSyntax
+//@[067:0108) |   |     | └─LambdaSyntax
+//@[067:0068) |   |     |   ├─LocalVariableSyntax
+//@[067:0068) |   |     |   | └─IdentifierSyntax
+//@[067:0068) |   |     |   |   └─Token(Identifier) |y|
+//@[069:0071) |   |     |   ├─Token(Arrow) |=>|
+//@[072:0108) |   |     |   └─PropertyAccessSyntax
+//@[072:0097) |   |     |     ├─PropertyAccessSyntax
+//@[072:0086) |   |     |     | ├─ArrayAccessSyntax
+//@[072:0079) |   |     |     | | ├─VariableAccessSyntax
+//@[072:0079) |   |     |     | | | └─IdentifierSyntax
+//@[072:0079) |   |     |     | | |   └─Token(Identifier) |resLoop|
+//@[079:0080) |   |     |     | | ├─Token(LeftSquare) |[|
+//@[080:0085) |   |     |     | | ├─BinaryOperationSyntax
+//@[080:0081) |   |     |     | | | ├─VariableAccessSyntax
+//@[080:0081) |   |     |     | | | | └─IdentifierSyntax
+//@[080:0081) |   |     |     | | | |   └─Token(Identifier) |x|
+//@[082:0083) |   |     |     | | | ├─Token(Slash) |/|
+//@[084:0085) |   |     |     | | | └─VariableAccessSyntax
+//@[084:0085) |   |     |     | | |   └─IdentifierSyntax
+//@[084:0085) |   |     |     | | |     └─Token(Identifier) |y|
+//@[085:0086) |   |     |     | | └─Token(RightSquare) |]|
+//@[086:0087) |   |     |     | ├─Token(Dot) |.|
+//@[087:0097) |   |     |     | └─IdentifierSyntax
+//@[087:0097) |   |     |     |   └─Token(Identifier) |properties|
+//@[097:0098) |   |     |     ├─Token(Dot) |.|
+//@[098:0108) |   |     |     └─IdentifierSyntax
+//@[098:0108) |   |     |       └─Token(Identifier) |accessTier|
+//@[108:0109) |   |     └─Token(RightParen) |)|
+//@[109:0110) |   └─Token(RightParen) |)|
+//@[110:0112) ├─Token(NewLine) |\n\n|
 
 module modLoop './empty.bicep' = [for item in range(0, 5): {
 //@[000:0084) ├─ModuleDeclarationSyntax
@@ -924,7 +1195,8 @@ module modLoop './empty.bicep' = [for item in range(0, 5): {
 }]
 //@[000:0001) |   | └─Token(RightBrace) |}|
 //@[001:0002) |   └─Token(RightSquare) |]|
-//@[002:0003) ├─Token(NewLine) |\n|
+//@[002:0004) ├─Token(NewLine) |\n\n|
+
 var modLoopNames = map(modLoop, i => i.name)
 //@[000:0044) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
@@ -955,5 +1227,56 @@ var modLoopNames = map(modLoop, i => i.name)
 //@[039:0043) |   |       └─Token(Identifier) |name|
 //@[043:0044) |   └─Token(RightParen) |)|
 //@[044:0045) ├─Token(NewLine) |\n|
+output modOutputs array = map(range(0, 5), i => myMod[i].outputs.foo)
+//@[000:0069) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0017) | ├─IdentifierSyntax
+//@[007:0017) | | └─Token(Identifier) |modOutputs|
+//@[018:0023) | ├─SimpleTypeSyntax
+//@[018:0023) | | └─Token(Identifier) |array|
+//@[024:0025) | ├─Token(Assignment) |=|
+//@[026:0069) | └─FunctionCallSyntax
+//@[026:0029) |   ├─IdentifierSyntax
+//@[026:0029) |   | └─Token(Identifier) |map|
+//@[029:0030) |   ├─Token(LeftParen) |(|
+//@[030:0041) |   ├─FunctionArgumentSyntax
+//@[030:0041) |   | └─FunctionCallSyntax
+//@[030:0035) |   |   ├─IdentifierSyntax
+//@[030:0035) |   |   | └─Token(Identifier) |range|
+//@[035:0036) |   |   ├─Token(LeftParen) |(|
+//@[036:0037) |   |   ├─FunctionArgumentSyntax
+//@[036:0037) |   |   | └─IntegerLiteralSyntax
+//@[036:0037) |   |   |   └─Token(Integer) |0|
+//@[037:0038) |   |   ├─Token(Comma) |,|
+//@[039:0040) |   |   ├─FunctionArgumentSyntax
+//@[039:0040) |   |   | └─IntegerLiteralSyntax
+//@[039:0040) |   |   |   └─Token(Integer) |5|
+//@[040:0041) |   |   └─Token(RightParen) |)|
+//@[041:0042) |   ├─Token(Comma) |,|
+//@[043:0068) |   ├─FunctionArgumentSyntax
+//@[043:0068) |   | └─LambdaSyntax
+//@[043:0044) |   |   ├─LocalVariableSyntax
+//@[043:0044) |   |   | └─IdentifierSyntax
+//@[043:0044) |   |   |   └─Token(Identifier) |i|
+//@[045:0047) |   |   ├─Token(Arrow) |=>|
+//@[048:0068) |   |   └─PropertyAccessSyntax
+//@[048:0064) |   |     ├─PropertyAccessSyntax
+//@[048:0056) |   |     | ├─ArrayAccessSyntax
+//@[048:0053) |   |     | | ├─VariableAccessSyntax
+//@[048:0053) |   |     | | | └─IdentifierSyntax
+//@[048:0053) |   |     | | |   └─Token(Identifier) |myMod|
+//@[053:0054) |   |     | | ├─Token(LeftSquare) |[|
+//@[054:0055) |   |     | | ├─VariableAccessSyntax
+//@[054:0055) |   |     | | | └─IdentifierSyntax
+//@[054:0055) |   |     | | |   └─Token(Identifier) |i|
+//@[055:0056) |   |     | | └─Token(RightSquare) |]|
+//@[056:0057) |   |     | ├─Token(Dot) |.|
+//@[057:0064) |   |     | └─IdentifierSyntax
+//@[057:0064) |   |     |   └─Token(Identifier) |outputs|
+//@[064:0065) |   |     ├─Token(Dot) |.|
+//@[065:0068) |   |     └─IdentifierSyntax
+//@[065:0068) |   |       └─Token(Identifier) |foo|
+//@[068:0069) |   └─Token(RightParen) |)|
+//@[069:0070) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

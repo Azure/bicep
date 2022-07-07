@@ -1451,6 +1451,12 @@ namespace Bicep.Core.Diagnostics
                 "BCP246",
                 $"Resource type \"{resourceTypeReference.FormatName()}\" can only be used with the 'existing' keyword at the requested scope."
                     + $" Permitted scopes for deployment: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(writableScopes))}.");
+
+            public ErrorDiagnostic IndexingIntoResourceOrModuleCollectionUnsupported(IEnumerable<string> variableNames) => new(
+                TextSpan,
+                "BCP247",
+                $"Indexing into a resource or module collection with a lambda variable is not currently supported."
+                    + $" Found the following lambda variable(s) being accessed: {ToQuotedString(variableNames)}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

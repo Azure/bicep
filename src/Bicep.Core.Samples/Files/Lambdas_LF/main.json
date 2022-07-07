@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9214803937728881950"
+      "templateHash": "12142719908010799881"
     }
   },
   "variables": {
@@ -45,8 +45,6 @@
     "reduceObjectUnion": "[reduce(createArray(createObject('foo', 123), createObject('bar', 456), createObject('baz', 789)), createObject(), lambda('cur', 'next', union(lambdaVariables('cur'), lambdaVariables('next'))))]",
     "reduceEmpty": "[reduce(createArray(), 0, lambda('cur', 'next', lambdaVariables('cur')))]",
     "filteredLoop": "[filter(variables('itemForLoop'), lambda('i', greater(lambdaVariables('i'), 5)))]",
-    "resLoopNames": "[map(range(0, 5), lambda('i', format('foo{0}', range(0, 5)[lambdaVariables('i')])))]",
-    "modLoopNames": "[map(range(0, 5), lambda('i', format('foo{0}', range(0, 5)[lambdaVariables('i')])))]",
     "parentheses": "[map(createArray(123), lambda('i', format('{0}', lambdaVariables('i'))))]"
   },
   "resources": [
@@ -62,51 +60,6 @@
         "parameters": {
           "outputThis": {
             "value": "[map(variables('mapObject'), lambda('obj', lambdaVariables('obj').doggo))]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "3700372143120853182"
-            }
-          },
-          "parameters": {
-            "outputThis": {
-              "type": "array"
-            }
-          },
-          "resources": [],
-          "outputs": {
-            "outputThis": {
-              "type": "array",
-              "value": "[parameters('outputThis')]"
-            }
-          }
-        }
-      }
-    },
-    {
-      "copy": {
-        "name": "modLoop",
-        "count": "[length(range(0, 5))]"
-      },
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
-      "name": "[format('foo{0}', range(0, 5)[copyIndex()])]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "outputThis": {
-            "value": [
-              "blah"
-            ]
           }
         },
         "template": {
