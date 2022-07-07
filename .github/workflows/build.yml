@@ -103,6 +103,10 @@ jobs:
           path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/Bicep.VSLanguageServerClient.Vsix.vsix
           if-no-files-found: error
 
+      - name: Install bicep in Visual Studio
+        if: runner.os == 'Windows'
+        run: ./src/vs-bicep/Install.cmd
+
       - name: Run visual studio integration tests
         if: runner.os == 'Windows'
         uses: microsoft/vstest-action@v1.0.0

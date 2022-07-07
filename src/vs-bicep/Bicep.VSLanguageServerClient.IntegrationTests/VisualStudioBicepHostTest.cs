@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using Microsoft.Test.Apex.VisualStudio;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Test.Apex.VisualStudio.Solution;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.VSLanguageServerClient.IntegrationTests
 {
@@ -58,5 +61,36 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
             SolutionRootPath = Path.Combine(deploymentDirectory, RootDirectoryName);
             SolutionPath = Path.Combine(SolutionRootPath, TestSolutionName);
         }
+
+        [AssemblyCleanup()]
+        public static void AssemblyCleanup()
+        {
+            try
+            {
+                if (VsHost != null)
+                {
+                    Process visualStudioProcess = VsHost.HostProcess;
+
+                    if (VsHost.ObjectModel.Solution.IsOpen)
+                    {
+                        VsHost.ObjectModel.Solution.Close();
+                    }
+
+                    PostMessage(VsHost.MainWindowHandle, 0x10, IntPtr.Zero, IntPtr.Zero); // WM_CLOSE
+                    visualStudioProcess.WaitForExit(5000);
+
+                    if (!visualStudioProcess.HasExited)
+                    {
+                        visualStudioProcess.Kill();
+                    }
+                }
+            }
+            catch (Exception) { }
+        }
+
+        [return: MarshalAs(UnmanagedType.Bool)]
+        [DllImport("user32.dll", SetLastError = true)]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.UserDirectories)]
+        private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
     }
 }
