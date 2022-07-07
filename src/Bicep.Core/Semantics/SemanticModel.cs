@@ -261,16 +261,10 @@ namespace Bicep.Core.Semantics
         /// </summary>
         /// <param name="symbol">The symbol</param>
         public IEnumerable<SyntaxBase> FindReferences(Symbol symbol)
-            => SyntaxAggregator.Aggregate(this.SourceFile.ProgramSyntax, new List<SyntaxBase>(), (accumulated, current) =>
+            => SyntaxAggregator.Aggregate(this.SourceFile.ProgramSyntax, current =>
                 {
-                    if (object.ReferenceEquals(symbol, this.GetSymbolInfo(current)))
-                    {
-                        accumulated.Add(current);
-                    }
-
-                    return accumulated;
-                },
-                accumulated => accumulated);
+                    return object.ReferenceEquals(symbol, this.GetSymbolInfo(current));
+                });
 
         private ImmutableArray<ResourceMetadata> GetAllResourceMetadata()
         {
