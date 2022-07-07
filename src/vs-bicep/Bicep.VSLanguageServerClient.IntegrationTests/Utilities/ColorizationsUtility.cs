@@ -13,14 +13,14 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
     {
         public static ReadOnlyCollection<Classification> GetClassifications(IVisualStudioTextEditorTestExtension editor)
         {
-            WaitFor.TryIsTrue((() => editor.Classification.GetAllClassifications().Count > 0), TimeSpan.FromSeconds(5));
+            WaitFor.TryIsTrue((() => editor.Classification.GetAllClassifications().Count > 0), TimeSpan.FromSeconds(30));
 
             return editor.Classification.GetAllClassifications();
         }
 
         public static void WaitForColorizations(IVisualStudioTextEditorTestExtension editor)
         {
-            WaitFor.TryIsTrue((() => editor.Classification.GetAllClassifications().Count > 0), TimeSpan.FromSeconds(5));
+            WaitFor.TryIsTrue((() => editor.Classification.GetAllClassifications().Count > 0), TimeSpan.FromSeconds(30));
         }
     }
 }
