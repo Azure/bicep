@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2829340296346019027"
+      "templateHash": "10459396956924179800"
     }
   },
   "parameters": {
@@ -397,24 +397,13 @@
         "description": "Specifies the Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
       }
     },
-    "authenticationType": {
-      "type": "string",
-      "defaultValue": "password",
-      "metadata": {
-        "description": "Specifies the type of authentication when accessing the Virtual Machine. SSH key is recommended."
-      },
-      "allowedValues": [
-        "sshPublicKey",
-        "password"
-      ]
-    },
     "vmAdminUsername": {
       "type": "string",
       "metadata": {
         "description": "Specifies the name of the administrator account of the virtual machine."
       }
     },
-    "vmAdminPasswordOrKey": {
+    "vmSshKey": {
       "type": "secureString",
       "metadata": {
         "description": "Specifies the SSH Key or password for the virtual machine. SSH key is recommended."
@@ -1036,14 +1025,11 @@
           "vmAdminUsername": {
             "value": "[parameters('vmAdminUsername')]"
           },
-          "vmAdminPasswordOrKey": {
-            "value": "[parameters('vmAdminPasswordOrKey')]"
+          "vmSshKey": {
+            "value": "[parameters('vmSshKey')]"
           },
           "vmSize": {
             "value": "[parameters('vmSize')]"
-          },
-          "authenticationType": {
-            "value": "[parameters('authenticationType')]"
           },
           "diskStorageAccounType": {
             "value": "[parameters('diskStorageAccounType')]"
@@ -1092,7 +1078,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12829523487718671926"
+              "templateHash": "1174945229140989916"
             }
           },
           "parameters": {
@@ -1150,24 +1136,13 @@
                 "description": "Specifies the Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
               }
             },
-            "authenticationType": {
-              "type": "string",
-              "defaultValue": "password",
-              "metadata": {
-                "description": "Specifies the type of authentication when accessing the Virtual Machine. SSH key is recommended."
-              },
-              "allowedValues": [
-                "sshPublicKey",
-                "password"
-              ]
-            },
             "vmAdminUsername": {
               "type": "string",
               "metadata": {
                 "description": "Specifies the name of the administrator account of the virtual machine."
               }
             },
-            "vmAdminPasswordOrKey": {
+            "vmSshKey": {
               "type": "secureString",
               "metadata": {
                 "description": "Specifies the SSH Key or password for the virtual machine. SSH key is recommended."
@@ -1251,7 +1226,7 @@
                 "publicKeys": [
                   {
                     "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('vmAdminUsername'))]",
-                    "keyData": "[parameters('vmAdminPasswordOrKey')]"
+                    "keyData": "[parameters('vmSshKey')]"
                   }
                 ]
               },
@@ -1302,8 +1277,7 @@
                 "osProfile": {
                   "computerName": "[parameters('vmName')]",
                   "adminUsername": "[parameters('vmAdminUsername')]",
-                  "adminPassword": "[parameters('vmAdminPasswordOrKey')]",
-                  "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
+                  "linuxConfiguration": "[variables('linuxConfiguration')]"
                 },
                 "storageProfile": {
                   "copy": [

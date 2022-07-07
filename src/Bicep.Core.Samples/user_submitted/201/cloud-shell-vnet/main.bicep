@@ -45,6 +45,26 @@ resource containerSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-04-01' 
   parent: existingVNET
   name: containerSubnetName
   properties: {
+    networkSecurityGroup: {
+      location: location
+      properties: {
+        securityRules: [
+          {
+            name: 'rulesHttp'
+            properties: {
+              description: 'Allow HTTP flows'
+              protocol: 'Tcp'
+              sourcePortRange: '*'
+              destinationPortRange: '80'
+              sourceAddressPrefix: '*'
+              access: 'Allow'
+              priority: 100
+              direction: 'Inbound'
+            }
+          }
+        ]
+      }
+    }
     addressPrefix: containerSubnetAddressPrefix
     serviceEndpoints: [
       {

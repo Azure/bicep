@@ -49,6 +49,7 @@ namespace Bicep.LangServer.IntegrationTests
             creationOptions ??= new Server.CreationOptions();
             creationOptions = creationOptions with
             {
+                Features = creationOptions.Features ?? BicepTestConstants.Features,
                 SnippetsProvider = creationOptions.SnippetsProvider ?? SnippetsProvider,
                 FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string>()),
                 ModuleRestoreScheduler = creationOptions.ModuleRestoreScheduler ?? BicepTestConstants.ModuleRestoreScheduler

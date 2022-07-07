@@ -139,7 +139,7 @@ namespace Bicep.Cli.Services
             return decompilation;
         }
 
-        private static IReadOnlyDictionary<BicepFile, IEnumerable<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ModuleDeclarationSyntax> originalModulesToRestore, bool forceModulesRestore)
+        private static ImmutableDictionary<BicepFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ModuleDeclarationSyntax> originalModulesToRestore, bool forceModulesRestore)
         {
             static IEnumerable<IDiagnostic> GetModuleDiagnosticsPerFile(SourceFileGrouping grouping, BicepFile bicepFile, ImmutableHashSet<ModuleDeclarationSyntax> originalModulesToRestore, bool forceModulesRestore)
             {
@@ -159,7 +159,7 @@ namespace Bicep.Cli.Services
 
             return sourceFileGrouping.SourceFiles
                 .OfType<BicepFile>()
-                .ToDictionary(bicepFile => bicepFile, bicepFile => GetModuleDiagnosticsPerFile(sourceFileGrouping, bicepFile, originalModulesToRestore, forceModulesRestore));
+                .ToImmutableDictionary(bicepFile => bicepFile, bicepFile => GetModuleDiagnosticsPerFile(sourceFileGrouping, bicepFile, originalModulesToRestore, forceModulesRestore).ToImmutableArray());
         }
 
         private void LogDiagnostics(Compilation compilation)
@@ -172,7 +172,7 @@ namespace Bicep.Cli.Services
             LogDiagnostics(compilation.GetAllDiagnosticsByBicepFile());
         }
 
-        private void LogDiagnostics(IReadOnlyDictionary<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByBicepFile)
+        private void LogDiagnostics(ImmutableDictionary<BicepFile, ImmutableArray<IDiagnostic>> diagnosticsByBicepFile)
         {
             foreach (var (bicepFile, diagnostics) in diagnosticsByBicepFile)
             {

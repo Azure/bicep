@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -103,7 +102,7 @@ namespace Bicep.LanguageServer.Handlers
                 compilation = context.Compilation;
             }
 
-            KeyValuePair<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
+            var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
                 .FirstOrDefault(x => x.Key.FileUri == fileUri);
 
             if (diagnosticsByFile.Value.Any(x => x.Level == DiagnosticLevel.Error))

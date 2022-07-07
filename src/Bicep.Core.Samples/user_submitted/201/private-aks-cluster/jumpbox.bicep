@@ -22,19 +22,12 @@ param imageOffer string = 'UbuntuServer'
 @description('Specifies the Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version.')
 param imageSku string = '18.04-LTS'
 
-@allowed([
-  'sshPublicKey'
-  'password'
-])
-@description('Specifies the type of authentication when accessing the Virtual Machine. SSH key is recommended.')
-param authenticationType string = 'password'
-
 @description('Specifies the name of the administrator account of the virtual machine.')
 param vmAdminUsername string
 
 @description('Specifies the SSH Key or password for the virtual machine. SSH key is recommended.')
 @secure()
-param vmAdminPasswordOrKey string
+param vmSshKey string
 
 @allowed([
   'Premium_LRS'
@@ -81,7 +74,7 @@ var linuxConfiguration = {
     publicKeys: [
       {
         path: '/home/${vmAdminUsername}/.ssh/authorized_keys'
-        keyData: vmAdminPasswordOrKey
+        keyData: vmSshKey
       }
     ]
   }
@@ -132,8 +125,7 @@ resource virtualMachines 'Microsoft.Compute/virtualMachines@2020-12-01' = {
     osProfile: {
       computerName: vmName
       adminUsername: vmAdminUsername
-      adminPassword: vmAdminPasswordOrKey
-      linuxConfiguration: ((authenticationType == 'password') ? null : linuxConfiguration)
+      linuxConfiguration: linuxConfiguration
     }
     storageProfile: {
       imageReference: {

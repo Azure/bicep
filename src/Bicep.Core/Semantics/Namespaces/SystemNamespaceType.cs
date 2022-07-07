@@ -10,6 +10,7 @@ using System.Text;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
@@ -18,6 +19,7 @@ using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using static Bicep.Core.Semantics.FunctionOverloadBuilder;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
@@ -42,471 +44,524 @@ namespace Bicep.Core.Semantics.Namespaces
             ArmTemplateProviderName: "System",
             ArmTemplateProviderVersion: "1.0");
 
-        private static readonly ImmutableArray<FunctionOverload> SystemOverloads = new[]
+        private static IEnumerable<FunctionOverload> GetSystemOverloads(IFeatureProvider featureProvider)
         {
-            new FunctionOverloadBuilder(LanguageConstants.AnyFunction)
+            yield return new FunctionOverloadBuilder(LanguageConstants.AnyFunction)
                 .WithReturnType(LanguageConstants.Any)
                 .WithGenericDescription("Converts the specified value to the `any` type.")
                 .WithRequiredParameter("value", LanguageConstants.Any, "The value to convert to `any` type")
                 .WithEvaluator((functionCall, _, _, _, _) => functionCall.Arguments.Single().Expression)
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("concat")
+            yield return new FunctionOverloadBuilder("concat")
                 .WithReturnType(LanguageConstants.Array)
                 .WithGenericDescription(ConcatDescription)
                 .WithDescription("Combines multiple arrays and returns the concatenated array.")
                 .WithVariableParameter("arg", LanguageConstants.Array, minimumCount: 1, "The array for concatenation")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("concat")
+            yield return new FunctionOverloadBuilder("concat")
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription(ConcatDescription)
                 .WithDescription("Combines multiple string, integer, or boolean values and returns them as a concatenated string.")
                 .WithVariableParameter("arg", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Bool), minimumCount: 1, "The string, int, or boolean value for concatenation")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("format")
+            yield return new FunctionOverloadBuilder("format")
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription("Creates a formatted string from input values.")
                 .WithRequiredParameter("formatString", LanguageConstants.String, "The composite format string.")
                 .WithVariableParameter("arg", LanguageConstants.Any, minimumCount: 0, "The value to include in the formatted string.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("base64")
+            yield return new FunctionOverloadBuilder("base64")
                 .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("base64"), LanguageConstants.String)
                 .WithGenericDescription("Returns the base64 representation of the input string.")
                 .WithRequiredParameter("inputString", LanguageConstants.String, "The value to return as a base64 representation.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("padLeft")
+            yield return new FunctionOverloadBuilder("padLeft")
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription("Returns a right-aligned string by adding characters to the left until reaching the total specified length.")
                 .WithRequiredParameter("valueToPad", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), "The value to right-align.")
                 .WithRequiredParameter("totalLength", LanguageConstants.Int, "The total number of characters in the returned string.")
                 .WithOptionalParameter("paddingCharacter", LanguageConstants.String, "The character to use for left-padding until the total length is reached. The default value is a space.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("replace")
+            yield return new FunctionOverloadBuilder("replace")
                 .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("replace"), LanguageConstants.String)
                 .WithGenericDescription("Returns a new string with all instances of one string replaced by another string.")
                 .WithRequiredParameter("originalString", LanguageConstants.String, "The original string.")
                 .WithRequiredParameter("oldString", LanguageConstants.String, "The string to be removed from the original string.")
                 .WithRequiredParameter("newString", LanguageConstants.String, "The string to add in place of the removed string.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("toLower")
+            yield return new FunctionOverloadBuilder("toLower")
                 .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("toLower"), LanguageConstants.String)
                 .WithGenericDescription("Converts the specified string to lower case.")
                 .WithRequiredParameter("stringToChange", LanguageConstants.String, "The value to convert to lower case.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("toUpper")
+            yield return new FunctionOverloadBuilder("toUpper")
                 .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("toUpper"), LanguageConstants.String)
                 .WithGenericDescription("Converts the specified string to upper case.")
                 .WithRequiredParameter("stringToChange", LanguageConstants.String, "The value to convert to upper case.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("length")
+            yield return new FunctionOverloadBuilder("length")
                 .WithReturnType(LanguageConstants.Int)
                 .WithGenericDescription("Returns the number of characters in a string, elements in an array, or root-level properties in an object.")
                 .WithRequiredParameter("arg", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object, LanguageConstants.Array), "The array to use for getting the number of elements, the string to use for getting the number of characters, or the object to use for getting the number of root-level properties.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("split")
+            yield return new FunctionOverloadBuilder("split")
                 .WithReturnType(LanguageConstants.Array)
                 .WithGenericDescription("Returns an array of strings that contains the substrings of the input string that are delimited by the specified delimiters.")
                 .WithRequiredParameter("inputString", LanguageConstants.String, "The string to split.")
                 .WithRequiredParameter("delimiter", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array), "The delimiter to use for splitting the string.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("join")
+            yield return new FunctionOverloadBuilder("join")
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription("Joins multiple strings into a single string, separated using a delimiter.")
                 .WithRequiredParameter("inputArray", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default), "An array of strings to join.")
                 .WithRequiredParameter("delimiter", LanguageConstants.String, "The delimiter to use to join the string.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("string")
+            yield return new FunctionOverloadBuilder("string")
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription("Converts the specified value to a string.")
                 .WithRequiredParameter("valueToConvert", LanguageConstants.Any, "The value to convert to string. Any type of value can be converted, including objects and arrays.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("int")
+            yield return new FunctionOverloadBuilder("int")
                 .WithReturnType(LanguageConstants.Int)
                 .WithGenericDescription("Converts the specified value to an integer.")
                 .WithRequiredParameter("valueToConvert", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), "The value to convert to an integer.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("uniqueString")
+            yield return new FunctionOverloadBuilder("uniqueString")
                 .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("uniqueString"), LanguageConstants.String)
                 .WithGenericDescription("Creates a deterministic hash string based on the values provided as parameters.")
                 .WithVariableParameter("arg", LanguageConstants.String, minimumCount: 1, "The value used in the hash function to create a unique string.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("guid")
+            yield return new FunctionOverloadBuilder("guid")
                 .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("guid"), LanguageConstants.String)
                 .WithGenericDescription("Creates a value in the format of a globally unique identifier based on the values provided as parameters.")
                 .WithVariableParameter("arg", LanguageConstants.String, minimumCount: 1, "The value used in the hash function to create the GUID.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("trim")
+            yield return new FunctionOverloadBuilder("trim")
                 .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("trim"), LanguageConstants.String)
                 .WithGenericDescription("Removes all leading and trailing white-space characters from the specified string.")
                 .WithRequiredParameter("stringToTrim", LanguageConstants.String, "The value to trim.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("uri")
+            yield return new FunctionOverloadBuilder("uri")
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription("Creates an absolute URI by combining the baseUri and the relativeUri string.")
                 .WithRequiredParameter("baseUri", LanguageConstants.String, "The base uri string.")
                 .WithRequiredParameter("relativeUri", LanguageConstants.String, "The relative uri string to add to the base uri string.")
-                .Build(),
+                .Build();
 
             // TODO: Docs deviation
-            new FunctionOverloadBuilder("substring")
+            yield return new FunctionOverloadBuilder("substring")
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription("Returns a substring that starts at the specified character position and contains the specified number of characters.")
                 .WithRequiredParameter("stringToParse", LanguageConstants.String, "The original string from which the substring is extracted.")
                 .WithRequiredParameter("startIndex", LanguageConstants.Int, "The zero-based starting character position for the substring.")
                 .WithOptionalParameter("length", LanguageConstants.Int, "The number of characters for the substring. Must refer to a location within the string. Must be zero or greater.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("take")
+            yield return new FunctionOverloadBuilder("take")
                 .WithReturnType(LanguageConstants.Array)
                 .WithGenericDescription(TakeDescription)
                 .WithDescription("Returns an array with the specified number of elements from the start of the array.")
                 .WithRequiredParameter("originalValue", LanguageConstants.Array, "The array to take the elements from.")
                 .WithRequiredParameter("numberToTake", LanguageConstants.Int, "The number of elements to take. If this value is 0 or less, an empty array is returned. If it is larger than the length of the given array, all the elements in the array are returned.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("take")
+            yield return new FunctionOverloadBuilder("take")
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription(TakeDescription)
                 .WithDescription("Returns a string with the specified number of characters from the start of the string.")
                 .WithRequiredParameter("originalValue", LanguageConstants.String, "The string to take the elements from.")
                 .WithRequiredParameter("numberToTake", LanguageConstants.Int, "The number of characters to take. If this value is 0 or less, an empty string is returned. If it is larger than the length of the given string, all the characters are returned.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("skip")
+            yield return new FunctionOverloadBuilder("skip")
                 .WithReturnType(LanguageConstants.Array)
                 .WithGenericDescription(SkipDescription)
                 .WithDescription("Returns an array with all the elements after the specified number in the array.")
                 .WithRequiredParameter("originalValue", LanguageConstants.Array, "The array to use for skipping.")
                 .WithRequiredParameter("numberToSkip", LanguageConstants.Int, "The number of elements to skip. If this value is 0 or less, all the elements in the value are returned. If it is larger than the length of the array, an empty array is returned.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("skip")
+            yield return new FunctionOverloadBuilder("skip")
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription(SkipDescription)
                 .WithDescription("Returns a string with all the characters after the specified number in the string.")
                 .WithRequiredParameter("originalValue", LanguageConstants.String, "The string to use for skipping.")
                 .WithRequiredParameter("numberToSkip", LanguageConstants.Int, "The number of characters to skip. If this value is 0 or less, all the characters in the value are returned. If it is larger than the length of the string, an empty string is returned.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("empty")
+            yield return new FunctionOverloadBuilder("empty")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithGenericDescription("Determines if an array, object, or string is empty.")
                 .WithRequiredParameter("itemToTest", TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.Object, LanguageConstants.Array, LanguageConstants.String), "The value to check if it is empty.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("contains")
+            yield return new FunctionOverloadBuilder("contains")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithGenericDescription(ContainsDescription)
                 .WithDescription("Checks whether an object contains a property. The property name comparison is case-insensitive.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The object")
                 .WithRequiredParameter("propertyName", LanguageConstants.String, "The property name.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("contains")
+            yield return new FunctionOverloadBuilder("contains")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithGenericDescription(ContainsDescription)
                 .WithDescription("Checks whether an array contains a value. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array")
                 .WithRequiredParameter("itemToFind", LanguageConstants.Any, "The value to find.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("contains")
+            yield return new FunctionOverloadBuilder("contains")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithGenericDescription(ContainsDescription)
                 .WithDescription("Checks whether a string contains a substring. The string comparison is case-sensitive.")
                 .WithRequiredParameter("string", LanguageConstants.String, "The string.")
                 .WithRequiredParameter("itemToFind", LanguageConstants.String, "The value to find.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("intersection")
+            yield return new FunctionOverloadBuilder("intersection")
                 .WithReturnType(LanguageConstants.Object)
                 .WithGenericDescription(IntersectionDescription)
                 .WithDescription("Returns a single object with the common elements from the parameters.")
                 .WithVariableParameter("object", LanguageConstants.Object, minimumCount: 2, "The object to use for finding common elements.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("intersection")
+            yield return new FunctionOverloadBuilder("intersection")
                 .WithReturnType(LanguageConstants.Array)
                 .WithGenericDescription(IntersectionDescription)
                 .WithDescription("Returns a single array with the common elements from the parameters.")
                 .WithVariableParameter("array", LanguageConstants.Array, minimumCount: 2, "The array to use for finding common elements.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("union")
+            yield return new FunctionOverloadBuilder("union")
                 .WithReturnType(LanguageConstants.Object)
                 .WithGenericDescription(UnionDescription)
                 .WithDescription("Returns a single object with all elements from the parameters. Duplicate keys are only included once.")
                 .WithVariableParameter("object", LanguageConstants.Object, minimumCount: 2, "The first object to use for joining elements.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("union")
+            yield return new FunctionOverloadBuilder("union")
                 .WithReturnType(LanguageConstants.Array)
                 .WithGenericDescription(UnionDescription)
                 .WithDescription("Returns a single array with all elements from the parameters. Duplicate values are only included once.")
                 .WithVariableParameter("object", LanguageConstants.Array, minimumCount: 2, "The first array to use for joining elements.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("first")
+            yield return new FunctionOverloadBuilder("first")
                 .WithReturnType(LanguageConstants.Any)
                 .WithGenericDescription(FirstDescription)
                 .WithDescription("Returns the first element of the array.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The value to retrieve the first element.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("first")
+            yield return new FunctionOverloadBuilder("first")
                 .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("first"), LanguageConstants.String)
                 .WithGenericDescription(FirstDescription)
                 .WithDescription("Returns the first character of the string.")
                 .WithRequiredParameter("string", LanguageConstants.String, "The value to retrieve the first character.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("last")
+            yield return new FunctionOverloadBuilder("last")
                 .WithReturnType(LanguageConstants.Any)
                 .WithGenericDescription(LastDescription)
                 .WithDescription("Returns the last element of the array.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The value to retrieve the last element.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("last")
+            yield return new FunctionOverloadBuilder("last")
                 .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("last"), LanguageConstants.String)
                 .WithGenericDescription(LastDescription)
                 .WithDescription("Returns the last character of the string.")
                 .WithRequiredParameter("string", LanguageConstants.String, "The value to retrieve the last character.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("indexOf")
+            yield return new FunctionOverloadBuilder("indexOf")
                 .WithReturnType(LanguageConstants.Int)
                 .WithGenericDescription("Returns the first position of a value within a string. The comparison is case-insensitive.")
                 .WithRequiredParameter("stringToSearch", LanguageConstants.String, "The value that contains the item to find.")
                 .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("indexOf")
+            yield return new FunctionOverloadBuilder("indexOf")
                 .WithReturnType(LanguageConstants.Int)
                 .WithGenericDescription("Returns the first position of a value within an array. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array that contains the item to find.")
                 .WithRequiredParameter("itemToFind", LanguageConstants.Any, "The value to find.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("lastIndexOf")
+            yield return new FunctionOverloadBuilder("lastIndexOf")
                 .WithReturnType(LanguageConstants.Int)
                 .WithGenericDescription("Returns the last position of a value within a string. The comparison is case-insensitive.")
                 .WithRequiredParameter("stringToSearch", LanguageConstants.String, "The value that contains the item to find.")
                 .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("lastIndexOf")
+            yield return new FunctionOverloadBuilder("lastIndexOf")
                 .WithReturnType(LanguageConstants.Int)
                 .WithGenericDescription("Returns the last position of a value within an array. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array that contains the item to find.")
                 .WithRequiredParameter("itemToFind", LanguageConstants.Any, "The value to find.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("startsWith")
+            yield return new FunctionOverloadBuilder("startsWith")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithGenericDescription("Determines whether a string starts with a value. The comparison is case-insensitive.")
                 .WithRequiredParameter("stringToSearch", LanguageConstants.String, "The value that contains the item to find.")
                 .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("endsWith")
+            yield return new FunctionOverloadBuilder("endsWith")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithGenericDescription("Determines whether a string ends with a value. The comparison is case-insensitive.")
                 .WithRequiredParameter("stringToSearch", LanguageConstants.String, "The value that contains the item to find.")
                 .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
-                .Build(),
+                .Build();
 
             // TODO: Needs to support number type as well
             // TODO: Docs need updates
-            new FunctionOverloadBuilder("min")
+            yield return new FunctionOverloadBuilder("min")
                 .WithReturnType(LanguageConstants.Int)
                 .WithGenericDescription(MinDescription)
                 .WithDescription("Returns the minimum value from the specified integers.")
                 .WithVariableParameter("int", LanguageConstants.Int, minimumCount: 1, "One of the integers used to calculate the minimum value")
-                .Build(),
+                .Build();
 
             // TODO: Docs need updates
-            new FunctionOverloadBuilder("min")
+            yield return new FunctionOverloadBuilder("min")
                 .WithReturnType(LanguageConstants.Int)
                 .WithGenericDescription(MinDescription)
                 .WithDescription("Returns the minimum value from an array of integers.")
                 .WithRequiredParameter("intArray", LanguageConstants.Array, "The array of integers.")
-                .Build(),
+                .Build();
 
             // TODO: Needs to support number type as well
             // TODO: Docs need updates
-            new FunctionOverloadBuilder("max")
+            yield return new FunctionOverloadBuilder("max")
                 .WithReturnType(LanguageConstants.Int)
                 .WithGenericDescription(MaxDescription)
                 .WithDescription("Returns the maximum value from the specified integers.")
                 .WithVariableParameter("int", LanguageConstants.Int, minimumCount: 1, "One of the integers used to calculate the maximum value")
-                .Build(),
+                .Build();
 
             // TODO: Docs need updates
-            new FunctionOverloadBuilder("max")
+            yield return new FunctionOverloadBuilder("max")
                 .WithReturnType(LanguageConstants.Int)
                 .WithGenericDescription(MaxDescription)
                 .WithDescription("Returns the maximum value from an array of integers.")
                 .WithRequiredParameter("intArray", LanguageConstants.Array, "The array of integers.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("range")
+            yield return new FunctionOverloadBuilder("range")
                 .WithReturnType(new TypedArrayType(LanguageConstants.Int, TypeSymbolValidationFlags.Default))
                 .WithGenericDescription("Creates an array of integers from a starting integer and containing a number of items.")
                 .WithRequiredParameter("startIndex", LanguageConstants.Int, "The first integer in the array. The sum of startIndex and count must be no greater than 2147483647.")
                 .WithRequiredParameter("count", LanguageConstants.Int, "The number of integers in the array. Must be non-negative integer up to 10000.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("base64ToString")
+            yield return new FunctionOverloadBuilder("base64ToString")
                 .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("base64ToString"), LanguageConstants.String)
                 .WithGenericDescription("Converts a base64 representation to a string.")
                 .WithRequiredParameter("base64Value", LanguageConstants.String, "The base64 representation to convert to a string.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("base64ToJson")
+            yield return new FunctionOverloadBuilder("base64ToJson")
                 .WithReturnType(LanguageConstants.Any)
                 .WithGenericDescription("Converts a base64 representation to a JSON object.")
                 .WithRequiredParameter("base64Value", LanguageConstants.String, "The base64 representation to convert to a JSON object.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("uriComponentToString")
+            yield return new FunctionOverloadBuilder("uriComponentToString")
                 .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("uriComponentToString"), LanguageConstants.String)
                 .WithGenericDescription("Returns a string of a URI encoded value.")
                 .WithRequiredParameter("uriEncodedString", LanguageConstants.String, "The URI encoded value to convert to a string.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("uriComponent")
+            yield return new FunctionOverloadBuilder("uriComponent")
                 .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("uriComponent"), LanguageConstants.String)
                 .WithGenericDescription("Encodes a URI.")
                 .WithRequiredParameter("stringToEncode", LanguageConstants.String, "The value to encode.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("dataUriToString")
+            yield return new FunctionOverloadBuilder("dataUriToString")
                 .WithGenericDescription("Converts a data URI formatted value to a string.")
                 .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("dataUriToString"), LanguageConstants.String)
                 .WithRequiredParameter("dataUriToConvert", LanguageConstants.String, "The data URI value to convert.")
-                .Build(),
+                .Build();
 
             // TODO: Docs have wrong param type and param name (any is actually supported)
-            new FunctionOverloadBuilder("dataUri")
+            yield return new FunctionOverloadBuilder("dataUri")
                 .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("dataUri"), LanguageConstants.String)
                 .WithGenericDescription("Converts a value to a data URI.")
                 .WithRequiredParameter("valueToConvert", LanguageConstants.Any, "The value to convert to a data URI.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("array")
+            yield return new FunctionOverloadBuilder("array")
                 .WithGenericDescription("Converts the value to an array.")
                 .WithReturnType(LanguageConstants.Array)
                 .WithRequiredParameter("valueToConvert", LanguageConstants.Any, "The value to convert to an array.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("coalesce")
+            yield return new FunctionOverloadBuilder("coalesce")
                 .WithReturnType(LanguageConstants.Any)
                 .WithGenericDescription("Returns first non-null value from the parameters. Empty strings, empty arrays, and empty objects are not null.")
                 .WithVariableParameter("arg", LanguageConstants.Any, minimumCount: 1, "The value to coalesce")
-                .Build(),
+                .Build();
 
             // TODO: Requires number type
-            //new FunctionOverloadBuilder("float")
+            //yield return new FunctionOverloadBuilder("float")
             //    .WithReturnType(LanguageConstants.Number)
             //    .WithDescription("Converts the value to a floating point number. You only use this function when passing custom parameters to an application, such as a Logic App.")
             //    .WithRequiredParameter("value", LanguageConstants.Any, "The value to convert to a floating point number.")
-            //    .Build(),
+            //    .Build();
 
-            new FunctionOverloadBuilder("bool")
+            yield return new FunctionOverloadBuilder("bool")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithGenericDescription("Converts the parameter to a boolean.")
                 .WithRequiredParameter("value", LanguageConstants.Any, "The value to convert to a boolean.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("json")
+            yield return new FunctionOverloadBuilder("json")
                 .WithGenericDescription("Converts a valid JSON string into a JSON data type.")
                 .WithRequiredParameter("json", LanguageConstants.String, "The value to convert to JSON. The string must be a properly formatted JSON string.")
                 .WithReturnResultBuilder(JsonResultBuilder, LanguageConstants.Any)
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("dateTimeAdd")
+            yield return new FunctionOverloadBuilder("dateTimeAdd")
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription("Adds a time duration to a base value. ISO 8601 format is expected.")
                 .WithRequiredParameter("base", LanguageConstants.String, "The starting datetime value for the addition. [Use ISO 8601 timestamp format](https://en.wikipedia.org/wiki/ISO_8601).")
                 .WithRequiredParameter("duration", LanguageConstants.String, "The time value to add to the base. It can be a negative value. Use [ISO 8601 duration format](https://en.wikipedia.org/wiki/ISO_8601#Durations).")
                 .WithOptionalParameter("format", LanguageConstants.String, "The output format for the date time result. If not provided, the format of the base value is used. Use either [standard format strings](https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings) or [custom format strings](https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings).")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("dateTimeToEpoch")
+            yield return new FunctionOverloadBuilder("dateTimeToEpoch")
                 .WithReturnType(LanguageConstants.Int)
                 .WithGenericDescription("Converts an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string to an epoch time integer value.")
                 .WithOptionalParameter("dateTime", LanguageConstants.String, "An [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted dateTime string to be converted to epoch time.")
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("dateTimeFromEpoch")
+            yield return new FunctionOverloadBuilder("dateTimeFromEpoch")
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription("Converts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.")
                 .WithOptionalParameter("epochTime", LanguageConstants.Int, "An epoch time value that will be converted to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime formatted string.")
-                .Build(),
+                .Build();
 
             // newGuid and utcNow are only allowed in parameter default values
-            new FunctionOverloadBuilder("utcNow")
+            yield return new FunctionOverloadBuilder("utcNow")
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription("Returns the current (UTC) datetime value in the specified format. If no format is provided, the ISO 8601 (yyyyMMddTHHmmssZ) format is used. **This function can only be used in the default value for a parameter**.")
                 .WithOptionalParameter("format", LanguageConstants.String, "The format. Use either [standard format strings](https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings) or [custom format strings](https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings).")
                 .WithFlags(FunctionFlags.ParamDefaultsOnly)
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("newGuid")
+            yield return new FunctionOverloadBuilder("newGuid")
                 .WithReturnType(LanguageConstants.String)
                 .WithGenericDescription("Returns a value in the format of a globally unique identifier. **This function can only be used in the default value for a parameter**.")
                 .WithFlags(FunctionFlags.ParamDefaultsOnly)
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("loadTextContent")
+            yield return new FunctionOverloadBuilder("loadTextContent")
                 .WithGenericDescription($"Loads the content of the specified file into a string. Content loading occurs during compilation, not at runtime. The maximum allowed content size is {LanguageConstants.MaxLiteralCharacterLimit} characters (including line endings).")
-                .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
+                .WithRequiredParameter("filePath", LanguageConstants.StringFilePath, "The path to the file that will be loaded.")
                 .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
                 .WithReturnResultBuilder(LoadTextContentResultBuilder, LanguageConstants.String)
                 .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
                 .WithVariableGenerator(StringLiteralFunctionVariableGenerator)
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("loadFileAsBase64")
+            yield return new FunctionOverloadBuilder("loadFileAsBase64")
                 .WithGenericDescription($"Loads the specified file as base64 string. File loading occurs during compilation, not at runtime. The maximum allowed size is {LanguageConstants.MaxLiteralCharacterLimit / 4 * 3 / 1024} Kb.")
-                .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
+                .WithRequiredParameter("filePath", LanguageConstants.StringFilePath, "The path to the file that will be loaded.")
                 .WithReturnResultBuilder(LoadContentAsBase64ResultBuilder, LanguageConstants.String)
                 .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
                 .WithVariableGenerator(StringLiteralFunctionVariableGenerator)
-                .Build(),
-            new FunctionOverloadBuilder("loadJsonContent")
+                .Build();
+            yield return new FunctionOverloadBuilder("loadJsonContent")
                 .WithGenericDescription($"Loads the specified JSON file as bicep object. File loading occurs during compilation, not at runtime.")
-                .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
+                .WithRequiredParameter("filePath", LanguageConstants.StringJsonFilePath, "The path to the file that will be loaded.")
                 .WithOptionalParameter("jsonPath", LanguageConstants.String, "JSONPath expression to narrow down the loaded file. If not provided, a root element indicator '$' is used")
                 .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
                 .WithReturnResultBuilder(LoadJsonContentResultBuilder, LanguageConstants.Any)
                 .WithEvaluator(JsonContentFunctionReturnTypeEvaluator)
                 .WithVariableGenerator(JsonContentFunctionVariableGenerator)
-                .Build(),
+                .Build();
 
-            new FunctionOverloadBuilder("items")
+            yield return new FunctionOverloadBuilder("items")
                 .WithGenericDescription("Returns an array of keys and values for an object. Elements are consistently ordered alphabetically by key.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The object to return keys and values for")
                 .WithReturnResultBuilder(ItemsResultBuilder, GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any))
-                .Build(),
-        }.ToImmutableArray();
+                .Build();
+
+            if (featureProvider.AdvancedListComprehensionEnabled)
+            {
+                yield return new FunctionOverloadBuilder("flatten")
+                    .WithGenericDescription("Takes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.")
+                    .WithVariableParameter("array", new TypedArrayType(LanguageConstants.Array, TypeSymbolValidationFlags.Default), 0, "The array of sub-arrays to flatten.")
+                    .WithReturnType(LanguageConstants.Array)
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("filter")
+                    .WithGenericDescription("Filters an array with a custom filtering function.")
+                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to filter.")
+                    .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Bool), "The predicate applied to each input array element. If false, the item will be filtered out of the output array.",
+                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Bool)))
+                    .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
+                        return new(argumentTypes[0]);
+                    }, LanguageConstants.Array)
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("map")
+                    .WithGenericDescription("Applies a custom mapping function to each element of an array and returns the result array.")
+                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to map.")
+                    .WithRequiredParameter("predicate", OneParamLambda(LanguageConstants.Any, LanguageConstants.Any), "The predicate applied to each input array element, in order to generate the output array.",
+                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => OneParamLambda(t, LanguageConstants.Any)))
+                    .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => argumentTypes[1] switch {
+                        LambdaType lambdaType => new(new TypedArrayType(lambdaType.ReturnType.Type, TypeSymbolValidationFlags.Default)),
+                        _ => new(LanguageConstants.Any),
+                    }, LanguageConstants.Array)
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("sort")
+                    .WithGenericDescription("Sorts an array with a custom sort function.")
+                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to sort.")
+                    .WithRequiredParameter("predicate", TwoParamLambda(LanguageConstants.Any, LanguageConstants.Any, LanguageConstants.Bool), "The predicate used to compare two array elements for ordering. If true, the second element will be ordered after the first in the output array.",
+                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TwoParamLambda(t, t, LanguageConstants.Bool)))
+                    .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => {
+                        return new(argumentTypes[0]);
+                    }, LanguageConstants.Array)
+                    .Build();
+
+                yield return new FunctionOverloadBuilder("reduce")
+                    .WithGenericDescription("Reduces an array with a custom reduce function.")
+                    .WithRequiredParameter("array", LanguageConstants.Array, "The array to reduce.")
+                    .WithRequiredParameter("initialValue", LanguageConstants.Any, "The initial value.")
+                    .WithRequiredParameter("predicate", TwoParamLambda(LanguageConstants.Any, LanguageConstants.Any, LanguageConstants.Any), "The predicate used to aggregate the current value and the next value. ",
+                        calculator: getArgumentType => CalculateLambdaFromArrayParam(getArgumentType, 0, t => TwoParamLambda(t, t, LanguageConstants.Any)))
+                    .WithReturnType(LanguageConstants.Any)
+                    .WithReturnResultBuilder((binder, fileResolver, diagnostics, arguments, argumentTypes) => argumentTypes[2] switch {
+                        LambdaType lambdaType => new(lambdaType.ReturnType.Type),
+                        _ => new(LanguageConstants.Any),
+                    }, LanguageConstants.Array)
+                    .Build();
+            }
+        }
 
         private static bool TryGetFileUriWithDiagnostics(IBinder binder, IFileResolver fileResolver, string filePath, SyntaxBase filePathArgument, [NotNullWhen(true)] out Uri? fileUri, [NotNullWhen(false)] out ErrorDiagnostic? error)
         {
@@ -563,6 +618,24 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 return new(LanguageConstants.String);
             };
+
+        private static TypeSymbol? CalculateLambdaFromArrayParam(GetFunctionArgumentType getArgumentType, int arrayIndex, Func<TypeSymbol, LambdaType> lambdaBuilder)
+        {
+            if (getArgumentType(arrayIndex) is ArrayType arrayType)
+            {
+                var itemType = arrayType.Item;
+
+                return lambdaBuilder(itemType.Type);
+            }
+
+            return null;
+        }
+
+        private static LambdaType OneParamLambda(TypeSymbol paramType, TypeSymbol returnType)
+            => new LambdaType(ImmutableArray.Create<ITypeReference>(paramType), returnType);
+
+        private static LambdaType TwoParamLambda(TypeSymbol param1Type, TypeSymbol param2Type, TypeSymbol returnType)
+            => new LambdaType(ImmutableArray.Create<ITypeReference>(param1Type, param2Type), returnType);
 
         private static FunctionResult LoadTextContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, FunctionCallSyntaxBase functionCall, ImmutableArray<TypeSymbol> argumentTypes)
         {
@@ -1052,13 +1125,13 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
         }
 
-        public static NamespaceType Create(string aliasName)
+        public static NamespaceType Create(string aliasName, IFeatureProvider featureProvider)
         {
             return new NamespaceType(
                 aliasName,
                 Settings,
                 ImmutableArray<TypeProperty>.Empty,
-                SystemOverloads,
+                GetSystemOverloads(featureProvider),
                 BannedFunctions,
                 GetSystemDecorators(),
                 new EmptyResourceTypeProvider());
