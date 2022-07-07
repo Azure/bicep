@@ -20,7 +20,7 @@ namespace Bicep.Core.Semantics
         public ParamBinder(BicepParamFile bicepParamFile, ISymbolContext symbolContext)
         {
             this.bicepParamFile = bicepParamFile;
-            var symbols = ParamAssignmentSymbolVisitor.GetSymbols(bicepParamFile);
+            var symbols = ParamAssignmentSymbolCollectVisitor.GetSymbols(bicepParamFile);
             var uniqueSymbols = GetUniqueSymbols(symbols);
             this.bindings = ParamNameBindingVisitor.GetBindings(bicepParamFile.ProgramSyntax, uniqueSymbols);
             this.cyclesBySymbol = GetCyclesBySymbol(bicepParamFile, this.bindings);

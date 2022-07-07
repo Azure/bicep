@@ -12,7 +12,7 @@ namespace Bicep.Core.Semantics
 {
     public class ParamFileSymbol : Symbol
     {
-        private readonly ILookup<string, BindableSymbol> symbolsByName;
+        private readonly ILookup<string, ParameterAssignmentSymbol> symbolsByName;
         private readonly Lazy<IEnumerable<ErrorDiagnostic>> lazyDiagnostics;
 
         public ParamFileSymbol(ImmutableArray<ParameterAssignmentSymbol> parameterAssignmentSymbols,
@@ -28,7 +28,7 @@ namespace Bicep.Core.Semantics
             this.Syntax = syntax;
             FileUri = fileUri;
             this.ParameterAssignmentSymbols = parameterAssignmentSymbols;
-            this.symbolsByName = this.Symbols.ToLookup(symbol => symbol.Name, LanguageConstants.IdentifierComparer);
+            this.symbolsByName = this.ParameterAssignmentSymbols.ToLookup(symbol => symbol.Name, LanguageConstants.IdentifierComparer);
         }
 
         public override IEnumerable<Symbol> Descendants =>
@@ -42,11 +42,6 @@ namespace Bicep.Core.Semantics
 
         public Uri FileUri { get; }
 
-        /// <summary>
-        /// Returns all the top-level declaration symbols.
-        /// </summary>
-        public IEnumerable<BindableSymbol> Symbols => this.Descendants.OfType<BindableSymbol>();
-
         public override void Accept(SymbolVisitor visitor)
         {
             visitor.VisitParamFileSymbol(this);
@@ -54,9 +49,9 @@ namespace Bicep.Core.Semantics
 
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => this.lazyDiagnostics.Value;
 
-        public IEnumerable<BindableSymbol> GetSymbolsByName(string name) => this.symbolsByName[name];
+        public IEnumerable<ParameterAssignmentSymbol> GetSymbolsByName(string name) => this.symbolsByName[name];
 
-        public static IEnumerable<BindableSymbol> FindDuplicateNamedSymbols(IEnumerable<ParameterAssignmentSymbol> symbols) => symbols
+        private static IEnumerable<BindableSymbol> FindDuplicateNamedSymbols(IEnumerable<ParameterAssignmentSymbol> symbols) => symbols
             .Where(symbol => symbol.NameSyntax.IsValid)
             .GroupBy(symbol => symbol.Name, LanguageConstants.IdentifierComparer)
             .Where(group => group.Count() > 1)

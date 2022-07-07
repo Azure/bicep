@@ -15,13 +15,23 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
-    public sealed class ParamAssignmentSymbolVisitor : SyntaxVisitor
+    public sealed class ParamAssignmentSymbolCollectVisitor : SyntaxVisitor
     {
         private readonly IList<ParameterAssignmentSymbol> symbols;
 
-        private ParamAssignmentSymbolVisitor(IList<ParameterAssignmentSymbol> symbols)
+        private ParamAssignmentSymbolCollectVisitor(IList<ParameterAssignmentSymbol> symbols)
         {
             this.symbols = symbols;
+        }
+        
+        public static ImmutableArray<ParameterAssignmentSymbol> GetSymbols(BicepParamFile bicepParamFile)
+        {
+            // collect declarations
+            var symbols = new List<ParameterAssignmentSymbol>();
+            var symbolCollectVisitor = new ParamAssignmentSymbolCollectVisitor(symbols);
+            symbolCollectVisitor.Visit(bicepParamFile.ProgramSyntax);
+
+            return symbols.ToImmutableArray();
         }
         
         public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
@@ -32,14 +42,6 @@ namespace Bicep.Core.Semantics
             symbols.Add(symbol);
         }
 
-        public static ImmutableArray<ParameterAssignmentSymbol> GetSymbols(BicepParamFile bicepParamFile)
-        {
-            // collect declarations
-            var symbols = new List<ParameterAssignmentSymbol>();
-            var declarationVisitor = new ParamAssignmentSymbolVisitor(symbols);
-            declarationVisitor.Visit(bicepParamFile.ProgramSyntax);
-
-            return symbols.ToImmutableArray();
-        }
+        
     }
 }

@@ -25,11 +25,19 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public TypeSymbol Type => throw new NotImplementedException(); // TODO
 
-        public override SymbolKind Kind => throw new NotImplementedException(); // TODO
+        public override SymbolKind Kind => SymbolKind.AssignedParameter;
+
+        public override IEnumerable<Symbol> Descendants
+        {
+            get
+            {
+                yield return this.Type;
+            }
+        }
 
         public override void Accept(SymbolVisitor visitor)
         {
-            throw new NotImplementedException(); // TODO
+           visitor.VisitParamAssignmentSymbol(this);
         }
     }
 }

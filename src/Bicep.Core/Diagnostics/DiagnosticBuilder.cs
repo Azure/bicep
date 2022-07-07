@@ -1455,7 +1455,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ParameterMultipleAssignments(string identifier) => new(
                 TextSpan,
                 "BCP247",
-                $"Identifier \"{identifier}\" is assigned multiple times. Remove or rename the duplicates.");
+                $"Parameter \"{identifier}\" is assigned multiple times. Remove or rename the duplicates.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
