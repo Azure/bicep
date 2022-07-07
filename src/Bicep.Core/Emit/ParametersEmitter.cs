@@ -10,13 +10,13 @@ using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
 {
-    public class ParamsEmitter
+    public class ParametersEmitter
     {
         private readonly ProgramSyntax syntax;
 
         private readonly EmitterSettings settings;
 
-        public ParamsEmitter(ProgramSyntax syntax, EmitterSettings settings)
+        public ParametersEmitter(ProgramSyntax syntax, EmitterSettings settings)
         {
             this.syntax = syntax;
             this.settings = settings;
@@ -34,12 +34,12 @@ namespace Bicep.Core.Emit
                 Formatting = Formatting.Indented
             };
 
-            new ParamsFileTemplateWriter(syntax).Write(writer);
+            new ParametersJsonWriter(syntax).Write(writer);
         });
 
         public EmitResult EmitParamsFile(JsonTextWriter writer) => this.EmitOrFail(() =>
         {
-            new ParamsFileTemplateWriter(syntax).Write(writer);
+            new ParametersJsonWriter(syntax).Write(writer);
         });
 
 

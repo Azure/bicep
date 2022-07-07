@@ -11,10 +11,10 @@ using System;
 
 namespace Bicep.Core.Emit
 {
-    public class ParamsFileTemplateWriter
+    public class ParametersJsonWriter
     {
         private readonly ProgramSyntax syntax;
-        public ParamsFileTemplateWriter(ProgramSyntax syntax)
+        public ParametersJsonWriter(ProgramSyntax syntax)
         {
             this.syntax = syntax;
         }

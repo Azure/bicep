@@ -10,11 +10,11 @@ using System.IO;
 
 namespace Bicep.Cli.Services
 {
-    public class ParamsFileWriter
+    public class ParametersWriter
     {
         private readonly InvocationContext invocationContext;
 
-        public ParamsFileWriter(InvocationContext invocationContext)
+        public ParametersWriter(InvocationContext invocationContext)
         {
             this.invocationContext = invocationContext;
         }
@@ -22,7 +22,7 @@ namespace Bicep.Cli.Services
         public EmitResult ToFile(ProgramSyntax syntax, string outputPath)
         {
             using var fileStream = CreateFileStream(outputPath);
-            return new ParamsEmitter(syntax, invocationContext.EmitterSettings).EmitParamsFile(fileStream);
+            return new ParametersEmitter(syntax, invocationContext.EmitterSettings).EmitParamsFile(fileStream);
         }
 
         public EmitResult ToStdout(ProgramSyntax syntax)
@@ -30,9 +30,9 @@ namespace Bicep.Cli.Services
             using var writer = new JsonTextWriter(invocationContext.OutputWriter)
             {
                 Formatting = Formatting.Indented
-            };new ParamsEmitter(syntax, invocationContext.EmitterSettings).EmitParamsFile(writer);
+            };new ParametersEmitter(syntax, invocationContext.EmitterSettings).EmitParamsFile(writer);
 
-            return new ParamsEmitter(syntax, invocationContext.EmitterSettings).EmitParamsFile(writer);
+            return new ParametersEmitter(syntax, invocationContext.EmitterSettings).EmitParamsFile(writer);
         }
 
         private static FileStream CreateFileStream(string path)

@@ -302,24 +302,24 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             error.Should().ContainAll(diagnostics);
         }
 
-        // [DataTestMethod]
-        // [DynamicData(nameof(GetParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        // public async Task Build_Invalid_Single_Params_File_ShouldFail_WithExpectedErrorMessage(DataSet dataSet)
-        // {
-        //     var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-        //     var paramsFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParam);
-        //     var defaultSettings = CreateDefaultSettings();
-        //     // var diagnostics = GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
+        [DataTestMethod]
+        [DynamicData(nameof(GetInavlidParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task Build_Invalid_Single_Params_File_ShouldFail_WithExpectedErrorMessage(DataSet dataSet)
+        {
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+            var paramsFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainInvalidParam);
+            var defaultSettings = CreateDefaultSettings();
+            var diagnostics = GetAllParamDiagnostics(paramsFilePath);
 
-        //     var (output, error, result) = await Bicep("build", paramsFilePath);
+            var (output, error, result) = await Bicep("build", paramsFilePath);
 
-        //     using (new AssertionScope())
-        //     {
-        //         result.Should().Be(1);
-        //         output.Should().BeEmpty();
-        //         // error.Should().ContainAll(diagnostics);
-        //     }
-        // }
+            using (new AssertionScope())
+            {
+                result.Should().Be(1);
+                output.Should().BeEmpty();
+                error.Should().ContainAll(diagnostics);
+            }
+        }
 
         [TestMethod]
         public async Task Build_WithOutFile_ShouldSucceed()
@@ -491,5 +491,7 @@ output myOutput string = 'hello!'
             .ToDynamicTestData();
 
         private static IEnumerable<object[]> GetParamData() => DataSets.ParamDataSets.ToDynamicTestData();
+
+        private static IEnumerable<object[]> GetInavlidParamData() => DataSets.InvalidParamDataSets.ToDynamicTestData();
     }
 }

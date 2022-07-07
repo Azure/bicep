@@ -21,11 +21,13 @@ namespace Bicep.Core.Samples
     {
         public const string TestFileMain = "main.bicep";
         public const string TestFileMainParam = "parameters.bicepparam";
+        //TODO: Short term fix for checking invalid parameters file. Sample files for parameters and bicep should be placed in separate folder later
+        public const string TestFileMainInvalidParam = "parameters.invalid.bicepparam";
         public const string TestFileMainDiagnostics = "main.diagnostics.bicep";
         public const string TestFileMainTokens = "main.tokens.bicep";
         public const string TestFileMainSymbols = "main.symbols.bicep";
         public const string TestFileMainSyntax = "main.syntax.bicep";
-        //TODO: changing params from main.bicepparams to parameters.bicepparam would break syntax test that needs to be fix
+        //TODO: syntax file should be named parameters.syntax.bicepparam for consistency
         public const string TestFileMainParamSyntax = "main.syntax.bicepparam";
         public const string TestFileMainFormatted = "main.formatted.bicep";
         public const string TestFileMainCompiled = "main.json";
@@ -49,6 +51,8 @@ namespace Bicep.Core.Samples
         private readonly Lazy<string> lazyBicep;
 
         private readonly Lazy<string>? lazyBicepParam;
+
+        private readonly Lazy<string>? lazyInvalidBicepParam;
 
         private readonly Lazy<string> lazyTokens;
 
@@ -80,6 +84,7 @@ namespace Bicep.Core.Samples
 
             this.lazyBicep = this.CreateRequired(TestFileMain);
             this.lazyBicepParam = this.CreateOptional(TestFileMainParam);
+            this.lazyInvalidBicepParam = this.CreateOptional(TestFileMainInvalidParam);
             this.lazyTokens = this.CreateRequired(TestFileMainTokens);
             this.lazyDiagnostics = this.CreateRequired(TestFileMainDiagnostics);
             this.lazyCompiled = this.CreateIffValid(TestFileMainCompiled);
@@ -101,6 +106,8 @@ namespace Bicep.Core.Samples
         public string Bicep => this.lazyBicep.Value;
 
         public string? BicepParam => this.lazyBicepParam?.Value;
+
+        public string? InvalidBicepParam => this.lazyInvalidBicepParam?.Value;
 
         public string Tokens => this.lazyTokens.Value;
 
@@ -139,6 +146,8 @@ namespace Bicep.Core.Samples
         public bool IsStress => this.Name.Contains("Stress", StringComparison.Ordinal);
 
         public bool HasParamFile => this.BicepParam is not null;
+
+        public bool HasInvalidParamFile => this.InvalidBicepParam is not null;
 
         private Lazy<string> CreateRequired(string fileName)
         {
