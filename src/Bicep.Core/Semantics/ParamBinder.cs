@@ -12,34 +12,29 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
-    public class ParamBinder : IBinder
+    public class ParamBinder
     {
         private readonly BicepParamFile bicepParamFile;
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
-        private readonly ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol;
+        private readonly ImmutableDictionary<BindableSymbol, ImmutableArray<BindableSymbol>> cyclesBySymbol;
 
         public ParamBinder(INamespaceProvider namespaceProvider, BicepParamFile bicepParamFile, ISymbolContext symbolContext)
         {
             this.bicepParamFile = bicepParamFile;
-            this.bindings = ParamNameBindingVisitor.GetBindings(bicepParamFile.ProgramSyntax, uniqueDeclarations, NamespaceResolver, outermostScopes);
+            var symbols = ParamAssignmentSymbolVisitor.GetSymbols(bicepParamFile);
+            var uniqueSymbols = GetUniqueSymbols(symbols);
+            this.bindings = ParamNameBindingVisitor.GetBindings(bicepParamFile.ProgramSyntax, uniqueSymbols);
             this.cyclesBySymbol = GetCyclesBySymbol(bicepParamFile, this.bindings);
 
-            this.FileSymbol = new FileSymbol(
+            this.ParamFileSymbol = new ParamFileSymbol(
                 bicepParamFile.FileUri.LocalPath,
                 bicepParamFile.ProgramSyntax,
-                NamespaceResolver,
+                symbols,
                 bicepParamFile.FileUri);
         }
 
-        public ResourceScope TargetScope { get; }
-
-        public FileSymbol FileSymbol { get; }
-
-        public NamespaceResolver NamespaceResolver { get; }
-
-        public SyntaxBase? GetParent(SyntaxBase syntax)
-            => bicepParamFile.Hierarchy.GetParent(syntax);
-
+        public ParamFileSymbol ParamFileSymbol { get; }
+        
         /// <summary>
         /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,
         /// a symbol will always be returned. Binding failures are represented with a non-null error symbol.
@@ -47,27 +42,20 @@ namespace Bicep.Core.Semantics
         /// <param name="syntax">the syntax node</param>
         public Symbol? GetSymbolInfo(SyntaxBase syntax) => this.bindings.TryGetValue(syntax);
 
-        public ImmutableArray<DeclaredSymbol>? TryGetCycle(DeclaredSymbol declaredSymbol)
+        public ImmutableArray<BindableSymbol>? TryGetCycle(DeclaredSymbol declaredSymbol)
             => this.cyclesBySymbol.TryGetValue(declaredSymbol, out var cycle) ? cycle : null;
 
-        private static ImmutableDictionary<string, DeclaredSymbol> GetUniqueDeclarations(IEnumerable<DeclaredSymbol> outermostDeclarations)
+        private static ImmutableDictionary<string, ParameterAssignmentSymbol> GetUniqueSymbols(IEnumerable<ParameterAssignmentSymbol> symbols)
         {
             // in cases of duplicate declarations we will see multiple declaration symbols in the result list
             // for simplicitly we will bind to the first one
             // it may cause follow-on type errors, but there will also be errors about duplicate identifiers as well
-            return outermostDeclarations
+            return symbols
                 .ToLookup(x => x.Name, LanguageConstants.IdentifierComparer)
                 .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
         }
 
-        private static NamespaceResolver GetNamespaceResolver(INamespaceProvider namespaceProvider, ResourceScope targetScope, ImmutableDictionary<string, DeclaredSymbol> uniqueDeclarations)
-        {
-            var importedNamespaces = uniqueDeclarations.Values.OfType<ImportedNamespaceSymbol>();
-
-            return NamespaceResolver.Create(namespaceProvider, targetScope, importedNamespaces);
-        }
-
-        private static ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> GetCyclesBySymbol(BicepParamFile bicepParamFile, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
+        private static ImmutableDictionary<BindableSymbol, ImmutableArray<BindableSymbol>> GetCyclesBySymbol(BicepParamFile bicepParamFile, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             return CyclicCheckVisitor.FindCycles(bicepParamFile.ProgramSyntax, bindings);
         }

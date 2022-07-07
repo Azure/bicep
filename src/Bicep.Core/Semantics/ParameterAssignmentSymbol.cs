@@ -1,22 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
+using System.Collections.Generic;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public abstract class DeclaredSymbol : BindableSymbol
+    public class ParameterAssignmentSymbol : BindableSymbol
     {
-        protected DeclaredSymbol(ISymbolContext context, string name, SyntaxBase declaringSyntax, IdentifierSyntax nameSyntax)
+
+        public ParameterAssignmentSymbol(string name, SyntaxBase declaringSyntax, IdentifierSyntax nameSyntax)
             : base(name)
         {
-            this.Context = context;
             this.DeclaringSyntax = declaringSyntax;
             this.NameSyntax = nameSyntax;
         }
-
-        public ISymbolContext Context { get; }
-
         /// <summary>
         /// Gets the syntax node that declared this symbol.
         /// </summary>
@@ -30,6 +29,13 @@ namespace Bicep.Core.Semantics
         /// <summary>
         /// Gets the type of the symbol.
         /// </summary>
-        public TypeSymbol Type => this.Context.TypeManager.GetTypeInfo(DeclaringSyntax);
+        public TypeSymbol Type => throw new NotImplementedException(); // TODO
+
+        public override SymbolKind Kind => throw new NotImplementedException(); // TODO
+
+        public override void Accept(SymbolVisitor visitor)
+        {
+            throw new NotImplementedException(); // TODO
+        }
     }
 }
