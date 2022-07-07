@@ -41,6 +41,16 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
             }
         }
 
+        protected override VisualStudioHostConfiguration GetVisualStudioHostConfiguration()
+        {
+            VisualStudioHostConfiguration configuration = base.GetVisualStudioHostConfiguration();
+
+            // starts the experimental instance and deploys the visual studio client vsix
+            configuration.CommandLineArguments += " /RootSuffix Exp";
+
+            return configuration;
+        }
+
         [AssemblyInitialize()]
         public static void AssemblyInit(TestContext context)
         {
