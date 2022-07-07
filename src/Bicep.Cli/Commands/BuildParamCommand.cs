@@ -15,6 +15,7 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Cli.Commands
 {
+    // temporary class, will be merged into BuildCommand.cs
     public class BuildParamCommand
     {
         private readonly ILogger logger;
@@ -44,7 +45,7 @@ namespace Bicep.Cli.Commands
 
             if (PathHelper.HasExtension(inputUri, LanguageConstants.ParamsFileExtension))
             {
-                var parser = new Parser(inputPath);
+                var parser = new ParamsParser(inputPath);
                 var program = parser.Program();
                 var usingDeclarations = program.Children.OfType<UsingDeclarationSyntax>();
                 var paramPath = TryGetUsingPath(usingDeclarations.SingleOrDefault(), out var getUsingPathFailureBuilder);
