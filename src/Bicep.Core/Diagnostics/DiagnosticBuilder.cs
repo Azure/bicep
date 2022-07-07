@@ -1451,6 +1451,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP246",
                 $"Resource type \"{resourceTypeReference.FormatName()}\" can only be used with the 'existing' keyword at the requested scope."
                     + $" Permitted scopes for deployment: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(writableScopes))}.");
+
+            public ErrorDiagnostic ParameterMultipleAssignments(string identifier) => new(
+                TextSpan,
+                "BCP247",
+                $"Parameter \"{identifier}\" is assigned multiple times. Remove or rename the duplicates.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
