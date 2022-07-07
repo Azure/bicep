@@ -144,9 +144,13 @@ export class BicepVisualizerView extends Disposable {
       return;
     }
 
-    this.webviewPanel.webview.postMessage(
-      createDeploymentGraphMessage(this.documentUri.fsPath, deploymentGraph)
-    );
+    try {
+      await this.webviewPanel.webview.postMessage(
+        createDeploymentGraphMessage(this.documentUri.fsPath, deploymentGraph)
+      );
+    } catch (error) {
+      console.log("Post message error:", (error as Error).message ?? error);
+    }
   }
 
   private handleDidReceiveMessage(message: Message): void {
