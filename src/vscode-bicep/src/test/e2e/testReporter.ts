@@ -21,7 +21,7 @@ export default class TestReporter
         case "failed":
           console.log(`✘ ${testResult.fullName}`);
           for (const failureMessage of testResult.failureMessages) {
-            console.log(failureMessage);
+            console.log("Failure message:", failureMessage);
           }
           break;
         default:

@@ -18,7 +18,13 @@ import { expectDefined } from "../utils/assert";
 const extensionLogPath = path.join(__dirname, "../../../bicep.log");
 
 describe("visualizer", (): void => {
-  afterEach(executeCloseAllEditors);
+  afterEach(async () => {
+    try {
+      await executeCloseAllEditors();
+    } catch (error) {
+      console.log("Error closing editors:", (error as Error).message ?? error);
+    }
+  });
 
   it("should open visualizer webview", async () => {
     const examplePath = resolveExamplePath("101", "vm-simple-linux");
