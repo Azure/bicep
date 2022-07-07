@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
@@ -18,7 +17,7 @@ namespace Bicep.Core.Semantics
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
         private readonly ImmutableDictionary<BindableSymbol, ImmutableArray<BindableSymbol>> cyclesBySymbol;
 
-        public ParamBinder(INamespaceProvider namespaceProvider, BicepParamFile bicepParamFile, ISymbolContext symbolContext)
+        public ParamBinder(BicepParamFile bicepParamFile, ISymbolContext symbolContext)
         {
             this.bicepParamFile = bicepParamFile;
             var symbols = ParamAssignmentSymbolVisitor.GetSymbols(bicepParamFile);
@@ -27,6 +26,7 @@ namespace Bicep.Core.Semantics
             this.cyclesBySymbol = GetCyclesBySymbol(bicepParamFile, this.bindings);
 
             this.ParamFileSymbol = new ParamFileSymbol(
+                symbols,
                 bicepParamFile.FileUri.LocalPath,
                 bicepParamFile.ProgramSyntax,
                 symbols,
