@@ -100,10 +100,15 @@ namespace Bicep.Cli.Services
 
         public ProgramSyntax CompileParams(string inputPath, bool skipRestore)
         {
-            var fileText = File.ReadAllText(inputPath);
+
+            var inputUri = PathHelper.FilePathToFileUrl(inputPath);
+            
+            if(!fileResolver.TryRead(inputUri, out var fileText, out var failureMessage))
+            {
+                throw new Exception($"Unable to read file {inputPath}");
+            }
 
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileText);
-            var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
             var parser = new ParamsParser(fileText);
             var syntax = parser.Program();

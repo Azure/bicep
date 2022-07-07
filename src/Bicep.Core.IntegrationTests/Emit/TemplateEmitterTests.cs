@@ -69,28 +69,28 @@ namespace Bicep.Core.IntegrationTests.Emit
             TemplateHelper.TemplateShouldBeValid(outputFile);
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void ValidBicepparam_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
-        {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var paramFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParam);
-            var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainParamCompiled));
+        // [DataTestMethod]
+        // [DynamicData(nameof(GetParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        // [TestCategory(BaselineHelper.BaselineTestCategory)]
+        // public void ValidBicepparam_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
+        // {
+        //     var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+        //     var paramFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParam);
+        //     var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainParamCompiled));
 
-            var result = this.EmitParam(paramFilePath, BicepTestConstants.EmitterSettings, compiledFilePath);
-            result.Diagnostics.Should().NotHaveErrors();
-            result.Status.Should().Be(EmitStatus.Succeeded);
+        //     var result = this.EmitParam(paramFilePath, BicepTestConstants.EmitterSettings, compiledFilePath);
+        //     result.Diagnostics.Should().NotHaveErrors();
+        //     result.Status.Should().Be(EmitStatus.Succeeded);
 
-            var outputFile = File.ReadAllText(compiledFilePath);
-            var actual = JToken.Parse(outputFile);
+        //     var outputFile = File.ReadAllText(compiledFilePath);
+        //     var actual = JToken.Parse(outputFile);
 
-            actual.Should().EqualWithJsonDiffOutput(
-                TestContext,
-                JToken.Parse(dataSet.CompliedParam!),
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
-                actualLocation: compiledFilePath);
-        }
+        //     actual.Should().EqualWithJsonDiffOutput(
+        //         TestContext,
+        //         JToken.Parse(dataSet.CompliedParam!),
+        //         expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
+        //         actualLocation: compiledFilePath);
+        // }
 
         [DataTestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
