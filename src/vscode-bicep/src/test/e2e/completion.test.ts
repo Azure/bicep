@@ -34,7 +34,7 @@ describe("completion", (): void => {
     await executeCloseAllEditors();
   });
 
-  it("should provide completion while typing an indentifier", async () => {
+  it("should provide completion while typing an identifier", async () => {
     await editor.edit((editBuilder) =>
       editBuilder.insert(new Position(17, 0), "var foo = data")
     );
