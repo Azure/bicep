@@ -6,6 +6,7 @@ using System.ComponentModel.Composition;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.LanguageServer.Protocol;
+using Microsoft.VisualStudio.Shell;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
@@ -33,8 +34,16 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
         {
             if (CanHandle(methodName))
             {
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
                 JToken? jToken = await sendRequest(methodParam);
 
+                if (jToken is not null)
+                {
+                    var semanticTokens = jToken.ToObject<SemanticTokens>();
+
+                    
+                }
             }
 
             return await sendRequest(methodParam);
