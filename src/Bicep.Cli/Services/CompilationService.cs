@@ -95,7 +95,7 @@ namespace Bicep.Cli.Services
         }
 
 
-        public ProgramSyntax CompileParams(string inputPath, bool skipRestore)
+        public ParamSemanticModel CompileParams(string inputPath, bool skipRestore)
         {
 
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
@@ -109,7 +109,7 @@ namespace Bicep.Cli.Services
 
             LogParamDiagnostics(model);
           
-            return model.bicepParamFile.ProgramSyntax;
+            return model;
         } 
 
         public async Task<(Uri, ImmutableDictionary<Uri, string>)> DecompileAsync(string inputPath, string outputPath)

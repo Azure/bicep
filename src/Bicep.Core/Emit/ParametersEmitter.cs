@@ -5,20 +5,20 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Syntax;
+using Bicep.Core.Semantics;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
 {
     public class ParametersEmitter
     {
-        private readonly ProgramSyntax syntax;
+        private readonly ParamSemanticModel paramSemanticModel;
 
         private readonly EmitterSettings settings;
 
-        public ParametersEmitter(ProgramSyntax syntax, EmitterSettings settings)
+        public ParametersEmitter(ParamSemanticModel paramSemanticModel, EmitterSettings settings)
         {
-            this.syntax = syntax;
+            this.paramSemanticModel = paramSemanticModel;
             this.settings = settings;
         }
 
@@ -34,19 +34,19 @@ namespace Bicep.Core.Emit
                 Formatting = Formatting.Indented
             };
 
-            new ParametersJsonWriter(syntax).Write(writer);
+            new ParametersJsonWriter(paramSemanticModel).Write(writer);
         });
 
         public EmitResult EmitParamsFile(JsonTextWriter writer) => this.EmitOrFail(() =>
         {
-            new ParametersJsonWriter(syntax).Write(writer);
+            new ParametersJsonWriter(paramSemanticModel).Write(writer);
         });
 
 
         private EmitResult EmitOrFail(Action write)
         {
             // collect all the diagnostics
-            var diagnostics = syntax.GetParseDiagnostics();
+            var diagnostics = paramSemanticModel.GetDiagnostics();
 
             if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
             {

@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 using System;
 using Bicep.Core.Emit;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -188,10 +190,10 @@ param myInt = 1", @"
   }
 }")]
         public void params_file_with_no_errors_should_compile_correctly(string paramsText, string jsonText)
-        {
-          var syntax = ParamsParserHelper.ParamsParse(paramsText);
+        {           
+          var model = new ParamSemanticModel(ParamSourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), paramsText));
 
-          var paramsWriter = new ParametersJsonWriter(syntax);
+          var paramsWriter = new ParametersJsonWriter(model);
 
           var jsonOuput = paramsWriter.GenerateTemplate();
 
@@ -203,13 +205,14 @@ param myInt = 1", @"
         [DataTestMethod]
         public void params_file_with_not_implemented_syntax_should_throw_expction()
         {
-          var syntax = ParamsParserHelper.ParamsParse("param foo = 1 + 2");
+          var model = new ParamSemanticModel(ParamSourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), "param foo = 1 + 2"));
 
-          var paramsWriter = new ParametersJsonWriter(syntax);
+          var paramsWriter = new ParametersJsonWriter(model);
 
           Action act = () => paramsWriter.GenerateTemplate();
           act.Should().Throw<NotImplementedException>().WithMessage("Cannot emit unexpected expression of type BinaryOperationSyntax");
         }
+
     }
 }
 
