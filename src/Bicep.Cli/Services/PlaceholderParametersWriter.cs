@@ -10,11 +10,11 @@ using System.IO;
 
 namespace Bicep.Cli.Services
 {
-    public class ParametersFileWriter
+    public class PlaceholderParametersWriter
     {
         private readonly InvocationContext invocationContext;
 
-        public ParametersFileWriter(InvocationContext invocationContext)
+        public PlaceholderParametersWriter(InvocationContext invocationContext)
         {
             this.invocationContext = invocationContext;
         }

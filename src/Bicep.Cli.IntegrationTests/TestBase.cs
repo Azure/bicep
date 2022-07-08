@@ -6,6 +6,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
@@ -14,6 +15,7 @@ using FluentAssertions;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
@@ -68,6 +70,23 @@ namespace Bicep.Cli.IntegrationTests
                     var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";
                     output.Add($"{bicepFile.FileUri.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}");
                 }
+            }
+
+            return output;
+        }
+
+        protected static IEnumerable<string> GetAllParamDiagnostics(string paramFilePath)
+        {   
+            var fileText = File.ReadAllText(paramFilePath);
+            var syntax = ParamsParserHelper.ParamsParse(fileText);
+            var lineStarts = TextCoordinateConverter.GetLineStarts(fileText);
+            
+            var output = new List<string>();
+            foreach(var diagnostic in syntax.GetParseDiagnostics())
+            {
+                var (line, character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
+                var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";
+                output.Add($"{paramFilePath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}");
             }
 
             return output;

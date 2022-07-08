@@ -2,11 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class ParameterAssignmentSyntax : StatementSyntax
+    public class ParameterAssignmentSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
         public ParameterAssignmentSyntax(Token keyword, IdentifierSyntax name, SyntaxBase assignment, SyntaxBase value)
             : base(Enumerable.Empty<SyntaxBase>())

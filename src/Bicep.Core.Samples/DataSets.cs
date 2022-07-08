@@ -110,6 +110,9 @@ namespace Bicep.Core.Samples
 
         public static IEnumerable<DataSet> ParamDataSets => AllDataSets.Where(ds => ds.HasParamFile);
 
+        //TODO: Short term fix for checking invalid parameters file. Sample files for parameters and bicep should be placed in separate folder later
+        public static IEnumerable<DataSet> InvalidParamDataSets => AllDataSets.Where(ds => ds.HasInvalidParamFile);
+
         public static ImmutableDictionary<string, string> Completions => DataSet.ReadDataSetDictionary($"{DataSet.Prefix}{DataSet.TestCompletionsPrefix}");
 
         public static ImmutableDictionary<string, string> Functions => DataSet.ReadDataSetDictionary($"{DataSet.Prefix}{DataSet.TestFunctionsPrefix}");

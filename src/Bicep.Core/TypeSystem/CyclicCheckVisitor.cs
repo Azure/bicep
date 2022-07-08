@@ -15,11 +15,11 @@ namespace Bicep.Core.TypeSystem
     {
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
 
-        private readonly IDictionary<DeclaredSymbol, IList<SyntaxBase>> declarationAccessDict;
+        private readonly IDictionary<BindableSymbol, IList<SyntaxBase>> declarationAccessDict;
 
-        private Stack<DeclaredSymbol> currentDeclarations;
+        private Stack<BindableSymbol> currentDeclarations;
 
-        public static ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> FindCycles(ProgramSyntax programSyntax, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
+        public static ImmutableDictionary<BindableSymbol, ImmutableArray<BindableSymbol>> FindCycles(ProgramSyntax programSyntax, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             var visitor = new CyclicCheckVisitor(bindings);
             visitor.Visit(programSyntax);
@@ -27,27 +27,27 @@ namespace Bicep.Core.TypeSystem
             return visitor.FindCycles();
         }
 
-        private ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> FindCycles()
+        private ImmutableDictionary<BindableSymbol, ImmutableArray<BindableSymbol>> FindCycles()
         {
             var symbolGraph = declarationAccessDict
-                .SelectMany(kvp => kvp.Value.Select(x => bindings[x]).OfType<DeclaredSymbol>().Select(x => (kvp.Key, x)))
+                .SelectMany(kvp => kvp.Value.Select(x => bindings[x]).OfType<BindableSymbol>().Select(x => (kvp.Key, x)))
                 .ToLookup(x => x.Item1, x => x.Item2);
 
-            return CycleDetector<DeclaredSymbol>.FindCycles(symbolGraph);
+            return CycleDetector<BindableSymbol>.FindCycles(symbolGraph);
         }
 
         private CyclicCheckVisitor(IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             this.bindings = bindings;
-            this.declarationAccessDict = new Dictionary<DeclaredSymbol, IList<SyntaxBase>>();
-            this.currentDeclarations = new Stack<DeclaredSymbol>();
+            this.declarationAccessDict = new Dictionary<BindableSymbol, IList<SyntaxBase>>();
+            this.currentDeclarations = new Stack<BindableSymbol>();
         }
 
         private void VisitDeclaration<TDeclarationSyntax>(TDeclarationSyntax syntax, Action<TDeclarationSyntax> visitBaseFunc)
             where TDeclarationSyntax : SyntaxBase, ITopLevelNamedDeclarationSyntax
         {
             if (!bindings.TryGetValue(syntax, out var symbol) ||
-                symbol is not DeclaredSymbol currentDeclaration ||
+                symbol is not BindableSymbol currentDeclaration ||
                 string.IsNullOrEmpty(currentDeclaration.Name) ||
                 string.Equals(LanguageConstants.ErrorName, currentDeclaration.Name, StringComparison.Ordinal) ||
                 string.Equals(LanguageConstants.MissingName, currentDeclaration.Name, StringComparison.Ordinal))
@@ -81,6 +81,9 @@ namespace Bicep.Core.TypeSystem
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
             => VisitDeclaration(syntax, base.VisitParameterDeclarationSyntax);
 
+        public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
+            => VisitDeclaration(syntax, base.VisitParameterAssignmentSyntax);
+
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             // Push this resource onto the stack and process its body (including children).
@@ -91,7 +94,7 @@ namespace Bicep.Core.TypeSystem
 
             // Resources are special because a lexically nested resource implies a dependency
             // They are both a source of declarations and a use of them.
-            if (!bindings.TryGetValue(syntax, out var symbol) || symbol is not DeclaredSymbol currentDeclaration)
+            if (!bindings.TryGetValue(syntax, out var symbol) || symbol is not BindableSymbol currentDeclaration)
             {
                 // If we've failed to bind the symbol, we should already have an error, and a cycle should not be possible
                 return;

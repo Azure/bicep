@@ -184,6 +184,36 @@ namespace Bicep.Cli.IntegrationTests
                 actualLocation: compiledFilePath);
         }
 
+        [DataTestMethod]
+        [DynamicData(nameof(GetParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task Build_Valid_Params_File_Should_Succeed(DataSet dataSet)
+        {
+        
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+            var paramsFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParam);
+
+            var (output, error, result) = await Bicep("build", paramsFilePath);
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().BeEmpty();
+                AssertNoErrors(error);
+            }
+
+            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParamCompiled);
+            File.Exists(compiledFilePath).Should().BeTrue();
+
+            string content = File.ReadAllText(compiledFilePath);
+            var actual = JToken.Parse(content);
+
+            actual.Should().EqualWithJsonDiffOutput(
+                TestContext,
+                JToken.Parse(dataSet.CompliedParam!),
+                expectedLocation: "test",
+                actualLocation: "test");
+        }
+
         [TestMethod]
         public async Task Build_Valid_SingleFile_WithDigestReference_ShouldSucceed()
         {
@@ -272,6 +302,25 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var defaultSettings = CreateDefaultSettings();
             var diagnostics = GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
             error.Should().ContainAll(diagnostics);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetInavlidParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task Build_Invalid_Single_Params_File_ShouldFail_WithExpectedErrorMessage(DataSet dataSet)
+        {
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+            var paramsFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainInvalidParam);
+            var defaultSettings = CreateDefaultSettings();
+            var diagnostics = GetAllParamDiagnostics(paramsFilePath);
+
+            var (output, error, result) = await Bicep("build", paramsFilePath);
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(1);
+                output.Should().BeEmpty();
+                error.Should().ContainAll(diagnostics);
+            }
         }
 
         [TestMethod]
@@ -442,5 +491,9 @@ output myOutput string = 'hello!'
             .AllDataSets
             .Where(ds => ds.IsValid && ds.HasExternalModules)
             .ToDynamicTestData();
+
+        private static IEnumerable<object[]> GetParamData() => DataSets.ParamDataSets.ToDynamicTestData();
+
+        private static IEnumerable<object[]> GetInavlidParamData() => DataSets.InvalidParamDataSets.ToDynamicTestData();
     }
 }

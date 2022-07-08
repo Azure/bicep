@@ -7,9 +7,11 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using System;
@@ -93,6 +95,29 @@ namespace Bicep.Cli.Services
 
             return compilation;
         }
+
+
+        public ProgramSyntax CompileParams(string inputPath, bool skipRestore)
+        {
+
+            var inputUri = PathHelper.FilePathToFileUrl(inputPath);
+            
+            if(!fileResolver.TryRead(inputUri, out var fileText, out var failureMessage))
+            {
+                throw new Exception($"Unable to read file {inputPath}");
+            }
+
+            var lineStarts = TextCoordinateConverter.GetLineStarts(fileText);
+
+            var parser = new ParamsParser(fileText);
+            var syntax = parser.Program();
+
+            foreach(var diagnostic in syntax.GetParseDiagnostics()){
+                diagnosticLogger.LogDiagnostic(inputUri, diagnostic, lineStarts);
+            };
+
+            return syntax;
+        } 
 
         public async Task<(Uri, ImmutableDictionary<Uri, string>)> DecompileAsync(string inputPath, string outputPath)
         {
