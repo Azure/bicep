@@ -20,7 +20,7 @@ namespace Bicep.Core.Samples
     public class DataSet
     {
         public const string TestFileMain = "main.bicep";
-        public const string TestFileMainParam = "parameters.bicepparam";
+        public const string TestFileMainParam = "main.bicepparam";
         public const string TestFileMainDiagnostics = "main.diagnostics.bicep";
         public const string TestFileMainTokens = "main.tokens.bicep";
         public const string TestFileMainSymbols = "main.symbols.bicep";
