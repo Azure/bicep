@@ -1,0 +1,65 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "myInt": {
+      "value": 42
+    },
+    "myStr": {
+      "value": "hello world!!"
+    },
+    "myBool": {
+      "value": true
+    },
+    "myObj": {
+      "value": {
+        "name": "vm1",
+        "location": "westus"
+      }
+    },
+    "myComplexObj": {
+      "value": {
+        "enabled": true,
+        "name": "complex object!",
+        "priority": 3,
+        "data": {
+          "a": "b",
+          "c": [
+            "d",
+            "e"
+          ]
+        }
+      }
+    },
+    "myIntArr": {
+      "value": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    },
+    "myStrArr": {
+      "value": [
+        "ant",
+        "bear",
+        "cat",
+        "dog"
+      ]
+    },
+    "myComplexArr": {
+      "value": [
+        "eagle",
+        21,
+        false,
+        {
+          "f": [
+            "g",
+            "h"
+          ]
+        }
+      ]
+    }
+  }
+}

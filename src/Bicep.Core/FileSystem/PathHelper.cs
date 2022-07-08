@@ -13,6 +13,8 @@ namespace Bicep.Core.FileSystem
 
         private const string BicepExtension = LanguageConstants.LanguageFileExtension;
 
+        private const string BicepParamsExtension = LanguageConstants.ParamsFileExtension;
+
         public static StringComparer PathComparer => IsFileSystemCaseSensitive ? StringComparer.Ordinal : StringComparer.OrdinalIgnoreCase;
 
         public static StringComparison PathComparison => IsFileSystemCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
@@ -93,7 +95,6 @@ namespace Bicep.Core.FileSystem
 
             return Path.ChangeExtension(path, TemplateOutputExtension);
         }
-
         public static string GetDefaultDecompileOutputPath(string path)
         {
             if (string.Equals(Path.GetExtension(path), BicepExtension, PathComparison))
@@ -167,6 +168,8 @@ namespace Bicep.Core.FileSystem
         public static Uri ChangeToBicepExtension(Uri uri) => ChangeExtension(uri, BicepExtension);
 
         public static bool HasBicepExtension(Uri uri) => HasExtension(uri, BicepExtension);
+
+        public static bool HasBicepparamsExension(Uri uri) => HasExtension(uri, BicepParamsExtension);
 
         public static bool HasArmTemplateLikeExtension(Uri uri) =>
                 HasExtension(uri, LanguageConstants.JsonFileExtension) ||

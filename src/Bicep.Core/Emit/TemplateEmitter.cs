@@ -49,7 +49,7 @@ namespace Bicep.Core.Emit
         /// <param name="existingContent">Existing content of the parameters file</param>
         public EmitResult EmitParametersFile(JsonTextWriter writer, string existingContent) => this.EmitOrFail(() =>
         {
-            new ParametersFileTemplateWriter(this.model, this.settings).Write(writer, existingContent);
+            new PlaceholderParametersJsonWriter(this.model, this.settings).Write(writer, existingContent);
         });
 
         /// <summary>

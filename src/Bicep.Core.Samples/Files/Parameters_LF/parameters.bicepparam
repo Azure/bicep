@@ -10,7 +10,7 @@ using './main.bicep/'
 
 // parameter assignment to literals
 param myInt = 42
-param myStr = "hello world!!"
+param myStr = 'hello world!!'
 param myBool = true
 
 // parameter assignment to objects
@@ -55,14 +55,4 @@ param myComplexArr = [
 			'h'
 		]
 	}
-]
-param myFunction = union({}, {})
-param myComplexArrWithFunction = [
-	{
-		foo: resourceGroup()
-	}
-	true
-	[
-    	42
-  	]
 ]
