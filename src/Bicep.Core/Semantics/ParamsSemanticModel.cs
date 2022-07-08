@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
-
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -20,5 +18,4 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public ParamFileSymbol Root => this.ParamBinder.ParamFileSymbol;
     }
-
 }
