@@ -10,7 +10,7 @@ namespace Bicep.Core.Semantics
 {
     public class ParamSemanticModel
     {
-        private readonly BicepParamFile bicepParamFile;
+        public BicepParamFile bicepParamFile { get; }
 
         // private readonly ParamBinder paramBinder; 
         public ParamSemanticModel(BicepParamFile bicepParamFile)
