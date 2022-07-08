@@ -16,7 +16,7 @@ namespace Bicep.Core.Semantics
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
         private readonly ImmutableDictionary<BindableSymbol, ImmutableArray<BindableSymbol>> cyclesBySymbol;
 
-        public ParamBinder(BicepParamFile bicepParamFile, ISymbolContext symbolContext)
+        public ParamBinder(BicepParamFile bicepParamFile)
         {
             this.bicepParamFile = bicepParamFile;
             var symbols = ParamAssignmentSymbolCollectVisitor.GetSymbols(bicepParamFile);
