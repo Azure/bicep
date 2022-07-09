@@ -1,4 +1,4 @@
-/* 
+/*
 //@[000:6034) ProgramSyntax
   Valid and invalid code is mixed together to validate recovery logic. It can even contain ** * *** **.
 */
@@ -83,7 +83,7 @@ param missingType
 
 // space after identifier #completionTest(32) -> paramTypes
 //@[059:0060) ├─Token(NewLine) |\n|
-param missingTypeWithSpaceAfter 
+param missingTypeWithSpaceAfter
 //@[000:0032) ├─ParameterDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0031) | ├─IdentifierSyntax
@@ -93,7 +93,7 @@ param missingTypeWithSpaceAfter
 
 // tab after identifier #completionTest(30) -> paramTypes
 //@[057:0058) ├─Token(NewLine) |\n|
-param missingTypeWithTabAfter	
+param missingTypeWithTabAfter
 //@[000:0030) ├─ParameterDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0029) | ├─IdentifierSyntax
@@ -103,7 +103,7 @@ param missingTypeWithTabAfter
 
 // #completionTest(20) -> paramTypes
 //@[036:0037) ├─Token(NewLine) |\n|
-param trailingSpace  
+param trailingSpace
 //@[000:0021) ├─ParameterDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0019) | ├─IdentifierSyntax
@@ -208,7 +208,7 @@ param myInt2 int = 42
 //@[019:0021) |   └─IntegerLiteralSyntax
 //@[019:0021) |     └─Token(Integer) |42|
 //@[021:0022) ├─Token(NewLine) |\n|
-param noValueAfterColon int =   
+param noValueAfterColon int =
 //@[000:0032) ├─ParameterDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0023) | ├─IdentifierSyntax
@@ -272,7 +272,7 @@ param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWh
 
 // #completionTest(28,29) -> boolPlusSymbols
 //@[044:0045) ├─Token(NewLine) |\n|
-param boolCompletions bool = 
+param boolCompletions bool =
 //@[000:0029) ├─ParameterDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0021) | ├─IdentifierSyntax
@@ -286,7 +286,7 @@ param boolCompletions bool =
 
 // #completionTest(30,31) -> arrayPlusSymbols
 //@[045:0046) ├─Token(NewLine) |\n|
-param arrayCompletions array = 
+param arrayCompletions array =
 //@[000:0031) ├─ParameterDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0022) | ├─IdentifierSyntax
@@ -300,7 +300,7 @@ param arrayCompletions array =
 
 // #completionTest(32,33) -> objectPlusSymbols
 //@[046:0047) ├─Token(NewLine) |\n|
-param objectCompletions object = 
+param objectCompletions object =
 //@[000:0033) ├─ParameterDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0023) | ├─IdentifierSyntax
@@ -348,7 +348,7 @@ param wrongType fluffyBunny = 'what\s up doc?'
 //@[030:0046) |     └─Token(StringComplete) |'what\s up doc?'|
 //@[046:0048) ├─Token(NewLine) |\n\n|
 
-// unterminated string 
+// unterminated string
 //@[023:0024) ├─Token(NewLine) |\n|
 param wrongType fluffyBunny = 'what\'s up doc?
 //@[000:0046) ├─ParameterDeclarationSyntax
@@ -1213,7 +1213,7 @@ param paramAccessingOutput string = sampleOutput
 
 // #completionTest(6) -> empty
 //@[030:0031) ├─Token(NewLine) |\n|
-param 
+param
 //@[000:0006) ├─ParameterDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0006) | ├─IdentifierSyntax
@@ -1223,7 +1223,7 @@ param
 
 // #completionTest(46,47) -> justSymbols
 //@[040:0041) ├─Token(NewLine) |\n|
-param defaultValueOneLinerCompletions string = 
+param defaultValueOneLinerCompletions string =
 //@[000:0047) ├─ParameterDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0037) | ├─IdentifierSyntax
@@ -1448,14 +1448,14 @@ param someString string
 //@[009:0010) | ├─Token(NewLine) |\n|
 // #completionTest(1, 2, 3) -> intParameterDecoratorsPlusNamespace
 //@[066:0067) | ├─Token(NewLine) |\n|
-@  
+@
 //@[000:0003) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
 //@[003:0003) | | └─SkippedTriviaSyntax
 //@[003:0004) | ├─Token(NewLine) |\n|
 // #completionTest(5, 6) -> intParameterDecorators
 //@[050:0051) | ├─Token(NewLine) |\n|
-@sys.   
+@sys.
 //@[000:0008) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
 //@[001:0008) | | └─PropertyAccessSyntax
@@ -1560,7 +1560,7 @@ param tooManyArguments1 int = 20
 //@[002:0003) | ├─Token(NewLine) |\n|
 // #completionTest(1, 2, 3) -> stringParameterDecoratorsPlusNamespace
 //@[069:0070) | ├─Token(NewLine) |\n|
-@   
+@
 //@[000:0004) | ├─DecoratorSyntax
 //@[000:0001) | | ├─Token(At) |@|
 //@[004:0004) | | └─SkippedTriviaSyntax
@@ -1945,6 +1945,6 @@ param invalidDefaultWithAllowedArrayDecorator array = true
 
 // unterminated multi-line comment
 //@[034:0035) ├─Token(NewLine) |\n|
-/*    
+/*
 
 //@[000:0000) └─Token(EndOfFile) ||

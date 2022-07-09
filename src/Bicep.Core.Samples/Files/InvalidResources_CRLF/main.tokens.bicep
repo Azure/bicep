@@ -8,7 +8,7 @@ bad
 
 // incomplete #completionTest(9) -> empty
 //@[041:043) NewLine |\r\n|
-resource 
+resource
 //@[000:008) Identifier |resource|
 //@[009:011) NewLine |\r\n|
 resource foo
@@ -29,14 +29,14 @@ resource foo 'ddd'
 
 // #completionTest(23) -> resourceTypes
 //@[039:041) NewLine |\r\n|
-resource trailingSpace  
+resource trailingSpace
 //@[000:008) Identifier |resource|
 //@[009:022) Identifier |trailingSpace|
 //@[024:028) NewLine |\r\n\r\n|
 
 // #completionTest(19,20) -> resourceObject
 //@[043:045) NewLine |\r\n|
-resource foo 'ddd'= 
+resource foo 'ddd'=
 //@[000:008) Identifier |resource|
 //@[009:012) Identifier |foo|
 //@[013:018) StringComplete |'ddd'|
@@ -581,7 +581,7 @@ resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-1
 //@[089:091) NewLine |\r\n|
   // #completionTest(7,8) -> empty
 //@[034:036) NewLine |\r\n|
-  kind  
+  kind
 //@[002:006) Identifier |kind|
 //@[008:010) NewLine |\r\n|
 }
@@ -1927,7 +1927,7 @@ resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01
 //@[093:095) NewLine |\r\n|
   // #completionTest(0, 1, 2) -> topLevelProperties
 //@[051:053) NewLine |\r\n|
-  
+
 //@[002:004) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
@@ -1951,7 +1951,7 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
 //@[054:056) NewLine |\r\n|
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
 //@[060:062) NewLine |\r\n|
-  
+
 //@[002:004) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
@@ -1991,7 +1991,7 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[007:009) NewLine |\r\n|
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
 //@[078:080) NewLine |\r\n|
-       
+
 //@[007:009) NewLine |\r\n|
         // #completionTest(0,1,2,3,4,5,6,7) -> empty
 //@[052:054) NewLine |\r\n|
@@ -2010,7 +2010,7 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[013:015) NewLine |\r\n|
               // #completionTest(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14) -> delegationProperties
 //@[092:094) NewLine |\r\n|
-              
+
 //@[014:016) NewLine |\r\n|
             }
 //@[012:013) RightBrace |}|
@@ -2047,7 +2047,7 @@ resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-
 //@[087:089) NewLine |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
 //@[052:054) NewLine |\r\n|
-  
+
 //@[002:004) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
@@ -2070,7 +2070,7 @@ resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-
 //@[099:101) NewLine |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
 //@[052:054) NewLine |\r\n|
-  
+
 //@[002:004) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
@@ -2096,7 +2096,7 @@ resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020
 //@[109:111) NewLine |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
 //@[052:054) NewLine |\r\n|
-  
+
 //@[002:004) NewLine |\r\n|
 }]
 //@[000:001) RightBrace |}|
@@ -2127,7 +2127,7 @@ resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2
 //@[121:123) NewLine |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
 //@[052:054) NewLine |\r\n|
-  
+
 //@[002:004) NewLine |\r\n|
 }]
 //@[000:001) RightBrace |}|
@@ -2147,7 +2147,7 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
 //@[092:094) NewLine |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols
 //@[066:068) NewLine |\r\n|
-  kind:   
+  kind:
 //@[002:006) Identifier |kind|
 //@[006:007) Colon |:|
 //@[010:012) NewLine |\r\n|
@@ -2202,7 +2202,7 @@ resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@
 //@[105:107) NewLine |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_if
 //@[069:071) NewLine |\r\n|
-  kind:   
+  kind:
 //@[002:006) Identifier |kind|
 //@[006:007) Colon |:|
 //@[010:012) NewLine |\r\n|
@@ -2260,7 +2260,7 @@ resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts
 //@[114:116) NewLine |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for
 //@[070:072) NewLine |\r\n|
-  kind:   
+  kind:
 //@[002:006) Identifier |kind|
 //@[006:007) Colon |:|
 //@[010:012) NewLine |\r\n|
@@ -2344,7 +2344,7 @@ resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScri
 //@[126:128) NewLine |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for_if
 //@[073:075) NewLine |\r\n|
-  kind:   
+  kind:
 //@[002:006) Identifier |kind|
 //@[006:007) Colon |:|
 //@[010:012) NewLine |\r\n|
@@ -2422,7 +2422,7 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[018:020) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:057) NewLine |\r\n|
-  
+
 //@[002:004) NewLine |\r\n|
   properties: {
 //@[002:012) Identifier |properties|
@@ -2431,7 +2431,7 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
 //@[066:068) NewLine |\r\n|
-    
+
 //@[004:006) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
@@ -2500,7 +2500,7 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[018:020) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:057) NewLine |\r\n|
-  
+
 //@[002:004) NewLine |\r\n|
   properties: {
 //@[002:012) Identifier |properties|
@@ -2509,7 +2509,7 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
 //@[066:068) NewLine |\r\n|
-    
+
 //@[004:006) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
@@ -2579,7 +2579,7 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[018:020) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:057) NewLine |\r\n|
-  
+
 //@[002:004) NewLine |\r\n|
   properties: {
 //@[002:012) Identifier |properties|
@@ -2588,7 +2588,7 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
 //@[066:068) NewLine |\r\n|
-    
+
 //@[004:006) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
@@ -2675,7 +2675,7 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[018:020) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:057) NewLine |\r\n|
-  
+
 //@[002:004) NewLine |\r\n|
   properties: {
 //@[002:012) Identifier |properties|
@@ -2684,7 +2684,7 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
 //@[066:068) NewLine |\r\n|
-    
+
 //@[004:006) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
@@ -2761,7 +2761,7 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[025:027) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:057) NewLine |\r\n|
-  
+
 //@[002:004) NewLine |\r\n|
   properties: {
 //@[002:012) Identifier |properties|
@@ -2770,7 +2770,7 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
 //@[065:067) NewLine |\r\n|
-    
+
 //@[004:006) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
@@ -2846,7 +2846,7 @@ resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[025:027) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:057) NewLine |\r\n|
-  
+
 //@[002:004) NewLine |\r\n|
   properties: {
 //@[002:012) Identifier |properties|
@@ -2855,7 +2855,7 @@ resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
 //@[065:067) NewLine |\r\n|
-    
+
 //@[004:006) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
@@ -2939,7 +2939,7 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[025:027) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:057) NewLine |\r\n|
-  
+
 //@[002:004) NewLine |\r\n|
   properties: {
 //@[002:012) Identifier |properties|
@@ -2948,7 +2948,7 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
 //@[065:067) NewLine |\r\n|
-    
+
 //@[004:006) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
@@ -3049,7 +3049,7 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[025:027) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:057) NewLine |\r\n|
-  
+
 //@[002:004) NewLine |\r\n|
   properties: {
 //@[002:012) Identifier |properties|
@@ -3058,7 +3058,7 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
 //@[065:067) NewLine |\r\n|
-    
+
 //@[004:006) NewLine |\r\n|
   }
 //@[002:003) RightBrace |}|
@@ -3202,29 +3202,29 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
 //@[021:022) Colon |:|
 //@[023:029) StringComplete |'PT1H'|
 //@[029:031) NewLine |\r\n|
-    
+
 //@[004:006) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliPropertiesMinusSpecified
 //@[080:082) NewLine |\r\n|
-    
+
 //@[004:006) NewLine |\r\n|
     // #completionTest(22,23) -> cleanupPreferencesPlusSymbols
 //@[062:064) NewLine |\r\n|
-    cleanupPreference: 
+    cleanupPreference:
 //@[004:021) Identifier |cleanupPreference|
 //@[021:022) Colon |:|
 //@[023:027) NewLine |\r\n\r\n|
 
     // #completionTest(25,26) -> arrayPlusSymbols
 //@[049:051) NewLine |\r\n|
-    supportingScriptUris: 
+    supportingScriptUris:
 //@[004:024) Identifier |supportingScriptUris|
 //@[024:025) Colon |:|
 //@[026:030) NewLine |\r\n\r\n|
 
     // #completionTest(27,28) -> objectPlusSymbols
 //@[050:052) NewLine |\r\n|
-    storageAccountSettings: 
+    storageAccountSettings:
 //@[004:026) Identifier |storageAccountSettings|
 //@[026:027) Colon |:|
 //@[028:032) NewLine |\r\n\r\n|
@@ -3239,14 +3239,14 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
 //@[007:009) NewLine |\r\n|
         // #completionTest(0,2,4,6,8) -> environmentVariableProperties
 //@[070:072) NewLine |\r\n|
-        
+
 //@[008:010) NewLine |\r\n|
       }
 //@[006:007) RightBrace |}|
 //@[007:009) NewLine |\r\n|
       // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbolsWithRequiredProperties
 //@[082:084) NewLine |\r\n|
-      
+
 //@[006:008) NewLine |\r\n|
     ]
 //@[004:005) RightSquare |]|
@@ -3260,7 +3260,7 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
 
 // #completionTest(21) -> resourceTypes
 //@[039:041) NewLine |\r\n|
-resource missingType 
+resource missingType
 //@[000:008) Identifier |resource|
 //@[009:020) Identifier |missingType|
 //@[021:025) NewLine |\r\n\r\n|
@@ -3319,7 +3319,7 @@ var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
 //@[077:078) Dot |.|
 //@[078:082) NewLine |\r\n\r\n|
 
-/* 
+/*
 Nested discriminator missing key
 */
 //@[002:004) NewLine |\r\n|
@@ -3393,7 +3393,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKe
 //@[095:096) RightSquare |]|
 //@[096:100) NewLine |\r\n\r\n|
 
-/* 
+/*
 Nested discriminator missing key (conditional)
 */
 //@[002:004) NewLine |\r\n|
@@ -3474,7 +3474,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions_if = nestedDiscriminatorMissin
 //@[101:102) RightSquare |]|
 //@[102:106) NewLine |\r\n\r\n|
 
-/* 
+/*
 Nested discriminator missing key (loop)
 */
 //@[002:004) NewLine |\r\n|
@@ -3566,7 +3566,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissi
 //@[107:113) NewLine |\r\n\r\n\r\n|
 
 
-/* 
+/*
 Nested discriminator missing key (filtered loop)
 */
 //@[002:004) NewLine |\r\n|
@@ -4157,7 +4157,7 @@ resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@20
 //@[026:027) Colon |:|
 //@[028:029) LeftBrace |{|
 //@[029:031) NewLine |\r\n|
-      
+
 //@[006:008) NewLine |\r\n|
     }
 //@[004:005) RightBrace |}|
@@ -4184,7 +4184,7 @@ var sigh = nestedPropertyAccessOnConditional.properties.
 
 /*
   boolean property value completions
-*/ 
+*/
 //@[003:005) NewLine |\r\n|
 resource booleanPropertyPartialValue 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
 //@[000:008) Identifier |resource|
@@ -5816,7 +5816,7 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
 //@[008:010) NewLine |\r\n|
     // #completionTest(9,10) -> storageSkuNamePlusSymbols
 //@[057:059) NewLine |\r\n|
-    name: 
+    name:
 //@[004:008) Identifier |name|
 //@[008:009) Colon |:|
 //@[010:012) NewLine |\r\n|
@@ -6039,7 +6039,7 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
 //@[011:012) Colon |:|
 //@[013:014) LeftSquare |[|
 //@[014:016) NewLine |\r\n|
-    
+
 //@[004:006) NewLine |\r\n|
   ]
 //@[002:003) RightSquare |]|
@@ -6233,7 +6233,7 @@ resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [f
 
 // #completionTest(54,55) -> objectPlusFor
 //@[042:044) NewLine |\r\n|
-resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' =
 //@[000:008) Identifier |resource|
 //@[009:012) Identifier |foo|
 //@[013:052) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
@@ -6261,7 +6261,7 @@ resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
 //@[015:017) NewLine |\r\n|
     // #completionTest(32,33) -> symbolsPlusArrayAndFor
 //@[055:057) NewLine |\r\n|
-    registrationVirtualNetworks: 
+    registrationVirtualNetworks:
 //@[004:031) Identifier |registrationVirtualNetworks|
 //@[031:032) Colon |:|
 //@[033:035) NewLine |\r\n|
@@ -6277,7 +6277,7 @@ resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
 //@[045:046) Colon |:|
 //@[047:048) LeftBrace |{|
 //@[048:050) NewLine |\r\n|
-      
+
 //@[006:008) NewLine |\r\n|
     }]
 //@[004:005) RightBrace |}|
@@ -6327,7 +6327,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[031:033) NewLine |\r\n|
             // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
 //@[067:069) NewLine |\r\n|
-            addressPrefixes: 
+            addressPrefixes:
 //@[012:027) Identifier |addressPrefixes|
 //@[027:028) Colon |:|
 //@[029:031) NewLine |\r\n|
@@ -7140,7 +7140,7 @@ resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
 //@[006:007) Colon |:|
 //@[008:010) StringComplete |''|
 //@[010:012) NewLine |\r\n|
-  scale: {}  
+  scale: {}
 //@[002:007) Identifier |scale|
 //@[007:008) Colon |:|
 //@[009:010) LeftBrace |{|
@@ -7275,7 +7275,7 @@ resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
 //@[002:003) LeftBrace |{|
 //@[003:004) RightBrace |}|
 //@[004:006) NewLine |\r\n|
-  ]  
+  ]
 //@[002:003) RightSquare |]|
 //@[005:007) NewLine |\r\n|
 }
@@ -7309,7 +7309,7 @@ resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 //@[005:006) Colon |:|
 //@[007:008) LeftBrace |{|
 //@[008:010) NewLine |\r\n|
-    name: 'Premium_LRS'    
+    name: 'Premium_LRS'
 //@[004:008) Identifier |name|
 //@[008:009) Colon |:|
 //@[010:023) StringComplete |'Premium_LRS'|

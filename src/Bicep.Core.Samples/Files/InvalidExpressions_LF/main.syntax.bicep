@@ -192,7 +192,7 @@ var bad = ()
 //@[11:0011) |   ├─SkippedTriviaSyntax
 //@[11:0012) |   └─Token(RightParen) |)|
 //@[12:0013) ├─Token(NewLine) |\n|
-var bad = 
+var bad =
 //@[00:0010) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0007) | ├─IdentifierSyntax
@@ -1501,7 +1501,7 @@ var test1 = listKeys('abcd')
 //@[27:0028) |   └─Token(RightParen) |)|
 //@[28:0030) ├─Token(NewLine) |\n\n|
 
-// list spelled wrong 
+// list spelled wrong
 //@[22:0023) ├─Token(NewLine) |\n|
 var test2 = lsitKeys('abcd', '2020-01-01')
 //@[00:0042) ├─VariableDeclarationSyntax
@@ -2470,9 +2470,9 @@ var partialObject = {
 //@[13:0016) |   |   |   └─Token(StringComplete) |'s'|
 //@[16:0017) |   |   └─Token(RightParen) |)|
 //@[17:0018) |   ├─Token(NewLine) |\n|
-  
+
 //@[02:0003) |   ├─Token(NewLine) |\n|
-  's' 
+  's'
 //@[02:0006) |   ├─ObjectPropertySyntax
 //@[02:0005) |   | ├─StringSyntax
 //@[02:0005) |   | | └─Token(StringComplete) |'s'|

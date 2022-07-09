@@ -15,7 +15,7 @@ coverage:
           - dotnet
         paths:
           - src
-      
+
       vscode-bicep:
         target: auto
         threshold: 1%

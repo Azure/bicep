@@ -83,7 +83,7 @@ If you have an active branch pushed to your GitHub fork, you can use the "Update
 ### Running the Bicep CLI
 
 * In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "Bicep CLI" task, and press the "Start" button. This will build and run the Bicep CLI and allow you to step through the code.
-* Note that usually you will want to pass your own custom arguments to the Bicep CLI. This can be done by modifying the `launch.json` configuration to add arguments to the "args" array for the "Bicep CLI" task. 
+* Note that usually you will want to pass your own custom arguments to the Bicep CLI. This can be done by modifying the `launch.json` configuration to add arguments to the "args" array for the "Bicep CLI" task.
 
 ## Pull Requests
 
@@ -103,7 +103,7 @@ We are integrating the Bicep examples into the [Azure QuickStart Templates](http
 
 ### Snippets
 
-If you'd like to contribute to the collection of snippets:  
+If you'd like to contribute to the collection of snippets:
 
 * A snippet should either be a single, generic resource or follow [parent-child syntax](https://docs.microsoft.com/azure/azure-resource-manager/bicep/child-resource-name-type). Ensure your snippet meets this criteria.
 * Add a Bicep file to [`./src/Bicep.LangServer/Snippets/Templates`](./src/Bicep.LangServer/Snippets/Templates) using the naming convention res-RESOURCENAME.bicep

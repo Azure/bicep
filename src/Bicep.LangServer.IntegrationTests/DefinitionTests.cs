@@ -243,7 +243,7 @@ module appPlanDeploy2 'wrong|.bicep' = {
 
             assertAction(results);
         }
-        
+
         private static async Task RunDefinitionScenarioTestWithFiles(
             TestContext testContext,
             string fileWithCursors,

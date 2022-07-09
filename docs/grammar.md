@@ -1,11 +1,11 @@
 # Language Grammar
 The following is the active pseudo-grammar of the bicep language.
 ```
-program -> statement* EOF 
-statement -> 
-  targetScopeDecl | 
-  importDecl | 
-  parameterDecl | 
+program -> statement* EOF
+statement ->
+  targetScopeDecl |
+  importDecl |
+  parameterDecl |
   variableDecl |
   resourceDecl |
   moduleDecl |
@@ -16,7 +16,7 @@ targetScopeDecl -> "targetScope" "=" expression
 
 importDecl -> decorator* "import" IDENTIFIER(providerName) "as" IDENTIFIER(aliasName) object? NL
 
-parameterDecl -> 
+parameterDecl ->
   decorator* "parameter" IDENTIFIER(name) IDENTIFIER(type) parameterDefaultValue? NL |
   decorator* "parameter" IDENTIFIER(name) "resource" interpString(type) parameterDefaultValue? NL |
 parameterDefaultValue -> "=" expression
@@ -27,7 +27,7 @@ resourceDecl -> decorator* "resource" IDENTIFIER(name) interpString(type) "exist
 
 moduleDecl -> decorator* "module" IDENTIFIER(name) interpString(type) "=" (ifCondition | object | forExpression) NL
 
-outputDecl -> 
+outputDecl ->
   decorator* "output" IDENTIFIER(name) IDENTIFIER(type) "=" expression NL
   decorator* "output" IDENTIFIER(name) "resource" interpString(type) "=" expression NL
 NL -> ("\n" | "\r")+
@@ -36,34 +36,34 @@ decorator -> "@" decoratorExpression NL
 
 disableNextLineDiagnosticsDirective-> #disable-next-line diagnosticCode1 diagnosticCode2 diagnosticCode3 NL
 
-expression -> 
+expression ->
   binaryExpression |
   binaryExpression "?" expression ":" expression
 
-binaryExpression -> 
+binaryExpression ->
   equalityExpression |
   binaryExpression "&&" equalityExpression |
   binaryExpression "||" equalityExpression |
   binaryExpression "??" equalityExpression
 
-equalityExpression -> 
+equalityExpression ->
   relationalExpression |
   equalityExpression "==" relationalExpression |
   equalityExpression "!=" relationalExpression
 
-relationalExpression -> 
+relationalExpression ->
   additiveExpression |
   relationalExpression ">" additiveExpression |
   relationalExpression ">=" additiveExpression |
   relationalExpression "<" additiveExpression |
   relationalExpression "<=" additiveExpression
 
-additiveExpression -> 
+additiveExpression ->
   multiplicativeExpression |
   additiveExpression "+" multiplicativeExpression |
   additiveExpression "-" multiplicativeExpression
 
-multiplicativeExpression -> 
+multiplicativeExpression ->
   unaryExpression |
   multiplicativeExpression "*" unaryExpression |
   multiplicativeExpression "/" unaryExpression |
@@ -120,7 +120,7 @@ multilineString -> "'''" + MULTILINESTRINGCHAR+ + "'''"
 literalValue -> NUMBER | "true" | "false" | "null"
 
 object -> "{" ( NL+ ( objectProperty NL+ )* )? "}"
-objectProperty -> ( IDENTIFIER(name) | interpString ) ":" expression 
+objectProperty -> ( IDENTIFIER(name) | interpString ) ":" expression
 
 array -> "[" ( NL+ arrayItem* )? "]"
 arrayItem -> expression NL+

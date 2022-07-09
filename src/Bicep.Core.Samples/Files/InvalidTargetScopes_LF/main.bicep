@@ -1,10 +1,10 @@
 ﻿targetScope
 
 // #completionTest(12) -> empty
-targetScope 
+targetScope
 
 // #completionTest(13,14) -> targetScopes
-targetScope = 
+targetScope =
 
 
 targetScope = 'asdfds'

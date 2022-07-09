@@ -8,7 +8,7 @@ namespace Bicep.Core.Samples
     public enum LineEndings
     {
         /// <summary>
-        /// Line endings are replaced with the runtime default line endings. 
+        /// Line endings are replaced with the runtime default line endings.
         /// </summary>
         Auto,
 

@@ -2439,7 +2439,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     resource r800 'Microsoft.Network/virtualNetworks@2021-05-01' = {
     name: 'r800'
     }
-    
+
         ")]
         [DataRow(@"
             resource r1 'Microsoft.Network/virtualNetworks@2021-05-01' = {
@@ -4845,7 +4845,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     resource r801 'Microsoft.Network/virtualNetworks@2021-05-01' = {
     name: 'r801'
     }
-    
+
             ",
             "r1")]
         [DataRow(@"
@@ -7252,8 +7252,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         resource s1 'subnets@2021-05-01' = {
             name: 's1'
         }
-    }   
-    
+    }
+
             ",
             "r1")]
 

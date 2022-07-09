@@ -1,4 +1,4 @@
-/* 
+/*
   Valid and invalid code is mixed together to validate recovery logic. It can even contain ** * *** **.
 */
 
@@ -29,17 +29,17 @@ param missingType
 //@[17:017) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // space after identifier #completionTest(32) -> paramTypes
-param missingTypeWithSpaceAfter 
+param missingTypeWithSpaceAfter
 //@[06:031) [no-unused-params (Warning)] Parameter "missingTypeWithSpaceAfter" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |missingTypeWithSpaceAfter|
 //@[32:032) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // tab after identifier #completionTest(30) -> paramTypes
-param missingTypeWithTabAfter	
+param missingTypeWithTabAfter
 //@[06:029) [no-unused-params (Warning)] Parameter "missingTypeWithTabAfter" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |missingTypeWithTabAfter|
 //@[30:030) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // #completionTest(20) -> paramTypes
-param trailingSpace  
+param trailingSpace
 //@[06:019) [no-unused-params (Warning)] Parameter "trailingSpace" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |trailingSpace|
 //@[21:021) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
@@ -74,7 +74,7 @@ param wrongDefaultValue string = 42
 
 param myInt2 int = 42
 //@[06:012) [no-unused-params (Warning)] Parameter "myInt2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myInt2|
-param noValueAfterColon int =   
+param noValueAfterColon int =
 //@[06:023) [no-unused-params (Warning)] Parameter "noValueAfterColon" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |noValueAfterColon|
 //@[32:032) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
@@ -94,17 +94,17 @@ param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWh
 //@[06:267) [BCP024 (Error)] The identifier exceeds the limit of 255. Reduce the length of the identifier. (CodeDescription: none) |WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong|
 
 // #completionTest(28,29) -> boolPlusSymbols
-param boolCompletions bool = 
+param boolCompletions bool =
 //@[06:021) [no-unused-params (Warning)] Parameter "boolCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |boolCompletions|
 //@[29:029) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 // #completionTest(30,31) -> arrayPlusSymbols
-param arrayCompletions array = 
+param arrayCompletions array =
 //@[06:022) [no-unused-params (Warning)] Parameter "arrayCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |arrayCompletions|
 //@[31:031) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 // #completionTest(32,33) -> objectPlusSymbols
-param objectCompletions object = 
+param objectCompletions object =
 //@[06:023) [no-unused-params (Warning)] Parameter "objectCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |objectCompletions|
 //@[33:033) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
@@ -123,7 +123,7 @@ param wrongType fluffyBunny = 'what\s up doc?'
 //@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[35:037) [BCP006 (Error)] The specified escape sequence is not recognized. Only the following escape sequences are allowed: "\$", "\'", "\\", "\n", "\r", "\t", "\u{...}". (CodeDescription: none) |\s|
 
-// unterminated string 
+// unterminated string
 param wrongType fluffyBunny = 'what\'s up doc?
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
@@ -335,11 +335,11 @@ param paramAccessingOutput string = sampleOutput
 //@[36:048) [BCP058 (Error)] The name "sampleOutput" is an output. Outputs cannot be referenced in expressions. (CodeDescription: none) |sampleOutput|
 
 // #completionTest(6) -> empty
-param 
+param
 //@[06:006) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) ||
 
 // #completionTest(46,47) -> justSymbols
-param defaultValueOneLinerCompletions string = 
+param defaultValueOneLinerCompletions string =
 //@[06:037) [no-unused-params (Warning)] Parameter "defaultValueOneLinerCompletions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |defaultValueOneLinerCompletions|
 //@[47:047) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
@@ -389,10 +389,10 @@ param someString string
 @secure()
 //@[00:009) [BCP124 (Error)] The decorator "secure" can only be attached to targets of type "object | string", but the target has type "int". (CodeDescription: none) |@secure()|
 // #completionTest(1, 2, 3) -> intParameterDecoratorsPlusNamespace
-@  
+@
 //@[03:003) [BCP123 (Error)] Expected a namespace or decorator name at this location. (CodeDescription: none) ||
 // #completionTest(5, 6) -> intParameterDecorators
-@sys.   
+@sys.
 //@[08:008) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 param someInteger int = 20
 //@[06:017) [no-unused-params (Warning)] Parameter "someInteger" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |someInteger|
@@ -412,7 +412,7 @@ param tooManyArguments1 int = 20
 @m
 //@[01:002) [BCP057 (Error)] The name "m" does not exist in the current context. (CodeDescription: none) |m|
 // #completionTest(1, 2, 3) -> stringParameterDecoratorsPlusNamespace
-@   
+@
 //@[04:004) [BCP123 (Error)] Expected a namespace or decorator name at this location. (CodeDescription: none) ||
 // #completionTest(5) -> stringParameterDecorators
 @sys.
@@ -491,6 +491,6 @@ param invalidDefaultWithAllowedArrayDecorator array = true
 //@[54:058) [BCP027 (Error)] The parameter expects a default value of type "array" but provided value is of type "bool". (CodeDescription: none) |true|
 
 // unterminated multi-line comment
-/*    
+/*
 //@[00:007) [BCP002 (Error)] The multi-line comment at this location is not terminated. Terminate it with the */ character sequence. (CodeDescription: none) |/*    \n|
 

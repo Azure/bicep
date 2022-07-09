@@ -12,7 +12,7 @@
 
 αα
 Ωω
-Θ  
+Θ
 
 Zażółć gęślą jaźń
 
@@ -30,7 +30,7 @@ Zażółć gęślą jaźń
 
 ❆ Hello\u{20}World\u{21} ❁
 
-	a	b	c	d	e	f	g	h	
+	a	b	c	d	e	f	g	h
 8	♜	♞	♝	♛	♚	♝	♞	♜	8
 7	♟	♟	♟	♟	♟	♟	♟	♟	7
 6									6

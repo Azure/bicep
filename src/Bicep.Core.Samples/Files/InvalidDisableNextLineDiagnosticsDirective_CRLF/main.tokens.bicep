@@ -76,7 +76,7 @@ param storageAccount5 string = 'testStorageAccount'
 //@[31:51) StringComplete |'testStorageAccount'|
 //@[51:55) NewLine |\r\n\r\n|
 
-#disable-next-line 
+#disable-next-line
 //@[19:21) NewLine |\r\n|
 no-unused-params
 //@[00:02) Identifier |no|

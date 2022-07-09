@@ -10,8 +10,8 @@
 
 namespace Bicep.LanguageServer {
     using System;
-    
-    
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -23,15 +23,15 @@ namespace Bicep.LanguageServer {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class LangServerResources {
-        
+
         private static global::System.Resources.ResourceManager resourceMan;
-        
+
         private static global::System.Globalization.CultureInfo resourceCulture;
-        
+
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal LangServerResources() {
         }
-        
+
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
@@ -45,7 +45,7 @@ namespace Bicep.LanguageServer {
                 return resourceMan;
             }
         }
-        
+
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
@@ -59,7 +59,7 @@ namespace Bicep.LanguageServer {
                 resourceCulture = value;
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Deployment failed for {0}..
         /// </summary>
@@ -68,7 +68,7 @@ namespace Bicep.LanguageServer {
                 return ResourceManager.GetString("DeploymentFailedMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Deployment failed for {0}. {1}.
         /// </summary>
@@ -77,7 +77,7 @@ namespace Bicep.LanguageServer {
                 return ResourceManager.GetString("DeploymentFailedWithExceptionMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Deployment started for {0}..
         /// </summary>
@@ -86,7 +86,7 @@ namespace Bicep.LanguageServer {
                 return ResourceManager.GetString("DeploymentStartedMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Deployment succeeded for {0}..
         /// </summary>
@@ -95,7 +95,7 @@ namespace Bicep.LanguageServer {
                 return ResourceManager.GetString("DeploymentSucceededMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Disable {0} for this line.
         /// </summary>
@@ -104,7 +104,7 @@ namespace Bicep.LanguageServer {
                 return ResourceManager.GetString("DisableDiagnosticForThisLine", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Edit {0} in bicepconfig.json.
         /// </summary>
@@ -113,7 +113,7 @@ namespace Bicep.LanguageServer {
                 return ResourceManager.GetString("EditLinterRuleActionTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Encountered error while reading parameters file: {0}. Please fix the following issue: {1}.
         /// </summary>
@@ -122,7 +122,7 @@ namespace Bicep.LanguageServer {
                 return ResourceManager.GetString("InvalidParameterFile", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Deployment failed for {0}. Please fix following issues in the parameter file {1}: {2}.
         /// </summary>
@@ -131,7 +131,7 @@ namespace Bicep.LanguageServer {
                 return ResourceManager.GetString("InvalidParameterFileDeploymentFailedMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Deployment failed for {0}. Please provide a valid value for parameter: {1}.
         /// </summary>
@@ -140,7 +140,7 @@ namespace Bicep.LanguageServer {
                 return ResourceManager.GetString("InvalidParameterValueDeploymentFailedMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Deployment failed for {0}. Please provide a valid location..
         /// </summary>
@@ -149,7 +149,7 @@ namespace Bicep.LanguageServer {
                 return ResourceManager.GetString("MissingLocationDeploymentFailedMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Parameters of type array or object should either contain a default value or must be specified in parameters.json file. Please update the value for the following parameters: {0}.
         /// </summary>
@@ -158,7 +158,7 @@ namespace Bicep.LanguageServer {
                 return ResourceManager.GetString("MissingParamValueForArrayOrObjectType", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Unsupported target scope: {0}..
         /// </summary>
@@ -167,7 +167,7 @@ namespace Bicep.LanguageServer {
                 return ResourceManager.GetString("UnsupportedTargetScopeMessage", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to View deployment in portal: {0}..
         /// </summary>

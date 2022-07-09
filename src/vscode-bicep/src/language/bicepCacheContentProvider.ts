@@ -17,12 +17,12 @@ export class BicepCacheContentProvider
     this.register(
       vscode.workspace.onDidOpenTextDocument((document) => {
         /*
-         * Changing the language ID while the file is being opened causes one of the following problems:
-         * - getting a TextDocument and blocking on it causes a deadlock
-         * - doing the same in a fire/forget promise causes strange caching behavior in VS code where
-         *   the language server is called for a particular file only once
-         * Moving this to an event listener instead avoids these issues entirely.
-         */
+        * Changing the language ID while the file is being opened causes one of the following problems:
+        * - getting a TextDocument and blocking on it causes a deadlock
+        * - doing the same in a fire/forget promise causes strange caching behavior in VS code where
+        *   the language server is called for a particular file only once
+        * Moving this to an event listener instead avoids these issues entirely.
+        */
         this.tryFixCacheContentLanguage(document);
       })
     );

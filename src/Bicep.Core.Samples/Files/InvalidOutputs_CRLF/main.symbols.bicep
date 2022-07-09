@@ -3,41 +3,41 @@
 bad
 
 // incomplete #completionTest(7) -> empty
-output 
+output
 //@[07:07) Output <missing>. Type: any. Declaration start char: 0, length: 7
 
 var testSymbol = 42
 //@[04:14) Variable testSymbol. Type: int. Declaration start char: 0, length: 19
 
 // #completionTest(28,29) -> symbols
-output missingValueAndType = 
+output missingValueAndType =
 //@[07:26) Output missingValueAndType. Type: any. Declaration start char: 0, length: 29
 
 // #completionTest(28,29) -> symbols
-output missingValue string = 
+output missingValue string =
 //@[07:19) Output missingValue. Type: string. Declaration start char: 0, length: 29
 
 // #completionTest(31,32) -> arrayPlusSymbols
-output arrayCompletions array = 
+output arrayCompletions array =
 //@[07:23) Output arrayCompletions. Type: array. Declaration start char: 0, length: 32
 
 // #completionTest(33,34) -> objectPlusSymbols
-output objectCompletions object = 
+output objectCompletions object =
 //@[07:24) Output objectCompletions. Type: object. Declaration start char: 0, length: 34
 
 // #completionTest(29,30) -> boolPlusSymbols
-output boolCompletions bool = 
+output boolCompletions bool =
 //@[07:22) Output boolCompletions. Type: bool. Declaration start char: 0, length: 30
 
 output foo
 //@[07:10) Output foo. Type: any. Declaration start char: 0, length: 10
 
 // space after identifier #completionTest(20) -> outputTypes
-output spaceAfterId 
+output spaceAfterId
 //@[07:19) Output spaceAfterId. Type: any. Declaration start char: 0, length: 20
 
 // #completionTest(25) -> outputTypes
-output spacesAfterCursor  
+output spacesAfterCursor
 //@[07:24) Output spacesAfterCursor. Type: any. Declaration start char: 0, length: 26
 
 // partial type #completionTest(19, 20, 21, 22) -> outputTypes
@@ -217,4 +217,4 @@ output keyVaultSecretArrayInterpolatedOutput array = [
 // #completionTest(5) -> decorators
 @sys.
 
-// WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line 
+// WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line

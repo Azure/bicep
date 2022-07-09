@@ -25,11 +25,11 @@ module moduleWithPath './moduleb.bicep' =
 //@[07:21) Module moduleWithPath. Type: module. Declaration start char: 0, length: 41
 
 // missing identifier #completionTest(7) -> empty
-module 
+module
 //@[07:07) Module <missing>. Type: error. Declaration start char: 0, length: 7
 
 // #completionTest(24,25) -> moduleObject
-module missingValue '' = 
+module missingValue '' =
 //@[07:19) Module missingValue. Type: error. Declaration start char: 0, length: 25
 
 var interp = 'hello'
@@ -123,7 +123,7 @@ module modANoInputs './modulea.bicep' = {
 //@[07:19) Module modANoInputs. Type: module. Declaration start char: 0, length: 135
   name: 'modANoInputs'
   // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
-  
+
 }
 
 module modANoInputsWithCondition './modulea.bicep' = if (length([
@@ -132,7 +132,7 @@ module modANoInputsWithCondition './modulea.bicep' = if (length([
 ]) == 1) {
   name: 'modANoInputs'
   // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
-  
+
 }
 
 module modAEmptyInputs './modulea.bicep' = {
@@ -140,7 +140,7 @@ module modAEmptyInputs './modulea.bicep' = {
   name: 'modANoInputs'
   params: {
     // #completionTest(0,1,2,3,4) -> moduleAParams
-    
+
   }
 }
 
@@ -149,7 +149,7 @@ module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
   name: 'modANoInputs'
   params: {
     // #completionTest(0,1,2,3,4) -> moduleAWithConditionParams
-    
+
   }
 }
 
@@ -185,7 +185,7 @@ var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 
 module modCycle './cycle.bicep' = {
 //@[07:15) Module modCycle. Type: error. Declaration start char: 0, length: 40
-  
+
 }
 
 module moduleWithEmptyPath '' = {
@@ -561,7 +561,7 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in empty
   name: 'hello-${x}'
   params: {
     // #completionTest(0,1,2) -> moduleAParams
-  
+
   }
 }]
 
@@ -631,7 +631,7 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
     ]
   }
   dependsOn: [
-    
+
   ]
 }]
 
@@ -690,7 +690,7 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 module secureModule1 'moduleb.bicep' = {
 //@[07:20) Module secureModule1. Type: module. Declaration start char: 0, length: 464
   name: 'secureModule1'
-  params: {       
+  params: {
     stringParamA: kv.getSecret('mySecret')
     stringParamB: '${kv.getSecret('mySecret')}'
     objParam: kv.getSecret('mySecret')
@@ -705,7 +705,7 @@ module secureModule1 'moduleb.bicep' = {
 module secureModule2 'BAD_MODULE_PATH.bicep' = {
 //@[07:20) Module secureModule2. Type: error. Declaration start char: 0, length: 134
   name: 'secureModule2'
-  params: {       
+  params: {
     secret: kv.getSecret('mySecret')
   }
 }
@@ -731,7 +731,7 @@ module issue3000 'empty.bicep' = {
   ]
   plan: {}
   eTag: ''
-  scale: {}  
+  scale: {}
 }
 
 module invalidJsonMod 'modulec.json' = {

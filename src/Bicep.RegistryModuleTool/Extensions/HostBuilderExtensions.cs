@@ -33,7 +33,7 @@ namespace Bicep.RegistryModuleTool.Extensions
             return builder;
         }
 
-        // The built-in UseCommandHandler extension method does not work for sub-class (https://github.com/dotnet/command-line-api/issues/1209). 
+        // The built-in UseCommandHandler extension method does not work for sub-class (https://github.com/dotnet/command-line-api/issues/1209).
         // This is a workaround.
         private static void UseCommandHandler(this IHostBuilder builder, Type commandType, Type handlerType)
         {

@@ -160,11 +160,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         /// <summary>
         /// Returns the parameters defined in a consumed module's bicep file
-        /// 
+        ///
         /// E.g. For this consumed module declaration:
-        /// 
+        ///
         ///    module m1 'module1.bicep' { ... }
-        ///    
+        ///
         /// It retrieves the parameters defined in module1.bicep
         /// </summary>
         protected static ImmutableArray<ParameterDeclarationSyntax> TryGetParameterDefinitionsForConsumedModule(ModuleDeclarationSyntax moduleDeclarationSyntax, SemanticModel model)

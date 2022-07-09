@@ -45,7 +45,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             // If any of the following paths result in an exception being thrown (and surfaced client-side to the user),
             // it indicates a code defect client or server-side.
-            // In normal operation, the user should never see them regardless of how malformed their code is.            
+            // In normal operation, the user should never see them regardless of how malformed their code is.
 
             var configuration = this.configurationManager.GetConfiguration(request.TextDocument.Uri.ToUri());
             var moduleReference = this.moduleDispatcher.TryGetModuleReference(request.Target, configuration, out _) ?? throw new InvalidOperationException($"The client specified an invalid module reference '{request.Target}'.");

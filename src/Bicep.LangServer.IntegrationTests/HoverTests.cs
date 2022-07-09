@@ -428,7 +428,7 @@ resource foo 'Test.Rp/basicTests@2020-01-01'
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
 resource bar 'Test.Rp/basicTests@2020-01-01'
 ```
-This resource also has a description!  
+This resource also has a description!
 [View Type Documentation](https://docs.microsoft.com/azure/templates/test.rp/basictests?tabs=bicep)
 "),
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
@@ -644,7 +644,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
-            
+
             var helper = await ServerWithBuiltInTypes.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
 

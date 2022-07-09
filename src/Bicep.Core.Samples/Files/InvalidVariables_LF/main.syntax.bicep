@@ -21,7 +21,7 @@ var
 
 // missing identifier #completionTest(4) -> empty
 //@[49:0050) ├─Token(NewLine) |\n|
-var 
+var
 //@[00:0004) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0004) | ├─IdentifierSyntax
@@ -58,7 +58,7 @@ var foo
 
 // #completionTest(18,19) -> symbols
 //@[36:0037) ├─Token(NewLine) |\n|
-var missingValue = 
+var missingValue =
 //@[00:0019) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0016) | ├─IdentifierSyntax
@@ -69,7 +69,7 @@ var missingValue =
 
 // malformed identifier
 //@[23:0024) ├─Token(NewLine) |\n|
-var 2 
+var 2
 //@[00:0006) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0005) | ├─IdentifierSyntax

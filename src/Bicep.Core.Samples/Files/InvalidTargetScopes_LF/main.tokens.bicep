@@ -4,13 +4,13 @@ targetScope
 
 // #completionTest(12) -> empty
 //@[31:32) NewLine |\n|
-targetScope 
+targetScope
 //@[00:11) Identifier |targetScope|
 //@[12:14) NewLine |\n\n|
 
 // #completionTest(13,14) -> targetScopes
 //@[41:42) NewLine |\n|
-targetScope = 
+targetScope =
 //@[00:11) Identifier |targetScope|
 //@[12:13) Assignment |=|
 //@[14:17) NewLine |\n\n\n|

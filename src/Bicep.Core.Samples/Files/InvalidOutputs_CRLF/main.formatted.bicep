@@ -2,32 +2,32 @@
 bad
 
 // incomplete #completionTest(7) -> empty
-output 
+output
 
 var testSymbol = 42
 
 // #completionTest(28,29) -> symbols
-output missingValueAndType = 
+output missingValueAndType =
 
 // #completionTest(28,29) -> symbols
-output missingValue string = 
+output missingValue string =
 
 // #completionTest(31,32) -> arrayPlusSymbols
-output arrayCompletions array = 
+output arrayCompletions array =
 
 // #completionTest(33,34) -> objectPlusSymbols
-output objectCompletions object = 
+output objectCompletions object =
 
 // #completionTest(29,30) -> boolPlusSymbols
-output boolCompletions bool = 
+output boolCompletions bool =
 
 output foo
 
 // space after identifier #completionTest(20) -> outputTypes
-output spaceAfterId 
+output spaceAfterId
 
 // #completionTest(25) -> outputTypes
-output spacesAfterCursor  
+output spacesAfterCursor
 
 // partial type #completionTest(19, 20, 21, 22) -> outputTypes
 output partialType obj
@@ -152,4 +152,4 @@ output keyVaultSecretArrayInterpolatedOutput array = [
 // #completionTest(5) -> decorators
 @sys.
 
-// WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line 
+// WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line

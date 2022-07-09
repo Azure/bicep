@@ -1300,7 +1300,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
+*/
 //@[003:005) NewLine |\r\n|
 var storageAccounts = [
 //@[000:003) Identifier |var|
@@ -1533,7 +1533,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[037:039) NewLine |\r\n|
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
 //@[062:064) NewLine |\r\n|
-     
+
 //@[005:007) NewLine |\r\n|
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
 //@[059:061) NewLine |\r\n|

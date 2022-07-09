@@ -8,7 +8,7 @@ targetScope
 
 // #completionTest(12) -> empty
 //@[31:032) ├─Token(NewLine) |\n|
-targetScope 
+targetScope
 //@[00:012) ├─TargetScopeSyntax
 //@[00:011) | ├─Token(Identifier) |targetScope|
 //@[12:012) | ├─SkippedTriviaSyntax
@@ -17,7 +17,7 @@ targetScope
 
 // #completionTest(13,14) -> targetScopes
 //@[41:042) ├─Token(NewLine) |\n|
-targetScope = 
+targetScope =
 //@[00:014) ├─TargetScopeSyntax
 //@[00:011) | ├─Token(Identifier) |targetScope|
 //@[12:013) | ├─Token(Assignment) |=|

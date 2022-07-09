@@ -17,7 +17,7 @@ var bad = (null) ? !
 var bad = (null) !
 var bad = (null)[0]
 var bad = ()
-var bad = 
+var bad =
 
 // variables not supported
 var x = a + 2
@@ -149,7 +149,7 @@ var indexOfWrongTypes = indexOf(1, 1)
 // not enough params
 var test1 = listKeys('abcd')
 
-// list spelled wrong 
+// list spelled wrong
 var test2 = lsitKeys('abcd', '2020-01-01')
 
 // just 'lis' instead of 'list'
@@ -235,8 +235,8 @@ var partialObject = {
   2: true
   +
   3 : concat('s')
-  
-  's' 
+
+  's'
   's' \
   'e'   =
   's' :

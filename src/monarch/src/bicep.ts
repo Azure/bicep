@@ -92,7 +92,7 @@ export const BicepLanguage: languages.IMonarchLanguage = {
       { regex: `'''`, action: { token: 'string.quote', next: '@stringVerbatim' } },
       { regex: `'`, action: { token: 'string.quote', next: '@stringLiteral' } },
       { regex: numericLiteral, action: { token: 'number' } },
-      { regex: identifier, action: { 
+      { regex: identifier, action: {
         cases: {
           '@keywords': { token: 'keyword' },
           '@namedLiterals': { token: 'keyword' },

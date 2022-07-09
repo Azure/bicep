@@ -10,7 +10,7 @@ bad
 
 // incomplete #completionTest(7) -> empty
 //@[041:0043) ├─Token(NewLine) |\r\n|
-output 
+output
 //@[000:0007) ├─OutputDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0007) | ├─IdentifierSyntax
@@ -32,7 +32,7 @@ var testSymbol = 42
 
 // #completionTest(28,29) -> symbols
 //@[036:0038) ├─Token(NewLine) |\r\n|
-output missingValueAndType = 
+output missingValueAndType =
 //@[000:0029) ├─OutputDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0026) | ├─IdentifierSyntax
@@ -44,7 +44,7 @@ output missingValueAndType =
 
 // #completionTest(28,29) -> symbols
 //@[036:0038) ├─Token(NewLine) |\r\n|
-output missingValue string = 
+output missingValue string =
 //@[000:0029) ├─OutputDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0019) | ├─IdentifierSyntax
@@ -57,7 +57,7 @@ output missingValue string =
 
 // #completionTest(31,32) -> arrayPlusSymbols
 //@[045:0047) ├─Token(NewLine) |\r\n|
-output arrayCompletions array = 
+output arrayCompletions array =
 //@[000:0032) ├─OutputDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0023) | ├─IdentifierSyntax
@@ -70,7 +70,7 @@ output arrayCompletions array =
 
 // #completionTest(33,34) -> objectPlusSymbols
 //@[046:0048) ├─Token(NewLine) |\r\n|
-output objectCompletions object = 
+output objectCompletions object =
 //@[000:0034) ├─OutputDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0024) | ├─IdentifierSyntax
@@ -83,7 +83,7 @@ output objectCompletions object =
 
 // #completionTest(29,30) -> boolPlusSymbols
 //@[044:0046) ├─Token(NewLine) |\r\n|
-output boolCompletions bool = 
+output boolCompletions bool =
 //@[000:0030) ├─OutputDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0022) | ├─IdentifierSyntax
@@ -106,7 +106,7 @@ output foo
 
 // space after identifier #completionTest(20) -> outputTypes
 //@[060:0062) ├─Token(NewLine) |\r\n|
-output spaceAfterId 
+output spaceAfterId
 //@[000:0020) ├─OutputDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0019) | ├─IdentifierSyntax
@@ -118,7 +118,7 @@ output spaceAfterId
 
 // #completionTest(25) -> outputTypes
 //@[037:0039) ├─Token(NewLine) |\r\n|
-output spacesAfterCursor  
+output spacesAfterCursor
 //@[000:0026) ├─OutputDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0024) | ├─IdentifierSyntax
@@ -1077,5 +1077,5 @@ output keyVaultSecretArrayInterpolatedOutput array = [
 //@[005:0005) | |     └─SkippedTriviaSyntax
 //@[005:0009) | └─Token(NewLine) |\r\n\r\n|
 
-// WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line 
+// WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line
 //@[110:0110) └─Token(EndOfFile) ||

@@ -1028,7 +1028,7 @@ output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputO
 
 /*
   valid loop cases
-*/ 
+*/
 //@[003:0007) ├─Token(NewLine) |\r\n\r\n|
 
 @sys.description('this is myModules')

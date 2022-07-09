@@ -135,7 +135,7 @@ namespace Bicep.LanguageServer.Handlers
                 }
             }
 
-            // all other unbound syntax nodes return no 
+            // all other unbound syntax nodes return no
             return Task.FromResult(new LocationOrLocationLinks());
         }
 

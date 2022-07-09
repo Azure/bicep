@@ -1,4 +1,4 @@
-/* 
+/*
   Valid and invalid code is mixed together to validate recovery logic. It can even contain ** * *** **.
 */
 //@[002:004) NewLine |\n\n|
@@ -52,21 +52,21 @@ param missingType
 
 // space after identifier #completionTest(32) -> paramTypes
 //@[059:060) NewLine |\n|
-param missingTypeWithSpaceAfter 
+param missingTypeWithSpaceAfter
 //@[000:005) Identifier |param|
 //@[006:031) Identifier |missingTypeWithSpaceAfter|
 //@[032:034) NewLine |\n\n|
 
 // tab after identifier #completionTest(30) -> paramTypes
 //@[057:058) NewLine |\n|
-param missingTypeWithTabAfter	
+param missingTypeWithTabAfter
 //@[000:005) Identifier |param|
 //@[006:029) Identifier |missingTypeWithTabAfter|
 //@[030:032) NewLine |\n\n|
 
 // #completionTest(20) -> paramTypes
 //@[036:037) NewLine |\n|
-param trailingSpace  
+param trailingSpace
 //@[000:005) Identifier |param|
 //@[006:019) Identifier |trailingSpace|
 //@[021:023) NewLine |\n\n|
@@ -133,7 +133,7 @@ param myInt2 int = 42
 //@[017:018) Assignment |=|
 //@[019:021) Integer |42|
 //@[021:022) NewLine |\n|
-param noValueAfterColon int =   
+param noValueAfterColon int =
 //@[000:005) Identifier |param|
 //@[006:023) Identifier |noValueAfterColon|
 //@[024:027) Identifier |int|
@@ -173,7 +173,7 @@ param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWh
 
 // #completionTest(28,29) -> boolPlusSymbols
 //@[044:045) NewLine |\n|
-param boolCompletions bool = 
+param boolCompletions bool =
 //@[000:005) Identifier |param|
 //@[006:021) Identifier |boolCompletions|
 //@[022:026) Identifier |bool|
@@ -182,7 +182,7 @@ param boolCompletions bool =
 
 // #completionTest(30,31) -> arrayPlusSymbols
 //@[045:046) NewLine |\n|
-param arrayCompletions array = 
+param arrayCompletions array =
 //@[000:005) Identifier |param|
 //@[006:022) Identifier |arrayCompletions|
 //@[023:028) Identifier |array|
@@ -191,7 +191,7 @@ param arrayCompletions array =
 
 // #completionTest(32,33) -> objectPlusSymbols
 //@[046:047) NewLine |\n|
-param objectCompletions object = 
+param objectCompletions object =
 //@[000:005) Identifier |param|
 //@[006:023) Identifier |objectCompletions|
 //@[024:030) Identifier |object|
@@ -223,7 +223,7 @@ param wrongType fluffyBunny = 'what\s up doc?'
 //@[030:046) StringComplete |'what\s up doc?'|
 //@[046:048) NewLine |\n\n|
 
-// unterminated string 
+// unterminated string
 //@[023:024) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s up doc?
 //@[000:005) Identifier |param|
@@ -758,13 +758,13 @@ param paramAccessingOutput string = sampleOutput
 
 // #completionTest(6) -> empty
 //@[030:031) NewLine |\n|
-param 
+param
 //@[000:005) Identifier |param|
 //@[006:008) NewLine |\n\n|
 
 // #completionTest(46,47) -> justSymbols
 //@[040:041) NewLine |\n|
-param defaultValueOneLinerCompletions string = 
+param defaultValueOneLinerCompletions string =
 //@[000:005) Identifier |param|
 //@[006:037) Identifier |defaultValueOneLinerCompletions|
 //@[038:044) Identifier |string|
@@ -905,12 +905,12 @@ param someString string
 //@[009:010) NewLine |\n|
 // #completionTest(1, 2, 3) -> intParameterDecoratorsPlusNamespace
 //@[066:067) NewLine |\n|
-@  
+@
 //@[000:001) At |@|
 //@[003:004) NewLine |\n|
 // #completionTest(5, 6) -> intParameterDecorators
 //@[050:051) NewLine |\n|
-@sys.   
+@sys.
 //@[000:001) At |@|
 //@[001:004) Identifier |sys|
 //@[004:005) Dot |.|
@@ -972,7 +972,7 @@ param tooManyArguments1 int = 20
 //@[002:003) NewLine |\n|
 // #completionTest(1, 2, 3) -> stringParameterDecoratorsPlusNamespace
 //@[069:070) NewLine |\n|
-@   
+@
 //@[000:001) At |@|
 //@[004:005) NewLine |\n|
 // #completionTest(5) -> stringParameterDecorators
@@ -1211,6 +1211,6 @@ param invalidDefaultWithAllowedArrayDecorator array = true
 
 // unterminated multi-line comment
 //@[034:035) NewLine |\n|
-/*    
+/*
 
 //@[000:000) EndOfFile ||

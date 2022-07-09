@@ -30,7 +30,7 @@ var loadedTextObject1 = {
 }
 var loadedTextObject2 = {
 //@[4:21) [no-unused-vars (Warning)] Variable "loadedTextObject2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadedTextObject2|
-  'text' : loadTextContent('Assets/TextFile.LF.txt')  
+  'text' : loadTextContent('Assets/TextFile.LF.txt')
 //@[2:08) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'text'|
 }
 var loadedBinaryInObject = {

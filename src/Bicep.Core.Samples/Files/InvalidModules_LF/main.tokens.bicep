@@ -60,13 +60,13 @@ module moduleWithPath './moduleb.bicep' =
 
 // missing identifier #completionTest(7) -> empty
 //@[049:050) NewLine |\n|
-module 
+module
 //@[000:006) Identifier |module|
 //@[007:009) NewLine |\n\n|
 
 // #completionTest(24,25) -> moduleObject
 //@[041:042) NewLine |\n|
-module missingValue '' = 
+module missingValue '' =
 //@[000:006) Identifier |module|
 //@[007:019) Identifier |missingValue|
 //@[020:022) StringComplete |''|
@@ -367,7 +367,7 @@ module modANoInputs './modulea.bicep' = {
 //@[022:023) NewLine |\n|
   // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
 //@[065:066) NewLine |\n|
-  
+
 //@[002:003) NewLine |\n|
 }
 //@[000:001) RightBrace |}|
@@ -402,7 +402,7 @@ module modANoInputsWithCondition './modulea.bicep' = if (length([
 //@[022:023) NewLine |\n|
   // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
 //@[078:079) NewLine |\n|
-  
+
 //@[002:003) NewLine |\n|
 }
 //@[000:001) RightBrace |}|
@@ -427,7 +427,7 @@ module modAEmptyInputs './modulea.bicep' = {
 //@[011:012) NewLine |\n|
     // #completionTest(0,1,2,3,4) -> moduleAParams
 //@[050:051) NewLine |\n|
-    
+
 //@[004:005) NewLine |\n|
   }
 //@[002:003) RightBrace |}|
@@ -463,7 +463,7 @@ module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
 //@[011:012) NewLine |\n|
     // #completionTest(0,1,2,3,4) -> moduleAWithConditionParams
 //@[063:064) NewLine |\n|
-    
+
 //@[004:005) NewLine |\n|
   }
 //@[002:003) RightBrace |}|
@@ -584,7 +584,7 @@ module modCycle './cycle.bicep' = {
 //@[032:033) Assignment |=|
 //@[034:035) LeftBrace |{|
 //@[035:036) NewLine |\n|
-  
+
 //@[002:003) NewLine |\n|
 }
 //@[000:001) RightBrace |}|
@@ -1936,7 +1936,7 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in empty
 //@[011:012) NewLine |\n|
     // #completionTest(0,1,2) -> moduleAParams
 //@[046:047) NewLine |\n|
-  
+
 //@[002:003) NewLine |\n|
   }
 //@[002:003) RightBrace |}|
@@ -2244,7 +2244,7 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
 //@[011:012) Colon |:|
 //@[013:014) LeftSquare |[|
 //@[014:015) NewLine |\n|
-    
+
 //@[004:005) NewLine |\n|
   ]
 //@[002:003) RightSquare |]|
@@ -2476,7 +2476,7 @@ module secureModule1 'moduleb.bicep' = {
 //@[006:007) Colon |:|
 //@[008:023) StringComplete |'secureModule1'|
 //@[023:024) NewLine |\n|
-  params: {       
+  params: {
 //@[002:008) Identifier |params|
 //@[008:009) Colon |:|
 //@[010:011) LeftBrace |{|
@@ -2586,7 +2586,7 @@ module secureModule2 'BAD_MODULE_PATH.bicep' = {
 //@[006:007) Colon |:|
 //@[008:023) StringComplete |'secureModule2'|
 //@[023:024) NewLine |\n|
-  params: {       
+  params: {
 //@[002:008) Identifier |params|
 //@[008:009) Colon |:|
 //@[010:011) LeftBrace |{|
@@ -2700,7 +2700,7 @@ module issue3000 'empty.bicep' = {
 //@[006:007) Colon |:|
 //@[008:010) StringComplete |''|
 //@[010:011) NewLine |\n|
-  scale: {}  
+  scale: {}
 //@[002:007) Identifier |scale|
 //@[007:008) Colon |:|
 //@[009:010) LeftBrace |{|

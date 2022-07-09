@@ -42,7 +42,7 @@ resource myRes 'myRp/provider@2019-01-01' = {
   name: 'test'
 }
 module myMod './module.bicep' = {
-  name: 'test' 
+  name: 'test'
 }
 output myOutput string = 'myOutput'
 ", 0));

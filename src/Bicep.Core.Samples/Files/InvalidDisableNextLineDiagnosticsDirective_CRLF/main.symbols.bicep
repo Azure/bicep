@@ -18,7 +18,7 @@ param storageAccount4 string = 'testStorageAccount'
 param storageAccount5 string = 'testStorageAccount'
 //@[6:21) Parameter storageAccount5. Type: string. Declaration start char: 0, length: 51
 
-#disable-next-line 
+#disable-next-line
 no-unused-params
 param storageAccount6 string = 'testStorageAccount'
 //@[6:21) Parameter storageAccount6. Type: string. Declaration start char: 0, length: 51

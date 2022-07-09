@@ -17,7 +17,7 @@ namespace Bicep.LangServer.IntegrationTests
         private readonly List<TaskCompletionSource<T>> completionSources = new();
 
         private int listenPosition = 0;
-        private int writePosition = 0;        
+        private int writePosition = 0;
 
         public async Task<T> WaitNext(int timeout = DefaultTimeout)
         {

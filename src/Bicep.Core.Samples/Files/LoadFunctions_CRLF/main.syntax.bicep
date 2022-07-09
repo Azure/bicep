@@ -236,7 +236,7 @@ var loadedTextObject2 = {
 //@[024:0084) | └─ObjectSyntax
 //@[024:0025) |   ├─Token(LeftBrace) |{|
 //@[025:0027) |   ├─Token(NewLine) |\r\n|
-  'text' : loadTextContent('Assets/TextFile.LF.txt')  
+  'text' : loadTextContent('Assets/TextFile.LF.txt')
 //@[002:0052) |   ├─ObjectPropertySyntax
 //@[002:0008) |   | ├─StringSyntax
 //@[002:0008) |   | | └─Token(StringComplete) |'text'|

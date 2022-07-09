@@ -31,7 +31,7 @@ namespace Bicep.Core.Workspaces
         // uri -> successfully loaded syntax tree
         private readonly Dictionary<Uri, ISourceFile> sourceFilesByUri;
 
-        // uri -> syntax tree load failure 
+        // uri -> syntax tree load failure
         private readonly Dictionary<Uri, ErrorBuilderDelegate> errorBuildersByUri;
 
         private readonly RootConfiguration configuration;

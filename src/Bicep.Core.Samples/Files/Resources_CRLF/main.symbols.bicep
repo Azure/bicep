@@ -316,7 +316,7 @@ resource extension3 'My.Rp/extensionResource@2020-12-01' = {
 
 /*
   valid loop cases
-*/ 
+*/
 var storageAccounts = [
 //@[04:019) Variable storageAccounts. Type: array. Declaration start char: 0, length: 129
   {
@@ -366,7 +366,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
     subnets: [for j in range(0, 4): {
 //@[18:019) Local j. Type: int. Declaration start char: 18, length: 1
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
-     
+
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
       name: 'subnet-${i}-${j}'
     }]

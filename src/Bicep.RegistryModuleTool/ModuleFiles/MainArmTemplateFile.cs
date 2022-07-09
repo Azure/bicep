@@ -54,7 +54,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         public JsonElement RootElement => this.lazyRootElement.Value;
 
         public IEnumerable<MainArmTemplateParameter> Parameters => this.lazyParameters.Value;
-        
+
         public IEnumerable<MainArmTemplateOutput> Outputs => this.lazyOutputs.Value;
 
         public string TemplateHash => this.lazyTemplateHash.Value;

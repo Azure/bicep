@@ -118,7 +118,7 @@ var bad = ()
 //@[10:11) LeftParen |(|
 //@[11:12) RightParen |)|
 //@[12:13) NewLine |\n|
-var bad = 
+var bad =
 //@[00:03) Identifier |var|
 //@[04:07) Identifier |bad|
 //@[08:09) Assignment |=|
@@ -942,7 +942,7 @@ var test1 = listKeys('abcd')
 //@[27:28) RightParen |)|
 //@[28:30) NewLine |\n\n|
 
-// list spelled wrong 
+// list spelled wrong
 //@[22:23) NewLine |\n|
 var test2 = lsitKeys('abcd', '2020-01-01')
 //@[00:03) Identifier |var|
@@ -1525,9 +1525,9 @@ var partialObject = {
 //@[13:16) StringComplete |'s'|
 //@[16:17) RightParen |)|
 //@[17:18) NewLine |\n|
-  
+
 //@[02:03) NewLine |\n|
-  's' 
+  's'
 //@[02:05) StringComplete |'s'|
 //@[06:07) NewLine |\n|
   's' \

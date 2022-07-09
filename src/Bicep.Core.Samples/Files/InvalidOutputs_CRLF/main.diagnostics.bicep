@@ -4,31 +4,31 @@ bad
 //@[00:03) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |bad|
 
 // incomplete #completionTest(7) -> empty
-output 
+output
 //@[07:07) [BCP016 (Error)] Expected an output identifier at this location. (CodeDescription: none) ||
 
 var testSymbol = 42
 //@[04:14) [no-unused-vars (Warning)] Variable "testSymbol" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testSymbol|
 
 // #completionTest(28,29) -> symbols
-output missingValueAndType = 
+output missingValueAndType =
 //@[27:28) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |=|
 //@[29:29) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 // #completionTest(28,29) -> symbols
-output missingValue string = 
+output missingValue string =
 //@[29:29) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 // #completionTest(31,32) -> arrayPlusSymbols
-output arrayCompletions array = 
+output arrayCompletions array =
 //@[32:32) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 // #completionTest(33,34) -> objectPlusSymbols
-output objectCompletions object = 
+output objectCompletions object =
 //@[34:34) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 // #completionTest(29,30) -> boolPlusSymbols
-output boolCompletions bool = 
+output boolCompletions bool =
 //@[30:30) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 output foo
@@ -36,11 +36,11 @@ output foo
 //@[10:10) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // space after identifier #completionTest(20) -> outputTypes
-output spaceAfterId 
+output spaceAfterId
 //@[20:20) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // #completionTest(25) -> outputTypes
-output spacesAfterCursor  
+output spacesAfterCursor
 //@[26:26) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // partial type #completionTest(19, 20, 21, 22) -> outputTypes
@@ -255,4 +255,4 @@ output keyVaultSecretArrayInterpolatedOutput array = [
 @sys.
 //@[05:05) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
-// WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line 
+// WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line

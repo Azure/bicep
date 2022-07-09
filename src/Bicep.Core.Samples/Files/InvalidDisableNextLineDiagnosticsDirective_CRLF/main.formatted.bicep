@@ -13,7 +13,7 @@ param storageAccount4 string = 'testStorageAccount'
 //#disable-next-line no-unused-params
 param storageAccount5 string = 'testStorageAccount'
 
-#disable-next-line 
+#disable-next-line
 no-unused-params
 param storageAccount6 string = 'testStorageAccount'
 

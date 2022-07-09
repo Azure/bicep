@@ -1,4 +1,4 @@
-/* 
+/*
   This is a block comment.
 */
 //@[02:06) NewLine |\r\n\r\n|

@@ -29,6 +29,6 @@ namespace Bicep.Core.Emit
         /// Source map created during the emit operation.
         /// </summary>
         public SourceMap? SourceMap { get; }
-        
+
     }
 }

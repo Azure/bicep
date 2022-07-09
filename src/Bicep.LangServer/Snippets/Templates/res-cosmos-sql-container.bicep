@@ -10,7 +10,7 @@ resource sqlDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' =
 }
 
 resource /*${3:sqlContainerName}*/sqlContainerName 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-06-15' = {
-  parent: sqlDb 
+  parent: sqlDb
   name: /*${4:'name'}*/'name'
   properties: {
     resource: {

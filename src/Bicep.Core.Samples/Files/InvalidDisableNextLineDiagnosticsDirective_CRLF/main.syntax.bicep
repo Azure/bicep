@@ -105,7 +105,7 @@ param storageAccount5 string = 'testStorageAccount'
 //@[31:051) |     └─Token(StringComplete) |'testStorageAccount'|
 //@[51:055) ├─Token(NewLine) |\r\n\r\n|
 
-#disable-next-line 
+#disable-next-line
 //@[19:021) ├─Token(NewLine) |\r\n|
 no-unused-params
 //@[00:016) ├─SkippedTriviaSyntax

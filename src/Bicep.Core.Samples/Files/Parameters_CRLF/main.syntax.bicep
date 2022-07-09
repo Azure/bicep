@@ -1,4 +1,4 @@
-/* 
+/*
 //@[00:2930) ProgramSyntax
   This is a block comment.
 */

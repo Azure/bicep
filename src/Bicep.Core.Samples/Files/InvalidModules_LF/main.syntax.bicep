@@ -83,7 +83,7 @@ module moduleWithPath './moduleb.bicep' =
 
 // missing identifier #completionTest(7) -> empty
 //@[049:00050) ├─Token(NewLine) |\n|
-module 
+module
 //@[000:00007) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
 //@[007:00007) | ├─IdentifierSyntax
@@ -95,7 +95,7 @@ module
 
 // #completionTest(24,25) -> moduleObject
 //@[041:00042) ├─Token(NewLine) |\n|
-module missingValue '' = 
+module missingValue '' =
 //@[000:00025) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
 //@[007:00019) | ├─IdentifierSyntax
@@ -569,7 +569,7 @@ module modANoInputs './modulea.bicep' = {
 //@[022:00023) |   ├─Token(NewLine) |\n|
   // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
 //@[065:00066) |   ├─Token(NewLine) |\n|
-  
+
 //@[002:00003) |   ├─Token(NewLine) |\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
@@ -621,7 +621,7 @@ module modANoInputsWithCondition './modulea.bicep' = if (length([
 //@[022:00023) |     ├─Token(NewLine) |\n|
   // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
 //@[078:00079) |     ├─Token(NewLine) |\n|
-  
+
 //@[002:00003) |     ├─Token(NewLine) |\n|
 }
 //@[000:00001) |     └─Token(RightBrace) |}|
@@ -656,7 +656,7 @@ module modAEmptyInputs './modulea.bicep' = {
 //@[011:00012) |   |   ├─Token(NewLine) |\n|
     // #completionTest(0,1,2,3,4) -> moduleAParams
 //@[050:00051) |   |   ├─Token(NewLine) |\n|
-    
+
 //@[004:00005) |   |   ├─Token(NewLine) |\n|
   }
 //@[002:00003) |   |   └─Token(RightBrace) |}|
@@ -709,7 +709,7 @@ module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
 //@[011:00012) |     |   ├─Token(NewLine) |\n|
     // #completionTest(0,1,2,3,4) -> moduleAWithConditionParams
 //@[063:00064) |     |   ├─Token(NewLine) |\n|
-    
+
 //@[004:00005) |     |   ├─Token(NewLine) |\n|
   }
 //@[002:00003) |     |   └─Token(RightBrace) |}|
@@ -892,7 +892,7 @@ module modCycle './cycle.bicep' = {
 //@[034:00040) | └─ObjectSyntax
 //@[034:00035) |   ├─Token(LeftBrace) |{|
 //@[035:00036) |   ├─Token(NewLine) |\n|
-  
+
 //@[002:00003) |   ├─Token(NewLine) |\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
@@ -3031,7 +3031,7 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in empty
 //@[011:00012) |   |   |   ├─Token(NewLine) |\n|
     // #completionTest(0,1,2) -> moduleAParams
 //@[046:00047) |   |   |   ├─Token(NewLine) |\n|
-  
+
 //@[002:00003) |   |   |   ├─Token(NewLine) |\n|
   }
 //@[002:00003) |   |   |   └─Token(RightBrace) |}|
@@ -3514,7 +3514,7 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
 //@[013:00023) |   | | └─ArraySyntax
 //@[013:00014) |   | |   ├─Token(LeftSquare) |[|
 //@[014:00015) |   | |   ├─Token(NewLine) |\n|
-    
+
 //@[004:00005) |   | |   ├─Token(NewLine) |\n|
   ]
 //@[002:00003) |   | |   └─Token(RightSquare) |]|
@@ -3859,7 +3859,7 @@ module secureModule1 'moduleb.bicep' = {
 //@[008:00023) |   | └─StringSyntax
 //@[008:00023) |   |   └─Token(StringComplete) |'secureModule1'|
 //@[023:00024) |   ├─Token(NewLine) |\n|
-  params: {       
+  params: {
 //@[002:00397) |   ├─ObjectPropertySyntax
 //@[002:00008) |   | ├─IdentifierSyntax
 //@[002:00008) |   | | └─Token(Identifier) |params|
@@ -4046,7 +4046,7 @@ module secureModule2 'BAD_MODULE_PATH.bicep' = {
 //@[008:00023) |   | └─StringSyntax
 //@[008:00023) |   |   └─Token(StringComplete) |'secureModule2'|
 //@[023:00024) |   ├─Token(NewLine) |\n|
-  params: {       
+  params: {
 //@[002:00059) |   ├─ObjectPropertySyntax
 //@[002:00008) |   | ├─IdentifierSyntax
 //@[002:00008) |   | | └─Token(Identifier) |params|
@@ -4219,7 +4219,7 @@ module issue3000 'empty.bicep' = {
 //@[008:00010) |   | └─StringSyntax
 //@[008:00010) |   |   └─Token(StringComplete) |''|
 //@[010:00011) |   ├─Token(NewLine) |\n|
-  scale: {}  
+  scale: {}
 //@[002:00011) |   ├─ObjectPropertySyntax
 //@[002:00007) |   | ├─IdentifierSyntax
 //@[002:00007) |   | | └─Token(Identifier) |scale|

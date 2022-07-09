@@ -30,7 +30,7 @@ var loadedTextObject1 = {
 }
 var loadedTextObject2 = {
 //@[63:65]     "loadedTextObject2": {
-  'text' : loadTextContent('Assets/TextFile.LF.txt')  
+  'text' : loadTextContent('Assets/TextFile.LF.txt')
 //@[64:64]       "text": "[variables('$fxv#3')]"
 }
 var loadedBinaryInObject = {

@@ -1,7 +1,7 @@
 param configStoreName string = 'myConfigStore'
 param location string = resourceGroup().location
 
-// Specifies the names of the key-value resources. 
+// Specifies the names of the key-value resources.
 param keyValueNames array = [
   'myKey'
   'myKey2$myLabel' // The name is a combination of key and label with $ as delimiter. The label is optional.

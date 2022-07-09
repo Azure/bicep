@@ -1,10 +1,10 @@
-/* 
+/*
   This is a block comment.
 */
 
 // parameters without default value
 @sys.description('''
-this is my multi line 
+this is my multi line
 description for my myString
 ''')
 param myString string

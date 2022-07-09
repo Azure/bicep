@@ -38,7 +38,7 @@ namespace Bicep.Core.Emit
 
             if (targetVariable is not null)
             {
-                // the functionality 
+                // the functionality
                 this.currentStack = ImmutableStack.Create<string>();
                 this.capturedSequence = null;
             }

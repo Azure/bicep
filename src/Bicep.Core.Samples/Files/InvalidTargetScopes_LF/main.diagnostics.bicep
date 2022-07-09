@@ -4,13 +4,13 @@ targetScope
 //@[11:11) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(12) -> empty
-targetScope 
+targetScope
 //@[00:11) [BCP112 (Error)] The "targetScope" cannot be declared multiple times in one file. (CodeDescription: none) |targetScope|
 //@[12:12) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 //@[12:12) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(13,14) -> targetScopes
-targetScope = 
+targetScope =
 //@[00:11) [BCP112 (Error)] The "targetScope" cannot be declared multiple times in one file. (CodeDescription: none) |targetScope|
 //@[14:14) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 

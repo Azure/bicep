@@ -897,7 +897,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             var argType = functionSymbol.GetDeclaredArgumentType(functionArgument.ArgumentIndex);
-            
+
             return GetValueCompletionsForType(model, context, argType, loopsAllowed: false);
         }
 
@@ -935,7 +935,7 @@ namespace Bicep.LanguageServer.Completions
 
             return fileItems.Concat(dirItems);
         }
-        
+
         private IEnumerable<CompletionItem> GetValueCompletionsForType(SemanticModel model, BicepCompletionContext context, TypeSymbol? type, bool loopsAllowed)
         {
             var replacementRange = context.ReplacementRange;

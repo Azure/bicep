@@ -238,6 +238,6 @@ const grammar: Grammar = {
 
 export async function generateGrammar(): Promise<string> {
   const json = await tm.emitJSON(grammar);
-  
+
   return plist.build(JSON.parse(json));
 }

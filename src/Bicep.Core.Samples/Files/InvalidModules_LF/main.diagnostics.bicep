@@ -28,12 +28,12 @@ module moduleWithPath './moduleb.bicep' =
 //@[041:041) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. (CodeDescription: none) ||
 
 // missing identifier #completionTest(7) -> empty
-module 
+module
 //@[007:007) [BCP096 (Error)] Expected a module identifier at this location. (CodeDescription: none) ||
 //@[007:007) [BCP090 (Error)] This module declaration is missing a file path reference. (CodeDescription: none) ||
 
 // #completionTest(24,25) -> moduleObject
-module missingValue '' = 
+module missingValue '' =
 //@[020:022) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 //@[025:025) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. (CodeDescription: none) ||
 
@@ -136,7 +136,7 @@ module modANoInputs './modulea.bicep' = {
   name: 'modANoInputs'
 //@[008:022) [BCP122 (Error)] Modules: "modANoInputs", "modANoInputsWithCondition", "modAEmptyInputs", "modAEmptyInputsWithCondition" are defined with this same name and this same scope in a file. Rename them or split into different modules. (CodeDescription: none) |'modANoInputs'|
   // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
-  
+
 }
 
 module modANoInputsWithCondition './modulea.bicep' = if (length([
@@ -146,7 +146,7 @@ module modANoInputsWithCondition './modulea.bicep' = if (length([
   name: 'modANoInputs'
 //@[008:022) [BCP122 (Error)] Modules: "modANoInputs", "modANoInputsWithCondition", "modAEmptyInputs", "modAEmptyInputsWithCondition" are defined with this same name and this same scope in a file. Rename them or split into different modules. (CodeDescription: none) |'modANoInputs'|
   // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
-  
+
 }
 
 module modAEmptyInputs './modulea.bicep' = {
@@ -155,7 +155,7 @@ module modAEmptyInputs './modulea.bicep' = {
   params: {
 //@[002:008) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". (CodeDescription: none) |params|
     // #completionTest(0,1,2,3,4) -> moduleAParams
-    
+
   }
 }
 
@@ -165,7 +165,7 @@ module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
   params: {
 //@[002:008) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". (CodeDescription: none) |params|
     // #completionTest(0,1,2,3,4) -> moduleAWithConditionParams
-    
+
   }
 }
 
@@ -208,7 +208,7 @@ var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 
 module modCycle './cycle.bicep' = {
 //@[016:031) [BCP095 (Error)] The module is involved in a cycle ("${TEST_OUTPUT_DIR}/cycle.bicep" -> "${TEST_OUTPUT_DIR}/main.bicep"). (CodeDescription: none) |'./cycle.bicep'|
-  
+
 }
 
 module moduleWithEmptyPath '' = {
@@ -570,7 +570,7 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in empty
   params: {
 //@[002:008) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "objParam", "stringParamB". (CodeDescription: none) |params|
     // #completionTest(0,1,2) -> moduleAParams
-  
+
   }
 }]
 
@@ -649,7 +649,7 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
     ]
   }
   dependsOn: [
-    
+
   ]
 }]
 
@@ -705,7 +705,7 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 
 module secureModule1 'moduleb.bicep' = {
   name: 'secureModule1'
-  params: {       
+  params: {
     stringParamA: kv.getSecret('mySecret')
 //@[018:042) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
     stringParamB: '${kv.getSecret('mySecret')}'
@@ -735,7 +735,7 @@ module secureModule1 'moduleb.bicep' = {
 module secureModule2 'BAD_MODULE_PATH.bicep' = {
 //@[021:044) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/BAD_MODULE_PATH.bicep'. (CodeDescription: none) |'BAD_MODULE_PATH.bicep'|
   name: 'secureModule2'
-  params: {       
+  params: {
     secret: kv.getSecret('mySecret')
   }
 }
@@ -769,7 +769,7 @@ module issue3000 'empty.bicep' = {
 //@[002:006) [BCP037 (Error)] The property "plan" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |plan|
   eTag: ''
 //@[002:006) [BCP037 (Error)] The property "eTag" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |eTag|
-  scale: {}  
+  scale: {}
 //@[002:007) [BCP037 (Error)] The property "scale" is not allowed on objects of type "module". Permissible properties include "dependsOn", "scope". (CodeDescription: none) |scale|
 }
 

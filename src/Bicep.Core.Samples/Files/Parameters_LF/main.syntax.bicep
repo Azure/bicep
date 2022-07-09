@@ -1,4 +1,4 @@
-/* 
+/*
 //@[00:3030) ProgramSyntax
   This is a block comment.
 */
@@ -21,7 +21,7 @@
 //@[17:0075) | |   ├─FunctionArgumentSyntax
 //@[17:0075) | |   | └─StringSyntax
 //@[17:0075) | |   |   └─Token(MultilineString) |'''\nthis is my multi line \ndescription for my myString\n'''|
-this is my multi line 
+this is my multi line
 description for my myString
 ''')
 //@[03:0004) | |   └─Token(RightParen) |)|

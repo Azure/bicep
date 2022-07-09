@@ -8,7 +8,7 @@ bad
 
 // incomplete #completionTest(7) -> empty
 //@[041:043) NewLine |\r\n|
-output 
+output
 //@[000:006) Identifier |output|
 //@[007:011) NewLine |\r\n\r\n|
 
@@ -21,7 +21,7 @@ var testSymbol = 42
 
 // #completionTest(28,29) -> symbols
 //@[036:038) NewLine |\r\n|
-output missingValueAndType = 
+output missingValueAndType =
 //@[000:006) Identifier |output|
 //@[007:026) Identifier |missingValueAndType|
 //@[027:028) Assignment |=|
@@ -29,7 +29,7 @@ output missingValueAndType =
 
 // #completionTest(28,29) -> symbols
 //@[036:038) NewLine |\r\n|
-output missingValue string = 
+output missingValue string =
 //@[000:006) Identifier |output|
 //@[007:019) Identifier |missingValue|
 //@[020:026) Identifier |string|
@@ -38,7 +38,7 @@ output missingValue string =
 
 // #completionTest(31,32) -> arrayPlusSymbols
 //@[045:047) NewLine |\r\n|
-output arrayCompletions array = 
+output arrayCompletions array =
 //@[000:006) Identifier |output|
 //@[007:023) Identifier |arrayCompletions|
 //@[024:029) Identifier |array|
@@ -47,7 +47,7 @@ output arrayCompletions array =
 
 // #completionTest(33,34) -> objectPlusSymbols
 //@[046:048) NewLine |\r\n|
-output objectCompletions object = 
+output objectCompletions object =
 //@[000:006) Identifier |output|
 //@[007:024) Identifier |objectCompletions|
 //@[025:031) Identifier |object|
@@ -56,7 +56,7 @@ output objectCompletions object =
 
 // #completionTest(29,30) -> boolPlusSymbols
 //@[044:046) NewLine |\r\n|
-output boolCompletions bool = 
+output boolCompletions bool =
 //@[000:006) Identifier |output|
 //@[007:022) Identifier |boolCompletions|
 //@[023:027) Identifier |bool|
@@ -70,14 +70,14 @@ output foo
 
 // space after identifier #completionTest(20) -> outputTypes
 //@[060:062) NewLine |\r\n|
-output spaceAfterId 
+output spaceAfterId
 //@[000:006) Identifier |output|
 //@[007:019) Identifier |spaceAfterId|
 //@[020:024) NewLine |\r\n\r\n|
 
 // #completionTest(25) -> outputTypes
 //@[037:039) NewLine |\r\n|
-output spacesAfterCursor  
+output spacesAfterCursor
 //@[000:006) Identifier |output|
 //@[007:024) Identifier |spacesAfterCursor|
 //@[026:030) NewLine |\r\n\r\n|
@@ -695,5 +695,5 @@ output keyVaultSecretArrayInterpolatedOutput array = [
 //@[004:005) Dot |.|
 //@[005:009) NewLine |\r\n\r\n|
 
-// WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line 
+// WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line
 //@[110:110) EndOfFile ||

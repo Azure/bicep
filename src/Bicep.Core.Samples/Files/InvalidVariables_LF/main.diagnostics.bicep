@@ -8,7 +8,7 @@ var
 //@[03:03) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) ||
 
 // missing identifier #completionTest(4) -> empty
-var 
+var
 //@[04:04) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) ||
 
 // incomplete keyword
@@ -26,12 +26,12 @@ var foo
 //@[07:07) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(18,19) -> symbols
-var missingValue = 
+var missingValue =
 //@[04:16) [no-unused-vars (Warning)] Variable "missingValue" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |missingValue|
 //@[19:19) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 // malformed identifier
-var 2 
+var 2
 //@[04:05) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) |2|
 //@[06:06) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 var $ = 23

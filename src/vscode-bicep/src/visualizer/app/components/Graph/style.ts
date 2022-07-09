@@ -69,12 +69,12 @@ export async function createChildlessNodeBackgroundUri(
       <text x="72" y="36" font-family="${
         theme.fontFamily
       }" font-size="16" fill="${foregroundColor}">
-       ${escapeXml(truncate(symbol, 17))}
+      ${escapeXml(truncate(symbol, 17))}
       </text>
       <text x="72" y="56" font-family="${
         theme.fontFamily
       }" font-size="12" fill="${foregroundSecondaryColor}">
-       ${escapeXml(truncate(type, 23))}
+      ${escapeXml(truncate(type, 23))}
       </text>
     </svg>
     `;
@@ -98,7 +98,7 @@ export function createContainerNodeBackgroundUri(
       <text x="28" y="14" font-family="${
         theme.fontFamily
       }" font-size="12" fill="${foregroundSecondaryColor}">
-       ${escapeXml(truncate(symbol, 37))}
+      ${escapeXml(truncate(symbol, 37))}
       </text>
     </svg>
     `;

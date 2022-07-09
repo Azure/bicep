@@ -171,7 +171,7 @@ namespace Bicep.Core
 
         // types allowed to use in output and parameter declarations
         public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] { String, Object, Int, Bool, Array }.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
-        
+
         public static TypeSymbol? TryGetDeclarationType(string? typeName)
         {
             if (typeName != null && DeclarationTypes.TryGetValue(typeName, out var primitiveType))

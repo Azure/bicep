@@ -7,7 +7,7 @@ var
 //@[03:03) Variable <missing>. Type: error. Declaration start char: 0, length: 3
 
 // missing identifier #completionTest(4) -> empty
-var 
+var
 //@[04:04) Variable <missing>. Type: error. Declaration start char: 0, length: 4
 
 // incomplete keyword
@@ -21,11 +21,11 @@ var foo
 //@[04:07) Variable foo. Type: error. Declaration start char: 0, length: 7
 
 // #completionTest(18,19) -> symbols
-var missingValue = 
+var missingValue =
 //@[04:16) Variable missingValue. Type: error. Declaration start char: 0, length: 19
 
 // malformed identifier
-var 2 
+var 2
 //@[04:05) Variable <error>. Type: error. Declaration start char: 0, length: 6
 var $ = 23
 //@[04:05) Variable <error>. Type: int. Declaration start char: 0, length: 10

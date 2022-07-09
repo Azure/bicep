@@ -133,7 +133,7 @@ resource missingResource 'Mock.Rp/madeUpResourceType@2020-01-01' = {
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"
-resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {  
+resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {
   properties: {
     required: 'hello!'
   }

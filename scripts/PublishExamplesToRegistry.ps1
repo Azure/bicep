@@ -24,7 +24,7 @@ try
 
   foreach ($levelDir in $levelDirs) {
     $moduleDirs = Get-ChildItem -Path $levelDir.FullName;
-    
+
     foreach ($moduleDir in $moduleDirs) {
       $bicep = Join-Path -Path $moduleDir.Fullname -ChildPath 'main.bicep';
       $json = Join-Path -Path $moduleDir.Fullname -ChildPath 'main.json';

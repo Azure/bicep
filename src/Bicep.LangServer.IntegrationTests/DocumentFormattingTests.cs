@@ -50,7 +50,7 @@ resource myResource 'myRP/provider@2020-11-01' = {
 }
 
 module myModule './module.bicep' = {
-  name: 'test' 
+  name: 'test'
 }
 
 output myOutput string = 'value'", 0));

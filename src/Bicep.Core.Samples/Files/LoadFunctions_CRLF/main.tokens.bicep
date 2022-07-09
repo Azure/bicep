@@ -141,7 +141,7 @@ var loadedTextObject2 = {
 //@[022:023) Assignment |=|
 //@[024:025) LeftBrace |{|
 //@[025:027) NewLine |\r\n|
-  'text' : loadTextContent('Assets/TextFile.LF.txt')  
+  'text' : loadTextContent('Assets/TextFile.LF.txt')
 //@[002:008) StringComplete |'text'|
 //@[009:010) Colon |:|
 //@[011:026) Identifier |loadTextContent|

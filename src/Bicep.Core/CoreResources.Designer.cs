@@ -500,7 +500,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UnusedExistingResourceRuleDescription", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Existing resource &quot;{0}&quot; is declared but never used..
         /// </summary>
@@ -509,7 +509,7 @@ namespace Bicep.Core {
                 return ResourceManager.GetString("UnusedExistingResourceRuleMessageFormat", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to All variables must be used..
         /// </summary>

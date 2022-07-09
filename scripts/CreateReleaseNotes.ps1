@@ -51,7 +51,7 @@ foreach ($line in $shortLogOutput) {
     $pullRequestNumber = $match.Groups['pr'].Value
     $pullRequestInfo = gh pr view $pullRequestNumber --json author,title
     $json = $pullRequestInfo | ConvertFrom-Json;
-    
+
     if($json.author.login -ne $currentAuthor)
     {
       $currentAuthor = $json.author.login;

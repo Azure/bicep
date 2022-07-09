@@ -6,7 +6,7 @@ bad
 var
 
 // missing identifier #completionTest(4) -> empty
-var 
+var
 
 // incomplete keyword
 // #completionTest(0,1) -> declarations
@@ -18,10 +18,10 @@ va
 var foo
 
 // #completionTest(18,19) -> symbols
-var missingValue = 
+var missingValue =
 
 // malformed identifier
-var 2 
+var 2
 var $ = 23
 var # 33 = 43
 

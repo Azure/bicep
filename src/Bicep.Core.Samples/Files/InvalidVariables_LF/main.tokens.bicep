@@ -14,7 +14,7 @@ var
 
 // missing identifier #completionTest(4) -> empty
 //@[49:50) NewLine |\n|
-var 
+var
 //@[00:03) Identifier |var|
 //@[04:06) NewLine |\n\n|
 
@@ -40,7 +40,7 @@ var foo
 
 // #completionTest(18,19) -> symbols
 //@[36:37) NewLine |\n|
-var missingValue = 
+var missingValue =
 //@[00:03) Identifier |var|
 //@[04:16) Identifier |missingValue|
 //@[17:18) Assignment |=|
@@ -48,7 +48,7 @@ var missingValue =
 
 // malformed identifier
 //@[23:24) NewLine |\n|
-var 2 
+var 2
 //@[00:03) Identifier |var|
 //@[04:05) Integer |2|
 //@[06:07) NewLine |\n|

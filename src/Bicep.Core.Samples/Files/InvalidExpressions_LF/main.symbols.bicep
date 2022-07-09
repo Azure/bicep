@@ -31,7 +31,7 @@ var bad = (null)[0]
 //@[4:07) Variable bad. Type: error. Declaration start char: 0, length: 19
 var bad = ()
 //@[4:07) Variable bad. Type: error. Declaration start char: 0, length: 12
-var bad = 
+var bad =
 //@[4:07) Variable bad. Type: error. Declaration start char: 0, length: 10
 
 // variables not supported
@@ -233,7 +233,7 @@ var indexOfWrongTypes = indexOf(1,1)
 var test1 = listKeys('abcd')
 //@[4:09) Variable test1. Type: error. Declaration start char: 0, length: 28
 
-// list spelled wrong 
+// list spelled wrong
 var test2 = lsitKeys('abcd', '2020-01-01')
 //@[4:09) Variable test2. Type: error. Declaration start char: 0, length: 42
 
@@ -352,8 +352,8 @@ var partialObject = {
   2: true
   +
   3 : concat('s')
-  
-  's' 
+
+  's'
   's' \
   'e'   =
   's' :

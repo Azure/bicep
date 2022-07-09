@@ -2,16 +2,16 @@
 bad
 
 // incomplete #completionTest(9) -> empty
-resource 
+resource
 resource foo
 resource fo/o
 resource foo 'ddd'
 
 // #completionTest(23) -> resourceTypes
-resource trailingSpace  
+resource trailingSpace
 
 // #completionTest(19,20) -> resourceObject
-resource foo 'ddd'= 
+resource foo 'ddd'=
 
 // wrong resource type
 resource foo 'ddd' = {
@@ -130,7 +130,7 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 // there should be no completions without the colon
 resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   // #completionTest(7,8) -> empty
-  kind  
+  kind
 }
 
 resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -466,7 +466,7 @@ Discriminator key value missing with property access
 */
 resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols
-  kind:   
+  kind:
 }
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
@@ -481,7 +481,7 @@ Discriminator key value missing with property access (conditional)
 */
 resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(false) {
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_if
-  kind:   
+  kind:
 }
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions_if = discriminatorKeyValueMissing_if.p
@@ -496,7 +496,7 @@ Discriminator key value missing with property access (loops)
 */
 resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for
-  kind:   
+  kind:
 }]
 
 // cannot . access properties of a resource loop
@@ -515,7 +515,7 @@ Discriminator key value missing with property access (filtered loops)
 */
 resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for_if
-  kind:   
+  kind:
 }]
 
 // cannot . access properties of a resource loop
@@ -713,31 +713,31 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
   properties: {
     azCliVersion: '2'
     retentionInterval: 'PT1H'
-    
+
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliPropertiesMinusSpecified
-    
+
     // #completionTest(22,23) -> cleanupPreferencesPlusSymbols
-    cleanupPreference: 
+    cleanupPreference:
 
     // #completionTest(25,26) -> arrayPlusSymbols
-    supportingScriptUris: 
+    supportingScriptUris:
 
     // #completionTest(27,28) -> objectPlusSymbols
-    storageAccountSettings: 
+    storageAccountSettings:
 
     environmentVariables: [
       {
         // #completionTest(0,2,4,6,8) -> environmentVariableProperties
-        
+
       }
       // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbolsWithRequiredProperties
-      
+
     ]
   }
 }
 
 // #completionTest(21) -> resourceTypes
-resource missingType 
+resource missingType
 
 // #completionTest(37,38,39,40,41,42,43,44) -> resourceTypes
 resource startedTypingTypeWithQuotes 'virma'
@@ -752,7 +752,7 @@ var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
 
-/* 
+/*
 Nested discriminator missing key
 */
 resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
@@ -771,7 +771,7 @@ var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['p
 // #completionTest(94) -> createModeIndexPlusSymbols
 var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKey.properties['']
 
-/* 
+/*
 Nested discriminator missing key (conditional)
 */
 resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if (bool(1)) {
@@ -790,7 +790,7 @@ var nestedDiscriminatorMissingKeyCompletions2_if = nestedDiscriminatorMissingKey
 // #completionTest(100) -> createModeIndexPlusSymbols_if
 var nestedDiscriminatorMissingKeyIndexCompletions_if = nestedDiscriminatorMissingKey_if.properties['']
 
-/* 
+/*
 Nested discriminator missing key (loop)
 */
 resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
@@ -809,7 +809,7 @@ var nestedDiscriminatorMissingKeyCompletions2_for = nestedDiscriminatorMissingKe
 // #completionTest(105) -> createModeIndexPlusSymbols_for
 var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissingKey_for[0].properties['']
 
-/* 
+/*
 Nested discriminator missing key (filtered loop)
 */
 resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if (true) {
@@ -1208,7 +1208,7 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
   location: account.location
   sku: {
     // #completionTest(9,10) -> storageSkuNamePlusSymbols
-    name: 
+    name:
   }
   kind: 'StorageV2'
 }]
@@ -1273,14 +1273,14 @@ resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [f
 resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) environment()]
 
 // #completionTest(54,55) -> objectPlusFor
-resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' =
 
 resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
   properties: {
     // #completionTest(32,33) -> symbolsPlusArrayAndFor
-    registrationVirtualNetworks: 
+    registrationVirtualNetworks:
     resolutionVirtualNetworks: [for lol in []: {
-      
+
     }]
   }
 }]
@@ -1291,7 +1291,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
         properties: {
           remoteAddressSpace: {
             // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
-            addressPrefixes: 
+            addressPrefixes:
           }
         }
     }]

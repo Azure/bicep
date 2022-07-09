@@ -16,7 +16,7 @@ var loadedTextObject1 = {
   'text' : loadTextContent('Assets/TextFile.CRLF.txt')
 }
 var loadedTextObject2 = {
-  'text' : loadTextContent('Assets/TextFile.LF.txt')  
+  'text' : loadTextContent('Assets/TextFile.LF.txt')
 }
 var loadedBinaryInObject = {
   file: loadFileAsBase64('Assets/binary')

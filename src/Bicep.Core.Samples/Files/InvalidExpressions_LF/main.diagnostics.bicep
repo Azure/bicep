@@ -62,7 +62,7 @@ var bad = ()
 //@[04:07) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |bad|
 //@[04:07) [no-unused-vars (Warning)] Variable "bad" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |bad|
 //@[11:11) [BCP243 (Error)] Parentheses must contain exactly one expression. (CodeDescription: none) ||
-var bad = 
+var bad =
 //@[04:07) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |bad|
 //@[04:07) [no-unused-vars (Warning)] Variable "bad" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |bad|
 //@[10:10) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
@@ -370,7 +370,7 @@ var test1 = listKeys('abcd')
 //@[04:09) [no-unused-vars (Warning)] Variable "test1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |test1|
 //@[20:28) [BCP071 (Error)] Expected 2 to 3 arguments, but got 1. (CodeDescription: none) |('abcd')|
 
-// list spelled wrong 
+// list spelled wrong
 var test2 = lsitKeys('abcd', '2020-01-01')
 //@[04:09) [no-unused-vars (Warning)] Variable "test2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |test2|
 //@[12:20) [BCP057 (Error)] The name "lsitKeys" does not exist in the current context. (CodeDescription: none) |lsitKeys|
@@ -548,8 +548,8 @@ var partialObject = {
 //@[03:03) [BCP018 (Error)] Expected the ":" character at this location. (CodeDescription: none) ||
   3 : concat('s')
 //@[02:03) [BCP022 (Error)] Expected a property name at this location. (CodeDescription: none) |3|
-  
-  's' 
+
+  's'
 //@[02:05) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |'s'|
 //@[02:05) [BCP025 (Error)] The property "s" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |'s'|
 //@[06:06) [BCP018 (Error)] Expected the ":" character at this location. (CodeDescription: none) ||

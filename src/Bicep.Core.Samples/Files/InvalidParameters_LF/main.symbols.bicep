@@ -1,4 +1,4 @@
-/* 
+/*
   Valid and invalid code is mixed together to validate recovery logic. It can even contain ** * *** **.
 */
 
@@ -25,15 +25,15 @@ param missingType
 //@[06:017) Parameter missingType. Type: any. Declaration start char: 0, length: 17
 
 // space after identifier #completionTest(32) -> paramTypes
-param missingTypeWithSpaceAfter 
+param missingTypeWithSpaceAfter
 //@[06:031) Parameter missingTypeWithSpaceAfter. Type: any. Declaration start char: 0, length: 32
 
 // tab after identifier #completionTest(30) -> paramTypes
-param missingTypeWithTabAfter	
+param missingTypeWithTabAfter
 //@[06:029) Parameter missingTypeWithTabAfter. Type: any. Declaration start char: 0, length: 30
 
 // #completionTest(20) -> paramTypes
-param trailingSpace  
+param trailingSpace
 //@[06:019) Parameter trailingSpace. Type: any. Declaration start char: 0, length: 21
 
 // partial type #completionTest(18, 19, 20, 21) -> paramTypes
@@ -60,7 +60,7 @@ param wrongDefaultValue string = 42
 
 param myInt2 int = 42
 //@[06:012) Parameter myInt2. Type: int. Declaration start char: 0, length: 21
-param noValueAfterColon int =   
+param noValueAfterColon int =
 //@[06:023) Parameter noValueAfterColon. Type: int. Declaration start char: 0, length: 32
 
 param myTruth bool = 'not a boolean'
@@ -75,15 +75,15 @@ param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWh
 //@[06:267) Parameter WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong. Type: string. Declaration start char: 0, length: 287
 
 // #completionTest(28,29) -> boolPlusSymbols
-param boolCompletions bool = 
+param boolCompletions bool =
 //@[06:021) Parameter boolCompletions. Type: bool. Declaration start char: 0, length: 29
 
 // #completionTest(30,31) -> arrayPlusSymbols
-param arrayCompletions array = 
+param arrayCompletions array =
 //@[06:022) Parameter arrayCompletions. Type: array. Declaration start char: 0, length: 31
 
 // #completionTest(32,33) -> objectPlusSymbols
-param objectCompletions object = 
+param objectCompletions object =
 //@[06:023) Parameter objectCompletions. Type: object. Declaration start char: 0, length: 33
 
 // badly escaped string
@@ -94,7 +94,7 @@ param wrongType fluffyBunny = 'what's up doc?'
 param wrongType fluffyBunny = 'what\s up doc?'
 //@[06:015) Parameter wrongType. Type: error. Declaration start char: 0, length: 46
 
-// unterminated string 
+// unterminated string
 param wrongType fluffyBunny = 'what\'s up doc?
 //@[06:015) Parameter wrongType. Type: error. Declaration start char: 0, length: 46
 
@@ -234,11 +234,11 @@ param paramAccessingOutput string = sampleOutput
 //@[06:026) Parameter paramAccessingOutput. Type: string. Declaration start char: 0, length: 48
 
 // #completionTest(6) -> empty
-param 
+param
 //@[06:006) Parameter <missing>. Type: any. Declaration start char: 0, length: 6
 
 // #completionTest(46,47) -> justSymbols
-param defaultValueOneLinerCompletions string = 
+param defaultValueOneLinerCompletions string =
 //@[06:037) Parameter defaultValueOneLinerCompletions. Type: string. Declaration start char: 0, length: 47
 
 // invalid comma separator (array)
@@ -275,9 +275,9 @@ param someString string
 ])
 @secure()
 // #completionTest(1, 2, 3) -> intParameterDecoratorsPlusNamespace
-@  
+@
 // #completionTest(5, 6) -> intParameterDecorators
-@sys.   
+@sys.
 param someInteger int = 20
 //@[06:017) Parameter someInteger. Type: int. Declaration start char: 0, length: 207
 
@@ -291,7 +291,7 @@ param tooManyArguments1 int = 20
 // #completionTest(2) -> stringParameterDecoratorsPlusNamespace
 @m
 // #completionTest(1, 2, 3) -> stringParameterDecoratorsPlusNamespace
-@   
+@
 // #completionTest(5) -> stringParameterDecorators
 @sys.
 param tooManyArguments2 string
@@ -353,5 +353,5 @@ param invalidDefaultWithAllowedArrayDecorator array = true
 //@[06:045) Parameter invalidDefaultWithAllowedArrayDecorator. Type: array. Declaration start char: 0, length: 245
 
 // unterminated multi-line comment
-/*    
+/*
 

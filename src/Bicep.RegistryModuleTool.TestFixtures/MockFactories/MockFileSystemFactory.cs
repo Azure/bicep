@@ -49,7 +49,7 @@ namespace Bicep.RegistryModuleTool.TestFixtures.MockFactories
             public static IEnumerable<(string, string)> Modified { get; } = LoadSampleFiles();
 
             public static IEnumerable<(string, string)> Valid { get; } = LoadSampleFiles();
-            
+
             public static IEnumerable<(string, string)> Invalid { get; } = LoadSampleFiles();
 
             private static IEnumerable<(string, string)> LoadSampleFiles([CallerMemberName] string? category = null)

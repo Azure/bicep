@@ -29,7 +29,7 @@ var loadedTextObject1 = {
 }
 var loadedTextObject2 = {
 //@[4:21) Variable loadedTextObject2. Type: object. Declaration start char: 0, length: 84
-  'text' : loadTextContent('Assets/TextFile.LF.txt')  
+  'text' : loadTextContent('Assets/TextFile.LF.txt')
 }
 var loadedBinaryInObject = {
 //@[4:24) Variable loadedBinaryInObject. Type: object. Declaration start char: 0, length: 74

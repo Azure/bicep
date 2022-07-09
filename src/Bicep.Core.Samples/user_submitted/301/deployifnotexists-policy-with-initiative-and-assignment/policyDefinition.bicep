@@ -1,6 +1,6 @@
 targetScope = 'subscription'
 
-// PARAMETERS   
+// PARAMETERS
 param actionGroupName string
 param actionGroupRG string
 param actionGroupId string

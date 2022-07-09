@@ -41,7 +41,7 @@ resource appPlan 'Microsoft.Web/serverfarms@2020-12-01' = if (dnsZone::aRecord !
 resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: 'dnsZone'
   location: 'global'
-  
+
   resource aRecord 'A' = {
     name: 'aRecord'
   }

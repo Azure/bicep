@@ -10,7 +10,7 @@ bad
 
 // incomplete #completionTest(9) -> empty
 //@[041:00043) ├─Token(NewLine) |\r\n|
-resource 
+resource
 //@[000:00009) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00009) | ├─IdentifierSyntax
@@ -52,7 +52,7 @@ resource foo 'ddd'
 
 // #completionTest(23) -> resourceTypes
 //@[039:00041) ├─Token(NewLine) |\r\n|
-resource trailingSpace  
+resource trailingSpace
 //@[000:00024) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00022) | ├─IdentifierSyntax
@@ -64,7 +64,7 @@ resource trailingSpace
 
 // #completionTest(19,20) -> resourceObject
 //@[043:00045) ├─Token(NewLine) |\r\n|
-resource foo 'ddd'= 
+resource foo 'ddd'=
 //@[000:00020) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00012) | ├─IdentifierSyntax
@@ -895,7 +895,7 @@ resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-1
 //@[089:00091) |   ├─Token(NewLine) |\r\n|
   // #completionTest(7,8) -> empty
 //@[034:00036) |   ├─Token(NewLine) |\r\n|
-  kind  
+  kind
 //@[002:00008) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |kind|
@@ -3021,7 +3021,7 @@ resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01
 //@[093:00095) |   ├─Token(NewLine) |\r\n|
   // #completionTest(0, 1, 2) -> topLevelProperties
 //@[051:00053) |   ├─Token(NewLine) |\r\n|
-  
+
 //@[002:00004) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
@@ -3052,7 +3052,7 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
 //@[054:00056) |   ├─Token(NewLine) |\r\n|
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
 //@[060:00062) |   ├─Token(NewLine) |\r\n|
-  
+
 //@[002:00004) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
@@ -3110,7 +3110,7 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[007:00009) |   |   |   |   ├─Token(NewLine) |\r\n|
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
 //@[078:00080) |   |   |   |   ├─Token(NewLine) |\r\n|
-       
+
 //@[007:00009) |   |   |   |   ├─Token(NewLine) |\r\n|
         // #completionTest(0,1,2,3,4,5,6,7) -> empty
 //@[052:00054) |   |   |   |   ├─Token(NewLine) |\r\n|
@@ -3137,7 +3137,7 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[013:00015) |   |   |   |   |   |   |   ├─Token(NewLine) |\r\n|
               // #completionTest(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14) -> delegationProperties
 //@[092:00094) |   |   |   |   |   |   |   ├─Token(NewLine) |\r\n|
-              
+
 //@[014:00016) |   |   |   |   |   |   |   ├─Token(NewLine) |\r\n|
             }
 //@[012:00013) |   |   |   |   |   |   |   └─Token(RightBrace) |}|
@@ -3178,7 +3178,7 @@ resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-
 //@[087:00089) |   ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
 //@[052:00054) |   ├─Token(NewLine) |\r\n|
-  
+
 //@[002:00004) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
@@ -3208,7 +3208,7 @@ resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-
 //@[099:00101) |     ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
 //@[052:00054) |     ├─Token(NewLine) |\r\n|
-  
+
 //@[002:00004) |     ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |     └─Token(RightBrace) |}|
@@ -3242,7 +3242,7 @@ resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020
 //@[109:00111) |   | ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
 //@[052:00054) |   | ├─Token(NewLine) |\r\n|
-  
+
 //@[002:00004) |   | ├─Token(NewLine) |\r\n|
 }]
 //@[000:00001) |   | └─Token(RightBrace) |}|
@@ -3284,7 +3284,7 @@ resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2
 //@[121:00123) |   |   ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
 //@[052:00054) |   |   ├─Token(NewLine) |\r\n|
-  
+
 //@[002:00004) |   |   ├─Token(NewLine) |\r\n|
 }]
 //@[000:00001) |   |   └─Token(RightBrace) |}|
@@ -3308,7 +3308,7 @@ resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@202
 //@[092:00094) |   ├─Token(NewLine) |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols
 //@[066:00068) |   ├─Token(NewLine) |\r\n|
-  kind:   
+  kind:
 //@[002:00010) |   ├─ObjectPropertySyntax
 //@[002:00006) |   | ├─IdentifierSyntax
 //@[002:00006) |   | | └─Token(Identifier) |kind|
@@ -3392,7 +3392,7 @@ resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@
 //@[105:00107) |     ├─Token(NewLine) |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_if
 //@[069:00071) |     ├─Token(NewLine) |\r\n|
-  kind:   
+  kind:
 //@[002:00010) |     ├─ObjectPropertySyntax
 //@[002:00006) |     | ├─IdentifierSyntax
 //@[002:00006) |     | | └─Token(Identifier) |kind|
@@ -3480,7 +3480,7 @@ resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts
 //@[114:00116) |   | ├─Token(NewLine) |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for
 //@[070:00072) |   | ├─Token(NewLine) |\r\n|
-  kind:   
+  kind:
 //@[002:00010) |   | ├─ObjectPropertySyntax
 //@[002:00006) |   | | ├─IdentifierSyntax
 //@[002:00006) |   | | | └─Token(Identifier) |kind|
@@ -3609,7 +3609,7 @@ resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScri
 //@[126:00128) |   |   ├─Token(NewLine) |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for_if
 //@[073:00075) |   |   ├─Token(NewLine) |\r\n|
-  kind:   
+  kind:
 //@[002:00010) |   |   ├─ObjectPropertySyntax
 //@[002:00006) |   |   | ├─IdentifierSyntax
 //@[002:00006) |   |   | | └─Token(Identifier) |kind|
@@ -3728,7 +3728,7 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[018:00020) |   ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:00057) |   ├─Token(NewLine) |\r\n|
-  
+
 //@[002:00004) |   ├─Token(NewLine) |\r\n|
   properties: {
 //@[002:00094) |   ├─ObjectPropertySyntax
@@ -3740,7 +3740,7 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
 //@[066:00068) |   |   ├─Token(NewLine) |\r\n|
-    
+
 //@[004:00006) |   |   ├─Token(NewLine) |\r\n|
   }
 //@[002:00003) |   |   └─Token(RightBrace) |}|
@@ -3846,7 +3846,7 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[018:00020) |     ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:00057) |     ├─Token(NewLine) |\r\n|
-  
+
 //@[002:00004) |     ├─Token(NewLine) |\r\n|
   properties: {
 //@[002:00094) |     ├─ObjectPropertySyntax
@@ -3858,7 +3858,7 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[015:00017) |     |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
 //@[066:00068) |     |   ├─Token(NewLine) |\r\n|
-    
+
 //@[004:00006) |     |   ├─Token(NewLine) |\r\n|
   }
 //@[002:00003) |     |   └─Token(RightBrace) |}|
@@ -3964,7 +3964,7 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[018:00020) |   | ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:00057) |   | ├─Token(NewLine) |\r\n|
-  
+
 //@[002:00004) |   | ├─Token(NewLine) |\r\n|
   properties: {
 //@[002:00094) |   | ├─ObjectPropertySyntax
@@ -3976,7 +3976,7 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
 //@[066:00068) |   | |   ├─Token(NewLine) |\r\n|
-    
+
 //@[004:00006) |   | |   ├─Token(NewLine) |\r\n|
   }
 //@[002:00003) |   | |   └─Token(RightBrace) |}|
@@ -4111,7 +4111,7 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[018:00020) |   |   ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:00057) |   |   ├─Token(NewLine) |\r\n|
-  
+
 //@[002:00004) |   |   ├─Token(NewLine) |\r\n|
   properties: {
 //@[002:00094) |   |   ├─ObjectPropertySyntax
@@ -4123,7 +4123,7 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[015:00017) |   |   |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
 //@[066:00068) |   |   |   ├─Token(NewLine) |\r\n|
-    
+
 //@[004:00006) |   |   |   ├─Token(NewLine) |\r\n|
   }
 //@[002:00003) |   |   |   └─Token(RightBrace) |}|
@@ -4241,7 +4241,7 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[025:00027) |   ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:00057) |   ├─Token(NewLine) |\r\n|
-  
+
 //@[002:00004) |   ├─Token(NewLine) |\r\n|
   properties: {
 //@[002:00093) |   ├─ObjectPropertySyntax
@@ -4253,7 +4253,7 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
 //@[065:00067) |   |   ├─Token(NewLine) |\r\n|
-    
+
 //@[004:00006) |   |   ├─Token(NewLine) |\r\n|
   }
 //@[002:00003) |   |   └─Token(RightBrace) |}|
@@ -4370,7 +4370,7 @@ resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[025:00027) |   ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:00057) |   ├─Token(NewLine) |\r\n|
-  
+
 //@[002:00004) |   ├─Token(NewLine) |\r\n|
   properties: {
 //@[002:00093) |   ├─ObjectPropertySyntax
@@ -4382,7 +4382,7 @@ resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
 //@[065:00067) |   |   ├─Token(NewLine) |\r\n|
-    
+
 //@[004:00006) |   |   ├─Token(NewLine) |\r\n|
   }
 //@[002:00003) |   |   └─Token(RightBrace) |}|
@@ -4511,7 +4511,7 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[025:00027) |   | ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:00057) |   | ├─Token(NewLine) |\r\n|
-  
+
 //@[002:00004) |   | ├─Token(NewLine) |\r\n|
   properties: {
 //@[002:00093) |   | ├─ObjectPropertySyntax
@@ -4523,7 +4523,7 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
 //@[065:00067) |   | |   ├─Token(NewLine) |\r\n|
-    
+
 //@[004:00006) |   | |   ├─Token(NewLine) |\r\n|
   }
 //@[002:00003) |   | |   └─Token(RightBrace) |}|
@@ -4680,7 +4680,7 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[025:00027) |   |   ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
 //@[055:00057) |   |   ├─Token(NewLine) |\r\n|
-  
+
 //@[002:00004) |   |   ├─Token(NewLine) |\r\n|
   properties: {
 //@[002:00093) |   |   ├─ObjectPropertySyntax
@@ -4692,7 +4692,7 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[015:00017) |   |   |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
 //@[065:00067) |   |   |   ├─Token(NewLine) |\r\n|
-    
+
 //@[004:00006) |   |   |   ├─Token(NewLine) |\r\n|
   }
 //@[002:00003) |   |   |   └─Token(RightBrace) |}|
@@ -4916,15 +4916,15 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
 //@[023:00029) |   |   | └─StringSyntax
 //@[023:00029) |   |   |   └─Token(StringComplete) |'PT1H'|
 //@[029:00031) |   |   ├─Token(NewLine) |\r\n|
-    
+
 //@[004:00006) |   |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliPropertiesMinusSpecified
 //@[080:00082) |   |   ├─Token(NewLine) |\r\n|
-    
+
 //@[004:00006) |   |   ├─Token(NewLine) |\r\n|
     // #completionTest(22,23) -> cleanupPreferencesPlusSymbols
 //@[062:00064) |   |   ├─Token(NewLine) |\r\n|
-    cleanupPreference: 
+    cleanupPreference:
 //@[004:00023) |   |   ├─ObjectPropertySyntax
 //@[004:00021) |   |   | ├─IdentifierSyntax
 //@[004:00021) |   |   | | └─Token(Identifier) |cleanupPreference|
@@ -4934,7 +4934,7 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
 
     // #completionTest(25,26) -> arrayPlusSymbols
 //@[049:00051) |   |   ├─Token(NewLine) |\r\n|
-    supportingScriptUris: 
+    supportingScriptUris:
 //@[004:00026) |   |   ├─ObjectPropertySyntax
 //@[004:00024) |   |   | ├─IdentifierSyntax
 //@[004:00024) |   |   | | └─Token(Identifier) |supportingScriptUris|
@@ -4944,7 +4944,7 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
 
     // #completionTest(27,28) -> objectPlusSymbols
 //@[050:00052) |   |   ├─Token(NewLine) |\r\n|
-    storageAccountSettings: 
+    storageAccountSettings:
 //@[004:00028) |   |   ├─ObjectPropertySyntax
 //@[004:00026) |   |   | ├─IdentifierSyntax
 //@[004:00026) |   |   | | └─Token(Identifier) |storageAccountSettings|
@@ -4967,14 +4967,14 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
 //@[007:00009) |   |   |   |   ├─Token(NewLine) |\r\n|
         // #completionTest(0,2,4,6,8) -> environmentVariableProperties
 //@[070:00072) |   |   |   |   ├─Token(NewLine) |\r\n|
-        
+
 //@[008:00010) |   |   |   |   ├─Token(NewLine) |\r\n|
       }
 //@[006:00007) |   |   |   |   └─Token(RightBrace) |}|
 //@[007:00009) |   |   |   ├─Token(NewLine) |\r\n|
       // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbolsWithRequiredProperties
 //@[082:00084) |   |   |   ├─Token(NewLine) |\r\n|
-      
+
 //@[006:00008) |   |   |   ├─Token(NewLine) |\r\n|
     ]
 //@[004:00005) |   |   |   └─Token(RightSquare) |]|
@@ -4988,7 +4988,7 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
 
 // #completionTest(21) -> resourceTypes
 //@[039:00041) ├─Token(NewLine) |\r\n|
-resource missingType 
+resource missingType
 //@[000:00021) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00020) | ├─IdentifierSyntax
@@ -5087,7 +5087,7 @@ var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
 //@[078:00078) |     └─SkippedTriviaSyntax
 //@[078:00082) ├─Token(NewLine) |\r\n\r\n|
 
-/* 
+/*
 Nested discriminator missing key
 */
 //@[002:00004) ├─Token(NewLine) |\r\n|
@@ -5199,7 +5199,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKe
 //@[095:00096) |   └─Token(RightSquare) |]|
 //@[096:00100) ├─Token(NewLine) |\r\n\r\n|
 
-/* 
+/*
 Nested discriminator missing key (conditional)
 */
 //@[002:00004) ├─Token(NewLine) |\r\n|
@@ -5324,7 +5324,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions_if = nestedDiscriminatorMissin
 //@[101:00102) |   └─Token(RightSquare) |]|
 //@[102:00106) ├─Token(NewLine) |\r\n\r\n|
 
-/* 
+/*
 Nested discriminator missing key (loop)
 */
 //@[002:00004) ├─Token(NewLine) |\r\n|
@@ -5464,7 +5464,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissi
 //@[107:00113) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
-/* 
+/*
 Nested discriminator missing key (filtered loop)
 */
 //@[002:00004) ├─Token(NewLine) |\r\n|
@@ -6395,7 +6395,7 @@ resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@20
 //@[028:00044) |     |   | └─ObjectSyntax
 //@[028:00029) |     |   |   ├─Token(LeftBrace) |{|
 //@[029:00031) |     |   |   ├─Token(NewLine) |\r\n|
-      
+
 //@[006:00008) |     |   |   ├─Token(NewLine) |\r\n|
     }
 //@[004:00005) |     |   |   └─Token(RightBrace) |}|
@@ -6431,7 +6431,7 @@ var sigh = nestedPropertyAccessOnConditional.properties.
 
 /*
   boolean property value completions
-*/ 
+*/
 //@[003:00005) ├─Token(NewLine) |\r\n|
 resource booleanPropertyPartialValue 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
 //@[000:00222) ├─ResourceDeclarationSyntax
@@ -9024,7 +9024,7 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
 //@[008:00010) |   | |   ├─Token(NewLine) |\r\n|
     // #completionTest(9,10) -> storageSkuNamePlusSymbols
 //@[057:00059) |   | |   ├─Token(NewLine) |\r\n|
-    name: 
+    name:
 //@[004:00010) |   | |   ├─ObjectPropertySyntax
 //@[004:00008) |   | |   | ├─IdentifierSyntax
 //@[004:00008) |   | |   | | └─Token(Identifier) |name|
@@ -9378,7 +9378,7 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
 //@[013:00025) |   | | └─ArraySyntax
 //@[013:00014) |   | |   ├─Token(LeftSquare) |[|
 //@[014:00016) |   | |   ├─Token(NewLine) |\r\n|
-    
+
 //@[004:00006) |   | |   ├─Token(NewLine) |\r\n|
   ]
 //@[002:00003) |   | |   └─Token(RightSquare) |]|
@@ -9669,7 +9669,7 @@ resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [f
 
 // #completionTest(54,55) -> objectPlusFor
 //@[042:00044) ├─Token(NewLine) |\r\n|
-resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' =
 //@[000:00055) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00012) | ├─IdentifierSyntax
@@ -9712,7 +9712,7 @@ resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
 //@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     // #completionTest(32,33) -> symbolsPlusArrayAndFor
 //@[055:00057) |   | |   ├─Token(NewLine) |\r\n|
-    registrationVirtualNetworks: 
+    registrationVirtualNetworks:
 //@[004:00033) |   | |   ├─ObjectPropertySyntax
 //@[004:00031) |   | |   | ├─IdentifierSyntax
 //@[004:00031) |   | |   | | └─Token(Identifier) |registrationVirtualNetworks|
@@ -9738,7 +9738,7 @@ resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
 //@[047:00063) |   | |   |   ├─ObjectSyntax
 //@[047:00048) |   | |   |   | ├─Token(LeftBrace) |{|
 //@[048:00050) |   | |   |   | ├─Token(NewLine) |\r\n|
-      
+
 //@[006:00008) |   | |   |   | ├─Token(NewLine) |\r\n|
     }]
 //@[004:00005) |   | |   |   | └─Token(RightBrace) |}|
@@ -9808,7 +9808,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[031:00033) |   |   |   | |   |   ├─Token(NewLine) |\r\n|
             // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
 //@[067:00069) |   |   |   | |   |   ├─Token(NewLine) |\r\n|
-            addressPrefixes: 
+            addressPrefixes:
 //@[012:00029) |   |   |   | |   |   ├─ObjectPropertySyntax
 //@[012:00027) |   |   |   | |   |   | ├─IdentifierSyntax
 //@[012:00027) |   |   |   | |   |   | | └─Token(Identifier) |addressPrefixes|
@@ -11040,7 +11040,7 @@ resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
 //@[008:00010) |   | └─StringSyntax
 //@[008:00010) |   |   └─Token(StringComplete) |''|
 //@[010:00012) |   ├─Token(NewLine) |\r\n|
-  scale: {}  
+  scale: {}
 //@[002:00011) |   ├─ObjectPropertySyntax
 //@[002:00007) |   | ├─IdentifierSyntax
 //@[002:00007) |   | | └─Token(Identifier) |scale|
@@ -11243,7 +11243,7 @@ resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
 //@[002:00003) |   |   |   ├─Token(LeftBrace) |{|
 //@[003:00004) |   |   |   └─Token(RightBrace) |}|
 //@[004:00006) |   |   ├─Token(NewLine) |\r\n|
-  ]  
+  ]
 //@[002:00003) |   |   └─Token(RightSquare) |]|
 //@[005:00007) |   ├─Token(NewLine) |\r\n|
 }
@@ -11293,7 +11293,7 @@ resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 //@[007:00042) |   | └─ObjectSyntax
 //@[007:00008) |   |   ├─Token(LeftBrace) |{|
 //@[008:00010) |   |   ├─Token(NewLine) |\r\n|
-    name: 'Premium_LRS'    
+    name: 'Premium_LRS'
 //@[004:00023) |   |   ├─ObjectPropertySyntax
 //@[004:00008) |   |   | ├─IdentifierSyntax
 //@[004:00008) |   |   | | └─Token(Identifier) |name|

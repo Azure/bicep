@@ -20,10 +20,10 @@ module moduleWithoutPath = {
 module moduleWithPath './moduleb.bicep' =
 
 // missing identifier #completionTest(7) -> empty
-module 
+module
 
 // #completionTest(24,25) -> moduleObject
-module missingValue '' = 
+module missingValue '' =
 
 var interp = 'hello'
 module moduleWithInterpPath './${interp}.bicep' = {

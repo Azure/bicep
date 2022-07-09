@@ -3,7 +3,7 @@
 bad
 
 // incomplete #completionTest(9) -> empty
-resource 
+resource
 //@[009:009) Resource <missing>. Type: error. Declaration start char: 0, length: 9
 resource foo
 //@[009:012) Resource foo. Type: error. Declaration start char: 0, length: 12
@@ -13,11 +13,11 @@ resource foo 'ddd'
 //@[009:012) Resource foo. Type: error. Declaration start char: 0, length: 18
 
 // #completionTest(23) -> resourceTypes
-resource trailingSpace  
+resource trailingSpace
 //@[009:022) Resource trailingSpace. Type: error. Declaration start char: 0, length: 24
 
 // #completionTest(19,20) -> resourceObject
-resource foo 'ddd'= 
+resource foo 'ddd'=
 //@[009:012) Resource foo. Type: error. Declaration start char: 0, length: 20
 
 // wrong resource type
@@ -161,7 +161,7 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[009:034) Resource noCompletionsWithoutColon. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 138
   // #completionTest(7,8) -> empty
-  kind  
+  kind
 }
 
 resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
@@ -490,7 +490,7 @@ resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for oth
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
 //@[009:034) Resource missingTopLevelProperties. Type: Microsoft.Storage/storageAccounts@2020-08-01-preview. Declaration start char: 0, length: 153
   // #completionTest(0, 1, 2) -> topLevelProperties
-  
+
 }
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
@@ -499,7 +499,7 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
   name: 'me'
   // do not remove whitespace before the closing curly
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
-  
+
 }
 
 // #completionTest(24,25,26,49,65,69,70) -> virtualNetworksResourceTypes
@@ -511,13 +511,13 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
     subnets: [
       {
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
-       
+
         // #completionTest(0,1,2,3,4,5,6,7) -> empty
         properties: {
           delegations: [
             {
               // #completionTest(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14) -> delegationProperties
-              
+
             }
           ]
         }
@@ -532,7 +532,7 @@ Discriminator key missing
 resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[009:032) Resource discriminatorKeyMissing. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 148
   // #completionTest(0,1,2) -> discriminatorProperty
-  
+
 }
 
 /*
@@ -541,7 +541,7 @@ Discriminator key missing (conditional)
 resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(true) {
 //@[009:035) Resource discriminatorKeyMissing_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 160
   // #completionTest(0,1,2) -> discriminatorProperty
-  
+
 }
 
 /*
@@ -551,7 +551,7 @@ resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020
 //@[095:100) Local thing. Type: any. Declaration start char: 95, length: 5
 //@[009:036) Resource discriminatorKeyMissing_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 171
   // #completionTest(0,1,2) -> discriminatorProperty
-  
+
 }]
 
 /*
@@ -561,7 +561,7 @@ resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2
 //@[098:103) Local thing. Type: any. Declaration start char: 98, length: 5
 //@[009:039) Resource discriminatorKeyMissing_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 183
   // #completionTest(0,1,2) -> discriminatorProperty
-  
+
 }]
 
 /*
@@ -570,7 +570,7 @@ Discriminator key value missing with property access
 resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[009:037) Resource discriminatorKeyValueMissing. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 175
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols
-  kind:   
+  kind:
 }
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
@@ -589,7 +589,7 @@ Discriminator key value missing with property access (conditional)
 resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(false) {
 //@[009:040) Resource discriminatorKeyValueMissing_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 191
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_if
-  kind:   
+  kind:
 }
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
 var discriminatorKeyValueMissingCompletions_if = discriminatorKeyValueMissing_if.p
@@ -609,7 +609,7 @@ resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts
 //@[100:105) Local thing. Type: any. Declaration start char: 100, length: 5
 //@[009:041) Resource discriminatorKeyValueMissing_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 202
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for
-  kind:   
+  kind:
 }]
 
 // cannot . access properties of a resource loop
@@ -634,7 +634,7 @@ resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScri
 //@[103:108) Local thing. Type: any. Declaration start char: 103, length: 5
 //@[009:044) Resource discriminatorKeyValueMissing_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 217
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for_if
-  kind:   
+  kind:
 }]
 
 // cannot . access properties of a resource loop
@@ -659,10 +659,10 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[009:031) Resource discriminatorKeySetOne. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 266
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-    
+
   }
 }
 // #completionTest(75) -> cliPropertyAccess
@@ -683,10 +683,10 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[009:034) Resource discriminatorKeySetOne_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 278
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-    
+
   }
 }
 // #completionTest(81) -> cliPropertyAccess
@@ -708,10 +708,10 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[009:035) Resource discriminatorKeySetOne_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 290
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-    
+
   }
 }]
 // #completionTest(86) -> cliPropertyAccess
@@ -733,10 +733,10 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[009:038) Resource discriminatorKeySetOne_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 302
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-    
+
   }
 }]
 // #completionTest(92) -> cliPropertyAccess
@@ -758,10 +758,10 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[009:031) Resource discriminatorKeySetTwo. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 272
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-    
+
   }
 }
 // #completionTest(75) -> powershellPropertyAccess
@@ -785,10 +785,10 @@ resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-1
 //@[009:034) Resource discriminatorKeySetTwo_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 275
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-    
+
   }
 }
 // #completionTest(81) -> powershellPropertyAccess
@@ -814,10 +814,10 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[009:035) Resource discriminatorKeySetTwo_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 295
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-    
+
   }
 }]
 // #completionTest(86) -> powershellPropertyAccess
@@ -843,10 +843,10 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[009:038) Resource discriminatorKeySetTwo_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 307
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-  
+
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-    
+
   }
 }]
 // #completionTest(92) -> powershellPropertyAccess
@@ -884,31 +884,31 @@ resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-
   properties: {
     azCliVersion: '2'
     retentionInterval: 'PT1H'
-    
+
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliPropertiesMinusSpecified
-    
+
     // #completionTest(22,23) -> cleanupPreferencesPlusSymbols
-    cleanupPreference: 
+    cleanupPreference:
 
     // #completionTest(25,26) -> arrayPlusSymbols
-    supportingScriptUris: 
+    supportingScriptUris:
 
     // #completionTest(27,28) -> objectPlusSymbols
-    storageAccountSettings: 
+    storageAccountSettings:
 
     environmentVariables: [
       {
         // #completionTest(0,2,4,6,8) -> environmentVariableProperties
-        
+
       }
       // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbolsWithRequiredProperties
-      
+
     ]
   }
 }
 
 // #completionTest(21) -> resourceTypes
-resource missingType 
+resource missingType
 //@[009:020) Resource missingType. Type: error. Declaration start char: 0, length: 21
 
 // #completionTest(37,38,39,40,41,42,43,44) -> resourceTypes
@@ -929,7 +929,7 @@ var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
 var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
 //@[004:024) Variable letsAccessTheDashes2. Type: error. Declaration start char: 0, length: 78
 
-/* 
+/*
 Nested discriminator missing key
 */
 resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
@@ -952,7 +952,7 @@ var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['p
 var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKey.properties['']
 //@[004:049) Variable nestedDiscriminatorMissingKeyIndexCompletions. Type: any. Declaration start char: 0, length: 96
 
-/* 
+/*
 Nested discriminator missing key (conditional)
 */
 resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if(bool(1)) {
@@ -975,7 +975,7 @@ var nestedDiscriminatorMissingKeyCompletions2_if = nestedDiscriminatorMissingKey
 var nestedDiscriminatorMissingKeyIndexCompletions_if = nestedDiscriminatorMissingKey_if.properties['']
 //@[004:052) Variable nestedDiscriminatorMissingKeyIndexCompletions_if. Type: any. Declaration start char: 0, length: 102
 
-/* 
+/*
 Nested discriminator missing key (loop)
 */
 resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
@@ -1000,7 +1000,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissi
 //@[004:053) Variable nestedDiscriminatorMissingKeyIndexCompletions_for. Type: any. Declaration start char: 0, length: 107
 
 
-/* 
+/*
 Nested discriminator missing key (filtered loop)
 */
 resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
@@ -1154,7 +1154,7 @@ resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@20
   name: 'test'
   properties: {
     additionalCapabilities: {
-      
+
     }
   }
 }
@@ -1165,7 +1165,7 @@ var sigh = nestedPropertyAccessOnConditional.properties.
 
 /*
   boolean property value completions
-*/ 
+*/
 resource booleanPropertyPartialValue 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
 //@[009:036) Resource booleanPropertyPartialValue. Type: Microsoft.Compute/virtualMachines/extensions@2020-06-01. Declaration start char: 0, length: 222
   properties: {
@@ -1565,7 +1565,7 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
   location: account.location
   sku: {
     // #completionTest(9,10) -> storageSkuNamePlusSymbols
-    name: 
+    name:
   }
   kind: 'StorageV2'
 }]
@@ -1615,7 +1615,7 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
     ]
   }
   dependsOn: [
-    
+
   ]
 }]
 
@@ -1657,7 +1657,7 @@ resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [f
 //@[009:035) Resource nonObjectResourceLoopBody4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 123
 
 // #completionTest(54,55) -> objectPlusFor
-resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
+resource foo 'Microsoft.Network/dnsZones@2018-05-01' =
 //@[009:012) Resource foo. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 55
 
 resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
@@ -1665,10 +1665,10 @@ resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
 //@[009:012) Resource foo. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 257
   properties: {
     // #completionTest(32,33) -> symbolsPlusArrayAndFor
-    registrationVirtualNetworks: 
+    registrationVirtualNetworks:
     resolutionVirtualNetworks: [for lol in []: {
 //@[036:039) Local lol. Type: any. Declaration start char: 36, length: 3
-      
+
     }]
   }
 }]
@@ -1681,7 +1681,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
         properties: {
           remoteAddressSpace: {
             // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
-            addressPrefixes: 
+            addressPrefixes:
           }
         }
     }]
@@ -1910,7 +1910,7 @@ resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
   ]
   plan: {}
   eTag: ''
-  scale: {}  
+  scale: {}
 }
 
 resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
@@ -1940,7 +1940,7 @@ resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
   eTag: {}
   scale: [
   {}
-  ]  
+  ]
 }
 
 resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
@@ -1949,7 +1949,7 @@ resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   kind: 'StorageV2'
   location: 'West US'
   sku: {
-    name: 'Premium_LRS'    
+    name: 'Premium_LRS'
   }
   madeUpProperty: {}
   managedByExtended: []

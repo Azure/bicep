@@ -1,4 +1,4 @@
-/* 
+/*
   This is a block comment.
 */
 //@[02:04) NewLine |\n\n|
@@ -12,7 +12,7 @@
 //@[05:16) Identifier |description|
 //@[16:17) LeftParen |(|
 //@[17:75) MultilineString |'''\nthis is my multi line \ndescription for my myString\n'''|
-this is my multi line 
+this is my multi line
 description for my myString
 ''')
 //@[03:04) RightParen |)|

@@ -1,4 +1,4 @@
-﻿/* 
+﻿/*
   Valid and invalid code is mixed together to validate recovery logic. It can even contain ** * *** **.
 */
 
@@ -17,13 +17,13 @@ param myBool bool
 param missingType
 
 // space after identifier #completionTest(32) -> paramTypes
-param missingTypeWithSpaceAfter 
+param missingTypeWithSpaceAfter
 
 // tab after identifier #completionTest(30) -> paramTypes
-param missingTypeWithTabAfter	
+param missingTypeWithTabAfter
 
 // #completionTest(20) -> paramTypes
-param trailingSpace  
+param trailingSpace
 
 // partial type #completionTest(18, 19, 20, 21) -> paramTypes
 param partialType str
@@ -42,7 +42,7 @@ param myString2 string = 'string value'
 param wrongDefaultValue string = 42
 
 param myInt2 int = 42
-param noValueAfterColon int =   
+param noValueAfterColon int =
 
 param myTruth bool = 'not a boolean'
 param myFalsehood bool = 'false'
@@ -52,13 +52,13 @@ param wrongAssignmentToken string: 'hello'
 param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
 
 // #completionTest(28,29) -> boolPlusSymbols
-param boolCompletions bool = 
+param boolCompletions bool =
 
 // #completionTest(30,31) -> arrayPlusSymbols
-param arrayCompletions array = 
+param arrayCompletions array =
 
 // #completionTest(32,33) -> objectPlusSymbols
-param objectCompletions object = 
+param objectCompletions object =
 
 // badly escaped string
 param wrongType fluffyBunny = 'what's up doc?'
@@ -66,7 +66,7 @@ param wrongType fluffyBunny = 'what's up doc?'
 // invalid escape
 param wrongType fluffyBunny = 'what\s up doc?'
 
-// unterminated string 
+// unterminated string
 param wrongType fluffyBunny = 'what\'s up doc?
 
 // unterminated interpolated string
@@ -172,10 +172,10 @@ param paramAccessingResource string = sampleResource
 param paramAccessingOutput string = sampleOutput
 
 // #completionTest(6) -> empty
-param 
+param
 
 // #completionTest(46,47) -> justSymbols
-param defaultValueOneLinerCompletions string = 
+param defaultValueOneLinerCompletions string =
 
 // invalid comma separator (array)
 @metadata({
@@ -208,9 +208,9 @@ param someString string
 ])
 @secure()
 // #completionTest(1, 2, 3) -> intParameterDecoratorsPlusNamespace
-@  
+@
 // #completionTest(5, 6) -> intParameterDecorators
-@sys.   
+@sys.
 param someInteger int = 20
 
 @allowed([], [], 2)
@@ -222,7 +222,7 @@ param tooManyArguments1 int = 20
 // #completionTest(2) -> stringParameterDecoratorsPlusNamespace
 @m
 // #completionTest(1, 2, 3) -> stringParameterDecoratorsPlusNamespace
-@   
+@
 // #completionTest(5) -> stringParameterDecorators
 @sys.
 param tooManyArguments2 string
@@ -276,4 +276,4 @@ param invalidPermutation array = [
 param invalidDefaultWithAllowedArrayDecorator array = true
 
 // unterminated multi-line comment
-/*    
+/*

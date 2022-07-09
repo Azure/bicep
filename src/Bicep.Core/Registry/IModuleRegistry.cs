@@ -37,7 +37,7 @@ namespace Bicep.Core.Registry
         ModuleReference? TryParseModuleReference(string? aliasName, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         /// <summary>
-        /// Returns true if the specified module is already cached in the local cache. 
+        /// Returns true if the specified module is already cached in the local cache.
         /// </summary>
         /// <param name="reference">The reference to the module.</param>
         bool IsModuleRestoreRequired(ModuleReference reference);

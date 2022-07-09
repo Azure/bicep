@@ -34,7 +34,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var actual = BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation((string[]?)null, bicepFilePath);
             var expected = Environment.CurrentDirectory;
 
-            actual.Should().Be(expected); 
+            actual.Should().Be(expected);
         }
 
         [TestMethod]

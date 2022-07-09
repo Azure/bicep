@@ -35,7 +35,7 @@ namespace Bicep.Core.TypeSystem
 
             // add
             new BinaryOperatorInfo(BinaryOperator.Add, LanguageConstants.Int, LanguageConstants.Int),
-            
+
             // subtract
             new BinaryOperatorInfo(BinaryOperator.Subtract, LanguageConstants.Int, LanguageConstants.Int),
 

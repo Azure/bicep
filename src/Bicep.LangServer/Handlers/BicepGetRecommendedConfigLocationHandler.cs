@@ -61,7 +61,7 @@ namespace Bicep.LanguageServer.Handlers
             if (string.IsNullOrWhiteSpace(bicepFileFolder))
             {
                 // No bicep source file provided, or it wasn't an absolute path (e.g. an unsaved file)...
-          
+
                 // Use first workspace folder root if one exists
                 if (workspaceFolderPaths?.Length > 0)
                 {

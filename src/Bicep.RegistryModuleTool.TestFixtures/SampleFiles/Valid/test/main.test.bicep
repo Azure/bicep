@@ -6,6 +6,6 @@ module testMain '../main.bicep' = {
     linuxAdminUsername: ''
     servicePrincipalClientSecret: ''
     servicePrincipalClientId: ''
-    osDiskSizeGB: 1 
+    osDiskSizeGB: 1
   }
 }

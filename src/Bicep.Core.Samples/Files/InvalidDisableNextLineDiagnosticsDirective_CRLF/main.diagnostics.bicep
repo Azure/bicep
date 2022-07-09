@@ -26,7 +26,7 @@ param storageAccount4 string = 'testStorageAccount'
 param storageAccount5 string = 'testStorageAccount'
 //@[06:21) [no-unused-params (Warning)] Parameter "storageAccount5" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |storageAccount5|
 
-#disable-next-line 
+#disable-next-line
 //@[19:19) [BCP226 (Error)] Expected at least one diagnostic code at this location. Valid format is "#disable-next-line diagnosticCode1 diagnosticCode2 ..." (CodeDescription: none) ||
 no-unused-params
 //@[00:02) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |no|

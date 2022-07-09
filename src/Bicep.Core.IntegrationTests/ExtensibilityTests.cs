@@ -359,7 +359,7 @@ Hello from Bicep!"));
             }
           },
           ""variables"": {
-            ""$fxv#0"": ""\nHello from Bicep!""            
+            ""$fxv#0"": ""\nHello from Bicep!""
           },
           ""imports"": {
             ""stg"": {
