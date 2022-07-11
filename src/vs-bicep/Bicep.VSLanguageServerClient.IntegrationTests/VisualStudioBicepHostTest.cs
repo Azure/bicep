@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using Bicep.VSLanguageServerClient.IntegrationTests.Utilities;
 using Microsoft.Test.Apex.VisualStudio;
 using Microsoft.Test.Apex.VisualStudio.Solution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,20 +16,19 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
     [DeploymentItem(RootDirectoryName, RootDirectoryName)]
     public class VisualStudioBicepHostTest : VisualStudioHostTest
     {
-        private static VisualStudioHost? VsHost;
+        private const string ProjectName = @"BicepTestProject";
         private const string RootDirectoryName = @"TestSolution";
         private const string TestSolutionName = @"TestSolution.sln";
-        protected ProjectTestExtension? TestProject;
-        protected const string ProjectName = @"BicepTestProject";
 
         private static string? SolutionPath;
-        public static string? SolutionRootPath { get; private set; }
+
+        protected ProjectTestExtension? TestProject;
 
         protected override void DoHostTestInitialize()
         {
             base.DoHostTestInitialize();
 
-            VsHost = VisualStudio;
+            VsHostUtility.VsHost = VisualStudio;
 
             Solution.Open(SolutionPath);
             Solution.WaitForFullyLoaded();
@@ -58,7 +58,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
         public static void AssemblyInit(TestContext context)
         {
             var deploymentDirectory = context.DeploymentDirectory;
-            SolutionRootPath = Path.Combine(deploymentDirectory, RootDirectoryName);
+            var SolutionRootPath = Path.Combine(deploymentDirectory, RootDirectoryName);
             SolutionPath = Path.Combine(SolutionRootPath, TestSolutionName);
         }
 
@@ -67,16 +67,16 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
         {
             try
             {
-                if (VsHost != null)
+                if (VsHostUtility.VsHost != null)
                 {
-                    Process visualStudioProcess = VsHost.HostProcess;
+                    Process visualStudioProcess = VsHostUtility.VsHost.HostProcess;
 
-                    if (VsHost.ObjectModel.Solution.IsOpen)
+                    if (VsHostUtility.VsHost.ObjectModel.Solution.IsOpen)
                     {
-                        VsHost.ObjectModel.Solution.Close();
+                        VsHostUtility.VsHost.ObjectModel.Solution.Close();
                     }
 
-                    PostMessage(VsHost.MainWindowHandle, 0x10, IntPtr.Zero, IntPtr.Zero); // WM_CLOSE
+                    PostMessage(VsHostUtility.VsHost.MainWindowHandle, 0x10, IntPtr.Zero, IntPtr.Zero); // WM_CLOSE
                     visualStudioProcess.WaitForExit(5000);
 
                     if (!visualStudioProcess.HasExited)

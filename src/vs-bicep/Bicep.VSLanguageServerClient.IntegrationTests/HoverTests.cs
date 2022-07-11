@@ -9,21 +9,19 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.VSLanguageServerClient.IntegrationTests
 {
     [TestClass]
-    public class CompletionTests : VisualStudioBicepHostTest
+    public class HoverTests : VisualStudioBicepHostTest
     {
         [TestMethod]
-        public void Verify_TopLevelPlainTextDeclarations()
+        public void Verify_HoverInformation()
         {
             ProjectItemTestExtension projectItem = TestProject!["main.bicep"];
             IVisualStudioTextEditorTestExtension editor = projectItem.GetDocumentAsTextEditor().Editor;
 
             ColorizationsUtility.WaitForColorizations(editor);
 
-            editor.Caret.MoveToLine(3);
-
-            string[] expectedCompletionTexts = new string[] { "module", "output", "param", "resource", "targetScope", "var" };
-
-            CompletionsUtility.VerifyCompletions(editor, expectedCompletionTexts);
+            editor.Caret.MoveToExpression("description");
+            string expected = "function description(text: string): any";
+            HoverUtility.WaitForQuickInfo(text => expected == text, editor);
         }
     }
 }

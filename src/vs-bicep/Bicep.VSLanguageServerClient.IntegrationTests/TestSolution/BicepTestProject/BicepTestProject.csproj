@@ -7,7 +7,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="NewFolder\" />
+    <None Update="results\Colorization\BicepClassifications.bsl">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>colorization.txt</LastGenOutput>
+    </None>
+    <None Update="results\Colorization\colorization.txt">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>colorizationMappings.bsl</DependentUpon>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
 </Project>

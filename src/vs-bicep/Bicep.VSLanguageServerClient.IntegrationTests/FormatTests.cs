@@ -9,10 +9,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.VSLanguageServerClient.IntegrationTests
 {
     [TestClass]
-    public class CompletionTests : VisualStudioBicepHostTest
+    public class FormatTests : VisualStudioBicepHostTest
     {
         [TestMethod]
-        public void Verify_TopLevelPlainTextDeclarations()
+        public void Verify_Formatting()
         {
             ProjectItemTestExtension projectItem = TestProject!["main.bicep"];
             IVisualStudioTextEditorTestExtension editor = projectItem.GetDocumentAsTextEditor().Editor;

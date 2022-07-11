@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO;
+using System.Reflection;
 using Bicep.VSLanguageServerClient.IntegrationTests.Utilities;
 using Microsoft.Test.Apex.VisualStudio.Editor;
 using Microsoft.Test.Apex.VisualStudio.Solution;
@@ -9,21 +11,19 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.VSLanguageServerClient.IntegrationTests
 {
     [TestClass]
-    public class CompletionTests : VisualStudioBicepHostTest
+    public class ColorizationTests : VisualStudioBicepHostTest
     {
         [TestMethod]
-        public void Verify_TopLevelPlainTextDeclarations()
+        public void Verify_Classifications()
         {
             ProjectItemTestExtension projectItem = TestProject!["main.bicep"];
             IVisualStudioTextEditorTestExtension editor = projectItem.GetDocumentAsTextEditor().Editor;
 
-            ColorizationsUtility.WaitForColorizations(editor);
+            var classifications = ColorizationsUtility.GetClassifications(editor);
 
-            editor.Caret.MoveToLine(3);
+            string baselineFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"TestSolution\BicepTestProject\results\Colorization\BicepClassifications.bsl");
 
-            string[] expectedCompletionTexts = new string[] { "module", "output", "param", "resource", "targetScope", "var" };
-
-            CompletionsUtility.VerifyCompletions(editor, expectedCompletionTexts);
+            ColorizationsUtility.WaitForClassifications(editor, baselineFile);
         }
     }
 }
