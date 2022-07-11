@@ -191,7 +191,7 @@ param myInt = 1", @"
 }")]
         public void params_file_with_no_errors_should_compile_correctly(string paramsText, string jsonText)
         {           
-          var model = new ParamsSemanticModel(ParamSourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), paramsText));
+          var model = new ParamsSemanticModel((BicepParamFile) SourceFileFactory.CreateSourceFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), paramsText));
 
           var paramsWriter = new ParametersJsonWriter(model);
 
@@ -205,7 +205,7 @@ param myInt = 1", @"
         [DataTestMethod]
         public void params_file_with_not_implemented_syntax_should_throw_expction()
         {
-          var model = new ParamsSemanticModel(ParamSourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), "param foo = 1 + 2"));
+          var model = new ParamsSemanticModel((BicepParamFile) SourceFileFactory.CreateSourceFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), "param foo = 1 + 2"));
 
           var paramsWriter = new ParametersJsonWriter(model);
 
