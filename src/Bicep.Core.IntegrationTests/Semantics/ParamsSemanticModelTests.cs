@@ -46,22 +46,22 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)
-                .OfType<DeclaredSymbol>();
+                .OfType<ParameterAssignmentSymbol>();
            
-            string getLoggingString(DeclaredSymbol symbol)
+            string getLoggingString(ParameterAssignmentSymbol symbol)
             {
                 (_, var startChar) = TextCoordinateConverter.GetPosition(lineStarts, symbol.DeclaringSyntax.Span.Position);
 
                 return $"{symbol.Kind} {symbol.Name}. Type: {symbol.Type}. Declaration start char: {startChar}, length: {symbol.DeclaringSyntax.Span.Length}";
             }
 
-            var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, symbols, symb => symb.NameSyntax.Span, getLoggingString);
+            var sourceTextWithDiags = DataSet.AddDiagsToParamSourceText(dataSet, symbols, symb => symb.NameSyntax.Span, getLoggingString);
             var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileParamSymbols);
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
                 TestContext,
-                dataSet.Symbols,
+                dataSet.ParamSymbols ?? throw new InvalidOperationException($"Expected {nameof(dataSet.ParamSymbols)} to be non-null"),
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileParamSymbols),
                 actualLocation: resultsFile);
         }

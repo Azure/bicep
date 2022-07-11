@@ -75,6 +75,8 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<string> lazySymbols;
 
+        private readonly Lazy<string>? lazyParamSymbols;
+
         private readonly Lazy<string> lazyFormatted;
 
         private readonly Lazy<string>? lazySourceMap;
@@ -99,6 +101,7 @@ namespace Bicep.Core.Samples
             this.lazyCompiledWithSymbolicNames = this.CreateIffValid(TestFileMainCompiledWithSymbolicNames);
             this.lazyCompiledSourceMap = this.CreateIffValid(TestFileMainCompiledSourceMap);
             this.lazySymbols = this.CreateRequired(TestFileMainSymbols);
+            this.lazyParamSymbols = this.CreateOptional(TestFileParamSymbols);
             this.lazySyntax = this.CreateRequired(TestFileMainSyntax);
             this.lazyParamSyntax = this.CreateOptional(TestFileMainParamSyntax);
             this.lazyFormatted = this.CreateRequired(TestFileMainFormatted);
@@ -131,6 +134,8 @@ namespace Bicep.Core.Samples
         public string? CompiledSourceMap => this.lazyCompiledSourceMap?.Value;
 
         public string Symbols => this.lazySymbols.Value;
+
+        public string? ParamSymbols => this.lazyParamSymbols?.Value;
 
         public string Syntax => this.lazySyntax.Value;
 
