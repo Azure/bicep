@@ -26,6 +26,7 @@ namespace Bicep.Core.Samples
         public const string TestFileMainDiagnostics = "main.diagnostics.bicep";
         public const string TestFileMainTokens = "main.tokens.bicep";
         public const string TestFileMainSymbols = "main.symbols.bicep";
+        public const string TestFileParamSymbols = "parameters.symbols.bicepparam";
         public const string TestFileMainSyntax = "main.syntax.bicep";
         //TODO: syntax file should be named parameters.syntax.bicepparam for consistency
         public const string TestFileMainParamSyntax = "main.syntax.bicepparam";
