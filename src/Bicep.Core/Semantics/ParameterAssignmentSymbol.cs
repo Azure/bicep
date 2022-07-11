@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -9,7 +8,6 @@ namespace Bicep.Core.Semantics
 {
     public class ParameterAssignmentSymbol : BindableSymbol
     {
-
         public ParameterAssignmentSymbol(string name, SyntaxBase declaringSyntax, IdentifierSyntax nameSyntax)
             : base(name, nameSyntax)
         {
@@ -23,7 +21,7 @@ namespace Bicep.Core.Semantics
         /// <summary>
         /// Gets the type of the symbol.
         /// </summary>
-        public TypeSymbol Type => throw new NotImplementedException(); // TODO
+        public TypeSymbol Type => LanguageConstants.Any; // TODO
 
         public override SymbolKind Kind => SymbolKind.AssignedParameter;
 
