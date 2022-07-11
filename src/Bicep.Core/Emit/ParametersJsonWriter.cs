@@ -14,8 +14,8 @@ namespace Bicep.Core.Emit
 {
     public class ParametersJsonWriter
     {
-        private readonly ParamSemanticModel paramSemanticModel;
-        public ParametersJsonWriter(ParamSemanticModel paramSemanticModel)
+        private readonly ParamsSemanticModel paramSemanticModel;
+        public ParametersJsonWriter(ParamsSemanticModel paramSemanticModel)
         {
             this.paramSemanticModel = paramSemanticModel;
         }

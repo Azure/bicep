@@ -95,7 +95,7 @@ namespace Bicep.Cli.Services
         }
 
 
-        public ParamSemanticModel CompileParams(string inputPath, bool skipRestore)
+        public ParamsSemanticModel CompileParams(string inputPath, bool skipRestore)
         {
 
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
@@ -105,7 +105,7 @@ namespace Bicep.Cli.Services
                 throw new Exception($"Unable to read file {inputPath}");
             }
 
-            var model = new ParamSemanticModel(ParamSourceFileFactory.CreateBicepParamFile(inputUri, fileText));
+            var model = new ParamsSemanticModel(ParamSourceFileFactory.CreateBicepParamFile(inputUri, fileText));
 
             LogParamDiagnostics(model);
           
@@ -176,7 +176,7 @@ namespace Bicep.Cli.Services
             }
         }
 
-        private void LogParamDiagnostics(ParamSemanticModel paramSemanticModel)
+        private void LogParamDiagnostics(ParamsSemanticModel paramSemanticModel)
         {
             foreach(var diagnostic in paramSemanticModel.GetDiagnostics())
             {

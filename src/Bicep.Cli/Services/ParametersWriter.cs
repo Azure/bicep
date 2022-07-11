@@ -19,13 +19,13 @@ namespace Bicep.Cli.Services
             this.invocationContext = invocationContext;
         }
 
-        public EmitResult ToFile(ParamSemanticModel paramSemanticModel, string outputPath)
+        public EmitResult ToFile(ParamsSemanticModel paramSemanticModel, string outputPath)
         {
             using var fileStream = CreateFileStream(outputPath);
             return new ParametersEmitter(paramSemanticModel, invocationContext.EmitterSettings).EmitParamsFile(fileStream);
         }
 
-        public EmitResult ToStdout(ParamSemanticModel paramSemanticModel)
+        public EmitResult ToStdout(ParamsSemanticModel paramSemanticModel)
         {
             using var writer = new JsonTextWriter(invocationContext.OutputWriter)
             {

@@ -8,17 +8,17 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
-    public class ParamSemanticModel
+    public class ParamsSemanticModel
     {
         public BicepParamFile bicepParamFile { get; }
 
+        public ParamBinder paramBinder {get; }
+
         // private readonly ParamBinder paramBinder; 
-        public ParamSemanticModel(BicepParamFile bicepParamFile)
+        public ParamsSemanticModel(BicepParamFile bicepParamFile)
         {
             this.bicepParamFile = bicepParamFile;
-
-            //TODO: Verify if SymbolContext is needed 
-            // this.paramBinder = new(bicepParamFile, ); 
+            this.paramBinder = new(bicepParamFile); 
         }
 
         public IEnumerable<IDiagnostic> GetDiagnostics()
