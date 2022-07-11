@@ -25,11 +25,6 @@ namespace Bicep.Core.Workspaces
 
         public static ISourceFile CreateSourceFile(Uri fileUri, string fileContents, ModuleReference? moduleReference = null)
         {
-            if (PathHelper.HasBicepparamsExension(fileUri))
-            {
-                return CreateBicepParamFile(fileUri, fileContents);
-            }
-
             if (PathHelper.HasArmTemplateLikeExtension(fileUri))
             {
                 return moduleReference is TemplateSpecModuleReference

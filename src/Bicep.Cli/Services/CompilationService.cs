@@ -105,7 +105,7 @@ namespace Bicep.Cli.Services
                 throw new Exception($"Unable to read file {inputPath}");
             }
 
-            var model = new ParamsSemanticModel((BicepParamFile) SourceFileFactory.CreateSourceFile(inputUri, fileText));
+            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(inputUri, fileText));
 
             LogParamDiagnostics(model);
           
