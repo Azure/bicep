@@ -7,7 +7,7 @@ namespace Bicep.Core.Semantics
 {
     public interface IParamsTypeManager
     {
-        TypeSymbol GetType(SyntaxBase syntax); // Gets the type of the syntax.
+        TypeSymbol GetTypeInfo(SyntaxBase syntax); // Gets the type of the syntax.
         TypeSymbol GetDeclaredType(SyntaxBase syntax); // Gets the type of declared type of syntax.
     }
 }
