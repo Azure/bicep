@@ -87,14 +87,6 @@ jobs:
       - name: Build Bicep.sln
         run: dotnet build --configuration ${{ matrix.configuration }}
 
-      - name: Add msbuild to PATH
-        if: runner.os == 'Windows'
-        uses: microsoft/setup-msbuild@v1.1
-
-      - name: Build BicepInVisualStudio.sln
-        if: runner.os == 'Windows'
-        run: msbuild src/vs-bicep/BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
-
       - name: Pack
         if: matrix.publishPackages
         run: dotnet pack --configuration ${{ matrix.configuration }}
@@ -110,6 +102,14 @@ jobs:
           name: Bicep.TestResults.${{ matrix.rid }}
           path: ./TestResults/**/*.trx
           if-no-files-found: error
+
+      - name: Add msbuild to PATH
+        if: runner.os == 'Windows'
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Build BicepInVisualStudio.sln
+        if: runner.os == 'Windows'
+        run: msbuild src/vs-bicep/BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
 
       - name: Run bicep in visual studio unit tests
         if: runner.os == 'Windows'
