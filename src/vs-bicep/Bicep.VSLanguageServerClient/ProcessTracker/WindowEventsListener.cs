@@ -101,10 +101,8 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
 
     public enum WindowsSystemEvents
     {
-#pragma warning disable CA1069 // Enums values should not be duplicated
         EventMin = 0x00000001,                              // EVENT_MIN
         SystemSound = 0x0001,                               // EVENT_SYSTEM_SOUND
-#pragma warning restore CA1069 // Enums values should not be duplicated
         SystemAlert = 0x0002,                               // EVENT_SYSTEM_ALERT
         SystemForeground = 0x0003,                          // EVENT_SYSTEM_FOREGROUND
         SystemMenuStart = 0x0004,                           // EVENT_SYSTEM_MENUSTART

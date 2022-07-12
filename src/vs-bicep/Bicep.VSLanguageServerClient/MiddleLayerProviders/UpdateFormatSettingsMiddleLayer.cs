@@ -9,6 +9,10 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
 {
+    /// <summary>
+    /// This middle layer sets the default vscode format settings.
+    /// This can be removed once settings and .editorconfig support are added in vs layer - https://github.com/Azure/bicep/issues/7550
+    /// </summary>
     public class UpdateFormatSettingsMiddleLayer : ILanguageClientMiddleLayer
     {
         public bool CanHandle(string methodName)

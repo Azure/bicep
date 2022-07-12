@@ -8,7 +8,6 @@ using System.Runtime.InteropServices;
 namespace Bicep.VSLanguageServerClient.ProcessTracker
 {
 #pragma warning disable 0649
-#pragma warning disable IDE1006 // Naming Styles
     /// <summary>
     /// Pinvoke and other win32 declarations.
     /// </summary>
@@ -38,14 +37,12 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
         public const int LVM_EDITLABEL = (0x1000 + 118);
 
         [DllImport("kernel32.dll", SetLastError = true)]
-#pragma warning disable CA5392 // Use DefaultDllImportSearchPaths attribute for P/Invokes
+        [DefaultDllImportSearchPaths(DllImportSearchPath.UserDirectories)]
         public static extern bool CloseHandle(IntPtr handle);
-#pragma warning restore CA5392 // Use DefaultDllImportSearchPaths attribute for P/Invokes
 
         [DllImport("User32.dll", SetLastError = true)]
-#pragma warning disable CA5392 // Use DefaultDllImportSearchPaths attribute for P/Invokes
+        [DefaultDllImportSearchPaths(DllImportSearchPath.UserDirectories)]
         public static extern IntPtr SetWinEventHook(
-#pragma warning restore CA5392 // Use DefaultDllImportSearchPaths attribute for P/Invokes
             WindowsSystemEvents eventMin,
             WindowsSystemEvents eventMax,
             IntPtr hmodWinEventProc,
@@ -55,9 +52,8 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
             uint dwFlags);
 
         [DllImport("user32.dll")]
-#pragma warning disable CA5392 // Use DefaultDllImportSearchPaths attribute for P/Invokes
+        [DefaultDllImportSearchPaths(DllImportSearchPath.UserDirectories)]
         public static extern bool UnhookWinEvent(IntPtr hWinEventHook);
-#pragma warning restore CA5392 // Use DefaultDllImportSearchPaths attribute for P/Invokes
 
         /// <summary>
         /// Creates or opens a job object.
@@ -77,9 +73,8 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
         /// If the function fails, the return value is NULL.To get extended error information, GetLastError/>.
         /// </returns>
         [DllImport("Kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
-#pragma warning disable CA5392 // Use DefaultDllImportSearchPaths attribute for P/Invokes
+        [DefaultDllImportSearchPaths(DllImportSearchPath.UserDirectories)]
         public static extern SafeObjectHandle CreateJobObject(IntPtr lpJobAttributes, string lpName);
-#pragma warning restore CA5392 // Use DefaultDllImportSearchPaths attribute for P/Invokes
 
         /// <summary>
         /// Assigns a process to an existing job object.
@@ -101,9 +96,8 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
         /// If the function fails, the return value is zero.To get extended error information, call GetLastError/>.
         /// </returns>
         [DllImport("Kernel32", SetLastError = true)]
-#pragma warning disable CA5392 // Use DefaultDllImportSearchPaths attribute for P/Invokes
+        [DefaultDllImportSearchPaths(DllImportSearchPath.UserDirectories)]
         public static extern bool AssignProcessToJobObject(SafeObjectHandle hJob, SafeObjectHandle hProcess);
-#pragma warning restore CA5392 // Use DefaultDllImportSearchPaths attribute for P/Invokes
 
         /// <summary>
         /// Sets limits for a job object.
@@ -125,9 +119,8 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
         /// If the function fails, the return value is zero.To get extended error information, call GetLastError/>.
         /// </returns>
         [DllImport("Kernel32", SetLastError = true)]
-#pragma warning disable CA5392 // Use DefaultDllImportSearchPaths attribute for P/Invokes
+        [DefaultDllImportSearchPaths(DllImportSearchPath.UserDirectories)]
         public static extern bool SetInformationJobObject(SafeObjectHandle hJob, JOBOBJECTINFOCLASS jobObjectInfoClass, IntPtr lpJobObjectInfo, uint cbJobObjectInfoLength);
-#pragma warning restore CA5392 // Use DefaultDllImportSearchPaths attribute for P/Invokes
     }
 
     internal delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
@@ -497,5 +490,4 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
         JobObjectLimitViolationInformation2 = 35,
     }
 #pragma warning restore 649
-#pragma warning restore IDE1006 // Naming Styles
 }

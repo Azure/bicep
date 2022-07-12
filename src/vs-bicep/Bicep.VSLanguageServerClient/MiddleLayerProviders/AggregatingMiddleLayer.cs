@@ -9,6 +9,10 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
 {
+    /// <summary>
+    /// Composite middle layer that aggregates all instances of <see cref="ILanguageClientMiddleLayer"/>
+    /// and delegates the interception to appropriate middle layer.
+    /// </summary>
     public class AggregatingMiddleLayer : ILanguageClientMiddleLayer
     {
         private readonly ILanguageClientMiddleLayer[] _languageClientMiddleLayers;

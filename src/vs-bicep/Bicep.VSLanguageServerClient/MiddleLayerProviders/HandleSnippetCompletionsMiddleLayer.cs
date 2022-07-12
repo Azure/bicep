@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -13,7 +12,11 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
 {
-    [Export(typeof(HandleSnippetCompletionsMiddleLayer))]
+    /// <summary>
+    /// Visual studio lsp supports snippets starting 17.3 Preview 3. We will not show snippets in versions prior to that.
+    /// Also choice snippet pattern is not currently supported by vs lsp. To workaround this issue, we will convert choice snippet
+    /// pattern to placeholder snippet pattern.
+    /// </summary>
     public class HandleSnippetCompletionsMiddleLayer : ILanguageClientMiddleLayer
     {
         private static readonly Regex ChoiceSnippetPlaceholderPattern = new Regex(@"\${\d+\|(.*)\|}", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
