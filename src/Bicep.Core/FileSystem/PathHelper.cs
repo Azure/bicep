@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 using System;
 using System.IO;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.FileSystem
 {
@@ -136,6 +138,27 @@ namespace Bicep.Core.FileSystem
 
             return uriBuilder.Uri;
         }
+
+        public static string? TryGetUsingPath(UsingDeclarationSyntax? usingDeclarationSyntax, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        {
+            var pathSyntax = usingDeclarationSyntax?.TryGetPath();
+            if (pathSyntax == null)
+            {
+                failureBuilder = null;
+                return null;
+            }
+
+            var pathValue = pathSyntax.TryGetLiteralValue();
+            if (pathValue == null)
+            {
+                failureBuilder = x => x.FilePathInterpolationUnsupported();
+                return null;
+            }
+
+            failureBuilder = null;
+            return pathValue;
+        }
+
 
         public static Uri ChangeExtension(Uri uri, string? newExtension)
         {

@@ -70,8 +70,11 @@ namespace Bicep.Cli.Services
         }
 
         public async Task<Compilation> CompileAsync(string inputPath, bool skipRestore)
-        {
-            var inputUri = PathHelper.FilePathToFileUrl(inputPath);
+        {   var inputUri = PathHelper.FilePathToFileUrl(inputPath);
+            return await CompileAsync(inputUri, skipRestore);
+        }
+        public async Task<Compilation> CompileAsync(Uri inputUri, bool skipRestore)
+        {   
             var configuration = this.configurationManager.GetConfiguration(inputUri);
 
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri, configuration);
@@ -95,7 +98,7 @@ namespace Bicep.Cli.Services
         }
 
 
-        public ParamsSemanticModel CompileParams(string inputPath, bool skipRestore)
+        public async Task<ParamsSemanticModel> CompileParams(string inputPath, bool skipRestore)
         {
 
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
@@ -104,8 +107,23 @@ namespace Bicep.Cli.Services
             {
                 throw new Exception($"Unable to read file {inputPath}");
             }
+            
+            var paramsFile = SourceFileFactory.CreateBicepParamFile(inputUri, fileText);
 
-            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(inputUri, fileText));
+            var usingDeclarations = paramsFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>();
+            var bicepFilePath = PathHelper.TryGetUsingPath(usingDeclarations.SingleOrDefault(), out var getUsingPathFailureBuilder);
+
+            if(bicepFilePath == null){
+                throw new Exception("Path to Bicep file not provided");
+            }
+
+            if(!Uri.TryCreate(inputUri, bicepFilePath, out var bicepFileUri)){
+                throw new Exception("Can not create Uri for linked Bicep file");
+            }
+
+            var bicepCompilation = await CompileAsync(bicepFileUri, skipRestore);
+            
+            var model = new ParamsSemanticModel(paramsFile, bicepCompilation);
 
             LogParamDiagnostics(model);
           

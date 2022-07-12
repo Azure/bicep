@@ -12,13 +12,14 @@ namespace Bicep.Core.Semantics
     {
         public BicepParamFile bicepParamFile { get; }
 
-        public ParamBinder paramBinder {get; }
+        public ParamBinder paramBinder { get; }
 
-        // private readonly ParamBinder paramBinder; 
-        public ParamsSemanticModel(BicepParamFile bicepParamFile)
+        public Compilation? bicepCompilation { get; }
+        public ParamsSemanticModel(BicepParamFile bicepParamFile, Compilation? bicepCompilation = null)
         {
             this.bicepParamFile = bicepParamFile;
             this.paramBinder = new(bicepParamFile); 
+            this.bicepCompilation = bicepCompilation;
         }
 
         public IEnumerable<IDiagnostic> GetDiagnostics()
