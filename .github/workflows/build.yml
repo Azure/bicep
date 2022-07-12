@@ -111,16 +111,16 @@ jobs:
           path: ./TestResults/**/*.trx
           if-no-files-found: error
 
-      - name: Install bicep in Visual Studio
-        if: runner.os == 'Windows'
-        run: ./src/vs-bicep/Install.cmd
-
       - name: Run bicep in visual studio unit tests
         if: runner.os == 'Windows'
         uses: microsoft/vstest-action@v1.0.0
         with:
           testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/Bicep.VSLanguageServerClient.UnitTests.dll
           runInParallel: true
+
+      - name: Install bicep in Visual Studio
+        if: runner.os == 'Windows'
+        run: ./src/vs-bicep/Install.cmd
 
       - name: Run bicep in visual studio integration tests
         if: runner.os == 'Windows'

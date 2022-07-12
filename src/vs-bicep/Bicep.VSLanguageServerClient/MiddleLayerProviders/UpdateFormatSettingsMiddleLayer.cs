@@ -30,19 +30,26 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
         {
             if (CanHandle(methodName))
             {
-                var documentFormattingParams = methodParam.ToObject<DocumentFormattingParams>();
-
-                if (documentFormattingParams is not null)
-                {
-                    var formattingOptions = documentFormattingParams.Options;
-                    formattingOptions.InsertSpaces = true;
-                    formattingOptions.TabSize = 2;
-                    documentFormattingParams.Options = formattingOptions;
-                    methodParam = JToken.FromObject(documentFormattingParams);
-                }
+                methodParam = UpdateFormatOptions(methodParam);
             }
 
             return await sendRequest(methodParam);
+        }
+
+        public JToken UpdateFormatOptions(JToken methodParam)
+        {
+            var documentFormattingParams = methodParam.ToObject<DocumentFormattingParams>();
+
+            if (documentFormattingParams is not null)
+            {
+                var formattingOptions = documentFormattingParams.Options;
+                formattingOptions.InsertSpaces = true;
+                formattingOptions.TabSize = 2;
+                documentFormattingParams.Options = formattingOptions;
+                methodParam = JToken.FromObject(documentFormattingParams);
+            }
+
+            return methodParam;
         }
     }
 }
