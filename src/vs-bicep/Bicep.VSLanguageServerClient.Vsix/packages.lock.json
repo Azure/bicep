@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "dependencies": {
+    ".NETFramework,Version=v4.7.2": {
+      "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
+        "type": "Direct",
+        "requested": "[3.3.3, )",
+        "resolved": "3.3.3",
+        "contentHash": "vvz3XCHVrd/Ks4xPoutLmL/T2+8JcOk/OMs3ngwQqnzokQCGEDsY+WjK/txCsDWU29sX3fGzH/FnYwNV93O1mA=="
+      },
+      "Microsoft.SourceLink.GitHub": {
+        "type": "Direct",
+        "requested": "[1.1.1, )",
+        "resolved": "1.1.1",
+        "contentHash": "IaJGnOv/M7UQjRJks7B6p7pbPnOwisYGOIzqCz5ilGFTApZ3ktOR+6zJ12ZRPInulBmdAf1SrGdDG2MU8g6XTw==",
+        "dependencies": {
+          "Microsoft.Build.Tasks.Git": "1.1.1",
+          "Microsoft.SourceLink.Common": "1.1.1"
+        }
+      },
+      "Microsoft.VSSDK.BuildTools": {
+        "type": "Direct",
+        "requested": "[17.3.1061-preview2, )",
+        "resolved": "17.3.1061-preview2",
+        "contentHash": "kJe1GnpSL7YIYKzlHYldKYAONuBzrjroJoZ0lxi29I2HpgEAsSqTjvX0hs3NS+z7FmIBUucvB606dZW6r4EfvA==",
+        "dependencies": {
+          "Microsoft.VSSDK.CompatibilityAnalyzer": "17.3.1061-preview2",
+          "Microsoft.VisualStudio.SDK.Analyzers": "16.10.10"
+        }
+      },
+      "Nerdbank.GitVersioning": {
+        "type": "Direct",
+        "requested": "[3.5.107, )",
+        "resolved": "3.5.107",
+        "contentHash": "oMWWTe9aTUJ1CwU4fpfpduqx7Hzve320PU2SUyFFDzlHXTdjEouWHtFrRbaXV4LysL0lBtlzJM/nmHm47p2KWw=="
+      },
+      "Microsoft.Build.Tasks.Git": {
+        "type": "Transitive",
+        "resolved": "1.1.1",
+        "contentHash": "AT3HlgTjsqHnWpBHSNeR0KxbLZD7bztlZVj7I8vgeYG9SYqbeFGh0TM/KVtC6fg53nrWHl3VfZFvb5BiQFcY6Q=="
+      },
+      "Microsoft.SourceLink.Common": {
+        "type": "Transitive",
+        "resolved": "1.1.1",
+        "contentHash": "WMcGpWKrmJmzrNeuaEb23bEMnbtR/vLmvZtkAP5qWu7vQsY59GqfRJd65sFpBszbd2k/bQ8cs8eWawQKAabkVg=="
+      },
+      "Microsoft.VisualStudio.SDK.Analyzers": {
+        "type": "Transitive",
+        "resolved": "16.10.10",
+        "contentHash": "LuhBHy7MJJ5SjpS7J2GuHqPyL1VeqXUwYc+mTagaUCzXbNwJmLcSUAioCyQyAzPIn6qtnzuM5Lz6ULOQS3ifUA==",
+        "dependencies": {
+          "Microsoft.CodeAnalysis.BannedApiAnalyzers": "3.3.2",
+          "Microsoft.VisualStudio.Threading.Analyzers": "16.10.56"
+        }
+      },
+      "Microsoft.VisualStudio.Threading.Analyzers": {
+        "type": "Transitive",
+        "resolved": "16.10.56",
+        "contentHash": "uTvu9fbmHTtRFY5xUgG45waU+ARad0JxyG/2btOC9Su6RTo3PrGVXKU2vHDtVELqlJsnKImhMaPH3YR0XCVwDg=="
+      },
+      "Microsoft.VSSDK.CompatibilityAnalyzer": {
+        "type": "Transitive",
+        "resolved": "17.3.1061-preview2",
+        "contentHash": "u/6zev44WGTcyKkEXcfIWvymN4KHX/m7bBD8jflsG3MIkj1ftZrg4v4L6+TLjIlycpa6zKm0B5MXcruhEyZOJQ=="
+      },
+      "bicep.vslanguageserverclient": {
+        "type": "Project"
+      }
+    },
+    ".NETFramework,Version=v4.7.2/linux-arm64": {},
+    ".NETFramework,Version=v4.7.2/linux-musl-x64": {},
+    ".NETFramework,Version=v4.7.2/linux-x64": {},
+    ".NETFramework,Version=v4.7.2/osx-arm64": {},
+    ".NETFramework,Version=v4.7.2/osx-x64": {},
+    ".NETFramework,Version=v4.7.2/win": {},
+    ".NETFramework,Version=v4.7.2/win-arm64": {},
+    ".NETFramework,Version=v4.7.2/win-x64": {}
+  }
+}

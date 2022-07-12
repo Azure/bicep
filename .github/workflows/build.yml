@@ -84,8 +84,16 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v2
 
-      - name: Build
+      - name: Build Bicep.sln
         run: dotnet build --configuration ${{ matrix.configuration }}
+
+      - name: Add msbuild to PATH
+        if: runner.os == 'Windows'
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Build BicepInVisualStudio.sln
+        if: runner.os == 'Windows'
+        run: msbuild src/vs-bicep/BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
 
       - name: Pack
         if: matrix.publishPackages
@@ -103,12 +111,38 @@ jobs:
           path: ./TestResults/**/*.trx
           if-no-files-found: error
 
+      - name: Run bicep in visual studio unit tests
+        if: runner.os == 'Windows'
+        uses: microsoft/vstest-action@v1.0.0
+        with:
+          testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/Bicep.VSLanguageServerClient.UnitTests.dll
+          runInParallel: true
+
+      - name: Install bicep in Visual Studio
+        if: runner.os == 'Windows'
+        run: ./src/vs-bicep/Install.cmd
+
+      - name: Run bicep in visual studio integration tests
+        if: runner.os == 'Windows'
+        uses: microsoft/vstest-action@v1.0.0
+        with:
+          testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/Bicep.VSLanguageServerClient.IntegrationTests.dll
+          runInParallel: true
+
       - name: Publish Language Server
         if: matrix.publishLanguageServer
         run: dotnet publish --configuration ${{ matrix.configuration }} ./src/Bicep.LangServer/Bicep.LangServer.csproj
 
       - name: Publish Bicep
         run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
+
+      - name: Upload BicepLanguageServerClient VSIX
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v3
+        with:
+          name: Bicep.VSLanguageServerClient.Vsix.vsix
+          path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/Bicep.VSLanguageServerClient.Vsix.vsix
+          if-no-files-found: error
 
       - name: Run Bicep E2E Tests
         if: matrix.rid != 'linux-musl-x64' && matrix.runTests
