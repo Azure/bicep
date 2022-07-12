@@ -19,7 +19,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
 
             ColorizationsUtility.WaitForColorizations(editor);
 
-            editor.Caret.MoveToLine(3);
+            editor.Caret.MoveToEndOfFile();
 
             string[] expectedCompletionTexts = new string[] { "module", "output", "param", "resource", "targetScope", "var" };
 

@@ -38,6 +38,8 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
                 getActualClassifications = editor.Classification.GetAllClassifications;
             }
 
+            string actual = GetClassificationsContent(editor, getActualClassifications);
+
             WaitForExtensions.AreEqual(
                 () => GetClassificationsContent(editor, getActualClassifications),
                 expected,

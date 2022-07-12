@@ -36,9 +36,9 @@ namespace Bicep.VSLanguageServerClient
             _processTracker = processTracker;
 
             var setupConfiguration = new SetupConfiguration();
-          //  var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer(setupConfiguration.GetInstanceForCurrentProcess().GetInstallationVersion());
-            var updateColorizationMappingsMiddleLayer = new UpdateColorizationMappingsMiddleLayer();
-            _middleLayer = new AggregatingMiddleLayer(updateColorizationMappingsMiddleLayer);
+            var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer(setupConfiguration.GetInstanceForCurrentProcess().GetInstallationVersion());
+            var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer();
+            _middleLayer = new AggregatingMiddleLayer(handleSnippetCompletionsMiddleLayer, updateFormatSettingsMiddleLayer);
         }
 
         public string Name => "Bicep Language Server";

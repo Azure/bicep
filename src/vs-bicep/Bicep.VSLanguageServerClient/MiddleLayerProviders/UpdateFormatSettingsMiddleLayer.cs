@@ -2,17 +2,14 @@
 // Licensed under the MIT License.
 
 using System;
-using System.ComponentModel.Composition;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.LanguageServer.Protocol;
-using Microsoft.VisualStudio.Shell;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
 {
-    [Export(typeof(HandleSnippetCompletionsMiddleLayer))]
-    public class UpdateColorizationMappingsMiddleLayer : ILanguageClientMiddleLayer
+    public class UpdateFormatSettingsMiddleLayer : ILanguageClientMiddleLayer
     {
         public bool CanHandle(string methodName)
         {
@@ -21,8 +18,7 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
                 return false;
             }
 
-            return methodName.Equals(Methods.TextDocumentSemanticTokensFullName, StringComparison.Ordinal) ||
-                 methodName.Equals(Methods.TextDocumentSemanticTokensFullDeltaName, StringComparison.Ordinal);
+            return methodName.Equals(Methods.TextDocumentFormattingName, StringComparison.Ordinal);
         }
 
         public async Task HandleNotificationAsync(string methodName, JToken methodParam, Func<JToken, Task> sendNotification)
@@ -34,15 +30,15 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
         {
             if (CanHandle(methodName))
             {
-                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                var documentFormattingParams = methodParam.ToObject<DocumentFormattingParams>();
 
-                JToken? jToken = await sendRequest(methodParam);
-
-                if (jToken is not null)
+                if (documentFormattingParams is not null)
                 {
-                    var semanticTokens = jToken.ToObject<SemanticTokens>();
-
-                    
+                    var formattingOptions = documentFormattingParams.Options;
+                    formattingOptions.InsertSpaces = true;
+                    formattingOptions.TabSize = 2;
+                    documentFormattingParams.Options = formattingOptions;
+                    methodParam = JToken.FromObject(documentFormattingParams);
                 }
             }
 

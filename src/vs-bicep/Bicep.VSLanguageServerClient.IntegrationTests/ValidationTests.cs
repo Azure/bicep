@@ -21,7 +21,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
 
             ColorizationsUtility.WaitForColorizations(editor);
 
-            editor.Caret.MoveToLine(3);
+            editor.Caret.MoveToEndOfFile();
             editor.KeyboardCommands.Type("resource");
 
             var errorListService = VsHostUtility.VsHost!.ObjectModel.Shell.ToolWindows.ErrorList;
