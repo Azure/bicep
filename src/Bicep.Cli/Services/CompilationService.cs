@@ -7,11 +7,9 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using System;
@@ -97,7 +95,7 @@ namespace Bicep.Cli.Services
         }
 
 
-        public ProgramSyntax CompileParams(string inputPath, bool skipRestore)
+        public ParamsSemanticModel CompileParams(string inputPath, bool skipRestore)
         {
 
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
@@ -107,16 +105,11 @@ namespace Bicep.Cli.Services
                 throw new Exception($"Unable to read file {inputPath}");
             }
 
-            var lineStarts = TextCoordinateConverter.GetLineStarts(fileText);
+            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(inputUri, fileText));
 
-            var parser = new ParamsParser(fileText);
-            var syntax = parser.Program();
-
-            foreach(var diagnostic in syntax.GetParseDiagnostics()){
-                diagnosticLogger.LogDiagnostic(inputUri, diagnostic, lineStarts);
-            };
-
-            return syntax;
+            LogParamDiagnostics(model);
+          
+            return model;
         } 
 
         public async Task<(Uri, ImmutableDictionary<Uri, string>)> DecompileAsync(string inputPath, string outputPath)
@@ -181,6 +174,14 @@ namespace Bicep.Cli.Services
                     diagnosticLogger.LogDiagnostic(bicepFile.FileUri, diagnostic, bicepFile.LineStarts);
                 }
             }
+        }
+
+        private void LogParamDiagnostics(ParamsSemanticModel paramSemanticModel)
+        {
+            foreach(var diagnostic in paramSemanticModel.GetDiagnostics())
+            {
+                diagnosticLogger.LogDiagnostic(paramSemanticModel.bicepParamFile.FileUri, diagnostic, paramSemanticModel.bicepParamFile.LineStarts);
+            };
         }
     }
 }

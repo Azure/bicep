@@ -35,6 +35,14 @@ namespace Bicep.Core.Workspaces
             return CreateBicepFile(fileUri, fileContents);
         }
 
+        public static BicepParamFile CreateBicepParamFile(Uri fileUri, string fileContents)
+        {
+            var parser = new ParamsParser(fileContents);
+            var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
+
+            return new(fileUri, lineStarts, parser.Program());
+        }
+
         public static BicepFile CreateBicepFile(Uri fileUri, string fileContents)
         {
             var parser = new Parser(fileContents);
