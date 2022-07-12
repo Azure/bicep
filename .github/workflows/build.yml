@@ -84,8 +84,8 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v2
 
-      - name: Build
-        run: dotnet build Bicep.sln --configuration ${{ matrix.configuration }}
+      - name: Build Bicep.sln
+        run: dotnet build --configuration ${{ matrix.configuration }}
 
       - name: Add msbuild to PATH
         if: runner.os == 'Windows'
@@ -93,14 +93,22 @@ jobs:
 
       - name: Build BicepInVisualStudio.sln
         if: runner.os == 'Windows'
-        run: msbuild BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
+        run: msbuild src/vs-bicep/BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
 
-      - name: Upload BicepLanguageServerClient VSIX
-        if: runner.os == 'Windows'
+      - name: Pack
+        if: matrix.publishPackages
+        run: dotnet pack --configuration ${{ matrix.configuration }}
+
+      - name: Test
+        if: matrix.runTests
+        run: dotnet test --configuration ${{ matrix.configuration }} --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
+
+      - name: Upload Test Results
         uses: actions/upload-artifact@v3
+        if: always() && matrix.runTests
         with:
-          name: Bicep.VSLanguageServerClient.Vsix.vsix
-          path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/Bicep.VSLanguageServerClient.Vsix.vsix
+          name: Bicep.TestResults.${{ matrix.rid }}
+          path: ./TestResults/**/*.trx
           if-no-files-found: error
 
       - name: Install bicep in Visual Studio
@@ -114,16 +122,36 @@ jobs:
           testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/Bicep.VSLanguageServerClient.IntegrationTests.dll
           runInParallel: true
 
-      - name: Pack
-        if: matrix.publishPackages
-        run: dotnet pack Bicep.sln --configuration ${{ matrix.configuration }}
-      
       - name: Publish Language Server
         if: matrix.publishLanguageServer
         run: dotnet publish --configuration ${{ matrix.configuration }} ./src/Bicep.LangServer/Bicep.LangServer.csproj
 
       - name: Publish Bicep
         run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
+
+      - name: Upload BicepLanguageServerClient VSIX
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v3
+        with:
+          name: Bicep.VSLanguageServerClient.Vsix.vsix
+          path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/Bicep.VSLanguageServerClient.Vsix.vsix
+          if-no-files-found: error
+
+      - name: Run Bicep E2E Tests
+        if: matrix.rid != 'linux-musl-x64' && matrix.runTests
+        run: npm ci && npm test
+        env:
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
+        working-directory: ./src/Bicep.Cli.E2eTests
+
+      - name: Run Bicep E2E Tests (linux-musl-x64)
+        if: matrix.rid == 'linux-musl-x64' && matrix.runTests
+        uses: docker://mcr.microsoft.com/azure-cli:latest
+        with:
+          entrypoint: sh
+          args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
+        env:
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
 
       - name: Upload Language Server
         uses: actions/upload-artifact@v3
