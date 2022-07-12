@@ -26,6 +26,7 @@ namespace Bicep.Core.Samples
         public const string TestFileMainDiagnostics = "main.diagnostics.bicep";
         public const string TestFileMainTokens = "main.tokens.bicep";
         public const string TestFileMainSymbols = "main.symbols.bicep";
+        public const string TestFileParamSymbols = "parameters.symbols.bicepparam";
         public const string TestFileMainSyntax = "main.syntax.bicep";
         //TODO: syntax file should be named parameters.syntax.bicepparam for consistency
         public const string TestFileMainParamSyntax = "main.syntax.bicepparam";
@@ -74,6 +75,8 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<string> lazySymbols;
 
+        private readonly Lazy<string>? lazyParamSymbols;
+
         private readonly Lazy<string> lazyFormatted;
 
         private readonly Lazy<string>? lazySourceMap;
@@ -98,6 +101,7 @@ namespace Bicep.Core.Samples
             this.lazyCompiledWithSymbolicNames = this.CreateIffValid(TestFileMainCompiledWithSymbolicNames);
             this.lazyCompiledSourceMap = this.CreateIffValid(TestFileMainCompiledSourceMap);
             this.lazySymbols = this.CreateRequired(TestFileMainSymbols);
+            this.lazyParamSymbols = this.CreateOptional(TestFileParamSymbols);
             this.lazySyntax = this.CreateRequired(TestFileMainSyntax);
             this.lazyParamSyntax = this.CreateOptional(TestFileMainParamSyntax);
             this.lazyFormatted = this.CreateRequired(TestFileMainFormatted);
@@ -130,6 +134,8 @@ namespace Bicep.Core.Samples
         public string? CompiledSourceMap => this.lazyCompiledSourceMap?.Value;
 
         public string Symbols => this.lazySymbols.Value;
+
+        public string? ParamSymbols => this.lazyParamSymbols?.Value;
 
         public string Syntax => this.lazySyntax.Value;
 
