@@ -275,12 +275,10 @@ this
         }
 
         private EmitResult EmitParam(string inputFilePath, EmitterSettings emitterSettings, string outputFilePath)
-        {
-            var fileText = File.ReadAllText(inputFilePath);
-            var parser = new ParamsParser(fileText);
-            var syntax = parser.Program();
+        {   
+            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(inputFilePath), File.ReadAllText(inputFilePath)));
 
-            var emitter = new ParametersEmitter(syntax, emitterSettings);
+            var emitter = new ParametersEmitter(model, emitterSettings);
             using var stream = new FileStream(outputFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
             return emitter.EmitParamsFile(stream);
         }

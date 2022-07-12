@@ -42,7 +42,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var documentUri = request.TextDocument.Uri;
 
-            if (PathHelper.HasExtension(documentUri.ToUri(), LanguageConstants.ParamsFileExtension))
+            if (PathHelper.HasBicepparamsExension(documentUri.ToUri()))
             {
                 this.paramsCompilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, contents);
             }
@@ -74,7 +74,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             
-            if (PathHelper.HasExtension(documentUri.ToUri(), LanguageConstants.ParamsFileExtension))
+            if (PathHelper.HasBicepparamsExension(documentUri.ToUri()))
             {
                 this.paramsCompilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
             }
@@ -112,7 +112,7 @@ namespace Bicep.LanguageServer.Handlers
                 bicepConfigChangeHandler.HandleBicepConfigCloseEvent(documentUri);
             }
 
-            if (PathHelper.HasExtension(documentUri.ToUri(), LanguageConstants.ParamsFileExtension))
+            if (PathHelper.HasBicepparamsExension(documentUri.ToUri()))
             {
                 this.paramsCompilationManager.CloseCompilation(request.TextDocument.Uri);
             }

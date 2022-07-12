@@ -50,8 +50,6 @@ namespace Bicep.Cli.Commands
             }
 
 
-
-
             if (IsBicepFile(inputPath))
             {
                 var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
@@ -77,20 +75,18 @@ namespace Bicep.Cli.Commands
             else if(IsBicepparamsFile(inputPath))
             {
               
-                var syntax = compilationService.CompileParams(inputPath, args.NoRestore);
+                var model = compilationService.CompileParams(inputPath, args.NoRestore);
 
                 static string DefaultOutputPath(string path) => PathHelper.GetDefaultBuildOutputPath(path);
                 var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, args.OutputDir, args.OutputFile, DefaultOutputPath);
 
-                paramsWriter.ToFile(syntax, outputPath);
+                paramsWriter.ToFile(model, outputPath);
 
                 return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
             }
             
             logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
             return 1;
-
-           
         }
 
         private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));
