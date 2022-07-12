@@ -19,8 +19,6 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
             ProjectItemTestExtension projectItem = TestProject!["main.bicep"];
             IVisualStudioTextEditorTestExtension editor = projectItem.GetDocumentAsTextEditor().Editor;
 
-            var classifications = ColorizationsUtility.GetClassifications(editor);
-
             string baselineFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"TestSolution\BicepTestProject\results\Colorization\BicepClassifications.bsl");
 
             ColorizationsUtility.WaitForClassifications(editor, baselineFile);

@@ -125,8 +125,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
         [DataRow("17", false)]
         [DataRow("  ", false)]
         [DataRow("", false)]
-        [DataRow(null, false)]
-        public void DoesVSLspSupportSnippets(string version, bool expected)
+        public void Verify_DoesVSLspSupportSnippets(string version, bool expected)
         {
             var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer(version);
 

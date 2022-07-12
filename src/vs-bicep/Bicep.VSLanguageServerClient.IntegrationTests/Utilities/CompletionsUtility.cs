@@ -19,7 +19,11 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
         {
             IVisualStudioCompletionListTestExtension? completionListTestExtension = GetCompletionList(editor, true);
 
-            Assert.IsNotNull(completionListTestExtension);
+            if (completionListTestExtension is null)
+            {
+                Assert.IsNull(completionListTestExtension, "Completion list is null");
+                return;
+            }
 
             CompletionList completionList = completionListTestExtension.Items;
 
@@ -41,8 +45,6 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
                     {
                         try
                         {
-                            // Don't call ShowCompletionList here as it will call InvokeCompletionList multiple times
-                            //   which doesn't work with Roslyn's async intellisense
                             editor.Intellisense.ShowCompletionList();
                         }
                         catch
@@ -61,7 +63,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
             catch
             {
                 // This can occur if completion is dismissed between the call to IsCompletionListPresent and accessing the completion
-                //   list items.
+                // list items.
                 if (!ignoreExceptions)
                 {
                     throw;

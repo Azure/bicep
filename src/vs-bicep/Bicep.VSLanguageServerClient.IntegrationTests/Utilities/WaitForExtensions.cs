@@ -36,7 +36,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
                 }
 
                 // This will always throw as it's always expired in this codepath
-                throw new Microsoft.Test.Apex.TimeoutException(string.Format(CultureInfo.InvariantCulture, "Timed out after {0} waiting for {1}", timeout, conditionDescription));
+                throw new TimeoutException(string.Format(CultureInfo.InvariantCulture, "Timed out after {0} waiting for {1}", timeout, conditionDescription));
             }
         }
 
@@ -44,8 +44,6 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
         {
             T? actual = default(T);
             bool isUnderDebugger = false;
-
-            //NativeMethods.CheckRemoteDebuggerPresent(WebUtility.VsHost.HostProcess.Handle, ref isUnderDebugger);
 
             bool result = false;
 
@@ -65,8 +63,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
 
                 if (onTimeout is not null && actual is not null)
                 {
-                    // Call the timout callback. Don't perform the double timeout test
-                    //   as the callback might not expect it.
+                    // Call the timout callback. Don't perform the double timeout test as the callback might not expect it.
                     onTimeout(actual);
                 }
                 else
@@ -85,14 +82,14 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
                 }
 
                 // This will always throw as it's always expired in this codepath
-                throw new Microsoft.Test.Apex.TimeoutException(string.Format(CultureInfo.InvariantCulture, "Timed out after {0} waiting for {1}", timeout, actualMessage));
+                throw new TimeoutException(string.Format(CultureInfo.InvariantCulture, "Timed out after {0} waiting for {1}", timeout, actualMessage));
             }
         }
 
         public static T? IsNotNull<T>(Func<T> func, int timeout = 5000) where T : class
         {
             T? result = null;
-            WaitForExtensions.IsTrue(() =>
+            IsTrue(() =>
             {
                 result = func();
                 return result != null;

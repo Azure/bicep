@@ -66,6 +66,12 @@
           "System.Threading.Tasks.Dataflow": "6.0.0"
         }
       },
+      "MSTest.TestAdapter": {
+        "type": "Direct",
+        "requested": "[2.2.10, )",
+        "resolved": "2.2.10",
+        "contentHash": "KOc7XVNM0Q5GrTAx4RhxTgwdt9O5gOqSzmLpUMyl9ywa6vvUNFVQ9nCjtEE7qDQW54MZdc82e287PzZDc7yQtA=="
+      },
       "MSTest.TestFramework": {
         "type": "Direct",
         "requested": "[2.2.8, )",

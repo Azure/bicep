@@ -115,7 +115,14 @@ jobs:
         if: runner.os == 'Windows'
         run: ./src/vs-bicep/Install.cmd
 
-      - name: Run visual studio integration tests
+      - name: Run bicep in visual studio unit tests
+        if: runner.os == 'Windows'
+        uses: microsoft/vstest-action@v1.0.0
+        with:
+          testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/Bicep.VSLanguageServerClient.UnitTests.dll
+          runInParallel: true
+
+      - name: Run bicep in visual studio integration tests
         if: runner.os == 'Windows'
         uses: microsoft/vstest-action@v1.0.0
         with:
