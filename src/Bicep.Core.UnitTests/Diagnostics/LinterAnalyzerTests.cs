@@ -28,6 +28,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             linter.GetRuleSet().Should().NotBeEmpty();
         }
 
+        // No need to add new rules here
         [DataTestMethod]
         [DataRow(AdminUsernameShouldNotBeLiteralRule.Code)]
         [DataRow(ExplicitValuesForLocationParamsRule.Code)]
@@ -43,7 +44,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataRow(SimplifyInterpolationRule.Code)]
         [DataRow(ProtectCommandToExecuteSecretsRule.Code)]
         [DataRow(UseStableVMImageRule.Code)]
-        public void BuiltInRulesExist(string ruleCode)
+        public void BuiltInRulesExistSanityCheck(string ruleCode)
         {
             var linter = new LinterAnalyzer(configuration);
             linter.GetRuleSet().Should().Contain(r => r.Code == ruleCode);

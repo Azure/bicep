@@ -236,6 +236,16 @@
                     }
                   ]
                 },
+                "artifacts-parameters": {
+                  "allOf": [
+                    {
+                      "description": "Follow best practices when including the _artifactsLocation and _artifactsLocationSasToken parameters. See https://aka.ms/bicep/linter/artifacts-parameters"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
                 "explicit-values-for-loc-params": {
                   "allOf": [
                     {
