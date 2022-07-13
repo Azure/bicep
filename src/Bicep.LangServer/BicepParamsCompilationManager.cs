@@ -3,9 +3,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.Parsing;
-using Bicep.Core.Syntax;
-using Bicep.Core.Text;
 using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -13,6 +10,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Bicep.LanguageServer.Extensions;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.LanguageServer
 {
@@ -36,15 +35,13 @@ namespace Bicep.LanguageServer
 
         public void UpsertCompilation(DocumentUri uri, int? version, string text, string? languageId = null)
         {
-            var parser = new ParamsParser(text);
-            var programSyntax = parser.Program();
-            var lineStarts = TextCoordinateConverter.GetLineStarts(text);
+            var semanticModel = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(uri.ToUri(), text));
 
-            var foo = this.activeContexts.AddOrUpdate(uri, 
-            (uri) => new ParamsCompilationContext(programSyntax, lineStarts), 
-            (uri, prevContext) => new ParamsCompilationContext(programSyntax, lineStarts));
+            var context = this.activeContexts.AddOrUpdate(uri, 
+            (uri) => new ParamsCompilationContext(semanticModel, semanticModel.bicepParamFile.ProgramSyntax, semanticModel.bicepParamFile.LineStarts), 
+            (uri, prevContext) => new ParamsCompilationContext(semanticModel, semanticModel.bicepParamFile.ProgramSyntax, semanticModel.bicepParamFile.LineStarts));
 
-            this.PublishDocumentDiagnostics(uri, version, foo.ProgramSyntax.GetParseDiagnostics(),lineStarts);  
+            this.PublishDocumentDiagnostics(uri, version, context.ParamsSemanticModel.GetDiagnostics(), context.LineStarts);  
         } 
 
         public void CloseCompilation(DocumentUri uri)

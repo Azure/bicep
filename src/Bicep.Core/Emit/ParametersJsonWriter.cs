@@ -8,15 +8,16 @@ using Newtonsoft.Json.Linq;
 using System.Collections.Immutable;
 using System.IO;
 using System;
+using Bicep.Core.Semantics;
 
 namespace Bicep.Core.Emit
 {
     public class ParametersJsonWriter
     {
-        private readonly ProgramSyntax syntax;
-        public ParametersJsonWriter(ProgramSyntax syntax)
+        private readonly ParamsSemanticModel paramSemanticModel;
+        public ParametersJsonWriter(ParamsSemanticModel paramSemanticModel)
         {
-            this.syntax = syntax;
+            this.paramSemanticModel = paramSemanticModel;
         }
 
         public void Write(JsonTextWriter writer) => GenerateTemplate().WriteTo(writer);
@@ -34,6 +35,8 @@ namespace Bicep.Core.Emit
             jsonWriter.WritePropertyName("contentVersion");
             jsonWriter.WriteValue("1.0.0.0");
 
+            //TODO: Update after param semantic model is complete
+            var syntax = paramSemanticModel.bicepParamFile.ProgramSyntax;
             var parameters = syntax.Children.OfType<ParameterAssignmentSyntax>().ToImmutableList();
 
             if (parameters.Count > 0)
