@@ -82,6 +82,35 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetDisableNextLineDiagnosticsDirectiveCodesCompletion(model, context));
         }
 
+
+        public IEnumerable<CompletionItem> GetFilteredParamsCompletetions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
+        {
+            //1 - bicep semantic model -> parameter declarations
+            //2 - once param keyword is typed -> suggest parameter completions
+                
+        
+            //param  
+            return Enumerable.Empty<CompletionItem>().Concat(GetParamAssingmnetCompletions(paramsSemanticModel, paramsCompletionContext));
+        }
+
+        private IEnumerable<CompletionItem> GetParamAssingmnetCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
+        {   
+            if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamAssignment) && paramsSemanticModel.bicepCompilation is {} bicepCompilation)
+            {
+                var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
+                var bicepFileParamDeclarations = bicepSemanticModel.Root.ParameterDeclarations;
+
+                //TODO: handle the case where there are no params in bicep file but we are trying to write one in params file
+                if(bicepFileParamDeclarations.Length != 0)
+                {
+                    foreach(var declaration in bicepFileParamDeclarations)
+                    {
+                        yield return CreateSymbolCompletion(declaration, paramsCompletionContext.ReplacementRange);
+                    }
+                }
+            }
+        }
+
         private IEnumerable<CompletionItem> GetDeclarationCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.TopLevelDeclarationStart))
