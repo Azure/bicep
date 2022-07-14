@@ -62,7 +62,17 @@ namespace Bicep.LanguageServer.Completions
 
         private static bool IsParamAssignmentContext(List<SyntaxBase> matchingNodes, int offset)
         {
-            return matchingNodes.Count >=1 && matchingNodes[^1] is ParameterAssignmentSyntax;
+            if(matchingNodes.Count >=1)
+            {
+                SyntaxBase lastNode = matchingNodes[^1];
+                if (lastNode is ParameterAssignmentSyntax assignmentSyntax )
+                {
+                    //TODO: do completions with partially written identifier names
+                    return assignmentSyntax.Name.IdentifierName == LanguageConstants.MissingName;
+                }
+            }
+
+            return false;
         }
 
         private static ParamsCompletionContextKind ConvertFlag(bool value, ParamsCompletionContextKind flag) => value ? flag : ParamsCompletionContextKind.None;
