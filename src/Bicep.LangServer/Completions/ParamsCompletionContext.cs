@@ -28,7 +28,6 @@ namespace Bicep.LanguageServer.Completions
             TokenType.StringComplete
         }.Concat(LanguageConstants.Keywords.Values).ToImmutableHashSet();
 
-
         public ParamsCompletionContextKind Kind { get; }
 
         public Range ReplacementRange { get; }
