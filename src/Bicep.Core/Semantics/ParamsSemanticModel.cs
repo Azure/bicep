@@ -10,10 +10,6 @@ namespace Bicep.Core.Semantics
 {
     public class ParamsSemanticModel
     {
-        public BicepParamFile bicepParamFile { get; }
-        public ParamsTypeManager ParamsTypeManager { get; }
-        public ParamBinder paramBinder {get; }
-
         public ParamsSemanticModel(BicepParamFile bicepParamFile)
         {
             var paramsSymbolContext = new ParamsSymbolContext(this);
@@ -28,6 +24,9 @@ namespace Bicep.Core.Semantics
             
         }
 
+        public BicepParamFile bicepParamFile { get; }
+        public ParamsTypeManager ParamsTypeManager { get; }
+        public ParamBinder paramBinder {get; }
         public ParamsSymbolContext ParamsSymbolContext { get; }
 
         public IEnumerable<IDiagnostic> GetDiagnostics()

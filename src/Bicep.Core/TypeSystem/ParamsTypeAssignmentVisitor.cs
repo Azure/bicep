@@ -13,45 +13,24 @@ namespace Bicep.Core.TypeSystem
 {
     public sealed class ParamsTypeAssignmentVisitor : SyntaxVisitor
     {
-        private class ParamsTypeAssignment
-        {
-            public ParamsTypeAssignment(ITypeReference reference)
-                : this(reference, Enumerable.Empty<IDiagnostic>())
-            {
-            }
-
-            public ParamsTypeAssignment(ITypeReference reference, IEnumerable<IDiagnostic> diagnostics)
-            {
-                Reference = reference;
-                Diagnostics = diagnostics;
-            }
-
-            public ITypeReference Reference { get; }
-
-            public IEnumerable<IDiagnostic> Diagnostics { get; }
-        }
-
         private readonly IParamsTypeManager paramsTypeManager;
         private readonly ParamBinder paramBinder;
-        private readonly ConcurrentDictionary<SyntaxBase, ParamsTypeAssignment> assignedTypes;
+        private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         
         public ParamsTypeAssignmentVisitor(IParamsTypeManager paramsTypeManager, ParamBinder paramBinder)
         {
             this.paramsTypeManager = paramsTypeManager;
             this.paramBinder = paramBinder;
-            // this.fileResolver = fileResolver;
             assignedTypes = new();
-            // matchedFunctionOverloads = new();
-            // matchedFunctionResultValues = new();
         }
 
-        private ParamsTypeAssignment GetTypeAssignment(SyntaxBase syntax)
+        private TypeAssignment GetTypeAssignment(SyntaxBase syntax)
         {
             Visit(syntax);
 
             if (!assignedTypes.TryGetValue(syntax, out var typeAssignment))
             {
-                return new ParamsTypeAssignment(ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidExpression()));
+                return new TypeAssignment(ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidExpression()));
             }
             return typeAssignment;
         }
@@ -76,7 +55,7 @@ namespace Bicep.Core.TypeSystem
             });
 
         private void AssignType(SyntaxBase syntax, Func<ITypeReference> assignFunc)
-            => AssignTypeWithCaching(syntax, () => new ParamsTypeAssignment(assignFunc()));
+            => AssignTypeWithCaching(syntax, () => new TypeAssignment(assignFunc()));
 
         private void AssignTypeWithDiagnostics(SyntaxBase syntax, Func<IDiagnosticWriter, ITypeReference> assignFunc)
             => AssignTypeWithCaching(syntax, () =>
@@ -84,13 +63,13 @@ namespace Bicep.Core.TypeSystem
                 var diagnosticWriter = ToListDiagnosticWriter.Create();
                 var reference = assignFunc(diagnosticWriter);
 
-                return new ParamsTypeAssignment(reference, diagnosticWriter.GetDiagnostics());
+                return new TypeAssignment(reference, diagnosticWriter.GetDiagnostics());
             });
 
-        private void AssignTypeWithCaching(SyntaxBase syntax, Func<ParamsTypeAssignment> assignFunc) =>
+        private void AssignTypeWithCaching(SyntaxBase syntax, Func<TypeAssignment> assignFunc) =>
             assignedTypes.GetOrAdd(syntax, key =>
                 CheckForCyclicError(key) is { } cyclicErrorType
-                    ? new ParamsTypeAssignment(cyclicErrorType)
+                    ? new TypeAssignment(cyclicErrorType)
                     : assignFunc());
 
         private TypeSymbol? CheckForCyclicError(SyntaxBase syntax)
