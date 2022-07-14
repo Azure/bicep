@@ -50,9 +50,9 @@ namespace Bicep.Core.IntegrationTests.Semantics
            
             string getLoggingString(ParameterAssignmentSymbol symbol)
             {
-                (_, var startChar) = TextCoordinateConverter.GetPosition(lineStarts, symbol.DeclaringSyntax.Span.Position);
+                (_, var startChar) = TextCoordinateConverter.GetPosition(lineStarts, symbol.AssigningSyntax.Span.Position);
 
-                return $"{symbol.Kind} {symbol.Name}. Type: {symbol.Type}. Declaration start char: {startChar}, length: {symbol.DeclaringSyntax.Span.Length}";
+                return $"{symbol.Kind} {symbol.Name}. Type: {symbol.Type}. Declaration start char: {startChar}, length: {symbol.AssigningSyntax.Span.Length}";
             }
 
             var sourceTextWithDiags = DataSet.AddDiagsToParamSourceText(dataSet, symbols, symb => symb.NameSyntax.Span, getLoggingString);

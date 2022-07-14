@@ -8,7 +8,6 @@ using Bicep.Core.Syntax;
 using System.Linq;
 using Bicep.Core.Extensions;
 using System.Collections.Concurrent;
-using Bicep.Core.FileSystem;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -33,13 +32,13 @@ namespace Bicep.Core.TypeSystem
         }
 
         private readonly IParamsTypeManager paramsTypeManager;
-        private readonly IBinder binder;
+        private readonly ParamBinder paramBinder;
         private readonly ConcurrentDictionary<SyntaxBase, ParamsTypeAssignment> assignedTypes;
         
-        public ParamsTypeAssignmentVisitor(IParamsTypeManager paramsTypeManager, IBinder binder, IFileResolver fileResolver)
+        public ParamsTypeAssignmentVisitor(IParamsTypeManager paramsTypeManager, ParamBinder paramBinder)
         {
             this.paramsTypeManager = paramsTypeManager;
-            this.binder = binder;
+            this.paramBinder = paramBinder;
             // this.fileResolver = fileResolver;
             assignedTypes = new();
             // matchedFunctionOverloads = new();
@@ -54,7 +53,6 @@ namespace Bicep.Core.TypeSystem
             {
                 return new ParamsTypeAssignment(ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidExpression()));
             }
-
             return typeAssignment;
         }
 
@@ -97,7 +95,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol? CheckForCyclicError(SyntaxBase syntax)
         {
-            if (this.binder.GetSymbolInfo(syntax) is not DeclaredSymbol declaredSymbol)
+            if (this.paramBinder.GetSymbolInfo(syntax) is not DeclaredSymbol declaredSymbol)
             {
                 return null;
             }
@@ -108,7 +106,7 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
-            if (this.binder.TryGetCycle(declaredSymbol) is { } cycle)
+            if (this.paramBinder.TryGetCycle(declaredSymbol) is { } cycle)
             {
                 // there's a cycle. stop visiting now or we never will!
                 if (cycle.Length == 1)
@@ -185,36 +183,17 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(errors);
                 }
 
-                // Discriminated objects should have been resolved by the declared type manager.
-                var declaredType = paramsTypeManager.GetDeclaredType(syntax);
-
                 // type results are cached
                 var namedProperties = syntax.Properties
                     .GroupByExcludingNull(p => p.TryGetKeyText(), LanguageConstants.IdentifierComparer)
                     .Select(group =>
                     {
                         var resolvedType = TypeHelper.CreateTypeUnion(group.Select(p => paramsTypeManager.GetTypeInfo(p)));
-
-                        if (declaredType is ObjectType objectType && objectType.Properties.TryGetValue(group.Key, out var property))
-                        {
-                            // we've found a declared object type for the containing object, with a matching property name definition.
-                            // preserve the type property details (name, descriptions etc.), and update the assigned type.
-                            return new TypeProperty(property.Name, resolvedType, property.Flags, property.Description);
-                        }
-
-                        // we've not been able to find a declared object type for the containing object, or it doesn't contain a property matching this one.
-                        // best we can do is to simply generate a property for the assigned type.
                         return new TypeProperty(group.Key, resolvedType);
                     });
 
-                var additionalProperties = syntax.Properties
-                    .Where(p => p.TryGetKeyText() is null)
-                    .Select(p => paramsTypeManager.GetTypeInfo(p));
-
-                var additionalPropertiesType = additionalProperties.Any() ? TypeHelper.CreateTypeUnion(additionalProperties) : null;
-
                 // TODO: Add structural naming?
-                return new ObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties, additionalPropertiesType);
+                return new ObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties, null);
             });
 
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
@@ -304,13 +283,10 @@ namespace Bicep.Core.TypeSystem
             errors.AddRange(reference.Type.GetDiagnostics());
         }
 
-        private IEnumerable<TypeSymbol> GetArgumentTypes(IEnumerable<FunctionArgumentSyntax> argumentSyntaxes) =>
-            argumentSyntaxes.Select(syntax => this.paramsTypeManager.GetTypeInfo(syntax));
-
         public IEnumerable<IDiagnostic> GetAllDiagnostics()
         {
             // ensure we've visited all of the syntax nodes
-            Visit(this.binder.FileSymbol.Syntax);
+            Visit(this.paramBinder.ParamFileSymbol.Syntax);
 
             return assignedTypes.Values.SelectMany(x => x.Diagnostics);
         }
