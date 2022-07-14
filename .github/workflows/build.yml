@@ -1,4 +1,4 @@
-name: Build
+name: Bui
 
 on:
   push:
@@ -87,21 +87,13 @@ jobs:
       - name: Build Bicep.sln
         run: dotnet build --configuration ${{ matrix.configuration }}
 
-      - name: Add msbuild to PATH
-        if: runner.os == 'Windows'
-        uses: microsoft/setup-msbuild@v1.1
-
-      - name: Build BicepInVisualStudio.sln
-        if: runner.os == 'Windows'
-        run: msbuild src/vs-bicep/BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
-
       - name: Pack
         if: matrix.publishPackages
         run: dotnet pack --configuration ${{ matrix.configuration }}
 
       - name: Test
         if: matrix.runTests
-        run: dotnet test --configuration ${{ matrix.configuration }} --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
+        run: dotnet test Bicep.sln --configuration ${{ matrix.configuration }} --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v3
@@ -110,6 +102,14 @@ jobs:
           name: Bicep.TestResults.${{ matrix.rid }}
           path: ./TestResults/**/*.trx
           if-no-files-found: error
+
+      - name: Add msbuild to PATH
+        if: runner.os == 'Windows'
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Build BicepInVisualStudio.sln
+        if: runner.os == 'Windows'
+        run: msbuild src/vs-bicep/BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
 
       - name: Run bicep in visual studio unit tests
         if: runner.os == 'Windows'
@@ -188,6 +188,35 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           flags: dotnet
+
+  build-bicep-in-visual-studio
+    steps:
+      - name: Add msbuild to PATH
+        if: runner.os == 'Windows'
+        uses: microsoft/setup-msbuild@v1.1
+        needs: build-bicep
+
+      - name: Build BicepInVisualStudio.sln
+        if: runner.os == 'Windows'
+        run: msbuild src/vs-bicep/BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
+
+      - name: Run bicep in visual studio unit tests
+        if: runner.os == 'Windows'
+        uses: microsoft/vstest-action@v1.0.0
+        with:
+          testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/Bicep.VSLanguageServerClient.UnitTests.dll
+          runInParallel: true
+
+      - name: Install bicep in Visual Studio
+        if: runner.os == 'Windows'
+        run: ./src/vs-bicep/Install.cmd
+
+      - name: Run bicep in visual studio integration tests
+        if: runner.os == 'Windows'
+        uses: microsoft/vstest-action@v1.0.0
+        with:
+          testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/Bicep.VSLanguageServerClient.IntegrationTests.dll
+          runInParallel: true
 
   can-run-live-tests:
     name: Check secret access
