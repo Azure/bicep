@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.FileSystem;
-using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Text;
@@ -34,14 +33,10 @@ namespace Bicep.Core.IntegrationTests.Semantics
                 throw new InvalidOperationException($"Expected {nameof(dataSet.BicepParam)} to be non-null");
             }
 
-            var parser = new ParamsParser(dataSet.BicepParam);
-            var program = parser.Program();
-
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMainParam));
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.BicepParam);
-
-            var sourceFile = new BicepParamFile(fileUri, lineStarts, program);
+            var sourceFile = SourceFileFactory.CreateBicepParamFile(fileUri, dataSet.BicepParam);
             var model = new ParamsSemanticModel(sourceFile);
 
             var symbols = SymbolCollector

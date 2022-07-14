@@ -16,12 +16,11 @@ namespace Bicep.Core.TypeSystem
         {
             this.paramsTypeAssignmentVisitor = new ParamsTypeAssignmentVisitor(this, binder);
         }
-        
+
         public TypeSymbol GetDeclaredType(SyntaxBase syntax)
         {
             // use ParameterAssignmentSyntax to find Bicep SemanticModel, call GetType() to get ParameterDeclarationSyntax
             throw new NotImplementedException();
-            
         }
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)
