@@ -13,7 +13,7 @@ namespace Bicep.Core.Semantics
 
         public ParamBinder paramBinder { get; }
 
-        public Compilation? bicepCompilation { get; }
+        public Compilation? bicepCompilation { get;  set;}
         public ParamsSemanticModel(BicepParamFile bicepParamFile, Compilation? bicepCompilation = null)
         {
             this.bicepParamFile = bicepParamFile;
