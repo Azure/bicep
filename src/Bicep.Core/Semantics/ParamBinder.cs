@@ -16,10 +16,10 @@ namespace Bicep.Core.Semantics
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
         private readonly ImmutableDictionary<BindableSymbol, ImmutableArray<BindableSymbol>> cyclesBySymbol;
 
-        public ParamBinder(BicepParamFile bicepParamFile)
+        public ParamBinder(BicepParamFile bicepParamFile, ParamsSymbolContext paramsSymbolContext)
         {
             this.bicepParamFile = bicepParamFile;
-            var symbols = ParamAssignmentSymbolCollectVisitor.GetSymbols(bicepParamFile);
+            var symbols = ParamAssignmentSymbolCollectVisitor.GetSymbols(bicepParamFile, paramsSymbolContext);
             var uniqueSymbols = GetUniqueSymbols(symbols);
             this.bindings = ParamNameBindingVisitor.GetBindings(bicepParamFile.ProgramSyntax, uniqueSymbols);
             this.cyclesBySymbol = GetCyclesBySymbol(bicepParamFile, this.bindings);
