@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
@@ -139,24 +140,27 @@ namespace Bicep.Core.FileSystem
             return uriBuilder.Uri;
         }
 
-        public static string? TryGetUsingPath(UsingDeclarationSyntax? usingDeclarationSyntax, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static bool TryGetUsingPath(UsingDeclarationSyntax? usingDeclarationSyntax, [NotNullWhen(true)]out string? bicepPath, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var pathSyntax = usingDeclarationSyntax?.TryGetPath();
             if (pathSyntax == null)
             {
-                failureBuilder = null;
-                return null;
+                bicepPath = null;
+                failureBuilder = x => x.TemplatePathHasNotBeenSpecified();
+                return false;
             }
 
             var pathValue = pathSyntax.TryGetLiteralValue();
             if (pathValue == null)
             {
+                bicepPath = null;
                 failureBuilder = x => x.FilePathInterpolationUnsupported();
-                return null;
+                return false;
             }
-
+            
+            bicepPath = pathValue;
             failureBuilder = null;
-            return pathValue;
+            return true;
         }
 
 

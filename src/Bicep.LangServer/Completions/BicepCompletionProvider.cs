@@ -85,11 +85,6 @@ namespace Bicep.LanguageServer.Completions
 
         public IEnumerable<CompletionItem> GetFilteredParamsCompletetions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
         {
-            //1 - bicep semantic model -> parameter declarations
-            //2 - once param keyword is typed -> suggest parameter completions
-                
-        
-            //param  
             return Enumerable.Empty<CompletionItem>().Concat(GetParamAssingmnetCompletions(paramsSemanticModel, paramsCompletionContext));
         }
 
@@ -101,12 +96,9 @@ namespace Bicep.LanguageServer.Completions
                 var bicepFileParamDeclarations = bicepSemanticModel.Root.ParameterDeclarations;
 
                 //TODO: handle the case where there are no params in bicep file but we are trying to write one in params file
-                if(bicepFileParamDeclarations.Length != 0)
+                foreach(var declaration in bicepFileParamDeclarations)
                 {
-                    foreach(var declaration in bicepFileParamDeclarations)
-                    {
-                        yield return CreateSymbolCompletion(declaration, paramsCompletionContext.ReplacementRange);
-                    }
+                    yield return CreateSymbolCompletion(declaration, paramsCompletionContext.ReplacementRange);
                 }
             }
         }

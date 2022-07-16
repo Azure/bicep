@@ -6,7 +6,7 @@ multiline comment!
 // This is a single line comment
 
 // using keyword for specifying a Bicep file
-using './main.bicep/'
+using './main.bicep'
 
 // parameter assignment to literals
 param myInt = 42

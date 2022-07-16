@@ -1456,6 +1456,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP247",
                 $"Parameter \"{identifier}\" is assigned multiple times. Remove or rename the duplicates.");
+
+            public ErrorDiagnostic TemplatePathHasNotBeenSpecified() => new(
+                TextSpan,
+                "BCP248",
+                "The using declaration is missing a bicep template file path reference.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -4,7 +4,8 @@
 using System;
 
 namespace Bicep.LanguageServer.Completions
-{   [Flags]
+{
+    [Flags]
     public enum ParamsCompletionContextKind
     {
         /// <summary>
@@ -13,8 +14,13 @@ namespace Bicep.LanguageServer.Completions
         None = 0,
 
         /// <summary>
+        /// The current location needs a bicep file path completion for using declaration
+        /// </summary>
+        UsingDeclaration = 1 << 0,
+
+        /// <summary>
         /// The current location needs a parameter completion from corresponding bicep file
         /// </summary>
-        ParamAssignment = 1 << 0,
+        ParamAssignment = 2 << 0,
     }
 }

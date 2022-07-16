@@ -5,8 +5,10 @@ using Bicep.Cli.Logging;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -111,10 +113,14 @@ namespace Bicep.Cli.Services
             var paramsFile = SourceFileFactory.CreateBicepParamFile(inputUri, fileText);
 
             var usingDeclarations = paramsFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>();
-            var bicepFilePath = PathHelper.TryGetUsingPath(usingDeclarations.SingleOrDefault(), out var getUsingPathFailureBuilder);
 
-            if(bicepFilePath == null){
-                throw new Exception("Path to Bicep file not provided");
+            if(!PathHelper.TryGetUsingPath(usingDeclarations.SingleOrDefault(), out var bicepFilePath, out var failureBuilder))
+            {
+                failureBuilder = failureBuilder ?? throw new InvalidOperationException($"{nameof(PathHelper.TryGetUsingPath)} did not provide an error.");
+                
+                var message = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(usingDeclarations.SingleOrDefault()?.Path.Span ?? new TextSpan(0, 0))).Message;
+
+                throw new BicepException(message);
             }
 
             if(!Uri.TryCreate(inputUri, bicepFilePath, out var bicepFileUri)){
