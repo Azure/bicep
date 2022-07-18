@@ -45,6 +45,44 @@ new string[] {"firstParam", "secondParam"},
 new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field}
 )
 ]
+[DataRow(
+@"
+//Parameters file
+
+using './main.bicep'
+
+param ", 
+
+@"
+//Bicep file
+
+param firstParam int = 1
+param secondParam string
+param thirdParam string = 'hello'
+
+",
+new string[] {"firstParam", "secondParam", "thirdParam"},
+new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field, CompletionItemKind.Field}
+)
+]
+[DataRow(
+@"
+//Parameters file
+
+using './main.bicep'
+
+param ", 
+
+@"
+//Bicep file
+
+var firstVar = 'hello'
+
+",
+new string[] {},
+new CompletionItemKind[] {}
+)
+]
         public void Params_completion_provider_should_return_correct_completions(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
         {   
             var paramsUri = new Uri("inmemory:///params.bicepparams");
@@ -68,6 +106,7 @@ new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field}
             {
                 completion.Label.Should().Be(completionLables[expectedValueIndex]);
                 completion.Kind.Should().Be(completionItemKinds[expectedValueIndex]);
+                expectedValueIndex +=1;
             }
         }
     }
