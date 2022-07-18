@@ -55,7 +55,7 @@ namespace Bicep.VSLanguageServerClient
         public event AsyncEventHandler<EventArgs>? StartAsync;
 #pragma warning disable 0067  // event is never used
         public event AsyncEventHandler<EventArgs>? StopAsync;
-#pragma warning restore 0067
+#pragma warning restore 0067 // event is never used
 
         public async Task<Connection?> ActivateAsync(CancellationToken token)
         {
