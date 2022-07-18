@@ -19,11 +19,11 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
 
                 if (onTimeout != null)
                 {
-                    // Call the timout callback.
+                    // Call the timeout callback.
                     conditionDescription = string.Concat(conditionDescription, "\r\n onTimeout result: ", onTimeout(), "\r\n");
                 }
 
-                // Determine if doubling the timout would cause the predicate to succeed
+                // Determine if doubling the timeout would cause the predicate to succeed
                 result = WaitFor.TryIsTrue(predicate, timeout);
 
                 if (!result)
@@ -63,12 +63,12 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
 
                 if (onTimeout is not null && actual is not null)
                 {
-                    // Call the timout callback. Don't perform the double timeout test as the callback might not expect it.
+                    // Call the timeout callback. Don't perform the double timeout test as the callback might not expect it.
                     onTimeout(actual);
                 }
                 else
                 {
-                    // Determine if doubling the timout would cause the predicate to succeed
+                    // Determine if doubling the timeout would cause the predicate to succeed
                     result = WaitFor.TryAreEqual(getActual, expected, timeout);
 
                     if (!result)
