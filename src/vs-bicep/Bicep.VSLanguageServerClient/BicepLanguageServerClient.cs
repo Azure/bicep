@@ -53,7 +53,7 @@ namespace Bicep.VSLanguageServerClient
         public bool ShowNotificationOnInitializeFailed => true;
 
         public event AsyncEventHandler<EventArgs>? StartAsync;
-#pragma warning disable 0067
+#pragma warning disable 0067  // event is never used
         public event AsyncEventHandler<EventArgs>? StopAsync;
 #pragma warning restore 0067
 
