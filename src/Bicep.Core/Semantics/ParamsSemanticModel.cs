@@ -12,7 +12,7 @@ namespace Bicep.Core.Semantics
     {
         public BicepParamFile bicepParamFile { get; }
         public ParamBinder paramBinder { get; }
-        public Compilation? bicepCompilation { get;  set;}
+        public Compilation? bicepCompilation { get; }
         public ParamsTypeManager ParamsTypeManager { get; }
         public ParamsSymbolContext ParamsSymbolContext { get; }
         

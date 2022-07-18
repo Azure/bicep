@@ -85,7 +85,7 @@ namespace Bicep.LanguageServer.Completions
 
         public IEnumerable<CompletionItem> GetFilteredParamsCompletetions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
         {
-            return Enumerable.Empty<CompletionItem>().Concat(GetParamAssingmnetCompletions(paramsSemanticModel, paramsCompletionContext));
+            return GetParamAssingmnetCompletions(paramsSemanticModel, paramsCompletionContext);
         }
 
         private IEnumerable<CompletionItem> GetParamAssingmnetCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)

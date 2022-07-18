@@ -56,7 +56,7 @@ namespace Bicep.LanguageServer
             {
                 var bicepConfig = bicepConfigurationManager.GetConfiguration(bicepFileUri);
                 var bicepCompilationContext = bicepCompilationContextProvider.Create(new Workspace(), bicepFileUri, new Dictionary<ISourceFile, ISemanticModel>().ToImmutableDictionary(), bicepConfig, new LinterAnalyzer(bicepConfig));
-                semanticModel.bicepCompilation = bicepCompilationContext.Compilation;
+                semanticModel = new ParamsSemanticModel(paramsFile, bicepCompilationContext.Compilation);
             }
     
             var context = this.activeContexts.AddOrUpdate(uri, 
