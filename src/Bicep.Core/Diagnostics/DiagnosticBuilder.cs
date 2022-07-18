@@ -1457,9 +1457,34 @@ namespace Bicep.Core.Diagnostics
                 "BCP247",
                 $"Parameter \"{identifier}\" is assigned multiple times. Remove or rename the duplicates.");
 
-            public ErrorDiagnostic TemplatePathHasNotBeenSpecified() => new(
+            public ErrorDiagnostic ParameterTernaryOperationNotSupported() => new(
                 TextSpan,
                 "BCP248",
+                $"Ternary operator is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic ParameterBinaryOperationNotSupported() => new(
+                TextSpan,
+                "BCP249",
+                $"Binary operator is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic ParameterUnaryOperationNotSupported() => new(
+                TextSpan,
+                "BCP250",
+                $"Unary operator is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic ParameterLambdaFunctionNotSupported() => new(
+                TextSpan,
+                "BCP251",
+                $"Lambda function is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic ParameterFunctionCallNotSupported() => new(
+                TextSpan,
+                "BCP252",
+                $"Function call is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic TemplatePathHasNotBeenSpecified() => new(
+                TextSpan,
+                "BCP253",
                 "The using declaration is missing a bicep template file path reference.");
         }
 

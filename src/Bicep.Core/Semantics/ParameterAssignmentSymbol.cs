@@ -8,20 +8,23 @@ namespace Bicep.Core.Semantics
 {
     public class ParameterAssignmentSymbol : BindableSymbol
     {
-        public ParameterAssignmentSymbol(string name, SyntaxBase declaringSyntax, IdentifierSyntax nameSyntax)
+
+        private ParamsSymbolContext paramsSymbolContext;
+        public ParameterAssignmentSymbol(string name, SyntaxBase assigningSyntax, IdentifierSyntax nameSyntax, ParamsSymbolContext paramsSymbolContext)
             : base(name, nameSyntax)
         {
-            this.DeclaringSyntax = declaringSyntax;
+            this.AssigningSyntax = assigningSyntax;
+            this.paramsSymbolContext = paramsSymbolContext;
         }
         /// <summary>
         /// Gets the syntax node that declared this symbol.
         /// </summary>
-        public SyntaxBase DeclaringSyntax { get; }
+        public SyntaxBase AssigningSyntax { get; }
 
         /// <summary>
         /// Gets the type of the symbol.
         /// </summary>
-        public TypeSymbol Type => LanguageConstants.Any; // TODO
+        public TypeSymbol Type => paramsSymbolContext.ParamsTypeManager.GetTypeInfo(AssigningSyntax); // change this variable name
 
         public override SymbolKind Kind => SymbolKind.AssignedParameter;
 

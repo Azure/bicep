@@ -42,7 +42,7 @@ namespace Bicep.Core.Semantics
             // (doing this here to avoid side-effects in the constructor)
             foreach (ParameterAssignmentSymbol symbol in this.symbols.Values)
             {
-                this.bindings.Add(symbol.DeclaringSyntax, symbol);
+                this.bindings.Add(symbol.AssigningSyntax, symbol);
             }
         }
     }

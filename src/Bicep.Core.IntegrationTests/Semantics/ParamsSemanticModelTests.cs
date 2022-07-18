@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.FileSystem;
-using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Text;
@@ -34,15 +33,10 @@ namespace Bicep.Core.IntegrationTests.Semantics
                 throw new InvalidOperationException($"Expected {nameof(dataSet.BicepParam)} to be non-null");
             }
 
-            var parser = new ParamsParser(dataSet.BicepParam);
-            var program = parser.Program();
-
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMainParam));
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.BicepParam);
-
-            var sourceFile = new BicepParamFile(fileUri, lineStarts, program);
-            var model = new ParamsSemanticModel(sourceFile);
+            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(fileUri, dataSet.BicepParam));
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)
@@ -50,9 +44,9 @@ namespace Bicep.Core.IntegrationTests.Semantics
            
             string getLoggingString(ParameterAssignmentSymbol symbol)
             {
-                (_, var startChar) = TextCoordinateConverter.GetPosition(lineStarts, symbol.DeclaringSyntax.Span.Position);
+                (_, var startChar) = TextCoordinateConverter.GetPosition(lineStarts, symbol.AssigningSyntax.Span.Position);
 
-                return $"{symbol.Kind} {symbol.Name}. Type: {symbol.Type}. Declaration start char: {startChar}, length: {symbol.DeclaringSyntax.Span.Length}";
+                return $"{symbol.Kind} {symbol.Name}. Type: {symbol.Type}. Declaration start char: {startChar}, length: {symbol.AssigningSyntax.Span.Length}";
             }
 
             var sourceTextWithDiags = DataSet.AddDiagsToParamSourceText(dataSet, symbols, symb => symb.NameSyntax.Span, getLoggingString);
