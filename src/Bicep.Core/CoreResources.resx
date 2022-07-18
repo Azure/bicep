@@ -311,4 +311,16 @@
     <value>Resource identifiers should be reproducible outside of their initial deployment context. Resource {0}'s '{1}' identifier is potentially nondeterministic due to its use of the '{2}' function ({3}).</value>
     <comment>{0} is the symbolic name of the resource. {1} is the name of the identifier property. {2} is the name of the nondeterministic function used. {3} is the symbol dereference path by which the nondeterministic function call is included.</comment>
   </data>
+  <data name="UseRecentApiVersionRule_Description" xml:space="preserve">
+    <value>Use recent API versions</value>
+    <comment>asdfg?</comment>
+  </data>
+  <data name="UseRecentApiVersionRule_MessageFormat" xml:space="preserve">
+    <value>Use recent API version for '{0}'.</value>
+    <comment>{0} = fully-qualified resource type name (programmatic).</comment>
+  </data>
+   <data name="UseRecentApiVersionRule_AcceptableVersions" xml:space="preserve">
+    <value>Acceptable versions: {0}</value>
+    <comment>{0}: list of acceptable values</comment>
+  </data>
 </root>

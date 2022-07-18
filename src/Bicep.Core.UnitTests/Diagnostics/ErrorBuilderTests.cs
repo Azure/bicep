@@ -15,13 +15,15 @@ using System.Reflection;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Analyzers.Linter.Rules;
 
 namespace Bicep.Core.UnitTests.Diagnostics
 {
     [TestClass]
     public class DiagnosticBuilderTests
     {
-        [TestMethod]
+        private readonly string[] LinterCodesToIgnore = new string[] { UseRecentApiVersionRule.Code }; //using Bicep.Core.ApiVersion; move
+                                                                                                       //[TestMethod]
         public void DiagnosticBuilder_CodesAreUnique()
         {
             var diagnosticMethods = typeof(DiagnosticBuilder.DiagnosticBuilderInternal)
@@ -166,9 +168,9 @@ namespace Bicep.Core.UnitTests.Diagnostics
         private void ExpectDiagnosticWithFixedText(string text, string expectedText)
         {
             var result = CompilationHelper.Compile(text);
-            result.Diagnostics.Should().HaveCount(1);
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveCount(1);
 
-            FixableDiagnostic diagnostic = (FixableDiagnostic)result.Diagnostics.Single();
+            FixableDiagnostic diagnostic = (FixableDiagnostic)result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Single();
             diagnostic.Code.Should().Be("BCP035");
             diagnostic.Fixes.Should().HaveCount(1);
 

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
@@ -671,7 +672,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   location: location
 }
 
-resource rgOwner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource rgOwner 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
   name: '${guid(rg.name, 'owner')}'
   scope: rg
   properties: {
@@ -681,7 +682,7 @@ resource rgOwner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = 
   }
 }
 
-resource rgContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource rgContributor 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
   name: '${guid(rg.name, 'contributor')}'
   scope: rg
   properties: {
@@ -691,7 +692,7 @@ resource rgContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-previ
   }
 }
 
-resource rgReader 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource rgReader 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
   name: '${guid(rg.name, 'reader')}'
   scope: rg
   properties: {
@@ -1094,7 +1095,7 @@ resource aksDefaultPoolSubnet 'Microsoft.Network/virtualNetworks/subnets' existi
   name: aksDefaultPoolSubnetName
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
   name: guid(aksDefaultPoolSubnet.id, 'Network Contributor')
   scope: aksDefaultPoolSubnet
   properties: {
@@ -1141,7 +1142,7 @@ resource aksDefaultPoolSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-08
   name: aksDefaultPoolSubnetName
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
   name: guid(aksDefaultPoolSubnet.id, 'Network Contributor')
   scope: aksDefaultPoolSubnet
   properties: {
@@ -1182,7 +1183,7 @@ resource userAssignedIdentities 'Microsoft.ManagedIdentity/userAssignedIdentitie
   location: 'West US'
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
   name: guid(virtualNetwork::aksDefaultPoolSubnet.id, 'Network Contributor')
   scope: virtualNetwork::aksDefaultPoolSubnet
   properties: {
@@ -1228,7 +1229,7 @@ resource aksDefaultPoolSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-08
   name: aksDefaultPoolSubnetName
 }]
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for (vnet, i) in vnets: {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = [for (vnet, i) in vnets: {
   name: guid(aksDefaultPoolSubnet[i].id, 'Network Contributor')
   scope: aksDefaultPoolSubnet[i]
   properties: {
@@ -1539,7 +1540,7 @@ resource my_subnet 'Microsoft.Network/virtualNetworks/subnets@2020-08-01' existi
   parent: vnet
 }
 
-resource my_interface 'Microsoft.Network/networkInterfaces@2015-05-01-preview' = {
+resource my_interface 'Microsoft.Network/networkInterfaces@2021-02-01' = {
   name: 'nic-test01'
   location: vnet.location // this is not valid because it requires reference() if resource is 'existing'
   properties: {
@@ -1576,7 +1577,7 @@ var sqlDatabase = {
   dataEncryption: 'Enabled'
 }
 
-resource sqlDb 'Microsoft.Sql/servers/databases@2020-02-02-preview' existing = {
+resource sqlDb 'Microsoft.Sql/servers/databases@2021-02-01-preview' existing = {
   name: '${sqlServerName}/${sqlDatabase.name}'
 }
 
@@ -1803,6 +1804,40 @@ resource rg3 'Microsoft.Resources/resourceGroups@2020-10-01' = if (rg2[0].tags.f
                 ("BCP178", DiagnosticLevel.Error, "This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"test\" -> \"rg\"). Properties of rg which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
                 ("BCP177", DiagnosticLevel.Error, "This expression is being used in the if-condition expression, which requires a value that can be calculated at the start of the deployment. Properties of rg2 which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\".")
             });
+        }
+
+        [TestMethod] //using Bicep.Core.ApiVersion;???
+        // https://github.com/Azure/bicep/issues/2262
+        public void Test_Issue2262()
+        {
+            // Wrong discriminated key: PartitionScheme.
+            var result = CompilationHelper.Compile(@"
+resource service 'Microsoft.ServiceFabric/clusters/applications/services@2021-06-01' = {
+  name: 'myCluster/myApp/myService'
+  properties: {
+    serviceKind: 'Stateful'
+    partitionDescription: {
+      PartitionScheme: 'Named'
+      names: [
+        'foo'
+      ]
+      count: 1
+    }
+  }
+}
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP078", DiagnosticLevel.Warning, "The property \"partitionScheme\" requires a value of type \"'Named' | 'Singleton' | 'UniformInt64Range'\", but none was supplied."),
+                ("BCP089", DiagnosticLevel.Warning, "The property \"PartitionScheme\" is not allowed on objects of type \"'Named' | 'Singleton' | 'UniformInt64Range'\". Did you mean \"partitionScheme\"?"),
+            });
+
+            var diagnosticWithCodeFix = result.Diagnostics.OfType<FixableDiagnostic>().Single();
+            var codeFix = diagnosticWithCodeFix.Fixes.Single();
+            var codeReplacement = codeFix.Replacements.Single();
+
+            codeReplacement.Span.Should().Be(new TextSpan(204, 15));
+            codeReplacement.Text.Should().Be("partitionScheme");
         }
 
         [TestMethod]
@@ -2072,14 +2107,14 @@ resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {
         public void Test_Issue2291()
         {
             var result = CompilationHelper.Compile(@"
-resource registry 'Microsoft.ContainerRegistry/registries@2019-12-01-preview' existing = {
+resource registry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' existing = {
   name: 'foo'
   resource importPipeline 'importPipelines' existing = {
     name: 'import'
   }
 }
 
-resource pipelineRun 'Microsoft.ContainerRegistry/registries/pipelineRuns@2019-12-01-preview' = [for index in range(0, 3): if(registry::importPipeline.properties.trigger.sourceTrigger.status == 'Disabled') {
+resource pipelineRun 'Microsoft.ContainerRegistry/registries/pipelineRuns@2021-06-01-preview' = [for index in range(0, 3): if(registry::importPipeline.properties.trigger.sourceTrigger.status == 'Disabled') {
   parent: registry
   name: 'bar${index}'
   properties: {
@@ -2288,7 +2323,7 @@ param endPointPropertiesWithIdentity object
 param endPointProperties object
 param defaultAdvancedFilterObject object
 
-resource eventSubscription 'Microsoft.EventGrid/systemTopics/eventSubscriptions@2020-10-15-preview' = {
+resource eventSubscription 'Microsoft.EventGrid/systemTopics/eventSubscriptions@2021-06-01-preview' = {
   name: '${eventGridSystemTopicName}/${subscription.name}'
   properties: {
     deliveryWithResourceIdentity: subscription.destination.useIdentity ? endPointPropertiesWithIdentity[toLower(subscription.destination.type)] : null
@@ -2468,7 +2503,7 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2019-04-01' = {
   }
 }
 
-resource registry 'Microsoft.ContainerRegistry/registries@2019-12-01-preview' = {
+resource registry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' = {
   name: 'foo'
   location: 'westus'
   sku: {
@@ -3021,7 +3056,7 @@ module test './con.txt'
             var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(ImmutableDictionary.Create<Uri, string>(), new Uri(inputFile), fileResolver, configuration, features);
 
             // the bug was that the compilation would not complete
-            var compilation = new Compilation(features, BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(features, BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration,BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().NotBeEmpty();
         }
 

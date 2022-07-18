@@ -13,6 +13,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class NoLocationExprOutsideParamsRuleTests : LinterRuleTestsBase
     {
+        private readonly string[] LinterCodesToIgnore = new string[] { UseRecentApiVersionRule.Code }; //using Bicep.Core.ApiVersion; move
+
         public record ExpectedCodeFix
         {
             public string Description;
@@ -25,25 +27,25 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }
         }
 
-        protected void ExpectPass(string bicepText, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        protected void ExpectPass(string bicepText, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             AssertLinterRuleDiagnostics(NoLocationExprOutsideParamsRule.Code, bicepText, new string[] { }, onCompileErrors);
         }
 
-        protected void ExpectFail(string bicepText, string expectedMessage, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        protected void ExpectFail(string bicepText, string expectedMessage, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             AssertLinterRuleDiagnostics(NoLocationExprOutsideParamsRule.Code, bicepText, new string[] { expectedMessage }, onCompileErrors);
         }
 
-        protected void ExpectFailWithFix(string bicepText, string expectedMessage, ExpectedCodeFix expectedFix, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        protected void ExpectFailWithFix(string bicepText, string expectedMessage, ExpectedCodeFix expectedFix, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             AssertLinterRuleDiagnostics(
               NoLocationExprOutsideParamsRule.Code,
               bicepText,
               diagnostics =>
               {
-                  diagnostics.Should().HaveCount(1);
-                  diagnostics.Should().HaveFixableDiagnostics(new[] {
+                  diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveCount(1);
+                  diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveFixableDiagnostics(new[] {
                     (NoLocationExprOutsideParamsRule.Code, DiagnosticLevel.Warning, expectedMessage, expectedFix.Description, expectedFix.ReplacementText)
                   }); ;
               }
@@ -126,7 +128,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
           ",
             OnCompileErrors.Ignore)]
         [DataTestMethod]
-        public void If_Not_DeploymentOrResourceGroup_OrWithIncorrectNamespace_ShouldPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        public void If_Not_DeploymentOrResourceGroup_OrWithIncorrectNamespace_ShouldPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             ExpectPass(text, onCompileErrors);
         }
@@ -212,7 +214,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "
             );
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveDiagnostics(new[]
             {
                 (NoLocationExprOutsideParamsRule.Code, DiagnosticLevel.Warning, "Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")
             });
@@ -232,7 +234,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }]                "
             );
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveDiagnostics(new[]
             {
                 (NoLocationExprOutsideParamsRule.Code, DiagnosticLevel.Warning, "Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")
             });
@@ -245,7 +247,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 output o string = 'resourceGroup().location'
             ");
 
-            result.Diagnostics.Should().NotHaveAnyDiagnostics();
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().NotHaveAnyDiagnostics();
         }
     }
 }

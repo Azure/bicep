@@ -15,6 +15,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class NoHardcodedLocationRuleTests : LinterRuleTestsBase
     {
+        private readonly string[] LinterCodesToIgnore = new string[] { UseRecentApiVersionRule.Code }; //using Bicep.Core.ApiVersion; move
+
         [TestMethod]
         public void If_ResLocationIs_Global_ShouldPass()
         {
@@ -29,7 +31,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }"
             );
 
-            result.Diagnostics.Should().BeEmpty();
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -46,7 +48,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }"
             );
 
-            result.Diagnostics.Should().BeEmpty();
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -64,7 +66,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }"
             );
 
-            result.Diagnostics.Should().BeEmpty();
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -81,7 +83,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }"
             );
 
-            CodeFix x = result.Diagnostics.First().Should().BeAssignableTo<IFixable>()
+            CodeFix x = result.Diagnostics.ExcludingCode(LinterCodesToIgnore).First().Should().BeAssignableTo<IFixable>()
                 .Which.Fixes.Single();
             x.Should().BeEquivalentTo(
                 new
@@ -113,7 +115,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 output location4 string = '${location}${location2}'
                 ");
 
-            CodeFix x = result.Diagnostics.First().Should().BeAssignableTo<IFixable>()
+            CodeFix x = result.Diagnostics.ExcludingCode(LinterCodesToIgnore).First().Should().BeAssignableTo<IFixable>()
                 .Which.Fixes.Single();
             x.Should().BeEquivalentTo(
                 new
@@ -142,7 +144,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ");
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveDiagnostics(new[]
             {
                 (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westus'")
             });
@@ -164,7 +166,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ");
 
-            result.Diagnostics.Should().HaveFixableDiagnostics(new[]
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveFixableDiagnostics(new[]
                        {
                 (
                     NoHardcodedLocationRule.Code,
@@ -229,7 +231,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ");
 
-            result.Diagnostics.Should().HaveFixableDiagnostics(new[]
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveFixableDiagnostics(new[]
             {
                 (
                     NoHardcodedLocationRule.Code,
@@ -273,7 +275,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ");
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveDiagnostics(new[]
             {
                 (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter instead.")
             });
@@ -324,7 +326,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                    ")
                 );
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveDiagnostics(new[]
             {
                 (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter instead.")
             });
@@ -347,7 +349,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ");
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveDiagnostics(new[]
             {
                 (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter instead.")
             });
@@ -379,7 +381,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ");
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveDiagnostics(new[]
             {
                 (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter instead.")
             });
@@ -411,7 +413,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ");
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveDiagnostics(new[]
             {
                 (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter instead."),
             });
@@ -452,7 +454,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ");
 
-            result.Diagnostics.Should().NotHaveAnyDiagnostics();
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -473,7 +475,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ");
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveDiagnostics(new[]
             {
                 (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter instead.")
             });
@@ -497,7 +499,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ");
 
-            result.Diagnostics.Should().NotHaveAnyDiagnostics();
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -516,7 +518,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ");
 
-            result.Diagnostics.Should().NotHaveAnyDiagnostics();
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -537,7 +539,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ");
 
-            result.Diagnostics.Should().NotHaveAnyDiagnostics();
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -558,7 +560,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             ");
 
-            result.Diagnostics.Should().NotHaveAnyDiagnostics();
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -578,7 +580,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }"
             );
 
-            result.Diagnostics.Should().BeEmpty();
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().BeEmpty();
         }
 
         [TestMethod]
@@ -597,7 +599,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }"
             );
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveDiagnostics(new[]
             {
                 (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'v1' into a parameter instead.")
             });
@@ -622,7 +624,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                    ")
             );
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveDiagnostics(new[]
             {
                 (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "Parameter 'location' may be used as a resource location in the module and should not be assigned a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westus'")
             });
@@ -646,7 +648,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                    ")
             );
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
+            result.Diagnostics.ExcludingCode(LinterCodesToIgnore).Should().HaveDiagnostics(new[]
             {
                 (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "Parameter 'location' may be used as a resource location in the module and should not be assigned a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westus'")
             });

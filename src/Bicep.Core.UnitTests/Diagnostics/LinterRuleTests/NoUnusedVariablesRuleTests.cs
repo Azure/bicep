@@ -22,7 +22,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void CompileAndTest(string text, params string[] unusedVars)
         {
-            CompileAndTest(text, OnCompileErrors.Fail, unusedVars);
+            CompileAndTest(text, OnCompileErrors.IncludeErrors, unusedVars);
         }
 
         private void CompileAndTest(string text, OnCompileErrors onCompileErrors, params string[] unusedVars)

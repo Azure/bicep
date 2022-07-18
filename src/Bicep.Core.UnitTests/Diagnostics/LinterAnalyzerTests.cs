@@ -29,6 +29,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
         [DataTestMethod]
+        //using Bicep.Core.ApiVersion;
         [DataRow(AdminUsernameShouldNotBeLiteralRule.Code)]
         [DataRow(ExplicitValuesForLocationParamsRule.Code)]
         [DataRow(NoHardcodedEnvironmentUrlsRule.Code)]
@@ -43,6 +44,10 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataRow(SimplifyInterpolationRule.Code)]
         [DataRow(ProtectCommandToExecuteSecretsRule.Code)]
         [DataRow(UseStableVMImageRule.Code)]
+        [DataRow(SecureParameterDefaultRule.Code)]
+        [DataRow(SimplifyInterpolationRule.Code)]
+        [DataRow(NoUnusedVariablesRule.Code)]
+        [DataRow(UseRecentApiVersionRule.Code)]
         public void BuiltInRulesExist(string ruleCode)
         {
             var linter = new LinterAnalyzer(configuration);

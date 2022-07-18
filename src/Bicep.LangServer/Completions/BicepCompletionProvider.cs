@@ -282,7 +282,7 @@ namespace Bicep.LanguageServer.Completions
             // If the current value passes the namespace and type notation ("<Namespace>/<type>") format, we return the fully qualified resource types
             if (TryGetFullyQualfiedResourceType(context.EnclosingDeclaration) is string qualified)
             {
-                // newest api versions should be shown first
+                // newest api versions should be shown first using Bicep.Core.ApiVersion;
                 // strict filtering on type so that we show api versions for only the selected type
                 return model.Binder.NamespaceResolver.GetAvailableResourceTypes()
                     .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(qualified.Split('@')[0], rt.FormatType()))
@@ -292,7 +292,7 @@ namespace Bicep.LanguageServer.Completions
                     .ToList();
             }
 
-            // if we do not have the namespace and type notation, we only return uniquie resource types without their api-versions
+            // if we do not have the namespace and type notation, we only return unique resource types without their api-versions using Bicep.Core.ApiVersion;
             // we need to ensure that Microsoft.Compute/virtualMachines comes before Microsoft.Compute/virtualMachines/extensions
             // we still order by apiVersion first to have consistent indexes
             return model.Binder.NamespaceResolver.GetAvailableResourceTypes()

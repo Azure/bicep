@@ -26,6 +26,7 @@ param agentVMSize string = 'Standard_DS2_v2'
 // osType was a defaultValue with only one allowedValue, which seems strange?, could be a good TTK test
 
 resource aks 'Microsoft.ContainerService/managedClusters@2020-03-01' = {
+//@[57:67) [use-recent-api-version (Warning)] Use recent API version for 'Microsoft.ContainerService/managedClusters'. '2020-03-01' is 869 days old, should be no more than 730 days old. Acceptable versions: 2022-05-02-preview, 2022-04-02-preview, 2022-04-01, 2022-03-01, 2022-02-01, 2022-01-01, 2021-10-01, 2021-09-01, 2021-08-01, 2021-07-01, 2021-05-01, 2021-03-01, 2021-02-01, 2020-12-01, 2020-11-01, 2020-09-01 (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2020-03-01|
     name: clusterName
     location: location
     properties: {

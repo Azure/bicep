@@ -1,18 +1,15 @@
 // $1 = logicAppConnector
 // $2 = 'name'
-// $3 = location
-// $4 = 'name'
-// $5 = 'logicAppConnectorApi'
+// $3 = 'logicAppConnectorApi'
 
-param location string
-
-resource logicAppConnector 'Microsoft.Web/connections@2015-08-01-preview' = {
+resource logicAppConnector 'Microsoft.Web/connections@2016-06-01' = {
   name: 'name'
-  location: location
+  location: 'logicAppConnectorApi'
+//@[12:34) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'logicAppConnectorApi' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'logicAppConnectorApi'|
   properties: {
-    name: 'name'
     api: any({
-      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', location, 'logicAppConnectorApi')
+      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'logicAppConnectorApi')
+//@[72:96) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
     })
   }
 }

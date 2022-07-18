@@ -5,14 +5,16 @@ using System;
 
 namespace Bicep.Core.Configuration
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IConfigurationManager
     {
         /// <summary>
         /// Gets the built-in configuration.
         /// </summary>
-        /// <param name="disableAnalyzers">Indicates whether the analyzer settings should be disabled.</param>
         /// <returns>The built-in configuration.</returns>
-        RootConfiguration GetBuiltInConfiguration(bool disableAnalyzers = false);
+        RootConfiguration GetBuiltInConfiguration();
 
         /// <summary>
         /// Gets the configuration for the source file with the given URI.
