@@ -30,9 +30,9 @@ resource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
 
 resource cosmosDBDatabase 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2020-04-01' = {
   parent: cosmosDBAccount
-  name: cosmosDBDatabaseName // "The property \"name\" is declared multiple times in this object. Remove or rename the duplicate properties.","
+  name: cosmosDBDatabaseName
   properties: {
-    // The property "properties" is declared multiple times in this object. Remove or rename the duplicate properties.
+    // test comment formatting
     resource: {
       id: cosmosDBDatabaseName
     }
