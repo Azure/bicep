@@ -19,9 +19,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
             ProjectItemTestExtension projectItem = TestProject!["main.bicep"];
             IVisualStudioTextEditorTestExtension editor = projectItem.GetDocumentAsTextEditor().Editor;
 
-            // This is a hack to wait for language service activation. If this is the first test, it may
-            // take long for the compilation to complete. Subsequent tests should be faster.
-            ColorizationsUtility.WaitForColorizations(editor);
+            WaitForBicepLanguageServiceActivation(editor);
 
             string baselineFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"TestSolution\BicepTestProject\results\Colorization\BicepClassifications.bsl");
 
