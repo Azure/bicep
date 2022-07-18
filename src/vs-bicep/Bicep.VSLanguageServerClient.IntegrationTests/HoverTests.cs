@@ -21,7 +21,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
 
             editor.Caret.MoveToExpression("description");
             string expected = "function description(text: string): any";
-            HoverUtility.WaitForQuickInfo(text => expected == text, editor);
+            HoverUtility.TestQuickInfo(text => expected == text, editor);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
 {
     public class HoverUtility
     {
-        public static void WaitForQuickInfo(Func<string, bool> funcIsCorrectQuickInfo, IVisualStudioTextEditorTestExtension editor)
+        public static void TestQuickInfo(Func<string, bool> funcIsCorrectQuickInfo, IVisualStudioTextEditorTestExtension editor)
         {
             string lastQuickInfoText = string.Empty;
 
