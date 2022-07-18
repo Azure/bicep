@@ -18,7 +18,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
             WaitFor.TryIsTrue((() => editor.Classification.GetAllClassifications().Count > 0), TimeSpan.FromSeconds(30));
         }
 
-        public static void WaitForClassifications(
+        public static void TestClassifications(
                 IVisualStudioTextEditorTestExtension editor,
                 string baselineFile,
                 Func<IEnumerable<Classification>>? getActualClassifications = null)

@@ -23,7 +23,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
 
             string baselineFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"TestSolution\BicepTestProject\results\Colorization\BicepClassifications.bsl");
 
-            ColorizationsUtility.WaitForClassifications(editor, baselineFile);
+            ColorizationsUtility.TestClassifications(editor, baselineFile);
         }
     }
 }
