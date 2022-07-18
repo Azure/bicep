@@ -73,10 +73,7 @@ namespace Bicep.VSLanguageServerClient
 
             Debug.WriteLine($"Started {BicepContentTypeDefinition.ContentType} server with process ID {_process.Process.Id}");
 
-            Connection connection = new Connection(_process.StandardOutput.BaseStream,
-                                                   _process.StandardInput.BaseStream);
-
-            return connection;
+            return new Connection(_process.StandardOutput.BaseStream, _process.StandardInput.BaseStream);
         }
 
         public async Task OnLoadedAsync()
