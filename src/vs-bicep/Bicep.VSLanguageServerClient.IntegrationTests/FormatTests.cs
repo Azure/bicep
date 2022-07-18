@@ -25,7 +25,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
 
             string baselineFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"TestSolution\BicepTestProject\results\Formatting\BicepFormatting.bsl");
 
-            FormatUtility.FormatDocument(editor, baselineFile);
+            FormatUtility.VerifyDocumentFormatting(editor, baselineFile);
         }
     }
 }

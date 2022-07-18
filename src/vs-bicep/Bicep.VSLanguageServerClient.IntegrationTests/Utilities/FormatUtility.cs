@@ -10,7 +10,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
 {
     public class FormatUtility
     {
-        public static void FormatDocument(IVisualStudioTextEditorTestExtension editor, string baselineFile)
+        public static void VerifyDocumentFormatting(IVisualStudioTextEditorTestExtension editor, string baselineFile)
         {
             string expected = File.ReadAllText(baselineFile);
 
