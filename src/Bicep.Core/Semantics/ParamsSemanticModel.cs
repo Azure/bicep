@@ -10,9 +10,9 @@ namespace Bicep.Core.Semantics
 {
     public class ParamsSemanticModel
     {
-        public BicepParamFile bicepParamFile { get; }
-        public ParamBinder paramBinder { get; }
-        public Compilation? bicepCompilation { get; }
+        public BicepParamFile BicepParamFile { get; }
+        public ParamBinder ParamBinder { get; }
+        public Compilation? BicepCompilation { get; }
         public ParamsTypeManager ParamsTypeManager { get; }
         public ParamsSymbolContext ParamsSymbolContext { get; }
         
@@ -21,10 +21,10 @@ namespace Bicep.Core.Semantics
             var paramsSymbolContext = new ParamsSymbolContext(this);
             ParamsSymbolContext = paramsSymbolContext;
             
-            this.bicepParamFile = bicepParamFile;
-            this.bicepCompilation = bicepCompilation;
-            this.paramBinder = new(bicepParamFile, paramsSymbolContext); 
-            this.ParamsTypeManager = new(paramBinder);
+            this.BicepParamFile = bicepParamFile;
+            this.BicepCompilation = bicepCompilation;
+            this.ParamBinder = new(bicepParamFile, paramsSymbolContext); 
+            this.ParamsTypeManager = new(ParamBinder);
             // name binding is done
             // allow type queries now
             paramsSymbolContext.Unlock();
@@ -33,11 +33,11 @@ namespace Bicep.Core.Semantics
         
 
         public IEnumerable<IDiagnostic> GetDiagnostics()
-            => bicepParamFile.ProgramSyntax.GetParseDiagnostics();
+            => BicepParamFile.ProgramSyntax.GetParseDiagnostics();
         
         /// <summary>
         /// Gets the file that was compiled.
         /// </summary>
-        public ParamFileSymbol Root => this.paramBinder.ParamFileSymbol;
+        public ParamFileSymbol Root => this.ParamBinder.ParamFileSymbol;
     }
 }

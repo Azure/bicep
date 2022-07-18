@@ -77,7 +77,7 @@ param ",
 //Bicep file
 
 var firstVar = 'hello'
-
+T
 ",
 new string[] {},
 new CompletionItemKind[] {}
@@ -96,9 +96,9 @@ new CompletionItemKind[] {}
 
             var provider = new BicepCompletionProvider(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), BicepTestConstants.Features);
 
-            var paramsCompletionContext = ParamsCompletionContext.Create(new(paramsSemanticModel, paramsSemanticModel.bicepParamFile.ProgramSyntax, paramsSemanticModel.bicepParamFile.LineStarts), 53);
+            var paramsCompletionContext = ParamsCompletionContext.Create(new(paramsSemanticModel, paramsSemanticModel.BicepParamFile.ProgramSyntax, paramsSemanticModel.BicepParamFile.LineStarts), 53);
 
-            var completions = provider.GetFilteredParamsCompletetions(paramsSemanticModel, paramsCompletionContext);
+            var completions = provider.GetFilteredParamsCompletions(paramsSemanticModel, paramsCompletionContext);
 
             var expectedValueIndex = 0;
             

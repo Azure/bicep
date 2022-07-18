@@ -114,20 +114,16 @@ namespace Bicep.Cli.Services
 
             var usingDeclarations = paramsFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>();
 
-            if(!PathHelper.TryGetUsingPath(usingDeclarations.SingleOrDefault(), out var bicepFilePath, out var failureBuilder))
-            {
-                failureBuilder = failureBuilder ?? throw new InvalidOperationException($"{nameof(PathHelper.TryGetUsingPath)} did not provide an error.");
+            if(!PathHelper.TryGetUsingPath(usingDeclarations.FirstOrDefault(), out var bicepFilePath, out var failureBuilder))
+            {                
+                var message = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(new TextSpan(0, 0))).Message;
                 
-                var message = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(usingDeclarations.SingleOrDefault()?.Path.Span ?? new TextSpan(0, 0))).Message;
-
                 throw new BicepException(message);
             }
 
-            if(!Uri.TryCreate(inputUri, bicepFilePath, out var bicepFileUri)){
-                throw new Exception("Can not create Uri for linked Bicep file");
-            }
+            Uri.TryCreate(inputUri, bicepFilePath, out var bicepFileUri);
 
-            var bicepCompilation = await CompileAsync(bicepFileUri, skipRestore);
+            var bicepCompilation = await CompileAsync(bicepFileUri!, skipRestore);
             
             var model = new ParamsSemanticModel(paramsFile, bicepCompilation);
 
@@ -204,7 +200,7 @@ namespace Bicep.Cli.Services
         {
             foreach(var diagnostic in paramSemanticModel.GetDiagnostics())
             {
-                diagnosticLogger.LogDiagnostic(paramSemanticModel.bicepParamFile.FileUri, diagnostic, paramSemanticModel.bicepParamFile.LineStarts);
+                diagnosticLogger.LogDiagnostic(paramSemanticModel.BicepParamFile.FileUri, diagnostic, paramSemanticModel.BicepParamFile.LineStarts);
             };
         }
     }

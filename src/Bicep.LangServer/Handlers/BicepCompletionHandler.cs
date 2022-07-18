@@ -50,7 +50,7 @@ namespace Bicep.LanguageServer.Handlers
                 var paramsCompletionContext = ParamsCompletionContext.Create(paramsCompilationContext, offset);
                 try
                 {
-                    completions = this.completionProvider.GetFilteredParamsCompletetions(paramsCompilationContext.ParamsSemanticModel, paramsCompletionContext);
+                    completions = this.completionProvider.GetFilteredParamsCompletions(paramsCompilationContext.ParamsSemanticModel, paramsCompletionContext);
                 }
                 catch (Exception e)
                 {

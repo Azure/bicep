@@ -40,7 +40,7 @@ namespace Bicep.LanguageServer.Completions
 
         public static ParamsCompletionContext Create(ParamsCompilationContext paramsCompilationContext, int offset)
         {
-            var paramsFile = paramsCompilationContext.ParamsSemanticModel.bicepParamFile;
+            var paramsFile = paramsCompilationContext.ParamsSemanticModel.BicepParamFile;
             var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(paramsFile.ProgramSyntax, offset);
             if (!matchingNodes.Any())
             {

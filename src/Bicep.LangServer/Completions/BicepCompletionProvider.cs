@@ -83,19 +83,19 @@ namespace Bicep.LanguageServer.Completions
         }
 
 
-        public IEnumerable<CompletionItem> GetFilteredParamsCompletetions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
+        public IEnumerable<CompletionItem> GetFilteredParamsCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
         {
-            return GetParamAssingmnetCompletions(paramsSemanticModel, paramsCompletionContext);
+            return GetParamAssignmentCompletions(paramsSemanticModel, paramsCompletionContext);
         }
 
-        private IEnumerable<CompletionItem> GetParamAssingmnetCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
+        private IEnumerable<CompletionItem> GetParamAssignmentCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
         {   
-            if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamAssignment) && paramsSemanticModel.bicepCompilation is {} bicepCompilation)
+            if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamAssignment) && paramsSemanticModel.BicepCompilation is {} bicepCompilation)
             {
+                //TODO: ignore params already declared
                 var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
                 var bicepFileParamDeclarations = bicepSemanticModel.Root.ParameterDeclarations;
 
-                //TODO: handle the case where there are no params in bicep file but we are trying to write one in params file
                 foreach(var declaration in bicepFileParamDeclarations)
                 {
                     yield return CreateSymbolCompletion(declaration, paramsCompletionContext.ReplacementRange);

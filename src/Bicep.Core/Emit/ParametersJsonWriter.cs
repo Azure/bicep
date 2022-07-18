@@ -36,7 +36,7 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteValue("1.0.0.0");
 
             //TODO: Update after param semantic model is complete
-            var syntax = paramSemanticModel.bicepParamFile.ProgramSyntax;
+            var syntax = paramSemanticModel.BicepParamFile.ProgramSyntax;
             var parameters = syntax.Children.OfType<ParameterAssignmentSyntax>().ToImmutableList();
 
             if (parameters.Count > 0)
