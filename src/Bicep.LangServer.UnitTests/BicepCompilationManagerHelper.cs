@@ -50,8 +50,11 @@ namespace Bicep.LangServer.UnitTests
             PublishDiagnosticsParams? receivedParams = null;
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
+            var provider = new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateWithAzTypes(), FileResolver, dispatcher);
+            var configManager = new ConfigurationManager(new IOFileSystem());
 
-            return new BicepParamsCompilationManager(server.Object);
+            return new BicepParamsCompilationManager(server.Object, provider, configManager);
         }
 
         public static Mock<ITextDocumentLanguageServer> CreateMockDocument(Action<PublishDiagnosticsParams> callback)

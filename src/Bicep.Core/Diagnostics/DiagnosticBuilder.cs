@@ -1481,6 +1481,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP252",
                 $"Function call is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic TemplatePathHasNotBeenSpecified() => new(
+                TextSpan,
+                "BCP253",
+                "The using declaration is missing a bicep template file path reference.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

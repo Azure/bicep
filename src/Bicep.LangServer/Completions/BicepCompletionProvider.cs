@@ -82,6 +82,27 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetDisableNextLineDiagnosticsDirectiveCodesCompletion(model, context));
         }
 
+
+        public IEnumerable<CompletionItem> GetFilteredParamsCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
+        {
+            return GetParamAssignmentCompletions(paramsSemanticModel, paramsCompletionContext);
+        }
+
+        private IEnumerable<CompletionItem> GetParamAssignmentCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
+        {   
+            if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamAssignment) && paramsSemanticModel.BicepCompilation is {} bicepCompilation)
+            {
+                //TODO: ignore params already declared
+                var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
+                var bicepFileParamDeclarations = bicepSemanticModel.Root.ParameterDeclarations;
+
+                foreach(var declaration in bicepFileParamDeclarations)
+                {
+                    yield return CreateSymbolCompletion(declaration, paramsCompletionContext.ReplacementRange);
+                }
+            }
+        }
+
         private IEnumerable<CompletionItem> GetDeclarationCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.TopLevelDeclarationStart))
