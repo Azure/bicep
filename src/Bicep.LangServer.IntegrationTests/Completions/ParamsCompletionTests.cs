@@ -32,7 +32,7 @@ namespace Bicep.LangServer.IntegrationTests.Completions
 
 using './main.bicep'
 
-param ", 
+param   ", 
 
 @"
 //Bicep file
@@ -51,7 +51,7 @@ new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field}
 
 using './main.bicep'
 
-param ", 
+param   ", 
 
 @"
 //Bicep file
@@ -71,13 +71,12 @@ new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field, Co
 
 using './main.bicep'
 
-param ", 
+param   ", 
 
 @"
 //Bicep file
 
 var firstVar = 'hello'
-T
 ",
 new string[] {},
 new CompletionItemKind[] {}
@@ -96,7 +95,7 @@ new CompletionItemKind[] {}
 
             var provider = new BicepCompletionProvider(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), BicepTestConstants.Features);
 
-            var paramsCompletionContext = ParamsCompletionContext.Create(new(paramsSemanticModel, paramsSemanticModel.BicepParamFile.ProgramSyntax, paramsSemanticModel.BicepParamFile.LineStarts), 53);
+            var paramsCompletionContext = ParamsCompletionContext.Create(new(paramsSemanticModel, paramsSemanticModel.BicepParamFile.ProgramSyntax, paramsSemanticModel.BicepParamFile.LineStarts), 52);
 
             var completions = provider.GetFilteredParamsCompletions(paramsSemanticModel, paramsCompletionContext);
 
