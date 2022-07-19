@@ -14,6 +14,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax.Visitors;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Emit
 {
@@ -39,7 +40,7 @@ namespace Bicep.Core.Emit
             DetectCopyVariableName(model, diagnostics);
             DetectInvalidValueForParentProperty(model, diagnostics);
             BlockLambdasOutsideFunctionArguments(model, diagnostics);
-            BlockResourceIndexingInLambdaBody(model, diagnostics);
+            BlockUnsupportedLambdaVariableUsage(model, diagnostics);
 
             return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
@@ -375,34 +376,58 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static void BlockResourceIndexingInLambdaBody(SemanticModel model, IDiagnosticWriter diagnostics)
+        private static void BlockUnsupportedLambdaVariableUsage(SemanticModel model, IDiagnosticWriter diagnostics)
         {
-            var blockedAccesses = new Dictionary<ArrayAccessSyntax, HashSet<LocalVariableSymbol>>();
-            foreach (var lambda in SyntaxAggregator.AggregateByType<LambdaSyntax>(model.Root.Syntax))
+            IEnumerable<LocalVariableSymbol> CollectLambdaVariables(SyntaxBase syntax)
             {
-                foreach (var arrayAccess in SyntaxAggregator.AggregateByType<ArrayAccessSyntax>(lambda))
-                {
-                    if (model.GetSymbolInfo(arrayAccess.BaseExpression) is not ModuleSymbol and not ResourceSymbol)
-                    {
-                        continue;
-                    }
-
-                    var blockedSymbols = SyntaxAggregator.AggregateByType<VariableAccessSyntax>(arrayAccess.IndexExpression)
-                        .Select(v => model.Binder.GetSymbolInfo(v) as LocalVariableSymbol)
-                        .Where(symbol => symbol?.LocalKind == LocalKind.LambdaItemVariable)
-                        .OfType<LocalVariableSymbol>()
-                        .ToHashSet();
-
-                    if (blockedSymbols.Any())
-                    {
-                        blockedAccesses[arrayAccess] = blockedSymbols;
-                    }
-                }
+                return SyntaxAggregator.AggregateByType<VariableAccessSyntax>(syntax)
+                    .Select(v => model.Binder.GetSymbolInfo(v))
+                    .OfType<LocalVariableSymbol>()
+                    .Distinct()
+                    .Where(symbol => symbol.LocalKind == LocalKind.LambdaItemVariable);
             }
 
-            foreach (var (arrayAccess, symbols) in blockedAccesses)
+            var visited = new HashSet<SyntaxBase>();
+            foreach (var lambda in SyntaxAggregator.AggregateByType<LambdaSyntax>(model.Root.Syntax))
             {
-                diagnostics.Write(arrayAccess.IndexExpression, x => x.IndexingIntoResourceOrModuleCollectionUnsupported(symbols.Select(s => s.Name)));
+                foreach (var functionCall in SyntaxAggregator.AggregateByType<FunctionCallSyntaxBase>(lambda.Body))
+                {
+                    // Block the usage of lambdas inside reference() or list*() functions.
+                    // The Deployment Engine needs to be able to process these upfront to build the deployment graph, so they cannot contain unevaluated lambda variables.
+                    if (!visited.Contains(functionCall) &&
+                        model.GetSymbolInfo(functionCall) is FunctionSymbol functionSymbol &&
+                        functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
+                    {
+                        var blockedSymbols = functionCall.Arguments.SelectMany(x => CollectLambdaVariables(x.Expression)).Distinct()
+                            .Select(s => s.Name).ToImmutableArray();
+
+                        if (blockedSymbols.Any())
+                        {
+                            diagnostics.Write(functionCall, x => x.LambdaVariablesInInlineFunctionUnsupported(functionCall.Name.IdentifierName, blockedSymbols));
+                        }
+                    }
+
+                    visited.Add(functionCall);
+                }
+
+                foreach (var arrayAccess in SyntaxAggregator.AggregateByType<ArrayAccessSyntax>(lambda.Body))
+                {
+                    // Block the usage of lambdas to index into arrays or resources, as this may result in the generation of a reference() or list*() function call.
+                    // The Deployment Engine needs to be able to process these upfront to build the deployment graph, so they cannot contain unevaluated lambda variables.
+                    if (!visited.Contains(arrayAccess) &&
+                        model.GetSymbolInfo(arrayAccess.BaseExpression) is ModuleSymbol or ResourceSymbol)
+                    {
+                        var blockedSymbols = CollectLambdaVariables(arrayAccess.IndexExpression)
+                            .Select(s => s.Name).ToImmutableArray();
+
+                        if (blockedSymbols.Any())
+                        {
+                            diagnostics.Write(arrayAccess.IndexExpression, x => x.LambdaVariablesInResourceOrModuleArrayAccessUnsupported(blockedSymbols));
+                        }
+                    }
+
+                    visited.Add(arrayAccess);
+                }
             }
         }
 
