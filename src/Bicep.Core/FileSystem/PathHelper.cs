@@ -146,7 +146,7 @@ namespace Bicep.Core.FileSystem
             if (pathSyntax == null)
             {
                 bicepPath = null;
-                failureBuilder = null; //x => x.TemplatePathHasNotBeenSpecified();
+                failureBuilder = null; // if path is missing, the parser should capture that error
                 return false;
             }
 
