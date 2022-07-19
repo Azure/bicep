@@ -71,17 +71,4 @@ module myMod './test.bicep' = {
 }
 var mappedModOutputProps = map(myMod.outputs.outputThis, doggo => '${doggo} says bork')
 
-resource resLoop 'Microsoft.Storage/storageAccounts@2021-09-01' existing = [for item in range(0, 5): {
-  name: 'foo${item}'
-}]
-var resLoopNames = map(range(0, 5), i => resLoop[i].name)
-
-module modLoop './test.bicep' = [for item in range(0, 5): {
-  name: 'foo${item}'
-  params: {
-    outputThis: [ 'blah' ]
-  }
-}]
-var modLoopNames = map(range(0, 5), i => modLoop[i].name)
-
 var parentheses = map([ 123 ], (i => '${i}'))
