@@ -57,11 +57,16 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IConfigurationManager ConfigurationManager = new ConfigurationManager(new IOFileSystem());
 
-        // use-recent-api-version is problematic for tests because its errors and messages will change based on the current date
-        public static readonly string[] ProblematicAnalyzerCodes = new string[] { "use-recent-api-version" };
+        // Linter rules added to this list will be automtically disabled for most tests.
+        public static readonly string[] AnalyzerRulesToDisableInTests = new string[] {
+            // use-recent-api-version is problematic for tests because its errors and messages will change based on the current date and on the
+            //   current cache of API versions available for resources.
+            "use-recent-api-version"
+        };
+
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersEnabled = ConfigurationManager.GetBuiltInConfiguration();
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
-        public static readonly RootConfiguration BuiltInConfigurationWithProblematicAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration().WithAnalyzersDisabled(ProblematicAnalyzerCodes);
+        public static readonly RootConfiguration BuiltInConfigurationWithProblematicAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration().WithAnalyzersDisabled(AnalyzerRulesToDisableInTests);
 
         // By default turns off problematic analyzers
         public static readonly RootConfiguration BuiltInConfiguration = BuiltInConfigurationWithProblematicAnalyzersDisabled;
