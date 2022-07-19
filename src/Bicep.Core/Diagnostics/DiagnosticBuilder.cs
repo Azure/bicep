@@ -1486,6 +1486,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP253",
                 "The using declaration is missing a bicep template file path reference.");
+
+            public ErrorDiagnostic ExpectedTemplatePathString() => new(
+                TextSpan,
+                "BCP254",
+                "Expected a Bicep template path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
