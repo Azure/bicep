@@ -71,37 +71,22 @@ namespace Bicep.Core.ApiVersion
             return cache;
         }
 
-        //using Bicep.Core.ApiVersion;
-        public IEnumerable<string> GetSortedValidApiVersions(ResourceScope scope, string fullyQualifiedResourceType)
+        public IEnumerable<string> GetResourceTypeNames(ResourceScope scope)
+        {
+            var cache = VerifyCache(scope);
+            return cache.apiVersionsByResourceTypeName.Keys;
+        }
+
+        public IEnumerable<string> GetApiVersions(ResourceScope scope, string fullyQualifiedResourceType)
         {
             var cache = VerifyCache(scope);
 
-            //using Bicep.Core.ApiVersion;asdfg
-            //if (!cache.stableVersions.Any() && !cache.previewVersions.Any())
-            //{
-            //    throw new InvalidCastException("ApiVersionProvider was unable to find any resource types");
-            //}
-
-            //var allVersions = new List<string>();
-
-            //if (cache.stableVersions.TryGetValue(fullyQualifiedResourceType, out List<string>? stable))
-            //{
-            //    allVersions.AddRange(stable);
-            //}
-            //if (cache.previewVersions.TryGetValue(fullyQualifiedResourceType, out List<string>? previews))
-            //{
-            //    allVersions.AddRange(previews);
-            //}
-
-            ////using Bicep.Core.ApiVersion;    allVersions.Sort();
-            //return allVersions.ToArray();
-
-            if (!cache.apiVersions.Any())
+            if (!cache.apiVersionsByResourceTypeName.Any())
             {
                 throw new InvalidCastException($"ApiVersionProvider was unable to find any resource types for scope {scope}");
             }
 
-            if (cache.apiVersions.TryGetValue(fullyQualifiedResourceType, out List<string>? versions))
+            if (cache.apiVersionsByResourceTypeName.TryGetValue(fullyQualifiedResourceType, out List<string>? versions))
             {
                 return versions;
             }
@@ -114,12 +99,7 @@ namespace Bicep.Core.ApiVersion
             public bool typesCached;
             public ResourceTypeReference[]? injectedTypes;
 
-            //using Bicep.Core.ApiVersion;
-            // E.g. 2022-07-07
-            //public Dictionary<string, List<string>> stableVersions = new(Comparer);
-            // E.g. 2022-07-07-alpha, 2022-07-07-preview, 2022-07-07-privatepreview etc.
-            //public Dictionary<string, List<string>> previewVersions = new(Comparer);
-            public Dictionary<string, List<string>> apiVersions = new(Comparer);
+            public Dictionary<string, List<string>> apiVersionsByResourceTypeName = new(Comparer);
 
             public void CacheApiVersions(IEnumerable<ResourceTypeReference> resourceTypeReferences)
             {
@@ -131,7 +111,7 @@ namespace Bicep.Core.ApiVersion
                     if (apiVersion is not null)
                     {
                         string fullyQualifiedType = resourceTypeReference.FormatType();
-                        //using Bicep.Core.ApiVersion;
+                        //asdfg;
                         //if (suffix == ApiVersionSuffixes.GA)
                         //{
 
@@ -141,7 +121,7 @@ namespace Bicep.Core.ApiVersion
                         //{
                         //    UpdateCache(previewVersions, apiVersion + suffix /* will have been lower-cased */, fullyQualifiedType);
                         //}
-                        UpdateCache(apiVersions, suffix == null ? apiVersion : (apiVersion + suffix) /* suffix will have been lower-cased */, fullyQualifiedType);
+                        UpdateCache(apiVersionsByResourceTypeName, suffix == null ? apiVersion : (apiVersion + suffix) /* suffix will have been lower-cased */, fullyQualifiedType);
                     }
                     else
                     {
@@ -150,10 +130,7 @@ namespace Bicep.Core.ApiVersion
                 }
 
                 // Sort the lists of api versions for each resource type
-                apiVersions = apiVersions.ToDictionary(x => x.Key, x => x.Value.OrderBy(y => y).ToList(), Comparer);
-
-                // using Bicep.Core.ApiVersion;stableVersions = stableVersions.ToDictionary(x => x.Key, x => x.Value.OrderBy(y => y).ToList(), Comparer);
-                //previewVersions = previewVersions.ToDictionary(x => x.Key, x => x.Value.OrderBy(y => y).ToList(), Comparer);
+                apiVersionsByResourceTypeName = apiVersionsByResourceTypeName.ToDictionary(x => x.Key, x => x.Value.OrderBy(y => y).ToList(), Comparer);
             }
 
             private void UpdateCache(Dictionary<string, List<string>> listOfTypes, string apiVersion, string fullyQualifiedType)

@@ -2,7 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.ApiVersion;
@@ -83,7 +85,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 var (allVersions, allowedVersions) = UseRecentApiVersionRule.Visitor.GetAcceptableApiVersions(apiVersionProvider, ApiVersionHelper.ParseDate(today), maxAllowedAgeInDays, scope, fullyQualifiedResourceType);
                 allowedVersions.Should().BeEquivalentTo(expectedApiVersions, options => options.WithStrictOrdering());
             }
-
 
             [TestMethod]
             public void CaseInsensitiveResourceType()
@@ -673,6 +674,192 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "2421-03-01-preview",
                         "2421-02-01", // No previews older than this allowed, even if < 2 years old
                     });
+            }
+        }
+
+        [TestClass]
+        public class GetAcceptableApiVersionsInvariantsTests
+        {
+            private static ApiVersionProvider RealApiVersionProvider = new ApiVersionProvider();
+            private static bool Exhaustive = false;
+
+            public class TestData
+            {
+                public TestData(ResourceScope resourceScope, string fullyQualifiedResourceType, DateTime today, int maxAllowedDaysAge)
+                {
+                    ResourceScope = resourceScope;
+                    FullyQualifiedResourceType = fullyQualifiedResourceType;
+                    MaxAllowedAgeDays = maxAllowedDaysAge;
+                    Today = today;
+                }
+
+                public string FullyQualifiedResourceType { get; }
+                public ResourceScope ResourceScope { get; }
+                public int MaxAllowedAgeDays { get; }
+                public DateTime Today { get; }
+
+                public static string GetDisplayName(MethodInfo info, object[] data)
+                {
+                    var me = ((TestData)data[0]);
+                    return $"{me.ResourceScope}:{me.FullyQualifiedResourceType} (max={me.MaxAllowedAgeDays} days)";
+                }
+            }
+
+            private static IEnumerable<object[]> GetTestData()
+            {
+                const int maxAllowedAgeDays = 2 * 365;
+
+                foreach (ResourceScope scope in new ResourceScope[]
+                    {
+                        ResourceScope.ResourceGroup,
+                        ResourceScope.Tenant,
+                        ResourceScope.ManagementGroup,
+                        ResourceScope.Subscription,
+                    })
+                {
+                    foreach (string typeName in RealApiVersionProvider.GetResourceTypeNames(scope))
+                    {
+                        var apiVersionDates = RealApiVersionProvider.GetApiVersions(scope, typeName).Select(v => ApiVersionHelper.ParseDate(v));
+
+                        var datesToTest = new List<DateTime>();
+                        foreach (DateTime dt in apiVersionDates)
+                        {
+                            datesToTest.Add(dt.AddDays(-1));
+                            if (Exhaustive)
+                            {
+                                datesToTest.Add(dt);
+                                datesToTest.Add(dt.AddDays(1));
+                            }
+                        }
+
+                        datesToTest.Add(apiVersionDates.Min().AddDays(-(maxAllowedAgeDays - 1)));
+                        if (Exhaustive)
+                        {
+                            datesToTest.Add(apiVersionDates.Min().AddDays(-maxAllowedAgeDays));
+                            datesToTest.Add(apiVersionDates.Min().AddDays(-(maxAllowedAgeDays + 1)));
+                        }
+
+                        datesToTest.Add(apiVersionDates.Max().AddDays(maxAllowedAgeDays - 1));
+                        if (Exhaustive)
+                        {
+                            datesToTest.Add(apiVersionDates.Max().AddDays(maxAllowedAgeDays));
+                            datesToTest.Add(apiVersionDates.Max().AddDays(maxAllowedAgeDays + 1));
+                        }
+
+                        datesToTest = datesToTest.Distinct().ToList();
+                        foreach (var today in datesToTest)
+                        {
+                            yield return new object[] { new TestData(scope, typeName, today, maxAllowedAgeDays) };
+                        }
+                    }
+                }
+            }
+
+            private bool DateIsRecent(DateTime dt, DateTime today, int maxAllowedAgeDays)
+            {
+                return DateIsEqualOrMoreRecentThan(dt.AddDays(maxAllowedAgeDays), today);
+            }
+
+            private bool DateIsOld(DateTime dt, DateTime today, int maxAllowedAgeDays)
+            {
+                return !DateIsRecent(dt, today, maxAllowedAgeDays);
+            }
+
+            private bool DateIsMoreRecentThan(DateTime dt, DateTime other)
+            {
+                return DateTime.Compare(dt, other) > 0;
+            }
+
+            private bool DateIsEqualOrMoreRecentThan(DateTime dt, DateTime other)
+            {
+                return DateTime.Compare(dt, other) >= 0;
+            }
+
+            private bool DateIsOlderThan(DateTime dt, DateTime other)
+            {
+                return DateTime.Compare(dt, other) < 0;
+            }
+
+            private bool DateIsEqualOrOlderThan(DateTime dt, DateTime other)
+            {
+                return DateTime.Compare(dt, other) < 0;
+            }
+
+            [DataTestMethod]
+            [DynamicData(nameof(GetTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(TestData), DynamicDataDisplayName = nameof(TestData.GetDisplayName))]
+            public void GetAcceptableApiVersionsInvariants(TestData data)
+            {
+                var (allVersions, allowedVersions) = UseRecentApiVersionRule.Visitor.GetAcceptableApiVersions(RealApiVersionProvider, data.Today, data.MaxAllowedAgeDays, data.ResourceScope, data.FullyQualifiedResourceType);
+
+                allVersions.Should().NotBeNull();
+                allowedVersions.Should().NotBeNull();
+
+                allVersions.Should().NotBeEmpty();
+                allowedVersions.Should().NotBeEmpty();
+
+                var stableVersions = allVersions.Where(v => ApiVersionHelper.IsStableVersion(v));
+                var recentStableVersions = stableVersions.Where(v => DateIsRecent(ApiVersionHelper.ParseDate(v), data.Today, data.MaxAllowedAgeDays));
+
+                var previewVersions = allVersions.Where(v => ApiVersionHelper.IsPreviewVersion(v));
+                var recentPreviewVersions = previewVersions.Where(v => DateIsRecent(ApiVersionHelper.ParseDate(v), data.Today, data.MaxAllowedAgeDays));
+
+                // if there are any stable versions available...
+                if (stableVersions.Any())
+                {
+                    // The most recent stable version is always allowed
+                    allowedVersions.Count(v => ApiVersionHelper.IsStableVersion(v)).Should().BeGreaterThan(0, "the most recent stable version is always allowed");
+                    var mostRecentStable = stableVersions.OrderBy(v => v).Last();
+                    allowedVersions.Should().Contain(mostRecentStable, "the most recent stable version is always allowed");
+
+                    // All stable versions < 2 years old are allowed
+                    if (recentStableVersions.Any())
+                    {
+                        allowedVersions.Should().Contain(recentStableVersions, "all stable versions < 2 years old are allowed");
+                    }
+
+                    foreach (var preview in previewVersions)
+                    {
+                        var previewDate = ApiVersionHelper.ParseDate(preview);
+
+                        // Any preview version more recent than the most recent stable version and < 2 years old is allowed
+                        if (DateIsRecent(ApiVersionHelper.ParseDate(preview), data.Today, data.MaxAllowedAgeDays))
+                        {
+                            if (DateIsMoreRecentThan(previewDate, ApiVersionHelper.ParseDate(mostRecentStable)))
+                            {
+                                allowedVersions.Should().Contain(preview, "any preview version more recent than the most recent stable version and < 2 years old is allowed");
+                            }
+                        }
+
+                        // If a preview version has a more recent or equally recent stable version, it is not allowed
+                        if (stableVersions.Any(v => DateIsEqualOrMoreRecentThan(ApiVersionHelper.ParseDate(v), previewDate)))
+                        {
+                            allowedVersions.Should().NotContain(preview, "if a preview version has a more recent or equally recent stable version, it is not allowed");
+                        }
+                    }
+                }
+                else
+                {
+                    // No stable versions
+
+                    // If no stable versions at all, the most recent preview version is allowed, no matter its age
+                    var mostRecentPreview = previewVersions.OrderBy(v => v).Last();
+                    allowedVersions.Should().Contain(mostRecentPreview, "if no stable versions at all, the most recent preview version is allowed, no matter its age");
+                }
+
+                // COROLLARIES TO THE IMPLEMENTATION RULES
+
+                // If the most recent version is a preview version that’s > 2 years old, only that one preview version is allowed
+                var mostRecent = allVersions.OrderBy(v => v).Last();
+                if (ApiVersionHelper.IsPreviewVersion(mostRecent) && DateIsOld(ApiVersionHelper.ParseDate(mostRecent), data.Today, data.MaxAllowedAgeDays))
+                {
+                    allowedVersions.Where(v => ApiVersionHelper.IsPreviewVersion(v)).Should().BeEquivalentTo(new string[] { mostRecent }, "if the most recent version is a preview version that’s > 2 years old, that one preview version is allowed");
+                }
+
+                // If there are no stable versions, all recent preview versions are allowed
+                if (!stableVersions.Any())
+                {
+                    allowedVersions.Should().BeEquivalentTo(previewVersions.Where(v => DateIsRecent(ApiVersionHelper.ParseDate(v), data.Today, data.MaxAllowedAgeDays)));
+                }
             }
         }
 

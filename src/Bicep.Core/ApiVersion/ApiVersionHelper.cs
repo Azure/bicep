@@ -28,16 +28,16 @@ namespace Bicep.Core.ApiVersion
 
                 if (version is not null)
                 {
-                    return (version, string.IsNullOrEmpty(suffix) ? null : suffix.ToLowerInvariant());//using Bicep.Core.ApiVersion; testpoint
+                    return (version, string.IsNullOrEmpty(suffix) ? null : suffix.ToLowerInvariant());//asdfg testpoint
                 }
             }
 
-            return (null, null);//using Bicep.Core.ApiVersion; testpoint
+            return (null, null);//asdfg testpoint
         }
 
         public static string Format(DateTime date, string? suffix = null)
         {
-            var result = string.Format(CultureInfo.InvariantCulture, "{0:yyyy-MM-dd}", date);//using Bicep.Core.ApiVersion; testpoint
+            var result = string.Format(CultureInfo.InvariantCulture, "{0:yyyy-MM-dd}", date);//asdfg testpoint
             return string.IsNullOrEmpty(suffix) ? result : result + suffix;
         }
 
@@ -48,34 +48,40 @@ namespace Bicep.Core.ApiVersion
         {
             // Since apiVersions are in the form yyyy-MM-dd{-*}, we can do a simple string comparison against the
             // date portion.
-            return a.Substring(0, ApiVersionDateLength).CompareTo(b.Substring(0, ApiVersionDateLength));//using Bicep.Core.ApiVersion; testpoint
+            return a.Substring(0, ApiVersionDateLength).CompareTo(b.Substring(0, ApiVersionDateLength));//asdfg testpoint
         }
 
         // Assumes apiVersion is a valid api-version string
         public static bool IsPreviewVersion(string apiVersion)
         {
-            return apiVersion.Length > ApiVersionDateLength;//using Bicep.Core.ApiVersion; testpoint
+            return apiVersion.Length > ApiVersionDateLength;
         }
 
-        public static DateTime ParseDate(string apiVersion) //using Bicep.Core.ApiVersion; testpoint
+        // Assumes apiVersion is a valid api-version string
+        public static bool IsStableVersion(string apiVersion)
+        {
+            return !IsPreviewVersion(apiVersion);
+        }
+
+        public static DateTime ParseDate(string apiVersion) //asdfg testpoint
         {
             (string? date, string? _) = TryParse(apiVersion);
             if (date is null)
             {
-                throw new Exception($"Invalid API version '{apiVersion}'");//using Bicep.Core.ApiVersion; testpoint
+                throw new Exception($"Invalid API version '{apiVersion}'");//asdfg testpoint
             }
 
-            return DateTime.ParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture);//using Bicep.Core.ApiVersion; testpoint
+            return DateTime.ParseExact(date, "yyyy-MM-dd", CultureInfo.InvariantCulture);//asdfg testpoint
         }
 
         public static IEnumerable<string> FilterPreview(IEnumerable<string> apiVersions)
         {
-            return apiVersions.Where(v => ApiVersionHelper.IsPreviewVersion(v)).ToArray();//using Bicep.Core.ApiVersion; testpoint
+            return apiVersions.Where(v => ApiVersionHelper.IsPreviewVersion(v)).ToArray();//asdfg testpoint
         }
 
         public static IEnumerable<string> FilterNonPreview(IEnumerable<string> apiVersions)
         {
-            return apiVersions.Where(v => !ApiVersionHelper.IsPreviewVersion(v)).ToArray();//using Bicep.Core.ApiVersion; testpoint
+            return apiVersions.Where(v => !ApiVersionHelper.IsPreviewVersion(v)).ToArray();//asdfg testpoint
         }
     }
 }

@@ -1806,7 +1806,7 @@ resource rg3 'Microsoft.Resources/resourceGroups@2020-10-01' = if (rg2[0].tags.f
             });
         }
 
-        [TestMethod] //using Bicep.Core.ApiVersion;???
+        [TestMethod] //asdfg???
         // https://github.com/Azure/bicep/issues/2262
         public void Test_Issue2262()
         {

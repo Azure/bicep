@@ -27,7 +27,7 @@ namespace Bicep.Core.Semantics.Namespaces
             var namespaceTypes = importedNamespaces
                 .Select(x => x.DeclaredType)
                 .OfType<NamespaceType>()
-                .ToImmutableDictionary(x => x.Name, LanguageConstants.IdentifierComparer/*using Bicep.Core.ApiVersion;*/);
+                .ToImmutableDictionary(x => x.Name, LanguageConstants.IdentifierComparer/*asdfg*/);
 
             void TryAddBuiltInNamespace(string @namespace)
             {

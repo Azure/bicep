@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
         [DataTestMethod]
-        //using Bicep.Core.ApiVersion;
+        //asdfg
         [DataRow(AdminUsernameShouldNotBeLiteralRule.Code)]
         [DataRow(ExplicitValuesForLocationParamsRule.Code)]
         [DataRow(NoHardcodedEnvironmentUrlsRule.Code)]

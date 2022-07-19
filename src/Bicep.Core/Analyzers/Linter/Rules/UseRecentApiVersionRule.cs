@@ -219,7 +219,7 @@ int ageInDays = today.Subtract(ApiVersionHelper.ParseDate(actualApiVersion)).Day
 
             public static (string[] allApiVersions, string[] acceptableVersions) GetAcceptableApiVersions(IApiVersionProvider apiVersionProvider, DateTime today, int maxAllowedAgeInDays, ResourceScope scope, string fullyQualifiedResourceType)
             {
-                var allVersionsSorted = apiVersionProvider.GetSortedValidApiVersions(scope, fullyQualifiedResourceType).ToArray();
+                var allVersionsSorted = apiVersionProvider.GetApiVersions(scope, fullyQualifiedResourceType).ToArray();
                 if (!allVersionsSorted.Any())
                 {
                     // The resource type is not recognized.

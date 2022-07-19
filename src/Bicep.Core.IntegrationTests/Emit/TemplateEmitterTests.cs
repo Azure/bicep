@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// //using Bicep.Core.ApiVersion; deleted by us
+// //asdfg deleted by us
 
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;

@@ -13,7 +13,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class NoLocationExprOutsideParamsRuleTests : LinterRuleTestsBase
     {
-        private readonly string[] LinterCodesToIgnore = new string[] { UseRecentApiVersionRule.Code }; //using Bicep.Core.ApiVersion; move
+        private readonly string[] LinterCodesToIgnore = new string[] { UseRecentApiVersionRule.Code }; //asdfg move
 
         public record ExpectedCodeFix
         {

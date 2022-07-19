@@ -3,7 +3,7 @@
 
 namespace Bicep.Core.ApiVersion
 {
-    public static class ApiVersionSuffixes //using Bicep.Core.ApiVersion; needed?
+    public static class ApiVersionSuffixes //asdfg needed?
     {
         public const string Alpha = "-alpha";
         public const string Beta = "-beta";

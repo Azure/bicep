@@ -45,7 +45,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }
         }
 
-        //using Bicep.Core.ApiVersion; ?? 
+        //asdfg ?? 
         static protected (string fileName, string fileContents) MainBicepFile(string bicepText)
         {
             return ("main.bicep", bicepText);
@@ -80,7 +80,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             apiVersionProvider);
         }
 
-        protected void AssertLinterRuleDiagnostics(string ruleCode, string bicepText, int expectedDiagnosticCountForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors, IncludePosition includePosition/*using Bicep.Core.ApiVersion; not used*/ = IncludePosition.None, RootConfiguration? configuration = null, IApiVersionProvider? apiVersionProvider = null)
+        protected void AssertLinterRuleDiagnostics(string ruleCode, string bicepText, int expectedDiagnosticCountForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors, IncludePosition includePosition/*asdfg not used*/ = IncludePosition.None, RootConfiguration? configuration = null, IApiVersionProvider? apiVersionProvider = null)
         {
             AssertLinterRuleDiagnostics(ruleCode, bicepText, onCompileErrors, diags =>
             {

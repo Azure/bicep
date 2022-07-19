@@ -144,7 +144,7 @@ namespace Bicep.Core.Semantics
 
         public IBicepAnalyzer LinterAnalyzer { get; }
 
-        public RootConfiguration Configuration { get; private set; } //using Bicep.Core.ApiVersion;?
+        public RootConfiguration Configuration { get; private set; } //asdfg?
 
         public ImmutableArray<ParameterMetadata> Parameters => this.parametersLazy.Value;
 

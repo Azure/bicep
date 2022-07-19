@@ -15,7 +15,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class NoHardcodedLocationRuleTests : LinterRuleTestsBase
     {
-        private readonly string[] LinterCodesToIgnore = new string[] { UseRecentApiVersionRule.Code }; //using Bicep.Core.ApiVersion; move
+        private readonly string[] LinterCodesToIgnore = new string[] { UseRecentApiVersionRule.Code }; //asdfg move
 
         [TestMethod]
         public void If_ResLocationIs_Global_ShouldPass()

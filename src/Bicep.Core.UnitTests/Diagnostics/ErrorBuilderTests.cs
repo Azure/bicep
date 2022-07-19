@@ -22,7 +22,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
     [TestClass]
     public class DiagnosticBuilderTests
     {
-        private readonly string[] LinterCodesToIgnore = new string[] { UseRecentApiVersionRule.Code }; //using Bicep.Core.ApiVersion; move
+        private readonly string[] LinterCodesToIgnore = new string[] { UseRecentApiVersionRule.Code }; //asdfg move
                                                                                                        //[TestMethod]
         public void DiagnosticBuilder_CodesAreUnique()
         {

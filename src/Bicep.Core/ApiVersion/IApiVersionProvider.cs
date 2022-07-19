@@ -2,14 +2,16 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.ApiVersion
 {
     public interface IApiVersionProvider
     {
-        // List is sorted at top level by ascending date, and each suffix array is sorted ascending alphabetically using Bicep.Core.ApiVersion;
-        //using Bicep.Core.ApiVersion;  public (DateTime date, string[] suffixes)[] GetSortedValidApiVersions(string fullyQualifiedResourceName);
+        // No guaranteed order asdfg
+        public IEnumerable<string> GetResourceTypeNames(ResourceScope scope);
 
-        public IEnumerable<string> GetSortedValidApiVersions(TypeSystem.ResourceScope scope, string fullyQualifiedResourceName);
+        // No guaranteed order asdfg
+        public IEnumerable<string> GetApiVersions(ResourceScope scope, string fullyQualifiedResourceName);
     }
 }
