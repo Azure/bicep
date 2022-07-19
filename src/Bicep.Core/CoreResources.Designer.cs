@@ -544,11 +544,20 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Use most recent API version for &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Use more recent API version for &apos;{0}&apos;..
         /// </summary>
-        internal static string UseRecentApiVersionRule_MessageFormat {
+        internal static string UseRecentApiVersionRule_ErrorMessageFormat {
             get {
-                return ResourceManager.GetString("UseRecentApiVersionRule_MessageFormat", resourceCulture);
+                return ResourceManager.GetString("UseRecentApiVersionRule_ErrorMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace with apiVersion {0}&quot;.
+        /// </summary>
+        internal static string UseRecentApiVersionRule_Fix_ReplaceApiVersion {
+            get {
+                return ResourceManager.GetString("UseRecentApiVersionRule_Fix_ReplaceApiVersion", resourceCulture);
             }
         }
         

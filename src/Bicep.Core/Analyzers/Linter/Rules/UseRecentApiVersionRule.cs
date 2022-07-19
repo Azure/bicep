@@ -89,7 +89,7 @@ int ageInDays = today.Subtract(ApiVersionHelper.ParseDate(actualApiVersion)).Day
             var acceptableVersions = (string[])values[2];
             var acceptableVersionsString = string.Join(", ", acceptableVersions);
             return
-                string.Format(CoreResources.UseRecentApiVersionRule_MessageFormat, resourceType)
+                string.Format(CoreResources.UseRecentApiVersionRule_ErrorMessageFormat, resourceType)
                 + (" " + reason)
                 + (acceptableVersionsString.Any() ? " " + string.Format(CoreResources.UseRecentApiVersionRule_AcceptableVersions, acceptableVersionsString) : "");
         }
@@ -314,7 +314,11 @@ int ageInDays = today.Subtract(ApiVersionHelper.ParseDate(actualApiVersion)).Day
                 var preferredVersion = acceptableApiVersions[0];
                 var codeReplacement = new CodeReplacement(span, preferredVersion);
 
-                var fix = new CodeFix($"Replace apiVersion with {preferredVersion}", true, CodeFixKind.QuickFix, codeReplacement);
+                var fix = new CodeFix(
+                    string.Format(CoreResources.UseRecentApiVersionRule_Fix_ReplaceApiVersion, preferredVersion),
+                    isPreferred: true,
+                    CodeFixKind.QuickFix,
+                    codeReplacement);
 
                 return (span, fullyQualifiedResourceType, reason, acceptableApiVersions, new CodeFix[] { fix });
             }

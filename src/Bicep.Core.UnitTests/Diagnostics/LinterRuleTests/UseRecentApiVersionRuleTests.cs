@@ -982,10 +982,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 FakeResourceTypes.ResourceScopeTypes,
                 "2422-07-04",
                 new string[] {
-                    "[3] Use recent API version for 'fake.ServiceBus/namespaces'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
-                    "[17] Use recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2415-08-01' is 2529 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
-                    "[28] Use recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
-                    "[34] Use recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. Could not find apiVersion 4017-04-01 for fake.ServiceBus/namespaces/queues/authorizationRules Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                    "[3] Use more recent API version for 'fake.ServiceBus/namespaces'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                    "[17] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2415-08-01' is 2529 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                    "[28] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                    "[34] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. Could not find apiVersion 4017-04-01 for fake.ServiceBus/namespaces/queues/authorizationRules Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
                 });
         }
 
@@ -1027,11 +1027,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 FakeResourceTypes.ResourceScopeTypes,
                 "2422-07-04",
                 new[] {
-                    "[4] Use recent API version for 'fake.ServiceBus/namespaces'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
-                    "[8] Use recent API version for 'fake.ServiceBus/namespaces/queues'. '2415-08-01' is 2529 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
-                    "[12] Use recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
-                    "[19] Use recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2415-08-01' is 2529 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
-                    "[24] Use recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2415-08-01' is 2529 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                    "[4] Use more recent API version for 'fake.ServiceBus/namespaces'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                    "[8] Use more recent API version for 'fake.ServiceBus/namespaces/queues'. '2415-08-01' is 2529 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                    "[12] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                    "[19] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2415-08-01' is 2529 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                    "[24] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2415-08-01' is 2529 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
                 });
         }
 
@@ -1088,7 +1088,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                        "Fake.DBforMySQL/servers@2417-12-01-preview",
                 },
                 fakeToday: "2422-07-04",
-                "[1] Use recent API version for 'fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old. Acceptable versions: 2417-12-01");
+                "[1] Use more recent API version for 'fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old. Acceptable versions: 2417-12-01");
         }
 
         [TestMethod]
@@ -1117,7 +1117,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                        "Fake.DBforMySQL/servers@2417-12-01-preview",
                 },
                 fakeToday: "2422-07-04",
-                "[1] Use recent API version for 'fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old. Acceptable versions: 2417-12-02");
+                "[1] Use more recent API version for 'fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old. Acceptable versions: 2417-12-02");
         }
 
         [TestMethod]
@@ -1146,7 +1146,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     "Fake.DBforMySQL/servers@2417-12-01-preview",
                 },
                 fakeToday: "2422-07-04",
-                "[1] Use recent API version for 'fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old. Acceptable versions: 2417-11-31");
+                "[1] Use more recent API version for 'fake.DBforMySQL/servers'. '2417-12-01-preview' is 1676 days old, should be no more than 730 days old. Acceptable versions: 2417-11-31");
         }
 
         [TestMethod]
@@ -1189,7 +1189,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                        "Fake.MachineLearningCompute/operationalizationClusters@2417-08-01-preview",
                 },
                 fakeToday: "2422-07-04",
-                "[1] Use recent API version for 'Fake.MachineLearningCompute/operationalizationClusters'. '2417-06-01-preview' is 1859 days old, should be no more than 730 days old. Acceptable versions: 2417-08-01-preview");
+                "[1] Use more recent API version for 'Fake.MachineLearningCompute/operationalizationClusters'. '2417-06-01-preview' is 1859 days old, should be no more than 730 days old. Acceptable versions: 2417-08-01-preview");
         }
 
         [TestMethod]
@@ -1237,7 +1237,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     FakeResourceTypes.SubscriptionScopeTypes,
                    fakeToday: "2422-07-04",
                    new String[] {
-                       "[20] Use recent API version for 'fake.Authorization/roleAssignments'. '2420-04-01-preview' is 824 days old, should be no more than 730 days old. Acceptable versions: 2420-10-01-preview, 2420-08-01-preview, 2417-09-01"
+                       "[20] Use more recent API version for 'fake.Authorization/roleAssignments'. '2420-04-01-preview' is 824 days old, should be no more than 730 days old. Acceptable versions: 2420-10-01-preview, 2420-08-01-preview, 2417-09-01"
                    });
         }
 
@@ -1329,7 +1329,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.Subscription,
                     FakeResourceTypes.SubscriptionScopeTypes,
                     "2422-07-04",
-                    "[20] Use recent API version for 'fake.Authorization/roleAssignments'. '2417-10-01-preview' is 1737 days old, should be no more than 730 days old. Acceptable versions: 2420-10-01-preview, 2420-08-01-preview, 2417-09-01"
+                    "[20] Use more recent API version for 'fake.Authorization/roleAssignments'. '2417-10-01-preview' is 1737 days old, should be no more than 730 days old. Acceptable versions: 2420-10-01-preview, 2420-08-01-preview, 2417-09-01"
                 );
         }
 
@@ -1382,8 +1382,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ResourceScope.ResourceGroup,
                 FakeResourceTypes.ResourceScopeTypes,
                 "2422-07-04",
-                "[23] Use recent API version for 'fake.Storage/storageAccounts'. '2420-08-01-preview' is a preview version and there is a more recent non-preview version available. Acceptable versions: 2421-06-01, 2421-04-01, 2421-02-01, 2421-01-01",
-                "[34] Use recent API version for 'fake.Authorization/roleAssignments'. '2420-04-01-preview' is 824 days old, should be no more than 730 days old. Acceptable versions: 2420-10-01-preview, 2420-08-01-preview, 2415-07-01");
+                "[23] Use more recent API version for 'fake.Storage/storageAccounts'. '2420-08-01-preview' is a preview version and there is a more recent non-preview version available. Acceptable versions: 2421-06-01, 2421-04-01, 2421-02-01, 2421-01-01",
+                "[34] Use more recent API version for 'fake.Authorization/roleAssignments'. '2420-04-01-preview' is 824 days old, should be no more than 730 days old. Acceptable versions: 2420-10-01-preview, 2420-08-01-preview, 2415-07-01");
         }
 
         [TestMethod]
@@ -1406,7 +1406,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                  ResourceScope.ResourceGroup,
                  FakeResourceTypes.ResourceScopeTypes,
                  "2422-07-04",
-                 "[5] Use recent API version for 'fake.Authorization/locks'. '2416-09-01' is 2132 days old, should be no more than 730 days old. Acceptable versions: 2420-05-01");
+                 "[5] Use more recent API version for 'fake.Authorization/locks'. '2416-09-01' is 2132 days old, should be no more than 730 days old. Acceptable versions: 2420-05-01");
         }
 
         [TestMethod]
@@ -1425,7 +1425,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ResourceScope.Subscription,
                 FakeResourceTypes.SubscriptionScopeTypes,
                 "2422-07-04",
-                "[6] Use recent API version for 'fake.Resources/resourceGroups'. '2419-05-10' is 1151 days old, should be no more than 730 days old. Acceptable versions: 2421-05-01, 2421-04-01, 2421-01-01, 2420-10-01, 2420-08-01");
+                "[6] Use more recent API version for 'fake.Resources/resourceGroups'. '2419-05-10' is 1151 days old, should be no more than 730 days old. Acceptable versions: 2421-05-01, 2421-04-01, 2421-01-01, 2420-10-01, 2420-08-01");
         }
 
         [TestMethod]
@@ -1461,7 +1461,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 FakeResourceTypes.ResourceScopeTypes,
                 "2422-07-04",
                 new string[] {
-                    "[1] Use recent API version for 'DontKnowWho.MachineLearningCompute/operationalizationClusters'. Could not find resource type DontKnowWho.MachineLearningCompute/operationalizationClusters"
+                    "[1] Use more recent API version for 'DontKnowWho.MachineLearningCompute/operationalizationClusters'. Could not find resource type DontKnowWho.MachineLearningCompute/operationalizationClusters"
                 });
         }
 
@@ -1480,7 +1480,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 FakeResourceTypes.ResourceScopeTypes,
                 "2422-07-04",
                 new string[] {
-                    "[1] Use recent API version for 'Fake.MachineLearningCompute/operationalizationClusters'. Could not find apiVersion 2417-06-01-beta for Fake.MachineLearningCompute/operationalizationClusters Acceptable versions: 2417-08-01-preview"
+                    "[1] Use more recent API version for 'Fake.MachineLearningCompute/operationalizationClusters'. Could not find apiVersion 2417-06-01-beta for Fake.MachineLearningCompute/operationalizationClusters Acceptable versions: 2417-08-01-preview"
                 });
         }
     }
