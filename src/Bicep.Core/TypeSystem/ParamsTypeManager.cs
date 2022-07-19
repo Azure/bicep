@@ -20,9 +20,9 @@ namespace Bicep.Core.TypeSystem
 
         public TypeSymbol? GetDeclaredType(SyntaxBase syntax)
         {
-            var parameterAssignmentSymbol = paramsSemanticModel.paramBinder.GetSymbolInfo(syntax);
+            var parameterAssignmentSymbol = paramsSemanticModel.ParamBinder.GetSymbolInfo(syntax);
 
-            var bicepCompilation = paramsSemanticModel.bicepCompilation;
+            var bicepCompilation = paramsSemanticModel.BicepCompilation;
             if (bicepCompilation == null)
             {
                 return null;
