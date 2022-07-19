@@ -12,9 +12,6 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;
-using Bicep.Core.Syntax;
-using Bicep.Core.FileSystem;
-using System.Linq;
 using System;
 using Bicep.LanguageServer.Providers;
 using Bicep.Core.Configuration;
@@ -49,15 +46,12 @@ namespace Bicep.LanguageServer
         public void UpsertCompilation(DocumentUri uri, int? version, string text, string? languageId = null)
         {
             var paramsFile = SourceFileFactory.CreateBicepParamFile(uri.ToUri(), text);
-            var semanticModel = new ParamsSemanticModel(paramsFile);
-            var usingDeclarations = paramsFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>();
 
-            if (PathHelper.TryGetUsingPath(usingDeclarations.SingleOrDefault(), out var bicepFilePath, out var _) && Uri.TryCreate(uri.ToUri(), bicepFilePath, out var bicepFileUri))
-            {
-                var bicepConfig = bicepConfigurationManager.GetConfiguration(bicepFileUri);
-                var bicepCompilationContext = bicepCompilationContextProvider.Create(new Workspace(), bicepFileUri, new Dictionary<ISourceFile, ISemanticModel>().ToImmutableDictionary(), bicepConfig, new LinterAnalyzer(bicepConfig));
-                semanticModel = new ParamsSemanticModel(paramsFile, bicepCompilationContext.Compilation);
-            }
+            var semanticModel = new ParamsSemanticModel(paramsFile, (Uri uri) => {
+                var bicepConfig = bicepConfigurationManager.GetConfiguration(uri);
+                var bicepCompilationContext = bicepCompilationContextProvider.Create(new Workspace(), uri, new Dictionary<ISourceFile, ISemanticModel>().ToImmutableDictionary(), bicepConfig, new LinterAnalyzer(bicepConfig));
+                return bicepCompilationContext.Compilation;
+            });
     
             var context = this.activeContexts.AddOrUpdate(uri, 
             (uri) => new ParamsCompilationContext(semanticModel, semanticModel.BicepParamFile.ProgramSyntax, semanticModel.BicepParamFile.LineStarts), 

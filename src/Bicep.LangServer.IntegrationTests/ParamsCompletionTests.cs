@@ -92,7 +92,7 @@ new CompletionItemKind[] {}
             var fileResolver = new FileResolver();
             var bicepCompilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepText, fileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
 
-            var paramsSemanticModel = new ParamsSemanticModel(bicepParamFile, bicepCompilation);
+            var paramsSemanticModel = new ParamsSemanticModel(bicepParamFile, (uri) => bicepCompilation);
 
             var provider = new BicepCompletionProvider(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), BicepTestConstants.Features);
 
