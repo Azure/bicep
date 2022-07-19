@@ -23,7 +23,7 @@ namespace Bicep.Core.TypeSystem
             var parameterAssignmentSymbol = paramsSemanticModel.ParamBinder.GetSymbolInfo(syntax);
 
             var bicepCompilation = paramsSemanticModel.BicepCompilation;
-            if (bicepCompilation == null)
+            if (bicepCompilation is null)
             {
                 return null;
             }
