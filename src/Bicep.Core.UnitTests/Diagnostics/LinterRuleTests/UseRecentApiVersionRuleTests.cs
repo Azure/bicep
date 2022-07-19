@@ -64,8 +64,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                 ""rules"": {
                                   ""use-recent-api-version"": {
                                       ""level"": ""warning"",
-                                      ""debug-today"": ""<TESTING_TODAY_DATE>"",
-                                      ""debug-warn-not-found"": true
+                                      ""test-today"": ""<TESTING_TODAY_DATE>"",
+                                      ""test-warn-not-found"": true
                                   }
                                 }
                               }

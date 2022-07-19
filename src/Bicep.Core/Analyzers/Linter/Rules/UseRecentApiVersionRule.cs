@@ -28,8 +28,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public new const string Code = "use-recent-api-version";
         public const int MaxAllowedAgeInDays = 365 * 2;
 
-        private DateTime today = DateTime.Today; // Debug switch: Pretend today is a different date
-        private bool warnNotFound = false; // Debug switch: Warn if the resource type or API version are not found
+        private DateTime today = DateTime.Today; // Debug/test switch: Pretend today is a different date
+        private bool warnNotFound = false; // Debug/test switch: Warn if the resource type or API version are not found
 
         public UseRecentApiVersionRule() : base(
             code: Code,
@@ -44,14 +44,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             base.Configure(config);
 
             // Today's date can be changed to enable testing/debug scenarios
-            string? debugToday = this.GetConfigurationValue<string?>("debug-today", null);
-            if (debugToday is not null)
+            string? testToday = this.GetConfigurationValue<string?>("test-today", null);
+            if (testToday is not null)
             {
-                this.today = ApiVersionHelper.ParseDate(debugToday);
+                this.today = ApiVersionHelper.ParseDate(testToday);
             }
 
             // Testing/debug: Warn if the resource type and/or API version are not found
-            bool debugWarnNotFound = this.GetConfigurationValue<bool>("debug-warn-not-found", false);
+            bool debugWarnNotFound = this.GetConfigurationValue<bool>("test-warn-not-found", false);
             this.warnNotFound = debugWarnNotFound == true;
 
         }
@@ -237,6 +237,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     }
                 }
 
+                /*asdfg 
+                 * // use a deterministic order
+            var diagnostics = model.GetAllDiagnostics()
+                .OrderBy(x => x.Span.Position)
+                .ThenBy(x => x.Span.Length)
+                .ThenBy(x => x.Message, StringComparer.Ordinal);*/
                 acceptableVersions.Sort((v1, v2) =>
                 {
                     // Sort by date descending, then stable first, then others alphabetically ascending
