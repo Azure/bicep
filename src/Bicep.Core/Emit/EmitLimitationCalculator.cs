@@ -412,7 +412,7 @@ namespace Bicep.Core.Emit
 
                 foreach (var arrayAccess in SyntaxAggregator.AggregateByType<ArrayAccessSyntax>(lambda.Body))
                 {
-                    // Block the usage of lambdas to index into arrays or resources, as this may result in the generation of a reference() or list*() function call.
+                    // Block the usage of lambdas to index into arrays of resources, as this may result in the generation of a reference() or list*() function call.
                     // The Deployment Engine needs to be able to process these upfront to build the deployment graph, so they cannot contain unevaluated lambda variables.
                     if (!visited.Contains(arrayAccess) &&
                         model.GetSymbolInfo(arrayAccess.BaseExpression) is ModuleSymbol or ResourceSymbol)
