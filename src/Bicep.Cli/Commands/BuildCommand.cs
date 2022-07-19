@@ -75,7 +75,7 @@ namespace Bicep.Cli.Commands
             else if(IsBicepparamsFile(inputPath))
             {
               
-                var model = compilationService.CompileParams(inputPath, args.NoRestore);
+                var model = await compilationService.CompileParams(inputPath, args.NoRestore);
 
                 static string DefaultOutputPath(string path) => PathHelper.GetDefaultBuildOutputPath(path);
                 var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, args.OutputDir, args.OutputFile, DefaultOutputPath);
