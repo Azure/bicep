@@ -1,5 +1,5 @@
 /*
-//@[00:648) ProgramSyntax
+//@[00:647) ProgramSyntax
 This is a
 multiline comment!
 */
@@ -10,12 +10,12 @@ multiline comment!
 
 // using keyword for specifying a Bicep file
 //@[44:045) ├─Token(NewLine) |\n|
-using './main.bicep/'
-//@[00:021) ├─UsingDeclarationSyntax
+using './main.bicep'
+//@[00:020) ├─UsingDeclarationSyntax
 //@[00:005) | ├─Token(Identifier) |using|
-//@[06:021) | └─StringSyntax
-//@[06:021) |   └─Token(StringComplete) |'./main.bicep/'|
-//@[21:023) ├─Token(NewLine) |\n\n|
+//@[06:020) | └─StringSyntax
+//@[06:020) |   └─Token(StringComplete) |'./main.bicep'|
+//@[20:022) ├─Token(NewLine) |\n\n|
 
 // parameter assignment to literals
 //@[35:036) ├─Token(NewLine) |\n|

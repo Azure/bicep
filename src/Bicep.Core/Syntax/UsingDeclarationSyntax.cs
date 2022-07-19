@@ -28,5 +28,6 @@ namespace Bicep.Core.Syntax
 
             public override TextSpan Span => TextSpan.Between(this.Keyword, this.Path);
 
+            public StringSyntax? TryGetPath() => Path as StringSyntax;
     }
 }

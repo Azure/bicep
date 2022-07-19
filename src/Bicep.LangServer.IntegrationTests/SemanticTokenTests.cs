@@ -20,6 +20,8 @@ using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using System;
 using System.Collections.Immutable;
+using Bicep.Core.FileSystem;
+using Bicep.Core.UnitTests.Utils;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -59,7 +61,8 @@ namespace Bicep.LangServer.IntegrationTests
                 TextDocument = new TextDocumentIdentifier(uri),
             });
 
-            var tokenInfos = CalculateSemanticTokenInfos(bicepFile.LineStarts, semanticTokens!.Data, helper).ToArray();
+            var legend = helper.Client.ServerSettings.Capabilities.SemanticTokensProvider!.Legend;
+            var tokenInfos = CalculateSemanticTokenInfos(bicepFile.LineStarts, semanticTokens!.Data, legend).ToArray();
 
             for (var i = 1; i < tokenInfos.Length; i++)
             {
@@ -79,19 +82,34 @@ namespace Bicep.LangServer.IntegrationTests
 
         [DataTestMethod]
         [DynamicData(nameof(GetParamsData), DynamicDataSourceType.Method)]
-        public async Task Correct_semantic_tokens_are_returned_for_params_file(string text, TextSpan[] spans, SemanticTokenType[] tokenType)
+        public async Task Correct_semantic_tokens_are_returned_for_params_file(string paramFileText, TextSpan[] spans, SemanticTokenType[] tokenType)
         {
-            var uri = new Uri($"file://{TestContext.TestName}_{Guid.NewGuid():D}/main.bicepparam");
-            var helper = await DefaultServer.GetAsync();
-            await helper.OpenFileOnceAsync(TestContext, text, uri);
+            var baseFilePath = $"file://{TestContext.TestName}_{Guid.NewGuid():D}";            
+            var paramFileUri = new Uri($"{baseFilePath}/main.bicepparam");
+            var bicepFileUri = new Uri($"{baseFilePath}/main.bicep");
+
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [paramFileUri] = paramFileText,
+                [bicepFileUri] = ""
+            };
+
+            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
+
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+                TestContext,
+                paramFileText,
+                paramFileUri,
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
 
             var semanticTokens = await helper.Client.TextDocument.RequestSemanticTokens(new SemanticTokensParams
             {
-                TextDocument = new TextDocumentIdentifier(uri),
+                TextDocument = new TextDocumentIdentifier(paramFileUri),
             });
 
-            var lineStarts = TextCoordinateConverter.GetLineStarts(text);
-            var tokenInfos = CalculateSemanticTokenInfos(lineStarts, semanticTokens!.Data, helper).ToArray();
+            var lineStarts = TextCoordinateConverter.GetLineStarts(paramFileText);
+            var legend = helper.Client.ServerSettings.Capabilities.SemanticTokensProvider!.Legend;
+            var tokenInfos = CalculateSemanticTokenInfos(lineStarts, semanticTokens!.Data, legend).ToArray();
 
             for (var i = 0; i < tokenInfos.Length; i++)
             {
@@ -109,9 +127,8 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
 
-        private static IEnumerable<SemanticTokenInfo> CalculateSemanticTokenInfos(IReadOnlyList<int> lineStarts, IEnumerable<int> semanticTokenData, MultiFileLanguageServerHelper helper)
+        private static IEnumerable<SemanticTokenInfo> CalculateSemanticTokenInfos(IReadOnlyList<int> lineStarts, IEnumerable<int> semanticTokenData, SemanticTokensLegend legend)
         {
-            var legend = helper.Client.ServerSettings.Capabilities.SemanticTokensProvider!.Legend;
             var tokenTypesLegend = legend.TokenTypes.ToImmutableArray();
             var tokenModifiersLegend = legend.TokenModifiers.ToImmutableArray();
             var tokenTypes = semanticTokenData.Where((x, i) => i % 5 == 3).Select(x => tokenTypesLegend[x]).ToArray();
@@ -148,10 +165,11 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static IEnumerable<object[]> GetParamsData()
         {
-            yield return new object[] { "using './bicep.main' \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 14) }, new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.String} };
+            yield return new object[] { "using './main.bicep' \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 14) }, new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.String} };
             yield return new object[] { "param myint = 12 \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 5), new TextSpan(14, 2)}, new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.Number}};
-            yield return new object[] { "using './bicep.main' \n param myint = 12 \n param mystr = 'test'", 
+            yield return new object[] { "using './main.bicep' \n param myint = 12 \n param mystr = 'test'", 
                                         new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 14), new TextSpan(23, 5), new TextSpan(29, 5), new TextSpan(37, 2), new TextSpan(42, 5), new TextSpan(48, 5), new TextSpan(56, 6)},
-                                        new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.String, SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.Number, SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.String}};        }
+                                        new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.String, SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.Number, SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.String}};        
+            }
     }
 }
