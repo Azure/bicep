@@ -64,4 +64,4 @@ module modLoop './empty.bicep' = [for item in range(0, 5): {
 }]
 
 var modLoopNames = map(modLoop, i => i.name)
-output modOutputs array = map(range(0, 5), i => myMod[i].outputs.foo)
+output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)

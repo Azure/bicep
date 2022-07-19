@@ -1,5 +1,5 @@
 param ids array
-//@[000:2034) ProgramSyntax
+//@[000:2036) ProgramSyntax
 //@[000:0015) ├─ParameterDeclarationSyntax
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0009) | ├─IdentifierSyntax
@@ -1342,15 +1342,15 @@ var modLoopNames = map(modLoop, i => i.name)
 //@[039:0043) |   |       └─Token(Identifier) |name|
 //@[043:0044) |   └─Token(RightParen) |)|
 //@[044:0045) ├─Token(NewLine) |\n|
-output modOutputs array = map(range(0, 5), i => myMod[i].outputs.foo)
-//@[000:0069) ├─OutputDeclarationSyntax
+output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)
+//@[000:0071) ├─OutputDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0017) | ├─IdentifierSyntax
 //@[007:0017) | | └─Token(Identifier) |modOutputs|
 //@[018:0023) | ├─SimpleTypeSyntax
 //@[018:0023) | | └─Token(Identifier) |array|
 //@[024:0025) | ├─Token(Assignment) |=|
-//@[026:0069) | └─FunctionCallSyntax
+//@[026:0071) | └─FunctionCallSyntax
 //@[026:0029) |   ├─IdentifierSyntax
 //@[026:0029) |   | └─Token(Identifier) |map|
 //@[029:0030) |   ├─Token(LeftParen) |(|
@@ -1368,30 +1368,30 @@ output modOutputs array = map(range(0, 5), i => myMod[i].outputs.foo)
 //@[039:0040) |   |   |   └─Token(Integer) |5|
 //@[040:0041) |   |   └─Token(RightParen) |)|
 //@[041:0042) |   ├─Token(Comma) |,|
-//@[043:0068) |   ├─FunctionArgumentSyntax
-//@[043:0068) |   | └─LambdaSyntax
+//@[043:0070) |   ├─FunctionArgumentSyntax
+//@[043:0070) |   | └─LambdaSyntax
 //@[043:0044) |   |   ├─LocalVariableSyntax
 //@[043:0044) |   |   | └─IdentifierSyntax
 //@[043:0044) |   |   |   └─Token(Identifier) |i|
 //@[045:0047) |   |   ├─Token(Arrow) |=>|
-//@[048:0068) |   |   └─PropertyAccessSyntax
-//@[048:0064) |   |     ├─PropertyAccessSyntax
-//@[048:0056) |   |     | ├─ArrayAccessSyntax
-//@[048:0053) |   |     | | ├─VariableAccessSyntax
-//@[048:0053) |   |     | | | └─IdentifierSyntax
-//@[048:0053) |   |     | | |   └─Token(Identifier) |myMod|
-//@[053:0054) |   |     | | ├─Token(LeftSquare) |[|
-//@[054:0055) |   |     | | ├─VariableAccessSyntax
-//@[054:0055) |   |     | | | └─IdentifierSyntax
-//@[054:0055) |   |     | | |   └─Token(Identifier) |i|
-//@[055:0056) |   |     | | └─Token(RightSquare) |]|
-//@[056:0057) |   |     | ├─Token(Dot) |.|
-//@[057:0064) |   |     | └─IdentifierSyntax
-//@[057:0064) |   |     |   └─Token(Identifier) |outputs|
-//@[064:0065) |   |     ├─Token(Dot) |.|
-//@[065:0068) |   |     └─IdentifierSyntax
-//@[065:0068) |   |       └─Token(Identifier) |foo|
-//@[068:0069) |   └─Token(RightParen) |)|
-//@[069:0070) ├─Token(NewLine) |\n|
+//@[048:0070) |   |   └─PropertyAccessSyntax
+//@[048:0066) |   |     ├─PropertyAccessSyntax
+//@[048:0058) |   |     | ├─ArrayAccessSyntax
+//@[048:0055) |   |     | | ├─VariableAccessSyntax
+//@[048:0055) |   |     | | | └─IdentifierSyntax
+//@[048:0055) |   |     | | |   └─Token(Identifier) |modLoop|
+//@[055:0056) |   |     | | ├─Token(LeftSquare) |[|
+//@[056:0057) |   |     | | ├─VariableAccessSyntax
+//@[056:0057) |   |     | | | └─IdentifierSyntax
+//@[056:0057) |   |     | | |   └─Token(Identifier) |i|
+//@[057:0058) |   |     | | └─Token(RightSquare) |]|
+//@[058:0059) |   |     | ├─Token(Dot) |.|
+//@[059:0066) |   |     | └─IdentifierSyntax
+//@[059:0066) |   |     |   └─Token(Identifier) |outputs|
+//@[066:0067) |   |     ├─Token(Dot) |.|
+//@[067:0070) |   |     └─IdentifierSyntax
+//@[067:0070) |   |       └─Token(Identifier) |foo|
+//@[070:0071) |   └─Token(RightParen) |)|
+//@[071:0072) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

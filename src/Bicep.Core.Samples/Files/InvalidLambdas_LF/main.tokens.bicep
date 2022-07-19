@@ -741,7 +741,7 @@ var modLoopNames = map(modLoop, i => i.name)
 //@[039:043) Identifier |name|
 //@[043:044) RightParen |)|
 //@[044:045) NewLine |\n|
-output modOutputs array = map(range(0, 5), i => myMod[i].outputs.foo)
+output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)
 //@[000:006) Identifier |output|
 //@[007:017) Identifier |modOutputs|
 //@[018:023) Identifier |array|
@@ -757,15 +757,15 @@ output modOutputs array = map(range(0, 5), i => myMod[i].outputs.foo)
 //@[041:042) Comma |,|
 //@[043:044) Identifier |i|
 //@[045:047) Arrow |=>|
-//@[048:053) Identifier |myMod|
-//@[053:054) LeftSquare |[|
-//@[054:055) Identifier |i|
-//@[055:056) RightSquare |]|
-//@[056:057) Dot |.|
-//@[057:064) Identifier |outputs|
-//@[064:065) Dot |.|
-//@[065:068) Identifier |foo|
-//@[068:069) RightParen |)|
-//@[069:070) NewLine |\n|
+//@[048:055) Identifier |modLoop|
+//@[055:056) LeftSquare |[|
+//@[056:057) Identifier |i|
+//@[057:058) RightSquare |]|
+//@[058:059) Dot |.|
+//@[059:066) Identifier |outputs|
+//@[066:067) Dot |.|
+//@[067:070) Identifier |foo|
+//@[070:071) RightParen |)|
+//@[071:072) NewLine |\n|
 
 //@[000:000) EndOfFile ||
