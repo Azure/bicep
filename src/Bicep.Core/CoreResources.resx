@@ -313,10 +313,9 @@
   </data>
   <data name="UseRecentApiVersionRule_Description" xml:space="preserve">
     <value>Use recent API versions</value>
-    <comment>asdfg?</comment>
   </data>
   <data name="UseRecentApiVersionRule_MessageFormat" xml:space="preserve">
-    <value>Use recent API version for '{0}'.</value>
+    <value>Use most recent API version for '{0}'.</value>
     <comment>{0} = fully-qualified resource type name (programmatic).</comment>
   </data>
    <data name="UseRecentApiVersionRule_AcceptableVersions" xml:space="preserve">

@@ -619,6 +619,61 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "2420-06-14",
                     });
             }
+
+            [TestMethod]
+            public void OnlyPreviewVersionsAvailable_AcceptAllRecentPreviews()
+            {
+                TestGetAcceptableApiVersions(
+                    "Fake.Kusto/clusters",
+                    ResourceScope.ResourceGroup,
+                    @"
+                        Fake.Kusto/clusters@2410-01-01-preview
+                        Fake.Kusto/clusters@2410-01-02-preview
+                        Fake.Kusto/clusters@2421-01-01-preview
+                        Fake.Kusto/clusters@2421-01-02-preview
+                        Fake.Kusto/clusters@2421-01-03-preview
+                        Fake.Kusto/clusters@2421-03-01-preview
+                        Fake.Kusto/clusters@2421-04-01-preview
+                        Fake.Kusto/clusters@2421-04-02-preview
+                    ",
+                    "2421-07-07",
+                    new string[]
+                    {
+                        "2421-04-02-preview",
+                        "2421-04-01-preview",
+                        "2421-03-01-preview",
+                        "2421-01-03-preview",
+                        "2421-01-02-preview",
+                        "2421-01-01-preview",
+                    });
+            }
+
+            [TestMethod]
+            public void LostOfPreviewVersions_AndOneRecentGA_Available_AllowOnlyPreviewsMoreRecentThanGA()
+            {
+                TestGetAcceptableApiVersions(
+                    "Fake.Kusto/clusters",
+                    ResourceScope.ResourceGroup,
+                    @"
+                        Fake.Kusto/clusters@2410-01-01-preview
+                        Fake.Kusto/clusters@2410-01-02-preview
+                        Fake.Kusto/clusters@2421-01-01-preview
+                        Fake.Kusto/clusters@2421-01-02-preview
+                        Fake.Kusto/clusters@2421-01-03-preview
+                        Fake.Kusto/clusters@2421-02-01
+                        Fake.Kusto/clusters@2421-03-01-preview
+                        Fake.Kusto/clusters@2421-04-01-beta
+                        Fake.Kusto/clusters@2421-04-02-preview
+                    ",
+                    "2421-07-07",
+                    new string[]
+                    {
+                        "2421-04-02-preview",
+                        "2421-04-01-beta",
+                        "2421-03-01-preview",
+                        "2421-02-01", // No previews older than this allowed, even if < 2 years old
+                    });
+            }
         }
 
         [TestClass]

@@ -17,7 +17,33 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    //asdfg update
+    /*asdfg
+    // If the resource type or API version is not recognized, the rule is skipped (because Bicep will show a warning in these cases saying that types
+    //   are not available).
+    // Is it because the version is recent but is preview, and there's a newer stable version available?
+
+                  failureReason = $"'{actualApiVersion}' is a preview version and there is a more recent non-preview version available.";//asdfg what version recommend?
+                        }
+                        else if (stableIsSameDate)
+{
+    failureReason = $"'{actualApiVersion}' is a preview version and there is a non-preview version available with the same date.";//asdfg what version recommend?
+}
+
+int ageInDays = today.Subtract(ApiVersionHelper.ParseDate(actualApiVersion)).Days;
+    failureReason = $"'{actualApiVersion}' is {ageInDays} days old, should be no more than {maxAllowedAgeInDays} days old.";
+
+
+        // Start the list with all stable versions < 2 years old
+        //  - If no stable versions < 2 years old, add the most recent stable version, if any
+        //  - If no stable versions at all (no matter age), add all preview versions < 2 years old
+        //    - If no preview versions are < 2 years old, add only the newest preview version (there must be at least one)
+        // If there are any preview versions that are < 2 years old that are newer than the most recent stable version, add them
+       
+
+
+
+    */
+
     // Adds linter rule to flag an issue when api version used in resource is not recent
     // 1. Any GA version is allowed as long as it's less than years old, even if there is a more recent GA version
     // 2. If there is no GA apiVersion less than 2 years old, then accept only the latest one GA version available
