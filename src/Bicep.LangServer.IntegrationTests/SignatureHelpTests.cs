@@ -184,14 +184,23 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        private static void AssertValidSignatureHelp(SignatureHelp? signatureHelp, Symbol symbol, bool expectDecorator)
+        private static void AssertValidSignatureHelp(SignatureHelp? signatureHelp, FunctionSymbol symbol, bool expectDecorator)
         {
             signatureHelp.Should().NotBeNull();
 
             signatureHelp!.Signatures.Should().NotBeNull();
             foreach (var signature in signatureHelp.Signatures)
             {
-                signature.Label.Should().StartWith(symbol.Name.StartsWith("list") ? "list*(" : $"{symbol.Name}(");
+                var isWildcardListFunction = signature.Label.StartsWith("list*");
+                var isWellKnownListFunction = signature.Label.StartsWith("list") && !isWildcardListFunction;
+                if (isWildcardListFunction)
+                {
+                    symbol.Overloads.Should().Contain(x => x is FunctionWildcardOverload && x.Name == "list*");
+                }
+                else
+                {
+                    signature.Label.Should().StartWith($"{symbol.Name}(");
+                }
 
                 if (expectDecorator)
                 {
@@ -217,7 +226,12 @@ namespace Bicep.LangServer.IntegrationTests
                 signature.Documentation.Should().NotBeNull();
                 signature.Documentation!.MarkupContent.Should().NotBeNull();
                 signature.Documentation.MarkupContent!.Kind.Should().Be(MarkupKind.Markdown);
-                signature.Documentation.MarkupContent.Value.Should().NotBeEmpty();
+
+                // List functions provided by the bicep-types-az library do not contain documentation: https://github.com/Azure/bicep/issues/7611
+                if (!isWellKnownListFunction)
+                {
+                    signature.Documentation.MarkupContent.Value.Should().NotBeEmpty();
+                }
             }
         }
 
