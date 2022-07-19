@@ -1,13 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -27,8 +23,10 @@ namespace Bicep.Core.TypeSystem
             var parameterAssignmentSymbol = paramsSemanticModel.paramBinder.GetSymbolInfo(syntax);
 
             var bicepCompilation = paramsSemanticModel.bicepCompilation;
-            if (bicepCompilation == null) return null;
-            
+            if (bicepCompilation == null)
+            {
+                return null;
+            }
             var semanticModel = bicepCompilation.GetEntrypointSemanticModel();
             var parameterDeclarations = semanticModel.Root.ParameterDeclarations;
 
@@ -41,7 +39,7 @@ namespace Bicep.Core.TypeSystem
             }
             return null;
         }
-        
+
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)
             => paramsTypeAssignmentVisitor.GetTypeInfo(syntax);
 
