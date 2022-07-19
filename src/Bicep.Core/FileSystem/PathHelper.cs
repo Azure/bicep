@@ -140,13 +140,13 @@ namespace Bicep.Core.FileSystem
             return uriBuilder.Uri;
         }
 
-        public static bool TryGetUsingPath(UsingDeclarationSyntax? usingDeclarationSyntax, [NotNullWhen(true)]out string? bicepPath, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static bool TryGetUsingPath(UsingDeclarationSyntax? usingDeclarationSyntax, [NotNullWhen(true)]out string? bicepPath, [NotNullWhen(false)]out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var pathSyntax = usingDeclarationSyntax?.TryGetPath();
             if (pathSyntax == null)
             {
                 bicepPath = null;
-                failureBuilder = null; // if path is missing, the parser should capture that error
+                failureBuilder = x => x.TemplatePathHasNotBeenSpecified();
                 return false;
             }
 
