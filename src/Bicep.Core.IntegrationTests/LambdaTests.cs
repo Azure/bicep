@@ -357,5 +357,30 @@ output foo string = 'HELLO!'
                 ("BCP247", DiagnosticLevel.Error, "Using lambda variables inside resource or module array access is not currently supported. Found the following lambda variable(s) being accessed: \"i\"."),
             });
         }
+
+        [TestMethod]
+        public void DeployTimeConstant_detection_works_with_lambdas()
+        {
+            var result = CompilationHelper.Compile(@"
+resource stg 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
+  name: 'blah'
+}
+
+var nonDtcArr = map(range(0, 1), i => stg.properties.accessTier)
+
+resource stg2 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+  name: 'foo${nonDtcArr[0]}'
+  location: 'West US'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
+}
+");
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"name\" property of the \"Microsoft.Storage/storageAccounts\" type, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"nonDtcArr\" -> \"stg\"). Properties of stg which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
+            });
+        }
     }
 }
