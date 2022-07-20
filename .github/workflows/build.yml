@@ -110,14 +110,6 @@ jobs:
       - name: Publish Bicep
         run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
-      - name: Upload BicepLanguageServerClient VSIX
-        if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v3
-        with:
-          name: Bicep.VSLanguageServerClient.Vsix.vsix
-          path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/Bicep.VSLanguageServerClient.Vsix.vsix
-          if-no-files-found: error
-
       - name: Run Bicep E2E Tests
         if: matrix.rid != 'linux-musl-x64' && matrix.runTests
         run: npm ci && npm test
@@ -194,6 +186,13 @@ jobs:
         with:
           testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/Bicep.VSLanguageServerClient.IntegrationTests.dll
           runInParallel: true
+
+      - name: Upload BicepLanguageServerClient VSIX
+        uses: actions/upload-artifact@v3
+        with:
+          name: Bicep.VSLanguageServerClient.Vsix.vsix
+          path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/Bicep.VSLanguageServerClient.Vsix.vsix
+          if-no-files-found: error
 
   can-run-live-tests:
     name: Check secret access
