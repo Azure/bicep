@@ -16,8 +16,8 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
     [Export(typeof(IProcessTracker))]
     public sealed class JobObjectProcessTracker : IProcessTracker
     {
-        private bool _disposed;
-        private readonly object _disposeLock = new();
+        private bool disposed;
+        private readonly object disposeLock = new();
 
         /// <summary>
         /// The job handle.
@@ -26,7 +26,7 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
         /// Closing this handle would close all tracked processes. This will happen automatically when
         /// our process exits.
         /// </remarks>
-        private readonly SafeObjectHandle _jobHandle;
+        private readonly SafeObjectHandle jobHandle;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="JobObjectProcessTracker"/> class.
@@ -38,7 +38,7 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
             //  utility: handle -a JobObjectProcessTracker
             string jobName = nameof(JobObjectProcessTracker) + Process.GetCurrentProcess().Id;
 
-            _jobHandle = NativeMethods.CreateJobObject(IntPtr.Zero, jobName);
+            jobHandle = NativeMethods.CreateJobObject(IntPtr.Zero, jobName);
 
             JOBOBJECT_EXTENDED_LIMIT_INFORMATION extendedInfo = new()
             {
@@ -58,7 +58,7 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
                 Marshal.StructureToPtr(extendedInfo, pExtendedInfo, fDeleteOld: false);
                 try
                 {
-                    if (!NativeMethods.SetInformationJobObject(_jobHandle, JOBOBJECTINFOCLASS.JobObjectExtendedLimitInformation, pExtendedInfo, (uint)length))
+                    if (!NativeMethods.SetInformationJobObject(jobHandle, JOBOBJECTINFOCLASS.JobObjectExtendedLimitInformation, pExtendedInfo, (uint)length))
                     {
                         throw new Win32Exception();
                     }
@@ -82,13 +82,13 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
         {
             _ = process ?? throw new ArgumentNullException(nameof(process));
 
-            lock (_disposeLock)
+            lock (disposeLock)
             {
                 // Do not assign the new process handle to the job object if it is disposed.
                 // Use a lock to avoid race conditions with disposing and assigning processes to the job object.
-                if (!_disposed)
+                if (!disposed)
                 {
-                    bool success = NativeMethods.AssignProcessToJobObject(_jobHandle, new SafeObjectHandle(process.Handle, ownsHandle: false));
+                    bool success = NativeMethods.AssignProcessToJobObject(jobHandle, new SafeObjectHandle(process.Handle, ownsHandle: false));
                     if (!success && !process.HasExited)
                     {
                         throw new Win32Exception();
@@ -102,14 +102,14 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
         /// </summary>
         public void Dispose()
         {
-            lock (_disposeLock)
+            lock (disposeLock)
             {
-                if (!_disposed)
+                if (!disposed)
                 {
-                    _jobHandle?.Dispose();
+                    jobHandle?.Dispose();
                 }
 
-                _disposed = true;
+                disposed = true;
             }
         }
     }

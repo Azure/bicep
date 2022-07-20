@@ -258,19 +258,19 @@ namespace Bicep.VSLanguageServerClient.ProcessLauncher
                 return new ProcThreadAttributeList(lpValue, attributeList);
             }
 
-            private readonly IntPtr _lpValue;
+            private readonly IntPtr lpValue;
             public IntPtr AttributeList { get; private set; }
 
             private ProcThreadAttributeList(IntPtr lpValue, IntPtr attributeList)
             {
-                _lpValue = lpValue;
+                this.lpValue = lpValue;
                 AttributeList = attributeList;
             }
 
             public void Dispose()
             {
                 NativeMethods.DeleteProcThreadAttributeList(AttributeList);
-                Marshal.FreeHGlobal(_lpValue);
+                Marshal.FreeHGlobal(lpValue);
                 Marshal.FreeHGlobal(AttributeList);
             }
         }

@@ -8,22 +8,22 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
 {
     public class WindowEventsListener : IWindowEventsListener
     {
-        private WindowEventHandler _handler;
-        private GCHandle _handlerGCPin;
-        private IntPtr _hWinEventHook;
+        private WindowEventHandler handler;
+        private GCHandle handlerGCPin;
+        private IntPtr hWinEventHook;
 
         public WindowEventsListener(
             WindowsSystemEvents min = WindowsSystemEvents.EventMin,
             WindowsSystemEvents max = WindowsSystemEvents.EventMax)
         {
-            _handler = new WindowEventHandler(InternalSystemEventHandler);
-            _handlerGCPin = GCHandle.Alloc(_handler);
+            handler = new WindowEventHandler(InternalSystemEventHandler);
+            handlerGCPin = GCHandle.Alloc(handler);
 
-            _hWinEventHook = NativeMethods.SetWinEventHook(
+            hWinEventHook = NativeMethods.SetWinEventHook(
                 min,
                 max,
                 IntPtr.Zero,
-                _handler,
+                handler,
                 0,
                 0,
                 (uint)(WinEventHookFlags.OutOfContext | WinEventHookFlags.SkipOwnProcess));
@@ -60,20 +60,20 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
 
         protected virtual void Dispose(bool disposing)
         {
-            if (_hWinEventHook != IntPtr.Zero)
+            if (hWinEventHook != IntPtr.Zero)
             {
-                NativeMethods.UnhookWinEvent(_hWinEventHook);
-                _hWinEventHook = IntPtr.Zero;
+                NativeMethods.UnhookWinEvent(hWinEventHook);
+                hWinEventHook = IntPtr.Zero;
             }
 
             if (disposing)
             {
-                if (_handlerGCPin.IsAllocated)
+                if (handlerGCPin.IsAllocated)
                 {
-                    _handlerGCPin.Free();
+                    handlerGCPin.Free();
                 }
 
-                _handler = null!;
+                handler = null!;
             }
         }
     }

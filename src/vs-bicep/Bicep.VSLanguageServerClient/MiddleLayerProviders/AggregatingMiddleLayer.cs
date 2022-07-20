@@ -15,16 +15,16 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
     /// </summary>
     public class AggregatingMiddleLayer : ILanguageClientMiddleLayer
     {
-        private readonly ILanguageClientMiddleLayer[] _languageClientMiddleLayers;
+        private readonly ILanguageClientMiddleLayer[] languageClientMiddleLayers;
 
         public AggregatingMiddleLayer(params ILanguageClientMiddleLayer[] languageClientMiddleLayers)
         {
-            _languageClientMiddleLayers = languageClientMiddleLayers;
+            this.languageClientMiddleLayers = languageClientMiddleLayers;
         }
 
         public bool CanHandle(string methodName)
         {
-            if (_languageClientMiddleLayers.Any(ml => ml.CanHandle(methodName)))
+            if (languageClientMiddleLayers.Any(ml => ml.CanHandle(methodName)))
             {
                 return true;
             }
@@ -36,7 +36,7 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
         {
             bool handled = false;
 
-            foreach (ILanguageClientMiddleLayer languageClientMiddleLayer in _languageClientMiddleLayers)
+            foreach (ILanguageClientMiddleLayer languageClientMiddleLayer in languageClientMiddleLayers)
             {
                 if (languageClientMiddleLayer.CanHandle(methodName))
                 {
@@ -58,7 +58,7 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
             JToken? result = null;
             bool handled = false;
 
-            foreach (ILanguageClientMiddleLayer languageClientMiddleLayer in _languageClientMiddleLayers)
+            foreach (ILanguageClientMiddleLayer languageClientMiddleLayer in languageClientMiddleLayers)
             {
                 if (languageClientMiddleLayer.CanHandle(methodName))
                 {
