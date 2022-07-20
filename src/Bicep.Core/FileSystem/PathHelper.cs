@@ -149,7 +149,6 @@ namespace Bicep.Core.FileSystem
                 failureBuilder = x => x.TemplatePathHasNotBeenSpecified();
                 return false;
             }
-
             var pathValue = pathSyntax.TryGetLiteralValue();
             if (pathValue == null)
             {
@@ -157,13 +156,11 @@ namespace Bicep.Core.FileSystem
                 failureBuilder = x => x.FilePathInterpolationUnsupported();
                 return false;
             }
-            
             bicepPath = pathValue;
             failureBuilder = null;
             return true;
         }
-
-
+        
         public static Uri ChangeExtension(Uri uri, string? newExtension)
         {
             var uriString = uri.ToString();
