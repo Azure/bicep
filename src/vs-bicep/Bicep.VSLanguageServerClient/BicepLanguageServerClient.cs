@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,29 +27,28 @@ namespace Bicep.VSLanguageServerClient
     [ContentType(BicepContentTypeDefinition.ContentType)]
     public class BicepLanguageServerClient : ILanguageClient, ILanguageClientCustomMessage2
     {
-        private IClientProcess? _process;
-        private readonly ILanguageClientMiddleLayer _middleLayer;
-        private readonly IProcessTracker _processTracker;
+        private IClientProcess? process;
+        private readonly ILanguageClientMiddleLayer middleLayer;
+        private readonly IProcessTracker processTracker;
 
         [ImportingConstructor]
         public BicepLanguageServerClient(IProcessTracker processTracker)
         {
-            _processTracker = processTracker;
+            this.processTracker = processTracker;
 
             var setupConfiguration = new SetupConfiguration();
             var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer(setupConfiguration.GetInstanceForCurrentProcess().GetInstallationVersion());
             var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer();
-            _middleLayer = new AggregatingMiddleLayer(handleSnippetCompletionsMiddleLayer, updateFormatSettingsMiddleLayer);
+            middleLayer = new AggregatingMiddleLayer(handleSnippetCompletionsMiddleLayer, updateFormatSettingsMiddleLayer);
         }
 
         public string Name => "Bicep Language Server";
 
-        // this is allowed to return null, but can't be marked nullabe due to signature
-        public virtual IEnumerable<string> ConfigurationSections => null!;
+        public virtual IEnumerable<string> ConfigurationSections => Enumerable.Empty<string>();
 
         public virtual object InitializationOptions => new object();
 
-        public IEnumerable<string> FilesToWatch => Array.Empty<string>();
+        public IEnumerable<string> FilesToWatch => Enumerable.Empty<string>();
 
         public bool ShowNotificationOnInitializeFailed => true;
 
@@ -67,13 +67,13 @@ namespace Bicep.VSLanguageServerClient
 
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            _process = ClientProcessLauncher.CreateClientProcess(languageServerExePath, launchServerArguments, null, null);
+            process = ClientProcessLauncher.CreateClientProcess(languageServerExePath, launchServerArguments, null, null);
 
-            _processTracker.AddProcess(_process.Process);
+            processTracker.AddProcess(process.Process);
 
-            Debug.WriteLine($"Started {BicepContentTypeDefinition.ContentType} server with process ID {_process.Process.Id}");
+            Debug.WriteLine($"Started {BicepContentTypeDefinition.ContentType} server with process ID {process.Process.Id}");
 
-            return new Connection(_process.StandardOutput.BaseStream, _process.StandardInput.BaseStream);
+            return new Connection(process.StandardOutput.BaseStream, process.StandardInput.BaseStream);
         }
 
         public async Task OnLoadedAsync()
@@ -96,7 +96,7 @@ namespace Bicep.VSLanguageServerClient
             return Task.CompletedTask;
         }
 
-        public object MiddleLayer => _middleLayer;
+        public object MiddleLayer => middleLayer;
 
         public object CustomMessageTarget => null!;
     }
