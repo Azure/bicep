@@ -32,9 +32,19 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
 
             string actual = GetClassificationsContent(editor, getActualClassifications);
 
-            WaitForExtensions.IsTrue(
-                () => GetClassificationsContent(editor, getActualClassifications) == actual,
-                TimeSpan.FromSeconds(5));
+            WaitForExtensions.AreEqual(
+                () => GetClassificationsContent(editor, getActualClassifications),
+                expected,
+                TimeSpan.FromSeconds(5),
+                onTimeout: actual =>
+                {
+                    string resultFile = Path.ChangeExtension(baselineFile, ".new");
+                    File.WriteAllText(resultFile, actual);
+
+                    string message = string.Format("\r\nInvalid data in the log!\r\nwindiff \"{0}\" \"{1}\"\r\n", baselineFile, resultFile);
+
+                    throw new Exception(message);
+                });
         }
 
         private static string GetClassificationsContent(

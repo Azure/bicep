@@ -16,7 +16,19 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
 
             VsHostUtility.VsHost!.ObjectModel.Commanding.ExecuteCommand(VSConstants.VSStd2KCmdID.FORMATDOCUMENT, null);
 
-            WaitForExtensions.IsTrue(() => editor.Contents == expected, TimeSpan.FromSeconds(5));
+            WaitForExtensions.AreEqual(
+                () => editor.Contents,
+                expected,
+                TimeSpan.FromSeconds(5),
+                onTimeout: actual =>
+                {
+                    string resultFile = Path.ChangeExtension(baselineFile, ".new");
+                    File.WriteAllText(resultFile, actual);
+
+                    string message = string.Format("\r\nInvalid data in the log!\r\nwindiff \"{0}\" \"{1}\"\r\n", baselineFile, resultFile);
+
+                    throw new Exception(message);
+                });
         }
     }
 }
