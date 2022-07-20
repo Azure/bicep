@@ -81,7 +81,7 @@ namespace Bicep.LanguageServer.Snippets
 
             // We'll use default bicepconfig.json settings during SnippetsProvider creation to avoid errors during language service initialization.
             // We don't do any validation in SnippetsProvider. So using default settings shouldn't be a problem.
-            configuration = configurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
+            configuration = configurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
             linterAnalyzer = new LinterAnalyzer(configuration);
 
             Initialize();

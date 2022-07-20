@@ -17,7 +17,7 @@ namespace Bicep.Core.UnitTests.Utils
         {
             var entryFileUri = new Uri("file:///main.bicep");
 
-            return CreateForFiles(new Dictionary<Uri, string> { [entryFileUri] = text }, entryFileUri, fileResolver, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled);
+            return CreateForFiles(new Dictionary<Uri, string> { [entryFileUri] = text }, entryFileUri, fileResolver, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
         }
 
         public static SourceFileGrouping CreateForFiles(IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri, IFileResolver fileResolver, RootConfiguration configuration, IFeatureProvider? features = null)

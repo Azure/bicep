@@ -34,17 +34,8 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataRow(ExplicitValuesForLocationParamsRule.Code)]
         [DataRow(NoHardcodedEnvironmentUrlsRule.Code)]
         [DataRow(NoHardcodedLocationRule.Code)]
-        [DataRow(NoLocationExprOutsideParamsRule.Code)]
-        [DataRow(NoUnnecessaryDependsOnRule.Code)]
-        [DataRow(NoUnusedParametersRule.Code)]
-        [DataRow(NoUnusedVariablesRule.Code)]
-        [DataRow(OutputsShouldNotContainSecretsRule.Code)]
-        [DataRow(PreferInterpolationRule.Code)]
-        [DataRow(SecureParameterDefaultRule.Code)]
-        [DataRow(SimplifyInterpolationRule.Code)]
-        [DataRow(ProtectCommandToExecuteSecretsRule.Code)]
-        [DataRow(UseStableVMImageRule.Code)]
         public void BuiltInRulesExistSanityCheck(string ruleCode)
+
         {
             var linter = new LinterAnalyzer(configuration);
             linter.GetRuleSet().Should().Contain(r => r.Code == ruleCode);

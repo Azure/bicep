@@ -480,7 +480,7 @@ namespace Bicep.LanguageServer
             }
 
             // Fallback to the default configuration with analyzers disabled.
-            return this.configurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
+            return this.configurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
         }
 
         private static IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context) =>
