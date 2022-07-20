@@ -32,7 +32,7 @@ namespace Bicep.Core.TypeSystem
 
             foreach (var parameterSymbol in parameterDeclarations)
             {
-                if (parameterSymbol.Name.Equals(parameterAssignmentSymbol?.Name))
+                if (LanguageConstants.IdentifierComparer.Equals(parameterSymbol.Name, parameterAssignmentSymbol?.Name))
                 {
                     return semanticModel.GetDeclaredType(parameterSymbol.DeclaringParameter);
                 }
