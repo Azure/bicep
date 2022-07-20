@@ -86,7 +86,7 @@ var filteredLoop = filter(itemForLoop, i => i > 5)
 //@[46:46]     "filteredLoop": "[filter(variables('itemForLoop'), lambda('i', greater(lambdaVariables('i'), 5)))]",
 
 output doggoGreetings array = [for item in mapObject: item.greeting]
-//@[138:144]     "doggoGreetings": {
+//@[91:97]     "doggoGreetings": {
 
 resource storageAcc 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
   name: 'asdfsadf'
@@ -94,34 +94,16 @@ resource storageAcc 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
 var mappedResProps = map(items(storageAcc.properties.secondaryEndpoints), item => item.value)
 
 module myMod './test.bicep' = {
-//@[52:90]       "type": "Microsoft.Resources/deployments",
+//@[50:88]       "type": "Microsoft.Resources/deployments",
   name: 'asdfsadf'
-//@[55:55]       "name": "asdfsadf",
+//@[53:53]       "name": "asdfsadf",
   params: {
     outputThis: map(mapObject, obj => obj.doggo)
-//@[63:63]             "value": "[map(variables('mapObject'), lambda('obj', lambdaVariables('obj').doggo))]"
+//@[61:61]             "value": "[map(variables('mapObject'), lambda('obj', lambdaVariables('obj').doggo))]"
   }
 }
 var mappedModOutputProps = map(myMod.outputs.outputThis, doggo => '${doggo} says bork')
 
-resource resLoop 'Microsoft.Storage/storageAccounts@2021-09-01' existing = [for item in range(0, 5): {
-  name: 'foo${item}'
-}]
-var resLoopNames = map(range(0, 5), i => resLoop[i].name)
-//@[47:47]     "resLoopNames": "[map(range(0, 5), lambda('i', format('foo{0}', range(0, 5)[lambdaVariables('i')])))]",
-
-module modLoop './test.bicep' = [for item in range(0, 5): {
-//@[91:135]       "copy": {
-  name: 'foo${item}'
-//@[98:98]       "name": "[format('foo{0}', range(0, 5)[copyIndex()])]",
-  params: {
-    outputThis: ['blah']
-//@[106:108]             "value": [
-  }
-}]
-var modLoopNames = map(range(0, 5), i => modLoop[i].name)
-//@[48:48]     "modLoopNames": "[map(range(0, 5), lambda('i', format('foo{0}', range(0, 5)[lambdaVariables('i')])))]",
-
 var parentheses = map([123], (i => '${i}'))
-//@[49:49]     "parentheses": "[map(createArray(123), lambda('i', format('{0}', lambdaVariables('i'))))]"
+//@[47:47]     "parentheses": "[map(createArray(123), lambda('i', format('{0}', lambdaVariables('i'))))]"
 

@@ -286,6 +286,7 @@ resource existing1 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
 }
 
 resource existing2 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
+//@[09:18) [no-unused-existing-resources (Warning)] Existing resource "existing2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-existing-resources)) |existing2|
 //@[19:65) [BCP081 (Warning)] Resource type "Mock.Rp/existingExtensionResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/existingExtensionResource@2020-01-01'|
   name: 'existing2'
   scope: existing1

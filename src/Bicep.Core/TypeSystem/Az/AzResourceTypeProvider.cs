@@ -196,17 +196,19 @@ namespace Bicep.Core.TypeSystem.Az
                 new StringLiteralType("Actor"),
                 LanguageConstants.String);
 
+            var userAssignedIdentity = new ObjectType("userAssignedIdentityProperties", TypeSymbolValidationFlags.Default, new []
+            {
+                new TypeProperty("principalId", LanguageConstants.String),
+                new TypeProperty("clientId", LanguageConstants.String)
+            }, null);
+
             yield return new TypeProperty("identity", new ObjectType("identity", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("principalId", LanguageConstants.String),
                 new TypeProperty("tenantId", LanguageConstants.String),
                 new TypeProperty("type", resourceIdentityType, TypePropertyFlags.Required),
                 new TypeProperty("identityIds", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
-                new TypeProperty("userAssignedIdentities", new ObjectType("userAssignedIdentityProperties", TypeSymbolValidationFlags.Default, new []
-                {
-                    new TypeProperty("principalId", LanguageConstants.String),
-                    new TypeProperty("clientId", LanguageConstants.String)
-                }, null)),
+                new TypeProperty("userAssignedIdentities", new ObjectType("userAssignedIdentities", TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), userAssignedIdentity)),
                 new TypeProperty("delegatedResources", LanguageConstants.Object),
             }, null));
         }

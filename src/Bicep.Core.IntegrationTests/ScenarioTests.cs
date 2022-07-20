@@ -2427,6 +2427,7 @@ output test string = res.id
             {
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/virtualNetworks\" but the provided value is of type \"module\"."),
                 ("BCP240", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported."),
+                ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"res2\" is declared but never used."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/virtualNetworks\" but the provided value is of type \"tenant\"."),
                 ("BCP240", DiagnosticLevel.Error, "The \"parent\" property only permits direct references to resources. Expressions are not supported."),
             });
@@ -3232,6 +3233,11 @@ resource auth 'Microsoft.Web/sites/config@2021-03-01' = [for (c, i) in configs: 
         public void Test_Issue_3356_Accept_Correct_Type_Definitions()
         {
             var result = CompilationHelper.Compile(@"
+resource msi 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+  name: 'myIdentity'
+  location: resourceGroup().location
+}
+
 #disable-next-line BCP081
 resource foo 'Microsoft.Storage/storageAccounts@2021-09-00' = {
   name: 'test'
@@ -3251,10 +3257,14 @@ resource foo 'Microsoft.Storage/storageAccounts@2021-09-00' = {
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      clientId: 'client1'
-      principalId: 'principal1'
+      '${msi.id}': {}
     }
   }
+}
+
+output fooIdProps object = {
+  clientId: foo.identity.userAssignedIdentities[msi.id].clientId
+  principalId: foo.identity.userAssignedIdentities[msi.id].principalId
 }
 ");
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
@@ -3287,10 +3297,16 @@ resource foo 'Microsoft.Storage/storageAccounts@2021-09-00' = {
     type: 'noType'
     tenantId: 3
     userAssignedIdentities: {
-      clientId: 1
-      principalId: 2
+      'blah': {
+        clientId: 1
+        principalId: 2
+      }
     }
   }
+}
+
+output fooBadIdProps object = {
+  clientId: foo.identity.userAssignedIdentities['blah'].hello
 }
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
@@ -3302,7 +3318,8 @@ resource foo 'Microsoft.Storage/storageAccounts@2021-09-00' = {
                 ("BCP036", DiagnosticLevel.Warning, "The property \"capacity\" expected a value of type \"int\" but the provided value is of type \"'2'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
                 ("BCP036", DiagnosticLevel.Warning, "The property \"tenantId\" expected a value of type \"string\" but the provided value is of type \"int\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
                 ("BCP036", DiagnosticLevel.Warning, "The property \"clientId\" expected a value of type \"string\" but the provided value is of type \"int\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-                ("BCP036", DiagnosticLevel.Warning, "The property \"principalId\" expected a value of type \"string\" but the provided value is of type \"int\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+                ("BCP036", DiagnosticLevel.Warning, "The property \"principalId\" expected a value of type \"string\" but the provided value is of type \"int\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP053", DiagnosticLevel.Error, "The type \"userAssignedIdentityProperties\" does not contain property \"hello\". Available properties include \"clientId\", \"principalId\"."),
             });
         }
 
@@ -3683,6 +3700,93 @@ var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
             });
 
             result.Diagnostics.Should().OnlyContain(x => x.Styling == DiagnosticStyling.ShowCodeDeprecated);
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/7482
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue7482()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+module optionModuleLoop 'module.bicep' = [for item in ['option:a','option:b']: {
+  name: 'myOptionModule-${uniqueString(item)}'
+  params: {
+    option: item
+  }
+}]
+"),
+                ("module.bicep", @"
+@allowed(['option:a','option:b', 'option:c', 'option:d'])
+param option string
+
+var optionsLUT = {
+  'option:a': {
+    text: 'Option A'
+    value: 'a'
+  }
+  'option:b': {
+    text: 'Option B'
+    value: 'b'
+  }
+  'option:c': {
+    text: 'Option C'
+    value: 'c'
+  }
+}
+
+var optionType = optionsLUT[option]
+
+output optionTypeText string = optionType.text
+output optionTypeValue string = optionType.value
+")).ExcludingLinterDiagnostics();
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/7482
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue7482_alternative()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+var options = ['option:a','option:b']
+module optionModuleLoop 'module.bicep' = [for item in options: {
+  name: 'myOptionModule-${uniqueString(item)}'
+  params: {
+    option: item
+  }
+}]
+"),
+                ("module.bicep", @"
+@allowed(['option:a','option:b', 'option:c', 'option:d'])
+param option string
+
+var optionsLUT = {
+  'option:a': {
+    text: 'Option A'
+    value: 'a'
+  }
+  'option:b': {
+    text: 'Option B'
+    value: 'b'
+  }
+  'option:c': {
+    text: 'Option C'
+    value: 'c'
+  }
+}
+
+var optionType = optionsLUT[option]
+
+output optionTypeText string = optionType.text
+output optionTypeValue string = optionType.value
+")).ExcludingLinterDiagnostics();
+
+            result.Should().NotHaveAnyDiagnostics();
         }
 
         /// <summary>

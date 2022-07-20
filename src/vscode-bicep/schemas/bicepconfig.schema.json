@@ -236,6 +236,16 @@
                     }
                   ]
                 },
+                "artifacts-parameters": {
+                  "allOf": [
+                    {
+                      "description": "Follow best practices when including the _artifactsLocation and _artifactsLocationSasToken parameters. See https://aka.ms/bicep/linter/artifacts-parameters"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
                 "explicit-values-for-loc-params": {
                   "allOf": [
                     {
@@ -326,6 +336,16 @@
                   "allOf": [
                     {
                       "description": "No unnecessary dependsOn. See https://aka.ms/bicep/linter/no-unnecessary-dependson"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "no-unused-existing-resources": {
+                  "allOf": [
+                    {
+                      "description": "All existing resources must be used. See https://aka.ms/bicep/linter/no-unused-existing-resources"
                     },
                     {
                       "$ref": "#/definitions/rule"
@@ -459,6 +479,16 @@
                     },
                     {
                       "$ref": "#/definitions/rule-def-error-level"
+                    }
+                  ]
+                },
+                "use-stable-resource-identifiers": {
+                  "allOf": [
+                    {
+                      "description": "Resource identifiers should be reproducible outside of their initial deployment context. See https://aka.ms/bicep/linter/use-stable-resource-identifiers"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
                     }
                   ]
                 }
