@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.IO;
 using Microsoft.Test.Apex.VisualStudio;
 using Microsoft.Test.Apex.VisualStudio.Shell;
@@ -17,7 +18,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
 
             if (VsHost is null)
             {
-                return null;
+                throw new Exception("VsHost is null");
             }
 
             VsHost.ObjectModel.Commanding.ExecuteCommand("File.OpenFile", "\"" + filePath + "\"");
@@ -28,7 +29,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
         {
             if (VsHost is null)
             {
-                return null;
+                throw new Exception("VsHost is null");
             }
 
             return VsHost.ObjectModel.WindowManager.ActiveDocumentWindowAsTextEditor;
