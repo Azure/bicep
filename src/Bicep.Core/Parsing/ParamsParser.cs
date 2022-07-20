@@ -85,7 +85,7 @@ namespace Bicep.Core.Parsing
         {
             var keyword = ExpectKeyword(LanguageConstants.UsingKeyword);
             var path = this.WithRecovery(
-                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedModulePathString()),
+                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedFilePathString()),
                 GetSuppressionFlag(keyword),
                 TokenType.Assignment, TokenType.NewLine);
             
