@@ -25,7 +25,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
                     string resultFile = Path.ChangeExtension(baselineFile, ".new");
                     File.WriteAllText(resultFile, actual);
 
-                    string message = string.Format("\r\nInvalid data in the log!\r\nwindiff \"{0}\" \"{1}\"\r\n", baselineFile, resultFile);
+                    string message = string.Format("\r\nBaseline mismatch written to the log!\r\nwindiff \"{0}\" \"{1}\"\r\n", baselineFile, resultFile);
 
                     throw new Exception(message);
                 });
