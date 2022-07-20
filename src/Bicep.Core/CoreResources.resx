@@ -117,6 +117,26 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ArtifactsLocationRule_Error_ParamMissing" xml:space="preserve">
+    <value>If an '{0}' parameter is provided, an '{1}' parameter must also be provided.</value>
+    <comment>{0} and {1} are programmatic parameter names (either '_artifactsLocation' or '_artifactsLocationSasToken')</comment>
+  </data>
+  <data name="ArtifactsLocationRule_Error_MissingUnderscore" xml:space="preserve">
+    <value>The artifacts parameter '{0}' must start with an underscore.</value>
+    <comment>{0} = parameter name</comment>
+  </data>
+  <data name="ArtifactsLocationRule_FixTitle_ChangeType" xml:space="preserve">
+    <value>Change parameter type to '{0}'</value>
+    <comment>{0} = type name</comment>
+  </data>
+  <data name="ArtifactsLocationRule_Error_ParamMustBeType" xml:space="preserve">
+    <value>Artifacts parameter '{0}' must be of type '{1}'</value>
+    <comment>{0}, parameter name, {1} = type name</comment>
+  </data>
+  <data name="ArtifactsLocationRule_Error_ParamMustBeSecure" xml:space="preserve">
+    <value>Artifacts parameter '{0}' must use the @secure() attribute</value>
+    <comment>{0}, parameter name</comment>
+  </data>
   <data name="BicepConfigCustomSettingsFoundFormatMessage" xml:space="preserve">
     <value>Custom bicepconfig.json file found ({0}).</value>
     <comment>message to indicate that a custom settings file was found {0} is the file location</comment>

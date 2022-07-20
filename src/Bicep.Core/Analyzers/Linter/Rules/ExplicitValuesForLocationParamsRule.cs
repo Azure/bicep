@@ -47,7 +47,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax moduleDeclarationSyntax)
             {
-                // Check that explicit values passed in to any location-related parameters in a consumed module
+                // Check that explicit values are passed in to any location-related parameters in a consumed module
                 ImmutableArray<(string parameterName, SyntaxBase? actualValue)> locationParametersActualValues =
                     parent.GetParameterValuesForModuleLocationParameters(moduleDeclarationSyntax, model, onlyParamsWithDefaultValues: true);
 

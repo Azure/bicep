@@ -62,9 +62,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 {
                     var compileErrors = result.Diagnostics.Where(d => d.Level == DiagnosticLevel.Error);
                     DiagnosticAssertions.DoWithDiagnosticAnnotations(
-                    result.Compilation.SourceFileGrouping.EntryPoint,
-                    compileErrors,
-                    diags => diags.Should().HaveCount(0));
+                        result.Compilation.SourceFileGrouping.EntryPoint,
+                        compileErrors,
+                        diags => diags.Should().HaveCount(0));
                 }
 
                 IDiagnostic[] diagnosticsMatchingCode = result.Diagnostics.Where(filterFunc).ToArray();

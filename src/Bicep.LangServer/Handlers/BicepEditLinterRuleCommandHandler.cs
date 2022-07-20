@@ -89,7 +89,6 @@ namespace Bicep.LanguageServer.Handlers
             }
         }
 
-        //asdfg move
         // Returns true if the rule was added to the config file
         public static async Task<bool> AddAndSelectRuleLevel(ILanguageServerFacade server, string bicepConfigFilePath, string ruleCode)
         {
