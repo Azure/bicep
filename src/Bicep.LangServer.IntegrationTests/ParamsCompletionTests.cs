@@ -82,6 +82,22 @@ new string[] {},
 new CompletionItemKind[] {}
 )
 ]
+[DataRow(
+@"
+//Parameters file
+
+using |
+",  
+
+@"
+//Bicep file
+
+var firstVar = 'hello'
+",
+new string[] {"main.bicep", "/"},
+new CompletionItemKind[] {CompletionItemKind.File, CompletionItemKind.Folder}
+)
+]
         public void Params_completion_provider_should_return_correct_completions(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
         {   
             var (paramTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText);

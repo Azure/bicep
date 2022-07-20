@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Exceptions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
@@ -20,6 +19,7 @@ namespace Bicep.Core.Semantics
         public Compilation? BicepCompilation { get; }
         public ParamsTypeManager ParamsTypeManager { get; }
         public ParamsSymbolContext ParamsSymbolContext { get; }
+        public List<IDiagnostic> allDiagnostics { get; } = new();
         
         public ParamsSemanticModel(BicepParamFile bicepParamFile, Func<Uri, Compilation>? getCompilation = null)
         {
@@ -51,16 +51,14 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public ParamFileSymbol Root => this.ParamBinder.ParamFileSymbol;
 
-        public Uri? TryGetBicepFileUri()
+        private Uri? TryGetBicepFileUri()
         {
-            //TODO: collect all using statment related diagnostics here
             var usingDeclarations = BicepParamFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>();
 
             if(!PathHelper.TryGetUsingPath(usingDeclarations.FirstOrDefault(), out var bicepFilePath, out var failureBuilder))
-            {                
-                var message = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(new TextSpan(0, 0))).Message;
-
-                throw new BicepException(message);
+            {       
+                var diagnostic = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(new TextSpan(0, 0)));
+                this.allDiagnostics.Add(diagnostic);
             }
 
             Uri.TryCreate(BicepParamFile.FileUri, bicepFilePath, out var bicepFileUri);

@@ -1486,6 +1486,12 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP253",
                 "The using declaration is missing a bicep template file path reference.");
+
+            public Diagnostic UsingDeclarationNotSpecified() => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP052",
+                "No using declaration present in parameters file");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
