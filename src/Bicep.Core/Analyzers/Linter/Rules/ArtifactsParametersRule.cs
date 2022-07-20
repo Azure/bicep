@@ -19,7 +19,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public new const string Code = "artifacts-parameters";
 
         // Bicep parameters are case-insensitive, but the ARM template versions that they represent are not, and the existing
-        // publish scripts use ARM, so the rule nees to use case-insensitive checks
+        // publish scripts use ARM, so the rule needs to use case-insensitive checks
         private readonly StringComparison ArmParameterComparison = StringComparison.InvariantCultureIgnoreCase;
 
         private const string ArtifactsLocationParamNameCommon = "artifactsLocation"; // ArtifactsLocationName and ArtifactsLocationSasTokenName both contain this string
@@ -303,7 +303,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                      paramNoUnderscore,
                      CreateDiagnosticForSpan(
                        paramNoUnderscore.NameSyntax.Span,
-                       string.Format(CoreResources.ArtifactsLocationRule_Error_MissingUnderscore, parameterName)));
+                       string.Format(CoreResources.ArtifactsLocationRule_Error_MissingUnderscore, nameWithoutUnderscore)));
             }
 
             var param = parameters.Where(p => p.Name.Equals(parameterName, ArmParameterComparison)).FirstOrDefault();

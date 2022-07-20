@@ -30,7 +30,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ",
                 new string[]
                 {
-                    "The artifacts parameter '_artifactsLocation' must start with an underscore.",
+                    "The artifacts parameter 'artifactsLocation' must start with an underscore.",
                     "If the '_artifactsLocation' parameter has a default value, it must be a raw URL or an expression like 'deployment().properties.templateLink.uri'.",
                 }
            );
@@ -49,7 +49,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ",
                 new string[]
                 {
-                    "The artifacts parameter '_artifactsLocation' must start with an underscore.",
+                    "The artifacts parameter 'artifactsLocation' must start with an underscore.",
                     "If the '_artifactsLocation' parameter has a default value, it must be a raw URL or an expression like 'deployment().properties.templateLink.uri'.",
                 }
            );
@@ -68,7 +68,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ",
                 new string[]
                 {
-                    "The artifacts parameter '_artifactsLocationSasToken' must start with an underscore.",
+                    "The artifacts parameter 'artifactsLocationSasToken' must start with an underscore.",
                      "If the '_artifactsLocationSasToken' parameter has a default value, it must be an empty string.",
                 }
            );
@@ -262,20 +262,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             CompileAndTest(
                 @"
-                    param _artifactsLocation string = 'https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/100-blank-template/'
-                    @secure()
-                    param _artifactsLocationSasToken string = ''
-                ",
-                new string[]
-                {
-                });
-        }
-
-        [TestMethod]
-        public void WrongDefaults3_Pass()
-        {
-            CompileAndTest(
-                @"
                     param _artifactsLocation string
                     @secure()
                     param _artifactsLocationSasToken string
@@ -285,7 +271,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 });
         }
         [TestMethod]
-        public void WrongDefaults4_Fail()
+        public void WrongDefaults3_Fail()
         {
             CompileAndTest(
                 @"
