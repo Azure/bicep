@@ -20,7 +20,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
             WaitForBicepLanguageServiceActivation(editor);
 
             editor.Caret.MoveToExpression("description");
-            string expected = "function description(text: string): any";
+            string expected = "function description('The globally unique name of the SignalR resource to create.'): any";
             HoverUtility.TestQuickInfo(text => expected == text, editor);
         }
     }
