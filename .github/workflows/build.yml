@@ -185,7 +185,7 @@ jobs:
         uses: microsoft/vstest-action@v1.0.0
         with:
           testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/Bicep.VSLanguageServerClient.IntegrationTests.dll
-          runInParallel: true
+          runInParallel: false
 
       - name: Upload BicepLanguageServerClient VSIX
         uses: actions/upload-artifact@v3
