@@ -8,6 +8,6 @@ namespace Bicep.Core.Semantics
     public interface IParamsTypeManager
     {
         TypeSymbol GetTypeInfo(SyntaxBase syntax); // Gets the type of the syntax.
-        TypeSymbol GetDeclaredType(SyntaxBase syntax); // Gets the type of declared type of syntax.
+        TypeSymbol? GetDeclaredType(SyntaxBase syntax); // Gets the type of declared type of syntax.
     }
 }

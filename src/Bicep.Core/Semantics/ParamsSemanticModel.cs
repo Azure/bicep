@@ -35,13 +35,13 @@ namespace Bicep.Core.Semantics
             //binder logic
             var paramsSymbolContext = new ParamsSymbolContext(this);
             ParamsSymbolContext = paramsSymbolContext;
+            this.BicepParamFile = bicepParamFile;
             this.ParamBinder = new(bicepParamFile, paramsSymbolContext); 
-            this.ParamsTypeManager = new(ParamBinder);
+            this.ParamsTypeManager = new(this, ParamBinder);
             // name binding is done
             // allow type queries now
             paramsSymbolContext.Unlock();
         }
-        
 
         public IEnumerable<IDiagnostic> GetDiagnostics()
             => BicepParamFile.ProgramSyntax.GetParseDiagnostics();

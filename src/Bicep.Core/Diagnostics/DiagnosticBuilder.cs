@@ -1487,10 +1487,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP253",
                 "The using declaration is missing a bicep template file path reference.");
 
+            public ErrorDiagnostic ExpectedFilePathString() => new(
+                TextSpan,
+                "BCP254",
+                "Expected a Bicep file path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
+             
             public Diagnostic UsingDeclarationNotSpecified() => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
-                "BCP052",
+                "BCP255",
                 "No using declaration present in parameters file");
         }
 
