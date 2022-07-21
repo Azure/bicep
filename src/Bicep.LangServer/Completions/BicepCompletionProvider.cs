@@ -85,7 +85,8 @@ namespace Bicep.LanguageServer.Completions
 
         public IEnumerable<CompletionItem> GetFilteredParamsCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
         {
-            return GetParamAssignmentCompletions(paramsSemanticModel, paramsCompletionContext);
+            return GetParamAssignmentCompletions(paramsSemanticModel, paramsCompletionContext)
+                  .Concat(GetUsingDeclarationPathCompletions(paramsSemanticModel, paramsCompletionContext));
         }
 
         private IEnumerable<CompletionItem> GetParamAssignmentCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
@@ -101,6 +102,32 @@ namespace Bicep.LanguageServer.Completions
                     yield return CreateSymbolCompletion(declaration, paramsCompletionContext.ReplacementRange);
                 }
             }
+        }
+
+        private IEnumerable<CompletionItem> GetUsingDeclarationPathCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
+        {
+            if (!paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.UsingDeclaration))
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            var entered = "";
+
+             // These should only fail if we're not able to resolve cwd path or the entered string
+            if (!TryGetFilesForPathCompletions(paramsSemanticModel.BicepParamFile.FileUri, entered, out var cwdUri, out var files, out var dirs))
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            // Prioritize .bicep files higher than other files.
+            var bicepFileItems = CreateFileCompletionItems(paramsSemanticModel, paramsCompletionContext, entered, files, cwdUri, IsBicepFile, CompletionPriority.High);
+            // var armTemplateFileItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, IsArmTemplateFileLike, CompletionPriority.Medium);
+            // var dirItems = CreateDirectoryCompletionItems(model, context, entered, dirs, cwdUri);
+
+            // return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
+            return bicepFileItems;
+
+            bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
         }
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(SemanticModel model, BicepCompletionContext context)
@@ -372,6 +399,17 @@ namespace Bicep.LanguageServer.Completions
 
             return true;
         }
+
+        private IEnumerable<CompletionItem> CreateFileCompletionItems(ParamsSemanticModel model, ParamsCompletionContext context, string entered, IEnumerable<Uri> fileUris, Uri cwdUri, Predicate<Uri> predicate, CompletionPriority priority) => fileUris
+            .Where(fileUri => fileUri != model.BicepParamFile.FileUri && predicate(fileUri))
+            .Select(fileUri =>
+                CreateFilePathCompletionBuilder(
+                        fileUri.Segments.Last(),
+                        (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(fileUri),
+                        context.ReplacementRange,
+                        CompletionItemKind.File,
+                        priority)
+                    .Build());
 
         private IEnumerable<CompletionItem> CreateFileCompletionItems(SemanticModel model, BicepCompletionContext context, string entered, IEnumerable<Uri> fileUris, Uri cwdUri, Predicate<Uri> predicate, CompletionPriority priority) => fileUris
             .Where(fileUri => fileUri != model.SourceFile.FileUri && predicate(fileUri))

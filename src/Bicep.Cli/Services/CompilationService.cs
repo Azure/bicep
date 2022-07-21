@@ -108,19 +108,7 @@ namespace Bicep.Cli.Services
             }
             var paramsFile = SourceFileFactory.CreateBicepParamFile(inputUri, fileText);
 
-
-            /*
-            What lead to the issue?
-            - encapsulate bicep uri reading logic in paramsSemanticModel
-
-            Issue?
-            - CLI compilation method is async but need to be executed by paramsSemantic Model
-
-            Solution 
-            - convert async method to sync
-            - create an async build method 
-            */
-
+            //TODO: Create paramsSemanticModel through Build method
             var model = new ParamsSemanticModel(paramsFile, (Uri uri) => {
                 Task<Compilation> task = Task.Run<Compilation>(async () => await CompileAsync(uri, skipRestore));
                 return task.Result;

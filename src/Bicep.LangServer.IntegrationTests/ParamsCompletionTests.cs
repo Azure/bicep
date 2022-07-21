@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
@@ -13,6 +16,7 @@ using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
@@ -24,6 +28,9 @@ namespace Bicep.LangServer.IntegrationTests.Completions
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
         private static readonly ILanguageServerFacade Server = Repository.Create<ILanguageServerFacade>().Object;
         private static readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager);
+
+        [NotNull]
+        public TestContext? TestContext { get; set; }
 
         [DataTestMethod]
         [DataRow(
@@ -82,22 +89,6 @@ new string[] {},
 new CompletionItemKind[] {}
 )
 ]
-[DataRow(
-@"
-//Parameters file
-
-using |
-",  
-
-@"
-//Bicep file
-
-var firstVar = 'hello'
-",
-new string[] {"main.bicep", "/"},
-new CompletionItemKind[] {CompletionItemKind.File, CompletionItemKind.Folder}
-)
-]
         public void Params_completion_provider_should_return_correct_completions(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
         {   
             var (paramTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText);
@@ -124,6 +115,44 @@ new CompletionItemKind[] {CompletionItemKind.File, CompletionItemKind.Folder}
                 completion.Kind.Should().Be(completionItemKinds[expectedValueIndex]);
                 expectedValueIndex +=1;
             }
+        }
+        
+        [TestMethod]
+        public async Task Request_for_using_declaration_path_should_return_correct_paths()
+        {
+            var paramUri = DocumentUri.FromFileSystemPath("/path/to/param.bicepparam");
+            var bicepMainUri1 = DocumentUri.FromFileSystemPath("/path/to/main1.bicep");
+            var bicepMainUri2 = DocumentUri.FromFileSystemPath("/path/to/main2.txt");
+            var bicepModuleUri1 = DocumentUri.FromFileSystemPath("/path/to/module1.txt");
+            var bicepModuleUri2 = DocumentUri.FromFileSystemPath("/path/to/module2.bicep");
+
+            var (paramFileText, cursor) = ParserHelper.GetFileWithSingleCursor(@"
+using |
+");
+            var paramFile = SourceFileFactory.CreateBicepFile(paramUri.ToUri(), paramFileText);
+
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [paramUri.ToUri()] = paramFileText,
+                [bicepMainUri1.ToUri()] = "param foo int",
+                [bicepMainUri2.ToUri()] = "param bar int",
+                [bicepModuleUri1.ToUri()] = "param foo string",
+                [bicepModuleUri2.ToUri()] = "param bar bool"
+            };
+
+            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+                TestContext,
+                paramFileText,
+                paramUri,
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
+
+            var file = new FileRequestHelper(helper.Client, paramFile);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().SatisfyRespectively(
+                x => x.Label.Should().Be("main1.bicep"),
+                x => x.Label.Should().Be("module2.bicep"));
         }
     }
 }

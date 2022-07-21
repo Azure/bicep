@@ -53,9 +53,20 @@ namespace Bicep.LanguageServer.Completions
 
 
             //TODO: Add top level declaration completions
-            var kind = ConvertFlag(IsParamAssignmentContext(matchingNodes, offset), ParamsCompletionContextKind.ParamAssignment);
+            var kind = ConvertFlag(IsParamAssignmentContext(matchingNodes, offset), ParamsCompletionContextKind.ParamAssignment) |
+                        ConvertFlag(IsUsingDeclarationContext(matchingNodes, offset), ParamsCompletionContextKind.UsingDeclaration);
 
             return new(kind, replacementRange);
+        }
+
+        private static bool IsUsingDeclarationContext(List<SyntaxBase> matchingNodes, int offset)
+        {
+            if(matchingNodes.Count >=1)
+            {
+                SyntaxBase lastNode = matchingNodes[^1];
+                return lastNode is UsingDeclarationSyntax usingDeclarationSyntax && usingDeclarationSyntax.Path is SkippedTriviaSyntax;
+            }
+            return false;
         }
 
         private static bool IsParamAssignmentContext(List<SyntaxBase> matchingNodes, int offset)
@@ -63,11 +74,7 @@ namespace Bicep.LanguageServer.Completions
             if(matchingNodes.Count >=1)
             {
                 SyntaxBase lastNode = matchingNodes[^1];
-                if (lastNode is ParameterAssignmentSyntax assignmentSyntax )
-                {
-                    //TODO: do completions with partially written identifier names
-                    return assignmentSyntax.Name.IdentifierName == LanguageConstants.MissingName;
-                }
+                return lastNode is ParameterAssignmentSyntax assignmentSyntax && assignmentSyntax.Name.IdentifierName == LanguageConstants.MissingName;
             }
 
             return false;
