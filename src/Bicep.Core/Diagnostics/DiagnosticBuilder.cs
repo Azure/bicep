@@ -1491,6 +1491,21 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP254",
                 "Expected a Bicep file path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
+
+            public ErrorDiagnostic MissingParameterAssignment() => new(
+                TextSpan,
+                "BCP255",
+                "A parameter declared in the bicep file is missing an assignment in the params file.");
+
+            public ErrorDiagnostic MissingParameterDeclaration() => new(
+                TextSpan,
+                "BCP256",
+                "A parameter assignment is done in the params file without a parameter declaration in the bicep file.");
+
+            public ErrorDiagnostic TypeMismatch() => new(
+                TextSpan,
+                "BCP256",
+                "The declared type of a parameter differents from its value assignment.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
