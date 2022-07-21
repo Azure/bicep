@@ -125,11 +125,10 @@ namespace Bicep.LanguageServer.Completions
 
             // Prioritize .bicep files higher than other files.
             var bicepFileItems = CreateFileCompletionItems(paramsSemanticModel, paramsCompletionContext, entered, files, cwdUri, IsBicepFile, CompletionPriority.High);
-            // var armTemplateFileItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, IsArmTemplateFileLike, CompletionPriority.Medium);
-            // var dirItems = CreateDirectoryCompletionItems(model, context, entered, dirs, cwdUri);
+            var dirItems = CreateDirectoryCompletionItems(paramsSemanticModel, paramsCompletionContext, entered, dirs, cwdUri);
 
             // return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
-            return bicepFileItems;
+            return bicepFileItems.Concat(dirItems);
 
             bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
         }
@@ -426,6 +425,17 @@ namespace Bicep.LanguageServer.Completions
                         priority)
                     .Build());
 
+        private IEnumerable<CompletionItem> CreateDirectoryCompletionItems(ParamsSemanticModel model, ParamsCompletionContext context, string entered, IEnumerable<Uri> dirUris, Uri cwdUri, CompletionPriority priority = CompletionPriority.Low) => dirUris
+            .Select(dir =>
+                CreateFilePathCompletionBuilder(
+                        dir.Segments.Last(),
+                        // "./" will not be preserved when making relative Uris. We have to go and manually add it.
+                        (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(dir),
+                        context.ReplacementRange,
+                        CompletionItemKind.Folder,
+                        priority)
+                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "file path completion" })
+                    .Build());
         private IEnumerable<CompletionItem> CreateDirectoryCompletionItems(SemanticModel model, BicepCompletionContext context, string entered, IEnumerable<Uri> dirUris, Uri cwdUri, CompletionPriority priority = CompletionPriority.Low) => dirUris
             .Select(dir =>
                 CreateFilePathCompletionBuilder(

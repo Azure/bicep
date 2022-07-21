@@ -95,7 +95,23 @@ namespace Bicep.Core.FileSystem
 
         public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern)
         {
-            return Enumerable.Empty<Uri>();
+            if (!fileUri.IsFile)
+            {
+                return Enumerable.Empty<Uri>();
+            }
+
+            HashSet<Uri> dirUris = new();
+
+            foreach (var knownFileUri in fileLookup.Keys)
+            {
+                if (fileUri.IsBaseOf(knownFileUri) && knownFileUri.Segments.Count() > fileUri.Segments.Count() + 1) 
+                {
+                    var IndexOfNextSlash = knownFileUri.AbsoluteUri.IndexOf("/", fileUri.AbsoluteUri.Length + 1);
+                    var dirUri = new Uri(knownFileUri.AbsoluteUri.Substring(0, IndexOfNextSlash));
+                    dirUris.Add(dirUri);
+                }
+            }
+            return dirUris.ToList();
         }
 
         public IEnumerable<Uri> GetFiles(Uri fileUri, string pattern)
