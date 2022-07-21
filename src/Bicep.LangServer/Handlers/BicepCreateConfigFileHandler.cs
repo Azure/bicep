@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
+using Bicep.LanguageServer.Providers;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
@@ -29,11 +30,13 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepCreateConfigFileHandler : ExecuteTypedResponseCommandHandlerBase<BicepCreateConfigParams, bool>
     {
         private readonly ILogger<BicepCreateConfigFileHandler> logger;
+        private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
         private readonly ILanguageServerFacade server;
 
-        public BicepCreateConfigFileHandler(ILanguageServerFacade server, ILogger<BicepCreateConfigFileHandler> logger, ISerializer serializer)
+        public BicepCreateConfigFileHandler(ILanguageServerFacade server, IClientCapabilitiesProvider clientCapabilitiesProvider, ILogger<BicepCreateConfigFileHandler> logger, ISerializer serializer)
             :base(LangServerConstants.CreateConfigFile, serializer)
         {
+            this.clientCapabilitiesProvider = clientCapabilitiesProvider;
             this.server = server;
             this.logger = logger;
         }
@@ -50,7 +53,7 @@ namespace Bicep.LanguageServer.Handlers
             string defaultBicepConfig = DefaultBicepConfigHelper.GetDefaultBicepConfig();
             await File.WriteAllTextAsync(destinationPath, defaultBicepConfig);
 
-            await BicepEditLinterRuleCommandHandler.AddAndSelectRuleLevel(server, destinationPath, DefaultBicepConfigHelper.DefaultRuleCode);
+            await BicepEditLinterRuleCommandHandler.AddAndSelectRuleLevel(server, clientCapabilitiesProvider, destinationPath, DefaultBicepConfigHelper.DefaultRuleCode);
             return true;
         }
     }
