@@ -2867,14 +2867,12 @@ output contentVersion string = deployment().properties.template.contentVersion
 
             var result = CompilationHelper.Compile(context, @"
 var adminUsername = 'cooluser'
-var adminPassword = 'p@ssw0rd'
 
 resource server 'Microsoft.Sql/servers@2021-02-01-preview' = {
   name: 'sql-${uniqueString(resourceGroup().id)}'
   location: resourceGroup().location
   properties: {
     administratorLogin: adminUsername
-    administratorLoginPassword: adminPassword
   }
 
   resource db 'databases' = {
@@ -2896,7 +2894,6 @@ resource server2 'Microsoft.Sql/servers@2021-02-01-preview' = {
   location: resourceGroup().location
   properties: {
     administratorLogin: adminUsername
-    administratorLoginPassword: adminPassword
   }
 
   resource db 'databases' = {
