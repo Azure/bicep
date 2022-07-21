@@ -1,0 +1,89 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Bicep.Core.Analyzers.Linter.Rules;
+using FluentAssertions;
+using FluentAssertions.Execution;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
+{
+    [TestClass]
+    public class SecretsInParamsMustBeSecureTests : LinterRuleTestsBase
+    {
+        [TestMethod]
+        public void ParameterNameInFormattedMessage()
+        {
+            var ruleToTest = new SecretsInParamsMustBeSecureRule();
+            ruleToTest.GetMessage("myparam").Should().Be("Parameter 'myparam' may represent a secret (according to its name) and must be declared with the '@secure()' attribute.");
+        }
+
+        private void CompileAndTest(string bicep, int numberOfExpectedErrors)
+        {
+            AssertLinterRuleDiagnostics(SecretsInParamsMustBeSecureRule.Code, bicep, numberOfExpectedErrors, onCompileErrors: OnCompileErrors.Fail);
+        }
+
+        [DataRow(@"param pass_adminUsername string")]
+        [DataRow(@"param passwort string")]
+        [DataRow(@"@secure()
+                   param password string")]
+        [DataRow(@"param key string")]
+        [DataTestMethod]
+        public void ExpectingPass(string bicep)
+        {
+            CompileAndTest(bicep, 0);
+        }
+
+        // password
+        [DataRow(@"param fail_adminPasswordInt int")]
+        [DataRow(@"param fail_adminPassword string")]
+        [DataRow(@"param fail_ADMINpassword2 string")]
+        [DataRow(@"param fail_adminPasswords string")]
+        [DataRow(@"param fail_adminPasswordObject object")]
+        // accountkey
+        [DataRow(@"param fail_myAccountKey string")]
+        [DataRow(@"param fail_myAcctKey string")]
+        // secret
+        [DataRow(@"param fail_adminSecret string")]
+        [DataRow(@"param fail_mySECRET string")]
+        [DataRow(@"param fail_AdminSecretValue string")]
+        [TestMethod]
+        public void ExpectingFail(string bicep)
+        {
+            CompileAndTest(bicep, 1);
+
+            using (new AssertionScope("Adding @secure() to the testcase should make it pass"))
+            {
+                if (bicep.EndsWith(" string") || bicep.EndsWith(" object"))
+                {
+                    CompileAndTest("@secure()\n" + bicep, 0);
+                }
+            }
+        }
+
+        //// Exceptions allowed for certain known ARM patterns:
+        //
+        // secret + permissions (secret permissions is an accessPolicy property for keyvault)
+        [DataRow(true, @"param pass_secretpermissions string")]
+        [DataRow(false, @"param fail_secretmissions string")]
+        //
+        // secret + version (URL or simply the version property of a secret)
+        [DataRow(true, @"param pass_secretVersion string")]
+        [DataRow(false, @"param fail_secretVerse string")]
+        //
+        // secret + url/uri
+        [DataRow(true, @"param pass_secretUri string")]
+        [DataRow(true, @"param pass_secretUrl string = 'default'")]
+        [DataRow(false, @"param fail_secretUrtext string = 'default'")]
+        //
+        // secret + name (keyvault secret's name)
+        [DataRow(true, @"param pass_secretname string")]
+        [DataRow(true, @"param pass_keyVaultSecretName object")]
+        [DataRow(false, @"param fail_secretNombre string")]
+        [DataTestMethod]
+        public void AllowedListExceptions(bool shouldPass, string bicep)
+        {
+            CompileAndTest(bicep, shouldPass ? 0 : 1);
+        }
+    }
+}
