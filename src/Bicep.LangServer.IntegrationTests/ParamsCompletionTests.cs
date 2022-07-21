@@ -6,29 +6,18 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Semantics;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
-using Bicep.LanguageServer.Completions;
-using Bicep.LanguageServer.Snippets;
-using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace Bicep.LangServer.IntegrationTests.Completions
 {
     [TestClass]
     public class ParamsCompletionTests
     {
-        private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
-        private static readonly ILanguageServerFacade Server = Repository.Create<ILanguageServerFacade>().Object;
-        private static readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager);
-
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -78,6 +67,27 @@ new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field, Co
 
 using './main.bicep'
 
+param firstParam = 5
+param |", 
+
+@"
+//Bicep file
+
+param firstParam int = 1
+param secondParam string
+param thirdParam string = 'hello'
+
+",
+new string[] {"secondParam", "thirdParam"},
+new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field}
+)
+]
+[DataRow(
+@"
+//Parameters file
+
+using './main.bicep'
+
 param |",  
 
 @"
@@ -89,26 +99,33 @@ new string[] {},
 new CompletionItemKind[] {}
 )
 ]
-        public void Params_completion_provider_should_return_correct_completions(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
+        public async Task Request_for_parameters_completions_should_return_correct_identifiers(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
         {   
-            var (paramTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText);
-            var paramsUri = new Uri("inmemory:///params.bicepparams");
-            var bicepParamFile = SourceFileFactory.CreateBicepParamFile(paramsUri, paramTextNoCursor);
+            var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText);
 
+            var paramUri = DocumentUri.FromFileSystemPath("/path/to/param.bicepparam");
+            var bicepMainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
 
-            var fileResolver = new FileResolver();
-            var bicepCompilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepText, fileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var paramFile = SourceFileFactory.CreateBicepFile(paramUri.ToUri(), paramFileTextNoCursor);
 
-            var paramsSemanticModel = new ParamsSemanticModel(bicepParamFile, (uri) => bicepCompilation);
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [paramUri.ToUri()] = paramFileTextNoCursor,
+                [bicepMainUri.ToUri()] = bicepText
+            };
 
-            var provider = new BicepCompletionProvider(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), BicepTestConstants.Features);
+            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+                TestContext,
+                paramFileTextNoCursor,
+                paramUri,
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
 
-            var paramsCompletionContext = ParamsCompletionContext.Create(new(paramsSemanticModel, paramsSemanticModel.BicepParamFile.ProgramSyntax, paramsSemanticModel.BicepParamFile.LineStarts), cursor);
+            var file = new FileRequestHelper(helper.Client, paramFile);
 
-            var completions = provider.GetFilteredParamsCompletions(paramsSemanticModel, paramsCompletionContext);
+            var completions = await file.RequestCompletion(cursor);
 
             var expectedValueIndex = 0;
-            
             foreach(var completion in completions)
             {
                 completion.Label.Should().Be(completionLables[expectedValueIndex]);
@@ -118,7 +135,7 @@ new CompletionItemKind[] {}
         }
         
         [TestMethod]
-        public async Task Request_for_using_declaration_path_should_return_correct_paths()
+        public async Task Request_for_using_declaration_path_completions_should_return_correct_paths()
         {
             var paramUri = DocumentUri.FromFileSystemPath("/path/to/param.bicepparam");
             var bicepMainUri1 = DocumentUri.FromFileSystemPath("/path/to/main1.bicep");
@@ -126,14 +143,14 @@ new CompletionItemKind[] {}
             var bicepModuleUri1 = DocumentUri.FromFileSystemPath("/path/to/module1.txt");
             var bicepModuleUri2 = DocumentUri.FromFileSystemPath("/path/to/module2.bicep");
 
-            var (paramFileText, cursor) = ParserHelper.GetFileWithSingleCursor(@"
+            var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(@"
 using |
 ");
-            var paramFile = SourceFileFactory.CreateBicepFile(paramUri.ToUri(), paramFileText);
+            var paramFile = SourceFileFactory.CreateBicepFile(paramUri.ToUri(), paramFileTextNoCursor);
 
             var fileTextsByUri = new Dictionary<Uri, string>
             {
-                [paramUri.ToUri()] = paramFileText,
+                [paramUri.ToUri()] = paramFileTextNoCursor,
                 [bicepMainUri1.ToUri()] = "param foo int",
                 [bicepMainUri2.ToUri()] = "param bar int",
                 [bicepModuleUri1.ToUri()] = "param foo string",
@@ -143,7 +160,7 @@ using |
             var fileResolver = new InMemoryFileResolver(fileTextsByUri);
             using var helper = await LanguageServerHelper.StartServerWithTextAsync(
                 TestContext,
-                paramFileText,
+                paramFileTextNoCursor,
                 paramUri,
                 creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
 

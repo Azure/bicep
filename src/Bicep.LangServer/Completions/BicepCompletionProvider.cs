@@ -93,15 +93,19 @@ namespace Bicep.LanguageServer.Completions
         {   
             if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamAssignment) && paramsSemanticModel.BicepCompilation is {} bicepCompilation)
             {
-                //TODO: ignore params already declared
                 var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
                 var bicepFileParamDeclarations = bicepSemanticModel.Root.ParameterDeclarations;
 
                 foreach(var declaration in bicepFileParamDeclarations)
                 {
-                    yield return CreateSymbolCompletion(declaration, paramsCompletionContext.ReplacementRange);
+                    if(!IsParamAssigned(declaration))
+                    {
+                        yield return CreateSymbolCompletion(declaration, paramsCompletionContext.ReplacementRange);
+                    }
                 }
             }
+
+            bool IsParamAssigned(ParameterSymbol declaration) => paramsSemanticModel.ParamBinder.ParamFileSymbol.ParameterAssignmentSymbols.Any(paramDeclaration => paramDeclaration.Name == declaration.Name);
         }
 
         private IEnumerable<CompletionItem> GetUsingDeclarationPathCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
