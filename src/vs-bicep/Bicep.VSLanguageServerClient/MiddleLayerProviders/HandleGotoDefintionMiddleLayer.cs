@@ -34,10 +34,7 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
             return methodName.Equals(Methods.TextDocumentDefinitionName, StringComparison.Ordinal);
         }
 
-        public async Task HandleNotificationAsync(string methodName, JToken methodParam, Func<JToken, Task> sendNotification)
-        {
-            await sendNotification(methodParam);
-        }
+        public Task HandleNotificationAsync(string methodName, JToken methodParam, Func<JToken, Task> sendNotification) => sendNotification(methodParam);
 
         public async Task<JToken?> HandleRequestAsync(string methodName, JToken methodParam, Func<JToken, Task<JToken?>> sendRequest)
         {
