@@ -18,7 +18,7 @@ namespace Bicep.VSLanguageServerClient.Vsix
     /// IVsPackage interface and uses the registration attributes defined in the framework to
     /// register itself and its components with the shell. These attributes tell the pkgdef creation
     /// utility what data to put into .pkgdef file.
-    /// To get loaded into VS, the package must be referred by &lt;Asset Type="Microsoft.VisualStudio.VsPackage" ...&gt; in .vsixmanifest file.
+    /// To get loaded into VS, the package must be referenced by &lt;Asset Type="Microsoft.VisualStudio.VsPackage" ...&gt; in .vsixmanifest file.
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [Guid(BicepVSLanguageServerClientPackage.PackageGuidString)]
@@ -31,7 +31,7 @@ namespace Bicep.VSLanguageServerClient.Vsix
 
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
-        /// where you can put all the initialization code that rely on services provided by VisualStudio.
+        /// where you can put all the initialization code that relies on services provided by VisualStudio.
         /// </summary>
         /// <param name="cancellationToken">A cancellation token to monitor for initialization cancellation, which can occur when VS is shutting down.</param>
         /// <param name="progress">A provider for progress updates.</param>
