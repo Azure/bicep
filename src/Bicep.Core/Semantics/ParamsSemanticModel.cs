@@ -66,6 +66,13 @@ namespace Bicep.Core.Semantics
         {
             var usingDeclarations = BicepParamFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>();
 
+            //1 - no using declartions  
+
+            //2 - more than one using declarations 
+
+            //3 - using declaration that points to a file that doesn't exist 
+
+
             if(!PathHelper.TryGetUsingPath(usingDeclarations.FirstOrDefault(), out var bicepFilePath, out var failureBuilder))
             {       
                 var diagnostic = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(new TextSpan(0, 0)));

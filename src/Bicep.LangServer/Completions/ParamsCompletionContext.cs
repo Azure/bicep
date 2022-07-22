@@ -53,9 +53,9 @@ namespace Bicep.LanguageServer.Completions
         
 
             var kind = ConvertFlag(IsParamAssignmentContext(matchingNodes, offset), ParamsCompletionContextKind.ParamAssignment) |
-                        ConvertFlag(IsUsingDeclarationContext(matchingNodes, offset), ParamsCompletionContextKind.UsingDeclaration);
+                        ConvertFlag(IsUsingDeclarationContext(matchingNodes, offset), ParamsCompletionContextKind.UsingFilePath);
 
-            if(kind == ParamsCompletionContextKind.UsingDeclaration)
+            if(kind == ParamsCompletionContextKind.UsingFilePath)
             {
                 var usingDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<UsingDeclarationSyntax, UsingDeclarationSyntax>(matchingNodes);
                 return new(kind, replacementRange, usingDeclarationInfo.node);

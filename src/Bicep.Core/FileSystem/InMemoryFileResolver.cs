@@ -116,7 +116,7 @@ namespace Bicep.Core.FileSystem
 
         public IEnumerable<Uri> GetFiles(Uri fileUri, string pattern)
         {
-            return fileLookup.Keys;
+            return fileLookup.Keys.Where(uri => fileUri.IsBaseOf(uri) && fileUri.Segments.Count() + 1 == uri.Segments.Count());
         }
 
         public bool TryReadAsBase64(Uri fileUri, [NotNullWhen(true)] out string? fileBase64, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder, int maxCharacters = -1)

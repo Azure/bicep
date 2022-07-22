@@ -110,12 +110,18 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetUsingDeclarationPathCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
         {
-            if (!paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.UsingDeclaration))
+            if (!paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.UsingFilePath))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            var entered = "";
+            if(paramsCompletionContext.UsingDeclaration is not UsingDeclarationSyntax usingDeclarationSyntax || 
+               usingDeclarationSyntax.Path is not StringSyntax stringSyntax ||
+               stringSyntax.TryGetLiteralValue() is not string entered)
+            {
+                entered = "";
+            }
+            
 
              // These should only fail if we're not able to resolve cwd path or the entered string
             if (!TryGetFilesForPathCompletions(paramsSemanticModel.BicepParamFile.FileUri, entered, out var cwdUri, out var files, out var dirs))
@@ -127,7 +133,6 @@ namespace Bicep.LanguageServer.Completions
             var bicepFileItems = CreateFileCompletionItems(paramsSemanticModel, paramsCompletionContext, entered, files, cwdUri, IsBicepFile, CompletionPriority.High);
             var dirItems = CreateDirectoryCompletionItems(paramsSemanticModel, paramsCompletionContext, entered, dirs, cwdUri);
 
-            // return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
             return bicepFileItems.Concat(dirItems);
 
             bool IsBicepFile(Uri fileUri) => PathHelper.HasBicepExtension(fileUri);
