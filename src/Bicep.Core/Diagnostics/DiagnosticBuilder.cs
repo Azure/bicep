@@ -1492,20 +1492,20 @@ namespace Bicep.Core.Diagnostics
                 "BCP254",
                 "Expected a Bicep file path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
 
-            public ErrorDiagnostic MissingParameterAssignment() => new(
+            public ErrorDiagnostic MissingParameterAssignment(string identifier) => new(
                 TextSpan,
                 "BCP255",
-                "A parameter declared in the bicep file is missing an assignment in the params file.");
+                $"\"{identifier}\" is declared in the bicep file but is missing an assignment in the params file.");
 
-            public ErrorDiagnostic MissingParameterDeclaration() => new(
+            public ErrorDiagnostic MissingParameterDeclaration(string? identifier) => new(
                 TextSpan,
                 "BCP256",
-                "A parameter assignment is done in the params file without a parameter declaration in the bicep file.");
+                $"\"{identifier}\" is assigned in the params file without being declared in the bicep file.");
 
-            public ErrorDiagnostic TypeMismatch() => new(
+            public ErrorDiagnostic TypeMismatch(string? identifier, TypeSymbol expectedType, TypeSymbol actualType) => new(
                 TextSpan,
                 "BCP256",
-                "The declared type of a parameter differents from its value assignment.");
+                $"The parameter \"{identifier}\" expects a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
