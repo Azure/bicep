@@ -33,14 +33,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             AssertLinterRuleDiagnostics(ruleCode, bicepText, onCompileErrors, diags =>
             {
-                if (diags.Count() > 0)
-                {
-                    diags.Should().HaveCount(expectedDiagnosticCountForCode);
-                }
-                else
-                {
-                    diags.Should().HaveCount(expectedDiagnosticCountForCode);
-                }
+                diags.Should().HaveCount(expectedDiagnosticCountForCode);
             });
         }
 
