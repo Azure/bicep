@@ -1504,7 +1504,7 @@ namespace Bicep.Core.Diagnostics
 
             public ErrorDiagnostic TypeMismatch(string? identifier, TypeSymbol expectedType, TypeSymbol actualType) => new(
                 TextSpan,
-                "BCP256",
+                "BCP257",
                 $"The parameter \"{identifier}\" expects a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
         }
 
