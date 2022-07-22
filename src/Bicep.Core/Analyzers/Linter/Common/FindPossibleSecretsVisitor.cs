@@ -29,10 +29,10 @@ namespace Bicep.Core.Analyzers.Linter.Common
         private readonly List<PossibleSecret> possibleSecrets = new();
 
         /// <summary>
-        /// Searches in an expression for possible references to sensitive data, such as secure parameters or list* functions (may but
+        /// Searches in an expression for possible references to sensitive data, such as secure parameters or list* functions (many but
         /// not all of which return sensitive information)
         /// </summary>
-        public static IImmutableList<PossibleSecret> FindPossibleSecrets(SemanticModel semanticModel, SyntaxBase syntax)
+        public static IImmutableList<PossibleSecret> FindPossibleSecretsInExpression(SemanticModel semanticModel, SyntaxBase syntax)
         {
             FindPossibleSecretsVisitor visitor = new(semanticModel);
             visitor.Visit(syntax);

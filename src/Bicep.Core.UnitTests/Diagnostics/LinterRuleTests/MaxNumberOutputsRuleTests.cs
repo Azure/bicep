@@ -13,10 +13,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     public class MaxNumberOutputsRuleTests : LinterRuleTestsBase
     {
         [TestMethod]
-        public void ParameterNameInFormattedMessage()
+        public void MaxNumberOfParamsInFormattedMessage()
         {
             var ruleToTest = new MaxNumberOutputsRule();
-            ruleToTest.GetMessage(1).Should().Be("Too many outputs. Number of outputs is limited to 1.");
+            ruleToTest.GetMessage(123).Should().Be("Too many outputs. Number of outputs is limited to 123.");
         }
 
         private void CompileAndTest(string text, params string[] unusedParams)

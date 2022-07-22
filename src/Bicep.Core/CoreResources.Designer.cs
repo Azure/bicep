@@ -499,6 +499,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Parameters that represent secrets must be secure..
+        /// </summary>
+        internal static string SecretsInParamsRule_Description {
+            get {
+                return ResourceManager.GetString("SecretsInParamsRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parameter &apos;{0}&apos; may represent a secret (according to its name) and must be declared with the &apos;@secure()&apos; attribute..
+        /// </summary>
+        internal static string SecretsInParamsRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("SecretsInParamsRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Remove insecure default value..
         /// </summary>
         internal static string SecureParameterDefaultFixTitle {

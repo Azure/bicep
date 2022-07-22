@@ -324,6 +324,12 @@
   <data name="PreferUnquotedPropertyNamesRuleDescription" xml:space="preserve">
     <value>Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation.</value>
   </data>
+  <data name="SecretsInParamsRule_Description" xml:space="preserve">
+    <value>Parameters that represent secrets must be secure.</value>
+  </data>
+  <data name="SecretsInParamsRule_MessageFormat" xml:space="preserve">
+    <value>Parameter '{0}' may represent a secret (according to its name) and must be declared with the '@secure()' attribute.</value>
+  </data>
   <data name="UseStableResourceIdentifiersMessage" xml:space="preserve">
     <value>Resource identifiers should be reproducible outside of their initial deployment context. </value>
   </data>

@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
                     .Should().HaveCount(1, "Each testcase should contain a single output with an expression to test")
                     .And.Subject.First();
 
-                var secrets = FindPossibleSecretsVisitor.FindPossibleSecrets(semanticModel, output.Value);
+                var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(semanticModel, output.Value);
                 secrets.Select(s => s.FoundMessage).Should().BeEquivalentTo(expectedFoundMessages);
             }
         }

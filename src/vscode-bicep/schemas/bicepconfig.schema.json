@@ -402,6 +402,16 @@
                     }
                   ]
                 },
+                "secure-secrets-in-params": {
+                  "allOf": [
+                    {
+                      "description": "Parameters that represent secrets must be secure. See https://aka.ms/bicep/linter/secure-secrets-in-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
                 "secure-parameter-default": {
                   "allOf": [
                     {
