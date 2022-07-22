@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Immutable;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -21,13 +22,15 @@ namespace Bicep.LanguageServer.Providers
     public class BicepCompilationProvider : ICompilationProvider
     {
         private readonly IFeatureProvider features;
+        private readonly ApiVersionProvider apiVersionProvider;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
 
-        public BicepCompilationProvider(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher)
+        public BicepCompilationProvider(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, ApiVersionProvider apiVersionProvider)
         {
             this.features = features;
+            this.apiVersionProvider = apiVersionProvider;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
@@ -47,7 +50,7 @@ namespace Bicep.LanguageServer.Providers
 
         private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, RootConfiguration configuration, LinterAnalyzer linterAnalyzer)
         {
-            var compilation = new Compilation(this.features, namespaceProvider, syntaxTreeGrouping, configuration, linterAnalyzer, modelLookup);
+            var compilation = new Compilation(this.features, namespaceProvider, syntaxTreeGrouping, configuration, apiVersionProvider, linterAnalyzer, modelLookup);
             return new CompilationContext(compilation);
         }
     }

@@ -35,7 +35,7 @@ namespace Bicep.LangServer.UnitTests
             var fileResolver = CreateFileResolver(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
 
-            var provider = new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateWithAzTypes(), fileResolver, dispatcher);
+            var provider = new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateWithAzTypes(), fileResolver, dispatcher, BicepTestConstants.ApiVersionProvider);
 
             var sourceFile = SourceFileFactory.CreateSourceFile(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
             var workspace = new Workspace();

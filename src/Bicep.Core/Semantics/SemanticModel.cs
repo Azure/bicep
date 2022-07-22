@@ -6,6 +6,8 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.ApiVersions;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
@@ -30,13 +32,15 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
 
-        public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer)
+        public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, RootConfiguration configuration, ApiVersionProvider apiVersionProvider, IBicepAnalyzer linterAnalyzer)
         {
             Trace.WriteLine($"Building semantic model for {sourceFile.FileUri}");
 
             Compilation = compilation;
             SourceFile = sourceFile;
             FileResolver = fileResolver;
+            Configuration = configuration;
+            ApiVersionProvider = apiVersionProvider;
 
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
@@ -77,7 +81,7 @@ namespace Bicep.Core.Semantics
                 foreach (var param in this.Root.ParameterDeclarations.DistinctBy(p => p.Name))
                 {
                     var description = SemanticModelHelper.TryGetDescription(this, param.DeclaringParameter);
-                    var isRequired =  SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null;
+                    var isRequired = SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null;
                     if (param.Type is ResourceType resourceType)
                     {
                         // Resource type parameters are a special case, we need to convert to a dedicated
@@ -118,6 +122,8 @@ namespace Bicep.Core.Semantics
             });
         }
 
+        public ApiVersionProvider ApiVersionProvider { get; }
+
         public BicepFile SourceFile { get; }
 
         public IBinder Binder { get; }
@@ -137,6 +143,8 @@ namespace Bicep.Core.Semantics
         public ResourceMetadataCache ResourceMetadata { get; }
 
         public IBicepAnalyzer LinterAnalyzer { get; }
+
+        public RootConfiguration Configuration { get; private set; }
 
         public ImmutableArray<ParameterMetadata> Parameters => this.parametersLazy.Value;
 

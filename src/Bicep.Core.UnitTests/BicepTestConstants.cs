@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -58,6 +59,9 @@ namespace Bicep.Core.UnitTests
 
         // Linter rules added to this list will be automtically disabled for most tests.
         public static readonly string[] AnalyzerRulesToDisableInTests = new string[] {
+            // use-recent-api-version is problematic for tests because its errors and messages will change based on the current date and on the
+            //   current cache of API versions available for resources.
+            "use-recent-api-version"
         };
 
         public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersEnabled = ConfigurationManager.GetBuiltInConfiguration();
@@ -71,6 +75,7 @@ namespace Bicep.Core.UnitTests
         public static readonly LinterAnalyzer LinterAnalyzer = new LinterAnalyzer(BuiltInConfiguration);
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
+        public static readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider();
 
         public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)
         {

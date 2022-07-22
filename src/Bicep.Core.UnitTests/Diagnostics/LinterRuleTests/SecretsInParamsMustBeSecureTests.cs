@@ -44,7 +44,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void CompileAndTest(string bicep, int numberOfExpectedErrors)
         {
-            AssertLinterRuleDiagnostics(SecretsInParamsMustBeSecureRule.Code, bicep, numberOfExpectedErrors, onCompileErrors: OnCompileErrors.Fail);
+            AssertLinterRuleDiagnostics(SecretsInParamsMustBeSecureRule.Code, bicep, numberOfExpectedErrors, onCompileErrors: OnCompileErrors.IncludeErrors);
         }
 
         [DataRow(@"param pass_adminUsername string")]

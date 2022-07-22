@@ -4,7 +4,7 @@
 
 param location string
 
-resource logicApp 'Microsoft.Logic/integrationAccounts@2016-06-01' = {
+resource logicApp 'Microsoft.Logic/integrationAccounts@2019-05-01' = {
   name: 'name'
   location: location
 }

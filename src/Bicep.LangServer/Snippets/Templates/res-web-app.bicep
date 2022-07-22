@@ -1,5 +1,5 @@
-﻿// Web Application
-resource /*${1:webApplication}*/webApplication 'Microsoft.Web/sites@2018-11-01' = {
+// Web Application
+resource /*${1:webApplication}*/webApplication 'Microsoft.Web/sites@2021-01-15' = {
   name: /*${2:'name'}*/'name'
   location: /*${3:location}*/'location'
   tags: {

@@ -6,6 +6,7 @@ using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Exceptions;
@@ -126,6 +127,7 @@ namespace Bicep.Cli
                 .AddSingleton<IFileSystem, FileSystem>()
                 .AddSingleton<IConfigurationManager, ConfigurationManager>()
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
+                .AddSingleton<ApiVersionProvider, ApiVersionProvider>()
                 .AddSingleton<TemplateDecompiler>()
                 .AddSingleton<DecompilationWriter>()
                 .AddSingleton<CompilationWriter>()

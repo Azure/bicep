@@ -442,6 +442,16 @@
                     }
                   ]
                 },
+                "use-recent-api-version": {
+                  "allOf": [
+                    {
+                      "description": "Use recent API versions. See https://aka.ms/bicep/linter/use-recent-api-version"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ],
+                },
                 "use-stable-vm-image": {
                   "allOf": [
                     {

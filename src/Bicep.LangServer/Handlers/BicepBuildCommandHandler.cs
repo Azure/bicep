@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Core.Helpers;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
@@ -39,8 +40,9 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IConfigurationManager configurationManager;
+        private readonly ApiVersionProvider apiVersionProvider;
 
-        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProvider features, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager)
+        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProvider features, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, ApiVersionProvider apiVersionProvider, IConfigurationManager configurationManager)
             : base(LangServerConstants.BuildCommand, serializer)
         {
             this.compilationManager = compilationManager;
@@ -50,6 +52,7 @@ namespace Bicep.LanguageServer.Handlers
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.configurationManager = configurationManager;
+            this.apiVersionProvider = apiVersionProvider;
         }
 
         public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
@@ -96,7 +99,7 @@ namespace Bicep.LanguageServer.Handlers
             if (context is null)
             {
                 SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri, configuration);
-                compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
+                compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, configuration, apiVersionProvider, new LinterAnalyzer(configuration));
             }
             else
             {

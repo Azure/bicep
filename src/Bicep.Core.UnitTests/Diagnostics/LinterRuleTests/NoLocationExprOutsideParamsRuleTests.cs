@@ -25,17 +25,17 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }
         }
 
-        protected void ExpectPass(string bicepText, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        protected void ExpectPass(string bicepText, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             AssertLinterRuleDiagnostics(NoLocationExprOutsideParamsRule.Code, bicepText, new string[] { }, onCompileErrors);
         }
 
-        protected void ExpectFail(string bicepText, string expectedMessage, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        protected void ExpectFail(string bicepText, string expectedMessage, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             AssertLinterRuleDiagnostics(NoLocationExprOutsideParamsRule.Code, bicepText, new string[] { expectedMessage }, onCompileErrors);
         }
 
-        protected void ExpectFailWithFix(string bicepText, string expectedMessage, ExpectedCodeFix expectedFix, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        protected void ExpectFailWithFix(string bicepText, string expectedMessage, ExpectedCodeFix expectedFix, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             AssertLinterRuleDiagnostics(
               NoLocationExprOutsideParamsRule.Code,
@@ -126,7 +126,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
           ",
             OnCompileErrors.Ignore)]
         [DataTestMethod]
-        public void If_Not_DeploymentOrResourceGroup_OrWithIncorrectNamespace_ShouldPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        public void If_Not_DeploymentOrResourceGroup_OrWithIncorrectNamespace_ShouldPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             ExpectPass(text, onCompileErrors);
         }

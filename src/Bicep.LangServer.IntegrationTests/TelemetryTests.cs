@@ -160,7 +160,7 @@ namespace Bicep.LangServer.IntegrationTests
                 [uri] = bicepFileContents,
             };
 
-            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
             var telemetryEventsListener = new MultipleMessageListener<BicepTelemetryEvent>();
@@ -227,6 +227,9 @@ namespace Bicep.LangServer.IntegrationTests
         },
         ""no-loc-expr-outside-params"": {
             ""level"": ""none""
+        },
+        ""use-recent-api-version"": {
+            ""level"": ""off""
         }
       }
     }

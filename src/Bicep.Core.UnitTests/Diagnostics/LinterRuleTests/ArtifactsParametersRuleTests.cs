@@ -12,7 +12,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class ArtifactsParametersRuleTests : LinterRuleTestsBase
     {
-        private void CompileAndTest(string bicepText, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        private void CompileAndTest(string bicepText, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             base.AssertLinterRuleDiagnostics(ArtifactsParametersRule.Code, bicepText, expectedMessagesForCode, onCompileErrors);
         }

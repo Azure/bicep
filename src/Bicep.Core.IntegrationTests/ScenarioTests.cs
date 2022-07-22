@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
@@ -3018,7 +3019,7 @@ module test './con.txt'
             var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(ImmutableDictionary.Create<Uri, string>(), new Uri(inputFile), fileResolver, configuration, features);
 
             // the bug was that the compilation would not complete
-            var compilation = new Compilation(features, BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(features, BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration,BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().NotBeEmpty();
         }
 

@@ -589,6 +589,42 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Acceptable versions: {0}.
+        /// </summary>
+        internal static string UseRecentApiVersionRule_AcceptableVersions {
+            get {
+                return ResourceManager.GetString("UseRecentApiVersionRule_AcceptableVersions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use recent API versions.
+        /// </summary>
+        internal static string UseRecentApiVersionRule_Description {
+            get {
+                return ResourceManager.GetString("UseRecentApiVersionRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use more recent API version for &apos;{0}&apos;..
+        /// </summary>
+        internal static string UseRecentApiVersionRule_ErrorMessageFormat {
+            get {
+                return ResourceManager.GetString("UseRecentApiVersionRule_ErrorMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace with apiVersion {0}&quot;.
+        /// </summary>
+        internal static string UseRecentApiVersionRule_Fix_ReplaceApiVersion {
+            get {
+                return ResourceManager.GetString("UseRecentApiVersionRule_Fix_ReplaceApiVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Resource identifiers should be reproducible outside of their initial deployment context. .
         /// </summary>
         internal static string UseStableResourceIdentifiersMessage {

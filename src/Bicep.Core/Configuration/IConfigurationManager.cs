@@ -5,6 +5,9 @@ using System;
 
 namespace Bicep.Core.Configuration
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public interface IConfigurationManager
     {
         /// <summary>
