@@ -1,7 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
+using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.Rules;
+using Bicep.Core.CodeAction;
+using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,6 +20,26 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             var ruleToTest = new SecretsInParamsMustBeSecureRule();
             ruleToTest.GetMessage("myparam").Should().Be("Parameter 'myparam' may represent a secret (according to its name) and must be declared with the '@secure()' attribute.");
+        }
+
+        [TestMethod]
+        public void HasFix()
+        {
+            var result = CompilationHelper.Compile(@"#disable-next-line no-unused-params
+                param password string
+            ");
+            var diagnostics = result.Diagnostics;
+            diagnostics.Should().HaveCount(1);
+            var diag = diagnostics.First();
+            diag.Message.Should().Be("Parameter 'password' may represent a secret (according to its name) and must be declared with the '@secure()' attribute.");
+            diag.Code.Should().Be(SecretsInParamsMustBeSecureRule.Code);
+            var fixable = diag.Should().BeAssignableTo<IBicepAnalyerFixableDiagnostic>().Which;
+            fixable.Fixes.Should().HaveCount(1);
+            var fix = fixable.Fixes.First();
+            fix.Description.Should().Be("Mark parameter as secure");
+            fix.Kind.Should().Be(CodeFixKind.QuickFix);
+            fix.Replacements.Should().HaveCount(1);
+            fix.Replacements.First().Text.Should().Be("@secure()\n");
         }
 
         private void CompileAndTest(string bicep, int numberOfExpectedErrors)
