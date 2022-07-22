@@ -15,7 +15,7 @@
     "html-escaper": "^3.0.3",
     "jest": "^28.1.2",
     "onigasm": "^2.2.5",
-    "plist": "^3.0.5",
+    "plist": "^3.0.6",
     "ts-jest": "^28.0.5",
     "ts-node": "^10.8.1",
     "typescript": "^4.7.4",
