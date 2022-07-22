@@ -4,6 +4,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Text;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -36,7 +37,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMainParam));
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.BicepParam);
-            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(fileUri, dataSet.BicepParam));
+            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(fileUri, dataSet.BicepParam), BicepTestConstants.FileResolver);
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)

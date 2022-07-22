@@ -109,10 +109,12 @@ namespace Bicep.Cli.Services
             var paramsFile = SourceFileFactory.CreateBicepParamFile(inputUri, fileText);
 
             //TODO: Create paramsSemanticModel through Build method
-            var model = new ParamsSemanticModel(paramsFile, (Uri uri) => {
+            var getCompilation = (Uri uri) => {
                 Task<Compilation> task = Task.Run<Compilation>(async () => await CompileAsync(uri, skipRestore));
                 return task.Result;
-            });
+            };
+            
+            var model = new ParamsSemanticModel(paramsFile, fileResolver, getCompilation);
             
             LogParamDiagnostics(model);
           

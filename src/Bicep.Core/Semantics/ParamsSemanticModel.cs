@@ -20,16 +20,27 @@ namespace Bicep.Core.Semantics
         public ParamsTypeManager ParamsTypeManager { get; }
         public ParamsSymbolContext ParamsSymbolContext { get; }
         public List<IDiagnostic> allDiagnostics { get; } = new();
+        public IFileResolver fileResolver { get; }
         
-        public ParamsSemanticModel(BicepParamFile bicepParamFile, Func<Uri, Compilation>? getCompilation = null)
+        public ParamsSemanticModel(BicepParamFile bicepParamFile, IFileResolver fileResolver, Func<Uri, Compilation>? getCompilation = null)
         {
+            this.fileResolver = fileResolver;
+
             //parse using statement and link bicep template 
             this.BicepParamFile = bicepParamFile;
 
             Uri? bicepFileUri = TryGetBicepFileUri();
             if(bicepFileUri is {} && getCompilation is {})
-            {
-                this.BicepCompilation = getCompilation(bicepFileUri);
+            {   
+                //TODO: move all logic for bicepFileUri outside of constructor
+                if(fileResolver.FileExists(bicepFileUri))
+                {
+                    this.BicepCompilation = getCompilation(bicepFileUri);
+                }
+                else
+                {
+                    //TODO: throw warning diagnostics if file path is not valid
+                }
             }
 
             //binder logic

@@ -99,6 +99,46 @@ new string[] {},
 new CompletionItemKind[] {}
 )
 ]
+//TODO: Uncomment these in next commit
+// [DataRow(
+// @"
+// //Parameters file
+
+// using './main.bicep'
+
+// param fi|", 
+
+// @"
+// //Bicep file
+
+// param firstParam int = 1
+// param secondParam string
+// param thirdParam string = 'hello'
+
+// ",
+// new string[] {"firstParam", "secondParam", "thirdParam"},
+// new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field, CompletionItemKind.Field}
+// )
+// ]
+//         [DataRow(
+// @"
+// //Parameters file
+
+// using './main.bicep'
+
+// param | = 1", 
+
+// @"
+// //Bicep file
+
+// param firstParam int
+// param secondParam string
+
+// ",
+// new string[] {"firstParam", "secondParam"},
+// new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field}
+// )
+// ]
         public async Task Request_for_parameters_completions_should_return_correct_identifiers(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
         {   
             var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText);

@@ -16,6 +16,7 @@ using System;
 using Bicep.LanguageServer.Providers;
 using Bicep.Core.Configuration;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.FileSystem;
 
 namespace Bicep.LanguageServer
 {
@@ -24,13 +25,15 @@ namespace Bicep.LanguageServer
         private readonly ILanguageServerFacade server;
         private readonly ICompilationProvider bicepCompilationContextProvider;
         private readonly IConfigurationManager bicepConfigurationManager;
+        private readonly IFileResolver fileResolver;
         private readonly ConcurrentDictionary<DocumentUri, ParamsCompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, ParamsCompilationContext>();
 
-        public BicepParamsCompilationManager(ILanguageServerFacade server, ICompilationProvider bicepCompilationContextProvider, IConfigurationManager bicepConfigurationManager)
+        public BicepParamsCompilationManager(ILanguageServerFacade server, ICompilationProvider bicepCompilationContextProvider, IConfigurationManager bicepConfigurationManager, IFileResolver fileResolver)
         {
             this.server = server;
             this.bicepCompilationContextProvider = bicepCompilationContextProvider;
             this.bicepConfigurationManager = bicepConfigurationManager;
+            this.fileResolver = fileResolver;
         }
 
         public void HandleFileChanges(IEnumerable<FileEvent> fileEvents) 
@@ -47,11 +50,13 @@ namespace Bicep.LanguageServer
         {
             var paramsFile = SourceFileFactory.CreateBicepParamFile(uri.ToUri(), text);
 
-            var semanticModel = new ParamsSemanticModel(paramsFile, (Uri uri) => {
+            var getCompilation = (Uri uri) => {
                 var bicepConfig = bicepConfigurationManager.GetConfiguration(uri);
                 var bicepCompilationContext = bicepCompilationContextProvider.Create(new Workspace(), uri, new Dictionary<ISourceFile, ISemanticModel>().ToImmutableDictionary(), bicepConfig, new LinterAnalyzer(bicepConfig));
                 return bicepCompilationContext.Compilation;
-            });
+            };
+
+            var semanticModel = new ParamsSemanticModel(paramsFile, fileResolver, getCompilation);
     
             var context = this.activeContexts.AddOrUpdate(uri, 
             (uri) => new ParamsCompilationContext(semanticModel, semanticModel.BicepParamFile.ProgramSyntax, semanticModel.BicepParamFile.LineStarts), 

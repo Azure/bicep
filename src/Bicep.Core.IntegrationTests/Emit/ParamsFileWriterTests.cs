@@ -4,6 +4,7 @@ using System;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
@@ -191,7 +192,7 @@ param myInt = 1", @"
 }")]
         public void params_file_with_no_errors_should_compile_correctly(string paramsText, string jsonText)
         {           
-          var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), paramsText));
+          var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), paramsText), BicepTestConstants.FileResolver);
 
           var paramsWriter = new ParametersJsonWriter(model);
 
@@ -205,7 +206,7 @@ param myInt = 1", @"
         [DataTestMethod]
         public void params_file_with_not_implemented_syntax_should_throw_expction()
         {
-          var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), "param foo = 1 + 2"));
+          var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), "param foo = 1 + 2"), BicepTestConstants.FileResolver);
 
           var paramsWriter = new ParametersJsonWriter(model);
 

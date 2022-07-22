@@ -7,7 +7,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Extensions;
-using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
@@ -32,10 +31,13 @@ namespace Bicep.LanguageServer.Completions
 
         public Range ReplacementRange { get; }
 
-        public ParamsCompletionContext(ParamsCompletionContextKind kind, Range replacementRange)
+        public SyntaxBase? UsingDeclaration { get; }
+
+        public ParamsCompletionContext(ParamsCompletionContextKind kind, Range replacementRange, SyntaxBase? usingDeclaration = null)
         {
             Kind = kind;
             ReplacementRange = replacementRange;
+            UsingDeclaration = usingDeclaration;
         }
 
         public static ParamsCompletionContext Create(ParamsCompilationContext paramsCompilationContext, int offset)
@@ -48,37 +50,36 @@ namespace Bicep.LanguageServer.Completions
                 throw new ArgumentException($"The specified offset {offset} is outside the span of the specified {nameof(ProgramSyntax)} node.");
             }
             var replacementRange = GetReplacementRange(paramsFile, matchingNodes[^1], offset);
-            
-            var topLevelDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<ITopLevelNamedDeclarationSyntax, SyntaxBase>(matchingNodes);
+        
 
-
-            //TODO: Add top level declaration completions
             var kind = ConvertFlag(IsParamAssignmentContext(matchingNodes, offset), ParamsCompletionContextKind.ParamAssignment) |
                         ConvertFlag(IsUsingDeclarationContext(matchingNodes, offset), ParamsCompletionContextKind.UsingDeclaration);
+
+            if(kind == ParamsCompletionContextKind.UsingDeclaration)
+            {
+                var usingDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<UsingDeclarationSyntax, UsingDeclarationSyntax>(matchingNodes);
+                return new(kind, replacementRange, usingDeclarationInfo.node);
+            }
 
             return new(kind, replacementRange);
         }
 
-        private static bool IsUsingDeclarationContext(List<SyntaxBase> matchingNodes, int offset)
-        {
-            if(matchingNodes.Count >=1)
-            {
-                SyntaxBase lastNode = matchingNodes[^1];
-                return lastNode is UsingDeclarationSyntax usingDeclarationSyntax && usingDeclarationSyntax.Path is SkippedTriviaSyntax;
-            }
-            return false;
-        }
+        private static bool IsUsingDeclarationContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // using |
+            SyntaxMatcher.IsTailMatch<UsingDeclarationSyntax>(matchingNodes) ||
+            // using '|'        
+            // using 'f|oo'
+            SyntaxMatcher.IsTailMatch<UsingDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete) ||
+            // using fo|o
+            SyntaxMatcher.IsTailMatch<UsingDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier);
 
-        private static bool IsParamAssignmentContext(List<SyntaxBase> matchingNodes, int offset)
-        {
-            if(matchingNodes.Count >=1)
-            {
-                SyntaxBase lastNode = matchingNodes[^1];
-                return lastNode is ParameterAssignmentSyntax assignmentSyntax && assignmentSyntax.Name.IdentifierName == LanguageConstants.MissingName;
-            }
-
-            return false;
-        }
+        private static bool IsParamAssignmentContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // param |
+            SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax>(matchingNodes, (paramAssignment  => paramAssignment.Name.IdentifierName == LanguageConstants.MissingName)) ||
+            // param | = 
+            SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax>(matchingNodes, (paramAssignment  => paramAssignment.Name.IdentifierName == LanguageConstants.ErrorName)) ||
+            // param t|
+            SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier);
 
         private static ParamsCompletionContextKind ConvertFlag(bool value, ParamsCompletionContextKind flag) => value ? flag : ParamsCompletionContextKind.None;
         
