@@ -141,6 +141,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>();
             services.AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>();
             services.AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>();
+            services.AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>();
         }
 
         public void Dispose()
