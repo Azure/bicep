@@ -130,8 +130,8 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // Prioritize .bicep files higher than other files.
-            var bicepFileItems = CreateFileCompletionItems(paramsSemanticModel, paramsCompletionContext, entered, files, cwdUri, IsBicepFile, CompletionPriority.High);
-            var dirItems = CreateDirectoryCompletionItems(paramsSemanticModel, paramsCompletionContext, entered, dirs, cwdUri);
+            var bicepFileItems = CreateFileCompletionItems(paramsSemanticModel.BicepParamFile.FileUri, paramsCompletionContext.ReplacementRange, entered, files, cwdUri, IsBicepFile, CompletionPriority.High);
+            var dirItems = CreateDirectoryCompletionItems(paramsCompletionContext.ReplacementRange, entered, dirs, cwdUri);
 
             return bicepFileItems.Concat(dirItems);
 
@@ -408,46 +408,24 @@ namespace Bicep.LanguageServer.Completions
             return true;
         }
 
-        private IEnumerable<CompletionItem> CreateFileCompletionItems(ParamsSemanticModel model, ParamsCompletionContext context, string entered, IEnumerable<Uri> fileUris, Uri cwdUri, Predicate<Uri> predicate, CompletionPriority priority) => fileUris
-            .Where(fileUri => fileUri != model.BicepParamFile.FileUri && predicate(fileUri))
+        private IEnumerable<CompletionItem> CreateFileCompletionItems(Uri mainFileUri, Range replacementRange, string entered, IEnumerable<Uri> fileUris, Uri cwdUri, Predicate<Uri> predicate, CompletionPriority priority) => fileUris
+            .Where(fileUri => fileUri != mainFileUri && predicate(fileUri))
             .Select(fileUri =>
                 CreateFilePathCompletionBuilder(
                         fileUri.Segments.Last(),
                         (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(fileUri),
-                        context.ReplacementRange,
+                        replacementRange,
                         CompletionItemKind.File,
                         priority)
                     .Build());
 
-        private IEnumerable<CompletionItem> CreateFileCompletionItems(SemanticModel model, BicepCompletionContext context, string entered, IEnumerable<Uri> fileUris, Uri cwdUri, Predicate<Uri> predicate, CompletionPriority priority) => fileUris
-            .Where(fileUri => fileUri != model.SourceFile.FileUri && predicate(fileUri))
-            .Select(fileUri =>
-                CreateFilePathCompletionBuilder(
-                        fileUri.Segments.Last(),
-                        (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(fileUri),
-                        context.ReplacementRange,
-                        CompletionItemKind.File,
-                        priority)
-                    .Build());
-
-        private IEnumerable<CompletionItem> CreateDirectoryCompletionItems(ParamsSemanticModel model, ParamsCompletionContext context, string entered, IEnumerable<Uri> dirUris, Uri cwdUri, CompletionPriority priority = CompletionPriority.Low) => dirUris
+        private IEnumerable<CompletionItem> CreateDirectoryCompletionItems(Range replacementRange, string entered, IEnumerable<Uri> dirUris, Uri cwdUri, CompletionPriority priority = CompletionPriority.Low) => dirUris
             .Select(dir =>
                 CreateFilePathCompletionBuilder(
                         dir.Segments.Last(),
                         // "./" will not be preserved when making relative Uris. We have to go and manually add it.
                         (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(dir),
-                        context.ReplacementRange,
-                        CompletionItemKind.Folder,
-                        priority)
-                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "file path completion" })
-                    .Build());
-        private IEnumerable<CompletionItem> CreateDirectoryCompletionItems(SemanticModel model, BicepCompletionContext context, string entered, IEnumerable<Uri> dirUris, Uri cwdUri, CompletionPriority priority = CompletionPriority.Low) => dirUris
-            .Select(dir =>
-                CreateFilePathCompletionBuilder(
-                        dir.Segments.Last(),
-                        // "./" will not be preserved when making relative Uris. We have to go and manually add it.
-                        (entered.StartsWith("./") ? "./" : "") + cwdUri.MakeRelativeUri(dir),
-                        context.ReplacementRange,
+                        replacementRange,
                         CompletionItemKind.Folder,
                         priority)
                     .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "file path completion" })
@@ -475,9 +453,9 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // Prioritize .bicep files higher than other files.
-            var bicepFileItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, IsBicepFile, CompletionPriority.High);
-            var armTemplateFileItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, IsArmTemplateFileLike, CompletionPriority.Medium);
-            var dirItems = CreateDirectoryCompletionItems(model, context, entered, dirs, cwdUri);
+            var bicepFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, context.ReplacementRange, entered, files, cwdUri, IsBicepFile, CompletionPriority.High);
+            var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, context.ReplacementRange, entered, files, cwdUri, IsArmTemplateFileLike, CompletionPriority.Medium);
+            var dirItems = CreateDirectoryCompletionItems(context.ReplacementRange, entered, dirs, cwdUri);
 
             return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
 
@@ -1000,16 +978,16 @@ namespace Bicep.LanguageServer.Completions
             if (argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringJsonFilePath))
             {
                 // Prioritize .json or .jsonc files higher than other files.
-                var jsonItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, (file) => PathHelper.HasExtension(file, "json") || PathHelper.HasExtension(file, "jsonc"), CompletionPriority.High);
-                var nonJsonItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, (file) => !PathHelper.HasExtension(file, "json") && !PathHelper.HasExtension(file, "jsonc"), CompletionPriority.Medium);
+                var jsonItems = CreateFileCompletionItems(model.SourceFile.FileUri, context.ReplacementRange, entered, files, cwdUri, (file) => PathHelper.HasExtension(file, "json") || PathHelper.HasExtension(file, "jsonc"), CompletionPriority.High);
+                var nonJsonItems = CreateFileCompletionItems(model.SourceFile.FileUri, context.ReplacementRange, entered, files, cwdUri, (file) => !PathHelper.HasExtension(file, "json") && !PathHelper.HasExtension(file, "jsonc"), CompletionPriority.Medium);
                 fileItems = jsonItems.Concat(nonJsonItems);
             }
             else
             {
-                fileItems = CreateFileCompletionItems(model, context, entered, files, cwdUri, (_) => true, CompletionPriority.High);
+                fileItems = CreateFileCompletionItems(model.SourceFile.FileUri, context.ReplacementRange, entered, files, cwdUri, (_) => true, CompletionPriority.High);
             }
 
-            var dirItems = CreateDirectoryCompletionItems(model, context, entered, dirs, cwdUri, CompletionPriority.Medium);
+            var dirItems = CreateDirectoryCompletionItems(context.ReplacementRange, entered, dirs, cwdUri, CompletionPriority.Medium);
 
             return fileItems.Concat(dirItems);
         }
