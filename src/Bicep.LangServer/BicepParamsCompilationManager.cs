@@ -62,7 +62,7 @@ namespace Bicep.LanguageServer
             (uri) => new ParamsCompilationContext(semanticModel, semanticModel.BicepParamFile.ProgramSyntax, semanticModel.BicepParamFile.LineStarts), 
             (uri, prevContext) => new ParamsCompilationContext(semanticModel, semanticModel.BicepParamFile.ProgramSyntax, semanticModel.BicepParamFile.LineStarts));
 
-            this.PublishDocumentDiagnostics(uri, version, context.ParamsSemanticModel.GetDiagnostics(), context.LineStarts);  
+            this.PublishDocumentDiagnostics(uri, version, context.ParamsSemanticModel.GetAllDiagnostics(), context.LineStarts);  
         } 
 
         public void CloseCompilation(DocumentUri uri)

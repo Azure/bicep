@@ -1497,6 +1497,16 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP255",
                 "No using declaration present in parameters file");
+
+            public ErrorDiagnostic MoreThenOneUsingDeclarationSpecified() => new(
+                TextSpan,
+                "BCP256",
+                "More than one using declaration is present");
+
+            public ErrorDiagnostic UsingDeclarationRefrencesInvalidFile() => new(
+                TextSpan,
+                "BCP257",
+                "The file specified in the path does not exist");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

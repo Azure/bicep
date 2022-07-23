@@ -187,7 +187,7 @@ namespace Bicep.Cli.Services
 
         private void LogParamDiagnostics(ParamsSemanticModel paramSemanticModel)
         {
-            foreach(var diagnostic in paramSemanticModel.GetDiagnostics())
+            foreach(var diagnostic in paramSemanticModel.GetAllDiagnostics())
             {
                 diagnosticLogger.LogDiagnostic(paramSemanticModel.BicepParamFile.FileUri, diagnostic, paramSemanticModel.BicepParamFile.LineStarts);
             };

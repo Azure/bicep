@@ -32,15 +32,7 @@ namespace Bicep.Core.Semantics
             Uri? bicepFileUri = TryGetBicepFileUri();
             if(bicepFileUri is {} && getCompilation is {})
             {   
-                //TODO: move all logic for bicepFileUri outside of constructor
-                if(fileResolver.FileExists(bicepFileUri))
-                {
-                    this.BicepCompilation = getCompilation(bicepFileUri);
-                }
-                else
-                {
-                    //TODO: throw warning diagnostics if file path is not valid
-                }
+                this.BicepCompilation = getCompilation(bicepFileUri);
             }
 
             //binder logic
@@ -54,8 +46,8 @@ namespace Bicep.Core.Semantics
             paramsSymbolContext.Unlock();
         }
 
-        public IEnumerable<IDiagnostic> GetDiagnostics()
-            => BicepParamFile.ProgramSyntax.GetParseDiagnostics();
+        public IEnumerable<IDiagnostic> GetAllDiagnostics()
+            => this.allDiagnostics.Concat(BicepParamFile.ProgramSyntax.GetParseDiagnostics());
         
         /// <summary>
         /// Gets the file that was compiled.
@@ -64,22 +56,35 @@ namespace Bicep.Core.Semantics
 
         private Uri? TryGetBicepFileUri()
         {
+            //TODO: consolidate this into one method
             var usingDeclarations = BicepParamFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>();
 
-            //1 - no using declartions  
+            if(usingDeclarations.Count() == 0)
+            {
+                this.allDiagnostics.Add(new DiagnosticBuilder.DiagnosticBuilderInternal(new TextSpan(0, 0)).UsingDeclarationNotSpecified());
+                return null;
+            }
+            
+            if(usingDeclarations.Count() > 1)
+            {
+                this.allDiagnostics.Add(new DiagnosticBuilder.DiagnosticBuilderInternal(new TextSpan(0, 0)).MoreThenOneUsingDeclarationSpecified());
+                return null;
+            }
 
-            //2 - more than one using declarations 
-
-            //3 - using declaration that points to a file that doesn't exist 
-
-
-            if(!PathHelper.TryGetUsingPath(usingDeclarations.FirstOrDefault(), out var bicepFilePath, out var failureBuilder))
+            if(!PathHelper.TryGetUsingPath(usingDeclarations.FirstOrDefault()!, out var bicepFilePath, out var failureBuilder))
             {       
                 var diagnostic = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(new TextSpan(0, 0)));
                 this.allDiagnostics.Add(diagnostic);
+                return null;
             }
 
             Uri.TryCreate(BicepParamFile.FileUri, bicepFilePath, out var bicepFileUri);
+ 
+            if(!fileResolver.FileExists(bicepFileUri!))
+            {
+                this.allDiagnostics.Add(new DiagnosticBuilder.DiagnosticBuilderInternal(usingDeclarations.FirstOrDefault()!.Path.Span).UsingDeclarationRefrencesInvalidFile());
+                return null; 
+            }            
 
             return bicepFileUri;
         }
