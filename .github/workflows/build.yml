@@ -158,11 +158,13 @@ jobs:
   build-bicep-in-visual-studio:
     name: Build Bicep In Visual Studio
     runs-on: windows-latest
-    needs: build-bicep
 
     steps:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
+
+      - name: Build BicepInVisualStudio.sln
+        run: msbuild Bicep.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
 
       - name: Build BicepInVisualStudio.sln
         run: msbuild src/vs-bicep/BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
