@@ -97,7 +97,7 @@ namespace Bicep.Core.IntegrationTests
             workspace.UpsertSourceFiles(bicepFiles);
 
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
-            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, bicepUri, configuration);
             var compilation = new Compilation(BicepTestConstants.Features, nsProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
             var diagnosticsByBicepFile = compilation.GetAllDiagnosticsByBicepFile();

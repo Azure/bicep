@@ -1,3 +1,6 @@
+param ids array
+//@[06:09) Parameter ids. Type: array. Declaration start char: 0, length: 15
+
 var flatten1 = flatten('abc')
 //@[04:12) Variable flatten1. Type: error. Declaration start char: 0, length: 29
 var flatten2 = flatten(['abc'], 'def')
@@ -56,8 +59,8 @@ var reduce5 = reduce(range(0, 10), 0, i => i)
 //@[04:11) Variable reduce5. Type: error. Declaration start char: 0, length: 45
 
 var ternary = map([123], true ? i => '${i}' : i => 'hello!')
-//@[32:33) Local i. Type: int. Declaration start char: 32, length: 1
-//@[46:47) Local i. Type: int. Declaration start char: 46, length: 1
+//@[32:33) Local i. Type: any. Declaration start char: 32, length: 1
+//@[46:47) Local i. Type: any. Declaration start char: 46, length: 1
 //@[04:11) Variable ternary. Type: any. Declaration start char: 0, length: 60
 
 var outsideArgs = i => 123
@@ -87,21 +90,47 @@ var inArray = [
 //@[02:03) Local j. Type: any. Declaration start char: 2, length: 1
 ]
 
-resource resLoop 'Microsoft.Storage/storageAccounts@2021-09-01' existing = [for item in range(0, 5): {
-//@[80:84) Local item. Type: int. Declaration start char: 80, length: 4
-//@[09:16) Resource resLoop. Type: Microsoft.Storage/storageAccounts@2021-09-01[]. Declaration start char: 0, length: 126
-  name: 'foo${item}'
+resource stg 'Microsoft.Storage/storageAccounts@2021-09-01' = [for i in range(0, 2): {
+//@[67:68) Local i. Type: int. Declaration start char: 67, length: 1
+//@[09:12) Resource stg. Type: Microsoft.Storage/storageAccounts@2021-09-01[]. Declaration start char: 0, length: 194
+  name: 'antteststg${i}'
+  location: 'West US'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  kind: 'StorageV2'
 }]
-var resLoopNames = map(resLoop, i => i.name)
-//@[32:33) Local i. Type: Microsoft.Storage/storageAccounts@2021-09-01. Declaration start char: 32, length: 1
-//@[04:16) Variable resLoopNames. Type: string[]. Declaration start char: 0, length: 44
+
+output stgKeys array = map(range(0, 2), i => stg[i].listKeys().keys[0].value)
+//@[40:41) Local i. Type: int. Declaration start char: 40, length: 1
+//@[07:14) Output stgKeys. Type: array. Declaration start char: 0, length: 77
+output stgKeys2 array = map(range(0, 2), j => stg[((j + 2) % 123)].listKeys().keys[0].value)
+//@[41:42) Local j. Type: int. Declaration start char: 41, length: 1
+//@[07:15) Output stgKeys2. Type: array. Declaration start char: 0, length: 92
+output stgKeys3 array = map(ids, id => listKeys(id, stg[0].apiVersion).keys[0].value)
+//@[33:35) Local id. Type: any. Declaration start char: 33, length: 2
+//@[07:15) Output stgKeys3. Type: array. Declaration start char: 0, length: 85
+output accessTiers array = map(range(0, 2), k => stg[k].properties.accessTier)
+//@[44:45) Local k. Type: int. Declaration start char: 44, length: 1
+//@[07:18) Output accessTiers. Type: array. Declaration start char: 0, length: 78
+output accessTiers2 array = map(range(0, 2), x => map(range(0, 2), y => stg[x / y].properties.accessTier))
+//@[67:68) Local y. Type: int. Declaration start char: 67, length: 1
+//@[45:46) Local x. Type: int. Declaration start char: 45, length: 1
+//@[07:19) Output accessTiers2. Type: array. Declaration start char: 0, length: 106
+output accessTiers3 array = map(ids, foo => reference('${foo}').accessTier)
+//@[37:40) Local foo. Type: any. Declaration start char: 37, length: 3
+//@[07:19) Output accessTiers3. Type: array. Declaration start char: 0, length: 75
 
 module modLoop './empty.bicep' = [for item in range(0, 5): {
 //@[38:42) Local item. Type: int. Declaration start char: 38, length: 4
 //@[07:14) Module modLoop. Type: module[]. Declaration start char: 0, length: 84
   name: 'foo${item}'
 }]
+
 var modLoopNames = map(modLoop, i => i.name)
 //@[32:33) Local i. Type: module. Declaration start char: 32, length: 1
 //@[04:16) Variable modLoopNames. Type: string[]. Declaration start char: 0, length: 44
+output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)
+//@[43:44) Local i. Type: int. Declaration start char: 43, length: 1
+//@[07:17) Output modOutputs. Type: array. Declaration start char: 0, length: 71
 

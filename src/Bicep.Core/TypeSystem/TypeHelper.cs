@@ -27,7 +27,9 @@ namespace Bicep.Core.TypeSystem
             {
                 if (unionType.Members.All(x => x is StringLiteralType || x == LanguageConstants.String))
                 {
-                    return LanguageConstants.String;
+                    return unionType.Members.Any(x => x == LanguageConstants.String) ?
+                        LanguageConstants.String :
+                        unionType;
                 }
 
                 // We have a mix of item types that cannot be collapsed

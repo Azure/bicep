@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Bicep.Core.Syntax.Visitors
 {
@@ -32,6 +34,22 @@ namespace Bicep.Core.Syntax.Visitors
 
             return resultSelector(visitor.Value);
         }
+
+        public static IEnumerable<SyntaxBase> Aggregate(SyntaxBase source, Func<SyntaxBase, bool> collectFunc)
+            => Aggregate(source, new List<SyntaxBase>(), (accumulated, current) =>
+                {
+                    if (collectFunc(current))
+                    {
+                        accumulated.Add(current);
+                    }
+
+                    return accumulated;
+                },
+                accumulated => accumulated);
+
+        public static IEnumerable<TSyntax> AggregateByType<TSyntax>(SyntaxBase source)
+            where TSyntax : SyntaxBase
+            => Aggregate(source, syntax => syntax is TSyntax).OfType<TSyntax>();
 
         private class AccumulatingVisitor<TAccumulate> : SyntaxVisitor
         {

@@ -30,7 +30,7 @@ targetScope = 'asdfds'
 //@[00:011) | ├─Token(Identifier) |targetScope|
 //@[12:013) | ├─Token(Assignment) |=|
 //@[14:022) | └─StringSyntax
-//@[14:022) | | └─Token(StringComplete) |'asdfds'|
+//@[14:022) |   └─Token(StringComplete) |'asdfds'|
 //@[22:024) ├─Token(NewLine) |\n\n|
 
 targetScope = { }
@@ -38,8 +38,8 @@ targetScope = { }
 //@[00:011) | ├─Token(Identifier) |targetScope|
 //@[12:013) | ├─Token(Assignment) |=|
 //@[14:017) | └─ObjectSyntax
-//@[14:015) | | ├─Token(LeftBrace) |{|
-//@[16:017) | | └─Token(RightBrace) |}|
+//@[14:015) |   ├─Token(LeftBrace) |{|
+//@[16:017) |   └─Token(RightBrace) |}|
 //@[17:019) ├─Token(NewLine) |\n\n|
 
 targetScope = true
@@ -47,5 +47,5 @@ targetScope = true
 //@[00:011) | ├─Token(Identifier) |targetScope|
 //@[12:013) | ├─Token(Assignment) |=|
 //@[14:018) | └─BooleanLiteralSyntax
-//@[14:018) | | └─Token(TrueKeyword) |true|
+//@[14:018) |   └─Token(TrueKeyword) |true|
 //@[18:018) └─Token(EndOfFile) ||

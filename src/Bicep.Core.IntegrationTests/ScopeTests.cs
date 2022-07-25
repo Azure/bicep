@@ -240,6 +240,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
 "));
 
             diags.Should().HaveDiagnostics(new[] {
+                ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"resourceA\" is declared but never used."),
                 ("BCP135", DiagnosticLevel.Error, "Scope \"subscription\" is not valid for this resource type. Permitted scopes: \"resourceGroup\"."),
             });
 
@@ -253,6 +254,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
 "));
 
             diags.Should().HaveDiagnostics(new[] {
+                ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"resourceA\" is declared but never used."),
                 ("BCP135", DiagnosticLevel.Error, "Scope \"subscription\" is not valid for this resource type. Permitted scopes: \"resourceGroup\"."),
             });
         }

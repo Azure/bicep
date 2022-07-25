@@ -84,7 +84,7 @@ resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
 }
 
 var items = [
-//@[04:09) Variable items. Type: string[]. Declaration start char: 0, length: 27
+//@[04:09) Variable items. Type: ('a' | 'b')[]. Declaration start char: 0, length: 27
   'a'
   'b'
 ]
@@ -93,7 +93,7 @@ resource loopParent 'My.Rp/parentType@2020-12-01' = {
   name: 'loopParent'
 
   resource loopChild 'childType' = [for item in items: {
-//@[40:44) Local item. Type: string. Declaration start char: 40, length: 4
+//@[40:44) Local item. Type: 'a' | 'b'. Declaration start char: 40, length: 4
 //@[11:20) Resource loopChild. Type: My.Rp/parentType/childType@2020-12-01[]. Declaration start char: 2, length: 81
     name: 'loopChild'
   }]

@@ -7,4 +7,4 @@ hello!''
 //@[04:31) | | └─Token(Identifier) |unterminatedMultilineString|
 //@[32:33) | ├─Token(Assignment) |=|
 //@[34:46) | └─SkippedTriviaSyntax
-//@[34:46) | | └─Token(MultilineString) |'''\nhello!''|
+//@[34:46) |   └─Token(MultilineString) |'''\nhello!''|

@@ -18,6 +18,18 @@ namespace Bicep.Core.Syntax.Visitors
             visitor.Visit(syntax);
         }
 
+        public static void Visit(SyntaxBase syntax, Action<SyntaxBase> callback)
+        {
+            var visitor = new CallbackVisitor(syntax =>
+            {
+                callback(syntax);
+
+                return true;
+            });
+
+            visitor.Visit(syntax);
+        }
+
         /// <summary>
         /// Creates a new visitor with the specified callback.
         /// </summary>

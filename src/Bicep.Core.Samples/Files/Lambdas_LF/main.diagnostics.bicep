@@ -95,21 +95,6 @@ module myMod './test.bicep' = {
 var mappedModOutputProps = map(myMod.outputs.outputThis, doggo => '${doggo} says bork')
 //@[04:24) [no-unused-vars (Warning)] Variable "mappedModOutputProps" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mappedModOutputProps|
 
-resource resLoop 'Microsoft.Storage/storageAccounts@2021-09-01' existing = [for item in range(0, 5): {
-  name: 'foo${item}'
-}]
-var resLoopNames = map(range(0, 5), i => resLoop[i].name)
-//@[04:16) [no-unused-vars (Warning)] Variable "resLoopNames" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |resLoopNames|
-
-module modLoop './test.bicep' = [for item in range(0, 5): {
-  name: 'foo${item}'
-  params: {
-    outputThis: ['blah']
-  }
-}]
-var modLoopNames = map(range(0, 5), i => modLoop[i].name)
-//@[04:16) [no-unused-vars (Warning)] Variable "modLoopNames" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |modLoopNames|
-
 var parentheses = map([123], (i => '${i}'))
 //@[04:15) [no-unused-vars (Warning)] Variable "parentheses" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |parentheses|
 

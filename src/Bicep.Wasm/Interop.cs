@@ -168,7 +168,7 @@ namespace Bicep.Wasm
             var fileResolver = new FileResolver();
             var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider());
             var configurationManager = new ConfigurationManager(new IOFileSystem());
-            var configuration = configurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
+            var configuration = configurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri, configuration);
 
             return new Compilation(features, namespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));

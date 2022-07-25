@@ -45,8 +45,9 @@ namespace Bicep.LangServer.IntegrationTests
         private const string MaxLengthTitle = "Add @maxLength";
         private const string MinValueTitle = "Add @minValue";
         private const string MaxValueTitle = "Add @maxValue";
-        private const string RemoveUnusedVariableTitle = "Remove unused variable";
+        private const string RemoveUnusedExistingResourceTitle = "Remove unused existing resource";
         private const string RemoveUnusedParameterTitle = "Remove unused parameter";
+        private const string RemoveUnusedVariableTitle = "Remove unused variable";
 
         private static readonly SharedLanguageHelperManager DefaultServer = new();
 
@@ -464,6 +465,38 @@ param foo {type}
             codeActions.Should().NotContain(x => x.Title == title);
         }
 
+        [DataRow(
+            @"resource ap|p 'Microsoft.Web/sites@2021-03-01' existing = {
+                name: 'app'
+            }",
+            "")]
+        [DataRow(
+            @"resource ap|p 'Microsoft.Web/sites@2021-03-01' existing = {
+                name: 'app'
+            }
+var foo = 'foo'",
+            "var foo = 'foo'")]
+        [DataRow(
+            @"resource app1 'Microsoft.Web/sites@2021-03-01' = {
+                name: 'app1'
+            }
+resource ap|p2 'Microsoft.Web/sites@2021-03-01' existing = {
+                name: 'app2'
+            }",
+            @"resource app1 'Microsoft.Web/sites@2021-03-01' = {
+                name: 'app1'
+            }
+")]
+        [DataTestMethod]
+        public async Task Unused_existing_resource_actions_are_suggested(string fileWithCursors, string expectedText)
+        {
+            (var codeActions, var bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().Contain(x => x.Title.StartsWith(RemoveUnusedExistingResourceTitle));
+            codeActions.First(x => x.Title.StartsWith(RemoveUnusedExistingResourceTitle)).Kind.Should().Be(CodeActionKind.QuickFix);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith(RemoveUnusedExistingResourceTitle)));
+            updatedFile.Should().HaveSourceText(expectedText);
+        }
 
         [DataRow(@"var fo|o = 'foo'
 var foo2 = 'foo2'", "var foo2 = 'foo2'")]

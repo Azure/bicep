@@ -114,7 +114,7 @@ namespace Bicep.LanguageServer
             }
             else
             {
-                AddTokenType(syntax.Key, SemanticTokenType.Method);
+                AddTokenType(syntax.Key, SemanticTokenType.TypeParameter);
             }
             Visit(syntax.Colon);
             Visit(syntax.Value);

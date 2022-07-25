@@ -91,7 +91,7 @@ var objWithInterp = {
 
 // array
 var myArr = [
-//@[04:09) Variable myArr. Type: string[]. Declaration start char: 0, length: 43
+//@[04:09) Variable myArr. Type: ('arr' | 'pirates' | 'say')[]. Declaration start char: 0, length: 43
   'pirates'
   'say'
   'arr'
@@ -349,16 +349,16 @@ var incrementingNumbers = [for i in range(0,10) : i]
 //@[31:32) Local i. Type: int. Declaration start char: 31, length: 1
 //@[04:23) Variable incrementingNumbers. Type: int[]. Declaration start char: 0, length: 52
 var loopInput = [
-//@[04:13) Variable loopInput. Type: string[]. Declaration start char: 0, length: 35
+//@[04:13) Variable loopInput. Type: ('one' | 'two')[]. Declaration start char: 0, length: 35
   'one'
   'two'
 ]
 var arrayOfStringsViaLoop = [for (name, i) in loopInput: 'prefix-${i}-${name}']
-//@[34:38) Local name. Type: string. Declaration start char: 34, length: 4
+//@[34:38) Local name. Type: 'one' | 'two'. Declaration start char: 34, length: 4
 //@[40:41) Local i. Type: int. Declaration start char: 40, length: 1
 //@[04:25) Variable arrayOfStringsViaLoop. Type: string[]. Declaration start char: 0, length: 79
 var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
-//@[34:38) Local name. Type: string. Declaration start char: 34, length: 4
+//@[34:38) Local name. Type: 'one' | 'two'. Declaration start char: 34, length: 4
 //@[40:41) Local i. Type: int. Declaration start char: 40, length: 1
 //@[04:25) Variable arrayOfObjectsViaLoop. Type: object[]. Declaration start char: 0, length: 123
   index: i
@@ -366,7 +366,7 @@ var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
   value: 'prefix-${i}-${name}-suffix'
 }]
 var arrayOfArraysViaLoop = [for (name, i) in loopInput: [
-//@[33:37) Local name. Type: string. Declaration start char: 33, length: 4
+//@[33:37) Local name. Type: 'one' | 'two'. Declaration start char: 33, length: 4
 //@[39:40) Local i. Type: int. Declaration start char: 39, length: 1
 //@[04:24) Variable arrayOfArraysViaLoop. Type: array[]. Declaration start char: 0, length: 102
   i
@@ -374,7 +374,7 @@ var arrayOfArraysViaLoop = [for (name, i) in loopInput: [
   'prefix-${i}-${name}-suffix'
 ]]
 var arrayOfBooleans = [for (name, i) in loopInput: i % 2 == 0]
-//@[28:32) Local name. Type: string. Declaration start char: 28, length: 4
+//@[28:32) Local name. Type: 'one' | 'two'. Declaration start char: 28, length: 4
 //@[34:35) Local i. Type: int. Declaration start char: 34, length: 1
 //@[04:19) Variable arrayOfBooleans. Type: bool[]. Declaration start char: 0, length: 62
 var arrayOfHardCodedNumbers = [for i in range(0,10): 3]

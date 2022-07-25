@@ -103,7 +103,7 @@ namespace Bicep.Wasm.LanguageHelpers
             }
             else
             {
-                AddTokenType(syntax.Key, SemanticTokenType.Member);
+                AddTokenType(syntax.Key, SemanticTokenType.TypeParameter);
             }
             Visit(syntax.Colon);
             Visit(syntax.Value);

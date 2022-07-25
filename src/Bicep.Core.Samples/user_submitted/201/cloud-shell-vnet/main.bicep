@@ -143,6 +143,26 @@ resource relaySubnet 'Microsoft.Network/virtualNetworks/subnets@2020-04-01' = {
     addressPrefix: relaySubnetAddressPrefix
     privateEndpointNetworkPolicies: 'Disabled'
     privateLinkServiceNetworkPolicies: 'Enabled'
+    networkSecurityGroup: {
+      properties: {
+        securityRules: [
+          {
+            properties: {
+              direction: 'Inbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+          {
+            properties: {
+              direction: 'Outbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+        ]
+      }
+    }
   }
   dependsOn: [
     containerSubnet
@@ -183,6 +203,26 @@ resource storageSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-04-01' = 
         ]
       }
     ]
+    networkSecurityGroup: {
+      properties: {
+        securityRules: [
+          {
+            properties: {
+              direction: 'Inbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+          {
+            properties: {
+              direction: 'Outbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+        ]
+      }
+    }
   }
   dependsOn: [
     relaySubnet

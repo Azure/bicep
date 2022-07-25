@@ -14,6 +14,7 @@ using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
 using Bicep.Core.Extensions;
 using Bicep.Core.Syntax.Visitors;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Emit
 {
@@ -21,26 +22,27 @@ namespace Bicep.Core.Emit
     {
         public static EmitLimitationInfo Calculate(SemanticModel model)
         {
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var diagnostics = ToListDiagnosticWriter.Create();
 
-            var moduleScopeData = ScopeHelper.GetModuleScopeInfo(model, diagnosticWriter);
-            var resourceScopeData = ScopeHelper.GetResourceScopeInfo(model, diagnosticWriter);
+            var moduleScopeData = ScopeHelper.GetModuleScopeInfo(model, diagnostics);
+            var resourceScopeData = ScopeHelper.GetResourceScopeInfo(model, diagnostics);
 
-            DeployTimeConstantValidator.Validate(model, diagnosticWriter);
-            ForSyntaxValidatorVisitor.Validate(model, diagnosticWriter);
-            FunctionPlacementValidatorVisitor.Validate(model, diagnosticWriter);
-            IntegerValidatorVisitor.Validate(model, diagnosticWriter);
+            DeployTimeConstantValidator.Validate(model, diagnostics);
+            ForSyntaxValidatorVisitor.Validate(model, diagnostics);
+            FunctionPlacementValidatorVisitor.Validate(model, diagnostics);
+            IntegerValidatorVisitor.Validate(model, diagnostics);
 
-            DetectDuplicateNames(model, diagnosticWriter, resourceScopeData, moduleScopeData);
-            DetectIncorrectlyFormattedNames(model, diagnosticWriter);
-            DetectUnexpectedResourceLoopInvariantProperties(model, diagnosticWriter);
-            DetectUnexpectedModuleLoopInvariantProperties(model, diagnosticWriter);
-            DetectUnsupportedModuleParameterAssignments(model, diagnosticWriter);
-            DetectCopyVariableName(model, diagnosticWriter);
-            DetectInvalidValueForParentProperty(model, diagnosticWriter);
-            BlockLambdasOutsideFunctionArguments(model, diagnosticWriter);
+            DetectDuplicateNames(model, diagnostics, resourceScopeData, moduleScopeData);
+            DetectIncorrectlyFormattedNames(model, diagnostics);
+            DetectUnexpectedResourceLoopInvariantProperties(model, diagnostics);
+            DetectUnexpectedModuleLoopInvariantProperties(model, diagnostics);
+            DetectUnsupportedModuleParameterAssignments(model, diagnostics);
+            DetectCopyVariableName(model, diagnostics);
+            DetectInvalidValueForParentProperty(model, diagnostics);
+            BlockLambdasOutsideFunctionArguments(model, diagnostics);
+            BlockUnsupportedLambdaVariableUsage(model, diagnostics);
 
-            return new(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
+            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
 
         private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
@@ -351,33 +353,82 @@ namespace Bicep.Core.Emit
 
         private static void BlockLambdasOutsideFunctionArguments(SemanticModel model, IDiagnosticWriter diagnostics)
         {
-            CallbackVisitor.Visit(model.Root.Syntax, syntax => {
-                if (syntax is LambdaSyntax lambdaSyntax)
+            foreach (var lambda in SyntaxAggregator.AggregateByType<LambdaSyntax>(model.Root.Syntax))
+            {
+                foreach (var ancestor in model.Binder.EnumerateAncestorsUpwards(lambda))
                 {
-                    var parent = model.Binder.GetParent(lambdaSyntax);
-                    while (parent is not null)
+                    if (ancestor is FunctionArgumentSyntax)
                     {
-                        if (parent is FunctionArgumentSyntax)
-                        {
-                            // we're inside a function argument - all good
-                            return true;
-                        }
-
-                        if (parent is ParenthesizedExpressionSyntax)
-                        {
-                            // we've got a parenthesized expression - keep searching upwards
-                            parent = model.Binder.GetParent(parent);
-                            continue;
-                        }
-
-                        // lambdas are not valid inside any other syntax - raise an error and exit
-                        diagnostics.Write(lambdaSyntax, x => x.LambdaFunctionsOnlyValidInFunctionArguments());
-                        return true;
+                        // we're inside a function argument - all good
+                        break;
                     }
+
+                    if (ancestor is ParenthesizedExpressionSyntax)
+                    {
+                        // we've got a parenthesized expression - keep searching upwards
+                        continue;
+                    }
+
+                    // lambdas are not valid inside any other syntax - raise an error and exit
+                    diagnostics.Write(lambda, x => x.LambdaFunctionsOnlyValidInFunctionArguments());
+                    break;
+                }
+            }
+        }
+
+        private static void BlockUnsupportedLambdaVariableUsage(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            IEnumerable<LocalVariableSymbol> CollectLambdaVariables(SyntaxBase syntax)
+            {
+                return SyntaxAggregator.AggregateByType<VariableAccessSyntax>(syntax)
+                    .Select(v => model.Binder.GetSymbolInfo(v))
+                    .OfType<LocalVariableSymbol>()
+                    .Distinct()
+                    .Where(symbol => symbol.LocalKind == LocalKind.LambdaItemVariable);
+            }
+
+            var visited = new HashSet<SyntaxBase>();
+            foreach (var lambda in SyntaxAggregator.AggregateByType<LambdaSyntax>(model.Root.Syntax))
+            {
+                foreach (var functionCall in SyntaxAggregator.AggregateByType<FunctionCallSyntaxBase>(lambda.Body))
+                {
+                    // Block the usage of lambdas inside reference() or list*() functions.
+                    // The Deployment Engine needs to be able to process these upfront to build the deployment graph, so they cannot contain unevaluated lambda variables.
+                    if (!visited.Contains(functionCall) &&
+                        model.GetSymbolInfo(functionCall) is FunctionSymbol functionSymbol &&
+                        functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
+                    {
+                        var blockedSymbols = functionCall.Arguments.SelectMany(x => CollectLambdaVariables(x.Expression)).Distinct()
+                            .Select(s => s.Name).ToImmutableArray();
+
+                        if (blockedSymbols.Any())
+                        {
+                            diagnostics.Write(functionCall, x => x.LambdaVariablesInInlineFunctionUnsupported(functionCall.Name.IdentifierName, blockedSymbols));
+                        }
+                    }
+
+                    visited.Add(functionCall);
                 }
 
-                return true;
-            });
+                foreach (var arrayAccess in SyntaxAggregator.AggregateByType<ArrayAccessSyntax>(lambda.Body))
+                {
+                    // Block the usage of lambdas to index into arrays of resources, as this may result in the generation of a reference() or list*() function call.
+                    // The Deployment Engine needs to be able to process these upfront to build the deployment graph, so they cannot contain unevaluated lambda variables.
+                    if (!visited.Contains(arrayAccess) &&
+                        model.GetSymbolInfo(arrayAccess.BaseExpression) is ModuleSymbol or ResourceSymbol)
+                    {
+                        var blockedSymbols = CollectLambdaVariables(arrayAccess.IndexExpression)
+                            .Select(s => s.Name).ToImmutableArray();
+
+                        if (blockedSymbols.Any())
+                        {
+                            diagnostics.Write(arrayAccess.IndexExpression, x => x.LambdaVariablesInResourceOrModuleArrayAccessUnsupported(blockedSymbols));
+                        }
+                    }
+
+                    visited.Add(arrayAccess);
+                }
+            }
         }
 
         private static bool IsInvariant(SemanticModel semanticModel, LocalVariableSyntax itemVariable, LocalVariableSyntax? indexVariable, SyntaxBase expression)

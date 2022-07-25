@@ -1452,9 +1452,20 @@ namespace Bicep.Core.Diagnostics
                 $"Resource type \"{resourceTypeReference.FormatName()}\" can only be used with the 'existing' keyword at the requested scope."
                     + $" Permitted scopes for deployment: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(writableScopes))}.");
 
-            public ErrorDiagnostic ExpectedMetadataIdentifier() => new(
+            public ErrorDiagnostic LambdaVariablesInResourceOrModuleArrayAccessUnsupported(IEnumerable<string> variableNames) => new(
                 TextSpan,
                 "BCP247",
+                $"Using lambda variables inside resource or module array access is not currently supported."
+                    + $" Found the following lambda variable(s) being accessed: {ToQuotedString(variableNames)}.");
+
+            public ErrorDiagnostic LambdaVariablesInInlineFunctionUnsupported(string functionName, IEnumerable<string> variableNames) => new(
+                TextSpan,
+                "BCP248",
+                $"Using lambda variables inside the \"{functionName}\" function is not currently supported."
+                    + $" Found the following lambda variable(s) being accessed: {ToQuotedString(variableNames)}.");
+            public ErrorDiagnostic ExpectedMetadataIdentifier() => new(
+                TextSpan,
+                "BCP249",
                 "Expected a metadata identifier at this location.");
         }
 

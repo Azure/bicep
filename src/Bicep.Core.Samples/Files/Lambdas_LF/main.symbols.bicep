@@ -1,5 +1,5 @@
 var doggos = [
-//@[004:010) Variable doggos. Type: string[]. Declaration start char: 0, length: 54
+//@[004:010) Variable doggos. Type: ('Casper' | 'Evie' | 'Indy' | 'Kira')[]. Declaration start char: 0, length: 54
   'Evie'
   'Casper'
   'Indy'
@@ -10,7 +10,7 @@ var numbers = range(0, 4)
 //@[004:011) Variable numbers. Type: int[]. Declaration start char: 0, length: 25
 
 var sayHello = map(doggos, i => 'Hello ${i}!')
-//@[027:028) Local i. Type: string. Declaration start char: 27, length: 1
+//@[027:028) Local i. Type: 'Casper' | 'Evie' | 'Indy' | 'Kira'. Declaration start char: 27, length: 1
 //@[004:012) Variable sayHello. Type: string[]. Declaration start char: 0, length: 46
 
 var isEven = filter(numbers, i => 0 == i % 2)
@@ -21,7 +21,7 @@ var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, 
 //@[080:081) Local j. Type: int. Declaration start char: 80, length: 1
 //@[050:051) Local i. Type: int. Declaration start char: 50, length: 1
 //@[103:104) Local x. Type: int. Declaration start char: 103, length: 1
-//@[004:027) Variable evenDoggosNestedLambdas. Type: string[]. Declaration start char: 0, length: 118
+//@[004:027) Variable evenDoggosNestedLambdas. Type: ('Casper' | 'Evie' | 'Indy' | 'Kira')[]. Declaration start char: 0, length: 118
 
 var flattenedArrayOfArrays = flatten([0, 1], [2, 3], [4, 5])
 //@[004:026) Variable flattenedArrayOfArrays. Type: array. Declaration start char: 0, length: 60
@@ -29,7 +29,7 @@ var flattenedEmptyArray = flatten()
 //@[004:023) Variable flattenedEmptyArray. Type: array. Declaration start char: 0, length: 35
 
 var mapSayHi = map(['abc', 'def', 'ghi'], foo => 'Hi ${foo}!')
-//@[042:045) Local foo. Type: string. Declaration start char: 42, length: 3
+//@[042:045) Local foo. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 42, length: 3
 //@[004:012) Variable mapSayHi. Type: string[]. Declaration start char: 0, length: 62
 var mapEmpty = map([], foo => 'Hi ${foo}!')
 //@[023:026) Local foo. Type: any. Declaration start char: 23, length: 3
@@ -53,8 +53,8 @@ var mapMultiLineArray = flatten(map(range(1, 3), i => [
 ]))
 
 var filterEqualityCheck = filter(['abc', 'def', 'ghi'], foo => 'def' == foo)
-//@[056:059) Local foo. Type: string. Declaration start char: 56, length: 3
-//@[004:023) Variable filterEqualityCheck. Type: string[]. Declaration start char: 0, length: 76
+//@[056:059) Local foo. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 56, length: 3
+//@[004:023) Variable filterEqualityCheck. Type: ('abc' | 'def' | 'ghi')[]. Declaration start char: 0, length: 76
 var filterEmpty = filter([], foo => 'def' == foo)
 //@[029:032) Local foo. Type: any. Declaration start char: 29, length: 3
 //@[004:015) Variable filterEmpty. Type: array. Declaration start char: 0, length: 49
@@ -64,13 +64,13 @@ var sortNumeric = sort([8, 3, 10, -13, 5], (x, y) => x < y)
 //@[047:048) Local y. Type: int. Declaration start char: 47, length: 1
 //@[004:015) Variable sortNumeric. Type: int[]. Declaration start char: 0, length: 59
 var sortAlpha = sort(['ghi', 'abc', 'def'], (x, y) => x < y)
-//@[045:046) Local x. Type: string. Declaration start char: 45, length: 1
-//@[048:049) Local y. Type: string. Declaration start char: 48, length: 1
-//@[004:013) Variable sortAlpha. Type: string[]. Declaration start char: 0, length: 60
+//@[045:046) Local x. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 45, length: 1
+//@[048:049) Local y. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 48, length: 1
+//@[004:013) Variable sortAlpha. Type: ('abc' | 'def' | 'ghi')[]. Declaration start char: 0, length: 60
 var sortAlphaReverse = sort(['ghi', 'abc', 'def'], (x, y) => x > y)
-//@[052:053) Local x. Type: string. Declaration start char: 52, length: 1
-//@[055:056) Local y. Type: string. Declaration start char: 55, length: 1
-//@[004:020) Variable sortAlphaReverse. Type: string[]. Declaration start char: 0, length: 67
+//@[052:053) Local x. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 52, length: 1
+//@[055:056) Local y. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 55, length: 1
+//@[004:020) Variable sortAlphaReverse. Type: ('abc' | 'def' | 'ghi')[]. Declaration start char: 0, length: 67
 var sortByObjectKey = sort([
 //@[004:019) Variable sortByObjectKey. Type: array. Declaration start char: 0, length: 188
   { key: 124, name: 'Second' }
@@ -86,8 +86,8 @@ var sortEmpty = sort([], (x, y) => int(x) < int(y))
 //@[004:013) Variable sortEmpty. Type: array. Declaration start char: 0, length: 51
 
 var reduceStringConcat = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat(cur, next))
-//@[060:063) Local cur. Type: string. Declaration start char: 60, length: 3
-//@[065:069) Local next. Type: string. Declaration start char: 65, length: 4
+//@[060:063) Local cur. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 60, length: 3
+//@[065:069) Local next. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 65, length: 4
 //@[004:022) Variable reduceStringConcat. Type: string. Declaration start char: 0, length: 92
 var reduceFactorial = reduce(range(1, 5), 1, (cur, next) => cur * next)
 //@[046:049) Local cur. Type: int. Declaration start char: 46, length: 3
@@ -137,28 +137,7 @@ var mappedModOutputProps = map(myMod.outputs.outputThis, doggo => '${doggo} says
 //@[057:062) Local doggo. Type: any. Declaration start char: 57, length: 5
 //@[004:024) Variable mappedModOutputProps. Type: string[]. Declaration start char: 0, length: 87
 
-resource resLoop 'Microsoft.Storage/storageAccounts@2021-09-01' existing = [for item in range(0, 5): {
-//@[080:084) Local item. Type: int. Declaration start char: 80, length: 4
-//@[009:016) Resource resLoop. Type: Microsoft.Storage/storageAccounts@2021-09-01[]. Declaration start char: 0, length: 126
-  name: 'foo${item}'
-}]
-var resLoopNames = map(range(0, 5), i => resLoop[i].name)
-//@[036:037) Local i. Type: int. Declaration start char: 36, length: 1
-//@[004:016) Variable resLoopNames. Type: string[]. Declaration start char: 0, length: 57
-
-module modLoop './test.bicep' = [for item in range(0, 5): {
-//@[037:041) Local item. Type: int. Declaration start char: 37, length: 4
-//@[007:014) Module modLoop. Type: module[]. Declaration start char: 0, length: 124
-  name: 'foo${item}'
-  params: {
-    outputThis: ['blah']
-  }
-}]
-var modLoopNames = map(range(0, 5), i => modLoop[i].name)
-//@[036:037) Local i. Type: int. Declaration start char: 36, length: 1
-//@[004:016) Variable modLoopNames. Type: string[]. Declaration start char: 0, length: 57
-
 var parentheses = map([123], (i => '${i}'))
-//@[030:031) Local i. Type: int. Declaration start char: 30, length: 1
+//@[030:031) Local i. Type: any. Declaration start char: 30, length: 1
 //@[004:015) Variable parentheses. Type: string[]. Declaration start char: 0, length: 43
 
