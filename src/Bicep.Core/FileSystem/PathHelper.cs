@@ -156,8 +156,17 @@ namespace Bicep.Core.FileSystem
                 failureBuilder = x => x.FilePathInterpolationUnsupported();
                 return false;
             }
-            bicepPath = pathValue;
+            var trimedPathValue = pathValue.Trim();
+            if(trimedPathValue == string.Empty)
+            {
+                bicepPath = null;
+                failureBuilder = x => x.UsingDeclarationRefrencesInvalidFile();
+                return false;
+            }
+
+            bicepPath = trimedPathValue;
             failureBuilder = null;
+
             return true;
         }
         

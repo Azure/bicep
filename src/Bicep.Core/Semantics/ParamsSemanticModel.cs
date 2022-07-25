@@ -78,7 +78,7 @@ namespace Bicep.Core.Semantics
 
             if(!PathHelper.TryGetUsingPath(usingDeclaration, out var bicepFilePath, out var failureBuilder))
             {       
-                var diagnostic = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(usingDeclaration.Keyword.Span));
+                var diagnostic = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(usingDeclaration.Path.Span));
                 allDiagnostics.Write(diagnostic);
                 return null;
             }

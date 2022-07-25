@@ -1496,7 +1496,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP255",
-                "No using declaration present in parameters file. Parameter validation/completions would not be available");
+                "No using declaration present in this parameters file. Parameter validation/completions would not be available");
 
             public ErrorDiagnostic MoreThanOneUsingDeclarationSpecified() => new(
                 TextSpan,
