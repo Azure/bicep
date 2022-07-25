@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
@@ -17,7 +19,7 @@ namespace Bicep.Core.Semantics
         public Compilation? BicepCompilation { get; }
         public ParamsTypeManager ParamsTypeManager { get; }
         public ParamsSymbolContext ParamsSymbolContext { get; }
-        private List<IDiagnostic> semanticDiagnostics = new List<IDiagnostic>();
+        public Lazy<ImmutableArray<IDiagnostic>> AllDiagnostics { get; }
         
         public ParamsSemanticModel(BicepParamFile bicepParamFile, Compilation? bicepCompilation = null)
         {
@@ -30,7 +32,8 @@ namespace Bicep.Core.Semantics
             // name binding is done
             // allow type queries now
             paramsSymbolContext.Unlock();
-            
+            // lazy load single use diagnostic set
+            this.AllDiagnostics = new Lazy<ImmutableArray<IDiagnostic>>(() => GetDiagnostics());
         }
 
         /// <summary>
@@ -39,86 +42,67 @@ namespace Bicep.Core.Semantics
         /// <returns></returns>
         private IEnumerable<IDiagnostic> GetAdditionalSemanticDiagnostics()
         {
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+
             if (this.BicepCompilation is null)
             {
                 return Enumerable.Empty<IDiagnostic>();
             }
-            var requiredParameters = this.BicepCompilation.GetEntrypointSemanticModel().Parameters;
-            var parameterAssignmentSyntax = BicepParamFile.ProgramSyntax.Children.OfType<ParameterAssignmentSyntax>();
 
-            var sortedRequiredParameters =  requiredParameters.OrderBy(x => x.Name);
-            var sortedParameterAssignments = parameterAssignmentSyntax.OrderBy(x => this.ParamBinder.GetSymbolInfo(x)?.Name);
+            var parameters = this.BicepCompilation.GetEntrypointSemanticModel().Parameters;
+            var parameterAssignments = BicepParamFile.ProgramSyntax.Children.OfType<ParameterAssignmentSyntax>().Where(x => this.ParamBinder.GetSymbolInfo(x) is not null);
 
-            // get errors relating to missing declarations or assignments
-            AddMissingErrors(sortedRequiredParameters.ToArray(), sortedParameterAssignments.ToArray());
-            // get errors relating to type mismatch of params between Bicep and params files
-            AddTypeMismatchErrors(sortedParameterAssignments);
+            // get diagnostics relating to missing parameter assignments or declarations
+            GetParameterMismatchDiagnostics(diagnosticWriter, parameters, parameterAssignments);
+            // get diagnostics relating to type mismatch of params between Bicep and params files
+            GetTypeMismatchDiagnostics(diagnosticWriter, parameterAssignments);
 
-            return semanticDiagnostics;
+            return diagnosticWriter.GetDiagnostics();
         }
-
-        private void AddMissingErrors(Metadata.ParameterMetadata[] sortedRequiredParameters, ParameterAssignmentSyntax[] sortedParameterAssignments)
+        
+        private void GetParameterMismatchDiagnostics(IDiagnosticWriter diagnosticWriter, ImmutableArray<Metadata.ParameterMetadata> parameters, IEnumerable<ParameterAssignmentSyntax> parameterAssignments)
         {
-            var i = 0;
-            var j = 0;
-
-            while ((i < sortedRequiredParameters.Length) && (j < sortedParameterAssignments.Length))
+            var parametersDict = parameters.ToDictionary(x => x.Name, LanguageConstants.IdentifierComparer);
+            var parametersAssignmentsDict = parameterAssignments.ToDictionary(x => x.Name.IdentifierName, LanguageConstants.IdentifierComparer);
+            
+            // parameters that are declared but not assigned
+            var missingRequiredParams = parametersDict.Values
+                .Where(x => x.IsRequired)
+                .Where(x => !parametersAssignmentsDict.ContainsKey(x.Name))
+                .OrderBy(x => x.Name);
+            // parameters that are assigned but not declared
+            var missingAssignedParams = parametersAssignmentsDict
+                .Where(x => !parametersDict.ContainsKey(x.Key))
+                .Select(x => x.Value)
+                .OrderBy(x => x.Name.IdentifierName);
+            
+            foreach (var requiredParam in missingRequiredParams)
             {
-                var bicepParam = sortedRequiredParameters[i];
-                var paramParam = this.ParamBinder.GetSymbolInfo(sortedParameterAssignments[j]);
-                
-                if (LanguageConstants.IdentifierComparer.Equals(bicepParam.Name, paramParam?.Name))
-                {
-                    i++;
-                    j++;
-                }
-                else if (LanguageConstants.IdentifierComparer.Compare(bicepParam.Name, paramParam?.Name) < 0)
-                {
-                    if (bicepParam.IsRequired)
-                    {
-                        semanticDiagnostics.Add(DiagnosticBuilder.ForPosition(new TextSpan(0,0)).MissingParameterAssignment(bicepParam.Name));
-                    }
-                    i++;
-                }
-                else
-                {
-                    semanticDiagnostics.Add(DiagnosticBuilder.ForPosition(sortedParameterAssignments[j].Span).MissingParameterDeclaration(paramParam?.Name));
-                    j++;
-                }
+                diagnosticWriter.Write(new TextSpan(0, 0), x => x.MissingParameterAssignment(requiredParam.Name));
             }
 
-            // if i or j is at the end, emit errors for all remaining unpaired symbols 
-            while (i < sortedRequiredParameters.Count())
+            foreach (var assignedParam in missingAssignedParams)
             {
-                if (sortedRequiredParameters[i].IsRequired)
-                {
-                    semanticDiagnostics.Add(DiagnosticBuilder.ForPosition(new TextSpan(0,0)).MissingParameterAssignment(sortedRequiredParameters[i].Name));
-                }
-                i++;
-            }
-            while (j < sortedParameterAssignments.Count())
-            {
-                semanticDiagnostics.Add(DiagnosticBuilder.ForPosition(sortedParameterAssignments[j].Span).MissingParameterDeclaration(this.ParamBinder.GetSymbolInfo(sortedParameterAssignments[j])?.Name));
-                j++;
+                diagnosticWriter.Write(assignedParam.Span, x => x.MissingParameterDeclaration(this.ParamBinder.GetSymbolInfo(assignedParam)?.Name));
             }
         }
         
-        private void AddTypeMismatchErrors(IOrderedEnumerable<ParameterAssignmentSyntax> sortedParameterAssignmentSyntax)
+        private void GetTypeMismatchDiagnostics(IDiagnosticWriter diagnosticWriter, IEnumerable<ParameterAssignmentSyntax> parameterAssignments)
         {
-            foreach (var syntax in sortedParameterAssignmentSyntax)
+            foreach (var syntax in parameterAssignments)
             {
                 if ((ParamsTypeManager.GetTypeInfo(syntax) is not ErrorType) && (ParamsTypeManager.GetDeclaredType(syntax) is { } declaredType) &&
                     (!TypeValidator.AreTypesAssignable(ParamsTypeManager.GetTypeInfo(syntax), declaredType)))
                 {
-                    semanticDiagnostics.Add(DiagnosticBuilder.ForPosition(syntax.Span).TypeMismatch(this.ParamBinder.GetSymbolInfo(syntax)?.Name, declaredType, ParamsTypeManager.GetTypeInfo(syntax)));
+                    diagnosticWriter.Write(syntax.Span, x => x.ParameterTypeMismatch(this.ParamBinder.GetSymbolInfo(syntax)?.Name, declaredType, ParamsTypeManager.GetTypeInfo(syntax)));
                 }
             }
         }
         
-        public IEnumerable<IDiagnostic> GetDiagnostics()
+        public ImmutableArray<IDiagnostic> GetDiagnostics()
             => BicepParamFile.ProgramSyntax.GetParseDiagnostics()
                 .Concat(ParamsTypeManager.GetAllDiagnostics())
-                .Concat(GetAdditionalSemanticDiagnostics());
+                .Concat(GetAdditionalSemanticDiagnostics()).ToImmutableArray();
             
         /// <summary>
         /// Gets the file that was compiled.

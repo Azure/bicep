@@ -1502,7 +1502,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP256",
                 $"\"{identifier}\" is assigned in the params file without being declared in the bicep file.");
 
-            public ErrorDiagnostic TypeMismatch(string? identifier, TypeSymbol expectedType, TypeSymbol actualType) => new(
+            public ErrorDiagnostic ParameterTypeMismatch(string? identifier, TypeSymbol expectedType, TypeSymbol actualType) => new(
                 TextSpan,
                 "BCP257",
                 $"The parameter \"{identifier}\" expects a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
