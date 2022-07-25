@@ -42,12 +42,12 @@ namespace Bicep.Core.Semantics
         /// <returns></returns>
         private IEnumerable<IDiagnostic> GetAdditionalSemanticDiagnostics()
         {
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
-
             if (this.BicepCompilation is null)
             {
                 return Enumerable.Empty<IDiagnostic>();
             }
+
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
 
             var parameters = this.BicepCompilation.GetEntrypointSemanticModel().Parameters;
             var parameterAssignments = BicepParamFile.ProgramSyntax.Children.OfType<ParameterAssignmentSyntax>().Where(x => this.ParamBinder.GetSymbolInfo(x) is not null);
