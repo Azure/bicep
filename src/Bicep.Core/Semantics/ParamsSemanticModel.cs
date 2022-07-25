@@ -71,30 +71,21 @@ namespace Bicep.Core.Semantics
             {
                 foreach(var declaration in usingDeclarations)
                 {
-                    allDiagnostics.Write(declaration.Path.Span, x => x.MoreThanOneUsingDeclarationSpecified());
+                    allDiagnostics.Write(declaration.Keyword, x => x.MoreThanOneUsingDeclarationSpecified());
                 }
                 return null;
             }
 
             if(!PathHelper.TryGetUsingPath(usingDeclaration, out var bicepFilePath, out var failureBuilder))
             {       
-                var diagnostic = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(new TextSpan(0, 0)));
+                var diagnostic = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(usingDeclaration.Keyword.Span));
                 allDiagnostics.Write(diagnostic);
                 return null;
             }
 
-            Uri.TryCreate(BicepParamFile.FileUri, bicepFilePath, out var bicepFileUri);
-
-            if(bicepFileUri is not {})
+            if (!Uri.TryCreate(BicepParamFile.FileUri, bicepFilePath, out var bicepFileUri) || !fileResolver.FileExists(bicepFileUri))
             {
-                //TODO: what kind of exception to throw here or diagnostic
-                return null;
-            }
-
- 
-            if(!fileResolver.FileExists(bicepFileUri))
-            {
-                allDiagnostics.Write(usingDeclaration.Path.Span, x => x.UsingDeclarationRefrencesInvalidFile(bicepFileUri.AbsolutePath));
+                allDiagnostics.Write(usingDeclaration.Path.Span, x => x.UsingDeclarationRefrencesInvalidFile());
                 return null; 
             }            
 

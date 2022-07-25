@@ -1503,10 +1503,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP256",
                 "More than one using declaration is present");
 
-            public ErrorDiagnostic UsingDeclarationRefrencesInvalidFile(string absoluteFilePath) => new(
+            public ErrorDiagnostic UsingDeclarationRefrencesInvalidFile() => new(
                 TextSpan,
                 "BCP257",
-                $"The file ({absoluteFilePath}) specified in the path does not exist");
+                $"The file specified in the path does not exist");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
