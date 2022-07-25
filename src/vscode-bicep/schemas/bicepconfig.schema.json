@@ -450,7 +450,7 @@
                     {
                       "$ref": "#/definitions/rule"
                     }
-                  ],
+                  ]
                 },
                 "use-stable-vm-image": {
                   "allOf": [
@@ -506,6 +506,16 @@
                   "allOf": [
                     {
                       "description": "Resource identifiers should be reproducible outside of their initial deployment context. See https://aka.ms/bicep/linter/use-stable-resource-identifiers"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "secure-params-in-nested-deploy": {
+                  "allOf": [
+                    {
+                      "description": "Do not use secure parameters or list* functions inside outer-scoped nested deployment resources. See https://aka.ms/bicep/linter/secure-params-in-nested-deploy"
                     },
                     {
                       "$ref": "#/definitions/rule"

@@ -98,9 +98,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             RunWithDiagnosticAnnotations(
                 bicepText,
-                diag => diag.Code == ruleCode
-                    || (onCompileErrors == OnCompileErrors.IncludeErrors && diag.Level == DiagnosticLevel.Error)
-                    || (onCompileErrors == OnCompileErrors.IncludeErrorsAndWarnings && (diag.Level == DiagnosticLevel.Error || diag.Level == DiagnosticLevel.Warning)),
+                diag =>
+                    diag.Code == ruleCode
+                    || (IsCompilerDiagnostic(diag) && onCompileErrors == OnCompileErrors.IncludeErrors && diag.Level == DiagnosticLevel.Error)
+                    || (IsCompilerDiagnostic(diag) && onCompileErrors == OnCompileErrors.IncludeErrorsAndWarnings && (diag.Level == DiagnosticLevel.Error || diag.Level == DiagnosticLevel.Warning)),
                 onCompileErrors,
                 assertAction,
                 configuration,
@@ -121,6 +122,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     result.Diagnostics.Where(filterFunc),
                     assertAction);
             }
+        }
+
+        private static bool IsCompilerDiagnostic(IDiagnostic diagnostic)
+        {
+            return diagnostic.Code.StartsWith("BCP");
         }
     }
 }
