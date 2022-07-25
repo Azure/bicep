@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
@@ -19,8 +20,8 @@ namespace Bicep.Core.Semantics
         public Compilation? BicepCompilation { get; }
         public ParamsTypeManager ParamsTypeManager { get; }
         public ParamsSymbolContext ParamsSymbolContext { get; }
-        public List<IDiagnostic> allDiagnostics { get; } = new();
         public IFileResolver fileResolver { get; }
+        private readonly ImmutableArray<IDiagnostic> compilationLoadDiagnostics;
         
         public ParamsSemanticModel(BicepParamFile bicepParamFile, IFileResolver fileResolver, Func<Uri, Compilation>? getCompilation = null)
         {
@@ -29,7 +30,8 @@ namespace Bicep.Core.Semantics
             //parse using statement and link bicep template 
             this.BicepParamFile = bicepParamFile;
 
-            Uri? bicepFileUri = TryGetBicepFileUri();
+            Uri? bicepFileUri = TryGetBicepFileUri(out var diagnosticWriter);
+            compilationLoadDiagnostics = diagnosticWriter.GetDiagnostics().ToImmutableArray();
             if(bicepFileUri is {} && getCompilation is {})
             {   
                 this.BicepCompilation = getCompilation(bicepFileUri);
@@ -47,42 +49,52 @@ namespace Bicep.Core.Semantics
         }
 
         public IEnumerable<IDiagnostic> GetAllDiagnostics()
-            => this.allDiagnostics.Concat(BicepParamFile.ProgramSyntax.GetParseDiagnostics());
+            => this.compilationLoadDiagnostics.Concat(BicepParamFile.ProgramSyntax.GetParseDiagnostics());
         
         /// <summary>
         /// Gets the file that was compiled.
         /// </summary>
         public ParamFileSymbol Root => this.ParamBinder.ParamFileSymbol;
 
-        private Uri? TryGetBicepFileUri()
+        private Uri? TryGetBicepFileUri(out ToListDiagnosticWriter allDiagnostics)
         {
-            //TODO: consolidate this into one method
+            allDiagnostics = ToListDiagnosticWriter.Create();
             var usingDeclarations = BicepParamFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>();
 
-            if(usingDeclarations.Count() == 0)
+            if(usingDeclarations.FirstOrDefault() is not {} usingDeclaration)
             {
-                this.allDiagnostics.Add(new DiagnosticBuilder.DiagnosticBuilderInternal(new TextSpan(0, 0)).UsingDeclarationNotSpecified());
+                allDiagnostics.Write(new TextSpan(0, 0), x => x.UsingDeclarationNotSpecified());
                 return null;
             }
             
             if(usingDeclarations.Count() > 1)
             {
-                this.allDiagnostics.Add(new DiagnosticBuilder.DiagnosticBuilderInternal(new TextSpan(0, 0)).MoreThenOneUsingDeclarationSpecified());
+                foreach(var declaration in usingDeclarations)
+                {
+                    allDiagnostics.Write(declaration.Path.Span, x => x.MoreThanOneUsingDeclarationSpecified());
+                }
                 return null;
             }
 
-            if(!PathHelper.TryGetUsingPath(usingDeclarations.FirstOrDefault()!, out var bicepFilePath, out var failureBuilder))
+            if(!PathHelper.TryGetUsingPath(usingDeclaration, out var bicepFilePath, out var failureBuilder))
             {       
                 var diagnostic = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(new TextSpan(0, 0)));
-                this.allDiagnostics.Add(diagnostic);
+                allDiagnostics.Write(diagnostic);
                 return null;
             }
 
             Uri.TryCreate(BicepParamFile.FileUri, bicepFilePath, out var bicepFileUri);
- 
-            if(!fileResolver.FileExists(bicepFileUri!))
+
+            if(bicepFileUri is not {})
             {
-                this.allDiagnostics.Add(new DiagnosticBuilder.DiagnosticBuilderInternal(usingDeclarations.FirstOrDefault()!.Path.Span).UsingDeclarationRefrencesInvalidFile());
+                //TODO: what kind of exception to throw here or diagnostic
+                return null;
+            }
+
+ 
+            if(!fileResolver.FileExists(bicepFileUri))
+            {
+                allDiagnostics.Write(usingDeclaration.Path.Span, x => x.UsingDeclarationRefrencesInvalidFile(bicepFileUri.AbsolutePath));
                 return null; 
             }            
 

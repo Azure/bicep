@@ -1498,15 +1498,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP255",
                 "No using declaration present in parameters file");
 
-            public ErrorDiagnostic MoreThenOneUsingDeclarationSpecified() => new(
+            public ErrorDiagnostic MoreThanOneUsingDeclarationSpecified() => new(
                 TextSpan,
                 "BCP256",
                 "More than one using declaration is present");
 
-            public ErrorDiagnostic UsingDeclarationRefrencesInvalidFile() => new(
+            public ErrorDiagnostic UsingDeclarationRefrencesInvalidFile(string absoluteFilePath) => new(
                 TextSpan,
                 "BCP257",
-                "The file specified in the path does not exist");
+                $"The file ({absoluteFilePath}) specified in the path does not exist");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
