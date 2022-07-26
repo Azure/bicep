@@ -48,7 +48,7 @@ namespace Bicep.Core.Semantics
             // allow type queries now
             paramsSymbolContext.Unlock();
             // lazy load single use diagnostic set
-            this.AllDiagnostics = new Lazy<ImmutableArray<IDiagnostic>>(() => GetDiagnostics());
+            this.AllDiagnostics = new Lazy<ImmutableArray<IDiagnostic>>(() => GetAllDiagnostics());
         }
 
         /// <summary>
@@ -115,7 +115,7 @@ namespace Bicep.Core.Semantics
             }
         }
         
-        public ImmutableArray<IDiagnostic> GetDiagnostics()
+        public ImmutableArray<IDiagnostic> GetAllDiagnostics()
             => BicepParamFile.ProgramSyntax.GetParseDiagnostics()
                 .Concat(ParamsTypeManager.GetAllDiagnostics())
                 .Concat(this.compilationLoadDiagnostics)
