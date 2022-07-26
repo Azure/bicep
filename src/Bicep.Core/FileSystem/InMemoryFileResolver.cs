@@ -95,12 +95,28 @@ namespace Bicep.Core.FileSystem
 
         public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern)
         {
-            return Enumerable.Empty<Uri>();
+            if (!fileUri.IsFile)
+            {
+                return Enumerable.Empty<Uri>();
+            }
+
+            HashSet<Uri> dirUris = new();
+
+            foreach (var knownFileUri in fileLookup.Keys)
+            {
+                if (fileUri.IsBaseOf(knownFileUri) && knownFileUri.Segments.Count() > fileUri.Segments.Count() + 1) 
+                {
+                    var IndexOfNextSlash = knownFileUri.AbsoluteUri.IndexOf("/", fileUri.AbsoluteUri.Length + 1);
+                    var dirUri = new Uri(knownFileUri.AbsoluteUri.Substring(0, IndexOfNextSlash));
+                    dirUris.Add(dirUri);
+                }
+            }
+            return dirUris.ToList();
         }
 
         public IEnumerable<Uri> GetFiles(Uri fileUri, string pattern)
         {
-            return fileLookup.Keys;
+            return fileLookup.Keys.Where(uri => fileUri.IsBaseOf(uri) && fileUri.Segments.Count() + 1 == uri.Segments.Count());
         }
 
         public bool TryReadAsBase64(Uri fileUri, [NotNullWhen(true)] out string? fileBase64, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder, int maxCharacters = -1)

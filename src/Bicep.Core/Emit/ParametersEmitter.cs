@@ -46,7 +46,7 @@ namespace Bicep.Core.Emit
         private EmitResult EmitOrFail(Action write)
         {
             // collect all the diagnostics
-            var diagnostics = paramSemanticModel.GetDiagnostics();
+            var diagnostics = paramSemanticModel.GetAllDiagnostics();
 
             if (diagnostics.Any(d => d.Level == DiagnosticLevel.Error))
             {

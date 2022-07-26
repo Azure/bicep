@@ -140,9 +140,9 @@ namespace Bicep.Core.FileSystem
             return uriBuilder.Uri;
         }
 
-        public static bool TryGetUsingPath(UsingDeclarationSyntax? usingDeclarationSyntax, [NotNullWhen(true)]out string? bicepPath, [NotNullWhen(false)]out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static bool TryGetUsingPath(UsingDeclarationSyntax usingDeclarationSyntax, [NotNullWhen(true)]out string? bicepPath, [NotNullWhen(false)]out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
         {
-            var pathSyntax = usingDeclarationSyntax?.TryGetPath();
+            var pathSyntax = usingDeclarationSyntax.TryGetPath();
             if (pathSyntax == null)
             {
                 bicepPath = null;
@@ -156,8 +156,17 @@ namespace Bicep.Core.FileSystem
                 failureBuilder = x => x.FilePathInterpolationUnsupported();
                 return false;
             }
-            bicepPath = pathValue;
+            var trimedPathValue = pathValue.Trim();
+            if(trimedPathValue == string.Empty)
+            {
+                bicepPath = null;
+                failureBuilder = x => x.UsingDeclarationReferencesInvalidFile();
+                return false;
+            }
+
+            bicepPath = trimedPathValue;
             failureBuilder = null;
+
             return true;
         }
         

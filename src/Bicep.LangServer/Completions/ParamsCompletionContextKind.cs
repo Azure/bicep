@@ -16,7 +16,7 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location needs a bicep file path completion for using declaration
         /// </summary>
-        UsingDeclaration = 1 << 0,
+        UsingFilePath = 1 << 0,
 
         /// <summary>
         /// The current location needs a parameter completion from corresponding bicep file
