@@ -2,28 +2,24 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Semantics;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
-using Bicep.LanguageServer.Completions;
-using Bicep.LanguageServer.Snippets;
-using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace Bicep.LangServer.IntegrationTests.Completions
 {
     [TestClass]
     public class ParamsCompletionTests
     {
-        private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
-        private static readonly ILanguageServerFacade Server = Repository.Create<ILanguageServerFacade>().Object;
-        private static readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager);
+        [NotNull]
+        public TestContext? TestContext { get; set; }
 
         [DataTestMethod]
         [DataRow(
@@ -71,6 +67,27 @@ new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field, Co
 
 using './main.bicep'
 
+param firstParam = 5
+param |", 
+
+@"
+//Bicep file
+
+param firstParam int = 1
+param secondParam string
+param thirdParam string = 'hello'
+
+",
+new string[] {"secondParam", "thirdParam"},
+new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field}
+)
+]
+[DataRow(
+@"
+//Parameters file
+
+using './main.bicep'
+
 param |",  
 
 @"
@@ -82,32 +99,152 @@ new string[] {},
 new CompletionItemKind[] {}
 )
 ]
-        public void Params_completion_provider_should_return_correct_completions(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
+        [DataRow(
+@"
+//Parameters file
+
+using './main.bicep'
+
+param | = 1", 
+
+@"
+//Bicep file
+
+param firstParam int
+param secondParam string
+
+",
+new string[] {"firstParam", "secondParam"},
+new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field}
+)
+]
+        public async Task Request_for_parameters_completions_should_return_correct_identifiers(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
         {   
-            var (paramTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText);
-            var paramsUri = new Uri("inmemory:///params.bicepparams");
-            var bicepParamFile = SourceFileFactory.CreateBicepParamFile(paramsUri, paramTextNoCursor);
+            var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText);
 
+            var paramUri = DocumentUri.FromFileSystemPath("/path/to/param.bicepparam");
+            var bicepMainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
 
-            var fileResolver = new FileResolver();
-            var bicepCompilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepText, fileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var paramFile = SourceFileFactory.CreateBicepFile(paramUri.ToUri(), paramFileTextNoCursor);
 
-            var paramsSemanticModel = new ParamsSemanticModel(bicepParamFile, bicepCompilation);
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [paramUri.ToUri()] = paramFileTextNoCursor,
+                [bicepMainUri.ToUri()] = bicepText
+            };
 
-            var provider = new BicepCompletionProvider(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), BicepTestConstants.Features);
+            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+                TestContext,
+                paramFileTextNoCursor,
+                paramUri,
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
 
-            var paramsCompletionContext = ParamsCompletionContext.Create(new(paramsSemanticModel, paramsSemanticModel.BicepParamFile.ProgramSyntax, paramsSemanticModel.BicepParamFile.LineStarts), cursor);
+            var file = new FileRequestHelper(helper.Client, paramFile);
 
-            var completions = provider.GetFilteredParamsCompletions(paramsSemanticModel, paramsCompletionContext);
+            var completions = await file.RequestCompletion(cursor);
 
             var expectedValueIndex = 0;
-            
             foreach(var completion in completions)
             {
                 completion.Label.Should().Be(completionLables[expectedValueIndex]);
                 completion.Kind.Should().Be(completionItemKinds[expectedValueIndex]);
                 expectedValueIndex +=1;
             }
+        }
+        
+        [TestMethod]
+        public async Task Request_for_using_declaration_path_completions_should_return_correct_paths_for_file_directories()
+        {
+            var paramUri = DocumentUri.FromFileSystemPath("/path/to/param.bicepparam");
+            var bicepMainUri1 = DocumentUri.FromFileSystemPath("/path/to/main1.bicep");
+            var bicepMainUri2 = DocumentUri.FromFileSystemPath("/path/to/main2.txt");
+            var bicepMainUri3 = DocumentUri.FromFileSystemPath("/path/to/nested1/main3.bicep");
+            var bicepModuleUri1 = DocumentUri.FromFileSystemPath("/path/to/module1.bicep");
+            var bicepModuleUri2 = DocumentUri.FromFileSystemPath("/path/to/nested1/module2.bicep");
+            var bicepModuleUri3 = DocumentUri.FromFileSystemPath("/path/to/nested2/module3.bicep");
+
+            var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(@"
+using |
+");
+            var paramFile = SourceFileFactory.CreateBicepFile(paramUri.ToUri(), paramFileTextNoCursor);
+
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [paramUri.ToUri()] = paramFileTextNoCursor,
+                [bicepMainUri1.ToUri()] = "param foo int",
+                [bicepMainUri2.ToUri()] = "param bar int",
+                [bicepMainUri3.ToUri()] = "param foo int",
+                [bicepModuleUri1.ToUri()] = "param foo string",
+                [bicepModuleUri2.ToUri()] = "param bar bool",
+                [bicepModuleUri3.ToUri()] = "param bar string"
+            };
+
+            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+                TestContext,
+                paramFileTextNoCursor,
+                paramUri,
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
+
+            var file = new FileRequestHelper(helper.Client, paramFile);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().SatisfyRespectively(
+                x => x.Label.Should().Be("main1.bicep"),
+                x => x.Label.Should().Be("module1.bicep"),
+                x => x.Label.Should().Be("nested1"),
+                x => x.Label.Should().Be("nested2"));
+            completions.Should().SatisfyRespectively(
+                x => x.Kind.Should().Be(CompletionItemKind.File),
+                x => x.Kind.Should().Be(CompletionItemKind.File),
+                x => x.Kind.Should().Be(CompletionItemKind.Folder),
+                x => x.Kind.Should().Be(CompletionItemKind.Folder));
+        }
+
+        [TestMethod]
+        public async Task Request_for_using_declaration_path_completions_should_return_correct_partial_paths()
+        {
+            var paramUri = DocumentUri.FromFileSystemPath("/path/to/param.bicepparam");
+            var bicepMainUri1 = DocumentUri.FromFileSystemPath("/path/to/main1.bicep");
+            var bicepMainUri2 = DocumentUri.FromFileSystemPath("/path/to/main2.txt");
+            var bicepMainUri3 = DocumentUri.FromFileSystemPath("/path/to/nested1/main3.bicep");
+            var bicepModuleUri1 = DocumentUri.FromFileSystemPath("/path/to/module1.bicep");
+            var bicepModuleUri2 = DocumentUri.FromFileSystemPath("/path/to/nested1/module2.bicep");
+            var bicepModuleUri3 = DocumentUri.FromFileSystemPath("/path/to/nested2/module3.bicep");
+
+            var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(@"
+using './nested1/|'
+");
+            var paramFile = SourceFileFactory.CreateBicepFile(paramUri.ToUri(), paramFileTextNoCursor);
+
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [paramUri.ToUri()] = paramFileTextNoCursor,
+                [bicepMainUri1.ToUri()] = "param foo int",
+                [bicepMainUri2.ToUri()] = "param bar int",
+                [bicepMainUri3.ToUri()] = "param foo int",
+                [bicepModuleUri1.ToUri()] = "param foo string",
+                [bicepModuleUri2.ToUri()] = "param bar bool",
+                [bicepModuleUri3.ToUri()] = "param bar string"
+            };
+
+            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+                TestContext,
+                paramFileTextNoCursor,
+                paramUri,
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
+
+            var file = new FileRequestHelper(helper.Client, paramFile);
+
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().SatisfyRespectively(
+                x => x.Label.Should().Be("main3.bicep"),
+                x => x.Label.Should().Be("module2.bicep"));
+            completions.Should().SatisfyRespectively(
+                x => x.Kind.Should().Be(CompletionItemKind.File),
+                x => x.Kind.Should().Be(CompletionItemKind.File));            
         }
     }
 }

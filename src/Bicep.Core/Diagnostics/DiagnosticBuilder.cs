@@ -1491,6 +1491,22 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP254",
                 "Expected a Bicep file path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
+             
+            public Diagnostic UsingDeclarationNotSpecified() => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP255",
+                "No using declaration is present in this parameters file. Parameter validation/completions will not be available");
+
+            public ErrorDiagnostic MoreThanOneUsingDeclarationSpecified() => new(
+                TextSpan,
+                "BCP256",
+                "More than one using declaration are present");
+
+            public ErrorDiagnostic UsingDeclarationReferencesInvalidFile() => new(
+                TextSpan,
+                "BCP257",
+                "The file specified in the using declaration path does not exist");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

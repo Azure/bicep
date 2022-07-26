@@ -12,13 +12,11 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;
-using Bicep.Core.Syntax;
-using Bicep.Core.FileSystem;
-using System.Linq;
 using System;
 using Bicep.LanguageServer.Providers;
 using Bicep.Core.Configuration;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.FileSystem;
 
 namespace Bicep.LanguageServer
 {
@@ -27,13 +25,15 @@ namespace Bicep.LanguageServer
         private readonly ILanguageServerFacade server;
         private readonly ICompilationProvider bicepCompilationContextProvider;
         private readonly IConfigurationManager bicepConfigurationManager;
+        private readonly IFileResolver fileResolver;
         private readonly ConcurrentDictionary<DocumentUri, ParamsCompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, ParamsCompilationContext>();
 
-        public BicepParamsCompilationManager(ILanguageServerFacade server, ICompilationProvider bicepCompilationContextProvider, IConfigurationManager bicepConfigurationManager)
+        public BicepParamsCompilationManager(ILanguageServerFacade server, ICompilationProvider bicepCompilationContextProvider, IConfigurationManager bicepConfigurationManager, IFileResolver fileResolver)
         {
             this.server = server;
             this.bicepCompilationContextProvider = bicepCompilationContextProvider;
             this.bicepConfigurationManager = bicepConfigurationManager;
+            this.fileResolver = fileResolver;
         }
 
         public void HandleFileChanges(IEnumerable<FileEvent> fileEvents) 
@@ -49,21 +49,20 @@ namespace Bicep.LanguageServer
         public void UpsertCompilation(DocumentUri uri, int? version, string text, string? languageId = null)
         {
             var paramsFile = SourceFileFactory.CreateBicepParamFile(uri.ToUri(), text);
-            var semanticModel = new ParamsSemanticModel(paramsFile);
-            var usingDeclarations = paramsFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>();
 
-            if (PathHelper.TryGetUsingPath(usingDeclarations.SingleOrDefault(), out var bicepFilePath, out var _) && Uri.TryCreate(uri.ToUri(), bicepFilePath, out var bicepFileUri))
-            {
-                var bicepConfig = bicepConfigurationManager.GetConfiguration(bicepFileUri);
-                var bicepCompilationContext = bicepCompilationContextProvider.Create(new Workspace(), bicepFileUri, new Dictionary<ISourceFile, ISemanticModel>().ToImmutableDictionary(), bicepConfig, new LinterAnalyzer(bicepConfig));
-                semanticModel = new ParamsSemanticModel(paramsFile, bicepCompilationContext.Compilation);
-            }
+            var getCompilation = (Uri uri) => {
+                var bicepConfig = bicepConfigurationManager.GetConfiguration(uri);
+                var bicepCompilationContext = bicepCompilationContextProvider.Create(new Workspace(), uri, new Dictionary<ISourceFile, ISemanticModel>().ToImmutableDictionary(), bicepConfig, new LinterAnalyzer(bicepConfig));
+                return bicepCompilationContext.Compilation;
+            };
+
+            var semanticModel = new ParamsSemanticModel(paramsFile, fileResolver, getCompilation);
     
             var context = this.activeContexts.AddOrUpdate(uri, 
             (uri) => new ParamsCompilationContext(semanticModel, semanticModel.BicepParamFile.ProgramSyntax, semanticModel.BicepParamFile.LineStarts), 
             (uri, prevContext) => new ParamsCompilationContext(semanticModel, semanticModel.BicepParamFile.ProgramSyntax, semanticModel.BicepParamFile.LineStarts));
 
-            this.PublishDocumentDiagnostics(uri, version, context.ParamsSemanticModel.GetDiagnostics(), context.LineStarts);  
+            this.PublishDocumentDiagnostics(uri, version, context.ParamsSemanticModel.GetAllDiagnostics(), context.LineStarts);  
         } 
 
         public void CloseCompilation(DocumentUri uri)
