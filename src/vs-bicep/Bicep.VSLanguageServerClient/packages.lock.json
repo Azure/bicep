@@ -55,6 +55,19 @@
           "Microsoft.VisualStudio.Interop": "17.1.32210.191"
         }
       },
+      "Microsoft.VisualStudio.Telemetry": {
+        "type": "Direct",
+        "requested": "[16.4.78, )",
+        "resolved": "16.4.78",
+        "contentHash": "weAZihzUsO3JVeFw39UzB2lY7/SryHHSuqeCOlqBarnXeW0C9scZugEgFVT0Y+nNuJf8LjrlRzUI9xpOaf8UEQ==",
+        "dependencies": {
+          "Microsoft.CSharp": "4.7.0",
+          "Microsoft.VisualStudio.RemoteControl": "16.3.44",
+          "Microsoft.VisualStudio.Utilities.Internal": "16.3.36",
+          "Newtonsoft.Json": "13.0.1",
+          "System.Runtime.CompilerServices.Unsafe": "5.0.0"
+        }
+      },
       "Microsoft.VisualStudio.Threading": {
         "type": "Direct",
         "requested": "[17.1.46, )",
@@ -391,18 +404,6 @@
           "System.ComponentModel.Composition": "4.5.0",
           "System.Threading.Tasks.Dataflow": "5.0.0",
           "System.Threading.Tasks.Extensions": "4.5.4"
-        }
-      },
-      "Microsoft.VisualStudio.Telemetry": {
-        "type": "Transitive",
-        "resolved": "16.4.22",
-        "contentHash": "5iqH3R6pLGNG/6HM+FyvQPwgluHpFk2QW7pB2FVjBHZEqz43h/j9RcxlDqvtTmvP/NTNKI7OYvgQrtgtS0JOmQ==",
-        "dependencies": {
-          "Microsoft.CSharp": "4.7.0",
-          "Microsoft.VisualStudio.RemoteControl": "16.3.44",
-          "Microsoft.VisualStudio.Utilities.Internal": "16.3.36",
-          "Newtonsoft.Json": "13.0.1",
-          "System.Runtime.CompilerServices.Unsafe": "5.0.0"
         }
       },
       "Microsoft.VisualStudio.Text.Data": {

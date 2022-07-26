@@ -14,9 +14,11 @@ using Bicep.VSLanguageServerClient.ContentType;
 using Bicep.VSLanguageServerClient.MiddleLayerProviders;
 using Bicep.VSLanguageServerClient.ProcessLauncher;
 using Bicep.VSLanguageServerClient.ProcessTracker;
+using Bicep.VSLanguageServerClient.Telemetry;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Setup.Configuration;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Telemetry;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
 using StreamJsonRpc;
@@ -30,12 +32,13 @@ namespace Bicep.VSLanguageServerClient
         private IClientProcess? process;
         private readonly ILanguageClientMiddleLayer middleLayer;
         private readonly IProcessTracker processTracker;
+        private readonly TelemetrySession TelemetrySession;
 
         [ImportingConstructor]
         public BicepLanguageServerClient(IProcessTracker processTracker)
         {
             this.processTracker = processTracker;
-
+            this.TelemetrySession = TelemetryService.DefaultSession;
             var setupConfiguration = new SetupConfiguration();
             var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer(setupConfiguration.GetInstanceForCurrentProcess().GetInstallationVersion());
             var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer();
@@ -74,7 +77,21 @@ namespace Bicep.VSLanguageServerClient
 
             Debug.WriteLine($"Started {BicepContentTypeDefinition.ContentType} server with process ID {process.Process.Id}");
 
-            return new Connection(process.StandardOutput.BaseStream, process.StandardInput.BaseStream);
+            var connection = new Connection(process.StandardOutput.BaseStream, process.StandardInput.BaseStream);
+            var telemetryEvent = new TelemetryEvent("vs/bicep/clientInitialization");
+
+            if (connection is not null)
+            {
+                telemetryEvent.Properties["status"] = "succeeded";
+            }
+            else
+            {
+                telemetryEvent.Properties["status"] = "failed";
+            }
+
+            TelemetrySession.PostEvent(telemetryEvent);
+
+            return connection;
         }
 
         public async Task OnLoadedAsync()
@@ -99,6 +116,6 @@ namespace Bicep.VSLanguageServerClient
 
         public object MiddleLayer => middleLayer;
 
-        public object CustomMessageTarget => null!;
+        public object CustomMessageTarget => new TelemetryCustomMessageTarget(TelemetrySession);
     }
 }
