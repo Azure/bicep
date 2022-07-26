@@ -12,7 +12,7 @@ namespace Bicep.LanguageServer.CompilationManager
 
         void RefreshCompilation(DocumentUri uri, bool reloadBicepConfig = false);
 
-        void UpsertCompilation(DocumentUri uri, int? version, string text, string? languageId = null, bool isFileOpen = false);
+        void UpsertCompilation(DocumentUri uri, int? version, string text, string? languageId = null, bool wasTriggeredByFileOpenEvent = false);
 
         void CloseCompilation(DocumentUri uri);
 

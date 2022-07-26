@@ -102,7 +102,7 @@ namespace Bicep.LanguageServer
             if (this.ShouldUpsertCompilation(documentUri, languageId))
             {
                 var newFile = SourceFileFactory.CreateSourceFile(documentUri.ToUri(), fileContents);
-                UpsertCompilationInternal(documentUri, version, newFile, isFileOpen);
+                UpsertCompilationInternal(documentUri, version, newFile, isFileOpen: isFileOpen);
             }
         }
 

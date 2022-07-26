@@ -63,7 +63,7 @@ namespace Bicep.LanguageServer.Handlers
                 bicepConfigChangeHandler.HandleBicepConfigOpenEvent(documentUri);
             }
 
-            this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId, isFileOpen: true);
+            this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId, wasTriggeredByFileOpenEvent: true);
 
             return Unit.Task;
         }
