@@ -97,16 +97,16 @@ namespace Bicep.LanguageServer
             UpsertCompilationInternal(documentUri, null, shallowCopy, reloadBicepConfig);
         }
 
-        public void UpsertCompilation(DocumentUri documentUri, int? version, string fileContents, string? languageId = null)
+        public void UpsertCompilation(DocumentUri documentUri, int? version, string fileContents, string? languageId = null, bool isFileOpen = false)
         {
             if (this.ShouldUpsertCompilation(documentUri, languageId))
             {
                 var newFile = SourceFileFactory.CreateSourceFile(documentUri.ToUri(), fileContents);
-                UpsertCompilationInternal(documentUri, version, newFile);
+                UpsertCompilationInternal(documentUri, version, newFile, isFileOpen);
             }
         }
 
-        private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool reloadBicepConfig = false)
+        private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool reloadBicepConfig = false, bool isFileOpen = false)
         {
             var (_, removedFiles) = workspace.UpsertSourceFile(newFile);
 
@@ -114,14 +114,14 @@ namespace Bicep.LanguageServer
             if (newFile is BicepFile)
             {
                 // Do not update compilation if it is an ARM template file, since it cannot be an entrypoint.
-                UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles, reloadBicepConfig);
+                UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles, reloadBicepConfig, isFileOpen);
             }
 
             foreach (var (entrypointUri, context) in activeContexts)
             {
                 if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
                 {
-                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles, reloadBicepConfig);
+                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles, reloadBicepConfig, isFileOpen);
                 }
             }
         }
@@ -209,7 +209,7 @@ namespace Bicep.LanguageServer
             return closedFiles.ToImmutableArray();
         }
 
-        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles, bool reloadBicepConfig = false)
+        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles, bool reloadBicepConfig = false, bool isFileOpen = false)
         {
             var configuration = this.GetConfigurationSafely(documentUri, out var configurationDiagnostic);
 
@@ -269,7 +269,7 @@ namespace Bicep.LanguageServer
                     diagnostics = diagnostics.Append(configurationDiagnostic);
                 }
 
-                if (version == 1)
+                if (isFileOpen)
                 {
                     SendTelemetryOnBicepFileOpen(context.Compilation.GetEntrypointSemanticModel(), documentUri.ToUri(), configuration, sourceFiles, diagnostics);
                 }
