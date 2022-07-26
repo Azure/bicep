@@ -85,7 +85,7 @@ namespace Bicep.Core.Semantics
 
             if (!Uri.TryCreate(BicepParamFile.FileUri, bicepFilePath, out var bicepFileUri) || !fileResolver.FileExists(bicepFileUri))
             {
-                allDiagnostics.Write(usingDeclaration.Path.Span, x => x.UsingDeclarationRefrencesInvalidFile());
+                allDiagnostics.Write(usingDeclaration.Path.Span, x => x.UsingDeclarationReferencesInvalidFile());
                 return null; 
             }            
 

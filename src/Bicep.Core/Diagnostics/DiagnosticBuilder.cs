@@ -1496,17 +1496,17 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Warning,
                 "BCP255",
-                "No using declaration present in this parameters file. Parameter validation/completions would not be available");
+                "No using declaration is present in this parameters file. Parameter validation/completions will not be available");
 
             public ErrorDiagnostic MoreThanOneUsingDeclarationSpecified() => new(
                 TextSpan,
                 "BCP256",
                 "More than one using declaration are present");
 
-            public ErrorDiagnostic UsingDeclarationRefrencesInvalidFile() => new(
+            public ErrorDiagnostic UsingDeclarationReferencesInvalidFile() => new(
                 TextSpan,
                 "BCP257",
-                "The file specified in the using declartion path does not exist");
+                "The file specified in the using declaration path does not exist");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

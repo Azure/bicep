@@ -160,7 +160,7 @@ namespace Bicep.Core.FileSystem
             if(trimedPathValue == string.Empty)
             {
                 bicepPath = null;
-                failureBuilder = x => x.UsingDeclarationRefrencesInvalidFile();
+                failureBuilder = x => x.UsingDeclarationReferencesInvalidFile();
                 return false;
             }
 
