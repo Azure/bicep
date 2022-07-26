@@ -6,7 +6,6 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
@@ -78,11 +77,12 @@ namespace Bicep.Cli.IntegrationTests
         protected static IEnumerable<string> GetAllParamDiagnostics(string paramFilePath)
         {   
             var fileText = File.ReadAllText(paramFilePath);
-            var syntax = ParamsParserHelper.ParamsParse(fileText);
-            var lineStarts = TextCoordinateConverter.GetLineStarts(fileText);
+            var paramFile = SourceFileFactory.CreateBicepParamFile(new Uri(paramFilePath), fileText);
+            var model = new ParamsSemanticModel(paramFile, BicepTestConstants.FileResolver);
+            var lineStarts = paramFile.LineStarts;
             
             var output = new List<string>();
-            foreach(var diagnostic in syntax.GetParseDiagnostics())
+            foreach(var diagnostic in model.GetAllDiagnostics())
             {
                 var (line, character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
                 var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";
