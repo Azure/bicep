@@ -546,7 +546,7 @@
     "jest": "^27.5.1",
     "jest-styled-components": "^7.0.8",
     "ncp": "^2.0.0",
-    "nerdbank-gitversioning": "^3.5.107",
+    "nerdbank-gitversioning": "^3.5.108",
     "prettier": "^2.7.1",
     "react-test-renderer": "^18.2.0",
     "rimraf": "^3.0.2",
