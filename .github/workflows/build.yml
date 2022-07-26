@@ -158,7 +158,6 @@ jobs:
   build-bicep-in-visual-studio:
     name: Build Bicep In Visual Studio
     runs-on: windows-latest
-    needs: build-bicep
 
     steps:
       - uses: actions/checkout@v3
@@ -170,6 +169,9 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
 
       - name: Build BicepInVisualStudio.sln
+        run: msbuild Bicep.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
+
+      - name: Build BicepInVisualStudio.sln
         run: msbuild src/vs-bicep/BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
 
       - name: Run bicep in visual studio unit tests
@@ -177,6 +179,15 @@ jobs:
         with:
           testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/Bicep.VSLanguageServerClient.UnitTests.dll
           runInParallel: true
+
+      - name: Install bicep in Visual Studio
+        run: ./src/vs-bicep/Install.cmd
+
+      - name: Run bicep in visual studio integration tests
+        uses: microsoft/vstest-action@v1.0.0
+        with:
+          testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/Bicep.VSLanguageServerClient.IntegrationTests.dll
+          runInParallel: false
 
       - name: Upload BicepLanguageServerClient VSIX
         uses: actions/upload-artifact@v3
