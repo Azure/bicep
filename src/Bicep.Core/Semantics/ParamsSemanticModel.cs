@@ -91,8 +91,9 @@ namespace Bicep.Core.Semantics
         {
             foreach (var syntax in parameterAssignments)
             {
-                if ((ParamsTypeManager.GetTypeInfo(syntax) is not ErrorType) && (ParamsTypeManager.GetDeclaredType(syntax) is { } declaredType) &&
-                    (!TypeValidator.AreTypesAssignable(ParamsTypeManager.GetTypeInfo(syntax), declaredType)))
+                if (ParamsTypeManager.GetTypeInfo(syntax) is not ErrorType &&
+                    ParamsTypeManager.GetDeclaredType(syntax) is { } declaredType &&
+                    !TypeValidator.AreTypesAssignable(ParamsTypeManager.GetTypeInfo(syntax), declaredType))
                 {
                     diagnosticWriter.Write(syntax.Span, x => x.ParameterTypeMismatch(this.ParamBinder.GetSymbolInfo(syntax)?.Name, declaredType, ParamsTypeManager.GetTypeInfo(syntax)));
                 }

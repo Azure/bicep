@@ -1495,12 +1495,12 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic MissingParameterAssignment(string identifier) => new(
                 TextSpan,
                 "BCP255",
-                $"\"{identifier}\" is declared in the bicep file but is missing an assignment in the params file.");
+                $"The parameter \"{identifier}\" is declared in the Bicep file but is missing an assignment in the params file.");
 
             public ErrorDiagnostic MissingParameterDeclaration(string? identifier) => new(
                 TextSpan,
                 "BCP256",
-                $"\"{identifier}\" is assigned in the params file without being declared in the bicep file.");
+                $"The parameter \"{identifier}\" is assigned in the params file without being declared in the Bicep file.");
 
             public ErrorDiagnostic ParameterTypeMismatch(string? identifier, TypeSymbol expectedType, TypeSymbol actualType) => new(
                 TextSpan,
