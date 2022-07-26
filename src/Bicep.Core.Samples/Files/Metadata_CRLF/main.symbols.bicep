@@ -41,7 +41,7 @@ meta foo = {
 
 // array value
 meta myArrayMetadata = [
-//@[5:20) Metadata myArrayMetadata. Type: string[]. Declaration start char: 0, length: 48
+//@[5:20) Metadata myArrayMetadata. Type: ('a' | 'b' | 'c')[]. Declaration start char: 0, length: 48
   'a'
   'b'
   'c'
