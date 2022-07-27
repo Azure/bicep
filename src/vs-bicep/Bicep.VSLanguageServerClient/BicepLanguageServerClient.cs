@@ -79,15 +79,7 @@ namespace Bicep.VSLanguageServerClient
 
             var connection = new Connection(process.StandardOutput.BaseStream, process.StandardInput.BaseStream);
             var telemetryEvent = new TelemetryEvent("vs/bicep/clientInitialization");
-
-            if (connection is not null)
-            {
-                telemetryEvent.Properties["status"] = "succeeded";
-            }
-            else
-            {
-                telemetryEvent.Properties["status"] = "failed";
-            }
+            telemetryEvent.Properties["status"] = connection is null ? "failed" : "succeeded";
 
             TelemetrySession.PostEvent(telemetryEvent);
 
