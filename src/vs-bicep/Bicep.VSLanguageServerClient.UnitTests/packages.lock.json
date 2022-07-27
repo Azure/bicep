@@ -402,8 +402,8 @@
       },
       "Microsoft.VisualStudio.Telemetry": {
         "type": "Transitive",
-        "resolved": "16.4.22",
-        "contentHash": "5iqH3R6pLGNG/6HM+FyvQPwgluHpFk2QW7pB2FVjBHZEqz43h/j9RcxlDqvtTmvP/NTNKI7OYvgQrtgtS0JOmQ==",
+        "resolved": "16.4.78",
+        "contentHash": "weAZihzUsO3JVeFw39UzB2lY7/SryHHSuqeCOlqBarnXeW0C9scZugEgFVT0Y+nNuJf8LjrlRzUI9xpOaf8UEQ==",
         "dependencies": {
           "Microsoft.CSharp": "4.7.0",
           "Microsoft.VisualStudio.RemoteControl": "16.3.44",
@@ -717,13 +717,14 @@
       "bicep.vslanguageserverclient": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.VisualStudio.LanguageServer.Client": "[17.1.68, )",
-          "Microsoft.VisualStudio.LanguageServer.Protocol": "[17.1.8, )",
-          "Microsoft.VisualStudio.Setup.Configuration.Interop": "[3.2.2146, )",
-          "Microsoft.VisualStudio.Shell.Interop": "[17.1.32210.191, )",
-          "Microsoft.VisualStudio.Threading": "[17.1.46, )",
-          "Microsoft.VisualStudio.Utilities": "[17.1.32210.191, )",
-          "OmniSharp.Extensions.LanguageServer": "[0.19.5, )"
+          "Microsoft.VisualStudio.LanguageServer.Client": "17.1.68",
+          "Microsoft.VisualStudio.LanguageServer.Protocol": "17.1.8",
+          "Microsoft.VisualStudio.Setup.Configuration.Interop": "3.2.2146",
+          "Microsoft.VisualStudio.Shell.Interop": "17.1.32210.191",
+          "Microsoft.VisualStudio.Threading": "17.1.46",
+          "Microsoft.VisualStudio.Utilities": "17.1.32210.191",
+          "Microsoft.Visualstudio.Telemetry": "16.4.78",
+          "OmniSharp.Extensions.LanguageServer": "0.19.5"
         }
       }
     },
