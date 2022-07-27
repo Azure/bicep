@@ -74,7 +74,5 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     assertAction);
             }
         }
-
-
     }
 }

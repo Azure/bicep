@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ImageManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+               xmlns="http://schemas.microsoft.com/VisualStudio/ImageManifestSchema/2014">
+	<Symbols>
+		<String Name="Resources" Value="/Bicep.VSLanguageServerClient.Vsix;Component/Icons" />
+		<Guid Name="AssetsGuid" Value="{8c3d631c-7c5b-469d-ac8a-4838177d7c50}" />
+		<ID Name="bicep" Value="0" />
+	</Symbols>
+	<Images>
+		<Image Guid="$(AssetsGuid)" ID="$(bicep)">
+			<Source Uri="$(Resources)/BicepFileIcon.png">
+				<Size Value="16" />
+			</Source>
+		</Image>
+	</Images>
+	<ImageLists />
+</ImageManifest>

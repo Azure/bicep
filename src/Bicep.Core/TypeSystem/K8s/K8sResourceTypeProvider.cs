@@ -10,7 +10,9 @@ namespace Bicep.Core.TypeSystem.K8s
 {
     public class K8sResourceTypeProvider : IResourceTypeProvider
     {
-        public const string ResourceNamePropertyName = "name";
+        public const string NamePropertyName = "name";
+        public const string MetadataPropertyName = "metadata";
+        public const string NamespaceProperty = "namespace";
 
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
 
@@ -21,7 +23,7 @@ namespace Bicep.Core.TypeSystem.K8s
 
         public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
         {
-            ResourceNamePropertyName,
+            NamePropertyName,
         }.ToImmutableHashSet();
 
         public K8sResourceTypeProvider(K8sResourceTypeLoader resourceTypeLoader)
@@ -39,7 +41,7 @@ namespace Bicep.Core.TypeSystem.K8s
             switch (bodyType)
             {
                 case ObjectType bodyObjectType:
-                    if (bodyObjectType.Properties.TryGetValue(ResourceNamePropertyName, out var nameProperty) &&
+                    if (bodyObjectType.Properties.TryGetValue(NamePropertyName, out var nameProperty) &&
                         nameProperty.TypeReference.Type is not PrimitiveType { Name: LanguageConstants.TypeNameString })
                     {
                         // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
@@ -48,7 +50,7 @@ namespace Bicep.Core.TypeSystem.K8s
                         bodyObjectType = new ObjectType(
                             bodyObjectType.Name,
                             bodyObjectType.ValidationFlags,
-                            bodyObjectType.Properties.SetItem(ResourceNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
+                            bodyObjectType.Properties.SetItem(NamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
                             bodyObjectType.AdditionalPropertiesType,
                             bodyObjectType.AdditionalPropertiesFlags,
                             bodyObjectType.MethodResolver.CopyToObject);
@@ -87,10 +89,10 @@ namespace Bicep.Core.TypeSystem.K8s
             }
 
             // add the loop variant flag to the name property (if it exists)
-            if (properties.TryGetValue(ResourceNamePropertyName, out var nameProperty))
+            if (properties.TryGetValue(NamePropertyName, out var nameProperty))
             {
                 // TODO apply this to all unique properties
-                properties = properties.SetItem(ResourceNamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.LoopVariant));
+                properties = properties.SetItem(NamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.LoopVariant));
             }
 
             return new ObjectType(
@@ -107,13 +109,36 @@ namespace Bicep.Core.TypeSystem.K8s
             foreach (var property in properties)
             {
                 // "name", "scope" & "parent" can be set for existing resources - everything else should be read-only
-                if (UniqueIdentifierProperties.Contains(property.Name))
+                // existing Kubernetes resources can also declare "metadata.name" and "metadata.namespace"
+                if (property.Name == MetadataPropertyName && property.TypeReference.Type is ObjectType metadataType)
                 {
-                    yield return property;
+                    var updatedProperties = new List<TypeProperty>();
+
+                    foreach (var metadataProperty in metadataType.Properties.Values)
+                    {
+                        if (metadataProperty.Name == NamePropertyName || metadataProperty.Name == NamespaceProperty)
+                        {
+                            updatedProperties.Add(metadataProperty);
+                        }
+                        else
+                        {
+                            updatedProperties.Add(new TypeProperty(metadataProperty.Name, metadataProperty.TypeReference, ConvertToReadOnly(metadataProperty.Flags), metadataProperty.Description));
+                        }
+                    }
+        
+                    var updatedMetadataType = new ObjectType(
+                        metadataType.Name,
+                        metadataType.ValidationFlags,
+                        updatedProperties,
+                        metadataType.AdditionalPropertiesType,
+                        ConvertToReadOnly(metadataType.AdditionalPropertiesFlags),
+                        functions: null);
+
+                    yield return new TypeProperty(property.Name, updatedMetadataType, property.Flags, property.Description);
                 }
                 else
                 {
-                    yield return new TypeProperty(property.Name, property.TypeReference, ConvertToReadOnly(property.Flags));
+                    yield return new TypeProperty(property.Name, property.TypeReference, ConvertToReadOnly(property.Flags), property.Description);
                 }
             }
         }
