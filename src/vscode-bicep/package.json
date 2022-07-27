@@ -564,7 +564,7 @@
     "@azure/arm-managementgroups": "2.0.1",
     "@azure/arm-resources": "^5.0.1",
     "@azure/arm-subscriptions": "^5.0.1",
-    "@azure/identity": "^2.0.5",
+    "@azure/identity": "^2.1.0",
     "@microsoft/vscode-azext-azureutils": "^0.3.1",
     "@microsoft/vscode-azext-utils": "^0.3.9",
     "cytoscape": "^3.22.1",
