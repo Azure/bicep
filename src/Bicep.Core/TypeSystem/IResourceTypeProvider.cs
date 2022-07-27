@@ -26,5 +26,7 @@ namespace Bicep.Core.TypeSystem
         /// Returns the full list of available types defined by this provider.
         /// </summary>
         IEnumerable<ResourceTypeReference> GetAvailableTypes();
+
+        void ClearCaches();
     }
 }
