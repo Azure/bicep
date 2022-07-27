@@ -49,6 +49,9 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
 
             foreach (var availableType in availableTypes)
             {
+                // Clear the resource type cache - each time we load a new one, the memory footprint will increase.
+                resourceTypeProvider.ClearCaches();
+
                 resourceTypeProvider.HasDefinedType(availableType).Should().BeTrue();
                 var resourceType = resourceTypeProvider.TryGetDefinedType(namespaceType, availableType, flags)!;
 
@@ -133,7 +136,7 @@ resource missingResource 'Mock.Rp/madeUpResourceType@2020-01-01' = {
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"
-resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {  
+resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {
   properties: {
     required: 'hello!'
   }

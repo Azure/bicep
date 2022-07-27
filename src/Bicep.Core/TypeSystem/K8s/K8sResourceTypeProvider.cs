@@ -5,39 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Resources;
 using System.Collections.Immutable;
-using System.Collections.Concurrent;
 
 namespace Bicep.Core.TypeSystem.K8s
 {
     public class K8sResourceTypeProvider : IResourceTypeProvider
     {
-        private class ResourceTypeCache
-        {
-            private class KeyComparer : IEqualityComparer<(ResourceTypeGenerationFlags flags, ResourceTypeReference type)>
-            {
-                public static IEqualityComparer<(ResourceTypeGenerationFlags flags, ResourceTypeReference type)> Instance { get; }
-                    = new KeyComparer();
-
-                public bool Equals((ResourceTypeGenerationFlags flags, ResourceTypeReference type) x, (ResourceTypeGenerationFlags flags, ResourceTypeReference type) y)
-                    => x.flags == y.flags &&
-                        ResourceTypeReferenceComparer.Instance.Equals(x.type, y.type);
-
-                public int GetHashCode((ResourceTypeGenerationFlags flags, ResourceTypeReference type) x)
-                    => x.flags.GetHashCode() ^
-                        ResourceTypeReferenceComparer.Instance.GetHashCode(x.type);
-            }
-
-            private readonly ConcurrentDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceTypeComponents> cache
-                = new ConcurrentDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceTypeComponents>(KeyComparer.Instance);
-
-            public ResourceTypeComponents GetOrAdd(ResourceTypeGenerationFlags flags, ResourceTypeReference typeReference, Func<ResourceTypeComponents> buildFunc)
-            {
-                var cacheKey = (flags, typeReference);
-
-                return cache.GetOrAdd(cacheKey, cacheKey => buildFunc());
-            }
-        }
-
         public const string ResourceNamePropertyName = "name";
 
         public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
@@ -182,5 +154,11 @@ namespace Bicep.Core.TypeSystem.K8s
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
+
+        public void ClearCaches()
+        {
+            definedTypeCache.Clear();
+            generatedTypeCache.Clear();
+        }
     }
 }

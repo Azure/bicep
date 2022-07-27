@@ -6,7 +6,6 @@ using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using System.Collections.Immutable;
-using System.Collections.Concurrent;
 using Bicep.Core.Emit;
 using System.Text.RegularExpressions;
 
@@ -14,33 +13,6 @@ namespace Bicep.Core.TypeSystem.Az
 {
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
-        private class ResourceTypeCache
-        {
-            private class KeyComparer : IEqualityComparer<(ResourceTypeGenerationFlags flags, ResourceTypeReference type)>
-            {
-                public static IEqualityComparer<(ResourceTypeGenerationFlags flags, ResourceTypeReference type)> Instance { get; }
-                    = new KeyComparer();
-
-                public bool Equals((ResourceTypeGenerationFlags flags, ResourceTypeReference type) x, (ResourceTypeGenerationFlags flags, ResourceTypeReference type) y)
-                    => x.flags == y.flags &&
-                        ResourceTypeReferenceComparer.Instance.Equals(x.type, y.type);
-
-                public int GetHashCode((ResourceTypeGenerationFlags flags, ResourceTypeReference type) x)
-                    => x.flags.GetHashCode() ^
-                        ResourceTypeReferenceComparer.Instance.GetHashCode(x.type);
-            }
-
-            private readonly ConcurrentDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceTypeComponents> cache
-                = new ConcurrentDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceTypeComponents>(KeyComparer.Instance);
-
-            public ResourceTypeComponents GetOrAdd(ResourceTypeGenerationFlags flags, ResourceTypeReference typeReference, Func<ResourceTypeComponents> buildFunc)
-            {
-                var cacheKey = (flags, typeReference);
-
-                return cache.GetOrAdd(cacheKey, cacheKey => buildFunc());
-            }
-        }
-
         private static readonly RegexOptions PatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
         private static readonly Regex ResourceTypePattern = new Regex(@"^(?<namespace>[a-z0-9][a-z0-9\.]*)(/(?<type>[a-z0-9\-]+))+$", PatternRegexOptions);
         private static readonly Regex ApiVersionPattern = new Regex(@"^\d{4}-\d{2}-\d{2}(|-(preview|alpha|beta|rc|privatepreview))$", PatternRegexOptions);
@@ -499,5 +471,11 @@ namespace Bicep.Core.TypeSystem.Az
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
+
+        public void ClearCaches()
+        {
+            definedTypeCache.Clear();
+            generatedTypeCache.Clear();
+        }
     }
 }
