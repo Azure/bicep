@@ -44,28 +44,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }
         }
 
-        static protected (string fileName, string fileContents) MainBicepFile(string bicepText)
-        {
-            return ("main.bicep", bicepText);
-        }
-
-        static protected (string fileName, string fileContents) ConfigFile(string configurationText)
-        {
-            return ("bicepconfig.json", configurationText);
-        }
-
-        static protected (string fileName, string fileContents)[] BicepFiles(string bicepText, string? configurationText)
-        {
-            List<(string fileName, string fileContents)> files = new List<(string fileName, string fileContents)>();
-            files.Add(MainBicepFile(bicepText));
-            if (configurationText is not null)
-            {
-                files.Add(ConfigFile(configurationText));
-            }
-
-            return files.ToArray();
-        }
-
         protected void AssertLinterRuleDiagnostics(string ruleCode, string bicepText, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors, IncludePosition includePosition = IncludePosition.None, RootConfiguration? configuration = null)
         {
             AssertLinterRuleDiagnostics(ruleCode, bicepText, onCompileErrors, diags =>
