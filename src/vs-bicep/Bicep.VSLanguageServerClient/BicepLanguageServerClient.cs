@@ -21,6 +21,7 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Telemetry;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
+using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
 using StreamJsonRpc;
 
 namespace Bicep.VSLanguageServerClient
@@ -30,15 +31,23 @@ namespace Bicep.VSLanguageServerClient
     public class BicepLanguageServerClient : ILanguageClient, ILanguageClientCustomMessage2
     {
         private IClientProcess? process;
+        private JsonRpc? rpc;
         private readonly ILanguageClientMiddleLayer middleLayer;
         private readonly IProcessTracker processTracker;
         private readonly TelemetrySession TelemetrySession;
 
         [ImportingConstructor]
-        public BicepLanguageServerClient(IProcessTracker processTracker)
+        public BicepLanguageServerClient(IProcessTracker processTracker, IVsFolderWorkspaceService vsFolderWorkspaceService)
         {
             this.processTracker = processTracker;
             this.TelemetrySession = TelemetryService.DefaultSession;
+
+            if (rpc is not null)
+            {
+                var didChangeWatchedFilesNotifier = new DidChangeWatchedFilesNotifier(rpc);
+                didChangeWatchedFilesNotifier.CreateFileSystemWatchers();
+            }
+
             var setupConfiguration = new SetupConfiguration();
             var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer(setupConfiguration.GetInstanceForCurrentProcess().GetInstallationVersion());
             var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer();
@@ -65,7 +74,7 @@ namespace Bicep.VSLanguageServerClient
         {
             string vsixInstallPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string languageServerExePath = Path.Combine(vsixInstallPath, "Bicep.LangServer.exe");
-            
+
             var launchServerArguments = $" --contentType {BicepContentTypeDefinition.ContentType}" +
                 $" --lcid {Thread.CurrentThread.CurrentUICulture.LCID}";
 
@@ -103,6 +112,7 @@ namespace Bicep.VSLanguageServerClient
 
         public Task AttachForCustomMessageAsync(JsonRpc rpc)
         {
+            this.rpc = rpc;
             return Task.CompletedTask;
         }
 
