@@ -25,6 +25,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
             editor.KeyboardCommands.Type("resource");
 
             var errorListService = VsHostUtility.VsHost!.ObjectModel.Shell.ToolWindows.ErrorList;
+            errorListService.FilterScope = ErrorListFilterScope.CurrentDocument;
             ErrorItemTestExtension[] diagnostics = errorListService.AllItems;
 
             Assert.IsNotNull(diagnostics);
