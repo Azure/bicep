@@ -32,8 +32,5 @@ namespace Bicep.Core.TypeSystem
 
             return cache.GetOrAdd(cacheKey, cacheKey => buildFunc());
         }
-
-        public void Clear()
-            => cache.Clear();
     }
 }
