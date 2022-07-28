@@ -471,11 +471,5 @@ namespace Bicep.Core.TypeSystem.Az
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
-
-        public void ClearCaches()
-        {
-            definedTypeCache.Clear();
-            generatedTypeCache.Clear();
-        }
     }
 }

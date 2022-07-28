@@ -19,7 +19,5 @@ namespace Bicep.Core.TypeSystem
 
         public bool HasDefinedType(ResourceTypeReference typeReference)
             => false;
-
-        public void ClearCaches() { }
     }
 }

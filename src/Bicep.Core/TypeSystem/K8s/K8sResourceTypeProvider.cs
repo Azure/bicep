@@ -125,7 +125,7 @@ namespace Bicep.Core.TypeSystem.K8s
                             updatedProperties.Add(new TypeProperty(metadataProperty.Name, metadataProperty.TypeReference, ConvertToReadOnly(metadataProperty.Flags), metadataProperty.Description));
                         }
                     }
-        
+
                     var updatedMetadataType = new ObjectType(
                         metadataType.Name,
                         metadataType.ValidationFlags,
@@ -179,11 +179,5 @@ namespace Bicep.Core.TypeSystem.K8s
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
-
-        public void ClearCaches()
-        {
-            definedTypeCache.Clear();
-            generatedTypeCache.Clear();
-        }
     }
 }
