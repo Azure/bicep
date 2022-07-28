@@ -492,7 +492,7 @@ output myOutput string = 'hello!'
             .Where(ds => ds.IsValid && ds.HasExternalModules)
             .ToDynamicTestData();
 
-        private static IEnumerable<object[]> GetParamData() => DataSets.ParamDataSets.ToDynamicTestData();
+        private static IEnumerable<object[]> GetParamData() => DataSets.ParamDataSets.Where(x => x.IsValid).ToDynamicTestData();
 
         private static IEnumerable<object[]> GetInavlidParamData() => DataSets.InvalidParamDataSets.ToDynamicTestData();
     }
