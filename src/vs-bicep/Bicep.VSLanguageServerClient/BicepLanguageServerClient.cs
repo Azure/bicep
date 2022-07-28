@@ -27,6 +27,7 @@ namespace Bicep.VSLanguageServerClient
 {
     [Export(typeof(ILanguageClient))]
     [ContentType(BicepContentTypeDefinition.ContentType)]
+    [ContentType(BicepConfigContentTypeDefinition.ContentType)]
     public class BicepLanguageServerClient : ILanguageClient, ILanguageClientCustomMessage2
     {
         private IClientProcess? process;
