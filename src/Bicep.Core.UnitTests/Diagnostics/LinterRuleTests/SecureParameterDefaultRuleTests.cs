@@ -132,7 +132,7 @@ output sub int = sum
 param psExpression string = resourceGroup().location
 ")]
         [DataTestMethod]
-        public void InvalidNonEmptyDefault_TestFails(int diagnosticCount, string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        public void InvalidNonEmptyDefault_TestFails(int diagnosticCount, string text, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount, onCompileErrors);
         }

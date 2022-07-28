@@ -46,7 +46,7 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
   }
 }
             ",
-              OnCompileErrors.Fail,
+              OnCompileErrors.IncludeErrors,
               new string[] {
                 // TTK error message:
                 //  [-] CommandToExecute Must Use ProtectedSettings For Secrets (62 ms)
@@ -88,7 +88,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
   }
 }
             ",
-              OnCompileErrors.Fail,
+              OnCompileErrors.IncludeErrors,
               new string[] {
                 "Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'arguments'"
                }
@@ -188,7 +188,7 @@ resource vmNameSql_installpostgresql 'Microsoft.Compute/virtualMachines/extensio
   }
 }
             ",
-              OnCompileErrors.Fail,
+              OnCompileErrors.IncludeErrors,
               new string[] {
                 "Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'adminPasswordOrKey'"
                }
@@ -222,7 +222,7 @@ resource vmName_CustomScript 'Microsoft.HybridCompute/machines/extensions@2019-0
   }
 }
             ",
-              OnCompileErrors.Fail,
+              OnCompileErrors.IncludeErrors,
               new string[] {
                 "Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'commandToExecute'"
               }
@@ -256,7 +256,7 @@ resource vmName_CustomScript 'Microsoft.HybridCompute/machines/extensions@2019-0
   }
 }
             ",
-              OnCompileErrors.Fail,
+              OnCompileErrors.IncludeErrors,
               new string[] { }
             );
         }
@@ -292,7 +292,7 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
   }
 }
             ",
-              OnCompileErrors.Fail,
+              OnCompileErrors.IncludeErrors,
               new string[] { }
             );
         }
@@ -328,7 +328,7 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
   }
 }
             ",
-              OnCompileErrors.Fail,
+              OnCompileErrors.IncludeErrors,
               new string[] { }
             );
         }
@@ -365,7 +365,7 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
   }
 }
             ",
-              OnCompileErrors.Fail,
+              OnCompileErrors.IncludeErrors,
               new string[] { }
             );
         }
@@ -395,7 +395,7 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
   }
 }
             ",
-              OnCompileErrors.Fail,
+              OnCompileErrors.IncludeErrors,
               new string[] {
                 "Use protectedSettings for commandToExecute secrets. Found possible secret: function 'listKeys'"
               }
@@ -428,7 +428,7 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
   }
 }
             ",
-              OnCompileErrors.Fail,
+              OnCompileErrors.IncludeErrors,
               new string[] {
                 "Use protectedSettings for commandToExecute secrets. Found possible secret: function 'listKeys'"
               }

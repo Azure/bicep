@@ -9,7 +9,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class AdminUsernameShouldNotBeLiteralRuleTests : LinterRuleTestsBase
     {
-        private void CompileAndTest(string text, int expectedErrorCount, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        private void CompileAndTest(string text, int expectedErrorCount, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             AssertLinterRuleDiagnostics(AdminUsernameShouldNotBeLiteralRule.Code, text, expectedErrorCount, onCompileErrors);
         }
