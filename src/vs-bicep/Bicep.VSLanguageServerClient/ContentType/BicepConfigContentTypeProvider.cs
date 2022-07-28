@@ -8,6 +8,12 @@ using Microsoft.VisualStudio.Utilities;
 
 namespace Bicep.VSLanguageServerClient.ContentType
 {
+    /// <summary>
+    /// VS lsp sends out events to languages based on content type and file extension.
+    /// Content types are listed in <see cref="BicepLanguageServerClient"/>. Since we want to listen to changes in 
+    /// bicepconfig.json files, we will create a separate content type and list it in <see cref="BicepLanguageServerClient"/>.
+    /// We specifically set the fileName here to make sure events get sent across only for bicepconfig.json changes.
+    /// </summary>
     [Export(typeof(IFilePathToContentTypeProvider))]
     [Name("BicepConfigContentTypeProvider")]
     [FileName("bicepconfig.json")]

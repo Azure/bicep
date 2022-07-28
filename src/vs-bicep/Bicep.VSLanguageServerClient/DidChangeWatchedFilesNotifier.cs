@@ -33,6 +33,7 @@ namespace Bicep.VSLanguageServerClient
 
             var sVsSolution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution).GUID);
 
+            // Handles project system scenario
             if (sVsSolution is not null && sVsSolution is IVsSolution vsSolution)
             {
                 vsSolution.GetSolutionInfo(out string solutionDirectory, out _, out _);
@@ -42,6 +43,7 @@ namespace Bicep.VSLanguageServerClient
                     location = solutionDirectory;
                 }
             }
+            // Handles open folder scenario
             else
             {
                 var serviceForComponentModel = ServiceProvider.GlobalProvider.GetService(typeof(SComponentModel).GUID);
@@ -124,6 +126,7 @@ namespace Bicep.VSLanguageServerClient
             {
                 foreach (var fileSystemWatcher in fileSystemWatchers)
                 {
+                    fileSystemWatcher.EnableRaisingEvents = false;
                     fileSystemWatcher.Dispose();
                 }
             }
