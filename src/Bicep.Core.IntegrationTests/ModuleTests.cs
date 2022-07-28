@@ -32,7 +32,7 @@ namespace Bicep.Core.IntegrationTests
     {
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
         private static readonly LinterAnalyzer LinterAnalyzer = BicepTestConstants.LinterAnalyzer;
-        private static readonly RootConfiguration Configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+        private static readonly RootConfiguration Configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
 
         private IFeatureProvider ResourceTypedFeatures => BicepTestConstants.CreateFeaturesProvider(TestContext, resourceTypedParamsAndOutputsEnabled: true);
 
@@ -535,7 +535,7 @@ output out string = p.properties.accessTier
         [DataRow(false)]
         public void Module_can_pass_resource_body_as_object_typed_parameter(bool enableResourceTypeParameters)
         {
-            var context = enableResourceTypeParameters ? ResourceTypedFeatureContext :  new CompilationHelper.CompilationHelperContext();
+            var context = enableResourceTypeParameters ? ResourceTypedFeatureContext : new CompilationHelper.CompilationHelperContext();
             var result = CompilationHelper.Compile(
                 context,
 ("main.bicep", @"
@@ -699,13 +699,13 @@ output storage resource 'Another.Fake/Type@2019-06-01' = fake
             var diagnosticsMap = result.Compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.FileUri.AbsolutePath, kvp => kvp.Value);
             using (new AssertionScope())
             {
-                diagnosticsMap["/path/to/module.bicep"].Should().HaveDiagnostics(new []
+                diagnosticsMap["/path/to/module.bicep"].Should().HaveDiagnostics(new[]
                 {
                     ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available."),
                     ("BCP081", DiagnosticLevel.Warning, "Resource type \"Another.Fake/Type@2019-06-01\" does not have types available."),
                     ("BCP081", DiagnosticLevel.Warning, "Resource type \"Another.Fake/Type@2019-06-01\" does not have types available."),
                 });
-                diagnosticsMap["/path/to/main.bicep"].Should().HaveDiagnostics(new []
+                diagnosticsMap["/path/to/main.bicep"].Should().HaveDiagnostics(new[]
                 {
                     ("BCP230", DiagnosticLevel.Warning, "The referenced module uses resource type \"Some.Fake/Type@2019-06-01\" which does not have types available."),
                     ("BCP230", DiagnosticLevel.Warning, "The referenced module uses resource type \"Another.Fake/Type@2019-06-01\" which does not have types available."),
@@ -737,7 +737,7 @@ param p resource 'Microsoft.Sql/servers@2021-02-01-preview'
 output out string = p.properties.minimalTlsVersion
 
 "));
-            result.Should().HaveDiagnostics(new []
+            result.Should().HaveDiagnostics(new[]
             {
                 ("BCP036", DiagnosticLevel.Error, "The property \"p\" expected a value of type \"Microsoft.Sql/servers\" but the provided value is of type \"Microsoft.Storage/storageAccounts@2019-06-01\"."),
             });

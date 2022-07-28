@@ -1481,6 +1481,17 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP252",
                 $"Function call is not allowed in Bicep parameter file.");
+            public ErrorDiagnostic LambdaVariablesInResourceOrModuleArrayAccessUnsupported(IEnumerable<string> variableNames) => new(
+                TextSpan,
+                "BCP253",
+                $"Using lambda variables inside resource or module array access is not currently supported."
+                    + $" Found the following lambda variable(s) being accessed: {ToQuotedString(variableNames)}.");
+
+            public ErrorDiagnostic LambdaVariablesInInlineFunctionUnsupported(string functionName, IEnumerable<string> variableNames) => new(
+                TextSpan,
+                "BCP254",
+                $"Using lambda variables inside the \"{functionName}\" function is not currently supported."
+                    + $" Found the following lambda variable(s) being accessed: {ToQuotedString(variableNames)}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

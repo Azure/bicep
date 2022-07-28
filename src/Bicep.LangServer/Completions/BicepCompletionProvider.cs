@@ -292,7 +292,7 @@ namespace Bicep.LanguageServer.Completions
                     .ToList();
             }
 
-            // if we do not have the namespace and type notation, we only return uniquie resource types without their api-versions
+            // if we do not have the namespace and type notation, we only return unique resource types without their api-versions
             // we need to ensure that Microsoft.Compute/virtualMachines comes before Microsoft.Compute/virtualMachines/extensions
             // we still order by apiVersion first to have consistent indexes
             return model.Binder.NamespaceResolver.GetAvailableResourceTypes()

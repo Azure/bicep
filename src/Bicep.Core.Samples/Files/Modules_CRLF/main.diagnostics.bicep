@@ -120,6 +120,7 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 resource resWithCalculatedNameDependencies 'Mock.Rp/mockResource@2020-01-01' = {
 //@[43:076) [BCP081 (Warning)] Resource type "Mock.Rp/mockResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/mockResource@2020-01-01'|
   name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
+//@[08:077) [use-stable-resource-identifiers (Warning)] Resource identifiers should be reproducible outside of their initial deployment context. Resource resWithCalculatedNameDependencies's 'name' identifier is potentially nondeterministic due to its use of the 'newGuid' function (resWithCalculatedNameDependencies.name -> deployTimeSuffix (default value) -> newGuid()). (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-stable-resource-identifiers)) |'${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'|
   properties: {
     modADep: moduleWithCalculatedName.outputs.outputObj
   }

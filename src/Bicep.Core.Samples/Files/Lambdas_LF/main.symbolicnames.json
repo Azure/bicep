@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "621519600320590411"
+      "templateHash": "14179680160128249766"
     }
   },
   "variables": {
@@ -47,8 +47,6 @@
     "reduceObjectUnion": "[reduce(createArray(createObject('foo', 123), createObject('bar', 456), createObject('baz', 789)), createObject(), lambda('cur', 'next', union(lambdaVariables('cur'), lambdaVariables('next'))))]",
     "reduceEmpty": "[reduce(createArray(), 0, lambda('cur', 'next', lambdaVariables('cur')))]",
     "filteredLoop": "[filter(variables('itemForLoop'), lambda('i', greater(lambdaVariables('i'), 5)))]",
-    "resLoopNames": "[map(range(0, 5), lambda('i', resourceInfo(format('resLoop[{0}]', lambdaVariables('i'))).name))]",
-    "modLoopNames": "[map(range(0, 5), lambda('i', format('foo{0}', range(0, 5)[lambdaVariables('i')])))]",
     "parentheses": "[map(createArray(123), lambda('i', format('{0}', lambdaVariables('i'))))]"
   },
   "resources": {
@@ -57,16 +55,6 @@
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-09-01",
       "name": "asdfsadf"
-    },
-    "resLoop": {
-      "copy": {
-        "name": "resLoop",
-        "count": "[length(range(0, 5))]"
-      },
-      "existing": true,
-      "type": "Microsoft.Storage/storageAccounts",
-      "apiVersion": "2021-09-01",
-      "name": "[format('foo{0}', range(0, 5)[copyIndex()])]"
     },
     "myMod": {
       "type": "Microsoft.Resources/deployments",
@@ -80,53 +68,6 @@
         "parameters": {
           "outputThis": {
             "value": "[map(variables('mapObject'), lambda('obj', lambdaVariables('obj').doggo))]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "languageVersion": "1.9-experimental",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
-            "_generator": {
-              "name": "bicep",
-              "version": "dev",
-              "templateHash": "11160180791504794500"
-            }
-          },
-          "parameters": {
-            "outputThis": {
-              "type": "array"
-            }
-          },
-          "resources": {},
-          "outputs": {
-            "outputThis": {
-              "type": "array",
-              "value": "[parameters('outputThis')]"
-            }
-          }
-        }
-      }
-    },
-    "modLoop": {
-      "copy": {
-        "name": "modLoop",
-        "count": "[length(range(0, 5))]"
-      },
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
-      "name": "[format('foo{0}', range(0, 5)[copyIndex()])]",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "outputThis": {
-            "value": [
-              "blah"
-            ]
           }
         },
         "template": {

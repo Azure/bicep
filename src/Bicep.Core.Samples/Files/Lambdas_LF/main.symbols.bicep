@@ -137,27 +137,6 @@ var mappedModOutputProps = map(myMod.outputs.outputThis, doggo => '${doggo} says
 //@[057:062) Local doggo. Type: any. Declaration start char: 57, length: 5
 //@[004:024) Variable mappedModOutputProps. Type: string[]. Declaration start char: 0, length: 87
 
-resource resLoop 'Microsoft.Storage/storageAccounts@2021-09-01' existing = [for item in range(0, 5): {
-//@[080:084) Local item. Type: int. Declaration start char: 80, length: 4
-//@[009:016) Resource resLoop. Type: Microsoft.Storage/storageAccounts@2021-09-01[]. Declaration start char: 0, length: 126
-  name: 'foo${item}'
-}]
-var resLoopNames = map(range(0, 5), i => resLoop[i].name)
-//@[036:037) Local i. Type: int. Declaration start char: 36, length: 1
-//@[004:016) Variable resLoopNames. Type: string[]. Declaration start char: 0, length: 57
-
-module modLoop './test.bicep' = [for item in range(0, 5): {
-//@[037:041) Local item. Type: int. Declaration start char: 37, length: 4
-//@[007:014) Module modLoop. Type: module[]. Declaration start char: 0, length: 124
-  name: 'foo${item}'
-  params: {
-    outputThis: ['blah']
-  }
-}]
-var modLoopNames = map(range(0, 5), i => modLoop[i].name)
-//@[036:037) Local i. Type: int. Declaration start char: 36, length: 1
-//@[004:016) Variable modLoopNames. Type: string[]. Declaration start char: 0, length: 57
-
 var parentheses = map([123], (i => '${i}'))
 //@[030:031) Local i. Type: any. Declaration start char: 30, length: 1
 //@[004:015) Variable parentheses. Type: string[]. Declaration start char: 0, length: 43

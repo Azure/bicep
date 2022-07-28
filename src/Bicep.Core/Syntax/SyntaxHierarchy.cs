@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 
 namespace Bicep.Core.Syntax
 {
@@ -48,28 +47,6 @@ namespace Bicep.Core.Syntax
 
             return false;
         }
-
-        /// <summary>
-        /// Gets all ancestor nodes assignable to <typeparamref name="TSyntax" /> in descending order
-        /// from the top of the tree.
-        /// </summary>
-        /// <param name="syntax">The syntax node.</param>
-        /// <typeparam name="TSyntax">The type of node to query.</typeparam>
-        /// <returns>The list of ancestors.</returns>
-        public ImmutableArray<TSyntax> GetAllAncestors<TSyntax>(SyntaxBase syntax) where TSyntax : SyntaxBase =>
-            // Use default implementation
-            ((ISyntaxHierarchy)this).GetAllAncestors<TSyntax>(syntax);
-
-        /// <summary>
-        /// Gets the nearest ancestor assignable to <typeparamref name="TSyntax" /> above <paramref name="syntax" />
-        /// in an ascending walk towards the root of the syntax tree.
-        /// </summary>
-        /// <param name="syntax">The syntax node.</param>
-        /// <typeparam name="TSyntax">The type of node to query.</typeparam>
-        /// <returns>The nearest ancestor or <c>null</c>.</returns>
-        public TSyntax? GetNearestAncestor<TSyntax>(SyntaxBase syntax) where TSyntax : SyntaxBase =>
-            // Use default implementation
-            ((ISyntaxHierarchy)this).GetNearestAncestor<TSyntax>(syntax);
 
         private sealed class ParentTrackingVisitor : SyntaxVisitor
         {
