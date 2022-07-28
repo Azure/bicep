@@ -535,6 +535,42 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Outer-scoped nested deployment resources should not be used for secure parameters or list* functions..
+        /// </summary>
+        internal static string SecureParamsInNestedDeployRule_Description {
+            get {
+                return ResourceManager.GetString("SecureParamsInNestedDeployRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is an outer scoped nested deployment that calls a list* function (&quot;{1}&quot;), which could expose sensitive values in deployment history..
+        /// </summary>
+        internal static string SecureParamsInNestedDeployRule_Message_ListFunction {
+            get {
+                return ResourceManager.GetString("SecureParamsInNestedDeployRule_Message_ListFunction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is an outer scoped nested deployment that accesses secure string parameters ({1}), which could expose their values in deployment history..
+        /// </summary>
+        internal static string SecureParamsInNestedDeployRule_Message_SecureParams {
+            get {
+                return ResourceManager.GetString("SecureParamsInNestedDeployRule_Message_SecureParams", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Either set the deployment&apos;s properties.expressionEvaluationOptions.scope to &apos;inner&apos; or use a Bicep module instead..
+        /// </summary>
+        internal static string SecureParamsInNestedDeployRule_Solution {
+            get {
+                return ResourceManager.GetString("SecureParamsInNestedDeployRule_Solution", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Remove unnecessary string interpolation..
         /// </summary>
         internal static string SimplifyInterpolationFixTitle {

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -118,7 +119,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 string description = new Regex("^(.+) See https://.+").Match(descriptionWithLink)?.Groups[1].Value ?? "<couldn't find rule description>";
                 description.Should().MatchRegex("^[A-Z]", "all rule descriptions should start with a capital letter");
                 description.Should().EndWith(".", "all rule descriptions should end with a period");
-                description.Should().NotContainAny("Don't", "don't", "Do not", "do not"); // Use "Should" type of language generally (less impolite)
+                description.Should().NotContainAny(new[] { "don't", "do not" }, StringComparison.InvariantCultureIgnoreCase, "Use \"Should\" type of language generally (less impolite)");
                 description.Should().NotContain("\"", "use single quotes instead of double quotes in rule descriptions");
             }
         }

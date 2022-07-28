@@ -402,6 +402,16 @@
                     }
                   ]
                 },
+                "secure-params-in-nested-deploy": {
+                  "allOf": [
+                    {
+                      "description": "Outer-scoped nested deployment resources should not be used for secure parameters or list* functions. See https://aka.ms/bicep/linter/secure-params-in-nested-deploy"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
                 "secure-secrets-in-params": {
                   "allOf": [
                     {
