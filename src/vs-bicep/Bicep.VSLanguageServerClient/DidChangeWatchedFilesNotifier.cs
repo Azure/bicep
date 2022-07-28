@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServer.Protocol;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
 using StreamJsonRpc;
 
@@ -30,15 +31,34 @@ namespace Bicep.VSLanguageServerClient
         {
             this.rpc = rpc;
 
-            var serviceForComponentModel = ServiceProvider.GlobalProvider.GetService(typeof(SComponentModel).GUID);
-            if (serviceForComponentModel is not null && serviceForComponentModel is IComponentModel componentModel)
-            {
-                var workspaceServices = componentModel.DefaultExportProvider.GetExports<IVsFolderWorkspaceService>();
+            var sVsSolution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution).GUID);
 
-                if (workspaceServices is not null && workspaceServices.Any())
+            if (sVsSolution is not null && sVsSolution is IVsSolution vsSolution)
+            {
+                vsSolution.GetSolutionInfo(out string solutionDirectory, out _, out _);
+
+                if (!string.IsNullOrWhiteSpace(solutionDirectory))
                 {
-                    var workspace = workspaceServices.First();
-                    location = workspace.Value.CurrentWorkspace.Location;
+                    location = solutionDirectory;
+                }
+            }
+            else
+            {
+                var serviceForComponentModel = ServiceProvider.GlobalProvider.GetService(typeof(SComponentModel).GUID);
+                if (serviceForComponentModel is not null && serviceForComponentModel is IComponentModel componentModel)
+                {
+                    var workspaceServices = componentModel.DefaultExportProvider.GetExports<IVsFolderWorkspaceService>();
+
+                    if (workspaceServices is not null && workspaceServices.Any())
+                    {
+                        var workspace = workspaceServices.First();
+                        var currentWorkspace = workspace.Value.CurrentWorkspace;
+
+                        if (currentWorkspace is not null)
+                        {
+                            location = currentWorkspace.Location;
+                        }
+                    }
                 }
             }
         }

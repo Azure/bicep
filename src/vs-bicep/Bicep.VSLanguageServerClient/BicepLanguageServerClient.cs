@@ -30,7 +30,6 @@ namespace Bicep.VSLanguageServerClient
     public class BicepLanguageServerClient : ILanguageClient, ILanguageClientCustomMessage2
     {
         private IClientProcess? process;
-        private JsonRpc? rpc;
         private readonly ILanguageClientMiddleLayer middleLayer;
         private readonly IProcessTracker processTracker;
         private readonly TelemetrySession TelemetrySession;
@@ -40,13 +39,6 @@ namespace Bicep.VSLanguageServerClient
         {
             this.processTracker = processTracker;
             this.TelemetrySession = TelemetryService.DefaultSession;
-
-            if (rpc is not null)
-            {
-                var didChangeWatchedFilesNotifier = new DidChangeWatchedFilesNotifier(rpc);
-                didChangeWatchedFilesNotifier.CreateFileSystemWatchers();
-            }
-
             var setupConfiguration = new SetupConfiguration();
             var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer(setupConfiguration.GetInstanceForCurrentProcess().GetInstallationVersion());
             var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer();
@@ -111,7 +103,9 @@ namespace Bicep.VSLanguageServerClient
 
         public Task AttachForCustomMessageAsync(JsonRpc rpc)
         {
-            this.rpc = rpc;
+            var didChangeWatchedFilesNotifier = new DidChangeWatchedFilesNotifier(rpc);
+            didChangeWatchedFilesNotifier.CreateFileSystemWatchers();
+
             return Task.CompletedTask;
         }
 
