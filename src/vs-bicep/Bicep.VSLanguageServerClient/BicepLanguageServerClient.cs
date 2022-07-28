@@ -21,7 +21,6 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Telemetry;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
-using Microsoft.VisualStudio.Workspace.VSIntegration.Contracts;
 using StreamJsonRpc;
 
 namespace Bicep.VSLanguageServerClient
@@ -37,7 +36,7 @@ namespace Bicep.VSLanguageServerClient
         private readonly TelemetrySession TelemetrySession;
 
         [ImportingConstructor]
-        public BicepLanguageServerClient(IProcessTracker processTracker, IVsFolderWorkspaceService vsFolderWorkspaceService)
+        public BicepLanguageServerClient(IProcessTracker processTracker)
         {
             this.processTracker = processTracker;
             this.TelemetrySession = TelemetryService.DefaultSession;
