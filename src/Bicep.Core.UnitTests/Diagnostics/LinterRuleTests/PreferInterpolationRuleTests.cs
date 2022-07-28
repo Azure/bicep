@@ -13,7 +13,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class PreferInterpolationRuleTests : LinterRuleTestsBase
     {
-        private void ExpectPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        private void ExpectPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             AssertLinterRuleDiagnostics(PreferInterpolationRule.Code, text, onCompileErrors, diags =>
             {
@@ -21,12 +21,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             });
         }
 
-        private void ExpectDiagnosticWithFix(string text, string expectedFix, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        private void ExpectDiagnosticWithFix(string text, string expectedFix, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             ExpectDiagnosticWithFix(text, new string[] { expectedFix }, onCompileErrors);
         }
 
-        private void ExpectDiagnosticWithFix(string text, string[] expectedFixes, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        private void ExpectDiagnosticWithFix(string text, string[] expectedFixes, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             AssertLinterRuleDiagnostics(PreferInterpolationRule.Code, text, onCompileErrors, diags =>
             {
@@ -381,7 +381,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             "
         )]
         [DataTestMethod]
-        public void ArgsNotStrings_DoNotSuggestFix(string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        public void ArgsNotStrings_DoNotSuggestFix(string text, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             ExpectPass(text, onCompileErrors);
         }

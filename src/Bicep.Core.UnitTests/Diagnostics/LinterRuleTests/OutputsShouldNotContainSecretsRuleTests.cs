@@ -52,7 +52,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void If_OutputReferencesSecureParam_ShouldFail(string text, params string[] expectedMessages)
         {
-            CompileAndTest(text, OnCompileErrors.Fail, expectedMessages);
+            CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages);
         }
 
         [DataRow(@"
@@ -76,7 +76,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void If_ParamNotSecure_ShouldPass(string text, params string[] expectedMessages)
         {
-            CompileAndTest(text, OnCompileErrors.Fail, expectedMessages);
+            CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages);
         }
 
         [DataRow(@"

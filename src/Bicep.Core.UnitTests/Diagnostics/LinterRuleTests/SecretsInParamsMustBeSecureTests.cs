@@ -44,7 +44,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void CompileAndTest(string bicep, int numberOfExpectedErrors)
         {
-            AssertLinterRuleDiagnostics(SecretsInParamsMustBeSecureRule.Code, bicep, numberOfExpectedErrors, onCompileErrors: OnCompileErrors.Fail);
+            AssertLinterRuleDiagnostics(SecretsInParamsMustBeSecureRule.Code, bicep, numberOfExpectedErrors, onCompileErrors: OnCompileErrors.IncludeErrors);
         }
 
         [DataRow(@"param pass_adminUsername string")]
@@ -108,6 +108,41 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void AllowedListExceptions(bool shouldPass, string bicep)
         {
             CompileAndTest(bicep, shouldPass ? 0 : 1);
+        }
+
+        [TestMethod]
+        public void FullExample()
+        {
+            string bicep = @"
+                @secure()
+                param stgAccountName string
+
+                resource nested 'Microsoft.Resources/deployments@2021-04-01' = {
+                  name: 'nested'
+                  properties: {
+                    mode: 'Incremental'
+                    template: {
+                      '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
+                      contentVersion: '1.0.0.0'
+                      resources: [
+                        {
+                          name: stgAccountName
+                          type: 'Microsoft.Storage/storageAccounts'
+                          apiVersion: '2021-04-01'
+                          #disable-next-line no-loc-expr-outside-params
+                          location: resourceGroup().location
+                          kind: 'StorageV2'
+                          sku: {
+                            name: 'Premium_LRS'
+                            tier: 'Premium'
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+            ";
+            CompileAndTest(bicep, 0);
         }
     }
 }
