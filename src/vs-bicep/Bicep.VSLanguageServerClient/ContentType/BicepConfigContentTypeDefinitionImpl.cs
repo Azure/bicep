@@ -14,7 +14,6 @@ namespace Bicep.VSLanguageServerClient.ContentType
         [Export(typeof(ContentTypeDefinition))]
         [Name(BicepConfigContentTypeDefinition.ContentType)]
         [BaseDefinition(ExternalContentTypeDefinition.CodeRemoteContentTypeName)] // required for ILanguageClient support
-        [FileName("bicepconfig.json")]
         public ContentTypeDefinition? IBicepConfigContentType { get; set; }
     }
 }

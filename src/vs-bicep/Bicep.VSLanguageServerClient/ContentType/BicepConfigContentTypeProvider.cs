@@ -10,6 +10,7 @@ namespace Bicep.VSLanguageServerClient.ContentType
 {
     [Export(typeof(IFilePathToContentTypeProvider))]
     [Name("BicepConfigContentTypeProvider")]
+    [FileName("bicepconfig.json")]
     public class BicepConfigContentTypeProvider : IFilePathToContentTypeProvider
     {
         private readonly IContentTypeRegistryService contentTypeRegistryService;
