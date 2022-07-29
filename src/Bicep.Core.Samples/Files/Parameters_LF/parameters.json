@@ -2,64 +2,58 @@
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
+    "myString": {
+      "value": "hello world!!"
+    },
     "myInt": {
       "value": 42
-    },
-    "myStr": {
-      "value": "hello world!!"
     },
     "myBool": {
       "value": true
     },
-    "myObj": {
+    "password": {
+      "value": "strongPassword"
+    },
+    "secretObject": {
       "value": {
-        "name": "vm1",
+        "name": "vm2",
         "location": "westus"
       }
     },
-    "myComplexObj": {
-      "value": {
-        "enabled": true,
-        "name": "complex object!",
-        "priority": 3,
-        "data": {
-          "a": "b",
-          "c": [
-            "d",
-            "e"
-          ]
-        }
-      }
+    "storageSku": {
+      "value": "Standard_LRS"
     },
-    "myIntArr": {
+    "storageName": {
+      "value": "myStorage"
+    },
+    "someArray": {
       "value": [
-        1,
-        2,
-        3,
-        4,
-        5
+        "a",
+        "b",
+        "c",
+        "d"
       ]
     },
-    "myStrArr": {
-      "value": [
-        "ant",
-        "bear",
-        "cat",
-        "dog"
-      ]
+    "emptyMetadata": {
+      "value": "empty!"
     },
-    "myComplexArr": {
-      "value": [
-        "eagle",
-        21,
-        false,
-        {
-          "f": [
-            "g",
-            "h"
-          ]
-        }
-      ]
+    "description": {
+      "value": "descriptive description"
+    },
+    "description2": {
+      "value": "also descriptive"
+    },
+    "additionalMetadata": {
+      "value": "more metadata"
+    },
+    "someParameter": {
+      "value": "three"
+    },
+    "stringLiteral": {
+      "value": "abc"
+    },
+    "decoratedString": {
+      "value": "Apple"
     }
   }
 }
