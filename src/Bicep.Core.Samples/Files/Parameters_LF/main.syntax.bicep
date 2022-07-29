@@ -1,5 +1,5 @@
 /* 
-//@[00:3030) ProgramSyntax
+//@[00:3035) ProgramSyntax
   This is a block comment.
 */
 //@[02:0004) ├─Token(NewLine) |\n\n|
@@ -967,7 +967,7 @@ param decoratedInt int = 123
 // negative integer literals are allowed as decorator values
 //@[60:0061) ├─Token(NewLine) |\n|
 @minValue(-10)
-//@[00:0053) ├─ParameterDeclarationSyntax
+//@[00:0058) ├─ParameterDeclarationSyntax
 //@[00:0014) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
 //@[01:0014) | | └─FunctionCallSyntax
@@ -995,13 +995,19 @@ param decoratedInt int = 123
 //@[11:0012) | |   |     └─Token(Integer) |3|
 //@[12:0013) | |   └─Token(RightParen) |)|
 //@[13:0014) | ├─Token(NewLine) |\n|
-param negativeValues int
+param negativeValues int = -8
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0020) | ├─IdentifierSyntax
 //@[06:0020) | | └─Token(Identifier) |negativeValues|
-//@[21:0024) | └─SimpleTypeSyntax
-//@[21:0024) |   └─Token(Identifier) |int|
-//@[24:0026) ├─Token(NewLine) |\n\n|
+//@[21:0024) | ├─SimpleTypeSyntax
+//@[21:0024) | | └─Token(Identifier) |int|
+//@[25:0029) | └─ParameterDefaultValueSyntax
+//@[25:0026) |   ├─Token(Assignment) |=|
+//@[27:0029) |   └─UnaryOperationSyntax
+//@[27:0028) |     ├─Token(Minus) |-|
+//@[28:0029) |     └─IntegerLiteralSyntax
+//@[28:0029) |       └─Token(Integer) |8|
+//@[29:0031) ├─Token(NewLine) |\n\n|
 
 @sys.description('A boolean.')
 //@[00:0219) ├─ParameterDeclarationSyntax

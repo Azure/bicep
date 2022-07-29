@@ -1,5 +1,5 @@
 /*
-//@[00:647) ProgramSyntax
+//@[00:749) ProgramSyntax
 This is a
 multiline comment!
 */
@@ -19,6 +19,15 @@ using './main.bicep'
 
 // parameter assignment to literals
 //@[35:036) ├─Token(NewLine) |\n|
+param myString = 'hello world!!'
+//@[00:032) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:014) | ├─IdentifierSyntax
+//@[06:014) | | └─Token(Identifier) |myString|
+//@[15:016) | ├─Token(Assignment) |=|
+//@[17:032) | └─StringSyntax
+//@[17:032) |   └─Token(StringComplete) |'hello world!!'|
+//@[32:033) ├─Token(NewLine) |\n|
 param myInt = 42
 //@[00:016) ├─ParameterAssignmentSyntax
 //@[00:005) | ├─Token(Identifier) |param|
@@ -28,15 +37,6 @@ param myInt = 42
 //@[14:016) | └─IntegerLiteralSyntax
 //@[14:016) |   └─Token(Integer) |42|
 //@[16:017) ├─Token(NewLine) |\n|
-param myStr = 'hello world!!'
-//@[00:029) ├─ParameterAssignmentSyntax
-//@[00:005) | ├─Token(Identifier) |param|
-//@[06:011) | ├─IdentifierSyntax
-//@[06:011) | | └─Token(Identifier) |myStr|
-//@[12:013) | ├─Token(Assignment) |=|
-//@[14:029) | └─StringSyntax
-//@[14:029) |   └─Token(StringComplete) |'hello world!!'|
-//@[29:030) ├─Token(NewLine) |\n|
 param myBool = true
 //@[00:019) ├─ParameterAssignmentSyntax
 //@[00:005) | ├─Token(Identifier) |param|
@@ -49,235 +49,155 @@ param myBool = true
 
 // parameter assignment to objects
 //@[34:035) ├─Token(NewLine) |\n|
-param myObj = {
-//@[00:050) ├─ParameterAssignmentSyntax
+param password = 'strongPassword'
+//@[00:033) ├─ParameterAssignmentSyntax
 //@[00:005) | ├─Token(Identifier) |param|
-//@[06:011) | ├─IdentifierSyntax
-//@[06:011) | | └─Token(Identifier) |myObj|
-//@[12:013) | ├─Token(Assignment) |=|
-//@[14:050) | └─ObjectSyntax
-//@[14:015) |   ├─Token(LeftBrace) |{|
-//@[15:016) |   ├─Token(NewLine) |\n|
-	name: 'vm1'
-//@[01:012) |   ├─ObjectPropertySyntax
-//@[01:005) |   | ├─IdentifierSyntax
-//@[01:005) |   | | └─Token(Identifier) |name|
-//@[05:006) |   | ├─Token(Colon) |:|
-//@[07:012) |   | └─StringSyntax
-//@[07:012) |   |   └─Token(StringComplete) |'vm1'|
-//@[12:013) |   ├─Token(NewLine) |\n|
-	location: 'westus'
-//@[01:019) |   ├─ObjectPropertySyntax
-//@[01:009) |   | ├─IdentifierSyntax
-//@[01:009) |   | | └─Token(Identifier) |location|
-//@[09:010) |   | ├─Token(Colon) |:|
-//@[11:019) |   | └─StringSyntax
-//@[11:019) |   |   └─Token(StringComplete) |'westus'|
-//@[19:020) |   ├─Token(NewLine) |\n|
-}
-//@[00:001) |   └─Token(RightBrace) |}|
-//@[01:002) ├─Token(NewLine) |\n|
-param myComplexObj = {
-//@[00:123) ├─ParameterAssignmentSyntax
+//@[06:014) | ├─IdentifierSyntax
+//@[06:014) | | └─Token(Identifier) |password|
+//@[15:016) | ├─Token(Assignment) |=|
+//@[17:033) | └─StringSyntax
+//@[17:033) |   └─Token(StringComplete) |'strongPassword'|
+//@[33:034) ├─Token(NewLine) |\n|
+param secretObject = {
+//@[00:065) ├─ParameterAssignmentSyntax
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:018) | ├─IdentifierSyntax
-//@[06:018) | | └─Token(Identifier) |myComplexObj|
+//@[06:018) | | └─Token(Identifier) |secretObject|
 //@[19:020) | ├─Token(Assignment) |=|
-//@[21:123) | └─ObjectSyntax
+//@[21:065) | └─ObjectSyntax
 //@[21:022) |   ├─Token(LeftBrace) |{|
 //@[22:023) |   ├─Token(NewLine) |\n|
-	enabled: true
-//@[01:014) |   ├─ObjectPropertySyntax
-//@[01:008) |   | ├─IdentifierSyntax
-//@[01:008) |   | | └─Token(Identifier) |enabled|
-//@[08:009) |   | ├─Token(Colon) |:|
-//@[10:014) |   | └─BooleanLiteralSyntax
-//@[10:014) |   |   └─Token(TrueKeyword) |true|
-//@[14:015) |   ├─Token(NewLine) |\n|
-	name: 'complex object!'
-//@[01:024) |   ├─ObjectPropertySyntax
-//@[01:005) |   | ├─IdentifierSyntax
-//@[01:005) |   | | └─Token(Identifier) |name|
-//@[05:006) |   | ├─Token(Colon) |:|
-//@[07:024) |   | └─StringSyntax
-//@[07:024) |   |   └─Token(StringComplete) |'complex object!'|
-//@[24:025) |   ├─Token(NewLine) |\n|
-	priority: 3
-//@[01:012) |   ├─ObjectPropertySyntax
-//@[01:009) |   | ├─IdentifierSyntax
-//@[01:009) |   | | └─Token(Identifier) |priority|
+    name : 'vm2'
+//@[04:016) |   ├─ObjectPropertySyntax
+//@[04:008) |   | ├─IdentifierSyntax
+//@[04:008) |   | | └─Token(Identifier) |name|
 //@[09:010) |   | ├─Token(Colon) |:|
-//@[11:012) |   | └─IntegerLiteralSyntax
-//@[11:012) |   |   └─Token(Integer) |3|
-//@[12:013) |   ├─Token(NewLine) |\n|
-	data: {
-//@[01:045) |   ├─ObjectPropertySyntax
-//@[01:005) |   | ├─IdentifierSyntax
-//@[01:005) |   | | └─Token(Identifier) |data|
-//@[05:006) |   | ├─Token(Colon) |:|
-//@[07:045) |   | └─ObjectSyntax
-//@[07:008) |   |   ├─Token(LeftBrace) |{|
-//@[08:009) |   |   ├─Token(NewLine) |\n|
-		a: 'b'
-//@[02:008) |   |   ├─ObjectPropertySyntax
-//@[02:003) |   |   | ├─IdentifierSyntax
-//@[02:003) |   |   | | └─Token(Identifier) |a|
-//@[03:004) |   |   | ├─Token(Colon) |:|
-//@[05:008) |   |   | └─StringSyntax
-//@[05:008) |   |   |   └─Token(StringComplete) |'b'|
-//@[08:009) |   |   ├─Token(NewLine) |\n|
-		c: [
-//@[02:024) |   |   ├─ObjectPropertySyntax
-//@[02:003) |   |   | ├─IdentifierSyntax
-//@[02:003) |   |   | | └─Token(Identifier) |c|
-//@[03:004) |   |   | ├─Token(Colon) |:|
-//@[05:024) |   |   | └─ArraySyntax
-//@[05:006) |   |   |   ├─Token(LeftSquare) |[|
-//@[06:007) |   |   |   ├─Token(NewLine) |\n|
-			'd'
-//@[03:006) |   |   |   ├─ArrayItemSyntax
-//@[03:006) |   |   |   | └─StringSyntax
-//@[03:006) |   |   |   |   └─Token(StringComplete) |'d'|
-//@[06:007) |   |   |   ├─Token(NewLine) |\n|
-			'e'
-//@[03:006) |   |   |   ├─ArrayItemSyntax
-//@[03:006) |   |   |   | └─StringSyntax
-//@[03:006) |   |   |   |   └─Token(StringComplete) |'e'|
-//@[06:007) |   |   |   ├─Token(NewLine) |\n|
-		]
-//@[02:003) |   |   |   └─Token(RightSquare) |]|
-//@[03:004) |   |   ├─Token(NewLine) |\n|
-	}
-//@[01:002) |   |   └─Token(RightBrace) |}|
-//@[02:003) |   ├─Token(NewLine) |\n|
+//@[11:016) |   | └─StringSyntax
+//@[11:016) |   |   └─Token(StringComplete) |'vm2'|
+//@[16:017) |   ├─Token(NewLine) |\n|
+    location : 'westus'
+//@[04:023) |   ├─ObjectPropertySyntax
+//@[04:012) |   | ├─IdentifierSyntax
+//@[04:012) |   | | └─Token(Identifier) |location|
+//@[13:014) |   | ├─Token(Colon) |:|
+//@[15:023) |   | └─StringSyntax
+//@[15:023) |   |   └─Token(StringComplete) |'westus'|
+//@[23:024) |   ├─Token(NewLine) |\n|
 }
 //@[00:001) |   └─Token(RightBrace) |}|
-//@[01:003) ├─Token(NewLine) |\n\n|
-
-// parameter assignment to arrays
+//@[01:002) ├─Token(NewLine) |\n|
+param storageSku = 'Standard_LRS'
+//@[00:033) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:016) | ├─IdentifierSyntax
+//@[06:016) | | └─Token(Identifier) |storageSku|
+//@[17:018) | ├─Token(Assignment) |=|
+//@[19:033) | └─StringSyntax
+//@[19:033) |   └─Token(StringComplete) |'Standard_LRS'|
 //@[33:034) ├─Token(NewLine) |\n|
-param myIntArr = [
-//@[00:035) ├─ParameterAssignmentSyntax
+param storageName = 'myStorage'
+//@[00:031) ├─ParameterAssignmentSyntax
 //@[00:005) | ├─Token(Identifier) |param|
-//@[06:014) | ├─IdentifierSyntax
-//@[06:014) | | └─Token(Identifier) |myIntArr|
-//@[15:016) | ├─Token(Assignment) |=|
-//@[17:035) | └─ArraySyntax
-//@[17:018) |   ├─Token(LeftSquare) |[|
-//@[18:019) |   ├─Token(NewLine) |\n|
-	1
-//@[01:002) |   ├─ArrayItemSyntax
-//@[01:002) |   | └─IntegerLiteralSyntax
-//@[01:002) |   |   └─Token(Integer) |1|
-//@[02:003) |   ├─Token(NewLine) |\n|
-	2
-//@[01:002) |   ├─ArrayItemSyntax
-//@[01:002) |   | └─IntegerLiteralSyntax
-//@[01:002) |   |   └─Token(Integer) |2|
-//@[02:003) |   ├─Token(NewLine) |\n|
-	3
-//@[01:002) |   ├─ArrayItemSyntax
-//@[01:002) |   | └─IntegerLiteralSyntax
-//@[01:002) |   |   └─Token(Integer) |3|
-//@[02:003) |   ├─Token(NewLine) |\n|
-	4
-//@[01:002) |   ├─ArrayItemSyntax
-//@[01:002) |   | └─IntegerLiteralSyntax
-//@[01:002) |   |   └─Token(Integer) |4|
-//@[02:003) |   ├─Token(NewLine) |\n|
-	5
-//@[01:002) |   ├─ArrayItemSyntax
-//@[01:002) |   | └─IntegerLiteralSyntax
-//@[01:002) |   |   └─Token(Integer) |5|
-//@[02:003) |   ├─Token(NewLine) |\n|
-]
-//@[00:001) |   └─Token(RightSquare) |]|
-//@[01:002) ├─Token(NewLine) |\n|
-param myStrArr = [
-//@[00:049) ├─ParameterAssignmentSyntax
+//@[06:017) | ├─IdentifierSyntax
+//@[06:017) | | └─Token(Identifier) |storageName|
+//@[18:019) | ├─Token(Assignment) |=|
+//@[20:031) | └─StringSyntax
+//@[20:031) |   └─Token(StringComplete) |'myStorage'|
+//@[31:032) ├─Token(NewLine) |\n|
+param someArray = [
+//@[00:053) ├─ParameterAssignmentSyntax
 //@[00:005) | ├─Token(Identifier) |param|
-//@[06:014) | ├─IdentifierSyntax
-//@[06:014) | | └─Token(Identifier) |myStrArr|
-//@[15:016) | ├─Token(Assignment) |=|
-//@[17:049) | └─ArraySyntax
-//@[17:018) |   ├─Token(LeftSquare) |[|
-//@[18:019) |   ├─Token(NewLine) |\n|
-	'ant'
-//@[01:006) |   ├─ArrayItemSyntax
-//@[01:006) |   | └─StringSyntax
-//@[01:006) |   |   └─Token(StringComplete) |'ant'|
-//@[06:007) |   ├─Token(NewLine) |\n|
-	'bear'
-//@[01:007) |   ├─ArrayItemSyntax
-//@[01:007) |   | └─StringSyntax
-//@[01:007) |   |   └─Token(StringComplete) |'bear'|
+//@[06:015) | ├─IdentifierSyntax
+//@[06:015) | | └─Token(Identifier) |someArray|
+//@[16:017) | ├─Token(Assignment) |=|
+//@[18:053) | └─ArraySyntax
+//@[18:019) |   ├─Token(LeftSquare) |[|
+//@[19:020) |   ├─Token(NewLine) |\n|
+    'a'
+//@[04:007) |   ├─ArrayItemSyntax
+//@[04:007) |   | └─StringSyntax
+//@[04:007) |   |   └─Token(StringComplete) |'a'|
 //@[07:008) |   ├─Token(NewLine) |\n|
-	'cat'
-//@[01:006) |   ├─ArrayItemSyntax
-//@[01:006) |   | └─StringSyntax
-//@[01:006) |   |   └─Token(StringComplete) |'cat'|
-//@[06:007) |   ├─Token(NewLine) |\n|
-	'dog'
-//@[01:006) |   ├─ArrayItemSyntax
-//@[01:006) |   | └─StringSyntax
-//@[01:006) |   |   └─Token(StringComplete) |'dog'|
-//@[06:007) |   ├─Token(NewLine) |\n|
+    'b'
+//@[04:007) |   ├─ArrayItemSyntax
+//@[04:007) |   | └─StringSyntax
+//@[04:007) |   |   └─Token(StringComplete) |'b'|
+//@[07:008) |   ├─Token(NewLine) |\n|
+    'c'
+//@[04:007) |   ├─ArrayItemSyntax
+//@[04:007) |   | └─StringSyntax
+//@[04:007) |   |   └─Token(StringComplete) |'c'|
+//@[07:008) |   ├─Token(NewLine) |\n|
+    'd'
+//@[04:007) |   ├─ArrayItemSyntax
+//@[04:007) |   | └─StringSyntax
+//@[04:007) |   |   └─Token(StringComplete) |'d'|
+//@[07:008) |   ├─Token(NewLine) |\n|
 ]
 //@[00:001) |   └─Token(RightSquare) |]|
 //@[01:002) ├─Token(NewLine) |\n|
-param myComplexArr = [
-//@[00:075) ├─ParameterAssignmentSyntax
+param emptyMetadata = 'empty!'
+//@[00:030) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:019) | ├─IdentifierSyntax
+//@[06:019) | | └─Token(Identifier) |emptyMetadata|
+//@[20:021) | ├─Token(Assignment) |=|
+//@[22:030) | └─StringSyntax
+//@[22:030) |   └─Token(StringComplete) |'empty!'|
+//@[30:031) ├─Token(NewLine) |\n|
+param description = 'descriptive description'
+//@[00:045) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:017) | ├─IdentifierSyntax
+//@[06:017) | | └─Token(Identifier) |description|
+//@[18:019) | ├─Token(Assignment) |=|
+//@[20:045) | └─StringSyntax
+//@[20:045) |   └─Token(StringComplete) |'descriptive description'|
+//@[45:046) ├─Token(NewLine) |\n|
+param description2 = 'also descriptive'
+//@[00:039) ├─ParameterAssignmentSyntax
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:018) | ├─IdentifierSyntax
-//@[06:018) | | └─Token(Identifier) |myComplexArr|
+//@[06:018) | | └─Token(Identifier) |description2|
 //@[19:020) | ├─Token(Assignment) |=|
-//@[21:075) | └─ArraySyntax
-//@[21:022) |   ├─Token(LeftSquare) |[|
-//@[22:023) |   ├─Token(NewLine) |\n|
-	'eagle'
-//@[01:008) |   ├─ArrayItemSyntax
-//@[01:008) |   | └─StringSyntax
-//@[01:008) |   |   └─Token(StringComplete) |'eagle'|
-//@[08:009) |   ├─Token(NewLine) |\n|
-	21
-//@[01:003) |   ├─ArrayItemSyntax
-//@[01:003) |   | └─IntegerLiteralSyntax
-//@[01:003) |   |   └─Token(Integer) |21|
-//@[03:004) |   ├─Token(NewLine) |\n|
-	false
-//@[01:006) |   ├─ArrayItemSyntax
-//@[01:006) |   | └─BooleanLiteralSyntax
-//@[01:006) |   |   └─Token(FalseKeyword) |false|
-//@[06:007) |   ├─Token(NewLine) |\n|
-	{
-//@[01:030) |   ├─ArrayItemSyntax
-//@[01:030) |   | └─ObjectSyntax
-//@[01:002) |   |   ├─Token(LeftBrace) |{|
-//@[02:003) |   |   ├─Token(NewLine) |\n|
-		f: [
-//@[02:024) |   |   ├─ObjectPropertySyntax
-//@[02:003) |   |   | ├─IdentifierSyntax
-//@[02:003) |   |   | | └─Token(Identifier) |f|
-//@[03:004) |   |   | ├─Token(Colon) |:|
-//@[05:024) |   |   | └─ArraySyntax
-//@[05:006) |   |   |   ├─Token(LeftSquare) |[|
-//@[06:007) |   |   |   ├─Token(NewLine) |\n|
-			'g'
-//@[03:006) |   |   |   ├─ArrayItemSyntax
-//@[03:006) |   |   |   | └─StringSyntax
-//@[03:006) |   |   |   |   └─Token(StringComplete) |'g'|
-//@[06:007) |   |   |   ├─Token(NewLine) |\n|
-			'h'
-//@[03:006) |   |   |   ├─ArrayItemSyntax
-//@[03:006) |   |   |   | └─StringSyntax
-//@[03:006) |   |   |   |   └─Token(StringComplete) |'h'|
-//@[06:007) |   |   |   ├─Token(NewLine) |\n|
-		]
-//@[02:003) |   |   |   └─Token(RightSquare) |]|
-//@[03:004) |   |   ├─Token(NewLine) |\n|
-	}
-//@[01:002) |   |   └─Token(RightBrace) |}|
-//@[02:003) |   ├─Token(NewLine) |\n|
-]
-//@[00:001) |   └─Token(RightSquare) |]|
-//@[01:001) └─Token(EndOfFile) ||
+//@[21:039) | └─StringSyntax
+//@[21:039) |   └─Token(StringComplete) |'also descriptive'|
+//@[39:040) ├─Token(NewLine) |\n|
+param additionalMetadata = 'more metadata'
+//@[00:042) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:024) | ├─IdentifierSyntax
+//@[06:024) | | └─Token(Identifier) |additionalMetadata|
+//@[25:026) | ├─Token(Assignment) |=|
+//@[27:042) | └─StringSyntax
+//@[27:042) |   └─Token(StringComplete) |'more metadata'|
+//@[42:043) ├─Token(NewLine) |\n|
+param someParameter = 'three'
+//@[00:029) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:019) | ├─IdentifierSyntax
+//@[06:019) | | └─Token(Identifier) |someParameter|
+//@[20:021) | ├─Token(Assignment) |=|
+//@[22:029) | └─StringSyntax
+//@[22:029) |   └─Token(StringComplete) |'three'|
+//@[29:030) ├─Token(NewLine) |\n|
+param stringLiteral = 'abc'
+//@[00:027) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:019) | ├─IdentifierSyntax
+//@[06:019) | | └─Token(Identifier) |stringLiteral|
+//@[20:021) | ├─Token(Assignment) |=|
+//@[22:027) | └─StringSyntax
+//@[22:027) |   └─Token(StringComplete) |'abc'|
+//@[27:028) ├─Token(NewLine) |\n|
+param decoratedString = 'Apple'
+//@[00:031) ├─ParameterAssignmentSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:021) | ├─IdentifierSyntax
+//@[06:021) | | └─Token(Identifier) |decoratedString|
+//@[22:023) | ├─Token(Assignment) |=|
+//@[24:031) | └─StringSyntax
+//@[24:031) |   └─Token(StringComplete) |'Apple'|
+//@[31:032) ├─Token(NewLine) |\n|
+
+//@[00:000) └─Token(EndOfFile) ||

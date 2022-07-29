@@ -293,6 +293,6 @@ this
             .Where(ds => ds.IsValid == false)
             .ToDynamicTestData();
 
-        private static IEnumerable<object[]> GetParamData() => DataSets.ParamDataSets.ToDynamicTestData();
+        private static IEnumerable<object[]> GetParamData() => DataSets.ParamDataSets.Where(x => x.IsValid).ToDynamicTestData();
     }
 }

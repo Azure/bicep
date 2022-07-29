@@ -9,50 +9,28 @@ multiline comment!
 using './main.bicep'
 
 // parameter assignment to literals
+param myString = 'hello world!!'
 param myInt = 42
-param myStr = 'hello world!!'
 param myBool = true
 
 // parameter assignment to objects
-param myObj = {
-	name: 'vm1'
-	location: 'westus'
+param password = 'strongPassword'
+param secretObject = {
+    name : 'vm2'
+    location : 'westus'
 }
-param myComplexObj = {
-	enabled: true
-	name: 'complex object!'
-	priority: 3
-	data: {
-		a: 'b'
-		c: [
-			'd'
-			'e'
-		]
-	}
-}
-
-// parameter assignment to arrays
-param myIntArr = [
-	1
-	2
-	3
-	4
-	5
+param storageSku = 'Standard_LRS'
+param storageName = 'myStorage'
+param someArray = [
+    'a'
+    'b'
+    'c'
+    'd'
 ]
-param myStrArr = [
-	'ant'
-	'bear'
-	'cat'
-	'dog'
-]
-param myComplexArr = [
-	'eagle'
-	21
-	false
-	{
-		f: [
-			'g'
-			'h'
-		]
-	}
-]
+param emptyMetadata = 'empty!'
+param description = 'descriptive description'
+param description2 = 'also descriptive'
+param additionalMetadata = 'more metadata'
+param someParameter = 'three'
+param stringLiteral = 'abc'
+param decoratedString = 'Apple'

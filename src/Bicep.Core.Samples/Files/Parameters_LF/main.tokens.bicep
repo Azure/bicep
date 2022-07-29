@@ -639,11 +639,14 @@ param decoratedInt int = 123
 //@[11:12) Integer |3|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
-param negativeValues int
+param negativeValues int = -8
 //@[00:05) Identifier |param|
 //@[06:20) Identifier |negativeValues|
 //@[21:24) Identifier |int|
-//@[24:26) NewLine |\n\n|
+//@[25:26) Assignment |=|
+//@[27:28) Minus |-|
+//@[28:29) Integer |8|
+//@[29:31) NewLine |\n\n|
 
 @sys.description('A boolean.')
 //@[00:01) At |@|

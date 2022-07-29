@@ -1491,21 +1491,36 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP254",
                 "Expected a Bicep file path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
+
+            public ErrorDiagnostic MissingParameterAssignment(string identifier) => new(
+                TextSpan,
+                "BCP255",
+                $"The parameter \"{identifier}\" is declared in the Bicep file but is missing an assignment in the params file.");
+
+            public ErrorDiagnostic MissingParameterDeclaration(string? identifier) => new(
+                TextSpan,
+                "BCP256",
+                $"The parameter \"{identifier}\" is assigned in the params file without being declared in the Bicep file.");
+
+            public ErrorDiagnostic ParameterTypeMismatch(string? identifier, TypeSymbol expectedType, TypeSymbol actualType) => new(
+                TextSpan,
+                "BCP257",
+                $"The parameter \"{identifier}\" expects a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
              
             public Diagnostic UsingDeclarationNotSpecified() => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
-                "BCP255",
+                "BCP258",
                 "No using declaration is present in this parameters file. Parameter validation/completions will not be available");
 
             public ErrorDiagnostic MoreThanOneUsingDeclarationSpecified() => new(
                 TextSpan,
-                "BCP256",
+                "BCP259",
                 "More than one using declaration are present");
 
             public ErrorDiagnostic UsingDeclarationReferencesInvalidFile() => new(
                 TextSpan,
-                "BCP257",
+                "BCP260",
                 "The file specified in the using declaration path does not exist");
         }
 

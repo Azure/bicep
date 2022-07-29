@@ -178,8 +178,8 @@ param decoratedInt int = 123
 // negative integer literals are allowed as decorator values
 @minValue(-10)
 @maxValue(-3)
-param negativeValues int
-//@[6:20) Parameter negativeValues. Type: int. Declaration start char: 0, length: 53
+param negativeValues int = -8
+//@[6:20) Parameter negativeValues. Type: int. Declaration start char: 0, length: 58
 
 @sys.description('A boolean.')
 @metadata({
