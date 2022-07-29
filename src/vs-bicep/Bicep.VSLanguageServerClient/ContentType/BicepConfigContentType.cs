@@ -5,7 +5,7 @@ namespace Bicep.VSLanguageServerClient.ContentType
 {
     public static class BicepConfigContentTypeDefinition
     {
-        public const string ContentType = "bicepconfig";
+        public const string ContentType = "JSON";
         public const string FileExtension = ".json";
     }
 }
