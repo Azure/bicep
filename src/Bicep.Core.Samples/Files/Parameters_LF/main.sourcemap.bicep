@@ -236,80 +236,80 @@ param decoratedInt int = 123
 
 // negative integer literals are allowed as decorator values
 @minValue(-10)
-//@[183:183]       "minValue": -10
+//@[184:184]       "minValue": -10
 @maxValue(-3)
-//@[182:182]       "maxValue": -3,
-param negativeValues int
-//@[180:184]     "negativeValues": {
+//@[183:183]       "maxValue": -3,
+param negativeValues int = -8
+//@[180:185]     "negativeValues": {
 
 @sys.description('A boolean.')
-//@[189:189]         "description": "A boolean.",
+//@[190:190]         "description": "A boolean.",
 @metadata({
     description: 'I will be overrode.'
     foo: 'something'
-//@[190:190]         "foo": "something",
+//@[191:191]         "foo": "something",
     bar: [
-//@[191:195]         "bar": [
+//@[192:196]         "bar": [
         {          }
         true
-//@[193:193]           true,
+//@[194:194]           true,
         123
-//@[194:194]           123
+//@[195:195]           123
     ]
 })
 param decoratedBool bool = (true && false) != true
-//@[185:197]     "decoratedBool": {
+//@[186:198]     "decoratedBool": {
 
 @secure()
 param decoratedObject object = {
-//@[198:221]     "decoratedObject": {
+//@[199:222]     "decoratedObject": {
   enabled: true
-//@[201:201]         "enabled": true,
+//@[202:202]         "enabled": true,
   name: 'this is my object'
-//@[202:202]         "name": "this is my object",
+//@[203:203]         "name": "this is my object",
   priority: 3
-//@[203:203]         "priority": 3,
+//@[204:204]         "priority": 3,
   info: {
-//@[204:206]         "info": {
+//@[205:207]         "info": {
     a: 'b'
-//@[205:205]           "a": "b"
+//@[206:206]           "a": "b"
   }
   empty: {
-//@[207:207]         "empty": {},
+//@[208:208]         "empty": {},
   }
   array: [
-//@[208:219]         "array": [
+//@[209:220]         "array": [
     'string item'
-//@[209:209]           "string item",
+//@[210:210]           "string item",
     12
-//@[210:210]           12,
+//@[211:211]           12,
     true
-//@[211:211]           true,
+//@[212:212]           true,
     [
       'inner'
-//@[213:213]             "inner",
+//@[214:214]             "inner",
       false
-//@[214:214]             false
+//@[215:215]             false
     ]
     {
       a: 'b'
-//@[217:217]             "a": "b"
+//@[218:218]             "a": "b"
     }
   ]
 }
 
 @sys.metadata({
     description: 'An array.'
-//@[229:229]         "description": "An array."
+//@[230:230]         "description": "An array."
 })
 @sys.maxLength(20)
-//@[231:231]       "maxLength": 20
+//@[232:232]       "maxLength": 20
 @sys.description('I will be overrode.')
 param decoratedArray array = [
-//@[222:232]     "decoratedArray": {
+//@[223:233]     "decoratedArray": {
     utcNow()
-//@[225:225]         "[utcNow()]",
+//@[226:226]         "[utcNow()]",
     newGuid()
-//@[226:226]         "[newGuid()]"
+//@[227:227]         "[newGuid()]"
 ]
 
