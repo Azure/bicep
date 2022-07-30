@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.IO;
 using System.Linq;
 using Bicep.VSLanguageServerClient.IntegrationTests.Utilities;
@@ -23,6 +24,9 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
             WaitForBicepLanguageServiceActivation(editor);
 
             var errorListService = VsHostUtility.VsHost!.ObjectModel.Shell.ToolWindows.ErrorList;
+            errorListService.FilterScope = ErrorListFilterScope.CurrentDocument;
+            errorListService.TryWaitForErrorListItems(ErrorListErrorLevel.Warning, waitTimeout: TimeSpan.FromSeconds(30));
+
             ErrorItemTestExtension[] diagnostics = errorListService.AllItems;
 
             Assert.IsNotNull(diagnostics);
@@ -47,8 +51,9 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
     }
   }
 }");
+            errorListService.TryWaitForErrorListItems(ErrorListErrorLevel.Error, waitTimeout:TimeSpan.FromSeconds(30));
+
             // Re trigger diagnostics
-            errorListService.FilterScope = ErrorListFilterScope.CurrentDocument;
             diagnostics = errorListService.AllItems;
 
             Assert.IsNotNull(diagnostics);
