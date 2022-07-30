@@ -12,8 +12,9 @@ namespace Bicep.VSLanguageServerClient.ContentType
         /// Exports the bicep config content type.
         /// </summary>
         [Export(typeof(ContentTypeDefinition))]
-        [Name(BicepConfigContentTypeDefinition.ContentType)]
-        [BaseDefinition(ExternalContentTypeDefinition.CodeRemoteContentTypeName)] // required for ILanguageClient support
+        [Name(BicepLanguageServerClientConstants.BicepConfigContentType)]
+        [BaseDefinition(BicepLanguageServerClientConstants.CodeRemoteContentTypeName)] // required for ILanguageClient support
+        [BaseDefinition(BicepLanguageServerClientConstants.JsonContentTypeName)]
         public ContentTypeDefinition? IBicepConfigContentType { get; set; }
     }
 }

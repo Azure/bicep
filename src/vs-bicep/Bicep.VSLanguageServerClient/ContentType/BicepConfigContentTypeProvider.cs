@@ -15,8 +15,8 @@ namespace Bicep.VSLanguageServerClient.ContentType
     /// We specifically set the fileName here to make sure events get sent across only for bicepconfig.json changes.
     /// </summary>
     [Export(typeof(IFilePathToContentTypeProvider))]
-    [Name("BicepConfigContentTypeProvider")]
-    [FileName("bicepconfig.json")]
+    [Name(nameof(BicepConfigContentTypeProvider))]
+    [FileName(BicepLanguageServerClientConstants.BicepConfigFileName)]
     public class BicepConfigContentTypeProvider : IFilePathToContentTypeProvider
     {
         private readonly IContentTypeRegistryService contentTypeRegistryService;
@@ -31,9 +31,9 @@ namespace Bicep.VSLanguageServerClient.ContentType
         {
             var fileName = Path.GetFileName(filePath);
 
-            if (fileName.Equals("bicepconfig.json", StringComparison.Ordinal))
+            if (fileName.Equals(BicepLanguageServerClientConstants.BicepConfigFileName, StringComparison.OrdinalIgnoreCase))
             {
-                contentType = contentTypeRegistryService.GetContentType(BicepConfigContentTypeDefinition.ContentType);
+                contentType = contentTypeRegistryService.GetContentType(BicepLanguageServerClientConstants.BicepConfigContentType);
                 return true;
             }
 

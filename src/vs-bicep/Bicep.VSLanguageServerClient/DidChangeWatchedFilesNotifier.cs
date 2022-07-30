@@ -34,7 +34,7 @@ namespace Bicep.VSLanguageServerClient
             var sVsSolution = ServiceProvider.GlobalProvider.GetService(typeof(SVsSolution).GUID);
 
             // Handles project system scenario
-            if (sVsSolution is not null && sVsSolution is IVsSolution vsSolution)
+            if (sVsSolution is IVsSolution vsSolution)
             {
                 vsSolution.GetSolutionInfo(out string solutionDirectory, out _, out _);
 
@@ -47,7 +47,7 @@ namespace Bicep.VSLanguageServerClient
             else
             {
                 var serviceForComponentModel = ServiceProvider.GlobalProvider.GetService(typeof(SComponentModel).GUID);
-                if (serviceForComponentModel is not null && serviceForComponentModel is IComponentModel componentModel)
+                if (serviceForComponentModel is IComponentModel componentModel)
                 {
                     var workspaceServices = componentModel.DefaultExportProvider.GetExports<IVsFolderWorkspaceService>();
 

@@ -12,16 +12,16 @@ namespace Bicep.VSLanguageServerClient.ContentType
         /// Exports the bicep content type.
         /// </summary>
         [Export(typeof(ContentTypeDefinition))]
-        [Name(BicepContentTypeDefinition.ContentType)]
-        [BaseDefinition(ExternalContentTypeDefinition.CodeRemoteContentTypeName)] // required for ILanguageClient support
+        [Name(BicepLanguageServerClientConstants.BicepContentType)]
+        [BaseDefinition(BicepLanguageServerClientConstants.CodeRemoteContentTypeName)] // required for ILanguageClient support
         public ContentTypeDefinition? IBicepContentType { get; set; }
 
         /// <summary>
         /// Exports the bicep file extension
         /// </summary>
         [Export(typeof(FileExtensionToContentTypeDefinition))]
-        [ContentType(BicepContentTypeDefinition.ContentType)]
-        [FileExtension(BicepContentTypeDefinition.FileExtension)]
+        [ContentType(BicepLanguageServerClientConstants.BicepContentType)]
+        [FileExtension(BicepLanguageServerClientConstants.BicepFileExtension)]
         public FileExtensionToContentTypeDefinition? IBicepFileExtension { get; set; }
     }
 }
