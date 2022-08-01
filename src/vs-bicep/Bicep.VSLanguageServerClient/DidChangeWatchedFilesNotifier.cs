@@ -129,6 +129,8 @@ namespace Bicep.VSLanguageServerClient
                     fileSystemWatcher.EnableRaisingEvents = false;
                     fileSystemWatcher.Dispose();
                 }
+
+                fileSystemWatchers.Clear();
             }
         }
     }
