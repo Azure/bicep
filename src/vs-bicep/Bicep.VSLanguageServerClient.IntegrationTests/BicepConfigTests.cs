@@ -25,7 +25,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
 
             var errorListService = VsHostUtility.VsHost!.ObjectModel.Shell.ToolWindows.ErrorList;
             errorListService.FilterScope = ErrorListFilterScope.CurrentDocument;
-            errorListService.TryWaitForErrorListItems(ErrorListErrorLevel.Warning, waitTimeout: TimeSpan.FromSeconds(30));
+            errorListService.TryWaitForErrorListItems(ErrorListErrorLevel.All, waitTimeout: TimeSpan.FromSeconds(30));
 
             ErrorItemTestExtension[] diagnostics = errorListService.AllItems;
 
@@ -51,7 +51,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
     }
   }
 }");
-            errorListService.TryWaitForErrorListItems(ErrorListErrorLevel.Error, waitTimeout:TimeSpan.FromSeconds(30));
+            errorListService.TryWaitForErrorListItems(ErrorListErrorLevel.All, waitTimeout:TimeSpan.FromSeconds(30));
 
             // Re trigger diagnostics
             diagnostics = errorListService.AllItems;
