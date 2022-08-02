@@ -80,7 +80,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return null;
             }
 
-            if (resourceType.TypeReference.FormatType().Equals("microsoft.resources/deployments", LanguageConstants.ResourceTypeComparison))
+            if (!resourceType.TypeReference.FormatType().Equals("microsoft.resources/deployments", LanguageConstants.ResourceTypeComparison))
             {
                 // Not a deployment resource
                 return null;

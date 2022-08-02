@@ -7,7 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public class SecureParamsInNestedDeploymentsTests : LinterRuleTestsBase
+    public class SecureParamsInNestedDeploymentsRuleTests : LinterRuleTestsBase
     {
         private void CompileAndTest(string bicep, string[] expectedMessages)
         {
@@ -147,6 +147,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     resource nested 'Microsoft.Resources/deployments@2021-04-01' = {
                       name: 'nested'
                       properties: {
+                        // Scope defaults to outer
                         mode: 'Incremental'
                         template: {
                           '$schema': 'https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#'
@@ -177,7 +178,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void ExplicitlyOuterScope_AndSecureParams_Fail()
         {
             /* TTK result:
-              [-] Secure Params In Nested Deployments (12 ms)
+              [-] Secure Params In Nested Deployments
                   Microsoft.Resources/deployments/nested is an outer scope nested deployment that contains a secureString type parameter: "stgAccountName"
             */
             // https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-test-cases#use-inner-scope-for-nested-deployment-secure-parameters
@@ -266,7 +267,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             /* TTK result:
 
-                    [-] Secure Params In Nested Deployments (27 ms)
+                    [-] Secure Params In Nested Deployments
                         Microsoft.Resources/deployments/nested is an outer scope nested deployment that contains a secureString type parameter: "stgAccountName"
 
             */
@@ -544,7 +545,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             CompileAndTest(@"
                     /*
-                        [-] Secure Params In Nested Deployments (72 ms)
+                        [-] Secure Params In Nested Deployments
                             Microsoft.Resources/deployments/nested is an outer scope nested deployment that contains a list*() function: , listKeys(
                     */
                     resource nested 'Microsoft.Resources/deployments@2021-04-01' = {
@@ -588,7 +589,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             CompileAndTest(@"
                     /*
-                        [-] Secure Params In Nested Deployments (72 ms)
+                        [-] Secure Params In Nested Deployments
                             Microsoft.Resources/deployments/nested is an outer scope nested deployment that contains a list*() function: , listKeys(
                     */
                     resource nested 'Microsoft.Resources/deployments@2021-04-01' = {
