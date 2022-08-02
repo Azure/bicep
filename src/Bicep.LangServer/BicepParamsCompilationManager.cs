@@ -17,6 +17,7 @@ using Bicep.LanguageServer.Providers;
 using Bicep.Core.Configuration;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.FileSystem;
+using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer
 {
@@ -46,7 +47,7 @@ namespace Bicep.LanguageServer
             //TODO: complete later, not required for basic file interaction
         } 
 
-        public void UpsertCompilation(DocumentUri uri, int? version, string text, string? languageId = null)
+        public async Task UpsertCompilation(DocumentUri uri, int? version, string text, string? languageId = null)
         {
             var paramsFile = SourceFileFactory.CreateBicepParamFile(uri.ToUri(), text);
 
@@ -56,7 +57,19 @@ namespace Bicep.LanguageServer
                 return bicepCompilationContext.Compilation;
             };
 
-            var semanticModel = new ParamsSemanticModel(paramsFile, fileResolver, getCompilation);
+            var semanticModel = await ParamsSemanticModel.Build(paramsFile, bicepUri => {
+                try {
+                    var bicepConfig = bicepConfigurationManager.GetConfiguration(bicepUri);
+                    var bicepCompilationContext = bicepCompilationContextProvider.Create(new Workspace(), uri, new Dictionary<ISourceFile, ISemanticModel>().ToImmutableDictionary(), bicepConfig, new LinterAnalyzer(bicepConfig));
+                
+                    return (bicepCompilationContext.Compilation, null);
+                }
+                catch (Exception exception)
+                {
+                    // TODO relevant failure message here like "failed to load bicep file"
+                    return (null, x => x.ParameterMultipleAssignments(exception.Message));
+                }
+            });
     
             var context = this.activeContexts.AddOrUpdate(uri, 
             (uri) => new ParamsCompilationContext(semanticModel, semanticModel.BicepParamFile.ProgramSyntax, semanticModel.BicepParamFile.LineStarts), 

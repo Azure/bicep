@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
@@ -12,6 +13,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -37,7 +39,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMainParam));
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.BicepParam);
-            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(fileUri, dataSet.BicepParam), BicepTestConstants.FileResolver);
+            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(fileUri, dataSet.BicepParam), null, new ImmutableArray<IDiagnostic>());
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)

@@ -78,7 +78,9 @@ namespace Bicep.Cli.IntegrationTests
         {   
             var fileText = File.ReadAllText(paramFilePath);
             var paramFile = SourceFileFactory.CreateBicepParamFile(new Uri(paramFilePath), fileText);
-            var model = new ParamsSemanticModel(paramFile, BicepTestConstants.FileResolver);
+            var model = ParamsSemanticModel.Build(paramFile, uri => {
+                return (null, null)
+            });
             var lineStarts = paramFile.LineStarts;
             
             var output = new List<string>();

@@ -35,7 +35,7 @@ namespace Bicep.LanguageServer.Handlers
             return new TextDocumentAttributes(uri, LanguageConstants.LanguageId);
         }
 
-        public override Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken token) 
+        public override async Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken token) 
         {
             // we have full sync enabled, so apparently first change is the whole document
             var contents = request.ContentChanges.First().Text;
@@ -44,6 +44,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (PathHelper.HasBicepparamsExension(documentUri.ToUri()))
             {
+                //TODO make this async
                 this.paramsCompilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, contents);
             }
             else
