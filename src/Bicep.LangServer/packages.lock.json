@@ -42,6 +42,12 @@
           "OmniSharp.Extensions.LanguageServer.Shared": "0.19.5"
         }
       },
+      "SharpYaml": {
+        "type": "Direct",
+        "requested": "[2.0.0, )",
+        "resolved": "2.0.0",
+        "contentHash": "KgdpJtAHf119JmlXU2P+HTo5vht8dKTrb8bP1vQeEV2jnkQNuVGg+tSea7T/eZe5xaStRZaRXyGQobUMJgb44w=="
+      },
       "Azure.Bicep.Types": {
         "type": "Transitive",
         "resolved": "0.2.34",

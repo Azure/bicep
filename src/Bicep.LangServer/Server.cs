@@ -81,6 +81,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDeploymentWaitForCompletionCommandHandler>(new JsonRpcHandlerOptions() { RequestProcessType = RequestProcessType.Parallel })
                     .WithHandler<BicepDeploymentScopeRequestHandler>()
                     .WithHandler<BicepDeploymentParametersHandler>()
+                    .WithHandler<ImportKubernetesManifestHandler>()
                     .WithHandler<BicepForceModulesRestoreCommandHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
                     .WithHandler<InsertResourceHandler>()
