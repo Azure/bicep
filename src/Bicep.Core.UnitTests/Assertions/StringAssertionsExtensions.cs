@@ -109,6 +109,5 @@ namespace Bicep.Core.UnitTests.Assertions
         {
             return (actual ?? string.Empty).Contains(expected ?? string.Empty, comparison);
         }
-
     }
 }

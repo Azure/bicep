@@ -41,7 +41,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             foreach (ResourceSymbol resource in model.Root.ResourceDeclarations)
             {
-                if (GetPropertieIfOuterScopedDeployment(resource) is ObjectSyntax propertiesObject)
+                if (GetPropertiesIfOuterScopedDeployment(resource) is ObjectSyntax propertiesObject)
                 {
                     var templateObject = propertiesObject.TryGetPropertyByName("template")?.Value as ObjectSyntax;
                     if (templateObject is not null)
@@ -73,46 +73,41 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private static ObjectSyntax? GetPropertieIfOuterScopedDeployment(ResourceSymbol resource)
+        private static ObjectSyntax? GetPropertiesIfOuterScopedDeployment(ResourceSymbol resource)
         {
-            if (resource.TryGetResourceType() is ResourceType resourceType)
-            {
-                if (resourceType.TypeReference.FormatType().Equals("microsoft.resources/deployments", LanguageConstants.ResourceTypeComparison))
-                {
-                    if (resource.TryGetBodyProperty(LanguageConstants.ResourcePropertiesPropertyName)?.Value is ObjectSyntax propertiesObject)
-                    {
-                        // It's a valid deployment resource
-                        if (propertiesObject is not null && propertiesObject.TryGetPropertyByNameRecursive(new[] { "expressionEvaluationOptions", "scope" })
-                            ?.Value
-                            is StringSyntax scope)
-                        {
-                            if (scope.TryGetLiteralValue()?.Equals("inner", StringComparison.InvariantCultureIgnoreCase) == true)
-                            {
-                                // Scope is explicitly marked as "inner"
-                                return null;
-                            }
-                        }
-
-                        // Default scope is outer if not explicitly marked as inner
-                        return propertiesObject;
-                    }
-                    else
-                    {
-                        // No properties object (not valid)
-                        return null;
-                    }
-                }
-                else
-                {
-                    // Not a deployment resource
-                    return null;
-                }
-            }
-            else
+            if (resource.TryGetResourceType() is not ResourceType resourceType)
             {
                 return null;
             }
+
+            if (resourceType.TypeReference.FormatType().Equals("microsoft.resources/deployments", LanguageConstants.ResourceTypeComparison))
+            {
+                // Not a deployment resource
+                return null;
+            }
+
+            if (resource.TryGetBodyProperty(LanguageConstants.ResourcePropertiesPropertyName)?.Value is not ObjectSyntax propertiesObject)
+            {
+                // No properties object (not valid)
+                return null;
+            }
+
+            // It's a valid deployment resource
+            if (propertiesObject is not null
+                && propertiesObject.TryGetPropertyByNameRecursive(new[] { "expressionEvaluationOptions", "scope" })?.Value
+                is StringSyntax scope)
+            {
+                if (scope.TryGetLiteralValue()?.Equals("inner", StringComparison.InvariantCultureIgnoreCase) == true)
+                {
+                    // Scope is explicitly marked as "inner"
+                    return null;
+                }
+            }
+
+            // Scope is considered outer if not explicitly marked as "inner"
+            return propertiesObject;
         }
+
         private static Symbol[] FindSecureParametersReferencedInNestedDeployment(SemanticModel model, ResourceSymbol deploymentResource)
         {
             var secureParamsReferencedInDeployment = model.Root.ParameterDeclarations
@@ -125,13 +120,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             return SyntaxAggregator.Aggregate(syntaxTree, current =>
             {
-                if (model.GetSymbolInfo(current) is FunctionSymbol symbol)
+                if (SemanticModelHelper.TryGetFunctionInNamespace(model, AzNamespaceType.BuiltInName, current) is FunctionCallSyntaxBase functionCall
+                    && functionCall.Name.IdentifierName.StartsWith(LanguageConstants.ListFunctionPrefix))
                 {
-                    if (SemanticModelHelper.TryGetFunctionInNamespace(model, AzNamespaceType.BuiltInName, current) is FunctionCallSyntaxBase functionCall
-                        && functionCall.Name.IdentifierName.StartsWith("list"))
-                    {
-                        return true;
-                    }
+                    return true;
                 }
 
                 return false;
