@@ -261,10 +261,19 @@ namespace Bicep.Core.Semantics
         /// </summary>
         /// <param name="symbol">The symbol</param>
         public IEnumerable<SyntaxBase> FindReferences(Symbol symbol)
-            => SyntaxAggregator.Aggregate(this.SourceFile.ProgramSyntax, current =>
-                {
-                    return object.ReferenceEquals(symbol, this.GetSymbolInfo(current));
-                });
+            => FindReferences(symbol, this.SourceFile.ProgramSyntax);
+
+        /// <summary>
+        /// Returns all syntax nodes that represent a reference to the specified symbol in the given syntax tree.  This includes the definitions
+        /// of the symbol as well, if inside the given syntax tree.
+        /// </summary>
+        /// <param name="symbol">The symbol</param>
+        /// <param name="syntaxTree">The syntax tree to traverse</param>
+        public IEnumerable<SyntaxBase> FindReferences(Symbol symbol, SyntaxBase syntaxTree)
+            => SyntaxAggregator.Aggregate(syntaxTree, current =>
+            {
+                return object.ReferenceEquals(symbol, this.GetSymbolInfo(current));
+            });
 
         private ImmutableArray<ResourceMetadata> GetAllResourceMetadata()
         {
