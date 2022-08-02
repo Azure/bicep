@@ -42,7 +42,7 @@ namespace Bicep.Core.Samples
 
         public record ExternalModuleMetadata(string Target);
 
-        public static readonly string Prefix = typeof(DataSet).Namespace == null ? string.Empty : typeof(DataSet).Namespace + '/';
+        public static readonly string Prefix = "Files/";
 
         private readonly Lazy<string> lazyBicep;
 

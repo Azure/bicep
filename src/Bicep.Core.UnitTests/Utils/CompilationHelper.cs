@@ -56,6 +56,17 @@ namespace Bicep.Core.UnitTests.Utils
                 => EmitterSettings ?? new EmitterSettings(GetFeatures());
         }
 
+        public static CompilationResult Compile(Uri entryUri, IReadOnlyDictionary<Uri, string> bicepFiles, CompilationHelperContext? context = null)
+        {
+            context ??= new();
+            var fileResolver = new InMemoryFileResolver(bicepFiles);
+
+            var configuration = BicepTestConstants.BuiltInConfiguration;
+            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(bicepFiles, entryUri, fileResolver, configuration, context.GetFeatures());
+
+            return Compile(context, new Compilation(context.Features ?? BicepTestConstants.Features, context.GetNamespaceProvider(), sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer));
+        }
+
         public static CompilationResult Compile(CompilationHelperContext context, params (string fileName, string fileContents)[] files)
         {
             var bicepFiles = files.Where(x => x.fileName.EndsWith(".bicep", StringComparison.InvariantCultureIgnoreCase));
