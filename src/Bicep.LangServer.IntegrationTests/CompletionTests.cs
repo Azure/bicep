@@ -129,7 +129,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidateSnippetCompletionAfterPlaceholderReplacements(CompletionData completionData)
         {
-            string pathPrefix = $"Completions/SnippetTemplates/{completionData.Prefix}";
+            string pathPrefix = $"Files/SnippetTemplates/{completionData.Prefix}";
 
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(CompletionTests).Assembly, pathPrefix);
 

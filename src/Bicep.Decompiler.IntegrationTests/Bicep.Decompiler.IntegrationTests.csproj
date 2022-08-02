@@ -5,13 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="./Working/**/*.*" />
-    <None Remove="./NonWorking/**/*.*" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="./Working/**/*.*" LogicalName="$([System.String]::new('Working/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
-    <EmbeddedResource Include="./NonWorking/**/*.*" LogicalName="$([System.String]::new('NonWorking/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+    <None Remove="./Files/**/*.*" />
+    <EmbeddedResource Include="./Files/**/*.*" LogicalName="$([System.String]::new('Files/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
   </ItemGroup>
 
   <ItemGroup>

@@ -5,14 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Bicep.Core.Samples -->
-    <EmbeddedResource Include="./Files/**/*.json" LogicalName="$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
-    <EmbeddedResource Include="./Files/**/*.bicep" LogicalName="$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
-    <EmbeddedResource Include="./Files/**/Assets/**/*" LogicalName="$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
-
-    <!-- Path prefix: user_submitted -->
-    <EmbeddedResource Include="./user_submitted/**/*.json" LogicalName="$([System.String]::new('user_submitted/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
-    <EmbeddedResource Include="./user_submitted/**/*.bicep" LogicalName="$([System.String]::new('user_submitted/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+    <None Remove="./Files/**/*.*" />
+    <EmbeddedResource Include="./Files/**/*.*" LogicalName="$([System.String]::new('Files/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
   </ItemGroup>
 
   <ItemGroup>

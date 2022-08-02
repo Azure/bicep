@@ -31,7 +31,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void VerifySnippetTemplatesAreErrorFree(CompletionData completionData)
         {
-            string pathPrefix = $"Completions/SnippetTemplates/{completionData.Prefix}";
+            string pathPrefix = $"Files/SnippetTemplates/{completionData.Prefix}";
 
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(SnippetTemplatesTests).Assembly, pathPrefix);
 
