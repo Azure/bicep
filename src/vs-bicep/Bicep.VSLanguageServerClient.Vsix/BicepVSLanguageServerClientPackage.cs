@@ -22,6 +22,8 @@ namespace Bicep.VSLanguageServerClient.Vsix
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [Guid(BicepVSLanguageServerClientPackage.PackageGuidString)]
+    [ProvideProjectItem("FAE04EC1-301F-11D3-BF4B-00C04F79EFBC", "Bicep", templatesDir: @"BicepTemplate\main.bicep", 0)]
+    [ProvideProjectItem("DA9FB551-C724-11d0-AE1F-00A0C90FFFC3", "Bicep", templatesDir: @"BicepTemplate\main.bicep", 0)]
     [ProvideBindingPath()]
     public sealed class BicepVSLanguageServerClientPackage : AsyncPackage
     {

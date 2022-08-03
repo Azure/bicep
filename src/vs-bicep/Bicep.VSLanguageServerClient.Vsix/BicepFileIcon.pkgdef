@@ -1,2 +1,8 @@
 [$RootKey$\ShellFileAssociations\.bicep]
 "DefaultIconMoniker"="8c3d631c-7c5b-469d-ac8a-4838177d7c50:0"
+
+[$RootKey$\Projects\{DA9FB551-C724-11d0-AE1F-00A0C90FFFC3}\AddItemTemplates\TemplateDirs\{7bbebedb-0520-44f3-a5e0-e3d8855f1944}\/1]
+"Package"="{7bbebedb-0520-44f3-a5e0-e3d8855f1944}"
+"SortPriority"=dword:00000001
+"TemplatesDir"="$ShellFolder$\Common7\IDE\NewFileItems"
+@="#14434"
