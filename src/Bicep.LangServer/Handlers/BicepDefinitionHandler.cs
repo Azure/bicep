@@ -89,12 +89,12 @@ namespace Bicep.LanguageServer.Handlers
                 var parameterDeclarations = bicepSemanticModel.Root.Syntax.Children.OfType<ParameterDeclarationSyntax>();
                 var parameterDeclarationSyntax = parameterDeclarations
                     .Where(x => LanguageConstants.IdentifierComparer.Equals(bicepSemanticModel.Binder.GetSymbolInfo(x)?.Name, result?.Symbol.Name))
-                    .First();
+                    .SingleOrDefault();
 
                 var parameterAssignments = paramsSemanticModel.Root.Syntax.Children.OfType<ParameterAssignmentSyntax>();
                 var parameterAssignmentSyntax = parameterAssignments
                     .Where(x => LanguageConstants.IdentifierComparer.Equals(paramsContext.ParamsSemanticModel.ParamBinder.GetSymbolInfo(x)?.Name, result?.Symbol.Name))
-                    .First();
+                    .SingleOrDefault();
 
                 if (parameterAssignmentSyntax is null || parameterDeclarationSyntax is null)
                 {
