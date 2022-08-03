@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Syntax;
 
 namespace Bicep.Core.FileSystem
 {
@@ -138,36 +135,6 @@ namespace Bicep.Core.FileSystem
             };
 
             return uriBuilder.Uri;
-        }
-
-        public static bool TryGetUsingPath(UsingDeclarationSyntax usingDeclarationSyntax, [NotNullWhen(true)]out string? bicepPath, [NotNullWhen(false)]out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
-        {
-            var pathSyntax = usingDeclarationSyntax.TryGetPath();
-            if (pathSyntax == null)
-            {
-                bicepPath = null;
-                failureBuilder = x => x.TemplatePathHasNotBeenSpecified();
-                return false;
-            }
-            var pathValue = pathSyntax.TryGetLiteralValue();
-            if (pathValue == null)
-            {
-                bicepPath = null;
-                failureBuilder = x => x.FilePathInterpolationUnsupported();
-                return false;
-            }
-            var trimedPathValue = pathValue.Trim();
-            if(trimedPathValue == string.Empty)
-            {
-                bicepPath = null;
-                failureBuilder = x => x.UsingDeclarationReferencesInvalidFile();
-                return false;
-            }
-
-            bicepPath = trimedPathValue;
-            failureBuilder = null;
-
-            return true;
         }
         
         public static Uri ChangeExtension(Uri uri, string? newExtension)

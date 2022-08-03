@@ -97,8 +97,7 @@ namespace Bicep.Cli.Services
             return compilation;
         }
 
-
-        public ParamsSemanticModel CompileParams(string inputPath, bool skipRestore)
+        public async Task<ParamsSemanticModel> CompileParams(string inputPath, bool skipRestore)
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
             
@@ -108,14 +107,21 @@ namespace Bicep.Cli.Services
             }
             var paramsFile = SourceFileFactory.CreateBicepParamFile(inputUri, fileText);
 
-            //TODO: Create paramsSemanticModel through Build method
-            var getCompilation = (Uri uri) => {
-                Task<Compilation> task = Task.Run<Compilation>(async () => await CompileAsync(uri, skipRestore));
-                return task.Result;
-            };
-            
-            var model = new ParamsSemanticModel(paramsFile, fileResolver, getCompilation);
-            
+            Uri? bicepFileUri = ParamsSemanticModel.TryGetBicepFileUri(out var diagnosticWriter, fileResolver, paramsFile);
+            var compilationLoadDiagnostics = diagnosticWriter.GetDiagnostics().ToImmutableArray();
+        
+            ParamsSemanticModel model;
+
+            if(bicepFileUri is {})
+            {
+                var compilation = await CompileAsync(bicepFileUri, skipRestore);
+                model = new (paramsFile, compilationLoadDiagnostics, compilation);
+            }
+            else
+            {
+                model = new (paramsFile, compilationLoadDiagnostics);
+            }
+
             LogParamDiagnostics(model);
           
             return model;
