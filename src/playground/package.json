@@ -30,7 +30,7 @@
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
     "monaco-editor-webpack-plugin": "^7.0.1",
-    "nerdbank-gitversioning": "^3.5.108",
+    "nerdbank-gitversioning": "^3.5.109",
     "style-loader": "^3.3.1",
     "ts-loader": "^9.3.1",
     "ts-node": "^10.9.1",
