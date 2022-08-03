@@ -118,14 +118,15 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public ParamFileSymbol Root => this.ParamBinder.ParamFileSymbol;
 
-        public static Uri? TryGetBicepFileUri(out ToListDiagnosticWriter allDiagnostics, IFileResolver fileResolver, BicepParamFile bicepParamFile)
+        public static Uri? TryGetBicepFileUri(out ImmutableArray<IDiagnostic> compilationLoadDiagnostics, IFileResolver fileResolver, BicepParamFile bicepParamFile)
         {
-            allDiagnostics = ToListDiagnosticWriter.Create();
+            var diagnosticsWriter = ToListDiagnosticWriter.Create();
             var usingDeclarations = bicepParamFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>();
 
             if(usingDeclarations.FirstOrDefault() is not {} usingDeclaration)
             {
-                allDiagnostics.Write(new TextSpan(0, 0), x => x.UsingDeclarationNotSpecified());
+                diagnosticsWriter.Write(new TextSpan(0, 0), x => x.UsingDeclarationNotSpecified());
+                compilationLoadDiagnostics = diagnosticsWriter.GetDiagnostics().ToImmutableArray();
                 return null;
             }
             
@@ -133,24 +134,28 @@ namespace Bicep.Core.Semantics
             {
                 foreach(var declaration in usingDeclarations)
                 {
-                    allDiagnostics.Write(declaration.Keyword, x => x.MoreThanOneUsingDeclarationSpecified());
+                    diagnosticsWriter.Write(declaration.Keyword, x => x.MoreThanOneUsingDeclarationSpecified());
                 }
+                compilationLoadDiagnostics = diagnosticsWriter.GetDiagnostics().ToImmutableArray();
                 return null;
             }
 
             if(!ParamsSemanticModel.TryGetUsingPath(usingDeclaration, out var bicepFilePath, out var failureBuilder))
             {       
                 var diagnostic = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(usingDeclaration.Path.Span));
-                allDiagnostics.Write(diagnostic);
+                diagnosticsWriter.Write(diagnostic);
+                compilationLoadDiagnostics = diagnosticsWriter.GetDiagnostics().ToImmutableArray();
                 return null;
             }
 
             if (!Uri.TryCreate(bicepParamFile.FileUri, bicepFilePath, out var bicepFileUri) || !fileResolver.FileExists(bicepFileUri))
             {
-                allDiagnostics.Write(usingDeclaration.Path.Span, x => x.UsingDeclarationReferencesInvalidFile());
+                diagnosticsWriter.Write(usingDeclaration.Path.Span, x => x.UsingDeclarationReferencesInvalidFile());
+                compilationLoadDiagnostics = diagnosticsWriter.GetDiagnostics().ToImmutableArray();
                 return null; 
-            }            
+            }       
 
+            compilationLoadDiagnostics = diagnosticsWriter.GetDiagnostics().ToImmutableArray();
             return bicepFileUri;
         }
 

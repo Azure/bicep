@@ -107,8 +107,7 @@ namespace Bicep.Cli.Services
             }
             var paramsFile = SourceFileFactory.CreateBicepParamFile(inputUri, fileText);
 
-            Uri? bicepFileUri = ParamsSemanticModel.TryGetBicepFileUri(out var diagnosticWriter, fileResolver, paramsFile);
-            var compilationLoadDiagnostics = diagnosticWriter.GetDiagnostics().ToImmutableArray();
+            Uri? bicepFileUri = ParamsSemanticModel.TryGetBicepFileUri(out var compilationLoadDiagnostics, fileResolver, paramsFile);
         
             ParamsSemanticModel model;
 

@@ -49,10 +49,9 @@ namespace Bicep.LanguageServer
         {
             var paramsFile = SourceFileFactory.CreateBicepParamFile(uri.ToUri(), text);
 
-            Uri? bicepFileUri = ParamsSemanticModel.TryGetBicepFileUri(out var diagnosticWriter, fileResolver, paramsFile);
-            var compilationLoadDiagnostics = diagnosticWriter.GetDiagnostics().ToImmutableArray();
+            Uri? bicepFileUri = ParamsSemanticModel.TryGetBicepFileUri(out var compilationLoadDiagnostics, fileResolver, paramsFile);
 
-            var semanticModel = new ParamsSemanticModel(paramsFile, compilationLoadDiagnostics);
+            ParamsSemanticModel semanticModel;
 
             if(bicepFileUri is {})
             {
