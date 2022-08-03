@@ -84,17 +84,17 @@ namespace Bicep.Core.Semantics
             var missingRequiredParams = parametersDict.Values
                 .Where(x => x.IsRequired)
                 .Where(x => !parametersAssignmentsDict.ContainsKey(x.Name))
-                .OrderBy(x => x.Name);
+                .OrderBy(x => x.Name)
+                .Select(x => x.Name)
+                .ToArray();
             // parameters that are assigned but not declared
             var missingAssignedParams = parametersAssignmentsDict
                 .Where(x => !parametersDict.ContainsKey(x.Key))
                 .Select(x => x.Value)
                 .OrderBy(x => x.Name.IdentifierName);
-            
-            foreach (var requiredParam in missingRequiredParams)
-            {
-                diagnosticWriter.Write(new TextSpan(0, 0), x => x.MissingParameterAssignment(requiredParam.Name));
-            }
+
+            var span = BicepParamFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>().Single().Path;
+            diagnosticWriter.Write(span, x => x.MissingParameterAssignment(missingRequiredParams));
 
             foreach (var assignedParam in missingAssignedParams)
             {
