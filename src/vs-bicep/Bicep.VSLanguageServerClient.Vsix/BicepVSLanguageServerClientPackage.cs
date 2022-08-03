@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.VisualStudio.Shell;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Microsoft.VisualStudio.Shell;
 using Task = System.Threading.Tasks.Task;
 
 namespace Bicep.VSLanguageServerClient.Vsix
@@ -22,8 +22,6 @@ namespace Bicep.VSLanguageServerClient.Vsix
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
     [Guid(BicepVSLanguageServerClientPackage.PackageGuidString)]
-    [ProvideProjectItem("FAE04EC1-301F-11D3-BF4B-00C04F79EFBC", "Bicep", templatesDir: @"BicepTemplate\main.bicep", 0)]
-    [ProvideProjectItem("DA9FB551-C724-11d0-AE1F-00A0C90FFFC3", "Bicep", templatesDir: @"BicepTemplate\main.bicep", 0)]
     [ProvideBindingPath()]
     public sealed class BicepVSLanguageServerClientPackage : AsyncPackage
     {
