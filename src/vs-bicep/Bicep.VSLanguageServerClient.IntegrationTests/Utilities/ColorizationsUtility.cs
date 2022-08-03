@@ -34,7 +34,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
 
             WaitForExtensions.IsTrue(
                 () => GetClassificationsContent(editor, getActualClassifications) == actual,
-                TimeSpan.FromSeconds(5));
+                TimeSpan.FromSeconds(45));
         }
 
         private static string GetClassificationsContent(

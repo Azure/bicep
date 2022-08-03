@@ -12,7 +12,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
     {
         public static void VerifyCompletions(IVisualStudioTextEditorTestExtension editor, string[] expectedCompletionTexts)
         {
-            IVisualStudioCompletionListTestExtension? completionListTestExtension = GetCompletionList(editor, true);
+            IVisualStudioCompletionListTestExtension? completionListTestExtension = GetCompletionList(editor, true, true);
 
             if (completionListTestExtension is null)
             {
@@ -28,20 +28,41 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
             }
         }
 
-        private static IVisualStudioCompletionListTestExtension? GetCompletionList(IVisualStudioTextEditorTestExtension editor, bool invokeIfNotPresent)
+        private static IVisualStudioCompletionListTestExtension? GetCompletionList(IVisualStudioTextEditorTestExtension editor, bool invokeIfNotPresent, bool ignoreExceptions)
         {
-            IVisualStudioCompletionListTestExtension? completionList = editor.Intellisense.GetActiveCompletionList();
-            if (completionList == null)
+            IVisualStudioCompletionListTestExtension? completionList = null;
+            try
             {
-                if (invokeIfNotPresent)
+                completionList = editor.Intellisense.GetActiveCompletionList();
+                if (completionList is null)
                 {
-                    editor.Intellisense.ShowCompletionList();
+                    try
+                    {
+                        editor.Intellisense.InvokeCompletionList();
+                    }
+                    catch
+                    {
+                        // This can throw when the list was coming up when we were invoking it
+                        if (!ignoreExceptions)
+                        {
+                            throw;
+                        }
+                    }
+
                     completionList = WaitForExtensions.TryIsNotNull(() => editor.Intellisense.GetActiveCompletionList(), 2000);
+                }
+            }
+            catch
+            {
+                // This can occur if completion is dismissed between the call to IsCompletionListPresent and accessing the completion
+                //   list items.
+                if (!ignoreExceptions)
+                {
+                    throw;
                 }
             }
 
             return completionList;
         }
-
     }
 }
