@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
@@ -193,7 +194,7 @@ param myInt = 1", @"
 }")]
         public void params_file_with_no_errors_should_compile_correctly(string paramsText, string jsonText)
         {           
-          var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), paramsText), new ImmutableArray<IDiagnostic>());
+          var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), paramsText), new List<IDiagnostic>().ToImmutableArray());
 
           var paramsWriter = new ParametersJsonWriter(model);
 
@@ -207,7 +208,7 @@ param myInt = 1", @"
         [DataTestMethod]
         public void params_file_with_not_implemented_syntax_should_throw_expction()
         {
-          var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), "param foo = 1 + 2"), new ImmutableArray<IDiagnostic>());
+          var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), "param foo = 1 + 2"), new List<IDiagnostic>().ToImmutableArray());
 
           var paramsWriter = new ParametersJsonWriter(model);
 
