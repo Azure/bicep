@@ -45,13 +45,16 @@ namespace Bicep.LanguageServer.Handlers
 
         private readonly IModuleDispatcher moduleDispatcher;
 
+        private readonly IParamsCompilationManager paramsCompilationManager;
+
         public BicepDefinitionHandler(
             ISymbolResolver symbolResolver,
             ICompilationManager compilationManager,
             IFileResolver fileResolver,
             IWorkspace workspace,
             ILanguageServerFacade languageServer,
-            IModuleDispatcher moduleDispatcher) : base()
+            IModuleDispatcher moduleDispatcher,
+            IParamsCompilationManager paramsCompilationManager) : base()
         {
             this.symbolResolver = symbolResolver;
             this.compilationManager = compilationManager;
@@ -59,33 +62,85 @@ namespace Bicep.LanguageServer.Handlers
             this.workspace = workspace;
             this.languageServer = languageServer;
             this.moduleDispatcher = moduleDispatcher;
+            this.paramsCompilationManager = paramsCompilationManager;
         }
 
         public override Task<LocationOrLocationLinks> Handle(DefinitionParams request, CancellationToken cancellationToken)
         {
-            var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
-            if (context is null)
+            if (PathHelper.HasBicepparamsExension(request.TextDocument.Uri.ToUri()))
             {
-                return Task.FromResult(new LocationOrLocationLinks());
+                var paramsContext = this.paramsCompilationManager.GetCompilation(request.TextDocument.Uri);
+                if (paramsContext is null)
+                {
+                    return Task.FromResult(new LocationOrLocationLinks());
+                }
+
+                var result = this.symbolResolver.ResolveParamsSymbol(request.TextDocument.Uri, request.Position);
+                var bicepCompilation = paramsContext.ParamsSemanticModel.BicepCompilation;
+                
+                if (bicepCompilation is null)
+                {
+                    return Task.FromResult(new LocationOrLocationLinks());
+                }
+                
+                var paramsSemanticModel = paramsContext.ParamsSemanticModel;
+                var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
+
+                var parameterDeclarations = bicepSemanticModel.Root.Syntax.Children.OfType<ParameterDeclarationSyntax>();
+                var parameterDeclarationSyntax = parameterDeclarations
+                    .Where(x => LanguageConstants.IdentifierComparer.Equals(bicepSemanticModel.Binder.GetSymbolInfo(x)?.Name, result?.Symbol.Name))
+                    .First();
+
+                var parameterAssignments = paramsSemanticModel.Root.Syntax.Children.OfType<ParameterAssignmentSyntax>();
+                var parameterAssignmentSyntax = parameterAssignments
+                    .Where(x => LanguageConstants.IdentifierComparer.Equals(paramsContext.ParamsSemanticModel.ParamBinder.GetSymbolInfo(x)?.Name, result?.Symbol.Name))
+                    .First();
+
+                if (parameterAssignmentSyntax is null || parameterDeclarationSyntax is null)
+                {
+                    return Task.FromResult(new LocationOrLocationLinks());
+                }
+
+                var range = PositionHelper.GetNameRange(bicepCompilation.SourceFileGrouping.EntryPoint.LineStarts, parameterDeclarationSyntax);
+                var documentUri = bicepCompilation.SourceFileGrouping.EntryPoint.FileUri;
+                
+                return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
+                {
+                    // source of the link. Underline only the symbolic name
+                    OriginSelectionRange = parameterAssignmentSyntax.Name.ToRange(paramsContext.LineStarts),
+                    TargetUri = documentUri,
+
+                    // entire span of the declaredSymbol
+                    TargetRange = range,
+                    TargetSelectionRange = range
+                })));
             }
-
-            var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
-
-            // No parent Symbol: ad hoc syntax matching
-            return result switch
+            else
             {
-                null => HandleUnboundSymbolLocationAsync(request, context),
+                var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
+                if (context is null)
+                {
+                    return Task.FromResult(new LocationOrLocationLinks());
+                }
 
-                { Symbol: DeclaredSymbol declaration } => HandleDeclaredDefinitionLocationAsync(request, result, declaration),
+                var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
 
-                // Object property: currently only used for module param goto
-                { Origin: ObjectPropertySyntax } => HandleObjectPropertyLocationAsync(request, result, context),
+                // No parent Symbol: ad hoc syntax matching
+                return result switch
+                {
+                    null => HandleUnboundSymbolLocationAsync(request, context),
 
-                // Used for module (name), variable or resource property access
-                { Symbol: PropertySymbol } => HandlePropertyLocationAsync(request, result, context),
+                    { Symbol: DeclaredSymbol declaration } => HandleDeclaredDefinitionLocationAsync(request, result, declaration),
 
-                _ => Task.FromResult(new LocationOrLocationLinks()),
-            };
+                    // Object property: currently only used for module param goto
+                    { Origin: ObjectPropertySyntax } => HandleObjectPropertyLocationAsync(request, result, context),
+
+                    // Used for module (name), variable or resource property access
+                    { Symbol: PropertySymbol } => HandlePropertyLocationAsync(request, result, context),
+
+                    _ => Task.FromResult(new LocationOrLocationLinks()),
+                };
+            }
         }
 
         protected override DefinitionRegistrationOptions CreateRegistrationOptions(DefinitionCapability capability, ClientCapabilities clientCapabilities) => new()
