@@ -118,7 +118,106 @@ new string[] {"firstParam", "secondParam"},
 new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field}
 )
 ]
-        public async Task Request_for_parameters_completions_should_return_correct_identifiers(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
+        public async Task Request_for_parameter_indentifier_completions_should_return_correct_identifiers(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
+        {   
+            var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText);
+
+            var paramUri = DocumentUri.FromFileSystemPath("/path/to/param.bicepparam");
+            var bicepMainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
+
+            var paramFile = SourceFileFactory.CreateBicepFile(paramUri.ToUri(), paramFileTextNoCursor);
+
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [paramUri.ToUri()] = paramFileTextNoCursor,
+                [bicepMainUri.ToUri()] = bicepText
+            };
+
+            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+                TestContext,
+                paramFileTextNoCursor,
+                paramUri,
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
+
+            var file = new FileRequestHelper(helper.Client, paramFile);
+
+            var completions = await file.RequestCompletion(cursor);
+
+            var expectedValueIndex = 0;
+            foreach(var completion in completions)
+            {
+                completion.Label.Should().Be(completionLables[expectedValueIndex]);
+                completion.Kind.Should().Be(completionItemKinds[expectedValueIndex]);
+                expectedValueIndex +=1;
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow(
+@"
+//Parameters file
+
+using './main.bicep'
+
+param firstParam = |", 
+
+@"
+//Bicep file
+
+@allowed([
+  'one'
+  'two'
+])
+param firstParam string
+
+",
+new string[] {"'one'", "'two'"},
+new CompletionItemKind[] {CompletionItemKind.EnumMember, CompletionItemKind.EnumMember}
+)
+]
+
+        [DataRow(
+@"
+//Parameters file
+
+using './main.bicep'
+
+param firstParam = |", 
+
+@"
+//Bicep file
+
+param firstParam string
+
+",
+new string[] {},
+new CompletionItemKind[] {}
+)
+]
+        [DataRow(
+@"
+//Parameters file
+
+using './main.bicep'
+
+param firstParam = 'o|'", 
+
+@"
+//Bicep file
+
+@allowed([
+  'one'
+  'two'
+])
+param firstParam string
+
+",
+new string[] {"'one'", "'two'"},
+new CompletionItemKind[] {CompletionItemKind.EnumMember, CompletionItemKind.EnumMember}
+)
+]
+        public async Task Request_for_parameter_allowed_value_completions_should_return_correct_value(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
         {   
             var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText);
 

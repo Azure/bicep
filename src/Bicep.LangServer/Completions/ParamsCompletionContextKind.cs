@@ -19,8 +19,13 @@ namespace Bicep.LanguageServer.Completions
         UsingFilePath = 1 << 0,
 
         /// <summary>
-        /// The current location needs a parameter completion from corresponding bicep file
+        /// The current location needs a parameter identifier completion from corresponding bicep file
         /// </summary>
-        ParamAssignment = 2 << 0,
+        ParamIdentifier = 1 << 1,
+
+        /// <summary>
+        /// The current location needs a parameter value completion from allowed values in corresponding bicep file
+        /// </summary>
+        ParamValue = 1 << 2
     }
 }
