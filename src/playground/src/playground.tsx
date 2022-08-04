@@ -8,8 +8,14 @@ import { JsonEditor } from './jsonEditor';
 import { BicepEditor } from './bicepEditor';
 import { copyShareLinkToClipboard, handleShareLink } from './utils';
 import { decompile } from './lspInterop';
+import { IAppInsights } from '@microsoft/applicationinsights-common';
 
-export const Playground : React.FC = () => {
+interface Props {
+  insights: IAppInsights,
+}
+
+export const Playground : React.FC<Props> = (props) => {
+  const { insights } = props;
   const [jsonContent, setJsonContent] = useState('');
   const [bicepContent, setBicepContent] = useState('');
   const [initialContent, setInitialContent] = useState('');
@@ -35,6 +41,7 @@ export const Playground : React.FC = () => {
 
     handleShareLink(content => {
       if (content !== null) {
+        insights.trackEvent({ name: 'openSharedLink' });
         setInitialContent(content);
       } else {
         setInitialContent('')
@@ -43,6 +50,7 @@ export const Playground : React.FC = () => {
   }, []);
 
   const handlCopyClick = () => {
+    insights.trackEvent({ name: 'copySharedLink' });
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
     copyShareLinkToClipboard(bicepContent);
@@ -53,6 +61,7 @@ export const Playground : React.FC = () => {
     reader.onload = async (e) => {
       withLoader(async () => {
         try {
+          insights.trackEvent({ name: 'decompileJson' });
           const jsonContents = e.target.result.toString();
           const bicepContents = decompile(jsonContents);
           setInitialContent(bicepContents);
