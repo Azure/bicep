@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import React, { useEffect, useRef, useState } from 'react';
-import { Button, Container, Nav, Navbar, OverlayTrigger, Row, Spinner, Tooltip } from 'react-bootstrap';
+import { Button, ButtonGroup, Col, Container, Dropdown, FormControl, Nav, Navbar, OverlayTrigger, Row, Spinner, Tooltip } from 'react-bootstrap';
 
 import './playground.css';
 import { JsonEditor } from './jsonEditor';
 import { BicepEditor } from './bicepEditor';
 import { copyShareLinkToClipboard, handleShareLink } from './utils';
+import { quickstartsPaths, getQuickstartsLink } from './examples';
 import { decompile } from './lspInterop';
 import { IAppInsights } from '@microsoft/applicationinsights-common';
 
@@ -21,6 +22,7 @@ export const Playground : React.FC<Props> = (props) => {
   const [initialContent, setInitialContent] = useState('');
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [filterText, setFilterText] = useState('');
   const uploadInputRef = useRef<HTMLInputElement>();
 
   async function withLoader(action: () => Promise<void>) {
@@ -30,6 +32,20 @@ export const Playground : React.FC<Props> = (props) => {
     } finally {
       setLoading(false);
     }
+  }
+
+  async function loadExample(filePath: string) {
+    withLoader(async () => {
+      const response = await fetch(getQuickstartsLink(filePath));
+
+      if (!response.ok) {
+        throw response.text();
+      }
+
+      insights.trackEvent({ name: 'loadExample' }, { path: filePath });
+      const bicepText = await response.text();
+      setInitialContent(bicepText);
+    });
   }
 
   useEffect(() => {
@@ -44,7 +60,7 @@ export const Playground : React.FC<Props> = (props) => {
         insights.trackEvent({ name: 'openSharedLink' });
         setInitialContent(content);
       } else {
-        setInitialContent('')
+        setInitialContent('');
       }
     });
   }, []);
@@ -74,6 +90,14 @@ export const Playground : React.FC<Props> = (props) => {
     reader.readAsText(file);
   }
 
+  const filteredExamples = quickstartsPaths
+    .filter(x => x.toLowerCase().indexOf(filterText.toLowerCase()) !== -1)
+    .sort((a, b) => a > b ? 1 : -1);
+
+  const dropdownItems = filteredExamples.map(path => (
+    <Dropdown.Item key={path} eventKey={path} active={false}>{path}</Dropdown.Item>
+  ));
+
   const createTooltip = (text: string) => (
     <Tooltip id="button-tooltip">
       {text}
@@ -91,6 +115,21 @@ export const Playground : React.FC<Props> = (props) => {
         <OverlayTrigger placement="bottom" overlay={createTooltip('Upload an ARM template JSON file to decompile to Bicep')}>
           <Button size="sm" variant="primary" className="mx-1" onClick={() => uploadInputRef.current.click()}>Decompile</Button>
         </OverlayTrigger>
+        <Dropdown as={ButtonGroup} onSelect={loadExample} onToggle={() => setFilterText('')}>
+          <OverlayTrigger placement="bottom" overlay={createTooltip('Select an Azure Quickstarts sample file')}>
+            <Dropdown.Toggle as={Button} size="sm" variant="primary" className="mx-1">Sample Template</Dropdown.Toggle>
+          </OverlayTrigger>
+          <Dropdown.Menu align="end">
+          <Col>
+            <FormControl
+              autoFocus
+              placeholder="Type to filter..."
+              onChange={(e) => setFilterText(e.target.value)}
+              value={filterText} />
+          </Col>
+            {dropdownItems}
+          </Dropdown.Menu>
+        </Dropdown>
       </Nav>
     </Navbar>
     <div className="playground-container">
