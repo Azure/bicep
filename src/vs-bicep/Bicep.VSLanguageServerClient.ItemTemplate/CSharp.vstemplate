@@ -2,12 +2,12 @@
 <VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
   <TemplateData>
     <Name>Bicep</Name>
-    <Description>Bicep template</Description>
-    <TemplateID>40c426e9-ffbf-4c66-a64d-46e2d670475e</TemplateID>
+    <Description>An empty bicep template</Description>
+    <TemplateID>Microsoft.Bicep.CSharp</TemplateID>
     <ProjectType>CSharp</ProjectType>
     <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
     <DefaultName>main.bicep</DefaultName>
-    <Icon>BicepFileIcon.png</Icon>
+    <Icon>BicepItemTemplateIcon.png</Icon>
     <TemplateGroupID>AspNetCore</TemplateGroupID>
     <ShowByDefault>true</ShowByDefault>
   </TemplateData>

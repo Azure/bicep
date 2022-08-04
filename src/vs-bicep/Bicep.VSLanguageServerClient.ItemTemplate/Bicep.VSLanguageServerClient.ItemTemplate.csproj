@@ -67,7 +67,7 @@
     <VSTemplate Include="CSharp.vstemplate">
       <SubType>Designer</SubType>
     </VSTemplate>
-    <Content Include="BicepFileIcon.png">
+    <Content Include="BicepItemTemplateIcon.png">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
   </ItemGroup>
