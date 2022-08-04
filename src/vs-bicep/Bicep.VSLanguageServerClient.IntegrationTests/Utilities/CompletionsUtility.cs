@@ -12,7 +12,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
     {
         public static void VerifyCompletions(IVisualStudioTextEditorTestExtension editor, string[] expectedCompletionTexts)
         {
-            IVisualStudioCompletionListTestExtension? completionListTestExtension = GetCompletionList(editor, true);
+            IVisualStudioCompletionListTestExtension? completionListTestExtension = GetCompletionList(editor);
 
             if (completionListTestExtension is null)
             {
@@ -28,16 +28,23 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
             }
         }
 
-        private static IVisualStudioCompletionListTestExtension? GetCompletionList(IVisualStudioTextEditorTestExtension editor, bool invokeIfNotPresent)
+        private static IVisualStudioCompletionListTestExtension? GetCompletionList(IVisualStudioTextEditorTestExtension editor)
         {
             IVisualStudioCompletionListTestExtension? completionList = editor.Intellisense.GetActiveCompletionList();
-            if (completionList == null)
+
+            if (completionList is null)
             {
-                if (invokeIfNotPresent)
+                try
                 {
-                    editor.Intellisense.ShowCompletionList();
-                    completionList = WaitForExtensions.TryIsNotNull(() => editor.Intellisense.GetActiveCompletionList(), 2000);
+                    editor.Intellisense.InvokeCompletionList();
                 }
+                catch
+                {
+                    // This can throw when the list was coming up when we were invoking it. This is an issue coming from apex assembly
+                    // that we use in tests. There's no product issue here.
+                }
+
+                completionList = WaitForExtensions.TryIsNotNull(() => editor.Intellisense.GetActiveCompletionList(), 2000);
             }
 
             return completionList;
