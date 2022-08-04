@@ -17,6 +17,8 @@ using Bicep.Decompiler;
 using Bicep.Core.Registry;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Baselines;
+using System.Threading;
+using System.Globalization;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -268,6 +270,41 @@ namespace Bicep.Core.IntegrationTests
             var (entryPointUri, filesToSave) = decompiler.DecompileFileWithModules(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
 
             filesToSave[entryPointUri].Should().Contain($"? /* TODO: User defined functions are not supported and have not been decompiled */");
+        }
+
+        [TestMethod]
+        public void Decompiler_should_not_interpret_numbers_with_locale_settings()
+        {
+            // https://github.com/Azure/bicep/issues/7615
+            const string template = @"{
+    ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+    ""contentVersion"": ""1.0.0.0"",
+    ""parameters"": {},
+    ""variables"": {
+        ""cpu"": 0.25
+    },
+    ""resources"": [],
+    ""outputs"": {}
+}";
+
+            var fileUri = new Uri("file:///path/to/main.json");
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [fileUri] = template,
+            });
+
+            var currentCulture = Thread.CurrentThread.CurrentCulture;
+            try {
+                Thread.CurrentThread.CurrentCulture = new CultureInfo("fi-FI");
+
+                var decompiler = new TemplateDecompiler(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features), BicepTestConstants.ConfigurationManager);
+                var (entryPointUri, filesToSave) = decompiler.DecompileFileWithModules(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
+
+                filesToSave[entryPointUri].Should().Contain($"var cpu = '0.25'");
+            }
+            finally {
+                Thread.CurrentThread.CurrentCulture = currentCulture;
+            }
         }
     }
 }
