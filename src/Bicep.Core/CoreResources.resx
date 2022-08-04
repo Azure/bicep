@@ -313,15 +313,15 @@
   <data name="MaxNumberResourcesRuleMessageFormat" xml:space="preserve">
     <value>Too many resources. Number of resources is limited to {0}.</value>
   </data>
-  <data name="PreferUnquotedPropertyNamesDeclarationFixTitle" xml:space="preserve">
-    <value>Remove quotes from property name '{0}'.</value>
+  <data name="PreferUnquotedPropertyNames_DeclarationFixTitle" xml:space="preserve">
+    <value>Remove quotes from property name '{0}'</value>
     <comment>{0} is the property name</comment>
   </data>
-  <data name="PreferUnquotedPropertyNamesDereferenceFixTitle" xml:space="preserve">
-    <value>Replace array syntax with '{0}'.</value>
+  <data name="PreferUnquotedPropertyNames_DereferenceFixTitle" xml:space="preserve">
+    <value>Replace array syntax with '{0}'</value>
     <comment>{0} is a programmatic language expression</comment>
   </data>
-  <data name="PreferUnquotedPropertyNamesRuleDescription" xml:space="preserve">
+  <data name="PreferUnquotedPropertyNamesRule_Description" xml:space="preserve">
     <value>Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation.</value>
   </data>
   <data name="SecretsInParamsRule_Description" xml:space="preserve">
