@@ -42,7 +42,7 @@ namespace Bicep.Core.IntegrationTests
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFile.OutputFilePath), configuration);
-            var compilation = new Compilation(features, new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoader, features), sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
+            var compilation = new Compilation(features, new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoader, features), sourceFileGrouping, configuration,BicepTestConstants.ApiVersionProvider, new LinterAnalyzer(configuration));
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new EmitterSettings(features));
 
             foreach (var (file, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
@@ -156,7 +156,7 @@ namespace Bicep.Core.IntegrationTests
                     typeof(Bicep.Core.Samples.AssemblyInitializer).Assembly,
                     "user_submitted",
                     streamName => Path.GetExtension(streamName) == ".bicep");
-                
+
                 foreach (var bicepFile in embeddedFiles)
                 {
                     var isExtensibilitySample = bicepFile.StreamPath.StartsWith($"Files/user_submitted/extensibility/", StringComparison.Ordinal);

@@ -5,7 +5,7 @@
 
 param location string
 
-resource workSpace 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {
+resource workSpace 'Microsoft.DesktopVirtualization/workspaces@2021-07-12' = {
   name: 'name'
   location: location
   properties: {

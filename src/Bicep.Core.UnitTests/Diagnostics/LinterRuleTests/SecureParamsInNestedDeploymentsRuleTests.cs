@@ -15,8 +15,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 SecureParamsInNestedDeploymentsRule.Code,
                 bicep,
                 expectedMessages,
-                onCompileErrors: OnCompileErrors.IncludeErrorsAndWarnings,
-                includePosition: IncludePosition.LineNumber);
+                new Options(
+                    OnCompileErrors: OnCompileErrors.IncludeErrorsAndWarnings,
+                    IncludePosition: IncludePosition.LineNumber));
         }
 
         [TestMethod]

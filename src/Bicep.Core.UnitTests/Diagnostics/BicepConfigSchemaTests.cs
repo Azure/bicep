@@ -68,7 +68,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                                 ...
                             },
                             {
-                                "$ref": "#/definitions/rule"     **or**     "$ref": "#/definitions/rule-def-error-level"
+                                "$ref": "#/definitions/rule-def-level-{warning,error,off}"
                             }
                         ]
                     },
@@ -90,7 +90,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 var lastAllOf = allOf[allOf.Count() - 1];
                 var refString = lastAllOf?.SelectToken("$ref")?.ToString();
                 Assert.IsNotNull(refString, "each rule's last allOf should be a ref to the definition of a rule");
-                refString.Should().MatchRegex("^#/definitions/(rule|rule-def-error-level)$", "each rule's last allOf should be a ref to the definition of a rule, either '#/definitions/rule' or '#/definitions/rule-def-error-level'");
+                refString.Should().MatchRegex("^#/definitions/rule-def-level-(warning|error|off)$", "each rule's last allOf should be a ref to the definition of a rule, one of '#/definitions/rule-def-level-warning', '#/definitions/rule-def-level-error' or '#/definitions/rule-def-error-off'");
             }
         }
 

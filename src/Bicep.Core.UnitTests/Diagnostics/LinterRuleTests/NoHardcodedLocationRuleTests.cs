@@ -280,7 +280,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
-        public void If_ResLocationIs_VariableDefinedAsLiteral_UsedInResourcesAndModules_ShouldFailJustOnVariableDef__WithFixToChangeToParam()
+        public void If_ResLocationIs_VariableDefinedAsLiteral_UsedInResourcesAndModules_ShouldFailJustOnVariableDef_WithFixToChangeToParam()
         {
             var result = CompilationHelper.Compile(
                 ("main.bicep", @"

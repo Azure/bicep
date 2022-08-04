@@ -27,19 +27,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void CompileAndTest(string text, OnCompileErrors onCompileErrors, params string[] unusedExistingResources)
         {
-            AssertLinterRuleDiagnostics(NoUnusedExistingResourcesRule.Code, text, onCompileErrors, diags =>
-            {
-                if (unusedExistingResources.Any())
+            AssertLinterRuleDiagnostics(NoUnusedExistingResourcesRule.Code, text, diags =>
                 {
-                    var rule = new NoUnusedExistingResourcesRule();
-                    string[] expectedMessages = unusedExistingResources.Select(p => rule.GetMessage(p)).ToArray();
-                    diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
-                }
-                else
-                {
-                    diags.Should().BeEmpty();
-                }
-            });
+                    if (unusedExistingResources.Any())
+                    {
+                        var rule = new NoUnusedExistingResourcesRule();
+                        string[] expectedMessages = unusedExistingResources.Select(p => rule.GetMessage(p)).ToArray();
+                        diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
+                    }
+                    else
+                    {
+                        diags.Should().BeEmpty();
+                    }
+                },
+                new Options(onCompileErrors));
         }
 
         [DataRow(@"

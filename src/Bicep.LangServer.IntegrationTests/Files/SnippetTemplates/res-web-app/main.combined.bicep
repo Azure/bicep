@@ -6,7 +6,7 @@
 
 param location string
 
-resource webApplication 'Microsoft.Web/sites@2018-11-01' = {
+resource webApplication 'Microsoft.Web/sites@2021-01-15' = {
   name: 'name'
   location: location
   tags: {
