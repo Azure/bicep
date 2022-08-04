@@ -93,8 +93,11 @@ namespace Bicep.Core.Semantics
                 .Select(x => x.Value)
                 .OrderBy(x => x.Name.IdentifierName);
 
-            var span = BicepParamFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>().Single().Path;
-            diagnosticWriter.Write(span, x => x.MissingParameterAssignment(missingRequiredParams));
+            var usingDeclarationSyntax = BicepParamFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>().SingleOrDefault();
+            if (usingDeclarationSyntax is not null && missingRequiredParams.Count() > 0)
+            {
+                diagnosticWriter.Write(usingDeclarationSyntax.Path, x => x.MissingParameterAssignment(missingRequiredParams));
+            }
 
             foreach (var assignedParam in missingAssignedParams)
             {
