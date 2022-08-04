@@ -62,8 +62,6 @@ namespace Bicep.Core.IntegrationTests
                 {
                     var baselineFile = baselineFolder.GetFileOrEnsureCheckedIn(bicepFile.FileUri);
                     var bicepOutput = filesToSave[bicepFile.FileUri];
-                    var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, baselineFolder.OutputFolderPath, diag));
-                    File.WriteAllText(bicepFile.FileUri.LocalPath, sourceTextWithDiags);
 
                     baselineFile.ShouldHaveExpectedValue();
                 }

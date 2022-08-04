@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Rules;
@@ -14,7 +14,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         private void CompileAndTest(string bicepText, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
-            base.AssertLinterRuleDiagnostics(ArtifactsParametersRule.Code, bicepText, expectedMessagesForCode, onCompileErrors);
+            var options = new Options(onCompileErrors, IncludePosition.None);
+            AssertLinterRuleDiagnostics(ArtifactsParametersRule.Code, bicepText, expectedMessagesForCode, options);
         }
 
         [TestMethod]

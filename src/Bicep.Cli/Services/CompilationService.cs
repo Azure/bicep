@@ -3,6 +3,7 @@
 
 using Bicep.Cli.Logging;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -29,6 +30,7 @@ namespace Bicep.Cli.Services
         private readonly InvocationContext invocationContext;
         private readonly Workspace workspace;
         private readonly TemplateDecompiler decompiler;
+        private readonly IApiVersionProvider apiVersionProvider;
 
         public CompilationService(
             IDiagnosticLogger diagnosticLogger,
@@ -36,7 +38,8 @@ namespace Bicep.Cli.Services
             InvocationContext invocationContext,
             IModuleDispatcher moduleDispatcher,
             IConfigurationManager configurationManager,
-            TemplateDecompiler decompiler)
+            TemplateDecompiler decompiler,
+            IApiVersionProvider apiVersionProvider)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.fileResolver = fileResolver;
@@ -45,6 +48,7 @@ namespace Bicep.Cli.Services
             this.invocationContext = invocationContext;
             this.workspace = new Workspace();
             this.decompiler = decompiler;
+            this.apiVersionProvider = apiVersionProvider;
         }
 
         public async Task RestoreAsync(string inputPath, bool forceModulesRestore)
@@ -88,7 +92,7 @@ namespace Bicep.Cli.Services
                 }
             }
 
-            var compilation = new Compilation(this.invocationContext.Features, this.invocationContext.NamespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
+            var compilation = new Compilation(this.invocationContext.Features, this.invocationContext.NamespaceProvider, sourceFileGrouping, configuration, apiVersionProvider, new LinterAnalyzer(configuration));
             LogDiagnostics(compilation);
 
             return compilation;
