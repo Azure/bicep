@@ -77,9 +77,13 @@ namespace Bicep.Cli.IntegrationTests
         protected static IEnumerable<string> GetAllParamDiagnostics(string paramFilePath)
         {   
             var fileText = File.ReadAllText(paramFilePath);
-            var paramFile = SourceFileFactory.CreateBicepParamFile(new Uri(paramFilePath), fileText);
-            var model = new ParamsSemanticModel(paramFile, BicepTestConstants.FileResolver);
-            var lineStarts = paramFile.LineStarts;
+            var paramsFile = SourceFileFactory.CreateBicepParamFile(new Uri(paramFilePath), fileText);
+
+            Uri? bicepFileUri = ParamsSemanticModel.TryGetBicepFileUri(out var compilationLoadDiagnostics, BicepTestConstants.FileResolver, paramsFile);
+            
+            var model = new ParamsSemanticModel(paramsFile, compilationLoadDiagnostics);
+
+            var lineStarts = paramsFile.LineStarts;
             
             var output = new List<string>();
             foreach(var diagnostic in model.GetAllDiagnostics())

@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -276,7 +278,7 @@ this
 
         private EmitResult EmitParam(string inputFilePath, EmitterSettings emitterSettings, string outputFilePath)
         {   
-            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(inputFilePath), File.ReadAllText(inputFilePath)), BicepTestConstants.FileResolver);
+            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(inputFilePath), File.ReadAllText(inputFilePath)), ImmutableArray<IDiagnostic>.Empty);
 
             var emitter = new ParametersEmitter(model, emitterSettings);
             using var stream = new FileStream(outputFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
