@@ -33,11 +33,18 @@ namespace Bicep.LanguageServer.Completions
 
         public SyntaxBase? UsingDeclaration { get; }
 
-        public ParamsCompletionContext(ParamsCompletionContextKind kind, Range replacementRange, SyntaxBase? usingDeclaration = null)
+        public string? ParamAssignment {get; }
+
+        public ParamsCompletionContext(
+            ParamsCompletionContextKind kind, 
+            Range replacementRange, 
+            SyntaxBase? usingDeclaration = null,
+            string? paramAssignment = null)
         {
             Kind = kind;
             ReplacementRange = replacementRange;
             UsingDeclaration = usingDeclaration;
+            ParamAssignment = paramAssignment;
         }
 
         public static ParamsCompletionContext Create(ParamsCompilationContext paramsCompilationContext, int offset)
@@ -52,13 +59,20 @@ namespace Bicep.LanguageServer.Completions
             var replacementRange = GetReplacementRange(paramsFile, matchingNodes[^1], offset);
         
 
-            var kind = ConvertFlag(IsParamAssignmentContext(matchingNodes, offset), ParamsCompletionContextKind.ParamAssignment) |
-                        ConvertFlag(IsUsingDeclarationContext(matchingNodes, offset), ParamsCompletionContextKind.UsingFilePath);
+            var kind = ConvertFlag(IsUsingDeclarationContext(matchingNodes, offset), ParamsCompletionContextKind.UsingFilePath) |
+                       ConvertFlag(IsParamIdentifierContext(matchingNodes, offset), ParamsCompletionContextKind.ParamIdentifier) |
+                       ConvertFlag(IsParamValueContext(matchingNodes, offset), ParamsCompletionContextKind.ParamValue); 
 
             if(kind == ParamsCompletionContextKind.UsingFilePath)
             {
                 var usingDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<UsingDeclarationSyntax, UsingDeclarationSyntax>(matchingNodes);
                 return new(kind, replacementRange, usingDeclarationInfo.node);
+            }
+
+            if(kind == ParamsCompletionContextKind.ParamValue)
+            {
+                var paramAssignmentInfo = SyntaxMatcher.FindLastNodeOfType<ParameterAssignmentSyntax, ParameterAssignmentSyntax>(matchingNodes);
+                return new(kind, replacementRange, null, paramAssignmentInfo.node?.Name.IdentifierName);
             }
 
             return new(kind, replacementRange);
@@ -73,13 +87,19 @@ namespace Bicep.LanguageServer.Completions
             // using fo|o
             SyntaxMatcher.IsTailMatch<UsingDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier);
 
-        private static bool IsParamAssignmentContext(List<SyntaxBase> matchingNodes, int offset) =>
+        private static bool IsParamIdentifierContext(List<SyntaxBase> matchingNodes, int offset) =>
             // param |
             SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax>(matchingNodes, (paramAssignment  => paramAssignment.Name.IdentifierName == LanguageConstants.MissingName)) ||
             // param | = 
             SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax>(matchingNodes, (paramAssignment  => paramAssignment.Name.IdentifierName == LanguageConstants.ErrorName)) ||
             // param t|
             SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier);
+
+        private static bool IsParamValueContext(List<SyntaxBase> matchingNodes, int offset) =>
+            // param myParam = | 
+            SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax>(matchingNodes, (paramAssignment  => paramAssignment.Name.IdentifierName != LanguageConstants.MissingName || paramAssignment.Name.IdentifierName != LanguageConstants.ErrorName))||
+            // param myParam = 't|'
+            SyntaxMatcher.IsTailMatch<ParameterAssignmentSyntax, StringSyntax, Token>(matchingNodes, (paramAssignment, _, _)  => paramAssignment.Name.IdentifierName != LanguageConstants.MissingName || paramAssignment.Name.IdentifierName != LanguageConstants.ErrorName);
 
         private static ParamsCompletionContextKind ConvertFlag(bool value, ParamsCompletionContextKind flag) => value ? flag : ParamsCompletionContextKind.None;
         
