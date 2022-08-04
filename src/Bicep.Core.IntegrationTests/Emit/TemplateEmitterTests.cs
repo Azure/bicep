@@ -278,7 +278,7 @@ this
 
         private EmitResult EmitParam(string inputFilePath, EmitterSettings emitterSettings, string outputFilePath)
         {   
-            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(inputFilePath), File.ReadAllText(inputFilePath)), new List<IDiagnostic>().ToImmutableArray());
+            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(inputFilePath), File.ReadAllText(inputFilePath)), ImmutableArray<IDiagnostic>.Empty);
 
             var emitter = new ParametersEmitter(model, emitterSettings);
             using var stream = new FileStream(outputFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);

@@ -80,8 +80,7 @@ namespace Bicep.Cli.IntegrationTests
             var fileText = File.ReadAllText(paramFilePath);
             var paramsFile = SourceFileFactory.CreateBicepParamFile(new Uri(paramFilePath), fileText);
 
-            Uri? bicepFileUri = ParamsSemanticModel.TryGetBicepFileUri(out var diagnosticWriter, BicepTestConstants.FileResolver, paramsFile);
-            var compilationLoadDiagnostics = diagnosticWriter.GetDiagnostics().ToImmutableArray();
+            Uri? bicepFileUri = ParamsSemanticModel.TryGetBicepFileUri(out var compilationLoadDiagnostics, BicepTestConstants.FileResolver, paramsFile);
             
             var model = new ParamsSemanticModel(paramsFile, compilationLoadDiagnostics);
 

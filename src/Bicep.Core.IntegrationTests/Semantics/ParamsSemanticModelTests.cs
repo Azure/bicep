@@ -38,7 +38,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMainParam));
             var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.BicepParam);
-            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(fileUri, dataSet.BicepParam), new ImmutableArray<IDiagnostic>());
+            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(fileUri, dataSet.BicepParam), ImmutableArray<IDiagnostic>.Empty);
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)
