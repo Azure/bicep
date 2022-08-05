@@ -13,8 +13,10 @@ using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.Syntax;
+using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using SharpYaml.Serialization;
 
 namespace Bicep.LanguageServer.Handlers
@@ -23,21 +25,28 @@ namespace Bicep.LanguageServer.Handlers
     public record ImportKubernetesManifestRequest(string ManifestFilePath)
         : IRequest<ImportKubernetesManifestResponse>;
 
-    public record ImportKubernetesManifestResponse(string BicepFilePath);
+    public record ImportKubernetesManifestResponse(string? BicepFilePath);
 
     public class ImportKubernetesManifestHandler : IJsonRpcRequestHandler<ImportKubernetesManifestRequest, ImportKubernetesManifestResponse>
     {
-        public async Task<ImportKubernetesManifestResponse> Handle(ImportKubernetesManifestRequest request, CancellationToken cancellationToken)
+        private readonly TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> helper;
+
+        public ImportKubernetesManifestHandler(ILanguageServerFacade server, ITelemetryProvider telemetryProvider)
         {
-            var bicepFilePath = Path.ChangeExtension(request.ManifestFilePath, ".bicep");
-            var manifestContents = await File.ReadAllTextAsync(request.ManifestFilePath);
-
-            var bicepContents = Decompile(manifestContents);
-
-            await File.WriteAllTextAsync(bicepFilePath, bicepContents, cancellationToken);
-
-            return new(bicepFilePath);
+            this.helper = new TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse>(server.Window, telemetryProvider, new(null));
         }
+
+        public Task<ImportKubernetesManifestResponse> Handle(ImportKubernetesManifestRequest request, CancellationToken cancellationToken)
+            => helper.ExecuteWithTelemetryAndErrorHandling(async () => {
+                var bicepFilePath = Path.ChangeExtension(request.ManifestFilePath, ".bicep");
+                var manifestContents = await File.ReadAllTextAsync(request.ManifestFilePath);
+
+                var bicepContents = Decompile(manifestContents);
+
+                await File.WriteAllTextAsync(bicepFilePath, bicepContents, cancellationToken);
+
+                return new(new(bicepFilePath), BicepTelemetryEvent.ImportKubernetesManifestSuccess());
+            });
 
         public static string Decompile(string manifestContents)
         {
@@ -69,11 +78,9 @@ namespace Bicep.LanguageServer.Handlers
                 })
             ));
 
-            foreach (var resource in resources)
+            foreach (var resourceYaml in resources)
             {
-                var yamlValue = new Serializer().Deserialize(resource);
-
-                var syntax = ProcessResource(yamlValue);
+                var syntax = ProcessResourceYaml(resourceYaml);
 
                 declarations.Add(syntax);
             }
@@ -86,17 +93,27 @@ namespace Bicep.LanguageServer.Handlers
             return PrettyPrinter.PrintProgram(program, new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false));
         }
 
-        private static ResourceDeclarationSyntax ProcessResource(object? resource)
+        private static ResourceDeclarationSyntax ProcessResourceYaml(string resourceYaml)
         {
-            if (resource is not Dictionary<object, object> dictValue)
+            object? resource;
+            try
             {
-                throw new NotImplementedException($"Unsupported type {resource?.GetType()}");
+                resource = new Serializer().Deserialize(resourceYaml);
+            }
+            catch (Exception)
+            {
+                throw new TelemetryAndErrorHandlingException(
+                    $"Failed to deserialize kubernetes resource YAML.",
+                    BicepTelemetryEvent.ImportKubernetesManifestFailure("DeserializeYamlFailed"));
             }
 
-            if (!(dictValue.TryGetValue("kind", out var kindObj) && kindObj is string type &&
-                dictValue.TryGetValue("apiVersion", out var apiVersionObj) && apiVersionObj is string apiVersion))
+            if (resource is not Dictionary<object, object> dictValue ||
+                !dictValue.TryGetValue("kind", out var kindObj) || kindObj is not string type ||
+                !dictValue.TryGetValue("apiVersion", out var apiVersionObj) || apiVersionObj is not string apiVersion)
             {
-                throw new NotImplementedException($"Expected properties 'type' & 'kind'");
+                throw new TelemetryAndErrorHandlingException(
+                    "Failed to process kubernetes manifest. Unable to find 'kind' or 'apiVersion' for resource declaration.",
+                    BicepTelemetryEvent.ImportKubernetesManifestFailure("FindKindAndApiVersionFailed"));
             }
 
             (type, apiVersion) = apiVersion.LastIndexOf('/') switch {
@@ -108,8 +125,21 @@ namespace Bicep.LanguageServer.Handlers
                 .Where(x => x.Key as string != "kind" && x.Key as string != "apiVersion")
                 .ToDictionary(x => x.Key, x => x.Value);
 
-            var resourceBody = ProcessValue(filteredResource);
+            var resourceBody = ConvertValue(filteredResource);
+            var symbolName = GetResourceSymbolName(type, resourceBody);
 
+            return new ResourceDeclarationSyntax(
+                Enumerable.Empty<SyntaxBase>(),
+                SyntaxFactory.CreateToken(Core.Parsing.TokenType.Identifier, "resource"),
+                SyntaxFactory.CreateIdentifier(symbolName),
+                SyntaxFactory.CreateStringLiteral($"{type}@{apiVersion}"),
+                null,
+                SyntaxFactory.AssignmentToken,
+                resourceBody);
+        }
+
+        private static string GetResourceSymbolName(string type, SyntaxBase resourceBody)
+        {
             var identifier = type;
             if ((resourceBody as ObjectSyntax)?.TryGetPropertyByNameRecursive("metadata", "name") is {} nameProperty &&
                 (nameProperty.Value as StringSyntax)?.TryGetLiteralValue() is {} nameString)
@@ -130,7 +160,8 @@ namespace Bicep.LanguageServer.Handlers
 
                 if (capitalizeNext && (c >= 'a' && c <= 'z'))
                 {
-                    // 32 equals 'a' - 'A'
+                    // ASCII codes for lc and uppercase chars are 32 apart.
+                    // Subtract 32 from the ASCII code to convert to uppercase.
                     c -= (char)32;
                 }
 
@@ -141,19 +172,10 @@ namespace Bicep.LanguageServer.Handlers
                 capitalizeNext = !isValidChar;
             }
 
-            var sanitizedIdentifier = identifierBuilder.ToString();
-
-            return new ResourceDeclarationSyntax(
-                Enumerable.Empty<SyntaxBase>(),
-                SyntaxFactory.CreateToken(Core.Parsing.TokenType.Identifier, "resource"),
-                SyntaxFactory.CreateIdentifier(sanitizedIdentifier),
-                SyntaxFactory.CreateStringLiteral($"{type}@{apiVersion}"),
-                null,
-                SyntaxFactory.AssignmentToken,
-                resourceBody);
+            return identifierBuilder.ToString();
         }
 
-        private static SyntaxBase ProcessValue(object value)
+        private static SyntaxBase ConvertValue(object value)
         {
             switch (value)
             {
@@ -166,7 +188,7 @@ namespace Bicep.LanguageServer.Handlers
                             throw new NotImplementedException($"Unsupported object key {kvp.Key.GetType()}");
                         }
 
-                        var objectProperty = SyntaxFactory.CreateObjectProperty(keyName, ProcessValue(kvp.Value));
+                        var objectProperty = SyntaxFactory.CreateObjectProperty(keyName, ConvertValue(kvp.Value));
                         objectProperties.Add(objectProperty);
                     }
                     return SyntaxFactory.CreateObject(objectProperties);
@@ -174,7 +196,7 @@ namespace Bicep.LanguageServer.Handlers
                     var arrayProperties = new List<SyntaxBase>();
                     foreach (var prop in listValue)
                     {
-                        arrayProperties.Add(ProcessValue(prop));
+                        arrayProperties.Add(ConvertValue(prop));
                     }
                     return SyntaxFactory.CreateArray(arrayProperties);
                 case string stringValue:
