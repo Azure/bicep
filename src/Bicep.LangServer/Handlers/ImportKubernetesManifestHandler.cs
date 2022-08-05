@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -50,10 +51,6 @@ namespace Bicep.LanguageServer.Handlers
 
         public static string Decompile(string manifestContents)
         {
-            manifestContents = StringUtils.ReplaceNewlines(manifestContents, "\n");
-
-            var resources = manifestContents.Split("\n---\n");
-
             var declarations = new List<SyntaxBase>();
 
             declarations.Add(new ParameterDeclarationSyntax(
@@ -78,11 +75,27 @@ namespace Bicep.LanguageServer.Handlers
                 })
             ));
 
-            foreach (var resourceYaml in resources)
-            {
-                var syntax = ProcessResourceYaml(resourceYaml);
 
-                declarations.Add(syntax);
+            try
+            {
+                var reader = new StringReader(manifestContents);
+                var yamlStream = new YamlStream();
+                yamlStream.Load(reader);
+
+                foreach (var yamlDocument in yamlStream.Documents)
+                {
+                    var syntax = ProcessResourceYaml(yamlDocument);
+
+                    declarations.Add(syntax);
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Exception deserializing manifest: {0}", ex);
+
+                throw new TelemetryAndErrorHandlingException(
+                    $"Failed to deserialize kubernetes manifest YAML.",
+                    BicepTelemetryEvent.ImportKubernetesManifestFailure("DeserializeYamlFailed"));
             }
 
             var program = new ProgramSyntax(
@@ -93,39 +106,32 @@ namespace Bicep.LanguageServer.Handlers
             return PrettyPrinter.PrintProgram(program, new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false));
         }
 
-        private static ResourceDeclarationSyntax ProcessResourceYaml(string resourceYaml)
+        private static ResourceDeclarationSyntax ProcessResourceYaml(YamlDocument yamlDocument)
         {
-            object? resource;
-            try
+            if (yamlDocument.RootNode is not YamlMappingNode rootNode)
             {
-                resource = new Serializer().Deserialize(resourceYaml);
-            }
-            catch (Exception)
-            {
-                throw new TelemetryAndErrorHandlingException(
-                    $"Failed to deserialize kubernetes resource YAML.",
-                    BicepTelemetryEvent.ImportKubernetesManifestFailure("DeserializeYamlFailed"));
+                throw new InvalidOperationException($"Unsupported type {yamlDocument.RootNode.GetType()}");
             }
 
-            if (resource is not Dictionary<object, object> dictValue ||
-                !dictValue.TryGetValue("kind", out var kindObj) || kindObj is not string type ||
-                !dictValue.TryGetValue("apiVersion", out var apiVersionObj) || apiVersionObj is not string apiVersion)
+            var kindNodeKvp = rootNode.Children.FirstOrDefault(x => (x.Key as YamlScalarNode)?.Value == "kind");
+            var apiVersionNodeKvp = rootNode.Children.FirstOrDefault(x => (x.Key as YamlScalarNode)?.Value == "apiVersion");
+
+            if (kindNodeKvp.Value is not YamlScalarNode kindNode ||
+                apiVersionNodeKvp.Value is not YamlScalarNode apiVersionNode)
             {
                 throw new TelemetryAndErrorHandlingException(
                     "Failed to process kubernetes manifest. Unable to find 'kind' or 'apiVersion' for resource declaration.",
                     BicepTelemetryEvent.ImportKubernetesManifestFailure("FindKindAndApiVersionFailed"));
             }
 
-            (type, apiVersion) = apiVersion.LastIndexOf('/') switch {
-                -1 => ($"core/{type}", apiVersion),
-                int x => ($"{apiVersion.Substring(0, x)}/{type}", apiVersion.Substring(x + 1)),
+            var (type, apiVersion) = apiVersionNode.Value.LastIndexOf('/') switch {
+                -1 => ($"core/{kindNode.Value}", apiVersionNode.Value),
+                int x => ($"{apiVersionNode.Value.Substring(0, x)}/{kindNode.Value}", apiVersionNode.Value.Substring(x + 1)),
             };
 
-            var filteredResource = dictValue
-                .Where(x => x.Key as string != "kind" && x.Key as string != "apiVersion")
-                .ToDictionary(x => x.Key, x => x.Value);
+            var filteredChildren = rootNode.Children.Where(x => x.Key != kindNodeKvp.Key && x.Key != apiVersionNodeKvp.Key);
 
-            var resourceBody = ConvertValue(filteredResource);
+            var resourceBody = ConvertObjectChildren(filteredChildren);
             var symbolName = GetResourceSymbolName(type, resourceBody);
 
             return new ResourceDeclarationSyntax(
@@ -175,39 +181,50 @@ namespace Bicep.LanguageServer.Handlers
             return identifierBuilder.ToString();
         }
 
-        private static SyntaxBase ConvertValue(object value)
+        private static SyntaxBase ConvertValue(YamlNode value)
         {
             switch (value)
             {
-                case Dictionary<object, object> dictValue:
-                    var objectProperties = new List<ObjectPropertySyntax>();
-                    foreach (var kvp in dictValue)
+                case YamlMappingNode dictValue:
+                    return ConvertObjectChildren(dictValue.Children);
+                case YamlSequenceNode listValue:
+                    var items = listValue.Children.Select(ConvertValue);
+                    return SyntaxFactory.CreateArray(items);
+                case YamlScalarNode scalarNode:
+                    if (scalarNode.Style == SharpYaml.ScalarStyle.Plain)
                     {
-                        if (kvp.Key is not string keyName)
+                        // If the user hasn't provided quotes, there's no way to differentiate between strings, ints & bools. We have to guess...
+                        if (bool.TryParse(scalarNode.Value, out var boolVal))
                         {
-                            throw new NotImplementedException($"Unsupported object key {kvp.Key.GetType()}");
+                            return SyntaxFactory.CreateBooleanLiteral(boolVal);
                         }
 
-                        var objectProperty = SyntaxFactory.CreateObjectProperty(keyName, ConvertValue(kvp.Value));
-                        objectProperties.Add(objectProperty);
+                        if (long.TryParse(scalarNode.Value, out var longVal))
+                        {
+                            return SyntaxFactory.CreatePositiveOrNegativeInteger(longVal);
+                        }
                     }
-                    return SyntaxFactory.CreateObject(objectProperties);
-                case List<object> listValue:
-                    var arrayProperties = new List<SyntaxBase>();
-                    foreach (var prop in listValue)
-                    {
-                        arrayProperties.Add(ConvertValue(prop));
-                    }
-                    return SyntaxFactory.CreateArray(arrayProperties);
-                case string stringValue:
-                    return SyntaxFactory.CreateStringLiteral(stringValue);
-                case bool boolValue:
-                    return SyntaxFactory.CreateBooleanLiteral(boolValue);
-                case int intValue:
-                    return SyntaxFactory.CreatePositiveOrNegativeInteger(intValue);
+
+                    return SyntaxFactory.CreateStringLiteral(scalarNode.Value);
                 default:
-                    throw new NotImplementedException($"Unsupported type {value.GetType()}");
+                    throw new InvalidOperationException($"Unsupported type {value.GetType()}");
             }
+        }
+
+        private static ObjectSyntax ConvertObjectChildren(IEnumerable<KeyValuePair<YamlNode, YamlNode>> children)
+        {
+            var objectProperties = new List<ObjectPropertySyntax>();
+            foreach (var kvp in children)
+            {
+                if (kvp.Key is not YamlScalarNode keyNode)
+                {
+                    throw new InvalidOperationException($"Unsupported object key {kvp.Key.GetType()}");
+                }
+
+                var objectProperty = SyntaxFactory.CreateObjectProperty(keyNode.Value, ConvertValue(kvp.Value));
+                objectProperties.Add(objectProperty);
+            }
+            return SyntaxFactory.CreateObject(objectProperties);
         }
     }
 }

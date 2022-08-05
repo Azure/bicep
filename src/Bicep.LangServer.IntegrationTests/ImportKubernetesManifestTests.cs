@@ -96,7 +96,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             var message = await messageListener.WaitNext();
             message.Should().HaveMessageAndType(
-                "Failed to deserialize kubernetes resource YAML.",
+                "Failed to deserialize kubernetes manifest YAML.",
                 MessageType.Error);
         }
     }
