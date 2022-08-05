@@ -34,17 +34,8 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataRow(ExplicitValuesForLocationParamsRule.Code)]
         [DataRow(NoHardcodedEnvironmentUrlsRule.Code)]
         [DataRow(NoHardcodedLocationRule.Code)]
-        [DataRow(NoLocationExprOutsideParamsRule.Code)]
-        [DataRow(NoUnnecessaryDependsOnRule.Code)]
-        [DataRow(NoUnusedParametersRule.Code)]
-        [DataRow(NoUnusedVariablesRule.Code)]
-        [DataRow(OutputsShouldNotContainSecretsRule.Code)]
-        [DataRow(PreferInterpolationRule.Code)]
-        [DataRow(SecureParameterDefaultRule.Code)]
-        [DataRow(SimplifyInterpolationRule.Code)]
-        [DataRow(ProtectCommandToExecuteSecretsRule.Code)]
-        [DataRow(UseStableVMImageRule.Code)]
         public void BuiltInRulesExistSanityCheck(string ruleCode)
+
         {
             var linter = new LinterAnalyzer(configuration);
             linter.GetRuleSet().Should().Contain(r => r.Code == ruleCode);
@@ -64,11 +55,12 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
         [TestMethod]
-        public void AllRulesEnabledByDefault()
+        public void MostRulesEnabledByDefault()
         {
             var analyzer = new LinterAnalyzer(configuration);
             var ruleSet = analyzer.GetRuleSet();
-            ruleSet.Should().OnlyContain(r => r.IsEnabled());
+            var numberEnabled = ruleSet.Where(r => r.IsEnabled()).Count();
+            numberEnabled.Should().BeGreaterThan(ruleSet.Count() / 2, "most rules should probably be enabled by default");
         }
 
         [TestMethod]

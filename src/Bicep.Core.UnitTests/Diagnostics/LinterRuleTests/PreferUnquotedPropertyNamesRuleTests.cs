@@ -14,9 +14,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class PreferUnquotedPropertyNamesRuleTests : LinterRuleTestsBase
     {
-        private void ExpectPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        private void ExpectPass(string text)
         {
-            AssertLinterRuleDiagnostics(PreferUnquotedPropertyNamesRule.Code, text, Array.Empty<string>(), onCompileErrors);
+            AssertLinterRuleDiagnostics(PreferUnquotedPropertyNamesRule.Code, text, Array.Empty<string>());
         }
 
         private void ExpectDiagnosticWithFix(string text, string expectedFix)

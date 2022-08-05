@@ -74,7 +74,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             private readonly OutputsShouldNotContainSecretsRule parent;
             private readonly SemanticModel model;
-            private const string ListFunctionPrefix = "list";
 
             public OutputValueVisitor(OutputsShouldNotContainSecretsRule parent, List<IDiagnostic> diagnostics, SemanticModel model)
             {
@@ -112,7 +111,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 //
 
                 if (SemanticModelHelper.TryGetFunctionInNamespace(model, AzNamespaceType.BuiltInName, syntax) is FunctionCallSyntaxBase listFunction
-                    && listFunction.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix))
+                    && listFunction.Name.IdentifierName.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix))
                 {
                     string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsFunction, syntax.Name.IdentifierName);
                     this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, foundMessage));
@@ -123,7 +122,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
             {
-                if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix))
+                if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix))
                 {
                     bool isFailure = false;
 

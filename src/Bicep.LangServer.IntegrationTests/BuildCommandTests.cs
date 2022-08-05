@@ -43,7 +43,7 @@ namespace Bicep.LangServer.IntegrationTests
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
                 TestContext,
                 typeof(DataSet).Assembly,
-                "Bicep.Core.Samples/Resources_CRLF");
+                "Files/Resources_CRLF");
 
             var bicepFilePath = Path.Combine(outputDirectory, "main.bicep");
             var expectedJson = File.ReadAllText(Path.Combine(outputDirectory, "main.json"));
@@ -83,7 +83,7 @@ namespace Bicep.LangServer.IntegrationTests
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
                 TestContext,
                 typeof(DataSet).Assembly,
-                "Bicep.Core.Samples/Resources_CRLF");
+                "Files/Resources_CRLF");
 
             var bicepFilePath = Path.Combine(outputDirectory, "main.bicep");
             var expectedJson = File.ReadAllText(Path.Combine(outputDirectory, "main.symbolicnames.json"));

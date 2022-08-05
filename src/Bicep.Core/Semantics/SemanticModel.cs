@@ -77,7 +77,7 @@ namespace Bicep.Core.Semantics
                 foreach (var param in this.Root.ParameterDeclarations.DistinctBy(p => p.Name))
                 {
                     var description = SemanticModelHelper.TryGetDescription(this, param.DeclaringParameter);
-                    var isRequired =  SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null;
+                    var isRequired = SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null;
                     if (param.Type is ResourceType resourceType)
                     {
                         // Resource type parameters are a special case, we need to convert to a dedicated
@@ -261,10 +261,19 @@ namespace Bicep.Core.Semantics
         /// </summary>
         /// <param name="symbol">The symbol</param>
         public IEnumerable<SyntaxBase> FindReferences(Symbol symbol)
-            => SyntaxAggregator.Aggregate(this.SourceFile.ProgramSyntax, current =>
-                {
-                    return object.ReferenceEquals(symbol, this.GetSymbolInfo(current));
-                });
+            => FindReferences(symbol, this.SourceFile.ProgramSyntax);
+
+        /// <summary>
+        /// Returns all syntax nodes that represent a reference to the specified symbol in the given syntax tree.  This includes the definitions
+        /// of the symbol as well, if inside the given syntax tree.
+        /// </summary>
+        /// <param name="symbol">The symbol</param>
+        /// <param name="syntaxTree">The syntax tree to traverse</param>
+        public IEnumerable<SyntaxBase> FindReferences(Symbol symbol, SyntaxBase syntaxTree)
+            => SyntaxAggregator.Aggregate(syntaxTree, current =>
+            {
+                return object.ReferenceEquals(symbol, this.GetSymbolInfo(current));
+            });
 
         private ImmutableArray<ResourceMetadata> GetAllResourceMetadata()
         {

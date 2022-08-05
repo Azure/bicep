@@ -84,7 +84,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void Simple(int diagnosticCount, string text)
         {
-            AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount, OnCompileErrors.Ignore);
+            AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount, new Options(OnCompileErrors.Ignore));
         }
 
         [DataRow(1, @"
@@ -128,7 +128,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void InsideExpressions(int diagnosticCount, string text)
         {
-            AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount, OnCompileErrors.Ignore);
+            AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount, new Options(OnCompileErrors.Ignore));
         }
 
         [DataTestMethod]

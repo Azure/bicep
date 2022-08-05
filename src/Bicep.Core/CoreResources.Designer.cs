@@ -454,29 +454,29 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Remove quotes from property name &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Remove quotes from property name &apos;{0}&apos;.
         /// </summary>
-        internal static string PreferUnquotedPropertyNamesDeclarationFixTitle {
+        internal static string PreferUnquotedPropertyNames_DeclarationFixTitle {
             get {
-                return ResourceManager.GetString("PreferUnquotedPropertyNamesDeclarationFixTitle", resourceCulture);
+                return ResourceManager.GetString("PreferUnquotedPropertyNames_DeclarationFixTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Replace array syntax with &apos;{0}&apos;..
+        ///   Looks up a localized string similar to Replace array syntax with &apos;{0}&apos;.
         /// </summary>
-        internal static string PreferUnquotedPropertyNamesDereferenceFixTitle {
+        internal static string PreferUnquotedPropertyNames_DereferenceFixTitle {
             get {
-                return ResourceManager.GetString("PreferUnquotedPropertyNamesDereferenceFixTitle", resourceCulture);
+                return ResourceManager.GetString("PreferUnquotedPropertyNames_DereferenceFixTitle", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation..
         /// </summary>
-        internal static string PreferUnquotedPropertyNamesRuleDescription {
+        internal static string PreferUnquotedPropertyNamesRule_Description {
             get {
-                return ResourceManager.GetString("PreferUnquotedPropertyNamesRuleDescription", resourceCulture);
+                return ResourceManager.GetString("PreferUnquotedPropertyNamesRule_Description", resourceCulture);
             }
         }
         
@@ -499,6 +499,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Parameters that represent secrets must be secure..
+        /// </summary>
+        internal static string SecretsInParamsRule_Description {
+            get {
+                return ResourceManager.GetString("SecretsInParamsRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parameter &apos;{0}&apos; may represent a secret (according to its name) and must be declared with the &apos;@secure()&apos; attribute..
+        /// </summary>
+        internal static string SecretsInParamsRule_MessageFormat {
+            get {
+                return ResourceManager.GetString("SecretsInParamsRule_MessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Remove insecure default value..
         /// </summary>
         internal static string SecureParameterDefaultFixTitle {
@@ -513,6 +531,42 @@ namespace Bicep.Core {
         internal static string SecureParameterDefaultRuleDescription {
             get {
                 return ResourceManager.GetString("SecureParameterDefaultRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Outer-scoped nested deployment resources should not be used for secure parameters or list* functions..
+        /// </summary>
+        internal static string SecureParamsInNestedDeployRule_Description {
+            get {
+                return ResourceManager.GetString("SecureParamsInNestedDeployRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is an outer scoped nested deployment that calls a list* function (&quot;{1}&quot;), which could expose sensitive values in deployment history..
+        /// </summary>
+        internal static string SecureParamsInNestedDeployRule_Message_ListFunction {
+            get {
+                return ResourceManager.GetString("SecureParamsInNestedDeployRule_Message_ListFunction", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is an outer scoped nested deployment that accesses secure string parameters ({1}), which could expose their values in deployment history..
+        /// </summary>
+        internal static string SecureParamsInNestedDeployRule_Message_SecureParams {
+            get {
+                return ResourceManager.GetString("SecureParamsInNestedDeployRule_Message_SecureParams", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Either set the deployment&apos;s properties.expressionEvaluationOptions.scope to &apos;inner&apos; or use a Bicep module instead..
+        /// </summary>
+        internal static string SecureParamsInNestedDeployRule_Solution {
+            get {
+                return ResourceManager.GetString("SecureParamsInNestedDeployRule_Solution", resourceCulture);
             }
         }
         
@@ -567,6 +621,42 @@ namespace Bicep.Core {
         internal static string UnusedVariableRuleMessageFormat {
             get {
                 return ResourceManager.GetString("UnusedVariableRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Acceptable versions: {0}.
+        /// </summary>
+        internal static string UseRecentApiVersionRule_AcceptableVersions {
+            get {
+                return ResourceManager.GetString("UseRecentApiVersionRule_AcceptableVersions", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use recent API versions.
+        /// </summary>
+        internal static string UseRecentApiVersionRule_Description {
+            get {
+                return ResourceManager.GetString("UseRecentApiVersionRule_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use more recent API version for &apos;{0}&apos;..
+        /// </summary>
+        internal static string UseRecentApiVersionRule_ErrorMessageFormat {
+            get {
+                return ResourceManager.GetString("UseRecentApiVersionRule_ErrorMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Replace with {0}.
+        /// </summary>
+        internal static string UseRecentApiVersionRule_Fix_ReplaceApiVersion {
+            get {
+                return ResourceManager.GetString("UseRecentApiVersionRule_Fix_ReplaceApiVersion", resourceCulture);
             }
         }
         

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -13,6 +13,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using MediatR;
@@ -90,6 +91,20 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var selectedText = contents.Substring(start, end - start);
             return selectedText;
+        }
+
+        private class MockClientCapabilitiesProvider
+        {
+            public Mock<IClientCapabilitiesProvider> Mock;
+
+            public MockClientCapabilitiesProvider()
+            {
+                var clientCapabilitiesProvider = StrictMock.Of<IClientCapabilitiesProvider>();
+                clientCapabilitiesProvider.Setup(m => m.DoesClientSupportShowDocumentRequest()).Returns(true);
+                clientCapabilitiesProvider.Setup(m => m.DoesClientSupportWorkspaceFolders()).Returns(true);
+
+                Mock = clientCapabilitiesProvider;
+            }
         }
 
         private class LanguageServerMock
@@ -192,6 +207,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var server = new LanguageServerMock(new ShowDocumentResult() { Success = true });
 
+            var clientCapabilitiesProvider = new MockClientCapabilitiesProvider();
+
             var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
             BicepTelemetryEvent? ev = null;
             telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()))
@@ -200,7 +217,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     ev = e;
                 });
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, telemetryProvider.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, clientCapabilitiesProvider.Mock.Object, telemetryProvider.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "no-unused-params", configPath, CancellationToken.None);
 
             server.ShowDocumentParams.Should().NotBeNull();
@@ -212,6 +229,66 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     { "code", "no-unused-params" },
                     { "newConfigFile", "false" },
                     { "newRuleAdded", "false" },
+                    { "error", string.Empty },
+                    { "result", Result.Succeeded },
+                });
+        }
+
+        [TestMethod]
+        public async Task WhenClientDoesNotSupportShowDocumentRequestAndWorkspaceFolders_ShowDocumentParamsAndStringTriggeredForCompletionsShouldBeNull()
+        {
+            string expectedConfig = @"{
+  // See https://aka.ms/bicep/config for more information on Bicep configuration options
+  // Press CTRL+SPACE/CMD+SPACE at any location to see Intellisense suggestions
+  ""analyzers"": {
+    ""core"": {
+      ""rules"": {
+        ""whatever"": {
+          ""level"": ""warning""
+        }
+      }
+    }
+  }
+}";
+
+            var rootFolder = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(rootFolder);
+
+            var bicepFolder = Path.Combine(rootFolder, "subfolder");
+            Directory.CreateDirectory(bicepFolder);
+            string bicepPath = Path.Combine(bicepFolder, "main.bicep");
+            File.WriteAllText(bicepPath, "var a = 'hello'");
+
+            string expectedConfigPath = Path.Join(bicepFolder, "bicepconfig.json");
+
+            var server = new LanguageServerMock(
+             new ShowDocumentResult() { Success = true },
+              workspaceFolders: new Container<WorkspaceFolder>(new WorkspaceFolder[] { new() { Name = "my workspace", Uri = DocumentUri.File(rootFolder) } }));
+
+            var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
+            BicepTelemetryEvent? ev = null;
+            telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()))
+                .Callback((BicepTelemetryEvent e) =>
+                {
+                    ev = e;
+                });
+
+            var clientCapabilitiesProvider = StrictMock.Of<IClientCapabilitiesProvider>();
+            clientCapabilitiesProvider.Setup(m => m.DoesClientSupportShowDocumentRequest()).Returns(false);
+            clientCapabilitiesProvider.Setup(m => m.DoesClientSupportWorkspaceFolders()).Returns(false);
+
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, clientCapabilitiesProvider.Object, telemetryProvider.Object);
+            await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", "", CancellationToken.None);
+
+            server.ShowDocumentParams.Should().BeNull();
+            server.StringTriggeredForCompletion.Should().BeNull();
+            File.ReadAllText(expectedConfigPath).Should().BeEquivalentToIgnoringNewlines(expectedConfig);
+            ev.Should().NotBeNull();
+            ev!.EventName.Should().Be(TelemetryConstants.EventNames.EditLinterRule);
+            ev.Properties.Should().Contain(new Dictionary<string, string> {
+                    { "code", "whatever" },
+                    { "newConfigFile", "true" },
+                    { "newRuleAdded", "true" },
                     { "error", string.Empty },
                     { "result", Result.Succeeded },
                 });
@@ -238,7 +315,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var server = new LanguageServerMock(new ShowDocumentResult() { Success = true });
 
             var telemetryProvider = BicepTestConstants.CreateMockTelemetryProvider();
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, telemetryProvider.Object);
+
+            var clientCapabilitiesProvider = new MockClientCapabilitiesProvider();
+
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, clientCapabilitiesProvider.Mock.Object,telemetryProvider.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "no-unused-params", configPath, CancellationToken.None);
 
             server.ShowDocumentParams.Should().NotBeNull();
@@ -291,7 +371,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     ev = e;
                 });
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, telemetryProvider.Object);
+            var clientCapabilitiesProvider = new MockClientCapabilitiesProvider();
+
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, clientCapabilitiesProvider.Mock.Object, telemetryProvider.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", configPath, CancellationToken.None);
 
             server.ShowDocumentParams.Should().NotBeNull();
@@ -331,8 +413,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 {
                     ev = e;
                 });
+            var clientCapabilitiesProvider = new MockClientCapabilitiesProvider();
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, telemetryProvider.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, clientCapabilitiesProvider.Mock.Object,telemetryProvider.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", configPath, CancellationToken.None);
 
             server.ShowDocumentParams.Should().BeNull("ShowTextDocument Shouldn't get called");
@@ -387,7 +470,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     ev = e;
                 });
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, telemetryProvider.Object);
+            var clientCapabilitiesProvider = new MockClientCapabilitiesProvider();
+
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, clientCapabilitiesProvider.Mock.Object,telemetryProvider.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", "", CancellationToken.None);
 
             server.ShowDocumentParams.Should().NotBeNull();
@@ -427,7 +512,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var server = new LanguageServerMock(new ShowDocumentResult() { Success = true });
 
             var telemetryProvider = BicepTestConstants.CreateMockTelemetryProvider();
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, telemetryProvider.Object);
+
+            var clientCapabilitiesProvider = new MockClientCapabilitiesProvider();
+
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, clientCapabilitiesProvider.Mock.Object,telemetryProvider.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "no-unused-params", configPath, CancellationToken.None);
 
             server.ShowDocumentParams.Should().NotBeNull();

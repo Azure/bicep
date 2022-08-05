@@ -84,7 +84,7 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v2
 
-      - name: Build
+      - name: Build Bicep.sln
         run: dotnet build --configuration ${{ matrix.configuration }}
 
       - name: Pack
@@ -154,6 +154,47 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           flags: dotnet
+
+  build-bicep-in-visual-studio:
+    name: Build Bicep In Visual Studio
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Build BicepInVisualStudio.sln
+        run: msbuild Bicep.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
+
+      - name: Build BicepInVisualStudio.sln
+        run: msbuild src/vs-bicep/BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
+
+      - name: Run bicep in visual studio unit tests
+        uses: microsoft/vstest-action@v1.0.0
+        with:
+          testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/Bicep.VSLanguageServerClient.UnitTests.dll
+          runInParallel: true
+
+      - name: Install bicep in Visual Studio
+        run: ./src/vs-bicep/Install.cmd
+
+      - name: Run bicep in visual studio integration tests
+        uses: microsoft/vstest-action@v1.0.0
+        with:
+          testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/Bicep.VSLanguageServerClient.IntegrationTests.dll
+          runInParallel: false
+
+      - name: Upload BicepLanguageServerClient VSIX
+        uses: actions/upload-artifact@v3
+        with:
+          name: Bicep.VSLanguageServerClient.Vsix.vsix
+          path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/Bicep.VSLanguageServerClient.Vsix.vsix
+          if-no-files-found: error
 
   can-run-live-tests:
     name: Check secret access

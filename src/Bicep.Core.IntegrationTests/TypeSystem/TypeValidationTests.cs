@@ -20,8 +20,8 @@ namespace Bicep.Core.IntegrationTests
     {
         private static SemanticModel GetSemanticModelForTest(string programText, INamespaceProvider nsProvider)
         {
-            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
-            var compilation = new Compilation(BicepTestConstants.Features, nsProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configuration, new LinterAnalyzer(configuration));
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
+            var compilation = new Compilation(BicepTestConstants.Features, nsProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configuration, BicepTestConstants.ApiVersionProvider, new LinterAnalyzer(configuration));
 
             return compilation.GetEntrypointSemanticModel();
         }

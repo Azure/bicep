@@ -129,7 +129,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidateSnippetCompletionAfterPlaceholderReplacements(CompletionData completionData)
         {
-            string pathPrefix = $"Completions/SnippetTemplates/{completionData.Prefix}";
+            string pathPrefix = $"Files/SnippetTemplates/{completionData.Prefix}";
 
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(CompletionTests).Assembly, pathPrefix);
 
@@ -162,7 +162,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     [combinedFileUri] = bicepContentsReplaced,
                 }, combinedFileUri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration);
-                var compilation = new Compilation(BicepTestConstants.Features, NamespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+                var compilation = new Compilation(BicepTestConstants.Features, NamespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInConfiguration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
                 var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
                 var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContentsReplaced, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepContentsReplaced, outputDirectory, diag));
@@ -1063,7 +1063,8 @@ module mod2 './|' = {}
         [TestMethod]
         public async Task VerifyCompletionRequestWithinResourceDeclarationReturnsSnippets()
         {
-            string fileWithCursors = @"resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
+            string fileWithCursors = @"#disable-next-line use-recent-api-versions
+resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
   name: 'name'
   location: resourceGroup().location
   |
@@ -1098,6 +1099,10 @@ module mod2 './|' = {}
                         x =>
                         {
                             x.Label.Should().Be("res-automation-job-schedule");
+                        },
+                        x =>
+                        {
+                            x.Label.Should().Be("res-automation-module");
                         },
                         x =>
                         {

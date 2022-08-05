@@ -33,6 +33,7 @@ namespace Bicep.Core.Syntax
 
         public static ExplicitVariableAccessSyntax CreateExplicitVariableAccess(string text) => new(CreateIdentifier(text));
 
+        public static Token DoubleNewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine + Environment.NewLine);
         public static Token NewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine);
         public static Token AtToken => CreateToken(TokenType.At, "@");
         public static Token LeftBraceToken => CreateToken(TokenType.LeftBrace, "{");

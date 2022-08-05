@@ -8,18 +8,17 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.IO;
-using System.Reflection;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Workspaces;
-using Bicep.Core.Semantics;
 using FluentAssertions.Execution;
 using System.Text.RegularExpressions;
 using Bicep.Decompiler.Exceptions;
 using Bicep.Decompiler;
 using Bicep.Core.Registry;
 using Bicep.Core.UnitTests;
-using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.UnitTests.Baselines;
+using System.Threading;
+using System.Globalization;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -29,97 +28,42 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        public class ExampleData
-        {
-            public ExampleData(string bicepStreamName, string jsonStreamName, string outputFolderName)
-            {
-                BicepStreamName = bicepStreamName;
-                JsonStreamName = jsonStreamName;
-                OutputFolderName = outputFolderName;
-            }
-
-            public string BicepStreamName { get; }
-
-            public string JsonStreamName { get; }
-
-            public string OutputFolderName { get; }
-
-            public static string GetDisplayName(MethodInfo info, object[] data) => ((ExampleData)data[0]).JsonStreamName!;
-        }
-
-        private static IEnumerable<object[]> GetWorkingExampleData()
-        {
-            const string pathPrefix = "Working/";
-            const string bicepExtension = ".bicep";
-
-            // Only return files whose path segment length is 3 as entry files to avoid decompiling nested templates twice.
-            var entryStreamNames = typeof(DecompilationTests).Assembly.GetManifestResourceNames()
-                .Where(p => p.StartsWith(pathPrefix, StringComparison.Ordinal) && p.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Length == 3);
-
-            foreach (var streamName in entryStreamNames)
-            {
-                var extension = Path.GetExtension(streamName);
-                if (StringComparer.OrdinalIgnoreCase.Equals(extension, bicepExtension))
-                {
-                    continue;
-                }
-
-                var outputFolderName = streamName[pathPrefix.Length..^extension.Length].Replace('/', '_');
-                var exampleData = new ExampleData(Path.ChangeExtension(streamName, bicepExtension), streamName, outputFolderName);
-
-                yield return new object[] { exampleData };
-            }
-        }
-
         [TestMethod]
         public void ExampleData_should_return_a_number_of_records()
         {
             GetWorkingExampleData().Should().HaveCountGreaterOrEqualTo(10, "sanity check to ensure we're finding examples to test");
         }
 
-        [DataTestMethod]
-        [DynamicData(nameof(GetWorkingExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void Decompiler_generates_expected_bicep_files_with_diagnostics(ExampleData example)
-        {
-            // save all the files in the containing directory to disk so that we can test module resolution
-            var parentStream = Path.GetDirectoryName(example.BicepStreamName)!.Replace('\\', '/');
-            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(DecompilationTests).Assembly, parentStream);
-            var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
-            var nsProvider = BicepTestConstants.NamespaceProvider;
+        private static IEnumerable<object[]> GetWorkingExampleData()
+            => EmbeddedFile.LoadAll(
+                typeof(DecompilationTests).Assembly,
+                "Working",
+                streamName => Path.GetExtension(streamName) == ".json")
+            .Select(x => new object[] { x });
 
-            var jsonUri = PathHelper.FilePathToFileUrl(jsonFileName);
-            var decompiler = new TemplateDecompiler(BicepTestConstants.Features, nsProvider, new FileResolver(), BicepTestConstants.RegistryProvider, BicepTestConstants.ConfigurationManager);
+        [DataTestMethod]
+        [DynamicData(nameof(GetWorkingExampleData), DynamicDataSourceType.Method)]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void Decompiler_generates_expected_bicep_files_with_diagnostics(EmbeddedFile embeddedJson)
+        {
+            var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, embeddedJson);
+            var jsonFile = baselineFolder.EntryFile;
+
+            var jsonUri = PathHelper.FilePathToFileUrl(jsonFile.OutputFilePath);
+            var decompiler = new TemplateDecompiler(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, new FileResolver(), BicepTestConstants.RegistryProvider, BicepTestConstants.ConfigurationManager);
             var (bicepUri, filesToSave) = decompiler.DecompileFileWithModules(jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
 
-            var bicepFiles = filesToSave.Select(kvp => SourceFileFactory.CreateBicepFile(kvp.Key, kvp.Value));
-            var workspace = new Workspace();
-            workspace.UpsertSourceFiles(bicepFiles);
-
-            var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
-            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, bicepUri, configuration);
-            var compilation = new Compilation(BicepTestConstants.Features, nsProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
-            var diagnosticsByBicepFile = compilation.GetAllDiagnosticsByBicepFile();
+            var result = CompilationHelper.Compile(bicepUri, filesToSave);
+            var diagnosticsByBicepFile = result.Compilation.GetAllDiagnosticsByBicepFile();
 
             using (new AssertionScope())
             {
-                foreach (var bicepFile in sourceFileGrouping.SourceFiles.OfType<BicepFile>())
+                foreach (var (bicepFile, diagnostics) in diagnosticsByBicepFile)
                 {
-                    var exampleExists = File.Exists(bicepFile.FileUri.LocalPath);
-                    exampleExists.Should().BeTrue($"Generated example \"{bicepFile.FileUri.LocalPath}\" should be checked in");
-
-                    var diagnostics = diagnosticsByBicepFile[bicepFile];
+                    var baselineFile = baselineFolder.GetFileOrEnsureCheckedIn(bicepFile.FileUri);
                     var bicepOutput = filesToSave[bicepFile.FileUri];
 
-                    var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepOutput, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepOutput, outputDirectory, diag));
-                    File.WriteAllText(bicepFile.FileUri.LocalPath + ".actual", sourceTextWithDiags);
-
-                    sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
-                        TestContext,
-                        exampleExists ? File.ReadAllText(bicepFile.FileUri.LocalPath) : "",
-                        expectedLocation: Path.Combine("src", "Bicep.Decompiler.IntegrationTests", parentStream, Path.GetRelativePath(outputDirectory, bicepFile.FileUri.LocalPath)),
-                        actualLocation: bicepFile.FileUri.LocalPath + ".actual");
+                    baselineFile.ShouldHaveExpectedValue();
                 }
             }
         }
@@ -138,10 +82,10 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [DataTestMethod]
-        [DataRow("NonWorking/unknownprops.json", "[15:29]: Unrecognized top-level resource property 'madeUpProperty'")]
-        [DataRow("NonWorking/invalid-schema.json", "[2:98]: $schema value \"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#\" did not match any of the known ARM template deployment schemas.")]
-        [DataRow("NonWorking/keyvault-secret-reference.json", "[25:38]: Failed to convert parameter \"mySecret\": KeyVault secret references are not currently supported by the decompiler.")]
-        [DataRow("NonWorking/symbolic-names.json", "[27:16]: Decompilation of symbolic name templates is not currently supported")]
+        [DataRow("Files/NonWorking/unknownprops.json", "[15:29]: Unrecognized top-level resource property 'madeUpProperty'")]
+        [DataRow("Files/NonWorking/invalid-schema.json", "[2:98]: $schema value \"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#\" did not match any of the known ARM template deployment schemas.")]
+        [DataRow("Files/NonWorking/keyvault-secret-reference.json", "[25:38]: Failed to convert parameter \"mySecret\": KeyVault secret references are not currently supported by the decompiler.")]
+        [DataRow("Files/NonWorking/symbolic-names.json", "[27:16]: Decompilation of symbolic name templates is not currently supported")]
         public void Decompiler_raises_errors_for_unsupported_features(string resourcePath, string expectedMessage)
         {
             Action onDecompile = () =>
@@ -324,6 +268,41 @@ namespace Bicep.Core.IntegrationTests
             var (entryPointUri, filesToSave) = decompiler.DecompileFileWithModules(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
 
             filesToSave[entryPointUri].Should().Contain($"? /* TODO: User defined functions are not supported and have not been decompiled */");
+        }
+
+        [TestMethod]
+        public void Decompiler_should_not_interpret_numbers_with_locale_settings()
+        {
+            // https://github.com/Azure/bicep/issues/7615
+            const string template = @"{
+    ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+    ""contentVersion"": ""1.0.0.0"",
+    ""parameters"": {},
+    ""variables"": {
+        ""cpu"": 0.25
+    },
+    ""resources"": [],
+    ""outputs"": {}
+}";
+
+            var fileUri = new Uri("file:///path/to/main.json");
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [fileUri] = template,
+            });
+
+            var currentCulture = Thread.CurrentThread.CurrentCulture;
+            try {
+                Thread.CurrentThread.CurrentCulture = new CultureInfo("fi-FI");
+
+                var decompiler = new TemplateDecompiler(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features), BicepTestConstants.ConfigurationManager);
+                var (entryPointUri, filesToSave) = decompiler.DecompileFileWithModules(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
+
+                filesToSave[entryPointUri].Should().Contain($"var cpu = '0.25'");
+            }
+            finally {
+                Thread.CurrentThread.CurrentCulture = currentCulture;
+            }
         }
     }
 }

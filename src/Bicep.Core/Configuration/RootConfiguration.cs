@@ -17,11 +17,11 @@ namespace Bicep.Core.Configuration
             this.ConfigurationPath = configurationPath;
         }
 
-        public static RootConfiguration Bind(JsonElement element, string? configurationPath = null, bool disableAnalyzers = false)
+        public static RootConfiguration Bind(JsonElement element, string? configurationPath = null)
         {
             var cloud = CloudConfiguration.Bind(element.GetProperty("cloud"), configurationPath);
             var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty("moduleAliases"), configurationPath);
-            var analyzers = disableAnalyzers ? AnalyzersConfiguration.Empty : new AnalyzersConfiguration(element.GetProperty("analyzers"));
+            var analyzers = new AnalyzersConfiguration(element.GetProperty("analyzers"));
 
             return new(cloud, moduleAliases, analyzers, configurationPath);
         }
