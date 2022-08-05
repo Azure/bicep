@@ -863,6 +863,11 @@
         "resolved": "4.4.0",
         "contentHash": "YhEdSQUsTx+C8m8Bw7ar5/VesXvCFMItyZF7G1AUY+OM0VPZUOeAVpJ4Wl6fydBGUYZxojTDR3I6Bj/+BPkJNA=="
       },
+      "SharpYaml": {
+        "type": "Transitive",
+        "resolved": "2.0.0",
+        "contentHash": "KgdpJtAHf119JmlXU2P+HTo5vht8dKTrb8bP1vQeEV2jnkQNuVGg+tSea7T/eZe5xaStRZaRXyGQobUMJgb44w=="
+      },
       "System.AppContext": {
         "type": "Transitive",
         "resolved": "4.3.0",
@@ -2083,7 +2088,8 @@
         "dependencies": {
           "Azure.Bicep.Core": "1.0.0",
           "CommandLineParser": "2.9.1",
-          "OmniSharp.Extensions.LanguageServer": "0.19.5"
+          "OmniSharp.Extensions.LanguageServer": "0.19.5",
+          "SharpYaml": "2.0.0"
         }
       },
       "bicep.langserver.integrationtests": {

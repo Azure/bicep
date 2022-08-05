@@ -42,6 +42,7 @@
     "onCommand:bicep.deploy",
     "onCommand:bicep.forceModulesRestore",
     "onCommand:bicep.insertResource",
+    "onCommand:bicep.importKubernetesManifest",
     "onCommand:bicep.showSource",
     "onCommand:bicep.showVisualizer",
     "onCommand:bicep.showVisualizerToSide",
@@ -83,6 +84,11 @@
           "description": "Prepend each line displayed in the Bicep Operations output channel with a timestamp.",
           "default": true,
           "$comment": "This is used by vscode-azuretools package and has to be in the following format: <extensionPrefix>.enableOutputTimestamps"
+        },
+        "bicep.importsEnabledExperimental": {
+          "type": "boolean",
+          "description": "Enable Bicep import statements (experimental!)",
+          "default": false
         }
       }
     },
@@ -173,6 +179,12 @@
       {
         "command": "bicep.insertResource",
         "title": "Insert Resource...",
+        "category": "Bicep",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "bicep.importKubernetesManifest",
+        "title": "Import Kubernetes Manifest",
         "category": "Bicep",
         "icon": "$(cloud-download)"
       },
@@ -382,6 +394,10 @@
         {
           "command": "bicep.showVisualizerToSide",
           "group": "0_bicep"
+        },
+        {
+          "command": "bicep.importKubernetesManifest",
+          "when": "config.bicep.importsEnabledExperimental"
         },
         {
           "command": "bicep.showSource",
