@@ -56,11 +56,11 @@ namespace Bicep.LangServer.IntegrationTests
 
             var response = await client.SendRequest(new ImportKubernetesManifestRequest(yamlFile.OutputFilePath), default);
 
-            var telemetry = await telemetryEventsListener.WaitNext();
-            telemetry.Should().HaveEventNameAndProperties("ImportKubernetesManifest/success", new JObject
-            {
-                ["success"] = "true",
-            });
+            var telemetry = await telemetryEventsListener.WaitForAll();
+            telemetry.Should().ContainEvent("ImportKubernetesManifest/success", new JObject
+                {
+                    ["success"] = "true",
+                });
 
             bicepFile.ShouldHaveExpectedValue();
 
@@ -88,11 +88,11 @@ namespace Bicep.LangServer.IntegrationTests
             var response = await client.SendRequest(new ImportKubernetesManifestRequest(manifestFile), default);
             response.BicepFilePath.Should().BeNull();
 
-            var telemetry = await telemetryEventsListener.WaitNext();
-            telemetry.Should().HaveEventNameAndProperties("ImportKubernetesManifest/failure", new JObject
-            {
-                ["failureType"] = "DeserializeYamlFailed",
-            });
+            var telemetry = await telemetryEventsListener.WaitForAll();
+            telemetry.Should().ContainEvent("ImportKubernetesManifest/failure", new JObject
+                {
+                    ["failureType"] = "DeserializeYamlFailed",
+                });
 
             var message = await messageListener.WaitNext();
             message.Should().HaveMessageAndType(
