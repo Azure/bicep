@@ -140,7 +140,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     location: deployment().location
                 }
             ",
-            "[4] Use a parameter here instead of 'deployment().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
+            "[6] Use a parameter here instead of 'deployment().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
         [DataRow(
     @"
                 targetScope = 'subscription'
