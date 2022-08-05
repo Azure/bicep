@@ -48,7 +48,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             if (includePosition == IncludePosition.LineNumber)
             {
                 var position = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
-                return $"[{position.line+1}] {diagnostic.Message}";
+                return $"[{position.line + 1}] {diagnostic.Message}";
             }
             else
             {
