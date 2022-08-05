@@ -25,7 +25,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             Ignore, // Ignore any compile errors
             IncludeErrorsAndWarnings, // Include compile errors and warnings in the list of messages to expect
 
-            Default =IncludeErrors
+            Default = IncludeErrors
         }
 
         public enum IncludePosition
@@ -48,7 +48,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             if (includePosition == IncludePosition.LineNumber)
             {
                 var position = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
-                return $"[{position.line}] {diagnostic.Message}";
+                return $"[{position.line+1}] {diagnostic.Message}";
             }
             else
             {

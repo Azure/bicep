@@ -140,7 +140,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     location: deployment().location
                 }
             ",
-            "[5] Use a parameter here instead of 'deployment().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
+            "[4] Use a parameter here instead of 'deployment().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
         [DataRow(
     @"
                 targetScope = 'subscription'
@@ -150,7 +150,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     location: '${deployment().location}'
                 }
             ",
-            "[5] Use a parameter here instead of 'deployment().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
+            "[6] Use a parameter here instead of 'deployment().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
         [DataRow(
     @"
             resource availabilitySet 'Microsoft.Compute/availabilitySets@2020-12-01' = {
@@ -158,7 +158,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     location: resourceGroup().location
                 }
             ",
-            "[3] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
+            "[4] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
         [DataRow(
     @"
             resource availabilitySet 'Microsoft.Compute/availabilitySets@2020-12-01' = {
@@ -166,7 +166,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     location: '${resourceGroup().location}'
                 }
             ",
-            "[3] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
+            "[4] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
         [DataTestMethod]
         public void If_DeploymentLocationOrResourceGroup_OutsideParam_ShouldFail(string text, string expectedMessage)
         {
@@ -182,7 +182,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     location: az.deployment().location
                 }
             ",
-            "[5] Use a parameter here instead of 'deployment().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
+            "[6] Use a parameter here instead of 'deployment().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
         [DataRow(
             @"
             resource availabilitySet 'Microsoft.Compute/availabilitySets@2020-12-01' = {
@@ -190,7 +190,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     location: az.resourceGroup().location
                 }
             ",
-            "[3] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
+            "[4] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
         [DataTestMethod]
         public void If_DeploymentLocationOrResourceGroup_WithAzNamespace_ShouldFail(string text, string expectedMessage)
         {
