@@ -140,12 +140,10 @@ namespace Bicep.Core.Decompiler.Rewriters
             SyntaxBase forVariableBlockSyntax;
             if (independentIndexAccesses.Any())
             {
-                forVariableBlockSyntax = new ForVariableBlockSyntax(
-                    SyntaxFactory.LeftParenToken,
-                    new LocalVariableSyntax(SyntaxFactory.CreateIdentifier(itemVarName)),
-                    SyntaxFactory.CommaToken,
-                    new LocalVariableSyntax(SyntaxFactory.CreateIdentifier(arrayIndexSymbol.Name)),
-                    SyntaxFactory.RightParenToken);
+                forVariableBlockSyntax = SyntaxFactory.CreateVariableBlock(new [] {
+                    SyntaxFactory.CreateIdentifier(itemVarName),
+                    SyntaxFactory.CreateIdentifier(arrayIndexSymbol.Name)
+                });
             }
             else
             {

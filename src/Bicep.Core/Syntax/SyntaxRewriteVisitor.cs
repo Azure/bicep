@@ -656,24 +656,6 @@ namespace Bicep.Core.Syntax
 
         void ISyntaxVisitor.VisitForSyntax(ForSyntax syntax) => ReplaceCurrent(syntax, ReplaceForSyntax);
 
-        protected virtual SyntaxBase ReplaceForVariableBlockSyntax(ForVariableBlockSyntax syntax)
-        {
-            var hasChanges = TryRewriteStrict(syntax.OpenParen, out var openParen);
-            hasChanges |= TryRewriteStrict(syntax.ItemVariable, out var itemVariable);
-            hasChanges |= TryRewrite(syntax.Comma, out var comma);
-            hasChanges |= TryRewriteStrict(syntax.IndexVariable, out var indexVariable);
-            hasChanges |= TryRewrite(syntax.CloseParen, out var closeParen);
-
-            if (!hasChanges)
-            {
-                return syntax;
-            }
-
-            return new ForVariableBlockSyntax(openParen, itemVariable, comma, indexVariable, closeParen);
-        }
-
-        void ISyntaxVisitor.VisitForVariableBlockSyntax(ForVariableBlockSyntax syntax) => ReplaceCurrent(syntax, ReplaceForVariableBlockSyntax);
-
         protected virtual SyntaxBase ReplaceVariableBlockSyntax(VariableBlockSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.OpenParen, out var openParen);

@@ -1518,16 +1518,16 @@ resource expectedLoopBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 
 // loop index parsing cases
 resource expectedLoopItemName 'Microsoft.Network/dnsZones@2018-05-01' = [for ()]
-//@[078:079) [BCP136 (Error)] Expected a loop item variable identifier at this location. (CodeDescription: none) |)|
+//@[077:079) [BCP249 (Error)] Expected loop variable block to consist of exactly 2 elements (item variable and index variable), but found 0. (CodeDescription: none) |()|
 
 resource expectedLoopItemName2 'Microsoft.Network/dnsZones@2018-05-01' = [for (
-//@[079:079) [BCP136 (Error)] Expected a loop item variable identifier at this location. (CodeDescription: none) ||
+//@[079:079) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 resource expectedComma 'Microsoft.Network/dnsZones@2018-05-01' = [for (x)]
-//@[072:073) [BCP018 (Error)] Expected the "," character at this location. (CodeDescription: none) |)|
+//@[070:073) [BCP249 (Error)] Expected loop variable block to consist of exactly 2 elements (item variable and index variable), but found 1. (CodeDescription: none) |(x)|
 
 resource expectedLoopIndexName 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, )]
-//@[082:083) [BCP163 (Error)] Expected a loop index variable identifier at this location. (CodeDescription: none) |)|
+//@[078:083) [BCP249 (Error)] Expected loop variable block to consist of exactly 2 elements (item variable and index variable), but found 1. (CodeDescription: none) |(x, )|
 
 resource expectedInKeyword3 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)]
 //@[081:082) [BCP012 (Error)] Expected the "in" keyword at this location. (CodeDescription: none) |]|

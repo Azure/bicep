@@ -7068,16 +7068,10 @@ resource expectedLoopItemName 'Microsoft.Network/dnsZones@2018-05-01' = [for ()]
 //@[072:00080) | └─ForSyntax
 //@[072:00073) |   ├─Token(LeftSquare) |[|
 //@[073:00076) |   ├─Token(Identifier) |for|
-//@[077:00079) |   ├─ForVariableBlockSyntax
-//@[077:00078) |   | ├─Token(LeftParen) |(|
-//@[078:00078) |   | ├─LocalVariableSyntax
-//@[078:00078) |   | | └─IdentifierSyntax
-//@[078:00078) |   | |   └─SkippedTriviaSyntax
-//@[078:00078) |   | ├─SkippedTriviaSyntax
-//@[078:00078) |   | ├─LocalVariableSyntax
-//@[078:00078) |   | | └─IdentifierSyntax
-//@[078:00078) |   | |   └─SkippedTriviaSyntax
-//@[078:00079) |   | └─Token(RightParen) |)|
+//@[077:00079) |   ├─SkippedTriviaSyntax
+//@[077:00079) |   | └─VariableBlockSyntax
+//@[077:00078) |   |   ├─Token(LeftParen) |(|
+//@[078:00079) |   |   └─Token(RightParen) |)|
 //@[079:00079) |   ├─SkippedTriviaSyntax
 //@[079:00079) |   ├─SkippedTriviaSyntax
 //@[079:00079) |   ├─SkippedTriviaSyntax
@@ -7096,15 +7090,9 @@ resource expectedLoopItemName2 'Microsoft.Network/dnsZones@2018-05-01' = [for (
 //@[073:00079) | └─ForSyntax
 //@[073:00074) |   ├─Token(LeftSquare) |[|
 //@[074:00077) |   ├─Token(Identifier) |for|
-//@[078:00079) |   ├─ForVariableBlockSyntax
+//@[078:00079) |   ├─VariableBlockSyntax
 //@[078:00079) |   | ├─Token(LeftParen) |(|
-//@[079:00079) |   | ├─LocalVariableSyntax
-//@[079:00079) |   | | └─IdentifierSyntax
-//@[079:00079) |   | |   └─SkippedTriviaSyntax
 //@[079:00079) |   | ├─SkippedTriviaSyntax
-//@[079:00079) |   | ├─LocalVariableSyntax
-//@[079:00079) |   | | └─IdentifierSyntax
-//@[079:00079) |   | |   └─SkippedTriviaSyntax
 //@[079:00079) |   | └─SkippedTriviaSyntax
 //@[079:00079) |   ├─SkippedTriviaSyntax
 //@[079:00079) |   ├─SkippedTriviaSyntax
@@ -7124,16 +7112,13 @@ resource expectedComma 'Microsoft.Network/dnsZones@2018-05-01' = [for (x)]
 //@[065:00074) | └─ForSyntax
 //@[065:00066) |   ├─Token(LeftSquare) |[|
 //@[066:00069) |   ├─Token(Identifier) |for|
-//@[070:00073) |   ├─ForVariableBlockSyntax
-//@[070:00071) |   | ├─Token(LeftParen) |(|
-//@[071:00072) |   | ├─LocalVariableSyntax
-//@[071:00072) |   | | └─IdentifierSyntax
-//@[071:00072) |   | |   └─Token(Identifier) |x|
-//@[072:00072) |   | ├─SkippedTriviaSyntax
-//@[072:00072) |   | ├─LocalVariableSyntax
-//@[072:00072) |   | | └─IdentifierSyntax
-//@[072:00072) |   | |   └─SkippedTriviaSyntax
-//@[072:00073) |   | └─Token(RightParen) |)|
+//@[070:00073) |   ├─SkippedTriviaSyntax
+//@[070:00073) |   | └─VariableBlockSyntax
+//@[070:00071) |   |   ├─Token(LeftParen) |(|
+//@[071:00072) |   |   ├─LocalVariableSyntax
+//@[071:00072) |   |   | └─IdentifierSyntax
+//@[071:00072) |   |   |   └─Token(Identifier) |x|
+//@[072:00073) |   |   └─Token(RightParen) |)|
 //@[073:00073) |   ├─SkippedTriviaSyntax
 //@[073:00073) |   ├─SkippedTriviaSyntax
 //@[073:00073) |   ├─SkippedTriviaSyntax
@@ -7152,16 +7137,14 @@ resource expectedLoopIndexName 'Microsoft.Network/dnsZones@2018-05-01' = [for (x
 //@[073:00084) | └─ForSyntax
 //@[073:00074) |   ├─Token(LeftSquare) |[|
 //@[074:00077) |   ├─Token(Identifier) |for|
-//@[078:00083) |   ├─ForVariableBlockSyntax
-//@[078:00079) |   | ├─Token(LeftParen) |(|
-//@[079:00080) |   | ├─LocalVariableSyntax
-//@[079:00080) |   | | └─IdentifierSyntax
-//@[079:00080) |   | |   └─Token(Identifier) |x|
-//@[080:00081) |   | ├─Token(Comma) |,|
-//@[082:00082) |   | ├─LocalVariableSyntax
-//@[082:00082) |   | | └─IdentifierSyntax
-//@[082:00082) |   | |   └─SkippedTriviaSyntax
-//@[082:00083) |   | └─Token(RightParen) |)|
+//@[078:00083) |   ├─SkippedTriviaSyntax
+//@[078:00083) |   | └─VariableBlockSyntax
+//@[078:00079) |   |   ├─Token(LeftParen) |(|
+//@[079:00080) |   |   ├─LocalVariableSyntax
+//@[079:00080) |   |   | └─IdentifierSyntax
+//@[079:00080) |   |   |   └─Token(Identifier) |x|
+//@[080:00081) |   |   ├─Token(Comma) |,|
+//@[082:00083) |   |   └─Token(RightParen) |)|
 //@[083:00083) |   ├─SkippedTriviaSyntax
 //@[083:00083) |   ├─SkippedTriviaSyntax
 //@[083:00083) |   ├─SkippedTriviaSyntax
@@ -7180,7 +7163,7 @@ resource expectedInKeyword3 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y
 //@[070:00082) | └─ForSyntax
 //@[070:00071) |   ├─Token(LeftSquare) |[|
 //@[071:00074) |   ├─Token(Identifier) |for|
-//@[075:00081) |   ├─ForVariableBlockSyntax
+//@[075:00081) |   ├─VariableBlockSyntax
 //@[075:00076) |   | ├─Token(LeftParen) |(|
 //@[076:00077) |   | ├─LocalVariableSyntax
 //@[076:00077) |   | | └─IdentifierSyntax
@@ -7208,7 +7191,7 @@ resource expectedInKeyword4 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y
 //@[070:00084) | └─ForSyntax
 //@[070:00071) |   ├─Token(LeftSquare) |[|
 //@[071:00074) |   ├─Token(Identifier) |for|
-//@[075:00081) |   ├─ForVariableBlockSyntax
+//@[075:00081) |   ├─VariableBlockSyntax
 //@[075:00076) |   | ├─Token(LeftParen) |(|
 //@[076:00077) |   | ├─LocalVariableSyntax
 //@[076:00077) |   | | └─IdentifierSyntax
@@ -7237,7 +7220,7 @@ resource expectedArrayExpression2 'Microsoft.Network/dnsZones@2018-05-01' = [for
 //@[076:00092) | └─ForSyntax
 //@[076:00077) |   ├─Token(LeftSquare) |[|
 //@[077:00080) |   ├─Token(Identifier) |for|
-//@[081:00087) |   ├─ForVariableBlockSyntax
+//@[081:00087) |   ├─VariableBlockSyntax
 //@[081:00082) |   | ├─Token(LeftParen) |(|
 //@[082:00083) |   | ├─LocalVariableSyntax
 //@[082:00083) |   | | └─IdentifierSyntax
@@ -7265,7 +7248,7 @@ resource expectedColon2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in
 //@[066:00083) | └─ForSyntax
 //@[066:00067) |   ├─Token(LeftSquare) |[|
 //@[067:00070) |   ├─Token(Identifier) |for|
-//@[071:00077) |   ├─ForVariableBlockSyntax
+//@[071:00077) |   ├─VariableBlockSyntax
 //@[071:00072) |   | ├─Token(LeftParen) |(|
 //@[072:00073) |   | ├─LocalVariableSyntax
 //@[072:00073) |   | | └─IdentifierSyntax
@@ -7295,7 +7278,7 @@ resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)
 //@[069:00087) | └─ForSyntax
 //@[069:00070) |   ├─Token(LeftSquare) |[|
 //@[070:00073) |   ├─Token(Identifier) |for|
-//@[074:00080) |   ├─ForVariableBlockSyntax
+//@[074:00080) |   ├─VariableBlockSyntax
 //@[074:00075) |   | ├─Token(LeftParen) |(|
 //@[075:00076) |   | ├─LocalVariableSyntax
 //@[075:00076) |   | | └─IdentifierSyntax
@@ -7352,7 +7335,7 @@ resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = 
 //@[080:00101) | └─ForSyntax
 //@[080:00081) |   ├─Token(LeftSquare) |[|
 //@[081:00084) |   ├─Token(Identifier) |for|
-//@[085:00091) |   ├─ForVariableBlockSyntax
+//@[085:00091) |   ├─VariableBlockSyntax
 //@[085:00086) |   | ├─Token(LeftParen) |(|
 //@[086:00087) |   | ├─LocalVariableSyntax
 //@[086:00087) |   | | └─IdentifierSyntax
@@ -7413,7 +7396,7 @@ resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05
 //@[087:00110) | └─ForSyntax
 //@[087:00088) |   ├─Token(LeftSquare) |[|
 //@[088:00091) |   ├─Token(Identifier) |for|
-//@[092:00098) |   ├─ForVariableBlockSyntax
+//@[092:00098) |   ├─VariableBlockSyntax
 //@[092:00093) |   | ├─Token(LeftParen) |(|
 //@[093:00094) |   | ├─LocalVariableSyntax
 //@[093:00094) |   | | └─IdentifierSyntax
@@ -7484,7 +7467,7 @@ resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [fo
 //@[077:00105) | └─ForSyntax
 //@[077:00078) |   ├─Token(LeftSquare) |[|
 //@[078:00081) |   ├─Token(Identifier) |for|
-//@[082:00088) |   ├─ForVariableBlockSyntax
+//@[082:00088) |   ├─VariableBlockSyntax
 //@[082:00083) |   | ├─Token(LeftParen) |(|
 //@[083:00084) |   | ├─LocalVariableSyntax
 //@[083:00084) |   | | └─IdentifierSyntax
@@ -7517,7 +7500,7 @@ resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (
 //@[074:00112) | └─ForSyntax
 //@[074:00075) |   ├─Token(LeftSquare) |[|
 //@[075:00078) |   ├─Token(Identifier) |for|
-//@[079:00091) |   ├─ForVariableBlockSyntax
+//@[079:00091) |   ├─VariableBlockSyntax
 //@[079:00080) |   | ├─Token(LeftParen) |(|
 //@[080:00084) |   | ├─LocalVariableSyntax
 //@[080:00084) |   | | └─IdentifierSyntax
@@ -7589,7 +7572,7 @@ resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' =
 //@[081:00120) | └─ForSyntax
 //@[081:00082) |   ├─Token(LeftSquare) |[|
 //@[082:00085) |   ├─Token(Identifier) |for|
-//@[086:00097) |   ├─ForVariableBlockSyntax
+//@[086:00097) |   ├─VariableBlockSyntax
 //@[086:00087) |   | ├─Token(LeftParen) |(|
 //@[087:00094) |   | ├─LocalVariableSyntax
 //@[087:00094) |   | | └─IdentifierSyntax
@@ -7670,7 +7653,7 @@ resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (
 //@[074:00111) | └─ForSyntax
 //@[074:00075) |   ├─Token(LeftSquare) |[|
 //@[075:00078) |   ├─Token(Identifier) |for|
-//@[079:00090) |   ├─ForVariableBlockSyntax
+//@[079:00090) |   ├─VariableBlockSyntax
 //@[079:00080) |   | ├─Token(LeftParen) |(|
 //@[080:00087) |   | ├─LocalVariableSyntax
 //@[080:00087) |   | | └─IdentifierSyntax
@@ -7739,7 +7722,7 @@ resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-0
 //@[085:00137) | └─ForSyntax
 //@[085:00086) |   ├─Token(LeftSquare) |[|
 //@[086:00089) |   ├─Token(Identifier) |for|
-//@[090:00101) |   ├─ForVariableBlockSyntax
+//@[090:00101) |   ├─VariableBlockSyntax
 //@[090:00091) |   | ├─Token(LeftParen) |(|
 //@[091:00098) |   | ├─LocalVariableSyntax
 //@[091:00098) |   | | └─IdentifierSyntax
@@ -7814,7 +7797,7 @@ resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-0
 //@[085:00114) | └─ForSyntax
 //@[085:00086) |   ├─Token(LeftSquare) |[|
 //@[086:00089) |   ├─Token(Identifier) |for|
-//@[090:00101) |   ├─ForVariableBlockSyntax
+//@[090:00101) |   ├─VariableBlockSyntax
 //@[090:00091) |   | ├─Token(LeftParen) |(|
 //@[091:00098) |   | ├─LocalVariableSyntax
 //@[091:00098) |   | | └─IdentifierSyntax
@@ -8029,7 +8012,7 @@ resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-0
 //@[085:00272) | └─ForSyntax
 //@[085:00086) |   ├─Token(LeftSquare) |[|
 //@[086:00089) |   ├─Token(Identifier) |for|
-//@[090:00095) |   ├─ForVariableBlockSyntax
+//@[090:00095) |   ├─VariableBlockSyntax
 //@[090:00091) |   | ├─Token(LeftParen) |(|
 //@[091:00092) |   | ├─LocalVariableSyntax
 //@[091:00092) |   | | └─IdentifierSyntax
@@ -8425,7 +8408,7 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 //@[083:00441) | └─ForSyntax
 //@[083:00084) |   ├─Token(LeftSquare) |[|
 //@[084:00087) |   ├─Token(Identifier) |for|
-//@[088:00099) |   ├─ForVariableBlockSyntax
+//@[088:00099) |   ├─VariableBlockSyntax
 //@[088:00089) |   | ├─Token(LeftParen) |(|
 //@[089:00096) |   | ├─LocalVariableSyntax
 //@[089:00096) |   | | └─IdentifierSyntax
@@ -8521,7 +8504,7 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 //@[027:00149) |   | |   |   | └─ForSyntax
 //@[027:00028) |   | |   |   |   ├─Token(LeftSquare) |[|
 //@[028:00031) |   | |   |   |   ├─Token(Identifier) |for|
-//@[032:00040) |   | |   |   |   ├─ForVariableBlockSyntax
+//@[032:00040) |   | |   |   |   ├─VariableBlockSyntax
 //@[032:00033) |   | |   |   |   | ├─Token(LeftParen) |(|
 //@[033:00037) |   | |   |   |   | ├─LocalVariableSyntax
 //@[033:00037) |   | |   |   |   | | └─IdentifierSyntax
@@ -8571,7 +8554,7 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 //@[015:00037) |   | |   |   |   | | └─ForSyntax
 //@[015:00016) |   | |   |   |   | |   ├─Token(LeftSquare) |[|
 //@[016:00019) |   | |   |   |   | |   ├─Token(Identifier) |for|
-//@[020:00027) |   | |   |   |   | |   ├─ForVariableBlockSyntax
+//@[020:00027) |   | |   |   |   | |   ├─VariableBlockSyntax
 //@[020:00021) |   | |   |   |   | |   | ├─Token(LeftParen) |(|
 //@[021:00024) |   | |   |   |   | |   | ├─LocalVariableSyntax
 //@[021:00024) |   | |   |   |   | |   | | └─IdentifierSyntax
@@ -9539,7 +9522,7 @@ resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [f
 //@[078:00107) | └─ForSyntax
 //@[078:00079) |   ├─Token(LeftSquare) |[|
 //@[079:00082) |   ├─Token(Identifier) |for|
-//@[083:00092) |   ├─ForVariableBlockSyntax
+//@[083:00092) |   ├─VariableBlockSyntax
 //@[083:00084) |   | ├─Token(LeftParen) |(|
 //@[084:00089) |   | ├─LocalVariableSyntax
 //@[084:00089) |   | | └─IdentifierSyntax
@@ -9569,7 +9552,7 @@ resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [f
 //@[078:00114) | └─ForSyntax
 //@[078:00079) |   ├─Token(LeftSquare) |[|
 //@[079:00082) |   ├─Token(Identifier) |for|
-//@[083:00092) |   ├─ForVariableBlockSyntax
+//@[083:00092) |   ├─VariableBlockSyntax
 //@[083:00084) |   | ├─Token(LeftParen) |(|
 //@[084:00089) |   | ├─LocalVariableSyntax
 //@[084:00089) |   | | └─IdentifierSyntax
@@ -9601,7 +9584,7 @@ resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [f
 //@[078:00116) | └─ForSyntax
 //@[078:00079) |   ├─Token(LeftSquare) |[|
 //@[079:00082) |   ├─Token(Identifier) |for|
-//@[083:00092) |   ├─ForVariableBlockSyntax
+//@[083:00092) |   ├─VariableBlockSyntax
 //@[083:00084) |   | ├─Token(LeftParen) |(|
 //@[084:00089) |   | ├─LocalVariableSyntax
 //@[084:00089) |   | | └─IdentifierSyntax
@@ -9638,7 +9621,7 @@ resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [f
 //@[078:00123) | └─ForSyntax
 //@[078:00079) |   ├─Token(LeftSquare) |[|
 //@[079:00082) |   ├─Token(Identifier) |for|
-//@[083:00092) |   ├─ForVariableBlockSyntax
+//@[083:00092) |   ├─VariableBlockSyntax
 //@[083:00084) |   | ├─Token(LeftParen) |(|
 //@[084:00089) |   | ├─LocalVariableSyntax
 //@[084:00089) |   | | └─IdentifierSyntax
@@ -11669,7 +11652,7 @@ resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-0
 //@[020:00234) |   |   |   |   | └─ForSyntax
 //@[020:00021) |   |   |   |   |   ├─Token(LeftSquare) |[|
 //@[021:00024) |   |   |   |   |   ├─Token(Identifier) |for|
-//@[025:00051) |   |   |   |   |   ├─ForVariableBlockSyntax
+//@[025:00051) |   |   |   |   |   ├─VariableBlockSyntax
 //@[025:00026) |   |   |   |   |   | ├─Token(LeftParen) |(|
 //@[026:00047) |   |   |   |   |   | ├─LocalVariableSyntax
 //@[026:00047) |   |   |   |   |   | | └─IdentifierSyntax

@@ -1284,23 +1284,15 @@ resource expectedLoopBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 
 // loop index parsing cases
 resource expectedLoopItemName 'Microsoft.Network/dnsZones@2018-05-01' = [for ()]
-//@[078:078) Local <missing>. Type: any. Declaration start char: 78, length: 0
-//@[078:078) Local <missing>. Type: int. Declaration start char: 78, length: 0
 //@[009:029) Resource expectedLoopItemName. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 80
 
 resource expectedLoopItemName2 'Microsoft.Network/dnsZones@2018-05-01' = [for (
-//@[079:079) Local <missing>. Type: any. Declaration start char: 79, length: 0
-//@[079:079) Local <missing>. Type: int. Declaration start char: 79, length: 0
 //@[009:030) Resource expectedLoopItemName2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 79
 
 resource expectedComma 'Microsoft.Network/dnsZones@2018-05-01' = [for (x)]
-//@[071:072) Local x. Type: any. Declaration start char: 71, length: 1
-//@[072:072) Local <missing>. Type: int. Declaration start char: 72, length: 0
 //@[009:022) Resource expectedComma. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 74
 
 resource expectedLoopIndexName 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, )]
-//@[079:080) Local x. Type: any. Declaration start char: 79, length: 1
-//@[082:082) Local <missing>. Type: int. Declaration start char: 82, length: 0
 //@[009:030) Resource expectedLoopIndexName. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 84
 
 resource expectedInKeyword3 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)]
