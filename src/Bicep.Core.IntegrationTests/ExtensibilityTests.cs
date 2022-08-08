@@ -193,7 +193,7 @@ resource myApp 'application' existing = {
 import kubernetes as kubernetes {
   namespace: 'default'
   kubeConfig: ''
-}7
+}
 resource service 'core/Service@v1' existing = {
   metadata: {
     name: 'existing-service'
