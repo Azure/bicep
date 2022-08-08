@@ -19,7 +19,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
         }.ToImmutableHashSet();
 
         public static NamespaceSettings Settings { get; } = new(
-            IsSingleton: false,
+            IsSingleton: true,
             BicepProviderName: BuiltInName,
             ConfigurationType: null,
             ArmTemplateProviderName: "AAD",
