@@ -217,7 +217,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ",
                 new[]
                 {
-                    "[4] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName2'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead."
+                    "[5] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName2'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead."
                 });
         }
 
@@ -258,7 +258,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ",
                 new[]
                 {
-                    "[4] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName2'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead."
+                    "[5] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName2'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead."
                 });
         }
 
@@ -304,7 +304,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }",
                 new[]
                 {
-                    "[5] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead."
+                    "[6] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead."
                 });
         }
 
@@ -343,8 +343,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }",
                  new string[]
                  {
-                     "[5] The specified \"resource\" declaration is missing the following required properties: \"properties\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.",
-                     "[7] The property \"propertiesWhoopsMisspelled\" is not allowed on objects of type \"Microsoft.Resources/deployments\". Permissible properties include \"dependsOn\", \"location\", \"properties\", \"resourceGroup\", \"scope\", \"subscriptionId\", \"tags\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.",
+                     "[6] The specified \"resource\" declaration is missing the following required properties: \"properties\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.",
+                     "[8] The property \"propertiesWhoopsMisspelled\" is not allowed on objects of type \"Microsoft.Resources/deployments\". Permissible properties include \"dependsOn\", \"location\", \"properties\", \"resourceGroup\", \"scope\", \"subscriptionId\", \"tags\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.",
                  });
         }
 
@@ -411,7 +411,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ",
                 new[]
                 {
-                    "[4] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.",
+                    "[5] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.",
                 });
         }
 
@@ -450,7 +450,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }",
                 new string[]
                 {
-                    "[5] Resource type \"Microsoft.Resources/notDeployments@2021-04-01\" does not have types available."
+                    "[6] Resource type \"Microsoft.Resources/notDeployments@2021-04-01\" does not have types available."
                 });
         }
 
@@ -537,7 +537,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         ",
                 new string[]
                 {
-                    "[11] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName', 'stgAccountName2'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.",
+                    "[12] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName', 'stgAccountName2'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.",
                 });
         }
 
@@ -581,7 +581,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ",
                 new string[]
                 {
-                    "[5] 'nested' is an outer scoped nested deployment that calls a list* function (\"listKeys('someResourceId', '2020-01-01')\"), which could expose sensitive values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.",
+                    "[6] 'nested' is an outer scoped nested deployment that calls a list* function (\"listKeys('someResourceId', '2020-01-01')\"), which could expose sensitive values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.",
                 });
         }
 
@@ -625,7 +625,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ",
                 new string[]
                 {
-                    "[5] 'nested' is an outer scoped nested deployment that calls a list* function (\"az.listKeys('someResourceId', '2020-01-01')\"), which could expose sensitive values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.",
+                    "[6] 'nested' is an outer scoped nested deployment that calls a list* function (\"az.listKeys('someResourceId', '2020-01-01')\"), which could expose sensitive values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.",
                 });
         }
 
@@ -665,7 +665,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ",
                 new string[]
                 {
-                    "[20] The name \"foo\" does not exist in the current context.",
+                    "[21] The name \"foo\" does not exist in the current context.",
                 });
         }
 
@@ -704,7 +704,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }",
                 new[]
                 {
-                   "[5] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.", 
+                   "[6] 'nested' is an outer scoped nested deployment that accesses secure string parameters ('stgAccountName'), which could expose their values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.", 
                 });
         }
 
@@ -744,7 +744,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ",
                 new string[]
                 {
-                    "[1] 'nested' is an outer scoped nested deployment that calls a list* function (\"listKeys('someResourceId', '2020-01-01')\"), which could expose sensitive values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.",
+                    "[2] 'nested' is an outer scoped nested deployment that calls a list* function (\"listKeys('someResourceId', '2020-01-01')\"), which could expose sensitive values in deployment history. Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.",
                 });
         }
     }

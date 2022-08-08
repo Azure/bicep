@@ -50,7 +50,7 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
                 // TTK error message:
                 //  [-] CommandToExecute Must Use ProtectedSettings For Secrets (62 ms)
                 //    CommandToExecute references parameter 'arguments' of type 'secureString', but is not in .protectedSettings
-                "[22] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'arguments'"
+                "[23] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'arguments'"
               }
             );
         }
@@ -88,7 +88,7 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
 }
             ",
               new string[] {
-                "[22] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'arguments'"
+                "[23] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'arguments'"
                }
             );
         }
@@ -187,7 +187,7 @@ resource vmNameSql_installpostgresql 'Microsoft.Compute/virtualMachines/extensio
 }
             ",
               new string[] {
-                "[83] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'adminPasswordOrKey'"
+                "[84] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'adminPasswordOrKey'"
                }
             );
         }
@@ -220,7 +220,7 @@ resource vmName_CustomScript 'Microsoft.HybridCompute/machines/extensions@2019-0
 }
             ",
               new string[] {
-                "[16] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'commandToExecute'"
+                "[17] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'commandToExecute'"
               }
             );
         }
@@ -388,7 +388,7 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
 }
             ",
               new string[] {
-                "[17] Use protectedSettings for commandToExecute secrets. Found possible secret: function 'listKeys'"
+                "[18] Use protectedSettings for commandToExecute secrets. Found possible secret: function 'listKeys'"
               }
             );
         }
@@ -420,7 +420,7 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
 }
             ",
               new string[] {
-                "[18] Use protectedSettings for commandToExecute secrets. Found possible secret: function 'listKeys'"
+                "[19] Use protectedSettings for commandToExecute secrets. Found possible secret: function 'listKeys'"
               }
             );
         }
