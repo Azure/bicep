@@ -76,44 +76,44 @@ namespace Bicep.LanguageServer.Handlers
                 }
 
                 var result = this.symbolResolver.ResolveParamsSymbol(request.TextDocument.Uri, request.Position);
-                var bicepCompilation = paramsContext.ParamsSemanticModel.BicepCompilation;
-                
-                if (bicepCompilation is null)
-                {
-                    return Task.FromResult(new LocationOrLocationLinks());
-                }
-                
-                var paramsSemanticModel = paramsContext.ParamsSemanticModel;
-                var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
-
-                var parameterDeclarations = bicepSemanticModel.Root.Syntax.Children.OfType<ParameterDeclarationSyntax>();
-                var parameterDeclarationSyntax = parameterDeclarations
-                    .Where(x => LanguageConstants.IdentifierComparer.Equals(bicepSemanticModel.Binder.GetSymbolInfo(x)?.Name, result?.Symbol.Name))
-                    .SingleOrDefault();
-
-                var parameterAssignments = paramsSemanticModel.Root.Syntax.Children.OfType<ParameterAssignmentSyntax>();
-                var parameterAssignmentSyntax = parameterAssignments
-                    .Where(x => LanguageConstants.IdentifierComparer.Equals(paramsContext.ParamsSemanticModel.ParamBinder.GetSymbolInfo(x)?.Name, result?.Symbol.Name))
-                    .SingleOrDefault();
-
-                if (parameterAssignmentSyntax is null || parameterDeclarationSyntax is null)
+                if (result is null)
                 {
                     return Task.FromResult(new LocationOrLocationLinks());
                 }
 
-                var range = PositionHelper.GetNameRange(bicepCompilation.SourceFileGrouping.EntryPoint.LineStarts, parameterDeclarationSyntax);
-                var documentUri = bicepCompilation.SourceFileGrouping.EntryPoint.FileUri;
-                
-                return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
+                if (result.Symbol is ParameterAssignmentSymbol param && param.NameSyntax is {} nameSyntax)
                 {
-                    // source of the link. Underline only the symbolic name
-                    OriginSelectionRange = parameterAssignmentSyntax.Name.ToRange(paramsContext.LineStarts),
-                    TargetUri = documentUri,
+                    var bicepCompilation = paramsContext.ParamsSemanticModel.BicepCompilation;
+                    
+                    if (bicepCompilation is null)
+                    {
+                        return Task.FromResult(new LocationOrLocationLinks());
+                    }
+                    var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
 
-                    // entire span of the declaredSymbol
-                    TargetRange = range,
-                    TargetSelectionRange = range
-                })));
+                    var parameterDeclarations = bicepSemanticModel.Root.Syntax.Children.OfType<ParameterDeclarationSyntax>();
+                    var parameterDeclarationSymbol = paramsContext.ParamsSemanticModel.GetParameterDeclaration(param);
+
+                    if (parameterDeclarationSymbol is null)
+                    {
+                        return Task.FromResult(new LocationOrLocationLinks());
+                    }
+
+                    var range = PositionHelper.GetNameRange(bicepCompilation.SourceFileGrouping.EntryPoint.LineStarts, parameterDeclarationSymbol.DeclaringSyntax);
+                    var documentUri = bicepCompilation.SourceFileGrouping.EntryPoint.FileUri;
+                    
+                    return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
+                    {
+                        // source of the link. Underline only the symbolic name
+                        OriginSelectionRange = nameSyntax.ToRange(paramsContext.LineStarts),
+                        TargetUri = documentUri,
+
+                        // entire span of the declaredSymbol
+                        TargetRange = range,
+                        TargetSelectionRange = range
+                    })));
+                }
+                return Task.FromResult(new LocationOrLocationLinks());
             }
             else
             {

@@ -1492,10 +1492,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP254",
                 "Expected a Bicep file path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
 
-            public ErrorDiagnostic MissingParameterAssignment(string identifier) => new(
+            public ErrorDiagnostic MissingParameterAssignment(IEnumerable<string> identifiers) => new(
                 TextSpan,
                 "BCP255",
-                $"The parameter \"{identifier}\" is declared in the Bicep file but is missing an assignment in the params file.");
+                $"The following parameters are declared in the Bicep file but are missing an assignment in the params file: {ToQuotedString(identifiers)}.");
 
             public ErrorDiagnostic MissingParameterDeclaration(string? identifier) => new(
                 TextSpan,
