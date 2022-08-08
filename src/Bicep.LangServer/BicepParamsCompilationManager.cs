@@ -27,7 +27,6 @@ namespace Bicep.LanguageServer
         private readonly IConfigurationManager bicepConfigurationManager;
         private readonly IFileResolver fileResolver;
         private readonly ConcurrentDictionary<DocumentUri, ParamsCompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, ParamsCompilationContext>();
-
         public BicepParamsCompilationManager(ILanguageServerFacade server, ICompilationProvider bicepCompilationContextProvider, IConfigurationManager bicepConfigurationManager, IFileResolver fileResolver)
         {
             this.server = server;
@@ -50,13 +49,20 @@ namespace Bicep.LanguageServer
         {
             var paramsFile = SourceFileFactory.CreateBicepParamFile(uri.ToUri(), text);
 
-            var getCompilation = (Uri uri) => {
-                var bicepConfig = bicepConfigurationManager.GetConfiguration(uri);
-                var bicepCompilationContext = bicepCompilationContextProvider.Create(new Workspace(), uri, new Dictionary<ISourceFile, ISemanticModel>().ToImmutableDictionary(), bicepConfig, new LinterAnalyzer(bicepConfig));
-                return bicepCompilationContext.Compilation;
-            };
+            Uri? bicepFileUri = ParamsSemanticModel.TryGetBicepFileUri(out var compilationLoadDiagnostics, fileResolver, paramsFile);
 
-            var semanticModel = new ParamsSemanticModel(paramsFile, fileResolver, getCompilation);
+            ParamsSemanticModel semanticModel;
+
+            if(bicepFileUri is {})
+            {
+                var bicepConfig = bicepConfigurationManager.GetConfiguration(bicepFileUri);
+                var bicepCompilationContext = bicepCompilationContextProvider.Create(new Workspace(), bicepFileUri, new Dictionary<ISourceFile, ISemanticModel>().ToImmutableDictionary(), bicepConfig, new LinterAnalyzer(bicepConfig));
+                semanticModel = new (paramsFile, compilationLoadDiagnostics, bicepCompilationContext.Compilation);
+            }
+            else
+            {
+                semanticModel = new (paramsFile, compilationLoadDiagnostics);
+            }
     
             var context = this.activeContexts.AddOrUpdate(uri, 
             (uri) => new ParamsCompilationContext(semanticModel, semanticModel.BicepParamFile.ProgramSyntax, semanticModel.BicepParamFile.LineStarts), 

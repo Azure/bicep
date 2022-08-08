@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
@@ -24,21 +25,14 @@ namespace Bicep.Core.Semantics
         public IFileResolver fileResolver { get; }
         private ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?> DeclarationsByAssignment;
         private ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?>? AssignmentsByDeclaration;
-        private readonly ImmutableArray<IDiagnostic> compilationLoadDiagnostics;
+        private readonly ImmutableArray<IDiagnostic> CompilationLoadDiagnostics;
+
         
-        public ParamsSemanticModel(BicepParamFile bicepParamFile, IFileResolver fileResolver, Func<Uri, Compilation>? getCompilation = null)
+        public ParamsSemanticModel(BicepParamFile bicepParamFile, ImmutableArray<IDiagnostic> compilationLoadDiagnostics, Compilation? bicepCompilation = null)
         {
-            this.fileResolver = fileResolver;
-
-            //parse using statement and link bicep template 
             this.BicepParamFile = bicepParamFile;
-
-            Uri? bicepFileUri = TryGetBicepFileUri(out var diagnosticWriter);
-            compilationLoadDiagnostics = diagnosticWriter.GetDiagnostics().ToImmutableArray();
-            if(bicepFileUri is {} && getCompilation is {})
-            {   
-                this.BicepCompilation = getCompilation(bicepFileUri);
-            }
+            this.BicepCompilation = bicepCompilation;
+            this.CompilationLoadDiagnostics = compilationLoadDiagnostics;
 
             //binder logic
             var paramsSymbolContext = new ParamsSymbolContext(this);
@@ -199,14 +193,15 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        private Uri? TryGetBicepFileUri(out ToListDiagnosticWriter allDiagnostics)
+        public static Uri? TryGetBicepFileUri(out ImmutableArray<IDiagnostic> compilationLoadDiagnostics, IFileResolver fileResolver, BicepParamFile bicepParamFile)
         {
-            allDiagnostics = ToListDiagnosticWriter.Create();
-            var usingDeclarations = BicepParamFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>();
+            var diagnosticsWriter = ToListDiagnosticWriter.Create();
+            var usingDeclarations = bicepParamFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>();
 
             if(usingDeclarations.FirstOrDefault() is not {} usingDeclaration)
             {
-                allDiagnostics.Write(new TextSpan(0, 0), x => x.UsingDeclarationNotSpecified());
+                diagnosticsWriter.Write(new TextSpan(0, 0), x => x.UsingDeclarationNotSpecified());
+                compilationLoadDiagnostics = diagnosticsWriter.GetDiagnostics().ToImmutableArray();
                 return null;
             }
             
@@ -214,25 +209,59 @@ namespace Bicep.Core.Semantics
             {
                 foreach(var declaration in usingDeclarations)
                 {
-                    allDiagnostics.Write(declaration.Keyword, x => x.MoreThanOneUsingDeclarationSpecified());
+                    diagnosticsWriter.Write(declaration.Keyword, x => x.MoreThanOneUsingDeclarationSpecified());
                 }
+                compilationLoadDiagnostics = diagnosticsWriter.GetDiagnostics().ToImmutableArray();
                 return null;
             }
 
-            if(!PathHelper.TryGetUsingPath(usingDeclaration, out var bicepFilePath, out var failureBuilder))
+            if(!ParamsSemanticModel.TryGetUsingPath(usingDeclaration, out var bicepFilePath, out var failureBuilder))
             {       
                 var diagnostic = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(usingDeclaration.Path.Span));
-                allDiagnostics.Write(diagnostic);
+                diagnosticsWriter.Write(diagnostic);
+                compilationLoadDiagnostics = diagnosticsWriter.GetDiagnostics().ToImmutableArray();
                 return null;
             }
 
-            if (!Uri.TryCreate(BicepParamFile.FileUri, bicepFilePath, out var bicepFileUri) || !fileResolver.FileExists(bicepFileUri))
+            if (!Uri.TryCreate(bicepParamFile.FileUri, bicepFilePath, out var bicepFileUri) || !fileResolver.FileExists(bicepFileUri))
             {
-                allDiagnostics.Write(usingDeclaration.Path.Span, x => x.UsingDeclarationReferencesInvalidFile());
+                diagnosticsWriter.Write(usingDeclaration.Path.Span, x => x.UsingDeclarationReferencesInvalidFile());
+                compilationLoadDiagnostics = diagnosticsWriter.GetDiagnostics().ToImmutableArray();
                 return null; 
-            }            
+            }       
 
+            compilationLoadDiagnostics = diagnosticsWriter.GetDiagnostics().ToImmutableArray();
             return bicepFileUri;
+        }
+
+        private static bool TryGetUsingPath(UsingDeclarationSyntax usingDeclarationSyntax, [NotNullWhen(true)]out string? bicepPath, [NotNullWhen(false)]out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
+        {
+            var pathSyntax = usingDeclarationSyntax.TryGetPath();
+            if (pathSyntax == null)
+            {
+                bicepPath = null;
+                failureBuilder = x => x.TemplatePathHasNotBeenSpecified();
+                return false;
+            }
+            var pathValue = pathSyntax.TryGetLiteralValue();
+            if (pathValue == null)
+            {
+                bicepPath = null;
+                failureBuilder = x => x.FilePathInterpolationUnsupported();
+                return false;
+            }
+            var trimedPathValue = pathValue.Trim();
+            if(trimedPathValue == string.Empty)
+            {
+                bicepPath = null;
+                failureBuilder = x => x.UsingDeclarationReferencesInvalidFile();
+                return false;
+            }
+
+            bicepPath = trimedPathValue;
+            failureBuilder = null;
+
+            return true;
         }
     }
 }
