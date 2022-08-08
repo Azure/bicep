@@ -22,7 +22,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var features = BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true);
             var resourceTypeLoader = BicepTestConstants.AzResourceTypeLoader;
-            var namespaceProvider = new ExtensibilityNamespaceProvider(resourceTypeLoader, features);
+            var namespaceProvider = new TestExtensibilityNamespaceProvider(resourceTypeLoader, features);
 
             return new(
                 AzResourceTypeLoader: resourceTypeLoader,
@@ -464,7 +464,7 @@ Hello from Bicep!"));
             }
           },
           ""variables"": {
-            ""$fxv#0"": ""\nHello from Bicep!""            
+            ""$fxv#0"": ""\nHello from Bicep!""
           },
           ""imports"": {
             ""stg"": {
