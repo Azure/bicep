@@ -22,16 +22,16 @@
 <span class="hljs-keyword">resource</span> <span class="hljs-variable">vm</span> <span class="hljs-string">&#39;</span><span class="hljs-string">Microsoft.Compute/virtualMachines@2020-12-01</span><span class="hljs-string">&#39;</span> = {
   <span class="hljs-property">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">vm</span><span class="hljs-string">&#39;</span>
   <span class="hljs-property">location</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">West US</span><span class="hljs-string">&#39;</span>
-#<span class="hljs-property">disable</span>-<span class="hljs-property">next</span>-<span class="hljs-property">line</span> <span class="hljs-property">BCP036</span> <span class="hljs-property">BCP037</span>
+#disable-next-line <span class="hljs-keyword">BCP036</span> <span class="hljs-keyword">BCP037</span>
   <span class="hljs-property">properties</span>: <span class="hljs-variable">vmProperties</span>
 }
-#<span class="hljs-variable">disable</span>-<span class="hljs-variable">next</span>-<span class="hljs-variable">line</span> <span class="hljs-variable">no</span>-<span class="hljs-variable">unused</span>-<span class="hljs-variable">params</span>
+#disable-next-line <span class="hljs-keyword">no-unused-params</span>
 <span class="hljs-keyword">param</span> <span class="hljs-variable">storageAccount1</span> <span class="hljs-variable">string</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">testStorageAccount</span><span class="hljs-string">&#39;</span>
-#<span class="hljs-variable">disable</span>-<span class="hljs-variable">next</span>-<span class="hljs-variable">line</span>          <span class="hljs-variable">no</span>-<span class="hljs-variable">unused</span>-<span class="hljs-variable">params</span>
+#disable-next-line          <span class="hljs-keyword">no-unused-params</span>
 <span class="hljs-keyword">param</span> <span class="hljs-variable">storageAccount2</span> <span class="hljs-variable">string</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">testStorageAccount</span><span class="hljs-string">&#39;</span>
-#<span class="hljs-variable">disable</span>-<span class="hljs-variable">next</span>-<span class="hljs-variable">line</span>   <span class="hljs-variable">no</span>-<span class="hljs-variable">unused</span>-<span class="hljs-variable">params</span>                <span class="hljs-comment">/*</span><span class="hljs-comment"> Test comment 1 </span><span class="hljs-comment">*/</span>
+#disable-next-line   <span class="hljs-keyword">no-unused-params</span>                <span class="hljs-comment">/*</span><span class="hljs-comment"> Test comment 1 </span><span class="hljs-comment">*/</span>
 <span class="hljs-keyword">param</span> <span class="hljs-variable">storageAccount3</span> <span class="hljs-variable">string</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">testStorageAccount</span><span class="hljs-string">&#39;</span>
-         #<span class="hljs-variable">disable</span>-<span class="hljs-variable">next</span>-<span class="hljs-variable">line</span>   <span class="hljs-variable">no</span>-<span class="hljs-variable">unused</span>-<span class="hljs-variable">params</span>                <span class="hljs-comment">// Test comment 2</span>
+         #disable-next-line   <span class="hljs-keyword">no-unused-params</span>                <span class="hljs-comment">// Test comment 2</span>
 <span class="hljs-keyword">param</span> <span class="hljs-variable">storageAccount5</span> <span class="hljs-variable">string</span> = <span class="hljs-string">&#39;</span><span class="hljs-string">testStorageAccount</span><span class="hljs-string">&#39;</span>
 
 

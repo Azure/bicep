@@ -9,6 +9,17 @@
   </head>
   <body>
     <pre class="hljs">
+<span class="hljs-keyword">var</span> <span class="hljs-variable">elements</span> = [
+  {
+    <span class="hljs-variable">id</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>
+    <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">foo&#39;</span>
+  }
+  {
+    <span class="hljs-variable">id</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>
+    <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">bar&#39;</span>
+  }
+]
+
 <span class="hljs-comment">// equivalent to the above proposed: createObject(elements, x =&gt; x.id)</span>
 <span class="hljs-keyword">var</span> <span class="hljs-variable">keyedById</span> = <span class="hljs-variable">reduce</span>(<span class="hljs-variable">elements</span>, {}, (<span class="hljs-variable">prev</span>, <span class="hljs-variable">cur</span>) =&gt; <span class="hljs-variable">union</span>(<span class="hljs-variable">prev</span>, { <span class="hljs-string">&#39;</span>${<span class="hljs-variable">cur</span>.<span class="hljs-variable">id</span>}<span class="hljs-string">&#39;</span>: <span class="hljs-variable">cur</span> }))
 

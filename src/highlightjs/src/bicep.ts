@@ -150,7 +150,7 @@ const lambdaStart = `(` +
   `\\(${ws}${identifier}${ws}(,${ws}${identifier}${ws})*\\)|` +
   `\\(${ws}\\)|` +
   `${ws}${identifier}${ws}` +
-`)${ws}=>`;
+`)${before(`${ws}=>`)}`;
 
 const lambda: Mode = {
   begin: lambdaStart,

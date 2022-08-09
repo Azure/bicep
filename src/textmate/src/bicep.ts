@@ -39,6 +39,7 @@ const meta: typeof tm.meta = tm.meta;
 const identifierStart = "[_$[:alpha:]]";
 const identifierContinue = "[_$[:alnum:]]";
 const identifier = bounded(`${identifierStart}${identifierContinue}*`);
+const directive = bounded(`[_a-zA-Z-0-9]+`);
 
 // whitespace. ideally we'd tokenize in-line block comments, but that's a lot of work. For now, ignore them.
 const ws = `(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*`;
@@ -150,43 +151,20 @@ const identifierExpression: MatchRule = {
   match: `${identifier}${notBefore(`${ws}\\(`)}`,
 };
 
-const objectPropertyKeyIdentifier: MatchRule = {
-  key: "object-property-key-identifier",
-  scope: meta,
-  match: `(${identifier})`,
-  captures: {
-    "1": { scope: "variable.other.property.bicep" },
-  }
-};
-
-const objectProperty: BeginEndRule = {
-  key: "object-property",
-  scope: meta,
-  begin: `${after(`^`)}${notBefore(`${ws}}`)}`,
-  end: before(`$`),
-  patterns: withComments([
-    objectPropertyKeyIdentifier,
-    stringLiteral,
-    {
-      key: "object-property-end",
-      scope: meta,
-      begin: `:(${ws})`, // wanted to use after(`:${ws}`)
-      beginCaptures: {
-        "1": comments
-      },
-      end: before(`${ws}$`),
-      patterns: withComments([expression]),
-    },
-  ]),
-};
-
 const objectLiteral: BeginEndRule = {
   key: "object-literal",
   scope: meta,
   begin: `{`,
   end: `}`,
-  patterns: withComments([objectProperty]),
-};
+  patterns: withComments([
+    {
+      key: "object-property-key",
+      scope: "variable.other.property.bicep",
+      match: `${identifier}${before(`${ws}:`)}`,
+    },
+    expression
+  ]),
+}
 
 const arrayLiteral: BeginEndRule = {
   key: "array-literal",
@@ -215,6 +193,41 @@ const decorator: BeginEndRule = {
   patterns: withComments([expression]),
 };
 
+const lambdaStart = `(` +
+  `\\(${ws}${identifier}${ws}(,${ws}${identifier}${ws})*\\)|` +
+  `\\(${ws}\\)|` +
+  `${ws}${identifier}${ws}` +
+`)${before(`${ws}=>`)}`;
+
+const lambda: BeginEndRule = {
+  key: "lambda-start",
+  scope: meta,
+  begin: lambdaStart,
+  beginCaptures: {
+    "1": {
+      scope: meta,
+      patterns: withComments([
+        identifierExpression,
+      ])
+    }
+  },
+  end: `${ws}=>`,
+};
+
+const directiveStatement: BeginEndRule = {
+  key: "directive",
+  scope: meta,
+  begin: `#${directive}`,
+  end: `$`,
+  patterns: withComments([
+    {
+      key: 'directive-variable',
+      scope: 'keyword.control.declaration.bicep',
+      match: directive,
+    },
+  ]),
+};
+
 expression.patterns = [
   stringLiteral,
   stringVerbatim,
@@ -226,6 +239,8 @@ expression.patterns = [
   identifierExpression,
   functionCall,
   decorator,
+  lambda,
+  directiveStatement,
 ];
 
 const grammar: Grammar = {
@@ -238,6 +253,6 @@ const grammar: Grammar = {
 
 export async function generateGrammar(): Promise<string> {
   const json = await tm.emitJSON(grammar);
-  
+
   return plist.build(JSON.parse(json));
 }
