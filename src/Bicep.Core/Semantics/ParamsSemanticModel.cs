@@ -161,14 +161,21 @@ namespace Bicep.Core.Semantics
 
             // parameters that are declared but not assigned
             var missingRequiredParams = new List<String>();
+
+            
+
             if (this.BicepCompilation is null)
             {
                 return;
             }
 
+            var parameterMetadata = this.BicepCompilation.GetEntrypointSemanticModel().Parameters;
+            var metadataByName = parameterMetadata.ToDictionary(x => x.Name, x => x);
+
             foreach (var parameter in parameters)
             {
-                if (this.BicepCompilation.GetEntrypointSemanticModel().Binder.GetSymbolInfo(parameter) is ParameterSymbol symbol && GetParameterAssignment(symbol) is null)
+                if (this.BicepCompilation.GetEntrypointSemanticModel().Binder.GetSymbolInfo(parameter) is ParameterSymbol symbol && GetParameterAssignment(symbol) is null &&
+                    metadataByName[parameter.Name.IdentifierName].IsRequired)
                 {
                     missingRequiredParams.Add(parameter.Name.IdentifierName);
                 }
