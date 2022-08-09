@@ -22,7 +22,7 @@ namespace Bicep.Core.Semantics
         public ParamsTypeManager ParamsTypeManager { get; }
         public ParamsSymbolContext ParamsSymbolContext { get; }
         public Lazy<ImmutableArray<IDiagnostic>> AllDiagnostics { get; }
-        public IFileResolver fileResolver { get; }
+        // public IFileResolver fileResolver { get; }
         private ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?> DeclarationsByAssignment;
         private ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?>? AssignmentsByDeclaration;
         private readonly ImmutableArray<IDiagnostic> CompilationLoadDiagnostics;
@@ -52,7 +52,7 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<IDiagnostic> GetAllDiagnostics()
             => BicepParamFile.ProgramSyntax.GetParseDiagnostics()
                 .Concat(ParamsTypeManager.GetAllDiagnostics())
-                .Concat(this.compilationLoadDiagnostics)
+                .Concat(this.CompilationLoadDiagnostics)
                 .Concat(GetAdditionalSemanticDiagnostics()).ToImmutableArray();
             
         /// <summary>
@@ -156,8 +156,6 @@ namespace Bicep.Core.Semantics
             // parameters that are declared but not assigned
             var missingRequiredParams = new List<String>();
 
-            
-
             if (this.BicepCompilation is null)
             {
                 return;
@@ -174,6 +172,7 @@ namespace Bicep.Core.Semantics
                     missingRequiredParams.Add(parameter.Name.IdentifierName);
                 }
             }
+            
             // emit diagnostic only if there is a using statement
             var usingDeclarationSyntax = BicepParamFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>().SingleOrDefault();
             if (usingDeclarationSyntax is not null && missingRequiredParams.Count() > 0)
