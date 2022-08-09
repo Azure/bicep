@@ -320,9 +320,9 @@ namespace Bicep.Core.Emit
                     {
                         emitter.EmitProperty("provider", namespaceType.Settings.ArmTemplateProviderName);
                         emitter.EmitProperty("version", namespaceType.Settings.ArmTemplateProviderVersion);
-                        if (import.DeclaringImport.Config is { } config)
+                        if (import.DeclaringImport.Config is not SkippedTriviaSyntax)
                         {
-                            emitter.EmitProperty("config", config);
+                            emitter.EmitProperty("config", import.DeclaringImport.Config);
                         }
                     });
                 });

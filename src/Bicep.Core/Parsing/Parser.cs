@@ -353,15 +353,15 @@ namespace Bicep.Core.Parsing
             var providerName = this.IdentifierWithRecovery(b => b.ExpectedImportProviderName(), RecoveryFlags.None, TokenType.NewLine);
             var asKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.AsKeyword), GetSuppressionFlag(providerName), TokenType.NewLine);
             var aliasName = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), GetSuppressionFlag(asKeyword), TokenType.NewLine);
-            var config = this.WithRecoveryNullable(
+            var config = this.WithRecovery<SyntaxBase>(
                 () =>
                 {
                     var current = reader.Peek();
                     return current.Type switch
                     {
                         // no config is supplied
-                        TokenType.NewLine => null,
-                        TokenType.EndOfFile => null,
+                        TokenType.NewLine => SkipEmpty(),
+                        TokenType.EndOfFile => SkipEmpty(),
 
                         // we have config!
                         TokenType.LeftBrace => this.Object(ExpressionFlags.AllowComplexLiterals),
@@ -794,13 +794,17 @@ namespace Bicep.Core.Parsing
             }
         }
 
+        private SkippedTriviaSyntax SkipEmpty()
+            => SkipEmpty(this.reader.Peek().Span.Position, null);
+
         private SkippedTriviaSyntax SkipEmpty(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
             => SkipEmpty(this.reader.Peek().Span.Position, errorFunc);
 
-        private SkippedTriviaSyntax SkipEmpty(int position, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        private SkippedTriviaSyntax SkipEmpty(int position, DiagnosticBuilder.ErrorBuilderDelegate? errorFunc)
         {
             var span = new TextSpan(position, 0);
-            return new SkippedTriviaSyntax(span, ImmutableArray<SyntaxBase>.Empty, errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable());
+            var diagnostics = errorFunc is null ? Enumerable.Empty<IDiagnostic>() : errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable();
+            return new SkippedTriviaSyntax(span, ImmutableArray<SyntaxBase>.Empty, diagnostics);
         }
 
         private SkippedTriviaSyntax Skip(IEnumerable<SyntaxBase> syntax, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)

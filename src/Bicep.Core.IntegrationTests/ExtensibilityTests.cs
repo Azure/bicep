@@ -530,5 +530,29 @@ Hello from Bicep!"));
   }
 }"));
         }
+
+        [TestMethod]
+        public void Az_namespace_can_be_used_without_configuration()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import az as az
+");
+
+            result.Should().GenerateATemplate();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Az_namespace_errors_with_configuration()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import az as az {}
+");
+
+            result.Should().NotGenerateATemplate();
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP205", DiagnosticLevel.Error, "Imported namespace \"az\" does not support configuration."),
+            });
+        }
     }
 }
