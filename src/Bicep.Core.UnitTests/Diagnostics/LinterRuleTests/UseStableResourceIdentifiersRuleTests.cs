@@ -91,6 +91,28 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'utcNow' function (storage.name -> pop -> snap (default value) -> utcNow('F')).",
             "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'utcNow' function (storage.name -> pop -> crackle -> snap (default value) -> utcNow('F'))."
         )]
+        [DataRow(@"
+            param location string = resourceGroup().location
+            param snap string = '${newGuid()}${newGuid()}${utcNow('u')}'
+
+            var crackle = snap
+            var pop = '${snap}${crackle}'
+
+            resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+              name: pop
+              location: location
+              kind: 'StorageV2'
+              sku: {
+                name: 'Standard_LRS'
+              }
+            }",
+            "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'newGuid' function (storage.name -> pop -> snap (default value) -> newGuid()).",
+            "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'newGuid' function (storage.name -> pop -> snap (default value) -> newGuid()).",
+            "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'utcNow' function (storage.name -> pop -> snap (default value) -> utcNow('u')).",
+            "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'newGuid' function (storage.name -> pop -> crackle -> snap (default value) -> newGuid()).",
+            "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'newGuid' function (storage.name -> pop -> crackle -> snap (default value) -> newGuid()).",
+            "Resource identifiers should be reproducible outside of their initial deployment context. Resource storage's 'name' identifier is potentially nondeterministic due to its use of the 'utcNow' function (storage.name -> pop -> crackle -> snap (default value) -> utcNow('u'))."
+        )]
         [DataTestMethod]
         public void TestRule(string text, params string[] expectedMessages)
         {
