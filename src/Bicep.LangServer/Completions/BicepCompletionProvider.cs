@@ -17,6 +17,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
@@ -44,13 +45,15 @@ namespace Bicep.LanguageServer.Completions
         private readonly ISnippetsProvider SnippetsProvider;
         private readonly ITelemetryProvider TelemetryProvider;
         private readonly IFeatureProvider featureProvider;
+        private readonly INamespaceProvider namespaceProvider;
 
-        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, ITelemetryProvider telemetryProvider, IFeatureProvider featureProvider)
+        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, ITelemetryProvider telemetryProvider, IFeatureProvider featureProvider, INamespaceProvider namespaceProvider)
         {
             this.FileResolver = fileResolver;
             this.SnippetsProvider = snippetsProvider;
             this.TelemetryProvider = telemetryProvider;
             this.featureProvider = featureProvider;
+            this.namespaceProvider = namespaceProvider;
         }
 
         public IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
@@ -897,7 +900,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             var argType = functionSymbol.GetDeclaredArgumentType(functionArgument.ArgumentIndex);
-            
+
             return GetValueCompletionsForType(model, context, argType, loopsAllowed: false);
         }
 
@@ -935,7 +938,7 @@ namespace Bicep.LanguageServer.Completions
 
             return fileItems.Concat(dirItems);
         }
-        
+
         private IEnumerable<CompletionItem> GetValueCompletionsForType(SemanticModel model, BicepCompletionContext context, TypeSymbol? type, bool loopsAllowed)
         {
             var replacementRange = context.ReplacementRange;
@@ -1348,7 +1351,7 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(GetSortText(label, priority))
                 .Build();
 
-        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, bool disableFollowUp = false, string? insertText = null)
+        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null)
         {
             insertText ??= symbol.Name;
             var kind = GetCompletionItemKind(symbol);
@@ -1394,9 +1397,9 @@ namespace Bicep.LanguageServer.Completions
                     .Build();
             }
 
-            // trigger follow up completions
-            if (symbol is INamespaceSymbol && !disableFollowUp)
+            if (symbol is INamespaceSymbol)
             {
+                // trigger follow up completions
                 return completion
                     .WithDetail(insertText)
                     .WithPlainTextEdit(replacementRange, insertText + ".")
@@ -1419,10 +1422,13 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ImportFollower))
             {
-                foreach (var builtInNamespace in model.Root.Namespaces.OfType<BuiltInNamespaceSymbol>().OrderBy(x => x.Name, LanguageConstants.IdentifierComparer))
+                foreach (var builtInNamespace in namespaceProvider.AvailableNamespaces.OrderBy(x => x, LanguageConstants.IdentifierComparer))
                 {
-                    // We don't want to trigger follow-up completions for a namespace as we just want to insert "ns" rather than "ns."
-                    yield return CreateSymbolCompletion(builtInNamespace, context.ReplacementRange, disableFollowUp: true);
+                    yield return CompletionItemBuilder.Create(CompletionItemKind.Folder, builtInNamespace)
+                        .WithSortText(GetSortText(builtInNamespace, CompletionPriority.High))
+                        .WithDetail(builtInNamespace)
+                        .WithPlainTextEdit(context.ReplacementRange, builtInNamespace)
+                        .Build();
                 }
             }
         }

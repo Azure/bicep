@@ -1174,8 +1174,8 @@ import a|
                 c => c!.Select(x => x.Label).Should().Equal("as"),
                 c => c!.Select(x => x.Label).Should().Equal("as"),
                 c => c!.Select(x => x.Label).Should().BeEmpty(),
-                c => c!.Select(x => x.Label).Should().Equal("az", "sys"),
-                c => c!.Select(x => x.Label).Should().Equal("az", "sys")
+                c => c!.Select(x => x.Label).Should().Equal("az", "kubernetes", "sys"),
+                c => c!.Select(x => x.Label).Should().Equal("az", "kubernetes", "sys")
             ));
 
             await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, completions => completions.Should().SatisfyRespectively(
