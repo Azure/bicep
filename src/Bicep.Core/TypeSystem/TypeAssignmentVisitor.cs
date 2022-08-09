@@ -468,7 +468,7 @@ namespace Bicep.Core.TypeSystem
 
                 this.ValidateDecorators(syntax.Decorators, namespaceType, diagnostics);
 
-                if (syntax.Config is not null)
+                if (syntax.Config is not SkippedTriviaSyntax)
                 {
                     if (namespaceType.ConfigurationType is null)
                     {
