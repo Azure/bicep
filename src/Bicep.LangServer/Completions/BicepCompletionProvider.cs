@@ -85,13 +85,14 @@ namespace Bicep.LanguageServer.Completions
 
         public IEnumerable<CompletionItem> GetFilteredParamsCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
         {
-            return GetParamAssignmentCompletions(paramsSemanticModel, paramsCompletionContext)
+            return GetParamIdentifierCompletions(paramsSemanticModel, paramsCompletionContext)
+                  .Concat(GetParamAllowedValueCompletions(paramsSemanticModel, paramsCompletionContext))
                   .Concat(GetUsingDeclarationPathCompletions(paramsSemanticModel, paramsCompletionContext));
         }
 
-        private IEnumerable<CompletionItem> GetParamAssignmentCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
+        private IEnumerable<CompletionItem> GetParamIdentifierCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
         {   
-            if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamAssignment) && paramsSemanticModel.BicepCompilation is {} bicepCompilation)
+            if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamIdentifier) && paramsSemanticModel.BicepCompilation is {} bicepCompilation)
             {
                 var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
                 var bicepFileParamDeclarations = bicepSemanticModel.Root.ParameterDeclarations;
@@ -106,6 +107,32 @@ namespace Bicep.LanguageServer.Completions
             }
 
             bool IsParamAssigned(ParameterSymbol declaration) => paramsSemanticModel.ParamBinder.ParamFileSymbol.ParameterAssignmentSymbols.Any(paramDeclaration => paramDeclaration.Name == declaration.Name);
+        }
+
+        private IEnumerable<CompletionItem> GetParamAllowedValueCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
+        {
+
+            if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamValue) && paramsSemanticModel.BicepCompilation is {} bicepCompilation)
+            {
+                var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
+                var bicepFileParamDeclaration = bicepSemanticModel.Parameters.Where(parameterMetaData => parameterMetaData.Name == paramsCompletionContext.ParamAssignment).FirstOrDefault();
+                if(bicepFileParamDeclaration?.TypeReference.Type is UnionType union)
+                {
+                    foreach(var typeRef in union.Members)
+                    {
+                        if(typeRef.Type is StringLiteralType stringLiteral)
+                        {
+                            var returnVal = CompletionItemBuilder.Create(CompletionItemKind.EnumMember, stringLiteral.Name)
+                                        .WithPlainTextEdit(paramsCompletionContext.ReplacementRange, stringLiteral.Name)
+                                        .WithDetail(stringLiteral.Name)
+                                        .Preselect()
+                                        .WithSortText(GetSortText(stringLiteral.Name, CompletionPriority.Medium))
+                                        .Build();
+                            yield return returnVal;
+                        }
+                    }   
+                }
+            }
         }
 
         private IEnumerable<CompletionItem> GetUsingDeclarationPathCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
