@@ -3,7 +3,6 @@
 	<PropertyGroup>
 		<TargetFramework>net472</TargetFramework>
 		<IsPackable>false</IsPackable>
-		<AnalysisLevel>latest-minimum</AnalysisLevel>
 	</PropertyGroup>
 
 	<ItemGroup>
