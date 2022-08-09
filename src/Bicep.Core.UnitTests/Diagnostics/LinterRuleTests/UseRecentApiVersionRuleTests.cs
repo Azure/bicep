@@ -21,7 +21,7 @@ using Bicep.Core.CodeAction;
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public class UseRecentApiVersionRuleTests : LinterRuleTestsBase
+    public partial class UseRecentApiVersionRuleTests : LinterRuleTestsBase
     {
         public record DiagnosticAndFixes
         (
