@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
   <TemplateData>
-    <Name>Bicep</Name>
-    <Description>An empty bicep template</Description>
+    <Name>Bicep File</Name>
+    <Description>An empty Bicep template</Description>
     <TemplateID>Microsoft.Bicep.Web</TemplateID>
     <ProjectType>Web</ProjectType>
     <ProjectSubType>CSharp</ProjectSubType>
