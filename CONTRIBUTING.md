@@ -85,6 +85,9 @@ If you have an active branch pushed to your GitHub fork, you can use the "Update
 * In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "Bicep CLI" task, and press the "Start" button. This will build and run the Bicep CLI and allow you to step through the code.
 * Note that usually you will want to pass your own custom arguments to the Bicep CLI. This can be done by modifying the `launch.json` configuration to add arguments to the "args" array for the "Bicep CLI" task. 
 
+### 3rd party Syntax Highlighting libraries
+See [Syntax Highlighting Libraries](./docs/highlighting.md) for information on the various 3rd party highlighting libraries that Bicep supports, where they are used, and how to contribute to them.
+
 ## Pull Requests
 
 If you'd like to start contributing to Bicep, you can search for issues tagged as "good first issue" [here](https://github.com/Azure/bicep/labels/good%20first%20issue).
