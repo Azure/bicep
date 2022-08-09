@@ -51,7 +51,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 "utcNow",
             };
             private readonly SemanticModel model;
-            private readonly Dictionary<string, string> pathsToNonDeterministicFunctionsUsed = new();
+            private readonly List<(string, string)> pathsToNonDeterministicFunctionsUsed = new();
             private readonly LinkedList<Symbol> pathSegments = new();
 
             internal Visitor(SemanticModel model)
@@ -59,13 +59,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 this.model = model;
             }
 
-            internal IEnumerable<KeyValuePair<string, string>> PathsToNonDeterministicFunctionsUsed => pathsToNonDeterministicFunctionsUsed;
+            internal IEnumerable<(string path, string functionName)> PathsToNonDeterministicFunctionsUsed => pathsToNonDeterministicFunctionsUsed;
 
             public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
             {
                 if (NonDeterministicFunctionNames.Contains(syntax.Name.IdentifierName))
                 {
-                    pathsToNonDeterministicFunctionsUsed.Add(FormatPath(syntax.ToText()), syntax.Name.IdentifierName);
+                    pathsToNonDeterministicFunctionsUsed.Add((FormatPath(syntax.ToText()), syntax.Name.IdentifierName));
                 }
                 base.VisitFunctionCallSyntax(syntax);
             }
