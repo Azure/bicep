@@ -56,15 +56,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="main.bicep" />
+    <None Include="packages.lock.json" />
   </ItemGroup>
   <ItemGroup>
     <VSTemplate Include="General.vstemplate">
       <SubType>Designer</SubType>
     </VSTemplate>
     <VSTemplate Include="Web.vstemplate">
+      <OutputSubPath>General</OutputSubPath>
       <SubType>Designer</SubType>
     </VSTemplate>
     <VSTemplate Include="CSharp.vstemplate">
+      <OutputSubPath>General</OutputSubPath>
       <SubType>Designer</SubType>
     </VSTemplate>
     <Content Include="BicepItemTemplateIcon.png">
@@ -73,11 +76,4 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
