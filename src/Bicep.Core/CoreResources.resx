@@ -344,6 +344,19 @@
   <data name="SecureParamsInNestedDeployRule_Solution" xml:space="preserve">
     <value>Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.</value>
   </data>
+  <data name="UseResourceIdFunctionsRule_Description" xml:space="preserve">
+    <value>Properties representing a resource ID must be generatated appropriately.</value>
+  </data>
+  <data name="UseResourceIdFunctionsRule_MessageFormat" xml:space="preserve">
+    <value>If property "{0}" represents a resource ID, it must use a symbolic resource reference (preferred) or start with one of these functions: {1}.</value>
+    <comment>{0} programmatic identifier
+{1} comma-separated list of programmatic function names</comment>
+  </data>
+  <data name="UseResourceIdFunctionsRule_NonConformingExprPath" xml:space="preserve">
+    <value>Found nonconforming expression at {0}</value>
+    <comment>{0} programmatic identifiers
+{1} comma-separated list of programmatic function names</comment>
+  </data>
   <data name="UseStableResourceIdentifiersMessage" xml:space="preserve">
     <value>Resource identifiers should be reproducible outside of their initial deployment context. </value>
   </data>

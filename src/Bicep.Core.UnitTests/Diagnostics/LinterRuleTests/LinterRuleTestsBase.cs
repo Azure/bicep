@@ -32,6 +32,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             None,
             LineNumber,
+            LineNumberAndColumn,
 
             Default = LineNumber,
         }
@@ -45,15 +46,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private static string FormatDiagnostic(IDiagnostic diagnostic, ImmutableArray<int> lineStarts, IncludePosition includePosition)
         {
-            if (includePosition == IncludePosition.LineNumber)
+            var (line, character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
+            return includePosition switch
             {
-                var position = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
-                return $"[{position.line + 1}] {diagnostic.Message}";
-            }
-            else
-            {
-                return diagnostic.Message;
-            }
+                IncludePosition.LineNumber => $"[{line + 1}] {diagnostic.Message}",
+                IncludePosition.LineNumberAndColumn => $"[{line + 1}:{character + 1}] {diagnostic.Message}",
+                IncludePosition.None => diagnostic.Message,
+                _ => throw new InvalidOperationException($"Invalid IncludePosition value {includePosition}"),
+            };
         }
 
         protected static void AssertLinterRuleDiagnostics(string ruleCode, string bicepText, string[] expectedMessagesForCode, Options? options = null)

@@ -179,8 +179,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             //   If _artifactsLocationSasToken has a default value, it must be an empty string (no rule about
             //     whether it should or shouldn't have a default value, instead checking module references)
 
-            var artifactsLocationDefaultValue = GetParameterDefaultValue(artifactsLocationParam);
-            var artifactsSasDefaultValue = GetParameterDefaultValue(artifactsSasParam);
+            var artifactsLocationDefaultValue = SyntaxHelper.TryGetDefaultValue(artifactsLocationParam);
+            var artifactsSasDefaultValue = SyntaxHelper.TryGetDefaultValue(artifactsSasParam);
 
             // ... RULE: If _artifactsLocation has a default value, it must be either "[deployment().properties.templateLink.uri]" or a raw URL
             if (artifactsLocationDefaultValue != null) // pass if no default value
@@ -221,18 +221,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private SyntaxBase? GetParameterDefaultValue(ParameterSymbol parameterSymbol)
-        {
-            if (parameterSymbol.DeclaringSyntax is ParameterDeclarationSyntax syntax)
-            {
-                return SyntaxHelper.TryGetDefaultValue(syntax);
-            }
-
-            return null;
-        }
-
-
-        private string? TryGetStringLiteral(SyntaxBase syntax)
+        private static string? TryGetStringLiteral(SyntaxBase syntax)
         {
             if (syntax is StringSyntax @string)
             {
@@ -242,7 +231,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
-        private string? GetParameterType(ParameterSymbol parameterSymbol)
+        private static string? GetParameterType(ParameterSymbol parameterSymbol)
         {
             if (parameterSymbol.DeclaringSyntax is ParameterDeclarationSyntax parameterDeclaration
                && parameterDeclaration.ParameterType is SimpleTypeSyntax typeSyntax)
@@ -294,7 +283,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private (ParameterSymbol?, IDiagnostic? diagnostic) FindArtifactsParameter(ParameterSymbol[] parameters, string parameterName)
         {
             Debug.Assert(parameterName[0] == '_');
-            var nameWithoutUnderscore = parameterName.Substring(1);
+            var nameWithoutUnderscore = parameterName[1..];
 
             var paramNoUnderscore = parameters.Where(p => p.Name.Equals(nameWithoutUnderscore, ArmParameterComparison)).FirstOrDefault();
             if (paramNoUnderscore is not null)
