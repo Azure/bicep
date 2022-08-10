@@ -74,15 +74,18 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var resource in model.DeclaredResources)
             {
-                if (resource.Symbol.DeclaringSyntax is ResourceDeclarationSyntax declarationSyntax)
+                if (resource.Symbol.DeclaringSyntax is ResourceDeclarationSyntax declarationSyntax
+                    && helper.AnalyzeResource(declarationSyntax) is Failure failure)
                 {
-                    helper.AnalyzeResource(declarationSyntax);
+                    yield return CreateFixableDiagnosticForSpan(
+                        failure.Span,
+                        failure.Fixes,
+                        failure.ResourceType,
+                        failure.Reason,
+                        failure.AcceptableVersions);
                 }
             }
-
-            return helper.Failures.Select(fix => CreateFixableDiagnosticForSpan(fix.Span, fix.Fixes, fix.ResourceType, fix.Reason, fix.AcceptableVersions));
         }
-
         public record Failure(
             TextSpan Span,
             string ResourceType,
@@ -93,8 +96,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public sealed class Helper
         {
-            internal readonly List<Failure> Failures = new();
-
             private readonly IApiVersionProvider apiVersionProvider;
             private readonly SemanticModel model;
             private readonly DateTime today;
@@ -110,18 +111,18 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 this.warnNotFound = warnNotFound;
             }
 
-            public void AnalyzeResource(ResourceDeclarationSyntax resourceDeclarationSyntax)
+            public Failure? AnalyzeResource(ResourceDeclarationSyntax resourceDeclarationSyntax)
             {
                 if ( model.GetSymbolInfo(resourceDeclarationSyntax) is not ResourceSymbol resourceSymbol)
                 {
-                    return;
+                    return null;
                 }
 
                 if (model.DeclaredResources.FirstOrDefault(r => r.Symbol == resourceSymbol) is not DeclaredResourceMetadata declaredResourceMetadata
                     || !declaredResourceMetadata.IsAzResource)
                 {
                     // Skip if it's not an Az resource or is invalid
-                    return;
+                    return null;
                 }
 
                 if (resourceSymbol.TryGetResourceTypeReference() is ResourceTypeReference resourceTypeReference &&
@@ -135,10 +136,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         var failure = AnalyzeApiVersion(replacementSpan, model.TargetScope, fullyQualifiedResourceType, new ApiVersion(date, suffix));
                         if (failure is not null)
                         {
-                            Failures.Add(failure);
+                            return failure;
                         }
                     }
                 }
+
+                return null;
             }
 
             public Failure? AnalyzeApiVersion(TextSpan replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, ApiVersion actualApiVersion)
