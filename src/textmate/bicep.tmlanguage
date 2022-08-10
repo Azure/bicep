@@ -88,6 +88,33 @@
           </dict>
         </array>
       </dict>
+      <key>directive</key>
+      <dict>
+        <key>name</key>
+        <string>meta.directive.bicep</string>
+        <key>begin</key>
+        <string>#\b[_a-zA-Z-0-9]+\b</string>
+        <key>end</key>
+        <string>$</string>
+        <key>patterns</key>
+        <array>
+          <dict>
+            <key>include</key>
+            <string>#directive-variable</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#comments</string>
+          </dict>
+        </array>
+      </dict>
+      <key>directive-variable</key>
+      <dict>
+        <key>name</key>
+        <string>keyword.control.declaration.bicep</string>
+        <key>match</key>
+        <string>\b[_a-zA-Z-0-9]+\b</string>
+      </dict>
       <key>escape-character</key>
       <dict>
         <key>name</key>
@@ -139,6 +166,14 @@
             <key>include</key>
             <string>#decorator</string>
           </dict>
+          <dict>
+            <key>include</key>
+            <string>#lambda-start</string>
+          </dict>
+          <dict>
+            <key>include</key>
+            <string>#directive</string>
+          </dict>
         </array>
       </dict>
       <key>function-call</key>
@@ -183,6 +218,34 @@
         <key>match</key>
         <string>\b(targetScope|resource|module|param|var|output|for|in|if|existing|import|from)\b</string>
       </dict>
+      <key>lambda-start</key>
+      <dict>
+        <key>name</key>
+        <string>meta.lambda-start.bicep</string>
+        <key>begin</key>
+        <string>(\((?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*\b[_$[:alpha:]][_$[:alnum:]]*\b(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*(,(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*\b[_$[:alpha:]][_$[:alnum:]]*\b(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*)*\)|\((?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*\)|(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*\b[_$[:alpha:]][_$[:alnum:]]*\b(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*)(?=(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*=&gt;)</string>
+        <key>beginCaptures</key>
+        <dict>
+          <key>1</key>
+          <dict>
+            <key>name</key>
+            <string>meta.undefined.bicep</string>
+            <key>patterns</key>
+            <array>
+              <dict>
+                <key>include</key>
+                <string>#identifier</string>
+              </dict>
+              <dict>
+                <key>include</key>
+                <string>#comments</string>
+              </dict>
+            </array>
+          </dict>
+        </dict>
+        <key>end</key>
+        <string>(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*=&gt;</string>
+      </dict>
       <key>line-comment</key>
       <dict>
         <key>name</key>
@@ -216,69 +279,8 @@
         <array>
           <dict>
             <key>include</key>
-            <string>#object-property</string>
+            <string>#object-property-key</string>
           </dict>
-          <dict>
-            <key>include</key>
-            <string>#comments</string>
-          </dict>
-        </array>
-      </dict>
-      <key>object-property</key>
-      <dict>
-        <key>name</key>
-        <string>meta.object-property.bicep</string>
-        <key>begin</key>
-        <string>(?&lt;=^)(?!(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*})</string>
-        <key>end</key>
-        <string>(?=$)</string>
-        <key>patterns</key>
-        <array>
-          <dict>
-            <key>include</key>
-            <string>#object-property-key-identifier</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#string-literal</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#object-property-end</string>
-          </dict>
-          <dict>
-            <key>include</key>
-            <string>#comments</string>
-          </dict>
-        </array>
-      </dict>
-      <key>object-property-end</key>
-      <dict>
-        <key>name</key>
-        <string>meta.object-property-end.bicep</string>
-        <key>begin</key>
-        <string>:((?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*)</string>
-        <key>beginCaptures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>patterns</key>
-            <array>
-              <dict>
-                <key>include</key>
-                <string>#line-comment</string>
-              </dict>
-              <dict>
-                <key>include</key>
-                <string>#block-comment</string>
-              </dict>
-            </array>
-          </dict>
-        </dict>
-        <key>end</key>
-        <string>(?=(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*$)</string>
-        <key>patterns</key>
-        <array>
           <dict>
             <key>include</key>
             <string>#expression</string>
@@ -289,20 +291,12 @@
           </dict>
         </array>
       </dict>
-      <key>object-property-key-identifier</key>
+      <key>object-property-key</key>
       <dict>
         <key>name</key>
-        <string>meta.object-property-key-identifier.bicep</string>
+        <string>variable.other.property.bicep</string>
         <key>match</key>
-        <string>(\b[_$[:alpha:]][_$[:alnum:]]*\b)</string>
-        <key>captures</key>
-        <dict>
-          <key>1</key>
-          <dict>
-            <key>name</key>
-            <string>variable.other.property.bicep</string>
-          </dict>
-        </dict>
+        <string>\b[_$[:alpha:]][_$[:alnum:]]*\b(?=(?:[ \t\r\n]|\/\*(?:\*(?!\/)|[^*])*\*\/)*:)</string>
       </dict>
       <key>string-literal</key>
       <dict>

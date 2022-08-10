@@ -9,6 +9,7 @@ import path, { dirname, basename, extname } from 'path';
 import { grammarPath, BicepScope } from '../src/bicep';
 import { spawnSync } from 'child_process';
 import { escape } from 'html-escaper';
+import { env } from 'process';
 
 async function createOnigLib(): Promise<IOnigLib> {
   const onigWasm = await readFile(`${path.dirname(require.resolve('vscode-oniguruma'))}/onig.wasm`);
@@ -125,6 +126,10 @@ async function writeBaseline(filePath: string) {
   }
 
   const diffAfter = `
+<!--
+  Preview this file by prepending http://htmlpreview.github.io/? to its URL
+  e.g. http://htmlpreview.github.io/?https://raw.githubusercontent.com/Azure/bicep/main/src/textmate/test/baselines/${baselineBaseName}.html
+-->
 <html>
   <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
@@ -162,7 +167,7 @@ for (const filePath of baselineFiles) {
       result = await writeBaseline(filePath);
     });
 
-    if (!basename(filePath).startsWith('bad_')) {
+    if (!basename(filePath).startsWith('invalid_')) {
       // skip the invalid files - we don't expect them to compile
 
       it('can be compiled', async () => {
@@ -173,7 +178,10 @@ for (const filePath of baselineFiles) {
           throw new Error(`Unable to find '${cliCsproj}'`);
         }
 
-        const result = spawnSync(`dotnet`, ['run', '-p', cliCsproj, 'build', '--stdout', filePath], { encoding: 'utf-8' });
+        const result = spawnSync(`dotnet`, ['run', '-p', cliCsproj, 'build', '--stdout', filePath], {
+          encoding: 'utf-8',
+          env: { ...env, 'BICEP_LAMBDAS_ENABLED_EXPERIMENTAL': 'true'}
+        });
 
         expect(result.error).toBeUndefined();
         expect(result.stderr).not.toContain(') : Error ')
