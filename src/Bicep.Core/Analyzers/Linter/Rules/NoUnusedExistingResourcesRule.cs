@@ -3,6 +3,7 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var unreferencedResources = model.Root.Declarations.OfType<ResourceSymbol>()
                 .Where(sym => sym.NameSyntax.IsValid)
                 .Where(sym => sym.DeclaringResource.IsExistingResource())
-                .Where(sym => !model.FindReferences(sym).Any(rf => rf != sym.DeclaringResource));
+                .Where(sym => !model.FindReferences(sym).Any(rf => rf != sym.DeclaringResource))
+                .Where(sym => (sym.DeclaringResource.TryGetBody()?.Resources ?? Enumerable.Empty<ResourceDeclarationSyntax>()).All(child => child.IsExistingResource()));
             foreach (var sym in unreferencedResources)
             {
                 yield return CreateRemoveUnusedDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.ProgramSyntax);
