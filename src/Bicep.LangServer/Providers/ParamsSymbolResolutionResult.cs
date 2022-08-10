@@ -6,7 +6,7 @@ using Bicep.LanguageServer.CompilationManager;
 
 namespace Bicep.LanguageServer.Providers
 {
-    public class ParamsSymbolResolutionResult
+    public record ParamsSymbolResolutionResult
     {
         public ParamsSymbolResolutionResult(SyntaxBase origin, Symbol symbol, ParamsCompilationContext context)
         {

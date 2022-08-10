@@ -75,13 +75,13 @@ namespace Bicep.LanguageServer.Handlers
                     return Task.FromResult(new LocationOrLocationLinks());
                 }
 
-                var result = this.symbolResolver.ResolveParamsSymbol(request.TextDocument.Uri, request.Position);
-                if (result is null)
+                var resolutionResult = this.symbolResolver.ResolveParamsSymbol(request.TextDocument.Uri, request.Position);
+                if (resolutionResult is null)
                 {
                     return Task.FromResult(new LocationOrLocationLinks());
                 }
 
-                if (result.Symbol is ParameterAssignmentSymbol param && param.NameSyntax is {} nameSyntax)
+                if (resolutionResult.Symbol is ParameterAssignmentSymbol param && param.NameSyntax is {} nameSyntax)
                 {
                     var bicepCompilation = paramsContext.ParamsSemanticModel.BicepCompilation;
                     
@@ -92,7 +92,7 @@ namespace Bicep.LanguageServer.Handlers
                     var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
 
                     var parameterDeclarations = bicepSemanticModel.Root.Syntax.Children.OfType<ParameterDeclarationSyntax>();
-                    var parameterDeclarationSymbol = paramsContext.ParamsSemanticModel.GetParameterDeclaration(param);
+                    var parameterDeclarationSymbol = paramsContext.ParamsSemanticModel.TryGetParameterDeclaration(param);
 
                     if (parameterDeclarationSymbol is null)
                     {
@@ -115,32 +115,29 @@ namespace Bicep.LanguageServer.Handlers
                 }
                 return Task.FromResult(new LocationOrLocationLinks());
             }
-            else
+            var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
+            if (context is null)
             {
-                var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
-                if (context is null)
-                {
-                    return Task.FromResult(new LocationOrLocationLinks());
-                }
-
-                var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
-
-                // No parent Symbol: ad hoc syntax matching
-                return result switch
-                {
-                    null => HandleUnboundSymbolLocationAsync(request, context),
-
-                    { Symbol: DeclaredSymbol declaration } => HandleDeclaredDefinitionLocationAsync(request, result, declaration),
-
-                    // Object property: currently only used for module param goto
-                    { Origin: ObjectPropertySyntax } => HandleObjectPropertyLocationAsync(request, result, context),
-
-                    // Used for module (name), variable or resource property access
-                    { Symbol: PropertySymbol } => HandlePropertyLocationAsync(request, result, context),
-
-                    _ => Task.FromResult(new LocationOrLocationLinks()),
-                };
+                return Task.FromResult(new LocationOrLocationLinks());
             }
+
+            var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
+
+            // No parent Symbol: ad hoc syntax matching
+            return result switch
+            {
+                null => HandleUnboundSymbolLocationAsync(request, context),
+
+                { Symbol: DeclaredSymbol declaration } => HandleDeclaredDefinitionLocationAsync(request, result, declaration),
+
+                // Object property: currently only used for module param goto
+                { Origin: ObjectPropertySyntax } => HandleObjectPropertyLocationAsync(request, result, context),
+
+                // Used for module (name), variable or resource property access
+                { Symbol: PropertySymbol } => HandlePropertyLocationAsync(request, result, context),
+
+                _ => Task.FromResult(new LocationOrLocationLinks()),
+            };
         }
 
         protected override DefinitionRegistrationOptions CreateRegistrationOptions(DefinitionCapability capability, ClientCapabilities clientCapabilities) => new()
