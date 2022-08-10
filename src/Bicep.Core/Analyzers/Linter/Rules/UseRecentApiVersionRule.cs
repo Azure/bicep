@@ -70,13 +70,20 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            var visitor = new Visitor(model, today, UseRecentApiVersionRule.MaxAllowedAgeInDays, warnNotFound);
+            var helper = new Helper(model, today, UseRecentApiVersionRule.MaxAllowedAgeInDays, warnNotFound);
 
-            visitor.Visit(model.SourceFile.ProgramSyntax);
-            return visitor.Failures.Select(fix => CreateFixableDiagnosticForSpan(fix.span, fix.fixes, fix.resourceType, fix.reason, fix.acceptableVersions));
+            foreach (var resource in model.DeclaredResources)
+            {
+                if (resource.Symbol.DeclaringSyntax is ResourceDeclarationSyntax declarationSyntax)
+                {
+                    helper.AnalyzeResource(declarationSyntax);
+                }
+            }
+
+            return helper.Failures.Select(fix => CreateFixableDiagnosticForSpan(fix.span, fix.fixes, fix.resourceType, fix.reason, fix.acceptableVersions));
         }
 
-        public sealed class Visitor : SyntaxVisitor
+        public sealed class Helper
         {
             internal readonly List<(TextSpan span, string resourceType, string reason, ApiVersion[] acceptableVersions, CodeFix[] fixes)> Failures = new();
 
@@ -86,7 +93,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private readonly int maxAllowedAgeInDays;
             private readonly bool warnNotFound;
 
-            public Visitor(SemanticModel model, DateTime today, int maxAllowedAgeInDays, bool warnNotFound)
+            public Helper(SemanticModel model, DateTime today, int maxAllowedAgeInDays, bool warnNotFound)
             {
                 this.apiVersionProvider = model.Compilation.ApiVersionProvider ?? new ApiVersionProvider();
                 this.model = model;
@@ -95,7 +102,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 this.warnNotFound = warnNotFound;
             }
 
-            public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax resourceDeclarationSyntax)
+            public void AnalyzeResource(ResourceDeclarationSyntax resourceDeclarationSyntax)
             {
                 if ( model.GetSymbolInfo(resourceDeclarationSyntax) is not ResourceSymbol resourceSymbol)
                 {
@@ -124,8 +131,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         }
                     }
                 }
-
-                base.VisitResourceDeclarationSyntax(resourceDeclarationSyntax);
             }
 
             public (TextSpan span, string resourceType, string reason, ApiVersion[] acceptableVersions, CodeFix[] fixes)?

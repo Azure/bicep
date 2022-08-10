@@ -129,7 +129,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             {
                 var apiVersionProvider = new ApiVersionProvider();
                 apiVersionProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
-                var (_, allowedVersions) = UseRecentApiVersionRule.Visitor.GetAcceptableApiVersions(apiVersionProvider, ApiVersionHelper.ParseDateFromApiVersion(today), maxAllowedAgeInDays, scope, fullyQualifiedResourceType);
+                var (_, allowedVersions) = UseRecentApiVersionRule.Helper.GetAcceptableApiVersions(apiVersionProvider, ApiVersionHelper.ParseDateFromApiVersion(today), maxAllowedAgeInDays, scope, fullyQualifiedResourceType);
                 var allowedVersionsStrings = allowedVersions.Select(v => v.Formatted).ToArray();
                 allowedVersionsStrings.Should().BeEquivalentTo(expectedApiVersions, options => options.WithStrictOrdering());
             }
@@ -838,7 +838,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DynamicData(nameof(GetTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(TestData), DynamicDataDisplayName = nameof(TestData.GetDisplayName))]
             public void Invariants(TestData data)
             {
-                var (allVersions, allowedVersions) = UseRecentApiVersionRule.Visitor.GetAcceptableApiVersions(RealApiVersionProvider, data.Today, data.MaxAllowedAgeDays, data.ResourceScope, data.FullyQualifiedResourceType);
+                var (allVersions, allowedVersions) = UseRecentApiVersionRule.Helper.GetAcceptableApiVersions(RealApiVersionProvider, data.Today, data.MaxAllowedAgeDays, data.ResourceScope, data.FullyQualifiedResourceType);
 
                 allVersions.Should().NotBeNull();
                 allowedVersions.Should().NotBeNull();
@@ -928,7 +928,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 var apiVersionProvider = new ApiVersionProvider();
                 apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(gaVersions.Concat(previewVersions)));
                 var semanticModel = SemanticModel(BicepTestConstants.BuiltInConfiguration, apiVersionProvider);
-                var visitor = new UseRecentApiVersionRule.Visitor(semanticModel, DateTime.Today, UseRecentApiVersionRule.MaxAllowedAgeInDays, warnNotFound: true);
+                var visitor = new UseRecentApiVersionRule.Helper(semanticModel, DateTime.Today, UseRecentApiVersionRule.MaxAllowedAgeInDays, warnNotFound: true);
 
                 var result = visitor.AnalyzeApiVersion(new TextSpan(17, 47), ResourceScope.ResourceGroup, "Whoever.whatever/whichever", new ApiVersion(currentVersion));
 
