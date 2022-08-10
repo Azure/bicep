@@ -140,7 +140,7 @@ for (const filePath of baselineFiles) {
       result = await writeBaseline(filePath);
     });
 
-    if (!basename(filePath).startsWith('bad_')) {
+    if (!basename(filePath).startsWith('invalid_')) {
       // skip the invalid files - we don't expect them to compile
 
       it('can be compiled', async () => {
