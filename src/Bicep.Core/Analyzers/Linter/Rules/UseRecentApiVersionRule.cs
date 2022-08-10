@@ -80,12 +80,20 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 }
             }
 
-            return helper.Failures.Select(fix => CreateFixableDiagnosticForSpan(fix.span, fix.fixes, fix.resourceType, fix.reason, fix.acceptableVersions));
+            return helper.Failures.Select(fix => CreateFixableDiagnosticForSpan(fix.Span, fix.Fixes, fix.ResourceType, fix.Reason, fix.AcceptableVersions));
         }
+
+        public record Failure(
+            TextSpan Span,
+            string ResourceType,
+            string Reason,
+            ApiVersion[] AcceptableVersions,
+            CodeFix[] Fixes
+        );
 
         public sealed class Helper
         {
-            internal readonly List<(TextSpan span, string resourceType, string reason, ApiVersion[] acceptableVersions, CodeFix[] fixes)> Failures = new();
+            internal readonly List<Failure> Failures = new();
 
             private readonly IApiVersionProvider apiVersionProvider;
             private readonly SemanticModel model;
@@ -127,14 +135,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         var failure = AnalyzeApiVersion(replacementSpan, model.TargetScope, fullyQualifiedResourceType, new ApiVersion(date, suffix));
                         if (failure is not null)
                         {
-                            Failures.Add(failure.Value);
+                            Failures.Add(failure);
                         }
                     }
                 }
             }
 
-            public (TextSpan span, string resourceType, string reason, ApiVersion[] acceptableVersions, CodeFix[] fixes)?
-                AnalyzeApiVersion(TextSpan replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, ApiVersion actualApiVersion)
+            public Failure? AnalyzeApiVersion(TextSpan replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, ApiVersion actualApiVersion)
             {
                 var (allApiVersions, acceptableApiVersions) = GetAcceptableApiVersions(apiVersionProvider, today, maxAllowedAgeInDays, scope, fullyQualifiedResourceType);
                 if (!allApiVersions.Any())
@@ -142,7 +149,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     // Resource type not recognized
                     if (warnNotFound)
                     {
-                        return (replacementSpan, fullyQualifiedResourceType, $"Could not find resource type {fullyQualifiedResourceType}", Array.Empty<ApiVersion>(), Array.Empty<CodeFix>());
+                        return new Failure(replacementSpan, fullyQualifiedResourceType, $"Could not find resource type {fullyQualifiedResourceType}", Array.Empty<ApiVersion>(), Array.Empty<CodeFix>());
                     }
                     return null;
                 }
@@ -159,7 +166,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     // apiVersion for resource type not recognized.
                     if (warnNotFound)
                     {
-                        return CreateFailure(replacementSpan, fullyQualifiedResourceType, actualApiVersion, $"Could not find apiVersion {actualApiVersion.Formatted} for {fullyQualifiedResourceType}", acceptableApiVersions);
+                        return CreateFailure(replacementSpan, fullyQualifiedResourceType, $"Could not find apiVersion {actualApiVersion.Formatted} for {fullyQualifiedResourceType}", acceptableApiVersions);
                     }
 
                     return null;
@@ -197,7 +204,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return CreateFailure(
                     replacementSpan,
                     fullyQualifiedResourceType,
-                    actualApiVersion,
                     failureReason,
                     acceptableApiVersions);
             }
@@ -272,8 +278,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return null;
             }
 
-            private static (TextSpan span, string resourceType, string reason, ApiVersion[] acceptableVersionsSorted, CodeFix[] fixes)
-            CreateFailure(TextSpan span, string fullyQualifiedResourceType, ApiVersion actualApiVersion, string reason, ApiVersion[] acceptableVersionsSorted)
+            private static Failure CreateFailure(TextSpan span, string fullyQualifiedResourceType, string reason, ApiVersion[] acceptableVersionsSorted)
             {
                 // For now, always choose the most recent for the suggested auto-fix
                 var preferredVersion = acceptableVersionsSorted[0];
@@ -285,7 +290,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     CodeFixKind.QuickFix,
                     codeReplacement);
 
-                return (span, fullyQualifiedResourceType, reason, acceptableVersionsSorted, new CodeFix[] { fix });
+                return new Failure(span, fullyQualifiedResourceType, reason, acceptableVersionsSorted, new CodeFix[] { fix });
             }
 
             private static DateTime? GetNewestDateOrNull(IEnumerable<ApiVersion> apiVersions)
