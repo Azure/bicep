@@ -168,11 +168,11 @@ jobs:
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
 
-      - name: Build BicepInVisualStudio.sln
-        run: msbuild Bicep.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
+      - name: Build Bicep.sln
+        run: msbuild Bicep.sln -restore -t:rebuild -property:Configuration=Release /bl:"bin/build_logs/bicep_build.binlog"
 
       - name: Build BicepInVisualStudio.sln
-        run: msbuild src/vs-bicep/BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
+        run: msbuild src/vs-bicep/BicepInVisualStudio.sln -restore -t:rebuild -property:Configuration=Release /bl:"bin/build_logs/bicep_in_visual_studio_build.binlog"
 
       - name: Run bicep in visual studio unit tests
         uses: microsoft/vstest-action@v1.0.0
