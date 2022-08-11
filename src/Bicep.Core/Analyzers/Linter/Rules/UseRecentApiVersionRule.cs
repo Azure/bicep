@@ -111,10 +111,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 resourceTypeReference.ApiVersion is string apiVersionString &&
                 GetReplacementSpan(resourceSymbol, apiVersionString) is TextSpan replacementSpan)
             {
-                string fullyQualifiedResourceType = resourceTypeReference.FormatType();
                 var (date, suffix) = ApiVersionHelper.TryParse(apiVersionString);
-                if (date != null)
+                if (date is not null)
                 {
+                    string fullyQualifiedResourceType = resourceTypeReference.FormatType();
                     var failure = AnalyzeApiVersion(model.Compilation.ApiVersionProvider, replacementSpan, model.TargetScope, fullyQualifiedResourceType, new ApiVersion(date, suffix));
                     if (failure is not null)
                     {
