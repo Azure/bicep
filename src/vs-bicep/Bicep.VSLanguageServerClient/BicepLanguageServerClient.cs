@@ -10,13 +10,14 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.VSLanguageServerClient.ContentType;
 using Bicep.VSLanguageServerClient.MiddleLayerProviders;
 using Bicep.VSLanguageServerClient.ProcessLauncher;
 using Bicep.VSLanguageServerClient.ProcessTracker;
+using Bicep.VSLanguageServerClient.Telemetry;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Setup.Configuration;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Telemetry;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
 using StreamJsonRpc;
@@ -24,18 +25,20 @@ using StreamJsonRpc;
 namespace Bicep.VSLanguageServerClient
 {
     [Export(typeof(ILanguageClient))]
-    [ContentType(BicepContentTypeDefinition.ContentType)]
+    [ContentType(BicepLanguageServerClientConstants.BicepContentType)]
+    [ContentType(BicepLanguageServerClientConstants.BicepConfigContentType)]
     public class BicepLanguageServerClient : ILanguageClient, ILanguageClientCustomMessage2
     {
         private IClientProcess? process;
         private readonly ILanguageClientMiddleLayer middleLayer;
         private readonly IProcessTracker processTracker;
+        private readonly TelemetrySession TelemetrySession;
 
         [ImportingConstructor]
         public BicepLanguageServerClient(IProcessTracker processTracker)
         {
             this.processTracker = processTracker;
-
+            this.TelemetrySession = TelemetryService.DefaultSession;
             var setupConfiguration = new SetupConfiguration();
             var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer(setupConfiguration.GetInstanceForCurrentProcess().GetInstallationVersion());
             var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer();
@@ -62,8 +65,8 @@ namespace Bicep.VSLanguageServerClient
         {
             string vsixInstallPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string languageServerExePath = Path.Combine(vsixInstallPath, "Bicep.LangServer.exe");
-            
-            var launchServerArguments = $" --contentType {BicepContentTypeDefinition.ContentType}" +
+
+            var launchServerArguments = $" --contentType {BicepLanguageServerClientConstants.BicepContentType}" +
                 $" --lcid {Thread.CurrentThread.CurrentUICulture.LCID}";
 
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -72,9 +75,15 @@ namespace Bicep.VSLanguageServerClient
 
             processTracker.AddProcess(process.Process);
 
-            Debug.WriteLine($"Started {BicepContentTypeDefinition.ContentType} server with process ID {process.Process.Id}");
+            Debug.WriteLine($"Started {BicepLanguageServerClientConstants.BicepContentType} server with process ID {process.Process.Id}");
 
-            return new Connection(process.StandardOutput.BaseStream, process.StandardInput.BaseStream);
+            var connection = new Connection(process.StandardOutput.BaseStream, process.StandardInput.BaseStream);
+            var telemetryEvent = new TelemetryEvent("vs/bicep/clientInitialization");
+            telemetryEvent.Properties["status"] = connection is null ? "failed" : "succeeded";
+
+            TelemetrySession.PostEvent(telemetryEvent);
+
+            return connection;
         }
 
         public async Task OnLoadedAsync()
@@ -94,11 +103,14 @@ namespace Bicep.VSLanguageServerClient
 
         public Task AttachForCustomMessageAsync(JsonRpc rpc)
         {
+            var didChangeWatchedFilesNotifier = new DidChangeWatchedFilesNotifier(rpc);
+            didChangeWatchedFilesNotifier.CreateFileSystemWatchers();
+
             return Task.CompletedTask;
         }
 
         public object MiddleLayer => middleLayer;
 
-        public object CustomMessageTarget => null!;
+        public object CustomMessageTarget => new TelemetryCustomMessageTarget(TelemetrySession);
     }
 }

@@ -55,11 +55,12 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
         [TestMethod]
-        public void AllRulesEnabledByDefault()
+        public void MostRulesEnabledByDefault()
         {
             var analyzer = new LinterAnalyzer(configuration);
             var ruleSet = analyzer.GetRuleSet();
-            ruleSet.Should().OnlyContain(r => r.IsEnabled());
+            var numberEnabled = ruleSet.Where(r => r.IsEnabled()).Count();
+            numberEnabled.Should().BeGreaterThan(ruleSet.Count() / 2, "most rules should probably be enabled by default");
         }
 
         [TestMethod]

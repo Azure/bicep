@@ -257,7 +257,7 @@ module managementGroupModules 'modules/managementGroup.bicep' = [for (mg, i) in 
 //@[64:0137) | └─ForSyntax
 //@[64:0065) |   ├─Token(LeftSquare) |[|
 //@[65:0068) |   ├─Token(Identifier) |for|
-//@[69:0076) |   ├─ForVariableBlockSyntax
+//@[69:0076) |   ├─VariableBlockSyntax
 //@[69:0070) |   | ├─Token(LeftParen) |(|
 //@[70:0072) |   | ├─LocalVariableSyntax
 //@[70:0072) |   | | └─IdentifierSyntax
@@ -318,7 +318,7 @@ module cannotUseModuleCollectionAsScope 'modules/managementGroup.bicep' = [for (
 //@[74:0150) | └─ForSyntax
 //@[74:0075) |   ├─Token(LeftSquare) |[|
 //@[75:0078) |   ├─Token(Identifier) |for|
-//@[79:0086) |   ├─ForVariableBlockSyntax
+//@[79:0086) |   ├─VariableBlockSyntax
 //@[79:0080) |   | ├─Token(LeftParen) |(|
 //@[80:0082) |   | ├─LocalVariableSyntax
 //@[80:0082) |   | | └─IdentifierSyntax
@@ -373,7 +373,7 @@ module cannotUseSingleModuleAsScope 'modules/managementGroup.bicep' = [for (mg, 
 //@[70:0149) | └─ForSyntax
 //@[70:0071) |   ├─Token(LeftSquare) |[|
 //@[71:0074) |   ├─Token(Identifier) |for|
-//@[75:0082) |   ├─ForVariableBlockSyntax
+//@[75:0082) |   ├─VariableBlockSyntax
 //@[75:0076) |   | ├─Token(LeftParen) |(|
 //@[76:0078) |   | ├─LocalVariableSyntax
 //@[76:0078) |   | | └─IdentifierSyntax

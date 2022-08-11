@@ -80,8 +80,6 @@ namespace Bicep.Core.Syntax
 
         void VisitForSyntax(ForSyntax syntax);
 
-        void VisitForVariableBlockSyntax(ForVariableBlockSyntax syntax);
-
         void VisitVariableBlockSyntax(VariableBlockSyntax syntax);
 
         void VisitDecoratorSyntax(DecoratorSyntax syntax);

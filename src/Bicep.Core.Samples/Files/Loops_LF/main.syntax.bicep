@@ -3632,7 +3632,7 @@ resource filteredIndexedZones 'Microsoft.Network/dnsZones@2018-05-01' = [for (ac
 //@[072:00199) | └─ForSyntax
 //@[072:00073) |   ├─Token(LeftSquare) |[|
 //@[073:00076) |   ├─Token(Identifier) |for|
-//@[077:00089) |   ├─ForVariableBlockSyntax
+//@[077:00089) |   ├─VariableBlockSyntax
 //@[077:00078) |   | ├─Token(LeftParen) |(|
 //@[078:00085) |   | ├─LocalVariableSyntax
 //@[078:00085) |   | | └─IdentifierSyntax
@@ -3748,7 +3748,7 @@ module filteredIndexedModules 'passthrough.bicep' = [for (account, i) in account
 //@[052:00187) | └─ForSyntax
 //@[052:00053) |   ├─Token(LeftSquare) |[|
 //@[053:00056) |   ├─Token(Identifier) |for|
-//@[057:00069) |   ├─ForVariableBlockSyntax
+//@[057:00069) |   ├─VariableBlockSyntax
 //@[057:00058) |   | ├─Token(LeftParen) |(|
 //@[058:00065) |   | ├─LocalVariableSyntax
 //@[058:00065) |   | | └─IdentifierSyntax

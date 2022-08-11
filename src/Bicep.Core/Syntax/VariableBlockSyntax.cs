@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
@@ -17,7 +16,7 @@ namespace Bicep.Core.Syntax
             this.OpenParen = openParen;
             this.Children = children.ToImmutableArray();
             this.CloseParen = closeParen;
-            this.Arguments = children.OfType<LocalVariableSyntax>().ToImmutableArray();
+            this.Arguments = Children.OfType<LocalVariableSyntax>().ToImmutableArray();
         }
 
         public Token OpenParen { get; }

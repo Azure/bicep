@@ -200,20 +200,6 @@ namespace Bicep.Core.PrettyPrint
                 return Concat(openBracket, Spread(forKeyword, variableBlock, inKeyword, arrayExpression), Spread(colon, loopBody), closeBracket);
             });
 
-        public override void VisitForVariableBlockSyntax(ForVariableBlockSyntax syntax) =>
-            this.Build(() => base.VisitForVariableBlockSyntax(syntax), children =>
-             {
-                 Debug.Assert(children.Length == 5);
-
-                 ILinkedDocument openParen = children[0];
-                 ILinkedDocument itemVariable = children[1];
-                 ILinkedDocument comma = children[2];
-                 ILinkedDocument indexVariable = children[3];
-                 ILinkedDocument closeParen = children[4];
-
-                 return Spread(Concat(openParen, itemVariable, comma), Concat(indexVariable, closeParen));
-             });
-
         public override void VisitVariableBlockSyntax(VariableBlockSyntax syntax) =>
             this.BuildWithConcat(() => {
                 this.Visit(syntax.OpenParen);

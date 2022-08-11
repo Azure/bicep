@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using Azure.Deployments.Expression.Engines;
@@ -621,11 +622,11 @@ namespace Bicep.Decompiler
         private SyntaxBase ParseJValue(JValue value)
             => value.Type switch
             {
-                JTokenType.String => ParseString(value.ToString(), value),
-                JTokenType.Uri => ParseString(value.ToString(), value),
+                JTokenType.String => ParseString(value.ToString(CultureInfo.InvariantCulture), value),
+                JTokenType.Uri => ParseString(value.ToString(CultureInfo.InvariantCulture), value),
                 JTokenType.Integer => ParseIntegerJToken(value),
-                JTokenType.Date => ParseString(value.ToString(), value),
-                JTokenType.Float => ParseString(value.ToString(), value),
+                JTokenType.Date => ParseString(value.ToString(CultureInfo.InvariantCulture), value),
+                JTokenType.Float => ParseString(value.ToString(CultureInfo.InvariantCulture), value),
                 JTokenType.Boolean => value.Value<bool>() ?
                     new BooleanLiteralSyntax(SyntaxFactory.TrueKeywordToken, true) :
                     new BooleanLiteralSyntax(SyntaxFactory.FalseKeywordToken, false),

@@ -183,7 +183,7 @@ namespace Bicep.Core.TypeSystem
                         var @for = parent switch
                         {
                             ForSyntax forParent => forParent,
-                            ForVariableBlockSyntax block when this.binder.GetParent(block) is ForSyntax forParent => forParent,
+                            VariableBlockSyntax block when this.binder.GetParent(block) is ForSyntax forParent => forParent,
                             _ => throw new InvalidOperationException($"{syntax.GetType().Name} at {syntax.Span} has an unexpected parent of type {parent?.GetType().Name}")
                         };
 
@@ -468,7 +468,7 @@ namespace Bicep.Core.TypeSystem
 
                 this.ValidateDecorators(syntax.Decorators, namespaceType, diagnostics);
 
-                if (syntax.Config is not null)
+                if (syntax.Config is not SkippedTriviaSyntax)
                 {
                     if (namespaceType.ConfigurationType is null)
                     {

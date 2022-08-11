@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Linq;
 using Bicep.VSLanguageServerClient.IntegrationTests.Utilities;
 using Microsoft.Test.Apex.VisualStudio.Editor;
@@ -25,6 +26,8 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
             editor.KeyboardCommands.Type("resource");
 
             var errorListService = VsHostUtility.VsHost!.ObjectModel.Shell.ToolWindows.ErrorList;
+            errorListService.FilterScope = ErrorListFilterScope.CurrentDocument;
+            errorListService.TryWaitForErrorListItems(ErrorListErrorLevel.All, waitTimeout: TimeSpan.FromSeconds(30));
             ErrorItemTestExtension[] diagnostics = errorListService.AllItems;
 
             Assert.IsNotNull(diagnostics);

@@ -10,7 +10,7 @@ namespace Bicep.Core.Syntax
 {
     public class ImportDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
-        public ImportDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax providerName, SyntaxBase asKeyword, IdentifierSyntax aliasName, SyntaxBase? config)
+        public ImportDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax providerName, SyntaxBase asKeyword, IdentifierSyntax aliasName, SyntaxBase config)
             : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ImportKeyword);
@@ -34,7 +34,7 @@ namespace Bicep.Core.Syntax
 
         public IdentifierSyntax AliasName { get; }
 
-        public SyntaxBase? Config { get; }
+        public SyntaxBase Config { get; }
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitImportDeclarationSyntax(this);
 

@@ -420,18 +420,12 @@ module expectedLoopBody 'modulea.bicep' = [for x in y:]
 
 // indexed loop parsing cases
 module expectedItemVarName 'modulea.bicep' = [for ()]
-//@[51:51) Local <missing>. Type: any. Declaration start char: 51, length: 0
-//@[51:51) Local <missing>. Type: int. Declaration start char: 51, length: 0
 //@[07:26) Module expectedItemVarName. Type: module[]. Declaration start char: 0, length: 53
 
 module expectedComma 'modulea.bicep' = [for (x)]
-//@[45:46) Local x. Type: any. Declaration start char: 45, length: 1
-//@[46:46) Local <missing>. Type: int. Declaration start char: 46, length: 0
 //@[07:20) Module expectedComma. Type: module[]. Declaration start char: 0, length: 48
 
 module expectedIndexVarName 'modulea.bicep' = [for (x,)]
-//@[52:53) Local x. Type: any. Declaration start char: 52, length: 1
-//@[54:54) Local <missing>. Type: int. Declaration start char: 54, length: 0
 //@[07:27) Module expectedIndexVarName. Type: module[]. Declaration start char: 0, length: 56
 
 module expectedInKeyword3 'modulea.bicep' = [for (x,y)]

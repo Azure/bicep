@@ -25,8 +25,15 @@ namespace Bicep.Core.Syntax
 
         public static VariableAccessSyntax CreateVariableAccess(string text) => new(CreateIdentifier(text));
 
+        public static VariableBlockSyntax CreateVariableBlock(IEnumerable<IdentifierSyntax> variables)
+            => new VariableBlockSyntax(
+                LeftParenToken,
+                Interleave(variables.Select(x => new LocalVariableSyntax(x)), () => CommaToken),
+                SyntaxFactory.RightParenToken);
+
         public static ExplicitVariableAccessSyntax CreateExplicitVariableAccess(string text) => new(CreateIdentifier(text));
 
+        public static Token DoubleNewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine + Environment.NewLine);
         public static Token NewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine);
         public static Token AtToken => CreateToken(TokenType.At, "@");
         public static Token LeftBraceToken => CreateToken(TokenType.LeftBrace, "{");
@@ -227,29 +234,17 @@ namespace Bicep.Core.Syntax
         }
 
         public static FunctionCallSyntax CreateFunctionCall(string functionName, params SyntaxBase[] argumentExpressions)
-        {
-            var children = new List<SyntaxBase>();
-
-            for (var i = 0; i < argumentExpressions.Length; i++)
-            {
-                children.Add(new FunctionArgumentSyntax(argumentExpressions[i]));
-                if (i < argumentExpressions.Length - 1)
-                {
-                    children.Add(CommaToken);
-                }
-            }
-
-            return new FunctionCallSyntax(
+            => new FunctionCallSyntax(
                 CreateIdentifier(functionName),
                 LeftParenToken,
-                children,
+                Interleave(argumentExpressions.Select(x => new FunctionArgumentSyntax(x)), () => CommaToken),
                 RightParenToken);
-        }
 
         public static DecoratorSyntax CreateDecorator(string functionName, params SyntaxBase[] argumentExpressions)
-        {
-            return new DecoratorSyntax(AtToken, CreateFunctionCall(functionName, argumentExpressions));
-        }
+            => new DecoratorSyntax(AtToken, CreateFunctionCall(functionName, argumentExpressions));
+
+        private static IEnumerable<SyntaxBase> Interleave(IEnumerable<SyntaxBase> elements, Func<SyntaxBase> getInterleaveSyntax)
+            => elements.SelectMany((x, i) => i > 0 ? getInterleaveSyntax().AsEnumerable().Concat(x) : x.AsEnumerable());
 
         private static string EscapeBicepString(string value)
             => value

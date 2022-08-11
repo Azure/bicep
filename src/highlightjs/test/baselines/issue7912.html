@@ -1,0 +1,22 @@
+
+<!--
+  Preview this file by prepending http://htmlpreview.github.io/? to its URL
+  e.g. http://htmlpreview.github.io/?https://raw.githubusercontent.com/Azure/bicep/main/src/highlightjs/test/baselines/issue7912.html
+-->
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+  </head>
+  <body>
+    <pre class="hljs">
+<span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">foo</span> <span class="hljs-string">&#x27;Microsoft.Storage/storageAccounts@2021-09-01&#x27;</span> = {
+  <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;foo&#x27;</span>
+  <span class="hljs-property">location</span>: <span class="hljs-string">&#x27;sadf&#x27;</span>
+  <span class="hljs-comment">// ensure brace matching works correctly with single-line object containing an interpolated string</span>
+  <span class="hljs-property">sku</span>: { <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;s<span class="hljs-subst">${<span class="hljs-number">23</span>}</span>df&#x27;</span> }
+  <span class="hljs-property">kind</span>: <span class="hljs-string">&#x27;asdf&#x27;</span>
+}
+
+    </pre>
+  </body>
+</html>

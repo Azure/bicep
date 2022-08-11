@@ -1,0 +1,81 @@
+
+<!--
+  Preview this file by prepending http://htmlpreview.github.io/? to its URL
+  e.g. http://htmlpreview.github.io/?https://raw.githubusercontent.com/Azure/bicep/main/src/monarch/test/baselines/newlinesensitivity.html
+-->
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+  </head>
+  <body>
+    <pre class="hljs">
+@<span class="hljs-variable">allowed</span>([<span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">ghi&#39;</span>])
+<span class="hljs-keyword">param</span> <span class="hljs-variable">foo</span> <span class="hljs-variable">string</span>
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">singleLineFunction</span> = <span class="hljs-variable">concat</span>(<span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>)
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">multiLineFunction</span> = <span class="hljs-variable">concat</span>(
+  <span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>,
+  <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>
+)
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">multiLineFunctionUnusualFormatting</span> = <span class="hljs-variable">concat</span>(
+              <span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>,          <span class="hljs-variable">any</span>([<span class="hljs-string">&#39;</span><span class="hljs-string">hello&#39;</span>]),
+<span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>)
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">nestedTest</span> = <span class="hljs-variable">concat</span>(
+<span class="hljs-variable">concat</span>(
+<span class="hljs-variable">concat</span>(
+<span class="hljs-variable">concat</span>(
+<span class="hljs-variable">concat</span>(
+<span class="hljs-string">&#39;</span><span class="hljs-string">level&#39;</span>,
+<span class="hljs-string">&#39;</span><span class="hljs-string">one&#39;</span>),
+<span class="hljs-string">&#39;</span><span class="hljs-string">two&#39;</span>),
+<span class="hljs-string">&#39;</span><span class="hljs-string">three&#39;</span>),
+<span class="hljs-string">&#39;</span><span class="hljs-string">four&#39;</span>),
+<span class="hljs-string">&#39;</span><span class="hljs-string">five&#39;</span>)
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">singleLineArray</span> = [<span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>]
+<span class="hljs-keyword">var</span> <span class="hljs-variable">singleLineArrayTrailingCommas</span> = [<span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>,]
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">multiLineArray</span> = [
+  <span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>
+  <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>
+]
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">mixedArray</span> = [<span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>
+<span class="hljs-string">&#39;</span><span class="hljs-string">ghi&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">jkl&#39;</span>
+<span class="hljs-string">&#39;</span><span class="hljs-string">lmn&#39;</span>]
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">singleLineObject</span> = { <span class="hljs-variable">abc</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>, <span class="hljs-variable">ghi</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">jkl&#39;</span>}
+<span class="hljs-keyword">var</span> <span class="hljs-variable">singleLineObjectTrailingCommas</span> = { <span class="hljs-variable">abc</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>, <span class="hljs-variable">ghi</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">jkl&#39;</span>,}
+<span class="hljs-keyword">var</span> <span class="hljs-variable">multiLineObject</span> = {
+  <span class="hljs-variable">abc</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>
+  <span class="hljs-variable">ghi</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">jkl&#39;</span>
+}
+<span class="hljs-keyword">var</span> <span class="hljs-variable">mixedObject</span> = { <span class="hljs-variable">abc</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>, <span class="hljs-variable">def</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>
+<span class="hljs-variable">ghi</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">ghi&#39;</span>, <span class="hljs-variable">jkl</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">jkl&#39;</span>
+<span class="hljs-variable">lmn</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">lmn&#39;</span> }
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">nestedMixed</span> = {
+  <span class="hljs-variable">abc</span>: { <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">ghi&#39;</span>, <span class="hljs-variable">abc</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>, <span class="hljs-variable">foo</span>: [
+    <span class="hljs-string">&#39;</span><span class="hljs-string">bar&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">blah&#39;</span>
+  ] }
+}
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">brokenFormatting</span> = [      <span class="hljs-comment">/*foo */</span> <span class="hljs-string">&#39;</span><span class="hljs-string">bar&#39;</span>   <span class="hljs-comment">/*</span>
+
+<span class="hljs-comment">hello</span>
+
+<span class="hljs-comment">*/</span>,        <span class="hljs-string">&#39;</span><span class="hljs-string">asdfdsf&#39;</span>,             <span class="hljs-number">12324</span>,       <span class="hljs-comment">/*   asdf*/</span> <span class="hljs-string">&#39;</span><span class="hljs-string">&#39;</span>,     <span class="hljs-string">&#39;&#39;&#39;</span>
+
+
+<span class="hljs-string">&#39;&#39;&#39;</span>
+<span class="hljs-number">123</span>,      <span class="hljs-number">233535</span>
+<span class="hljs-keyword">true</span>
+              ]
+
+
+    </pre>
+  </body>
+</html>

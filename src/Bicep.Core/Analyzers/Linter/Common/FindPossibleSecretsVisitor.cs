@@ -24,7 +24,6 @@ namespace Bicep.Core.Analyzers.Linter.Common
             }
         }
 
-        private const string ListFunctionPrefix = "list";
         private readonly SemanticModel semanticModel;
         private readonly List<PossibleSecret> possibleSecrets = new();
 
@@ -72,7 +71,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
             //
 
             if (SemanticModelHelper.TryGetFunctionInNamespace(semanticModel, AzNamespaceType.BuiltInName, syntax) is FunctionCallSyntaxBase listFunction
-                && listFunction.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix))
+                && listFunction.Name.IdentifierName.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix))
             {
                 string foundMessage = string.Format(CoreResources.PossibleSecretMessageFunction, syntax.Name.IdentifierName);
                 this.possibleSecrets.Add(new PossibleSecret(syntax, foundMessage));
@@ -83,7 +82,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
-            if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix))
+            if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix))
             {
                 bool found = false;
 

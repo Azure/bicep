@@ -33,6 +33,7 @@ import {
   resetLogger,
 } from "./utils";
 import { CreateBicepConfigurationFile } from "./commands/createConfigurationFile";
+import { ImportKubernetesManifestCommand } from "./commands/importKubernetesManifest";
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -107,7 +108,8 @@ export async function activate(
         new ShowSourceCommand(viewManager),
         new WalkthroughCopyToClipboardCommand(),
         new WalkthroughCreateBicepFileCommand(),
-        new WalkthroughOpenBicepFileCommand()
+        new WalkthroughOpenBicepFileCommand(),
+        new ImportKubernetesManifestCommand(languageClient)
       );
   });
 }

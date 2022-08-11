@@ -7,6 +7,18 @@ using System.Collections.Immutable;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Utils;
 using Bicep.Core.Navigation;
+using System.IO.Pipelines;
+using Bicep.LanguageServer;
+using Bicep.Core.FileSystem;
+using System.Collections.Generic;
+using Bicep.LanguageServer.Snippets;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.UnitTests;
+using System;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Client;
+using System.Threading;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -14,6 +26,45 @@ namespace Bicep.LangServer.IntegrationTests
     {
         private const int DefaultTimeout = 30000;
 
+        public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(TestContext testContext, Action<LanguageClientOptions> onClientOptions, Server.CreationOptions? creationOptions = null)
+        {
+            var clientPipe = new Pipe();
+            var serverPipe = new Pipe();
+
+            creationOptions ??= new Server.CreationOptions();
+            creationOptions = creationOptions with
+            {
+                SnippetsProvider = creationOptions.SnippetsProvider ??
+                    new SnippetsProvider(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProvider),
+                FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string>())
+            };
+
+            var server = new Server(
+                creationOptions,
+                options => options
+                    .WithInput(serverPipe.Reader)
+                    .WithOutput(clientPipe.Writer));
+            var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
+
+            var client = LanguageClient.PreInit(options =>
+            {
+                options
+                    .WithInput(clientPipe.Reader)
+                    .WithOutput(serverPipe.Writer)
+                    .OnInitialize((client, request, cancellationToken) => { testContext.WriteLine("Language client initializing."); return Task.CompletedTask; })
+                    .OnInitialized((client, request, response, cancellationToken) => { testContext.WriteLine("Language client initialized."); return Task.CompletedTask; })
+                    .OnStarted((client, cancellationToken) => { testContext.WriteLine("Language client started."); return Task.CompletedTask; })
+                    .OnLogTrace(@params => testContext.WriteLine($"TRACE: {@params.Message} VERBOSE: {@params.Verbose}"))
+                    .OnLogMessage(@params => testContext.WriteLine($"{@params.Type}: {@params.Message}"));
+
+                onClientOptions(options);
+            });
+            await client.Initialize(CancellationToken.None);
+
+            testContext.WriteLine("LanguageClient initialize finished.");
+
+            return client;
+        }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "VSTHRD003:Avoid awaiting foreign Tasks", Justification = "Not an issue in test code.")]
         public static async Task<T> WithTimeoutAsync<T>(Task<T> task, int timeout = DefaultTimeout)

@@ -981,11 +981,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP162",
                 "Expected a loop item variable identifier or \"(\" at this location.");
 
-            public ErrorDiagnostic ExpectedLoopIndexIdentifier() => new(
-                TextSpan,
-                "BCP163",
-                "Expected a loop index variable identifier at this location.");
-
             public ErrorDiagnostic ScopeUnsupportedOnChildResource(string parentIdentifier) => new(
                 TextSpan,
                 "BCP164",
@@ -1463,10 +1458,17 @@ namespace Bicep.Core.Diagnostics
                 "BCP248",
                 $"Using lambda variables inside the \"{functionName}\" function is not currently supported."
                     + $" Found the following lambda variable(s) being accessed: {ToQuotedString(variableNames)}.");
-            public ErrorDiagnostic ExpectedMetadataIdentifier() => new(
+
+            public ErrorDiagnostic ExpectedLoopVariableBlockWith2Elements(int actualCount) => new(
                 TextSpan,
                 "BCP249",
+                $"Expected loop variable block to consist of exactly 2 elements (item variable and index variable), but found {actualCount}.");
+
+            public ErrorDiagnostic ExpectedMetadataIdentifier() => new(
+                TextSpan,
+                "BCP250",
                 "Expected a metadata identifier at this location.");
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

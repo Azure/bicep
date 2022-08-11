@@ -313,15 +313,15 @@
   <data name="MaxNumberResourcesRuleMessageFormat" xml:space="preserve">
     <value>Too many resources. Number of resources is limited to {0}.</value>
   </data>
-  <data name="PreferUnquotedPropertyNamesDeclarationFixTitle" xml:space="preserve">
-    <value>Remove quotes from property name '{0}'.</value>
+  <data name="PreferUnquotedPropertyNames_DeclarationFixTitle" xml:space="preserve">
+    <value>Remove quotes from property name '{0}'</value>
     <comment>{0} is the property name</comment>
   </data>
-  <data name="PreferUnquotedPropertyNamesDereferenceFixTitle" xml:space="preserve">
-    <value>Replace array syntax with '{0}'.</value>
+  <data name="PreferUnquotedPropertyNames_DereferenceFixTitle" xml:space="preserve">
+    <value>Replace array syntax with '{0}'</value>
     <comment>{0} is a programmatic language expression</comment>
   </data>
-  <data name="PreferUnquotedPropertyNamesRuleDescription" xml:space="preserve">
+  <data name="PreferUnquotedPropertyNamesRule_Description" xml:space="preserve">
     <value>Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation.</value>
   </data>
   <data name="SecretsInParamsRule_Description" xml:space="preserve">
@@ -330,11 +330,40 @@
   <data name="SecretsInParamsRule_MessageFormat" xml:space="preserve">
     <value>Parameter '{0}' may represent a secret (according to its name) and must be declared with the '@secure()' attribute.</value>
   </data>
+  <data name="SecureParamsInNestedDeployRule_Description" xml:space="preserve">
+    <value>Outer-scoped nested deployment resources should not be used for secure parameters or list* functions.</value>
+  </data>
+  <data name="SecureParamsInNestedDeployRule_Message_SecureParams" xml:space="preserve">
+    <value>'{0}' is an outer scoped nested deployment that accesses secure string parameters ({1}), which could expose their values in deployment history.</value>
+    <comment>{0} = programmatic name, {1} = comma-separated list of programmatic names</comment>
+  </data>
+  <data name="SecureParamsInNestedDeployRule_Message_ListFunction" xml:space="preserve">
+    <value>'{0}' is an outer scoped nested deployment that calls a list* function ("{1}"), which could expose sensitive values in deployment history.</value>
+    <comment>{0} = programmatic name, {1} = programmatic name</comment>
+  </data>
+  <data name="SecureParamsInNestedDeployRule_Solution" xml:space="preserve">
+    <value>Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.</value>
+  </data>
   <data name="UseStableResourceIdentifiersMessage" xml:space="preserve">
     <value>Resource identifiers should be reproducible outside of their initial deployment context. </value>
   </data>
   <data name="UseStableResourceIdentifiersMessageFormat" xml:space="preserve">
     <value>Resource identifiers should be reproducible outside of their initial deployment context. Resource {0}'s '{1}' identifier is potentially nondeterministic due to its use of the '{2}' function ({3}).</value>
     <comment>{0} is the symbolic name of the resource. {1} is the name of the identifier property. {2} is the name of the nondeterministic function used. {3} is the symbol dereference path by which the nondeterministic function call is included.</comment>
+  </data>
+  <data name="UseRecentApiVersionRule_Description" xml:space="preserve">
+    <value>Use recent API versions</value>
+  </data>
+  <data name="UseRecentApiVersionRule_ErrorMessageFormat" xml:space="preserve">
+    <value>Use more recent API version for '{0}'.</value>
+    <comment>{0} = fully-qualified resource type name (programmatic).</comment>
+  </data>
+  <data name="UseRecentApiVersionRule_AcceptableVersions" xml:space="preserve">
+    <value>Acceptable versions: {0}</value>
+    <comment>{0}: list of acceptable values</comment>
+  </data>
+  <data name="UseRecentApiVersionRule_Fix_ReplaceApiVersion" xml:space="preserve">
+    <value>Replace with {0}</value>
+    <comment>{0} a programmatic apiVersion, format=yyyy-mm-dd-suffix</comment>
   </data>
 </root>

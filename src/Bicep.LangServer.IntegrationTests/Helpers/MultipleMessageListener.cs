@@ -17,7 +17,7 @@ namespace Bicep.LangServer.IntegrationTests
         private readonly List<TaskCompletionSource<T>> completionSources = new();
 
         private int listenPosition = 0;
-        private int writePosition = 0;        
+        private int writePosition = 0;
 
         public async Task<T> WaitNext(int timeout = DefaultTimeout)
         {
@@ -34,6 +34,20 @@ namespace Bicep.LangServer.IntegrationTests
             }
 
             return await IntegrationTestHelper.WithTimeoutAsync(onMessageTask, timeout);
+        }
+
+        public async Task<List<T>> WaitForAll(int timeout = DefaultTimeout)
+        {
+            List<T> onMessageTasks = new List<T>();
+
+            foreach (var completionSource in completionSources)
+            {
+                var onMessageTask = completionSource.Task;
+                var response = await IntegrationTestHelper.WithTimeoutAsync(onMessageTask, timeout);
+                onMessageTasks.Add(response);
+            }
+
+            return onMessageTasks;
         }
 
         public async Task EnsureNoMessageSent(int timeout = DefaultTimeout)

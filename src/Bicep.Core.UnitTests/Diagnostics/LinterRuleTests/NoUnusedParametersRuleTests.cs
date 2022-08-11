@@ -21,24 +21,25 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void CompileAndTest(string text, params string[] unusedParams)
         {
-            CompileAndTest(text, OnCompileErrors.Fail, unusedParams);
+            CompileAndTest(text, OnCompileErrors.IncludeErrors, unusedParams);
         }
 
         private void CompileAndTest(string text, OnCompileErrors onCompileErrors, params string[] unusedParams)
         {
-            AssertLinterRuleDiagnostics(NoUnusedParametersRule.Code, text, onCompileErrors, diags =>
-            {
-                if (unusedParams.Any())
+            AssertLinterRuleDiagnostics(NoUnusedParametersRule.Code, text, diags =>
                 {
-                    var rule = new NoUnusedParametersRule();
-                    string[] expectedMessages = unusedParams.Select(p => rule.GetMessage(p)).ToArray();
-                    diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
-                }
-                else
-                {
-                    diags.Should().BeEmpty();
-                }
-            });
+                    if (unusedParams.Any())
+                    {
+                        var rule = new NoUnusedParametersRule();
+                        string[] expectedMessages = unusedParams.Select(p => rule.GetMessage(p)).ToArray();
+                        diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
+                    }
+                    else
+                    {
+                        diags.Should().BeEmpty();
+                    }
+                },
+                new Options(onCompileErrors));
         }
 
         [DataRow(@"

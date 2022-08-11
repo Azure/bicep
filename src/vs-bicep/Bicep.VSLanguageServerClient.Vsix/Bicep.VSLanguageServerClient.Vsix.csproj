@@ -60,6 +60,13 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Bicep.VSLanguageServerClient.ItemTemplate\Bicep.VSLanguageServerClient.ItemTemplate.csproj">
+      <Project>{722933EA-087F-487D-800C-7800EF6FAE0C}</Project>
+      <Name>Bicep.VSLanguageServerClient.ItemTemplate</Name>
+      <VSIXSubPath>ItemTemplates</VSIXSubPath>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+    </ProjectReference>
     <ProjectReference Include="..\Bicep.VSLanguageServerClient\Bicep.VSLanguageServerClient.csproj">
       <Project>{36BDFD77-510C-410D-9D15-4DF2DD8C2959}</Project>
       <Name>Bicep.VSLanguageServerClient</Name>

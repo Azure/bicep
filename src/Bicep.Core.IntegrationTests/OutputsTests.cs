@@ -29,7 +29,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var features = BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true, resourceTypedParamsAndOutputsEnabled: true);
             var resourceTypeLoader = BicepTestConstants.AzResourceTypeLoader;
-            var namespaceProvider = new ExtensibilityNamespaceProvider(resourceTypeLoader, features);
+            var namespaceProvider = new TestExtensibilityNamespaceProvider(resourceTypeLoader, features);
 
             return new(
                 AzResourceTypeLoader: resourceTypeLoader,

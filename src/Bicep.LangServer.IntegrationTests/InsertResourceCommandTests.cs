@@ -57,25 +57,21 @@ namespace Bicep.LangServer.IntegrationTests
         {
             return await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
-                options =>
-                {
-                    options.OnPublishDiagnostics(x => listeners.Diagnostics.AddMessage(x));
-                    options.OnShowMessage(x => listeners.ShowMessage.AddMessage(x));
-                    options.OnApplyWorkspaceEdit(async p =>
+                options => options
+                    .OnPublishDiagnostics(listeners.Diagnostics.AddMessage)
+                    .OnShowMessage(listeners.ShowMessage.AddMessage)
+                    .OnApplyWorkspaceEdit(async p =>
                     {
                         listeners.ApplyWorkspaceEdit.AddMessage(p);
 
                         await Task.Yield();
                         return new();
-                    });
-                    options.OnTelemetryEvent(x => listeners.Telemetry.AddMessage(x));
-                },
+                    })
+                    .OnTelemetryEvent(listeners.Telemetry.AddMessage),
                 new LanguageServer.Server.CreationOptions(
-                    onRegisterServices: services =>
-                    {
-                        services.AddSingleton<IAzResourceProvider>(azResourceProvider);
-                        services.AddSingleton<IAzResourceTypeLoader>(azResourceTypeLoader);
-                    }));
+                    onRegisterServices: services => services
+                        .AddSingleton<IAzResourceProvider>(azResourceProvider)
+                        .AddSingleton<IAzResourceTypeLoader>(azResourceTypeLoader)));
         }
 
         [TestMethod]
@@ -164,12 +160,12 @@ module myMod './module.bicep' = {
 output myOutput string = 'myOutput'
 ");
 
-            var telemetry = await listeners.Telemetry.WaitNext();
-            telemetry.Should().HaveEventNameAndProperties("InsertResource/success", new JObject
-            {
-                ["resourceType"] = "My.Rp/myTypes",
-                ["apiVersion"] = "2020-01-01",
-            });
+            var telemetry = await listeners.Telemetry.WaitForAll();
+            telemetry.Should().ContainEvent("InsertResource/success", new JObject
+                {
+                    ["resourceType"] = "My.Rp/myTypes",
+                    ["apiVersion"] = "2020-01-01",
+                });
         }
 
         [TestMethod]
@@ -263,12 +259,12 @@ module myMod './module.bicep' = {
 output myOutput string = 'myOutput'
 ");
 
-            var telemetry = await listeners.Telemetry.WaitNext();
-            telemetry.Should().HaveEventNameAndProperties("InsertResource/success", new JObject
-            {
-                ["resourceType"] = "Microsoft.Resources/resourceGroups",
-                ["apiVersion"] = "2020-01-01",
-            });
+            var telemetry = await listeners.Telemetry.WaitForAll();
+            telemetry.Should().ContainEvent("InsertResource/success", new JObject
+                {
+                    ["resourceType"] = "Microsoft.Resources/resourceGroups",
+                    ["apiVersion"] = "2020-01-01",
+                });
         }
 
         [TestMethod]
@@ -357,12 +353,12 @@ module myMod './module.bicep' = {
 output myOutput string = 'myOutput'
 ");
 
-            var telemetry = await listeners.Telemetry.WaitNext();
-            telemetry.Should().HaveEventNameAndProperties("InsertResource/success", new JObject
-            {
-                ["resourceType"] = "My.Rp/myTypes/childType",
-                ["apiVersion"] = "2020-01-01",
-            });
+            var telemetry = await listeners.Telemetry.WaitForAll();
+            telemetry.Should().ContainEvent("InsertResource/success", new JObject
+                {
+                    ["resourceType"] = "My.Rp/myTypes/childType",
+                    ["apiVersion"] = "2020-01-01",
+                });
         }
 
         [TestMethod]
@@ -409,11 +405,11 @@ output myOutput string = 'myOutput'
                 "Failed to parse supplied resourceId \"this isn't a resource id!\".",
                 MessageType.Error);
 
-            var telemetry = await listeners.Telemetry.WaitNext();
-            telemetry.Should().HaveEventNameAndProperties("InsertResource/failure", new JObject
-            {
-                ["failureType"] = "ParseResourceIdFailed",
-            });
+            var telemetry = await listeners.Telemetry.WaitForAll();
+            telemetry.Should().ContainEvent("InsertResource/failure", new JObject
+                {
+                    ["failureType"] = "ParseResourceIdFailed"
+                });
         }
 
         [TestMethod]
@@ -458,11 +454,11 @@ output myOutput string = 'myOutput'
                 "Failed to find a Bicep type definition for resource of type \"MadeUp.Rp/madeUpTypes\".",
                 MessageType.Error);
 
-            var telemetry = await listeners.Telemetry.WaitNext();
-            telemetry.Should().HaveEventNameAndProperties("InsertResource/failure", new JObject
-            {
-                ["failureType"] = "MissingType(MadeUp.Rp/madeUpTypes)",
-            });
+            var telemetry = await listeners.Telemetry.WaitForAll();
+            telemetry.Should().ContainEvent("InsertResource/failure", new JObject
+                {
+                    ["failureType"] = "MissingType(MadeUp.Rp/madeUpTypes)",
+                });
         }
 
         [TestMethod]
@@ -555,12 +551,12 @@ module myMod './module.bicep' = {
 output myOutput string = 'myOutput'
 ");
 
-            var telemetry = await listeners.Telemetry.WaitNext();
-            telemetry.Should().HaveEventNameAndProperties("InsertResource/success", new JObject
-            {
-                ["resourceType"] = "My.Rp/myTypes",
-                ["apiVersion"] = "2020-01-01",
-            });
+            var telemetry = await listeners.Telemetry.WaitForAll();
+            telemetry.Should().ContainEvent("InsertResource/success", new JObject
+                {
+                    ["resourceType"] = "My.Rp/myTypes",
+                    ["apiVersion"] = "2020-01-01",
+                });
         }
 
         [TestMethod]
@@ -615,11 +611,11 @@ output myOutput string = 'myOutput'
                 "Caught exception fetching resource: And something went wrong again!.",
                 MessageType.Error);
 
-            var telemetry = await listeners.Telemetry.WaitNext();
-            telemetry.Should().HaveEventNameAndProperties("InsertResource/failure", new JObject
-            {
-                ["failureType"] = "FetchResourceFailure",
-            });
+            var telemetry = await listeners.Telemetry.WaitForAll();
+            telemetry.Should().ContainEvent("InsertResource/failure", new JObject
+                {
+                    ["failureType"] = "FetchResourceFailure",
+                });
         }
     }
 }

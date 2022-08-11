@@ -8,6 +8,7 @@ const bounded = (text: string) => `\\b${text}\\b`;
 const identifierStart = "[_a-zA-Z]";
 const identifierContinue = "[_a-zA-Z0-9]";
 const identifier = bounded(`${identifierStart}${identifierContinue}*`);
+const directive = bounded(`[_a-zA-Z-0-9]+`);
 
 const keywords = [
   'targetScope',
@@ -73,7 +74,7 @@ export const BicepLanguage: languages.IMonarchLanguage = {
     bracketCounting: [
       { regex: `{`, action: { token: 'delimiter.bracket', next: '@bracketCounting' } },
       { regex: `}`, action: { token: 'delimiter.bracket', next: '@pop' } },
-      { include: 'expression' }
+      { include: '@expression' }
     ],
 
     comment: [
@@ -92,13 +93,14 @@ export const BicepLanguage: languages.IMonarchLanguage = {
       { regex: `'''`, action: { token: 'string.quote', next: '@stringVerbatim' } },
       { regex: `'`, action: { token: 'string.quote', next: '@stringLiteral' } },
       { regex: numericLiteral, action: { token: 'number' } },
-      { regex: identifier, action: { 
+      { regex: identifier, action: {
         cases: {
           '@keywords': { token: 'keyword' },
           '@namedLiterals': { token: 'keyword' },
           '@default': { token: 'identifier' },
         }
       } },
+      { regex: `#${directive}`, action: { token: 'directive' } },
     ],
   },
 };

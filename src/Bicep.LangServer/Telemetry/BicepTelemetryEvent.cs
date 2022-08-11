@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -101,6 +102,27 @@ namespace Bicep.LanguageServer.Telemetry
                 }
             );
 
+        public static BicepTelemetryEvent ImportKubernetesManifestSuccess()
+            => new BicepTelemetryEvent
+            (
+                eventName:  "ImportKubernetesManifest/success",
+                properties: new()
+                {
+                    // Properties has to contain some data
+                    ["success"] = ToTrueFalse(true),
+                }
+            );
+
+        public static BicepTelemetryEvent ImportKubernetesManifestFailure(string failureType)
+            => new BicepTelemetryEvent
+            (
+                eventName:  "ImportKubernetesManifest/failure",
+                properties: new()
+                {
+                    ["failureType"] = failureType,
+                }
+            );
+
         public static BicepTelemetryEvent CreateDisableNextLineDiagnostics(string code)
             => new BicepTelemetryEvent
             (
@@ -180,6 +202,16 @@ namespace Bicep.LanguageServer.Telemetry
                 {
                     ["deployId"] = deployId,
                     ["result"] = isSuccess ? Result.Succeeded : Result.Failed
+                }
+            );
+
+        public static BicepTelemetryEvent UnhandledException(Exception exception)
+            => new BicepTelemetryEvent
+            (
+                eventName: TelemetryConstants.EventNames.UnhandledException,
+                properties: new()
+                {
+                    ["exception"] = exception.ToString(),
                 }
             );
     }

@@ -13,7 +13,7 @@ namespace Bicep.Core.Semantics.Namespaces
         private static readonly IResourceTypeProvider TypeProvider = new K8sResourceTypeProvider(new K8sResourceTypeLoader());
 
         public static NamespaceSettings Settings { get; } = new(
-            IsSingleton: false,
+            IsSingleton: true,
             BicepProviderName: BuiltInName,
             ConfigurationType: GetConfigurationType(),
             ArmTemplateProviderName: "Kubernetes",

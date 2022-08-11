@@ -21,21 +21,23 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void CompileAndTest(string text, params string[] unusedParams)
         {
-            AssertLinterRuleDiagnostics(MaxNumberOutputsRule.Code, text, onCompileErrors: OnCompileErrors.Ignore,  diags =>
-            {
-                if (unusedParams.Any())
+            AssertLinterRuleDiagnostics(
+                MaxNumberOutputsRule.Code, text, diags =>
                 {
-                    diags.Should().HaveCount(unusedParams.Count());
+                    if (unusedParams.Any())
+                    {
+                        diags.Should().HaveCount(unusedParams.Count());
 
-                    var rule = new MaxNumberOutputsRule();
-                    string[] expectedMessages = unusedParams.Select(p => rule.GetMessage(MaxNumberOutputsRule.MaxNumber)).ToArray();
-                    diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
-                }
-                else
-                {
-                    diags.Should().BeEmpty();
-                }
-            });
+                        var rule = new MaxNumberOutputsRule();
+                        string[] expectedMessages = unusedParams.Select(p => rule.GetMessage(MaxNumberOutputsRule.MaxNumber)).ToArray();
+                        diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
+                    }
+                    else
+                    {
+                        diags.Should().BeEmpty();
+                    }
+                },
+                new Options(OnCompileErrors: OnCompileErrors.Ignore));
         }
 
         [DataRow(@"
