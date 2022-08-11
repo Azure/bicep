@@ -20,6 +20,7 @@ using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Extensions;
+using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
 using Newtonsoft.Json.Linq;
@@ -34,6 +35,7 @@ namespace Bicep.LanguageServer.Handlers
     // Provides code actions/fixes for a range in a Bicep document
     public class BicepCodeActionHandler : CodeActionHandlerBase
     {
+        private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
         private readonly ICompilationManager compilationManager;
 
         private static readonly ImmutableArray<ICodeFixProvider> codeFixProviders = new ICodeFixProvider[]
@@ -48,8 +50,9 @@ namespace Bicep.LanguageServer.Handlers
             new MultilineObjectsAndArraysCodeFixProvider(),
         }.ToImmutableArray<ICodeFixProvider>();
 
-        public BicepCodeActionHandler(ICompilationManager compilationManager)
+        public BicepCodeActionHandler(ICompilationManager compilationManager, IClientCapabilitiesProvider clientCapabilitiesProvider)
         {
+            this.clientCapabilitiesProvider = clientCapabilitiesProvider;
             this.compilationManager = compilationManager;
         }
 
@@ -108,15 +111,18 @@ namespace Bicep.LanguageServer.Handlers
                 }
             }
 
-            // Add "Edit <rule> in bicep.config" for all linter failures
-            var editLinterRuleActions = diagnostics
-                .Where(analyzerDiagnostic =>
-                    analyzerDiagnostic.Span.ContainsInclusive(requestStartOffset) ||
-                    analyzerDiagnostic.Span.ContainsInclusive(requestEndOffset) ||
-                    (requestStartOffset <= analyzerDiagnostic.Span.Position && analyzerDiagnostic.GetEndPosition() <= requestEndOffset))
-                .OfType<AnalyzerDiagnostic>()
-                .Select(analyzerDiagnostic => CreateEditLinterRuleAction(documentUri, analyzerDiagnostic.Code, compilation.Configuration.ConfigurationPath));
-            commandOrCodeActions.AddRange(editLinterRuleActions);
+            if (clientCapabilitiesProvider.DoesClientSupportShowDocumentRequest())
+            {
+                // Add "Edit <rule> in bicep.config" for all linter failures
+                var editLinterRuleActions = diagnostics
+                    .Where(analyzerDiagnostic =>
+                        analyzerDiagnostic.Span.ContainsInclusive(requestStartOffset) ||
+                        analyzerDiagnostic.Span.ContainsInclusive(requestEndOffset) ||
+                        (requestStartOffset <= analyzerDiagnostic.Span.Position && analyzerDiagnostic.GetEndPosition() <= requestEndOffset))
+                    .OfType<AnalyzerDiagnostic>()
+                    .Select(analyzerDiagnostic => CreateEditLinterRuleAction(documentUri, analyzerDiagnostic.Code, compilation.Configuration.ConfigurationPath));
+                commandOrCodeActions.AddRange(editLinterRuleActions);
+            }
 
             var matchingNodes = SyntaxMatcher.FindNodesInRange(compilationContext.ProgramSyntax, requestStartOffset, requestEndOffset);
             var codeFixes = codeFixProviders
