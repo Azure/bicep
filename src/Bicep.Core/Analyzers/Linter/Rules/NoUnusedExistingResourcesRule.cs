@@ -37,7 +37,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 .Where(sym => sym.NameSyntax.IsValid)
                 .Where(sym => sym.DeclaringResource.IsExistingResource())
                 .Where(sym => !model.FindReferences(sym).Any(rf => rf != sym.DeclaringResource))
-                .Where(sym => (sym.DeclaringResource.TryGetBody()?.Resources ?? Enumerable.Empty<ResourceDeclarationSyntax>()).All(child => child.IsExistingResource()));
+                .Where(sym => !(sym.DeclaringResource.TryGetBody()?.Resources ?? Enumerable.Empty<ResourceDeclarationSyntax>()).Any());
             foreach (var sym in unreferencedResources)
             {
                 yield return CreateRemoveUnusedDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.ProgramSyntax);
