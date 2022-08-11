@@ -45,13 +45,16 @@ namespace Bicep.LanguageServer.Handlers
 
         private readonly IModuleDispatcher moduleDispatcher;
 
+        private readonly IParamsCompilationManager paramsCompilationManager;
+
         public BicepDefinitionHandler(
             ISymbolResolver symbolResolver,
             ICompilationManager compilationManager,
             IFileResolver fileResolver,
             IWorkspace workspace,
             ILanguageServerFacade languageServer,
-            IModuleDispatcher moduleDispatcher) : base()
+            IModuleDispatcher moduleDispatcher,
+            IParamsCompilationManager paramsCompilationManager) : base()
         {
             this.symbolResolver = symbolResolver;
             this.compilationManager = compilationManager;
@@ -59,10 +62,59 @@ namespace Bicep.LanguageServer.Handlers
             this.workspace = workspace;
             this.languageServer = languageServer;
             this.moduleDispatcher = moduleDispatcher;
+            this.paramsCompilationManager = paramsCompilationManager;
         }
 
         public override Task<LocationOrLocationLinks> Handle(DefinitionParams request, CancellationToken cancellationToken)
         {
+            if (PathHelper.HasBicepparamsExension(request.TextDocument.Uri.ToUri()))
+            {
+                var paramsContext = this.paramsCompilationManager.GetCompilation(request.TextDocument.Uri);
+                if (paramsContext is null)
+                {
+                    return Task.FromResult(new LocationOrLocationLinks());
+                }
+
+                var resolutionResult = this.symbolResolver.ResolveParamsSymbol(request.TextDocument.Uri, request.Position);
+                if (resolutionResult is null)
+                {
+                    return Task.FromResult(new LocationOrLocationLinks());
+                }
+
+                if (resolutionResult.Symbol is ParameterAssignmentSymbol param && param.NameSyntax is {} nameSyntax)
+                {
+                    var bicepCompilation = paramsContext.ParamsSemanticModel.BicepCompilation;
+                    
+                    if (bicepCompilation is null)
+                    {
+                        return Task.FromResult(new LocationOrLocationLinks());
+                    }
+                    var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
+
+                    var parameterDeclarations = bicepSemanticModel.Root.Syntax.Children.OfType<ParameterDeclarationSyntax>();
+                    var parameterDeclarationSymbol = paramsContext.ParamsSemanticModel.TryGetParameterDeclaration(param);
+
+                    if (parameterDeclarationSymbol is null)
+                    {
+                        return Task.FromResult(new LocationOrLocationLinks());
+                    }
+
+                    var range = PositionHelper.GetNameRange(bicepCompilation.SourceFileGrouping.EntryPoint.LineStarts, parameterDeclarationSymbol.DeclaringSyntax);
+                    var documentUri = bicepCompilation.SourceFileGrouping.EntryPoint.FileUri;
+                    
+                    return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
+                    {
+                        // source of the link. Underline only the symbolic name
+                        OriginSelectionRange = nameSyntax.ToRange(paramsContext.LineStarts),
+                        TargetUri = documentUri,
+
+                        // entire span of the declaredSymbol
+                        TargetRange = range,
+                        TargetSelectionRange = range
+                    })));
+                }
+                return Task.FromResult(new LocationOrLocationLinks());
+            }
             var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
             if (context is null)
             {

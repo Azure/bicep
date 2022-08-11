@@ -16,6 +16,8 @@ namespace Bicep.Core.Semantics
 {
     public class ParamsSemanticModel
     {
+        private Lazy<ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?>> declarationsByAssignment;
+        private Lazy<ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?>> assignmentsByDeclaration;
         public BicepParamFile BicepParamFile { get; }
         public ParamBinder ParamBinder { get; }
         public Compilation? BicepCompilation { get; }
@@ -23,6 +25,7 @@ namespace Bicep.Core.Semantics
         public ParamsSymbolContext ParamsSymbolContext { get; }
         public Lazy<ImmutableArray<IDiagnostic>> AllDiagnostics { get; }
         private readonly ImmutableArray<IDiagnostic> CompilationLoadDiagnostics;
+
         
         public ParamsSemanticModel(BicepParamFile bicepParamFile, ImmutableArray<IDiagnostic> compilationLoadDiagnostics, Compilation? bicepCompilation = null)
         {
@@ -39,8 +42,69 @@ namespace Bicep.Core.Semantics
             // name binding is done
             // allow type queries now
             paramsSymbolContext.Unlock();
+            this.assignmentsByDeclaration = new Lazy<ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?>>(() => InitializeDeclarationToAssignmentDictionary());
+            this.declarationsByAssignment = new Lazy<ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?>>(() => InitializeAssignmentToDeclarationDictionary());
             // lazy load single use diagnostic set
             this.AllDiagnostics = new Lazy<ImmutableArray<IDiagnostic>>(() => GetAllDiagnostics());
+        }
+
+        public ImmutableArray<IDiagnostic> GetAllDiagnostics()
+            => BicepParamFile.ProgramSyntax.GetParseDiagnostics()
+                .Concat(ParamsTypeManager.GetAllDiagnostics())
+                .Concat(this.CompilationLoadDiagnostics)
+                .Concat(GetAdditionalSemanticDiagnostics()).ToImmutableArray();
+            
+        /// <summary>
+        /// Gets the file that was compiled.
+        /// </summary>
+        public ParamFileSymbol Root => this.ParamBinder.ParamFileSymbol;
+
+        public ParameterSymbol? TryGetParameterDeclaration(ParameterAssignmentSymbol parameterAssignmentSymbol) =>
+            this.declarationsByAssignment.Value.TryGetValue(parameterAssignmentSymbol, out var parameterSymbol) ? parameterSymbol : null;
+
+        public ParameterAssignmentSymbol? TryGetParameterAssignment(ParameterSymbol parameterSymbol) =>
+            this.assignmentsByDeclaration.Value.TryGetValue(parameterSymbol, out var parameterAssignmentSymbol) ? parameterAssignmentSymbol : null;
+
+        private ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?> InitializeDeclarationToAssignmentDictionary()
+        {
+            if (this.BicepCompilation is null)
+            {
+                return ImmutableDictionary<ParameterSymbol, ParameterAssignmentSymbol?>.Empty;
+            }
+
+            var assignmentsByDeclaration = this.BicepCompilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.ToDictionary(x => x, _ => (ParameterAssignmentSymbol?)null);
+            var parameterAssignments = BicepParamFile.ProgramSyntax.Children.OfType<ParameterAssignmentSyntax>().Where(x => this.ParamBinder.GetSymbolInfo(x) is not null);
+            var assignmentsBySymbolName = parameterAssignments.ToDictionary(x => x.Name.IdentifierName, LanguageConstants.IdentifierComparer);
+
+            foreach (var declaration in assignmentsByDeclaration.Keys)
+            {
+                if (assignmentsBySymbolName.TryGetValue(declaration.Name, out var parameterAssignmentSyntax))
+                {
+                    assignmentsByDeclaration[declaration] = this.ParamBinder.GetSymbolInfo(parameterAssignmentSyntax) as ParameterAssignmentSymbol;
+                }
+            }
+            return assignmentsByDeclaration.ToImmutableDictionary();
+        }
+
+        private ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?> InitializeAssignmentToDeclarationDictionary()
+        {
+            if (this.BicepCompilation is null)
+            {
+                return ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?>.Empty;
+            }
+            
+            var declarationsByAssignment = this.ParamBinder.ParamFileSymbol.ParameterAssignmentSymbols.ToDictionary(x => x, _ => (ParameterSymbol?)null);
+            var parameterDeclarations = this.BicepCompilation.GetEntrypointSemanticModel().Root.Syntax.Children.OfType<ParameterDeclarationSyntax>();
+            var declarationsBySymbolName = parameterDeclarations.ToDictionary(x => x.Name.IdentifierName, LanguageConstants.IdentifierComparer);
+
+            foreach (var declaration in declarationsByAssignment.Keys)
+            {
+                if (declarationsBySymbolName.TryGetValue(declaration.Name, out var parameterDeclarationSyntax))
+                {
+                    declarationsByAssignment[declaration] = this.BicepCompilation.GetEntrypointSemanticModel().GetSymbolInfo(parameterDeclarationSyntax) as ParameterSymbol;
+                }
+            }
+            return declarationsByAssignment.ToImmutableDictionary();
         }
 
         /// <summary>
@@ -56,7 +120,7 @@ namespace Bicep.Core.Semantics
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
 
-            var parameters = this.BicepCompilation.GetEntrypointSemanticModel().Parameters;
+            var parameters = this.BicepCompilation.GetEntrypointSemanticModel().Root.Syntax.Children.OfType<ParameterDeclarationSyntax>();
             var parameterAssignments = BicepParamFile.ProgramSyntax.Children.OfType<ParameterAssignmentSyntax>().Where(x => this.ParamBinder.GetSymbolInfo(x) is not null);
 
             // get diagnostics relating to missing parameter assignments or declarations
@@ -67,26 +131,36 @@ namespace Bicep.Core.Semantics
             return diagnosticWriter.GetDiagnostics();
         }
         
-        private void GetParameterMismatchDiagnostics(IDiagnosticWriter diagnosticWriter, ImmutableArray<Metadata.ParameterMetadata> parameters, IEnumerable<ParameterAssignmentSyntax> parameterAssignments)
+        private void GetParameterMismatchDiagnostics(IDiagnosticWriter diagnosticWriter, IEnumerable<ParameterDeclarationSyntax> parameters, IEnumerable<ParameterAssignmentSyntax> parameterAssignments)
         {
-            var parametersDict = parameters.ToDictionary(x => x.Name, LanguageConstants.IdentifierComparer);
-            var parametersAssignmentsDict = parameterAssignments.ToDictionary(x => x.Name.IdentifierName, LanguageConstants.IdentifierComparer);
-            
-            // parameters that are declared but not assigned
-            var missingRequiredParams = parametersDict.Values
-                .Where(x => x.IsRequired)
-                .Where(x => !parametersAssignmentsDict.ContainsKey(x.Name))
-                .OrderBy(x => x.Name)
-                .Select(x => x.Name)
-                .ToArray();
             // parameters that are assigned but not declared
-            var missingAssignedParams = parametersAssignmentsDict
-                .Where(x => !parametersDict.ContainsKey(x.Key))
-                .Select(x => x.Value)
-                .OrderBy(x => x.Name.IdentifierName);
+            // var missingAssignedParams = new List<ParameterAssignmentSyntax>();
+            var missingAssignedParams = parameterAssignments
+                .Where(x => this.ParamBinder.GetSymbolInfo(x) is ParameterAssignmentSymbol symbol && this.TryGetParameterDeclaration(symbol) is null);
 
+            // parameters that are declared but not assigned
+            var missingRequiredParams = new List<String>();
+
+            if (this.BicepCompilation is null)
+            {
+                return;
+            }
+
+            var parameterMetadata = this.BicepCompilation.GetEntrypointSemanticModel().Parameters;
+            var metadataByName = parameterMetadata.ToDictionary(x => x.Name, x => x);
+
+            foreach (var parameter in parameters)
+            {
+                if (this.BicepCompilation.GetEntrypointSemanticModel().Binder.GetSymbolInfo(parameter) is ParameterSymbol symbol && TryGetParameterAssignment(symbol) is null &&
+                    metadataByName[parameter.Name.IdentifierName].IsRequired)
+                {
+                    missingRequiredParams.Add(parameter.Name.IdentifierName);
+                }
+            }
+            
+            // emit diagnostic only if there is a using statement
             var usingDeclarationSyntax = BicepParamFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>().SingleOrDefault();
-            if (usingDeclarationSyntax is not null && missingRequiredParams.Count() > 0)
+            if (usingDeclarationSyntax is not null && missingRequiredParams.Any())
             {
                 diagnosticWriter.Write(usingDeclarationSyntax.Path, x => x.MissingParameterAssignment(missingRequiredParams));
             }
@@ -109,17 +183,6 @@ namespace Bicep.Core.Semantics
                 }
             }
         }
-        
-        public ImmutableArray<IDiagnostic> GetAllDiagnostics()
-            => BicepParamFile.ProgramSyntax.GetParseDiagnostics()
-                .Concat(ParamsTypeManager.GetAllDiagnostics())
-                .Concat(this.CompilationLoadDiagnostics)
-                .Concat(GetAdditionalSemanticDiagnostics()).ToImmutableArray();
-            
-        /// <summary>
-        /// Gets the file that was compiled.
-        /// </summary>
-        public ParamFileSymbol Root => this.ParamBinder.ParamFileSymbol;
 
         public static Uri? TryGetBicepFileUri(out ImmutableArray<IDiagnostic> compilationLoadDiagnostics, IFileResolver fileResolver, BicepParamFile bicepParamFile)
         {
