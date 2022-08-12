@@ -117,6 +117,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                     var visitor = new IdPropertyVisitor(model);
                     properties.Accept(visitor);
+
                     foreach (Failure failure in visitor.Failures)
                     {
                         var propertyName = failure.Property.Key.ToText();
