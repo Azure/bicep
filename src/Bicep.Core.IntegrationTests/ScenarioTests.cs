@@ -3787,6 +3787,48 @@ output optionTypeValue string = optionType.value
         }
 
         /// <summary>
+        /// https://github.com/Azure/bicep/issues/7861
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue7861()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+param objectId string
+param keyvaultName string
+
+resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
+  name: keyvaultName
+
+  resource accessPolicy 'accessPolicies' = {
+    name: 'add'
+    properties: {
+      accessPolicies: [
+        {
+          tenantId: subscription().tenantId
+          objectId: objectId
+          permissions: {
+            certificates: [
+              'get'
+            ]
+            secrets: [
+              'get'
+            ]
+            keys:[
+              'get'
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
+"));
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        /// <summary>
         /// https://github.com/Azure/bicep/issues/6477
         /// </summary>
         [TestMethod]
