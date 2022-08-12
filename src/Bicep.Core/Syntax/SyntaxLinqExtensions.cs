@@ -8,7 +8,6 @@ namespace Bicep.Core.Syntax
 {
     public static class SyntaxLinqExtensions
     {
-
         /// <summary>
         /// Walks the specified syntax subtree and returns the first node found that matches a given  query
         /// </summary>

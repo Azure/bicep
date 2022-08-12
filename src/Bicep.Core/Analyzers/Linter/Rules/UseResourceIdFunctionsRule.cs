@@ -24,7 +24,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 
-
         private static readonly HashSet<string> allowedFunctions = new() {
                 "extensionResourceId",
                 "resourceId",
@@ -234,7 +233,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     return null;
                 }
 
-                // Otherwise, check if it's using a recommend function call
+                // Otherwise, check if it's using a recommended function call
                 switch (expression)
                 {
                     case FunctionCallSyntax functionCallSyntax:

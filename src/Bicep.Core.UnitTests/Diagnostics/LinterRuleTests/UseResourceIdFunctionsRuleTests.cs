@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// okay if iusing symbolic name, period
-
 using Bicep.Core.Analyzers.Linter.Rules;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -193,61 +191,56 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             },
             DisplayName = "Quoted property keys"
         )]
+        [DataRow(@"
+                        @metadata({ Description: 'The name of the Virtual Network to Create' })
+                        param virtualNetworkName string
 
-        //        [DataRow(@"
-        //                @metadata({ Description: 'The name of the Virtual Network to Create' })
-        //                param virtualNetworkName string
+                        @metadata({ Description: 'The address range of the new VNET in CIDR format' })
+                        param virtualNetworkAddressRange string = '10.0.0.0/16'
 
-        //                @metadata({ Description: 'The address range of the new VNET in CIDR format' })
-        //                param virtualNetworkAddressRange string = '10.0.0.0/16'
+                        @metadata({ Description: 'The name of the subnet created in the new VNET' })
+                        param subnetName string
 
-        //                @metadata({ Description: 'The name of the subnet created in the new VNET' })
-        //                param subnetName string
+                        @metadata({ Description: 'The address range of the subnet created in the new VNET' })
+                        param subnetRange string = '10.0.0.0/24'
 
-        //                @metadata({ Description: 'The address range of the subnet created in the new VNET' })
-        //                param subnetRange string = '10.0.0.0/24'
+                        @metadata({ Description: 'The DNS address(es) of the DNS Server(s) used by the VNET' })
+                        param DNSServerAddress array
 
-        //                @metadata({ Description: 'The DNS address(es) of the DNS Server(s) used by the VNET' })
-        //                param DNSServerAddress array
+                        @metadata({ Description: 'The name of an existing NSG to associate with the subnet' })
+                        param NSGName string
+                        param location string
 
-        //                @metadata({ Description: 'The name of an existing NSG to associate with the subnet' })
-        //                param NSGName string
-        //                param location string
-
-        //                resource virtualNetworkName_resource 'Microsoft.Network/virtualNetworks@2020-05-01' = {
-        //                  name: virtualNetworkName
-        //                  location: location
-        //                  properties: {
-        //                    addressSpace: {
-        //                      addressPrefixes: [
-        //                        virtualNetworkAddressRange
-        //                      ]
-        //                    }
-        //                    dhcpOptions: {
-        //                      dnsServers: DNSServerAddress
-        //                    }
-        //                    subnets: [
-        //                      {
-        //                        name: subnetName
-        //                        properties: {
-        //                          addressPrefix: subnetRange
-        //                          networkSecurityGroup: {
-        //                            id: resourceId('Microsoft.Network/networkSecurityGroups', NSGName)
-        //                          }
-        //                        }
-        //                      }
-        //                    ]
-        //                  }
-        //                }
-        //            ",
-        //            new object[]
-        //            {
-        //                // Pass
-        //            })]
-
-
-
-
+                        resource virtualNetworkName_resource 'Microsoft.Network/virtualNetworks@2020-05-01' = {
+                          name: virtualNetworkName
+                          location: location
+                          properties: {
+                            addressSpace: {
+                              addressPrefixes: [
+                                virtualNetworkAddressRange
+                              ]
+                            }
+                            dhcpOptions: {
+                              dnsServers: DNSServerAddress
+                            }
+                            subnets: [
+                              {
+                                name: subnetName
+                                properties: {
+                                  addressPrefix: subnetRange
+                                  networkSecurityGroup: {
+                                    id: resourceId('Microsoft.Network/networkSecurityGroups', NSGName)
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                    ",
+                    new object[]
+                    {
+                        // Pass
+                    })]
         [DataRow(
             @"
                 var id = 'id'
@@ -524,25 +517,25 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 // pass
             },
             DisplayName = "Pass/IDs-In-Metadata.json")]
-        //// from https://github.com/Azure/arm-ttk/blob/master/unit-tests/IDs-Should-Be-Derived-From-ResourceIDs/Pass/IDs-in-Backends.json
-        //[DataRow(
-        //@"// Pass/IDs-in-Backends.json
-        //    var webServiceName = 'webServiceName'
-        //    var apiManagementInstanceName = 'apiManagementInstanceName'
+        // from https://github.com/Azure/arm-ttk/blob/master/unit-tests/IDs-Should-Be-Derived-From-ResourceIDs/Pass/IDs-in-Backends.json
+        [DataRow(
+        @"// Pass/IDs-in-Backends.json
+            var webServiceName = 'webServiceName'
+            var apiManagementInstanceName = 'apiManagementInstanceName'
 
-        //    resource ApiApp_webServiceName_backend 'Microsoft.ApiManagement/service/backends@2020-06-01-preview' = {
-        //      name: 'ApiApp_${webServiceName}/backend'
-        //      properties: {
-        //        description: webServiceName
-        //        resourceId: 'https://management.azure.com${resourceId('Microsoft.Web/sites', webServiceName)}'
-        //        url: 'https://${reference(resourceId('Microsoft.Web/sites', webServiceName), '2020-09-01').defaultHostName}'
-        //        protocol: 'http'
-        //      }
-        //    }",
-        //    new object[]
-        //    {
-        //        // pass
-        //    })]
+            resource ApiApp_webServiceName_backend 'Microsoft.ApiManagement/service/backends@2020-06-01-preview' = {
+              name: 'ApiApp_${webServiceName}/backend'
+              properties: {
+                description: webServiceName
+                resourceId: 'https://management.azure.com${resourceId('Microsoft.Web/sites', webServiceName)}'
+                url: 'https://${reference(resourceId('Microsoft.Web/sites', webServiceName), '2020-09-01').defaultHostName}'
+                protocol: 'http'
+              }
+            }",
+            new object[]
+            {
+                // pass
+            })]
         // from https://github.com/Azure/arm-ttk/blob/master/unit-tests/IDs-Should-Be-Derived-From-ResourceIDs/Pass/IDs-in-WebTest-Locations.json
         [DataRow(
         @"
@@ -1307,5 +1300,3 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
     }
 }
-
-
