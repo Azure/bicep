@@ -5,23 +5,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Json;
 using Bicep.Core.Parsing;
-using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.CodeAction;
 
+#pragma warning disable CA1825 // Avoid zero-length array allocations
+
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public class UseRecentApiVersionRuleTests : LinterRuleTestsBase
+    public partial class UseRecentApiVersionRuleTests : LinterRuleTestsBase
     {
         public record DiagnosticAndFixes
         (
@@ -78,7 +77,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         fix.Replacements.Should().HaveCount(1, "Expecting 1 replacement");
                         var replacement = fix.Replacements.First();
                         var replacementText = replacement.Text;
-                        var newBicep = bicep.Substring(0, replacement.Span.Position) + replacementText + bicep.Substring(replacement.Span.Position + replacement.Span.Length);
+                        var newBicep = string.Concat(bicep.AsSpan(0, replacement.Span.Position), replacementText, bicep.AsSpan(replacement.Span.Position + replacement.Span.Length));
 
                         newBicep.Should().Contain(expected.ExpectedSubstringInReplacedBicep, "the suggested API version should be replaced in the bicep file");
                     }
@@ -89,16 +88,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     Configuration: CreateConfigurationWithFakeToday(fakeToday),
                     ApiVersionProvider: apiProvider));
         }
-
-        private static SemanticModel SemanticModel(RootConfiguration configuration, ApiVersionProvider apiVersionProvider)
-         => new Compilation(
-                BicepTestConstants.Features,
-                TestTypeHelper.CreateEmptyProvider(),
-                SourceFileGroupingFactory.CreateFromText(string.Empty, BicepTestConstants.FileResolver),
-                configuration,
-                apiVersionProvider,
-                new LinterAnalyzer(configuration))
-             .GetEntrypointSemanticModel();
 
         private static RootConfiguration CreateConfigurationWithFakeToday(string today)
         {
@@ -125,11 +114,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestClass]
         public class GetAcceptableApiVersionsTests
         {
-            private void TestGetAcceptableApiVersions(string fullyQualifiedResourceType, ResourceScope scope, string resourceTypes, string today, string[] expectedApiVersions, int maxAllowedAgeInDays = UseRecentApiVersionRule.MaxAllowedAgeInDays)
+            private static void TestGetAcceptableApiVersions(string fullyQualifiedResourceType, ResourceScope scope, string resourceTypes, string today, string[] expectedApiVersions, int maxAllowedAgeInDays = UseRecentApiVersionRule.MaxAllowedAgeInDays)
             {
                 var apiVersionProvider = new ApiVersionProvider();
                 apiVersionProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
-                var (_, allowedVersions) = UseRecentApiVersionRule.Visitor.GetAcceptableApiVersions(apiVersionProvider, ApiVersionHelper.ParseDateFromApiVersion(today), maxAllowedAgeInDays, scope, fullyQualifiedResourceType);
+                var (_, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(apiVersionProvider, ApiVersionHelper.ParseDateFromApiVersion(today), maxAllowedAgeInDays, scope, fullyQualifiedResourceType);
                 var allowedVersionsStrings = allowedVersions.Select(v => v.Formatted).ToArray();
                 allowedVersionsStrings.Should().BeEquivalentTo(expectedApiVersions, options => options.WithStrictOrdering());
             }
@@ -727,8 +716,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestClass]
         public class GetAcceptableApiVersionsInvariantsTests
         {
-            private static ApiVersionProvider RealApiVersionProvider = new ApiVersionProvider();
-            private static bool Exhaustive = false;
+            private static readonly ApiVersionProvider RealApiVersionProvider = new();
+            private static readonly bool Exhaustive = false;
 
             public class TestData
             {
@@ -745,7 +734,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 public int MaxAllowedAgeDays { get; }
                 public DateTime Today { get; }
 
-                public static string GetDisplayName(MethodInfo info, object[] data)
+                public static string GetDisplayName(MethodInfo _, object[] data)
                 {
                     var me = ((TestData)data[0]);
                     return $"{me.ResourceScope}:{me.FullyQualifiedResourceType} (max={me.MaxAllowedAgeDays} days)";
@@ -804,32 +793,32 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             }
 
-            private bool DateIsRecent(DateTime dt, DateTime today, int maxAllowedAgeDays)
+            private static bool DateIsRecent(DateTime dt, DateTime today, int maxAllowedAgeDays)
             {
                 return DateIsEqualOrMoreRecentThan(dt.AddDays(maxAllowedAgeDays), today);
             }
 
-            private bool DateIsOld(DateTime dt, DateTime today, int maxAllowedAgeDays)
+            private static bool DateIsOld(DateTime dt, DateTime today, int maxAllowedAgeDays)
             {
                 return !DateIsRecent(dt, today, maxAllowedAgeDays);
             }
 
-            private bool DateIsMoreRecentThan(DateTime dt, DateTime other)
+            private static bool DateIsMoreRecentThan(DateTime dt, DateTime other)
             {
                 return DateTime.Compare(dt, other) > 0;
             }
 
-            private bool DateIsEqualOrMoreRecentThan(DateTime dt, DateTime other)
+            private static bool DateIsEqualOrMoreRecentThan(DateTime dt, DateTime other)
             {
                 return DateTime.Compare(dt, other) >= 0;
             }
 
-            private bool DateIsOlderThan(DateTime dt, DateTime other)
+            private static bool DateIsOlderThan(DateTime dt, DateTime other)
             {
                 return DateTime.Compare(dt, other) < 0;
             }
 
-            private bool DateIsEqualOrOlderThan(DateTime dt, DateTime other)
+            private static bool DateIsEqualOrOlderThan(DateTime dt, DateTime other)
             {
                 return DateTime.Compare(dt, other) < 0;
             }
@@ -838,7 +827,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             [DynamicData(nameof(GetTestData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(TestData), DynamicDataDisplayName = nameof(TestData.GetDisplayName))]
             public void Invariants(TestData data)
             {
-                var (allVersions, allowedVersions) = UseRecentApiVersionRule.Visitor.GetAcceptableApiVersions(RealApiVersionProvider, data.Today, data.MaxAllowedAgeDays, data.ResourceScope, data.FullyQualifiedResourceType);
+                var (allVersions, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(RealApiVersionProvider, data.Today, data.MaxAllowedAgeDays, data.ResourceScope, data.FullyQualifiedResourceType);
 
                 allVersions.Should().NotBeNull();
                 allowedVersions.Should().NotBeNull();
@@ -915,7 +904,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestClass]
         public class AnalyzeApiVersionTests
         {
-            private void Test(
+            private static void Test(
                 DateTime currentVersionDate,
                 string currentVersionSuffix,
                 DateTime[] gaVersionDates,
@@ -927,10 +916,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 string[] previewVersions = previewVersionDates.Select(d => "Whoever.whatever/whichever@" + ApiVersionHelper.Format(d) + "-preview").ToArray();
                 var apiVersionProvider = new ApiVersionProvider();
                 apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(gaVersions.Concat(previewVersions)));
-                var semanticModel = SemanticModel(BicepTestConstants.BuiltInConfiguration, apiVersionProvider);
-                var visitor = new UseRecentApiVersionRule.Visitor(semanticModel, DateTime.Today, UseRecentApiVersionRule.MaxAllowedAgeInDays, warnNotFound: true);
-
-                var result = visitor.AnalyzeApiVersion(new TextSpan(17, 47), ResourceScope.ResourceGroup, "Whoever.whatever/whichever", new ApiVersion(currentVersion));
+                var rule = new UseRecentApiVersionRule();
+                var result = rule.AnalyzeApiVersion(apiVersionProvider, new TextSpan(17, 47), ResourceScope.ResourceGroup, "Whoever.whatever/whichever", new ApiVersion(currentVersion));
 
                 if (expectedFix == null)
                 {
@@ -939,13 +926,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 else
                 {
                     result.Should().NotBeNull();
-                    result!.Value.span.Should().Be(new TextSpan(17, 47));
-                    result.Value.resourceType.Should().Be("Whoever.whatever/whichever");
-                    result.Value.reason.Should().Be(expectedFix.Value.reason);
-                    (string.Join(", ", result.Value.acceptableVersions.Select(v => v.Formatted))).Should().Be(expectedFix.Value.acceptableVersions);
-                    result.Value.fixes.Should().HaveCount(1); // Right now we only create one fix
-                    result.Value.fixes[0].Replacements.Should().SatisfyRespectively(r => r.Span.Should().Be(new TextSpan(17, 47)));
-                    result.Value.fixes[0].Replacements.Select(r => r.Text).Should().BeEquivalentTo(new string[] { expectedFix.Value.replacement });
+                    result!.Span.Should().Be(new TextSpan(17, 47));
+                    result.ResourceType.Should().Be("Whoever.whatever/whichever");
+                    result.Reason.Should().Be(expectedFix.Value.reason);
+                    (string.Join(", ", result.AcceptableVersions.Select(v => v.Formatted))).Should().Be(expectedFix.Value.acceptableVersions);
+                    result.Fixes.Should().HaveCount(1); // Right now we only create one fix
+                    result.Fixes[0].Replacements.Should().SatisfyRespectively(r => r.Span.Should().Be(new TextSpan(17, 47)));
+                    result.Fixes[0].Replacements.Select(r => r.Text).Should().BeEquivalentTo(new string[] { expectedFix.Value.replacement });
                 }
             }
 
@@ -996,10 +983,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             public void WhenCurrentAndRecentApiVersionsAreSameAndMoreThanTwoYearsOld_ShouldNotAddDiagnostics()
             {
                 DateTime currentVersionDate = DateTime.Today.AddDays(-3 * 365);
-                string currentVersion = ApiVersionHelper.Format(currentVersionDate);
-
-                DateTime recentGAVersionDate = currentVersionDate;
-                string recentGAVersion = ApiVersionHelper.Format(recentGAVersionDate);
 
                 Test(currentVersionDate, "", new DateTime[] { currentVersionDate }, new DateTime[] { },
                     null);
@@ -1009,13 +992,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             public void WithPreviewVersion_WhenCurrentPreviewVersionIsLatest_ShouldNotAddDiagnostics()
             {
                 DateTime currentVersionDate = DateTime.Today.AddDays(-365);
-                string currentVersion = ApiVersionHelper.Format(currentVersionDate);
 
                 DateTime recentGAVersionDate = DateTime.Today.AddDays(-3 * 365);
-                string recentGAVersion = ApiVersionHelper.Format(recentGAVersionDate);
 
                 DateTime recentPreviewVersionDate = currentVersionDate;
-                string recentPreviewVersion = ApiVersionHelper.Format(recentPreviewVersionDate);
 
 
                 Test(currentVersionDate, "", new DateTime[] { currentVersionDate, recentGAVersionDate }, new DateTime[] { recentPreviewVersionDate },
@@ -1032,7 +1012,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 string recentGAVersion = ApiVersionHelper.Format(recentGAVersionDate);
 
                 DateTime recentPreviewVersionDate = DateTime.Today.AddDays(-2 * 365);
-                string recentPreviewVersion = ApiVersionHelper.Format(recentPreviewVersionDate, "-preview");
 
                 Test(currentVersionDate, "-preview", new DateTime[] { recentGAVersionDate }, new DateTime[] { currentVersionDate, recentPreviewVersionDate },
                     (
@@ -1073,7 +1052,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 string recentGAVersion = ApiVersionHelper.Format(recentGAVersionDate);
 
                 DateTime recentPreviewVersionDate = DateTime.Today.AddDays(-3 * 365);
-                string recentPreviewVersion = ApiVersionHelper.Format(recentPreviewVersionDate);
 
                 Test(currentVersionDate, "-preview", new DateTime[] { recentGAVersionDate }, new DateTime[] { currentVersionDate, recentPreviewVersionDate },
                   (
@@ -1138,10 +1116,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             public void WithPreviewVersion_WhenGAVersionisNull_AndCurrentVersionIsRecent_ShouldNotAddDiagnostics()
             {
                 DateTime currentVersionDate = DateTime.Today.AddDays(-2 * 365);
-                string currentVersion = ApiVersionHelper.Format(currentVersionDate, "-preview");
 
                 DateTime recentPreviewVersionDate = currentVersionDate;
-                string recentPreviewVersion = ApiVersionHelper.Format(recentPreviewVersionDate, "-preview");
 
                 Test(currentVersionDate, "-preview", new DateTime[] { }, new DateTime[] { recentPreviewVersionDate, currentVersionDate },
                     null);

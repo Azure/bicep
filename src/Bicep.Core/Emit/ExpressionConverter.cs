@@ -149,7 +149,7 @@ namespace Bicep.Core.Emit
                                 instanceFunctionCall.Name.IdentifierName,
                                 instanceFunctionCall.Arguments.Select(a => ConvertExpression(a.Expression)));
                         case DeclaredSymbol declaredSymbol when context.SemanticModel.ResourceMetadata.TryLookup(declaredSymbol.DeclaringSyntax) is DeclaredResourceMetadata resource:
-                            if (instanceFunctionCall.Name.IdentifierName.StartsWithOrdinalInsensitively("list"))
+                            if (instanceFunctionCall.Name.IdentifierName.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix))
                             {
                                 var converter = indexExpression is not null ?
                                     CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, instanceFunctionCall) :
