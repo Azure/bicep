@@ -13,29 +13,31 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class PreferInterpolationRuleTests : LinterRuleTestsBase
     {
-        private void ExpectPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        private void ExpectPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
-            AssertLinterRuleDiagnostics(PreferInterpolationRule.Code, text, onCompileErrors, diags =>
-            {
-                diags.Should().HaveCount(0, $"expecting linter rule to pass");
-            });
+            AssertLinterRuleDiagnostics(PreferInterpolationRule.Code, text, diags =>
+                {
+                    diags.Should().HaveCount(0, $"expecting linter rule to pass");
+                },
+                new Options(onCompileErrors));
         }
 
-        private void ExpectDiagnosticWithFix(string text, string expectedFix, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        private void ExpectDiagnosticWithFix(string text, string expectedFix, Options? options = null)
         {
-            ExpectDiagnosticWithFix(text, new string[] { expectedFix }, onCompileErrors);
+            ExpectDiagnosticWithFix(text, new string[] { expectedFix }, options);
         }
 
-        private void ExpectDiagnosticWithFix(string text, string[] expectedFixes, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        private void ExpectDiagnosticWithFix(string text, string[] expectedFixes, Options? options = null)
         {
-            AssertLinterRuleDiagnostics(PreferInterpolationRule.Code, text, onCompileErrors, diags =>
-            {
-                diags.Should().HaveCount(expectedFixes.Length, $"expecting one fix per testcase");
+            AssertLinterRuleDiagnostics(PreferInterpolationRule.Code, text, diags =>
+                {
+                    diags.Should().HaveCount(expectedFixes.Length, $"expecting one fix per testcase");
 
-                diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
-                diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
-                var a = diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.SelectMany(f => f.Replacements.SelectMany(r => r.Text));
-            });
+                    diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
+                    diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
+                    var a = diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.SelectMany(f => f.Replacements.SelectMany(r => r.Text));
+                },
+                options);
         }
 
         [DataRow(@"
@@ -381,7 +383,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             "
         )]
         [DataTestMethod]
-        public void ArgsNotStrings_DoNotSuggestFix(string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        public void ArgsNotStrings_DoNotSuggestFix(string text, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             ExpectPass(text, onCompileErrors);
         }
@@ -434,7 +436,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }
             else
             {
-                ExpectDiagnosticWithFix(text, expectedFix, OnCompileErrors.Ignore);
+                ExpectDiagnosticWithFix(text, expectedFix, new Options(OnCompileErrors.Ignore));
             }
         }
 

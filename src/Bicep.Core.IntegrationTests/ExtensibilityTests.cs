@@ -18,11 +18,11 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private CompilationHelper.CompilationHelperContext GetCompilationContext()
+        private CompilationHelper.CompilationHelperContext GetCompilationContextWithTestExtensibilityProvider()
         {
             var features = BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true);
             var resourceTypeLoader = BicepTestConstants.AzResourceTypeLoader;
-            var namespaceProvider = new ExtensibilityNamespaceProvider(resourceTypeLoader, features);
+            var namespaceProvider = new TestExtensibilityNamespaceProvider(resourceTypeLoader, features);
 
             return new(
                 AzResourceTypeLoader: resourceTypeLoader,
@@ -30,10 +30,13 @@ namespace Bicep.Core.IntegrationTests
                 NamespaceProvider: namespaceProvider);
         }
 
+        private CompilationHelper.CompilationHelperContext GetCompilationContext() =>
+            new(Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true));
+
         [TestMethod]
         public void Storage_import_bad_config_is_blocked()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
 import storage as stg {
   madeUpProperty: 'asdf'
 }
@@ -47,7 +50,7 @@ import storage as stg {
         [TestMethod]
         public void Storage_import_can_be_duplicated()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
 import storage as stg1 {
   connectionString: 'connectionString1'
 }
@@ -62,7 +65,7 @@ import storage as stg2 {
         [TestMethod]
         public void Storage_import_basic_test()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
 import storage as stg {
   connectionString: 'asdf'
 }
@@ -83,7 +86,7 @@ resource blob 'blob' = {
         [TestMethod]
         public void Storage_import_basic_test_loops_and_referencing()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
 import storage as stg {
   connectionString: 'asdf'
 }
@@ -123,7 +126,7 @@ output base64Content string = blobs[3]['base64Content']
         [TestMethod]
         public void Aad_import_basic_test_loops_and_referencing()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
 import aad as aad
 param numApps int
 
@@ -153,7 +156,7 @@ output myAppsLoopId2 string = myAppsLoop[3]['appId']
         public void Aad_import_existing_requires_uniqueName()
         {
             // we've accidentally used 'name' even though this resource type doesn't support it
-            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
 import aad as aad
 
 resource myApp 'application' existing = {
@@ -169,7 +172,7 @@ resource myApp 'application' existing = {
             });
 
             // oops! let's change it to 'uniqueName'
-            result = CompilationHelper.Compile(GetCompilationContext(), @"
+            result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
 import aad as aad
 
 resource myApp 'application' existing = {
@@ -184,9 +187,136 @@ resource myApp 'application' existing = {
         }
 
         [TestMethod]
-        public void Storage_import_basic_test_with_qualified_type()
+        public void Kubernetes_import_existing_warns_with_readonly_fields()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import kubernetes as kubernetes {
+  namespace: 'default'
+  kubeConfig: ''
+}
+resource service 'core/Service@v1' existing = {
+  metadata: {
+    name: 'existing-service'
+    namespace: 'default'
+    labels: {
+      format: 'k8s-extension'
+    }
+    annotations: {
+      foo: 'bar'
+    }
+  }
+}
+");
+
+            result.Should().GenerateATemplate();
+            result.Should().HaveDiagnostics(new[] {
+                ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"service\" is declared but never used."),
+                ("BCP073", DiagnosticLevel.Warning, "The property \"labels\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP073", DiagnosticLevel.Warning, "The property \"annotations\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+            });
+        }
+
+        [TestMethod]
+        public void Kubernetes_competing_imports_are_blocked()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import kubernetes as k8s1 {
+  namespace: 'default'
+  kubeConfig: ''
+}
+
+import kubernetes as k8s2 {
+  namespace: 'default'
+  kubeConfig: ''
+}
+");
+
+            result.Should().NotGenerateATemplate();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP207", DiagnosticLevel.Error, "Namespace \"kubernetes\" is imported multiple times. Remove the duplicates."),
+                ("BCP207", DiagnosticLevel.Error, "Namespace \"kubernetes\" is imported multiple times. Remove the duplicates."),
+            });
+        }
+
+        [TestMethod]
+        public void Kubernetes_import_existing_resources()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import kubernetes as kubernetes {
+  namespace: 'default'
+  kubeConfig: ''
+}
+resource service 'core/Service@v1' existing = {
+  metadata: {
+    name: 'existing-service'
+    namespace: 'default'
+  }
+}
+resource secret 'core/Secret@v1' existing = {
+  metadata: {
+    name: 'existing-secret'
+    namespace: 'default'
+  }
+}
+resource configmap 'core/ConfigMap@v1' existing = {
+  metadata: {
+    name: 'existing-configmap'
+    namespace: 'default'
+  }
+}
+");
+
+            result.Should().GenerateATemplate();
+            result.Should().HaveDiagnostics(new[] {
+                ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"service\" is declared but never used."),
+                ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"secret\" is declared but never used."),
+                ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"configmap\" is declared but never used."),
+            });
+        }
+
+        [TestMethod]
+        public void Kubernetes_import_existing_connectionstring_test()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import kubernetes as kubernetes {
+  namespace: 'default'
+  kubeConfig: ''
+}
+resource redisService 'core/Service@v1' existing = {
+  metadata: {
+    name: 'redis-service'
+    namespace: 'default'
+  }
+}
+resource redisSecret 'core/Secret@v1' existing = {
+  metadata: {
+    name: 'redis-secret'
+    namespace: 'default'
+  }
+}
+resource secret 'core/Secret@v1' = {
+  metadata: {
+    name: 'conn-secret'
+    namespace: 'default'
+    labels: {
+      format: 'k8s-extension'
+    }
+  }
+  stringData: {
+    connectionString: '${redisService.metadata.name}.${redisService.metadata.namespace}.svc.cluster.local,password=${base64ToString(redisSecret.data.redisPassword)}'
+  }
+}
+");
+
+            result.Should().GenerateATemplate();
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+
+        [TestMethod]
+        public void Storage_import_basic_test_with_qualified_type()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
 import storage as stg {
   connectionString: 'asdf'
 }
@@ -207,7 +337,7 @@ resource blob 'stg:blob' = {
         [TestMethod]
         public void Invalid_namespace_qualifier_returns_error()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
 import storage as stg {
   connectionString: 'asdf'
 }
@@ -232,7 +362,7 @@ resource blob 'bar:blob' = {
         [TestMethod]
         public void Child_resource_with_parent_namespace_mismatch_returns_error()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
 import storage as stg {
   connectionString: 'asdf'
 }
@@ -255,7 +385,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         [TestMethod]
         public void Storage_import_end_to_end_test()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(),
+            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(),
                 ("main.bicep", @"
 param accountName string
 
@@ -359,7 +489,7 @@ Hello from Bicep!"));
             }
           },
           ""variables"": {
-            ""$fxv#0"": ""\nHello from Bicep!""            
+            ""$fxv#0"": ""\nHello from Bicep!""
           },
           ""imports"": {
             ""stg"": {
@@ -399,6 +529,30 @@ Hello from Bicep!"));
     }
   }
 }"));
+        }
+
+        [TestMethod]
+        public void Az_namespace_can_be_used_without_configuration()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import az as az
+");
+
+            result.Should().GenerateATemplate();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Az_namespace_errors_with_configuration()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import az as az {}
+");
+
+            result.Should().NotGenerateATemplate();
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP205", DiagnosticLevel.Error, "Imported namespace \"az\" does not support configuration."),
+            });
         }
     }
 }

@@ -9,9 +9,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class AdminUsernameShouldNotBeLiteralRuleTests : LinterRuleTestsBase
     {
-        private void CompileAndTest(string text, int expectedErrorCount, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        private void CompileAndTest(string text, int expectedErrorCount, Options? options = null)
         {
-            AssertLinterRuleDiagnostics(AdminUsernameShouldNotBeLiteralRule.Code, text, expectedErrorCount, onCompileErrors);
+            AssertLinterRuleDiagnostics(AdminUsernameShouldNotBeLiteralRule.Code, text, expectedErrorCount, options);
         }
 
         [DataRow(1, @" // This is the failing example in the docs
@@ -286,7 +286,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void If_UsesObjectVariable_ThatResolvesToUndefined_ShouldPass(string text)
         {
-            CompileAndTest(text, 0, OnCompileErrors.Ignore);
+            CompileAndTest(text, 0, new Options(OnCompileErrors.Ignore));
         }
 
         [DataRow(@"
@@ -311,7 +311,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void If_UsesObjectVariables_ThatContainsSyntaxError_ShouldPass(string text)
         {
-            CompileAndTest(text, 0, OnCompileErrors.Ignore);
+            CompileAndTest(text, 0, new Options(OnCompileErrors.Ignore));
         }
 
         [DataRow(@"
@@ -336,7 +336,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void If_UsesObjectVariables_AndReferencesInvalidProperty_ShouldPass(string text)
         {
-            CompileAndTest(text, 0, OnCompileErrors.Ignore);
+            CompileAndTest(text, 0, new Options(OnCompileErrors.Ignore));
         }
 
         // TTK shows this error: AdminUsername references variable 'v1', which has a literal value.

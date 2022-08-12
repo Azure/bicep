@@ -85,6 +85,9 @@ If you have an active branch pushed to your GitHub fork, you can use the "Update
 * In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "Bicep CLI" task, and press the "Start" button. This will build and run the Bicep CLI and allow you to step through the code.
 * Note that usually you will want to pass your own custom arguments to the Bicep CLI. This can be done by modifying the `launch.json` configuration to add arguments to the "args" array for the "Bicep CLI" task. 
 
+### 3rd party Syntax Highlighting libraries
+See [Syntax Highlighting Libraries](./docs/highlighting.md) for information on the various 3rd party highlighting libraries that Bicep supports, where they are used, and how to contribute to them.
+
 ## Pull Requests
 
 If you'd like to start contributing to Bicep, you can search for issues tagged as "good first issue" [here](https://github.com/Azure/bicep/labels/good%20first%20issue).
@@ -116,15 +119,15 @@ If you'd like to contribute to the collection of snippets:
   * To add a multi-choice placeholder, the syntax is a comma separated enumeration of values, enclosed with the pipe-character, for example `${1|one,two,three|}`. When the snippet is inserted and the placeholder selected, choices will prompt the user to pick one of the values. [More info on snippet syntax](https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax)
   * Property placeholder values should correspond to their property names (e.g. dnsPrefix: 'dnsPrefix'), unless it's a property that MUST be changed or parameterized in order to deploy. In that case, use 'REQUIRED' e.g. [keyData](./src/Bicep.LangServer/Snippets/Templates/res-aks-cluster.bicep#L26)
   * Snippet with parent-child syntax, should have parent resource declared first. Do not add placeholder for parent resource symbolic name.
-* Add a new folder in the following directory, for an integration test that validates snippet completion: [`./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates)
+* Add a new folder in the following directory, for an integration test that validates snippet completion: [`./src/Bicep.LangServer.IntegrationTests/Files/SnippetTemplates`](./src/Bicep.LangServer.IntegrationTests/Files/SnippetTemplates)
   * The folder name should match the snippet label/prefix.
 
 * Add a file named main.bicep
   * The test will read this input file for snippet completions. It will take the replacement values listed in this file, replace them with their corresponding placeholder, then ensure Bicep reports no warnings or errors.
-    * E.g. [`res-aks-cluster/main.bicep`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates/res-aks-cluster/main.bicep)
+    * E.g. [`res-aks-cluster/main.bicep`](./src/Bicep.LangServer.IntegrationTests/Files/SnippetTemplates/res-aks-cluster/main.bicep)
 
 * Add a file named main.combined.bicep that contains the template combined with placeholder values. See [Updating test baselines](#updating-test-baselines) for information on how to automatically generate this file to match the format expected by the tests.
-  * E.g. [`res-aks-cluster/main.combined.bicep`](./src/Bicep.LangServer.IntegrationTests/Completions/SnippetTemplates/res-aks-cluster/main.combined.bicep)
+  * E.g. [`res-aks-cluster/main.combined.bicep`](./src/Bicep.LangServer.IntegrationTests/Files/SnippetTemplates/res-aks-cluster/main.combined.bicep)
 
 * See [Running the tests](#running-the-tests) if you'd like to test locally before submitting a PR.
 

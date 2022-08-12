@@ -2139,16 +2139,10 @@ module expectedItemVarName 'modulea.bicep' = [for ()]
 //@[045:00053) | └─ForSyntax
 //@[045:00046) |   ├─Token(LeftSquare) |[|
 //@[046:00049) |   ├─Token(Identifier) |for|
-//@[050:00052) |   ├─ForVariableBlockSyntax
-//@[050:00051) |   | ├─Token(LeftParen) |(|
-//@[051:00051) |   | ├─LocalVariableSyntax
-//@[051:00051) |   | | └─IdentifierSyntax
-//@[051:00051) |   | |   └─SkippedTriviaSyntax
-//@[051:00051) |   | ├─SkippedTriviaSyntax
-//@[051:00051) |   | ├─LocalVariableSyntax
-//@[051:00051) |   | | └─IdentifierSyntax
-//@[051:00051) |   | |   └─SkippedTriviaSyntax
-//@[051:00052) |   | └─Token(RightParen) |)|
+//@[050:00052) |   ├─SkippedTriviaSyntax
+//@[050:00052) |   | └─VariableBlockSyntax
+//@[050:00051) |   |   ├─Token(LeftParen) |(|
+//@[051:00052) |   |   └─Token(RightParen) |)|
 //@[052:00052) |   ├─SkippedTriviaSyntax
 //@[052:00052) |   ├─SkippedTriviaSyntax
 //@[052:00052) |   ├─SkippedTriviaSyntax
@@ -2167,16 +2161,13 @@ module expectedComma 'modulea.bicep' = [for (x)]
 //@[039:00048) | └─ForSyntax
 //@[039:00040) |   ├─Token(LeftSquare) |[|
 //@[040:00043) |   ├─Token(Identifier) |for|
-//@[044:00047) |   ├─ForVariableBlockSyntax
-//@[044:00045) |   | ├─Token(LeftParen) |(|
-//@[045:00046) |   | ├─LocalVariableSyntax
-//@[045:00046) |   | | └─IdentifierSyntax
-//@[045:00046) |   | |   └─Token(Identifier) |x|
-//@[046:00046) |   | ├─SkippedTriviaSyntax
-//@[046:00046) |   | ├─LocalVariableSyntax
-//@[046:00046) |   | | └─IdentifierSyntax
-//@[046:00046) |   | |   └─SkippedTriviaSyntax
-//@[046:00047) |   | └─Token(RightParen) |)|
+//@[044:00047) |   ├─SkippedTriviaSyntax
+//@[044:00047) |   | └─VariableBlockSyntax
+//@[044:00045) |   |   ├─Token(LeftParen) |(|
+//@[045:00046) |   |   ├─LocalVariableSyntax
+//@[045:00046) |   |   | └─IdentifierSyntax
+//@[045:00046) |   |   |   └─Token(Identifier) |x|
+//@[046:00047) |   |   └─Token(RightParen) |)|
 //@[047:00047) |   ├─SkippedTriviaSyntax
 //@[047:00047) |   ├─SkippedTriviaSyntax
 //@[047:00047) |   ├─SkippedTriviaSyntax
@@ -2195,16 +2186,14 @@ module expectedIndexVarName 'modulea.bicep' = [for (x,)]
 //@[046:00056) | └─ForSyntax
 //@[046:00047) |   ├─Token(LeftSquare) |[|
 //@[047:00050) |   ├─Token(Identifier) |for|
-//@[051:00055) |   ├─ForVariableBlockSyntax
-//@[051:00052) |   | ├─Token(LeftParen) |(|
-//@[052:00053) |   | ├─LocalVariableSyntax
-//@[052:00053) |   | | └─IdentifierSyntax
-//@[052:00053) |   | |   └─Token(Identifier) |x|
-//@[053:00054) |   | ├─Token(Comma) |,|
-//@[054:00054) |   | ├─LocalVariableSyntax
-//@[054:00054) |   | | └─IdentifierSyntax
-//@[054:00054) |   | |   └─SkippedTriviaSyntax
-//@[054:00055) |   | └─Token(RightParen) |)|
+//@[051:00055) |   ├─SkippedTriviaSyntax
+//@[051:00055) |   | └─VariableBlockSyntax
+//@[051:00052) |   |   ├─Token(LeftParen) |(|
+//@[052:00053) |   |   ├─LocalVariableSyntax
+//@[052:00053) |   |   | └─IdentifierSyntax
+//@[052:00053) |   |   |   └─Token(Identifier) |x|
+//@[053:00054) |   |   ├─Token(Comma) |,|
+//@[054:00055) |   |   └─Token(RightParen) |)|
 //@[055:00055) |   ├─SkippedTriviaSyntax
 //@[055:00055) |   ├─SkippedTriviaSyntax
 //@[055:00055) |   ├─SkippedTriviaSyntax
@@ -2223,7 +2212,7 @@ module expectedInKeyword3 'modulea.bicep' = [for (x,y)]
 //@[044:00055) | └─ForSyntax
 //@[044:00045) |   ├─Token(LeftSquare) |[|
 //@[045:00048) |   ├─Token(Identifier) |for|
-//@[049:00054) |   ├─ForVariableBlockSyntax
+//@[049:00054) |   ├─VariableBlockSyntax
 //@[049:00050) |   | ├─Token(LeftParen) |(|
 //@[050:00051) |   | ├─LocalVariableSyntax
 //@[050:00051) |   | | └─IdentifierSyntax
@@ -2251,7 +2240,7 @@ module expectedArrayExpression2 'modulea.bicep' = [for (x,y) in ]
 //@[050:00065) | └─ForSyntax
 //@[050:00051) |   ├─Token(LeftSquare) |[|
 //@[051:00054) |   ├─Token(Identifier) |for|
-//@[055:00060) |   ├─ForVariableBlockSyntax
+//@[055:00060) |   ├─VariableBlockSyntax
 //@[055:00056) |   | ├─Token(LeftParen) |(|
 //@[056:00057) |   | ├─LocalVariableSyntax
 //@[056:00057) |   | | └─IdentifierSyntax
@@ -2279,7 +2268,7 @@ module expectedColon2 'modulea.bicep' = [for (x,y) in z]
 //@[040:00056) | └─ForSyntax
 //@[040:00041) |   ├─Token(LeftSquare) |[|
 //@[041:00044) |   ├─Token(Identifier) |for|
-//@[045:00050) |   ├─ForVariableBlockSyntax
+//@[045:00050) |   ├─VariableBlockSyntax
 //@[045:00046) |   | ├─Token(LeftParen) |(|
 //@[046:00047) |   | ├─LocalVariableSyntax
 //@[046:00047) |   | | └─IdentifierSyntax
@@ -2309,7 +2298,7 @@ module expectedLoopBody2 'modulea.bicep' = [for (x,y) in z:]
 //@[043:00060) | └─ForSyntax
 //@[043:00044) |   ├─Token(LeftSquare) |[|
 //@[044:00047) |   ├─Token(Identifier) |for|
-//@[048:00053) |   ├─ForVariableBlockSyntax
+//@[048:00053) |   ├─VariableBlockSyntax
 //@[048:00049) |   | ├─Token(LeftParen) |(|
 //@[049:00050) |   | ├─LocalVariableSyntax
 //@[049:00050) |   | | └─IdentifierSyntax
@@ -2366,7 +2355,7 @@ module expectedLoopFilterOpenParen2 'modulea.bicep' = [for (x,y) in z: if]
 //@[054:00074) | └─ForSyntax
 //@[054:00055) |   ├─Token(LeftSquare) |[|
 //@[055:00058) |   ├─Token(Identifier) |for|
-//@[059:00064) |   ├─ForVariableBlockSyntax
+//@[059:00064) |   ├─VariableBlockSyntax
 //@[059:00060) |   | ├─Token(LeftParen) |(|
 //@[060:00061) |   | ├─LocalVariableSyntax
 //@[060:00061) |   | | └─IdentifierSyntax
@@ -2427,7 +2416,7 @@ module expectedLoopFilterPredicateAndBody2 'modulea.bicep' = [for (x,y) in z: if
 //@[061:00083) | └─ForSyntax
 //@[061:00062) |   ├─Token(LeftSquare) |[|
 //@[062:00065) |   ├─Token(Identifier) |for|
-//@[066:00071) |   ├─ForVariableBlockSyntax
+//@[066:00071) |   ├─VariableBlockSyntax
 //@[066:00067) |   | ├─Token(LeftParen) |(|
 //@[067:00068) |   | ├─LocalVariableSyntax
 //@[067:00068) |   | | └─IdentifierSyntax
@@ -2498,7 +2487,7 @@ module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
 //@[044:00071) | └─ForSyntax
 //@[044:00045) |   ├─Token(LeftSquare) |[|
 //@[045:00048) |   ├─Token(Identifier) |for|
-//@[049:00054) |   ├─ForVariableBlockSyntax
+//@[049:00054) |   ├─VariableBlockSyntax
 //@[049:00050) |   | ├─Token(LeftParen) |(|
 //@[050:00051) |   | ├─LocalVariableSyntax
 //@[050:00051) |   | | └─IdentifierSyntax
@@ -2557,7 +2546,7 @@ module missingLoopBodyProperties2 'modulea.bicep' = [for (x,i) in emptyArray:{
 //@[052:00081) | └─ForSyntax
 //@[052:00053) |   ├─Token(LeftSquare) |[|
 //@[053:00056) |   ├─Token(Identifier) |for|
-//@[057:00062) |   ├─ForVariableBlockSyntax
+//@[057:00062) |   ├─VariableBlockSyntax
 //@[057:00058) |   | ├─Token(LeftParen) |(|
 //@[058:00059) |   | ├─LocalVariableSyntax
 //@[058:00059) |   | | └─IdentifierSyntax
@@ -2877,7 +2866,7 @@ module wrongModuleParameterInLoop2 'modulea.bicep' = [for (x,i) in emptyArray:{
 //@[053:00240) | └─ForSyntax
 //@[053:00054) |   ├─Token(LeftSquare) |[|
 //@[054:00057) |   ├─Token(Identifier) |for|
-//@[058:00063) |   ├─ForVariableBlockSyntax
+//@[058:00063) |   ├─VariableBlockSyntax
 //@[058:00059) |   | ├─Token(LeftParen) |(|
 //@[059:00060) |   | ├─LocalVariableSyntax
 //@[059:00060) |   | | └─IdentifierSyntax
@@ -2984,7 +2973,7 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x,i) in empty
 //@[061:00187) | └─ForSyntax
 //@[061:00062) |   ├─Token(LeftSquare) |[|
 //@[062:00065) |   ├─Token(Identifier) |for|
-//@[066:00071) |   ├─ForVariableBlockSyntax
+//@[066:00071) |   ├─VariableBlockSyntax
 //@[066:00067) |   | ├─Token(LeftParen) |(|
 //@[067:00068) |   | ├─LocalVariableSyntax
 //@[067:00068) |   | | └─IdentifierSyntax
@@ -3586,7 +3575,7 @@ module nonObjectModuleBody3 'modulea.bicep' = [for (thing,i) in []: 'hello']
 //@[046:00076) | └─ForSyntax
 //@[046:00047) |   ├─Token(LeftSquare) |[|
 //@[047:00050) |   ├─Token(Identifier) |for|
-//@[051:00060) |   ├─ForVariableBlockSyntax
+//@[051:00060) |   ├─VariableBlockSyntax
 //@[051:00052) |   | ├─Token(LeftParen) |(|
 //@[052:00057) |   | ├─LocalVariableSyntax
 //@[052:00057) |   | | └─IdentifierSyntax
@@ -3616,7 +3605,7 @@ module nonObjectModuleBody4 'modulea.bicep' = [for (thing,i) in []: concat()]
 //@[046:00077) | └─ForSyntax
 //@[046:00047) |   ├─Token(LeftSquare) |[|
 //@[047:00050) |   ├─Token(Identifier) |for|
-//@[051:00060) |   ├─ForVariableBlockSyntax
+//@[051:00060) |   ├─VariableBlockSyntax
 //@[051:00052) |   | ├─Token(LeftParen) |(|
 //@[052:00057) |   | ├─LocalVariableSyntax
 //@[052:00057) |   | | └─IdentifierSyntax

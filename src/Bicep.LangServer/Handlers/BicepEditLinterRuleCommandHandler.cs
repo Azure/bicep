@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.LanguageServer.Configuration;
+using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using Newtonsoft.Json;
@@ -31,13 +32,15 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepEditLinterRuleCommandHandler : ExecuteTypedCommandHandlerBase<DocumentUri, string, string>
     {
         private readonly string DefaultBicepConfig;
+        private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
         private readonly ILanguageServerFacade server;
         private readonly ITelemetryProvider telemetryProvider;
 
-        public BicepEditLinterRuleCommandHandler(ISerializer serializer, ILanguageServerFacade server, ITelemetryProvider telemetryProvider)
+        public BicepEditLinterRuleCommandHandler(ISerializer serializer, ILanguageServerFacade server, IClientCapabilitiesProvider clientCapabilitiesProvider, ITelemetryProvider telemetryProvider)
             : base(LangServerConstants.EditLinterRuleCommandName, serializer)
         {
             DefaultBicepConfig = DefaultBicepConfigHelper.GetDefaultBicepConfig();
+            this.clientCapabilitiesProvider = clientCapabilitiesProvider;
             this.server = server;
             this.telemetryProvider = telemetryProvider;
         }
@@ -53,7 +56,7 @@ namespace Bicep.LanguageServer.Handlers
                 if (string.IsNullOrEmpty(bicepConfigFilePath))
                 {
                     // There is no configuration file currently - create one in the default location
-                    var targetFolder = await BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(this.server, documentUri.GetFileSystemPath());
+                    var targetFolder = await BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(this.server, this.clientCapabilitiesProvider, documentUri.GetFileSystemPath());
                     bicepConfigFilePath = Path.Combine(targetFolder, LanguageConstants.BicepConfigurationFileName);
                 }
 
@@ -72,7 +75,7 @@ namespace Bicep.LanguageServer.Handlers
                     return Unit.Value;
                 }
 
-                newRuleAdded = await AddAndSelectRuleLevel(server, bicepConfigFilePath, ruleCode);
+                newRuleAdded = await AddAndSelectRuleLevel(server, clientCapabilitiesProvider, bicepConfigFilePath, ruleCode);
 
                 error = null;
                 return Unit.Value;
@@ -89,11 +92,10 @@ namespace Bicep.LanguageServer.Handlers
             }
         }
 
-        //asdfg move
         // Returns true if the rule was added to the config file
-        public static async Task<bool> AddAndSelectRuleLevel(ILanguageServerFacade server, string bicepConfigFilePath, string ruleCode)
+        public static async Task<bool> AddAndSelectRuleLevel(ILanguageServerFacade server, IClientCapabilitiesProvider clientCapabilitiesProvider, string bicepConfigFilePath, string ruleCode)
         {
-            if (await SelectRuleLevelIfExists(server, ruleCode, bicepConfigFilePath))
+            if (await SelectRuleLevelIfExists(server, clientCapabilitiesProvider, ruleCode, bicepConfigFilePath))
             {
                 // The rule already exists and has been shown/selected
                 return false;
@@ -119,7 +121,7 @@ namespace Bicep.LanguageServer.Handlers
                 }
             }
 
-            await SelectRuleLevelIfExists(server, ruleCode, bicepConfigFilePath);
+            await SelectRuleLevelIfExists(server, clientCapabilitiesProvider, ruleCode, bicepConfigFilePath);
             return added;
         }
 
@@ -128,32 +130,35 @@ namespace Bicep.LanguageServer.Handlers
         /// level value (so that the end user can immediatey edit it).
         /// </summary>
         /// <returns>True if the rule exists and displaying/highlighting succeeds, otherwise false.</returns>
-        private static async Task<bool> SelectRuleLevelIfExists(ILanguageServerFacade server, string ruleCode, string configFilePath)
+        private static async Task<bool> SelectRuleLevelIfExists(ILanguageServerFacade server, IClientCapabilitiesProvider clientCapabilitiesProvider, string ruleCode, string configFilePath)
         {
             // Inspect the JSON to figure out the location of the rule's level value
             Range? rangeOfRuleLevelValue = FindRangeOfPropertyValueInJson($"analyzers.core.rules.{ruleCode}.level", configFilePath);
             if (rangeOfRuleLevelValue is not null)
             {
-                // Show the document first and allow the dust to settle
-                await server.Window.ShowDocument(new()
+                if (clientCapabilitiesProvider.DoesClientSupportShowDocumentRequest())
                 {
-                    Uri = DocumentUri.File(configFilePath),
-                });
+                    // Show the document first and allow the dust to settle
+                    await server.Window.ShowDocument(new()
+                    {
+                        Uri = DocumentUri.File(configFilePath),
+                    });
 
-                // Now show the document with our desired selection
-                await server.Window.ShowDocument(new()
-                {
-                    Uri = DocumentUri.File(configFilePath),
-                    // Put the selection at the beginning of the rule's "level" value ("warning, "off", etc.),
-                    //  don't select the entire string, or else editor completion will not show all possible values
-                    //  when we trigger it.
-                    Selection = new Range(rangeOfRuleLevelValue.Start, rangeOfRuleLevelValue.Start),
-                    TakeFocus = true
-                });
+                    // Now show the document with our desired selection
+                    await server.Window.ShowDocument(new()
+                    {
+                        Uri = DocumentUri.File(configFilePath),
+                        // Put the selection at the beginning of the rule's "level" value ("warning, "off", etc.),
+                        //  don't select the entire string, or else editor completion will not show all possible values
+                        //  when we trigger it.
+                        Selection = new Range(rangeOfRuleLevelValue.Start, rangeOfRuleLevelValue.Start),
+                        TakeFocus = true
+                    });
 
-                // If the client supports it, trigger completion of the rule's level value (call is ignored
-                //   if the client doesn't know about it)
-                server.SendNotification("bicep/triggerEditorCompletion");
+                    // If the client supports it, trigger completion of the rule's level value (call is ignored
+                    //   if the client doesn't know about it)
+                    server.SendNotification("bicep/triggerEditorCompletion");
+                }
 
                 return true;
             }

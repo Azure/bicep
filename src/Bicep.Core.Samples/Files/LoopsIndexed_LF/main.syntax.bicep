@@ -226,7 +226,7 @@ resource storageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (
 //@[074:00292) | └─ForSyntax
 //@[074:00075) |   ├─Token(LeftSquare) |[|
 //@[075:00078) |   ├─Token(Identifier) |for|
-//@[079:00095) |   ├─ForVariableBlockSyntax
+//@[079:00095) |   ├─VariableBlockSyntax
 //@[079:00080) |   | ├─Token(LeftParen) |(|
 //@[080:00087) |   | ├─LocalVariableSyntax
 //@[080:00087) |   | | └─IdentifierSyntax
@@ -406,7 +406,7 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for (
 //@[074:00235) | └─ForSyntax
 //@[074:00075) |   ├─Token(LeftSquare) |[|
 //@[075:00078) |   ├─Token(Identifier) |for|
-//@[079:00086) |   ├─ForVariableBlockSyntax
+//@[079:00086) |   ├─VariableBlockSyntax
 //@[079:00080) |   | ├─Token(LeftParen) |(|
 //@[080:00081) |   | ├─LocalVariableSyntax
 //@[080:00081) |   | | └─IdentifierSyntax
@@ -528,7 +528,7 @@ resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for (i, i2) 
 //@[067:00246) | └─ForSyntax
 //@[067:00068) |   ├─Token(LeftSquare) |[|
 //@[068:00071) |   ├─Token(Identifier) |for|
-//@[072:00079) |   ├─ForVariableBlockSyntax
+//@[072:00079) |   ├─VariableBlockSyntax
 //@[072:00073) |   | ├─Token(LeftParen) |(|
 //@[073:00074) |   | ├─LocalVariableSyntax
 //@[073:00074) |   | | └─IdentifierSyntax
@@ -914,7 +914,7 @@ resource storageAccounts2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 //@[075:00290) | └─ForSyntax
 //@[075:00076) |   ├─Token(LeftSquare) |[|
 //@[076:00079) |   ├─Token(Identifier) |for|
-//@[080:00094) |   ├─ForVariableBlockSyntax
+//@[080:00094) |   ├─VariableBlockSyntax
 //@[080:00081) |   | ├─Token(LeftParen) |(|
 //@[081:00088) |   | ├─LocalVariableSyntax
 //@[081:00088) |   | | └─IdentifierSyntax
@@ -1031,7 +1031,7 @@ resource firstSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (i,ii) i
 //@[067:00243) | └─ForSyntax
 //@[067:00068) |   ├─Token(LeftSquare) |[|
 //@[068:00071) |   ├─Token(Identifier) |for|
-//@[072:00078) |   ├─ForVariableBlockSyntax
+//@[072:00078) |   ├─VariableBlockSyntax
 //@[072:00073) |   | ├─Token(LeftParen) |(|
 //@[073:00074) |   | ├─LocalVariableSyntax
 //@[073:00074) |   | | └─IdentifierSyntax
@@ -1143,7 +1143,7 @@ resource secondSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (i,iii)
 //@[068:00283) | └─ForSyntax
 //@[068:00069) |   ├─Token(LeftSquare) |[|
 //@[069:00072) |   ├─Token(Identifier) |for|
-//@[073:00080) |   ├─ForVariableBlockSyntax
+//@[073:00080) |   ├─VariableBlockSyntax
 //@[073:00074) |   | ├─Token(LeftParen) |(|
 //@[074:00075) |   | ├─LocalVariableSyntax
 //@[074:00075) |   | | └─IdentifierSyntax
@@ -1447,7 +1447,7 @@ resource vnets 'Microsoft.Network/virtualNetworks@2020-06-01' = [for (vnetConfig
 //@[064:00186) | └─ForSyntax
 //@[064:00065) |   ├─Token(LeftSquare) |[|
 //@[065:00068) |   ├─Token(Identifier) |for|
-//@[069:00088) |   ├─ForVariableBlockSyntax
+//@[069:00088) |   ├─VariableBlockSyntax
 //@[069:00070) |   | ├─Token(LeftParen) |(|
 //@[070:00080) |   | ├─LocalVariableSyntax
 //@[070:00080) |   | | └─IdentifierSyntax
@@ -1824,7 +1824,7 @@ module moduleCollectionWithSingleDependency 'passthrough.bicep' = [for (moduleNa
 //@[066:00275) | └─ForSyntax
 //@[066:00067) |   ├─Token(LeftSquare) |[|
 //@[067:00070) |   ├─Token(Identifier) |for|
-//@[071:00096) |   ├─ForVariableBlockSyntax
+//@[071:00096) |   ├─VariableBlockSyntax
 //@[071:00072) |   | ├─Token(LeftParen) |(|
 //@[072:00082) |   | ├─LocalVariableSyntax
 //@[072:00082) |   | | └─IdentifierSyntax
@@ -1930,7 +1930,7 @@ module moduleCollectionWithCollectionDependencies 'passthrough.bicep' = [for (mo
 //@[072:00306) | └─ForSyntax
 //@[072:00073) |   ├─Token(LeftSquare) |[|
 //@[073:00076) |   ├─Token(Identifier) |for|
-//@[077:00102) |   ├─ForVariableBlockSyntax
+//@[077:00102) |   ├─VariableBlockSyntax
 //@[077:00078) |   | ├─Token(LeftParen) |(|
 //@[078:00088) |   | ├─LocalVariableSyntax
 //@[078:00088) |   | | └─IdentifierSyntax
@@ -2147,7 +2147,7 @@ module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for (modul
 //@[069:00399) | └─ForSyntax
 //@[069:00070) |   ├─Token(LeftSquare) |[|
 //@[070:00073) |   ├─Token(Identifier) |for|
-//@[074:00099) |   ├─ForVariableBlockSyntax
+//@[074:00099) |   ├─VariableBlockSyntax
 //@[074:00075) |   | ├─Token(LeftParen) |(|
 //@[075:00085) |   | ├─LocalVariableSyntax
 //@[075:00085) |   | | └─IdentifierSyntax
@@ -2351,7 +2351,7 @@ resource existingStorageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' 
 //@[091:00174) | └─ForSyntax
 //@[091:00092) |   ├─Token(LeftSquare) |[|
 //@[092:00095) |   ├─Token(Identifier) |for|
-//@[096:00108) |   ├─ForVariableBlockSyntax
+//@[096:00108) |   ├─VariableBlockSyntax
 //@[096:00097) |   | ├─Token(LeftParen) |(|
 //@[097:00104) |   | ├─LocalVariableSyntax
 //@[097:00104) |   | | └─IdentifierSyntax
@@ -2570,7 +2570,7 @@ resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone,i)
 //@[067:00140) | └─ForSyntax
 //@[067:00068) |   ├─Token(LeftSquare) |[|
 //@[068:00071) |   ├─Token(Identifier) |for|
-//@[072:00080) |   ├─ForVariableBlockSyntax
+//@[072:00080) |   ├─VariableBlockSyntax
 //@[072:00073) |   | ├─Token(LeftParen) |(|
 //@[073:00077) |   | ├─LocalVariableSyntax
 //@[073:00077) |   | | └─IdentifierSyntax
@@ -2622,7 +2622,7 @@ resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [fo
 //@[077:00198) | └─ForSyntax
 //@[077:00078) |   ├─Token(LeftSquare) |[|
 //@[078:00081) |   ├─Token(Identifier) |for|
-//@[082:00090) |   ├─ForVariableBlockSyntax
+//@[082:00090) |   ├─VariableBlockSyntax
 //@[082:00083) |   | ├─Token(LeftParen) |(|
 //@[083:00087) |   | ├─LocalVariableSyntax
 //@[083:00087) |   | | └─IdentifierSyntax
@@ -2718,7 +2718,7 @@ module apim 'passthrough.bicep' = [for (region, i) in regions: {
 //@[034:00141) | └─ForSyntax
 //@[034:00035) |   ├─Token(LeftSquare) |[|
 //@[035:00038) |   ├─Token(Identifier) |for|
-//@[039:00050) |   ├─ForVariableBlockSyntax
+//@[039:00050) |   ├─VariableBlockSyntax
 //@[039:00040) |   | ├─Token(LeftParen) |(|
 //@[040:00046) |   | ├─LocalVariableSyntax
 //@[040:00046) |   | | └─IdentifierSyntax
@@ -2854,7 +2854,7 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
 //@[020:00537) |   |   |   |   |   | └─ForSyntax
 //@[020:00021) |   |   |   |   |   |   ├─Token(LeftSquare) |[|
 //@[021:00024) |   |   |   |   |   |   ├─Token(Identifier) |for|
-//@[025:00034) |   |   |   |   |   |   ├─ForVariableBlockSyntax
+//@[025:00034) |   |   |   |   |   |   ├─VariableBlockSyntax
 //@[025:00026) |   |   |   |   |   |   | ├─Token(LeftParen) |(|
 //@[026:00031) |   |   |   |   |   |   | ├─LocalVariableSyntax
 //@[026:00031) |   |   |   |   |   |   | | └─IdentifierSyntax
@@ -3013,7 +3013,7 @@ resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05
 //@[087:00771) | └─ForSyntax
 //@[087:00088) |   ├─Token(LeftSquare) |[|
 //@[088:00091) |   ├─Token(Identifier) |for|
-//@[092:00102) |   ├─ForVariableBlockSyntax
+//@[092:00102) |   ├─VariableBlockSyntax
 //@[092:00093) |   | ├─Token(LeftParen) |(|
 //@[093:00098) |   | ├─LocalVariableSyntax
 //@[093:00098) |   | | └─IdentifierSyntax
@@ -3471,7 +3471,7 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
 //@[089:00861) | └─ForSyntax
 //@[089:00090) |   ├─Token(LeftSquare) |[|
 //@[090:00093) |   ├─Token(Identifier) |for|
-//@[094:00103) |   ├─ForVariableBlockSyntax
+//@[094:00103) |   ├─VariableBlockSyntax
 //@[094:00095) |   | ├─Token(LeftParen) |(|
 //@[095:00100) |   | ├─LocalVariableSyntax
 //@[095:00100) |   | | └─IdentifierSyntax

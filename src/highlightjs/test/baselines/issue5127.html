@@ -1,4 +1,8 @@
 
+<!--
+  Preview this file by prepending http://htmlpreview.github.io/? to its URL
+  e.g. http://htmlpreview.github.io/?https://raw.githubusercontent.com/Azure/bicep/main/src/highlightjs/test/baselines/issue5127.html
+-->
 <html>
   <head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
@@ -163,10 +167,10 @@
     <span class="hljs-property">accessTier</span>: <span class="hljs-string">&#x27;Hot&#x27;</span>
   }
 
-  <span class="hljs-property">resource</span> <span class="hljs-property">blobServices</span> <span class="hljs-string">&#x27;blobServices&#x27;</span> <span class="hljs-property">existing</span> = {
+  <span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">blobServices</span> <span class="hljs-string">&#x27;blobServices&#x27;</span> <span class="hljs-variable"><span class="hljs-keyword">existing</span></span> = {
     <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;default&#x27;</span>
 
-    <span class="hljs-property">resource</span> <span class="hljs-property">containers</span> <span class="hljs-string">&#x27;containers&#x27;</span> = [<span class="hljs-property">for</span> <span class="hljs-property">blobContainerName</span> <span class="hljs-property">in</span> <span class="hljs-property">blobContainerNames</span>: {
+    <span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">containers</span> <span class="hljs-string">&#x27;containers&#x27;</span> = [<span class="hljs-variable"><span class="hljs-keyword">for</span></span> <span class="hljs-variable">blobContainerName</span> <span class="hljs-variable"><span class="hljs-keyword">in</span></span> <span class="hljs-property">blobContainerNames</span>: {
       <span class="hljs-property">name</span>: <span class="hljs-variable">blobContainerName</span>
     }]
   }

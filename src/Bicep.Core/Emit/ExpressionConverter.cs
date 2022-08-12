@@ -149,7 +149,7 @@ namespace Bicep.Core.Emit
                                 instanceFunctionCall.Name.IdentifierName,
                                 instanceFunctionCall.Arguments.Select(a => ConvertExpression(a.Expression)));
                         case DeclaredSymbol declaredSymbol when context.SemanticModel.ResourceMetadata.TryLookup(declaredSymbol.DeclaringSyntax) is DeclaredResourceMetadata resource:
-                            if (instanceFunctionCall.Name.IdentifierName.StartsWithOrdinalInsensitively("list"))
+                            if (instanceFunctionCall.Name.IdentifierName.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix))
                             {
                                 var converter = indexExpression is not null ?
                                     CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, instanceFunctionCall) :
@@ -628,17 +628,12 @@ namespace Bicep.Core.Emit
 
                 switch (inaccessibleLocalLoops.Count)
                 {
-                    case 0 when i == startingAncestorIndex:
+                    case 0:
                         /*
-                         * There are no local vars to replace. It is impossible for a local var to be introduced at the next level
-                         * so we can just bail out with the result.
-                         *
-                         * This path is followed by non-loop resources.
-                         *
-                         * Case 0 is not possible for non-starting ancestor index because
-                         * once we have a local variable replacement, it will propagate to the next levels
+                         * Hardcoded index expression resulted in no more local vars to replace.
+                         * We can just bail out with the result.
                          */
-                        return ancestor.Resource.NameSyntax;
+                        return rewritten;
 
                     case 1 when ancestor.IndexExpression is not null:
                         if (LocalSymbolDependencyVisitor.GetLocalSymbolDependencies(this.context.SemanticModel, rewritten).SingleOrDefault(s => s.LocalKind == LocalKind.ForExpressionItemVariable) is { } loopItemSymbol)

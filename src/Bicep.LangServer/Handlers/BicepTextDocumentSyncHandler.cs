@@ -80,7 +80,7 @@ namespace Bicep.LanguageServer.Handlers
             }
             else
             {
-                this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
+                this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId, triggeredByFileOpenEvent: true);
             }
 
             return Unit.Task;

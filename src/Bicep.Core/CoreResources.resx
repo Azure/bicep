@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!--
-    Microsoft ResX Schema
-
+  <!-- 
+    Microsoft ResX Schema 
+    
     Version 2.0
-
-    The primary goals of this format is to allow a simple XML format
-    that is mostly human readable. The generation and parsing of the
-    various data types are done through the TypeConverter classes
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
     associated with the data types.
-
+    
     Example:
-
+    
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-
-    There are any number of "resheader" rows that contain simple
+                
+    There are any number of "resheader" rows that contain simple 
     name/value pairs.
-
-    Each data row contains a name, and value. The row also contains a
-    type or mimetype. Type corresponds to a .NET class that support
-    text/value conversion through the TypeConverter architecture.
-    Classes that don't support this are serialized and stored with the
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
     mimetype set.
-
-    The mimetype is used for serialized objects, and tells the
-    ResXResourceReader how to depersist the object. This is currently not
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
     extensible. For a given mimetype the value must be set accordingly:
-
-    Note - application/x-microsoft.net.object.binary.base64 is the format
-    that the ResXResourceWriter will generate, however the reader can
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
     read any of the formats listed below.
-
+    
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-
+    
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with
+    value   : The object must be serialized with 
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array
+    value   : The object must be serialized into a byte array 
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -117,6 +117,26 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="ArtifactsLocationRule_Error_ParamMissing" xml:space="preserve">
+    <value>If an '{0}' parameter is provided, an '{1}' parameter must also be provided.</value>
+    <comment>{0} and {1} are programmatic parameter names (either '_artifactsLocation' or '_artifactsLocationSasToken')</comment>
+  </data>
+  <data name="ArtifactsLocationRule_Error_MissingUnderscore" xml:space="preserve">
+    <value>The artifacts parameter '{0}' must start with an underscore.</value>
+    <comment>{0} = parameter name</comment>
+  </data>
+  <data name="ArtifactsLocationRule_FixTitle_ChangeType" xml:space="preserve">
+    <value>Change parameter type to '{0}'</value>
+    <comment>{0} = type name</comment>
+  </data>
+  <data name="ArtifactsLocationRule_Error_ParamMustBeType" xml:space="preserve">
+    <value>Artifacts parameter '{0}' must be of type '{1}'</value>
+    <comment>{0}, parameter name, {1} = type name</comment>
+  </data>
+  <data name="ArtifactsLocationRule_Error_ParamMustBeSecure" xml:space="preserve">
+    <value>Artifacts parameter '{0}' must use the @secure() attribute</value>
+    <comment>{0}, parameter name</comment>
+  </data>
   <data name="BicepConfigCustomSettingsFoundFormatMessage" xml:space="preserve">
     <value>Custom bicepconfig.json file found ({0}).</value>
     <comment>message to indicate that a custom settings file was found {0} is the file location</comment>
@@ -293,15 +313,57 @@
   <data name="MaxNumberResourcesRuleMessageFormat" xml:space="preserve">
     <value>Too many resources. Number of resources is limited to {0}.</value>
   </data>
-  <data name="PreferUnquotedPropertyNamesDeclarationFixTitle" xml:space="preserve">
-    <value>Remove quotes from property name '{0}'.</value>
+  <data name="PreferUnquotedPropertyNames_DeclarationFixTitle" xml:space="preserve">
+    <value>Remove quotes from property name '{0}'</value>
     <comment>{0} is the property name</comment>
   </data>
-  <data name="PreferUnquotedPropertyNamesDereferenceFixTitle" xml:space="preserve">
-    <value>Replace array syntax with '{0}'.</value>
+  <data name="PreferUnquotedPropertyNames_DereferenceFixTitle" xml:space="preserve">
+    <value>Replace array syntax with '{0}'</value>
     <comment>{0} is a programmatic language expression</comment>
   </data>
-  <data name="PreferUnquotedPropertyNamesRuleDescription" xml:space="preserve">
+  <data name="PreferUnquotedPropertyNamesRule_Description" xml:space="preserve">
     <value>Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation.</value>
+  </data>
+  <data name="SecretsInParamsRule_Description" xml:space="preserve">
+    <value>Parameters that represent secrets must be secure.</value>
+  </data>
+  <data name="SecretsInParamsRule_MessageFormat" xml:space="preserve">
+    <value>Parameter '{0}' may represent a secret (according to its name) and must be declared with the '@secure()' attribute.</value>
+  </data>
+  <data name="SecureParamsInNestedDeployRule_Description" xml:space="preserve">
+    <value>Outer-scoped nested deployment resources should not be used for secure parameters or list* functions.</value>
+  </data>
+  <data name="SecureParamsInNestedDeployRule_Message_SecureParams" xml:space="preserve">
+    <value>'{0}' is an outer scoped nested deployment that accesses secure string parameters ({1}), which could expose their values in deployment history.</value>
+    <comment>{0} = programmatic name, {1} = comma-separated list of programmatic names</comment>
+  </data>
+  <data name="SecureParamsInNestedDeployRule_Message_ListFunction" xml:space="preserve">
+    <value>'{0}' is an outer scoped nested deployment that calls a list* function ("{1}"), which could expose sensitive values in deployment history.</value>
+    <comment>{0} = programmatic name, {1} = programmatic name</comment>
+  </data>
+  <data name="SecureParamsInNestedDeployRule_Solution" xml:space="preserve">
+    <value>Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.</value>
+  </data>
+  <data name="UseStableResourceIdentifiersMessage" xml:space="preserve">
+    <value>Resource identifiers should be reproducible outside of their initial deployment context. </value>
+  </data>
+  <data name="UseStableResourceIdentifiersMessageFormat" xml:space="preserve">
+    <value>Resource identifiers should be reproducible outside of their initial deployment context. Resource {0}'s '{1}' identifier is potentially nondeterministic due to its use of the '{2}' function ({3}).</value>
+    <comment>{0} is the symbolic name of the resource. {1} is the name of the identifier property. {2} is the name of the nondeterministic function used. {3} is the symbol dereference path by which the nondeterministic function call is included.</comment>
+  </data>
+  <data name="UseRecentApiVersionRule_Description" xml:space="preserve">
+    <value>Use recent API versions</value>
+  </data>
+  <data name="UseRecentApiVersionRule_ErrorMessageFormat" xml:space="preserve">
+    <value>Use more recent API version for '{0}'.</value>
+    <comment>{0} = fully-qualified resource type name (programmatic).</comment>
+  </data>
+  <data name="UseRecentApiVersionRule_AcceptableVersions" xml:space="preserve">
+    <value>Acceptable versions: {0}</value>
+    <comment>{0}: list of acceptable values</comment>
+  </data>
+  <data name="UseRecentApiVersionRule_Fix_ReplaceApiVersion" xml:space="preserve">
+    <value>Replace with {0}</value>
+    <comment>{0} a programmatic apiVersion, format=yyyy-mm-dd-suffix</comment>
   </data>
 </root>

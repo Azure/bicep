@@ -13,12 +13,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class SimplifyInterpolationRuleTests : LinterRuleTestsBase
     {
-        private void ExpectPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        private void ExpectPass(string text, Options? options = null)
         {
-            AssertLinterRuleDiagnostics(SimplifyInterpolationRule.Code, text, onCompileErrors, diags =>
-           {
-               diags.Should().HaveCount(0, $"expecting linter rule to pass");
-           });
+            AssertLinterRuleDiagnostics(SimplifyInterpolationRule.Code, text, diags =>
+                {
+                    diags.Should().HaveCount(0, $"expecting linter rule to pass");
+                },
+                options);
         }
 
         private void ExpectDiagnosticWithFix(string text, string expectedFix)
@@ -283,7 +284,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void SyntaxErrors_ExpectNoFixes(string text)
         {
-            ExpectPass(text, OnCompileErrors.Ignore);
+            ExpectPass(text, new Options(OnCompileErrors.Ignore));
         }
     }
 }

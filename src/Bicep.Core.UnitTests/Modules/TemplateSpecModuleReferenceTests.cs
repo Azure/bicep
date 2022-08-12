@@ -58,7 +58,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void TryParse_InvalidReference_ReturnsNullAndSetsFailureBuilder(string rawValue)
         {
-            var parsed = TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder);
+            var parsed = TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, out var failureBuilder);
 
             parsed.Should().BeNull();
             ((object?)failureBuilder).Should().NotBeNull();
@@ -215,7 +215,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static TemplateSpecModuleReference Parse(string rawValue)
         {
-            var parsed = TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder);
+            var parsed = TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, out var failureBuilder);
 
             parsed.Should().NotBeNull();
             ((object?)failureBuilder).Should().BeNull();

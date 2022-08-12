@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 using System;
 using Bicep.Core.Parsing;
-using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
@@ -39,24 +37,5 @@ namespace Bicep.Core.Syntax
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitObjectPropertySyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.Key, this.Value);
-
-        public TypeProperty? TryGetTypeProperty(IBinder binder, ITypeManager typeManager)
-        {
-            if (this.TryGetKeyText() is not string propertyName || binder.GetParent(this) is not ObjectSyntax objectSyntax)
-            {
-                return null;
-            }
-
-            // Cannot use assigned type here because it won't handle the case where the propery value
-            // is an array accesss or a string interpolation.
-            return typeManager.GetDeclaredType(objectSyntax) switch
-            {
-                ObjectType { Properties: var properties }
-                    when properties.TryGetValue(propertyName, out var typeProperty) => typeProperty,
-                DiscriminatedObjectType { DiscriminatorKey: var discriminatorKey, DiscriminatorProperty: var typeProperty }
-                    when propertyName.Equals(discriminatorKey, LanguageConstants.IdentifierComparison) => typeProperty,
-                _ => null,
-            };
-        }
     }
 }

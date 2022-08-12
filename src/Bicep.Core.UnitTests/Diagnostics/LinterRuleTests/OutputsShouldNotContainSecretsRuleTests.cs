@@ -11,7 +11,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         private void CompileAndTest(string text, OnCompileErrors onCompileErrors, string[] expectedMessages)
         {
-            AssertLinterRuleDiagnostics(OutputsShouldNotContainSecretsRule.Code, text, expectedMessages, onCompileErrors);
+            AssertLinterRuleDiagnostics(OutputsShouldNotContainSecretsRule.Code, text, expectedMessages, new Options(onCompileErrors, IncludePosition.None));
         }
 
         const string description = "Outputs should not contain secrets.";
@@ -52,7 +52,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void If_OutputReferencesSecureParam_ShouldFail(string text, params string[] expectedMessages)
         {
-            CompileAndTest(text, OnCompileErrors.Fail, expectedMessages);
+            CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages);
         }
 
         [DataRow(@"
@@ -76,7 +76,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void If_ParamNotSecure_ShouldPass(string text, params string[] expectedMessages)
         {
-            CompileAndTest(text, OnCompileErrors.Fail, expectedMessages);
+            CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages);
         }
 
         [DataRow(@"

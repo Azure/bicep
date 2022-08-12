@@ -77,7 +77,7 @@ namespace Bicep.Core.Semantics
                 foreach (var param in this.Root.ParameterDeclarations.DistinctBy(p => p.Name))
                 {
                     var description = SemanticModelHelper.TryGetDescription(this, param.DeclaringParameter);
-                    var isRequired =  SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null;
+                    var isRequired = SyntaxHelper.TryGetDefaultValue(param.DeclaringParameter) == null;
                     if (param.Type is ResourceType resourceType)
                     {
                         // Resource type parameters are a special case, we need to convert to a dedicated
@@ -257,20 +257,23 @@ namespace Bicep.Core.Semantics
 
         /// <summary>
         /// Returns all syntax nodes that represent a reference to the specified symbol. This includes the definitions of the symbol as well.
-        /// Unusued declarations will return 1 result. Unused and undeclared symbols (functions, namespaces, for example) may return an empty list.
+        /// Unused declarations will return 1 result. Unused and undeclared symbols (functions, namespaces, for example) may return an empty list.
         /// </summary>
         /// <param name="symbol">The symbol</param>
         public IEnumerable<SyntaxBase> FindReferences(Symbol symbol)
-            => SyntaxAggregator.Aggregate(this.SourceFile.ProgramSyntax, new List<SyntaxBase>(), (accumulated, current) =>
-                {
-                    if (object.ReferenceEquals(symbol, this.GetSymbolInfo(current)))
-                    {
-                        accumulated.Add(current);
-                    }
+            => FindReferences(symbol, this.SourceFile.ProgramSyntax);
 
-                    return accumulated;
-                },
-                accumulated => accumulated);
+        /// <summary>
+        /// Returns all syntax nodes that represent a reference to the specified symbol in the given syntax tree.  This includes the definitions
+        /// of the symbol as well, if inside the given syntax tree.
+        /// </summary>
+        /// <param name="symbol">The symbol</param>
+        /// <param name="syntaxTree">The syntax tree to traverse</param>
+        public IEnumerable<SyntaxBase> FindReferences(Symbol symbol, SyntaxBase syntaxTree)
+            => SyntaxAggregator.Aggregate(syntaxTree, current =>
+            {
+                return object.ReferenceEquals(symbol, this.GetSymbolInfo(current));
+            });
 
         private ImmutableArray<ResourceMetadata> GetAllResourceMetadata()
         {

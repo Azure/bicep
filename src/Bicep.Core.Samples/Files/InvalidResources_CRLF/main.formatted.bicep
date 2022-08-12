@@ -1034,27 +1034,27 @@ resource expectedComma 'Microsoft.Network/dnsZones@2018-05-01' = [for (x)]
 
 resource expectedLoopIndexName 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, )]
 
-resource expectedInKeyword3 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)]
+resource expectedInKeyword3 'Microsoft.Network/dnsZones@2018-05-01' = [for (x,  y)]
 
-resource expectedInKeyword4 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) z]
+resource expectedInKeyword4 'Microsoft.Network/dnsZones@2018-05-01' = [for (x,  y) z]
 
-resource expectedArrayExpression2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in ]
+resource expectedArrayExpression2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x,  y) in ]
 
-resource expectedColon2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z]
+resource expectedColon2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x,  y) in z]
 
-resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z:]
+resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x,  y) in z:]
 
 // loop filter parsing cases
 resource expectedLoopFilterOpenParen 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if]
-resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if]
+resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x,  y) in z: if]
 
 resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if()]
-resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if()]
+resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x,  y) in z: if()]
 
 // wrong body type
 var emptyArray = []
 resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray:4]
-resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
+resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x , i) in emptyArray:4]
 
 // duplicate variable in the same scope
 resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
@@ -1267,10 +1267,10 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
 @batchSize(-1)
 resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
-resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: 'test']
-resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: environment()]
-resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) 'test']
-resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) environment()]
+resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing, i) in []: 'test']
+resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing, i) in []: environment()]
+resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing, i) in []: if(true) 'test']
+resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing, i) in []: if(true) environment()]
 
 // #completionTest(54,55) -> objectPlusFor
 resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 

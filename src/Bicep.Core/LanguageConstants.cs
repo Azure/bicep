@@ -82,6 +82,8 @@ namespace Bicep.Core
         public const string FalseKeyword = "false";
         public const string NullKeyword = "null";
 
+        public const string ListFunctionPrefix = "list";
+
         public static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
         {
             [TrueKeyword] = TokenType.TrueKeyword,

@@ -10,6 +10,7 @@ using Bicep.Core.Features;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Workspaces;
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 
 namespace Bicep.Core.Semantics
 {
@@ -17,20 +18,16 @@ namespace Bicep.Core.Semantics
     {
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
 
-        public Compilation(IFeatureProvider features, INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, RootConfiguration configuration, IBicepAnalyzer linterAnalyzer, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
-        { 
-        /*
-        1 - duplicate this class (avoid conflicts with main)
-        2 - fit info about bicep params file in here (linkage already present)
-        */
+        public Compilation(IFeatureProvider features, INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, RootConfiguration configuration, IApiVersionProvider apiVersionProvider, IBicepAnalyzer linterAnalyzer, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+        {
             this.Features = features;
             this.SourceFileGrouping = sourceFileGrouping;
             this.NamespaceProvider = namespaceProvider;
             this.Configuration = configuration;
+            this.ApiVersionProvider = apiVersionProvider;
 
             var fileResolver = SourceFileGrouping.FileResolver;
 
-            //copy of this for params file
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile,
                 sourceFile => (modelLookup is not null && modelLookup.TryGetValue(sourceFile, out var existingModel)) ?
@@ -43,6 +40,8 @@ namespace Bicep.Core.Semantics
                         _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
                     }));
         }
+
+        public IApiVersionProvider ApiVersionProvider { get; }
 
         public RootConfiguration Configuration { get; }
 

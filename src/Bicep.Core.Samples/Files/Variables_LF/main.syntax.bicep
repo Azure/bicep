@@ -2401,7 +2401,7 @@ var arrayOfStringsViaLoop = [for (name, i) in loopInput: 'prefix-${i}-${name}']
 //@[028:0079) | └─ForSyntax
 //@[028:0029) |   ├─Token(LeftSquare) |[|
 //@[029:0032) |   ├─Token(Identifier) |for|
-//@[033:0042) |   ├─ForVariableBlockSyntax
+//@[033:0042) |   ├─VariableBlockSyntax
 //@[033:0034) |   | ├─Token(LeftParen) |(|
 //@[034:0038) |   | ├─LocalVariableSyntax
 //@[034:0038) |   | | └─IdentifierSyntax
@@ -2437,7 +2437,7 @@ var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
 //@[028:0123) | └─ForSyntax
 //@[028:0029) |   ├─Token(LeftSquare) |[|
 //@[029:0032) |   ├─Token(Identifier) |for|
-//@[033:0042) |   ├─ForVariableBlockSyntax
+//@[033:0042) |   ├─VariableBlockSyntax
 //@[033:0034) |   | ├─Token(LeftParen) |(|
 //@[034:0038) |   | ├─LocalVariableSyntax
 //@[034:0038) |   | | └─IdentifierSyntax
@@ -2502,7 +2502,7 @@ var arrayOfArraysViaLoop = [for (name, i) in loopInput: [
 //@[027:0102) | └─ForSyntax
 //@[027:0028) |   ├─Token(LeftSquare) |[|
 //@[028:0031) |   ├─Token(Identifier) |for|
-//@[032:0041) |   ├─ForVariableBlockSyntax
+//@[032:0041) |   ├─VariableBlockSyntax
 //@[032:0033) |   | ├─Token(LeftParen) |(|
 //@[033:0037) |   | ├─LocalVariableSyntax
 //@[033:0037) |   | | └─IdentifierSyntax
@@ -2558,7 +2558,7 @@ var arrayOfBooleans = [for (name, i) in loopInput: i % 2 == 0]
 //@[022:0062) | └─ForSyntax
 //@[022:0023) |   ├─Token(LeftSquare) |[|
 //@[023:0026) |   ├─Token(Identifier) |for|
-//@[027:0036) |   ├─ForVariableBlockSyntax
+//@[027:0036) |   ├─VariableBlockSyntax
 //@[027:0028) |   | ├─Token(LeftParen) |(|
 //@[028:0032) |   | ├─LocalVariableSyntax
 //@[028:0032) |   | | └─IdentifierSyntax

@@ -67,7 +67,7 @@ namespace Bicep.Core.IntegrationTests
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
-            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
             diagnostics.Should().HaveCount(1);
 
@@ -171,7 +171,7 @@ namespace Bicep.Core.IntegrationTests
 
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(new FileResolver(), clientFactory, templateSpecRepositoryFactory, features.Object));
 
-            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var moduleReferences = dataSet.RegistryModules.Values
                 .OrderBy(m => m.Metadata.Target)
                 .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, configuration, out _) ?? throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
@@ -223,7 +223,7 @@ namespace Bicep.Core.IntegrationTests
             FileResolver fileResolver = new FileResolver();
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object));
 
-            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
                 .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, configuration, out _) ?? throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
@@ -292,7 +292,7 @@ namespace Bicep.Core.IntegrationTests
             FileResolver fileResolver = new FileResolver();
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object));
 
-            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
                 .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, configuration, out _) ?? throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
@@ -368,7 +368,7 @@ namespace Bicep.Core.IntegrationTests
             FileResolver fileResolver = new FileResolver();
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object));
 
-            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
                 .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, configuration, out _) ?? throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))

@@ -48,9 +48,9 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static readonly SharedLanguageHelperManager DefaultServer = new();
 
-        private static readonly SharedLanguageHelperManager ServerWithBuiltInTypesImportsEnabled = new();
+        private static readonly SharedLanguageHelperManager ServerWithImportsEnabled = new();
 
-        private static readonly SharedLanguageHelperManager ServerWithBuiltInTypesImportsDisabled = new();
+        private static readonly SharedLanguageHelperManager ServerWithBuiltInTypes = new();
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -80,15 +80,15 @@ namespace Bicep.LangServer.IntegrationTests
 
             DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
-            ServerWithBuiltInTypesImportsEnabled.Initialize(
+            ServerWithImportsEnabled.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
-                    new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), Features: BicepTestConstants.CreateFeaturesProvider(testContext, importsEnabled: true))));
+                    new LanguageServer.Server.CreationOptions(Features: BicepTestConstants.CreateFeaturesProvider(testContext, importsEnabled: true))));
 
-            ServerWithBuiltInTypesImportsDisabled.Initialize(
+            ServerWithBuiltInTypes.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
-                    new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), Features: BicepTestConstants.CreateFeaturesProvider(testContext, importsEnabled: false))));
+                    new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create())));
         }
 
         [ClassCleanup]
@@ -97,8 +97,8 @@ namespace Bicep.LangServer.IntegrationTests
             await ServerWithNamespaceProvider.DisposeAsync();
             await ServerWithNamespaceAndTestResolver.DisposeAsync();
             await DefaultServer.DisposeAsync();
-            await ServerWithBuiltInTypesImportsEnabled.DisposeAsync();
-            await ServerWithBuiltInTypesImportsDisabled.DisposeAsync();
+            await ServerWithImportsEnabled.DisposeAsync();
+            await ServerWithBuiltInTypes.DisposeAsync();
         }
 
         [TestMethod]
@@ -129,7 +129,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidateSnippetCompletionAfterPlaceholderReplacements(CompletionData completionData)
         {
-            string pathPrefix = $"Completions/SnippetTemplates/{completionData.Prefix}";
+            string pathPrefix = $"Files/SnippetTemplates/{completionData.Prefix}";
 
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(CompletionTests).Assembly, pathPrefix);
 
@@ -162,7 +162,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     [combinedFileUri] = bicepContentsReplaced,
                 }, combinedFileUri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration);
-                var compilation = new Compilation(BicepTestConstants.Features, NamespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+                var compilation = new Compilation(BicepTestConstants.Features, NamespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInConfiguration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
                 var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
                 var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContentsReplaced, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepContentsReplaced, outputDirectory, diag));
@@ -252,7 +252,7 @@ hel|lo
 '''|
 ";
 
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, AssertAllCompletionsEmpty);
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsEmpty);
         }
 
         [TestMethod]
@@ -262,7 +262,7 @@ hel|lo
 var interpolatedString = 'abc${|true}def${|}ghi${res|}xyz'
 ";
 
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, AssertAllCompletionsNonEmpty);
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsNonEmpty);
         }
 
         [TestMethod]
@@ -273,7 +273,7 @@ var test = |// comment here
 var test2 = |/* block comment */|
 ";
 
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, AssertAllCompletionsNonEmpty);
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsNonEmpty);
         }
 
         [TestMethod]
@@ -289,7 +289,7 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = {|
 output baz object = {|
 ";
 
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, AssertAllCompletionsEmpty);
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsEmpty);
         }
 
         [TestMethod]
@@ -300,7 +300,7 @@ var test = /|/ comment here|
 var test2 = /|* block c|omment *|/
 ";
 
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, AssertAllCompletionsEmpty);
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsEmpty);
         }
 
         [TestMethod]
@@ -574,7 +574,7 @@ output string test2 = testRes.properties.|
 
             await RunCompletionScenarioTest(
                 this.TestContext,
-                ServerWithBuiltInTypesImportsDisabled,
+                ServerWithBuiltInTypes,
                 fileWithCursors,
                 completions =>
                     completions.Should().SatisfyRespectively(
@@ -610,7 +610,7 @@ output string test2 = testRes.properties.|
 
             await RunCompletionScenarioTest(
                 this.TestContext,
-                ServerWithBuiltInTypesImportsDisabled,
+                ServerWithBuiltInTypes,
                 fileWithCursors,
                 completions =>
                     completions.Should().SatisfyRespectively(
@@ -661,7 +661,7 @@ resource testRes5 'Test.Rp/readWriteTests@2020-01-01' |= {
 
 
             await RunCompletionScenarioTest(this.TestContext,
-                ServerWithBuiltInTypesImportsDisabled,
+                ServerWithBuiltInTypes,
                 fileWithCursors,
                 completions =>
                     completions.Should().SatisfyRespectively(
@@ -713,7 +713,7 @@ resource base64 'Microsoft.Foo/foos@2020-09-01' existing | {}
 
             await RunCompletionScenarioTest(
                 this.TestContext,
-                ServerWithBuiltInTypesImportsDisabled,
+                ServerWithBuiltInTypes,
                     fileWithCursors,
                 completions =>
                         completions.Should().SatisfyRespectively(
@@ -751,7 +751,7 @@ resource testRes2 'Test.Rp/readWriteTests@2020-01-01' = {
 
             await RunCompletionScenarioTest(
                 this.TestContext,
-                ServerWithBuiltInTypesImportsDisabled,
+                ServerWithBuiltInTypes,
                 fileWithCursors,
                 completions =>
                 completions.Should().SatisfyRespectively(
@@ -781,7 +781,7 @@ resource testRes3 'Test.Rp/readWriteTests@2020-01-01' = {
 
             await RunCompletionScenarioTest(
                 this.TestContext,
-                ServerWithBuiltInTypesImportsDisabled,
+                ServerWithBuiltInTypes,
                 fileWithCursors,
                 completions =>
                    completions.Should().SatisfyRespectively(
@@ -800,7 +800,7 @@ resource myRes 'Test.Rp/readWriteTests@2020-01-01' = {|
   }
 |}
 ";
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, AssertAllCompletionsEmpty);
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsEmpty);
         }
 
         [TestMethod]
@@ -823,7 +823,7 @@ resource myRes 'Test.Rp/readWriteTests@2020-01-01' = {
                 }
             }
 
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, AssertAllCompletionsContainResourceLabel);
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsContainResourceLabel);
         }
 
         [TestMethod]
@@ -836,7 +836,7 @@ resource myRes 'Test.Rp/readWriteTests@2020-01-01' = {
   name: 'myRes'
 }
 ";
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, AssertAllCompletionsEmpty);
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsEmpty);
         }
 
         [TestMethod]
@@ -854,7 +854,7 @@ var obj6 = { |
   prop  | : false
  |  }
 ";
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, AssertAllCompletionsEmpty);
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsEmpty);
         }
 
         [TestMethod]
@@ -873,7 +873,7 @@ var arr6 = [ |
   |  true
 | ]
 ";
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, AssertAllCompletionsEmpty);
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsEmpty);
         }
 
         [TestMethod]
@@ -884,7 +884,7 @@ var unary = |! | true
 var binary = -1 | |+| | 2
 var ternary = true | |?| | 'yes' | |:| | 'no'
 ";
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, AssertAllCompletionsEmpty);
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsEmpty);
         }
 
         [TestMethod]
@@ -894,7 +894,7 @@ var ternary = true | |?| | 'yes' | |:| | 'no'
 |param foo string
 v|ar expr = 1 + 2
 ";
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, AssertAllCompletionsEmpty);
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsEmpty);
         }
 
         [TestMethod]
@@ -913,7 +913,7 @@ resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
   }
 }
 ";
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, AssertAllCompletionsEmpty);
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsEmpty);
         }
 
 
@@ -925,7 +925,7 @@ var booleanExp = !|tr|ue| && |fal|se|
 var integerExp = |12|345| + |543|21|
 var nullLit = |n|ull|
 ";
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, AssertAllCompletionsEmpty);
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, AssertAllCompletionsEmpty);
         }
 
         [TestMethod]
@@ -1063,7 +1063,8 @@ module mod2 './|' = {}
         [TestMethod]
         public async Task VerifyCompletionRequestWithinResourceDeclarationReturnsSnippets()
         {
-            string fileWithCursors = @"resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
+            string fileWithCursors = @"#disable-next-line use-recent-api-versions
+resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
   name: 'name'
   location: resourceGroup().location
   |
@@ -1098,6 +1099,10 @@ module mod2 './|' = {}
                         x =>
                         {
                             x.Label.Should().Be("res-automation-job-schedule");
+                        },
+                        x =>
+                        {
+                            x.Label.Should().Be("res-automation-module");
                         },
                         x =>
                         {
@@ -1164,16 +1169,16 @@ import ns3 as|
 import |
 import a|
 ";
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsEnabled, fileWithCursors, completions => completions.Should().SatisfyRespectively(
+            await RunCompletionScenarioTest(this.TestContext, ServerWithImportsEnabled, fileWithCursors, completions => completions.Should().SatisfyRespectively(
                 c => c!.Select(x => x.Label).Should().Contain("import"),
                 c => c!.Select(x => x.Label).Should().Equal("as"),
                 c => c!.Select(x => x.Label).Should().Equal("as"),
                 c => c!.Select(x => x.Label).Should().BeEmpty(),
-                c => c!.Select(x => x.Label).Should().Equal("az", "sys"),
-                c => c!.Select(x => x.Label).Should().Equal("az", "sys")
+                c => c!.Select(x => x.Label).Should().Equal("az", "kubernetes", "sys"),
+                c => c!.Select(x => x.Label).Should().Equal("az", "kubernetes", "sys")
             ));
 
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypesImportsDisabled, fileWithCursors, completions => completions.Should().SatisfyRespectively(
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, completions => completions.Should().SatisfyRespectively(
                 c => c!.Select(x => x.Label).Should().NotContain("import"),
                 c => c!.Select(x => x.Label).Should().BeEmpty(),
                 c => c!.Select(x => x.Label).Should().BeEmpty(),
@@ -1181,6 +1186,66 @@ import a|
                 c => c!.Select(x => x.Label).Should().BeEmpty(),
                 c => c!.Select(x => x.Label).Should().BeEmpty()
             ));
+        }
+
+        [TestMethod]
+        public async Task Import_configuration_completions_work()
+        {
+            {
+                var fileWithCursors = @"
+import kubernetes as k8s |
+";
+
+                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+                var file = await new ServerRequestHelper(TestContext, ServerWithImportsEnabled).OpenFile(text);
+
+                var completions = await file.RequestCompletion(cursor);
+                completions.Should().Contain(x => x.Label == "{}");
+                completions.Should().Contain(x => x.Label == "required-properties");
+
+                var updatedFile = file.ApplyCompletion(completions, "required-properties");
+                updatedFile.Should().HaveSourceText(@"
+import kubernetes as k8s {
+  kubeConfig: $1
+  namespace: $2
+}|
+");
+            }
+
+            {
+                var fileWithCursors = @"
+import kubernetes as k8s {
+  |
+}
+";
+
+                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+                var file = await new ServerRequestHelper(TestContext, ServerWithImportsEnabled).OpenFile(text);
+
+                var completions = await file.RequestCompletion(cursor);
+                completions.Should().Contain(x => x.Label == "namespace");
+                completions.Should().Contain(x => x.Label == "kubeConfig");
+
+                var updatedFile = file.ApplyCompletion(completions, "kubeConfig");
+                updatedFile.Should().HaveSourceText(@"
+import kubernetes as k8s {
+  kubeConfig:|
+}
+");
+            }
+
+            {
+                // az provider does not support configuration - expect no completions
+                var fileWithCursors = @"
+import az as az |
+";
+
+                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+                var file = await new ServerRequestHelper(TestContext, ServerWithImportsEnabled).OpenFile(text);
+
+                var completions = await file.RequestCompletion(cursor);
+                completions.Should().BeEmpty();
+            }
         }
 
         [TestMethod]
@@ -1275,7 +1340,7 @@ resource abc 'Test.Rp/basicTests@|'
 
             await RunCompletionScenarioTest(
                 this.TestContext,
-                ServerWithBuiltInTypesImportsDisabled,
+                ServerWithBuiltInTypes,
                 fileWithCursors,
                 completions =>
                     completions.Should().SatisfyRespectively(
@@ -1292,7 +1357,7 @@ resource abc 'Test.Rp/basic|'
 
             await RunCompletionScenarioTest(
                 this.TestContext,
-                ServerWithBuiltInTypesImportsDisabled,
+                ServerWithBuiltInTypes,
                 fileWithCursors,
                 completions =>
                     completions.Should().SatisfyRespectively(
@@ -1312,7 +1377,7 @@ var outTest = abc.|
 ";
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypesImportsDisabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "listNoInput");
@@ -1340,7 +1405,7 @@ var outTest = abc.listWithInput(|)
 ";
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypesImportsDisabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "'2020-01-01'");
@@ -1367,7 +1432,7 @@ var outTest = abc.listWithInput('2020-01-01', |)
 ";
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypesImportsDisabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "required-properties");
@@ -1399,7 +1464,7 @@ var outTest = abc.listWithInput('2020-01-01', {
 ";
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypesImportsDisabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "optionalVal");
@@ -1516,7 +1581,7 @@ var outTest = abc.listWithInput('2020-01-01', {
         public async Task List_functions_accepting_inputs_permit_object_value_completions(string fileWithCursors, string updatedFileWithCursors)
         {
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypesImportsDisabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "'either'");
@@ -1537,7 +1602,7 @@ resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
 var outTest = abc.listWithInput().|
 ";
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypesImportsDisabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == "withInputOutputVal");
@@ -1591,7 +1656,7 @@ var testF = stg.listAccountSas('2021-06-01', {}).|
 param storageAccount string = 'testAccount";
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypesImportsDisabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
 
@@ -1613,7 +1678,7 @@ var sorted2 = sort(['abc'], (x, y) => x < |)
 ";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypesImportsDisabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletions(cursors);
 
@@ -1633,7 +1698,7 @@ var sorted2 = sort(['abc'], (x, y) => x < |)
 var foo = map([123], |)
 ");
 
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypesImportsDisabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             var updatedFile = file.ApplyCompletion(completions, "arg => ...", "foo");
@@ -1649,7 +1714,7 @@ var foo = map([123], foo => |)
 var foo = sort([123], |)
 ");
 
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypesImportsDisabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             var updatedFile = file.ApplyCompletion(completions, "(arg1, arg2) => ...", "foo", "bar");
@@ -1719,7 +1784,7 @@ param storageAccount1 string = 'testAccount'
 param storageAccount2 string = 'testAccount'";
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypesImportsDisabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursors[0]);
             completions.Should().Contain(x => x.Label == LanguageConstants.DisableNextLineDiagnosticsKeyword);
@@ -1761,7 +1826,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 }";
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypesImportsDisabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
             completions.Should().Contain(x => x.Label == LanguageConstants.DisableNextLineDiagnosticsKeyword);
@@ -2011,7 +2076,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 resource test";
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
-            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypesImportsDisabled).OpenFile(text);
+            var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             CompilationHelper.Compile(text).ExcludingLinterDiagnostics().Diagnostics.Should().SatisfyRespectively(
                 x => x.Code.Should().Be("BCP226"),
@@ -2031,7 +2096,7 @@ var foo = resourceI|
 
             await RunCompletionScenarioTest(
                 this.TestContext,
-                ServerWithBuiltInTypesImportsDisabled,
+                ServerWithBuiltInTypes,
                 fileWithCursors,
                 completionLists => completionLists.Should().SatisfyRespectively(
                     completions => completions!.Where(x => x.Label == "resourceId").First().Documentation!.MarkupContent!.Value.Should().EqualIgnoringNewlines(@"```bicep

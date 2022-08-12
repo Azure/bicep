@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -216,7 +217,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // emitting the template should fail
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
-            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var result = this.EmitTemplate(SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath), configuration), BicepTestConstants.Features, filePath);
             result.Diagnostics.Should().NotBeEmpty();
             result.Status.Should().Be(EmitStatus.Failed);
@@ -260,7 +261,7 @@ this
 
         private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, IFeatureProvider features, string filePath)
         {
-            var compilation = new Compilation(features, TestTypeHelper.CreateEmptyProvider(features), sourceFileGrouping, BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(features, TestTypeHelper.CreateEmptyProvider(features), sourceFileGrouping, BicepTestConstants.BuiltInConfiguration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new(features));
 
             using var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
@@ -269,7 +270,7 @@ this
 
         private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, IFeatureProvider features, MemoryStream memoryStream)
         {
-            var compilation = new Compilation(features, TestTypeHelper.CreateEmptyProvider(features), sourceFileGrouping, BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(features, TestTypeHelper.CreateEmptyProvider(features), sourceFileGrouping, BicepTestConstants.BuiltInConfiguration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new(features));
 
             TextWriter tw = new StreamWriter(memoryStream);

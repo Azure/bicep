@@ -9,6 +9,8 @@ using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.Parsing;
+using System.Collections.Generic;
+using System;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -92,6 +94,20 @@ namespace Bicep.Core.UnitTests.Assertions
                 .FailWith("Expected {0} to have length less than or equal to {1}, but it has length {2}", instance.Subject, maxLength, length);
 
             return new AndConstraint<StringAssertions>(instance);
+        }
+
+        // Adds StringComparison to StringAssertions.NotContainAny
+        public static AndConstraint<StringAssertions> NotContainAny(this StringAssertions instance, IEnumerable<string> values, StringComparison stringComparison, string because = "", params object[] becauseArgs)
+        {
+            IEnumerable<string> enumerable = values.Where((string v) => Contains(instance.Subject, v, stringComparison));
+            Execute.Assertion.ForCondition(!enumerable.Any()).BecauseOf(because, becauseArgs).FailWith("Did not expect {context:string} {0} to contain any of the strings: {1}{reason}.",
+                instance.Subject, enumerable);
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
+        private static bool Contains(string actual, string expected, StringComparison comparison)
+        {
+            return (actual ?? string.Empty).Contains(expected ?? string.Empty, comparison);
         }
     }
 }

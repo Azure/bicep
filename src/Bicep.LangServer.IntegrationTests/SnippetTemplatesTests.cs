@@ -31,7 +31,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void VerifySnippetTemplatesAreErrorFree(CompletionData completionData)
         {
-            string pathPrefix = $"Completions/SnippetTemplates/{completionData.Prefix}";
+            string pathPrefix = $"Files/SnippetTemplates/{completionData.Prefix}";
 
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(SnippetTemplatesTests).Assembly, pathPrefix);
 
@@ -59,7 +59,7 @@ namespace Bicep.LangServer.IntegrationTests
                     return;
             }
 
-            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             var semanticModel = compilation.GetEntrypointSemanticModel();
 
             if (semanticModel.HasErrors())

@@ -135,7 +135,7 @@ module scopedToSymbolicName 'hello.bicep' = [for (name, i) in scripts: {
 //@[44:183) | └─ForSyntax
 //@[44:045) |   ├─Token(LeftSquare) |[|
 //@[45:048) |   ├─Token(Identifier) |for|
-//@[49:058) |   ├─ForVariableBlockSyntax
+//@[49:058) |   ├─VariableBlockSyntax
 //@[49:050) |   | ├─Token(LeftParen) |(|
 //@[50:054) |   | ├─LocalVariableSyntax
 //@[50:054) |   | | └─IdentifierSyntax
@@ -227,7 +227,7 @@ module scopedToResourceGroupFunction 'hello.bicep' = [for (name, i) in scripts: 
 //@[53:212) | └─ForSyntax
 //@[53:054) |   ├─Token(LeftSquare) |[|
 //@[54:057) |   ├─Token(Identifier) |for|
-//@[58:067) |   ├─ForVariableBlockSyntax
+//@[58:067) |   ├─VariableBlockSyntax
 //@[58:059) |   | ├─Token(LeftParen) |(|
 //@[59:063) |   | ├─LocalVariableSyntax
 //@[59:063) |   | | └─IdentifierSyntax

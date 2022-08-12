@@ -80,7 +80,7 @@ namespace Bicep.Core.IntegrationTests
             var defaultEvaluateFunction = evaluationContext.EvaluateFunction;
             evaluationContext.EvaluateFunction = (FunctionExpression functionExpression, FunctionArgument[] parameters, TemplateErrorAdditionalInfo additionalInfo) =>
             {
-                if (functionExpression.Function.StartsWithOrdinalInsensitively("list") && config.OnListFunc is not null)
+                if (functionExpression.Function.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix) && config.OnListFunc is not null)
                 {
                     return config.OnListFunc(
                         functionExpression.Function,

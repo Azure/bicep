@@ -3,11 +3,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Container, Row, Spinner } from 'react-bootstrap';
+import { ApplicationInsights } from '@microsoft/applicationinsights-web';
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+import { aiKey } from '../package.json';
 import './index.css';
 import { initializeInterop } from './lspInterop';
 import { Playground } from './playground';
+
+const insights = new ApplicationInsights({
+  config: {
+    instrumentationKey: aiKey,
+  }
+});
+
+insights.loadAppInsights();
+insights.trackPageView();
 
 ReactDOM.render(
   <Container className="d-flex vh-100">
@@ -21,7 +31,7 @@ ReactDOM.render(
 initializeInterop(self)
   .then(() => ReactDOM.render(
     <div className="app-container">
-      <Playground/>
+      <Playground insights={insights} />
     </div>,
     document.getElementById('root')
   ));
