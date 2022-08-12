@@ -45,7 +45,7 @@ namespace Bicep.LanguageServer
             //TODO: complete later, not required for basic file interaction
         } 
 
-        public void UpsertCompilation(DocumentUri uri, int? version, string text, string? languageId = null)
+        public void UpsertCompilation(DocumentUri uri, int? version, string text, string? languageId = null, bool triggeredByFileOpenEvent = false)
         {
             var paramsFile = SourceFileFactory.CreateBicepParamFile(uri.ToUri(), text);
 

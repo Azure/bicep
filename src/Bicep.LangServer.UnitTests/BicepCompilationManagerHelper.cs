@@ -51,7 +51,7 @@ namespace Bicep.LangServer.UnitTests
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
-            var provider = new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateWithAzTypes(), FileResolver, dispatcher);
+            var provider = new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateWithAzTypes(), FileResolver, dispatcher, BicepTestConstants.ApiVersionProvider);
             var configManager = new ConfigurationManager(new IOFileSystem());
 
             return new BicepParamsCompilationManager(server.Object, provider, configManager, BicepTestConstants.FileResolver);
