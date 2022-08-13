@@ -95,7 +95,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic UnrecognizedDeclaration() => new(
                 TextSpan,
                 "BCP007",
-                "This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.");
+                "This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration.");
 
             public ErrorDiagnostic ExpectedParameterContinuation() => new(
                 TextSpan,
