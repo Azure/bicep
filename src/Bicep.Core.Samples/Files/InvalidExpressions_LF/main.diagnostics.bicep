@@ -592,7 +592,7 @@ var partialObject = {
 @sys.secure()
 //@[00:13) [BCP147 (Error)] Expected a parameter declaration after the decorator. (CodeDescription: none) |@sys.secure()|
 xxxxx
-//@[00:05) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |xxxxx|
+//@[00:05) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |xxxxx|
 
 
 var noElements = ()

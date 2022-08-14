@@ -1,7 +1,7 @@
 
 // wrong declaration
 bad
-//@[00:03) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |bad|
+//@[00:03) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |bad|
 
 // incomplete #completionTest(7) -> empty
 output 
@@ -121,7 +121,7 @@ output i int = }
 //@[07:08) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
 //@[15:16) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |}|
 }
-//@[00:01) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |}|
+//@[00:01) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |}|
 output i int = 'test'
 //@[07:08) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
 //@[15:21) [BCP026 (Error)] The output expects a value of type "int" but the provided value is of type "'test'". (CodeDescription: none) |'test'|

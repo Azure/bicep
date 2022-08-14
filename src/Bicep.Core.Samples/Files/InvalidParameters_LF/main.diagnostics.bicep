@@ -5,7 +5,7 @@
 param myString string
 //@[06:014) [no-unused-params (Warning)] Parameter "myString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myString|
 wrong
-//@[00:005) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |wrong|
+//@[00:005) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |wrong|
 
 param myInt int
 //@[06:011) [no-unused-params (Warning)] Parameter "myInt" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myInt|
