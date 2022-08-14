@@ -572,6 +572,8 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Value).VariableTypeAssignmentDisallowed(valueType));
                 }
 
+                TypeValidator.GetCompileTimeConstantViolation(syntax, diagnostics);
+
                 return valueType;
             });
 
