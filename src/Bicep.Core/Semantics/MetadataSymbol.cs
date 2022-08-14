@@ -28,22 +28,16 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => RestrictedIdentifierValidatorVisitor.GetDiagnostics(this);
+        public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => ValidateName();
 
-        private sealed class RestrictedIdentifierValidatorVisitor : SymbolVisitor
+        private IEnumerable<ErrorDiagnostic> ValidateName()
         {
-            private IList<ErrorDiagnostic> Diagnostics { get; } = new List<ErrorDiagnostic>();
-
-            public static IEnumerable<ErrorDiagnostic> GetDiagnostics(MetadataSymbol metadata)
+            IList<ErrorDiagnostic> diagnostics = new List<ErrorDiagnostic>();
+            if (this.Name.StartsWith("_"))
             {
-                var visitor = new RestrictedIdentifierValidatorVisitor();
-                visitor.Visit(metadata);
-                if (metadata.Name.StartsWith("_"))
-                {
-                    visitor.Diagnostics.Add(DiagnosticBuilder.ForPosition(metadata.NameSyntax).ReservedIdentifier(metadata.Name));
-                }
-                return visitor.Diagnostics;
+                diagnostics.Add(DiagnosticBuilder.ForPosition(this.NameSyntax).ReservedIdentifier(this.Name));
             }
+            return diagnostics;
         }
     }
 }
