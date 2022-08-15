@@ -46,7 +46,7 @@ export class BicepCacheContentProvider
   private getBicepCacheRequest(uri: vscode.Uri) {
     // The URIs have the format of bicep-cache:///<uri-encoded bicep file path>#<uri-encoded bicep module reference>.
     // The path of a URI will also have a leading slash that needs to be removed.
-    const path = decodeURIComponent(uri.path.substring(1));
+    const path = decodeURIComponent(uri.path);
     const target = decodeURIComponent(uri.fragment);
 
     return { textDocument: TextDocumentIdentifier.create(path), target };
