@@ -38,7 +38,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             var completions = Enumerable.Empty<CompletionItem>();
 
-            if (PathHelper.HasBicepparamsExension(request.TextDocument.Uri.ToUri()))
+            if (featureProvider.ParamsFilesEnabled && PathHelper.HasBicepparamsExension(request.TextDocument.Uri.ToUri()))
             {
                 var paramsCompilationContext = this.paramsCompilationManager.GetCompilation(request.TextDocument.Uri); 
                 if (paramsCompilationContext == null)

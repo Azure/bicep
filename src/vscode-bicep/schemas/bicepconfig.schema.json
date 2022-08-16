@@ -366,16 +366,6 @@
                     }
                   ]
                 },
-                "no-unused-existing-resources": {
-                  "allOf": [
-                    {
-                      "description": "All existing resources must be used. See https://aka.ms/bicep/linter/no-unused-existing-resources"
-                    },
-                    {
-                      "$ref": "#/definitions/rule"
-                    }
-                  ]
-                },
                 "no-unused-params": {
                   "allOf": [
                     {

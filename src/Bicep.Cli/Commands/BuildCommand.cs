@@ -72,9 +72,8 @@ namespace Bicep.Cli.Commands
                 // return non-zero exit code on errors
                 return diagnosticLogger.ErrorCount > 0 ? 1 : 0;       
             }
-            else if(IsBicepparamsFile(inputPath))
+            else if (invocationContext.Features.ParamsFilesEnabled && IsBicepparamsFile(inputPath))
             {
-              
                 var model = await compilationService.CompileParams(inputPath, args.NoRestore);
 
                 static string DefaultOutputPath(string path) => PathHelper.GetDefaultBuildOutputPath(path);

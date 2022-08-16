@@ -28,6 +28,7 @@ using Bicep.Core.Modules;
 using System.Net;
 using Bicep.Core.Navigation;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Features;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -46,6 +47,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IModuleDispatcher moduleDispatcher;
 
         private readonly IParamsCompilationManager paramsCompilationManager;
+        private readonly IFeatureProvider featureProvider;
 
         public BicepDefinitionHandler(
             ISymbolResolver symbolResolver,
@@ -54,7 +56,8 @@ namespace Bicep.LanguageServer.Handlers
             IWorkspace workspace,
             ILanguageServerFacade languageServer,
             IModuleDispatcher moduleDispatcher,
-            IParamsCompilationManager paramsCompilationManager) : base()
+            IParamsCompilationManager paramsCompilationManager,
+            IFeatureProvider featureProvider) : base()
         {
             this.symbolResolver = symbolResolver;
             this.compilationManager = compilationManager;
@@ -63,11 +66,12 @@ namespace Bicep.LanguageServer.Handlers
             this.languageServer = languageServer;
             this.moduleDispatcher = moduleDispatcher;
             this.paramsCompilationManager = paramsCompilationManager;
+            this.featureProvider = featureProvider;
         }
 
         public override Task<LocationOrLocationLinks> Handle(DefinitionParams request, CancellationToken cancellationToken)
         {
-            if (PathHelper.HasBicepparamsExension(request.TextDocument.Uri.ToUri()))
+            if (featureProvider.ParamsFilesEnabled && PathHelper.HasBicepparamsExension(request.TextDocument.Uri.ToUri()))
             {
                 var paramsContext = this.paramsCompilationManager.GetCompilation(request.TextDocument.Uri);
                 if (paramsContext is null)

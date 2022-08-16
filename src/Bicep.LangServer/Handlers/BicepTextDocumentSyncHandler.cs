@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Configuration;
@@ -22,12 +23,14 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ICompilationManager compilationManager;
         private readonly IBicepConfigChangeHandler bicepConfigChangeHandler;
         private readonly IParamsCompilationManager paramsCompilationManager;
+        private readonly IFeatureProvider featureProvider;
 
-        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, IParamsCompilationManager paramsCompilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler) 
+        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, IParamsCompilationManager paramsCompilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler, IFeatureProvider featureProvider) 
         {
             this.bicepConfigChangeHandler = bicepConfigChangeHandler;
             this.compilationManager = compilationManager;
             this.paramsCompilationManager = paramsCompilationManager;
+            this.featureProvider = featureProvider;
         }
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
@@ -42,7 +45,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var documentUri = request.TextDocument.Uri;
 
-            if (PathHelper.HasBicepparamsExension(documentUri.ToUri()))
+            if (featureProvider.ParamsFilesEnabled && PathHelper.HasBicepparamsExension(documentUri.ToUri()))
             {
                 this.paramsCompilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, contents);
             }
@@ -74,7 +77,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             
-            if (PathHelper.HasBicepparamsExension(documentUri.ToUri()))
+            if (featureProvider.ParamsFilesEnabled && PathHelper.HasBicepparamsExension(documentUri.ToUri()))
             {
                 this.paramsCompilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
             }
@@ -112,7 +115,7 @@ namespace Bicep.LanguageServer.Handlers
                 bicepConfigChangeHandler.HandleBicepConfigCloseEvent(documentUri);
             }
 
-            if (PathHelper.HasBicepparamsExension(documentUri.ToUri()))
+            if (featureProvider.ParamsFilesEnabled && PathHelper.HasBicepparamsExension(documentUri.ToUri()))
             {
                 this.paramsCompilationManager.CloseCompilation(request.TextDocument.Uri);
             }
