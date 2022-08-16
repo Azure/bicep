@@ -157,7 +157,7 @@ namespace Bicep.LanguageServer.Handlers
             var fullyQualifiedReference = WebUtility.UrlEncode(moduleReference.FullyQualifiedReference);
 
             // Encode the source file path as a path and the fully qualified reference as a fragment.
-            return new Uri($"bicep-cache:///{sourceFilePath}#{fullyQualifiedReference}");
+            return new Uri($"bicep-cache:{sourceFilePath}#{fullyQualifiedReference}");
         }
 
         private static Task<LocationOrLocationLinks> HandleDeclaredDefinitionLocationAsync(DefinitionParams request, SymbolResolutionResult result, DeclaredSymbol declaration)
