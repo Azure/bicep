@@ -42,6 +42,9 @@ namespace Bicep.Core.Diagnostics
             private static string ToQuotedString(IEnumerable<string> elements)
                 => elements.Any() ? $"\"{elements.ConcatString("\", \"")}\"" : "";
 
+            private static string ToQuotedStringWithCaseInsensitiveOrdering(IEnumerable<string> elements)
+                => ToQuotedString(elements.OrderBy(s => s, StringComparer.OrdinalIgnoreCase));
+
             private static string BuildVariableDependencyChainClause(IEnumerable<string>? variableDependencyChain) => variableDependencyChain is not null
                 ? $" You are referencing a variable which cannot be calculated at the start (\"{string.Join("\" -> \"", variableDependencyChain)}\")."
                 : string.Empty;
@@ -1467,7 +1470,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic AmbiguousResourceTypeBetweenImports(string resourceTypeName, IEnumerable<string> namespaces) => new(
                 TextSpan,
                 "BCP250",
-                $"Resource type \"{resourceTypeName}\" is declared in multiple imported namespaces ({ToQuotedString(namespaces)}), and must be fully-qualified.");
+                $"Resource type \"{resourceTypeName}\" is declared in multiple imported namespaces ({ToQuotedStringWithCaseInsensitiveOrdering(namespaces)}), and must be fully-qualified.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -100,7 +100,7 @@ resource container 'container' = {
 }
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP250", DiagnosticLevel.Error, "Resource type \"container\" is declared in multiple imported namespaces (\"stg2\", \"stg\"), and must be fully-qualified."),
+                ("BCP250", DiagnosticLevel.Error, "Resource type \"container\" is declared in multiple imported namespaces (\"stg\", \"stg2\"), and must be fully-qualified."),
             });
 
             result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
