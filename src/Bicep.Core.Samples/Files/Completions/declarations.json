@@ -2267,7 +2267,7 @@
     "detail": "",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource privateEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {\n  name: name\n  location: location\n  properties: {\n    privateLinkServiceConnections: [\n      {\n        name: name\n        properties: {\n          privateLinkServiceId: privateLinkServiceId\n          groupIds: [\n            groupId\n          ]\n        }\n      }\n    ]\n    subnet: {\n      id: subnetId\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource privateEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {\n  name: name\n  properties: {\n    privateLinkServiceConnections: [\n      {\n        name: name\n        properties: {\n          privateLinkServiceId: privateLinkServiceId\n          groupIds: [\n            groupId\n          ]\n        }\n      }\n    ]\n    subnet: {\n      id: subnetId\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2276,7 +2276,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:privateEndpoint} 'Microsoft.Network/privateEndpoints@2022-01-01' = {\n  name: ${2:name}\n  location: ${3:location}\n  properties: {\n    privateLinkServiceConnections: [\n      {\n        name: ${4:name}\n        properties: {\n          privateLinkServiceId: ${5:privateLinkServiceId}\n          groupIds: [\n            ${6:groupId}\n          ]\n        }\n      }\n    ]\n    subnet: {\n      id: ${7:subnetId}\n    }\n  }\n}\n"
+      "newText": "resource ${1:privateEndpoint} 'Microsoft.Network/privateEndpoints@2022-01-01' = {\n  name: ${2:name}\n  properties: {\n    privateLinkServiceConnections: [\n      {\n        name: ${3:name}\n        properties: {\n          privateLinkServiceId: ${4:privateLinkServiceId}\n          groupIds: [\n            ${5:groupId}\n          ]\n        }\n      }\n    ]\n    subnet: {\n      id: ${6:subnetId}\n    }\n  }\n}\n"
     },
     "command": {
       "title": "top level snippet completion",
