@@ -84,6 +84,42 @@ resource blob 'blob' = {
         }
 
         [TestMethod]
+        public void Ambiguous_type_references_return_errors()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
+import storage as stg {
+  connectionString: 'asdf'
+}
+
+import storage as stg2 {
+  connectionString: 'asdf'
+}
+
+resource container 'container' = {
+  name: 'myblob'
+}
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP250", DiagnosticLevel.Error, "Resource type \"container\" is declared in multiple imported namespaces (\"stg2\", \"stg\"), and must be fully-qualified."),
+            });
+
+            result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
+import storage as stg {
+  connectionString: 'asdf'
+}
+
+import storage as stg2 {
+  connectionString: 'asdf'
+}
+
+resource container 'stg2:container' = {
+  name: 'myblob'
+}
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
         public void Storage_import_basic_test_loops_and_referencing()
         {
             var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"

@@ -1463,6 +1463,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP249",
                 $"Expected loop variable block to consist of exactly 2 elements (item variable and index variable), but found {actualCount}.");
+
+            public ErrorDiagnostic AmbiguousResourceTypeBetweenImports(string resourceTypeName, IEnumerable<string> namespaces) => new(
+                TextSpan,
+                "BCP250",
+                $"Resource type \"{resourceTypeName}\" is declared in multiple imported namespaces ({ToQuotedString(namespaces)}), and must be fully-qualified.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
