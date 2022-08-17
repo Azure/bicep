@@ -21,7 +21,9 @@ namespace Bicep.VSLanguageServerClient.Vsix
     /// To get loaded into VS, the package must be referenced by &lt;Asset Type="Microsoft.VisualStudio.VsPackage" ...&gt; in .vsixmanifest file.
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [Guid(BicepVSLanguageServerClientPackage.PackageGuidString)]
+    [Guid(PackageGuidString)]
+    //[ProvideLanguageService(typeof(BicepLanguageService), "Bicep Template", 107, ShowSmartIndent = true, DefaultToInsertSpaces = true)]
+    //[ProvideLanguageExtension(typeof(BicepLanguageService), ".bicep")]
     [ProvideBindingPath()]
     public sealed class BicepVSLanguageServerClientPackage : AsyncPackage
     {
