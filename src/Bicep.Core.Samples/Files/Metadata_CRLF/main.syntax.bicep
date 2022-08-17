@@ -1,5 +1,5 @@
 /* 
-//@[00:703) ProgramSyntax
+//@[00:843) ProgramSyntax
   This is a block comment.
 */
 //@[02:006) ├─Token(NewLine) |\r\n\r\n|
@@ -50,7 +50,21 @@ meta myEscapedString = 'First line\r\nSecond\ttabbed\tline'
 //@[21:022) | ├─Token(Assignment) |=|
 //@[23:059) | └─StringSyntax
 //@[23:059) |   └─Token(StringComplete) |'First line\r\nSecond\ttabbed\tline'|
-//@[59:063) ├─Token(NewLine) |\r\n\r\n|
+//@[59:061) ├─Token(NewLine) |\r\n|
+meta myMultiLineString = '''
+//@[00:138) ├─MetadataDeclarationSyntax
+//@[00:004) | ├─Token(Identifier) |meta|
+//@[05:022) | ├─IdentifierSyntax
+//@[05:022) | | └─Token(Identifier) |myMultiLineString|
+//@[23:024) | ├─Token(Assignment) |=|
+//@[25:138) | └─StringSyntax
+//@[25:138) |   └─Token(MultilineString) |'''\r\n  This is a multi line string // with comments,\r\n  blocked ${interpolation},\r\n  and a /* newline.\r\n  */\r\n'''|
+  This is a multi line string // with comments,
+  blocked ${interpolation},
+  and a /* newline.
+  */
+'''
+//@[03:007) ├─Token(NewLine) |\r\n\r\n|
 
 // object value
 //@[15:017) ├─Token(NewLine) |\r\n|

@@ -7,13 +7,14 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15534094977150168898"
+      "templateHash": "7775826229667841827"
     },
     "myString2": "string value",
     "myInt2": 42,
     "myTruth": true,
     "myFalsehood": false,
     "myEscapedString": "First line\r\nSecond\ttabbed\tline",
+    "myMultiLineString": "  This is a multi line string // with comments,\r\n  blocked ${interpolation},\r\n  and a /* newline.\r\n  */\r\n",
     "foo": {
       "enabled": true,
       "name": "this is my object",

@@ -8,6 +8,12 @@ meta myInt2 = 42
 meta myTruth = true
 meta myFalsehood = false
 meta myEscapedString = 'First line\r\nSecond\ttabbed\tline'
+meta myMultiLineString = '''
+  This is a multi line string // with comments,
+  blocked ${interpolation},
+  and a /* newline.
+  */
+'''
 
 // object value
 meta foo = {

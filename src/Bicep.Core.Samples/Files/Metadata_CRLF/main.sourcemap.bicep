@@ -8,40 +8,46 @@ meta myInt2 = 42
 meta myTruth = true
 meta myFalsehood = false
 meta myEscapedString = 'First line\r\nSecond\ttabbed\tline'
+meta myMultiLineString = '''
+  This is a multi line string // with comments,
+  blocked ${interpolation},
+  and a /* newline.
+  */
+'''
 
 // object value
 meta foo = {
   enabled: true
-//@[15:15]       "enabled": true,
+//@[16:16]       "enabled": true,
   name: 'this is my object'
-//@[16:16]       "name": "this is my object",
+//@[17:17]       "name": "this is my object",
   priority: 3
-//@[17:17]       "priority": 3,
+//@[18:18]       "priority": 3,
   info: {
-//@[18:20]       "info": {
+//@[19:21]       "info": {
     a: 'b'
-//@[19:19]         "a": "b"
+//@[20:20]         "a": "b"
   }
   empty: {
-//@[21:21]       "empty": {},
+//@[22:22]       "empty": {},
   }
   array: [
-//@[22:33]       "array": [
+//@[23:34]       "array": [
     'string item'
-//@[23:23]         "string item",
+//@[24:24]         "string item",
     12
-//@[24:24]         12,
+//@[25:25]         12,
     true
-//@[25:25]         true,
+//@[26:26]         true,
     [
       'inner'
-//@[27:27]           "inner",
+//@[28:28]           "inner",
       false
-//@[28:28]           false
+//@[29:29]           false
     ]
     {
       a: 'b'
-//@[31:31]           "a": "b"
+//@[32:32]           "a": "b"
     }
   ]
 }
@@ -49,11 +55,11 @@ meta foo = {
 // array value
 meta myArrayMetadata = [
   'a'
-//@[36:36]       "a",
+//@[37:37]       "a",
   'b'
-//@[37:37]       "b",
+//@[38:38]       "b",
   'c'
-//@[38:38]       "c"
+//@[39:39]       "c"
 ]
 
 // emtpy object and array
@@ -62,5 +68,5 @@ meta myEmptyArray = [ ]
 
 // param with same name as metadata is permitted
 param foo string
-//@[44:46]     "foo": {
+//@[45:47]     "foo": {
 

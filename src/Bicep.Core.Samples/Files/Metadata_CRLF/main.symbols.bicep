@@ -13,6 +13,13 @@ meta myFalsehood = false
 //@[5:16) Metadata myFalsehood. Type: bool. Declaration start char: 0, length: 24
 meta myEscapedString = 'First line\r\nSecond\ttabbed\tline'
 //@[5:20) Metadata myEscapedString. Type: 'First line\r\nSecond\ttabbed\tline'. Declaration start char: 0, length: 59
+meta myMultiLineString = '''
+//@[5:22) Metadata myMultiLineString. Type: '  This is a multi line string // with comments,\r\n  blocked \${interpolation},\r\n  and a /* newline.\r\n  */\r\n'. Declaration start char: 0, length: 138
+  This is a multi line string // with comments,
+  blocked ${interpolation},
+  and a /* newline.
+  */
+'''
 
 // object value
 meta foo = {
