@@ -43,3 +43,6 @@ meta myArrayMetadata = [
 // emtpy object and array
 meta myEmptyObj = { }
 meta myEmptyArray = [ ]
+
+// param with same name as metadata is permitted
+param foo string

@@ -1,5 +1,5 @@
 /* 
-//@[00:633) ProgramSyntax
+//@[00:703) ProgramSyntax
   This is a block comment.
 */
 //@[02:006) ├─Token(NewLine) |\r\n\r\n|
@@ -232,6 +232,17 @@ meta myEmptyArray = [ ]
 //@[20:023) | └─ArraySyntax
 //@[20:021) |   ├─Token(LeftSquare) |[|
 //@[22:023) |   └─Token(RightSquare) |]|
-//@[23:025) ├─Token(NewLine) |\r\n|
+//@[23:027) ├─Token(NewLine) |\r\n\r\n|
+
+// param with same name as metadata is permitted
+//@[48:050) ├─Token(NewLine) |\r\n|
+param foo string
+//@[00:016) ├─ParameterDeclarationSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:009) | ├─IdentifierSyntax
+//@[06:009) | | └─Token(Identifier) |foo|
+//@[10:016) | └─SimpleTypeSyntax
+//@[10:016) |   └─Token(Identifier) |string|
+//@[16:018) ├─Token(NewLine) |\r\n|
 
 //@[00:000) └─Token(EndOfFile) ||

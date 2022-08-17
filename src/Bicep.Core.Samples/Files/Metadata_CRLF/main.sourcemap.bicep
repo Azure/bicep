@@ -60,3 +60,7 @@ meta myArrayMetadata = [
 meta myEmptyObj = { }
 meta myEmptyArray = [ ]
 
+// param with same name as metadata is permitted
+param foo string
+//@[44:46]     "foo": {
+

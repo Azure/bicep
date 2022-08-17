@@ -53,3 +53,7 @@ meta myEmptyObj = { }
 meta myEmptyArray = [ ]
 //@[5:17) Metadata myEmptyArray. Type: array. Declaration start char: 0, length: 23
 
+// param with same name as metadata is permitted
+param foo string
+//@[6:09) Parameter foo. Type: string. Declaration start char: 0, length: 16
+

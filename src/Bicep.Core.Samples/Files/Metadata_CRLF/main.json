@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5516977041413584056"
+      "templateHash": "2501678139766406936"
     },
     "myString2": "string value",
     "myInt2": 42,
@@ -40,6 +40,11 @@
     ],
     "myEmptyObj": {},
     "myEmptyArray": []
+  },
+  "parameters": {
+    "foo": {
+      "type": "string"
+    }
   },
   "resources": []
 }

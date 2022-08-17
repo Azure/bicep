@@ -160,6 +160,14 @@ meta myEmptyArray = [ ]
 //@[18:19) Assignment |=|
 //@[20:21) LeftSquare |[|
 //@[22:23) RightSquare |]|
-//@[23:25) NewLine |\r\n|
+//@[23:27) NewLine |\r\n\r\n|
+
+// param with same name as metadata is permitted
+//@[48:50) NewLine |\r\n|
+param foo string
+//@[00:05) Identifier |param|
+//@[06:09) Identifier |foo|
+//@[10:16) Identifier |string|
+//@[16:18) NewLine |\r\n|
 
 //@[00:00) EndOfFile ||
