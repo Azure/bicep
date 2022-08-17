@@ -32,12 +32,10 @@ namespace Bicep.Core.Semantics
 
         private IEnumerable<ErrorDiagnostic> ValidateName()
         {
-            IList<ErrorDiagnostic> diagnostics = new List<ErrorDiagnostic>();
             if (this.Name.StartsWith("_"))
             {
-                diagnostics.Add(DiagnosticBuilder.ForPosition(this.NameSyntax).ReservedIdentifier(this.Name));
+                yield return DiagnosticBuilder.ForPosition(this.NameSyntax).ReservedIdentifier(this.Name);
             }
-            return diagnostics;
         }
     }
 }
