@@ -31,8 +31,8 @@ namespace Bicep.Core.UnitTests
         bool ImportsEnabled,
         bool AdvancedListComprehensionEnabled,
         bool ResourceTypedParamsAndOutputsEnabled,
-        bool SourceMappingEnabled,
-        bool ParamsFilesEnabled) : IFeatureProvider;
+        bool ParamsFilesEnabled,
+        bool SourceMappingEnabled) : IFeatureProvider;
 
     public static class BicepTestConstants
     {

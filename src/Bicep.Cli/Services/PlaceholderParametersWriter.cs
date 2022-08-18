@@ -10,6 +10,9 @@ using System.IO;
 
 namespace Bicep.Cli.Services
 {
+    /// <summary>
+    /// Generates a JSON parameter file from a Bicep file.
+    /// </summary>
     public class PlaceholderParametersWriter
     {
         private readonly InvocationContext invocationContext;

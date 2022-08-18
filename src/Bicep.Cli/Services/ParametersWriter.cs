@@ -10,6 +10,9 @@ using System.IO;
 
 namespace Bicep.Cli.Services
 {
+    /// <summary>
+    /// Generates a Bicep param file from a JSON parameter file.
+    /// </summary>
     public class ParametersWriter
     {
         private readonly InvocationContext invocationContext;
@@ -30,7 +33,8 @@ namespace Bicep.Cli.Services
             using var writer = new JsonTextWriter(invocationContext.OutputWriter)
             {
                 Formatting = Formatting.Indented
-            };new ParametersEmitter(paramSemanticModel, invocationContext.EmitterSettings).EmitParamsFile(writer);
+            };
+            new ParametersEmitter(paramSemanticModel, invocationContext.EmitterSettings).EmitParamsFile(writer);
 
             return new ParametersEmitter(paramSemanticModel, invocationContext.EmitterSettings).EmitParamsFile(writer);
         }

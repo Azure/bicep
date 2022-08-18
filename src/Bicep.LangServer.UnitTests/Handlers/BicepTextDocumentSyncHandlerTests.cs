@@ -213,7 +213,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var paramsCompilationManager = BicepCompilationManagerHelper.CreateParamsCompilationManager();
 
-            var bicepTextDocumentSyncHandler = new BicepTextDocumentSyncHandler(compilationManager,  paramsCompilationManager ,bicepConfigChangeHandler);
+            var bicepTextDocumentSyncHandler = new BicepTextDocumentSyncHandler(compilationManager, paramsCompilationManager, bicepConfigChangeHandler, BicepTestConstants.Features);
 
             await bicepTextDocumentSyncHandler.Handle(TextDocumentParamHelper.CreateDidOpenDocumentParams(bicepConfigUri, prevBicepConfigFileContents, 1), CancellationToken.None);
 

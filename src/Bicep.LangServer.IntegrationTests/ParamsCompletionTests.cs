@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
@@ -118,7 +119,7 @@ new string[] {"firstParam", "secondParam"},
 new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field}
 )
 ]
-        public async Task Request_for_parameter_indentifier_completions_should_return_correct_identifiers(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
+        public async Task Request_for_parameter_identifier_completions_should_return_correct_identifiers(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
         {   
             var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText);
 
@@ -237,7 +238,8 @@ new CompletionItemKind[] {CompletionItemKind.EnumMember, CompletionItemKind.Enum
                 TestContext,
                 paramFileTextNoCursor,
                 paramUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver,
+                Features: BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 
@@ -284,7 +286,8 @@ using |
                 TestContext,
                 paramFileTextNoCursor,
                 paramUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver,
+                    Features: BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 
@@ -333,7 +336,8 @@ using './nested1/|'
                 TestContext,
                 paramFileTextNoCursor,
                 paramUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver,
+                    Features: BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 

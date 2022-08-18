@@ -28,8 +28,7 @@ namespace Bicep.Core.Samples
         public const string TestFileMainSymbols = "main.symbols.bicep";
         public const string TestFileParamSymbols = "parameters.symbols.bicepparam";
         public const string TestFileMainSyntax = "main.syntax.bicep";
-        //TODO: syntax file should be named parameters.syntax.bicepparam for consistency
-        public const string TestFileMainParamSyntax = "main.syntax.bicepparam";
+        public const string TestFileMainParamSyntax = "parameters.syntax.bicepparam";
         public const string TestFileMainFormatted = "main.formatted.bicep";
         public const string TestFileMainSourceMap = "main.sourcemap.bicep";
         public const string TestFileMainCompiled = "main.json";

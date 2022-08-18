@@ -190,9 +190,14 @@ namespace Bicep.Cli.IntegrationTests
         {
         
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+            var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var paramsFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParam);
 
-            var (output, error, result) = await Bicep("build", paramsFilePath);
+            var features = BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: dataSet.HasParamFile);
+            var settings = new InvocationSettings(features, clientFactory, templateSpecRepositoryFactory);
+            
+            var (output, error, result) = await Bicep(settings, "build", paramsFilePath);
 
             using (new AssertionScope())
             {
@@ -310,10 +315,12 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var paramsFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainInvalidParam);
-            var defaultSettings = CreateDefaultSettings();
+            var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
+            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: dataSet.HasParamFile), clientFactory, templateSpecRepositoryFactory);
             var diagnostics = GetAllParamDiagnostics(paramsFilePath);
 
-            var (output, error, result) = await Bicep("build", paramsFilePath);
+            var (output, error, result) = await Bicep(settings, "build", paramsFilePath);
 
             using (new AssertionScope())
             {
