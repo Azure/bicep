@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -15,38 +14,6 @@ namespace Bicep.Core.IntegrationTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
-
-        [TestMethod]
-        public void Lambdas_cannot_be_used_with_feature_disabled()
-        {
-            var features = BicepTestConstants.Features with { AdvancedListComprehensionEnabled = false };
-            var context = new CompilationHelper.CompilationHelperContext(Features: features);
-
-            CompilationHelper.Compile(context, "var foo = map([123], i => i)")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
-                    ("BCP082", DiagnosticLevel.Error, "The name \"map\" does not exist in the current context. Did you mean \"max\"?"),
-                });
-
-            CompilationHelper.Compile(context, "var foo = filter([123], i => true)")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
-                    ("BCP057", DiagnosticLevel.Error, "The name \"filter\" does not exist in the current context."),
-                });
-
-            CompilationHelper.Compile(context, "var foo = sort([123], (x, y) => x < y)")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
-                    ("BCP057", DiagnosticLevel.Error, "The name \"sort\" does not exist in the current context."),
-                });
-
-            CompilationHelper.Compile(context, "var foo = reduce([123], 1, (x, y) => x + y)")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
-                    ("BCP057", DiagnosticLevel.Error, "The name \"reduce\" does not exist in the current context."),
-                });
-
-            CompilationHelper.Compile(context, "var foo = flatten([123], i => i)")
-                .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
-                    ("BCP057", DiagnosticLevel.Error, "The name \"flatten\" does not exist in the current context."),
-                });
-        }
 
         [TestMethod]
         public void Parentheses_without_arrow_are_not_interpreted_as_lambdas()
