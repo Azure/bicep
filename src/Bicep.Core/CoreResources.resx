@@ -345,7 +345,7 @@
     <value>Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.</value>
   </data>
   <data name="UseResourceIdFunctionsRule_Description" xml:space="preserve">
-    <value>Properties representing a resource ID must be generatated appropriately.</value>
+    <value>Properties representing a resource ID must be generated appropriately.</value>
   </data>
   <data name="UseResourceIdFunctionsRule_MessageFormat" xml:space="preserve">
     <value>If property "{0}" represents a resource ID, it must use a symbolic resource reference (preferred) or start with one of these functions: {1}.</value>

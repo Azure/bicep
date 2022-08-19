@@ -199,7 +199,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     return ResourceIdStatus.SkipChildren;
                 }
 
-                if (propertyName == null || !propertyName.EndsWithOrdinalInsensitively("id"))
+                if (propertyName is null || !propertyName.EndsWithOrdinalInsensitively("id"))
                 {
                     return ResourceIdStatus.NotResourceId;
                 }

@@ -3,6 +3,8 @@
 
 using Bicep.Core.Analyzers.Linter.Rules;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Security.Policy;
+using System;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
@@ -128,7 +130,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "[7:21] If property \"firstId\" represents a resource ID, it must use a symbolic resource reference (preferred) or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId.",
                 "[13:23] If property \"secondId\" represents a resource ID, it must use a symbolic resource reference (preferred) or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId.",
             },
-        DisplayName = "'id' should be found in nested resources"
+            DisplayName = "'id' should be found in nested resources"
         )]
         [DataRow(@"
             param id string = '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/networkSecurityGroups/${'NSGName'}'
@@ -240,7 +242,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     new object[]
                     {
                         // Pass
-                    })]
+                    },
+            DisplayName = "virtualNetworkName")]
         [DataRow(
             @"
                 var id = 'id'
@@ -299,8 +302,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             new object[]
             {
                 // TTK result:
-                //    Property: "id" must use one of the following expressions for an resourceId property:                            
-                //      extensionResourceId,resourceId,subscriptionResourceId,tenantResourceId.,if,parameters,reference,variables,subscription,guid
+                // Property: "id" must use one of the following expressions for an resourceId property:                            
+                //   extensionResourceId,resourceId,subscriptionResourceId,tenantResourceId.,if,parameters,reference,variables,subscription,guid
                 "[11:21] If property \"failId\" represents a resource ID, it must use a symbolic resource reference (preferred) or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId.",
             },
             DisplayName = "Fail/documentdb-sqldatabases-that-contains-invalid-id-property-should-fail.json")]
@@ -326,10 +329,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 //   {@{fail0 =}, $null}
                 //id fail0.id
 
-                // However, we're treating it the same as a literal without any forward slashes - if it doesn't look like an ID,
-                // probably not intended to be, so to reduce likelihood of false positives, let it pass\
-
-                // pass
+                // However, in the Bicep rule we're treating it the same as a literal without any forward slashes - if it doesn't look like an ID,
+                // probably not intended to be, so to reduce likelihood of false positives, let it pass
             },
             DisplayName = "empty-string.json")]
         // from https://github.com/Azure/arm-ttk/blob/master/unit-tests/IDs-Should-Be-Derived-From-ResourceIDs/Fail/literal.json
@@ -535,7 +536,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             new object[]
             {
                 // pass
-            })]
+            },
+            DisplayName = "Pass/IDs-in-Backends")]
         // from https://github.com/Azure/arm-ttk/blob/master/unit-tests/IDs-Should-Be-Derived-From-ResourceIDs/Pass/IDs-in-WebTest-Locations.json
         [DataRow(
         @"
@@ -757,7 +759,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 // pass
             },
             DisplayName = "Pass/documentdb-sqldatabases-that-contains-resource-id-should-pass.json")]
-
         // from https://github.com/Azure/arm-ttk/blob/master/unit-tests/IDs-Should-Be-Derived-From-ResourceIDs/Pass/exceptions-that-should-pass.json
         [DataRow(
         @"
@@ -879,9 +880,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }",
             new object[]
             {
+                // guId: 'abc/def'   // not considered "guid", fail
                 "[9:17] If property \"guId\" represents a resource ID, it must use a symbolic resource reference (preferred) or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
             },
-            DisplayName = "ignore property names ending in 'guid'")]
+            DisplayName = "Ignore properties like \"UID\" and \"guid\" (but not 'guId')")]
         [DataRow(
         @"
             var idValue = concat('a/', 'b')
@@ -1256,9 +1258,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             new object[]
             {
                 // TTK results:
-                //   [-] IDs Should Be Derived From ResourceIDs                                                                 
-                //     Property: "id" must use one of the following expressions for an resourceId property:                            
-                //       extensionResourceId,resourceId,subscriptionResourceId,tenantResourceId,if,parameters,reference,variables,subscription,guid
+                // [-] IDs Should Be Derived From ResourceIDs                                                                 
+                // Property: "id" must use one of the following expressions for an resourceId property:                            
+                //   extensionResourceId,resourceId,subscriptionResourceId,tenantResourceId,if,parameters,reference,variables,subscription,guid
                 "[86:23] If property \"id\" represents a resource ID, it must use a symbolic resource reference (preferred) or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId.",
             },
             DisplayName = "https://github.com/Azure/arm-ttk/issues/497")]
@@ -1293,6 +1295,37 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 "[5:21] If property \"failid\" represents a resource ID, it must use a symbolic resource reference (preferred) or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
             },
             DisplayName = "loops")]
+        [DataRow(@"
+                resource applicationGateway 'Microsoft.Network/applicationGateways@2020-11-01' = {
+                  name: 'name'
+                #disable-next-line no-loc-expr-outside-params
+                  location: resourceGroup().location
+                  properties: {
+                    id: 'hello'
+                    sku: {
+                      name: 'Standard_Small'
+                      tier: 'Standard'
+                      capacity: 'capacity'
+                    }
+                    gatewayIPConfigurations: [
+                      {
+                        name: 'name'
+                        properties: {
+                          subnet: {
+                            // Error: NSGName is not defined
+                            id: '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/networkSecurityGroups/${NSGName}'
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }"
+            ,
+            new object[]
+            {
+            "[19:173] The name \"NSGName\" does not exist in the current context."
+            },
+            DisplayName = "undefined variable error")]
         [DataTestMethod]
         public void Test(string text, params string[] expectedMessages)
         {

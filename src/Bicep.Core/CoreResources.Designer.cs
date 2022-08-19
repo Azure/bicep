@@ -664,7 +664,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Properties representing a resource ID must be generatated appropriately..
+        ///   Looks up a localized string similar to Properties representing a resource ID must be generated appropriately..
         /// </summary>
         internal static string UseResourceIdFunctionsRule_Description {
             get {

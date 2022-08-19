@@ -479,7 +479,7 @@
                 "use-resource-id-functions": {
                   "allOf": [
                     {
-                      "description": "Properties representing a resource ID must be generatated appropriately. See https://aka.ms/bicep/linter/use-resource-id-functions"
+                      "description": "Properties representing a resource ID must be generated appropriately. See https://aka.ms/bicep/linter/use-resource-id-functions"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
