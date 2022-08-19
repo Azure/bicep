@@ -3,8 +3,6 @@
 
 using Bicep.Core.Analyzers.Linter.Rules;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Security.Policy;
-using System;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
