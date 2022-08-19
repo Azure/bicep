@@ -3,12 +3,13 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Bicep.VSLanguageServerClient.Vsix.Settings;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.TextManager.Interop;
 
 namespace Bicep.VSLanguageServerClient.Vsix
 {
-    [Guid("77291DD5-511B-45C8-BD20-62618C39D692")]
+    [Guid(BicepGuidList.LanguageServiceGuidString)]
     public class BicepLanguageService : IVsLanguageInfo
     {
 #pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.VSLanguageServerClient.Settings
+namespace Bicep.VSLanguageServerClient.Vsix.Settings
 {
     /// <summary>
     /// Writable settings storage. Exported via MEF for a particular content type.

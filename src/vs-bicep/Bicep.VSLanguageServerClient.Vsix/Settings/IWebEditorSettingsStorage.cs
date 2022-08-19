@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Bicep.VSLanguageServerClient.Settings
+namespace Bicep.VSLanguageServerClient.Vsix.Settings
 {
     /// <summary>
     /// Settings storage. Exported via MEF for a particular content type.
