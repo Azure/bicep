@@ -5,7 +5,7 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Analyzers.Linter.Common
 {
-    internal static class TypeExtensions
+    public static class TypeExtensions
     {
         /// <summary>
         /// True if the given type symbol is a string type (and not "any")
