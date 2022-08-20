@@ -1,19 +1,20 @@
 resource /*${1:privateEndpoint}*/privateEndpoint 'Microsoft.Network/privateEndpoints@2022-01-01' = {
   name: /*${2:name}*/'name'
+  location: /*${3:location}*/'location'
   properties: {
     privateLinkServiceConnections: [
       {
-        name: /*${3:name}*/'name'
+        name: /*${4:name}*/'name'
         properties: {
-          privateLinkServiceId: /*${4:privateLinkServiceId}*/'privateLinkServiceId'
+          privateLinkServiceId: /*${5:privateLinkServiceId}*/'privateLinkServiceId'
           groupIds: [
-            /*${5:groupId}*/'groupId'
+            /*${6:groupId}*/'groupId'
           ]
         }
       }
     ]
     subnet: {
-      id: /*${6:subnetId}*/'subnetId'
+      id: /*${7:subnetId}*/'subnetId'
     }
   }
 }
