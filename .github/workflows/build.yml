@@ -11,6 +11,9 @@ permissions:
   id-token: write
   contents: read
 
+env:
+  CI: true
+
 jobs:
   build-bicep:
     name: Build CLI (${{ matrix.rid }})
@@ -22,8 +25,6 @@ jobs:
 
       # disable telemetry (reduces dotnet tool output in logs)
       DOTNET_CLI_TELEMETRY_OPTOUT: true
-
-      CI: true
 
     strategy:
       # let us get failures from other jobs even if one fails
@@ -133,12 +134,27 @@ jobs:
           name: Bicep.LangServer
           path: ./src/Bicep.LangServer/bin/${{ matrix.configuration }}/net6.0/publish/*
           if-no-files-found: error
+      
+      # needed to generate notice file
+      - name: Upload Language Server project assets file
+        uses: actions/upload-artifact@v3
+        if: matrix.publishLanguageServer
+        with:
+          name: Bicep.LangServer.ProjAssets
+          path: ./src/Bicep.LangServer/obj/project.assets.json
 
       - name: Upload Bicep
         uses: actions/upload-artifact@v3
         with:
           name: bicep-${{ matrix.configuration }}-${{ matrix.rid }}
           path: ./src/Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/*
+          if-no-files-found: error
+      
+      - name: Upload Bicep project assets file
+        uses: actions/upload-artifact@v3
+        with:
+          name: bicep-project-assets-${{ matrix.rid }}
+          path: ./src/Bicep.Cli/obj/project.assets.json
           if-no-files-found: error
 
       - name: Upload Packages
@@ -165,14 +181,18 @@ jobs:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
+      # needed by the GenerateNotice package
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
 
-      - name: Build BicepInVisualStudio.sln
-        run: msbuild Bicep.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
+      - name: Build Bicep.sln
+        run: msbuild Bicep.sln -restore -t:rebuild -property:Configuration=Release
 
       - name: Build BicepInVisualStudio.sln
-        run: msbuild src/vs-bicep/BicepInVisualStudio.sln -restore -t:rebuild -verbosity:diag -property:Configuration=Release
+        run: msbuild src/vs-bicep/BicepInVisualStudio.sln -restore -t:rebuild -property:Configuration=Release
 
       - name: Run bicep in visual studio unit tests
         uses: microsoft/vstest-action@v1.0.0
@@ -329,6 +349,12 @@ jobs:
         with:
           name: bicep-release-win-x64
           path: ./src/installer-win/bicep
+      
+      - name: Download Bicep CLI project assets file
+        uses: actions/download-artifact@v3
+        with:
+          name: bicep-project-assets-win-x64
+          path: ./src/installer-win/bicep
 
       - name: Build Windows Installer
         run: dotnet build --configuration release ./src/installer-win/installer.proj
@@ -337,7 +363,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: bicep-setup-win-x64
-          path: ./src/installer-win/bin/release/net472/bicep-setup-win-x64.exe
+          path: ./src/installer-win/bin/release/net6.0/bicep-setup-win-x64.exe
           if-no-files-found: error
 
   build-packages:
@@ -346,7 +372,6 @@ jobs:
     needs: build-bicep
 
     env:
-      CI: true
       RuntimeSuffix: ${{ matrix.rid }}
 
     strategy:
@@ -408,6 +433,12 @@ jobs:
         with:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/tools
+      
+      - name: Download Bicep CLI project assets file
+        uses: actions/download-artifact@v3
+        with:
+          name: bicep-project-assets-${{ matrix.rid }}
+          path: ./src/Bicep.Cli.Nuget/tools
 
       - name: Download .Net Packages
         uses: actions/download-artifact@v3
@@ -442,9 +473,6 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: build-bicep
 
-    env:
-      CI: true
-
     strategy:
       fail-fast: false
 
@@ -464,6 +492,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
 
       - name: npm ci
         run: npm ci
@@ -486,6 +517,22 @@ jobs:
         with:
           name: Bicep.LangServer
           path: ./src/vscode-bicep/bicepLanguageServer
+      
+      - name: Download Language Server project assets file
+        if: runner.os == 'Linux'
+        uses: actions/download-artifact@v3
+        with:
+          name: Bicep.LangServer.ProjAssets
+          path: ./src/vscode-bicep-notice/inputs
+      
+      - name: npm list -a --json
+        if: runner.os == 'Linux'
+        run: npm list -a --json > ../vscode-bicep-notice/inputs/npm-list.json
+        working-directory: ./src/vscode-bicep
+      
+      - name: Generate VSIX notice
+        if: runner.os == 'Linux'
+        run: dotnet build --configuration Release ./src/vscode-bicep-notice/vscode-bicep-notice.proj
 
       - name: Build prod
         run: npm run build:prod

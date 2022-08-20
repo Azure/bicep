@@ -2,7 +2,10 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Arguments;
+using Bicep.Core.Exceptions;
 using System;
+using System.IO;
+using System.IO.Compression;
 
 namespace Bicep.Cli.Commands
 {
@@ -26,6 +29,18 @@ namespace Bicep.Cli.Commands
             if (args.PrintHelp)
             {
                 PrintHelp();
+                return 0;
+            }
+
+            if(args.PrintLicense)
+            {
+                PrintLicense();
+                return 0;
+            }
+
+            if(args.PrintThirdPartyNotices)
+            {
+                PrintThirdPartyNotices();
                 return 0;
             }
 
@@ -123,8 +138,11 @@ Usage:
 
 {registryPlaceholder}  {exeName} [options]
     Options:
-      --version  -v   Shows bicep version information
-      --help     -h   Shows this usage information
+      --version              -v   Shows bicep version information
+      --help                 -h   Shows this usage information
+      --license                   Prints license information
+      --third-party-notices       Prints third-party notices
+      
 "; // this newline is intentional
 
             invocationContext.OutputWriter.Write(output);
@@ -139,12 +157,37 @@ Usage:
             invocationContext.OutputWriter.Flush();
         }
 
+        private void PrintLicense()
+        {
+            WriteEmbeddedResource(invocationContext.OutputWriter, "LICENSE.deflated");
+        }
+
+        private void PrintThirdPartyNotices()
+        {
+            WriteEmbeddedResource(invocationContext.OutputWriter, "NOTICE.deflated");
+        }
+
         private static string GetVersionString()
         {
             var versionSplit = ThisAssembly.AssemblyInformationalVersion.Split('+');
 
             // <major>.<minor>.<patch> (<commmithash>)
             return $"{versionSplit[0]} ({(versionSplit.Length > 1 ? versionSplit[1] : "custom")})";
+        }
+
+        private static void WriteEmbeddedResource(TextWriter writer, string streamName)
+        {
+            using var stream = typeof(RootCommand).Assembly.GetManifestResourceStream(streamName)
+                ?? throw new BicepException($"The resource stream '{streamName}' is missing from this executable. Please use an official build of this executable to access the requested information.");
+
+            using var decompressor = new DeflateStream(stream, CompressionMode.Decompress);
+
+            using var reader = new StreamReader(decompressor);
+            string? line = null;
+            while((line = reader.ReadLine()) is not null)
+            {
+                writer.WriteLine(line);
+            }
         }
     }
 }

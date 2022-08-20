@@ -1,9 +1,5 @@
 #define MyAppName "Bicep CLI"
 
-#ifndef MyAppVersion
-#define MyAppVersion "0.0"
-#endif
-
 #define MyAppPublisher "Microsoft Corporation"
 #define MyAppURL "https://github.com/Azure/bicep"
 #define MyAppExeName "bicep.exe"
@@ -34,6 +30,7 @@ ChangesEnvironment=yes
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
+Source: "obj\{#Configuration}\{#TargetFramework}\{#NoticeFileName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bicep\bicep.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "bicep\*.pdb"; DestDir: "{app}"; Flags: ignoreversion
 Source: "SetPath.ps1"; DestDir: "{app}\setup"; Flags: ignoreversion

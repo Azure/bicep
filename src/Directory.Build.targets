@@ -46,7 +46,34 @@
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(EnableNuget)' == 'true'" >
+  <ItemGroup Condition="'$(EnableNuget)' == 'true'">
     <None Include="$(MSBuildThisFileDirectory)\icons\bicep-logo-256.png" Pack="true" PackagePath="" Visible="false" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- 
+      projects that conditionally depend on this package must always reference it in order for the lock files to be predictable
+      the package is harmless until the target it provides is executed via AfterTargets or BeforeTargets.
+    -->
+    <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" Version="$(GenerateNoticePackageVersion)" PrivateAssets="All" Condition="'$(EnableNuget)' == 'true' or '$(EnableNoticeInPublishOutput)' == 'true' or '$(AddNoticeAsEmbeddedResource)' == 'true'" />
+  </ItemGroup>
+  <PropertyGroup>
+    <!-- configure the preamble for the generated notice file - if file not generated, this is harmless -->
+    <GenerateNoticePreambleFile>$(MSBuildThisFileDirectory)\build\notice-preamble.txt</GenerateNoticePreambleFile>
+  </PropertyGroup>
+
+  <!-- generates the notice file for NuGet packages built from csproj files (only in CI) -->
+  <Import Project="$(MSBuildThisFileDirectory)\build\GenerateNoticeForCSharpNugetPackages.targets" Condition="'$(CI)' == 'true' and '$(EnableNuget)' == 'true'" />
+
+  <!-- generates the notice file in the /publish directory during dotnet publish (only in CI) -->
+  <Import Project="$(MSBuildThisFileDirectory)\build\GenerateNoticeInPublishOutput.targets" Condition="'$(CI)' == 'true' and '$(EnableNoticeInPublishOutput)' == 'true'" />
+
+  <!-- generates the notice file and adds it as an embedded resource (only in CI) -->
+  <Import Project="$(MSBuildThisFileDirectory)\build\AddNoticeAsEmbeddedResource.targets" Condition="'$(CI)' == 'true' and '$(AddNoticeAsEmbeddedResource)' == 'true'" />
+
+  <!-- adds the license file as an embedded resource (in all builds) -->
+  <Import Project="$(MSBuildThisFileDirectory)\build\AddLicenseAsEmbeddedResource.targets" Condition="'$(AddLicenseAsEmbeddedResource)' == 'true'" />
+
+  <!-- generates the notice file for Visual Studio VSIX (only in CI) -->
+  <Import Project="$(MSBuildThisFileDirectory)\build\GenerateNoticeForVisualStudioVsix.targets" Condition="'$(CI)' == 'true' and '$(EnableNoticeInVisualStudioVsix)' == 'true' " />
 </Project>

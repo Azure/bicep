@@ -3,6 +3,8 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>Bicep.LanguageServer</RootNamespace>
+    <!-- generates a NOTICE file in the publish output using our custom targets -->
+    <EnableNoticeInPublishOutput>true</EnableNoticeInPublishOutput>
   </PropertyGroup>
 
   <ItemGroup>
