@@ -5,14 +5,14 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.ModuleFileValidators;
+using Bicep.RegistryModuleTool.ModuleValidators;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
 using Json.More;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO.Abstractions.TestingHelpers;
 
-namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
+namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
 {
     [TestClass]
     public class DescriptionsValidatorTests

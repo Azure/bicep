@@ -3,7 +3,7 @@
 
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.ModuleFileValidators;
+using Bicep.RegistryModuleTool.ModuleValidators;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,7 +13,7 @@ using System.IO.Abstractions.TestingHelpers;
 using System.Text.RegularExpressions;
 using static FluentAssertions.FluentActions;
 
-namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
+namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
 {
     [TestClass]
     public class DiffValidatorTests

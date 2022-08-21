@@ -13,7 +13,7 @@ using System;
 using System.IO.Abstractions;
 using System.Linq;
 
-namespace Bicep.RegistryModuleTool.ModuleFileValidators
+namespace Bicep.RegistryModuleTool.ModuleValidators
 {
     public class TestValidator : IModuleFileValidator
     {

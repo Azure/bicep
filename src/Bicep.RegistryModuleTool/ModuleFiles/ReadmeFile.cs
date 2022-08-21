@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.RegistryModuleTool.Extensions;
-using Bicep.RegistryModuleTool.ModuleFileValidators;
+using Bicep.RegistryModuleTool.ModuleValidators;
 using Markdig;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
