@@ -115,6 +115,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                     // valid cases should not return error symbols for any symbol reference node
                     symbol.Should().NotBeOfType<ErrorSymbol>();
                     symbol.Should().Match(s =>
+                        s is MetadataSymbol ||
                         s is ParameterSymbol ||
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
@@ -130,6 +131,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                     // invalid files may return errors
                     symbol.Should().Match(s =>
                         s is ErrorSymbol ||
+                        s is MetadataSymbol ||
                         s is ParameterSymbol ||
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
