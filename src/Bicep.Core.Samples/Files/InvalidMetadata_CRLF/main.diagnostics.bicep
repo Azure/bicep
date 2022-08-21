@@ -11,7 +11,7 @@ meta 2
 //@[05:06) [BCP250 (Error)] Expected a metadata identifier at this location. (CodeDescription: none) |2|
 //@[06:06) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 meta _2
-//@[05:07) [BCP239 (Error)] Identifier "_2" is a reserved Bicep symbol name and cannot be used in this context. (CodeDescription: none) |_2|
+//@[05:07) [BCP251 (Error)] Invalid identifier: "_2". Metadata identifiers starting with '_' are reserved. Please use a different identifier. (CodeDescription: none) |_2|
 //@[07:07) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // missing value
