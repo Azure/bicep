@@ -42,7 +42,7 @@ meta test = testSymbol
 
 // metadata referencing itself
 meta selfRef = selfRef
-//@[15:22) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. (CodeDescription: none) |selfRef|
+//@[15:22) [BCP063 (Error)] The name "selfRef" is not a parameter, variable, resource or module. (CodeDescription: none) |selfRef|
 
 // metadata with decorators
 @description('this is a description')
