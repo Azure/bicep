@@ -1469,6 +1469,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP250",
                 "Expected a metadata identifier at this location.");
 
+            public ErrorDiagnostic ReservedMetadataIdentifier(string name) => new(
+                TextSpan,
+                "BCP251",
+                $"Invalid identifier: \"{name}\". Metadata identifiers starting with '_' are reserved. Please use a different identifier.");
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
