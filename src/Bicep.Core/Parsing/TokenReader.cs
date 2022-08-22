@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Bicep.Core.Parsing
 {
-    class TokenReader
+    public class TokenReader
     {
         private Token[] Tokens { get; }
 
