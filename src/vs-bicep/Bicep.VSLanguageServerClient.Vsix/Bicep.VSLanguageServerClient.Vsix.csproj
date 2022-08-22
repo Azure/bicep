@@ -93,7 +93,7 @@
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="BicepFileIcon.pkgdef">
+    <Content Include="Bicep.pkgdef">
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -112,6 +112,10 @@
       <VSIXSourceItem Include="..\..\Bicep.LangServer\bin\**\**\*">
         <VSIXSubPath>LanguageServer</VSIXSubPath>
       </VSIXSourceItem>
+    </ItemGroup>
+    <ItemGroup>
+      <VSIXSourceItem Include="..\..\textmate\bicep.tmlanguage" VSIXSubPath="TextMateSyntaxes"/>
+      <VSIXSourceItem Include="..\..\textmate\language-configuration.json" VSIXSubPath="TextMateSyntaxes" />
     </ItemGroup>
   </Target>
 </Project>
