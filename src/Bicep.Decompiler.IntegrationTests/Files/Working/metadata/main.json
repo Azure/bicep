@@ -7,7 +7,7 @@
       "version": "0.9.99.52558",
       "templateHash": "4463859975488901053"
     },
-    "_reserved": "This will generate an error",
+    "_reserved": "This will be ignored",
     "myString": "this is a string",
     "myInt": 1
   },
