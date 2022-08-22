@@ -20,6 +20,7 @@
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.1.0" />
 		<PackageReference Include="Microsoft.Test.Apex.VisualStudio" Version="17.1.32510.401" />
 		<PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.1.32210.191" />
+		<PackageReference Include="Microsoft.VisualStudio.Shell.Interop" Version="17.1.32210.191" />
 		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
 		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
 	</ItemGroup>

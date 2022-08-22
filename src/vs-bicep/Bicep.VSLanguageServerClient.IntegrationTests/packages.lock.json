@@ -58,6 +58,15 @@
           "System.Threading.Tasks.Extensions": "4.5.4"
         }
       },
+      "Microsoft.VisualStudio.Shell.Interop": {
+        "type": "Direct",
+        "requested": "[17.1.32210.191, )",
+        "resolved": "17.1.32210.191",
+        "contentHash": "q5E34KuLN7raZBeA8n/vaGiGch5aaqxHvzCKd2igMuCtk6yglZew3mcqvqgxQIkeUv86rGwT0gzqtIpjOXoBcw==",
+        "dependencies": {
+          "Microsoft.VisualStudio.Interop": "17.1.32210.191"
+        }
+      },
       "MSTest.TestAdapter": {
         "type": "Direct",
         "requested": "[2.2.10, )",
