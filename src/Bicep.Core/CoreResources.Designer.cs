@@ -70,15 +70,6 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The artifacts parameter &apos;{0}&apos; must start with an underscore..
-        /// </summary>
-        internal static string ArtifactsLocationRule_Error_MissingUnderscore {
-            get {
-                return ResourceManager.GetString("ArtifactsLocationRule_Error_MissingUnderscore", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to If an &apos;{0}&apos; parameter is provided, an &apos;{1}&apos; parameter must also be provided..
         /// </summary>
         internal static string ArtifactsLocationRule_Error_ParamMissing {
