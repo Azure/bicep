@@ -46,7 +46,7 @@ namespace Bicep.VSLanguageServerClient
             middleLayer = new AggregatingMiddleLayer(gotoDefintionMiddleLayer, handleSnippetCompletionsMiddleLayer, updateFormatSettingsMiddleLayer);
         }
 
-        public string Name => "Bicep Language Server";
+        public string Name => BicepLanguageServerClientConstants.BicepLanguageServerName;
 
         public virtual IEnumerable<string> ConfigurationSections => Enumerable.Empty<string>();
 
@@ -64,7 +64,7 @@ namespace Bicep.VSLanguageServerClient
         public async Task<Connection?> ActivateAsync(CancellationToken token)
         {
             string vsixInstallPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string languageServerExePath = Path.Combine(vsixInstallPath, "Bicep.LangServer.exe");
+            string languageServerExePath = Path.Combine(vsixInstallPath, BicepLanguageServerClientConstants.BicepLanguageServerInstallationSubPath, "Bicep.LangServer.exe");
 
             var launchServerArguments = $" --contentType {BicepLanguageServerClientConstants.BicepContentType}" +
                 $" --lcid {Thread.CurrentThread.CurrentUICulture.LCID}";

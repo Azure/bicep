@@ -13,6 +13,7 @@
     <ProjectGuid>{A722010A-27D3-433E-8469-465E72AB0E8E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetName>vs-bicep</TargetName>
     <RootNamespace>Bicep.VSLanguageServerClient.Vsix</RootNamespace>
     <AssemblyName>Bicep.VSLanguageServerClient.Vsix</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -108,7 +109,9 @@
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <Target Name="IncludeLanguageServerDependencies" AfterTargets="GetVsixSourceItems">
     <ItemGroup>
-      <VSIXSourceItem Include="..\..\Bicep.LangServer\bin\**\**\*" />
+      <VSIXSourceItem Include="..\..\Bicep.LangServer\bin\**\**\*">
+        <VSIXSubPath>LanguageServer</VSIXSubPath>
+      </VSIXSourceItem>
     </ItemGroup>
   </Target>
 </Project>
