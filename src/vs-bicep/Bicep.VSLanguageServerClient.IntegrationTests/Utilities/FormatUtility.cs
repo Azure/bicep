@@ -14,7 +14,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
         {
             string expected = File.ReadAllText(baselineFile);
 
-            VsHostUtility.VsHost!.ObjectModel.Commanding.ExecuteCommand(VSConstants.VSStd2KCmdID.FORMATDOCUMENT, null);
+            CommandUtility.ExecuteCommand(VSConstants.VSStd2KCmdID.FORMATDOCUMENT);
 
             WaitForExtensions.IsTrue(() => editor.Contents == expected, TimeSpan.FromSeconds(5));
         }

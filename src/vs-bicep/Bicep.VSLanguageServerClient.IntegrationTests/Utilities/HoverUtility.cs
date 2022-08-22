@@ -45,7 +45,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
 
         public static void InvokeQuickInfo()
         {
-            VsHostUtility.VsHost!.ObjectModel.Commanding.ExecuteCommand(VSConstants.VSStd2KCmdID.QUICKINFO, null);
+            CommandUtility.ExecuteCommand(VSConstants.VSStd2KCmdID.QUICKINFO);
         }
     }
 }
