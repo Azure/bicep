@@ -1,0 +1,36 @@
+<!--
+  This project is used purely to generate a notice file for the VS Code VSIX package.
+
+  Prerequisites:
+  - The project.assets.json of the Bicep.LangServer project must be saved as inputs\project.assets.json
+  - The output of npm list -a -json command for the vscode-bicep project must be saved as inputs\npm-list.json
+-->
+<Project Sdk="Microsoft.Build.NoTargets">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <!-- NoTargets SDK no longer sets Language, which is required by NerdBank.GitVersioning -->
+    <Language>C#</Language>
+
+    <NoticeFileName>ThirdPartyNotices.txt</NoticeFileName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" Version="$(GenerateNoticePackageVersion)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <IssFile Include="bicep.iss" />
+  </ItemGroup>
+
+  <Target Name="PrepareForNoticeGeneration" BeforeTargets="GenerateNotice">
+    <ItemGroup>
+      <GenerateNoticeAssetFile Include="$(MSBuildProjectDirectory)\inputs\project.assets.json" />
+      <GenerateNoticeNpmListJsonFile Include="$(MSBuildProjectDirectory)\inputs\npm-list.json" />
+    </ItemGroup>
+    <PropertyGroup>
+      <GenerateNoticeOutputPath>$(MSBuildProjectDirectory)\..\vscode-bicep\$(NoticeFileName)</GenerateNoticeOutputPath>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="RunTool" AfterTargets="Build" DependsOnTargets="GenerateNotice" />
+</Project>
