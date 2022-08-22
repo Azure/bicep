@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 
@@ -14,6 +15,16 @@ namespace Bicep.Core.Syntax
             if (parameterDeclarationSyntax.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
             {
                 return defaultValueSyntax.DefaultValue;
+            }
+
+            return null;
+        }
+
+        public static SyntaxBase? TryGetDefaultValue(ParameterSymbol parameterSymbol)
+        {
+            if (parameterSymbol.DeclaringSyntax is ParameterDeclarationSyntax syntax)
+            {
+                return SyntaxHelper.TryGetDefaultValue(syntax);
             }
 
             return null;
@@ -49,7 +60,7 @@ namespace Bicep.Core.Syntax
             // Type checking will pick up any errors if we fail to process the syntax correctly in this function.
             // There's no need to do error checking here - just return "None" as the scope type.
 
-            if (!(targetScopeSyntax.Value is StringSyntax stringSyntax))
+            if (targetScopeSyntax.Value is not StringSyntax stringSyntax)
             {
                 return ResourceScope.None;
             }
