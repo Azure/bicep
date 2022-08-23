@@ -108,29 +108,25 @@ namespace Bicep.Cli.Services
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
-            if (!fileResolver.TryRead(inputUri, out var fileText, out var failureMessage))
+            var configuration = this.configurationManager.GetConfiguration(inputUri);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri, configuration, isParamsFile: true);
+            if (!skipRestore)
             {
-                throw new Exception($"Unable to read file {inputPath}");
-            }
-            var paramsFile = SourceFileFactory.CreateBicepParamFile(inputUri, fileText);
-
-            Uri? bicepFileUri = ParamsSemanticModel.TryGetBicepFileUri(out var compilationLoadDiagnostics, fileResolver, paramsFile);
-
-            ParamsSemanticModel model;
-
-            if (bicepFileUri is { })
-            {
-                var compilation = await CompileAsync(bicepFileUri, skipRestore);
-                model = new(paramsFile, compilationLoadDiagnostics, compilation);
-            }
-            else
-            {
-                model = new(paramsFile, compilationLoadDiagnostics);
+                // module references in the file may be malformed
+                // however we still want to surface as many errors as we can for the module refs that are valid
+                // so we will try to restore modules with valid refs and skip everything else
+                // (the diagnostics will be collected during compilation)
+                if (await moduleDispatcher.RestoreModules(configuration, moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
+                {
+                    // modules had to be restored - recompile
+                    sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, this.workspace, sourceFileGrouping, configuration);
+                }
             }
 
-            LogParamDiagnostics(model);
+            var compilation = new Compilation(this.invocationContext.Features, this.invocationContext.NamespaceProvider, sourceFileGrouping, configuration, apiVersionProvider, new LinterAnalyzer(configuration));
+            LogDiagnostics(compilation);
 
-            return model;
+            return compilation.TryGetParamsFileSemanticModel() ?? throw new InvalidOperationException("Failed to build semantic model for parameters file");
         }
 
         public async Task<(Uri, ImmutableDictionary<Uri, string>)> DecompileAsync(string inputPath, string outputPath)
@@ -195,14 +191,6 @@ namespace Bicep.Cli.Services
                     diagnosticLogger.LogDiagnostic(bicepFile.FileUri, diagnostic, bicepFile.LineStarts);
                 }
             }
-        }
-
-        private void LogParamDiagnostics(ParamsSemanticModel paramSemanticModel)
-        {
-            foreach (var diagnostic in paramSemanticModel.GetAllDiagnostics())
-            {
-                diagnosticLogger.LogDiagnostic(paramSemanticModel.BicepParamFile.FileUri, diagnostic, paramSemanticModel.BicepParamFile.LineStarts);
-            };
         }
     }
 }

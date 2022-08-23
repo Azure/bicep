@@ -224,6 +224,7 @@ namespace Bicep.LanguageServer.Snippets
             BicepFile bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"inmemory://{manifestResourceName}.bicep"), template);
             SourceFileGrouping sourceFileGrouping = new SourceFileGrouping(
                 fileResolver,
+                null,
                 bicepFile,
                 ImmutableHashSet.Create<ISourceFile>(bicepFile),
                 ImmutableDictionary.Create<ModuleDeclarationSyntax, ISourceFile>(),

@@ -22,14 +22,12 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly ICompilationManager compilationManager;
         private readonly IBicepConfigChangeHandler bicepConfigChangeHandler;
-        private readonly IParamsCompilationManager paramsCompilationManager;
         private readonly IFeatureProvider featureProvider;
 
-        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, IParamsCompilationManager paramsCompilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler, IFeatureProvider featureProvider) 
+        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler, IFeatureProvider featureProvider)
         {
             this.bicepConfigChangeHandler = bicepConfigChangeHandler;
             this.compilationManager = compilationManager;
-            this.paramsCompilationManager = paramsCompilationManager;
             this.featureProvider = featureProvider;
         }
 
@@ -38,21 +36,14 @@ namespace Bicep.LanguageServer.Handlers
             return new TextDocumentAttributes(uri, LanguageConstants.LanguageId);
         }
 
-        public override Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken token) 
+        public override Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken token)
         {
             // we have full sync enabled, so apparently first change is the whole document
             var contents = request.ContentChanges.First().Text;
 
             var documentUri = request.TextDocument.Uri;
 
-            if (featureProvider.ParamsFilesEnabled && PathHelper.HasBicepparamsExension(documentUri.ToUri()))
-            {
-                this.paramsCompilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, contents);
-            }
-            else
-            {
-                this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, contents);
-            }
+            this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, contents);
 
             // Handle scenario where the bicepconfig.json file was opened prior to
             // language service activation. If the config file was opened before the language server
@@ -70,21 +61,18 @@ namespace Bicep.LanguageServer.Handlers
         {
             var documentUri = request.TextDocument.Uri;
 
+            if (PathHelper.HasBicepparamsExension(documentUri.ToUri()) && !featureProvider.ParamsFilesEnabled)
+            {
+                return Unit.Task;
+            }
+
             // If the documentUri corresponds to bicepconfig.json, we'll add an entry to activeBicepConfigCache.
             if (ConfigurationHelper.IsBicepConfigFile(documentUri)) //potentialy copy this for bicep params
             {
                 bicepConfigChangeHandler.HandleBicepConfigOpenEvent(documentUri);
             }
 
-            
-            if (featureProvider.ParamsFilesEnabled && PathHelper.HasBicepparamsExension(documentUri.ToUri()))
-            {
-                this.paramsCompilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
-            }
-            else
-            {
-                this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId, triggeredByFileOpenEvent: true);
-            }
+            this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId, triggeredByFileOpenEvent: true);
 
             return Unit.Task;
         }
@@ -115,15 +103,8 @@ namespace Bicep.LanguageServer.Handlers
                 bicepConfigChangeHandler.HandleBicepConfigCloseEvent(documentUri);
             }
 
-            if (featureProvider.ParamsFilesEnabled && PathHelper.HasBicepparamsExension(documentUri.ToUri()))
-            {
-                this.paramsCompilationManager.CloseCompilation(request.TextDocument.Uri);
-            }
-            else
-            {
-                this.compilationManager.CloseCompilation(request.TextDocument.Uri);
-            }
-            
+            this.compilationManager.CloseCompilation(request.TextDocument.Uri);
+
             return Unit.Task;
         }
 

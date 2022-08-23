@@ -12,11 +12,11 @@ namespace Bicep.Core.Semantics
 {
     public class ParamBinder
     {
-        private readonly BicepParamFile bicepParamFile;
+        private readonly BicepFile bicepParamFile;
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
         private readonly ImmutableDictionary<BindableSymbol, ImmutableArray<BindableSymbol>> cyclesBySymbol;
 
-        public ParamBinder(BicepParamFile bicepParamFile, ParamsSymbolContext paramsSymbolContext)
+        public ParamBinder(BicepFile bicepParamFile, ParamsSymbolContext paramsSymbolContext)
         {
             this.bicepParamFile = bicepParamFile;
             var symbols = ParamAssignmentSymbolCollectVisitor.GetSymbols(bicepParamFile, paramsSymbolContext);
@@ -33,7 +33,7 @@ namespace Bicep.Core.Semantics
         }
 
         public ParamFileSymbol ParamFileSymbol { get; }
-        
+
         /// <summary>
         /// Returns the symbol that was bound to the specified syntax node. Will return null for syntax nodes that never get bound to symbols. Otherwise,
         /// a symbol will always be returned. Binding failures are represented with a non-null error symbol.
@@ -54,7 +54,7 @@ namespace Bicep.Core.Semantics
                 .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
         }
 
-        private static ImmutableDictionary<BindableSymbol, ImmutableArray<BindableSymbol>> GetCyclesBySymbol(BicepParamFile bicepParamFile, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
+        private static ImmutableDictionary<BindableSymbol, ImmutableArray<BindableSymbol>> GetCyclesBySymbol(BicepFile bicepParamFile, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             return CyclicCheckVisitor.FindCycles(bicepParamFile.ProgramSyntax, bindings);
         }

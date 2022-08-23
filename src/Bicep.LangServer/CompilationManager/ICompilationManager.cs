@@ -7,7 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.CompilationManager
 {
-    public interface ICompilationManager<T>
+    public interface ICompilationManager
     {
         void HandleFileChanges(IEnumerable<FileEvent> fileEvents);
 
@@ -17,16 +17,6 @@ namespace Bicep.LanguageServer.CompilationManager
 
         void CloseCompilation(DocumentUri uri);
 
-        T? GetCompilation(DocumentUri uri);
-    }
-    public interface ICompilationManager : ICompilationManager<CompilationContext>
-    {
-        
-    }
-
-    public interface IParamsCompilationManager : ICompilationManager<ParamsCompilationContext>
-    {
-
+        CompilationContext? GetCompilation(DocumentUri uri);
     }
 }
-

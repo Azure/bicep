@@ -11,6 +11,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Utils;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
@@ -31,7 +32,7 @@ namespace Bicep.Core.Workspaces
         // uri -> successfully loaded syntax tree
         private readonly Dictionary<Uri, ISourceFile> sourceFilesByUri;
 
-        // uri -> syntax tree load failure 
+        // uri -> syntax tree load failure
         private readonly Dictionary<Uri, ErrorBuilderDelegate> errorBuildersByUri;
 
         private readonly RootConfiguration configuration;
@@ -70,11 +71,11 @@ namespace Bicep.Core.Workspaces
             this.forceModulesRestore = forceforceModulesRestore;
         }
 
-        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, RootConfiguration configuration, bool forceModulesRestore = false)
+        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, RootConfiguration configuration, bool forceModulesRestore = false, bool isParamsFile = false)
         {
             var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, configuration, forceModulesRestore);
 
-            return builder.Build(entryFileUri);
+            return builder.Build(entryFileUri, isParamsFile);
         }
 
         public static SourceFileGrouping Rebuild(IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current, RootConfiguration configuration)
@@ -92,12 +93,12 @@ namespace Bicep.Core.Workspaces
                 .Where(sourceFile => GetModuleDeclarations(sourceFile).Any(moduleDeclaration => current.ModulesToRestore.Contains(moduleDeclaration)))
                 .ToImmutableHashSet();
 
-            return builder.Build(current.EntryPoint.FileUri, sourceFilesToRebuild);
+            return builder.Build(current.EntryPoint.FileUri, current.EntryPoint.IsParamsFile, sourceFilesToRebuild);
         }
 
-        private SourceFileGrouping Build(Uri entryFileUri, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild = null)
+        private SourceFileGrouping Build(Uri entryFileUri, bool isParamsFile, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild = null)
         {
-            var sourceFile = this.PopulateRecursive(entryFileUri, null, sourceFilesToRebuild, out var entryPointLoadFailureBuilder);
+            var sourceFile = this.PopulateRecursive(entryFileUri, isParamsFile, null, sourceFilesToRebuild, out var entryPointLoadFailureBuilder);
 
             if (sourceFile is null)
             {
@@ -116,9 +117,19 @@ namespace Bicep.Core.Workspaces
 
             var sourceFileDependencies = this.ReportFailuresForCycles();
 
+            var bicepFile = isParamsFile ? null : entryPoint;
+            var paramsFile = isParamsFile ? entryPoint : null;
+
+            if (ParamsSemanticModel.TryGetBicepFileUri(out var diagnostics, fileResolver, entryPoint) is {} paramsBicepUri &&
+                sourceFilesByUri.TryGetValue(paramsBicepUri) is BicepFile paramsBicepFile)
+            {
+                bicepFile = paramsBicepFile;
+            }
+
             return new SourceFileGrouping(
                 fileResolver,
-                entryPoint,
+                paramsFile,
+                bicepFile,
                 sourceFilesByUri.Values.ToImmutableHashSet(),
                 sourceFilesByModuleDeclaration.ToImmutableDictionary(),
                 sourceFileDependencies.InvertLookup().ToImmutableDictionary(),
@@ -126,7 +137,7 @@ namespace Bicep.Core.Workspaces
                 modulesToRestore.ToImmutableHashSet());
         }
 
-        private ISourceFile? TryGetSourceFile(Uri fileUri, ModuleReference? moduleReference, out ErrorBuilderDelegate? failureBuilder)
+        private ISourceFile? TryGetSourceFile(Uri fileUri, bool isParamsFile, ModuleReference? moduleReference, out ErrorBuilderDelegate? failureBuilder)
         {
             if (workspace.TryGetSourceFile(fileUri, out var sourceFile))
             {
@@ -153,21 +164,23 @@ namespace Bicep.Core.Workspaces
             }
 
             failureBuilder = null;
-            return AddSourceFile(fileUri, fileContents, moduleReference);
+            return AddSourceFile(fileUri, isParamsFile, fileContents, moduleReference);
         }
 
-        private ISourceFile AddSourceFile(Uri fileUri, string fileContents, ModuleReference? moduleReference)
+        private ISourceFile AddSourceFile(Uri fileUri, bool isParamsFile, string fileContents, ModuleReference? moduleReference)
         {
-            var sourceFile = SourceFileFactory.CreateSourceFile(fileUri, fileContents, moduleReference);
+            var sourceFile = isParamsFile ?
+                SourceFileFactory.CreateBicepParamFile(fileUri, fileContents) :
+                SourceFileFactory.CreateSourceFile(fileUri, fileContents, moduleReference);
 
             sourceFilesByUri[fileUri] = sourceFile;
 
             return sourceFile;
         }
 
-        private ISourceFile? PopulateRecursive(Uri fileUri, ModuleReference? moduleReference, ImmutableHashSet<ISourceFile>? sourceFileToRebuild, out ErrorBuilderDelegate? failureBuilder)
+        private ISourceFile? PopulateRecursive(Uri fileUri, bool isParamsFile, ModuleReference? moduleReference, ImmutableHashSet<ISourceFile>? sourceFileToRebuild, out ErrorBuilderDelegate? failureBuilder)
         {
-            var sourceFile = this.TryGetSourceFile(fileUri, moduleReference, out var getSourceFileFailureBuilder);
+            var sourceFile = this.TryGetSourceFile(fileUri, isParamsFile, moduleReference, out var getSourceFileFailureBuilder);
 
             if (sourceFile is null)
             {
@@ -177,7 +190,23 @@ namespace Bicep.Core.Workspaces
 
             if (sourceFile is not BicepFile bicepFile)
             {
-                // The source file must be a JSON template.
+                failureBuilder = null;
+                return sourceFile;
+            }
+
+            if (bicepFile.IsParamsFile &&
+                ParamsSemanticModel.TryGetBicepFileUri(out var diagnostics, fileResolver, bicepFile) is {} bicepUri)
+            {
+                // TODO do something with diagnostics?
+
+                var childModuleFile = PopulateRecursive(bicepUri, false, null, sourceFileToRebuild, out var modulePopulateFailureBuilder);
+                if (childModuleFile is null)
+                {
+                    // TODO log proper diags here
+                    failureBuilder = getSourceFileFailureBuilder;
+                    return null;
+                }
+
                 failureBuilder = null;
                 return sourceFile;
             }
@@ -232,7 +261,7 @@ namespace Bicep.Core.Workspaces
                 if (!sourceFilesByUri.TryGetValue(childModuleFileUri, out var childModuleFile) ||
                     (sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childModuleFile)))
                 {
-                    childModuleFile = PopulateRecursive(childModuleFileUri, childModuleReference, sourceFileToRebuild, out var modulePopulateFailureBuilder);
+                    childModuleFile = PopulateRecursive(childModuleFileUri, false, childModuleReference, sourceFileToRebuild, out var modulePopulateFailureBuilder);
 
                     if (childModuleFile is null)
                     {

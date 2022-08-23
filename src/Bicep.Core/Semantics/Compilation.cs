@@ -17,6 +17,7 @@ namespace Bicep.Core.Semantics
     public class Compilation
     {
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
+        private readonly Lazy<ParamsSemanticModel?> lazyParamsSemanticModel;
 
         public Compilation(IFeatureProvider features, INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, RootConfiguration configuration, IApiVersionProvider apiVersionProvider, IBicepAnalyzer linterAnalyzer, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         {
@@ -32,13 +33,16 @@ namespace Bicep.Core.Semantics
                 sourceFile => sourceFile,
                 sourceFile => (modelLookup is not null && modelLookup.TryGetValue(sourceFile, out var existingModel)) ?
                     new(existingModel) :
-                    new Lazy<ISemanticModel>(() => sourceFile switch
-                    {
+                    new Lazy<ISemanticModel>(() => sourceFile switch {
                         BicepFile bicepFile => new SemanticModel(this, bicepFile, fileResolver, linterAnalyzer),
                         ArmTemplateFile armTemplateFile => new ArmTemplateSemanticModel(armTemplateFile),
                         TemplateSpecFile templateSpecFile => new TemplateSpecSemanticModel(templateSpecFile),
                         _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
                     }));
+            this.lazyParamsSemanticModel = new Lazy<ParamsSemanticModel?>(() => sourceFileGrouping.ParamsFile switch {
+                {} paramsFile => new ParamsSemanticModel(paramsFile, this),
+                _ => null,
+            });
         }
 
         public IApiVersionProvider ApiVersionProvider { get; }
@@ -50,6 +54,12 @@ namespace Bicep.Core.Semantics
         public SourceFileGrouping SourceFileGrouping { get; }
 
         public INamespaceProvider NamespaceProvider { get; }
+
+        public ParamsSemanticModel? TryGetParamsFileSemanticModel()
+            => lazyParamsSemanticModel.Value;
+
+        public SemanticModel? TryGetBicepFileSemanticModel()
+            => SourceFileGrouping.BicepFile is {} bicepFile ? GetSemanticModel(bicepFile) : null;
 
         public SemanticModel GetEntrypointSemanticModel()
             => GetSemanticModel(SourceFileGrouping.EntryPoint);
@@ -66,7 +76,9 @@ namespace Bicep.Core.Semantics
         public ImmutableDictionary<BicepFile, ImmutableArray<IDiagnostic>> GetAllDiagnosticsByBicepFile()
             => SourceFileGrouping.SourceFiles.OfType<BicepFile>().ToImmutableDictionary(
                 bicepFile => bicepFile,
-                bicepFile => this.GetSemanticModel(bicepFile).GetAllDiagnostics());
+                bicepFile => bicepFile == SourceFileGrouping.ParamsFile ?
+                    lazyParamsSemanticModel.Value?.GetAllDiagnostics() ?? ImmutableArray<IDiagnostic>.Empty :
+                    this.GetSemanticModel(bicepFile).GetAllDiagnostics());
 
         private T GetSemanticModel<T>(ISourceFile sourceFile) where T : class, ISemanticModel =>
             this.GetSemanticModel(sourceFile) as T ??

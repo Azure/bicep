@@ -17,8 +17,8 @@ namespace Bicep.Core.Semantics
             this.symbols = symbols;
             this.paramsSymbolContext = paramsSymbolContext;
         }
-        
-        public static ImmutableArray<ParameterAssignmentSymbol> GetSymbols(BicepParamFile bicepParamFile, ParamsSymbolContext paramsSymbolContext)
+
+        public static ImmutableArray<ParameterAssignmentSymbol> GetSymbols(BicepFile bicepParamFile, ParamsSymbolContext paramsSymbolContext)
         {
             // collect declarations
             var symbols = new List<ParameterAssignmentSymbol>();
@@ -27,7 +27,7 @@ namespace Bicep.Core.Semantics
 
             return symbols.ToImmutableArray();
         }
-        
+
         public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
         {
             base.VisitParameterAssignmentSyntax(syntax);
@@ -36,6 +36,6 @@ namespace Bicep.Core.Semantics
             symbols.Add(symbol);
         }
 
-        
+
     }
 }

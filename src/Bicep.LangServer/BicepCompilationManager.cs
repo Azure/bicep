@@ -93,7 +93,7 @@ namespace Bicep.LanguageServer
             // TODO: This may cause race condition if the user is modifying the file at the same time
             // need to make a shallow copy so it counts as a different file even though all the content is identical
             // this was the easiest way to force the compilation to be regenerated
-            var shallowCopy = new BicepFile(compilationContext.Compilation.SourceFileGrouping.EntryPoint);
+            var shallowCopy = compilationContext.Compilation.SourceFileGrouping.EntryPoint with {};
             UpsertCompilationInternal(documentUri, null, shallowCopy, reloadBicepConfig);
         }
 
@@ -101,7 +101,9 @@ namespace Bicep.LanguageServer
         {
             if (this.ShouldUpsertCompilation(documentUri, languageId))
             {
-                var newFile = SourceFileFactory.CreateSourceFile(documentUri.ToUri(), fileContents);
+                var newFile = PathHelper.HasBicepparamsExension(documentUri.ToUri()) ?
+                    SourceFileFactory.CreateBicepParamFile(documentUri.ToUri(), fileContents) :
+                    SourceFileFactory.CreateSourceFile(documentUri.ToUri(), fileContents);
                 UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: triggeredByFileOpenEvent);
             }
         }
@@ -211,6 +213,7 @@ namespace Bicep.LanguageServer
 
         private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles, bool reloadBicepConfig = false, bool triggeredByFileOpenEvent = false)
         {
+            var isParamsFile = PathHelper.HasBicepparamsExension(documentUri.ToUri());
             var configuration = this.GetConfigurationSafely(documentUri, out var configurationDiagnostic);
 
             try
@@ -223,7 +226,7 @@ namespace Bicep.LanguageServer
 
                 var context = this.activeContexts.AddOrUpdate(
                     documentUri,
-                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration, linterAnalyzer),
+                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration, linterAnalyzer, isParamsFile),
                     (documentUri, prevContext) =>
                     {
                         var prevConfiguration = prevContext.Compilation.Configuration;
@@ -246,7 +249,7 @@ namespace Bicep.LanguageServer
                             ? this.GetConfigurationSafely(documentUri.ToUri(), out configurationDiagnostic)
                             : prevContext.Compilation.Configuration;
 
-                        return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration, linterAnalyzer);
+                        return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration, linterAnalyzer, isParamsFile);
                     });
 
                 foreach (var sourceFile in context.Compilation.SourceFileGrouping.SourceFiles)
@@ -483,8 +486,15 @@ namespace Bicep.LanguageServer
             return this.configurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
         }
 
-        private static IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context) =>
-            context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
+        private static IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context)
+        {
+            if (context.Compilation.TryGetParamsFileSemanticModel() is {} paramsSemanticModel)
+            {
+                return paramsSemanticModel.GetAllDiagnostics();
+            }
+
+            return context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
+        }
 
         private void PublishDocumentDiagnostics(DocumentUri uri, int? version, IEnumerable<Diagnostic> diagnostics)
         {

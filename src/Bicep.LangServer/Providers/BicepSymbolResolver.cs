@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
@@ -15,13 +16,11 @@ namespace Bicep.LanguageServer.Providers
     {
         private readonly ILogger<BicepSymbolResolver> logger;
         private readonly ICompilationManager compilationManager;
-        private readonly IParamsCompilationManager paramsCompilationManager;
 
-        public BicepSymbolResolver(ILogger<BicepSymbolResolver> logger, ICompilationManager compilationManager, IParamsCompilationManager paramsCompilationManager)
+        public BicepSymbolResolver(ILogger<BicepSymbolResolver> logger, ICompilationManager compilationManager)
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
-            this.paramsCompilationManager = paramsCompilationManager; 
         }
 
         public SymbolResolutionResult? ResolveSymbol(DocumentUri uri, Position position)
@@ -60,9 +59,9 @@ namespace Bicep.LanguageServer.Providers
             return null;
         }
 
-        public ParamsSymbolResolutionResult? ResolveParamsSymbol(DocumentUri uri, Position position)
+        public SymbolResolutionResult? ResolveParamsSymbol(DocumentUri uri, Position position)
         {
-            var context = this.paramsCompilationManager.GetCompilation(uri);
+            var context = this.compilationManager.GetCompilation(uri);
             if (context == null)
             {
                 // we have not yet compiled this document, which shouldn't really happen
@@ -73,7 +72,7 @@ namespace Bicep.LanguageServer.Providers
 
             // convert text coordinates
             int offset = PositionHelper.GetOffset(context.LineStarts, position);
-            var semanticModel = context.ParamsSemanticModel;
+            var semanticModel = context.Compilation.TryGetParamsFileSemanticModel() ?? throw new InvalidOperationException($"Unable to load parameter file semantic model");
 
             // locate the most specific node that can be bound as a symbol
             var node = context.ProgramSyntax.TryFindMostSpecificNodeInclusive(
@@ -90,7 +89,7 @@ namespace Bicep.LanguageServer.Providers
 
             if (semanticModel.ParamBinder.GetSymbolInfo(node) is { } symbol)
             {
-                return new ParamsSymbolResolutionResult(node, symbol, context);
+                return new SymbolResolutionResult(node, symbol, context);
             }
 
             return null;

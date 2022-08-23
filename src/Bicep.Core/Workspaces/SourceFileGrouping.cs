@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
@@ -15,7 +16,8 @@ namespace Bicep.Core.Workspaces
     {
         public SourceFileGrouping(
             IFileResolver fileResolver,
-            BicepFile entryPoint,
+            BicepFile? paramsFile,
+            BicepFile? bicepFile,
             ImmutableHashSet<ISourceFile> sourceFiles,
             ImmutableDictionary<ModuleDeclarationSyntax, ISourceFile> sourceFilesByModuleDeclaration,
             ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> sourceFileParentLookup,
@@ -23,7 +25,9 @@ namespace Bicep.Core.Workspaces
             ImmutableHashSet<ModuleDeclarationSyntax> modulesToRestore)
         {
             this.FileResolver = fileResolver;
-            this.EntryPoint = entryPoint;
+            this.EntryPoint = paramsFile ?? bicepFile ?? throw new ArgumentNullException(nameof(bicepFile), $"One or more of {nameof(paramsFile)} & {nameof(bicepFile)} must be non-null");
+            this.ParamsFile = paramsFile;
+            this.BicepFile = bicepFile;
             this.SourceFiles = sourceFiles;
             this.SourceFilesByModuleDeclaration = sourceFilesByModuleDeclaration;
             this.SourceFileParentLookup = sourceFileParentLookup;
@@ -42,6 +46,10 @@ namespace Bicep.Core.Workspaces
         public IFileResolver FileResolver { get; }
 
         public BicepFile EntryPoint { get; }
+
+        public BicepFile? BicepFile { get; }
+
+        public BicepFile? ParamsFile { get; }
 
         public ImmutableHashSet<ISourceFile> SourceFiles { get; }
 

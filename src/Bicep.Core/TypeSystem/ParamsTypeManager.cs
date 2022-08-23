@@ -22,19 +22,18 @@ namespace Bicep.Core.TypeSystem
         {
             var parameterAssignmentSymbol = paramsSemanticModel.ParamBinder.GetSymbolInfo(syntax);
 
-            var bicepCompilation = paramsSemanticModel.BicepCompilation;
-            if (bicepCompilation is null)
+            if (paramsSemanticModel.Compilation.TryGetBicepFileSemanticModel() is not {} bicepSemanticModel)
             {
                 return null;
             }
-            var semanticModel = bicepCompilation.GetEntrypointSemanticModel();
-            var parameterDeclarations = semanticModel.Root.ParameterDeclarations;
+
+            var parameterDeclarations = bicepSemanticModel.Root.ParameterDeclarations;
 
             foreach (var parameterSymbol in parameterDeclarations)
             {
                 if (LanguageConstants.IdentifierComparer.Equals(parameterSymbol.Name, parameterAssignmentSymbol?.Name))
                 {
-                    return semanticModel.GetDeclaredType(parameterSymbol.DeclaringParameter);
+                    return bicepSemanticModel.GetDeclaredType(parameterSymbol.DeclaringParameter);
                 }
             }
             return null;

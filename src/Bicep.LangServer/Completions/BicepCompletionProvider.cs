@@ -94,10 +94,10 @@ namespace Bicep.LanguageServer.Completions
         }
 
         private IEnumerable<CompletionItem> GetParamIdentifierCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
-        {   
-            if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamIdentifier) && paramsSemanticModel.BicepCompilation is {} bicepCompilation)
+        {
+            if (paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamIdentifier) &&
+                paramsSemanticModel.Compilation.TryGetBicepFileSemanticModel() is {} bicepSemanticModel)
             {
-                var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
                 var bicepFileParamDeclarations = bicepSemanticModel.Root.ParameterDeclarations;
 
                 foreach(var declaration in bicepFileParamDeclarations)
@@ -115,9 +115,9 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> GetParamAllowedValueCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
         {
 
-            if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamValue) && paramsSemanticModel.BicepCompilation is {} bicepCompilation)
+            if (paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamValue) &&
+                paramsSemanticModel.Compilation.TryGetBicepFileSemanticModel() is {} bicepSemanticModel)
             {
-                var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
                 var bicepFileParamDeclaration = bicepSemanticModel.Parameters.Where(parameterMetaData => parameterMetaData.Name == paramsCompletionContext.ParamAssignment).FirstOrDefault();
                 if(bicepFileParamDeclaration?.TypeReference.Type is UnionType union)
                 {
@@ -133,7 +133,7 @@ namespace Bicep.LanguageServer.Completions
                                         .Build();
                             yield return returnVal;
                         }
-                    }   
+                    }
                 }
             }
         }
@@ -145,13 +145,13 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            if(paramsCompletionContext.UsingDeclaration is not UsingDeclarationSyntax usingDeclarationSyntax || 
+            if(paramsCompletionContext.UsingDeclaration is not UsingDeclarationSyntax usingDeclarationSyntax ||
                usingDeclarationSyntax.Path is not StringSyntax stringSyntax ||
                stringSyntax.TryGetLiteralValue() is not string entered)
             {
                 entered = "";
             }
-            
+
 
              // These should only fail if we're not able to resolve cwd path or the entered string
             if (!TryGetFilesForPathCompletions(paramsSemanticModel.BicepParamFile.FileUri, entered, out var cwdUri, out var files, out var dirs))

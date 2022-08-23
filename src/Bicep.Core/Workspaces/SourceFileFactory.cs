@@ -35,12 +35,12 @@ namespace Bicep.Core.Workspaces
             return CreateBicepFile(fileUri, fileContents);
         }
 
-        public static BicepParamFile CreateBicepParamFile(Uri fileUri, string fileContents)
+        public static BicepFile CreateBicepParamFile(Uri fileUri, string fileContents)
         {
             var parser = new ParamsParser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
 
-            return new(fileUri, lineStarts, parser.Program());
+            return new(fileUri, lineStarts, parser.Program(), isParamsFile: true);
         }
 
         public static BicepFile CreateBicepFile(Uri fileUri, string fileContents)
@@ -48,7 +48,7 @@ namespace Bicep.Core.Workspaces
             var parser = new Parser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
 
-            return new(fileUri, lineStarts, parser.Program());
+            return new(fileUri, lineStarts, parser.Program(), isParamsFile: false);
         }
 
         public static ArmTemplateFile CreateArmTemplateFile(Uri fileUri, string fileContents)
