@@ -20,7 +20,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
 
             if (!isEnabled)
             {
-                throw new TimeoutException(string.Format(CultureInfo.InvariantCulture, "Timed out after {0} seconds waiting for command to be enabled", timeoutInSeconds));
+                throw new TimeoutException(string.Format(CultureInfo.InvariantCulture, "Timed out after {0} seconds waiting for command with id - {1} to be enabled", timeoutInSeconds, commandId.ToString()));
             }
 
             VsHostUtility.VsHost!.ObjectModel.Commanding.ExecuteCommand(commandId, null);
