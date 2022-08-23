@@ -13,6 +13,7 @@
     <ProjectGuid>{A722010A-27D3-433E-8469-465E72AB0E8E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetVsixContainerName>vs-bicep.vsix</TargetVsixContainerName>
     <RootNamespace>Bicep.VSLanguageServerClient.Vsix</RootNamespace>
     <AssemblyName>Bicep.VSLanguageServerClient.Vsix</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -54,10 +55,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.1.32210.191">
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.2.32505.173">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.1.4057">
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.2.2198">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -108,7 +109,9 @@
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <Target Name="IncludeLanguageServerDependencies" AfterTargets="GetVsixSourceItems">
     <ItemGroup>
-      <VSIXSourceItem Include="..\..\Bicep.LangServer\bin\**\**\*" />
+      <VSIXSourceItem Include="..\..\Bicep.LangServer\bin\**\**\*">
+        <VSIXSubPath>LanguageServer</VSIXSubPath>
+      </VSIXSourceItem>
     </ItemGroup>
   </Target>
 </Project>

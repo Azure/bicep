@@ -189,10 +189,24 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
 
       - name: Build Bicep.sln
-        run: msbuild Bicep.sln -restore -t:rebuild -property:Configuration=Release
+        run: msbuild Bicep.sln /restore -property:Configuration=Release /v:m /bl:./src/binlog/bicep_build.binlog
+
+      - name: Upload Bicep.sln build binlog
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-binlog-files
+          path: ./src/binlog/bicep_build.binlog
+          if-no-files-found: error
 
       - name: Build BicepInVisualStudio.sln
-        run: msbuild src/vs-bicep/BicepInVisualStudio.sln -restore -t:rebuild -property:Configuration=Release
+        run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore -property:Configuration=Release /v:m /bl:./src/binlog/bicep_in_visual_studio_build.binlog
+
+      - name: Upload Bicep.sln build binlog
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-binlog-files
+          path: ./src/binlog/bicep_in_visual_studio_build.binlog
+          if-no-files-found: error
 
       - name: Run bicep in visual studio unit tests
         uses: microsoft/vstest-action@v1.0.0
@@ -213,7 +227,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: Bicep.VSLanguageServerClient.Vsix.vsix
-          path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/Bicep.VSLanguageServerClient.Vsix.vsix
+          path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/vs-bicep.vsix
           if-no-files-found: error
 
   can-run-live-tests:
