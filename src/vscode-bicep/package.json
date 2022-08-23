@@ -111,6 +111,17 @@
         "configuration": "./language-configuration.json"
       },
       {
+        "id": "bicep-params",
+        "aliases": [
+          "Bicep Parameters",
+          "Bicep Params"
+        ],
+        "extensions": [
+          ".bicepparam"
+        ],
+        "configuration": "./language-configuration.json"
+      },
+      {
         "id": "jsonc",
         "filenames": [
           "bicepconfig.json"
@@ -538,7 +549,7 @@
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
     "@types/mocha": "^9.1.1",
-    "@types/node": "^18.6.3",
+    "@types/node": "^18.7.11",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@types/react-test-renderer": "^18.0.0",
