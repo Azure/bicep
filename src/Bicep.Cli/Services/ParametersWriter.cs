@@ -10,34 +10,33 @@ using System.IO;
 
 namespace Bicep.Cli.Services
 {
-    public class ParametersFileWriter
+    /// <summary>
+    /// Generates a Bicep param file from a JSON parameter file.
+    /// </summary>
+    public class ParametersWriter
     {
         private readonly InvocationContext invocationContext;
 
-        public ParametersFileWriter(InvocationContext invocationContext)
+        public ParametersWriter(InvocationContext invocationContext)
         {
             this.invocationContext = invocationContext;
         }
 
-        public EmitResult ToFile(Compilation compilation, string outputPath)
+        public EmitResult ToFile(ParamsSemanticModel paramSemanticModel, string outputPath)
         {
-            var existingContent = string.Empty;
-            if (File.Exists(outputPath))
-            {
-                existingContent = File.ReadAllText(outputPath);
-            }
             using var fileStream = CreateFileStream(outputPath);
-            return new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.EmitterSettings).EmitParametersFile(fileStream, existingContent);
+            return new ParametersEmitter(paramSemanticModel, invocationContext.EmitterSettings).EmitParamsFile(fileStream);
         }
 
-        public EmitResult ToStdout(Compilation compilation)
+        public EmitResult ToStdout(ParamsSemanticModel paramSemanticModel)
         {
             using var writer = new JsonTextWriter(invocationContext.OutputWriter)
             {
                 Formatting = Formatting.Indented
             };
+            new ParametersEmitter(paramSemanticModel, invocationContext.EmitterSettings).EmitParamsFile(writer);
 
-            return new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.EmitterSettings).EmitParametersFile(writer, string.Empty);
+            return new ParametersEmitter(paramSemanticModel, invocationContext.EmitterSettings).EmitParamsFile(writer);
         }
 
         private static FileStream CreateFileStream(string path)

@@ -28,6 +28,9 @@ namespace Bicep.Core.Features
 
         public bool SourceMappingEnabled => ReadBooleanEnvVar("BICEP_SOURCEMAPPING_ENABLED", defaultValue: false);
 
+        private Lazy<bool> paramsFilesEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_PARAMS_FILES_ENABLED", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
+        public bool ParamsFilesEnabled => paramsFilesEnabledLazy.Value;
+        
         public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 
         public static TraceVerbosity TracingVerbosity => ReadEnumEnvvar<TraceVerbosity>("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);

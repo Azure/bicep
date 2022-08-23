@@ -16,6 +16,8 @@ namespace Bicep.Core.UnitTests.Baselines
     {
         public string ReadFromOutputFolder() => File.ReadAllText(OutputFilePath);
 
+        public void WriteToOutputFolder(string contents) => File.WriteAllText(OutputFilePath, contents);
+
         public void ShouldHaveExpectedValue()
         {
             this.ReadFromOutputFolder().Should().EqualWithLineByLineDiffOutput(

@@ -76,6 +76,12 @@ namespace Bicep.Cli.Services
         public async Task<Compilation> CompileAsync(string inputPath, bool skipRestore)
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
+
+            return await CompileAsync(inputUri, skipRestore);
+        }
+
+        public async Task<Compilation> CompileAsync(Uri inputUri, bool skipRestore)
+        {
             var configuration = this.configurationManager.GetConfiguration(inputUri);
 
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri, configuration);
@@ -96,6 +102,35 @@ namespace Bicep.Cli.Services
             LogDiagnostics(compilation);
 
             return compilation;
+        }
+
+        public async Task<ParamsSemanticModel> CompileParams(string inputPath, bool skipRestore)
+        {
+            var inputUri = PathHelper.FilePathToFileUrl(inputPath);
+
+            if (!fileResolver.TryRead(inputUri, out var fileText, out var failureMessage))
+            {
+                throw new Exception($"Unable to read file {inputPath}");
+            }
+            var paramsFile = SourceFileFactory.CreateBicepParamFile(inputUri, fileText);
+
+            Uri? bicepFileUri = ParamsSemanticModel.TryGetBicepFileUri(out var compilationLoadDiagnostics, fileResolver, paramsFile);
+
+            ParamsSemanticModel model;
+
+            if (bicepFileUri is { })
+            {
+                var compilation = await CompileAsync(bicepFileUri, skipRestore);
+                model = new(paramsFile, compilationLoadDiagnostics, compilation);
+            }
+            else
+            {
+                model = new(paramsFile, compilationLoadDiagnostics);
+            }
+
+            LogParamDiagnostics(model);
+
+            return model;
         }
 
         public async Task<(Uri, ImmutableDictionary<Uri, string>)> DecompileAsync(string inputPath, string outputPath)
@@ -160,6 +195,14 @@ namespace Bicep.Cli.Services
                     diagnosticLogger.LogDiagnostic(bicepFile.FileUri, diagnostic, bicepFile.LineStarts);
                 }
             }
+        }
+
+        private void LogParamDiagnostics(ParamsSemanticModel paramSemanticModel)
+        {
+            foreach (var diagnostic in paramSemanticModel.GetAllDiagnostics())
+            {
+                diagnosticLogger.LogDiagnostic(paramSemanticModel.BicepParamFile.FileUri, diagnostic, paramSemanticModel.BicepParamFile.LineStarts);
+            };
         }
     }
 }

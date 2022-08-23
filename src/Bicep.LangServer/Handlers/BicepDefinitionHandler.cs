@@ -34,29 +34,21 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepDefinitionHandler : DefinitionHandlerBase
     {
         private readonly ISymbolResolver symbolResolver;
-
         private readonly ICompilationManager compilationManager;
-
         private readonly IFileResolver fileResolver;
-
-        private readonly IWorkspace workspace;
-
         private readonly ILanguageServerFacade languageServer;
-
         private readonly IModuleDispatcher moduleDispatcher;
 
         public BicepDefinitionHandler(
             ISymbolResolver symbolResolver,
             ICompilationManager compilationManager,
             IFileResolver fileResolver,
-            IWorkspace workspace,
             ILanguageServerFacade languageServer,
             IModuleDispatcher moduleDispatcher) : base()
         {
             this.symbolResolver = symbolResolver;
             this.compilationManager = compilationManager;
             this.fileResolver = fileResolver;
-            this.workspace = workspace;
             this.languageServer = languageServer;
             this.moduleDispatcher = moduleDispatcher;
         }

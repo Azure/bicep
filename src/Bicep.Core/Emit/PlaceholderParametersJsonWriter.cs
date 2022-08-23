@@ -10,9 +10,9 @@ using System.IO;
 
 namespace Bicep.Core.Emit
 {
-    public class ParametersFileTemplateWriter : TemplateWriter
+    public class PlaceholderParametersJsonWriter : TemplateWriter
     {
-        public ParametersFileTemplateWriter(SemanticModel semanticModel, EmitterSettings settings) : base(semanticModel, settings)
+        public PlaceholderParametersJsonWriter(SemanticModel semanticModel, EmitterSettings settings) : base(semanticModel, settings)
         {
             this.context = new EmitterContext(semanticModel, settings);
             this.settings = settings;

@@ -5,14 +5,14 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public abstract class DeclaredSymbol : Symbol
+    public abstract class DeclaredSymbol : BindableSymbol
     {
         protected DeclaredSymbol(ISymbolContext context, string name, SyntaxBase declaringSyntax, IdentifierSyntax nameSyntax)
-            : base(name)
+            : base(name, nameSyntax)
         {
             this.Context = context;
             this.DeclaringSyntax = declaringSyntax;
-            this.NameSyntax = nameSyntax;
+            
         }
 
         public ISymbolContext Context { get; }
@@ -22,10 +22,7 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public SyntaxBase DeclaringSyntax { get; }
 
-        /// <summary>
-        /// Gets the syntax node of the identifier.
-        /// </summary>
-        public IdentifierSyntax NameSyntax { get; }
+        
 
         /// <summary>
         /// Gets the type of the symbol.

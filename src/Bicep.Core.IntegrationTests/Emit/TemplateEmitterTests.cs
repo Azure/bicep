@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -199,6 +201,33 @@ namespace Bicep.Core.IntegrationTests.Emit
         }
 
         [DataTestMethod]
+        [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void Valid_bicepparam_TemplateEmiter_should_produce_expected_template(BaselineData_Bicepparam baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+
+            data.Compiled.Should().NotBeNull();
+            var result = this.EmitParam(data.Parameters.OutputFilePath, BicepTestConstants.EmitterSettings, data.Compiled!.OutputFilePath);
+            result.Diagnostics.Should().NotHaveErrors();
+            result.Status.Should().Be(EmitStatus.Succeeded);
+
+            data.Compiled.ShouldHaveExpectedJsonValue();
+        }
+
+        [DataTestMethod]
+        [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.InvalidOnly)]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void Invalid_bicepparam_TemplateEmiter_should_not_produce_a_template(BaselineData_Bicepparam baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+
+            var result = this.EmitParam(data.Parameters.OutputFilePath, BicepTestConstants.EmitterSettings, Path.ChangeExtension(data.Parameters.OutputFilePath, ".json"));
+            result.Diagnostics.Should().NotBeEmpty();
+            result.Status.Should().Be(EmitStatus.Failed);
+        }
+
+        [DataTestMethod]
         [DataRow("\n")]
         [DataRow("\r\n")]
         public void Multiline_strings_should_parse_correctly(string newlineSequence)
@@ -250,6 +279,15 @@ this
 
             TextWriter tw = new StreamWriter(memoryStream);
             return emitter.Emit(tw);
+        }
+
+        private EmitResult EmitParam(string inputFilePath, EmitterSettings emitterSettings, string outputFilePath)
+        {
+            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(inputFilePath), File.ReadAllText(inputFilePath)), ImmutableArray<IDiagnostic>.Empty);
+
+            var emitter = new ParametersEmitter(model, emitterSettings);
+            using var stream = new FileStream(outputFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+            return emitter.EmitParamsFile(stream);
         }
 
         private static IEnumerable<object[]> GetValidDataSets() => DataSets

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Parsing;
@@ -24,14 +25,19 @@ namespace Bicep.LanguageServer
 
         public static void BuildSemanticTokens(SemanticTokensBuilder builder, BicepFile bicepFile)
         {
+            BuildSemanticTokens(builder, bicepFile.ProgramSyntax, bicepFile.LineStarts);
+        }
+
+        public static void BuildSemanticTokens(SemanticTokensBuilder builder, ProgramSyntax programSyntax,  ImmutableArray<int> lineStarts)
+        {
             var visitor = new SemanticTokenVisitor();
 
-            visitor.Visit(bicepFile.ProgramSyntax);
+            visitor.Visit(programSyntax);
 
             // the builder is fussy about ordering. tokens are visited out of order, we need to call build after visiting everything
             foreach (var (positionable, tokenType) in visitor.tokens.OrderBy(t => t.positionable.Span.Position))
             {
-                var tokenRanges = positionable.ToRangeSpanningLines(bicepFile.LineStarts);
+                var tokenRanges = positionable.ToRangeSpanningLines(lineStarts);
                 foreach (var tokenRange in tokenRanges)
                 {
                     builder.Push(tokenRange.Start.Line, tokenRange.Start.Character, tokenRange.End.Character - tokenRange.Start.Character, tokenType as SemanticTokenType?);
@@ -295,7 +301,7 @@ namespace Bicep.LanguageServer
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitVariableDeclarationSyntax(syntax);
         }
-
+        
         public override void VisitTargetScopeSyntax(TargetScopeSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
@@ -310,5 +316,19 @@ namespace Bicep.LanguageServer
             AddTokenType(syntax.AliasName, SemanticTokenType.Variable);
             base.VisitImportDeclarationSyntax(syntax);
         }
+
+        public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            base.VisitParameterAssignmentSyntax(syntax);
+        }
+
+        public override void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            base.VisitUsingDeclarationSyntax(syntax);
+        }
+
     }
 }

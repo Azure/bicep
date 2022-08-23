@@ -62,5 +62,5 @@ namespace Bicep.LangServer.IntegrationTests
             var commandOutput = File.ReadAllText(Path.ChangeExtension(bicepFilePath, ".parameters.json"));
             commandOutput.Should().BeEquivalentToIgnoringNewlines(expectedJson);
         }
-   }
+    }
 }

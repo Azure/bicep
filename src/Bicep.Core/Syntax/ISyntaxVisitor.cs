@@ -38,6 +38,8 @@ namespace Bicep.Core.Syntax
 
         void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax);
 
+        void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax);
+
         void VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax);
 
         void VisitParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax);
@@ -86,6 +88,8 @@ namespace Bicep.Core.Syntax
 
         void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax);
 
+        void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax);
+        
         void VisitLambdaSyntax(LambdaSyntax syntax);
     }
 }

@@ -328,6 +328,22 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Config);
         }
 
+        public virtual void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Assignment);
+            this.Visit(syntax.Value);
+        }
+
+        public virtual void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Path);
+        }
+        
         public virtual void VisitLambdaSyntax(LambdaSyntax syntax)
         {
             this.Visit(syntax.VariableSection);

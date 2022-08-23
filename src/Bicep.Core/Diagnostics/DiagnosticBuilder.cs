@@ -1463,6 +1463,77 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP249",
                 $"Expected loop variable block to consist of exactly 2 elements (item variable and index variable), but found {actualCount}.");
+
+            public ErrorDiagnostic ParameterMultipleAssignments(string identifier) => new(
+                TextSpan,
+                "BCP250",
+                $"Parameter \"{identifier}\" is assigned multiple times. Remove or rename the duplicates.");
+
+            public ErrorDiagnostic ParameterTernaryOperationNotSupported() => new(
+                TextSpan,
+                "BCP251",
+                $"Ternary operator is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic ParameterBinaryOperationNotSupported() => new(
+                TextSpan,
+                "BCP252",
+                $"Binary operator is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic ParameterUnaryOperationNotSupported() => new(
+                TextSpan,
+                "BCP253",
+                $"Unary operator is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic ParameterLambdaFunctionNotSupported() => new(
+                TextSpan,
+                "BCP254",
+                $"Lambda function is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic ParameterFunctionCallNotSupported() => new(
+                TextSpan,
+                "BCP255",
+                $"Function call is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic TemplatePathHasNotBeenSpecified() => new(
+                TextSpan,
+                "BCP256",
+                "The using declaration is missing a bicep template file path reference.");
+
+            public ErrorDiagnostic ExpectedFilePathString() => new(
+                TextSpan,
+                "BCP257",
+                "Expected a Bicep file path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
+
+            public ErrorDiagnostic MissingParameterAssignment(IEnumerable<string> identifiers) => new(
+                TextSpan,
+                "BCP258",
+                $"The following parameters are declared in the Bicep file but are missing an assignment in the params file: {ToQuotedString(identifiers)}.");
+
+            public ErrorDiagnostic MissingParameterDeclaration(string? identifier) => new(
+                TextSpan,
+                "BCP259",
+                $"The parameter \"{identifier}\" is assigned in the params file without being declared in the Bicep file.");
+
+            public ErrorDiagnostic ParameterTypeMismatch(string? identifier, TypeSymbol expectedType, TypeSymbol actualType) => new(
+                TextSpan,
+                "BCP260",
+                $"The parameter \"{identifier}\" expects a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
+             
+            public Diagnostic UsingDeclarationNotSpecified() => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP261",
+                "No using declaration is present in this parameters file. Parameter validation/completions will not be available");
+
+            public ErrorDiagnostic MoreThanOneUsingDeclarationSpecified() => new(
+                TextSpan,
+                "BCP262",
+                "More than one using declaration are present");
+
+            public ErrorDiagnostic UsingDeclarationReferencesInvalidFile() => new(
+                TextSpan,
+                "BCP263",
+                "The file specified in the using declaration path does not exist");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
