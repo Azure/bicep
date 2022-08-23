@@ -16,6 +16,7 @@ namespace Bicep.Core
         public const string LanguageId = "bicep";
         public const string LanguageFileExtension = ".bicep";
 
+        public const string ParamsLanguageId = "bicep-params";
         public const string ParamsFileExtension = ".bicepparam";
 
         public const string JsonLanguageId = "json";
