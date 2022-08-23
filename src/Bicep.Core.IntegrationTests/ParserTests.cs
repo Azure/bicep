@@ -61,47 +61,9 @@ namespace Bicep.Core.IntegrationTests
             var syntaxList = SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.Build(program);
             var syntaxByParent = syntaxList.ToLookup(x => x.Parent);
 
-            static IEnumerable<SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem> getAncestors(SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem data)
-            {
-                while (data.Parent is {} parent)
-                {
-                    yield return parent;
-                    data = parent;
-                }
-            }
-
-            string getLoggingString(SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem syntax)
-            {
-                // Build a visual graph with lines to help understand the syntax hierarchy
-                var graphPrefix = new StringBuilder();
-
-                foreach (var ancestor in getAncestors(syntax).Reverse().Skip(1))
-                {
-                    var isLast = (ancestor.Depth > 0 && ancestor == syntaxByParent[ancestor.Parent].Last());
-                    graphPrefix.Append(isLast switch {
-                        true => "  ",
-                        _ => "| ",
-                    });
-                }
-
-                if (syntax.Depth > 0)
-                {
-                    var isLast = syntax == syntaxByParent[syntax.Parent].Last();
-                    graphPrefix.Append(isLast switch {
-                        true => "└─",
-                        _ => "├─",
-                    });
-                }
-
-                return syntax.Syntax switch {
-                    Token token => $"{graphPrefix}Token({token.Type}) |{OutputHelper.EscapeWhitespace(token.Text)}|",
-                    _ => $"{graphPrefix}{syntax.Syntax.GetType().Name}",
-                };
-            }
-
             TextSpan getSpan(SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
 
-            var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, syntaxList, getSpan, getLoggingString);
+            var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, syntaxList, getSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainSyntax), sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
@@ -109,6 +71,24 @@ namespace Bicep.Core.IntegrationTests
                 dataSet.Syntax,
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
                 actualLocation: resultsFile);
+        }
+
+        [DataTestMethod]
+        [BaselineData_Bicepparam.TestData()]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void Params_Parser_should_produce_expected_syntax(BaselineData_Bicepparam baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+            var program = ParamsParserHelper.ParamsParse(data.Parameters.EmbeddedFile.Contents);
+            var syntaxList = SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.Build(program);
+            var syntaxByParent = syntaxList.ToLookup(x => x.Parent);
+
+            TextSpan getSpan(SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
+
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", syntaxList, getSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
+
+            data.Syntax.WriteToOutputFolder(sourceTextWithDiags);
+            data.Syntax.ShouldHaveExpectedValue();
         }
 
         private static IEnumerable<object[]> GetData()
@@ -131,6 +111,37 @@ namespace Bicep.Core.IntegrationTests
 
             var visitor = new SpanConsistencyVisitor();
             visitor.Visit(program);
+        }
+
+        private static string GetSyntaxLoggingString(
+            ILookup<SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem?, SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem> syntaxByParent,
+            SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem syntax)
+        {
+            // Build a visual graph with lines to help understand the syntax hierarchy
+            var graphPrefix = new StringBuilder();
+
+            foreach (var ancestor in syntax.GetAncestors().Reverse().Skip(1))
+            {
+                var isLast = (ancestor.Depth > 0 && ancestor == syntaxByParent[ancestor.Parent].Last());
+                graphPrefix.Append(isLast switch {
+                    true => "  ",
+                    _ => "| ",
+                });
+            }
+
+            if (syntax.Depth > 0)
+            {
+                var isLast = syntax == syntaxByParent[syntax.Parent].Last();
+                graphPrefix.Append(isLast switch {
+                    true => "└─",
+                    _ => "├─",
+                });
+            }
+
+            return syntax.Syntax switch {
+                Token token => $"{graphPrefix}Token({token.Type}) |{OutputHelper.EscapeWhitespace(token.Text)}|",
+                _ => $"{graphPrefix}{syntax.Syntax.GetType().Name}",
+            };
         }
 
         private sealed class SpanConsistencyVisitor : SyntaxVisitor

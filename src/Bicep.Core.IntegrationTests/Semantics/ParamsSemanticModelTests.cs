@@ -8,13 +8,10 @@ using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
-using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
 using System.Linq;
 
 namespace Bicep.Core.IntegrationTests.Semantics
@@ -26,41 +23,55 @@ namespace Bicep.Core.IntegrationTests.Semantics
         public TestContext? TestContext { get; set; }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        [BaselineData_Bicepparam.TestData()]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void ProgramsShouldProduceExpectedUserDeclaredSymbols(DataSet dataSet)
+        public void ProgramsShouldProduceExpectedDiagnostic(BaselineData_Bicepparam baselineData)
         {
-            if (dataSet.BicepParam is null)
-            {
-                throw new InvalidOperationException($"Expected {nameof(dataSet.BicepParam)} to be non-null");
-            }
+            var data = baselineData.GetData(TestContext);
 
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMainParam));
-            var lineStarts = TextCoordinateConverter.GetLineStarts(dataSet.BicepParam);
-            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(fileUri, dataSet.BicepParam), ImmutableArray<IDiagnostic>.Empty);
+            var fileUri = PathHelper.FilePathToFileUrl(data.Parameters.OutputFilePath);
+            var paramFile = SourceFileFactory.CreateBicepParamFile(fileUri, data.Parameters.EmbeddedFile.Contents);
+            var model = new ParamsSemanticModel(paramFile, ImmutableArray<IDiagnostic>.Empty);
+
+            // use a deterministic order
+            var diagnostics = model.GetAllDiagnostics()
+                .OrderBy(x => x.Span.Position)
+                .ThenBy(x => x.Span.Length)
+                .ThenBy(x => x.Message, StringComparer.Ordinal);
+
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", diagnostics,
+                diag => OutputHelper.GetDiagLoggingString(data.Parameters.EmbeddedFile.Contents, data.OutputFolder.OutputFolderPath, diag));
+
+            data.Diagnostics.WriteToOutputFolder(sourceTextWithDiags);
+            data.Diagnostics.ShouldHaveExpectedValue();
+        }
+
+        [DataTestMethod]
+        [BaselineData_Bicepparam.TestData()]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void ProgramsShouldProduceExpectedUserDeclaredSymbols(BaselineData_Bicepparam baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+
+            var fileUri = PathHelper.FilePathToFileUrl(data.Parameters.OutputFilePath);
+            var paramFile = SourceFileFactory.CreateBicepParamFile(fileUri, data.Parameters.EmbeddedFile.Contents);
+            var model = new ParamsSemanticModel(paramFile, ImmutableArray<IDiagnostic>.Empty);
 
             var symbols = SymbolCollector
                 .CollectSymbols(model)
                 .OfType<ParameterAssignmentSymbol>();
-           
+
             string getLoggingString(ParameterAssignmentSymbol symbol)
             {
-                (_, var startChar) = TextCoordinateConverter.GetPosition(lineStarts, symbol.AssigningSyntax.Span.Position);
+                (_, var startChar) = TextCoordinateConverter.GetPosition(paramFile.LineStarts, symbol.AssigningSyntax.Span.Position);
 
                 return $"{symbol.Kind} {symbol.Name}. Type: {symbol.Type}. Declaration start char: {startChar}, length: {symbol.AssigningSyntax.Span.Length}";
             }
 
-            var sourceTextWithDiags = DataSet.AddDiagsToParamSourceText(dataSet, symbols, symb => symb.NameSyntax.Span, getLoggingString);
-            var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileParamSymbols);
-            File.WriteAllText(resultsFile, sourceTextWithDiags);
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", symbols, symb => symb.NameSyntax.Span, getLoggingString);
 
-            sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
-                TestContext,
-                dataSet.ParamSymbols ?? throw new InvalidOperationException($"Expected {nameof(dataSet.ParamSymbols)} to be non-null"),
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileParamSymbols),
-                actualLocation: resultsFile);
+            data.Symbols.WriteToOutputFolder(sourceTextWithDiags);
+            data.Symbols.ShouldHaveExpectedValue();
         }
-        private static IEnumerable<object[]> GetParamData() => DataSets.ParamDataSets.ToDynamicTestData();
     }
 }

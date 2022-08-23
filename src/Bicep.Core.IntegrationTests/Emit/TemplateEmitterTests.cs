@@ -81,29 +81,6 @@ namespace Bicep.Core.IntegrationTests.Emit
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void ValidBicepparam_TemplateEmiterShouldProduceExpectedTemplate(DataSet dataSet)
-        {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var paramFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParam);
-            var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainParamCompiled));
-
-            var result = this.EmitParam(paramFilePath, BicepTestConstants.EmitterSettings, compiledFilePath);
-            result.Diagnostics.Should().NotHaveErrors();
-            result.Status.Should().Be(EmitStatus.Succeeded);
-
-            var outputFile = File.ReadAllText(compiledFilePath);
-            var actual = JToken.Parse(outputFile);
-
-            actual.Should().EqualWithJsonDiffOutput(
-                TestContext,
-                JToken.Parse(dataSet.CompliedParam!),
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainParamCompiled),
-                actualLocation: compiledFilePath);
-        }
-
-        [DataTestMethod]
         [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task ValidBicep_EmitTemplate_should_produce_expected_symbolicname_template(DataSet dataSet)
@@ -224,6 +201,33 @@ namespace Bicep.Core.IntegrationTests.Emit
         }
 
         [DataTestMethod]
+        [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void Valid_bicepparam_TemplateEmiter_should_produce_expected_template(BaselineData_Bicepparam baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+
+            data.Compiled.Should().NotBeNull();
+            var result = this.EmitParam(data.Parameters.OutputFilePath, BicepTestConstants.EmitterSettings, data.Compiled!.OutputFilePath);
+            result.Diagnostics.Should().NotHaveErrors();
+            result.Status.Should().Be(EmitStatus.Succeeded);
+
+            data.Compiled.ShouldHaveExpectedJsonValue();
+        }
+
+        [DataTestMethod]
+        [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.InvalidOnly)]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void Invalid_bicepparam_TemplateEmiter_should_not_produce_a_template(BaselineData_Bicepparam baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+
+            var result = this.EmitParam(data.Parameters.OutputFilePath, BicepTestConstants.EmitterSettings, Path.ChangeExtension(data.Parameters.OutputFilePath, ".json"));
+            result.Diagnostics.Should().NotBeEmpty();
+            result.Status.Should().Be(EmitStatus.Failed);
+        }
+
+        [DataTestMethod]
         [DataRow("\n")]
         [DataRow("\r\n")]
         public void Multiline_strings_should_parse_correctly(string newlineSequence)
@@ -278,7 +282,7 @@ this
         }
 
         private EmitResult EmitParam(string inputFilePath, EmitterSettings emitterSettings, string outputFilePath)
-        {   
+        {
             var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl(inputFilePath), File.ReadAllText(inputFilePath)), ImmutableArray<IDiagnostic>.Empty);
 
             var emitter = new ParametersEmitter(model, emitterSettings);
@@ -295,7 +299,5 @@ this
             .AllDataSets
             .Where(ds => ds.IsValid == false)
             .ToDynamicTestData();
-
-        private static IEnumerable<object[]> GetParamData() => DataSets.ParamDataSets.Where(x => x.IsValid).ToDynamicTestData();
     }
 }

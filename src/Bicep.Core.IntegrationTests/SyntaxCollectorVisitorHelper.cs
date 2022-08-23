@@ -10,7 +10,18 @@ namespace Bicep.Core.IntegrationTests
     {
         public class SyntaxCollectorVisitor : SyntaxVisitor
         {
-            public record SyntaxItem(SyntaxBase Syntax, SyntaxItem? Parent, int Depth);
+            public record SyntaxItem(SyntaxBase Syntax, SyntaxItem? Parent, int Depth)
+            {
+                public IEnumerable<SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem> GetAncestors()
+                {
+                    var data = this;
+                    while (data.Parent is {} parent)
+                    {
+                        yield return parent;
+                        data = parent;
+                    }
+                }
+            }
 
             private readonly IList<SyntaxItem> syntaxList = new List<SyntaxItem>();
             private SyntaxItem? parent = null;

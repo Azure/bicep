@@ -185,19 +185,16 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Build_Valid_Params_File_Should_Succeed(DataSet dataSet)
+        [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task Build_Valid_Params_File_Should_Succeed(BaselineData_Bicepparam baselineData)
         {
-        
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            var paramsFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParam);
+            var data = baselineData.GetData(TestContext);
 
-            var features = BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: dataSet.HasParamFile);
-            var settings = new InvocationSettings(features, clientFactory, templateSpecRepositoryFactory);
-            
-            var (output, error, result) = await Bicep(settings, "build", paramsFilePath);
+            var features = BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true);
+            var settings = new InvocationSettings(features, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+
+            var (output, error, result) = await Bicep(settings, "build", data.Parameters.OutputFilePath);
 
             using (new AssertionScope())
             {
@@ -206,17 +203,7 @@ namespace Bicep.Cli.IntegrationTests
                 AssertNoErrors(error);
             }
 
-            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainParamCompiled);
-            File.Exists(compiledFilePath).Should().BeTrue();
-
-            string content = File.ReadAllText(compiledFilePath);
-            var actual = JToken.Parse(content);
-
-            actual.Should().EqualWithJsonDiffOutput(
-                TestContext,
-                JToken.Parse(dataSet.CompliedParam!),
-                expectedLocation: "test",
-                actualLocation: "test");
+            data.Compiled!.ShouldHaveExpectedJsonValue();
         }
 
         [TestMethod]
@@ -310,23 +297,23 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetInavlidParamData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public async Task Build_Invalid_Single_Params_File_ShouldFail_WithExpectedErrorMessage(DataSet dataSet)
+        [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.InvalidOnly)]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task Build_Invalid_Single_Params_File_ShouldFail_WithExpectedErrorMessage(BaselineData_Bicepparam baselineData)
         {
-            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
-            var paramsFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainInvalidParam);
-            var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
-            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
-            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: dataSet.HasParamFile), clientFactory, templateSpecRepositoryFactory);
-            var diagnostics = GetAllParamDiagnostics(paramsFilePath);
+            var data = baselineData.GetData(TestContext);
 
-            var (output, error, result) = await Bicep(settings, "build", paramsFilePath);
+            var features = BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true);
+            var settings = new InvocationSettings(features, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var diagnostics = GetAllParamDiagnostics(data.Parameters.OutputFilePath);
+
+            var (output, error, result) = await Bicep(settings, "build", data.Parameters.OutputFilePath);
 
             using (new AssertionScope())
             {
                 result.Should().Be(1);
                 output.Should().BeEmpty();
-                error.Should().ContainAll(diagnostics); 
+                error.Should().ContainAll(diagnostics);
             }
         }
 
@@ -498,9 +485,5 @@ output myOutput string = 'hello!'
             .AllDataSets
             .Where(ds => ds.IsValid && ds.HasExternalModules)
             .ToDynamicTestData();
-
-        private static IEnumerable<object[]> GetParamData() => DataSets.ParamDataSets.Where(x => x.IsValid).ToDynamicTestData();
-
-        private static IEnumerable<object[]> GetInavlidParamData() => DataSets.InvalidParamDataSets.ToDynamicTestData();
     }
 }
