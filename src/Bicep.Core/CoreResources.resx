@@ -121,10 +121,6 @@
     <value>If an '{0}' parameter is provided, an '{1}' parameter must also be provided.</value>
     <comment>{0} and {1} are programmatic parameter names (either '_artifactsLocation' or '_artifactsLocationSasToken')</comment>
   </data>
-  <data name="ArtifactsLocationRule_Error_MissingUnderscore" xml:space="preserve">
-    <value>The artifacts parameter '{0}' must start with an underscore.</value>
-    <comment>{0} = parameter name</comment>
-  </data>
   <data name="ArtifactsLocationRule_FixTitle_ChangeType" xml:space="preserve">
     <value>Change parameter type to '{0}'</value>
     <comment>{0} = type name</comment>
