@@ -664,7 +664,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to If property &quot;{0}&quot; represents a resource ID, it must use a symbolic resource reference (preferred) or start with one of these functions: {1}..
+        ///   Looks up a localized string similar to If property &quot;{0}&quot; represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {1}..
         /// </summary>
         internal static string UseResourceIdFunctionsRule_MessageFormat {
             get {

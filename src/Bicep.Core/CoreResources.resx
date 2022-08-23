@@ -344,7 +344,7 @@
     <value>Properties representing a resource ID must be generated appropriately.</value>
   </data>
   <data name="UseResourceIdFunctionsRule_MessageFormat" xml:space="preserve">
-    <value>If property "{0}" represents a resource ID, it must use a symbolic resource reference (preferred) or start with one of these functions: {1}.</value>
+    <value>If property "{0}" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {1}.</value>
     <comment>{0} programmatic identifier
 {1} comma-separated list of programmatic function names</comment>
   </data>
