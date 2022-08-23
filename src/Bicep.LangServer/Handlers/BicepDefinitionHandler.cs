@@ -28,97 +28,33 @@ using Bicep.Core.Modules;
 using System.Net;
 using Bicep.Core.Navigation;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Features;
 
 namespace Bicep.LanguageServer.Handlers
 {
     public class BicepDefinitionHandler : DefinitionHandlerBase
     {
         private readonly ISymbolResolver symbolResolver;
-
         private readonly ICompilationManager compilationManager;
-
         private readonly IFileResolver fileResolver;
-
-        private readonly IWorkspace workspace;
-
         private readonly ILanguageServerFacade languageServer;
-
         private readonly IModuleDispatcher moduleDispatcher;
-
-        private readonly IParamsCompilationManager paramsCompilationManager;
-        private readonly IFeatureProvider featureProvider;
 
         public BicepDefinitionHandler(
             ISymbolResolver symbolResolver,
             ICompilationManager compilationManager,
             IFileResolver fileResolver,
-            IWorkspace workspace,
             ILanguageServerFacade languageServer,
-            IModuleDispatcher moduleDispatcher,
-            IParamsCompilationManager paramsCompilationManager,
-            IFeatureProvider featureProvider) : base()
+            IModuleDispatcher moduleDispatcher) : base()
         {
             this.symbolResolver = symbolResolver;
             this.compilationManager = compilationManager;
             this.fileResolver = fileResolver;
-            this.workspace = workspace;
             this.languageServer = languageServer;
             this.moduleDispatcher = moduleDispatcher;
-            this.paramsCompilationManager = paramsCompilationManager;
-            this.featureProvider = featureProvider;
         }
 
         public override Task<LocationOrLocationLinks> Handle(DefinitionParams request, CancellationToken cancellationToken)
         {
-            if (featureProvider.ParamsFilesEnabled && PathHelper.HasBicepparamsExension(request.TextDocument.Uri.ToUri()))
-            {
-                var paramsContext = this.paramsCompilationManager.GetCompilation(request.TextDocument.Uri);
-                if (paramsContext is null)
-                {
-                    return Task.FromResult(new LocationOrLocationLinks());
-                }
-
-                var resolutionResult = this.symbolResolver.ResolveParamsSymbol(request.TextDocument.Uri, request.Position);
-                if (resolutionResult is null)
-                {
-                    return Task.FromResult(new LocationOrLocationLinks());
-                }
-
-                if (resolutionResult.Symbol is ParameterAssignmentSymbol param && param.NameSyntax is {} nameSyntax)
-                {
-                    var bicepCompilation = paramsContext.ParamsSemanticModel.BicepCompilation;
-                    
-                    if (bicepCompilation is null)
-                    {
-                        return Task.FromResult(new LocationOrLocationLinks());
-                    }
-                    var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
-
-                    var parameterDeclarations = bicepSemanticModel.Root.Syntax.Children.OfType<ParameterDeclarationSyntax>();
-                    var parameterDeclarationSymbol = paramsContext.ParamsSemanticModel.TryGetParameterDeclaration(param);
-
-                    if (parameterDeclarationSymbol is null)
-                    {
-                        return Task.FromResult(new LocationOrLocationLinks());
-                    }
-
-                    var range = PositionHelper.GetNameRange(bicepCompilation.SourceFileGrouping.EntryPoint.LineStarts, parameterDeclarationSymbol.DeclaringSyntax);
-                    var documentUri = bicepCompilation.SourceFileGrouping.EntryPoint.FileUri;
-                    
-                    return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
-                    {
-                        // source of the link. Underline only the symbolic name
-                        OriginSelectionRange = nameSyntax.ToRange(paramsContext.LineStarts),
-                        TargetUri = documentUri,
-
-                        // entire span of the declaredSymbol
-                        TargetRange = range,
-                        TargetSelectionRange = range
-                    })));
-                }
-                return Task.FromResult(new LocationOrLocationLinks());
-            }
             var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
             if (context is null)
             {

@@ -22,6 +22,7 @@ using System;
 using System.Collections.Immutable;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.UnitTests;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -102,7 +103,10 @@ namespace Bicep.LangServer.IntegrationTests
                 TestContext,
                 paramFileText,
                 paramFileUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
+                creationOptions: new LanguageServer.Server.CreationOptions(
+                    NamespaceProvider: BuiltInTestTypes.Create(),
+                    FileResolver: fileResolver,
+                    Features: BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true)));
 
             var semanticTokens = await helper.Client.TextDocument.RequestSemanticTokens(new SemanticTokensParams
             {

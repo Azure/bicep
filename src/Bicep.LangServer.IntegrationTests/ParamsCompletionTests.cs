@@ -139,7 +139,10 @@ new CompletionItemKind[] { CompletionItemKind.Field, CompletionItemKind.Field }
                 TestContext,
                 paramFileTextNoCursor,
                 paramUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
+                creationOptions: new LanguageServer.Server.CreationOptions(
+                    NamespaceProvider: BuiltInTestTypes.Create(),
+                    FileResolver: fileResolver,
+                    Features: BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 
