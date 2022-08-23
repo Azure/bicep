@@ -37,18 +37,6 @@
           "MSTest.TestFramework": "1.2.0"
         }
       },
-      "Microsoft.VisualStudio.ComponentModelHost": {
-        "type": "Direct",
-        "requested": "[17.2.3194, )",
-        "resolved": "17.2.3194",
-        "contentHash": "HcUOoQvG9cKHIXS3tA2Q+H6Ag9gdXTocFY9amPwWljCt8k9zWOlhHpMjqCgRlxLqyMUbbmdKeCujeYQaikfYGQ==",
-        "dependencies": {
-          "Microsoft.VisualStudio.Imaging.Interop.14.0.DesignTime": "17.2.32330.158",
-          "Microsoft.VisualStudio.Interop": "17.2.32330.158",
-          "Microsoft.VisualStudio.Validation": "17.0.53",
-          "System.ComponentModel.Composition": "6.0.0"
-        }
-      },
       "Microsoft.VisualStudio.Shell.Framework": {
         "type": "Direct",
         "requested": "[17.2.32505.113, )",
@@ -66,15 +54,6 @@
           "Microsoft.VisualStudio.Utilities": "17.2.32505.113",
           "System.Text.Json": "6.0.0",
           "System.Threading.Tasks.Dataflow": "6.0.0"
-        }
-      },
-      "Microsoft.VisualStudio.Shell.Interop": {
-        "type": "Direct",
-        "requested": "[17.2.32505.113, )",
-        "resolved": "17.2.32505.113",
-        "contentHash": "JNZNF30iDts1Pm2LdHnht0vVWwVRLV9JGJKKBXgm0M8nxs/s0P9QgEpWotTKQKkIdIWIJ17XLsvt17CTTb2qvw==",
-        "dependencies": {
-          "Microsoft.VisualStudio.Interop": "17.2.32505.113"
         }
       },
       "MSTest.TestAdapter": {
