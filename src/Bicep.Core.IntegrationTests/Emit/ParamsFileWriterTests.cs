@@ -17,7 +17,7 @@ namespace Bicep.Core.IntegrationTests.Emit
     [TestClass]
     public class ParamsFileWriterTests
     {
-        
+
         [DataTestMethod]
         [DataRow(@"
 param myParam = 'test value'", @"
@@ -192,27 +192,27 @@ param myInt = 1", @"
   }
 }")]
         public void params_file_with_no_errors_should_compile_correctly(string paramsText, string jsonText)
-        {           
-          var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), paramsText), ImmutableArray<IDiagnostic>.Empty);
+        {
+            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), paramsText), ImmutableArray<IDiagnostic>.Empty);
 
-          var paramsWriter = new ParametersJsonWriter(model);
+            var paramsWriter = new ParametersJsonWriter(model);
 
-          var jsonOuput = paramsWriter.GenerateTemplate();
+            var jsonOuput = paramsWriter.GenerateTemplate();
 
-          var expectedJsonOuput = JToken.Parse(jsonText);
+            var expectedJsonOuput = JToken.Parse(jsonText);
 
-          jsonOuput.Should().DeepEqual(expectedJsonOuput);
+            jsonOuput.Should().DeepEqual(expectedJsonOuput);
         }
-        
+
         [DataTestMethod]
         public void params_file_with_not_implemented_syntax_should_throw_expction()
         {
-          var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), "param foo = 1 + 2"), ImmutableArray<IDiagnostic>.Empty);
+            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), "param foo = 1 + 2"), ImmutableArray<IDiagnostic>.Empty);
 
-          var paramsWriter = new ParametersJsonWriter(model);
+            var paramsWriter = new ParametersJsonWriter(model);
 
-          Action act = () => paramsWriter.GenerateTemplate();
-          act.Should().Throw<NotImplementedException>().WithMessage("Cannot emit unexpected expression of type BinaryOperationSyntax");
+            Action act = () => paramsWriter.GenerateTemplate();
+            act.Should().Throw<NotImplementedException>().WithMessage("Cannot emit unexpected expression of type BinaryOperationSyntax");
         }
 
     }

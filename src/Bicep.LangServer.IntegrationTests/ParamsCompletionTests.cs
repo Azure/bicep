@@ -29,7 +29,7 @@ namespace Bicep.LangServer.IntegrationTests.Completions
 
 using './main.bicep'
 
-param |", 
+param |",
 
 @"
 //Bicep file
@@ -38,66 +38,8 @@ param firstParam int
 param secondParam string
 
 ",
-new string[] {"firstParam", "secondParam"},
-new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field}
-)
-]
-[DataRow(
-@"
-//Parameters file
-
-using './main.bicep'
-
-param |", 
-
-@"
-//Bicep file
-
-param firstParam int = 1
-param secondParam string
-param thirdParam string = 'hello'
-
-",
-new string[] {"firstParam", "secondParam", "thirdParam"},
-new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field, CompletionItemKind.Field}
-)
-]
-[DataRow(
-@"
-//Parameters file
-
-using './main.bicep'
-
-param firstParam = 5
-param |", 
-
-@"
-//Bicep file
-
-param firstParam int = 1
-param secondParam string
-param thirdParam string = 'hello'
-
-",
-new string[] {"secondParam", "thirdParam"},
-new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field}
-)
-]
-[DataRow(
-@"
-//Parameters file
-
-using './main.bicep'
-
-param |",  
-
-@"
-//Bicep file
-
-var firstVar = 'hello'
-",
-new string[] {},
-new CompletionItemKind[] {}
+new string[] { "firstParam", "secondParam" },
+new CompletionItemKind[] { CompletionItemKind.Field, CompletionItemKind.Field }
 )
 ]
         [DataRow(
@@ -106,7 +48,65 @@ new CompletionItemKind[] {}
 
 using './main.bicep'
 
-param | = 1", 
+param |",
+
+@"
+//Bicep file
+
+param firstParam int = 1
+param secondParam string
+param thirdParam string = 'hello'
+
+",
+new string[] { "firstParam", "secondParam", "thirdParam" },
+new CompletionItemKind[] { CompletionItemKind.Field, CompletionItemKind.Field, CompletionItemKind.Field }
+)
+]
+        [DataRow(
+@"
+//Parameters file
+
+using './main.bicep'
+
+param firstParam = 5
+param |",
+
+@"
+//Bicep file
+
+param firstParam int = 1
+param secondParam string
+param thirdParam string = 'hello'
+
+",
+new string[] { "secondParam", "thirdParam" },
+new CompletionItemKind[] { CompletionItemKind.Field, CompletionItemKind.Field }
+)
+]
+        [DataRow(
+@"
+//Parameters file
+
+using './main.bicep'
+
+param |",
+
+@"
+//Bicep file
+
+var firstVar = 'hello'
+",
+new string[] { },
+new CompletionItemKind[] { }
+)
+]
+        [DataRow(
+@"
+//Parameters file
+
+using './main.bicep'
+
+param | = 1",
 
 @"
 //Bicep file
@@ -115,12 +115,12 @@ param firstParam int
 param secondParam string
 
 ",
-new string[] {"firstParam", "secondParam"},
-new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field}
+new string[] { "firstParam", "secondParam" },
+new CompletionItemKind[] { CompletionItemKind.Field, CompletionItemKind.Field }
 )
 ]
         public async Task Request_for_parameter_identifier_completions_should_return_correct_identifiers(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
-        {   
+        {
             var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText);
 
             var paramUri = DocumentUri.FromFileSystemPath("/path/to/param.bicepparam");
@@ -146,11 +146,11 @@ new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field}
             var completions = await file.RequestCompletion(cursor);
 
             var expectedValueIndex = 0;
-            foreach(var completion in completions)
+            foreach (var completion in completions)
             {
                 completion.Label.Should().Be(completionLables[expectedValueIndex]);
                 completion.Kind.Should().Be(completionItemKinds[expectedValueIndex]);
-                expectedValueIndex +=1;
+                expectedValueIndex += 1;
             }
         }
 
@@ -161,7 +161,7 @@ new CompletionItemKind[] {CompletionItemKind.Field, CompletionItemKind.Field}
 
 using './main.bicep'
 
-param firstParam = |", 
+param firstParam = |",
 
 @"
 //Bicep file
@@ -173,8 +173,8 @@ param firstParam = |",
 param firstParam string
 
 ",
-new string[] {"'one'", "'two'"},
-new CompletionItemKind[] {CompletionItemKind.EnumMember, CompletionItemKind.EnumMember}
+new string[] { "'one'", "'two'" },
+new CompletionItemKind[] { CompletionItemKind.EnumMember, CompletionItemKind.EnumMember }
 )
 ]
 
@@ -184,7 +184,7 @@ new CompletionItemKind[] {CompletionItemKind.EnumMember, CompletionItemKind.Enum
 
 using './main.bicep'
 
-param firstParam = |", 
+param firstParam = |",
 
 @"
 //Bicep file
@@ -192,8 +192,8 @@ param firstParam = |",
 param firstParam string
 
 ",
-new string[] {},
-new CompletionItemKind[] {}
+new string[] { },
+new CompletionItemKind[] { }
 )
 ]
         [DataRow(
@@ -202,7 +202,7 @@ new CompletionItemKind[] {}
 
 using './main.bicep'
 
-param firstParam = 'o|'", 
+param firstParam = 'o|'",
 
 @"
 //Bicep file
@@ -214,12 +214,12 @@ param firstParam = 'o|'",
 param firstParam string
 
 ",
-new string[] {"'one'", "'two'"},
-new CompletionItemKind[] {CompletionItemKind.EnumMember, CompletionItemKind.EnumMember}
+new string[] { "'one'", "'two'" },
+new CompletionItemKind[] { CompletionItemKind.EnumMember, CompletionItemKind.EnumMember }
 )
 ]
         public async Task Request_for_parameter_allowed_value_completions_should_return_correct_value(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
-        {   
+        {
             var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText);
 
             var paramUri = DocumentUri.FromFileSystemPath("/path/to/param.bicepparam");
@@ -246,14 +246,14 @@ new CompletionItemKind[] {CompletionItemKind.EnumMember, CompletionItemKind.Enum
             var completions = await file.RequestCompletion(cursor);
 
             var expectedValueIndex = 0;
-            foreach(var completion in completions)
+            foreach (var completion in completions)
             {
                 completion.Label.Should().Be(completionLables[expectedValueIndex]);
                 completion.Kind.Should().Be(completionItemKinds[expectedValueIndex]);
-                expectedValueIndex +=1;
+                expectedValueIndex += 1;
             }
         }
-        
+
         [TestMethod]
         public async Task Request_for_using_declaration_path_completions_should_return_correct_paths_for_file_directories()
         {
@@ -347,7 +347,7 @@ using './nested1/|'
                 x => x.Label.Should().Be("module2.bicep"));
             completions.Should().SatisfyRespectively(
                 x => x.Kind.Should().Be(CompletionItemKind.File),
-                x => x.Kind.Should().Be(CompletionItemKind.File));            
+                x => x.Kind.Should().Be(CompletionItemKind.File));
         }
     }
 }

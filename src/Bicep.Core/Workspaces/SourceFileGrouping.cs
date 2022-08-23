@@ -16,7 +16,6 @@ namespace Bicep.Core.Workspaces
         public SourceFileGrouping(
             IFileResolver fileResolver,
             BicepFile entryPoint,
-            //optional -> params
             ImmutableHashSet<ISourceFile> sourceFiles,
             ImmutableDictionary<ModuleDeclarationSyntax, ISourceFile> sourceFilesByModuleDeclaration,
             ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> sourceFileParentLookup,

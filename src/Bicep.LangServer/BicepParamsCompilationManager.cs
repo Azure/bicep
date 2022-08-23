@@ -21,7 +21,7 @@ using Bicep.Core.FileSystem;
 namespace Bicep.LanguageServer
 {
     public class BicepParamsCompilationManager : IParamsCompilationManager
-    {   
+    {
         private readonly ILanguageServerFacade server;
         private readonly ICompilationProvider bicepCompilationContextProvider;
         private readonly IConfigurationManager bicepConfigurationManager;
@@ -35,15 +35,15 @@ namespace Bicep.LanguageServer
             this.fileResolver = fileResolver;
         }
 
-        public void HandleFileChanges(IEnumerable<FileEvent> fileEvents) 
+        public void HandleFileChanges(IEnumerable<FileEvent> fileEvents)
         {
             //TODO: complete later, not required for basic file interaction
-        } 
+        }
 
         public void RefreshCompilation(DocumentUri uri, bool reloadBicepConfig = false)
         {
             //TODO: complete later, not required for basic file interaction
-        } 
+        }
 
         public void UpsertCompilation(DocumentUri uri, int? version, string text, string? languageId = null, bool triggeredByFileOpenEvent = false)
         {
@@ -53,28 +53,28 @@ namespace Bicep.LanguageServer
 
             ParamsSemanticModel semanticModel;
 
-            if(bicepFileUri is {})
+            if (bicepFileUri is { })
             {
                 var bicepConfig = bicepConfigurationManager.GetConfiguration(bicepFileUri);
                 var bicepCompilationContext = bicepCompilationContextProvider.Create(new Workspace(), bicepFileUri, new Dictionary<ISourceFile, ISemanticModel>().ToImmutableDictionary(), bicepConfig, new LinterAnalyzer(bicepConfig));
-                semanticModel = new (paramsFile, compilationLoadDiagnostics, bicepCompilationContext.Compilation);
+                semanticModel = new(paramsFile, compilationLoadDiagnostics, bicepCompilationContext.Compilation);
             }
             else
             {
-                semanticModel = new (paramsFile, compilationLoadDiagnostics);
+                semanticModel = new(paramsFile, compilationLoadDiagnostics);
             }
-    
-            var context = this.activeContexts.AddOrUpdate(uri, 
-            (uri) => new ParamsCompilationContext(semanticModel, semanticModel.BicepParamFile.ProgramSyntax, semanticModel.BicepParamFile.LineStarts), 
+
+            var context = this.activeContexts.AddOrUpdate(uri,
+            (uri) => new ParamsCompilationContext(semanticModel, semanticModel.BicepParamFile.ProgramSyntax, semanticModel.BicepParamFile.LineStarts),
             (uri, prevContext) => new ParamsCompilationContext(semanticModel, semanticModel.BicepParamFile.ProgramSyntax, semanticModel.BicepParamFile.LineStarts));
 
-            this.PublishDocumentDiagnostics(uri, version, context.ParamsSemanticModel.GetAllDiagnostics(), context.LineStarts);  
-        } 
+            this.PublishDocumentDiagnostics(uri, version, context.ParamsSemanticModel.GetAllDiagnostics(), context.LineStarts);
+        }
 
         public void CloseCompilation(DocumentUri uri)
         {
             this.activeContexts.TryRemove(uri, out _);
-        } 
+        }
 
         public ParamsCompilationContext? GetCompilation(DocumentUri uri)
         {
@@ -83,12 +83,12 @@ namespace Bicep.LanguageServer
         }
 
         private void PublishDocumentDiagnostics(DocumentUri uri, int? version, IEnumerable<IDiagnostic> diagnostics, ImmutableArray<int> lineStarts)
-        {   
+        {
             server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams
             {
                 Uri = uri,
                 Version = version,
-                Diagnostics = new (diagnostics.ToDiagnostics(lineStarts))
+                Diagnostics = new(diagnostics.ToDiagnostics(lineStarts))
             });
         }
     }

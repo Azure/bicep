@@ -14,7 +14,7 @@ namespace Bicep.Core.Syntax
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ParameterKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
-            
+
             this.Keyword = keyword;
             this.Name = name;
             this.Assignment = assignment;
@@ -24,19 +24,14 @@ namespace Bicep.Core.Syntax
         public Token Keyword { get; }
 
         public IdentifierSyntax Name { get; }
-        
+
         public SyntaxBase Assignment { get; }
-        
+
         public SyntaxBase Value { get; }
 
         public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitParameterAssignmentSyntax(this);
 
         public override TextSpan Span => TextSpan.Between(this.Keyword, this.Value);
-
-        /// <summary>
-        /// Gets the declared type syntax of this parameter declaration. Certain parse errors will cause it to be null.
-        /// </summary>
-        public TypeSyntax? ParameterType => null; // TODO: fix when implementing semantic analysis
     }
 }

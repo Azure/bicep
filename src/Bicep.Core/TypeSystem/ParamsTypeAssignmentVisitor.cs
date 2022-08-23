@@ -16,7 +16,7 @@ namespace Bicep.Core.TypeSystem
         private readonly IParamsTypeManager paramsTypeManager;
         private readonly ParamBinder paramBinder;
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
-        
+
         public ParamsTypeAssignmentVisitor(IParamsTypeManager paramsTypeManager, ParamBinder paramBinder)
         {
             this.paramsTypeManager = paramsTypeManager;
@@ -37,7 +37,7 @@ namespace Bicep.Core.TypeSystem
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)
             => GetTypeAssignment(syntax).Reference.Type;
-        
+
         public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
@@ -243,7 +243,7 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
             => AssignType(syntax, () => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Span).ParameterFunctionCallNotSupported()));
-            
+
         private static bool PropagateErrorType(IEnumerable<ErrorDiagnostic> errors, params TypeSymbol[] types)
             => PropagateErrorType(errors, types as IEnumerable<TypeSymbol>);
 
@@ -256,7 +256,7 @@ namespace Bicep.Core.TypeSystem
 
             return types.Any(x => x.TypeKind == TypeKind.Error);
         }
-        
+
         private static void CollectErrors(List<ErrorDiagnostic> errors, ITypeReference reference)
         {
             errors.AddRange(reference.Type.GetDiagnostics());

@@ -29,6 +29,8 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class SemanticTokenTests
     {
+        private record SemanticTokenInfo(TextSpan Span, SemanticTokenType Type, SemanticTokenModifier Modifier);
+
         private static readonly SharedLanguageHelperManager DefaultServer = new();
 
         [NotNull]
@@ -84,7 +86,7 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetParamsData), DynamicDataSourceType.Method)]
         public async Task Correct_semantic_tokens_are_returned_for_params_file(string paramFileText, TextSpan[] spans, SemanticTokenType[] tokenType)
         {
-            var baseFilePath = $"file://{TestContext.TestName}_{Guid.NewGuid():D}";            
+            var baseFilePath = $"file://{TestContext.TestName}_{Guid.NewGuid():D}";
             var paramFileUri = new Uri($"{baseFilePath}/main.bicepparam");
             var bicepFileUri = new Uri($"{baseFilePath}/main.bicep");
 
@@ -115,7 +117,7 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 TextSpan returnedSpan = tokenInfos[i].Span;
                 TextSpan expectedSpan = spans[i];
-    
+
                 returnedSpan.Position.Should().Be(expectedSpan.Position);
                 returnedSpan.Length.Should().Be(expectedSpan.Length);
 
@@ -125,7 +127,6 @@ namespace Bicep.LangServer.IntegrationTests
                 returnedType.Should().Be(expectedType);
             }
         }
-
 
         private static IEnumerable<SemanticTokenInfo> CalculateSemanticTokenInfos(IReadOnlyList<int> lineStarts, IEnumerable<int> semanticTokenData, SemanticTokensLegend legend)
         {
@@ -165,11 +166,11 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static IEnumerable<object[]> GetParamsData()
         {
-            yield return new object[] { "using './main.bicep' \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 14) }, new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.String} };
-            yield return new object[] { "param myint = 12 \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 5), new TextSpan(14, 2)}, new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.Number}};
-            yield return new object[] { "using './main.bicep' \n param myint = 12 \n param mystr = 'test'", 
+            yield return new object[] { "using './main.bicep' \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 14) }, new SemanticTokenType[] { SemanticTokenType.Keyword, SemanticTokenType.String } };
+            yield return new object[] { "param myint = 12 \n", new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 5), new TextSpan(14, 2) }, new SemanticTokenType[] { SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.Number } };
+            yield return new object[] { "using './main.bicep' \n param myint = 12 \n param mystr = 'test'",
                                         new TextSpan[] { new TextSpan(0, 5), new TextSpan(6, 14), new TextSpan(23, 5), new TextSpan(29, 5), new TextSpan(37, 2), new TextSpan(42, 5), new TextSpan(48, 5), new TextSpan(56, 6)},
-                                        new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.String, SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.Number, SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.String}};        
-            }
+                                        new SemanticTokenType[] {SemanticTokenType.Keyword, SemanticTokenType.String, SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.Number, SemanticTokenType.Keyword, SemanticTokenType.Variable, SemanticTokenType.String}};
+        }
     }
 }

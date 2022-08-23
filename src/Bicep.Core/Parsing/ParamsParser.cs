@@ -69,11 +69,11 @@ namespace Bicep.Core.Parsing
                 () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedFilePathString()),
                 GetSuppressionFlag(keyword),
                 TokenType.Assignment, TokenType.NewLine);
-            
+
             return new UsingDeclarationSyntax(keyword, path);
-        
+
         }
-        
+
         private SyntaxBase ParameterAssignment()
         {
             var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);

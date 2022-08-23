@@ -26,7 +26,7 @@ namespace Bicep.Core.Semantics
         public Lazy<ImmutableArray<IDiagnostic>> AllDiagnostics { get; }
         private readonly ImmutableArray<IDiagnostic> CompilationLoadDiagnostics;
 
-        
+
         public ParamsSemanticModel(BicepParamFile bicepParamFile, ImmutableArray<IDiagnostic> compilationLoadDiagnostics, Compilation? bicepCompilation = null)
         {
             this.BicepParamFile = bicepParamFile;
@@ -37,7 +37,7 @@ namespace Bicep.Core.Semantics
             var paramsSymbolContext = new ParamsSymbolContext(this);
             ParamsSymbolContext = paramsSymbolContext;
             this.BicepParamFile = bicepParamFile;
-            this.ParamBinder = new(bicepParamFile, paramsSymbolContext); 
+            this.ParamBinder = new(bicepParamFile, paramsSymbolContext);
             this.ParamsTypeManager = new(this, ParamBinder);
             // name binding is done
             // allow type queries now
@@ -53,7 +53,7 @@ namespace Bicep.Core.Semantics
                 .Concat(ParamsTypeManager.GetAllDiagnostics())
                 .Concat(this.CompilationLoadDiagnostics)
                 .Concat(GetAdditionalSemanticDiagnostics()).ToImmutableArray();
-            
+
         /// <summary>
         /// Gets the file that was compiled.
         /// </summary>
@@ -92,7 +92,7 @@ namespace Bicep.Core.Semantics
             {
                 return ImmutableDictionary<ParameterAssignmentSymbol, ParameterSymbol?>.Empty;
             }
-            
+
             var declarationsByAssignment = this.ParamBinder.ParamFileSymbol.ParameterAssignmentSymbols.ToDictionary(x => x, _ => (ParameterSymbol?)null);
             var parameterDeclarations = this.BicepCompilation.GetEntrypointSemanticModel().Root.Syntax.Children.OfType<ParameterDeclarationSyntax>();
             var declarationsBySymbolName = parameterDeclarations.ToDictionary(x => x.Name.IdentifierName, LanguageConstants.IdentifierComparer);
@@ -130,7 +130,7 @@ namespace Bicep.Core.Semantics
 
             return diagnosticWriter.GetDiagnostics();
         }
-        
+
         private void GetParameterMismatchDiagnostics(IDiagnosticWriter diagnosticWriter, IEnumerable<ParameterDeclarationSyntax> parameters, IEnumerable<ParameterAssignmentSyntax> parameterAssignments)
         {
             // parameters that are assigned but not declared
@@ -157,7 +157,7 @@ namespace Bicep.Core.Semantics
                     missingRequiredParams.Add(parameter.Name.IdentifierName);
                 }
             }
-            
+
             // emit diagnostic only if there is a using statement
             var usingDeclarationSyntax = BicepParamFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>().SingleOrDefault();
             if (usingDeclarationSyntax is not null && missingRequiredParams.Any())
@@ -170,7 +170,7 @@ namespace Bicep.Core.Semantics
                 diagnosticWriter.Write(assignedParam.Span, x => x.MissingParameterDeclaration(this.ParamBinder.GetSymbolInfo(assignedParam)?.Name));
             }
         }
-        
+
         private void GetTypeMismatchDiagnostics(IDiagnosticWriter diagnosticWriter, IEnumerable<ParameterAssignmentSyntax> parameterAssignments)
         {
             foreach (var syntax in parameterAssignments)
@@ -189,16 +189,16 @@ namespace Bicep.Core.Semantics
             var diagnosticsWriter = ToListDiagnosticWriter.Create();
             var usingDeclarations = bicepParamFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>();
 
-            if(usingDeclarations.FirstOrDefault() is not {} usingDeclaration)
+            if (usingDeclarations.FirstOrDefault() is not { } usingDeclaration)
             {
                 diagnosticsWriter.Write(new TextSpan(0, 0), x => x.UsingDeclarationNotSpecified());
                 compilationLoadDiagnostics = diagnosticsWriter.GetDiagnostics().ToImmutableArray();
                 return null;
             }
-            
-            if(usingDeclarations.Count() > 1)
+
+            if (usingDeclarations.Count() > 1)
             {
-                foreach(var declaration in usingDeclarations)
+                foreach (var declaration in usingDeclarations)
                 {
                     diagnosticsWriter.Write(declaration.Keyword, x => x.MoreThanOneUsingDeclarationSpecified());
                 }
@@ -206,8 +206,8 @@ namespace Bicep.Core.Semantics
                 return null;
             }
 
-            if(!ParamsSemanticModel.TryGetUsingPath(usingDeclaration, out var bicepFilePath, out var failureBuilder))
-            {       
+            if (!ParamsSemanticModel.TryGetUsingPath(usingDeclaration, out var bicepFilePath, out var failureBuilder))
+            {
                 var diagnostic = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(usingDeclaration.Path.Span));
                 diagnosticsWriter.Write(diagnostic);
                 compilationLoadDiagnostics = diagnosticsWriter.GetDiagnostics().ToImmutableArray();
@@ -218,14 +218,14 @@ namespace Bicep.Core.Semantics
             {
                 diagnosticsWriter.Write(usingDeclaration.Path.Span, x => x.UsingDeclarationReferencesInvalidFile());
                 compilationLoadDiagnostics = diagnosticsWriter.GetDiagnostics().ToImmutableArray();
-                return null; 
-            }       
+                return null;
+            }
 
             compilationLoadDiagnostics = diagnosticsWriter.GetDiagnostics().ToImmutableArray();
             return bicepFileUri;
         }
 
-        private static bool TryGetUsingPath(UsingDeclarationSyntax usingDeclarationSyntax, [NotNullWhen(true)]out string? bicepPath, [NotNullWhen(false)]out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
+        private static bool TryGetUsingPath(UsingDeclarationSyntax usingDeclarationSyntax, [NotNullWhen(true)] out string? bicepPath, [NotNullWhen(false)] out DiagnosticBuilder.DiagnosticBuilderDelegate? failureBuilder)
         {
             var pathSyntax = usingDeclarationSyntax.TryGetPath();
             if (pathSyntax == null)
@@ -242,7 +242,7 @@ namespace Bicep.Core.Semantics
                 return false;
             }
             var trimedPathValue = pathValue.Trim();
-            if(trimedPathValue == string.Empty)
+            if (trimedPathValue == string.Empty)
             {
                 bicepPath = null;
                 failureBuilder = x => x.UsingDeclarationReferencesInvalidFile();
