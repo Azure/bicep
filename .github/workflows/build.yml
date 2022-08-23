@@ -189,7 +189,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
 
       - name: Build Bicep.sln
-        run: msbuild Bicep.sln -restore -t:rebuild -property:Configuration=Release
+        run: msbuild Bicep.sln /restore -property:Configuration=Release /v:m /bl:./src/binlog/bicep_build.binlog
 
       - name: Upload Bicep.sln build binlog
         uses: actions/upload-artifact@v3
