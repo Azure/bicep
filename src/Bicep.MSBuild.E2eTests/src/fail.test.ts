@@ -18,7 +18,7 @@ describe("msbuild", () => {
       "3 Error(s)",
       'fail.bicep(3,10): error BCP035: The specified "resource" declaration is missing the following required properties: "location", "name".',
       'fail.bicep(4,3): error BCP037: The property "wrong" is not allowed on objects of type "Microsoft.Resources/resourceGroups". Permissible properties include "dependsOn", "location", "managedBy", "name", "properties", "tags".',
-      "fail.bicep(7,1): error BCP007: This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.",
+      "fail.bicep(7,1): error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration.",
     ]);
   });
 });
