@@ -6,21 +6,15 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using Newtonsoft.Json.Linq;
-using SharpYaml.Tokens;
-using System.Data.Common;
-using System;
-using System.Linq.Expressions;
-using System.Reflection.Metadata;
-using System.Security.Policy;
+
+#pragma warning disable CA1825 // Avoid zero-length array allocations
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
     public class ArtifactsParametersRuleTests : LinterRuleTestsBase
     {
-        private void CompileAndTest(string bicepText, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
+        private static void CompileAndTest(string bicepText, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
             var options = new Options(onCompileErrors, IncludePosition.None);
             AssertLinterRuleDiagnostics(ArtifactsParametersRule.Code, bicepText, expectedMessagesForCode, options);
