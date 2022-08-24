@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using Bicep.VSLanguageServerClient.TestServices.Utilitites;
@@ -50,9 +49,9 @@ namespace Bicep.VSLanguageServerClient.TestServices
 
         private bool IsBicepLanguageServerActivated(ILanguageServiceBroker2 languageServiceBroker)
         {
-            foreach (IEnumerable<ILanguageClientInstance> languageClients in languageServiceBroker.ActiveLanguageClients)
+            foreach (ILanguageClientInstance languageClientInstance in languageServiceBroker.ActiveLanguageClients)
             {
-                if (languageClients.Any(x => x.Client.Name.Equals(BicepLanguageServerClientConstants.BicepLanguageServerName)))
+                if (languageClientInstance.Client.Name.Equals(BicepLanguageServerClientConstants.BicepLanguageServerName))
                 {
                     return true;
                 }
