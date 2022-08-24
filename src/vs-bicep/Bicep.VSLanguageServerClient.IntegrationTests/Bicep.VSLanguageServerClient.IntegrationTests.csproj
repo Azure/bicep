@@ -28,9 +28,9 @@
 		<PackageReference Include="MSTest.TestFramework" Version="2.2.10" />
 	</ItemGroup>
 
-		<ItemGroup>
-			<ProjectReference Include="..\Bicep.VSLanguageServerClient.TestServices\Bicep.VSLanguageServerClient.TestServices.csproj" />
-		</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Bicep.VSLanguageServerClient.TestServices\Bicep.VSLanguageServerClient.TestServices.csproj" />
+	</ItemGroup>
 
 	<PropertyGroup>
 		<!-- other property settings -->

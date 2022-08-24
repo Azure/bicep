@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Bicep.VSLanguageServerClient.TestServices
 {
+    // ILanguageServiceBroker2.ActiveLanguageClients is marked obsolete. We will replace it when an alternate option is available.
 #pragma warning disable CS0618 // Type or member is obsolete
     [Export(typeof(LanguageServerActivationService))]
     public class LanguageServerActivationService : VisualStudioTestService
@@ -29,15 +30,10 @@ namespace Bicep.VSLanguageServerClient.TestServices
 
                     if (languageServiceBrokerExports is null || !languageServiceBrokerExports.Any())
                     {
-                        return;
+                        throw new Exception("Did not find any exports for ILanguageServiceBroker2");
                     }
 
                     var languageServiceBroker = languageServiceBrokerExports.First().Value;
-
-                    if (languageServiceBroker is null)
-                    {
-                        return;
-                    }
 
                     WaitForExtensions.IsTrue(
                         () => IsBicepLanguageServerActivated(languageServiceBroker) == true,
