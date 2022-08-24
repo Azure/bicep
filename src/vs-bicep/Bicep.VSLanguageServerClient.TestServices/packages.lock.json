@@ -1124,21 +1124,6 @@
           "Microsoft.Visualstudio.Telemetry": "[16.5.6, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.5, )"
         }
-      },
-      "bicep.vslanguageserverclient.testservices": {
-        "type": "Project",
-        "dependencies": {
-          "Bicep.VSLanguageServerClient": "[1.0.0, )",
-          "FluentAssertions": "[6.7.0, )",
-          "MSTest.TestAdapter": "[2.2.10, )",
-          "MSTest.TestFramework": "[2.2.10, )",
-          "Microsoft.NET.Test.Sdk": "[17.2.0, )",
-          "Microsoft.Test.Apex.VisualStudio": "[17.1.32510.401, )",
-          "Microsoft.VisualStudio.Composition": "[17.2.41, )",
-          "Microsoft.VisualStudio.Editor": "[17.2.3194, )",
-          "Microsoft.VisualStudio.LanguageServer.Client.Implementation": "[17.2.2105, )",
-          "Microsoft.VisualStudio.Shell.Framework": "[17.2.32505.113, )"
-        }
       }
     },
     ".NETFramework,Version=v4.7.2/linux-arm64": {
