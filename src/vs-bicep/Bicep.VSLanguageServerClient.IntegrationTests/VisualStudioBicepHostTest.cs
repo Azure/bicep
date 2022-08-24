@@ -51,7 +51,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
             editor.Focus();
 
             var languageServerActivationService = VsHostUtility.VsHost!.Get<LanguageServerActivationService>();
-            languageServerActivationService.WaitForContentTypeReady();
+            languageServerActivationService.WaitForLanguageServerActivation();
 
             ColorizationsUtility.WaitForColorizations(editor);
         }

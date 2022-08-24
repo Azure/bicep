@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Bicep.VSLanguageServerClient.TestServices.Utilitites;
 using Microsoft.Test.Apex.Editor;
 using Microsoft.Test.Apex.Services;
 using Microsoft.Test.Apex.VisualStudio.Editor;

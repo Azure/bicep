@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using Bicep.VSLanguageServerClient.TestServices.Utilitites;
 using Microsoft.Test.Apex.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServer.Client;
@@ -15,7 +17,7 @@ namespace Bicep.VSLanguageServerClient.TestServices
     [Export(typeof(LanguageServerActivationService))]
     public class LanguageServerActivationService : VisualStudioTestService
     {
-        public void WaitForContentTypeReady()
+        public void WaitForLanguageServerActivation()
         {
             ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
@@ -38,25 +40,25 @@ namespace Bicep.VSLanguageServerClient.TestServices
                         return;
                     }
 
-                    foreach (Lazy<ILanguageClient, IContentTypeMetadata> languageClientAndMetadata in languageServiceBroker.LanguageClients)
-                    {
-                        if (languageClientAndMetadata.Metadata.ContentTypes.Contains(BicepLanguageServerClientConstants.BicepContentType))
-                        {
-                            var languageClientBrokerExports = componentModel.DefaultExportProvider.GetExports<ILanguageClientBroker>();
-
-                            if (!languageClientBrokerExports.Any())
-                            {
-                                return;
-                            }
-
-                            var languageClientBroker = languageClientBrokerExports.First().Value;
-
-                            await languageClientBroker.LoadAsync((ILanguageClientMetadata)languageClientAndMetadata.Metadata, languageClientAndMetadata.Value);
-                            return;
-                        }
-                    }
+                    WaitForExtensions.IsTrue(
+                        () => IsBicepLanguageServerActivated(languageServiceBroker) == true,
+                        TimeSpan.FromSeconds(30),
+                        conditionDescription: "Bicep language server activation failed.");
                 }
             });
+        }
+
+        private bool IsBicepLanguageServerActivated(ILanguageServiceBroker2 languageServiceBroker)
+        {
+            foreach (IEnumerable<ILanguageClientInstance> languageClients in languageServiceBroker.ActiveLanguageClients)
+            {
+                if (languageClients.Any(x => x.Client.Name.Equals(BicepLanguageServerClientConstants.BicepLanguageServerName)))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 #pragma warning restore CS0618 // Type or member is obsolete
