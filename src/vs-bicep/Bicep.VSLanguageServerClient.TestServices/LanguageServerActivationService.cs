@@ -2,10 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Test.Apex.VisualStudio;
 using Microsoft.VisualStudio.ComponentModelHost;
 using Microsoft.VisualStudio.LanguageServer.Client;
@@ -13,6 +11,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace Bicep.VSLanguageServerClient.TestServices
 {
+#pragma warning disable CS0618 // Type or member is obsolete
     [Export(typeof(LanguageServerActivationService))]
     public class LanguageServerActivationService : VisualStudioTestService
     {
@@ -27,60 +26,38 @@ namespace Bicep.VSLanguageServerClient.TestServices
                 {
                     var languageServiceBrokerExports = componentModel.DefaultExportProvider.GetExports<ILanguageServiceBroker2>();
 
-                    if (languageServiceBrokerExports is not null && languageServiceBrokerExports.Any())
+                    if (languageServiceBrokerExports is null || !languageServiceBrokerExports.Any())
                     {
-                        var languageServiceBroker = languageServiceBrokerExports.First().Value;
+                        return;
+                    }
 
-                        if (languageServiceBroker is not null)
+                    var languageServiceBroker = languageServiceBrokerExports.First().Value;
+
+                    if (languageServiceBroker is null)
+                    {
+                        return;
+                    }
+
+                    foreach (Lazy<ILanguageClient, IContentTypeMetadata> languageClientAndMetadata in languageServiceBroker.LanguageClients)
+                    {
+                        if (languageClientAndMetadata.Metadata.ContentTypes.Contains(BicepLanguageServerClientConstants.BicepContentType))
                         {
-                            List<Lazy<ILanguageClient>> relevantLanguageClients = new();
-
-#pragma warning disable CS0618 // Type or member is obsolete
-                            foreach (Lazy<ILanguageClient, IContentTypeMetadata> languageClientAndMetadata in languageServiceBroker.LanguageClients)
-                            {
-                                if (languageClientAndMetadata.Metadata.ContentTypes.Contains(BicepLanguageServerClientConstants.BicepContentType))
-                                {
-                                    relevantLanguageClients.Add(languageClientAndMetadata);
-                                }
-                            }
-#pragma warning restore CS0618 // Type or member is obsolete
-
-                            TaskCompletionSource<bool> tcs = new();
-
-                            // Wait for all language clients of interest to have been created.
-                            if (relevantLanguageClients.Any(lc => !lc.IsValueCreated))
-                            {
-#pragma warning disable CS0618 // Type or member is obsolete
-                                languageServiceBroker.LanguageClientLoaded += OnLanguageClientLoaded;
-#pragma warning restore CS0618 // Type or member is obsolete
-
-                                await tcs.Task;
-                            }
-
                             var languageClientBrokerExports = componentModel.DefaultExportProvider.GetExports<ILanguageClientBroker>();
+
+                            if (!languageClientBrokerExports.Any())
+                            {
+                                return;
+                            }
+
                             var languageClientBroker = languageClientBrokerExports.First().Value;
 
-                            // They are all now created, but may not have completed initialization. I can't find a good way to detect this
-                            //   other than using LoadAsync completion.
-                            foreach (Lazy<ILanguageClient, IContentTypeMetadata> languageClientAndMetadata in relevantLanguageClients)
-                            {
-                                await languageClientBroker.LoadAsync((ILanguageClientMetadata)languageClientAndMetadata.Metadata, languageClientAndMetadata.Value);
-                            }
-
-                            void OnLanguageClientLoaded(object sender, LanguageClientLoadedEventArgs e)
-                            {
-                                if (relevantLanguageClients.All(lc => lc.IsValueCreated))
-                                {
-#pragma warning disable CS0618 // Type or member is obsolete
-                                    languageServiceBroker.LanguageClientLoaded -= OnLanguageClientLoaded;
-#pragma warning restore CS0618 // Type or member is obsolete
-                                    tcs.SetResult(true);
-                                }
-                            }
+                            await languageClientBroker.LoadAsync((ILanguageClientMetadata)languageClientAndMetadata.Metadata, languageClientAndMetadata.Value);
+                            return;
                         }
                     }
                 }
             });
         }
     }
+#pragma warning restore CS0618 // Type or member is obsolete
 }

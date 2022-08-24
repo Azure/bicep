@@ -101,6 +101,10 @@
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="TextMateSyntaxes\bicep.tmTheme">
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BicepVSLanguageServerClientPackage.cs" />
@@ -114,7 +118,7 @@
       </VSIXSourceItem>
     </ItemGroup>
     <ItemGroup>
-      <VSIXSourceItem Include="..\..\textmate\bicep.tmlanguage" VSIXSubPath="TextMateSyntaxes"/>
+      <VSIXSourceItem Include="..\..\textmate\bicep.tmlanguage" VSIXSubPath="TextMateSyntaxes" />
       <VSIXSourceItem Include="..\..\textmate\language-configuration.json" VSIXSubPath="TextMateSyntaxes" />
     </ItemGroup>
   </Target>

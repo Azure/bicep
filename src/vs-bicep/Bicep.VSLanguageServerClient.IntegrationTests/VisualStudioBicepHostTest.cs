@@ -52,6 +52,8 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
 
             var languageServerActivationService = VsHostUtility.VsHost!.Get<LanguageServerActivationService>();
             languageServerActivationService.WaitForContentTypeReady();
+
+            ColorizationsUtility.WaitForColorizations(editor);
         }
 
         protected override VisualStudioHostConfiguration GetVisualStudioHostConfiguration()

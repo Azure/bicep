@@ -30,11 +30,9 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
                 getActualClassifications = editor.Classification.GetAllClassifications;
             }
 
-            string actual = GetClassificationsContent(editor, getActualClassifications);
-
             WaitForExtensions.IsTrue(
-                () => GetClassificationsContent(editor, getActualClassifications) == actual,
-                TimeSpan.FromSeconds(5));
+                () => GetClassificationsContent(editor, getActualClassifications) == expected,
+                TimeSpan.FromSeconds(10));
         }
 
         private static string GetClassificationsContent(
@@ -45,10 +43,8 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
 
             foreach (Classification c in getClassifications())
             {
-                string classificationName = c.Name.Replace(" - (TRANSIENT)", string.Empty);
-
                 sb.Append("[Name: ");
-                sb.Append(classificationName);
+                sb.Append(c.Name);
                 sb.Append(", Text: \"");
                 sb.Append(editor.GetText(c.Span));
                 sb.Append("\", Start: ");
