@@ -37,7 +37,7 @@ namespace Bicep.VSLanguageServerClient.TestServices
 
                     WaitForExtensions.IsTrue(
                         () => IsBicepLanguageServerActivated(languageServiceBroker) == true,
-                        TimeSpan.FromSeconds(30),
+                        TimeSpan.FromSeconds(45),
                         conditionDescription: "Bicep language server activation failed.");
                 }
             });
