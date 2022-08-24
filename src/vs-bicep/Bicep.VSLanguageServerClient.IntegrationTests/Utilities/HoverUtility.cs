@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Bicep.VSLanguageServerClient.TestServices.Utilitites;
 using Microsoft.Test.Apex.Editor;
 using Microsoft.Test.Apex.VisualStudio.Editor;
 using Microsoft.VisualStudio;

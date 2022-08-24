@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.2.0" />
+    <PackageReference Include="Microsoft.Test.Apex.VisualStudio" Version="17.1.32510.401" />
+    <PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.2.41" />
+    <PackageReference Include="Microsoft.VisualStudio.Editor" Version="17.2.3194" />
+    <PackageReference Include="Microsoft.VisualStudio.LanguageServer.Client.Implementation" Version="17.2.2105" />
+    <PackageReference Include="Microsoft.VisualStudio.Shell.Framework" Version="17.2.32505.113" />
+    <PackageReference Include="Microsoft.VisualStudio.Workspace" Version="17.1.11-preview-0002" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bicep.VSLanguageServerClient\Bicep.VSLanguageServerClient.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>None</ResolveAssemblyWarnOrErrorOnTargetArchitectureMismatch>
+  </PropertyGroup>
+
+</Project>

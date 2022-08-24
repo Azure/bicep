@@ -16,7 +16,6 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
     public class BicepConfigTests : VisualStudioBicepHostTest
     {
         [TestMethod]
-        [Ignore("Disabled due to flakiness - https://github.com/Azure/bicep/issues/7851")]
         public void ChangeInLinterRuleLevelInBicepConfigFile_ShouldUpdateDiagnostics()
         {
             ProjectItemTestExtension projectItem = TestProject![@"Validation\main.bicep"];

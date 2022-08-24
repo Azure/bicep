@@ -7,6 +7,7 @@ Bicep has a Textmate grammar available at [bicep.tmlanguage](https://github.com/
 
 ### Known uses
 * **Bicep VSCode extension**: Used as a fallback grammar for when semantic token colorization is not ready, or is disabled. This is configured [here](https://github.com/Azure/bicep/blob/6d937220a57ae0490bcfd0e198c2dbafa32e7f64/src/vscode-bicep/package.json#L131-L135).
+* **Bicep Visual Studio extension**: Used as a fallback grammar for when bicep visual studio extension is not installed or when extension is installed and semantic token colorization is not ready.
 * **GitHub Linguist**: Used to provide colorization for `.bicep` files and Markdown snippets posted on GitHub with ` ```bicep` code blocks. The Bicep repo is configured as a [git submodule](https://github.com/github/linguist/blob/36d6903dddc9f0e9008dacd5dc8c52905eed4e5d/.gitmodules#L332-L334), so changes to the `.tmlanguage` file in this repo should be automatically picked up when a new release of Linguist is deployed.
 
 ### Notes
