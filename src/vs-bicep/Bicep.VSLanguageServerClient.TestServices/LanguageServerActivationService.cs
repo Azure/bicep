@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel.Composition;
 using System.Linq;
 using Bicep.VSLanguageServerClient.TestServices.Utilitites;
 using Microsoft.Test.Apex.VisualStudio;
@@ -13,6 +14,7 @@ namespace Bicep.VSLanguageServerClient.TestServices
 {
     // ILanguageServiceBroker2.ActiveLanguageClients is marked obsolete. We will replace it when an alternate option is available.
 #pragma warning disable CS0618 // Type or member is obsolete
+    [Export(typeof(LanguageServerActivationService))]
     public class LanguageServerActivationService : VisualStudioTestService
     {
         public void WaitForLanguageServerActivation()
