@@ -7,5 +7,10 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.LanguageServer.CompilationManager
 {
-    public record ParamsCompilationContext(ParamsSemanticModel ParamsSemanticModel, ProgramSyntax ProgramSyntax, ImmutableArray<int> LineStarts);
+    public record ParamsCompilationContext(ParamsSemanticModel ParamsSemanticModel)
+    {
+        public ProgramSyntax ProgramSyntax => ParamsSemanticModel.BicepParamFile.ProgramSyntax;
+
+        public ImmutableArray<int> LineStarts => ParamsSemanticModel.BicepParamFile.LineStarts;
+    }
 }

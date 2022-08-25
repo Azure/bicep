@@ -1,13 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.Collections.Immutable;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Emit;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.Workspaces;
+using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -63,7 +58,7 @@ param myParam = [
   ""parameters"": {
     ""myParam"": {
       ""value"": [
-        1, 
+        1,
         2
         ]
     }
@@ -71,8 +66,8 @@ param myParam = [
 }")]
         [DataRow(@"
 param myParam = {
-  property1 : 'value1',
-  property2 : 'value2' 
+  property1 : 'value1'
+  property2 : 'value2'
 }", @"
 {
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
@@ -81,7 +76,7 @@ param myParam = {
     ""myParam"": {
       ""value"": {
         ""property1"" : ""value1"",
-        ""property2"" : ""value2"" 
+        ""property2"" : ""value2""
       }
     }
   }
@@ -154,7 +149,7 @@ param myParam = {
           },
           {
             ""c"" : true
-          } 
+          }
         ],
         ""name"" : ""complex object!"",
         ""priority"" : 3,
@@ -191,30 +186,21 @@ param myInt = 1", @"
     }
   }
 }")]
-        public void params_file_with_no_errors_should_compile_correctly(string paramsText, string jsonText)
+        public void Params_file_with_no_errors_should_compile_correctly(string paramsText, string jsonText)
         {
-            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), paramsText), ImmutableArray<IDiagnostic>.Empty);
+            var result = CompilationHelper.CompileParams(paramsText);
 
-            var paramsWriter = new ParametersJsonWriter(model);
-
-            var jsonOuput = paramsWriter.GenerateTemplate();
-
-            var expectedJsonOuput = JToken.Parse(jsonText);
-
-            jsonOuput.Should().DeepEqual(expectedJsonOuput);
+            // Exclude the "No using declaration is present in this parameters file" diagnostic
+            result.WithFilteredDiagnostics(x => x.Code != "BCP261").Should().NotHaveAnyDiagnostics();
+            result.Parameters.Should().DeepEqual(JToken.Parse(jsonText));
         }
 
         [DataTestMethod]
-        public void params_file_with_not_implemented_syntax_should_throw_expction()
+        public void Params_file_with_not_implemented_syntax_should_throw_expction()
         {
-            var model = new ParamsSemanticModel(SourceFileFactory.CreateBicepParamFile(PathHelper.FilePathToFileUrl("parameters.bicepparam"), "param foo = 1 + 2"), ImmutableArray<IDiagnostic>.Empty);
-
-            var paramsWriter = new ParametersJsonWriter(model);
-
-            Action act = () => paramsWriter.GenerateTemplate();
+            // TODO: We should be raising a diagnostic, not throwing an exception here!
+            Action act = () => CompilationHelper.CompileParams("param foo = 1 + 2");
             act.Should().Throw<NotImplementedException>().WithMessage("Cannot emit unexpected expression of type BinaryOperationSyntax");
         }
-
     }
 }
-

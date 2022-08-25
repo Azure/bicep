@@ -256,7 +256,7 @@ namespace Bicep.LanguageServer
                 }
 
                 // this completes immediately
-                this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.ModulesToRestore, configuration);
+                this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.GetModulesToRestore(), configuration);
 
                 var sourceFiles = context.Compilation.SourceFileGrouping.SourceFiles;
                 var output = workspace.UpsertSourceFiles(sourceFiles);
@@ -303,7 +303,7 @@ namespace Bicep.LanguageServer
             }
         }
 
-        private void SendTelemetryOnBicepFileOpen(SemanticModel semanticModel, DocumentUri documentUri, RootConfiguration configuration, ImmutableHashSet<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
+        private void SendTelemetryOnBicepFileOpen(SemanticModel semanticModel, DocumentUri documentUri, RootConfiguration configuration, IEnumerable<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
         {
             // Telemetry on linter state on bicep file open
             var telemetryEvent = GetLinterStateTelemetryOnBicepFileOpen(configuration);
@@ -318,7 +318,7 @@ namespace Bicep.LanguageServer
             }
         }
 
-        public BicepTelemetryEvent? GetTelemetryAboutSourceFiles(SemanticModel semanticModel, Uri uri, ImmutableHashSet<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
+        public BicepTelemetryEvent? GetTelemetryAboutSourceFiles(SemanticModel semanticModel, Uri uri, IEnumerable<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
         {
             var mainFile = sourceFiles.First(x => x.FileUri == uri) as BicepFile;
 

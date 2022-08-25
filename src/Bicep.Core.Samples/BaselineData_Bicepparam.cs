@@ -65,7 +65,7 @@ namespace Bicep.Core.Samples
 
         private readonly EmbeddedFile paramsFile;
 
-        public bool IsValid => !paramsFile.StreamPath.StartsWith("Files/baselines_bicepparam/Invalid");
+        public bool IsValid => !paramsFile.StreamPath.StartsWith("Files/baselines_bicepparam/Invalid_");
 
         public BaselineData_Bicepparam(EmbeddedFile paramsFile)
         {
@@ -100,7 +100,8 @@ namespace Bicep.Core.Samples
 
             // ensure this list is kept up-to-date to validate that we're picking all of the baseline tests
             embeddedFiles.Select(x => x.StreamPath).Should().BeEquivalentTo(
-                "Files/baselines_bicepparam/InvalidParameters/parameters.bicepparam",
+                "Files/baselines_bicepparam/Invalid_Parameters/parameters.bicepparam",
+                "Files/baselines_bicepparam/Invalid_MismatchedTypes/parameters.bicepparam",
                 "Files/baselines_bicepparam/Parameters/parameters.bicepparam");
 
             foreach (var file in embeddedFiles)

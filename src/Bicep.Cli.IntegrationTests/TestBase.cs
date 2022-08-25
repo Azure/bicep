@@ -14,7 +14,6 @@ using FluentAssertions;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
@@ -74,21 +73,24 @@ namespace Bicep.Cli.IntegrationTests
             return output;
         }
 
-        protected static IEnumerable<string> GetAllParamDiagnostics(string paramFilePath)
-        {   
-            var fileText = File.ReadAllText(paramFilePath);
-            var paramsFile = SourceFileFactory.CreateBicepParamFile(new Uri(paramFilePath), fileText);
+        protected static IEnumerable<string> GetAllParamDiagnostics(string paramFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
+        {
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.Features));
+            var configuration = BicepTestConstants.BuiltInConfiguration;
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(paramFilePath), configuration);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, configuration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
 
-            Uri? bicepFileUri = ParamsSemanticModel.TryGetBicepFileUri(out var compilationLoadDiagnostics, BicepTestConstants.FileResolver, paramsFile);
-            
-            var model = new ParamsSemanticModel(paramsFile, compilationLoadDiagnostics);
+            var semanticModel = new ParamsSemanticModel(sourceFileGrouping, file => {
+                var compilationGrouping = new SourceFileGrouping(BicepTestConstants.FileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
-            var lineStarts = paramsFile.LineStarts;
-            
+
+                return new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, compilationGrouping, configuration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+            });
+
             var output = new List<string>();
-            foreach(var diagnostic in model.GetAllDiagnostics())
+            foreach(var diagnostic in semanticModel.GetAllDiagnostics())
             {
-                var (line, character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
+                var (line, character) = TextCoordinateConverter.GetPosition(semanticModel.BicepParamFile.LineStarts, diagnostic.Span.Position);
                 var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";
                 output.Add($"{paramFilePath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}");
             }

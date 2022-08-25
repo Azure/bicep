@@ -50,6 +50,26 @@ namespace Bicep.Core.Syntax
             return pathValue;
         }
 
+        public static string? TryGetUsingPath(UsingDeclarationSyntax usingDeclarationSyntax, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        {
+            var pathSyntax = usingDeclarationSyntax.TryGetPath();
+            if (pathSyntax == null)
+            {
+                failureBuilder = x => x.TemplatePathHasNotBeenSpecified();
+                return null;
+            }
+
+            var pathValue = pathSyntax.TryGetLiteralValue();
+            if (pathValue == null)
+            {
+                failureBuilder = x => x.FilePathInterpolationUnsupported();
+                return null;
+            }
+
+            failureBuilder = null;
+            return pathValue;
+        }
+
         public static TypeSymbol? TryGetPrimitiveType(ParameterDeclarationSyntax parameterDeclarationSyntax)
             => LanguageConstants.TryGetDeclarationType((parameterDeclarationSyntax.ParameterType as SimpleTypeSyntax)?.TypeName);
 
