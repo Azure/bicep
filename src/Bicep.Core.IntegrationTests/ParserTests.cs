@@ -14,6 +14,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 using System.Text;
+using Bicep.Core.UnitTests.Syntax;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -58,10 +59,10 @@ namespace Bicep.Core.IntegrationTests
         public void Parser_should_produce_expected_syntax(DataSet dataSet)
         {
             var program = ParserHelper.Parse(dataSet.Bicep);
-            var syntaxList = SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.Build(program);
+            var syntaxList = SyntaxCollectorVisitor.Build(program);
             var syntaxByParent = syntaxList.ToLookup(x => x.Parent);
 
-            TextSpan getSpan(SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
+            TextSpan getSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
 
             var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, syntaxList, getSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainSyntax), sourceTextWithDiags);
@@ -80,10 +81,10 @@ namespace Bicep.Core.IntegrationTests
         {
             var data = baselineData.GetData(TestContext);
             var program = ParamsParserHelper.ParamsParse(data.Parameters.EmbeddedFile.Contents);
-            var syntaxList = SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.Build(program);
+            var syntaxList = SyntaxCollectorVisitor.Build(program);
             var syntaxByParent = syntaxList.ToLookup(x => x.Parent);
 
-            TextSpan getSpan(SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
+            TextSpan getSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;
 
             var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", syntaxList, getSpan, syntax => GetSyntaxLoggingString(syntaxByParent, syntax));
 
@@ -114,8 +115,8 @@ namespace Bicep.Core.IntegrationTests
         }
 
         private static string GetSyntaxLoggingString(
-            ILookup<SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem?, SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem> syntaxByParent,
-            SyntaxCollectorVisitorHelper.SyntaxCollectorVisitor.SyntaxItem syntax)
+            ILookup<SyntaxCollectorVisitor.SyntaxItem?, SyntaxCollectorVisitor.SyntaxItem> syntaxByParent,
+            SyntaxCollectorVisitor.SyntaxItem syntax)
         {
             // Build a visual graph with lines to help understand the syntax hierarchy
             var graphPrefix = new StringBuilder();

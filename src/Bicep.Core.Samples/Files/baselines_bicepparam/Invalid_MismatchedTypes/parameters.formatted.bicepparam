@@ -1,15 +1,15 @@
-using'./main.bicep'
+using './main.bicep'
 
-paramstring=123
+param string = 123
 
-parambool='hello'
+param bool = 'hello'
 
-paramint=false
+param int = false
 
-paramobject=[ 'abc', 'def' ]
+param object = [ 'abc', 'def' ]
 
-paramarray={
+param array = {
   isThis: 'correct?'
 }
 
-paramstringAllowed='notTheAllowedValue'
+param stringAllowed = 'notTheAllowedValue'

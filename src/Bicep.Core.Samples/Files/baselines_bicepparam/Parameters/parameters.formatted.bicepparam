@@ -6,31 +6,31 @@ multiline comment!
 // This is a single line comment
 
 // using keyword for specifying a Bicep file
-using'./main.bicep'
+using './main.bicep'
 
 // parameter assignment to literals
-parammyString='hello world!!'
-parammyInt=42
-parammyBool=true
+param myString = 'hello world!!'
+param myInt = 42
+param myBool = true
 
 // parameter assignment to objects
-parampassword='strongPassword'
-paramsecretObject={
+param password = 'strongPassword'
+param secretObject = {
   name: 'vm2'
   location: 'westus'
 }
-paramstorageSku='Standard_LRS'
-paramstorageName='myStorage'
-paramsomeArray=[
+param storageSku = 'Standard_LRS'
+param storageName = 'myStorage'
+param someArray = [
   'a'
   'b'
   'c'
   'd'
 ]
-paramemptyMetadata='empty!'
-paramdescription='descriptive description'
-paramdescription2='also descriptive'
-paramadditionalMetadata='more metadata'
-paramsomeParameter='three'
-paramstringLiteral='abc'
-paramdecoratedString='Apple'
+param emptyMetadata = 'empty!'
+param description = 'descriptive description'
+param description2 = 'also descriptive'
+param additionalMetadata = 'more metadata'
+param someParameter = 'three'
+param stringLiteral = 'abc'
+param decoratedString = 'Apple'
