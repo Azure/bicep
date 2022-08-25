@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Bicep.VSLanguageServerClient.MiddleLayerProviders;
 using Bicep.VSLanguageServerClient.ProcessLauncher;
 using Bicep.VSLanguageServerClient.ProcessTracker;
+using Bicep.VSLanguageServerClient.Settings;
 using Bicep.VSLanguageServerClient.Telemetry;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Setup.Configuration;
@@ -33,6 +34,7 @@ namespace Bicep.VSLanguageServerClient
         private readonly ILanguageClientMiddleLayer middleLayer;
         private readonly IProcessTracker processTracker;
         private readonly TelemetrySession TelemetrySession;
+        private BicepSettings? bicepSettings;
 
         [ImportingConstructor]
         public BicepLanguageServerClient(IProcessTracker processTracker)
@@ -44,6 +46,13 @@ namespace Bicep.VSLanguageServerClient
             var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer();
             var gotoDefintionMiddleLayer = new HandleGotoDefintionMiddleLayer();
             middleLayer = new AggregatingMiddleLayer(gotoDefintionMiddleLayer, handleSnippetCompletionsMiddleLayer, updateFormatSettingsMiddleLayer);
+
+            bicepSettings = new BicepSettings();
+            bicepSettings.Changed += OnSettingsChanged;
+        }
+
+        private void OnSettingsChanged(object sender, EventArgs e)
+        {
         }
 
         public string Name => "Bicep Language Server";

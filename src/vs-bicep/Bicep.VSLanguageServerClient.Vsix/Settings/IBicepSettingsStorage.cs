@@ -10,7 +10,7 @@ namespace Bicep.VSLanguageServerClient.Vsix.Settings
     /// Editor uses exported object to retrieve its settings such as indentation
     /// style, tab size, formatting options and so on.
     /// </summary>
-    public interface IWebEditorSettingsStorage
+    public interface IBicepSettingsStorage
     {
         event EventHandler<EventArgs> SettingsChanged;
 

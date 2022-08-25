@@ -8,7 +8,7 @@ namespace Bicep.VSLanguageServerClient.Vsix.Settings
     /// Editor uses exported object to store settings such as indentation style,
     /// tab size, formatting options and so on.
     /// </summary>
-    internal interface IWritableWebEditorSettingsStorage : IWebEditorSettingsStorage
+    internal interface IWritableBicepSettingsStorage : IBicepSettingsStorage
     {
         void ResetSettings();
 

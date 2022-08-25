@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.VSLanguageServerClient.Vsix.Settings
+namespace Bicep.VSLanguageServerClient.Settings
 {
     public class BicepGuidList
     {

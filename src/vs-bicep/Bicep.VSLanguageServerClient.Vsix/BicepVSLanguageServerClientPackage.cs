@@ -4,7 +4,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Bicep.VSLanguageServerClient.Vsix.Settings;
+using Bicep.VSLanguageServerClient.Settings;
 using Microsoft.VisualStudio.Shell;
 using Task = System.Threading.Tasks.Task;
 

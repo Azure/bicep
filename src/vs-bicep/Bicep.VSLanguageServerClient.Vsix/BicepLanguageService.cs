@@ -3,7 +3,7 @@
 
 using System;
 using System.Runtime.InteropServices;
-using Bicep.VSLanguageServerClient.Vsix.Settings;
+using Bicep.VSLanguageServerClient.Settings;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.TextManager.Interop;
 

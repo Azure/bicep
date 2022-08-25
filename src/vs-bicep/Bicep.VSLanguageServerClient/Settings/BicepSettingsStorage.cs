@@ -3,20 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.TextManager.Interop;
-using Microsoft.VisualStudio.Utilities;
 
-namespace Bicep.VSLanguageServerClient.Vsix.Settings
+namespace Bicep.VSLanguageServerClient.Settings
 {
-    [Export(typeof(IWritableWebEditorSettingsStorage))]
-    [ContentType(BicepLanguageServerClientConstants.BicepContentType)]
-    [Name("Bicep Editor Settings")]
-    [Order(Before = "Default")]
-    public class BicepSettingsStorage : IVsTextManagerEvents4, IWritableWebEditorSettingsStorage
+    public class BicepSettingsStorage : IVsTextManagerEvents4
     {
         public event EventHandler<EventArgs>? SettingsChanged;
 
