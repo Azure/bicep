@@ -110,7 +110,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }
         }
 
-        private static bool IsCompilerDiagnostic(IDiagnostic diagnostic)
+        protected static bool IsCompilerDiagnostic(IDiagnostic diagnostic)
         {
             return diagnostic.Code.StartsWith("BCP");
         }

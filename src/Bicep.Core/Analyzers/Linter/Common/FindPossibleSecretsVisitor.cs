@@ -12,6 +12,8 @@ namespace Bicep.Core.Analyzers.Linter.Common
 {
     public sealed class FindPossibleSecretsVisitor : SyntaxVisitor
     {
+        // TODO: Refactor to not use visitor
+
         public record PossibleSecret
         {
             public SyntaxBase Syntax { get; }

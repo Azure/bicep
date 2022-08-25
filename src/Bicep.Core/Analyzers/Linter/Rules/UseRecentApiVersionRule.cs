@@ -3,9 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -13,8 +16,11 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -28,15 +34,24 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         // Debug/test switch: Warn if the resource type or API version are not found (normally we don't
         // give errors for these because Bicep always provides a warning about types not being available)
-        private bool warnNotFound = false;
+        private bool warnIfNotFound = false;
+
+        private static readonly Regex resourceTypeRegex = new(
+            "^ [a-z]+\\.[a-z]+ (\\/ [a-z]+)+ $",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.IgnorePatternWhitespace);
 
         public record Failure(
             TextSpan Span,
-            string ResourceType,
-            string Reason,
+            string Message,
             ApiVersion[] AcceptableVersions,
             CodeFix[] Fixes
         );
+
+        public record FunctionCallInfo(
+            FunctionCallSyntaxBase FunctionCallSyntax,
+            string FunctionName,
+            string? ResourceType,
+            ApiVersion? ApiVersion);
 
         public UseRecentApiVersionRule() : base(
             code: Code,
@@ -60,53 +75,247 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             // Testing/debug: Warn if the resource type and/or API version are not found
             bool debugWarnNotFound = this.GetConfigurationValue<bool>("test-warn-not-found", false);
-            this.warnNotFound = debugWarnNotFound == true;
+            this.warnIfNotFound = debugWarnNotFound == true;
 
         }
 
         public override string FormatMessage(params object[] values)
         {
-            var resourceType = (string)values[0];
-            var reason = (string)values[1];
-            var acceptableVersions = (ApiVersion[])values[2];
+            var message = (string)values[0];
+            var acceptableVersions = (ApiVersion[])values[1];
 
             var acceptableVersionsString = string.Join(", ", acceptableVersions.Select(v => v.Formatted));
-            return string.Format(CoreResources.UseRecentApiVersionRule_ErrorMessageFormat, resourceType)
-                + (" " + reason)
+            return message
                 + (acceptableVersionsString.Any() ? " " + string.Format(CoreResources.UseRecentApiVersionRule_AcceptableVersions, acceptableVersionsString) : "");
         }
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            foreach (var resource in model.DeclaredResources)
+            foreach (var resource in model.DeclaredResources.Where(r => r.IsAzResource))
             {
-                if (resource.Symbol.DeclaringSyntax is ResourceDeclarationSyntax declarationSyntax
-                    && AnalyzeResource(model, declarationSyntax) is Failure failure)
+                if (AnalyzeResource(model, today, resource.Symbol, warnIfNotFound: warnIfNotFound) is Failure failure)
                 {
                     yield return CreateFixableDiagnosticForSpan(
                         failure.Span,
                         failure.Fixes,
-                        failure.ResourceType,
-                        failure.Reason,
+                        failure.Message,
+                        failure.AcceptableVersions);
+                }
+            }
+
+            foreach (var callInfo in GetFunctionCallInfos(model))
+            {
+                if (AnalyzeFunctionCall(model, today, callInfo) is Failure failure)
+                {
+                    yield return CreateFixableDiagnosticForSpan(
+                        failure.Span,
+                        failure.Fixes,
+                        failure.Message,
                         failure.AcceptableVersions);
                 }
             }
         }
 
-        public Failure? AnalyzeResource(SemanticModel model, ResourceDeclarationSyntax resourceDeclarationSyntax)
+        private static Failure? AnalyzeFunctionCall(SemanticModel model, DateTime today, FunctionCallInfo functionCallInfo)
         {
-            if (model.GetSymbolInfo(resourceDeclarationSyntax) is not ResourceSymbol resourceSymbol)
+            if (functionCallInfo.ApiVersion.HasValue && functionCallInfo.ResourceType is not null)
+            {
+                return AnalyzeApiVersion(
+                    model.Compilation.ApiVersionProvider,
+                    today,
+                    errorSpan: functionCallInfo.FunctionCallSyntax.Span,
+                    replacementSpan: null,
+                    model.TargetScope,
+                    functionCallInfo.ResourceType,
+                    functionCallInfo.ApiVersion.Value,
+                    // Since Bicep doesn't show a warning for API versions in function calls, we want to do it
+                    returnNotFoundDiagnostics: true);
+            }
+
+            return null;
+        }
+
+        public static IEnumerable<FunctionCallInfo> GetFunctionCallInfos(SemanticModel model)
+        {
+            var referenceAndListFunctionCalls = LinterExpressionHelper.FindFunctionCallsByName(
+                model,
+                model.SourceFile.ProgramSyntax,
+                AzNamespaceType.BuiltInName,
+                "reference|(list.*)");
+
+            return referenceAndListFunctionCalls.Select(fc => GetFunctionCallInfo(model, fc));
+        }
+
+        private static FunctionCallInfo GetFunctionCallInfo(SemanticModel model, FunctionCallSyntaxBase functionCallSyntax)
+        {
+            // Assumes we're working with resource or anything starting with list*, both of which have the format:
+            //
+            //   func(resourceType, apiVersion, ...)
+            //     or
+            //   func(resourceId(resourceType, ...), apiVersion, ...)
+            //
+
+            ApiVersion? apiVersion = null;
+            string? resourceType = null;
+
+            // resource type in first argument
+            if (functionCallSyntax.Arguments.Length >= 1
+                && functionCallSyntax.Arguments[0].Expression is SyntaxBase resourceTypeArgumentSyntax)
+            {
+                // Handle `reference(resourceId(<resourcetype>, ...), ...)`
+                if (resourceType is null && resourceTypeArgumentSyntax is FunctionCallSyntaxBase functionCall)
+                {
+                    resourceType = TryGetResourceTypeIfResourceIdCall(model, functionCall);
+                }
+
+                // Handle `reference(<resourcetype>, ...)`
+                resourceType ??= TryGetResourceTypeIfEvaluatesToStringLiteral(model, resourceTypeArgumentSyntax);
+
+                // Handle `reference(<resource>.id, ...)`
+                resourceType ??= TryGetResourceTypeIfSymbolicResourceId(model, resourceTypeArgumentSyntax);
+
+                // Handle `reference('resourceName', ...)`
+                resourceType ??= TryGetResourceTypeIfResourceName(model, resourceTypeArgumentSyntax);
+
+                // Simplify resource type if it contains additional part
+                if (resourceType is not null)
+                {
+                    resourceType = GetResourceTypeFromResourceId(model, resourceType);
+                }
+            }
+
+            // apiVersion is in the optional 2nd argument of reference
+            if (functionCallSyntax.Arguments.Length >= 2)
+            {
+                var apiVersionExpression = functionCallSyntax.Arguments[1].Expression;
+
+                if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, apiVersionExpression) is (string apiVersionString, StringSyntax apiVersionSyntax, _)
+                    && ApiVersion.TryParse(apiVersionString) is ApiVersion apiVersion2)
+                {
+                    apiVersion = apiVersion2;
+                }
+            }
+
+            return new FunctionCallInfo(functionCallSyntax, functionCallSyntax.Name.IdentifierName, resourceType, apiVersion);
+        }
+
+        private static string? TryGetResourceTypeIfResourceIdCall(SemanticModel model, FunctionCallSyntaxBase functionCallSyntax)
+        {
+            // Handle resourceId(<resourcetype>, ...)
+            if (!functionCallSyntax.Name.IdentifierName.EqualsOrdinally("resourceId"))
             {
                 return null;
             }
 
-            if (model.DeclaredResources.FirstOrDefault(r => r.Symbol == resourceSymbol) is not DeclaredResourceMetadata declaredResourceMetadata
-                || !declaredResourceMetadata.IsAzResource)
+            // resourceId() has optional arguments at the beginning for subscription and resource group IDs that can't always be determined
+            //   at build time, so look for the first argument that looks like a resource ID
+            var argsAsStringLiterals = functionCallSyntax.Arguments.Select(x => LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, x)).ToArray();
+            for (int i = 0; i < functionCallSyntax.Arguments.Length; ++i)
             {
-                // Skip if it's not an Az resource or is invalid
-                return null;
+                if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, functionCallSyntax.Arguments[i].Expression) is (string argLiteral, _, _))
+                {
+                    argLiteral = argLiteral.TrimEnd('/');
+
+                    if (resourceTypeRegex.IsMatch(argLiteral))
+                    {
+                        // Now folder any following arguments that are also literals into this string separated by "/", e.g.:
+                        //   (..., 'Microsoft.Compute/virtualMachineScaleSets', 'virtualMachines/runCommands', 'name', <non-string-literal-arg>, ...)
+                        //     =>
+                        //   'Microsoft.Compute/virtualMachineScaleSets/virtualMachines/runCommands/name'
+                        string folderLiterals = argLiteral;
+                        for (int j = i + 1; j < functionCallSyntax.Arguments.Length; ++j)
+                        {
+                            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, functionCallSyntax.Arguments[j].Expression) is (string argLiteral2, _, _))
+                            {
+                                folderLiterals += $"/{argLiteral2}";
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        return folderLiterals;
+                    }
+                }
             }
 
+            return null;
+        }
+
+        private static string? TryGetResourceTypeIfEvaluatesToStringLiteral(SemanticModel model, SyntaxBase expression)
+        {
+            if (LinterExpressionHelper.TryGetEvaluatedStringLiteral(model, expression)
+                is (string resourceIdResTypeString, _, _))
+            {
+                if (resourceTypeRegex.IsMatch(resourceIdResTypeString))
+                {
+                    return resourceIdResTypeString;
+                }
+            }
+
+            return null;
+        }
+
+        private static string? TryGetResourceTypeIfSymbolicResourceId(SemanticModel model, SyntaxBase expression)
+        {
+            if (expression is PropertyAccessSyntax propertyAccessSyntax
+                && propertyAccessSyntax.BaseExpression is VariableAccessSyntax variableAccessSyntax
+                && model.GetSymbolInfo(variableAccessSyntax) is ResourceSymbol resourceSymbol)
+            {
+                if (resourceSymbol.TryGetResourceTypeReference() is ResourceTypeReference resourceTypeReference)
+                {
+                    return resourceTypeReference.FormatType();
+                }
+            }
+
+            return null;
+        }
+
+        private static string? TryGetResourceTypeFromResource(ResourceMetadata resourceMetadata)
+        {
+            if (resourceMetadata.IsAzResource)
+            {
+                return resourceMetadata.TypeReference.FormatType();
+            }
+
+            return null;
+        }
+
+        private static string? TryGetResourceTypeIfResourceName(SemanticModel model, SyntaxBase resourceNameExpression)
+        {
+            var foundResources = LinterExpressionHelper.TryFindResourceByNameExpression(model, resourceNameExpression);
+            if (foundResources.Any())
+            {
+                return TryGetResourceTypeFromResource(foundResources.First());
+            }
+
+            return null;
+        }
+
+        private static string GetResourceTypeFromResourceId(SemanticModel model, string resourceId)
+        {
+            var resourceType = resourceId;
+            var mostRecentValid = resourceId;
+            while (resourceTypeRegex.IsMatch(resourceType))
+            {
+                if (model.Compilation.ApiVersionProvider.GetApiVersions(model.TargetScope, resourceType).Any())
+                {
+                    // The resource type exists
+                    return resourceType;
+                }
+
+                // Strip off last slash
+                mostRecentValid = resourceType;
+                resourceType = resourceType[0..resourceType.LastIndexOf('/')];
+            }
+
+            // Assume the most minimal valid resource type is correct
+            return mostRecentValid;
+        }
+
+        private static Failure? AnalyzeResource(SemanticModel model, DateTime today, ResourceSymbol resourceSymbol, bool warnIfNotFound)
+        {
             if (resourceSymbol.TryGetResourceTypeReference() is ResourceTypeReference resourceTypeReference &&
                 resourceTypeReference.ApiVersion is string apiVersionString &&
                 GetReplacementSpan(resourceSymbol, apiVersionString) is TextSpan replacementSpan)
@@ -115,7 +324,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 if (date is not null)
                 {
                     string fullyQualifiedResourceType = resourceTypeReference.FormatType();
-                    var failure = AnalyzeApiVersion(model.Compilation.ApiVersionProvider, replacementSpan, model.TargetScope, fullyQualifiedResourceType, new ApiVersion(date, suffix));
+                    var failure = AnalyzeApiVersion(
+                        model.Compilation.ApiVersionProvider,
+                        today,
+                        replacementSpan,
+                        replacementSpan,
+                        model.TargetScope,
+                        fullyQualifiedResourceType,
+                        new ApiVersion(date, suffix),
+                        returnNotFoundDiagnostics: warnIfNotFound);
                     if (failure is not null)
                     {
                         return failure;
@@ -126,16 +343,25 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
-        public Failure? AnalyzeApiVersion(IApiVersionProvider apiVersionProvider, TextSpan replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, ApiVersion actualApiVersion)
+        public static Failure? AnalyzeApiVersion(IApiVersionProvider apiVersionProvider, DateTime today, TextSpan errorSpan, TextSpan? replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, ApiVersion actualApiVersion, bool returnNotFoundDiagnostics)
         {
             var (allApiVersions, acceptableApiVersions) = GetAcceptableApiVersions(apiVersionProvider, today, MaxAllowedAgeInDays, scope, fullyQualifiedResourceType);
             if (!allApiVersions.Any())
             {
                 // Resource type not recognized
-                if (warnNotFound)
+                if (returnNotFoundDiagnostics)
                 {
-                    return new Failure(replacementSpan, fullyQualifiedResourceType, $"Could not find resource type {fullyQualifiedResourceType}", Array.Empty<ApiVersion>(), Array.Empty<CodeFix>());
+                    IEnumerable<string> typeNames = apiVersionProvider.GetResourceTypeNames(scope);
+                    string? suggestion = SpellChecker.GetSpellingSuggestion(fullyQualifiedResourceType, typeNames);
+
+                    var message = $"Could not find resource type \"{fullyQualifiedResourceType}\".";
+                    if (suggestion is not null)
+                    {
+                        message += $" Did you mean \"{suggestion}\"?";
+                    }
+                    return CreateFailureFromMessage(errorSpan, message);
                 }
+
                 return null;
             }
 
@@ -149,9 +375,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             if (!allApiVersions.Contains(actualApiVersion))
             {
                 // apiVersion for resource type not recognized.
-                if (warnNotFound)
+                if (returnNotFoundDiagnostics)
                 {
-                    return CreateFailure(replacementSpan, fullyQualifiedResourceType, $"Could not find apiVersion {actualApiVersion.Formatted} for {fullyQualifiedResourceType}", acceptableApiVersions);
+                    return CreateFailureFromApiVersion(
+                        errorSpan,
+                        replacementSpan,
+                        $"Could not find apiVersion {actualApiVersion.Formatted} for {fullyQualifiedResourceType}.",
+                        acceptableApiVersions);
                 }
 
                 return null;
@@ -186,10 +416,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
 
             Debug.Assert(failureReason is not null);
-            return CreateFailure(
+            var failureMessage = string.Format(CoreResources.UseRecentApiVersionRule_ErrorMessageFormat, fullyQualifiedResourceType, failureReason);
+            return CreateFailureFromApiVersion(
+                errorSpan,
                 replacementSpan,
-                fullyQualifiedResourceType,
-                failureReason,
+                failureMessage,
                 acceptableApiVersions);
         }
 
@@ -263,19 +494,28 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
-        private static Failure CreateFailure(TextSpan span, string fullyQualifiedResourceType, string reason, ApiVersion[] acceptableVersionsSorted)
+        private static Failure CreateFailureFromMessage(TextSpan span, string message)
         {
-            // For now, always choose the most recent for the suggested auto-fix
-            var preferredVersion = acceptableVersionsSorted[0];
-            var codeReplacement = new CodeReplacement(span, preferredVersion.Formatted);
+            return new Failure(span, message, Array.Empty<ApiVersion>(), Array.Empty<CodeFix>());
+        }
 
-            var fix = new CodeFix(
-                string.Format(CoreResources.UseRecentApiVersionRule_Fix_ReplaceApiVersion, preferredVersion.Formatted),
-                isPreferred: true,
-                CodeFixKind.QuickFix,
-                codeReplacement);
+        private static Failure CreateFailureFromApiVersion(TextSpan errorSpan, TextSpan? replacementSpan, string message, ApiVersion[] acceptableVersionsSorted)
+        {
+            CodeFix? fix = null;
+            if (replacementSpan is not null)
+            {
+                // For now, always choose the most recent for the suggested auto-fix
+                var preferredVersion = acceptableVersionsSorted[0];
+                var codeReplacement = new CodeReplacement(replacementSpan, preferredVersion.Formatted);
 
-            return new Failure(span, fullyQualifiedResourceType, reason, acceptableVersionsSorted, new CodeFix[] { fix });
+                fix = new CodeFix(
+                    string.Format(CoreResources.UseRecentApiVersionRule_Fix_ReplaceApiVersion, preferredVersion.Formatted),
+                    isPreferred: true,
+                    CodeFixKind.QuickFix,
+                    codeReplacement);
+            }
+
+            return new Failure(errorSpan, message, acceptableVersionsSorted, fix is null ? Array.Empty<CodeFix>() : new CodeFix[] { fix });
         }
 
         private static DateTime? GetNewestDateOrNull(IEnumerable<ApiVersion> apiVersions)
@@ -330,3 +570,4 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         }
     }
 }
+

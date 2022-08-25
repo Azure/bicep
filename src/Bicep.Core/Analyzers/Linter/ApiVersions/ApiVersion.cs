@@ -27,7 +27,20 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
         {
         }
 
-        private ApiVersion((string date,string suffix) apiVersion)
+        public static ApiVersion? TryParse(string apiVersion)
+        {
+            var (date, suffix) = ApiVersionHelper.TryParse(apiVersion);
+            if (date is not null)
+            {
+                return new ApiVersion(date, suffix);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private ApiVersion((string date, string suffix) apiVersion)
             : this(ApiVersionHelper.ParseDateFromString(apiVersion.date), apiVersion.suffix)
         {
         }

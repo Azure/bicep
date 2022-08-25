@@ -909,15 +909,22 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 string currentVersionSuffix,
                 DateTime[] gaVersionDates,
                 DateTime[] previewVersionDates,
-                (string reason, string acceptableVersions, string replacement)? expectedFix)
+                (string message, string acceptableVersions, string replacement)? expectedFix)
             {
                 string currentVersion = ApiVersionHelper.Format(currentVersionDate) + currentVersionSuffix;
                 string[] gaVersions = gaVersionDates.Select(d => "Whoever.whatever/whichever@" + ApiVersionHelper.Format(d)).ToArray();
                 string[] previewVersions = previewVersionDates.Select(d => "Whoever.whatever/whichever@" + ApiVersionHelper.Format(d) + "-preview").ToArray();
                 var apiVersionProvider = new ApiVersionProvider();
                 apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(gaVersions.Concat(previewVersions)));
-                var rule = new UseRecentApiVersionRule();
-                var result = rule.AnalyzeApiVersion(apiVersionProvider, new TextSpan(17, 47), ResourceScope.ResourceGroup, "Whoever.whatever/whichever", new ApiVersion(currentVersion));
+                var result = UseRecentApiVersionRule.AnalyzeApiVersion(
+                    apiVersionProvider,
+                    DateTime.Today,
+                    new TextSpan(17, 47),
+                    new TextSpan(17, 47),
+                    ResourceScope.ResourceGroup,
+                    "Whoever.whatever/whichever",
+                    new ApiVersion(currentVersion),
+                    returnNotFoundDiagnostics: true);
 
                 if (expectedFix == null)
                 {
@@ -927,8 +934,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 {
                     result.Should().NotBeNull();
                     result!.Span.Should().Be(new TextSpan(17, 47));
-                    result.ResourceType.Should().Be("Whoever.whatever/whichever");
-                    result.Reason.Should().Be(expectedFix.Value.reason);
+                    result.Message.Should().Be(expectedFix.Value.message);
                     (string.Join(", ", result.AcceptableVersions.Select(v => v.Formatted))).Should().Be(expectedFix.Value.acceptableVersions);
                     result.Fixes.Should().HaveCount(1); // Right now we only create one fix
                     result.Fixes[0].Replacements.Should().SatisfyRespectively(r => r.Span.Should().Be(new TextSpan(17, 47)));
@@ -956,7 +962,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "", new DateTime[] { currentVersionDate, recentGAVersionDate }, new DateTime[] { },
                     (
-                        $"'{currentVersion}' is {3 * 365} days old, should be no more than 730 days old.",
+                        $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {3 * 365} days old, should be no more than 730 days old.",
                         acceptableVersions: recentGAVersion,
                         replacement: recentGAVersion
                     ));
@@ -973,7 +979,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "", new DateTime[] { currentVersionDate, recentGAVersionDate }, new DateTime[] { },
                      (
-                        $"'{currentVersion}' is {4 * 365} days old, should be no more than 730 days old.",
+                        $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {4 * 365} days old, should be no more than 730 days old.",
                         acceptableVersions: recentGAVersion,
                         replacement: recentGAVersion
                      ));
@@ -1015,7 +1021,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "-preview", new DateTime[] { recentGAVersionDate }, new DateTime[] { currentVersionDate, recentPreviewVersionDate },
                     (
-                       $"'{currentVersion}' is {5 * 365} days old, should be no more than 730 days old.",
+                       $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {5 * 365} days old, should be no more than 730 days old.",
                        acceptableVersions: recentGAVersion,
                        replacement: recentGAVersion
                     ));
@@ -1036,7 +1042,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 Test(currentVersionDate, "-preview", new DateTime[] { recentGAVersionDate }, new DateTime[] { currentVersionDate, recentPreviewVersionDate },
                     (
 
-                       $"'{currentVersion}' is {5 * 365} days old, should be no more than 730 days old.",
+                       $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {5 * 365} days old, should be no more than 730 days old.",
                        acceptableVersions: $"{recentPreviewVersion}, {recentGAVersion}",
                        replacement: recentPreviewVersion // TODO recommend most recent, or just most recent GA version? Right now we always suggest the most recent
                     ));
@@ -1055,7 +1061,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "-preview", new DateTime[] { recentGAVersionDate }, new DateTime[] { currentVersionDate, recentPreviewVersionDate },
                   (
-                     $"'{currentVersion}-preview' is {5 * 365} days old, should be no more than 730 days old.",
+                     $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}-preview' is {5 * 365} days old, should be no more than 730 days old.",
                      acceptableVersions: recentGAVersion,
                      replacement: recentGAVersion
                   ));
@@ -1072,7 +1078,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "-preview", new DateTime[] { recentGAVersionDate }, new DateTime[] { currentVersionDate },
                   (
-                     $"'{currentVersion}-preview' is a preview version and there is a more recent non-preview version available.",
+                     $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}-preview' is a preview version and there is a more recent non-preview version available.",
                      acceptableVersions: recentGAVersion,
                      replacement: recentGAVersion
                   ));
@@ -1089,7 +1095,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "-preview", new DateTime[] { recentGAVersionDate }, new DateTime[] { currentVersionDate },
                  (
-                    $"'{currentVersion}' is a preview version and there is a non-preview version available with the same date.",
+                    $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is a preview version and there is a non-preview version available with the same date.",
                     acceptableVersions: recentGAVersion,
                     replacement: recentGAVersion
                  ));
@@ -1106,7 +1112,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
                 Test(currentVersionDate, "-preview", new DateTime[] { }, new DateTime[] { recentPreviewVersionDate, currentVersionDate },
                     (
-                       $"'{currentVersion}' is {3 * 365} days old, should be no more than 730 days old.",
+                       $"Use more recent API version for 'Whoever.whatever/whichever'. '{currentVersion}' is {3 * 365} days old, should be no more than 730 days old.",
                        acceptableVersions: recentPreviewVersion,
                       replacement: recentPreviewVersion
                     ));
@@ -1199,7 +1205,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         "[4] Use more recent API version for 'fake.ServiceBus/namespaces'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
                         "[18] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2415-08-01' is 2529 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
                         "[29] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. '2418-01-01-preview' is 1645 days old, should be no more than 730 days old. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
-                        "[35] Use more recent API version for 'fake.ServiceBus/namespaces/queues/authorizationRules'. Could not find apiVersion 4017-04-01 for fake.ServiceBus/namespaces/queues/authorizationRules Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
+                        "[35] Could not find apiVersion 4017-04-01 for fake.ServiceBus/namespaces/queues/authorizationRules. Acceptable versions: 2421-06-01-preview, 2421-01-01-preview, 2417-04-01",
                     });
             }
 
@@ -1694,9 +1700,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     ResourceScope.ResourceGroup,
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
-                    new string[] {
-                        "[2] Use more recent API version for 'DontKnowWho.MachineLearningCompute/operationalizationClusters'. Could not find resource type DontKnowWho.MachineLearningCompute/operationalizationClusters"
-                    });
+                new string[] {
+                    "[2] Could not find resource type \"DontKnowWho.MachineLearningCompute/operationalizationClusters\".",
+                });
             }
 
             [TestMethod]
@@ -1714,7 +1720,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     FakeResourceTypes.ResourceScopeTypes,
                     "2422-07-04",
                     new string[] {
-                        "[2] Use more recent API version for 'Fake.MachineLearningCompute/operationalizationClusters'. Could not find apiVersion 2417-06-01-beta for Fake.MachineLearningCompute/operationalizationClusters Acceptable versions: 2417-08-01-preview"
+                        "[2] Could not find apiVersion 2417-06-01-beta for Fake.MachineLearningCompute/operationalizationClusters. Acceptable versions: 2417-08-01-preview"
                     });
             }
 
