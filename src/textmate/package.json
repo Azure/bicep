@@ -4,11 +4,11 @@
   "devDependencies": {
     "tmlanguage-generator": "^0.3.1",
     "@types/html-escaper": "^3.0.0",
-    "@types/jest": "^28.1.6",
+    "@types/jest": "^28.1.8",
     "@types/node": "^18.7.11",
     "@types/plist": "^3.0.2",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
-    "@typescript-eslint/parser": "^5.34.0",
+    "@typescript-eslint/parser": "^5.35.1",
     "eslint": "^8.21.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^26.8.2",
