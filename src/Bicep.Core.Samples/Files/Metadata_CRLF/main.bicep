@@ -3,12 +3,12 @@
 */
 
 // metadata with value
-meta myString2 = 'string value'
-meta myInt2 = 42
-meta myTruth = true
-meta myFalsehood = false
-meta myEscapedString = 'First line\r\nSecond\ttabbed\tline'
-meta myMultiLineString = '''
+metadata myString2 = 'string value'
+metadata myInt2 = 42
+metadata myTruth = true
+metadata myFalsehood = false
+metadata myEscapedString = 'First line\r\nSecond\ttabbed\tline'
+metadata myMultiLineString = '''
   This is a multi line string // with comments,
   blocked ${interpolation},
   and a /* newline.
@@ -16,7 +16,7 @@ meta myMultiLineString = '''
 '''
 
 // object value
-meta foo = {
+metadata foo = {
   enabled: true
   name: 'this is my object'
   priority: 3
@@ -40,15 +40,15 @@ meta foo = {
 }
 
 // array value
-meta myArrayMetadata = [
+metadata myArrayMetadata = [
   'a'
   'b'
   'c'
 ]
 
 // emtpy object and array
-meta myEmptyObj = { }
-meta myEmptyArray = [ ]
+metadata myEmptyObj = { }
+metadata myEmptyArray = [ ]
 
 // param with same name as metadata is permitted
 param foo string

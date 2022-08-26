@@ -11,7 +11,7 @@ const identifier = bounded(`${identifierStart}${identifierContinue}*`);
 const directive = bounded(`[_a-zA-Z-0-9]+`);
 
 const keywords = [
-  'meta',
+  'metadata',
   'targetScope',
   'resource',
   'module',

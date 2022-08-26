@@ -1,16 +1,16 @@
 [
   {
-    "label": "meta",
+    "label": "metadata",
     "kind": "keyword",
     "detail": "Metadata keyword",
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_meta",
+    "sortText": "2_metadata",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "meta"
+      "newText": "metadata"
     }
   },
   {

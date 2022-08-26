@@ -72,7 +72,7 @@ namespace Bicep.LanguageServer.Handlers
                 
                 case MetadataSymbol metadata:
                     return WithMarkdown(CodeBlockWithDescription(
-                        $"meta {metadata.Name}: {metadata.Type}", TryGetDescriptionMarkdown(result, metadata)));
+                        $"metadata {metadata.Name}: {metadata.Type}", TryGetDescriptionMarkdown(result, metadata)));
 
 
                 case ParameterSymbol parameter:

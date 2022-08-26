@@ -756,7 +756,7 @@ namespace Bicep.Decompiler
             List<SyntaxBase> leadingNodes = new();
             return new MetadataDeclarationSyntax(
                 leadingNodes,
-                SyntaxFactory.CreateToken(TokenType.Identifier, "meta"),
+                SyntaxFactory.CreateToken(TokenType.Identifier, "metadata"),
                 SyntaxFactory.CreateIdentifier(value.Name),
                 SyntaxFactory.AssignmentToken,
                 ParseJToken(value.Value)

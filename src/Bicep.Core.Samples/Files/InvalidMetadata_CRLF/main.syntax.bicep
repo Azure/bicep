@@ -1,105 +1,109 @@
 // wrong declaration
-//@[00:701) ProgramSyntax
+//@[00:766) ProgramSyntax
 //@[20:022) ├─Token(NewLine) |\r\n|
-bad
-//@[00:003) ├─SkippedTriviaSyntax
-//@[00:003) | └─Token(Identifier) |bad|
-//@[03:007) ├─Token(NewLine) |\r\n\r\n|
+metadata
+//@[00:008) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[08:008) | ├─IdentifierSyntax
+//@[08:008) | | └─SkippedTriviaSyntax
+//@[08:008) | ├─SkippedTriviaSyntax
+//@[08:008) | └─SkippedTriviaSyntax
+//@[08:012) ├─Token(NewLine) |\r\n\r\n|
 
 // blank identifier name
 //@[24:026) ├─Token(NewLine) |\r\n|
-meta 
-//@[00:005) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:005) | ├─IdentifierSyntax
-//@[05:005) | | └─SkippedTriviaSyntax
-//@[05:005) | ├─SkippedTriviaSyntax
-//@[05:005) | └─SkippedTriviaSyntax
-//@[05:009) ├─Token(NewLine) |\r\n\r\n|
+metadata 
+//@[00:009) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:009) | ├─IdentifierSyntax
+//@[09:009) | | └─SkippedTriviaSyntax
+//@[09:009) | ├─SkippedTriviaSyntax
+//@[09:009) | └─SkippedTriviaSyntax
+//@[09:013) ├─Token(NewLine) |\r\n\r\n|
 
 // invalid identifier name
 //@[26:028) ├─Token(NewLine) |\r\n|
-meta 2
-//@[00:006) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:006) | ├─IdentifierSyntax
-//@[05:006) | | └─SkippedTriviaSyntax
-//@[05:006) | |   └─Token(Integer) |2|
-//@[06:006) | ├─SkippedTriviaSyntax
-//@[06:006) | └─SkippedTriviaSyntax
-//@[06:008) ├─Token(NewLine) |\r\n|
-meta _2
-//@[00:007) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:007) | ├─IdentifierSyntax
-//@[05:007) | | └─Token(Identifier) |_2|
-//@[07:007) | ├─SkippedTriviaSyntax
-//@[07:007) | └─SkippedTriviaSyntax
-//@[07:011) ├─Token(NewLine) |\r\n\r\n|
+metadata 2
+//@[00:010) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:010) | ├─IdentifierSyntax
+//@[09:010) | | └─SkippedTriviaSyntax
+//@[09:010) | |   └─Token(Integer) |2|
+//@[10:010) | ├─SkippedTriviaSyntax
+//@[10:010) | └─SkippedTriviaSyntax
+//@[10:012) ├─Token(NewLine) |\r\n|
+metadata _2
+//@[00:011) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:011) | ├─IdentifierSyntax
+//@[09:011) | | └─Token(Identifier) |_2|
+//@[11:011) | ├─SkippedTriviaSyntax
+//@[11:011) | └─SkippedTriviaSyntax
+//@[11:015) ├─Token(NewLine) |\r\n\r\n|
 
 // missing value
 //@[16:018) ├─Token(NewLine) |\r\n|
-meta missingValueAndType = 
-//@[00:027) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:024) | ├─IdentifierSyntax
-//@[05:024) | | └─Token(Identifier) |missingValueAndType|
-//@[25:026) | ├─Token(Assignment) |=|
-//@[27:027) | └─SkippedTriviaSyntax
-//@[27:031) ├─Token(NewLine) |\r\n\r\n|
+metadata missingValueAndType = 
+//@[00:031) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:028) | ├─IdentifierSyntax
+//@[09:028) | | └─Token(Identifier) |missingValueAndType|
+//@[29:030) | ├─Token(Assignment) |=|
+//@[31:031) | └─SkippedTriviaSyntax
+//@[31:035) ├─Token(NewLine) |\r\n\r\n|
 
-meta missingAssignment 'noAssingmentOperator'
-//@[00:045) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:022) | ├─IdentifierSyntax
-//@[05:022) | | └─Token(Identifier) |missingAssignment|
-//@[23:045) | ├─SkippedTriviaSyntax
-//@[23:045) | | └─Token(StringComplete) |'noAssingmentOperator'|
-//@[45:045) | └─SkippedTriviaSyntax
-//@[45:049) ├─Token(NewLine) |\r\n\r\n|
+metadata missingAssignment 'noAssingmentOperator'
+//@[00:049) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:026) | ├─IdentifierSyntax
+//@[09:026) | | └─Token(Identifier) |missingAssignment|
+//@[27:049) | ├─SkippedTriviaSyntax
+//@[27:049) | | └─Token(StringComplete) |'noAssingmentOperator'|
+//@[49:049) | └─SkippedTriviaSyntax
+//@[49:053) ├─Token(NewLine) |\r\n\r\n|
 
 // metadata referencing metadata
 //@[32:034) ├─Token(NewLine) |\r\n|
-meta myMeta = 'hello'
-//@[00:021) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:011) | ├─IdentifierSyntax
-//@[05:011) | | └─Token(Identifier) |myMeta|
-//@[12:013) | ├─Token(Assignment) |=|
-//@[14:021) | └─StringSyntax
-//@[14:021) |   └─Token(StringComplete) |'hello'|
-//@[21:023) ├─Token(NewLine) |\r\n|
-var attemptToReferenceMetadata = myMeta
-//@[00:039) ├─VariableDeclarationSyntax
+metadata myMetadata = 'hello'
+//@[00:029) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:019) | ├─IdentifierSyntax
+//@[09:019) | | └─Token(Identifier) |myMetadata|
+//@[20:021) | ├─Token(Assignment) |=|
+//@[22:029) | └─StringSyntax
+//@[22:029) |   └─Token(StringComplete) |'hello'|
+//@[29:031) ├─Token(NewLine) |\r\n|
+var attemptToReferenceMetadata = myMetadata
+//@[00:043) ├─VariableDeclarationSyntax
 //@[00:003) | ├─Token(Identifier) |var|
 //@[04:030) | ├─IdentifierSyntax
 //@[04:030) | | └─Token(Identifier) |attemptToReferenceMetadata|
 //@[31:032) | ├─Token(Assignment) |=|
-//@[33:039) | └─VariableAccessSyntax
-//@[33:039) |   └─IdentifierSyntax
-//@[33:039) |     └─Token(Identifier) |myMeta|
-//@[39:043) ├─Token(NewLine) |\r\n\r\n|
+//@[33:043) | └─VariableAccessSyntax
+//@[33:043) |   └─IdentifierSyntax
+//@[33:043) |     └─Token(Identifier) |myMetadata|
+//@[43:047) ├─Token(NewLine) |\r\n\r\n|
 
 // two meta blocks with same identifier name
 //@[44:046) ├─Token(NewLine) |\r\n|
-meta same = 'value1'
-//@[00:020) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:009) | ├─IdentifierSyntax
-//@[05:009) | | └─Token(Identifier) |same|
-//@[10:011) | ├─Token(Assignment) |=|
-//@[12:020) | └─StringSyntax
-//@[12:020) |   └─Token(StringComplete) |'value1'|
-//@[20:022) ├─Token(NewLine) |\r\n|
-meta same = 'value2'
-//@[00:020) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:009) | ├─IdentifierSyntax
-//@[05:009) | | └─Token(Identifier) |same|
-//@[10:011) | ├─Token(Assignment) |=|
-//@[12:020) | └─StringSyntax
-//@[12:020) |   └─Token(StringComplete) |'value2'|
-//@[20:024) ├─Token(NewLine) |\r\n\r\n|
+metadata same = 'value1'
+//@[00:024) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:013) | ├─IdentifierSyntax
+//@[09:013) | | └─Token(Identifier) |same|
+//@[14:015) | ├─Token(Assignment) |=|
+//@[16:024) | └─StringSyntax
+//@[16:024) |   └─Token(StringComplete) |'value1'|
+//@[24:026) ├─Token(NewLine) |\r\n|
+metadata same = 'value2'
+//@[00:024) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:013) | ├─IdentifierSyntax
+//@[09:013) | | └─Token(Identifier) |same|
+//@[14:015) | ├─Token(Assignment) |=|
+//@[16:024) | └─StringSyntax
+//@[16:024) |   └─Token(StringComplete) |'value2'|
+//@[24:028) ├─Token(NewLine) |\r\n\r\n|
 
 // metadata referencing vars
 //@[28:030) ├─Token(NewLine) |\r\n|
@@ -112,35 +116,35 @@ var testSymbol = 42
 //@[17:019) | └─IntegerLiteralSyntax
 //@[17:019) |   └─Token(Integer) |42|
 //@[19:021) ├─Token(NewLine) |\r\n|
-meta test = testSymbol
-//@[00:022) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:009) | ├─IdentifierSyntax
-//@[05:009) | | └─Token(Identifier) |test|
-//@[10:011) | ├─Token(Assignment) |=|
-//@[12:022) | └─VariableAccessSyntax
-//@[12:022) |   └─IdentifierSyntax
-//@[12:022) |     └─Token(Identifier) |testSymbol|
-//@[22:028) ├─Token(NewLine) |\r\n\r\n\r\n|
+metadata test = testSymbol
+//@[00:026) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:013) | ├─IdentifierSyntax
+//@[09:013) | | └─Token(Identifier) |test|
+//@[14:015) | ├─Token(Assignment) |=|
+//@[16:026) | └─VariableAccessSyntax
+//@[16:026) |   └─IdentifierSyntax
+//@[16:026) |     └─Token(Identifier) |testSymbol|
+//@[26:032) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
 // metadata referencing itself
 //@[30:032) ├─Token(NewLine) |\r\n|
-meta selfRef = selfRef
-//@[00:022) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:012) | ├─IdentifierSyntax
-//@[05:012) | | └─Token(Identifier) |selfRef|
-//@[13:014) | ├─Token(Assignment) |=|
-//@[15:022) | └─VariableAccessSyntax
-//@[15:022) |   └─IdentifierSyntax
-//@[15:022) |     └─Token(Identifier) |selfRef|
-//@[22:026) ├─Token(NewLine) |\r\n\r\n|
+metadata selfRef = selfRef
+//@[00:026) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:016) | ├─IdentifierSyntax
+//@[09:016) | | └─Token(Identifier) |selfRef|
+//@[17:018) | ├─Token(Assignment) |=|
+//@[19:026) | └─VariableAccessSyntax
+//@[19:026) |   └─IdentifierSyntax
+//@[19:026) |     └─Token(Identifier) |selfRef|
+//@[26:030) ├─Token(NewLine) |\r\n\r\n|
 
 // metadata with decorators
 //@[27:029) ├─Token(NewLine) |\r\n|
 @description('this is a description')
-//@[00:083) ├─MetadataDeclarationSyntax
+//@[00:087) ├─MetadataDeclarationSyntax
 //@[00:037) | ├─DecoratorSyntax
 //@[00:001) | | ├─Token(At) |@|
 //@[01:037) | | └─FunctionCallSyntax
@@ -152,17 +156,17 @@ meta selfRef = selfRef
 //@[13:036) | |   |   └─Token(StringComplete) |'this is a description'|
 //@[36:037) | |   └─Token(RightParen) |)|
 //@[37:039) | ├─Token(NewLine) |\r\n|
-meta decoratedDescription = 'hasDescription'
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:025) | ├─IdentifierSyntax
-//@[05:025) | | └─Token(Identifier) |decoratedDescription|
-//@[26:027) | ├─Token(Assignment) |=|
-//@[28:044) | └─StringSyntax
-//@[28:044) |   └─Token(StringComplete) |'hasDescription'|
-//@[44:048) ├─Token(NewLine) |\r\n\r\n|
+metadata decoratedDescription = 'hasDescription'
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:029) | ├─IdentifierSyntax
+//@[09:029) | | └─Token(Identifier) |decoratedDescription|
+//@[30:031) | ├─Token(Assignment) |=|
+//@[32:048) | └─StringSyntax
+//@[32:048) |   └─Token(StringComplete) |'hasDescription'|
+//@[48:052) ├─Token(NewLine) |\r\n\r\n|
 
 @secure()
-//@[00:043) ├─MetadataDeclarationSyntax
+//@[00:051) ├─MetadataDeclarationSyntax
 //@[00:009) | ├─DecoratorSyntax
 //@[00:001) | | ├─Token(At) |@|
 //@[01:009) | | └─FunctionCallSyntax
@@ -171,14 +175,14 @@ meta decoratedDescription = 'hasDescription'
 //@[07:008) | |   ├─Token(LeftParen) |(|
 //@[08:009) | |   └─Token(RightParen) |)|
 //@[09:011) | ├─Token(NewLine) |\r\n|
-meta secureMeta = 'notSupported'
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:015) | ├─IdentifierSyntax
-//@[05:015) | | └─Token(Identifier) |secureMeta|
-//@[16:017) | ├─Token(Assignment) |=|
-//@[18:032) | └─StringSyntax
-//@[18:032) |   └─Token(StringComplete) |'notSupported'|
-//@[32:036) ├─Token(NewLine) |\r\n\r\n|
+metadata secureMetadata = 'notSupported'
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:023) | ├─IdentifierSyntax
+//@[09:023) | | └─Token(Identifier) |secureMetadata|
+//@[24:025) | ├─Token(Assignment) |=|
+//@[26:040) | └─StringSyntax
+//@[26:040) |   └─Token(StringComplete) |'notSupported'|
+//@[40:044) ├─Token(NewLine) |\r\n\r\n|
 
 
 //@[00:000) └─Token(EndOfFile) ||

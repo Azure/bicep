@@ -1,2 +1,2 @@
-meta myString = 'this is a string'
-meta myInt = 1
+metadata myString = 'this is a string'
+metadata myInt = 1

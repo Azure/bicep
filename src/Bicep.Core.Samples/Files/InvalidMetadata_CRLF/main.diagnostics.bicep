@@ -1,56 +1,56 @@
 // wrong declaration
-bad
-//@[00:03) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |bad|
+metadata
+//@[08:08) [BCP264 (Error)] Expected a metadata identifier at this location. (CodeDescription: none) ||
 
 // blank identifier name
-meta 
-//@[05:05) [BCP250 (Error)] Expected a metadata identifier at this location. (CodeDescription: none) ||
+metadata 
+//@[09:09) [BCP264 (Error)] Expected a metadata identifier at this location. (CodeDescription: none) ||
 
 // invalid identifier name
-meta 2
-//@[05:06) [BCP250 (Error)] Expected a metadata identifier at this location. (CodeDescription: none) |2|
-//@[06:06) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
-meta _2
-//@[05:07) [BCP251 (Error)] Invalid identifier: "_2". Metadata identifiers starting with '_' are reserved. Please use a different identifier. (CodeDescription: none) |_2|
-//@[07:07) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
+metadata 2
+//@[09:10) [BCP264 (Error)] Expected a metadata identifier at this location. (CodeDescription: none) |2|
+//@[10:10) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
+metadata _2
+//@[09:11) [BCP265 (Error)] Invalid identifier: "_2". Metadata identifiers starting with '_' are reserved. Please use a different identifier. (CodeDescription: none) |_2|
+//@[11:11) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // missing value
-meta missingValueAndType = 
-//@[27:27) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
+metadata missingValueAndType = 
+//@[31:31) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
-meta missingAssignment 'noAssingmentOperator'
-//@[23:45) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) |'noAssingmentOperator'|
-//@[45:45) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
+metadata missingAssignment 'noAssingmentOperator'
+//@[27:49) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) |'noAssingmentOperator'|
+//@[49:49) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 // metadata referencing metadata
-meta myMeta = 'hello'
-var attemptToReferenceMetadata = myMeta
+metadata myMetadata = 'hello'
+var attemptToReferenceMetadata = myMetadata
 //@[04:30) [no-unused-vars (Warning)] Variable "attemptToReferenceMetadata" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |attemptToReferenceMetadata|
-//@[33:39) [BCP063 (Error)] The name "myMeta" is not a parameter, variable, resource or module. (CodeDescription: none) |myMeta|
+//@[33:43) [BCP063 (Error)] The name "myMetadata" is not a parameter, variable, resource or module. (CodeDescription: none) |myMetadata|
 
 // two meta blocks with same identifier name
-meta same = 'value1'
-//@[05:09) [BCP145 (Error)] Output "same" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |same|
-meta same = 'value2'
-//@[05:09) [BCP145 (Error)] Output "same" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |same|
+metadata same = 'value1'
+//@[09:13) [BCP145 (Error)] Output "same" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |same|
+metadata same = 'value2'
+//@[09:13) [BCP145 (Error)] Output "same" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |same|
 
 // metadata referencing vars
 var testSymbol = 42
-meta test = testSymbol
-//@[12:22) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |testSymbol|
+metadata test = testSymbol
+//@[16:26) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |testSymbol|
 
 
 // metadata referencing itself
-meta selfRef = selfRef
-//@[15:22) [BCP063 (Error)] The name "selfRef" is not a parameter, variable, resource or module. (CodeDescription: none) |selfRef|
+metadata selfRef = selfRef
+//@[19:26) [BCP063 (Error)] The name "selfRef" is not a parameter, variable, resource or module. (CodeDescription: none) |selfRef|
 
 // metadata with decorators
 @description('this is a description')
 //@[01:37) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |description('this is a description')|
-meta decoratedDescription = 'hasDescription'
+metadata decoratedDescription = 'hasDescription'
 
 @secure()
 //@[01:09) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |secure()|
-meta secureMeta = 'notSupported'
+metadata secureMetadata = 'notSupported'
 
 

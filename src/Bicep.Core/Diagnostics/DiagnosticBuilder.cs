@@ -121,7 +121,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP012",
                 $"Expected the \"{keyword}\" keyword at this location.");
-            
+
             public ErrorDiagnostic ExpectedParameterIdentifier() => new(
                 TextSpan,
                 "BCP013",
@@ -1552,6 +1552,5 @@ namespace Bicep.Core.Diagnostics
 
         public static DiagnosticBuilderInternal ForPosition(IPositionable positionable)
             => new(positionable.Span);
-            
     }
 }

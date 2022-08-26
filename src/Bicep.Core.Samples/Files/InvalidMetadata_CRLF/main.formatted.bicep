@@ -1,36 +1,36 @@
 // wrong declaration
-bad
+metadata
 
 // blank identifier name
-meta 
+metadata 
 
 // invalid identifier name
-meta 2
-meta _2
+metadata 2
+metadata _2
 
 // missing value
-meta missingValueAndType = 
+metadata missingValueAndType = 
 
-meta missingAssignment 'noAssingmentOperator'
+metadata missingAssignment 'noAssingmentOperator'
 
 // metadata referencing metadata
-meta myMeta = 'hello'
-var attemptToReferenceMetadata = myMeta
+metadata myMetadata = 'hello'
+var attemptToReferenceMetadata = myMetadata
 
 // two meta blocks with same identifier name
-meta same = 'value1'
-meta same = 'value2'
+metadata same = 'value1'
+metadata same = 'value2'
 
 // metadata referencing vars
 var testSymbol = 42
-meta test = testSymbol
+metadata test = testSymbol
 
 // metadata referencing itself
-meta selfRef = selfRef
+metadata selfRef = selfRef
 
 // metadata with decorators
 @description('this is a description')
-meta decoratedDescription = 'hasDescription'
+metadata decoratedDescription = 'hasDescription'
 
 @secure()
-meta secureMeta = 'notSupported'
+metadata secureMetadata = 'notSupported'

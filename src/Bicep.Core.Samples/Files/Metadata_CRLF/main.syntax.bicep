@@ -1,64 +1,64 @@
 /* 
-//@[00:843) ProgramSyntax
+//@[00:883) ProgramSyntax
   This is a block comment.
 */
 //@[02:006) ├─Token(NewLine) |\r\n\r\n|
 
 // metadata with value
 //@[22:024) ├─Token(NewLine) |\r\n|
-meta myString2 = 'string value'
-//@[00:031) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:014) | ├─IdentifierSyntax
-//@[05:014) | | └─Token(Identifier) |myString2|
-//@[15:016) | ├─Token(Assignment) |=|
-//@[17:031) | └─StringSyntax
-//@[17:031) |   └─Token(StringComplete) |'string value'|
-//@[31:033) ├─Token(NewLine) |\r\n|
-meta myInt2 = 42
-//@[00:016) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:011) | ├─IdentifierSyntax
-//@[05:011) | | └─Token(Identifier) |myInt2|
-//@[12:013) | ├─Token(Assignment) |=|
-//@[14:016) | └─IntegerLiteralSyntax
-//@[14:016) |   └─Token(Integer) |42|
-//@[16:018) ├─Token(NewLine) |\r\n|
-meta myTruth = true
-//@[00:019) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:012) | ├─IdentifierSyntax
-//@[05:012) | | └─Token(Identifier) |myTruth|
-//@[13:014) | ├─Token(Assignment) |=|
-//@[15:019) | └─BooleanLiteralSyntax
-//@[15:019) |   └─Token(TrueKeyword) |true|
-//@[19:021) ├─Token(NewLine) |\r\n|
-meta myFalsehood = false
-//@[00:024) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:016) | ├─IdentifierSyntax
-//@[05:016) | | └─Token(Identifier) |myFalsehood|
+metadata myString2 = 'string value'
+//@[00:035) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:018) | ├─IdentifierSyntax
+//@[09:018) | | └─Token(Identifier) |myString2|
+//@[19:020) | ├─Token(Assignment) |=|
+//@[21:035) | └─StringSyntax
+//@[21:035) |   └─Token(StringComplete) |'string value'|
+//@[35:037) ├─Token(NewLine) |\r\n|
+metadata myInt2 = 42
+//@[00:020) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:015) | ├─IdentifierSyntax
+//@[09:015) | | └─Token(Identifier) |myInt2|
+//@[16:017) | ├─Token(Assignment) |=|
+//@[18:020) | └─IntegerLiteralSyntax
+//@[18:020) |   └─Token(Integer) |42|
+//@[20:022) ├─Token(NewLine) |\r\n|
+metadata myTruth = true
+//@[00:023) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:016) | ├─IdentifierSyntax
+//@[09:016) | | └─Token(Identifier) |myTruth|
 //@[17:018) | ├─Token(Assignment) |=|
-//@[19:024) | └─BooleanLiteralSyntax
-//@[19:024) |   └─Token(FalseKeyword) |false|
-//@[24:026) ├─Token(NewLine) |\r\n|
-meta myEscapedString = 'First line\r\nSecond\ttabbed\tline'
-//@[00:059) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:020) | ├─IdentifierSyntax
-//@[05:020) | | └─Token(Identifier) |myEscapedString|
+//@[19:023) | └─BooleanLiteralSyntax
+//@[19:023) |   └─Token(TrueKeyword) |true|
+//@[23:025) ├─Token(NewLine) |\r\n|
+metadata myFalsehood = false
+//@[00:028) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:020) | ├─IdentifierSyntax
+//@[09:020) | | └─Token(Identifier) |myFalsehood|
 //@[21:022) | ├─Token(Assignment) |=|
-//@[23:059) | └─StringSyntax
-//@[23:059) |   └─Token(StringComplete) |'First line\r\nSecond\ttabbed\tline'|
-//@[59:061) ├─Token(NewLine) |\r\n|
-meta myMultiLineString = '''
-//@[00:138) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:022) | ├─IdentifierSyntax
-//@[05:022) | | └─Token(Identifier) |myMultiLineString|
-//@[23:024) | ├─Token(Assignment) |=|
-//@[25:138) | └─StringSyntax
-//@[25:138) |   └─Token(MultilineString) |'''\r\n  This is a multi line string // with comments,\r\n  blocked ${interpolation},\r\n  and a /* newline.\r\n  */\r\n'''|
+//@[23:028) | └─BooleanLiteralSyntax
+//@[23:028) |   └─Token(FalseKeyword) |false|
+//@[28:030) ├─Token(NewLine) |\r\n|
+metadata myEscapedString = 'First line\r\nSecond\ttabbed\tline'
+//@[00:063) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:024) | ├─IdentifierSyntax
+//@[09:024) | | └─Token(Identifier) |myEscapedString|
+//@[25:026) | ├─Token(Assignment) |=|
+//@[27:063) | └─StringSyntax
+//@[27:063) |   └─Token(StringComplete) |'First line\r\nSecond\ttabbed\tline'|
+//@[63:065) ├─Token(NewLine) |\r\n|
+metadata myMultiLineString = '''
+//@[00:142) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:026) | ├─IdentifierSyntax
+//@[09:026) | | └─Token(Identifier) |myMultiLineString|
+//@[27:028) | ├─Token(Assignment) |=|
+//@[29:142) | └─StringSyntax
+//@[29:142) |   └─Token(MultilineString) |'''\r\n  This is a multi line string // with comments,\r\n  blocked ${interpolation},\r\n  and a /* newline.\r\n  */\r\n'''|
   This is a multi line string // with comments,
   blocked ${interpolation},
   and a /* newline.
@@ -68,15 +68,15 @@ meta myMultiLineString = '''
 
 // object value
 //@[15:017) ├─Token(NewLine) |\r\n|
-meta foo = {
-//@[00:245) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:008) | ├─IdentifierSyntax
-//@[05:008) | | └─Token(Identifier) |foo|
-//@[09:010) | ├─Token(Assignment) |=|
-//@[11:245) | └─ObjectSyntax
-//@[11:012) |   ├─Token(LeftBrace) |{|
-//@[12:014) |   ├─Token(NewLine) |\r\n|
+metadata foo = {
+//@[00:249) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:012) | ├─IdentifierSyntax
+//@[09:012) | | └─Token(Identifier) |foo|
+//@[13:014) | ├─Token(Assignment) |=|
+//@[15:249) | └─ObjectSyntax
+//@[15:016) |   ├─Token(LeftBrace) |{|
+//@[16:018) |   ├─Token(NewLine) |\r\n|
   enabled: true
 //@[02:015) |   ├─ObjectPropertySyntax
 //@[02:009) |   | ├─IdentifierSyntax
@@ -197,15 +197,15 @@ meta foo = {
 
 // array value
 //@[14:016) ├─Token(NewLine) |\r\n|
-meta myArrayMetadata = [
-//@[00:048) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:020) | ├─IdentifierSyntax
-//@[05:020) | | └─Token(Identifier) |myArrayMetadata|
-//@[21:022) | ├─Token(Assignment) |=|
-//@[23:048) | └─ArraySyntax
-//@[23:024) |   ├─Token(LeftSquare) |[|
-//@[24:026) |   ├─Token(NewLine) |\r\n|
+metadata myArrayMetadata = [
+//@[00:052) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:024) | ├─IdentifierSyntax
+//@[09:024) | | └─Token(Identifier) |myArrayMetadata|
+//@[25:026) | ├─Token(Assignment) |=|
+//@[27:052) | └─ArraySyntax
+//@[27:028) |   ├─Token(LeftSquare) |[|
+//@[28:030) |   ├─Token(NewLine) |\r\n|
   'a'
 //@[02:005) |   ├─ArrayItemSyntax
 //@[02:005) |   | └─StringSyntax
@@ -227,26 +227,26 @@ meta myArrayMetadata = [
 
 // emtpy object and array
 //@[25:027) ├─Token(NewLine) |\r\n|
-meta myEmptyObj = { }
-//@[00:021) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:015) | ├─IdentifierSyntax
-//@[05:015) | | └─Token(Identifier) |myEmptyObj|
-//@[16:017) | ├─Token(Assignment) |=|
-//@[18:021) | └─ObjectSyntax
-//@[18:019) |   ├─Token(LeftBrace) |{|
-//@[20:021) |   └─Token(RightBrace) |}|
-//@[21:023) ├─Token(NewLine) |\r\n|
-meta myEmptyArray = [ ]
-//@[00:023) ├─MetadataDeclarationSyntax
-//@[00:004) | ├─Token(Identifier) |meta|
-//@[05:017) | ├─IdentifierSyntax
-//@[05:017) | | └─Token(Identifier) |myEmptyArray|
-//@[18:019) | ├─Token(Assignment) |=|
-//@[20:023) | └─ArraySyntax
-//@[20:021) |   ├─Token(LeftSquare) |[|
-//@[22:023) |   └─Token(RightSquare) |]|
-//@[23:027) ├─Token(NewLine) |\r\n\r\n|
+metadata myEmptyObj = { }
+//@[00:025) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:019) | ├─IdentifierSyntax
+//@[09:019) | | └─Token(Identifier) |myEmptyObj|
+//@[20:021) | ├─Token(Assignment) |=|
+//@[22:025) | └─ObjectSyntax
+//@[22:023) |   ├─Token(LeftBrace) |{|
+//@[24:025) |   └─Token(RightBrace) |}|
+//@[25:027) ├─Token(NewLine) |\r\n|
+metadata myEmptyArray = [ ]
+//@[00:027) ├─MetadataDeclarationSyntax
+//@[00:008) | ├─Token(Identifier) |metadata|
+//@[09:021) | ├─IdentifierSyntax
+//@[09:021) | | └─Token(Identifier) |myEmptyArray|
+//@[22:023) | ├─Token(Assignment) |=|
+//@[24:027) | └─ArraySyntax
+//@[24:025) |   ├─Token(LeftSquare) |[|
+//@[26:027) |   └─Token(RightSquare) |]|
+//@[27:031) ├─Token(NewLine) |\r\n\r\n|
 
 // param with same name as metadata is permitted
 //@[48:050) ├─Token(NewLine) |\r\n|

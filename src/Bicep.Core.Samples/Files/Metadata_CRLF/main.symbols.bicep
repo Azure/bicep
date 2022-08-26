@@ -3,18 +3,18 @@
 */
 
 // metadata with value
-meta myString2 = 'string value'
-//@[5:14) Metadata myString2. Type: 'string value'. Declaration start char: 0, length: 31
-meta myInt2 = 42
-//@[5:11) Metadata myInt2. Type: int. Declaration start char: 0, length: 16
-meta myTruth = true
-//@[5:12) Metadata myTruth. Type: bool. Declaration start char: 0, length: 19
-meta myFalsehood = false
-//@[5:16) Metadata myFalsehood. Type: bool. Declaration start char: 0, length: 24
-meta myEscapedString = 'First line\r\nSecond\ttabbed\tline'
-//@[5:20) Metadata myEscapedString. Type: 'First line\r\nSecond\ttabbed\tline'. Declaration start char: 0, length: 59
-meta myMultiLineString = '''
-//@[5:22) Metadata myMultiLineString. Type: '  This is a multi line string // with comments,\r\n  blocked \${interpolation},\r\n  and a /* newline.\r\n  */\r\n'. Declaration start char: 0, length: 138
+metadata myString2 = 'string value'
+//@[9:18) Metadata myString2. Type: 'string value'. Declaration start char: 0, length: 35
+metadata myInt2 = 42
+//@[9:15) Metadata myInt2. Type: int. Declaration start char: 0, length: 20
+metadata myTruth = true
+//@[9:16) Metadata myTruth. Type: bool. Declaration start char: 0, length: 23
+metadata myFalsehood = false
+//@[9:20) Metadata myFalsehood. Type: bool. Declaration start char: 0, length: 28
+metadata myEscapedString = 'First line\r\nSecond\ttabbed\tline'
+//@[9:24) Metadata myEscapedString. Type: 'First line\r\nSecond\ttabbed\tline'. Declaration start char: 0, length: 63
+metadata myMultiLineString = '''
+//@[9:26) Metadata myMultiLineString. Type: '  This is a multi line string // with comments,\r\n  blocked \${interpolation},\r\n  and a /* newline.\r\n  */\r\n'. Declaration start char: 0, length: 142
   This is a multi line string // with comments,
   blocked ${interpolation},
   and a /* newline.
@@ -22,8 +22,8 @@ meta myMultiLineString = '''
 '''
 
 // object value
-meta foo = {
-//@[5:08) Metadata foo. Type: object. Declaration start char: 0, length: 245
+metadata foo = {
+//@[9:12) Metadata foo. Type: object. Declaration start char: 0, length: 249
   enabled: true
   name: 'this is my object'
   priority: 3
@@ -47,18 +47,18 @@ meta foo = {
 }
 
 // array value
-meta myArrayMetadata = [
-//@[5:20) Metadata myArrayMetadata. Type: ('a' | 'b' | 'c')[]. Declaration start char: 0, length: 48
+metadata myArrayMetadata = [
+//@[9:24) Metadata myArrayMetadata. Type: ('a' | 'b' | 'c')[]. Declaration start char: 0, length: 52
   'a'
   'b'
   'c'
 ]
 
 // emtpy object and array
-meta myEmptyObj = { }
-//@[5:15) Metadata myEmptyObj. Type: object. Declaration start char: 0, length: 21
-meta myEmptyArray = [ ]
-//@[5:17) Metadata myEmptyArray. Type: array. Declaration start char: 0, length: 23
+metadata myEmptyObj = { }
+//@[9:19) Metadata myEmptyObj. Type: object. Declaration start char: 0, length: 25
+metadata myEmptyArray = [ ]
+//@[9:21) Metadata myEmptyArray. Type: array. Declaration start char: 0, length: 27
 
 // param with same name as metadata is permitted
 param foo string

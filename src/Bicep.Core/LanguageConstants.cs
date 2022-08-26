@@ -41,7 +41,7 @@ namespace Bicep.Core
         public const string MissingName = "<missing>";
 
         public const string TargetScopeKeyword = "targetScope";
-        public const string MetadataKeyword = "meta";
+        public const string MetadataKeyword = "metadata";
         public const string ParameterKeyword = "param";
         public const string UsingKeyword = "using";
         public const string OutputKeyword = "output";

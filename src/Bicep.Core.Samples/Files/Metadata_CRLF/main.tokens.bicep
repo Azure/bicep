@@ -5,41 +5,41 @@
 
 // metadata with value
 //@[22:024) NewLine |\r\n|
-meta myString2 = 'string value'
-//@[00:004) Identifier |meta|
-//@[05:014) Identifier |myString2|
-//@[15:016) Assignment |=|
-//@[17:031) StringComplete |'string value'|
-//@[31:033) NewLine |\r\n|
-meta myInt2 = 42
-//@[00:004) Identifier |meta|
-//@[05:011) Identifier |myInt2|
-//@[12:013) Assignment |=|
-//@[14:016) Integer |42|
-//@[16:018) NewLine |\r\n|
-meta myTruth = true
-//@[00:004) Identifier |meta|
-//@[05:012) Identifier |myTruth|
-//@[13:014) Assignment |=|
-//@[15:019) TrueKeyword |true|
-//@[19:021) NewLine |\r\n|
-meta myFalsehood = false
-//@[00:004) Identifier |meta|
-//@[05:016) Identifier |myFalsehood|
+metadata myString2 = 'string value'
+//@[00:008) Identifier |metadata|
+//@[09:018) Identifier |myString2|
+//@[19:020) Assignment |=|
+//@[21:035) StringComplete |'string value'|
+//@[35:037) NewLine |\r\n|
+metadata myInt2 = 42
+//@[00:008) Identifier |metadata|
+//@[09:015) Identifier |myInt2|
+//@[16:017) Assignment |=|
+//@[18:020) Integer |42|
+//@[20:022) NewLine |\r\n|
+metadata myTruth = true
+//@[00:008) Identifier |metadata|
+//@[09:016) Identifier |myTruth|
 //@[17:018) Assignment |=|
-//@[19:024) FalseKeyword |false|
-//@[24:026) NewLine |\r\n|
-meta myEscapedString = 'First line\r\nSecond\ttabbed\tline'
-//@[00:004) Identifier |meta|
-//@[05:020) Identifier |myEscapedString|
+//@[19:023) TrueKeyword |true|
+//@[23:025) NewLine |\r\n|
+metadata myFalsehood = false
+//@[00:008) Identifier |metadata|
+//@[09:020) Identifier |myFalsehood|
 //@[21:022) Assignment |=|
-//@[23:059) StringComplete |'First line\r\nSecond\ttabbed\tline'|
-//@[59:061) NewLine |\r\n|
-meta myMultiLineString = '''
-//@[00:004) Identifier |meta|
-//@[05:022) Identifier |myMultiLineString|
-//@[23:024) Assignment |=|
-//@[25:138) MultilineString |'''\r\n  This is a multi line string // with comments,\r\n  blocked ${interpolation},\r\n  and a /* newline.\r\n  */\r\n'''|
+//@[23:028) FalseKeyword |false|
+//@[28:030) NewLine |\r\n|
+metadata myEscapedString = 'First line\r\nSecond\ttabbed\tline'
+//@[00:008) Identifier |metadata|
+//@[09:024) Identifier |myEscapedString|
+//@[25:026) Assignment |=|
+//@[27:063) StringComplete |'First line\r\nSecond\ttabbed\tline'|
+//@[63:065) NewLine |\r\n|
+metadata myMultiLineString = '''
+//@[00:008) Identifier |metadata|
+//@[09:026) Identifier |myMultiLineString|
+//@[27:028) Assignment |=|
+//@[29:142) MultilineString |'''\r\n  This is a multi line string // with comments,\r\n  blocked ${interpolation},\r\n  and a /* newline.\r\n  */\r\n'''|
   This is a multi line string // with comments,
   blocked ${interpolation},
   and a /* newline.
@@ -49,12 +49,12 @@ meta myMultiLineString = '''
 
 // object value
 //@[15:017) NewLine |\r\n|
-meta foo = {
-//@[00:004) Identifier |meta|
-//@[05:008) Identifier |foo|
-//@[09:010) Assignment |=|
-//@[11:012) LeftBrace |{|
-//@[12:014) NewLine |\r\n|
+metadata foo = {
+//@[00:008) Identifier |metadata|
+//@[09:012) Identifier |foo|
+//@[13:014) Assignment |=|
+//@[15:016) LeftBrace |{|
+//@[16:018) NewLine |\r\n|
   enabled: true
 //@[02:009) Identifier |enabled|
 //@[09:010) Colon |:|
@@ -137,12 +137,12 @@ meta foo = {
 
 // array value
 //@[14:016) NewLine |\r\n|
-meta myArrayMetadata = [
-//@[00:004) Identifier |meta|
-//@[05:020) Identifier |myArrayMetadata|
-//@[21:022) Assignment |=|
-//@[23:024) LeftSquare |[|
-//@[24:026) NewLine |\r\n|
+metadata myArrayMetadata = [
+//@[00:008) Identifier |metadata|
+//@[09:024) Identifier |myArrayMetadata|
+//@[25:026) Assignment |=|
+//@[27:028) LeftSquare |[|
+//@[28:030) NewLine |\r\n|
   'a'
 //@[02:005) StringComplete |'a'|
 //@[05:007) NewLine |\r\n|
@@ -158,20 +158,20 @@ meta myArrayMetadata = [
 
 // emtpy object and array
 //@[25:027) NewLine |\r\n|
-meta myEmptyObj = { }
-//@[00:004) Identifier |meta|
-//@[05:015) Identifier |myEmptyObj|
-//@[16:017) Assignment |=|
-//@[18:019) LeftBrace |{|
-//@[20:021) RightBrace |}|
-//@[21:023) NewLine |\r\n|
-meta myEmptyArray = [ ]
-//@[00:004) Identifier |meta|
-//@[05:017) Identifier |myEmptyArray|
-//@[18:019) Assignment |=|
-//@[20:021) LeftSquare |[|
-//@[22:023) RightSquare |]|
-//@[23:027) NewLine |\r\n\r\n|
+metadata myEmptyObj = { }
+//@[00:008) Identifier |metadata|
+//@[09:019) Identifier |myEmptyObj|
+//@[20:021) Assignment |=|
+//@[22:023) LeftBrace |{|
+//@[24:025) RightBrace |}|
+//@[25:027) NewLine |\r\n|
+metadata myEmptyArray = [ ]
+//@[00:008) Identifier |metadata|
+//@[09:021) Identifier |myEmptyArray|
+//@[22:023) Assignment |=|
+//@[24:025) LeftSquare |[|
+//@[26:027) RightSquare |]|
+//@[27:031) NewLine |\r\n\r\n|
 
 // param with same name as metadata is permitted
 //@[48:050) NewLine |\r\n|
