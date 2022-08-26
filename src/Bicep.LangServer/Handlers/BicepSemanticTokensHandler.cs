@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
-using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -13,16 +12,16 @@ namespace Bicep.LanguageServer.Handlers
 {
     public class BicepSemanticTokensHandler : SemanticTokensHandlerBase
     {
-        private readonly ILogger<BicepSemanticTokensHandler> logger;
         private readonly ICompilationManager compilationManager;
+        private readonly IParamsCompilationManager paramsCompilationManager;
 
         // TODO: Not sure if this needs to be shared.
         private readonly SemanticTokensLegend legend = new();
 
-        public BicepSemanticTokensHandler(ILogger<BicepSemanticTokensHandler> logger, ICompilationManager compilationManager)
+        public BicepSemanticTokensHandler(ICompilationManager compilationManager, IParamsCompilationManager paramsCompilationManager)
         {
-            this.logger = logger;
             this.compilationManager = compilationManager;
+            this.paramsCompilationManager = paramsCompilationManager;
         }
 
         protected override Task<SemanticTokensDocument> GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken)
@@ -32,11 +31,20 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override Task Tokenize(SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier, CancellationToken cancellationToken)
         {
-            var compilationContext = this.compilationManager.GetCompilation(identifier.TextDocument.Uri);
+            /* 
+             * do not check for file extension here because that will prevent untitled files from getting syntax highlighting
+             */
 
-            if (compilationContext != null)
+            var compilationContext = this.compilationManager.GetCompilation(identifier.TextDocument.Uri);
+            if (compilationContext is not null)
             {
                 SemanticTokenVisitor.BuildSemanticTokens(builder, compilationContext.Compilation.SourceFileGrouping.EntryPoint);
+            }
+
+            var paramsCompilationContext = this.paramsCompilationManager.GetCompilation(identifier.TextDocument.Uri);
+            if (paramsCompilationContext is not null)
+            {
+                SemanticTokenVisitor.BuildSemanticTokens(builder, paramsCompilationContext.ProgramSyntax, paramsCompilationContext.LineStarts);
             }
 
             return Task.CompletedTask;
@@ -44,7 +52,9 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.Create(),
+            // the semantic tokens handler requests don't get routed like other handlers
+            // it seems we can only have one and it must be shared between all the language IDs we support
+            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams(),
             Legend = this.legend,
             Full = new SemanticTokensCapabilityRequestFull
             {

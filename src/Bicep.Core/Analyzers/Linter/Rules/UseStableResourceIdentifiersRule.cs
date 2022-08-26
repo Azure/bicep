@@ -45,7 +45,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private class Visitor : SyntaxVisitor
         {
-            private static IReadOnlySet<string> NonDeterministicFunctionNames = new HashSet<string>
+            private static readonly IReadOnlySet<string> NonDeterministicFunctionNames = new HashSet<string>
             {
                 "newGuid",
                 "utcNow",

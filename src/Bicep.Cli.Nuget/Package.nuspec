@@ -22,5 +22,7 @@
 
     <file src="tools\bicep*" target="tools\" />
     <!-- <file src="tools\*.pdb" target="tools\" /> -->
+
+    <file src="obj\$Configuration$\$TargetFramework$\$NoticeFileName$" target="$NoticeFileName$" />
   </files>
 </package>

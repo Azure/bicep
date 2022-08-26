@@ -14,11 +14,12 @@ using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
@@ -71,11 +72,13 @@ namespace Bicep.LanguageServer.Snippets
         private readonly RootConfiguration configuration;
         private readonly LinterAnalyzer linterAnalyzer;
         private readonly IConfigurationManager configurationManager;
+        private readonly IModuleDispatcher moduleDispatcher;
 
-        public SnippetsProvider(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IConfigurationManager configurationManager, ApiVersionProvider apiVersionProvider)
+        public SnippetsProvider(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IConfigurationManager configurationManager, ApiVersionProvider apiVersionProvider, IModuleDispatcher moduleDispatcher)
         {
             this.features = features;
             this.apiVersionProvider = apiVersionProvider;
+            this.moduleDispatcher = moduleDispatcher;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.configurationManager = configurationManager;
@@ -221,19 +224,16 @@ namespace Bicep.LanguageServer.Snippets
 
             // We need to provide uri for syntax tree creation, but it's not used anywhere. In order to avoid
             // cross platform issues, we'll provide a placeholder uri.
-            BicepFile bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"inmemory://{manifestResourceName}.bicep"), template);
-            SourceFileGrouping sourceFileGrouping = new SourceFileGrouping(
-                fileResolver,
-                bicepFile,
-                ImmutableHashSet.Create<ISourceFile>(bicepFile),
-                ImmutableDictionary.Create<ModuleDeclarationSyntax, ISourceFile>(),
-                ImmutableDictionary.Create<ISourceFile, ImmutableHashSet<ISourceFile>>(),
-                ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>(),
-                ImmutableHashSet<ModuleDeclarationSyntax>.Empty);
+            var snippetConfiguration = this.configurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"inmemory://{manifestResourceName}.bicep"), template);
+            var workspace = new Workspace();
+            workspace.UpsertSourceFiles(bicepFile.AsEnumerable());
+
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, bicepFile.FileUri, snippetConfiguration, false);
 
             // We'll use default bicepconfig.json settings during SnippetsProvider creation to avoid errors during language service initialization.
             // We don't do any validation in SnippetsProvider. So using default settings shouldn't be a problem.
-            Compilation compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, this.configurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled(), apiVersionProvider, linterAnalyzer);
+            Compilation compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, snippetConfiguration, apiVersionProvider, linterAnalyzer);
 
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
 

@@ -25,6 +25,15 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- different projects include the GenerateNotice package via different targets - this allows us to centrally manage the upgrades -->
+    <GenerateNoticePackageVersion>0.1.11</GenerateNoticePackageVersion>
+    
+    <!-- settings of the GenerateNotice tool -->
+    <GenerateNoticeRetryCount>3</GenerateNoticeRetryCount>
+    <GenerateNoticeBatchSize>100</GenerateNoticeBatchSize>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.5.107" PrivateAssets="All" />
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.3"  PrivateAssets="All" />

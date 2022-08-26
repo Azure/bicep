@@ -62,7 +62,7 @@ namespace Bicep.Core.IntegrationTests
             var workspace = new Workspace();
             var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(fileUri);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri, configuration);
-            if (await dispatcher.RestoreModules(configuration, dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
+            if (await dispatcher.RestoreModules(configuration, dispatcher.GetValidModuleReferences(sourceFileGrouping.GetModulesToRestore(), configuration)))
             {
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }

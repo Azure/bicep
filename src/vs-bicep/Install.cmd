@@ -12,7 +12,7 @@ for /f "usebackq delims=" %%i in (`"%VsWhereExePath%" -latest -prerelease -produ
 set VSIXInstallerExe=%VSIXInstallerExePath%\VSIXInstaller.exe
 echo VSIXInstaller.exe location: "%VSIXInstallerExe%"
 
-set BicepVsixPath=%ExtensionsRoot%Bicep.VSLanguageServerClient.Vsix\bin\Release\Bicep.VSLanguageServerClient.Vsix.vsix
+set BicepVsixPath=%ExtensionsRoot%Bicep.VSLanguageServerClient.Vsix\bin\Release\vs-bicep.vsix
 echo Bicep vsix location: %BicepVsixPath%
 
 call "%VSIXInstallerExe%" /quiet "%BicepVsixPath%"

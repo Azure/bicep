@@ -13,6 +13,7 @@
     <ProjectGuid>{A722010A-27D3-433E-8469-465E72AB0E8E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetVsixContainerName>vs-bicep.vsix</TargetVsixContainerName>
     <RootNamespace>Bicep.VSLanguageServerClient.Vsix</RootNamespace>
     <AssemblyName>Bicep.VSLanguageServerClient.Vsix</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -27,6 +28,9 @@
     <StartAction>Program</StartAction>
     <StartProgram Condition="'$(DevEnvDir)' != ''">$(DevEnvDir)devenv.exe</StartProgram>
     <StartArguments>/rootsuffix Exp</StartArguments>
+    <!-- generate the notice file using our custom targets -->
+    <!-- works locally but throws nullref in CI - disabled for now -->
+    <EnableNoticeInVisualStudioVsix>false</EnableNoticeInVisualStudioVsix>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -51,11 +55,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.1.32210.191">
+    <PackageReference Include="Microsoft.VisualStudio.SDK" Version="17.2.32505.173">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.1.4057">
+    <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="17.2.2198">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" Version="$(GenerateNoticePackageVersion)">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
@@ -86,11 +93,15 @@
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="BicepFileIcon.pkgdef">
+    <Content Include="Bicep.pkgdef">
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Monikers.imagemanifest">
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="TextMateSyntaxes\bicep.tmTheme">
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -102,7 +113,13 @@
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <Target Name="IncludeLanguageServerDependencies" AfterTargets="GetVsixSourceItems">
     <ItemGroup>
-      <VSIXSourceItem Include="..\..\Bicep.LangServer\bin\**\**\*" />
+      <VSIXSourceItem Include="..\..\Bicep.LangServer\bin\**\**\*">
+        <VSIXSubPath>LanguageServer</VSIXSubPath>
+      </VSIXSourceItem>
+    </ItemGroup>
+    <ItemGroup>
+      <VSIXSourceItem Include="..\..\textmate\bicep.tmlanguage" VSIXSubPath="TextMateSyntaxes" />
+      <VSIXSourceItem Include="..\..\textmate\language-configuration.json" VSIXSubPath="TextMateSyntaxes" />
     </ItemGroup>
   </Target>
 </Project>

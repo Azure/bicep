@@ -31,6 +31,7 @@ namespace Bicep.Core.UnitTests
         bool ImportsEnabled,
         bool AdvancedListComprehensionEnabled,
         bool ResourceTypedParamsAndOutputsEnabled,
+        bool ParamsFilesEnabled,
         bool SourceMappingEnabled) : IFeatureProvider;
 
     public static class BicepTestConstants
@@ -41,7 +42,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly FileResolver FileResolver = new();
 
-        public static readonly TestFeatureProvider Features = CreateFeatureProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, sourceMappingEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
+        public static readonly TestFeatureProvider Features = CreateFeatureProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, sourceMappingEnabled: false, paramsFilesEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
 
         public static readonly EmitterSettings EmitterSettings = new EmitterSettings(Features);
 
@@ -54,6 +55,8 @@ namespace Bicep.Core.UnitTests
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
         public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, TemplateSpecRepositoryFactory, Features);
+
+        public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
 
         public static readonly IConfigurationManager ConfigurationManager = new ConfigurationManager(new IOFileSystem());
 
@@ -112,6 +115,7 @@ namespace Bicep.Core.UnitTests
             bool importsEnabled = false,
             bool resourceTypedParamsAndOutputsEnabled = false,
             bool sourceMappingEnabled = false,
+            bool paramsFilesEnabled = false,
             string assemblyFileVersion = DevAssemblyFileVersion)
         {
             var features = CreateFeatureProvider(
@@ -120,6 +124,7 @@ namespace Bicep.Core.UnitTests
                 importsEnabled,
                 resourceTypedParamsAndOutputsEnabled,
                 sourceMappingEnabled,
+                paramsFilesEnabled,
                 assemblyFileVersion);
 
             return features with
@@ -134,6 +139,7 @@ namespace Bicep.Core.UnitTests
             bool importsEnabled,
             bool resourceTypedParamsAndOutputsEnabled,
             bool sourceMappingEnabled,
+            bool paramsFilesEnabled,
             string assemblyFileVersion)
         {
             return new TestFeatureProvider(
@@ -144,6 +150,7 @@ namespace Bicep.Core.UnitTests
                 importsEnabled,
                 true,
                 resourceTypedParamsAndOutputsEnabled,
+                paramsFilesEnabled,
                 sourceMappingEnabled);
         }
 

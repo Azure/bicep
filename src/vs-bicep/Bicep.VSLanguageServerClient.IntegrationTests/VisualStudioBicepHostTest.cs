@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 using Bicep.VSLanguageServerClient.IntegrationTests.Utilities;
+using Bicep.VSLanguageServerClient.TestServices;
 using Microsoft.Test.Apex.VisualStudio;
 using Microsoft.Test.Apex.VisualStudio.Editor;
 using Microsoft.Test.Apex.VisualStudio.Solution;
@@ -47,9 +48,10 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
 
         public void WaitForBicepLanguageServiceActivation(IVisualStudioTextEditorTestExtension editor)
         {
-            // This is a hack to wait for language service activation. If this is the first test, it may
-            // take long for the compilation to complete. Subsequent tests should be faster.
-            ColorizationsUtility.WaitForColorizations(editor);
+            editor.Focus();
+
+            var languageServerActivationService = VsHostUtility.VsHost!.Get<LanguageServerActivationService>();
+            languageServerActivationService.WaitForLanguageServerActivation();
         }
 
         protected override VisualStudioHostConfiguration GetVisualStudioHostConfiguration()

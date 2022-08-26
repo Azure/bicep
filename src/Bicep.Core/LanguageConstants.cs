@@ -16,6 +16,9 @@ namespace Bicep.Core
         public const string LanguageId = "bicep";
         public const string LanguageFileExtension = ".bicep";
 
+        public const string ParamsLanguageId = "bicep-params";
+        public const string ParamsFileExtension = ".bicepparam";
+
         public const string JsonLanguageId = "json";
         public const string JsoncLanguageId = "jsonc";
         public const string ArmTemplateLanguageId = "arm-template"; // Provided by the ARM Tools VSCode extension.
@@ -40,6 +43,7 @@ namespace Bicep.Core
         public const string TargetScopeKeyword = "targetScope";
         public const string MetadataKeyword = "meta";
         public const string ParameterKeyword = "param";
+        public const string UsingKeyword = "using";
         public const string OutputKeyword = "output";
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";

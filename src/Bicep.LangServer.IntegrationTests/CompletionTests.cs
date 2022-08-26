@@ -1275,9 +1275,9 @@ module a '|' = {
             var completions = await file.RequestCompletion(cursor);
 
             completions.Should().SatisfyRespectively(
-                x => x.Label.Should().Be("mod with space.bicep"),
                 x => x.Label.Should().Be("percentage%file.bicep"),
-                x => x.Label.Should().Be("already escaped.bicep"));
+                x => x.Label.Should().Be("already escaped.bicep"),
+                x => x.Label.Should().Be("folder with space"));
         }
 
         [TestMethod]

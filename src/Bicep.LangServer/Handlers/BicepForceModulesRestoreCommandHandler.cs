@@ -18,6 +18,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using System.Collections.Immutable;
 using System.Text;
+using Bicep.Core.Syntax;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -76,9 +77,8 @@ namespace Bicep.LanguageServer.Handlers
             SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, workspace, fileUri, configuration);
 
             // Ignore modules to restore logic, include all modules to be restored
-            var modulesToRestore = sourceFileGrouping.SourceFilesByModuleDeclaration
-                .Select(kvp => kvp.Key)
-                .Union(sourceFileGrouping.ModulesToRestore)
+            var modulesToRestore = sourceFileGrouping.UriResultByModule.Keys
+                .OfType<ModuleDeclarationSyntax>()
                 .ToImmutableHashSet();
 
             // RestoreModules() does a distinct but we'll do it also to prevent deuplicates in outputs and logging

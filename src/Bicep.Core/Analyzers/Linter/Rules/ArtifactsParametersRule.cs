@@ -22,7 +22,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         // publish scripts use ARM, so the rule needs to use case-insensitive checks
         private readonly StringComparison ArmParameterComparison = StringComparison.InvariantCultureIgnoreCase;
 
-        private const string ArtifactsLocationParamNameCommon = "artifactsLocation"; // ArtifactsLocationName and ArtifactsLocationSasTokenName both contain this string
         private const string ArtifactsLocationName = $"_artifactsLocation";
         private const string ArtifactsLocationSasTokenName = $"_artifactsLocationSasToken";
 
@@ -31,12 +30,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             description: "Follow best practices when including the _artifactsLocation and _artifactsLocationSasToken parameters.",
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         {
-            Debug.Assert(ArtifactsLocationName.Contains(ArtifactsLocationParamNameCommon, ArmParameterComparison));
-            Debug.Assert(ArtifactsLocationSasTokenName.Contains(ArtifactsLocationParamNameCommon, ArmParameterComparison));
-            Debug.Assert(ArtifactsLocationSasTokenName.ToLowerInvariant().Contains(ArtifactsLocationParamNameCommon.ToUpperInvariant(), ArmParameterComparison));
             Debug.Assert(ArtifactsLocationName.StartsWith("_"));
             Debug.Assert(ArtifactsLocationSasTokenName.StartsWith("_"));
-            Debug.Assert(!ArtifactsLocationParamNameCommon.StartsWith("_"));
         }
 
         public override string FormatMessage(params object[] values)
@@ -54,24 +49,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private IEnumerable<IDiagnostic> VerifyTopLevelParameters(SemanticModel model)
         {
-            var paramsOfInterest = model.Root.ParameterDeclarations.Where(p => p.Name.Contains(ArtifactsLocationParamNameCommon, ArmParameterComparison)).ToArray();
-            if (paramsOfInterest.Length == 0)
-            {
-                // Neither parameter exists, nothing to test
-                yield break;
-            }
-
             // Find artifacts parameters
-            var (artifactsLocationParam, artifactsLocationParamDiagnostic) = FindArtifactsParameter(paramsOfInterest, ArtifactsLocationName);
-            if (artifactsLocationParamDiagnostic is not null)
-            {
-                yield return artifactsLocationParamDiagnostic;
-            }
-            var (artifactsSasParam, artifactsSasParamDiagnostic) = FindArtifactsParameter(paramsOfInterest, ArtifactsLocationSasTokenName);
-            if (artifactsSasParamDiagnostic is not null)
-            {
-                yield return artifactsSasParamDiagnostic;
-            }
+            var artifactsLocationParam = model.Root.ParameterDeclarations.Where(p => p.Name.Equals(ArtifactsLocationName, ArmParameterComparison)).FirstOrDefault();
+            var artifactsSasParam = model.Root.ParameterDeclarations.Where(p => p.Name.Equals(ArtifactsLocationSasTokenName, ArmParameterComparison)).FirstOrDefault();
 
             // RULE: If you provide one parameter (either _artifactsLocation or _artifactsLocationSasToken), you must provide the other.
             if (artifactsLocationParam is not null && artifactsSasParam is null)
@@ -179,8 +159,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             //   If _artifactsLocationSasToken has a default value, it must be an empty string (no rule about
             //     whether it should or shouldn't have a default value, instead checking module references)
 
-            var artifactsLocationDefaultValue = GetParameterDefaultValue(artifactsLocationParam);
-            var artifactsSasDefaultValue = GetParameterDefaultValue(artifactsSasParam);
+            var artifactsLocationDefaultValue = SyntaxHelper.TryGetDefaultValue(artifactsLocationParam);
+            var artifactsSasDefaultValue = SyntaxHelper.TryGetDefaultValue(artifactsSasParam);
 
             // ... RULE: If _artifactsLocation has a default value, it must be either "[deployment().properties.templateLink.uri]" or a raw URL
             if (artifactsLocationDefaultValue != null) // pass if no default value
@@ -221,18 +201,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private SyntaxBase? GetParameterDefaultValue(ParameterSymbol parameterSymbol)
-        {
-            if (parameterSymbol.DeclaringSyntax is ParameterDeclarationSyntax syntax)
-            {
-                return SyntaxHelper.TryGetDefaultValue(syntax);
-            }
-
-            return null;
-        }
-
-
-        private string? TryGetStringLiteral(SyntaxBase syntax)
+        private static string? TryGetStringLiteral(SyntaxBase syntax)
         {
             if (syntax is StringSyntax @string)
             {
@@ -242,7 +211,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
-        private string? GetParameterType(ParameterSymbol parameterSymbol)
+        private static string? GetParameterType(ParameterSymbol parameterSymbol)
         {
             if (parameterSymbol.DeclaringSyntax is ParameterDeclarationSyntax parameterDeclaration
                && parameterDeclaration.ParameterType is SimpleTypeSyntax typeSyntax)
@@ -289,30 +258,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
 
             return null;
-        }
-
-        private (ParameterSymbol?, IDiagnostic? diagnostic) FindArtifactsParameter(ParameterSymbol[] parameters, string parameterName)
-        {
-            Debug.Assert(parameterName[0] == '_');
-            var nameWithoutUnderscore = parameterName.Substring(1);
-
-            var paramNoUnderscore = parameters.Where(p => p.Name.Equals(nameWithoutUnderscore, ArmParameterComparison)).FirstOrDefault();
-            if (paramNoUnderscore is not null)
-            {
-                return (
-                     paramNoUnderscore,
-                     CreateDiagnosticForSpan(
-                       paramNoUnderscore.NameSyntax.Span,
-                       string.Format(CoreResources.ArtifactsLocationRule_Error_MissingUnderscore, nameWithoutUnderscore)));
-            }
-
-            var param = parameters.Where(p => p.Name.Equals(parameterName, ArmParameterComparison)).FirstOrDefault();
-            if (param is not null)
-            {
-                return (param, null);
-            }
-
-            return (null, null);
         }
     }
 }

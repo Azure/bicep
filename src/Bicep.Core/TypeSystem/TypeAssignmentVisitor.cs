@@ -21,24 +21,6 @@ namespace Bicep.Core.TypeSystem
 {
     public sealed class TypeAssignmentVisitor : SyntaxVisitor
     {
-        private class TypeAssignment
-        {
-            public TypeAssignment(ITypeReference reference)
-                : this(reference, Enumerable.Empty<IDiagnostic>())
-            {
-            }
-
-            public TypeAssignment(ITypeReference reference, IEnumerable<IDiagnostic> diagnostics)
-            {
-                Reference = reference;
-                Diagnostics = diagnostics;
-            }
-
-            public ITypeReference Reference { get; }
-
-            public IEnumerable<IDiagnostic> Diagnostics { get; }
-        }
-
         private readonly IFeatureProvider features;
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;

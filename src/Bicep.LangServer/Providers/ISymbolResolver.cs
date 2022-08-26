@@ -8,6 +8,7 @@ namespace Bicep.LanguageServer.Providers
     public interface ISymbolResolver
     {
         SymbolResolutionResult? ResolveSymbol(DocumentUri uri, Position position);
+        ParamsSymbolResolutionResult? ResolveParamsSymbol(DocumentUri uri, Position position);
     }
 }
 

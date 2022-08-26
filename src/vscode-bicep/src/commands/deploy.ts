@@ -504,7 +504,7 @@ export class DeployCommand implements Command {
       const paramName = deploymentParameter.name;
       let paramValue = undefined;
       if (deploymentParameter.isMissingParam) {
-        paramValue = await vscode.window.showInputBox({
+        paramValue = await _context.ui.showInputBox({
           title: `Parameter: ${paramName}`,
           placeHolder: `Please enter value for parameter "${paramName}"`,
         });
@@ -521,10 +521,11 @@ export class DeployCommand implements Command {
             value: deploymentParameter.value,
             placeHolder: `Please enter value for parameter "${paramName}"`,
           };
-          paramValue = await vscode.window.showInputBox(options);
+          paramValue = await _context.ui.showInputBox(options);
         }
       }
 
+      // undefined indicates to use the expression in the parameter default value
       if (paramValue !== undefined) {
         const updatedDeploymentParameter: BicepUpdatedDeploymentParameter = {
           name: paramName,
@@ -622,7 +623,7 @@ export class DeployCommand implements Command {
     );
 
     if (result === enterNewValue) {
-      const paramValue = await vscode.window.showInputBox({
+      const paramValue = await _context.ui.showInputBox({
         placeHolder: `Please enter value for parameter "${paramName}"`,
       });
 
