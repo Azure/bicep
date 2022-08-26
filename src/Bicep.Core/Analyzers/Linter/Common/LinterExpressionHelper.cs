@@ -15,28 +15,24 @@ using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Analyzers.Linter.Common
 {
-    internal static class LinterExpressionHelper
+    public static class LinterExpressionHelper
     {
         /// <summary>
         /// Tries to retrieve a string literal from the expression. Will evaluate variables and parameter default values
         /// </summary>
         // TODO: Refactor more rules to use this
-        public static (string stringValue, StringSyntax stringSyntax, string? pathToValueIfNonTrivial)?
-        TryGetEvaluatedStringLiteral(SemanticModel model, SyntaxBase? expression)
+        public static (string stringValue, StringSyntax stringSyntax, string? pathToValueIfNonTrivial)? TryGetEvaluatedStringLiteral(SemanticModel model, SyntaxBase? expression)
         {
             return TryGetEvaluatedStringLiteral(model, expression, Array.Empty<DeclaredSymbol>());
         }
 
-        private static (string stringValue, StringSyntax stringSyntax, string? pathToValueIfNonTrivial)?
-        TryGetEvaluatedStringLiteral(SemanticModel model, SyntaxBase? expression, DeclaredSymbol[] currentPaths)
+        private static (string stringValue, StringSyntax stringSyntax, string? pathToValueIfNonTrivial)? TryGetEvaluatedStringLiteral(SemanticModel model, SyntaxBase? expression, DeclaredSymbol[] currentPaths)
         {
-            if (expression is StringSyntax stringSyntax)
+            if (expression is StringSyntax stringSyntax
+                && stringSyntax.TryGetLiteralValue() is string literalValue)
             {
-                if (stringSyntax.TryGetLiteralValue() is string literalValue)
-                {
-                    var path = currentPaths.Length > 0 ? string.Join(" => ", currentPaths.Select(symbol => symbol.Name)) : null;
-                    return (literalValue, stringSyntax, path);
-                }
+                var path = currentPaths.Length > 0 ? string.Join(" => ", currentPaths.Select(symbol => symbol.Name)) : null;
+                return (literalValue, stringSyntax, path);
             }
             else if (expression is VariableAccessSyntax variableAccessSyntax)
             {
@@ -108,8 +104,8 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
                     // Then literal values (if they both evaluate to literal values)
                     if (evaluatedSearchNameLiteral is not null
-                        && TryGetEvaluatedStringLiteral(model, resourceName) is (string resourceNameLIteral, _, _)
-                        && evaluatedSearchNameLiteral.EqualsOrdinally(resourceNameLIteral))
+                        && TryGetEvaluatedStringLiteral(model, resourceName) is (string resourceNameLiteral, _, _)
+                        && evaluatedSearchNameLiteral.EqualsOrdinally(resourceNameLiteral))
                     {
                         yield return resource;
                     }
@@ -129,8 +125,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
                 seed: new List<FunctionCallSyntaxBase>(),
                 function: (accumulated, syntax) =>
                 {
-                    if (syntax is FunctionCallSyntaxBase
-                        && SemanticModelHelper.TryGetFunctionInNamespace(model, @namespace, syntax) is FunctionCallSyntaxBase functionCallSyntax)
+                    if (SemanticModelHelper.TryGetFunctionInNamespace(model, @namespace, syntax) is FunctionCallSyntaxBase functionCallSyntax)
                     {
                         string functionName = functionCallSyntax.Name.IdentifierName;
                         if (regex is not null && regex.IsMatch(functionName)

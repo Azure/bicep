@@ -655,6 +655,60 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is a preview version and there is a more recent non-preview version available..
+        /// </summary>
+        internal static string UseRecentApiVersionRule_MoreRecentStable {
+            get {
+                return ResourceManager.GetString("UseRecentApiVersionRule_MoreRecentStable", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is a preview version and there is a non-preview version available with the same date..
+        /// </summary>
+        internal static string UseRecentApiVersionRule_StableWithSameDate {
+            get {
+                return ResourceManager.GetString("UseRecentApiVersionRule_StableWithSameDate", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &apos;{0}&apos; is {1} days old, should be no more than {2} days old, or the most recent..
+        /// </summary>
+        internal static string UseRecentApiVersionRule_TooOld {
+            get {
+                return ResourceManager.GetString("UseRecentApiVersionRule_TooOld", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not find resource type &quot;{0}&quot;..
+        /// </summary>
+        internal static string UseRecentApiVersionRule_UnknownType {
+            get {
+                return ResourceManager.GetString("UseRecentApiVersionRule_UnknownType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Did you mean &quot;{0}&quot;?.
+        /// </summary>
+        internal static string UseRecentApiVersionRule_UnknownTypeSuggestion {
+            get {
+                return ResourceManager.GetString("UseRecentApiVersionRule_UnknownTypeSuggestion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Could not find apiVersion {0} for {1}..
+        /// </summary>
+        internal static string UseRecentApiVersionRule_UnknownVersion {
+            get {
+                return ResourceManager.GetString("UseRecentApiVersionRule_UnknownVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Properties representing a resource ID must be generated appropriately..
         /// </summary>
         internal static string UseResourceIdFunctionsRule_Description {

@@ -34,10 +34,8 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
             {
                 return new ApiVersion(date, suffix);
             }
-            else
-            {
-                return null;
-            }
+
+            return null;
         }
 
         private ApiVersion((string date, string suffix) apiVersion)

@@ -324,7 +324,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 if (date is not null)
                 {
                     string fullyQualifiedResourceType = resourceTypeReference.FormatType();
-                    var failure = AnalyzeApiVersion(
+                    return AnalyzeApiVersion(
                         model.Compilation.ApiVersionProvider,
                         today,
                         replacementSpan,
@@ -333,10 +333,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         fullyQualifiedResourceType,
                         new ApiVersion(date, suffix),
                         returnNotFoundDiagnostics: warnIfNotFound);
-                    if (failure is not null)
-                    {
-                        return failure;
-                    }
                 }
             }
 
@@ -354,10 +350,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     IEnumerable<string> typeNames = apiVersionProvider.GetResourceTypeNames(scope);
                     string? suggestion = SpellChecker.GetSpellingSuggestion(fullyQualifiedResourceType, typeNames);
 
-                    var message = $"Could not find resource type \"{fullyQualifiedResourceType}\".";
+                    var message = string.Format(CoreResources.UseRecentApiVersionRule_UnknownType, fullyQualifiedResourceType);
                     if (suggestion is not null)
                     {
-                        message += $" Did you mean \"{suggestion}\"?";
+                        message += " " + string.Format(CoreResources.UseRecentApiVersionRule_UnknownTypeSuggestion, suggestion); ;
                     }
                     return CreateFailureFromMessage(errorSpan, message);
                 }
@@ -380,7 +376,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     return CreateFailureFromApiVersion(
                         errorSpan,
                         replacementSpan,
-                        $"Could not find apiVersion {actualApiVersion.Formatted} for {fullyQualifiedResourceType}.",
+                        string.Format(CoreResources.UseRecentApiVersionRule_UnknownVersion, actualApiVersion.Formatted, fullyQualifiedResourceType),
                         acceptableApiVersions);
                 }
 
@@ -401,18 +397,18 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     var stableIsSameDate = comparison == 0;
                     if (stableIsMoreRecent)
                     {
-                        failureReason = $"'{actualApiVersion.Formatted}' is a preview version and there is a more recent non-preview version available.";
+                        failureReason = string.Format(CoreResources.UseRecentApiVersionRule_MoreRecentStable, actualApiVersion.Formatted);
                     }
                     else if (stableIsSameDate)
                     {
-                        failureReason = $"'{actualApiVersion.Formatted}' is a preview version and there is a non-preview version available with the same date.";
+                        failureReason = string.Format(CoreResources.UseRecentApiVersionRule_StableWithSameDate, actualApiVersion.Formatted);
                     }
                 }
             }
             if (failureReason is null)
             {
                 int ageInDays = today.Subtract(actualApiVersion.Date).Days;
-                failureReason = $"'{actualApiVersion.Formatted}' is {ageInDays} days old, should be no more than {MaxAllowedAgeInDays} days old.";
+                failureReason = string.Format(CoreResources.UseRecentApiVersionRule_TooOld, actualApiVersion.Formatted, ageInDays, MaxAllowedAgeInDays);
             }
 
             Debug.Assert(failureReason is not null);
