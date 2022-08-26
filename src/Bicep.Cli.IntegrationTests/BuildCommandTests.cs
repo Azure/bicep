@@ -305,7 +305,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var features = BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true);
             var settings = new InvocationSettings(features, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
-            var diagnostics = GetAllParamDiagnostics(data.Parameters.OutputFilePath);
+            var diagnostics = GetAllParamDiagnostics(data.Parameters.OutputFilePath, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "build", data.Parameters.OutputFilePath);
 

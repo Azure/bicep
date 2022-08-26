@@ -32,6 +32,11 @@ namespace Bicep.Core.Workspaces
                     : CreateArmTemplateFile(fileUri, fileContents);
             }
 
+            if (PathHelper.HasBicepparamsExension(fileUri))
+            {
+                return CreateBicepParamFile(fileUri, fileContents);
+            }
+
             return CreateBicepFile(fileUri, fileContents);
         }
 

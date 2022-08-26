@@ -54,7 +54,7 @@ namespace Bicep.LangServer.UnitTests
             var provider = new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateWithAzTypes(), FileResolver, dispatcher, BicepTestConstants.ApiVersionProvider);
             var configManager = new ConfigurationManager(new IOFileSystem());
 
-            return new BicepParamsCompilationManager(server.Object, provider, configManager, BicepTestConstants.FileResolver);
+            return new BicepParamsCompilationManager(server.Object, provider, configManager, BicepTestConstants.FileResolver, dispatcher, new Workspace(), BicepTestConstants.Features, BicepTestConstants.ApiVersionProvider, BicepTestConstants.NamespaceProvider);
         }
 
         public static Mock<ITextDocumentLanguageServer> CreateMockDocument(Action<PublishDiagnosticsParams> callback)

@@ -160,16 +160,16 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         /// <summary>
         /// Returns the parameters defined in a consumed module's bicep file
-        /// 
+        ///
         /// E.g. For this consumed module declaration:
-        /// 
+        ///
         ///    module m1 'module1.bicep' { ... }
-        ///    
+        ///
         /// It retrieves the parameters defined in module1.bicep
         /// </summary>
         protected static ImmutableArray<ParameterDeclarationSyntax> TryGetParameterDefinitionsForConsumedModule(ModuleDeclarationSyntax moduleDeclarationSyntax, SemanticModel model)
         {
-            if (model.Compilation.SourceFileGrouping.TryLookUpModuleSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile)
+            if (model.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile)
             {
                 return bicepFile.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().ToImmutableArray();
             }
@@ -222,7 +222,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
 
             // Parameters used in any resource's location property
-            if (fileSemanticModel.Compilation.SourceFileGrouping.TryLookUpModuleSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile)
+            if (fileSemanticModel.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile)
             {
                 if (fileSemanticModel.Compilation.GetSemanticModel(bicepFile) is SemanticModel moduleSemanticModel)
                 {

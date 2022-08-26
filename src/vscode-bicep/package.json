@@ -36,6 +36,7 @@
   "homepage": "https://github.com/Azure/bicep/blob/main/README.md",
   "activationEvents": [
     "onLanguage:bicep",
+    "onLanguage:bicep-params",
     "onCommand:bicep.build",
     "onCommand:bicep.generateParams",
     "onCommand:bicep.createConfigFile",
@@ -141,6 +142,11 @@
       },
       {
         "language": "bicep",
+        "scopeName": "source.bicep",
+        "path": "./syntaxes/bicep.tmlanguage"
+      },
+      {
+        "language": "bicep-params",
         "scopeName": "source.bicep",
         "path": "./syntaxes/bicep.tmlanguage"
       }
