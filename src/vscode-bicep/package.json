@@ -109,7 +109,7 @@
         "extensions": [
           ".bicep"
         ],
-        "configuration": "./language-configuration.json"
+        "configuration": "../textmate/language-configuration.json"
       },
       {
         "id": "bicep-params",
