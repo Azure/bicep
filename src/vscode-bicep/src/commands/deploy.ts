@@ -80,7 +80,7 @@ export class DeployCommand implements Command {
       encodeURIComponent(documentUri.path)
     );
     this.outputChannelManager.appendToOutputChannel(
-      `Starting deployment of ${documentPath}`
+      `Preparing for deployment of ${documentPath}`
     );
 
     context.errorHandling.suppressDisplay = true;
