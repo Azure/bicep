@@ -38,7 +38,7 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.processProxy = processProxy;
             }
 
-            public override int Invoke(InvocationContext context)
+            protected override int InvokeInternal(InvocationContext context)
             {
                 var valid = true;
 
