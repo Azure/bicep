@@ -132,38 +132,38 @@
       },
       "System.CommandLine": {
         "type": "Direct",
-        "requested": "[2.0.0-beta3.22114.1, )",
-        "resolved": "2.0.0-beta3.22114.1",
-        "contentHash": "QMzk1jj+PzdGbwuVsxII7FcQaCelnK+TcRcAqOGVoPovLBCSQPdikKiEzb56vAidvum5t4LSdDZ34O4j7+ALgw=="
+        "requested": "[2.0.0-beta4.22272.1, )",
+        "resolved": "2.0.0-beta4.22272.1",
+        "contentHash": "1uqED/q2H0kKoLJ4+hI2iPSBSEdTuhfCYADeJrAqERmiGQ2NNacYKRNEQ+gFbU4glgVyK8rxI+ZOe1onEtr/Pg=="
       },
       "System.CommandLine.Hosting": {
         "type": "Direct",
-        "requested": "[0.4.0-alpha.22114.1, )",
-        "resolved": "0.4.0-alpha.22114.1",
-        "contentHash": "8MvPt5UEnQxAOzB5H1yaCFySWLreQeqm308a0q0jAdlSGotXw+UxUaSlYUQJUqFKylKrvJAO0Ld3z8UkoPxPaA==",
+        "requested": "[0.4.0-alpha.22272.1, )",
+        "resolved": "0.4.0-alpha.22272.1",
+        "contentHash": "x9JhHxBLxlKyCIZADFYC8q16L9yGHdTakrLFjHabwR7Tk0761aTexiGgMTIS744HGuhc8pk9MoLUzsr/TlRfMQ==",
         "dependencies": {
           "Microsoft.Extensions.Hosting": "6.0.0",
-          "System.CommandLine": "2.0.0-beta3.22114.1",
-          "System.CommandLine.NamingConventionBinder": "2.0.0-beta3.22114.1"
+          "System.CommandLine": "2.0.0-beta4.22272.1",
+          "System.CommandLine.NamingConventionBinder": "2.0.0-beta4.22272.1"
         }
       },
       "System.CommandLine.NamingConventionBinder": {
         "type": "Direct",
-        "requested": "[2.0.0-beta3.22114.1, )",
-        "resolved": "2.0.0-beta3.22114.1",
-        "contentHash": "sNy+prEfFXmNPL29FRaS35rwCT9gpXRT/LywFnCw1iB8b3aIp5eDOL0ykKrVdLVP3pYSvrBWVvb7cQZVMwE69A==",
+        "requested": "[2.0.0-beta4.22272.1, )",
+        "resolved": "2.0.0-beta4.22272.1",
+        "contentHash": "ux2eUA/syF+JtlpMDc/Lsd6PBIBuwjH3AvHnestoh5uD0WKT5b+wkQxDWVCqp9qgVjMBTLNhX19ZYFtenunt9A==",
         "dependencies": {
-          "System.CommandLine": "2.0.0-beta3.22114.1"
+          "System.CommandLine": "2.0.0-beta4.22272.1"
         }
       },
       "System.CommandLine.Rendering": {
         "type": "Direct",
-        "requested": "[0.4.0-alpha.22114.1, )",
-        "resolved": "0.4.0-alpha.22114.1",
-        "contentHash": "VR0xk6MeMzUtEdlTeg3pLJA56lSSPNhjIkUREGhXdWQemIeD3YuOrCtfzZVl+0/CIpE0QqeGBEAaXrLBrbttEQ==",
+        "requested": "[0.4.0-alpha.22272.1, )",
+        "resolved": "0.4.0-alpha.22272.1",
+        "contentHash": "PQd7HStYn6RYjc5zuerR41sALm3qFDutzDHISB5DYbExSgll6s8zghfyYFdLioLPWpFxVyMj3L9Ki69jqqum/g==",
         "dependencies": {
           "Microsoft.CSharp": "4.7.0",
-          "System.CommandLine": "2.0.0-beta3.22114.1"
+          "System.CommandLine": "2.0.0-beta4.22272.1"
         }
       },
       "System.IO.Abstractions": {
