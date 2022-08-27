@@ -30,7 +30,7 @@
     <GenerateNoticePackageVersion>0.1.11</GenerateNoticePackageVersion>
     
     <!-- settings of the GenerateNotice tool -->
-    <GenerateNoticeRetryCount>3</GenerateNoticeRetryCount>
+    <GenerateNoticeRetryCount>6</GenerateNoticeRetryCount>
     <GenerateNoticeBatchSize>100</GenerateNoticeBatchSize>
   </PropertyGroup>
 
