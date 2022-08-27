@@ -53,6 +53,6 @@ namespace Bicep.RegistryModuleTool.Commands
             }
         }
 
-        protected abstract int Invoke(InvocationContext context);
+        public abstract int Invoke(InvocationContext context);
     }
 }

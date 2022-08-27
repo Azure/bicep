@@ -136,7 +136,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
                 this.exitCode = exitCode;
             }
 
-            protected override int Invoke(InvocationContext context) => this.exitCode;
+            public override int Invoke(InvocationContext context) => this.exitCode;
         }
 
         private class ThrowExceptionCommandHandler : BaseCommandHandler
@@ -149,7 +149,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
                 this.exceptionToThrow = exceptionToThrow;
             }
 
-            protected override int Invoke(InvocationContext context)
+            public override int Invoke(InvocationContext context)
             {
                 throw exceptionToThrow;
             }
