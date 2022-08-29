@@ -19,6 +19,11 @@ namespace Bicep.VSLanguageServerClient
         // Code remote content type name. Lights up all TextMate features (colorization, brace completion, folding ranges).
         public const string CodeRemoteContentTypeName = "code-languageserver-preview";
 
+        public const string FormatterTabSizeKey = "FormatterTabSize";
+        public const string FormatterIndentTypeKey = "FormatterIndentType";
+
         public const string JsonContentTypeName = "JSON";
+
+        public const string LanguageName = "Bicep";
     }
 }

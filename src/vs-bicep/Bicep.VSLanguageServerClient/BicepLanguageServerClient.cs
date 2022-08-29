@@ -13,6 +13,7 @@ using System.Threading.Tasks;
 using Bicep.VSLanguageServerClient.MiddleLayerProviders;
 using Bicep.VSLanguageServerClient.ProcessLauncher;
 using Bicep.VSLanguageServerClient.ProcessTracker;
+using Bicep.VSLanguageServerClient.Settings;
 using Bicep.VSLanguageServerClient.Telemetry;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Setup.Configuration;
@@ -30,6 +31,7 @@ namespace Bicep.VSLanguageServerClient
     public class BicepLanguageServerClient : ILanguageClient, ILanguageClientCustomMessage2
     {
         private IClientProcess? process;
+        private readonly IBicepSettings bicepSettings;
         private readonly ILanguageClientMiddleLayer middleLayer;
         private readonly IProcessTracker processTracker;
         private readonly TelemetrySession TelemetrySession;
@@ -41,7 +43,10 @@ namespace Bicep.VSLanguageServerClient
             this.TelemetrySession = TelemetryService.DefaultSession;
             var setupConfiguration = new SetupConfiguration();
             var handleSnippetCompletionsMiddleLayer = new HandleSnippetCompletionsMiddleLayer(setupConfiguration.GetInstanceForCurrentProcess().GetInstallationVersion());
-            var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer();
+
+            bicepSettings = new BicepSettings();
+
+            var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer(bicepSettings);
             var gotoDefintionMiddleLayer = new HandleGotoDefintionMiddleLayer();
             middleLayer = new AggregatingMiddleLayer(gotoDefintionMiddleLayer, handleSnippetCompletionsMiddleLayer, updateFormatSettingsMiddleLayer);
         }
@@ -101,12 +106,12 @@ namespace Bicep.VSLanguageServerClient
             return Task.FromResult<InitializationFailureContext?>(new InitializationFailureContext());
         }
 
-        public Task AttachForCustomMessageAsync(JsonRpc rpc)
+        public async Task AttachForCustomMessageAsync(JsonRpc rpc)
         {
             var didChangeWatchedFilesNotifier = new DidChangeWatchedFilesNotifier(rpc);
             didChangeWatchedFilesNotifier.CreateFileSystemWatchers();
 
-            return Task.CompletedTask;
+            await bicepSettings.LoadTextManagerAsync();
         }
 
         public object MiddleLayer => middleLayer;

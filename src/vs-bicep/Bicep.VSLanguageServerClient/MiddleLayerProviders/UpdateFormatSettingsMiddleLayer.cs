@@ -3,6 +3,7 @@
 
 using System;
 using System.Threading.Tasks;
+using Bicep.VSLanguageServerClient.Settings;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.LanguageServer.Protocol;
 using Newtonsoft.Json.Linq;
@@ -15,6 +16,13 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
     /// </summary>
     public class UpdateFormatSettingsMiddleLayer : ILanguageClientMiddleLayer
     {
+        private readonly IBicepSettings bicepSettings;
+
+        public UpdateFormatSettingsMiddleLayer(IBicepSettings bicepSettings)
+        {
+            this.bicepSettings = bicepSettings;
+        }
+
         public bool CanHandle(string methodName)
         {
             if (string.IsNullOrEmpty(methodName))
@@ -34,21 +42,31 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
         {
             if (CanHandle(methodName))
             {
-                methodParam = UpdateFormatOptions(methodParam);
+                methodParam = await UpdateFormatOptionsAsync(methodParam);
             }
 
             return await sendRequest(methodParam);
         }
 
-        public JToken UpdateFormatOptions(JToken methodParam)
+        public async Task<JToken> UpdateFormatOptionsAsync(JToken methodParam)
         {
             var documentFormattingParams = methodParam.ToObject<DocumentFormattingParams>();
 
             if (documentFormattingParams is not null)
             {
                 var formattingOptions = documentFormattingParams.Options;
-                formattingOptions.InsertSpaces = true;
-                formattingOptions.TabSize = 2;
+                var formatterIndentTypeKey = await bicepSettings.GetIntegerAsync(BicepLanguageServerClientConstants.FormatterIndentTypeKey, (int)IndentType.Spaces);
+
+                if (formatterIndentTypeKey == (int)IndentType.Tabs)
+                {
+                    formattingOptions.InsertSpaces = false;
+                }
+                else
+                {
+                    formattingOptions.InsertSpaces = true;
+                }
+
+                formattingOptions.TabSize = await bicepSettings.GetIntegerAsync(BicepLanguageServerClientConstants.FormatterTabSizeKey, 2);
                 documentFormattingParams.Options = formattingOptions;
                 methodParam = JToken.FromObject(documentFormattingParams);
             }
