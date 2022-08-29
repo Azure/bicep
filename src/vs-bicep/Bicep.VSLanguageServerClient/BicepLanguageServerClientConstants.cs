@@ -17,5 +17,7 @@ namespace Bicep.VSLanguageServerClient
         public const string CodeRemoteContentTypeName = "code-languageserver-preview";
 
         public const string JsonContentTypeName = "JSON";
+
+        public const string LanguageName = "Bicep";
     }
 }

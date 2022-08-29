@@ -46,9 +46,6 @@ namespace Bicep.VSLanguageServerClient
             var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer();
             var gotoDefintionMiddleLayer = new HandleGotoDefintionMiddleLayer();
             middleLayer = new AggregatingMiddleLayer(gotoDefintionMiddleLayer, handleSnippetCompletionsMiddleLayer, updateFormatSettingsMiddleLayer);
-
-            bicepSettings = new BicepSettings();
-            bicepSettings.Changed += OnSettingsChanged;
         }
 
         private void OnSettingsChanged(object sender, EventArgs e)
@@ -114,6 +111,9 @@ namespace Bicep.VSLanguageServerClient
         {
             var didChangeWatchedFilesNotifier = new DidChangeWatchedFilesNotifier(rpc);
             didChangeWatchedFilesNotifier.CreateFileSystemWatchers();
+
+            bicepSettings = new BicepSettings();
+            bicepSettings.Changed += OnSettingsChanged;
 
             return Task.CompletedTask;
         }

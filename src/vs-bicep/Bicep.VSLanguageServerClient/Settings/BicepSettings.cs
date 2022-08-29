@@ -2,20 +2,36 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Linq;
+using Microsoft.VisualStudio.ComponentModelHost;
+using Microsoft.VisualStudio.Shell;
 
 namespace Bicep.VSLanguageServerClient.Settings
 {
     public class BicepSettings
     {
-        private readonly BicepSettingsStorage bicepSettingsStorage;
         public event EventHandler<EventArgs>? Changed;
 
-        public BicepSettings()
-        {
-            bicepSettingsStorage = new BicepSettingsStorage();
-            bicepSettingsStorage.LoadFromStorage();
+        private IWritableBicepSettingsStorage? WritableStorage => Storage as IWritableBicepSettingsStorage;
 
-            bicepSettingsStorage.SettingsChanged += OnStorageSettingsChanged;
+        private IBicepSettingsStorage? Storage
+        {
+            get
+            {
+                var serviceForComponentModel = ServiceProvider.GlobalProvider.GetService(typeof(SComponentModel).GUID);
+                if (serviceForComponentModel is IComponentModel componentModel)
+                {
+                    var writableBicepSettingsStorages = componentModel.DefaultExportProvider.GetExports<IWritableBicepSettingsStorage>();
+
+                    if (writableBicepSettingsStorages is not null && writableBicepSettingsStorages.Any())
+                    {
+                        var storage = writableBicepSettingsStorages.First().Value;
+                        storage.SettingsChanged += OnStorageSettingsChanged;
+                    }
+                }
+
+                return null;
+            }
         }
 
         private void OnStorageSettingsChanged(object sender, EventArgs e)
@@ -23,29 +39,24 @@ namespace Bicep.VSLanguageServerClient.Settings
             Changed?.Invoke(null, EventArgs.Empty);
         }
 
-        internal void ResetSettings()
+        public virtual void ResetSettings() => WritableStorage?.ResetSettings();
+
+        public int? IndentSize
         {
-            bicepSettingsStorage.ResetSettings();
+            get => Storage?.Get(SettingsConstants.FormatterIndentSizeKey, 2);
+            set => WritableStorage?.Set(SettingsConstants.FormatterIndentSizeKey, value);
         }
 
-        public int TabSize
+        public IndentType? IndentType
         {
-            get => bicepSettingsStorage.GetInteger("FormatterTabSize", 2);
-
-            internal set
-            {
-                bicepSettingsStorage.SetInteger("FormatterTabSize", value);
-            }
+            get => Storage?.Get(SettingsConstants.FormatterIndentTypeKey, Settings.IndentType.Spaces);
+            set => WritableStorage?.Set(SettingsConstants.FormatterIndentTypeKey, value);
         }
 
-        public int IndentSize
+        public int? TabSize
         {
-            get => bicepSettingsStorage.GetInteger("FormatterIndentSize", 2);
-
-            set
-            {
-                bicepSettingsStorage.SetInteger("FormatterIndentSize", value);
-            }
+            get => Storage?.Get(SettingsConstants.FormatterTabSizeKey, 2);
+            set => WritableStorage?.Set(SettingsConstants.FormatterTabSizeKey, value);
         }
     }
 }

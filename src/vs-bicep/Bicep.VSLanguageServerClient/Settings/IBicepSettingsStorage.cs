@@ -8,7 +8,7 @@ namespace Bicep.VSLanguageServerClient.Settings
     /// <summary>
     /// Bicep settings storage.
     /// </summary>
-    public interface IBicepSettingsStorage : IDisposable
+    public interface IBicepSettingsStorage
     {
         event EventHandler<EventArgs> SettingsChanged;
         T Get<T>(string name, T defaultValue);

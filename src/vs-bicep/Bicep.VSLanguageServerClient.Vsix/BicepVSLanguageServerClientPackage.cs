@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
-using System.Threading;
 using Bicep.VSLanguageServerClient.Settings;
+using Bicep.VSLanguageServerClient.Vsix.Settings;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
-using Task = System.Threading.Tasks.Task;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace Bicep.VSLanguageServerClient.Vsix
 {
@@ -21,16 +23,55 @@ namespace Bicep.VSLanguageServerClient.Vsix
     /// utility what data to put into .pkgdef file.
     /// To get loaded into VS, the package must be referenced by &lt;Asset Type="Microsoft.VisualStudio.VsPackage" ...&gt; in .vsixmanifest file.
     /// </summary>
-    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [Guid(PackageGuidString)]
-    //[ProvideLanguageService(typeof(BicepLanguageService), "Bicep Template", 107, ShowSmartIndent = true, DefaultToInsertSpaces = true)]
-    //[ProvideLanguageExtension(typeof(BicepLanguageService), ".bicep")]
+    [Guid(BicepGuidList.PackageGuidString)]
+    [PackageRegistration(UseManagedResourcesOnly = true)]
+    [ProvideLanguageExtension(typeof(BicepLanguageService), BicepLanguageServerClientConstants.BicepFileExtension)]
+    [ProvideLanguageService(typeof(BicepLanguageService), BicepLanguageServerClientConstants.LanguageName, 100,
+        ShowCompletion = false,
+        ShowDropDownOptions = false,
+        EnableAdvancedMembersOption = false,
+        DefaultToInsertSpaces = true,
+        EnableLineNumbers = true,
+        RequestStockColors = false)]
+    [ProvideEditorExtension(typeof(BicepEditorFactory), BicepLanguageServerClientConstants.BicepFileExtension, 50)]
+    [ProvideEditorLogicalView(typeof(BicepEditorFactory), VSConstants.LOGVIEWID.TextView_string)]
+    [ProvideLanguageExtension(typeof(BicepLanguageService), BicepLanguageServerClientConstants.BicepFileExtension)]
+    [ProvideEditorExtension(typeof(BicepEditorFactory), ".bicep", 50)]
     [ProvideBindingPath()]
-    public sealed class BicepVSLanguageServerClientPackage : AsyncPackage
+    public class BicepVSLanguageServerClientPackage : Package
     {
-        public const string PackageGuidString = "7bbebedb-0520-44f3-a5e0-e3d8855f1944";
-
         #region Package Members
+        protected override void Initialize()
+        {
+            // When initialized asynchronously, the current thread may be a background thread at this point.
+            // Do any initialization that requires the UI thread after switching to the UI thread.
+            base.Initialize();
+
+            // register bicep language service
+            var bicepLanguageService = new BicepLanguageService();
+            ((IServiceContainer)this).AddService(typeof(BicepLanguageService), bicepLanguageService, true);
+
+            // register bicep editor factory
+            IServiceProvider serviceProvider = this;
+
+            ThreadHelper.ThrowIfNotOnUIThread();
+            var sVsUIShellOpenDocument = serviceProvider.GetService(typeof(SVsUIShellOpenDocument));
+
+            if (sVsUIShellOpenDocument is not null){
+                var shellOpenDocument = sVsUIShellOpenDocument as IVsUIShellOpenDocument;
+
+                if (shellOpenDocument is not null)
+                {
+                    var editorGuid = new Guid(BicepGuidList.EditorFactoryGuidString);
+                    var guidNull = Guid.Empty;
+                    shellOpenDocument.GetStandardEditorFactory(0, ref editorGuid, null, ref guidNull, out var physView, out IVsEditorFactory defaultEditorFactory);
+
+                    RegisterEditorFactory(new BicepEditorFactory(defaultEditorFactory));
+
+                    LoadBicepSettingsStorage();
+                }
+            }
+        }
 
         /// <summary>
         /// Initialization of the package; this method is called right after the package is sited, so this is the place
@@ -39,14 +80,26 @@ namespace Bicep.VSLanguageServerClient.Vsix
         /// <param name="cancellationToken">A cancellation token to monitor for initialization cancellation, which can occur when VS is shutting down.</param>
         /// <param name="progress">A provider for progress updates.</param>
         /// <returns>A task representing the async work of package initialization, or an already completed task if there is none. Do not return null from this method.</returns>
-        protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
-        {
-            // When initialized asynchronously, the current thread may be a background thread at this point.
-            // Do any initialization that requires the UI thread after switching to the UI thread.
-            await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+        //protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
+        //{
+        //    // When initialized asynchronously, the current thread may be a background thread at this point.
+        //    // Do any initialization that requires the UI thread after switching to the UI thread.
+        //    await base.InitializeAsync(cancellationToken, progress).ConfigureAwait(false);
 
-            var settingsStorage = new BicepSettingsStorage();
-            settingsStorage.LoadFromStorage();
+        //    await JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+        //    IServiceContainer container = this;
+        //    container.AddService(typeof(BicepLanguageService), new BicepLanguageService(), true);
+
+        //    var bicepEditorFactory = new BicepEditorFactory();
+        //    RegisterEditorFactory(bicepEditorFactory);
+
+        //    LoadBicepSettingsStorage();
+        //}
+
+        private void LoadBicepSettingsStorage()
+        {
+            var storage = new BicepSettingsStorage(new Guid(BicepGuidList.LanguageServiceGuidString));
+            storage.LoadFromStorage();
         }
 
         #endregion

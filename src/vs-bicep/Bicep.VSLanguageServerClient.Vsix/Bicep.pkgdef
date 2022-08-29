@@ -1,6 +1,27 @@
 [$RootKey$\ShellFileAssociations\.bicep]
 "DefaultIconMoniker"="8c3d631c-7c5b-469d-ac8a-4838177d7c50:0"
 
+[$RootKey$\Packages\{7bbebedb-0520-44f3-a5e0-e3d8855f1944}]
+@="BicepVSLanguageServerClientPackage"
+"InprocServer32"="$WinDir$\SYSTEM32\MSCOREE.DLL"
+"Class"="Bicep.VSLanguageServerClient.Vsix.BicepVSLanguageServerClientPackage"
+"CodeBase"="$PackageFolder$\Bicep.VSLanguageServerClient.Vsix.dll"
+"AllowsBackgroundLoad"=dword:00000001
+
+[$RootKey$\Editors\{59d159a7-827e-4a7e-9803-6c368485d067}]
+@="BicepEditorFactory"
+"DisplayName"="#2"
+"Package"="{7bbebedb-0520-44f3-a5e0-e3d8855f1944}"
+"EditorTrustLevel"=dword:00000001
+"CommonPhysicalViewAttributes"=dword:00000000
+"DeferUntilIntellisenseIsReady"=dword:00000000
+
+[$RootKey$\Editors\{59d159a7-827e-4a7e-9803-6c368485d067}\LogicalViews]
+"{7651a703-06e5-11d1-8ebd-00a0c90f26ea}"=""
+
+[$RootKey$\Languages\File Extensions\.bicep]
+@="{17c12a04-877c-4781-8948-99610a774160}"
+
 [$RootKey$\Languages\Language Services\Bicep]
 @="{17c12a04-877c-4781-8948-99610a774160}"
 "Package"="{7bbebedb-0520-44f3-a5e0-e3d8855f1944}"
