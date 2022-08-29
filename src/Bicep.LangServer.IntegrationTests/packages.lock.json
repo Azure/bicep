@@ -1173,15 +1173,15 @@
       },
       "System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "17.0.18",
-        "contentHash": "x0iIMdP+PCLIkz8h13xHCecaiysFgHPe9mM3FdyfSmkl5+MtMCmgFFIe38Aibkzd0UAY/OMoXMKGR2RK10rebQ=="
+        "resolved": "17.1.1",
+        "contentHash": "LWOM12Bd0kp/gaH4g1o/O2/6JDcHF/fuctF1IqDZt0aAqU2BwGiMihi9Cdcm5jJz8La1wFWbRPuRui8WeX6m8w=="
       },
       "System.IO.Abstractions.TestingHelpers": {
         "type": "Transitive",
-        "resolved": "17.0.18",
-        "contentHash": "n5lZbRpXQrPdqs/9zJ9LwzuOK4ceQhvgsO0vv+CEyX3bgRQgsDv85ZOZqYghRlDkfwvTCemcdDdgUwXv39/GzA==",
+        "resolved": "17.1.1",
+        "contentHash": "IXsc9skbI+xsjgfsIH5xTdXN/QUyeBc1WVjiJ+IwOthFakBZmN2bqwPH/tYX0FeOEzJ6ZfrZyhqdJ/B+rPHLEQ==",
         "dependencies": {
-          "System.IO.Abstractions": "17.0.18"
+          "System.IO.Abstractions": "17.1.1"
         }
       },
       "System.IO.Compression": {
@@ -2020,77 +2020,77 @@
       "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Types": "0.2.34",
-          "Azure.Bicep.Types.Az": "0.2.34",
-          "Azure.Bicep.Types.K8s": "0.1.11",
-          "Azure.Containers.ContainerRegistry": "1.1.0-beta.4",
-          "Azure.Deployments.Core": "1.0.635",
-          "Azure.Deployments.Expression": "1.0.635",
-          "Azure.Deployments.Templates": "1.0.635",
-          "Azure.Identity": "1.6.0",
-          "Azure.ResourceManager.Resources": "1.1.0",
-          "JsonPatch.Net": "1.1.2",
-          "JsonPath.Net": "0.2.1",
-          "Microsoft.Extensions.Configuration": "6.0.1",
-          "Microsoft.Extensions.Configuration.Binder": "6.0.0",
-          "Microsoft.Extensions.Configuration.Json": "6.0.0",
-          "Newtonsoft.Json": "13.0.1",
-          "System.Collections.Immutable": "6.0.0",
-          "System.IO.Abstractions": "17.0.18"
+          "Azure.Bicep.Types": "[0.2.34, )",
+          "Azure.Bicep.Types.Az": "[0.2.34, )",
+          "Azure.Bicep.Types.K8s": "[0.1.11, )",
+          "Azure.Containers.ContainerRegistry": "[1.1.0-beta.4, )",
+          "Azure.Deployments.Core": "[1.0.635, )",
+          "Azure.Deployments.Expression": "[1.0.635, )",
+          "Azure.Deployments.Templates": "[1.0.635, )",
+          "Azure.Identity": "[1.6.0, )",
+          "Azure.ResourceManager.Resources": "[1.1.0, )",
+          "JsonPatch.Net": "[1.1.2, )",
+          "JsonPath.Net": "[0.2.1, )",
+          "Microsoft.Extensions.Configuration": "[6.0.1, )",
+          "Microsoft.Extensions.Configuration.Binder": "[6.0.0, )",
+          "Microsoft.Extensions.Configuration.Json": "[6.0.0, )",
+          "Newtonsoft.Json": "[13.0.1, )",
+          "System.Collections.Immutable": "[6.0.0, )",
+          "System.IO.Abstractions": "[17.0.18, )"
         }
       },
       "Azure.Bicep.Decompiler": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Core": "1.0.0",
-          "Newtonsoft.Json": "13.0.1",
-          "System.Collections.Immutable": "6.0.0"
+          "Azure.Bicep.Core": "[1.0.0, )",
+          "Newtonsoft.Json": "[13.0.1, )",
+          "System.Collections.Immutable": "[6.0.0, )"
         }
       },
       "bicep": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Core": "1.0.0",
-          "Azure.Bicep.Decompiler": "1.0.0",
-          "Microsoft.Extensions.Logging": "6.0.0",
-          "Microsoft.Extensions.Logging.Abstractions": "6.0.1"
+          "Azure.Bicep.Core": "[1.0.0, )",
+          "Azure.Bicep.Decompiler": "[1.0.0, )",
+          "Microsoft.Extensions.Logging": "[6.0.0, )",
+          "Microsoft.Extensions.Logging.Abstractions": "[6.0.1, )"
         }
       },
       "bicep.core.samples": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Core": "1.0.0",
-          "Bicep.Core.UnitTests": "1.0.0",
-          "FluentAssertions": "6.7.0",
-          "MSTest.TestAdapter": "2.2.10",
-          "MSTest.TestFramework": "2.2.10",
-          "Microsoft.NET.Test.Sdk": "17.2.0",
-          "bicep": "1.0.0"
+          "Azure.Bicep.Core": "[1.0.0, )",
+          "Bicep.Core.UnitTests": "[1.0.0, )",
+          "FluentAssertions": "[6.7.0, )",
+          "MSTest.TestAdapter": "[2.2.10, )",
+          "MSTest.TestFramework": "[2.2.10, )",
+          "Microsoft.NET.Test.Sdk": "[17.2.0, )",
+          "bicep": "[1.0.0, )"
         }
       },
       "bicep.core.unittests": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Core": "1.0.0",
-          "Bicep.LangServer": "1.0.0",
-          "DiffPlex": "1.7.1",
-          "FluentAssertions": "6.7.0",
-          "JsonDiffPatch.Net": "2.3.0",
-          "MSTest.TestAdapter": "2.2.10",
-          "MSTest.TestFramework": "2.2.10",
-          "Microsoft.NET.Test.Sdk": "17.2.0",
-          "Moq": "4.18.1",
-          "Newtonsoft.Json": "13.0.1",
-          "System.IO.Abstractions.TestingHelpers": "17.0.18"
+          "Azure.Bicep.Core": "[1.0.0, )",
+          "Bicep.LangServer": "[1.0.0, )",
+          "DiffPlex": "[1.7.1, )",
+          "FluentAssertions": "[6.7.0, )",
+          "JsonDiffPatch.Net": "[2.3.0, )",
+          "MSTest.TestAdapter": "[2.2.10, )",
+          "MSTest.TestFramework": "[2.2.10, )",
+          "Microsoft.NET.Test.Sdk": "[17.2.0, )",
+          "Moq": "[4.18.1, )",
+          "Newtonsoft.Json": "[13.0.1, )",
+          "System.IO.Abstractions.TestingHelpers": "[17.1.1, )"
         }
       },
       "bicep.langserver": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Core": "1.0.0",
-          "CommandLineParser": "2.9.1",
-          "OmniSharp.Extensions.LanguageServer": "0.19.5",
-          "SharpYaml": "2.0.0"
+          "Azure.Bicep.Core": "[1.0.0, )",
+          "CommandLineParser": "[2.9.1, )",
+          "OmniSharp.Extensions.LanguageServer": "[0.19.5, )",
+          "SharpYaml": "[2.0.0, )"
         }
       }
     },
