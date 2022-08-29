@@ -28,7 +28,7 @@ export class ForceModulesRestoreCommand implements Command {
       // it won't be fixed in VS Code, so we need to handle it on our side.
       // See https://github.com/microsoft/vscode/issues/58869#issuecomment-422322972 for details.
       vscode.window.showInformationMessage(
-        "We are unable to get the Bicep file to force the modules restore when the output panel is focused. Please focus a text editor first when running the command."
+        "We are unable to get restore modules in a Bicep file when the output panel is focused. Please focus a text editor first when running the command."
       );
 
       return;

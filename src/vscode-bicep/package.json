@@ -172,7 +172,7 @@
       },
       {
         "command": "bicep.build",
-        "title": "Build Bicep File",
+        "title": "Build ARM Template",
         "category": "Bicep",
         "icon": "$(output)"
       },
@@ -190,7 +190,7 @@
       },
       {
         "command": "bicep.forceModulesRestore",
-        "title": "Restore Bicep File (Force)",
+        "title": "Restore Bicep Modules (Force)",
         "category": "Bicep"
       },
       {
@@ -256,131 +256,131 @@
     "menus": {
       "editor/title": [
         {
+          "command": "bicep.insertResource",
+          "when": "editorLangId == bicep",
+          "group": "2_bicep_1_edit"
+        },
+        {
           "command": "bicep.showVisualizerToSide",
           "when": "editorLangId == bicep",
           "alt": "bicep.showVisualizer",
-          "group": "navigation"
+          "group": "2_bicep_3_visualize"
         },
         {
           "command": "bicep.showSource",
           "when": "bicepVisualizerFocus",
-          "group": "navigation"
-        },
-        {
-          "command": "bicep.insertResource",
-          "when": "editorLangId == bicep",
-          "group": "edit"
+          "group": "2_bicep_3_visualize"
         }
       ],
       "explorer/context": [
         {
-          "command": "bicep.showVisualizer",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.showVisualizerToSide",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
           "command": "bicep.build",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.generateParams",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.deploy",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
         },
         {
           "command": "bicep.forceModulesRestore",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.generateParams",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_1_edit"
         },
         {
           "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.deploy",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_2_deploy"
+        },
+        {
+          "command": "bicep.showVisualizer",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
+        },
+        {
+          "command": "bicep.showVisualizerToSide",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
         }
       ],
       "editor/title/context": [
         {
-          "command": "bicep.showVisualizer",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.showVisualizerToSide",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
           "command": "bicep.build",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.generateParams",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.deploy",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
         },
         {
           "command": "bicep.forceModulesRestore",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.generateParams",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_1_edit"
         },
         {
           "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.deploy",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_2_deploy"
+        },
+        {
+          "command": "bicep.showVisualizer",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
+        },
+        {
+          "command": "bicep.showVisualizerToSide",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
         }
       ],
       "editor/context": [
         {
           "command": "bicep.build",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.generateParams",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.deploy",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
         },
         {
           "command": "bicep.forceModulesRestore",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
         },
         {
-          "command": "bicep.showVisualizer",
+          "command": "bicep.generateParams",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.showVisualizerToSide",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
         },
         {
           "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.deploy",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_2_deploy"
+        },
+        {
+          "command": "bicep.showVisualizer",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
+        },
+        {
+          "command": "bicep.showVisualizerToSide",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
         }
       ],
       "commandPalette": [
