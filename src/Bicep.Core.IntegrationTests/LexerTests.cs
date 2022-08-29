@@ -120,6 +120,30 @@ namespace Bicep.Core.IntegrationTests
         }
 
         [DataTestMethod]
+        [BaselineData_Bicepparam.TestData()]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void ParamsFile_LexerShouldProduceExpectedTokens(BaselineData_Bicepparam baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+
+            var lexer = new Lexer(new SlidingTextWindow(data.Parameters.EmbeddedFile.Contents), ToListDiagnosticWriter.Create());
+            lexer.Lex();
+
+            string getLoggingString(Token token)
+            {
+                return $"{token.Type} |{token.Text}|";
+            }
+
+            var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(data.Parameters.EmbeddedFile.Contents, "\n", lexer.GetTokens(), getLoggingString);
+
+            data.Tokens.WriteToOutputFolder(sourceTextWithDiags);
+            data.Tokens.ShouldHaveExpectedValue();
+
+            lexer.GetTokens().Count(token => token.Type == TokenType.EndOfFile).Should().Be(1, "because there should only be 1 EOF token");
+            lexer.GetTokens().Last().Type.Should().Be(TokenType.EndOfFile, "because the last token should always be EOF.");
+        }
+
+        [DataTestMethod]
         [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public void LexerShouldProduceValidStringLiteralTokensOnValidFiles(DataSet dataSet)
         {

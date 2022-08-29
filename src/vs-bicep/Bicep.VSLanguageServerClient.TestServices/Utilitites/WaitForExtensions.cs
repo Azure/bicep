@@ -5,7 +5,7 @@ using System;
 using System.Globalization;
 using Microsoft.Test.Apex.Services;
 
-namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
+namespace Bicep.VSLanguageServerClient.TestServices.Utilitites
 {
     public static class WaitForExtensions
     {

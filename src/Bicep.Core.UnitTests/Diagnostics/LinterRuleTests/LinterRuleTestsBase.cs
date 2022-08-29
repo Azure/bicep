@@ -10,6 +10,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -32,6 +33,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             None,
             LineNumber,
+            LineNumberAndColumn,
 
             Default = LineNumber,
         }
@@ -40,20 +42,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             OnCompileErrors OnCompileErrors = OnCompileErrors.Default,
             IncludePosition IncludePosition = IncludePosition.Default,
             RootConfiguration? Configuration = null,
-            ApiVersionProvider? ApiVersionProvider = null
+            ApiVersionProvider? ApiVersionProvider = null,
+            (string path, string contents)[]? AdditionalFiles = null
         );
 
         private static string FormatDiagnostic(IDiagnostic diagnostic, ImmutableArray<int> lineStarts, IncludePosition includePosition)
         {
-            if (includePosition == IncludePosition.LineNumber)
+            var (line, character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
+            return includePosition switch
             {
-                var position = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
-                return $"[{position.line + 1}] {diagnostic.Message}";
-            }
-            else
-            {
-                return diagnostic.Message;
-            }
+                IncludePosition.LineNumber => $"[{line + 1}] {diagnostic.Message}",
+                IncludePosition.LineNumberAndColumn => $"[{line + 1}:{character + 1}] {diagnostic.Message}",
+                IncludePosition.None => diagnostic.Message,
+                _ => throw new InvalidOperationException($"Invalid IncludePosition value {includePosition}"),
+            };
         }
 
         protected static void AssertLinterRuleDiagnostics(string ruleCode, string bicepText, string[] expectedMessagesForCode, Options? options = null)
@@ -79,8 +81,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         protected static void AssertLinterRuleDiagnostics(string ruleCode, string bicepText, Action<IEnumerable<IDiagnostic>> assertAction, Options? options = null)
         {
             options ??= new Options();
+            var files = new List<(string path, string content)>();
+            files.Add(("main.bicep", bicepText));
+            if (options.AdditionalFiles is not null)
+            {
+                files.AddRange(options.AdditionalFiles);
+            }
+
             RunWithDiagnosticAnnotations(
-                bicepText,
+                files.ToArray(),
                 diag =>
                     diag.Code == ruleCode
                     || (IsCompilerDiagnostic(diag) && options.OnCompileErrors == OnCompileErrors.IncludeErrors && diag.Level == DiagnosticLevel.Error)
@@ -90,14 +99,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         private static void RunWithDiagnosticAnnotations(
-            string bicepText,
+            (string path, string contents)[] files,
             Func<IDiagnostic, bool> filterFunc,
             Action<IEnumerable<IDiagnostic>> assertAction,
             Options? options)
         {
             options ??= new Options();
             var context = new CompilationHelper.CompilationHelperContext(Configuration: options.Configuration, ApiVersionProvider: options.ApiVersionProvider);
-            var result = CompilationHelper.Compile(context, bicepText);
+            var result = CompilationHelper.Compile(context, files);
             using (new AssertionScope().WithFullSource(result.BicepFile))
             {
                 result.Should().NotHaveDiagnosticsWithCodes(new[] { LinterAnalyzer.LinterRuleInternalError }, "There should never be linter LinterRuleInternalError errors");

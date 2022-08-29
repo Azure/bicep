@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -383,6 +384,14 @@ namespace Bicep.Core.UnitTests.Parsing
             visitor.Visit(expression);
 
             return buffer.ToString();
+        }
+        
+        [TestMethod]
+        public void testParams(){
+            var test = ParserHelper.Parse("set myint = 12 \n");
+            
+            Trace.WriteLine("Test running!");
+            Trace.WriteLine("Test ended");
         }
     }
 }

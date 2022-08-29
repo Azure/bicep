@@ -19,6 +19,7 @@ using Bicep.LanguageServer.Configuration;
 using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Handlers;
+using Bicep.LanguageServer.ParamsHandlers;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Snippets;
@@ -72,6 +73,11 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepGetRecommendedConfigLocationHandler>()
                     .WithHandler<BicepSignatureHelpHandler>()
                     .WithHandler<BicepSemanticTokensHandler>()
+
+                    .WithHandler<BicepParamsTextDocumentSyncHandler>()
+                    .WithHandler<BicepParamsCompletionHandler>()
+                    .WithHandler<BicepParamsDefinitionHandler>()
+
                     .WithHandler<BicepTelemetryHandler>()
                     .WithHandler<BicepBuildCommandHandler>()
                     .WithHandler<BicepGenerateParamsCommandHandler>()
@@ -145,6 +151,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>();
             services.AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>();
             services.AddSingleton<IApiVersionProvider, ApiVersionProvider>();
+            services.AddSingleton<IParamsCompilationManager, BicepParamsCompilationManager>();
         }
 
         public void Dispose()

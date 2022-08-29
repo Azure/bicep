@@ -20,10 +20,6 @@ namespace Bicep.Core.Features
         private Lazy<bool> importsEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_IMPORTS_ENABLED_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
         public bool ImportsEnabled => importsEnabledLazy.Value;
 
-        private Lazy<bool> advancedListComprehensionEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_LAMBDAS_ENABLED_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
-        // This can be permanently enabled once the 2022w26 ARM build has been fully deployed
-        public bool AdvancedListComprehensionEnabled => advancedListComprehensionEnabledLazy.Value;
-
         private Lazy<bool> resourceTypedParamsAndOutputsEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_RESOURCE_TYPED_PARAMS_AND_OUTPUTS_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
 
         public bool ResourceTypedParamsAndOutputsEnabled => resourceTypedParamsAndOutputsEnabledLazy.Value;
@@ -32,6 +28,9 @@ namespace Bicep.Core.Features
 
         public bool SourceMappingEnabled => ReadBooleanEnvVar("BICEP_SOURCEMAPPING_ENABLED", defaultValue: false);
 
+        private Lazy<bool> paramsFilesEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_PARAMS_FILES_ENABLED", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
+        public bool ParamsFilesEnabled => paramsFilesEnabledLazy.Value;
+        
         public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 
         public static TraceVerbosity TracingVerbosity => ReadEnumEnvvar<TraceVerbosity>("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);

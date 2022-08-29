@@ -12,7 +12,7 @@ dotnet_diagnostic.IDE0065.severity = warning
 dotnet_diagnostic.IDE0011.severity = warning
 
 # Remove unnecessary import
-dotnet_diagnostic.IDE0005.severity = warning
+dotnet_diagnostic.IDE0005.severity = none
 
 # Private member is unused
 dotnet_diagnostic.IDE0051.severity = warning

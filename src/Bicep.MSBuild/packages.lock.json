@@ -2,6 +2,12 @@
   "version": 1,
   "dependencies": {
     ".NETStandard,Version=v2.0": {
+      "Azure.Deployments.Internal.GenerateNotice": {
+        "type": "Direct",
+        "requested": "[0.1.11, )",
+        "resolved": "0.1.11",
+        "contentHash": "yivndYKRuYWcWQP5dz/Y2RbgLVkXNo+/PXMzpxaElKnK0d6Dzf4dPX/vBYN8Q14MJoimuFDy/6RqVQP6NZBaog=="
+      },
       "Microsoft.Build.Framework": {
         "type": "Direct",
         "requested": "[16.10.0, )",

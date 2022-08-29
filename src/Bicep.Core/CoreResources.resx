@@ -121,10 +121,6 @@
     <value>If an '{0}' parameter is provided, an '{1}' parameter must also be provided.</value>
     <comment>{0} and {1} are programmatic parameter names (either '_artifactsLocation' or '_artifactsLocationSasToken')</comment>
   </data>
-  <data name="ArtifactsLocationRule_Error_MissingUnderscore" xml:space="preserve">
-    <value>The artifacts parameter '{0}' must start with an underscore.</value>
-    <comment>{0} = parameter name</comment>
-  </data>
   <data name="ArtifactsLocationRule_FixTitle_ChangeType" xml:space="preserve">
     <value>Change parameter type to '{0}'</value>
     <comment>{0} = type name</comment>
@@ -344,6 +340,19 @@
   <data name="SecureParamsInNestedDeployRule_Solution" xml:space="preserve">
     <value>Either set the deployment's properties.expressionEvaluationOptions.scope to 'inner' or use a Bicep module instead.</value>
   </data>
+  <data name="UseResourceIdFunctionsRule_Description" xml:space="preserve">
+    <value>Properties representing a resource ID must be generated appropriately.</value>
+  </data>
+  <data name="UseResourceIdFunctionsRule_MessageFormat" xml:space="preserve">
+    <value>If property "{0}" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: {1}.</value>
+    <comment>{0} programmatic identifier
+{1} comma-separated list of programmatic function names</comment>
+  </data>
+  <data name="UseResourceIdFunctionsRule_NonConformingExprPath" xml:space="preserve">
+    <value>Found nonconforming expression at {0}</value>
+    <comment>{0} programmatic identifiers
+{1} comma-separated list of programmatic function names</comment>
+  </data>
   <data name="UseStableResourceIdentifiersMessage" xml:space="preserve">
     <value>Resource identifiers should be reproducible outside of their initial deployment context. </value>
   </data>
@@ -355,8 +364,8 @@
     <value>Use recent API versions</value>
   </data>
   <data name="UseRecentApiVersionRule_ErrorMessageFormat" xml:space="preserve">
-    <value>Use more recent API version for '{0}'.</value>
-    <comment>{0} = fully-qualified resource type name (programmatic).</comment>
+    <value>Use more recent API version for '{0}'. {1}</value>
+    <comment>{0} = fully-qualified resource type name (programmatic), {1} = reason for the failure (sentence with period)</comment>
   </data>
   <data name="UseRecentApiVersionRule_AcceptableVersions" xml:space="preserve">
     <value>Acceptable versions: {0}</value>
@@ -365,5 +374,23 @@
   <data name="UseRecentApiVersionRule_Fix_ReplaceApiVersion" xml:space="preserve">
     <value>Replace with {0}</value>
     <comment>{0} a programmatic apiVersion, format=yyyy-mm-dd-suffix</comment>
+  </data>
+  <data name="UseRecentApiVersionRule_MoreRecentStable" xml:space="preserve">
+    <value>'{0}' is a preview version and there is a more recent non-preview version available.</value>
+  </data>
+  <data name="UseRecentApiVersionRule_StableWithSameDate" xml:space="preserve">
+    <value>'{0}' is a preview version and there is a non-preview version available with the same date.</value>
+  </data>
+  <data name="UseRecentApiVersionRule_TooOld" xml:space="preserve">
+    <value>'{0}' is {1} days old, should be no more than {2} days old, or the most recent.</value>
+  </data>
+  <data name="UseRecentApiVersionRule_UnknownType" xml:space="preserve">
+    <value>Could not find resource type "{0}".</value>
+  </data>
+  <data name="UseRecentApiVersionRule_UnknownTypeSuggestion" xml:space="preserve">
+    <value>Did you mean "{0}"?</value>
+  </data>
+  <data name="UseRecentApiVersionRule_UnknownVersion" xml:space="preserve">
+    <value>Could not find apiVersion {0} for {1}.</value>
   </data>
 </root>

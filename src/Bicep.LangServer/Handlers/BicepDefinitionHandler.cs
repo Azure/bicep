@@ -34,29 +34,21 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepDefinitionHandler : DefinitionHandlerBase
     {
         private readonly ISymbolResolver symbolResolver;
-
         private readonly ICompilationManager compilationManager;
-
         private readonly IFileResolver fileResolver;
-
-        private readonly IWorkspace workspace;
-
         private readonly ILanguageServerFacade languageServer;
-
         private readonly IModuleDispatcher moduleDispatcher;
 
         public BicepDefinitionHandler(
             ISymbolResolver symbolResolver,
             ICompilationManager compilationManager,
             IFileResolver fileResolver,
-            IWorkspace workspace,
             ILanguageServerFacade languageServer,
             IModuleDispatcher moduleDispatcher) : base()
         {
             this.symbolResolver = symbolResolver;
             this.compilationManager = compilationManager;
             this.fileResolver = fileResolver;
-            this.workspace = workspace;
             this.languageServer = languageServer;
             this.moduleDispatcher = moduleDispatcher;
         }
@@ -105,7 +97,7 @@ namespace Bicep.LanguageServer.Handlers
                      (moduleSyntax, stringSyntax, token) => moduleSyntax.Path == stringSyntax && token.Type == TokenType.StringComplete)
                  && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
                  && matchingNodes[^2] is StringSyntax stringToken
-                 && context.Compilation.SourceFileGrouping.TryLookUpModuleSourceFile(moduleDeclarationSyntax) is ISourceFile sourceFile
+                 && context.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax) is ISourceFile sourceFile
                  && this.moduleDispatcher.TryGetModuleReference(moduleDeclarationSyntax, context.Compilation.Configuration, out _) is { } moduleReference)
                 {
                     // goto beginning of the module file.
@@ -135,7 +127,7 @@ namespace Bicep.LanguageServer.Handlers
                 }
             }
 
-            // all other unbound syntax nodes return no 
+            // all other unbound syntax nodes return no
             return Task.FromResult(new LocationOrLocationLinks());
         }
 
@@ -257,7 +249,7 @@ namespace Bicep.LanguageServer.Handlers
             string propertyType,
             string propertyName)
         {
-            if (context.Compilation.SourceFileGrouping.LookUpModuleSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile
+            if (context.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile
             && context.Compilation.GetSemanticModel(bicepFile) is SemanticModel moduleModel)
             {
                 switch (propertyType)

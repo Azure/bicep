@@ -13,6 +13,9 @@ namespace Bicep.VSLanguageServerClient
         public const string BicepConfigContentType = "BicepConfig";
         public const string BicepConfigFileExtension = ".json";
 
+        public const string BicepLanguageServerName = "Bicep Language Server";
+        public const string BicepLanguageServerInstallationSubPath = "LanguageServer";
+
         // Code remote content type name. Lights up all TextMate features (colorization, brace completion, folding ranges).
         public const string CodeRemoteContentTypeName = "code-languageserver-preview";
 

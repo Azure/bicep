@@ -8,6 +8,7 @@ REPOS=(
   "azure/bicep"
   "azure/bicep-types-az"
   "azure/bicep-types-k8s"
+  "azure/bicep-shared-tools"
 )
 
 for REPO in "${REPOS[@]}"; do

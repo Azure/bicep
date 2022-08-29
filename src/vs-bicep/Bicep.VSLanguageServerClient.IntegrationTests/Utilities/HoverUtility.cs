@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using Bicep.VSLanguageServerClient.TestServices.Utilitites;
 using Microsoft.Test.Apex.Editor;
 using Microsoft.Test.Apex.VisualStudio.Editor;
 using Microsoft.VisualStudio;
@@ -45,7 +46,7 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests.Utilities
 
         public static void InvokeQuickInfo()
         {
-            VsHostUtility.VsHost!.ObjectModel.Commanding.ExecuteCommand(VSConstants.VSStd2KCmdID.QUICKINFO, null);
+            CommandUtility.ExecuteCommand(VSConstants.VSStd2KCmdID.QUICKINFO);
         }
     }
 }

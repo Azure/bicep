@@ -16,14 +16,14 @@ namespace Bicep.Cli.Commands
         private readonly IDiagnosticLogger diagnosticLogger;
         private readonly InvocationContext invocationContext;
         private readonly CompilationService compilationService;
-        private readonly ParametersFileWriter writer;
+        private readonly PlaceholderParametersWriter writer;
 
         public GenerateParametersFileCommand(
             ILogger logger,
             IDiagnosticLogger diagnosticLogger,
             InvocationContext invocationContext,
             CompilationService compilationService,
-            ParametersFileWriter writer)
+            PlaceholderParametersWriter writer)
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;

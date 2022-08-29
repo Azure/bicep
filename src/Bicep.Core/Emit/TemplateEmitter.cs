@@ -49,7 +49,7 @@ namespace Bicep.Core.Emit
         /// <param name="existingContent">Existing content of the parameters file</param>
         public EmitResult EmitParametersFile(JsonTextWriter writer, string existingContent) => this.EmitOrFail(() =>
         {
-            new ParametersFileTemplateWriter(this.model, this.settings).Write(writer, existingContent);
+            new PlaceholderParametersJsonWriter(this.model, this.settings).Write(writer, existingContent);
         });
 
         /// <summary>
@@ -69,7 +69,6 @@ namespace Bicep.Core.Emit
 
             return writer.SourceMap;
         });
-
         /// <summary>
         /// Emits a template to the specified text writer if there are no errors. No writes are made to the writer if there are compilation errors.
         /// </summary>

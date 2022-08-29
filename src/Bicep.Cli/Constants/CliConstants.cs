@@ -17,5 +17,7 @@ namespace Bicep.Cli.Constants
     {
         public const string VersionRegex = @"^(--version|-v)$";
         public const string HelpRegex = @"^(--help|-h)$";
+        public const string LicenseRegex = @"^--license$";
+        public const string ThirdPartyNoticesRegex = @"^--third-party-notices$";
     }
 }

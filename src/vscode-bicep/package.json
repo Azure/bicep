@@ -36,6 +36,7 @@
   "homepage": "https://github.com/Azure/bicep/blob/main/README.md",
   "activationEvents": [
     "onLanguage:bicep",
+    "onLanguage:bicep-params",
     "onCommand:bicep.build",
     "onCommand:bicep.generateParams",
     "onCommand:bicep.createConfigFile",
@@ -108,6 +109,17 @@
         "extensions": [
           ".bicep"
         ],
+        "configuration": "../textmate/language-configuration.json"
+      },
+      {
+        "id": "bicep-params",
+        "aliases": [
+          "Bicep Parameters",
+          "Bicep Params"
+        ],
+        "extensions": [
+          ".bicepparam"
+        ],
         "configuration": "./language-configuration.json"
       },
       {
@@ -130,6 +142,11 @@
       },
       {
         "language": "bicep",
+        "scopeName": "source.bicep",
+        "path": "./syntaxes/bicep.tmlanguage"
+      },
+      {
+        "language": "bicep-params",
         "scopeName": "source.bicep",
         "path": "./syntaxes/bicep.tmlanguage"
       }
@@ -155,7 +172,7 @@
       },
       {
         "command": "bicep.build",
-        "title": "Build Bicep File",
+        "title": "Build ARM Template",
         "category": "Bicep",
         "icon": "$(output)"
       },
@@ -173,7 +190,7 @@
       },
       {
         "command": "bicep.forceModulesRestore",
-        "title": "Restore Bicep File (Force)",
+        "title": "Restore Bicep Modules (Force)",
         "category": "Bicep"
       },
       {
@@ -239,131 +256,131 @@
     "menus": {
       "editor/title": [
         {
+          "command": "bicep.insertResource",
+          "when": "editorLangId == bicep",
+          "group": "2_bicep_1_edit"
+        },
+        {
           "command": "bicep.showVisualizerToSide",
           "when": "editorLangId == bicep",
           "alt": "bicep.showVisualizer",
-          "group": "navigation"
+          "group": "2_bicep_3_visualize"
         },
         {
           "command": "bicep.showSource",
           "when": "bicepVisualizerFocus",
-          "group": "navigation"
-        },
-        {
-          "command": "bicep.insertResource",
-          "when": "editorLangId == bicep",
-          "group": "edit"
+          "group": "2_bicep_3_visualize"
         }
       ],
       "explorer/context": [
         {
-          "command": "bicep.showVisualizer",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.showVisualizerToSide",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
           "command": "bicep.build",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.generateParams",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.deploy",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
         },
         {
           "command": "bicep.forceModulesRestore",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.generateParams",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_1_edit"
         },
         {
           "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.deploy",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_2_deploy"
+        },
+        {
+          "command": "bicep.showVisualizer",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
+        },
+        {
+          "command": "bicep.showVisualizerToSide",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
         }
       ],
       "editor/title/context": [
         {
-          "command": "bicep.showVisualizer",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.showVisualizerToSide",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
           "command": "bicep.build",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.generateParams",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.deploy",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
         },
         {
           "command": "bicep.forceModulesRestore",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.generateParams",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_1_edit"
         },
         {
           "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.deploy",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_2_deploy"
+        },
+        {
+          "command": "bicep.showVisualizer",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
+        },
+        {
+          "command": "bicep.showVisualizerToSide",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
         }
       ],
       "editor/context": [
         {
           "command": "bicep.build",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.generateParams",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.deploy",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
         },
         {
           "command": "bicep.forceModulesRestore",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
         },
         {
-          "command": "bicep.showVisualizer",
+          "command": "bicep.generateParams",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
-        },
-        {
-          "command": "bicep.showVisualizerToSide",
-          "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
         },
         {
           "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
-          "group": "0_bicep"
+          "group": "2_bicep_1_edit"
+        },
+        {
+          "command": "bicep.deploy",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_2_deploy"
+        },
+        {
+          "command": "bicep.showVisualizer",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
+        },
+        {
+          "command": "bicep.showVisualizerToSide",
+          "when": "resourceLangId == bicep",
+          "group": "2_bicep_3_visualize"
         }
       ],
       "commandPalette": [
@@ -538,7 +555,7 @@
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
     "@types/mocha": "^9.1.1",
-    "@types/node": "^18.6.3",
+    "@types/node": "^18.7.11",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@types/react-test-renderer": "^18.0.0",
@@ -547,20 +564,20 @@
     "@types/triple-beam": "^1.3.2",
     "@types/vscode": "^1.52.0",
     "@types/webpack": "^5.28.0",
-    "@typescript-eslint/eslint-plugin": "^5.33.0",
-    "@typescript-eslint/parser": "^5.33.0",
+    "@typescript-eslint/eslint-plugin": "^5.35.1",
+    "@typescript-eslint/parser": "^5.35.1",
     "@vscode/test-electron": "^2.1.5",
     "copy-webpack-plugin": "^11.0.0",
     "esbuild-loader": "^2.19.0",
-    "eslint": "^8.21.0",
+    "eslint": "^8.23.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^26.8.2",
     "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.30.1",
+    "eslint-plugin-react": "^7.31.1",
     "fork-ts-checker-webpack-plugin": "^7.2.13",
     "jest": "^27.5.1",
-    "jest-styled-components": "^7.0.8",
+    "jest-styled-components": "^7.1.0",
     "ncp": "^2.0.0",
     "nerdbank-gitversioning": "^3.5.109",
     "prettier": "^2.7.1",
@@ -568,11 +585,11 @@
     "rimraf": "^3.0.2",
     "semver": "^7.3.7",
     "svg-inline-loader": "^0.8.2",
-    "terser-webpack-plugin": "5.3.3",
+    "terser-webpack-plugin": "5.3.5",
     "ts-jest": "^27.1.4",
     "ts-node": "^10.9.1",
     "typescript": "^4.7.4",
-    "vsce": "^2.10.0",
+    "vsce": "^2.10.2",
     "webpack": "^5.74.0",
     "webpack-cli": "^4.10.0"
   },
@@ -582,7 +599,7 @@
     "@azure/arm-subscriptions": "^5.0.1",
     "@azure/identity": "^2.1.0",
     "@microsoft/vscode-azext-azureutils": "^0.3.1",
-    "@microsoft/vscode-azext-utils": "^0.3.14",
+    "@microsoft/vscode-azext-utils": "^0.3.15",
     "cytoscape": "^3.22.1",
     "cytoscape-elk": "^2.0.2",
     "fs-extra": "^10.1.0",

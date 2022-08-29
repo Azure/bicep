@@ -1435,7 +1435,7 @@
   },
   {
     "name": "uniqueString",
-    "description": "Creates a deterministic hash string based on the values provided as parameters.",
+    "description": "Creates a deterministic hash string based on the values provided as parameters. The returned value is 13 characters long.",
     "fixedParameters": [],
     "minimumArgumentCount": 1,
     "variableParameter": {
