@@ -31,7 +31,7 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.processProxy = processProxy;
             }
 
-            protected override int Invoke(InvocationContext context)
+            protected override int InvokeInternal(InvocationContext context)
             {
                 // Read or create main Bicep file.
                 this.Logger.LogInformation("Ensuring {MainBicepFile} exists...", "main Bicep file");
