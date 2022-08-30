@@ -39,18 +39,13 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
         [TestMethod]
         public async Task UpdateFormatOptions_WithValidInput_ShouldUpdateFormattingOptions()
         {
-            var documentFormattingParams = new DocumentFormattingParams()
-            {
-                Options = new FormattingOptions()
-                {
-                    TabSize = 4,
-                    InsertSpaces = false
-                }
-            };
+            var documentFormattingParams = new DocumentFormattingParams();
+            documentFormattingParams.Options = new FormattingOptions();
             var input = JToken.FromObject(documentFormattingParams);
 
-            BicepSettingsMock.Setup(x => x.GetIntegerAsync(BicepLanguageServerClientConstants.FormatterIndentTypeKey, (int)IndentType.Spaces).Result).Returns((int)IndentType.Tabs);
             BicepSettingsMock.Setup(x => x.GetIntegerAsync(BicepLanguageServerClientConstants.FormatterTabSizeKey, 2).Result).Returns(2);
+            BicepSettingsMock.Setup(x => x.GetIntegerAsync(BicepLanguageServerClientConstants.FormatterIndentSizeKey, 2).Result).Returns(2);
+            BicepSettingsMock.Setup(x => x.GetIntegerAsync(BicepLanguageServerClientConstants.FormatterIndentTypeKey, (int)IndentType.Spaces).Result).Returns((int)IndentType.Tabs);
 
             var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer(BicepSettingsMock.Object);
 
@@ -58,31 +53,6 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
 
             result.Should().NotBeNull();
             result!.Options.InsertSpaces.Should().BeFalse();
-            result.Options.TabSize.Should().Be(4);
-        }
-
-        [TestMethod]
-        public async Task UpdateFormatOptions_WithValidInputAndAppropriateFormattingOptions_DoesNothing()
-        {
-            var documentFormattingParams = new DocumentFormattingParams()
-            {
-                Options = new FormattingOptions()
-                {
-                    TabSize = 2,
-                    InsertSpaces = true
-                }
-            };
-            var input = JToken.FromObject(documentFormattingParams);
-
-            BicepSettingsMock.Setup(x => x.GetIntegerAsync(BicepLanguageServerClientConstants.FormatterIndentTypeKey, (int)IndentType.Spaces).Result).Returns((int)IndentType.Spaces);
-            BicepSettingsMock.Setup(x => x.GetIntegerAsync(BicepLanguageServerClientConstants.FormatterTabSizeKey, 2).Result).Returns(2);
-
-            var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer(BicepSettingsMock.Object);
-
-            var result = (await updateFormatSettingsMiddleLayer.UpdateFormatOptionsAsync(input)).ToObject<DocumentFormattingParams>();
-
-            result.Should().NotBeNull();
-            result!.Options.InsertSpaces.Should().BeTrue();
             result.Options.TabSize.Should().Be(2);
         }
     }
