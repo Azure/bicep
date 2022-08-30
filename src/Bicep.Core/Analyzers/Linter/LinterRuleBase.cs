@@ -81,21 +81,7 @@ namespace Bicep.Core.Analyzers.Linter
 
         public IEnumerable<IDiagnostic> Analyze(SemanticModel model)
         {
-            try
-            {
-                // Expand the iteration immediately or the try/catch won't catch exceptions occuring during the rule analysis
-                // TODO: We need exception handling further up the tree in order to handle external linters.
-                return AnalyzeInternal(model).ToArray();
-            }
-            catch (Exception ex)
-            {
-                return new AnalyzerDiagnostic(
-                    this.AnalyzerName,
-                    new TextSpan(0, 0),
-                    DiagnosticLevel.Warning,
-                    LinterAnalyzer.LinterRuleInternalError,
-                    string.Format(CoreResources.LinterRuleExceptionMessageFormat, $"{this.AnalyzerName}/{this.Code}", ex.Message)).AsEnumerable();
-            }
+            return AnalyzeInternal(model);
         }
 
         /// <summary>

@@ -81,8 +81,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         protected static void AssertLinterRuleDiagnostics(string ruleCode, string bicepText, Action<IEnumerable<IDiagnostic>> assertAction, Options? options = null)
         {
             options ??= new Options();
-            var files = new List<(string path, string content)>();
-            files.Add(("main.bicep", bicepText));
+            var files = new List<(string path, string content)>
+            {
+                ("main.bicep", bicepText)
+            };
             if (options.AdditionalFiles is not null)
             {
                 files.AddRange(options.AdditionalFiles);
@@ -109,8 +111,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             var result = CompilationHelper.Compile(context, files);
             using (new AssertionScope().WithFullSource(result.BicepFile))
             {
-                result.Should().NotHaveDiagnosticsWithCodes(new[] { LinterAnalyzer.LinterRuleInternalError }, "There should never be linter LinterRuleInternalError errors");
-
                 IDiagnostic[] diagnosticsMatchingCode = result.Diagnostics.Where(filterFunc).ToArray();
                 DiagnosticAssertions.DoWithDiagnosticAnnotations(
                     result.Compilation.SourceFileGrouping.EntryPoint,
