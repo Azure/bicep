@@ -26,7 +26,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleValidators
             Invoking(() => ModulePathValidator.ValidateModulePath(fileSystem))
                 .Should()
                 .Throw<InvalidModuleException>()
-                .WithMessage(@"Could not find the ""modules"" folder in the path ""C:\foo\bar"".");
+                .WithMessage($@"Could not find the ""modules"" folder in the path ""{fileSystem.Directory.GetCurrentDirectory()}"".");
         }
 
         [TestMethod]
