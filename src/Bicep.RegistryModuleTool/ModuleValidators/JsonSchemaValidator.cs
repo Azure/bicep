@@ -11,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 
-namespace Bicep.RegistryModuleTool.ModuleFileValidators
+namespace Bicep.RegistryModuleTool.ModuleValidators
 {
     public sealed class JsonSchemaValidator : IModuleFileValidator
     {
