@@ -2,12 +2,6 @@
   "version": 1,
   "dependencies": {
     ".NETFramework,Version=v4.7.2": {
-      "Azure.Deployments.Internal.GenerateNotice": {
-        "type": "Direct",
-        "requested": "[0.1.11, )",
-        "resolved": "0.1.11",
-        "contentHash": "yivndYKRuYWcWQP5dz/Y2RbgLVkXNo+/PXMzpxaElKnK0d6Dzf4dPX/vBYN8Q14MJoimuFDy/6RqVQP6NZBaog=="
-      },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",
         "requested": "[3.3.3, )",

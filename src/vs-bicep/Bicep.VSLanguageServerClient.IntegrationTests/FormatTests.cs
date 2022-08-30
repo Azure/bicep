@@ -26,18 +26,20 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
             WaitForBicepLanguageServiceActivation(editor);
             var settingsService = VsHostUtility.VsHost!.ObjectModel.Settings;
 
-            // Save settings value before executing test
+            // Save settings before test execution
             var indentSize = settingsService.GetSetting(TestConstants.TextEditor, BicepLanguageServerClientConstants.LanguageName, TestConstants.IndentSizeKey);
             var insertTabs = settingsService.GetSetting(TestConstants.TextEditor, BicepLanguageServerClientConstants.LanguageName, TestConstants.InsertTabsKey);
             var tabSize = settingsService.GetSetting(TestConstants.TextEditor, BicepLanguageServerClientConstants.LanguageName, TestConstants.TabSizeKey);
 
             try
             {
+                // Verify formatting with spaces
                 UpdateSettings(settingsService, insertTabs: false, indentSize: 2, tabSize: 2);
                 string baselineFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"TestSolution\BicepTestProject\results\Formatting\BicepFormattingWithSpaces.bsl");
 
                 FormatUtility.VerifyDocumentFormatting(editor, baselineFile);
 
+                // Verify formatting with spaces
                 UpdateSettings(settingsService, insertTabs: true, indentSize: 2, tabSize: 2);
                 baselineFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"TestSolution\BicepTestProject\results\Formatting\BicepFormattingWithTabs.bsl");
 
