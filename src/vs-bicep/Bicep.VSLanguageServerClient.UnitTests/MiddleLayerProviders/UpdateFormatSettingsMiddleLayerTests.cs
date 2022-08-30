@@ -50,7 +50,7 @@ namespace Bicep.VSLanguageServerClient.UnitTests.MiddleLayerProviders
             var input = JToken.FromObject(documentFormattingParams);
 
             BicepSettingsMock.Setup(x => x.GetIntegerAsync(BicepLanguageServerClientConstants.FormatterIndentTypeKey, (int)IndentType.Spaces).Result).Returns((int)IndentType.Tabs);
-            BicepSettingsMock.Setup(x => x.GetIntegerAsync(BicepLanguageServerClientConstants.FormatterTabSizeKey, 2).Result).Returns(4);
+            BicepSettingsMock.Setup(x => x.GetIntegerAsync(BicepLanguageServerClientConstants.FormatterTabSizeKey, 2).Result).Returns(2);
 
             var updateFormatSettingsMiddleLayer = new UpdateFormatSettingsMiddleLayer(BicepSettingsMock.Object);
 

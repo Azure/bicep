@@ -71,6 +71,10 @@ namespace Bicep.VSLanguageServerClient.Settings
                 case BicepLanguageServerClientConstants.FormatterTabSizeKey:
                     result = (int)langPrefsValue.uTabSize;
                     break;
+
+                case BicepLanguageServerClientConstants.FormatterIndentSizeKey:
+                    result = (int)langPrefsValue.uIndentSize;
+                    break;
             }
 
             return result;

@@ -4,9 +4,12 @@
 using System.IO;
 using System.Reflection;
 using Bicep.VSLanguageServerClient.IntegrationTests.Utilities;
+using Bicep.VSLanguageServerClient.Settings;
 using Microsoft.Test.Apex.VisualStudio.Editor;
 using Microsoft.Test.Apex.VisualStudio.Solution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.Text.Editor;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Bicep.VSLanguageServerClient.IntegrationTests
 {
@@ -20,10 +23,30 @@ namespace Bicep.VSLanguageServerClient.IntegrationTests
             IVisualStudioTextEditorTestExtension editor = projectItem.GetDocumentAsTextEditor().Editor;
 
             WaitForBicepLanguageServiceActivation(editor);
+            var settingsService = VsHostUtility.VsHost!.ObjectModel.Settings;
 
-            string baselineFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"TestSolution\BicepTestProject\results\Formatting\BicepFormatting.bsl");
+            // Save settings value before executing test
+            var indentSize = settingsService.GetSetting("TextEditor", BicepLanguageServerClientConstants.LanguageName, TestConstants.IndentSizeKey);
+            var insertTabs = settingsService.GetSetting("TextEditor", BicepLanguageServerClientConstants.LanguageName, TestConstants.InsertTabsKey);
+            var tabSize = settingsService.GetSetting("TextEditor", BicepLanguageServerClientConstants.LanguageName, TestConstants.TabSizeKey);
 
-            FormatUtility.VerifyDocumentFormatting(editor, baselineFile);
+            try
+            {
+                settingsService.SetSetting("TextEditor", BicepLanguageServerClientConstants.LanguageName, TestConstants.InsertTabsKey, false);
+                settingsService.SetSetting("TextEditor", BicepLanguageServerClientConstants.LanguageName, TestConstants.TabSizeKey, 2);
+                settingsService.SetSetting("TextEditor", BicepLanguageServerClientConstants.LanguageName, TestConstants.IndentSizeKey, 2);
+
+                string baselineFile = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"TestSolution\BicepTestProject\results\Formatting\BicepFormatting.bsl");
+
+                FormatUtility.VerifyDocumentFormatting(editor, baselineFile);
+            }
+            finally
+            {
+                // Reset settings
+                settingsService.SetSetting("TextEditor", BicepLanguageServerClientConstants.LanguageName, TestConstants.InsertTabsKey, insertTabs);
+                settingsService.SetSetting("TextEditor", BicepLanguageServerClientConstants.LanguageName, TestConstants.TabSizeKey, tabSize);
+                settingsService.SetSetting("TextEditor", BicepLanguageServerClientConstants.LanguageName, TestConstants.IndentSizeKey, indentSize);
+            }
         }
     }
 }

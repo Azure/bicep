@@ -55,18 +55,20 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
             if (documentFormattingParams is not null)
             {
                 var formattingOptions = documentFormattingParams.Options;
+
                 var formatterIndentTypeKey = await bicepSettings.GetIntegerAsync(BicepLanguageServerClientConstants.FormatterIndentTypeKey, (int)IndentType.Spaces);
 
                 if (formatterIndentTypeKey == (int)IndentType.Tabs)
                 {
                     formattingOptions.InsertSpaces = false;
+                    formattingOptions.TabSize = await bicepSettings.GetIntegerAsync(BicepLanguageServerClientConstants.FormatterTabSizeKey, 2);
                 }
                 else
                 {
                     formattingOptions.InsertSpaces = true;
+                    formattingOptions.TabSize = await bicepSettings.GetIntegerAsync(BicepLanguageServerClientConstants.FormatterIndentSizeKey, 2);
                 }
 
-                formattingOptions.TabSize = await bicepSettings.GetIntegerAsync(BicepLanguageServerClientConstants.FormatterTabSizeKey, 2);
                 documentFormattingParams.Options = formattingOptions;
                 methodParam = JToken.FromObject(documentFormattingParams);
             }
