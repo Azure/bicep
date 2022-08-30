@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Analyzers;
@@ -10,6 +11,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -85,12 +87,12 @@ namespace Bicep.Core.UnitTests.Diagnostics
                                                     "Fake Rule",
                                                     null);
                 // Now throw an exception
-                throw new System.NotImplementedException();
+                throw new System.ArgumentOutOfRangeException();
             }
         }
 
         [TestMethod]
-        public void TestRuleThrowingExceptionReturnsOneDiagnostic()
+        public void TestRuleThrowingException()
         {
             var text = @"
 @secure()
@@ -99,19 +101,8 @@ param param1 string = 'val'";
             var semanticModel = compilationResult.Compilation.GetSemanticModel(compilationResult.BicepFile);
 
             var throwRule = new LinterThrowsTestRule();
-            var diagnostics = throwRule.Analyze(semanticModel);
-            diagnostics.Should().NotBeNullOrEmpty();
-            diagnostics.Should().HaveCount(1);
-
-            var diag = diagnostics.First();
-            diag.Should().NotBeNull();
-
-            diag.Code.Should().NotBeNull();
-            diag.Code.Should().Match("linter-internal-error");
-
-            diag.Span.Should().NotBeNull();
-            diag.Span.Position.Should().Be(0);
+            var test = () => throwRule.Analyze(semanticModel).ToArray();
+            test.Should().Throw<ArgumentOutOfRangeException>();
         }
-
     }
 }
