@@ -2,8 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
+using System.ComponentModel.Design;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Bicep.VSLanguageServerClient.Settings;
+using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell;
 using Task = System.Threading.Tasks.Task;
 
@@ -21,12 +24,21 @@ namespace Bicep.VSLanguageServerClient.Vsix
     /// To get loaded into VS, the package must be referenced by &lt;Asset Type="Microsoft.VisualStudio.VsPackage" ...&gt; in .vsixmanifest file.
     /// </summary>
     [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [Guid(BicepVSLanguageServerClientPackage.PackageGuidString)]
+    [Guid(BicepGuids.PackageGuidString)]
+    [ProvideLanguageExtension(typeof(BicepLanguageService), BicepLanguageServerClientConstants.BicepFileExtension)]
+    [ProvideLanguageService(
+        typeof(BicepLanguageService),
+        BicepLanguageServerClientConstants.LanguageName,
+        100,
+        ShowCompletion = false,
+        ShowDropDownOptions = false,
+        EnableAdvancedMembersOption = false,
+        DefaultToInsertSpaces = true,
+        EnableLineNumbers = true,
+        RequestStockColors = false)]
     [ProvideBindingPath()]
     public sealed class BicepVSLanguageServerClientPackage : AsyncPackage
     {
-        public const string PackageGuidString = "7bbebedb-0520-44f3-a5e0-e3d8855f1944";
-
         #region Package Members
 
         /// <summary>
@@ -41,6 +53,10 @@ namespace Bicep.VSLanguageServerClient.Vsix
             // When initialized asynchronously, the current thread may be a background thread at this point.
             // Do any initialization that requires the UI thread after switching to the UI thread.
             await this.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
+
+            // Register bicep language service
+            var bicepLanguageService = new BicepLanguageService();
+            ((IServiceContainer)this).AddService(typeof(BicepLanguageService), bicepLanguageService, true);
         }
 
         #endregion
