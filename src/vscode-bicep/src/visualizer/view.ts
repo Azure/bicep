@@ -32,6 +32,7 @@ export class BicepVisualizerView extends Disposable {
 
     this.register(
       this.webviewPanel.webview.onDidReceiveMessage(
+        // eslint-disable-next-line jest/unbound-method
         this.handleDidReceiveMessage,
         this
       )
@@ -42,6 +43,7 @@ export class BicepVisualizerView extends Disposable {
     }
 
     this.registerMultiple(
+      // eslint-disable-next-line jest/unbound-method
       this.webviewPanel.onDidDispose(this.dispose, this),
       this.webviewPanel.onDidChangeViewState((e) =>
         this.onDidChangeViewStateEmitter.fire(e)
