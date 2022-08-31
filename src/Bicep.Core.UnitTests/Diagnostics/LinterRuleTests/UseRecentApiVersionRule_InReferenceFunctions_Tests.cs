@@ -42,8 +42,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     bicep);
                 using (new AssertionScope().WithFullSource(result.BicepFile))
                 {
-                    result.Should().NotHaveDiagnosticsWithCodes(new[] { LinterAnalyzer.LinterRuleInternalError }, "There should never be linter LinterRuleInternalError errors");
-
                     var actual = UseRecentApiVersionRule.GetFunctionCallInfos(result.Compilation.GetEntrypointSemanticModel());
                     actual.Should().HaveCount(1, "Expecting a single function call per test");
                     var typedActual = new ExpectedFunctionInfo(
