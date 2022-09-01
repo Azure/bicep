@@ -31,12 +31,14 @@ namespace Bicep.Core.IntegrationTests
 
             public bool AllowImportStatements => true;
 
+            public IEnumerable<string> AvailableNamespaces => builderDict.Keys.Concat(new [] { SystemNamespaceType.BuiltInName });
+
             public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope)
             {
                 switch (providerName)
                 {
                     case SystemNamespaceType.BuiltInName:
-                        return SystemNamespaceType.Create(aliasName);
+                        return SystemNamespaceType.Create(aliasName, BicepTestConstants.Features);
                     case { } _ when builderDict.TryGetValue(providerName) is { } builderFunc:
                         return builderFunc(aliasName);
                 }

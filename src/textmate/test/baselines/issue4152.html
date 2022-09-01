@@ -1,0 +1,32 @@
+
+<!--
+  Preview this file by prepending http://htmlpreview.github.io/? to its URL
+  e.g. http://htmlpreview.github.io/?https://raw.githubusercontent.com/Azure/bicep/main/src/textmate/test/baselines/issue4152.html
+-->
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+  </head>
+  <body>
+    <pre class="hljs">
+<span class="hljs-keyword">var</span> <span class="hljs-variable">elements</span> = [
+  {
+    <span class="hljs-property">id</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">abc</span><span class="hljs-string">&#39;</span>
+    <span class="hljs-property">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">foo</span><span class="hljs-string">&#39;</span>
+  }
+  {
+    <span class="hljs-property">id</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">def</span><span class="hljs-string">&#39;</span>
+    <span class="hljs-property">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">bar</span><span class="hljs-string">&#39;</span>
+  }
+]
+
+<span class="hljs-comment">// equivalent to the above proposed: createObject(elements, x =&gt; x.id)</span>
+<span class="hljs-keyword">var</span> <span class="hljs-variable">keyedById</span> = <span class="hljs-function">reduce</span>(<span class="hljs-variable">elements</span>, {}, (<span class="hljs-variable">prev</span>, <span class="hljs-variable">cur</span>) =&gt; <span class="hljs-function">union</span>(<span class="hljs-variable">prev</span>, { <span class="hljs-string">&#39;</span><span class="hljs-subst">${</span><span class="hljs-variable">cur</span><span class="hljs-string">.</span><span class="hljs-variable">id</span><span class="hljs-subst">}</span><span class="hljs-string">&#39;</span>: <span class="hljs-variable">cur</span> }))
+
+<span class="hljs-comment">// equivalent to the above proposed: createObject(elements, x =&gt; x.id, x =&gt; x.name)</span>
+<span class="hljs-keyword">var</span> <span class="hljs-variable">nameById</span> = <span class="hljs-function">reduce</span>(<span class="hljs-variable">elements</span>, {}, (<span class="hljs-variable">prev</span>, <span class="hljs-variable">cur</span>) =&gt; <span class="hljs-function">union</span>(<span class="hljs-variable">prev</span>, { <span class="hljs-string">&#39;</span><span class="hljs-subst">${</span><span class="hljs-variable">cur</span><span class="hljs-string">.</span><span class="hljs-variable">id</span><span class="hljs-subst">}</span><span class="hljs-string">&#39;</span>: <span class="hljs-variable">cur</span>.<span class="hljs-variable">name</span> }))
+
+
+    </pre>
+  </body>
+</html>

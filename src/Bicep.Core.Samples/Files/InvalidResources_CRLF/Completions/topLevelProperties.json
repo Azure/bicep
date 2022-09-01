@@ -23,7 +23,7 @@
     "detail": "extendedLocation",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `ExtendedLocation`  \nThe complex type of the extended location.  \n"
+      "value": "Type: `ExtendedLocation`  \nOptional. Set the extended location of the resource. If not set, the storage account will be created in Azure main region. Otherwise it will be created in the specified extended location  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -41,7 +41,7 @@
     "detail": "identity",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Identity`  \nIdentity for the resource.  \n"
+      "value": "Type: `Identity`  \nThe identity of the resource.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -59,7 +59,7 @@
     "detail": "kind (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `'BlobStorage' | 'BlockBlobStorage' | 'FileStorage' | 'Storage' | 'StorageV2'`  \nIndicates the type of storage account.  \n"
+      "value": "Type: `'BlobStorage' | 'BlockBlobStorage' | 'FileStorage' | 'Storage' | 'StorageV2' | string`  \nRequired. Indicates the type of storage account.  \n"
     },
     "deprecated": false,
     "preselect": true,
@@ -113,7 +113,7 @@
     "detail": "properties",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `StorageAccountPropertiesCreateParameters`  \nThe parameters used to create the storage account.  \n"
+      "value": "Type: `StorageAccountPropertiesCreateParametersOrStorageAccountProperties`  \nThe parameters used to create the storage account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -157,6 +157,7 @@
       "newText": "resource ${1:Identifier} '${2:Type}' = {\n  name: $3\n  properties: {\n    $0\n  }\n}"
     },
     "command": {
+      "title": "nested resource declaration completion snippet",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -186,6 +187,7 @@
       "newText": "resource ${1:Identifier} '${2:Type}' = {\n  name: $3\n  $0\n}"
     },
     "command": {
+      "title": "nested resource declaration completion snippet",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -203,7 +205,7 @@
     "detail": "sku (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Sku`  \nThe SKU of the storage account.  \n"
+      "value": "Type: `Sku`  \nRequired. Gets or sets the SKU name.  \n"
     },
     "deprecated": false,
     "preselect": true,

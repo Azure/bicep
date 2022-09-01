@@ -32,6 +32,7 @@ export class BicepVisualizerView extends Disposable {
 
     this.register(
       this.webviewPanel.webview.onDidReceiveMessage(
+        // eslint-disable-next-line jest/unbound-method
         this.handleDidReceiveMessage,
         this
       )
@@ -42,6 +43,7 @@ export class BicepVisualizerView extends Disposable {
     }
 
     this.registerMultiple(
+      // eslint-disable-next-line jest/unbound-method
       this.webviewPanel.onDidDispose(this.dispose, this),
       this.webviewPanel.onDidChangeViewState((e) =>
         this.onDidChangeViewStateEmitter.fire(e)
@@ -144,9 +146,15 @@ export class BicepVisualizerView extends Disposable {
       return;
     }
 
-    this.webviewPanel.webview.postMessage(
-      createDeploymentGraphMessage(this.documentUri.fsPath, deploymentGraph)
-    );
+    try {
+      await this.webviewPanel.webview.postMessage(
+        createDeploymentGraphMessage(this.documentUri.fsPath, deploymentGraph)
+      );
+    } catch (error) {
+      // Race condition: the webview was closed before receiving the message,
+      // which causes "Unknown webview handle" error.
+      getLogger().debug((error as Error).message ?? error);
+    }
   }
 
   private handleDidReceiveMessage(message: Message): void {

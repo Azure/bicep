@@ -17,7 +17,7 @@ namespace Bicep.Core.UnitTests.Assertions
         /// <summary>
         /// Prints the program syntax with line numbers and a cursor if a test fails in the given assertion scope.
         /// </summary>
-        public static AssertionScope WithVisualCursor(this AssertionScope assertionScope, BicepFile bicepFile, IPositionable cursorPosition)
+        public static AssertionScope WithVisualCursor(this AssertionScope assertionScope, IBicepSourceFile bicepFile, IPositionable cursorPosition)
             => WithAnnotatedSource(
                 assertionScope,
                 bicepFile,
@@ -27,7 +27,7 @@ namespace Bicep.Core.UnitTests.Assertions
         /// <summary>
         /// Prints the program syntax with line numbers and diagnostics if a test fails in the given assertion scope.
         /// </summary>
-        public static AssertionScope WithVisualDiagnostics(this AssertionScope assertionScope, BicepFile bicepFile, IEnumerable<IDiagnostic> diagnostics)
+        public static AssertionScope WithVisualDiagnostics(this AssertionScope assertionScope, IBicepSourceFile bicepFile, IEnumerable<IDiagnostic> diagnostics)
             => WithAnnotatedSource(
                 assertionScope,
                 bicepFile,
@@ -37,7 +37,7 @@ namespace Bicep.Core.UnitTests.Assertions
         /// <summary>
         /// Prints the entire program syntax with line numbers if a test fails in the given assertion scope.
         /// </summary>
-        public static AssertionScope WithFullSource(this AssertionScope assertionScope, BicepFile bicepFile)
+        public static AssertionScope WithFullSource(this AssertionScope assertionScope, IBicepSourceFile bicepFile)
         {
             assertionScope.AddReportable(
                 "source",
@@ -46,7 +46,7 @@ namespace Bicep.Core.UnitTests.Assertions
             return assertionScope;
         }
 
-        public static AssertionScope WithAnnotatedSource(AssertionScope assertionScope, BicepFile bicepFile, string contextName, IEnumerable<PrintHelper.Annotation> annotations)
+        public static AssertionScope WithAnnotatedSource(AssertionScope assertionScope, IBicepSourceFile bicepFile, string contextName, IEnumerable<PrintHelper.Annotation> annotations)
         {
             assertionScope.AddReportable(
                 contextName,

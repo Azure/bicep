@@ -1,1216 +1,1216 @@
 /* 
   Valid and invalid code is mixed together to validate recovery logic. It can even contain ** * *** **.
 */
-//@[2:4) NewLine |\n\n|
+//@[002:004) NewLine |\n\n|
 
 param myString string
-//@[0:5) Identifier |param|
-//@[6:14) Identifier |myString|
-//@[15:21) Identifier |string|
-//@[21:22) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:014) Identifier |myString|
+//@[015:021) Identifier |string|
+//@[021:022) NewLine |\n|
 wrong
-//@[0:5) Identifier |wrong|
-//@[5:7) NewLine |\n\n|
+//@[000:005) Identifier |wrong|
+//@[005:007) NewLine |\n\n|
 
 param myInt int
-//@[0:5) Identifier |param|
-//@[6:11) Identifier |myInt|
-//@[12:15) Identifier |int|
-//@[15:16) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:011) Identifier |myInt|
+//@[012:015) Identifier |int|
+//@[015:016) NewLine |\n|
 param
-//@[0:5) Identifier |param|
-//@[5:7) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[005:007) NewLine |\n\n|
 
 param 3
-//@[0:5) Identifier |param|
-//@[6:7) Integer |3|
-//@[7:8) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:007) Integer |3|
+//@[007:008) NewLine |\n|
 param % string
-//@[0:5) Identifier |param|
-//@[6:7) Modulo |%|
-//@[8:14) Identifier |string|
-//@[14:15) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:007) Modulo |%|
+//@[008:014) Identifier |string|
+//@[014:015) NewLine |\n|
 param % string 3 = 's'
-//@[0:5) Identifier |param|
-//@[6:7) Modulo |%|
-//@[8:14) Identifier |string|
-//@[15:16) Integer |3|
-//@[17:18) Assignment |=|
-//@[19:22) StringComplete |'s'|
-//@[22:24) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:007) Modulo |%|
+//@[008:014) Identifier |string|
+//@[015:016) Integer |3|
+//@[017:018) Assignment |=|
+//@[019:022) StringComplete |'s'|
+//@[022:024) NewLine |\n\n|
 
 param myBool bool
-//@[0:5) Identifier |param|
-//@[6:12) Identifier |myBool|
-//@[13:17) Identifier |bool|
-//@[17:19) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:012) Identifier |myBool|
+//@[013:017) Identifier |bool|
+//@[017:019) NewLine |\n\n|
 
 param missingType
-//@[0:5) Identifier |param|
-//@[6:17) Identifier |missingType|
-//@[17:19) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:017) Identifier |missingType|
+//@[017:019) NewLine |\n\n|
 
 // space after identifier #completionTest(32) -> paramTypes
-//@[59:60) NewLine |\n|
+//@[059:060) NewLine |\n|
 param missingTypeWithSpaceAfter 
-//@[0:5) Identifier |param|
-//@[6:31) Identifier |missingTypeWithSpaceAfter|
-//@[32:34) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:031) Identifier |missingTypeWithSpaceAfter|
+//@[032:034) NewLine |\n\n|
 
 // tab after identifier #completionTest(30) -> paramTypes
-//@[57:58) NewLine |\n|
+//@[057:058) NewLine |\n|
 param missingTypeWithTabAfter	
-//@[0:5) Identifier |param|
-//@[6:29) Identifier |missingTypeWithTabAfter|
-//@[30:32) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:029) Identifier |missingTypeWithTabAfter|
+//@[030:032) NewLine |\n\n|
 
 // #completionTest(20) -> paramTypes
-//@[36:37) NewLine |\n|
+//@[036:037) NewLine |\n|
 param trailingSpace  
-//@[0:5) Identifier |param|
-//@[6:19) Identifier |trailingSpace|
-//@[21:23) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:019) Identifier |trailingSpace|
+//@[021:023) NewLine |\n\n|
 
 // partial type #completionTest(18, 19, 20, 21) -> paramTypes
-//@[61:62) NewLine |\n|
+//@[061:062) NewLine |\n|
 param partialType str
-//@[0:5) Identifier |param|
-//@[6:17) Identifier |partialType|
-//@[18:21) Identifier |str|
-//@[21:23) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:017) Identifier |partialType|
+//@[018:021) Identifier |str|
+//@[021:023) NewLine |\n\n|
 
 param malformedType 44
-//@[0:5) Identifier |param|
-//@[6:19) Identifier |malformedType|
-//@[20:22) Integer |44|
-//@[22:24) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:019) Identifier |malformedType|
+//@[020:022) Integer |44|
+//@[022:024) NewLine |\n\n|
 
 // malformed type but type check should still happen
-//@[52:53) NewLine |\n|
+//@[052:053) NewLine |\n|
 param malformedType2 44 = f
-//@[0:5) Identifier |param|
-//@[6:20) Identifier |malformedType2|
-//@[21:23) Integer |44|
-//@[24:25) Assignment |=|
-//@[26:27) Identifier |f|
-//@[27:29) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:020) Identifier |malformedType2|
+//@[021:023) Integer |44|
+//@[024:025) Assignment |=|
+//@[026:027) Identifier |f|
+//@[027:029) NewLine |\n\n|
 
 // malformed type but type check should still happen
-//@[52:53) NewLine |\n|
+//@[052:053) NewLine |\n|
 @secure('s')
-//@[0:1) At |@|
-//@[1:7) Identifier |secure|
-//@[7:8) LeftParen |(|
-//@[8:11) StringComplete |'s'|
-//@[11:12) RightParen |)|
-//@[12:13) NewLine |\n|
+//@[000:001) At |@|
+//@[001:007) Identifier |secure|
+//@[007:008) LeftParen |(|
+//@[008:011) StringComplete |'s'|
+//@[011:012) RightParen |)|
+//@[012:013) NewLine |\n|
 param malformedModifier 44
-//@[0:5) Identifier |param|
-//@[6:23) Identifier |malformedModifier|
-//@[24:26) Integer |44|
-//@[26:28) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:023) Identifier |malformedModifier|
+//@[024:026) Integer |44|
+//@[026:028) NewLine |\n\n|
 
 param myString2 string = 'string value'
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |myString2|
-//@[16:22) Identifier |string|
-//@[23:24) Assignment |=|
-//@[25:39) StringComplete |'string value'|
-//@[39:41) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |myString2|
+//@[016:022) Identifier |string|
+//@[023:024) Assignment |=|
+//@[025:039) StringComplete |'string value'|
+//@[039:041) NewLine |\n\n|
 
 param wrongDefaultValue string = 42
-//@[0:5) Identifier |param|
-//@[6:23) Identifier |wrongDefaultValue|
-//@[24:30) Identifier |string|
-//@[31:32) Assignment |=|
-//@[33:35) Integer |42|
-//@[35:37) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:023) Identifier |wrongDefaultValue|
+//@[024:030) Identifier |string|
+//@[031:032) Assignment |=|
+//@[033:035) Integer |42|
+//@[035:037) NewLine |\n\n|
 
 param myInt2 int = 42
-//@[0:5) Identifier |param|
-//@[6:12) Identifier |myInt2|
-//@[13:16) Identifier |int|
-//@[17:18) Assignment |=|
-//@[19:21) Integer |42|
-//@[21:22) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:012) Identifier |myInt2|
+//@[013:016) Identifier |int|
+//@[017:018) Assignment |=|
+//@[019:021) Integer |42|
+//@[021:022) NewLine |\n|
 param noValueAfterColon int =   
-//@[0:5) Identifier |param|
-//@[6:23) Identifier |noValueAfterColon|
-//@[24:27) Identifier |int|
-//@[28:29) Assignment |=|
-//@[32:34) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:023) Identifier |noValueAfterColon|
+//@[024:027) Identifier |int|
+//@[028:029) Assignment |=|
+//@[032:034) NewLine |\n\n|
 
 param myTruth bool = 'not a boolean'
-//@[0:5) Identifier |param|
-//@[6:13) Identifier |myTruth|
-//@[14:18) Identifier |bool|
-//@[19:20) Assignment |=|
-//@[21:36) StringComplete |'not a boolean'|
-//@[36:37) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:013) Identifier |myTruth|
+//@[014:018) Identifier |bool|
+//@[019:020) Assignment |=|
+//@[021:036) StringComplete |'not a boolean'|
+//@[036:037) NewLine |\n|
 param myFalsehood bool = 'false'
-//@[0:5) Identifier |param|
-//@[6:17) Identifier |myFalsehood|
-//@[18:22) Identifier |bool|
-//@[23:24) Assignment |=|
-//@[25:32) StringComplete |'false'|
-//@[32:34) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:017) Identifier |myFalsehood|
+//@[018:022) Identifier |bool|
+//@[023:024) Assignment |=|
+//@[025:032) StringComplete |'false'|
+//@[032:034) NewLine |\n\n|
 
 param wrongAssignmentToken string: 'hello'
-//@[0:5) Identifier |param|
-//@[6:26) Identifier |wrongAssignmentToken|
-//@[27:33) Identifier |string|
-//@[33:34) Colon |:|
-//@[35:42) StringComplete |'hello'|
-//@[42:44) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:026) Identifier |wrongAssignmentToken|
+//@[027:033) Identifier |string|
+//@[033:034) Colon |:|
+//@[035:042) StringComplete |'hello'|
+//@[042:044) NewLine |\n\n|
 
 param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong string = 'why not?'
-//@[0:5) Identifier |param|
-//@[6:267) Identifier |WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong|
+//@[000:005) Identifier |param|
+//@[006:267) Identifier |WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong|
 //@[268:274) Identifier |string|
 //@[275:276) Assignment |=|
 //@[277:287) StringComplete |'why not?'|
 //@[287:289) NewLine |\n\n|
 
 // #completionTest(28,29) -> boolPlusSymbols
-//@[44:45) NewLine |\n|
+//@[044:045) NewLine |\n|
 param boolCompletions bool = 
-//@[0:5) Identifier |param|
-//@[6:21) Identifier |boolCompletions|
-//@[22:26) Identifier |bool|
-//@[27:28) Assignment |=|
-//@[29:31) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:021) Identifier |boolCompletions|
+//@[022:026) Identifier |bool|
+//@[027:028) Assignment |=|
+//@[029:031) NewLine |\n\n|
 
 // #completionTest(30,31) -> arrayPlusSymbols
-//@[45:46) NewLine |\n|
+//@[045:046) NewLine |\n|
 param arrayCompletions array = 
-//@[0:5) Identifier |param|
-//@[6:22) Identifier |arrayCompletions|
-//@[23:28) Identifier |array|
-//@[29:30) Assignment |=|
-//@[31:33) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:022) Identifier |arrayCompletions|
+//@[023:028) Identifier |array|
+//@[029:030) Assignment |=|
+//@[031:033) NewLine |\n\n|
 
 // #completionTest(32,33) -> objectPlusSymbols
-//@[46:47) NewLine |\n|
+//@[046:047) NewLine |\n|
 param objectCompletions object = 
-//@[0:5) Identifier |param|
-//@[6:23) Identifier |objectCompletions|
-//@[24:30) Identifier |object|
-//@[31:32) Assignment |=|
-//@[33:35) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:023) Identifier |objectCompletions|
+//@[024:030) Identifier |object|
+//@[031:032) Assignment |=|
+//@[033:035) NewLine |\n\n|
 
 // badly escaped string
-//@[23:24) NewLine |\n|
+//@[023:024) NewLine |\n|
 param wrongType fluffyBunny = 'what's up doc?'
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |wrongType|
-//@[16:27) Identifier |fluffyBunny|
-//@[28:29) Assignment |=|
-//@[30:36) StringComplete |'what'|
-//@[36:37) Identifier |s|
-//@[38:40) Identifier |up|
-//@[41:44) Identifier |doc|
-//@[44:45) Question |?|
-//@[45:46) StringComplete |'|
-//@[46:48) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |wrongType|
+//@[016:027) Identifier |fluffyBunny|
+//@[028:029) Assignment |=|
+//@[030:036) StringComplete |'what'|
+//@[036:037) Identifier |s|
+//@[038:040) Identifier |up|
+//@[041:044) Identifier |doc|
+//@[044:045) Question |?|
+//@[045:046) StringComplete |'|
+//@[046:048) NewLine |\n\n|
 
 // invalid escape
-//@[17:18) NewLine |\n|
+//@[017:018) NewLine |\n|
 param wrongType fluffyBunny = 'what\s up doc?'
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |wrongType|
-//@[16:27) Identifier |fluffyBunny|
-//@[28:29) Assignment |=|
-//@[30:46) StringComplete |'what\s up doc?'|
-//@[46:48) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |wrongType|
+//@[016:027) Identifier |fluffyBunny|
+//@[028:029) Assignment |=|
+//@[030:046) StringComplete |'what\s up doc?'|
+//@[046:048) NewLine |\n\n|
 
 // unterminated string 
-//@[23:24) NewLine |\n|
+//@[023:024) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s up doc?
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |wrongType|
-//@[16:27) Identifier |fluffyBunny|
-//@[28:29) Assignment |=|
-//@[30:46) StringComplete |'what\'s up doc?|
-//@[46:48) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |wrongType|
+//@[016:027) Identifier |fluffyBunny|
+//@[028:029) Assignment |=|
+//@[030:046) StringComplete |'what\'s up doc?|
+//@[046:048) NewLine |\n\n|
 
 // unterminated interpolated string
-//@[35:36) NewLine |\n|
+//@[035:036) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |wrongType|
-//@[16:27) Identifier |fluffyBunny|
-//@[28:29) Assignment |=|
-//@[30:41) StringLeftPiece |'what\'s ${|
-//@[41:41) StringRightPiece ||
-//@[41:42) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |wrongType|
+//@[016:027) Identifier |fluffyBunny|
+//@[028:029) Assignment |=|
+//@[030:041) StringLeftPiece |'what\'s ${|
+//@[041:041) StringRightPiece ||
+//@[041:042) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${up
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |wrongType|
-//@[16:27) Identifier |fluffyBunny|
-//@[28:29) Assignment |=|
-//@[30:41) StringLeftPiece |'what\'s ${|
-//@[41:43) Identifier |up|
-//@[43:43) StringRightPiece ||
-//@[43:44) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |wrongType|
+//@[016:027) Identifier |fluffyBunny|
+//@[028:029) Assignment |=|
+//@[030:041) StringLeftPiece |'what\'s ${|
+//@[041:043) Identifier |up|
+//@[043:043) StringRightPiece ||
+//@[043:044) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${up}
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |wrongType|
-//@[16:27) Identifier |fluffyBunny|
-//@[28:29) Assignment |=|
-//@[30:41) StringLeftPiece |'what\'s ${|
-//@[41:43) Identifier |up|
-//@[43:44) StringRightPiece |}|
-//@[44:45) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |wrongType|
+//@[016:027) Identifier |fluffyBunny|
+//@[028:029) Assignment |=|
+//@[030:041) StringLeftPiece |'what\'s ${|
+//@[041:043) Identifier |up|
+//@[043:044) StringRightPiece |}|
+//@[044:045) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |wrongType|
-//@[16:27) Identifier |fluffyBunny|
-//@[28:29) Assignment |=|
-//@[30:41) StringLeftPiece |'what\'s ${|
-//@[41:44) StringComplete |'up|
-//@[44:44) StringRightPiece ||
-//@[44:46) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |wrongType|
+//@[016:027) Identifier |fluffyBunny|
+//@[028:029) Assignment |=|
+//@[030:041) StringLeftPiece |'what\'s ${|
+//@[041:044) StringComplete |'up|
+//@[044:044) StringRightPiece ||
+//@[044:046) NewLine |\n\n|
 
 // unterminated nested interpolated string
-//@[42:43) NewLine |\n|
+//@[042:043) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |wrongType|
-//@[16:27) Identifier |fluffyBunny|
-//@[28:29) Assignment |=|
-//@[30:41) StringLeftPiece |'what\'s ${|
-//@[41:46) StringLeftPiece |'up${|
-//@[46:46) StringRightPiece ||
-//@[46:47) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |wrongType|
+//@[016:027) Identifier |fluffyBunny|
+//@[028:029) Assignment |=|
+//@[030:041) StringLeftPiece |'what\'s ${|
+//@[041:046) StringLeftPiece |'up${|
+//@[046:046) StringRightPiece ||
+//@[046:047) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |wrongType|
-//@[16:27) Identifier |fluffyBunny|
-//@[28:29) Assignment |=|
-//@[30:41) StringLeftPiece |'what\'s ${|
-//@[41:46) StringLeftPiece |'up${|
-//@[46:46) StringRightPiece ||
-//@[46:47) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |wrongType|
+//@[016:027) Identifier |fluffyBunny|
+//@[028:029) Assignment |=|
+//@[030:041) StringLeftPiece |'what\'s ${|
+//@[041:046) StringLeftPiece |'up${|
+//@[046:046) StringRightPiece ||
+//@[046:047) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |wrongType|
-//@[16:27) Identifier |fluffyBunny|
-//@[28:29) Assignment |=|
-//@[30:41) StringLeftPiece |'what\'s ${|
-//@[41:46) StringLeftPiece |'up${|
-//@[46:49) Identifier |doc|
-//@[49:49) StringRightPiece ||
-//@[49:50) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |wrongType|
+//@[016:027) Identifier |fluffyBunny|
+//@[028:029) Assignment |=|
+//@[030:041) StringLeftPiece |'what\'s ${|
+//@[041:046) StringLeftPiece |'up${|
+//@[046:049) Identifier |doc|
+//@[049:049) StringRightPiece ||
+//@[049:050) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc}
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |wrongType|
-//@[16:27) Identifier |fluffyBunny|
-//@[28:29) Assignment |=|
-//@[30:41) StringLeftPiece |'what\'s ${|
-//@[41:46) StringLeftPiece |'up${|
-//@[46:49) Identifier |doc|
-//@[49:50) StringRightPiece |}|
-//@[50:50) StringRightPiece ||
-//@[50:51) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |wrongType|
+//@[016:027) Identifier |fluffyBunny|
+//@[028:029) Assignment |=|
+//@[030:041) StringLeftPiece |'what\'s ${|
+//@[041:046) StringLeftPiece |'up${|
+//@[046:049) Identifier |doc|
+//@[049:050) StringRightPiece |}|
+//@[050:050) StringRightPiece ||
+//@[050:051) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |wrongType|
-//@[16:27) Identifier |fluffyBunny|
-//@[28:29) Assignment |=|
-//@[30:41) StringLeftPiece |'what\'s ${|
-//@[41:46) StringLeftPiece |'up${|
-//@[46:49) Identifier |doc|
-//@[49:51) StringRightPiece |}'|
-//@[51:51) StringRightPiece ||
-//@[51:52) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |wrongType|
+//@[016:027) Identifier |fluffyBunny|
+//@[028:029) Assignment |=|
+//@[030:041) StringLeftPiece |'what\'s ${|
+//@[041:046) StringLeftPiece |'up${|
+//@[046:049) Identifier |doc|
+//@[049:051) StringRightPiece |}'|
+//@[051:051) StringRightPiece ||
+//@[051:052) NewLine |\n|
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |wrongType|
-//@[16:27) Identifier |fluffyBunny|
-//@[28:29) Assignment |=|
-//@[30:41) StringLeftPiece |'what\'s ${|
-//@[41:46) StringLeftPiece |'up${|
-//@[46:49) Identifier |doc|
-//@[49:51) StringRightPiece |}'|
-//@[51:53) StringRightPiece |}?|
-//@[53:55) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |wrongType|
+//@[016:027) Identifier |fluffyBunny|
+//@[028:029) Assignment |=|
+//@[030:041) StringLeftPiece |'what\'s ${|
+//@[041:046) StringLeftPiece |'up${|
+//@[046:049) Identifier |doc|
+//@[049:051) StringRightPiece |}'|
+//@[051:053) StringRightPiece |}?|
+//@[053:055) NewLine |\n\n|
 
 // object literal inside interpolated string
-//@[44:45) NewLine |\n|
+//@[044:045) NewLine |\n|
 param wrongType fluffyBunny = '${{this: doesnt}.work}'
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |wrongType|
-//@[16:27) Identifier |fluffyBunny|
-//@[28:29) Assignment |=|
-//@[30:33) StringLeftPiece |'${|
-//@[33:34) LeftBrace |{|
-//@[34:38) Identifier |this|
-//@[38:39) Colon |:|
-//@[40:46) Identifier |doesnt|
-//@[46:47) RightBrace |}|
-//@[47:48) Dot |.|
-//@[48:52) Identifier |work|
-//@[52:53) RightBrace |}|
-//@[53:54) StringComplete |'|
-//@[54:54) StringRightPiece ||
-//@[54:56) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |wrongType|
+//@[016:027) Identifier |fluffyBunny|
+//@[028:029) Assignment |=|
+//@[030:033) StringLeftPiece |'${|
+//@[033:034) LeftBrace |{|
+//@[034:038) Identifier |this|
+//@[038:039) Colon |:|
+//@[040:046) Identifier |doesnt|
+//@[046:047) RightBrace |}|
+//@[047:048) Dot |.|
+//@[048:052) Identifier |work|
+//@[052:053) RightBrace |}|
+//@[053:054) StringComplete |'|
+//@[054:054) StringRightPiece ||
+//@[054:056) NewLine |\n\n|
 
 // bad interpolated string format
-//@[33:34) NewLine |\n|
+//@[033:034) NewLine |\n|
 param badInterpolatedString string = 'hello ${}!'
-//@[0:5) Identifier |param|
-//@[6:27) Identifier |badInterpolatedString|
-//@[28:34) Identifier |string|
-//@[35:36) Assignment |=|
-//@[37:46) StringLeftPiece |'hello ${|
-//@[46:49) StringRightPiece |}!'|
-//@[49:50) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:027) Identifier |badInterpolatedString|
+//@[028:034) Identifier |string|
+//@[035:036) Assignment |=|
+//@[037:046) StringLeftPiece |'hello ${|
+//@[046:049) StringRightPiece |}!'|
+//@[049:050) NewLine |\n|
 param badInterpolatedString2 string = 'hello ${a b c}!'
-//@[0:5) Identifier |param|
-//@[6:28) Identifier |badInterpolatedString2|
-//@[29:35) Identifier |string|
-//@[36:37) Assignment |=|
-//@[38:47) StringLeftPiece |'hello ${|
-//@[47:48) Identifier |a|
-//@[49:50) Identifier |b|
-//@[51:52) Identifier |c|
-//@[52:55) StringRightPiece |}!'|
-//@[55:57) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:028) Identifier |badInterpolatedString2|
+//@[029:035) Identifier |string|
+//@[036:037) Assignment |=|
+//@[038:047) StringLeftPiece |'hello ${|
+//@[047:048) Identifier |a|
+//@[049:050) Identifier |b|
+//@[051:052) Identifier |c|
+//@[052:055) StringRightPiece |}!'|
+//@[055:057) NewLine |\n\n|
 
 param wrongType fluffyBunny = 'what\'s up doc?'
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |wrongType|
-//@[16:27) Identifier |fluffyBunny|
-//@[28:29) Assignment |=|
-//@[30:47) StringComplete |'what\'s up doc?'|
-//@[47:49) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |wrongType|
+//@[016:027) Identifier |fluffyBunny|
+//@[028:029) Assignment |=|
+//@[030:047) StringComplete |'what\'s up doc?'|
+//@[047:049) NewLine |\n\n|
 
 // modifier on an invalid type
-//@[30:31) NewLine |\n|
+//@[030:031) NewLine |\n|
 @minLength(3)
-//@[0:1) At |@|
-//@[1:10) Identifier |minLength|
-//@[10:11) LeftParen |(|
-//@[11:12) Integer |3|
-//@[12:13) RightParen |)|
-//@[13:14) NewLine |\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |minLength|
+//@[010:011) LeftParen |(|
+//@[011:012) Integer |3|
+//@[012:013) RightParen |)|
+//@[013:014) NewLine |\n|
 @maxLength(24)
-//@[0:1) At |@|
-//@[1:10) Identifier |maxLength|
-//@[10:11) LeftParen |(|
-//@[11:13) Integer |24|
-//@[13:14) RightParen |)|
-//@[14:15) NewLine |\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |maxLength|
+//@[010:011) LeftParen |(|
+//@[011:013) Integer |24|
+//@[013:014) RightParen |)|
+//@[014:015) NewLine |\n|
 param someArray arra
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |someArray|
-//@[16:20) Identifier |arra|
-//@[20:22) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |someArray|
+//@[016:020) Identifier |arra|
+//@[020:022) NewLine |\n\n|
 
 @secure()
-//@[0:1) At |@|
-//@[1:7) Identifier |secure|
-//@[7:8) LeftParen |(|
-//@[8:9) RightParen |)|
-//@[9:10) NewLine |\n|
+//@[000:001) At |@|
+//@[001:007) Identifier |secure|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
 @minLength(3)
-//@[0:1) At |@|
-//@[1:10) Identifier |minLength|
-//@[10:11) LeftParen |(|
-//@[11:12) Integer |3|
-//@[12:13) RightParen |)|
-//@[13:14) NewLine |\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |minLength|
+//@[010:011) LeftParen |(|
+//@[011:012) Integer |3|
+//@[012:013) RightParen |)|
+//@[013:014) NewLine |\n|
 @maxLength(123)
-//@[0:1) At |@|
-//@[1:10) Identifier |maxLength|
-//@[10:11) LeftParen |(|
-//@[11:14) Integer |123|
-//@[14:15) RightParen |)|
-//@[15:16) NewLine |\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |maxLength|
+//@[010:011) LeftParen |(|
+//@[011:014) Integer |123|
+//@[014:015) RightParen |)|
+//@[015:016) NewLine |\n|
 param secureInt int
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |secureInt|
-//@[16:19) Identifier |int|
-//@[19:21) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |secureInt|
+//@[016:019) Identifier |int|
+//@[019:021) NewLine |\n\n|
 
 // wrong modifier value types
-//@[29:30) NewLine |\n|
+//@[029:030) NewLine |\n|
 @allowed([
-//@[0:1) At |@|
-//@[1:8) Identifier |allowed|
-//@[8:9) LeftParen |(|
-//@[9:10) LeftSquare |[|
-//@[10:11) NewLine |\n|
+//@[000:001) At |@|
+//@[001:008) Identifier |allowed|
+//@[008:009) LeftParen |(|
+//@[009:010) LeftSquare |[|
+//@[010:011) NewLine |\n|
   'test'
-//@[2:8) StringComplete |'test'|
-//@[8:9) NewLine |\n|
+//@[002:008) StringComplete |'test'|
+//@[008:009) NewLine |\n|
   true
-//@[2:6) TrueKeyword |true|
-//@[6:7) NewLine |\n|
+//@[002:006) TrueKeyword |true|
+//@[006:007) NewLine |\n|
 ])
-//@[0:1) RightSquare |]|
-//@[1:2) RightParen |)|
-//@[2:3) NewLine |\n|
+//@[000:001) RightSquare |]|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
 @minValue({
-//@[0:1) At |@|
-//@[1:9) Identifier |minValue|
-//@[9:10) LeftParen |(|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[000:001) At |@|
+//@[001:009) Identifier |minValue|
+//@[009:010) LeftParen |(|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
 })
-//@[0:1) RightBrace |}|
-//@[1:2) RightParen |)|
-//@[2:3) NewLine |\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
 @maxValue([
-//@[0:1) At |@|
-//@[1:9) Identifier |maxValue|
-//@[9:10) LeftParen |(|
-//@[10:11) LeftSquare |[|
-//@[11:12) NewLine |\n|
+//@[000:001) At |@|
+//@[001:009) Identifier |maxValue|
+//@[009:010) LeftParen |(|
+//@[010:011) LeftSquare |[|
+//@[011:012) NewLine |\n|
 ])
-//@[0:1) RightSquare |]|
-//@[1:2) RightParen |)|
-//@[2:3) NewLine |\n|
+//@[000:001) RightSquare |]|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
 @metadata('wrong')
-//@[0:1) At |@|
-//@[1:9) Identifier |metadata|
-//@[9:10) LeftParen |(|
-//@[10:17) StringComplete |'wrong'|
-//@[17:18) RightParen |)|
-//@[18:19) NewLine |\n|
+//@[000:001) At |@|
+//@[001:009) Identifier |metadata|
+//@[009:010) LeftParen |(|
+//@[010:017) StringComplete |'wrong'|
+//@[017:018) RightParen |)|
+//@[018:019) NewLine |\n|
 param wrongIntModifier int = true
-//@[0:5) Identifier |param|
-//@[6:22) Identifier |wrongIntModifier|
-//@[23:26) Identifier |int|
-//@[27:28) Assignment |=|
-//@[29:33) TrueKeyword |true|
-//@[33:35) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:022) Identifier |wrongIntModifier|
+//@[023:026) Identifier |int|
+//@[027:028) Assignment |=|
+//@[029:033) TrueKeyword |true|
+//@[033:035) NewLine |\n\n|
 
 @metadata(any([]))
-//@[0:1) At |@|
-//@[1:9) Identifier |metadata|
-//@[9:10) LeftParen |(|
-//@[10:13) Identifier |any|
-//@[13:14) LeftParen |(|
-//@[14:15) LeftSquare |[|
-//@[15:16) RightSquare |]|
-//@[16:17) RightParen |)|
-//@[17:18) RightParen |)|
-//@[18:19) NewLine |\n|
+//@[000:001) At |@|
+//@[001:009) Identifier |metadata|
+//@[009:010) LeftParen |(|
+//@[010:013) Identifier |any|
+//@[013:014) LeftParen |(|
+//@[014:015) LeftSquare |[|
+//@[015:016) RightSquare |]|
+//@[016:017) RightParen |)|
+//@[017:018) RightParen |)|
+//@[018:019) NewLine |\n|
 @allowed(any(2))
-//@[0:1) At |@|
-//@[1:8) Identifier |allowed|
-//@[8:9) LeftParen |(|
-//@[9:12) Identifier |any|
-//@[12:13) LeftParen |(|
-//@[13:14) Integer |2|
-//@[14:15) RightParen |)|
-//@[15:16) RightParen |)|
-//@[16:17) NewLine |\n|
+//@[000:001) At |@|
+//@[001:008) Identifier |allowed|
+//@[008:009) LeftParen |(|
+//@[009:012) Identifier |any|
+//@[012:013) LeftParen |(|
+//@[013:014) Integer |2|
+//@[014:015) RightParen |)|
+//@[015:016) RightParen |)|
+//@[016:017) NewLine |\n|
 param fatalErrorInIssue1713
-//@[0:5) Identifier |param|
-//@[6:27) Identifier |fatalErrorInIssue1713|
-//@[27:29) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:027) Identifier |fatalErrorInIssue1713|
+//@[027:029) NewLine |\n\n|
 
 // wrong metadata schema
-//@[24:25) NewLine |\n|
+//@[024:025) NewLine |\n|
 @metadata({
-//@[0:1) At |@|
-//@[1:9) Identifier |metadata|
-//@[9:10) LeftParen |(|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[000:001) At |@|
+//@[001:009) Identifier |metadata|
+//@[009:010) LeftParen |(|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
   description: true
-//@[2:13) Identifier |description|
-//@[13:14) Colon |:|
-//@[15:19) TrueKeyword |true|
-//@[19:20) NewLine |\n|
+//@[002:013) Identifier |description|
+//@[013:014) Colon |:|
+//@[015:019) TrueKeyword |true|
+//@[019:020) NewLine |\n|
 })
-//@[0:1) RightBrace |}|
-//@[1:2) RightParen |)|
-//@[2:3) NewLine |\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
 param wrongMetadataSchema string
-//@[0:5) Identifier |param|
-//@[6:25) Identifier |wrongMetadataSchema|
-//@[26:32) Identifier |string|
-//@[32:34) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:025) Identifier |wrongMetadataSchema|
+//@[026:032) Identifier |string|
+//@[032:034) NewLine |\n\n|
 
 // expression in modifier
-//@[25:26) NewLine |\n|
+//@[025:026) NewLine |\n|
 @maxLength(a + 2)
-//@[0:1) At |@|
-//@[1:10) Identifier |maxLength|
-//@[10:11) LeftParen |(|
-//@[11:12) Identifier |a|
-//@[13:14) Plus |+|
-//@[15:16) Integer |2|
-//@[16:17) RightParen |)|
-//@[17:18) NewLine |\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |maxLength|
+//@[010:011) LeftParen |(|
+//@[011:012) Identifier |a|
+//@[013:014) Plus |+|
+//@[015:016) Integer |2|
+//@[016:017) RightParen |)|
+//@[017:018) NewLine |\n|
 @minLength(foo())
-//@[0:1) At |@|
-//@[1:10) Identifier |minLength|
-//@[10:11) LeftParen |(|
-//@[11:14) Identifier |foo|
-//@[14:15) LeftParen |(|
-//@[15:16) RightParen |)|
-//@[16:17) RightParen |)|
-//@[17:18) NewLine |\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |minLength|
+//@[010:011) LeftParen |(|
+//@[011:014) Identifier |foo|
+//@[014:015) LeftParen |(|
+//@[015:016) RightParen |)|
+//@[016:017) RightParen |)|
+//@[017:018) NewLine |\n|
 @allowed([
-//@[0:1) At |@|
-//@[1:8) Identifier |allowed|
-//@[8:9) LeftParen |(|
-//@[9:10) LeftSquare |[|
-//@[10:11) NewLine |\n|
+//@[000:001) At |@|
+//@[001:008) Identifier |allowed|
+//@[008:009) LeftParen |(|
+//@[009:010) LeftSquare |[|
+//@[010:011) NewLine |\n|
   i
-//@[2:3) Identifier |i|
-//@[3:4) NewLine |\n|
+//@[002:003) Identifier |i|
+//@[003:004) NewLine |\n|
 ])
-//@[0:1) RightSquare |]|
-//@[1:2) RightParen |)|
-//@[2:3) NewLine |\n|
+//@[000:001) RightSquare |]|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
 param expressionInModifier string = 2 + 3
-//@[0:5) Identifier |param|
-//@[6:26) Identifier |expressionInModifier|
-//@[27:33) Identifier |string|
-//@[34:35) Assignment |=|
-//@[36:37) Integer |2|
-//@[38:39) Plus |+|
-//@[40:41) Integer |3|
-//@[41:43) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:026) Identifier |expressionInModifier|
+//@[027:033) Identifier |string|
+//@[034:035) Assignment |=|
+//@[036:037) Integer |2|
+//@[038:039) Plus |+|
+//@[040:041) Integer |3|
+//@[041:043) NewLine |\n\n|
 
 @maxLength(2 + 3)
-//@[0:1) At |@|
-//@[1:10) Identifier |maxLength|
-//@[10:11) LeftParen |(|
-//@[11:12) Integer |2|
-//@[13:14) Plus |+|
-//@[15:16) Integer |3|
-//@[16:17) RightParen |)|
-//@[17:18) NewLine |\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |maxLength|
+//@[010:011) LeftParen |(|
+//@[011:012) Integer |2|
+//@[013:014) Plus |+|
+//@[015:016) Integer |3|
+//@[016:017) RightParen |)|
+//@[017:018) NewLine |\n|
 @minLength(length([]))
-//@[0:1) At |@|
-//@[1:10) Identifier |minLength|
-//@[10:11) LeftParen |(|
-//@[11:17) Identifier |length|
-//@[17:18) LeftParen |(|
-//@[18:19) LeftSquare |[|
-//@[19:20) RightSquare |]|
-//@[20:21) RightParen |)|
-//@[21:22) RightParen |)|
-//@[22:23) NewLine |\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |minLength|
+//@[010:011) LeftParen |(|
+//@[011:017) Identifier |length|
+//@[017:018) LeftParen |(|
+//@[018:019) LeftSquare |[|
+//@[019:020) RightSquare |]|
+//@[020:021) RightParen |)|
+//@[021:022) RightParen |)|
+//@[022:023) NewLine |\n|
 @allowed([
-//@[0:1) At |@|
-//@[1:8) Identifier |allowed|
-//@[8:9) LeftParen |(|
-//@[9:10) LeftSquare |[|
-//@[10:11) NewLine |\n|
+//@[000:001) At |@|
+//@[001:008) Identifier |allowed|
+//@[008:009) LeftParen |(|
+//@[009:010) LeftSquare |[|
+//@[010:011) NewLine |\n|
   resourceGroup().id
-//@[2:15) Identifier |resourceGroup|
-//@[15:16) LeftParen |(|
-//@[16:17) RightParen |)|
-//@[17:18) Dot |.|
-//@[18:20) Identifier |id|
-//@[20:21) NewLine |\n|
+//@[002:015) Identifier |resourceGroup|
+//@[015:016) LeftParen |(|
+//@[016:017) RightParen |)|
+//@[017:018) Dot |.|
+//@[018:020) Identifier |id|
+//@[020:021) NewLine |\n|
 ])
-//@[0:1) RightSquare |]|
-//@[1:2) RightParen |)|
-//@[2:3) NewLine |\n|
+//@[000:001) RightSquare |]|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
 param nonCompileTimeConstant string
-//@[0:5) Identifier |param|
-//@[6:28) Identifier |nonCompileTimeConstant|
-//@[29:35) Identifier |string|
-//@[35:38) NewLine |\n\n\n|
+//@[000:005) Identifier |param|
+//@[006:028) Identifier |nonCompileTimeConstant|
+//@[029:035) Identifier |string|
+//@[035:038) NewLine |\n\n\n|
 
 
 @allowed([])
-//@[0:1) At |@|
-//@[1:8) Identifier |allowed|
-//@[8:9) LeftParen |(|
-//@[9:10) LeftSquare |[|
-//@[10:11) RightSquare |]|
-//@[11:12) RightParen |)|
-//@[12:13) NewLine |\n|
+//@[000:001) At |@|
+//@[001:008) Identifier |allowed|
+//@[008:009) LeftParen |(|
+//@[009:010) LeftSquare |[|
+//@[010:011) RightSquare |]|
+//@[011:012) RightParen |)|
+//@[012:013) NewLine |\n|
 param emptyAllowedString string
-//@[0:5) Identifier |param|
-//@[6:24) Identifier |emptyAllowedString|
-//@[25:31) Identifier |string|
-//@[31:33) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:024) Identifier |emptyAllowedString|
+//@[025:031) Identifier |string|
+//@[031:033) NewLine |\n\n|
 
 @allowed([])
-//@[0:1) At |@|
-//@[1:8) Identifier |allowed|
-//@[8:9) LeftParen |(|
-//@[9:10) LeftSquare |[|
-//@[10:11) RightSquare |]|
-//@[11:12) RightParen |)|
-//@[12:13) NewLine |\n|
+//@[000:001) At |@|
+//@[001:008) Identifier |allowed|
+//@[008:009) LeftParen |(|
+//@[009:010) LeftSquare |[|
+//@[010:011) RightSquare |]|
+//@[011:012) RightParen |)|
+//@[012:013) NewLine |\n|
 param emptyAllowedInt int
-//@[0:5) Identifier |param|
-//@[6:21) Identifier |emptyAllowedInt|
-//@[22:25) Identifier |int|
-//@[25:27) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:021) Identifier |emptyAllowedInt|
+//@[022:025) Identifier |int|
+//@[025:027) NewLine |\n\n|
 
 // 1-cycle in params
-//@[20:21) NewLine |\n|
+//@[020:021) NewLine |\n|
 param paramDefaultOneCycle string = paramDefaultOneCycle
-//@[0:5) Identifier |param|
-//@[6:26) Identifier |paramDefaultOneCycle|
-//@[27:33) Identifier |string|
-//@[34:35) Assignment |=|
-//@[36:56) Identifier |paramDefaultOneCycle|
-//@[56:58) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:026) Identifier |paramDefaultOneCycle|
+//@[027:033) Identifier |string|
+//@[034:035) Assignment |=|
+//@[036:056) Identifier |paramDefaultOneCycle|
+//@[056:058) NewLine |\n\n|
 
 // 2-cycle in params
-//@[20:21) NewLine |\n|
+//@[020:021) NewLine |\n|
 param paramDefaultTwoCycle1 string = paramDefaultTwoCycle2
-//@[0:5) Identifier |param|
-//@[6:27) Identifier |paramDefaultTwoCycle1|
-//@[28:34) Identifier |string|
-//@[35:36) Assignment |=|
-//@[37:58) Identifier |paramDefaultTwoCycle2|
-//@[58:59) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:027) Identifier |paramDefaultTwoCycle1|
+//@[028:034) Identifier |string|
+//@[035:036) Assignment |=|
+//@[037:058) Identifier |paramDefaultTwoCycle2|
+//@[058:059) NewLine |\n|
 param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
-//@[0:5) Identifier |param|
-//@[6:27) Identifier |paramDefaultTwoCycle2|
-//@[28:34) Identifier |string|
-//@[35:36) Assignment |=|
-//@[37:58) Identifier |paramDefaultTwoCycle1|
-//@[58:60) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:027) Identifier |paramDefaultTwoCycle2|
+//@[028:034) Identifier |string|
+//@[035:036) Assignment |=|
+//@[037:058) Identifier |paramDefaultTwoCycle1|
+//@[058:060) NewLine |\n\n|
 
 @allowed([
-//@[0:1) At |@|
-//@[1:8) Identifier |allowed|
-//@[8:9) LeftParen |(|
-//@[9:10) LeftSquare |[|
-//@[10:11) NewLine |\n|
+//@[000:001) At |@|
+//@[001:008) Identifier |allowed|
+//@[008:009) LeftParen |(|
+//@[009:010) LeftSquare |[|
+//@[010:011) NewLine |\n|
   paramModifierSelfCycle
-//@[2:24) Identifier |paramModifierSelfCycle|
-//@[24:25) NewLine |\n|
+//@[002:024) Identifier |paramModifierSelfCycle|
+//@[024:025) NewLine |\n|
 ])
-//@[0:1) RightSquare |]|
-//@[1:2) RightParen |)|
-//@[2:3) NewLine |\n|
+//@[000:001) RightSquare |]|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
 param paramModifierSelfCycle string
-//@[0:5) Identifier |param|
-//@[6:28) Identifier |paramModifierSelfCycle|
-//@[29:35) Identifier |string|
-//@[35:37) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:028) Identifier |paramModifierSelfCycle|
+//@[029:035) Identifier |string|
+//@[035:037) NewLine |\n\n|
 
 // wrong types of "variable"/identifier access
-//@[46:47) NewLine |\n|
+//@[046:047) NewLine |\n|
 var sampleVar = 'sample'
-//@[0:3) Identifier |var|
-//@[4:13) Identifier |sampleVar|
-//@[14:15) Assignment |=|
-//@[16:24) StringComplete |'sample'|
-//@[24:25) NewLine |\n|
+//@[000:003) Identifier |var|
+//@[004:013) Identifier |sampleVar|
+//@[014:015) Assignment |=|
+//@[016:024) StringComplete |'sample'|
+//@[024:025) NewLine |\n|
 resource sampleResource 'Microsoft.Foo/foos@2020-02-02' = {
-//@[0:8) Identifier |resource|
-//@[9:23) Identifier |sampleResource|
-//@[24:55) StringComplete |'Microsoft.Foo/foos@2020-02-02'|
-//@[56:57) Assignment |=|
-//@[58:59) LeftBrace |{|
-//@[59:60) NewLine |\n|
+//@[000:008) Identifier |resource|
+//@[009:023) Identifier |sampleResource|
+//@[024:055) StringComplete |'Microsoft.Foo/foos@2020-02-02'|
+//@[056:057) Assignment |=|
+//@[058:059) LeftBrace |{|
+//@[059:060) NewLine |\n|
   name: 'foo'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:13) StringComplete |'foo'|
-//@[13:14) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'foo'|
+//@[013:014) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[000:001) RightBrace |}|
+//@[001:002) NewLine |\n|
 output sampleOutput string = 'hello'
-//@[0:6) Identifier |output|
-//@[7:19) Identifier |sampleOutput|
-//@[20:26) Identifier |string|
-//@[27:28) Assignment |=|
-//@[29:36) StringComplete |'hello'|
-//@[36:38) NewLine |\n\n|
+//@[000:006) Identifier |output|
+//@[007:019) Identifier |sampleOutput|
+//@[020:026) Identifier |string|
+//@[027:028) Assignment |=|
+//@[029:036) StringComplete |'hello'|
+//@[036:038) NewLine |\n\n|
 
 param paramAccessingVar string = concat(sampleVar, 's')
-//@[0:5) Identifier |param|
-//@[6:23) Identifier |paramAccessingVar|
-//@[24:30) Identifier |string|
-//@[31:32) Assignment |=|
-//@[33:39) Identifier |concat|
-//@[39:40) LeftParen |(|
-//@[40:49) Identifier |sampleVar|
-//@[49:50) Comma |,|
-//@[51:54) StringComplete |'s'|
-//@[54:55) RightParen |)|
-//@[55:57) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:023) Identifier |paramAccessingVar|
+//@[024:030) Identifier |string|
+//@[031:032) Assignment |=|
+//@[033:039) Identifier |concat|
+//@[039:040) LeftParen |(|
+//@[040:049) Identifier |sampleVar|
+//@[049:050) Comma |,|
+//@[051:054) StringComplete |'s'|
+//@[054:055) RightParen |)|
+//@[055:057) NewLine |\n\n|
 
 param paramAccessingResource string = sampleResource
-//@[0:5) Identifier |param|
-//@[6:28) Identifier |paramAccessingResource|
-//@[29:35) Identifier |string|
-//@[36:37) Assignment |=|
-//@[38:52) Identifier |sampleResource|
-//@[52:54) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:028) Identifier |paramAccessingResource|
+//@[029:035) Identifier |string|
+//@[036:037) Assignment |=|
+//@[038:052) Identifier |sampleResource|
+//@[052:054) NewLine |\n\n|
 
 param paramAccessingOutput string = sampleOutput
-//@[0:5) Identifier |param|
-//@[6:26) Identifier |paramAccessingOutput|
-//@[27:33) Identifier |string|
-//@[34:35) Assignment |=|
-//@[36:48) Identifier |sampleOutput|
-//@[48:50) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:026) Identifier |paramAccessingOutput|
+//@[027:033) Identifier |string|
+//@[034:035) Assignment |=|
+//@[036:048) Identifier |sampleOutput|
+//@[048:050) NewLine |\n\n|
 
 // #completionTest(6) -> empty
-//@[30:31) NewLine |\n|
+//@[030:031) NewLine |\n|
 param 
-//@[0:5) Identifier |param|
-//@[6:8) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:008) NewLine |\n\n|
 
 // #completionTest(46,47) -> justSymbols
-//@[40:41) NewLine |\n|
+//@[040:041) NewLine |\n|
 param defaultValueOneLinerCompletions string = 
-//@[0:5) Identifier |param|
-//@[6:37) Identifier |defaultValueOneLinerCompletions|
-//@[38:44) Identifier |string|
-//@[45:46) Assignment |=|
-//@[47:49) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:037) Identifier |defaultValueOneLinerCompletions|
+//@[038:044) Identifier |string|
+//@[045:046) Assignment |=|
+//@[047:049) NewLine |\n\n|
 
 // invalid comma separator (array)
-//@[34:35) NewLine |\n|
+//@[034:035) NewLine |\n|
 @metadata({
-//@[0:1) At |@|
-//@[1:9) Identifier |metadata|
-//@[9:10) LeftParen |(|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[000:001) At |@|
+//@[001:009) Identifier |metadata|
+//@[009:010) LeftParen |(|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
   description: 'Name of Virtual Machine'
-//@[2:13) Identifier |description|
-//@[13:14) Colon |:|
-//@[15:40) StringComplete |'Name of Virtual Machine'|
-//@[40:41) NewLine |\n|
+//@[002:013) Identifier |description|
+//@[013:014) Colon |:|
+//@[015:040) StringComplete |'Name of Virtual Machine'|
+//@[040:041) NewLine |\n|
 })
-//@[0:1) RightBrace |}|
-//@[1:2) RightParen |)|
-//@[2:3) NewLine |\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
 @allowed([
-//@[0:1) At |@|
-//@[1:8) Identifier |allowed|
-//@[8:9) LeftParen |(|
-//@[9:10) LeftSquare |[|
-//@[10:11) NewLine |\n|
+//@[000:001) At |@|
+//@[001:008) Identifier |allowed|
+//@[008:009) LeftParen |(|
+//@[009:010) LeftSquare |[|
+//@[010:011) NewLine |\n|
   'abc',
-//@[2:7) StringComplete |'abc'|
-//@[7:8) Comma |,|
-//@[8:9) NewLine |\n|
+//@[002:007) StringComplete |'abc'|
+//@[007:008) Comma |,|
+//@[008:009) NewLine |\n|
   'def'
-//@[2:7) StringComplete |'def'|
-//@[7:8) NewLine |\n|
+//@[002:007) StringComplete |'def'|
+//@[007:008) NewLine |\n|
 ])
-//@[0:1) RightSquare |]|
-//@[1:2) RightParen |)|
-//@[2:3) NewLine |\n|
+//@[000:001) RightSquare |]|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
 param commaOne string
-//@[0:5) Identifier |param|
-//@[6:14) Identifier |commaOne|
-//@[15:21) Identifier |string|
-//@[21:23) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:014) Identifier |commaOne|
+//@[015:021) Identifier |string|
+//@[021:023) NewLine |\n\n|
 
 @secure
-//@[0:1) At |@|
-//@[1:7) Identifier |secure|
-//@[7:8) NewLine |\n|
+//@[000:001) At |@|
+//@[001:007) Identifier |secure|
+//@[007:008) NewLine |\n|
 @
-//@[0:1) At |@|
-//@[1:2) NewLine |\n|
+//@[000:001) At |@|
+//@[001:002) NewLine |\n|
 @&& xxx
-//@[0:1) At |@|
-//@[1:3) LogicalAnd |&&|
-//@[4:7) Identifier |xxx|
-//@[7:8) NewLine |\n|
+//@[000:001) At |@|
+//@[001:003) LogicalAnd |&&|
+//@[004:007) Identifier |xxx|
+//@[007:008) NewLine |\n|
 @sys
-//@[0:1) At |@|
-//@[1:4) Identifier |sys|
-//@[4:5) NewLine |\n|
+//@[000:001) At |@|
+//@[001:004) Identifier |sys|
+//@[004:005) NewLine |\n|
 @paramAccessingVar
-//@[0:1) At |@|
-//@[1:18) Identifier |paramAccessingVar|
-//@[18:19) NewLine |\n|
+//@[000:001) At |@|
+//@[001:018) Identifier |paramAccessingVar|
+//@[018:019) NewLine |\n|
 param incompleteDecorators string
-//@[0:5) Identifier |param|
-//@[6:26) Identifier |incompleteDecorators|
-//@[27:33) Identifier |string|
-//@[33:35) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:026) Identifier |incompleteDecorators|
+//@[027:033) Identifier |string|
+//@[033:035) NewLine |\n\n|
 
 @concat(1, 2)
-//@[0:1) At |@|
-//@[1:7) Identifier |concat|
-//@[7:8) LeftParen |(|
-//@[8:9) Integer |1|
-//@[9:10) Comma |,|
-//@[11:12) Integer |2|
-//@[12:13) RightParen |)|
-//@[13:14) NewLine |\n|
+//@[000:001) At |@|
+//@[001:007) Identifier |concat|
+//@[007:008) LeftParen |(|
+//@[008:009) Integer |1|
+//@[009:010) Comma |,|
+//@[011:012) Integer |2|
+//@[012:013) RightParen |)|
+//@[013:014) NewLine |\n|
 @sys.concat('a', 'b')
-//@[0:1) At |@|
-//@[1:4) Identifier |sys|
-//@[4:5) Dot |.|
-//@[5:11) Identifier |concat|
-//@[11:12) LeftParen |(|
-//@[12:15) StringComplete |'a'|
-//@[15:16) Comma |,|
-//@[17:20) StringComplete |'b'|
-//@[20:21) RightParen |)|
-//@[21:22) NewLine |\n|
+//@[000:001) At |@|
+//@[001:004) Identifier |sys|
+//@[004:005) Dot |.|
+//@[005:011) Identifier |concat|
+//@[011:012) LeftParen |(|
+//@[012:015) StringComplete |'a'|
+//@[015:016) Comma |,|
+//@[017:020) StringComplete |'b'|
+//@[020:021) RightParen |)|
+//@[021:022) NewLine |\n|
 @secure()
-//@[0:1) At |@|
-//@[1:7) Identifier |secure|
-//@[7:8) LeftParen |(|
-//@[8:9) RightParen |)|
-//@[9:10) NewLine |\n|
+//@[000:001) At |@|
+//@[001:007) Identifier |secure|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
 // wrong target type
-//@[20:21) NewLine |\n|
+//@[020:021) NewLine |\n|
 @minValue(20)
-//@[0:1) At |@|
-//@[1:9) Identifier |minValue|
-//@[9:10) LeftParen |(|
-//@[10:12) Integer |20|
-//@[12:13) RightParen |)|
-//@[13:14) NewLine |\n|
+//@[000:001) At |@|
+//@[001:009) Identifier |minValue|
+//@[009:010) LeftParen |(|
+//@[010:012) Integer |20|
+//@[012:013) RightParen |)|
+//@[013:014) NewLine |\n|
 param someString string
-//@[0:5) Identifier |param|
-//@[6:16) Identifier |someString|
-//@[17:23) Identifier |string|
-//@[23:25) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:016) Identifier |someString|
+//@[017:023) Identifier |string|
+//@[023:025) NewLine |\n\n|
 
 @allowed([
-//@[0:1) At |@|
-//@[1:8) Identifier |allowed|
-//@[8:9) LeftParen |(|
-//@[9:10) LeftSquare |[|
-//@[10:11) NewLine |\n|
+//@[000:001) At |@|
+//@[001:008) Identifier |allowed|
+//@[008:009) LeftParen |(|
+//@[009:010) LeftSquare |[|
+//@[010:011) NewLine |\n|
     true
-//@[4:8) TrueKeyword |true|
-//@[8:9) NewLine |\n|
+//@[004:008) TrueKeyword |true|
+//@[008:009) NewLine |\n|
     10
-//@[4:6) Integer |10|
-//@[6:7) NewLine |\n|
+//@[004:006) Integer |10|
+//@[006:007) NewLine |\n|
     'foo'
-//@[4:9) StringComplete |'foo'|
-//@[9:10) NewLine |\n|
+//@[004:009) StringComplete |'foo'|
+//@[009:010) NewLine |\n|
 ])
-//@[0:1) RightSquare |]|
-//@[1:2) RightParen |)|
-//@[2:3) NewLine |\n|
+//@[000:001) RightSquare |]|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
 @secure()
-//@[0:1) At |@|
-//@[1:7) Identifier |secure|
-//@[7:8) LeftParen |(|
-//@[8:9) RightParen |)|
-//@[9:10) NewLine |\n|
+//@[000:001) At |@|
+//@[001:007) Identifier |secure|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
 // #completionTest(1, 2, 3) -> intParameterDecoratorsPlusNamespace
-//@[66:67) NewLine |\n|
+//@[066:067) NewLine |\n|
 @  
-//@[0:1) At |@|
-//@[3:4) NewLine |\n|
+//@[000:001) At |@|
+//@[003:004) NewLine |\n|
 // #completionTest(5, 6) -> intParameterDecorators
-//@[50:51) NewLine |\n|
+//@[050:051) NewLine |\n|
 @sys.   
-//@[0:1) At |@|
-//@[1:4) Identifier |sys|
-//@[4:5) Dot |.|
-//@[8:9) NewLine |\n|
+//@[000:001) At |@|
+//@[001:004) Identifier |sys|
+//@[004:005) Dot |.|
+//@[008:009) NewLine |\n|
 param someInteger int = 20
-//@[0:5) Identifier |param|
-//@[6:17) Identifier |someInteger|
-//@[18:21) Identifier |int|
-//@[22:23) Assignment |=|
-//@[24:26) Integer |20|
-//@[26:28) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:017) Identifier |someInteger|
+//@[018:021) Identifier |int|
+//@[022:023) Assignment |=|
+//@[024:026) Integer |20|
+//@[026:028) NewLine |\n\n|
 
 @allowed([], [], 2)
-//@[0:1) At |@|
-//@[1:8) Identifier |allowed|
-//@[8:9) LeftParen |(|
-//@[9:10) LeftSquare |[|
-//@[10:11) RightSquare |]|
-//@[11:12) Comma |,|
-//@[13:14) LeftSquare |[|
-//@[14:15) RightSquare |]|
-//@[15:16) Comma |,|
-//@[17:18) Integer |2|
-//@[18:19) RightParen |)|
-//@[19:20) NewLine |\n|
+//@[000:001) At |@|
+//@[001:008) Identifier |allowed|
+//@[008:009) LeftParen |(|
+//@[009:010) LeftSquare |[|
+//@[010:011) RightSquare |]|
+//@[011:012) Comma |,|
+//@[013:014) LeftSquare |[|
+//@[014:015) RightSquare |]|
+//@[015:016) Comma |,|
+//@[017:018) Integer |2|
+//@[018:019) RightParen |)|
+//@[019:020) NewLine |\n|
 // #completionTest(4) -> empty
-//@[30:31) NewLine |\n|
+//@[030:031) NewLine |\n|
 @az.
-//@[0:1) At |@|
-//@[1:3) Identifier |az|
-//@[3:4) Dot |.|
-//@[4:5) NewLine |\n|
+//@[000:001) At |@|
+//@[001:003) Identifier |az|
+//@[003:004) Dot |.|
+//@[004:005) NewLine |\n|
 param tooManyArguments1 int = 20
-//@[0:5) Identifier |param|
-//@[6:23) Identifier |tooManyArguments1|
-//@[24:27) Identifier |int|
-//@[28:29) Assignment |=|
-//@[30:32) Integer |20|
-//@[32:34) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:023) Identifier |tooManyArguments1|
+//@[024:027) Identifier |int|
+//@[028:029) Assignment |=|
+//@[030:032) Integer |20|
+//@[032:034) NewLine |\n\n|
 
 @metadata({}, {}, true)
-//@[0:1) At |@|
-//@[1:9) Identifier |metadata|
-//@[9:10) LeftParen |(|
-//@[10:11) LeftBrace |{|
-//@[11:12) RightBrace |}|
-//@[12:13) Comma |,|
-//@[14:15) LeftBrace |{|
-//@[15:16) RightBrace |}|
-//@[16:17) Comma |,|
-//@[18:22) TrueKeyword |true|
-//@[22:23) RightParen |)|
-//@[23:24) NewLine |\n|
+//@[000:001) At |@|
+//@[001:009) Identifier |metadata|
+//@[009:010) LeftParen |(|
+//@[010:011) LeftBrace |{|
+//@[011:012) RightBrace |}|
+//@[012:013) Comma |,|
+//@[014:015) LeftBrace |{|
+//@[015:016) RightBrace |}|
+//@[016:017) Comma |,|
+//@[018:022) TrueKeyword |true|
+//@[022:023) RightParen |)|
+//@[023:024) NewLine |\n|
 // #completionTest(2) -> stringParameterDecoratorsPlusNamespace
-//@[63:64) NewLine |\n|
+//@[063:064) NewLine |\n|
 @m
-//@[0:1) At |@|
-//@[1:2) Identifier |m|
-//@[2:3) NewLine |\n|
+//@[000:001) At |@|
+//@[001:002) Identifier |m|
+//@[002:003) NewLine |\n|
 // #completionTest(1, 2, 3) -> stringParameterDecoratorsPlusNamespace
-//@[69:70) NewLine |\n|
+//@[069:070) NewLine |\n|
 @   
-//@[0:1) At |@|
-//@[4:5) NewLine |\n|
+//@[000:001) At |@|
+//@[004:005) NewLine |\n|
 // #completionTest(5) -> stringParameterDecorators
-//@[50:51) NewLine |\n|
+//@[050:051) NewLine |\n|
 @sys.
-//@[0:1) At |@|
-//@[1:4) Identifier |sys|
-//@[4:5) Dot |.|
-//@[5:6) NewLine |\n|
+//@[000:001) At |@|
+//@[001:004) Identifier |sys|
+//@[004:005) Dot |.|
+//@[005:006) NewLine |\n|
 param tooManyArguments2 string
-//@[0:5) Identifier |param|
-//@[6:23) Identifier |tooManyArguments2|
-//@[24:30) Identifier |string|
-//@[30:32) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:023) Identifier |tooManyArguments2|
+//@[024:030) Identifier |string|
+//@[030:032) NewLine |\n\n|
 
 @description(sys.concat(2))
-//@[0:1) At |@|
-//@[1:12) Identifier |description|
-//@[12:13) LeftParen |(|
-//@[13:16) Identifier |sys|
-//@[16:17) Dot |.|
-//@[17:23) Identifier |concat|
-//@[23:24) LeftParen |(|
-//@[24:25) Integer |2|
-//@[25:26) RightParen |)|
-//@[26:27) RightParen |)|
-//@[27:28) NewLine |\n|
+//@[000:001) At |@|
+//@[001:012) Identifier |description|
+//@[012:013) LeftParen |(|
+//@[013:016) Identifier |sys|
+//@[016:017) Dot |.|
+//@[017:023) Identifier |concat|
+//@[023:024) LeftParen |(|
+//@[024:025) Integer |2|
+//@[025:026) RightParen |)|
+//@[026:027) RightParen |)|
+//@[027:028) NewLine |\n|
 @allowed([for thing in []: 's'])
-//@[0:1) At |@|
-//@[1:8) Identifier |allowed|
-//@[8:9) LeftParen |(|
-//@[9:10) LeftSquare |[|
-//@[10:13) Identifier |for|
-//@[14:19) Identifier |thing|
-//@[20:22) Identifier |in|
-//@[23:24) LeftSquare |[|
-//@[24:25) RightSquare |]|
-//@[25:26) Colon |:|
-//@[27:30) StringComplete |'s'|
-//@[30:31) RightSquare |]|
-//@[31:32) RightParen |)|
-//@[32:33) NewLine |\n|
+//@[000:001) At |@|
+//@[001:008) Identifier |allowed|
+//@[008:009) LeftParen |(|
+//@[009:010) LeftSquare |[|
+//@[010:013) Identifier |for|
+//@[014:019) Identifier |thing|
+//@[020:022) Identifier |in|
+//@[023:024) LeftSquare |[|
+//@[024:025) RightSquare |]|
+//@[025:026) Colon |:|
+//@[027:030) StringComplete |'s'|
+//@[030:031) RightSquare |]|
+//@[031:032) RightParen |)|
+//@[032:033) NewLine |\n|
 param nonConstantInDecorator string
-//@[0:5) Identifier |param|
-//@[6:28) Identifier |nonConstantInDecorator|
-//@[29:35) Identifier |string|
-//@[35:37) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:028) Identifier |nonConstantInDecorator|
+//@[029:035) Identifier |string|
+//@[035:037) NewLine |\n\n|
 
 @minValue(-length('s'))
-//@[0:1) At |@|
-//@[1:9) Identifier |minValue|
-//@[9:10) LeftParen |(|
-//@[10:11) Minus |-|
-//@[11:17) Identifier |length|
-//@[17:18) LeftParen |(|
-//@[18:21) StringComplete |'s'|
-//@[21:22) RightParen |)|
-//@[22:23) RightParen |)|
-//@[23:24) NewLine |\n|
+//@[000:001) At |@|
+//@[001:009) Identifier |minValue|
+//@[009:010) LeftParen |(|
+//@[010:011) Minus |-|
+//@[011:017) Identifier |length|
+//@[017:018) LeftParen |(|
+//@[018:021) StringComplete |'s'|
+//@[021:022) RightParen |)|
+//@[022:023) RightParen |)|
+//@[023:024) NewLine |\n|
 @metadata({
-//@[0:1) At |@|
-//@[1:9) Identifier |metadata|
-//@[9:10) LeftParen |(|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[000:001) At |@|
+//@[001:009) Identifier |metadata|
+//@[009:010) LeftParen |(|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
   bool: !true
-//@[2:6) Identifier |bool|
-//@[6:7) Colon |:|
-//@[8:9) Exclamation |!|
-//@[9:13) TrueKeyword |true|
-//@[13:14) NewLine |\n|
+//@[002:006) Identifier |bool|
+//@[006:007) Colon |:|
+//@[008:009) Exclamation |!|
+//@[009:013) TrueKeyword |true|
+//@[013:014) NewLine |\n|
 })
-//@[0:1) RightBrace |}|
-//@[1:2) RightParen |)|
-//@[2:3) NewLine |\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
 param unaryMinusOnFunction int
-//@[0:5) Identifier |param|
-//@[6:26) Identifier |unaryMinusOnFunction|
-//@[27:30) Identifier |int|
-//@[30:32) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:026) Identifier |unaryMinusOnFunction|
+//@[027:030) Identifier |int|
+//@[030:032) NewLine |\n\n|
 
 @minLength(1)
-//@[0:1) At |@|
-//@[1:10) Identifier |minLength|
-//@[10:11) LeftParen |(|
-//@[11:12) Integer |1|
-//@[12:13) RightParen |)|
-//@[13:14) NewLine |\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |minLength|
+//@[010:011) LeftParen |(|
+//@[011:012) Integer |1|
+//@[012:013) RightParen |)|
+//@[013:014) NewLine |\n|
 @minLength(2)
-//@[0:1) At |@|
-//@[1:10) Identifier |minLength|
-//@[10:11) LeftParen |(|
-//@[11:12) Integer |2|
-//@[12:13) RightParen |)|
-//@[13:14) NewLine |\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |minLength|
+//@[010:011) LeftParen |(|
+//@[011:012) Integer |2|
+//@[012:013) RightParen |)|
+//@[013:014) NewLine |\n|
 @secure()
-//@[0:1) At |@|
-//@[1:7) Identifier |secure|
-//@[7:8) LeftParen |(|
-//@[8:9) RightParen |)|
-//@[9:10) NewLine |\n|
+//@[000:001) At |@|
+//@[001:007) Identifier |secure|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:010) NewLine |\n|
 @maxLength(3)
-//@[0:1) At |@|
-//@[1:10) Identifier |maxLength|
-//@[10:11) LeftParen |(|
-//@[11:12) Integer |3|
-//@[12:13) RightParen |)|
-//@[13:14) NewLine |\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |maxLength|
+//@[010:011) LeftParen |(|
+//@[011:012) Integer |3|
+//@[012:013) RightParen |)|
+//@[013:014) NewLine |\n|
 @maxLength(4)
-//@[0:1) At |@|
-//@[1:10) Identifier |maxLength|
-//@[10:11) LeftParen |(|
-//@[11:12) Integer |4|
-//@[12:13) RightParen |)|
-//@[13:14) NewLine |\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |maxLength|
+//@[010:011) LeftParen |(|
+//@[011:012) Integer |4|
+//@[012:013) RightParen |)|
+//@[013:014) NewLine |\n|
 param duplicateDecorators string
-//@[0:5) Identifier |param|
-//@[6:25) Identifier |duplicateDecorators|
-//@[26:32) Identifier |string|
-//@[32:34) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:025) Identifier |duplicateDecorators|
+//@[026:032) Identifier |string|
+//@[032:034) NewLine |\n\n|
 
 @minLength(-1)
-//@[0:1) At |@|
-//@[1:10) Identifier |minLength|
-//@[10:11) LeftParen |(|
-//@[11:12) Minus |-|
-//@[12:13) Integer |1|
-//@[13:14) RightParen |)|
-//@[14:15) NewLine |\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |minLength|
+//@[010:011) LeftParen |(|
+//@[011:012) Minus |-|
+//@[012:013) Integer |1|
+//@[013:014) RightParen |)|
+//@[014:015) NewLine |\n|
 @maxLength(-100)
-//@[0:1) At |@|
-//@[1:10) Identifier |maxLength|
-//@[10:11) LeftParen |(|
-//@[11:12) Minus |-|
-//@[12:15) Integer |100|
-//@[15:16) RightParen |)|
-//@[16:17) NewLine |\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |maxLength|
+//@[010:011) LeftParen |(|
+//@[011:012) Minus |-|
+//@[012:015) Integer |100|
+//@[015:016) RightParen |)|
+//@[016:017) NewLine |\n|
 param invalidLength string
-//@[0:5) Identifier |param|
-//@[6:19) Identifier |invalidLength|
-//@[20:26) Identifier |string|
-//@[26:28) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:019) Identifier |invalidLength|
+//@[020:026) Identifier |string|
+//@[026:028) NewLine |\n\n|
 
 @allowed([
-//@[0:1) At |@|
-//@[1:8) Identifier |allowed|
-//@[8:9) LeftParen |(|
-//@[9:10) LeftSquare |[|
-//@[10:11) NewLine |\n|
+//@[000:001) At |@|
+//@[001:008) Identifier |allowed|
+//@[008:009) LeftParen |(|
+//@[009:010) LeftSquare |[|
+//@[010:011) NewLine |\n|
 	'Microsoft.AnalysisServices/servers'
-//@[1:37) StringComplete |'Microsoft.AnalysisServices/servers'|
-//@[37:38) NewLine |\n|
+//@[001:037) StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[037:038) NewLine |\n|
 	'Microsoft.ApiManagement/service'
-//@[1:34) StringComplete |'Microsoft.ApiManagement/service'|
-//@[34:35) NewLine |\n|
+//@[001:034) StringComplete |'Microsoft.ApiManagement/service'|
+//@[034:035) NewLine |\n|
 	'Microsoft.Network/applicationGateways'
-//@[1:40) StringComplete |'Microsoft.Network/applicationGateways'|
-//@[40:41) NewLine |\n|
+//@[001:040) StringComplete |'Microsoft.Network/applicationGateways'|
+//@[040:041) NewLine |\n|
 	'Microsoft.Automation/automationAccounts'
-//@[1:42) StringComplete |'Microsoft.Automation/automationAccounts'|
-//@[42:43) NewLine |\n|
+//@[001:042) StringComplete |'Microsoft.Automation/automationAccounts'|
+//@[042:043) NewLine |\n|
 	'Microsoft.ContainerInstance/containerGroups'
-//@[1:46) StringComplete |'Microsoft.ContainerInstance/containerGroups'|
-//@[46:47) NewLine |\n|
+//@[001:046) StringComplete |'Microsoft.ContainerInstance/containerGroups'|
+//@[046:047) NewLine |\n|
 	'Microsoft.ContainerRegistry/registries'
-//@[1:41) StringComplete |'Microsoft.ContainerRegistry/registries'|
-//@[41:42) NewLine |\n|
+//@[001:041) StringComplete |'Microsoft.ContainerRegistry/registries'|
+//@[041:042) NewLine |\n|
 	'Microsoft.ContainerService/managedClusters'
-//@[1:45) StringComplete |'Microsoft.ContainerService/managedClusters'|
-//@[45:46) NewLine |\n|
+//@[001:045) StringComplete |'Microsoft.ContainerService/managedClusters'|
+//@[045:046) NewLine |\n|
 ])
-//@[0:1) RightSquare |]|
-//@[1:2) RightParen |)|
-//@[2:3) NewLine |\n|
+//@[000:001) RightSquare |]|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
 param invalidPermutation array = [
-//@[0:5) Identifier |param|
-//@[6:24) Identifier |invalidPermutation|
-//@[25:30) Identifier |array|
-//@[31:32) Assignment |=|
-//@[33:34) LeftSquare |[|
-//@[34:35) NewLine |\n|
+//@[000:005) Identifier |param|
+//@[006:024) Identifier |invalidPermutation|
+//@[025:030) Identifier |array|
+//@[031:032) Assignment |=|
+//@[033:034) LeftSquare |[|
+//@[034:035) NewLine |\n|
 	'foobar'
-//@[1:9) StringComplete |'foobar'|
-//@[9:10) NewLine |\n|
+//@[001:009) StringComplete |'foobar'|
+//@[009:010) NewLine |\n|
 	true
-//@[1:5) TrueKeyword |true|
-//@[5:6) NewLine |\n|
+//@[001:005) TrueKeyword |true|
+//@[005:006) NewLine |\n|
     100
-//@[4:7) Integer |100|
-//@[7:8) NewLine |\n|
+//@[004:007) Integer |100|
+//@[007:008) NewLine |\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightSquare |]|
+//@[001:003) NewLine |\n\n|
 
 @allowed([
-//@[0:1) At |@|
-//@[1:8) Identifier |allowed|
-//@[8:9) LeftParen |(|
-//@[9:10) LeftSquare |[|
-//@[10:11) NewLine |\n|
+//@[000:001) At |@|
+//@[001:008) Identifier |allowed|
+//@[008:009) LeftParen |(|
+//@[009:010) LeftSquare |[|
+//@[010:011) NewLine |\n|
 	[
-//@[1:2) LeftSquare |[|
-//@[2:3) NewLine |\n|
+//@[001:002) LeftSquare |[|
+//@[002:003) NewLine |\n|
 		'Microsoft.AnalysisServices/servers'
-//@[2:38) StringComplete |'Microsoft.AnalysisServices/servers'|
-//@[38:39) NewLine |\n|
+//@[002:038) StringComplete |'Microsoft.AnalysisServices/servers'|
+//@[038:039) NewLine |\n|
 		'Microsoft.ApiManagement/service'
-//@[2:35) StringComplete |'Microsoft.ApiManagement/service'|
-//@[35:36) NewLine |\n|
+//@[002:035) StringComplete |'Microsoft.ApiManagement/service'|
+//@[035:036) NewLine |\n|
 	]
-//@[1:2) RightSquare |]|
-//@[2:3) NewLine |\n|
+//@[001:002) RightSquare |]|
+//@[002:003) NewLine |\n|
 	[
-//@[1:2) LeftSquare |[|
-//@[2:3) NewLine |\n|
+//@[001:002) LeftSquare |[|
+//@[002:003) NewLine |\n|
 		'Microsoft.Network/applicationGateways'
-//@[2:41) StringComplete |'Microsoft.Network/applicationGateways'|
-//@[41:42) NewLine |\n|
+//@[002:041) StringComplete |'Microsoft.Network/applicationGateways'|
+//@[041:042) NewLine |\n|
 		'Microsoft.Automation/automationAccounts'
-//@[2:43) StringComplete |'Microsoft.Automation/automationAccounts'|
-//@[43:44) NewLine |\n|
+//@[002:043) StringComplete |'Microsoft.Automation/automationAccounts'|
+//@[043:044) NewLine |\n|
 	]
-//@[1:2) RightSquare |]|
-//@[2:3) NewLine |\n|
+//@[001:002) RightSquare |]|
+//@[002:003) NewLine |\n|
 ])
-//@[0:1) RightSquare |]|
-//@[1:2) RightParen |)|
-//@[2:3) NewLine |\n|
+//@[000:001) RightSquare |]|
+//@[001:002) RightParen |)|
+//@[002:003) NewLine |\n|
 param invalidDefaultWithAllowedArrayDecorator array = true
-//@[0:5) Identifier |param|
-//@[6:45) Identifier |invalidDefaultWithAllowedArrayDecorator|
-//@[46:51) Identifier |array|
-//@[52:53) Assignment |=|
-//@[54:58) TrueKeyword |true|
-//@[58:60) NewLine |\n\n|
+//@[000:005) Identifier |param|
+//@[006:045) Identifier |invalidDefaultWithAllowedArrayDecorator|
+//@[046:051) Identifier |array|
+//@[052:053) Assignment |=|
+//@[054:058) TrueKeyword |true|
+//@[058:060) NewLine |\n\n|
 
 // unterminated multi-line comment
-//@[34:35) NewLine |\n|
+//@[034:035) NewLine |\n|
 /*    
 
-//@[0:0) EndOfFile ||
+//@[000:000) EndOfFile ||

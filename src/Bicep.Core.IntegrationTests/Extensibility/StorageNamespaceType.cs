@@ -39,6 +39,8 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                 new ResourceTypeComponents(
                     ResourceTypeReference.Parse("service"),
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
+                    ResourceScope.None,
+                    ResourceFlags.None,
                     new ObjectType("Service properties", TypeSymbolValidationFlags.Default, new[]
                     {
                         new TypeProperty("staticWebsiteEnabled", LanguageConstants.Bool),
@@ -48,6 +50,8 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                 new ResourceTypeComponents(
                     ResourceTypeReference.Parse("container"),
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
+                    ResourceScope.None,
+                    ResourceFlags.None,
                     new ObjectType("Container properties", TypeSymbolValidationFlags.Default, new[]
                     {
                         new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
@@ -55,6 +59,8 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                 new ResourceTypeComponents(
                     ResourceTypeReference.Parse("blob"),
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
+                    ResourceScope.None,
+                    ResourceFlags.None,
                     new ObjectType("Blob properties", TypeSymbolValidationFlags.Default, new[]
                     {
                         new TypeProperty("containerName", LanguageConstants.String, TypePropertyFlags.Required),
@@ -73,7 +79,14 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                     return null;
                 }
 
-                return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body, UniqueIdentifierProperties);
+                return new(
+                    declaringNamespace,
+                    resourceType.TypeReference,
+                    resourceType.ValidParentScopes,
+                    resourceType.ReadOnlyScopes,
+                    resourceType.Flags,
+                    resourceType.Body,
+                    UniqueIdentifierProperties);
             }
 
             public bool HasDefinedType(ResourceTypeReference typeReference)

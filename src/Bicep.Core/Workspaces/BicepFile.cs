@@ -8,7 +8,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Workspaces
 {
-    public class BicepFile : ISourceFile
+    public class BicepFile : IBicepSourceFile
     {
         public BicepFile(Uri fileUri, ImmutableArray<int> lineStarts, ProgramSyntax programSyntax)
         {

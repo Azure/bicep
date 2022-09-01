@@ -46,6 +46,17 @@ namespace Bicep.LangServer.UnitTests
             return bicepCompilationManager;
         }
 
+        public static BicepParamsCompilationManager CreateParamsCompilationManager(){
+            PublishDiagnosticsParams? receivedParams = null;
+            var document = CreateMockDocument(p => receivedParams = p);
+            var server = CreateMockServer(document);
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
+            var provider = new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateWithAzTypes(), FileResolver, dispatcher, BicepTestConstants.ApiVersionProvider);
+            var configManager = new ConfigurationManager(new IOFileSystem());
+
+            return new BicepParamsCompilationManager(server.Object, provider, configManager, BicepTestConstants.FileResolver, dispatcher, new Workspace(), BicepTestConstants.Features, BicepTestConstants.ApiVersionProvider, BicepTestConstants.NamespaceProvider);
+        }
+
         public static Mock<ITextDocumentLanguageServer> CreateMockDocument(Action<PublishDiagnosticsParams> callback)
         {
             var document = Repository.Create<ITextDocumentLanguageServer>();
@@ -77,7 +88,7 @@ namespace Bicep.LangServer.UnitTests
 
         public static ICompilationProvider CreateEmptyCompilationProvider()
         {
-            return new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), FileResolver, new ModuleDispatcher(BicepTestConstants.RegistryProvider));
+            return new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), FileResolver, new ModuleDispatcher(BicepTestConstants.RegistryProvider), BicepTestConstants.ApiVersionProvider);
         }
 
         public static Mock<IModuleRestoreScheduler> CreateMockScheduler()

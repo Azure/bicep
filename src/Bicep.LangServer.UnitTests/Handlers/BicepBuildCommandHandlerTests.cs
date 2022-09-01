@@ -44,11 +44,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public void Handle_WithInvalidPath_ShouldThrowArgumentException(string path)
         {
             ICompilationManager bicepCompilationManager = Repository.Create<ICompilationManager>().Object;
-            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer, BicepTestConstants.Features,  BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, BicepTestConstants.ApiVersionProvider, configurationManager);
 
             Action sut = () => bicepBuildCommandHandler.Handle(path, CancellationToken.None);
 
-            sut.Should().Throw<ArgumentException>().WithMessage("Invalid input file");
+            sut.Should().Throw<ArgumentException>().WithMessage("Invalid input file path");
         }
 
         [TestMethod]
@@ -62,10 +62,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             // Do not upsert compilation. This will cause CompilationContext to be null
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, upsertCompilation: false);
-            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, BicepTestConstants.ApiVersionProvider, configurationManager);
             string expected = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
 
-            expected.Should().Be(@"Build succeeded. Created file input.json");
+            expected.Should().Be(@"Bicep build succeeded. Created ARM template file: input.json");
         }
 
         [TestMethod]
@@ -85,10 +85,10 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             DocumentUri documentUri = DocumentUri.From(bicepFileUri);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, BicepTestConstants.ApiVersionProvider, configurationManager);
             string expected = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
 
-            expected.Should().Be(@"Build succeeded. Created file input.json");
+            expected.Should().Be(@"Bicep build succeeded. Created ARM template file: input.json");
         }
 
         [TestMethod]
@@ -111,10 +111,10 @@ targetScope = { }
 targetScope = true
 param accountName string = 'testAccount'
 ", true);
-            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, BicepTestConstants.ApiVersionProvider, configurationManager);
             string expected = await bicepBuildCommandHandler.Handle(documentUri.Path, CancellationToken.None);
 
-            expected.Should().BeEquivalentToIgnoringNewlines(@"Build failed. Please fix below errors:
+            expected.Should().BeEquivalentToIgnoringNewlines(@"Bicep build failed. Please fix below errors:
 /input.bicep(1,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
 /input.bicep(1,12) : Error BCP018: Expected the ""="" character at this location.
 /input.bicep(1,12) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
@@ -145,10 +145,10 @@ param accountName string = 'testAccount'
             FileHelper.SaveResultFile(TestContext, "input.json", string.Empty, outputPath);
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, true);
-            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, BicepTestConstants.ApiVersionProvider, configurationManager);
             string expected = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
 
-            expected.Should().Be(@"Build failed. The file ""input.json"" already exists and was not generated by Bicep. If overwriting the file is intended, delete it manually and retry the Build command.");
+            expected.Should().Be(@"Bicep build failed. The output file ""input.json"" already exists and was not generated by Bicep. If overwriting the file is intended, delete it manually and retry the build command.");
         }
 
         [TestMethod]
@@ -159,10 +159,10 @@ param accountName string = 'testAccount'
             FileHelper.SaveResultFile(TestContext, "input.json", "invalid json", outputPath);
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, true);
-            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, BicepTestConstants.ApiVersionProvider, configurationManager);
             string expected = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
 
-            expected.Should().Be(@"Build failed. The file ""input.json"" already exists and was not generated by Bicep. If overwriting the file is intended, delete it manually and retry the Build command.");
+            expected.Should().Be(@"Bicep build failed. The output file ""input.json"" already exists and was not generated by Bicep. If overwriting the file is intended, delete it manually and retry the build command.");
         }
 
         [TestMethod]
@@ -176,10 +176,10 @@ param accountName string = 'testAccount'
 ");
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, true);
-            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, BicepTestConstants.ApiVersionProvider, configurationManager);
             string expected = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
 
-            expected.Should().Be(@"Build succeeded. Created file input.json");
+            expected.Should().Be(@"Bicep build succeeded. Created ARM template file: input.json");
         }
 
         [DataRow(null)]
@@ -189,7 +189,7 @@ param accountName string = 'testAccount'
         public void TemplateContainsBicepGeneratorMetadata_WithInvalidInput_ReturnsFalse(string template)
         {
             ICompilationManager bicepCompilationManager = Repository.Create<ICompilationManager>().Object;
-            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, BicepTestConstants.ApiVersionProvider, configurationManager);
 
             bool actual = bicepBuildCommandHandler.TemplateContainsBicepGeneratorMetadata(template);
 
@@ -200,7 +200,7 @@ param accountName string = 'testAccount'
         public void TemplateContainsBicepGeneratorMetadata_WithBicepGeneratorMetadataInInput_ReturnsTrue()
         {
             ICompilationManager bicepCompilationManager = Repository.Create<ICompilationManager>().Object;
-            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, BicepTestConstants.ApiVersionProvider, configurationManager);
             string template = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
   ""contentVersion"": ""1.0.0.0"",
@@ -224,7 +224,7 @@ param accountName string = 'testAccount'
         public void TemplateContainsBicepGeneratorMetadata_WithoutBicepGeneratorMetadataInInput_ReturnsFalse()
         {
             ICompilationManager bicepCompilationManager = Repository.Create<ICompilationManager>().Object;
-            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, BicepTestConstants.ApiVersionProvider, configurationManager);
             string template = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
   ""contentVersion"": ""1.0.0.0"",

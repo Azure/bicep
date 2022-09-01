@@ -1,6 +1,8 @@
 # Sample module
 
-Sample description for test
+Sample summary for test
+
+## Description
 
 ## Parameters
 

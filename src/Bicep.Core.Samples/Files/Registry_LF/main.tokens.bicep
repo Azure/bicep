@@ -1,636 +1,636 @@
 targetScope = 'subscription'
-//@[0:11) Identifier |targetScope|
-//@[12:13) Assignment |=|
-//@[14:28) StringComplete |'subscription'|
-//@[28:30) NewLine |\n\n|
+//@[000:011) Identifier |targetScope|
+//@[012:013) Assignment |=|
+//@[014:028) StringComplete |'subscription'|
+//@[028:030) NewLine |\n\n|
 
 resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:11) Identifier |rg|
-//@[12:59) StringComplete |'Microsoft.Resources/resourceGroups@2020-06-01'|
-//@[60:61) Assignment |=|
-//@[62:63) LeftBrace |{|
-//@[63:64) NewLine |\n|
+//@[000:008) Identifier |resource|
+//@[009:011) Identifier |rg|
+//@[012:059) StringComplete |'Microsoft.Resources/resourceGroups@2020-06-01'|
+//@[060:061) Assignment |=|
+//@[062:063) LeftBrace |{|
+//@[063:064) NewLine |\n|
   name: 'adotfrank-rg'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:22) StringComplete |'adotfrank-rg'|
-//@[22:23) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:022) StringComplete |'adotfrank-rg'|
+//@[022:023) NewLine |\n|
   location: deployment().location
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:22) Identifier |deployment|
-//@[22:23) LeftParen |(|
-//@[23:24) RightParen |)|
-//@[24:25) Dot |.|
-//@[25:33) Identifier |location|
-//@[33:34) NewLine |\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:022) Identifier |deployment|
+//@[022:023) LeftParen |(|
+//@[023:024) RightParen |)|
+//@[024:025) Dot |.|
+//@[025:033) Identifier |location|
+//@[033:034) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {
-//@[0:6) Identifier |module|
-//@[7:20) Identifier |appPlanDeploy|
-//@[21:64) StringComplete |'br:mock-registry-one.invalid/demo/plan:v2'|
-//@[65:66) Assignment |=|
-//@[67:68) LeftBrace |{|
-//@[68:69) NewLine |\n|
+//@[000:006) Identifier |module|
+//@[007:020) Identifier |appPlanDeploy|
+//@[021:064) StringComplete |'br:mock-registry-one.invalid/demo/plan:v2'|
+//@[065:066) Assignment |=|
+//@[067:068) LeftBrace |{|
+//@[068:069) NewLine |\n|
   name: 'planDeploy'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:20) StringComplete |'planDeploy'|
-//@[20:21) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:020) StringComplete |'planDeploy'|
+//@[020:021) NewLine |\n|
   scope: rg
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:11) Identifier |rg|
-//@[11:12) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:011) Identifier |rg|
+//@[011:012) NewLine |\n|
   params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
     namePrefix: 'hello'
-//@[4:14) Identifier |namePrefix|
-//@[14:15) Colon |:|
-//@[16:23) StringComplete |'hello'|
-//@[23:24) NewLine |\n|
+//@[004:014) Identifier |namePrefix|
+//@[014:015) Colon |:|
+//@[016:023) StringComplete |'hello'|
+//@[023:024) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
-//@[0:6) Identifier |module|
-//@[7:21) Identifier |appPlanDeploy2|
-//@[22:57) StringComplete |'br/mock-registry-one:demo/plan:v2'|
-//@[58:59) Assignment |=|
-//@[60:61) LeftBrace |{|
-//@[61:62) NewLine |\n|
+//@[000:006) Identifier |module|
+//@[007:021) Identifier |appPlanDeploy2|
+//@[022:057) StringComplete |'br/mock-registry-one:demo/plan:v2'|
+//@[058:059) Assignment |=|
+//@[060:061) LeftBrace |{|
+//@[061:062) NewLine |\n|
   name: 'planDeploy2'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:21) StringComplete |'planDeploy2'|
-//@[21:22) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:021) StringComplete |'planDeploy2'|
+//@[021:022) NewLine |\n|
   scope: rg
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:11) Identifier |rg|
-//@[11:12) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:011) Identifier |rg|
+//@[011:012) NewLine |\n|
   params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
     namePrefix: 'hello'
-//@[4:14) Identifier |namePrefix|
-//@[14:15) Colon |:|
-//@[16:23) StringComplete |'hello'|
-//@[23:24) NewLine |\n|
+//@[004:014) Identifier |namePrefix|
+//@[014:015) Colon |:|
+//@[016:023) StringComplete |'hello'|
+//@[023:024) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 var websites = [
-//@[0:3) Identifier |var|
-//@[4:12) Identifier |websites|
-//@[13:14) Assignment |=|
-//@[15:16) LeftSquare |[|
-//@[16:17) NewLine |\n|
+//@[000:003) Identifier |var|
+//@[004:012) Identifier |websites|
+//@[013:014) Assignment |=|
+//@[015:016) LeftSquare |[|
+//@[016:017) NewLine |\n|
   {
-//@[2:3) LeftBrace |{|
-//@[3:4) NewLine |\n|
+//@[002:003) LeftBrace |{|
+//@[003:004) NewLine |\n|
     name: 'fancy'
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:17) StringComplete |'fancy'|
-//@[17:18) NewLine |\n|
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:017) StringComplete |'fancy'|
+//@[017:018) NewLine |\n|
     tag: 'latest'
-//@[4:7) Identifier |tag|
-//@[7:8) Colon |:|
-//@[9:17) StringComplete |'latest'|
-//@[17:18) NewLine |\n|
+//@[004:007) Identifier |tag|
+//@[007:008) Colon |:|
+//@[009:017) StringComplete |'latest'|
+//@[017:018) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
   {
-//@[2:3) LeftBrace |{|
-//@[3:4) NewLine |\n|
+//@[002:003) LeftBrace |{|
+//@[003:004) NewLine |\n|
     name: 'plain'
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:17) StringComplete |'plain'|
-//@[17:18) NewLine |\n|
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:017) StringComplete |'plain'|
+//@[017:018) NewLine |\n|
     tag: 'plain-text'
-//@[4:7) Identifier |tag|
-//@[7:8) Colon |:|
-//@[9:21) StringComplete |'plain-text'|
-//@[21:22) NewLine |\n|
+//@[004:007) Identifier |tag|
+//@[007:008) Colon |:|
+//@[009:021) StringComplete |'plain-text'|
+//@[021:022) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightSquare |]|
+//@[001:003) NewLine |\n\n|
 
 module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in websites: {
-//@[0:6) Identifier |module|
-//@[7:17) Identifier |siteDeploy|
-//@[18:61) StringComplete |'br:mock-registry-two.invalid/demo/site:v3'|
-//@[62:63) Assignment |=|
-//@[64:65) LeftSquare |[|
-//@[65:68) Identifier |for|
-//@[69:73) Identifier |site|
-//@[74:76) Identifier |in|
-//@[77:85) Identifier |websites|
-//@[85:86) Colon |:|
-//@[87:88) LeftBrace |{|
-//@[88:89) NewLine |\n|
+//@[000:006) Identifier |module|
+//@[007:017) Identifier |siteDeploy|
+//@[018:061) StringComplete |'br:mock-registry-two.invalid/demo/site:v3'|
+//@[062:063) Assignment |=|
+//@[064:065) LeftSquare |[|
+//@[065:068) Identifier |for|
+//@[069:073) Identifier |site|
+//@[074:076) Identifier |in|
+//@[077:085) Identifier |websites|
+//@[085:086) Colon |:|
+//@[087:088) LeftBrace |{|
+//@[088:089) NewLine |\n|
   name: '${site.name}siteDeploy'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:11) StringLeftPiece |'${|
-//@[11:15) Identifier |site|
-//@[15:16) Dot |.|
-//@[16:20) Identifier |name|
-//@[20:32) StringRightPiece |}siteDeploy'|
-//@[32:33) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:011) StringLeftPiece |'${|
+//@[011:015) Identifier |site|
+//@[015:016) Dot |.|
+//@[016:020) Identifier |name|
+//@[020:032) StringRightPiece |}siteDeploy'|
+//@[032:033) NewLine |\n|
   scope: rg
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:11) Identifier |rg|
-//@[11:12) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:011) Identifier |rg|
+//@[011:012) NewLine |\n|
   params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
     appPlanId: appPlanDeploy.outputs.planId
-//@[4:13) Identifier |appPlanId|
-//@[13:14) Colon |:|
-//@[15:28) Identifier |appPlanDeploy|
-//@[28:29) Dot |.|
-//@[29:36) Identifier |outputs|
-//@[36:37) Dot |.|
-//@[37:43) Identifier |planId|
-//@[43:44) NewLine |\n|
+//@[004:013) Identifier |appPlanId|
+//@[013:014) Colon |:|
+//@[015:028) Identifier |appPlanDeploy|
+//@[028:029) Dot |.|
+//@[029:036) Identifier |outputs|
+//@[036:037) Dot |.|
+//@[037:043) Identifier |planId|
+//@[043:044) NewLine |\n|
     namePrefix: site.name
-//@[4:14) Identifier |namePrefix|
-//@[14:15) Colon |:|
-//@[16:20) Identifier |site|
-//@[20:21) Dot |.|
-//@[21:25) Identifier |name|
-//@[25:26) NewLine |\n|
+//@[004:014) Identifier |namePrefix|
+//@[014:015) Colon |:|
+//@[016:020) Identifier |site|
+//@[020:021) Dot |.|
+//@[021:025) Identifier |name|
+//@[025:026) NewLine |\n|
     dockerImage: 'nginxdemos/hello'
-//@[4:15) Identifier |dockerImage|
-//@[15:16) Colon |:|
-//@[17:35) StringComplete |'nginxdemos/hello'|
-//@[35:36) NewLine |\n|
+//@[004:015) Identifier |dockerImage|
+//@[015:016) Colon |:|
+//@[017:035) StringComplete |'nginxdemos/hello'|
+//@[035:036) NewLine |\n|
     dockerImageTag: site.tag
-//@[4:18) Identifier |dockerImageTag|
-//@[18:19) Colon |:|
-//@[20:24) Identifier |site|
-//@[24:25) Dot |.|
-//@[25:28) Identifier |tag|
-//@[28:29) NewLine |\n|
+//@[004:018) Identifier |dockerImageTag|
+//@[018:019) Colon |:|
+//@[020:024) Identifier |site|
+//@[024:025) Dot |.|
+//@[025:028) Identifier |tag|
+//@[028:029) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\n\n|
 
 module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
-//@[0:6) Identifier |module|
-//@[7:18) Identifier |siteDeploy2|
-//@[19:40) StringComplete |'br/demo-two:site:v3'|
-//@[41:42) Assignment |=|
-//@[43:44) LeftSquare |[|
-//@[44:47) Identifier |for|
-//@[48:52) Identifier |site|
-//@[53:55) Identifier |in|
-//@[56:64) Identifier |websites|
-//@[64:65) Colon |:|
-//@[66:67) LeftBrace |{|
-//@[67:68) NewLine |\n|
+//@[000:006) Identifier |module|
+//@[007:018) Identifier |siteDeploy2|
+//@[019:040) StringComplete |'br/demo-two:site:v3'|
+//@[041:042) Assignment |=|
+//@[043:044) LeftSquare |[|
+//@[044:047) Identifier |for|
+//@[048:052) Identifier |site|
+//@[053:055) Identifier |in|
+//@[056:064) Identifier |websites|
+//@[064:065) Colon |:|
+//@[066:067) LeftBrace |{|
+//@[067:068) NewLine |\n|
   name: '${site.name}siteDeploy2'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:11) StringLeftPiece |'${|
-//@[11:15) Identifier |site|
-//@[15:16) Dot |.|
-//@[16:20) Identifier |name|
-//@[20:33) StringRightPiece |}siteDeploy2'|
-//@[33:34) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:011) StringLeftPiece |'${|
+//@[011:015) Identifier |site|
+//@[015:016) Dot |.|
+//@[016:020) Identifier |name|
+//@[020:033) StringRightPiece |}siteDeploy2'|
+//@[033:034) NewLine |\n|
   scope: rg
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:11) Identifier |rg|
-//@[11:12) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:011) Identifier |rg|
+//@[011:012) NewLine |\n|
   params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
     appPlanId: appPlanDeploy.outputs.planId
-//@[4:13) Identifier |appPlanId|
-//@[13:14) Colon |:|
-//@[15:28) Identifier |appPlanDeploy|
-//@[28:29) Dot |.|
-//@[29:36) Identifier |outputs|
-//@[36:37) Dot |.|
-//@[37:43) Identifier |planId|
-//@[43:44) NewLine |\n|
+//@[004:013) Identifier |appPlanId|
+//@[013:014) Colon |:|
+//@[015:028) Identifier |appPlanDeploy|
+//@[028:029) Dot |.|
+//@[029:036) Identifier |outputs|
+//@[036:037) Dot |.|
+//@[037:043) Identifier |planId|
+//@[043:044) NewLine |\n|
     namePrefix: site.name
-//@[4:14) Identifier |namePrefix|
-//@[14:15) Colon |:|
-//@[16:20) Identifier |site|
-//@[20:21) Dot |.|
-//@[21:25) Identifier |name|
-//@[25:26) NewLine |\n|
+//@[004:014) Identifier |namePrefix|
+//@[014:015) Colon |:|
+//@[016:020) Identifier |site|
+//@[020:021) Dot |.|
+//@[021:025) Identifier |name|
+//@[025:026) NewLine |\n|
     dockerImage: 'nginxdemos/hello'
-//@[4:15) Identifier |dockerImage|
-//@[15:16) Colon |:|
-//@[17:35) StringComplete |'nginxdemos/hello'|
-//@[35:36) NewLine |\n|
+//@[004:015) Identifier |dockerImage|
+//@[015:016) Colon |:|
+//@[017:035) StringComplete |'nginxdemos/hello'|
+//@[035:036) NewLine |\n|
     dockerImageTag: site.tag
-//@[4:18) Identifier |dockerImageTag|
-//@[18:19) Colon |:|
-//@[20:24) Identifier |site|
-//@[24:25) Dot |.|
-//@[25:28) Identifier |tag|
-//@[28:29) NewLine |\n|
+//@[004:018) Identifier |dockerImageTag|
+//@[018:019) Colon |:|
+//@[020:024) Identifier |site|
+//@[024:025) Dot |.|
+//@[025:028) Identifier |tag|
+//@[028:029) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\n\n|
 
 module storageDeploy 'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0' = {
-//@[0:6) Identifier |module|
-//@[7:20) Identifier |storageDeploy|
-//@[21:87) StringComplete |'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0'|
-//@[88:89) Assignment |=|
-//@[90:91) LeftBrace |{|
-//@[91:92) NewLine |\n|
+//@[000:006) Identifier |module|
+//@[007:020) Identifier |storageDeploy|
+//@[021:087) StringComplete |'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0'|
+//@[088:089) Assignment |=|
+//@[090:091) LeftBrace |{|
+//@[091:092) NewLine |\n|
   name: 'storageDeploy'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:23) StringComplete |'storageDeploy'|
-//@[23:24) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:023) StringComplete |'storageDeploy'|
+//@[023:024) NewLine |\n|
   scope: rg
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:11) Identifier |rg|
-//@[11:12) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:011) Identifier |rg|
+//@[011:012) NewLine |\n|
   params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
     location: 'eastus'
-//@[4:12) Identifier |location|
-//@[12:13) Colon |:|
-//@[14:22) StringComplete |'eastus'|
-//@[22:23) NewLine |\n|
+//@[004:012) Identifier |location|
+//@[012:013) Colon |:|
+//@[014:022) StringComplete |'eastus'|
+//@[022:023) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 module storageDeploy2 'ts/mySpecRG:storage-spec:1.0' = {
-//@[0:6) Identifier |module|
-//@[7:21) Identifier |storageDeploy2|
-//@[22:52) StringComplete |'ts/mySpecRG:storage-spec:1.0'|
-//@[53:54) Assignment |=|
-//@[55:56) LeftBrace |{|
-//@[56:57) NewLine |\n|
+//@[000:006) Identifier |module|
+//@[007:021) Identifier |storageDeploy2|
+//@[022:052) StringComplete |'ts/mySpecRG:storage-spec:1.0'|
+//@[053:054) Assignment |=|
+//@[055:056) LeftBrace |{|
+//@[056:057) NewLine |\n|
   name: 'storageDeploy2'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:24) StringComplete |'storageDeploy2'|
-//@[24:25) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:024) StringComplete |'storageDeploy2'|
+//@[024:025) NewLine |\n|
   scope: rg
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:11) Identifier |rg|
-//@[11:12) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:011) Identifier |rg|
+//@[011:012) NewLine |\n|
   params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
     location: 'eastus'
-//@[4:12) Identifier |location|
-//@[12:13) Colon |:|
-//@[14:22) StringComplete |'eastus'|
-//@[22:23) NewLine |\n|
+//@[004:012) Identifier |location|
+//@[012:013) Colon |:|
+//@[014:022) StringComplete |'eastus'|
+//@[022:023) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 var vnets = [
-//@[0:3) Identifier |var|
-//@[4:9) Identifier |vnets|
-//@[10:11) Assignment |=|
-//@[12:13) LeftSquare |[|
-//@[13:14) NewLine |\n|
+//@[000:003) Identifier |var|
+//@[004:009) Identifier |vnets|
+//@[010:011) Assignment |=|
+//@[012:013) LeftSquare |[|
+//@[013:014) NewLine |\n|
   {
-//@[2:3) LeftBrace |{|
-//@[3:4) NewLine |\n|
+//@[002:003) LeftBrace |{|
+//@[003:004) NewLine |\n|
     name: 'vnet1'
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:17) StringComplete |'vnet1'|
-//@[17:18) NewLine |\n|
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:017) StringComplete |'vnet1'|
+//@[017:018) NewLine |\n|
     subnetName: 'subnet1.1'
-//@[4:14) Identifier |subnetName|
-//@[14:15) Colon |:|
-//@[16:27) StringComplete |'subnet1.1'|
-//@[27:28) NewLine |\n|
+//@[004:014) Identifier |subnetName|
+//@[014:015) Colon |:|
+//@[016:027) StringComplete |'subnet1.1'|
+//@[027:028) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
   {
-//@[2:3) LeftBrace |{|
-//@[3:4) NewLine |\n|
+//@[002:003) LeftBrace |{|
+//@[003:004) NewLine |\n|
     name: 'vnet2'
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:17) StringComplete |'vnet2'|
-//@[17:18) NewLine |\n|
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:017) StringComplete |'vnet2'|
+//@[017:018) NewLine |\n|
     subnetName: 'subnet2.1'
-//@[4:14) Identifier |subnetName|
-//@[14:15) Colon |:|
-//@[16:27) StringComplete |'subnet2.1'|
-//@[27:28) NewLine |\n|
+//@[004:014) Identifier |subnetName|
+//@[014:015) Colon |:|
+//@[016:027) StringComplete |'subnet2.1'|
+//@[027:028) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightSquare |]|
+//@[001:003) NewLine |\n\n|
 
 module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2' = [for vnet in vnets: {
-//@[0:6) Identifier |module|
-//@[7:17) Identifier |vnetDeploy|
-//@[18:80) StringComplete |'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'|
-//@[81:82) Assignment |=|
-//@[83:84) LeftSquare |[|
-//@[84:87) Identifier |for|
-//@[88:92) Identifier |vnet|
-//@[93:95) Identifier |in|
-//@[96:101) Identifier |vnets|
+//@[000:006) Identifier |module|
+//@[007:017) Identifier |vnetDeploy|
+//@[018:080) StringComplete |'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'|
+//@[081:082) Assignment |=|
+//@[083:084) LeftSquare |[|
+//@[084:087) Identifier |for|
+//@[088:092) Identifier |vnet|
+//@[093:095) Identifier |in|
+//@[096:101) Identifier |vnets|
 //@[101:102) Colon |:|
 //@[103:104) LeftBrace |{|
 //@[104:105) NewLine |\n|
   name: '${vnet.name}Deploy'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:11) StringLeftPiece |'${|
-//@[11:15) Identifier |vnet|
-//@[15:16) Dot |.|
-//@[16:20) Identifier |name|
-//@[20:28) StringRightPiece |}Deploy'|
-//@[28:29) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:011) StringLeftPiece |'${|
+//@[011:015) Identifier |vnet|
+//@[015:016) Dot |.|
+//@[016:020) Identifier |name|
+//@[020:028) StringRightPiece |}Deploy'|
+//@[028:029) NewLine |\n|
   scope: rg
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:11) Identifier |rg|
-//@[11:12) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:011) Identifier |rg|
+//@[011:012) NewLine |\n|
   params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
     vnetName: vnet.name
-//@[4:12) Identifier |vnetName|
-//@[12:13) Colon |:|
-//@[14:18) Identifier |vnet|
-//@[18:19) Dot |.|
-//@[19:23) Identifier |name|
-//@[23:24) NewLine |\n|
+//@[004:012) Identifier |vnetName|
+//@[012:013) Colon |:|
+//@[014:018) Identifier |vnet|
+//@[018:019) Dot |.|
+//@[019:023) Identifier |name|
+//@[023:024) NewLine |\n|
     subnetName: vnet.subnetName
-//@[4:14) Identifier |subnetName|
-//@[14:15) Colon |:|
-//@[16:20) Identifier |vnet|
-//@[20:21) Dot |.|
-//@[21:31) Identifier |subnetName|
-//@[31:32) NewLine |\n|
+//@[004:014) Identifier |subnetName|
+//@[014:015) Colon |:|
+//@[016:020) Identifier |vnet|
+//@[020:021) Dot |.|
+//@[021:031) Identifier |subnetName|
+//@[031:032) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\n\n|
 
 output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUrl]
-//@[0:6) Identifier |output|
-//@[7:15) Identifier |siteUrls|
-//@[16:21) Identifier |array|
-//@[22:23) Assignment |=|
-//@[24:25) LeftSquare |[|
-//@[25:28) Identifier |for|
-//@[29:30) LeftParen |(|
-//@[30:34) Identifier |site|
-//@[34:35) Comma |,|
-//@[36:37) Identifier |i|
-//@[37:38) RightParen |)|
-//@[39:41) Identifier |in|
-//@[42:50) Identifier |websites|
-//@[50:51) Colon |:|
-//@[52:62) Identifier |siteDeploy|
-//@[62:63) LeftSquare |[|
-//@[63:64) Identifier |i|
-//@[64:65) RightSquare |]|
-//@[65:66) Dot |.|
-//@[66:73) Identifier |outputs|
-//@[73:74) Dot |.|
-//@[74:81) Identifier |siteUrl|
-//@[81:82) RightSquare |]|
-//@[82:84) NewLine |\n\n|
+//@[000:006) Identifier |output|
+//@[007:015) Identifier |siteUrls|
+//@[016:021) Identifier |array|
+//@[022:023) Assignment |=|
+//@[024:025) LeftSquare |[|
+//@[025:028) Identifier |for|
+//@[029:030) LeftParen |(|
+//@[030:034) Identifier |site|
+//@[034:035) Comma |,|
+//@[036:037) Identifier |i|
+//@[037:038) RightParen |)|
+//@[039:041) Identifier |in|
+//@[042:050) Identifier |websites|
+//@[050:051) Colon |:|
+//@[052:062) Identifier |siteDeploy|
+//@[062:063) LeftSquare |[|
+//@[063:064) Identifier |i|
+//@[064:065) RightSquare |]|
+//@[065:066) Dot |.|
+//@[066:073) Identifier |outputs|
+//@[073:074) Dot |.|
+//@[074:081) Identifier |siteUrl|
+//@[081:082) RightSquare |]|
+//@[082:084) NewLine |\n\n|
 
 module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
-//@[0:6) Identifier |module|
-//@[7:22) Identifier |passthroughPort|
-//@[23:62) StringComplete |'br:localhost:5000/passthrough/port:v1'|
-//@[63:64) Assignment |=|
-//@[65:66) LeftBrace |{|
-//@[66:67) NewLine |\n|
+//@[000:006) Identifier |module|
+//@[007:022) Identifier |passthroughPort|
+//@[023:062) StringComplete |'br:localhost:5000/passthrough/port:v1'|
+//@[063:064) Assignment |=|
+//@[065:066) LeftBrace |{|
+//@[066:067) NewLine |\n|
   scope: rg
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:11) Identifier |rg|
-//@[11:12) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:011) Identifier |rg|
+//@[011:012) NewLine |\n|
   name: 'port'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'port'|
-//@[14:15) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'port'|
+//@[014:015) NewLine |\n|
   params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
     port: 'test'
-//@[4:8) Identifier |port|
-//@[8:9) Colon |:|
-//@[10:16) StringComplete |'test'|
-//@[16:17) NewLine |\n|
+//@[004:008) Identifier |port|
+//@[008:009) Colon |:|
+//@[010:016) StringComplete |'test'|
+//@[016:017) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
-//@[0:6) Identifier |module|
-//@[7:11) Identifier |ipv4|
-//@[12:46) StringComplete |'br:127.0.0.1/passthrough/ipv4:v1'|
-//@[47:48) Assignment |=|
-//@[49:50) LeftBrace |{|
-//@[50:51) NewLine |\n|
+//@[000:006) Identifier |module|
+//@[007:011) Identifier |ipv4|
+//@[012:046) StringComplete |'br:127.0.0.1/passthrough/ipv4:v1'|
+//@[047:048) Assignment |=|
+//@[049:050) LeftBrace |{|
+//@[050:051) NewLine |\n|
   scope: rg
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:11) Identifier |rg|
-//@[11:12) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:011) Identifier |rg|
+//@[011:012) NewLine |\n|
   name: 'ipv4'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'ipv4'|
-//@[14:15) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'ipv4'|
+//@[014:015) NewLine |\n|
   params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
     ipv4: 'test'
-//@[4:8) Identifier |ipv4|
-//@[8:9) Colon |:|
-//@[10:16) StringComplete |'test'|
-//@[16:17) NewLine |\n|
+//@[004:008) Identifier |ipv4|
+//@[008:009) Colon |:|
+//@[010:016) StringComplete |'test'|
+//@[016:017) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
-//@[0:6) Identifier |module|
-//@[7:15) Identifier |ipv4port|
-//@[16:59) StringComplete |'br:127.0.0.1:5000/passthrough/ipv4port:v1'|
-//@[60:61) Assignment |=|
-//@[62:63) LeftBrace |{|
-//@[63:64) NewLine |\n|
+//@[000:006) Identifier |module|
+//@[007:015) Identifier |ipv4port|
+//@[016:059) StringComplete |'br:127.0.0.1:5000/passthrough/ipv4port:v1'|
+//@[060:061) Assignment |=|
+//@[062:063) LeftBrace |{|
+//@[063:064) NewLine |\n|
   scope: rg
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:11) Identifier |rg|
-//@[11:12) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:011) Identifier |rg|
+//@[011:012) NewLine |\n|
   name: 'ipv4port'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:18) StringComplete |'ipv4port'|
-//@[18:19) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:018) StringComplete |'ipv4port'|
+//@[018:019) NewLine |\n|
   params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
     ipv4port: 'test'
-//@[4:12) Identifier |ipv4port|
-//@[12:13) Colon |:|
-//@[14:20) StringComplete |'test'|
-//@[20:21) NewLine |\n|
+//@[004:012) Identifier |ipv4port|
+//@[012:013) Colon |:|
+//@[014:020) StringComplete |'test'|
+//@[020:021) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
-//@[0:6) Identifier |module|
-//@[7:11) Identifier |ipv6|
-//@[12:42) StringComplete |'br:[::1]/passthrough/ipv6:v1'|
-//@[43:44) Assignment |=|
-//@[45:46) LeftBrace |{|
-//@[46:47) NewLine |\n|
+//@[000:006) Identifier |module|
+//@[007:011) Identifier |ipv6|
+//@[012:042) StringComplete |'br:[::1]/passthrough/ipv6:v1'|
+//@[043:044) Assignment |=|
+//@[045:046) LeftBrace |{|
+//@[046:047) NewLine |\n|
   scope: rg
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:11) Identifier |rg|
-//@[11:12) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:011) Identifier |rg|
+//@[011:012) NewLine |\n|
   name: 'ipv6'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'ipv6'|
-//@[14:15) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'ipv6'|
+//@[014:015) NewLine |\n|
   params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
     ipv6: 'test'
-//@[4:8) Identifier |ipv6|
-//@[8:9) Colon |:|
-//@[10:16) StringComplete |'test'|
-//@[16:17) NewLine |\n|
+//@[004:008) Identifier |ipv6|
+//@[008:009) Colon |:|
+//@[010:016) StringComplete |'test'|
+//@[016:017) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
-//@[0:6) Identifier |module|
-//@[7:15) Identifier |ipv6port|
-//@[16:55) StringComplete |'br:[::1]:5000/passthrough/ipv6port:v1'|
-//@[56:57) Assignment |=|
-//@[58:59) LeftBrace |{|
-//@[59:60) NewLine |\n|
+//@[000:006) Identifier |module|
+//@[007:015) Identifier |ipv6port|
+//@[016:055) StringComplete |'br:[::1]:5000/passthrough/ipv6port:v1'|
+//@[056:057) Assignment |=|
+//@[058:059) LeftBrace |{|
+//@[059:060) NewLine |\n|
   scope: rg
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:11) Identifier |rg|
-//@[11:12) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:011) Identifier |rg|
+//@[011:012) NewLine |\n|
   name: 'ipv6port'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:18) StringComplete |'ipv6port'|
-//@[18:19) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:018) StringComplete |'ipv6port'|
+//@[018:019) NewLine |\n|
   params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:012) NewLine |\n|
     ipv6port: 'test'
-//@[4:12) Identifier |ipv6port|
-//@[12:13) Colon |:|
-//@[14:20) StringComplete |'test'|
-//@[20:21) NewLine |\n|
+//@[004:012) Identifier |ipv6port|
+//@[012:013) Colon |:|
+//@[014:020) StringComplete |'test'|
+//@[020:021) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[002:003) RightBrace |}|
+//@[003:004) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[000:001) RightBrace |}|
+//@[001:001) EndOfFile ||

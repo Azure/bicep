@@ -105,11 +105,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
 
         [TestMethod]
-        public void UnionsOfStringsAndStringLiteralTypesShouldProduceStringType()
+        public void UnionsOfStringsAndStringLiteralTypesShouldNotDropLiterals()
         {
-            TypeHelper.CreateTypeUnion(LanguageConstants.String, new StringLiteralType("hello"), new StringLiteralType("there")).Should().BeSameAs(LanguageConstants.String);
+            TypeHelper.CreateTypeUnion(LanguageConstants.String, new StringLiteralType("hello"), new StringLiteralType("there")).Name.Should().Be("'hello' | 'there' | string");
+            
+            TypeHelper.CreateTypeUnion(LanguageConstants.String, new StringLiteralType("hello"), new StringLiteralType("there"), LanguageConstants.String).Name.Should().Be("'hello' | 'there' | string");
 
-            TypeHelper.CreateTypeUnion(LanguageConstants.String, new StringLiteralType("hello"), LanguageConstants.Bool, new StringLiteralType("there")).Name.Should().Be("bool | string");
+            TypeHelper.CreateTypeUnion(LanguageConstants.String, new StringLiteralType("hello"), LanguageConstants.Bool, new StringLiteralType("there")).Name.Should().Be("'hello' | 'there' | bool | string");
         }
 
         [TestMethod]
@@ -132,4 +134,3 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
     }
 }
-

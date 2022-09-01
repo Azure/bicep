@@ -24,8 +24,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private const string DeploymentFunctionName = "deployment";
         private const string RGOrDeploymentLocationPropertyName = "location";
 
-        protected Dictionary<ISourceFile, ImmutableArray<ParameterSymbol>> _paramsUsedInLocationPropsForFile = new();
-
         public LocationRuleBase(
             string code,
             string description,
@@ -160,16 +158,16 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         /// <summary>
         /// Returns the parameters defined in a consumed module's bicep file
-        /// 
+        ///
         /// E.g. For this consumed module declaration:
-        /// 
+        ///
         ///    module m1 'module1.bicep' { ... }
-        ///    
+        ///
         /// It retrieves the parameters defined in module1.bicep
         /// </summary>
         protected static ImmutableArray<ParameterDeclarationSyntax> TryGetParameterDefinitionsForConsumedModule(ModuleDeclarationSyntax moduleDeclarationSyntax, SemanticModel model)
         {
-            if (model.Compilation.SourceFileGrouping.TryLookUpModuleSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile)
+            if (model.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile)
             {
                 return bicepFile.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().ToImmutableArray();
             }
@@ -180,12 +178,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         /// <summary>
         /// Finds all parameters that are used inside the 'location' value of any resource in the file
         /// </summary>
-        /// <param name="bicepFile"></param>
-        /// <param name="semanticModel"></param>
-        /// <returns></returns>
-        private ImmutableArray<ParameterSymbol> GetParametersUsedInResourceLocations(BicepFile bicepFile, SemanticModel semanticModel)
+        private ImmutableArray<ParameterSymbol> GetParametersUsedInResourceLocations(
+            Dictionary<ISourceFile, ImmutableArray<ParameterSymbol>> cachedParamsUsedInLocationPropsForFile,
+            BicepFile bicepFile,
+            SemanticModel semanticModel)
         {
-            if (this._paramsUsedInLocationPropsForFile.TryGetValue(bicepFile, out ImmutableArray<ParameterSymbol> cachedValue))
+            if (cachedParamsUsedInLocationPropsForFile.TryGetValue(bicepFile, out ImmutableArray<ParameterSymbol> cachedValue))
             {
                 return cachedValue;
             }
@@ -193,7 +191,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             GetParametersUsedInResourceLocationsVisitor visitor = new(semanticModel);
             visitor.Visit(bicepFile.ProgramSyntax);
             ImmutableArray<ParameterSymbol> parameters = visitor.parameters.ToImmutableArray();
-            _paramsUsedInLocationPropsForFile.Add(bicepFile, parameters);
+            cachedParamsUsedInLocationPropsForFile.Add(bicepFile, parameters);
             return parameters;
         }
 
@@ -203,6 +201,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         ///   The parameter is used inside any resource's top-level location property
         /// </summary>
         protected ImmutableArray<string> GetLocationRelatedParametersForModule(
+            Dictionary<ISourceFile, ImmutableArray<ParameterSymbol>> cachedParamsUsedInLocationPropsForFile,
             ModuleDeclarationSyntax moduleDeclarationSyntax,
             SemanticModel fileSemanticModel,
             ImmutableArray<ParameterDeclarationSyntax> moduleFormalParameters,
@@ -222,12 +221,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
 
             // Parameters used in any resource's location property
-            if (fileSemanticModel.Compilation.SourceFileGrouping.TryLookUpModuleSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile)
+            if (fileSemanticModel.Compilation.SourceFileGrouping.TryGetSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile)
             {
                 if (fileSemanticModel.Compilation.GetSemanticModel(bicepFile) is SemanticModel moduleSemanticModel)
                 {
                     ImmutableArray<ParameterSymbol> parametersUsedInResourceLocationProperties =
-                        GetParametersUsedInResourceLocations(bicepFile, moduleSemanticModel);
+                        GetParametersUsedInResourceLocations(cachedParamsUsedInLocationPropsForFile, bicepFile, moduleSemanticModel);
                     foreach (var moduleFormalParameter in parametersUsedInResourceLocationProperties)
                     {
                         // No duplicates in the list
@@ -251,6 +250,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         /// location-related parameters (via the declaration's 'params' object).
         /// </summary>
         protected ImmutableArray<(string parameterName, SyntaxBase? actualValue)> GetParameterValuesForModuleLocationParameters(
+            Dictionary<ISourceFile, ImmutableArray<ParameterSymbol>> cachedParamsUsedInLocationPropsForFile,
             ModuleDeclarationSyntax moduleDeclarationSyntax,
             SemanticModel model,
             bool onlyParamsWithDefaultValues)
@@ -263,7 +263,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     ?.Value as ObjectSyntax;
 
                 ImmutableArray<ParameterDeclarationSyntax> moduleFormalParameters = TryGetParameterDefinitionsForConsumedModule(moduleDeclarationSyntax, model);
-                ImmutableArray<string> moduleLocationParameters = GetLocationRelatedParametersForModule(moduleDeclarationSyntax, model, moduleFormalParameters, onlyParamsWithDefaultValues);
+                ImmutableArray<string> moduleLocationParameters = GetLocationRelatedParametersForModule(cachedParamsUsedInLocationPropsForFile, moduleDeclarationSyntax, model, moduleFormalParameters, onlyParamsWithDefaultValues);
 
                 foreach (var parameterName in moduleLocationParameters)
                 {

@@ -3,7 +3,7 @@
     "$schema": {
       "type": "string",
       "enum": [
-        "https://aka.ms/bicep-registry-module-metadata-file-schema#"
+        "https://aka.ms/bicep-registry-module-metadata-file-schema-v2#"
       ],
       "description": "Bicep registry module metadata file JSON schema reference."
     },
@@ -13,11 +13,11 @@
       "maxLength": 60,
       "description": "The name of the module."
     },
-    "description": {
+    "summary": {
       "type": "string",
       "minLength": 10,
-      "maxLength": 1000,
-      "description": "The description of the module."
+      "maxLength": 120,
+      "description": "The summary of the module."
     },
     "owner": {
       "type": "string",
@@ -28,7 +28,7 @@
   "required": [
     "$schema",
     "name",
-    "description",
+    "summary",
     "owner"
   ],
   "additionalProperties": false

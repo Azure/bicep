@@ -9,6 +9,7 @@ using Bicep.Core.Registry.Auth;
 using Bicep.Core.Configuration;
 using System.Threading;
 using Azure.Core;
+using System.Collections.Generic;
 
 namespace Bicep.LanguageServer.Providers
 {
@@ -21,20 +22,35 @@ namespace Bicep.LanguageServer.Providers
             this.credentialFactory = credentialFactory;
         }
 
-        private ArmClient CreateArmClient(RootConfiguration configuration, string subscriptionId)
+        private ArmClient CreateArmClient(RootConfiguration configuration, string subscriptionId, IEnumerable<(string resourceType, string apiVersion)> resourceTypeApiVersionMapping)
         {
             var options = new ArmClientOptions();
             options.Diagnostics.ApplySharedResourceManagerSettings();
-            options.Scope = configuration.Cloud.AuthenticationScope;
+            options.Environment = new ArmEnvironment(configuration.Cloud.ResourceManagerEndpointUri, configuration.Cloud.AuthenticationScope);
+            foreach (var (resourceType, apiVersion) in resourceTypeApiVersionMapping)
+            {
+                options.SetApiVersion(new ResourceType(resourceType), apiVersion);
+            }
 
             var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.ActiveDirectoryAuthorityUri);
 
-            return new ArmClient(credential, subscriptionId, configuration.Cloud.ResourceManagerEndpointUri, options);
+            return new ArmClient(credential, subscriptionId, options);
         }
 
-        public async Task<JsonElement> GetGenericResource(RootConfiguration configuration, IAzResourceProvider.AzResourceIdentifier resourceId, string apiVersion, CancellationToken cancellationToken)
+        public async Task<JsonElement> GetGenericResource(RootConfiguration configuration, IAzResourceProvider.AzResourceIdentifier resourceId, string? apiVersion, CancellationToken cancellationToken)
         {
-            var armClient = CreateArmClient(configuration, resourceId.subscriptionId);
+            var resourceTypeApiVersionMapping = new List<(string resourceType, string apiVersion)>();
+            if (apiVersion is not null)
+            {
+                // If we have an API version from the Bicep type, use it.
+                // Otherwise, the SDK client will attempt to fetch the latest version from the /providers/<provider> API.
+                // This is not always guaranteed to work, as child resources are not necessarily declared.
+                resourceTypeApiVersionMapping.Add((
+                    resourceType: resourceId.FullyQualifiedType,
+                    apiVersion: apiVersion));
+            }
+
+            var armClient = CreateArmClient(configuration, resourceId.subscriptionId, resourceTypeApiVersionMapping);
             var resourceIdentifier = new ResourceIdentifier(resourceId.FullyQualifiedId);
             var response = await armClient.GetGenericResource(resourceIdentifier).GetAsync(cancellationToken);
             if (response is null ||

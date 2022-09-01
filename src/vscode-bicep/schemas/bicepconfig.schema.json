@@ -1,7 +1,7 @@
 {
   "$comment1": "=========================================================================================================",
-  "$comment2": "IMPORTANT: This file is for intellisense only, it does *not* affect the actual bicepconfig.json defaults.",
-  "$comment3": "  Actual defaults picked up by configuration are in src/Bicep.Core/Configuration/bicepconfig.json",
+  "$comment2": "IMPORTANT: This file is for intelliSense only, it does *not* affect the actual bicepconfig.json defaults.",
+  "$comment3": "  Actual defaults picked up by configuration at runtime are in src/Bicep.Core/Configuration/bicepconfig.json",
   "$comment4": "If you make changes to this file, remember to update the rule documentation.",
   "$comment5": "=========================================================================================================",
   "$schema": "http://json-schema.org/schema#",
@@ -18,7 +18,7 @@
         "error"
       ]
     },
-    "rule": {
+    "rule-def-level-warning": {
       "type": "object",
       "default": {
         "level": "warning"
@@ -32,10 +32,24 @@
         "level"
       ]
     },
-    "rule-def-error-level": {
+    "rule-def-level-error": {
       "type": "object",
       "default": {
         "level": "error"
+      },
+      "properties": {
+        "level": {
+          "$ref": "#/definitions/level"
+        }
+      },
+      "required": [
+        "level"
+      ]
+    },
+    "rule-def-level-off": {
+      "type": "object",
+      "default": {
+        "level": "off"
       },
       "properties": {
         "level": {
@@ -232,7 +246,17 @@
                       "description": "Property 'adminUserName' should not use a literal value. Use a param instead. See https://aka.ms/bicep/linter/adminusername-should-not-be-literal"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "artifacts-parameters": {
+                  "allOf": [
+                    {
+                      "description": "Follow best practices when including the _artifactsLocation and _artifactsLocationSasToken parameters. See https://aka.ms/bicep/linter/artifacts-parameters"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
@@ -242,7 +266,7 @@
                       "description": "When consuming a module, any location-related parameters that have a default value must be assigned an explicit value. See https://aka.ms/bicep/linter/explicit-values-for-loc-params"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
@@ -298,7 +322,7 @@
                       }
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
@@ -308,7 +332,7 @@
                       "description": "A resource's location should not use a hard-coded string or variable value. It should use a parameter, an expression, or the string 'global'. See https://aka.ms/bicep/linter/no-hardcoded-location"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
@@ -318,7 +342,7 @@
                       "description": "Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter. See https://aka.ms/bicep/linter/no-loc-expr-outside-params"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
@@ -328,7 +352,17 @@
                       "description": "No unnecessary dependsOn. See https://aka.ms/bicep/linter/no-unnecessary-dependson"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "no-unused-existing-resources": {
+                  "allOf": [
+                    {
+                      "description": "All existing resources must be used. See https://aka.ms/bicep/linter/no-unused-existing-resources"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
@@ -338,7 +372,7 @@
                       "description": "All parameters must be used. See https://aka.ms/bicep/linter/no-unused-params"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
@@ -348,7 +382,7 @@
                       "description": "All variables must be used. See https://aka.ms/bicep/linter/no-unused-vars"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
@@ -358,7 +392,17 @@
                       "description": "Outputs should not contain secrets. See https://aka.ms/bicep/linter/outputs-should-not-contain-secrets"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "prefer-unquoted-property-names": {
+                  "allOf": [
+                    {
+                      "description": "Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. See https://aka.ms/bicep/linter/prefer-unquoted-property-names"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
@@ -368,7 +412,27 @@
                       "description": "Use string interpolation instead of the concat function. See https://aka.ms/bicep/linter/prefer-interpolation"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "secure-params-in-nested-deploy": {
+                  "allOf": [
+                    {
+                      "description": "Outer-scoped nested deployment resources should not be used for secure parameters or list* functions. See https://aka.ms/bicep/linter/secure-params-in-nested-deploy"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "secure-secrets-in-params": {
+                  "allOf": [
+                    {
+                      "description": "Parameters that represent secrets must be secure. See https://aka.ms/bicep/linter/secure-secrets-in-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
@@ -378,7 +442,7 @@
                       "description": "Secure parameters should not have hardcoded defaults (except for empty or newGuid()). See https://aka.ms/bicep/linter/secure-parameter-default"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
@@ -388,7 +452,7 @@
                       "description": "Remove unnecessary string interpolation. See https://aka.ms/bicep/linter/simplify-interpolation"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
@@ -398,7 +462,27 @@
                       "description": "Use protectedSettings for commandToExecute secrets. See https://aka.ms/bicep/linter/protect-commandtoexecute-secrets"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "use-recent-api-versions": {
+                  "allOf": [
+                    {
+                      "description": "Use recent API versions. See https://aka.ms/bicep/linter/use-recent-api-versions"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-off"
+                    }
+                  ]
+                },
+                "use-resource-id-functions": {
+                  "allOf": [
+                    {
+                      "description": "Properties representing a resource ID must be generated appropriately. See https://aka.ms/bicep/linter/use-resource-id-functions"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
@@ -408,7 +492,7 @@
                       "description": "Virtual machines shouldn't use preview images. See https://aka.ms/bicep/linter/use-stable-vm-image"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
@@ -418,7 +502,7 @@
                       "description": "Maximum number of parameters used. See https://aka.ms/bicep/linter/max-params"
                     },
                     {
-                      "$ref": "#/definitions/rule-def-error-level"
+                      "$ref": "#/definitions/rule-def-level-error"
                     }
                   ]
                 },
@@ -428,7 +512,7 @@
                       "description": "Maximum number of variables used. See https://aka.ms/bicep/linter/max-variables"
                     },
                     {
-                      "$ref": "#/definitions/rule-def-error-level"
+                      "$ref": "#/definitions/rule-def-level-error"
                     }
                   ]
                 },
@@ -438,7 +522,7 @@
                       "description": "Maximum number of outputs used. See https://aka.ms/bicep/linter/max-outputs"
                     },
                     {
-                      "$ref": "#/definitions/rule-def-error-level"
+                      "$ref": "#/definitions/rule-def-level-error"
                     }
                   ]
                 },
@@ -448,7 +532,17 @@
                       "description": "Maximum number of resources used. See https://aka.ms/bicep/linter/max-resources"
                     },
                     {
-                      "$ref": "#/definitions/rule-def-error-level"
+                      "$ref": "#/definitions/rule-def-level-error"
+                    }
+                  ]
+                },
+                "use-stable-resource-identifiers": {
+                  "allOf": [
+                    {
+                      "description": "Resource identifiers should be reproducible outside of their initial deployment context. See https://aka.ms/bicep/linter/use-stable-resource-identifiers"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 }

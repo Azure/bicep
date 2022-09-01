@@ -1,251 +1,252 @@
 targetScope = 'tenant'
-//@[0:22) TargetScopeSyntax
-//@[0:11)  Identifier |targetScope|
-//@[12:13)  Assignment |=|
-//@[14:22)  StringSyntax
-//@[14:22)   StringComplete |'tenant'|
-//@[22:24) NewLine |\n\n|
+//@[000:1047) ProgramSyntax
+//@[000:0022) ├─TargetScopeSyntax
+//@[000:0011) | ├─Token(Identifier) |targetScope|
+//@[012:0013) | ├─Token(Assignment) |=|
+//@[014:0022) | └─StringSyntax
+//@[014:0022) |   └─Token(StringComplete) |'tenant'|
+//@[022:0024) ├─Token(NewLine) |\n\n|
 
 module myManagementGroupMod 'modules/managementgroup.bicep' = {
-//@[0:142) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:27)  IdentifierSyntax
-//@[7:27)   Identifier |myManagementGroupMod|
-//@[28:59)  StringSyntax
-//@[28:59)   StringComplete |'modules/managementgroup.bicep'|
-//@[60:61)  Assignment |=|
-//@[62:142)  ObjectSyntax
-//@[62:63)   LeftBrace |{|
-//@[63:64)   NewLine |\n|
+//@[000:0142) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0027) | ├─IdentifierSyntax
+//@[007:0027) | | └─Token(Identifier) |myManagementGroupMod|
+//@[028:0059) | ├─StringSyntax
+//@[028:0059) | | └─Token(StringComplete) |'modules/managementgroup.bicep'|
+//@[060:0061) | ├─Token(Assignment) |=|
+//@[062:0142) | └─ObjectSyntax
+//@[062:0063) |   ├─Token(LeftBrace) |{|
+//@[063:0064) |   ├─Token(NewLine) |\n|
   name: 'myManagementGroupMod'
-//@[2:30)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:30)    StringSyntax
-//@[8:30)     StringComplete |'myManagementGroupMod'|
-//@[30:31)   NewLine |\n|
+//@[002:0030) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0030) |   | └─StringSyntax
+//@[008:0030) |   |   └─Token(StringComplete) |'myManagementGroupMod'|
+//@[030:0031) |   ├─Token(NewLine) |\n|
   scope: managementGroup('myManagementGroup')
-//@[2:45)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:45)    FunctionCallSyntax
-//@[9:24)     IdentifierSyntax
-//@[9:24)      Identifier |managementGroup|
-//@[24:25)     LeftParen |(|
-//@[25:44)     FunctionArgumentSyntax
-//@[25:44)      StringSyntax
-//@[25:44)       StringComplete |'myManagementGroup'|
-//@[44:45)     RightParen |)|
-//@[45:46)   NewLine |\n|
+//@[002:0045) |   ├─ObjectPropertySyntax
+//@[002:0007) |   | ├─IdentifierSyntax
+//@[002:0007) |   | | └─Token(Identifier) |scope|
+//@[007:0008) |   | ├─Token(Colon) |:|
+//@[009:0045) |   | └─FunctionCallSyntax
+//@[009:0024) |   |   ├─IdentifierSyntax
+//@[009:0024) |   |   | └─Token(Identifier) |managementGroup|
+//@[024:0025) |   |   ├─Token(LeftParen) |(|
+//@[025:0044) |   |   ├─FunctionArgumentSyntax
+//@[025:0044) |   |   | └─StringSyntax
+//@[025:0044) |   |   |   └─Token(StringComplete) |'myManagementGroup'|
+//@[044:0045) |   |   └─Token(RightParen) |)|
+//@[045:0046) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0002) ├─Token(NewLine) |\n|
 module myManagementGroupModWithDuplicatedNameButDifferentScope 'modules/managementgroup_empty.bicep' = {
-//@[0:184) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:62)  IdentifierSyntax
-//@[7:62)   Identifier |myManagementGroupModWithDuplicatedNameButDifferentScope|
-//@[63:100)  StringSyntax
-//@[63:100)   StringComplete |'modules/managementgroup_empty.bicep'|
-//@[101:102)  Assignment |=|
-//@[103:184)  ObjectSyntax
-//@[103:104)   LeftBrace |{|
-//@[104:105)   NewLine |\n|
+//@[000:0184) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0062) | ├─IdentifierSyntax
+//@[007:0062) | | └─Token(Identifier) |myManagementGroupModWithDuplicatedNameButDifferentScope|
+//@[063:0100) | ├─StringSyntax
+//@[063:0100) | | └─Token(StringComplete) |'modules/managementgroup_empty.bicep'|
+//@[101:0102) | ├─Token(Assignment) |=|
+//@[103:0184) | └─ObjectSyntax
+//@[103:0104) |   ├─Token(LeftBrace) |{|
+//@[104:0105) |   ├─Token(NewLine) |\n|
   name: 'myManagementGroupMod'
-//@[2:30)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:30)    StringSyntax
-//@[8:30)     StringComplete |'myManagementGroupMod'|
-//@[30:31)   NewLine |\n|
+//@[002:0030) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0030) |   | └─StringSyntax
+//@[008:0030) |   |   └─Token(StringComplete) |'myManagementGroupMod'|
+//@[030:0031) |   ├─Token(NewLine) |\n|
   scope: managementGroup('myManagementGroup2')
-//@[2:46)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:46)    FunctionCallSyntax
-//@[9:24)     IdentifierSyntax
-//@[9:24)      Identifier |managementGroup|
-//@[24:25)     LeftParen |(|
-//@[25:45)     FunctionArgumentSyntax
-//@[25:45)      StringSyntax
-//@[25:45)       StringComplete |'myManagementGroup2'|
-//@[45:46)     RightParen |)|
-//@[46:47)   NewLine |\n|
+//@[002:0046) |   ├─ObjectPropertySyntax
+//@[002:0007) |   | ├─IdentifierSyntax
+//@[002:0007) |   | | └─Token(Identifier) |scope|
+//@[007:0008) |   | ├─Token(Colon) |:|
+//@[009:0046) |   | └─FunctionCallSyntax
+//@[009:0024) |   |   ├─IdentifierSyntax
+//@[009:0024) |   |   | └─Token(Identifier) |managementGroup|
+//@[024:0025) |   |   ├─Token(LeftParen) |(|
+//@[025:0045) |   |   ├─FunctionArgumentSyntax
+//@[025:0045) |   |   | └─StringSyntax
+//@[025:0045) |   |   |   └─Token(StringComplete) |'myManagementGroup2'|
+//@[045:0046) |   |   └─Token(RightParen) |)|
+//@[046:0047) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0002) ├─Token(NewLine) |\n|
 module mySubscriptionMod 'modules/subscription.bicep' = {
-//@[0:149) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:24)  IdentifierSyntax
-//@[7:24)   Identifier |mySubscriptionMod|
-//@[25:53)  StringSyntax
-//@[25:53)   StringComplete |'modules/subscription.bicep'|
-//@[54:55)  Assignment |=|
-//@[56:149)  ObjectSyntax
-//@[56:57)   LeftBrace |{|
-//@[57:58)   NewLine |\n|
+//@[000:0149) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0024) | ├─IdentifierSyntax
+//@[007:0024) | | └─Token(Identifier) |mySubscriptionMod|
+//@[025:0053) | ├─StringSyntax
+//@[025:0053) | | └─Token(StringComplete) |'modules/subscription.bicep'|
+//@[054:0055) | ├─Token(Assignment) |=|
+//@[056:0149) | └─ObjectSyntax
+//@[056:0057) |   ├─Token(LeftBrace) |{|
+//@[057:0058) |   ├─Token(NewLine) |\n|
   name: 'mySubscriptionMod'
-//@[2:27)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:27)    StringSyntax
-//@[8:27)     StringComplete |'mySubscriptionMod'|
-//@[27:28)   NewLine |\n|
+//@[002:0027) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0027) |   | └─StringSyntax
+//@[008:0027) |   |   └─Token(StringComplete) |'mySubscriptionMod'|
+//@[027:0028) |   ├─Token(NewLine) |\n|
   scope: subscription('ee44cd78-68c6-43d9-874e-e684ec8d1191')
-//@[2:61)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:61)    FunctionCallSyntax
-//@[9:21)     IdentifierSyntax
-//@[9:21)      Identifier |subscription|
-//@[21:22)     LeftParen |(|
-//@[22:60)     FunctionArgumentSyntax
-//@[22:60)      StringSyntax
-//@[22:60)       StringComplete |'ee44cd78-68c6-43d9-874e-e684ec8d1191'|
-//@[60:61)     RightParen |)|
-//@[61:62)   NewLine |\n|
+//@[002:0061) |   ├─ObjectPropertySyntax
+//@[002:0007) |   | ├─IdentifierSyntax
+//@[002:0007) |   | | └─Token(Identifier) |scope|
+//@[007:0008) |   | ├─Token(Colon) |:|
+//@[009:0061) |   | └─FunctionCallSyntax
+//@[009:0021) |   |   ├─IdentifierSyntax
+//@[009:0021) |   |   | └─Token(Identifier) |subscription|
+//@[021:0022) |   |   ├─Token(LeftParen) |(|
+//@[022:0060) |   |   ├─FunctionArgumentSyntax
+//@[022:0060) |   |   | └─StringSyntax
+//@[022:0060) |   |   |   └─Token(StringComplete) |'ee44cd78-68c6-43d9-874e-e684ec8d1191'|
+//@[060:0061) |   |   └─Token(RightParen) |)|
+//@[061:0062) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
 
 module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length('foo') == 3) {
-//@[0:199) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:37)  IdentifierSyntax
-//@[7:37)   Identifier |mySubscriptionModWithCondition|
-//@[38:66)  StringSyntax
-//@[38:66)   StringComplete |'modules/subscription.bicep'|
-//@[67:68)  Assignment |=|
-//@[69:199)  IfConditionSyntax
-//@[69:71)   Identifier |if|
-//@[72:92)   ParenthesizedExpressionSyntax
-//@[72:73)    LeftParen |(|
-//@[73:91)    BinaryOperationSyntax
-//@[73:86)     FunctionCallSyntax
-//@[73:79)      IdentifierSyntax
-//@[73:79)       Identifier |length|
-//@[79:80)      LeftParen |(|
-//@[80:85)      FunctionArgumentSyntax
-//@[80:85)       StringSyntax
-//@[80:85)        StringComplete |'foo'|
-//@[85:86)      RightParen |)|
-//@[87:89)     Equals |==|
-//@[90:91)     IntegerLiteralSyntax
-//@[90:91)      Integer |3|
-//@[91:92)    RightParen |)|
-//@[93:199)   ObjectSyntax
-//@[93:94)    LeftBrace |{|
-//@[94:95)    NewLine |\n|
+//@[000:0199) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0037) | ├─IdentifierSyntax
+//@[007:0037) | | └─Token(Identifier) |mySubscriptionModWithCondition|
+//@[038:0066) | ├─StringSyntax
+//@[038:0066) | | └─Token(StringComplete) |'modules/subscription.bicep'|
+//@[067:0068) | ├─Token(Assignment) |=|
+//@[069:0199) | └─IfConditionSyntax
+//@[069:0071) |   ├─Token(Identifier) |if|
+//@[072:0092) |   ├─ParenthesizedExpressionSyntax
+//@[072:0073) |   | ├─Token(LeftParen) |(|
+//@[073:0091) |   | ├─BinaryOperationSyntax
+//@[073:0086) |   | | ├─FunctionCallSyntax
+//@[073:0079) |   | | | ├─IdentifierSyntax
+//@[073:0079) |   | | | | └─Token(Identifier) |length|
+//@[079:0080) |   | | | ├─Token(LeftParen) |(|
+//@[080:0085) |   | | | ├─FunctionArgumentSyntax
+//@[080:0085) |   | | | | └─StringSyntax
+//@[080:0085) |   | | | |   └─Token(StringComplete) |'foo'|
+//@[085:0086) |   | | | └─Token(RightParen) |)|
+//@[087:0089) |   | | ├─Token(Equals) |==|
+//@[090:0091) |   | | └─IntegerLiteralSyntax
+//@[090:0091) |   | |   └─Token(Integer) |3|
+//@[091:0092) |   | └─Token(RightParen) |)|
+//@[093:0199) |   └─ObjectSyntax
+//@[093:0094) |     ├─Token(LeftBrace) |{|
+//@[094:0095) |     ├─Token(NewLine) |\n|
   name: 'mySubscriptionModWithCondition'
-//@[2:40)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:40)     StringSyntax
-//@[8:40)      StringComplete |'mySubscriptionModWithCondition'|
-//@[40:41)    NewLine |\n|
+//@[002:0040) |     ├─ObjectPropertySyntax
+//@[002:0006) |     | ├─IdentifierSyntax
+//@[002:0006) |     | | └─Token(Identifier) |name|
+//@[006:0007) |     | ├─Token(Colon) |:|
+//@[008:0040) |     | └─StringSyntax
+//@[008:0040) |     |   └─Token(StringComplete) |'mySubscriptionModWithCondition'|
+//@[040:0041) |     ├─Token(NewLine) |\n|
   scope: subscription('ee44cd78-68c6-43d9-874e-e684ec8d1191')
-//@[2:61)    ObjectPropertySyntax
-//@[2:7)     IdentifierSyntax
-//@[2:7)      Identifier |scope|
-//@[7:8)     Colon |:|
-//@[9:61)     FunctionCallSyntax
-//@[9:21)      IdentifierSyntax
-//@[9:21)       Identifier |subscription|
-//@[21:22)      LeftParen |(|
-//@[22:60)      FunctionArgumentSyntax
-//@[22:60)       StringSyntax
-//@[22:60)        StringComplete |'ee44cd78-68c6-43d9-874e-e684ec8d1191'|
-//@[60:61)      RightParen |)|
-//@[61:62)    NewLine |\n|
+//@[002:0061) |     ├─ObjectPropertySyntax
+//@[002:0007) |     | ├─IdentifierSyntax
+//@[002:0007) |     | | └─Token(Identifier) |scope|
+//@[007:0008) |     | ├─Token(Colon) |:|
+//@[009:0061) |     | └─FunctionCallSyntax
+//@[009:0021) |     |   ├─IdentifierSyntax
+//@[009:0021) |     |   | └─Token(Identifier) |subscription|
+//@[021:0022) |     |   ├─Token(LeftParen) |(|
+//@[022:0060) |     |   ├─FunctionArgumentSyntax
+//@[022:0060) |     |   | └─StringSyntax
+//@[022:0060) |     |   |   └─Token(StringComplete) |'ee44cd78-68c6-43d9-874e-e684ec8d1191'|
+//@[060:0061) |     |   └─Token(RightParen) |)|
+//@[061:0062) |     ├─Token(NewLine) |\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:0001) |     └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\n\n|
 
 module mySubscriptionModWithDuplicatedNameButDifferentScope 'modules/subscription_empty.bicep' = {
-//@[0:190) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:59)  IdentifierSyntax
-//@[7:59)   Identifier |mySubscriptionModWithDuplicatedNameButDifferentScope|
-//@[60:94)  StringSyntax
-//@[60:94)   StringComplete |'modules/subscription_empty.bicep'|
-//@[95:96)  Assignment |=|
-//@[97:190)  ObjectSyntax
-//@[97:98)   LeftBrace |{|
-//@[98:99)   NewLine |\n|
+//@[000:0190) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0059) | ├─IdentifierSyntax
+//@[007:0059) | | └─Token(Identifier) |mySubscriptionModWithDuplicatedNameButDifferentScope|
+//@[060:0094) | ├─StringSyntax
+//@[060:0094) | | └─Token(StringComplete) |'modules/subscription_empty.bicep'|
+//@[095:0096) | ├─Token(Assignment) |=|
+//@[097:0190) | └─ObjectSyntax
+//@[097:0098) |   ├─Token(LeftBrace) |{|
+//@[098:0099) |   ├─Token(NewLine) |\n|
   name: 'mySubscriptionMod'
-//@[2:27)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:27)    StringSyntax
-//@[8:27)     StringComplete |'mySubscriptionMod'|
-//@[27:28)   NewLine |\n|
+//@[002:0027) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0027) |   | └─StringSyntax
+//@[008:0027) |   |   └─Token(StringComplete) |'mySubscriptionMod'|
+//@[027:0028) |   ├─Token(NewLine) |\n|
   scope: subscription('1ad827ac-2669-4c2f-9970-282b93c3c550')
-//@[2:61)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:61)    FunctionCallSyntax
-//@[9:21)     IdentifierSyntax
-//@[9:21)      Identifier |subscription|
-//@[21:22)     LeftParen |(|
-//@[22:60)     FunctionArgumentSyntax
-//@[22:60)      StringSyntax
-//@[22:60)       StringComplete |'1ad827ac-2669-4c2f-9970-282b93c3c550'|
-//@[60:61)     RightParen |)|
-//@[61:62)   NewLine |\n|
+//@[002:0061) |   ├─ObjectPropertySyntax
+//@[002:0007) |   | ├─IdentifierSyntax
+//@[002:0007) |   | | └─Token(Identifier) |scope|
+//@[007:0008) |   | ├─Token(Colon) |:|
+//@[009:0061) |   | └─FunctionCallSyntax
+//@[009:0021) |   |   ├─IdentifierSyntax
+//@[009:0021) |   |   | └─Token(Identifier) |subscription|
+//@[021:0022) |   |   ├─Token(LeftParen) |(|
+//@[022:0060) |   |   ├─FunctionArgumentSyntax
+//@[022:0060) |   |   | └─StringSyntax
+//@[022:0060) |   |   |   └─Token(StringComplete) |'1ad827ac-2669-4c2f-9970-282b93c3c550'|
+//@[060:0061) |   |   └─Token(RightParen) |)|
+//@[061:0062) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:4) NewLine |\n\n\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0004) ├─Token(NewLine) |\n\n\n|
 
 
 output myManagementGroupOutput string = myManagementGroupMod.outputs.myOutput
-//@[0:77) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:30)  IdentifierSyntax
-//@[7:30)   Identifier |myManagementGroupOutput|
-//@[31:37)  SimpleTypeSyntax
-//@[31:37)   Identifier |string|
-//@[38:39)  Assignment |=|
-//@[40:77)  PropertyAccessSyntax
-//@[40:68)   PropertyAccessSyntax
-//@[40:60)    VariableAccessSyntax
-//@[40:60)     IdentifierSyntax
-//@[40:60)      Identifier |myManagementGroupMod|
-//@[60:61)    Dot |.|
-//@[61:68)    IdentifierSyntax
-//@[61:68)     Identifier |outputs|
-//@[68:69)   Dot |.|
-//@[69:77)   IdentifierSyntax
-//@[69:77)    Identifier |myOutput|
-//@[77:78) NewLine |\n|
+//@[000:0077) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0030) | ├─IdentifierSyntax
+//@[007:0030) | | └─Token(Identifier) |myManagementGroupOutput|
+//@[031:0037) | ├─SimpleTypeSyntax
+//@[031:0037) | | └─Token(Identifier) |string|
+//@[038:0039) | ├─Token(Assignment) |=|
+//@[040:0077) | └─PropertyAccessSyntax
+//@[040:0068) |   ├─PropertyAccessSyntax
+//@[040:0060) |   | ├─VariableAccessSyntax
+//@[040:0060) |   | | └─IdentifierSyntax
+//@[040:0060) |   | |   └─Token(Identifier) |myManagementGroupMod|
+//@[060:0061) |   | ├─Token(Dot) |.|
+//@[061:0068) |   | └─IdentifierSyntax
+//@[061:0068) |   |   └─Token(Identifier) |outputs|
+//@[068:0069) |   ├─Token(Dot) |.|
+//@[069:0077) |   └─IdentifierSyntax
+//@[069:0077) |     └─Token(Identifier) |myOutput|
+//@[077:0078) ├─Token(NewLine) |\n|
 output mySubscriptionOutput string = mySubscriptionMod.outputs.myOutput
-//@[0:71) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:27)  IdentifierSyntax
-//@[7:27)   Identifier |mySubscriptionOutput|
-//@[28:34)  SimpleTypeSyntax
-//@[28:34)   Identifier |string|
-//@[35:36)  Assignment |=|
-//@[37:71)  PropertyAccessSyntax
-//@[37:62)   PropertyAccessSyntax
-//@[37:54)    VariableAccessSyntax
-//@[37:54)     IdentifierSyntax
-//@[37:54)      Identifier |mySubscriptionMod|
-//@[54:55)    Dot |.|
-//@[55:62)    IdentifierSyntax
-//@[55:62)     Identifier |outputs|
-//@[62:63)   Dot |.|
-//@[63:71)   IdentifierSyntax
-//@[63:71)    Identifier |myOutput|
-//@[71:72) NewLine |\n|
+//@[000:0071) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0027) | ├─IdentifierSyntax
+//@[007:0027) | | └─Token(Identifier) |mySubscriptionOutput|
+//@[028:0034) | ├─SimpleTypeSyntax
+//@[028:0034) | | └─Token(Identifier) |string|
+//@[035:0036) | ├─Token(Assignment) |=|
+//@[037:0071) | └─PropertyAccessSyntax
+//@[037:0062) |   ├─PropertyAccessSyntax
+//@[037:0054) |   | ├─VariableAccessSyntax
+//@[037:0054) |   | | └─IdentifierSyntax
+//@[037:0054) |   | |   └─Token(Identifier) |mySubscriptionMod|
+//@[054:0055) |   | ├─Token(Dot) |.|
+//@[055:0062) |   | └─IdentifierSyntax
+//@[055:0062) |   |   └─Token(Identifier) |outputs|
+//@[062:0063) |   ├─Token(Dot) |.|
+//@[063:0071) |   └─IdentifierSyntax
+//@[063:0071) |     └─Token(Identifier) |myOutput|
+//@[071:0072) ├─Token(NewLine) |\n|
 
-//@[0:0) EndOfFile ||
+//@[000:0000) └─Token(EndOfFile) ||

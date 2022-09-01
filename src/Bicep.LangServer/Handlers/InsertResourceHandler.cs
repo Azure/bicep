@@ -33,9 +33,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using Bicep.Core.Navigation;
 using Bicep.Core.Rewriters;
 using System.Text.RegularExpressions;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Telemetry;
+using System.Diagnostics;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -51,7 +51,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ICompilationManager compilationManager;
         private readonly IAzResourceProvider azResourceProvider;
         private readonly IAzResourceTypeLoader azResourceTypeLoader;
-        private readonly ITelemetryProvider telemetryProvider;
+        private readonly TelemetryAndErrorHandlingHelper<Unit> helper;
 
         public InsertResourceHandler(ILanguageServerFacade server, ICompilationManager compilationManager, IAzResourceProvider azResourceProvider, IAzResourceTypeLoader azResourceTypeLoader, ITelemetryProvider telemetryProvider)
         {
@@ -59,76 +59,97 @@ namespace Bicep.LanguageServer.Handlers
             this.compilationManager = compilationManager;
             this.azResourceProvider = azResourceProvider;
             this.azResourceTypeLoader = azResourceTypeLoader;
-            this.telemetryProvider = telemetryProvider;
+            this.helper = new TelemetryAndErrorHandlingHelper<Unit>(server.Window, telemetryProvider, Unit.Value);
         }
 
-        public async Task<Unit> Handle(InsertResourceParams request, CancellationToken cancellationToken)
-        {
-            var context = compilationManager.GetCompilation(request.TextDocument.Uri);
-            if (context is null)
-            {
-                return Unit.Value;
-            }
-
-            if (TryParseResourceId(request.ResourceId) is not { } resourceId)
-            {
-                server.Window.ShowError($"Failed to parse supplied resourceId \"{request.ResourceId}\".");
-                telemetryProvider.PostEvent(BicepTelemetryEvent.InsertResourceFailure("ParseResourceIdFailed"));
-                return Unit.Value;
-            }
-
-            var matchedType = azResourceTypeLoader.GetAvailableTypes()
-                .Where(x => StringComparer.OrdinalIgnoreCase.Equals(resourceId.FullyQualifiedType, x.FormatType()))
-                .OrderByDescending(x => x.ApiVersion, ApiVersionComparer.Instance)
-                .FirstOrDefault();
-
-            if (matchedType is null || matchedType.ApiVersion is null)
-            {
-                server.Window.ShowError($"Failed to find a Bicep type definition for resource of type \"{resourceId.FullyQualifiedType}\".");
-                telemetryProvider.PostEvent(BicepTelemetryEvent.InsertResourceFailure($"MissingType({resourceId.FullyQualifiedType})"));
-                return Unit.Value;
-            }
-
-            JsonElement resource;
-            try
-            {
-                resource = await azResourceProvider.GetGenericResource(
-                    context.Compilation.Configuration,
-                    resourceId,
-                    matchedType.ApiVersion,
-                    cancellationToken);
-            }
-            catch (Exception exception)
-            {
-                server.Window.ShowError($"Caught exception fetching resource: {exception.Message}.");
-                telemetryProvider.PostEvent(BicepTelemetryEvent.InsertResourceFailure($"FetchResourceFailure"));
-                return Unit.Value;
-            }
-
-            var resourceDeclaration = CreateResourceSyntax(resource, resourceId, matchedType);
-            var insertContext = GetInsertContext(context, request.Position);
-            var replacement = GenerateCodeReplacement(context.Compilation, resourceDeclaration, insertContext);
-
-            await server.Workspace.ApplyWorkspaceEdit(new ApplyWorkspaceEditParams
-            {
-                Edit = new()
+        public Task<Unit> Handle(InsertResourceParams request, CancellationToken cancellationToken)
+            => helper.ExecuteWithTelemetryAndErrorHandling(async () => {
+                var context = compilationManager.GetCompilation(request.TextDocument.Uri);
+                if (context is null)
                 {
-                    Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>
+                    return (Unit.Value, null);
+                }
+
+                if (TryParseResourceId(request.ResourceId) is not { } resourceId)
+                {
+                    throw new TelemetryAndErrorHandlingException(
+                        $"Failed to parse supplied resourceId \"{request.ResourceId}\".",
+                        BicepTelemetryEvent.InsertResourceFailure("ParseResourceIdFailed"));
+                }
+
+                var matchedType = azResourceTypeLoader.GetAvailableTypes()
+                    .Where(x => StringComparer.OrdinalIgnoreCase.Equals(resourceId.FullyQualifiedType, x.FormatType()))
+                    .OrderByDescending(x => x.ApiVersion, ApiVersionComparer.Instance)
+                    .FirstOrDefault();
+
+                if (matchedType is null || matchedType.ApiVersion is null)
+                {
+                    throw new TelemetryAndErrorHandlingException(
+                        $"Failed to find a Bicep type definition for resource of type \"{resourceId.FullyQualifiedType}\".",
+                        BicepTelemetryEvent.InsertResourceFailure($"MissingType({resourceId.FullyQualifiedType})"));
+                }
+
+                JsonElement? resource = null;
+                try
+                {
+                    // First attempt a direct GET on the resource using the Bicep type API version.
+                    resource = await azResourceProvider.GetGenericResource(
+                        context.Compilation.Configuration,
+                        resourceId,
+                        apiVersion: matchedType.ApiVersion,
+                        cancellationToken);
+                }
+                catch (Exception exception)
+                {
+                    // We want to keep going here - we'll try again without the API version.
+                    Trace.WriteLine($"Failed to fetch resource '{resourceId}' with API version {matchedType.ApiVersion}: {exception}");
+                }
+
+                try
+                {
+                    // If the direct GET fails, attempt to look it up without the API version.
+                    // This will use the latest version from the /providers/<provider> API.
+                    if (resource is null)
                     {
-                        [request.TextDocument.Uri] = new[] {
-                            new TextEdit
-                            {
-                                Range = replacement.ToRange(context.LineStarts),
-                                NewText = replacement.Text,
+                        resource = await azResourceProvider.GetGenericResource(
+                            context.Compilation.Configuration,
+                            resourceId,
+                            apiVersion: null,
+                            cancellationToken);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    Trace.WriteLine($"Failed to fetch resource '{resourceId}' without API version: {exception}");
+
+                    throw new TelemetryAndErrorHandlingException(
+                        $"Caught exception fetching resource: {exception.Message}.",
+                        BicepTelemetryEvent.InsertResourceFailure($"FetchResourceFailure"));
+                }
+
+                var resourceDeclaration = CreateResourceSyntax(resource.Value, resourceId, matchedType);
+                var insertContext = GetInsertContext(context, request.Position);
+                var replacement = GenerateCodeReplacement(context.Compilation, resourceDeclaration, insertContext);
+
+                await server.Workspace.ApplyWorkspaceEdit(new ApplyWorkspaceEditParams
+                {
+                    Edit = new()
+                    {
+                        Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>
+                        {
+                            [request.TextDocument.Uri] = new[] {
+                                new TextEdit
+                                {
+                                    Range = replacement.ToRange(context.LineStarts),
+                                    NewText = replacement.Text,
+                                },
                             },
                         },
                     },
-                },
-            }, cancellationToken);
+                }, cancellationToken);
 
-            telemetryProvider.PostEvent(BicepTelemetryEvent.InsertResourceSuccess(resourceId.FullyQualifiedType, matchedType.ApiVersion));
-            return Unit.Value;
-        }
+                return (Unit.Value, BicepTelemetryEvent.InsertResourceSuccess(resourceId.FullyQualifiedType, matchedType.ApiVersion));
+            });
 
         private record InsertContext(
             bool StartWithNewline,
@@ -281,16 +302,9 @@ namespace Bicep.LanguageServer.Handlers
                 case JsonValueKind.String:
                     return SyntaxFactory.CreateStringLiteral(element.GetString()!);
                 case JsonValueKind.Number:
-                    if (element.TryGetInt64(out var intValue))
+                    if (element.TryGetInt64(out long intValue))
                     {
-                        if (intValue >= 0)
-                        {
-                            return SyntaxFactory.CreateIntegerLiteral((ulong)intValue);
-                        }
-                        else
-                        {
-                            return SyntaxFactory.CreateNegativeIntegerLiteral((ulong)-intValue);
-                        }
+                        return SyntaxFactory.CreatePositiveOrNegativeInteger(intValue);
                     }
                     return SyntaxFactory.CreateStringLiteral(element.ToString()!);
                 case JsonValueKind.True:

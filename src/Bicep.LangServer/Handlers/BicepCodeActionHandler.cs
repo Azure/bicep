@@ -8,19 +8,22 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
+using Bicep.Core.Analyzers;
 using Bicep.Core.CodeAction;
+using Bicep.Core.CodeAction.Fixes;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
-using Bicep.LanguageServer.CodeFixes;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Extensions;
+using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -29,8 +32,10 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Handlers
 {
+    // Provides code actions/fixes for a range in a Bicep document
     public class BicepCodeActionHandler : CodeActionHandlerBase
     {
+        private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
         private readonly ICompilationManager compilationManager;
 
         private static readonly ImmutableArray<ICodeFixProvider> codeFixProviders = new ICodeFixProvider[]
@@ -42,10 +47,12 @@ namespace Bicep.LanguageServer.Handlers
             new ParameterCodeFixProvider("maxLength", new []{"string", "array"}, Array.Empty<SyntaxBase>()),
             new ParameterCodeFixProvider("minValue", new []{"int"}, Array.Empty<SyntaxBase>()),
             new ParameterCodeFixProvider("maxValue", new []{"int"}, Array.Empty<SyntaxBase>()),
+            new MultilineObjectsAndArraysCodeFixProvider(),
         }.ToImmutableArray<ICodeFixProvider>();
 
-        public BicepCodeActionHandler(ICompilationManager compilationManager)
+        public BicepCodeActionHandler(ICompilationManager compilationManager, IClientCapabilitiesProvider clientCapabilitiesProvider)
         {
+            this.clientCapabilitiesProvider = clientCapabilitiesProvider;
             this.compilationManager = compilationManager;
         }
 
@@ -90,7 +97,6 @@ namespace Bicep.LanguageServer.Handlers
                 .Except(coreCompilerErrors);
 
             HashSet<string> diagnosticCodesToSuppressInline = new();
-
             foreach (IDiagnostic diagnostic in diagnosticsThatCanBeSuppressed)
             {
                 if (!diagnosticCodesToSuppressInline.Contains(diagnostic.Code))
@@ -98,12 +104,24 @@ namespace Bicep.LanguageServer.Handlers
                     diagnosticCodesToSuppressInline.Add(diagnostic.Code);
 
                     var commandOrCodeAction = DisableDiagnostic(documentUri, diagnostic.Code, semanticModel.SourceFile, diagnostic.Span, compilationContext.LineStarts);
-
                     if (commandOrCodeAction is not null)
                     {
                         commandOrCodeActions.Add(commandOrCodeAction);
                     }
                 }
+            }
+
+            if (clientCapabilitiesProvider.DoesClientSupportShowDocumentRequest())
+            {
+                // Add "Edit <rule> in bicep.config" for all linter failures
+                var editLinterRuleActions = diagnostics
+                    .Where(analyzerDiagnostic =>
+                        analyzerDiagnostic.Span.ContainsInclusive(requestStartOffset) ||
+                        analyzerDiagnostic.Span.ContainsInclusive(requestEndOffset) ||
+                        (requestStartOffset <= analyzerDiagnostic.Span.Position && analyzerDiagnostic.GetEndPosition() <= requestEndOffset))
+                    .OfType<AnalyzerDiagnostic>()
+                    .Select(analyzerDiagnostic => CreateEditLinterRuleAction(documentUri, analyzerDiagnostic.Code, compilation.Configuration.ConfigurationPath));
+                commandOrCodeActions.AddRange(editLinterRuleActions);
             }
 
             var matchingNodes = SyntaxMatcher.FindNodesInRange(compilationContext.ProgramSyntax, requestStartOffset, requestEndOffset);
@@ -150,7 +168,11 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateDisableNextLineDiagnostics(diagnosticCode.String);
-            var telemetryCommand = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+            var telemetryCommand = TelemetryHelper.CreateCommand(
+                title: "disable next line diagnostics code action",
+                name: TelemetryConstants.CommandName,
+                args: JArray.FromObject(new List<object> { telemetryEvent })
+            );
 
             return new CodeAction
             {
@@ -166,6 +188,20 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
+        private static CommandOrCodeAction CreateEditLinterRuleAction(DocumentUri documentUri, string ruleName, string? bicepConfigFilePath)
+        {
+            return new CodeAction
+            {
+                Title = String.Format(LangServerResources.EditLinterRuleActionTitle, ruleName),
+                Command = TelemetryHelper.CreateCommand
+                (
+                    title: "edit linter rule code action",
+                    name: LangServerConstants.EditLinterRuleCommandName,
+                    args: JArray.FromObject(new List<object> { documentUri, ruleName, bicepConfigFilePath ?? string.Empty /* (passing null not allowed) */ })
+                )
+            };
+        }
+
         public override Task<CodeAction> Handle(CodeAction request, CancellationToken cancellationToken)
         {
             // we are currently precomputing our quickfixes, so there's no need to resolve them after they are chosen
@@ -175,7 +211,8 @@ namespace Bicep.LanguageServer.Handlers
 
         private static CommandOrCodeAction CreateCodeFix(DocumentUri uri, CompilationContext context, CodeFix fix)
         {
-            var codeActionKind = fix.Kind switch {
+            var codeActionKind = fix.Kind switch
+            {
                 CodeFixKind.QuickFix => CodeActionKind.QuickFix,
                 CodeFixKind.Refactor => CodeActionKind.Refactor,
                 _ => CodeActionKind.Empty,

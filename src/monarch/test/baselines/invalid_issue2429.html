@@ -1,0 +1,23 @@
+
+<!--
+  Preview this file by prepending http://htmlpreview.github.io/? to its URL
+  e.g. http://htmlpreview.github.io/?https://raw.githubusercontent.com/Azure/bicep/main/src/monarch/test/baselines/invalid_issue2429.html
+-->
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+  </head>
+  <body>
+    <pre class="hljs">
+<span class="hljs-keyword">resource</span> <span class="hljs-variable">relay_hybrid_connection</span> <span class="hljs-string">&#39;</span><span class="hljs-string">...&#39;</span> = {
+  <span class="hljs-comment">// other content</span>
+  <span class="hljs-keyword">resource</span> <span class="hljs-variable">authorization_rules</span> <span class="hljs-string">&#39;</span><span class="hljs-string">...&#39;</span> = [<span class="hljs-keyword">for</span> <span class="hljs-variable">rule</span> <span class="hljs-keyword">in</span> <span class="hljs-variable">someArray</span>: {
+    <span class="hljs-comment">// other content</span>
+  }]
+  <span class="hljs-comment">// other content</span>
+}
+
+
+    </pre>
+  </body>
+</html>

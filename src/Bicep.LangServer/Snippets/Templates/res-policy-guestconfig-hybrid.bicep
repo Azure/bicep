@@ -4,7 +4,7 @@ resource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {
   location: /*${2:location}*/'location'
 }
 
-resource /*${3:guestConfigAssignment}*/guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {
+resource /*${3:guestConfigAssignment}*/guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2022-01-25' = {
   name: /*${4:'name'}*/'name'
   scope: arcEnabledMachine
   location: /*${2:location}*/'location'

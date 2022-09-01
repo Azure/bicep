@@ -1,0 +1,30 @@
+<Project>
+  <PropertyGroup>
+    <NoticeFilePath>$(IntermediateOutputPath)ThirdPartyNotices.txt</NoticeFilePath>
+    <DeflatedNoticeFilePath>$(IntermediateOutputPath)ThirdPartyNotices.txt.deflated</DeflatedNoticeFilePath>    
+  </PropertyGroup>
+
+  <Import Project="CompressFileTask.targets" Condition="'$(CompressFileTaskImported)' != 'true'" />
+
+  <Target Name="PrepareForNoticeGeneration" BeforeTargets="GenerateNotice">
+    <ItemGroup>
+      <GenerateNoticeAssetFile Include="$(ProjectAssetsFile)" />
+    </ItemGroup>
+    <PropertyGroup>
+      <GenerateNoticeOutputPath>$(NoticeFilePath)</GenerateNoticeOutputPath>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="CompressNoticeFile" DependsOnTargets="GenerateNotice" Inputs="$(NoticeFilePath)" Outputs="$(DeflatedNoticeFilePath)">
+    <CompressFile SourceFile="$(NoticeFilePath)" TargetFile="$(DeflatedNoticeFilePath)" />
+  </Target>
+
+  <Target Name="EmbedNoticeFile" AfterTargets="BeforeBuild" DependsOnTargets="CompressNoticeFile">
+    <ItemGroup Condition="Exists('$(NoticeFilePath)')">
+      <!-- include the generated notice as an embedded resource -->
+      <EmbeddedResource Include="$(DeflatedNoticeFilePath)">
+        <LogicalName>NOTICE.deflated</LogicalName>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
+</Project>

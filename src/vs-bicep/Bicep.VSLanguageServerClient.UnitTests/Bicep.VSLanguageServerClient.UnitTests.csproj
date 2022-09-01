@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net472</TargetFramework>
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FluentAssertions" Version="6.7.0" />
+		<PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol" Version="17.2.8" />
+		<PackageReference Include="Microsoft.VisualStudio.Threading" Version="17.2.32" />
+		<PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.2.32505.113" />
+		<PackageReference Include="Moq" Version="4.16.1" />
+		<PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
+		<PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Bicep.VSLanguageServerClient\Bicep.VSLanguageServerClient.csproj" />
+	</ItemGroup>
+
+</Project>

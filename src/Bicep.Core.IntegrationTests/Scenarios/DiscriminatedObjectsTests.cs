@@ -25,12 +25,16 @@ namespace Bicep.Core.IntegrationTests.Scenarios
                 new ResourceTypeComponents(
                     ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
                     ResourceScope.ResourceGroup,
+                    ResourceScope.None,
+                    ResourceFlags.None,
                     TestTypeHelper.CreateObjectType(
                         "Rp.A/parent@2020-10-01",
                         ("name", LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty | TypePropertyFlags.DeployTimeConstant))),
                 new ResourceTypeComponents(
                     ResourceTypeReference.Parse("Rp.A/parent/child@2020-10-01"),
                     ResourceScope.ResourceGroup,
+                    ResourceScope.None,
+                    ResourceFlags.None,
                     TestTypeHelper.CreateDiscriminatedObjectType(
                         "Rp.A/parent/child@2020-10-01",
                         "name",
@@ -123,12 +127,16 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
                 new ResourceTypeComponents(
                     ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
                     ResourceScope.ResourceGroup,
+                    ResourceScope.None,
+                    ResourceFlags.None,
                     TestTypeHelper.CreateObjectType(
                         "Rp.A/parent@2020-10-01",
                         ("name", LanguageConstants.String))),
                 new ResourceTypeComponents(
                     ResourceTypeReference.Parse("Rp.A/parent/child@2020-10-01"),
                     ResourceScope.ResourceGroup,
+                    ResourceScope.None,
+                    ResourceFlags.None,
                     TestTypeHelper.CreateObjectType(
                         "Rp.A/parent/child@2020-10-01",
                         ("name", TypeHelper.CreateTypeUnion(new StringLiteralType("val1"), new StringLiteralType("val2"))),

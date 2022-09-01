@@ -4,7 +4,7 @@
 using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
-using Bicep.RegistryModuleTool.ModuleFileValidators;
+using Bicep.RegistryModuleTool.ModuleValidators;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
@@ -18,9 +18,9 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         private static readonly JsonElement EmptyFileElement = JsonElementFactory.CreateElement(new Dictionary<string, string>
         {
-            ["$schema"] = "https://aka.ms/bicep-registry-module-metadata-file-schema#",
+            ["$schema"] = "https://aka.ms/bicep-registry-module-metadata-file-schema-v2#",
             ["name"] = "",
-            ["description"] = "",
+            ["summary"] = "",
             ["owner"] = "",
         });
 
@@ -34,7 +34,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public string? Name => this.RootElement.TryGetProperty("name", out var element) ? element.GetString() : null;
 
-        public string? Description => this.RootElement.TryGetProperty("description", out var element) ? element.GetString() : null;
+        public string? Summary => this.RootElement.TryGetProperty("summary", out var element) ? element.GetString() : null;
 
         public static MetadataFile EnsureInFileSystem(IFileSystem fileSystem)
         {

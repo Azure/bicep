@@ -47,19 +47,19 @@ namespace Bicep.Core.UnitTests.Utils
             public string Message { get; }
         }
 
-        private static string[] GetProgramTextLines(BicepFile bicepFile)
+        private static string[] GetProgramTextLines(IBicepSourceFile bicepFile)
         {
             var programText = bicepFile.ProgramSyntax.ToTextPreserveFormatting();
 
             return StringUtils.ReplaceNewlines(programText, "\n").Split("\n");
         }
 
-        public static string PrintFullSource(BicepFile bicepFile, int context, bool includeLineNumbers)
+        public static string PrintFullSource(IBicepSourceFile bicepFile, int context, bool includeLineNumbers)
         {
             return string.Join("\n", GetProgramTextLines(bicepFile).ToArray());
         }
 
-        public static string PrintWithAnnotations(BicepFile bicepFile, IEnumerable<Annotation> annotations, int context, bool includeLineNumbers)
+        public static string PrintWithAnnotations(IBicepSourceFile bicepFile, IEnumerable<Annotation> annotations, int context, bool includeLineNumbers)
         {
             if (!annotations.Any())
             {

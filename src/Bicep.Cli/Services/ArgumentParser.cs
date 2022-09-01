@@ -16,7 +16,10 @@ namespace Bicep.Cli.Services
             }
 
             // parse root arguments
-            if (new Regex(Constants.Argument.VersionRegex).IsMatch(args[0]) || new Regex(Constants.Argument.HelpRegex).IsMatch(args[0]))
+            if (new Regex(Constants.Argument.VersionRegex).IsMatch(args[0]) ||
+                new Regex(Constants.Argument.HelpRegex).IsMatch(args[0]) ||
+                new Regex(Constants.Argument.LicenseRegex).IsMatch(args[0]) ||
+                new Regex(Constants.Argument.ThirdPartyNoticesRegex).IsMatch(args[0]))
             {
                 return new RootArguments(args[0], Constants.Command.Root);
             }
@@ -25,6 +28,7 @@ namespace Bicep.Cli.Services
             return (args[0].ToLowerInvariant()) switch
             {
                 Constants.Command.Build => new BuildArguments(args[1..]),
+                Constants.Command.GenerateParamsFile => new GenerateParametersFileArguments(args[1..]),
                 Constants.Command.Decompile => new DecompileArguments(args[1..]),
                 Constants.Command.Publish => new PublishArguments(args[1..]),
                 Constants.Command.Restore => new RestoreArguments(args[1..]),
@@ -33,4 +37,3 @@ namespace Bicep.Cli.Services
         }
     }
 }
-

@@ -11,19 +11,19 @@ namespace Bicep.LanguageServer.Deploy
 {
     public class DeploymentCollectionProvider : IDeploymentCollectionProvider
     {
-        public DeploymentCollection GetDeploymentCollection(ArmClient armClient, ResourceIdentifier resourceIdentifier, string scope)
+        public ArmDeploymentCollection GetDeploymentCollection(ArmClient armClient, ResourceIdentifier resourceIdentifier, string scope)
         {
             switch (scope)
             {
                 case LanguageConstants.TargetScopeTypeResourceGroup:
-                    var resourceGroup = armClient.GetResourceGroup(resourceIdentifier);
-                    return resourceGroup.GetDeployments();
+                    var resourceGroup = armClient.GetResourceGroupResource(resourceIdentifier);
+                    return resourceGroup.GetArmDeployments();
                 case LanguageConstants.TargetScopeTypeSubscription:
-                    var subscription = armClient.GetSubscription(resourceIdentifier);
-                    return subscription.GetDeployments();
+                    var subscription = armClient.GetSubscriptionResource(resourceIdentifier);
+                    return subscription.GetArmDeployments();
                 case LanguageConstants.TargetScopeTypeManagementGroup:
-                    var managementGroup = armClient.GetManagementGroup(resourceIdentifier);
-                    return managementGroup.GetDeployments();
+                    var managementGroup = armClient.GetManagementGroupResource(resourceIdentifier);
+                    return managementGroup.GetArmDeployments();
                 default:
                     throw new Exception(string.Format(LangServerResources.UnsupportedTargetScopeMessage, scope));
             }

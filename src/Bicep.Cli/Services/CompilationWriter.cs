@@ -35,12 +35,14 @@ namespace Bicep.Cli.Services
 
         public EmitResult ToStdout(Compilation compilation)
         {
-            using var writer = new JsonTextWriter(invocationContext.OutputWriter)
+            var semanticModel = compilation.GetEntrypointSemanticModel();
+            var sourceFileToTrack = this.invocationContext.Features.SourceMappingEnabled ? semanticModel.SourceFile : default;
+            using var writer = new SourceAwareJsonTextWriter(invocationContext.OutputWriter, sourceFileToTrack)
             {
                 Formatting = Formatting.Indented
             };
 
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.EmitterSettings);
+            var emitter = new TemplateEmitter(semanticModel, invocationContext.EmitterSettings);
 
             return emitter.Emit(writer);
         }
