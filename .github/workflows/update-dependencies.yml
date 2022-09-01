@@ -1,0 +1,50 @@
+name: Update Dependencies
+# This action can be run on-demand against a branch.
+# It attempts to update dotnet & npm dependencies, and commits and pushes changes if there are any.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  main:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+
+      - name: Install Tools
+        run: |
+          npm install -g npm-check-updates
+          dotnet tool install -g dotnet-outdated-tool
+      
+      - name: Update Dependencies
+        continue-on-error: true
+        run: ./scripts/update_dependencies.sh
+      
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          committer: GitHub <noreply@github.com>
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          signoff: false
+          branch: update-dependencies
+          delete-branch: true
+          title: |
+            Update NPM & Dotnet Dependencies
+          commit-message: |
+            Update NPM & Dotnet Dependencies
+          labels: dependencies
+          draft: false
