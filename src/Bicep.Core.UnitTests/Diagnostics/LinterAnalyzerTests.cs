@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Analyzers;
@@ -10,6 +11,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -28,22 +30,14 @@ namespace Bicep.Core.UnitTests.Diagnostics
             linter.GetRuleSet().Should().NotBeEmpty();
         }
 
+        // No need to add new rules here
         [DataTestMethod]
         [DataRow(AdminUsernameShouldNotBeLiteralRule.Code)]
         [DataRow(ExplicitValuesForLocationParamsRule.Code)]
         [DataRow(NoHardcodedEnvironmentUrlsRule.Code)]
         [DataRow(NoHardcodedLocationRule.Code)]
-        [DataRow(NoLocationExprOutsideParamsRule.Code)]
-        [DataRow(NoUnnecessaryDependsOnRule.Code)]
-        [DataRow(NoUnusedParametersRule.Code)]
-        [DataRow(NoUnusedVariablesRule.Code)]
-        [DataRow(OutputsShouldNotContainSecretsRule.Code)]
-        [DataRow(PreferInterpolationRule.Code)]
-        [DataRow(SecureParameterDefaultRule.Code)]
-        [DataRow(SimplifyInterpolationRule.Code)]
-        [DataRow(ProtectCommandToExecuteSecretsRule.Code)]
-        [DataRow(UseStableVMImageRule.Code)]
-        public void BuiltInRulesExist(string ruleCode)
+        public void BuiltInRulesExistSanityCheck(string ruleCode)
+
         {
             var linter = new LinterAnalyzer(configuration);
             linter.GetRuleSet().Should().Contain(r => r.Code == ruleCode);
@@ -63,11 +57,12 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
         [TestMethod]
-        public void AllRulesEnabledByDefault()
+        public void MostRulesEnabledByDefault()
         {
             var analyzer = new LinterAnalyzer(configuration);
             var ruleSet = analyzer.GetRuleSet();
-            ruleSet.Should().OnlyContain(r => r.IsEnabled());
+            var numberEnabled = ruleSet.Where(r => r.IsEnabled()).Count();
+            numberEnabled.Should().BeGreaterThan(ruleSet.Count() / 2, "most rules should probably be enabled by default");
         }
 
         [TestMethod]
@@ -92,12 +87,12 @@ namespace Bicep.Core.UnitTests.Diagnostics
                                                     "Fake Rule",
                                                     null);
                 // Now throw an exception
-                throw new System.NotImplementedException();
+                throw new System.ArgumentOutOfRangeException();
             }
         }
 
         [TestMethod]
-        public void TestRuleThrowingExceptionReturnsOneDiagnostic()
+        public void TestRuleThrowingException()
         {
             var text = @"
 @secure()
@@ -106,19 +101,8 @@ param param1 string = 'val'";
             var semanticModel = compilationResult.Compilation.GetSemanticModel(compilationResult.BicepFile);
 
             var throwRule = new LinterThrowsTestRule();
-            var diagnostics = throwRule.Analyze(semanticModel);
-            diagnostics.Should().NotBeNullOrEmpty();
-            diagnostics.Should().HaveCount(1);
-
-            var diag = diagnostics.First();
-            diag.Should().NotBeNull();
-
-            diag.Code.Should().NotBeNull();
-            diag.Code.Should().Match("linter-internal-error");
-
-            diag.Span.Should().NotBeNull();
-            diag.Span.Position.Should().Be(0);
+            var test = () => throwRule.Analyze(semanticModel).ToArray();
+            test.Should().Throw<ArgumentOutOfRangeException>();
         }
-
     }
 }

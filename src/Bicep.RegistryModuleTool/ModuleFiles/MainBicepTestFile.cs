@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.RegistryModuleTool.ModuleFileValidators;
+using Bicep.RegistryModuleTool.ModuleValidators;
 using System.IO;
 using System.IO.Abstractions;
 

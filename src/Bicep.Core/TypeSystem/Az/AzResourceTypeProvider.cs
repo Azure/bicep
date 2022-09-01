@@ -6,7 +6,6 @@ using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using System.Collections.Immutable;
-using System.Collections.Concurrent;
 using Bicep.Core.Emit;
 using System.Text.RegularExpressions;
 
@@ -14,33 +13,6 @@ namespace Bicep.Core.TypeSystem.Az
 {
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
-        private class ResourceTypeCache
-        {
-            private class KeyComparer : IEqualityComparer<(ResourceTypeGenerationFlags flags, ResourceTypeReference type)>
-            {
-                public static IEqualityComparer<(ResourceTypeGenerationFlags flags, ResourceTypeReference type)> Instance { get; }
-                    = new KeyComparer();
-
-                public bool Equals((ResourceTypeGenerationFlags flags, ResourceTypeReference type) x, (ResourceTypeGenerationFlags flags, ResourceTypeReference type) y)
-                    => x.flags == y.flags &&
-                        ResourceTypeReferenceComparer.Instance.Equals(x.type, y.type);
-
-                public int GetHashCode((ResourceTypeGenerationFlags flags, ResourceTypeReference type) x)
-                    => x.flags.GetHashCode() ^
-                        ResourceTypeReferenceComparer.Instance.GetHashCode(x.type);
-            }
-
-            private readonly ConcurrentDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceTypeComponents> cache
-                = new ConcurrentDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceTypeComponents>(KeyComparer.Instance);
-
-            public ResourceTypeComponents GetOrAdd(ResourceTypeGenerationFlags flags, ResourceTypeReference typeReference, Func<ResourceTypeComponents> buildFunc)
-            {
-                var cacheKey = (flags, typeReference);
-
-                return cache.GetOrAdd(cacheKey, cacheKey => buildFunc());
-            }
-        }
-
         private static readonly RegexOptions PatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
         private static readonly Regex ResourceTypePattern = new Regex(@"^(?<namespace>[a-z0-9][a-z0-9\.]*)(/(?<type>[a-z0-9\-]+))+$", PatternRegexOptions);
         private static readonly Regex ApiVersionPattern = new Regex(@"^\d{4}-\d{2}-\d{2}(|-(preview|alpha|beta|rc|privatepreview))$", PatternRegexOptions);
@@ -146,8 +118,15 @@ namespace Bicep.Core.TypeSystem.Az
 
             yield return new TypeProperty("properties", LanguageConstants.Object);
 
-            // TODO: Model type fully
-            yield return new TypeProperty("sku", LanguageConstants.Object);
+            yield return new TypeProperty("sku", new ObjectType("sku", TypeSymbolValidationFlags.Default, new[]
+            {
+                new TypeProperty("name", LanguageConstants.String),
+                new TypeProperty("tier", LanguageConstants.String),
+                new TypeProperty("size", LanguageConstants.String),
+                new TypeProperty("family", LanguageConstants.String),
+                new TypeProperty("model", LanguageConstants.String),
+                new TypeProperty("capacity", LanguageConstants.Int),
+            }, null));
 
             yield return new TypeProperty("kind", LanguageConstants.String);
             yield return new TypeProperty("managedBy", LanguageConstants.String);
@@ -155,8 +134,18 @@ namespace Bicep.Core.TypeSystem.Az
             var stringArray = new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default);
             yield return new TypeProperty("managedByExtended", stringArray);
 
-            // TODO: Model type fully
-            yield return new TypeProperty("extendedLocation", LanguageConstants.Object);
+            var extendedLocationType = TypeHelper.CreateTypeUnion(
+                new StringLiteralType("NotSpecified"),
+                new StringLiteralType("EdgeZone"),
+                new StringLiteralType("CustomLocation"),
+                new StringLiteralType("ArcZone"),
+                LanguageConstants.String);
+
+            yield return new TypeProperty("extendedLocation", new ObjectType("extendedLocation", TypeSymbolValidationFlags.Default, new[]
+            {
+                new TypeProperty("type", extendedLocationType, TypePropertyFlags.Required),
+                new TypeProperty("name", LanguageConstants.String),
+            }, null));
 
             yield return new TypeProperty("zones", stringArray);
 
@@ -164,11 +153,36 @@ namespace Bicep.Core.TypeSystem.Az
 
             yield return new TypeProperty("eTag", LanguageConstants.String);
 
-            // TODO: Model type fully
-            yield return new TypeProperty("scale", LanguageConstants.Object);
+            yield return new TypeProperty("scale", new ObjectType("scale", TypeSymbolValidationFlags.Default, new[]
+            {
+                new TypeProperty("capacity", LanguageConstants.Int, TypePropertyFlags.Required),
+                new TypeProperty("maximum", LanguageConstants.Int),
+                new TypeProperty("minimum", LanguageConstants.Int),
+            }, null));
 
-            // TODO: Model type fully
-            yield return new TypeProperty("identity", LanguageConstants.Object);
+            var resourceIdentityType = TypeHelper.CreateTypeUnion(
+                new StringLiteralType("NotSpecified"),
+                new StringLiteralType("SystemAssigned"),
+                new StringLiteralType("UserAssigned"),
+                new StringLiteralType("None"),
+                new StringLiteralType("Actor"),
+                LanguageConstants.String);
+
+            var userAssignedIdentity = new ObjectType("userAssignedIdentityProperties", TypeSymbolValidationFlags.Default, new []
+            {
+                new TypeProperty("principalId", LanguageConstants.String),
+                new TypeProperty("clientId", LanguageConstants.String)
+            }, null);
+
+            yield return new TypeProperty("identity", new ObjectType("identity", TypeSymbolValidationFlags.Default, new[]
+            {
+                new TypeProperty("principalId", LanguageConstants.String),
+                new TypeProperty("tenantId", LanguageConstants.String),
+                new TypeProperty("type", resourceIdentityType, TypePropertyFlags.Required),
+                new TypeProperty("identityIds", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
+                new TypeProperty("userAssignedIdentities", new ObjectType("userAssignedIdentities", TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), userAssignedIdentity)),
+                new TypeProperty("delegatedResources", LanguageConstants.Object),
+            }, null));
         }
 
         public AzResourceTypeProvider(IAzResourceTypeLoader resourceTypeLoader)
@@ -258,7 +272,7 @@ namespace Bicep.Core.TypeSystem.Az
                     throw new ArgumentException($"Resource {resourceType.TypeReference.FormatName()} has unexpected body type {bodyType.GetType()}");
             }
 
-            return new ResourceTypeComponents(resourceType.TypeReference, resourceType.ValidParentScopes, bodyType);
+            return resourceType with { Body = bodyType };
         }
 
         private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
@@ -410,7 +424,14 @@ namespace Bicep.Core.TypeSystem.Az
                return SetBicepResourceProperties(resourceType, flags);
            });
 
-            return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body, UniqueIdentifierProperties);
+            return new(
+                declaringNamespace,
+                resourceType.TypeReference,
+                resourceType.ValidParentScopes,
+                resourceType.ReadOnlyScopes,
+                resourceType.Flags,
+                resourceType.Body,
+                UniqueIdentifierProperties);
         }
 
         public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
@@ -428,12 +449,21 @@ namespace Bicep.Core.TypeSystem.Az
                 var resourceType = new ResourceTypeComponents(
                     typeReference,
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource,
+                    ResourceScope.None,
+                    ResourceFlags.None,
                     CreateGenericResourceBody(typeReference, p => true));
 
                 return SetBicepResourceProperties(resourceType, flags);
             });
 
-            return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body, UniqueIdentifierProperties);
+            return new(
+                declaringNamespace,
+                resourceType.TypeReference,
+                resourceType.ValidParentScopes,
+                resourceType.ReadOnlyScopes,
+                resourceType.Flags,
+                resourceType.Body,
+                UniqueIdentifierProperties);
         }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)

@@ -11,7 +11,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         private void CompileAndTest(string text, OnCompileErrors onCompileErrors, string[] expectedMessages)
         {
-            AssertLinterRuleDiagnostics(OutputsShouldNotContainSecretsRule.Code, text, expectedMessages, onCompileErrors);
+            AssertLinterRuleDiagnostics(OutputsShouldNotContainSecretsRule.Code, text, expectedMessages, new Options(onCompileErrors, IncludePosition.None));
         }
 
         const string description = "Outputs should not contain secrets.";
@@ -52,7 +52,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void If_OutputReferencesSecureParam_ShouldFail(string text, params string[] expectedMessages)
         {
-            CompileAndTest(text, OnCompileErrors.Fail, expectedMessages);
+            CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages);
         }
 
         [DataRow(@"
@@ -76,7 +76,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void If_ParamNotSecure_ShouldPass(string text, params string[] expectedMessages)
         {
-            CompileAndTest(text, OnCompileErrors.Fail, expectedMessages);
+            CompileAndTest(text, OnCompileErrors.IncludeErrors, expectedMessages);
         }
 
         [DataRow(@"
@@ -111,17 +111,16 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             var v = {}
 
             output badResult object = {
-            value: v.listAnything().keys[0].value // storage is not a resource, so no failure
+            value: v.listAnything().keys[0].value // variable is not a resource, so no failure
             }
         "
         )]
         [DataTestMethod]
-        public void If_ListFunctionInOutput_AsResourceMethod_ShouldFail(string text, params string[] expectedMessages)
+        public void If_ListFunctionInOutput_AsResourceMethod_ShouldPass(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);
         }
 
-        [Ignore("TODO: blocked by https://github.com/Azure/bicep/issues/4833")]
         [DataRow(@"
             param storageName string
 

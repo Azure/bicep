@@ -3,13 +3,14 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using System.Collections.Generic;
 
 namespace Bicep.Core.TypeSystem
 {
     public class DeployTimeConstantDirectViolationVisitor : DeployTimeConstantViolationVisitor
     {
-        public DeployTimeConstantDirectViolationVisitor(SyntaxBase deployTimeConstantContainer, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
-            : base(deployTimeConstantContainer, semanticModel, diagnosticWriter)
+        public DeployTimeConstantDirectViolationVisitor(SyntaxBase deployTimeConstantContainer, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, Dictionary<DeclaredSymbol, ObjectType> existingResourceBodyObjectTypeOverrides)
+            : base(deployTimeConstantContainer, semanticModel, diagnosticWriter, existingResourceBodyObjectTypeOverrides)
         {
         }
 

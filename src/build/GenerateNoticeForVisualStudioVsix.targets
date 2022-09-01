@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+    <GenerateNoticeAfterTargets>GetVsixSourceItems</GenerateNoticeAfterTargets>
+    <NoticeFileName>ThirdPartyNotices.txt</NoticeFileName>
+  </PropertyGroup>
+  <Target Name="PrepareForNoticeGeneration" BeforeTargets="GenerateNotice">
+    <PropertyGroup>
+      <GenerateNoticeOutputPath>$(IntermediateOutputPath)$(NoticeFileName)</GenerateNoticeOutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+      <GenerateNoticeAssetFile Include="obj\project.assets.json" />
+      <GenerateNoticeAssetFile Include="..\..\Bicep.LangServer\obj\project.assets.json" />
+
+      <VSIXSourceItem Include="$(GenerateNoticeOutputPath)" />
+    </ItemGroup>
+  </Target>
+</Project>

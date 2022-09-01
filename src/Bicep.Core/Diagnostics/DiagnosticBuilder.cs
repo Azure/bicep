@@ -981,11 +981,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP162",
                 "Expected a loop item variable identifier or \"(\" at this location.");
 
-            public ErrorDiagnostic ExpectedLoopIndexIdentifier() => new(
-                TextSpan,
-                "BCP163",
-                "Expected a loop index variable identifier at this location.");
-
             public ErrorDiagnostic ScopeUnsupportedOnChildResource(string parentIdentifier) => new(
                 TextSpan,
                 "BCP164",
@@ -1075,8 +1070,8 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP179",
                 indexVariableName is null
-                    ? $"The loop item variable \"{itemVariableName}\" must be referenced in at least one of the value expressions of the following properties: {ToQuotedString(expectedVariantProperties)}"
-                    : $"The loop item variable \"{itemVariableName}\" or the index variable \"{indexVariableName}\" must be referenced in at least one of the value expressions of the following properties in the loop body: {ToQuotedString(expectedVariantProperties)}");
+                    ? $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" must be referenced in at least one of the value expressions of the following properties: {ToQuotedString(expectedVariantProperties)}"
+                    : $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" or the index variable \"{indexVariableName}\" must be referenced in at least one of the value expressions of the following properties in the loop body: {ToQuotedString(expectedVariantProperties)}");
 
             public ErrorDiagnostic FunctionOnlyValidInModuleSecureParameterAssignment(string functionName) => new(
                 TextSpan,
@@ -1370,6 +1365,175 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP231",
                 "Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature BICEP_RESOURCE_TYPED_PARAMS_AND_OUTPUTS_EXPERIMENTAL.");
+
+            public ErrorDiagnostic ModuleDeleteFailed(string moduleRef) => new(
+                TextSpan,
+                "BCP232",
+                $"Unable to delete the module with reference \"{moduleRef}\" from cache.");
+
+            public ErrorDiagnostic ModuleDeleteFailedWithMessage(string moduleRef, string message) => new(
+                TextSpan,
+                "BCP233",
+                $"Unable to delete the module with reference \"{moduleRef}\" from cache: {message}");
+
+            public Diagnostic ArmFunctionLiteralTypeConversionFailedWithMessage(string literalValue, string armFunctionName, string message) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP234",
+                $"The ARM function \"{armFunctionName}\" failed when invoked on the value [{literalValue}]: {message}");
+
+            public ErrorDiagnostic NoJsonTokenOnPathOrPathInvalid() => new(
+                TextSpan,
+                "BCP235",
+                $"Specified JSONPath does not exist in the given file or is invalid.");
+
+            public ErrorDiagnostic ExpectedNewLineOrCommaSeparator() => new(
+                TextSpan,
+                "BCP236",
+                "Expected a new line or comma character at this location.");
+
+            public ErrorDiagnostic ExpectedCommaSeparator() => new(
+                TextSpan,
+                "BCP237",
+                "Expected a comma character at this location.");
+
+            public ErrorDiagnostic UnexpectedNewLineAfterCommaSeparator() => new(
+                TextSpan,
+                "BCP238",
+                "Unexpected new line character after a comma.");
+
+            public ErrorDiagnostic ReservedIdentifier(string name) => new(
+                TextSpan,
+                "BCP239",
+                $"Identifier \"{name}\" is a reserved Bicep symbol name and cannot be used in this context.");
+
+            public ErrorDiagnostic InvalidValueForParentProperty() => new(
+                TextSpan,
+                "BCP240",
+                "The \"parent\" property only permits direct references to resources. Expressions are not supported.");
+
+            public Diagnostic DeprecatedProvidersFunction(string functionName) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP241",
+                $"The \"{functionName}\" function is deprecated and will be removed in a future release of Bicep. Please add a comment to https://github.com/Azure/bicep/issues/2017 if you believe this will impact your workflow.",
+                styling: DiagnosticStyling.ShowCodeDeprecated);
+
+            public ErrorDiagnostic LambdaFunctionsOnlyValidInFunctionArguments() => new(
+                TextSpan,
+                "BCP242",
+                $"Lambda functions may only be specified directly as function arguments.");
+
+            public ErrorDiagnostic ParenthesesMustHaveExactlyOneItem() => new(
+                TextSpan,
+                "BCP243",
+                "Parentheses must contain exactly one expression.");
+
+            public ErrorDiagnostic LambdaExpectedArgCountMismatch(TypeSymbol lambdaType, int expectedArgCount, int actualArgCount) => new (
+                TextSpan,
+                "BCP244",
+                $"Expected lambda expression of type \"{lambdaType}\" with {expectedArgCount} arguments but received {actualArgCount} arguments.");
+
+            public Diagnostic ResourceTypeIsReadonly(ResourceTypeReference resourceTypeReference) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP245",
+                $"Resource type \"{resourceTypeReference.FormatName()}\" can only be used with the 'existing' keyword.");
+
+            public Diagnostic ResourceTypeIsReadonlyAtScope(ResourceTypeReference resourceTypeReference, ResourceScope writableScopes) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP246",
+                $"Resource type \"{resourceTypeReference.FormatName()}\" can only be used with the 'existing' keyword at the requested scope."
+                    + $" Permitted scopes for deployment: {ToQuotedString(LanguageConstants.GetResourceScopeDescriptions(writableScopes))}.");
+
+            public ErrorDiagnostic LambdaVariablesInResourceOrModuleArrayAccessUnsupported(IEnumerable<string> variableNames) => new(
+                TextSpan,
+                "BCP247",
+                $"Using lambda variables inside resource or module array access is not currently supported."
+                    + $" Found the following lambda variable(s) being accessed: {ToQuotedString(variableNames)}.");
+
+            public ErrorDiagnostic LambdaVariablesInInlineFunctionUnsupported(string functionName, IEnumerable<string> variableNames) => new(
+                TextSpan,
+                "BCP248",
+                $"Using lambda variables inside the \"{functionName}\" function is not currently supported."
+                    + $" Found the following lambda variable(s) being accessed: {ToQuotedString(variableNames)}.");
+
+            public ErrorDiagnostic ExpectedLoopVariableBlockWith2Elements(int actualCount) => new(
+                TextSpan,
+                "BCP249",
+                $"Expected loop variable block to consist of exactly 2 elements (item variable and index variable), but found {actualCount}.");
+
+            public ErrorDiagnostic ParameterMultipleAssignments(string identifier) => new(
+                TextSpan,
+                "BCP250",
+                $"Parameter \"{identifier}\" is assigned multiple times. Remove or rename the duplicates.");
+
+            public ErrorDiagnostic ParameterTernaryOperationNotSupported() => new(
+                TextSpan,
+                "BCP251",
+                $"Ternary operator is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic ParameterBinaryOperationNotSupported() => new(
+                TextSpan,
+                "BCP252",
+                $"Binary operator is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic ParameterUnaryOperationNotSupported() => new(
+                TextSpan,
+                "BCP253",
+                $"Unary operator is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic ParameterLambdaFunctionNotSupported() => new(
+                TextSpan,
+                "BCP254",
+                $"Lambda function is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic ParameterFunctionCallNotSupported() => new(
+                TextSpan,
+                "BCP255",
+                $"Function call is not allowed in Bicep parameter file.");
+
+            public ErrorDiagnostic TemplatePathHasNotBeenSpecified() => new(
+                TextSpan,
+                "BCP256",
+                "The using declaration is missing a bicep template file path reference.");
+
+            public ErrorDiagnostic ExpectedFilePathString() => new(
+                TextSpan,
+                "BCP257",
+                "Expected a Bicep file path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep'");
+
+            public ErrorDiagnostic MissingParameterAssignment(IEnumerable<string> identifiers) => new(
+                TextSpan,
+                "BCP258",
+                $"The following parameters are declared in the Bicep file but are missing an assignment in the params file: {ToQuotedString(identifiers)}.");
+
+            public ErrorDiagnostic MissingParameterDeclaration(string? identifier) => new(
+                TextSpan,
+                "BCP259",
+                $"The parameter \"{identifier}\" is assigned in the params file without being declared in the Bicep file.");
+
+            public ErrorDiagnostic ParameterTypeMismatch(string? identifier, TypeSymbol expectedType, TypeSymbol actualType) => new(
+                TextSpan,
+                "BCP260",
+                $"The parameter \"{identifier}\" expects a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
+             
+            public Diagnostic UsingDeclarationNotSpecified() => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP261",
+                "No using declaration is present in this parameters file. Parameter validation/completions will not be available");
+
+            public ErrorDiagnostic MoreThanOneUsingDeclarationSpecified() => new(
+                TextSpan,
+                "BCP262",
+                "More than one using declaration are present");
+
+            public ErrorDiagnostic UsingDeclarationReferencesInvalidFile() => new(
+                TextSpan,
+                "BCP263",
+                "The file specified in the using declaration path does not exist");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

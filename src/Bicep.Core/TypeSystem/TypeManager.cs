@@ -40,5 +40,8 @@ namespace Bicep.Core.TypeSystem
         public FunctionOverload? GetMatchedFunctionOverload(FunctionCallSyntaxBase syntax)
             => typeAssignmentVisitor.GetMatchedFunctionOverload(syntax);
 
+        public object? GetMatchedFunctionResultValue(FunctionCallSyntaxBase syntax)
+            => typeAssignmentVisitor.GetMatchedFunctionResultValue(syntax);
+
     }
 }

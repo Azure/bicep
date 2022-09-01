@@ -1,0 +1,21 @@
+<Project>
+  <PropertyGroup>
+    <LicenseFilePath>$(MSBuildProjectDirectory)\..\..\LICENSE</LicenseFilePath>
+    <DeflatedLicenseFilePath>$(IntermediateOutputPath)LICENSE.deflated</DeflatedLicenseFilePath>    
+  </PropertyGroup>
+
+  <Import Project="CompressFileTask.targets" Condition="'$(CompressFileTaskImported)' != 'true'" />
+
+  <Target Name="CompressLicenseFile" Inputs="$(LicenseFilePath)" Outputs="$(DeflatedLicenseFilePath)">
+    <CompressFile SourceFile="$(LicenseFilePath)" TargetFile="$(DeflatedLicenseFilePath)" />
+  </Target>
+
+  <Target Name="EmbedLicenseFile" AfterTargets="BeforeBuild" DependsOnTargets="CompressLicenseFile">
+    <ItemGroup>
+      <!-- include the license as an embedded resource -->
+      <EmbeddedResource Include="$(DeflatedLicenseFilePath)">
+        <LogicalName>LICENSE.deflated</LogicalName>
+      </EmbeddedResource>
+    </ItemGroup>
+  </Target>
+</Project>

@@ -1,0 +1,82 @@
+
+<!--
+  Preview this file by prepending http://htmlpreview.github.io/? to its URL
+  e.g. http://htmlpreview.github.io/?https://raw.githubusercontent.com/Azure/bicep/main/src/monarch/test/baselines/lambdas.html
+-->
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+  </head>
+  <body>
+    <pre class="hljs">
+<span class="hljs-keyword">var</span> <span class="hljs-variable">doggos</span> = [
+  <span class="hljs-string">&#39;</span><span class="hljs-string">Evie&#39;</span>
+  <span class="hljs-string">&#39;</span><span class="hljs-string">Casper&#39;</span>
+  <span class="hljs-string">&#39;</span><span class="hljs-string">Indy&#39;</span>
+  <span class="hljs-string">&#39;</span><span class="hljs-string">Kira&#39;</span>
+]
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">numbers</span> = <span class="hljs-variable">range</span>(<span class="hljs-number">0</span>, <span class="hljs-number">4</span>)
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">sayHello</span> = <span class="hljs-variable">map</span>(<span class="hljs-variable">doggos</span>, <span class="hljs-variable">i</span> =&gt; <span class="hljs-string">&#39;</span><span class="hljs-string">Hello </span>${<span class="hljs-variable">i</span>}<span class="hljs-string">!&#39;</span>)
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">isEven</span> = <span class="hljs-variable">filter</span>(<span class="hljs-variable">numbers</span>, <span class="hljs-variable">i</span> =&gt; <span class="hljs-number">0</span> == <span class="hljs-variable">i</span> % <span class="hljs-number">2</span>)
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">evenDoggosNestedLambdas</span> = <span class="hljs-variable">map</span>(<span class="hljs-variable">filter</span>(<span class="hljs-variable">numbers</span>, <span class="hljs-variable">i</span> =&gt; <span class="hljs-variable">contains</span>(<span class="hljs-variable">filter</span>(<span class="hljs-variable">numbers</span>, <span class="hljs-variable">j</span> =&gt; <span class="hljs-number">0</span> == <span class="hljs-variable">j</span> % <span class="hljs-number">2</span>), <span class="hljs-variable">i</span>)), <span class="hljs-variable">x</span> =&gt; <span class="hljs-variable">doggos</span>[<span class="hljs-variable">x</span>])
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">flattenedArrayOfArrays</span> = <span class="hljs-variable">flatten</span>([<span class="hljs-number">0</span>, <span class="hljs-number">1</span>], [<span class="hljs-number">2</span>, <span class="hljs-number">3</span>], [<span class="hljs-number">4</span>, <span class="hljs-number">5</span>])
+<span class="hljs-keyword">var</span> <span class="hljs-variable">flattenedEmptyArray</span> = <span class="hljs-variable">flatten</span>()
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">mapSayHi</span> = <span class="hljs-variable">map</span>([<span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">ghi&#39;</span>], <span class="hljs-variable">foo</span> =&gt; <span class="hljs-string">&#39;</span><span class="hljs-string">Hi </span>${<span class="hljs-variable">foo</span>}<span class="hljs-string">!&#39;</span>)
+<span class="hljs-keyword">var</span> <span class="hljs-variable">mapEmpty</span> = <span class="hljs-variable">map</span>([], <span class="hljs-variable">foo</span> =&gt; <span class="hljs-string">&#39;</span><span class="hljs-string">Hi </span>${<span class="hljs-variable">foo</span>}<span class="hljs-string">!&#39;</span>)
+<span class="hljs-keyword">var</span> <span class="hljs-variable">mapObject</span> = <span class="hljs-variable">map</span>(<span class="hljs-variable">range</span>(<span class="hljs-number">0</span>, <span class="hljs-variable">length</span>(<span class="hljs-variable">doggos</span>)), <span class="hljs-variable">i</span> =&gt; {
+  <span class="hljs-variable">i</span>: <span class="hljs-variable">i</span>
+  <span class="hljs-variable">doggo</span>: <span class="hljs-variable">doggos</span>[<span class="hljs-variable">i</span>]
+  <span class="hljs-variable">greeting</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">Ahoy, </span>${<span class="hljs-variable">doggos</span>[<span class="hljs-variable">i</span>]}<span class="hljs-string">!&#39;</span>
+})
+<span class="hljs-keyword">var</span> <span class="hljs-variable">mapArray</span> = <span class="hljs-variable">flatten</span>(<span class="hljs-variable">map</span>(<span class="hljs-variable">range</span>(<span class="hljs-number">1</span>, <span class="hljs-number">3</span>), <span class="hljs-variable">i</span> =&gt; [<span class="hljs-variable">i</span> * <span class="hljs-number">2</span>, (<span class="hljs-variable">i</span> * <span class="hljs-number">2</span>) + <span class="hljs-number">1</span>]))
+<span class="hljs-keyword">var</span> <span class="hljs-variable">mapMultiLineArray</span> = <span class="hljs-variable">flatten</span>(<span class="hljs-variable">map</span>(<span class="hljs-variable">range</span>(<span class="hljs-number">1</span>, <span class="hljs-number">3</span>), <span class="hljs-variable">i</span> =&gt; [
+  <span class="hljs-variable">i</span> * <span class="hljs-number">3</span>
+  (<span class="hljs-variable">i</span> * <span class="hljs-number">3</span>) + <span class="hljs-number">1</span>
+  (<span class="hljs-variable">i</span> * <span class="hljs-number">3</span>) + <span class="hljs-number">2</span>
+]))
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">filterEqualityCheck</span> = <span class="hljs-variable">filter</span>([<span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">ghi&#39;</span>], <span class="hljs-variable">foo</span> =&gt; <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span> == <span class="hljs-variable">foo</span>)
+<span class="hljs-keyword">var</span> <span class="hljs-variable">filterEmpty</span> = <span class="hljs-variable">filter</span>([], <span class="hljs-variable">foo</span> =&gt; <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span> == <span class="hljs-variable">foo</span>)
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">sortNumeric</span> = <span class="hljs-variable">sort</span>([<span class="hljs-number">8</span>, <span class="hljs-number">3</span>, <span class="hljs-number">10</span>, -<span class="hljs-number">13</span>, <span class="hljs-number">5</span>], (<span class="hljs-variable">x</span>, <span class="hljs-variable">y</span>) =&gt; <span class="hljs-variable">x</span> &lt; <span class="hljs-variable">y</span>)
+<span class="hljs-keyword">var</span> <span class="hljs-variable">sortAlpha</span> = <span class="hljs-variable">sort</span>([<span class="hljs-string">&#39;</span><span class="hljs-string">ghi&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>], (<span class="hljs-variable">x</span>, <span class="hljs-variable">y</span>) =&gt; <span class="hljs-variable">x</span> &lt; <span class="hljs-variable">y</span>)
+<span class="hljs-keyword">var</span> <span class="hljs-variable">sortAlphaReverse</span> = <span class="hljs-variable">sort</span>([<span class="hljs-string">&#39;</span><span class="hljs-string">ghi&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>], (<span class="hljs-variable">x</span>, <span class="hljs-variable">y</span>) =&gt; <span class="hljs-variable">x</span> &gt; <span class="hljs-variable">y</span>)
+<span class="hljs-keyword">var</span> <span class="hljs-variable">sortByObjectKey</span> = <span class="hljs-variable">sort</span>([
+  { <span class="hljs-variable">key</span>: <span class="hljs-number">124</span>, <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">Second&#39;</span> }
+  { <span class="hljs-variable">key</span>: <span class="hljs-number">298</span>, <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">Third&#39;</span> }
+  { <span class="hljs-variable">key</span>: <span class="hljs-number">24</span>, <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">First&#39;</span> }
+  { <span class="hljs-variable">key</span>: <span class="hljs-number">1232</span>, <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">Fourth&#39;</span> }
+], (<span class="hljs-variable">x</span>, <span class="hljs-variable">y</span>) =&gt; <span class="hljs-variable">int</span>(<span class="hljs-variable">x</span>.<span class="hljs-variable">key</span>) &lt; <span class="hljs-variable">int</span>(<span class="hljs-variable">y</span>.<span class="hljs-variable">key</span>))
+<span class="hljs-keyword">var</span> <span class="hljs-variable">sortEmpty</span> = <span class="hljs-variable">sort</span>([], (<span class="hljs-variable">x</span>, <span class="hljs-variable">y</span>) =&gt; <span class="hljs-variable">int</span>(<span class="hljs-variable">x</span>) &lt; <span class="hljs-variable">int</span>(<span class="hljs-variable">y</span>))
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">reduceStringConcat</span> = <span class="hljs-variable">reduce</span>([<span class="hljs-string">&#39;</span><span class="hljs-string">abc&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">def&#39;</span>, <span class="hljs-string">&#39;</span><span class="hljs-string">ghi&#39;</span>], <span class="hljs-string">&#39;</span><span class="hljs-string">&#39;</span>, (<span class="hljs-variable">cur</span>, <span class="hljs-variable">next</span>) =&gt; <span class="hljs-variable">concat</span>(<span class="hljs-variable">cur</span>, <span class="hljs-variable">next</span>))
+<span class="hljs-keyword">var</span> <span class="hljs-variable">reduceFactorial</span> = <span class="hljs-variable">reduce</span>(<span class="hljs-variable">range</span>(<span class="hljs-number">1</span>, <span class="hljs-number">5</span>), <span class="hljs-number">1</span>, (<span class="hljs-variable">cur</span>, <span class="hljs-variable">next</span>) =&gt; <span class="hljs-variable">cur</span> * <span class="hljs-variable">next</span>)
+<span class="hljs-keyword">var</span> <span class="hljs-variable">reduceObjectUnion</span> = <span class="hljs-variable">reduce</span>([
+  { <span class="hljs-variable">foo</span>: <span class="hljs-number">123</span> }
+  { <span class="hljs-variable">bar</span>: <span class="hljs-number">456</span> }
+  { <span class="hljs-variable">baz</span>: <span class="hljs-number">789</span> }
+], {}, (<span class="hljs-variable">cur</span>, <span class="hljs-variable">next</span>) =&gt; <span class="hljs-variable">union</span>(<span class="hljs-variable">cur</span>, <span class="hljs-variable">next</span>))
+<span class="hljs-keyword">var</span> <span class="hljs-variable">reduceEmpty</span> = <span class="hljs-variable">reduce</span>([], <span class="hljs-number">0</span>, (<span class="hljs-variable">cur</span>, <span class="hljs-variable">next</span>) =&gt; <span class="hljs-variable">cur</span>)
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">itemForLoop</span> = [<span class="hljs-keyword">for</span> <span class="hljs-variable">item</span> <span class="hljs-keyword">in</span> <span class="hljs-variable">range</span>(<span class="hljs-number">0</span>, <span class="hljs-number">10</span>): <span class="hljs-variable">item</span>]
+<span class="hljs-keyword">var</span> <span class="hljs-variable">filteredLoop</span> = <span class="hljs-variable">filter</span>(<span class="hljs-variable">itemForLoop</span>, <span class="hljs-variable">i</span> =&gt; <span class="hljs-variable">i</span> &gt; <span class="hljs-number">5</span>)
+
+<span class="hljs-keyword">output</span> <span class="hljs-variable">doggoGreetings</span> <span class="hljs-variable">array</span> = [<span class="hljs-keyword">for</span> <span class="hljs-variable">item</span> <span class="hljs-keyword">in</span> <span class="hljs-variable">mapObject</span>: <span class="hljs-variable">item</span>.<span class="hljs-variable">greeting</span>]
+
+<span class="hljs-keyword">resource</span> <span class="hljs-variable">storageAcc</span> <span class="hljs-string">&#39;</span><span class="hljs-string">Microsoft.Storage/storageAccounts@2021-09-01&#39;</span> <span class="hljs-keyword">existing</span> = {
+  <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">asdfsadf&#39;</span>
+}
+<span class="hljs-keyword">var</span> <span class="hljs-variable">mappedResProps</span> = <span class="hljs-variable">map</span>(<span class="hljs-variable">items</span>(<span class="hljs-variable">storageAcc</span>.<span class="hljs-variable">properties</span>.<span class="hljs-variable">secondaryEndpoints</span>), <span class="hljs-variable">item</span> =&gt; <span class="hljs-variable">item</span>.<span class="hljs-variable">value</span>)
+
+<span class="hljs-keyword">var</span> <span class="hljs-variable">parentheses</span> = <span class="hljs-variable">map</span>([<span class="hljs-number">123</span>], (<span class="hljs-variable">i</span> =&gt; <span class="hljs-string">&#39;</span>${<span class="hljs-variable">i</span>}<span class="hljs-string">&#39;</span>))
+
+
+    </pre>
+  </body>
+</html>

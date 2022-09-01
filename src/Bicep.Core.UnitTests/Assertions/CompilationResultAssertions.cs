@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using FluentAssertions;
 using FluentAssertions.Primitives;
@@ -21,6 +22,14 @@ namespace Bicep.Core.UnitTests.Assertions
             return new CompilationResult(
                 result.Template,
                 result.Diagnostics.ExcludingLinterDiagnostics(),
+                result.Compilation);
+        }
+
+        public static CompilationResult WithFilteredDiagnostics(this CompilationResult result, Func<IDiagnostic, bool> filterFunc)
+        {
+            return new CompilationResult(
+                result.Template,
+                result.Diagnostics.Where(filterFunc),
                 result.Compilation);
         }
     }

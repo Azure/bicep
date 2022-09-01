@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Azure.Containers.ContainerRegistry.Specialized;
+using Azure;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
@@ -18,6 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
@@ -147,6 +150,70 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
                 result.Should().Be(1);
                 output.Should().BeEmpty();
                 error.Should().ContainAll(": Error BCP192: Unable to restore the module with reference ", "The module does not exist in the registry.");
+            }
+        }
+
+        [TestMethod]
+        public async Task Restore_AggregateExceptionWithInnerRequestFailedExceptions_ShouldFail()
+        {
+            var dataSet = DataSets.Registry_LF;
+
+            var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(outputDirectory);
+            var compiledFilePath = Path.Combine(outputDirectory, "main.bicep");
+            File.WriteAllText(compiledFilePath, @"module foo 'br:fake/fake:v1'");
+
+            var client = StrictMock.Of<ContainerRegistryBlobClient>();
+            client
+                .Setup(m => m.DownloadManifestAsync(It.IsAny<DownloadManifestOptions>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new AggregateException(new RequestFailedException("Mock registry request failure 1."), new RequestFailedException("Mock registry request failure 2.")));
+
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            clientFactory
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), new Uri("https://fake"), "fake"))
+                .Returns(client.Object);
+
+            var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
+
+            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var (output, error, result) = await Bicep(settings, "restore", compiledFilePath);
+            using(new AssertionScope())
+            {
+                result.Should().Be(1);
+                output.Should().BeEmpty();
+                error.Should().Contain("main.bicep(1,12) : Error BCP192: Unable to restore the module with reference \"br:fake/fake:v1\": One or more errors occurred. (Mock registry request failure 1.) (Mock registry request failure 2.)");
+            }
+        }
+
+        [TestMethod]
+        public async Task Restore_RequestFailedException_ShouldFail()
+        {
+            var dataSet = DataSets.Registry_LF;
+
+            var outputDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(outputDirectory);
+            var compiledFilePath = Path.Combine(outputDirectory, "main.bicep");
+            File.WriteAllText(compiledFilePath, @"module foo 'br:fake/fake:v1'");
+
+            var client = StrictMock.Of<ContainerRegistryBlobClient>();
+            client
+                .Setup(m => m.DownloadManifestAsync(It.IsAny<DownloadManifestOptions>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new RequestFailedException("Mock registry request failure."));
+
+            var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
+            clientFactory
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), new Uri("https://fake"), "fake"))
+                .Returns(client.Object);
+
+            var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
+
+            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var (output, error, result) = await Bicep(settings, "restore", compiledFilePath);
+            using (new AssertionScope())
+            {
+                result.Should().Be(1);
+                output.Should().BeEmpty();
+                error.Should().Contain("main.bicep(1,12) : Error BCP192: Unable to restore the module with reference \"br:fake/fake:v1\": Mock registry request failure.");
             }
         }
 

@@ -1,158 +1,158 @@
 targetScope = 'tenant'
-//@[0:11) Identifier |targetScope|
-//@[12:13) Assignment |=|
-//@[14:22) StringComplete |'tenant'|
-//@[22:24) NewLine |\n\n|
+//@[000:011) Identifier |targetScope|
+//@[012:013) Assignment |=|
+//@[014:022) StringComplete |'tenant'|
+//@[022:024) NewLine |\n\n|
 
 module myManagementGroupMod 'modules/managementgroup.bicep' = {
-//@[0:6) Identifier |module|
-//@[7:27) Identifier |myManagementGroupMod|
-//@[28:59) StringComplete |'modules/managementgroup.bicep'|
-//@[60:61) Assignment |=|
-//@[62:63) LeftBrace |{|
-//@[63:64) NewLine |\n|
+//@[000:006) Identifier |module|
+//@[007:027) Identifier |myManagementGroupMod|
+//@[028:059) StringComplete |'modules/managementgroup.bicep'|
+//@[060:061) Assignment |=|
+//@[062:063) LeftBrace |{|
+//@[063:064) NewLine |\n|
   name: 'myManagementGroupMod'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:30) StringComplete |'myManagementGroupMod'|
-//@[30:31) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:030) StringComplete |'myManagementGroupMod'|
+//@[030:031) NewLine |\n|
   scope: managementGroup('myManagementGroup')
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:24) Identifier |managementGroup|
-//@[24:25) LeftParen |(|
-//@[25:44) StringComplete |'myManagementGroup'|
-//@[44:45) RightParen |)|
-//@[45:46) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:024) Identifier |managementGroup|
+//@[024:025) LeftParen |(|
+//@[025:044) StringComplete |'myManagementGroup'|
+//@[044:045) RightParen |)|
+//@[045:046) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[000:001) RightBrace |}|
+//@[001:002) NewLine |\n|
 module myManagementGroupModWithDuplicatedNameButDifferentScope 'modules/managementgroup_empty.bicep' = {
-//@[0:6) Identifier |module|
-//@[7:62) Identifier |myManagementGroupModWithDuplicatedNameButDifferentScope|
-//@[63:100) StringComplete |'modules/managementgroup_empty.bicep'|
+//@[000:006) Identifier |module|
+//@[007:062) Identifier |myManagementGroupModWithDuplicatedNameButDifferentScope|
+//@[063:100) StringComplete |'modules/managementgroup_empty.bicep'|
 //@[101:102) Assignment |=|
 //@[103:104) LeftBrace |{|
 //@[104:105) NewLine |\n|
   name: 'myManagementGroupMod'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:30) StringComplete |'myManagementGroupMod'|
-//@[30:31) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:030) StringComplete |'myManagementGroupMod'|
+//@[030:031) NewLine |\n|
   scope: managementGroup('myManagementGroup2')
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:24) Identifier |managementGroup|
-//@[24:25) LeftParen |(|
-//@[25:45) StringComplete |'myManagementGroup2'|
-//@[45:46) RightParen |)|
-//@[46:47) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:024) Identifier |managementGroup|
+//@[024:025) LeftParen |(|
+//@[025:045) StringComplete |'myManagementGroup2'|
+//@[045:046) RightParen |)|
+//@[046:047) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[000:001) RightBrace |}|
+//@[001:002) NewLine |\n|
 module mySubscriptionMod 'modules/subscription.bicep' = {
-//@[0:6) Identifier |module|
-//@[7:24) Identifier |mySubscriptionMod|
-//@[25:53) StringComplete |'modules/subscription.bicep'|
-//@[54:55) Assignment |=|
-//@[56:57) LeftBrace |{|
-//@[57:58) NewLine |\n|
+//@[000:006) Identifier |module|
+//@[007:024) Identifier |mySubscriptionMod|
+//@[025:053) StringComplete |'modules/subscription.bicep'|
+//@[054:055) Assignment |=|
+//@[056:057) LeftBrace |{|
+//@[057:058) NewLine |\n|
   name: 'mySubscriptionMod'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:27) StringComplete |'mySubscriptionMod'|
-//@[27:28) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:027) StringComplete |'mySubscriptionMod'|
+//@[027:028) NewLine |\n|
   scope: subscription('ee44cd78-68c6-43d9-874e-e684ec8d1191')
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:21) Identifier |subscription|
-//@[21:22) LeftParen |(|
-//@[22:60) StringComplete |'ee44cd78-68c6-43d9-874e-e684ec8d1191'|
-//@[60:61) RightParen |)|
-//@[61:62) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:021) Identifier |subscription|
+//@[021:022) LeftParen |(|
+//@[022:060) StringComplete |'ee44cd78-68c6-43d9-874e-e684ec8d1191'|
+//@[060:061) RightParen |)|
+//@[061:062) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 module mySubscriptionModWithCondition 'modules/subscription.bicep' = if (length('foo') == 3) {
-//@[0:6) Identifier |module|
-//@[7:37) Identifier |mySubscriptionModWithCondition|
-//@[38:66) StringComplete |'modules/subscription.bicep'|
-//@[67:68) Assignment |=|
-//@[69:71) Identifier |if|
-//@[72:73) LeftParen |(|
-//@[73:79) Identifier |length|
-//@[79:80) LeftParen |(|
-//@[80:85) StringComplete |'foo'|
-//@[85:86) RightParen |)|
-//@[87:89) Equals |==|
-//@[90:91) Integer |3|
-//@[91:92) RightParen |)|
-//@[93:94) LeftBrace |{|
-//@[94:95) NewLine |\n|
+//@[000:006) Identifier |module|
+//@[007:037) Identifier |mySubscriptionModWithCondition|
+//@[038:066) StringComplete |'modules/subscription.bicep'|
+//@[067:068) Assignment |=|
+//@[069:071) Identifier |if|
+//@[072:073) LeftParen |(|
+//@[073:079) Identifier |length|
+//@[079:080) LeftParen |(|
+//@[080:085) StringComplete |'foo'|
+//@[085:086) RightParen |)|
+//@[087:089) Equals |==|
+//@[090:091) Integer |3|
+//@[091:092) RightParen |)|
+//@[093:094) LeftBrace |{|
+//@[094:095) NewLine |\n|
   name: 'mySubscriptionModWithCondition'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:40) StringComplete |'mySubscriptionModWithCondition'|
-//@[40:41) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:040) StringComplete |'mySubscriptionModWithCondition'|
+//@[040:041) NewLine |\n|
   scope: subscription('ee44cd78-68c6-43d9-874e-e684ec8d1191')
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:21) Identifier |subscription|
-//@[21:22) LeftParen |(|
-//@[22:60) StringComplete |'ee44cd78-68c6-43d9-874e-e684ec8d1191'|
-//@[60:61) RightParen |)|
-//@[61:62) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:021) Identifier |subscription|
+//@[021:022) LeftParen |(|
+//@[022:060) StringComplete |'ee44cd78-68c6-43d9-874e-e684ec8d1191'|
+//@[060:061) RightParen |)|
+//@[061:062) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\n\n|
 
 module mySubscriptionModWithDuplicatedNameButDifferentScope 'modules/subscription_empty.bicep' = {
-//@[0:6) Identifier |module|
-//@[7:59) Identifier |mySubscriptionModWithDuplicatedNameButDifferentScope|
-//@[60:94) StringComplete |'modules/subscription_empty.bicep'|
-//@[95:96) Assignment |=|
-//@[97:98) LeftBrace |{|
-//@[98:99) NewLine |\n|
+//@[000:006) Identifier |module|
+//@[007:059) Identifier |mySubscriptionModWithDuplicatedNameButDifferentScope|
+//@[060:094) StringComplete |'modules/subscription_empty.bicep'|
+//@[095:096) Assignment |=|
+//@[097:098) LeftBrace |{|
+//@[098:099) NewLine |\n|
   name: 'mySubscriptionMod'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:27) StringComplete |'mySubscriptionMod'|
-//@[27:28) NewLine |\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:027) StringComplete |'mySubscriptionMod'|
+//@[027:028) NewLine |\n|
   scope: subscription('1ad827ac-2669-4c2f-9970-282b93c3c550')
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:21) Identifier |subscription|
-//@[21:22) LeftParen |(|
-//@[22:60) StringComplete |'1ad827ac-2669-4c2f-9970-282b93c3c550'|
-//@[60:61) RightParen |)|
-//@[61:62) NewLine |\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:021) Identifier |subscription|
+//@[021:022) LeftParen |(|
+//@[022:060) StringComplete |'1ad827ac-2669-4c2f-9970-282b93c3c550'|
+//@[060:061) RightParen |)|
+//@[061:062) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:4) NewLine |\n\n\n|
+//@[000:001) RightBrace |}|
+//@[001:004) NewLine |\n\n\n|
 
 
 output myManagementGroupOutput string = myManagementGroupMod.outputs.myOutput
-//@[0:6) Identifier |output|
-//@[7:30) Identifier |myManagementGroupOutput|
-//@[31:37) Identifier |string|
-//@[38:39) Assignment |=|
-//@[40:60) Identifier |myManagementGroupMod|
-//@[60:61) Dot |.|
-//@[61:68) Identifier |outputs|
-//@[68:69) Dot |.|
-//@[69:77) Identifier |myOutput|
-//@[77:78) NewLine |\n|
+//@[000:006) Identifier |output|
+//@[007:030) Identifier |myManagementGroupOutput|
+//@[031:037) Identifier |string|
+//@[038:039) Assignment |=|
+//@[040:060) Identifier |myManagementGroupMod|
+//@[060:061) Dot |.|
+//@[061:068) Identifier |outputs|
+//@[068:069) Dot |.|
+//@[069:077) Identifier |myOutput|
+//@[077:078) NewLine |\n|
 output mySubscriptionOutput string = mySubscriptionMod.outputs.myOutput
-//@[0:6) Identifier |output|
-//@[7:27) Identifier |mySubscriptionOutput|
-//@[28:34) Identifier |string|
-//@[35:36) Assignment |=|
-//@[37:54) Identifier |mySubscriptionMod|
-//@[54:55) Dot |.|
-//@[55:62) Identifier |outputs|
-//@[62:63) Dot |.|
-//@[63:71) Identifier |myOutput|
-//@[71:72) NewLine |\n|
+//@[000:006) Identifier |output|
+//@[007:027) Identifier |mySubscriptionOutput|
+//@[028:034) Identifier |string|
+//@[035:036) Assignment |=|
+//@[037:054) Identifier |mySubscriptionMod|
+//@[054:055) Dot |.|
+//@[055:062) Identifier |outputs|
+//@[062:063) Dot |.|
+//@[063:071) Identifier |myOutput|
+//@[071:072) NewLine |\n|
 
-//@[0:0) EndOfFile ||
+//@[000:000) EndOfFile ||

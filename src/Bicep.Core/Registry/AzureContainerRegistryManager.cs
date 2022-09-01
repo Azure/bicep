@@ -86,7 +86,7 @@ namespace Bicep.Core.Registry
 
             manifestStream.Position = 0;
             // BUG: the client closes the stream :( (is it still the case?)
-            var manifestUploadResult = await blobClient.UploadManifestAsync(manifestStream, new UploadManifestOptions { Tag = moduleReference.Tag });
+            var manifestUploadResult = await blobClient.UploadManifestAsync(manifestStream, new UploadManifestOptions(tag: moduleReference.Tag));
         }
 
         private static Uri GetRegistryUri(OciArtifactModuleReference moduleReference) => new($"https://{moduleReference.Registry}");

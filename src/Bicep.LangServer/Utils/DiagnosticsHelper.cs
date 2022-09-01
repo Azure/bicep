@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Text;
@@ -11,7 +12,7 @@ namespace Bicep.LanguageServer.Utils
 {
     public static class DiagnosticsHelper
     {
-        public static string GetDiagnosticsMessage(KeyValuePair<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByFile)
+        public static string GetDiagnosticsMessage(KeyValuePair<BicepFile, ImmutableArray<IDiagnostic>> diagnosticsByFile)
         {
             StringBuilder sb = new StringBuilder();
             IReadOnlyList<int> lineStarts = diagnosticsByFile.Key.LineStarts;

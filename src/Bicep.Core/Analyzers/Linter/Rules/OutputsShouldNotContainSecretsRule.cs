@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,7 +74,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             private readonly OutputsShouldNotContainSecretsRule parent;
             private readonly SemanticModel model;
-            private const string ListFunctionPrefix = "list";
 
             public OutputValueVisitor(OutputsShouldNotContainSecretsRule parent, List<IDiagnostic> diagnostics, SemanticModel model)
             {
@@ -112,7 +111,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 //
 
                 if (SemanticModelHelper.TryGetFunctionInNamespace(model, AzNamespaceType.BuiltInName, syntax) is FunctionCallSyntaxBase listFunction
-                    && listFunction.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix))
+                    && listFunction.Name.IdentifierName.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix))
                 {
                     string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsFunction, syntax.Name.IdentifierName);
                     this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, foundMessage));
@@ -123,12 +122,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
             {
-                if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix))
+                if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix))
                 {
                     bool isFailure = false;
 
-                    Symbol? baseSymbol = model.GetSymbolInfo(syntax.BaseExpression);
-                    if (baseSymbol is ResourceSymbol)
+                    if (model.ResourceMetadata.TryLookup(syntax.BaseExpression) is { })
                     {
                         // It's a usage of a list*() member function for a resource value, e.g.:
                         //
@@ -136,7 +134,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         //
                         isFailure = true;
                     }
-                    else if (baseSymbol is BuiltInNamespaceSymbol)
+                    else if (SemanticModelHelper.TryGetFunctionInNamespace(model, AzNamespaceType.BuiltInName, syntax) is FunctionCallSyntaxBase listFunction)
                     {
                         // It's a usage of a built-in list*() function as a member of the built-in "az" module, e.g.:
                         //

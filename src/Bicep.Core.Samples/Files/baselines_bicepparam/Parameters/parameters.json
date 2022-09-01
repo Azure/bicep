@@ -1,0 +1,59 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "myString": {
+      "value": "hello world!!"
+    },
+    "myInt": {
+      "value": 42
+    },
+    "myBool": {
+      "value": true
+    },
+    "password": {
+      "value": "strongPassword"
+    },
+    "secretObject": {
+      "value": {
+        "name": "vm2",
+        "location": "westus"
+      }
+    },
+    "storageSku": {
+      "value": "Standard_LRS"
+    },
+    "storageName": {
+      "value": "myStorage"
+    },
+    "someArray": {
+      "value": [
+        "a",
+        "b",
+        "c",
+        "d"
+      ]
+    },
+    "emptyMetadata": {
+      "value": "empty!"
+    },
+    "description": {
+      "value": "descriptive description"
+    },
+    "description2": {
+      "value": "also descriptive"
+    },
+    "additionalMetadata": {
+      "value": "more metadata"
+    },
+    "someParameter": {
+      "value": "three"
+    },
+    "stringLiteral": {
+      "value": "abc"
+    },
+    "decoratedString": {
+      "value": "Apple"
+    }
+  }
+}

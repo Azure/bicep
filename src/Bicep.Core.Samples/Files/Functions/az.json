@@ -71,6 +71,63 @@
     ]
   },
   {
+    "name": "managementGroupResourceId",
+    "description": "Returns the unique identifier for a resource deployed at the management group level.",
+    "fixedParameters": [
+      {
+        "name": "resourceType",
+        "description": "Type of resource including resource provider namespace",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "variableParameter": {
+      "namePrefix": "resourceName",
+      "description": "The resource name segment",
+      "type": "string",
+      "minimumCount": 1
+    },
+    "flags": "default",
+    "typeSignature": "(resourceType: string, ... : string): string",
+    "parameterTypeSignatures": [
+      "resourceType: string",
+      "... : string"
+    ]
+  },
+  {
+    "name": "managementGroupResourceId",
+    "description": "Returns the unique identifier for a resource deployed at the management group level.",
+    "fixedParameters": [
+      {
+        "name": "managementGroupId",
+        "description": "The management group ID",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "resourceType",
+        "description": "Type of resource including resource provider namespace",
+        "type": "string",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 3,
+    "variableParameter": {
+      "namePrefix": "resourceName",
+      "description": "The resource name segment",
+      "type": "string",
+      "minimumCount": 1
+    },
+    "flags": "default",
+    "typeSignature": "(managementGroupId: string, resourceType: string, ... : string): string",
+    "parameterTypeSignatures": [
+      "managementGroupId: string",
+      "resourceType: string",
+      "... : string"
+    ]
+  },
+  {
     "name": "pickZones",
     "description": "Determines whether a resource type supports zones for a region.",
     "fixedParameters": [

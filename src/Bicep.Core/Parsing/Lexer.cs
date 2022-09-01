@@ -952,6 +952,9 @@ namespace Bicep.Core.Parsing
                             case '~':
                                 textWindow.Advance();
                                 return TokenType.EqualsInsensitive;
+                            case '>':
+                                textWindow.Advance();
+                                return TokenType.Arrow;
                         }
                     }
                     return TokenType.Assignment;

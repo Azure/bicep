@@ -22,7 +22,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     [TestClass]
     public class TopLevelResourcePropertiesTests
     {
-        private static readonly RootConfiguration Configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+        private static readonly RootConfiguration Configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
         private static readonly LinterAnalyzer LinterAnalyzer = new(Configuration);
 
         private static Compilation CreateCompilation(string program) => new(
@@ -30,6 +30,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
             BuiltInTestTypes.Create(),
             SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object),
             Configuration,
+            BicepTestConstants.ApiVersionProvider,
             LinterAnalyzer);
 
         /// <summary>
@@ -43,12 +44,12 @@ namespace Bicep.Core.IntegrationTests.Scenarios
                 yield return new object[] { "kind", "''" };
                 yield return new object[] { "managedBy", "''" };
                 yield return new object[] { "managedByExtended", "[]" };
-                yield return new object[] { "extendedLocation", "{}" };
+                yield return new object[] { "extendedLocation", "{'type': 'NotSpecified'}" };
                 yield return new object[] { "zones", "[]" };
                 yield return new object[] { "plan", "{}" };
                 yield return new object[] { "eTag", "''" };
-                yield return new object[] { "scale", "{}" };
-                yield return new object[] { "identity", "{}" };
+                yield return new object[] { "scale", "{'capacity': 1}" };
+                yield return new object[] { "identity", "{'type': 'NotSpecified'}" };
             }
         }
 
@@ -186,7 +187,7 @@ output outputa string = '${inputa}-${inputb}'
 ",
             };
 
-            var compilation = new Compilation(BicepTestConstants.Features, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {
                 ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" is not allowed on objects of type \"module\". Permissible properties include \"dependsOn\", \"scope\".")
@@ -227,7 +228,7 @@ output outputa string = '${inputa}-${inputb}'
 ",
             };
 
-            var compilation = new Compilation(BicepTestConstants.Features, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {
                 ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" is not allowed on objects of type \"params\". Permissible properties include \"inputc\".")
@@ -270,7 +271,7 @@ output outputa string = '${inputa}-${inputb}'
 ",
             };
 
-            var compilation = new Compilation(BicepTestConstants.Features, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {
                 ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" from source declaration \"inputs\" is not allowed on objects of type \"params\". Permissible properties include \"inputc\"."),
@@ -309,7 +310,7 @@ output outputa string = '${inputa}-${inputb}'
 ",
             };
 
-            var compilation = new Compilation(BicepTestConstants.Features, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {
                 ("BCP053", DiagnosticLevel.Error, $"The type \"module\" does not contain property \"{property}\". Available properties include \"name\", \"outputs\".")
@@ -324,7 +325,7 @@ output outputa string = '${inputa}-${inputb}'
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
                     new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
@@ -352,7 +353,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
                     new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
@@ -380,7 +381,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
                     new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
@@ -407,7 +408,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
                 }, null))
@@ -450,7 +451,7 @@ module mod 'mod.bicep' = {
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("required", LanguageConstants.Object, TypePropertyFlags.Required, "required property"),
                 }, null))
@@ -477,7 +478,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("systemRequired", LanguageConstants.Object, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty, "system required property"),
                 }, null))
@@ -504,7 +505,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "name property"),
                     new TypeProperty("systemRequired", LanguageConstants.Object, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty, "system required property"),
                     new TypeProperty("required", LanguageConstants.Object, TypePropertyFlags.Required, "required property"),
@@ -537,6 +538,8 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
                 new ResourceTypeComponents(
                     ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01"),
                     ResourceScope.ResourceGroup,
+                    ResourceScope.None,
+                    ResourceFlags.None,
                     TestTypeHelper.CreateDiscriminatedObjectType(
                         "My.Rp/myResource@2020-01-01",
                         "kind",

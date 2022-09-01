@@ -1,48 +1,55 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import * as fse from "fs-extra";
 import * as path from "path";
-import * as semver from "semver";
-import vscode, { Extension, extensions, Uri } from "vscode";
-import {
-  LanguageClient,
-  TextDocumentIdentifier,
-} from "vscode-languageclient/node";
-
+import vscode, { commands, Uri } from "vscode";
+import { AccessToken } from "@azure/identity";
+import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
+import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
+import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
+import { Command } from "./types";
+import { localize } from "../utils/localize";
+import { LocationTreeItem } from "../tree/LocationTreeItem";
+import { OutputChannelManager } from "../utils/OutputChannelManager";
+import { TreeManager } from "../tree/TreeManager";
 import {
   AzExtTreeDataProvider,
   IActionContext,
   IAzureQuickPickItem,
+  ISubscriptionContext,
   parseError,
-  UserCancelledError,
 } from "@microsoft/vscode-azext-utils";
-
-import { AzureAccount } from "../azure/types";
 import {
-  BicepDeployParams,
-  bicepDeployRequestType,
-  deploymentScopeRequestType,
+  BicepDeploymentParametersResponse,
+  BicepDeploymentScopeParams,
+  BicepDeploymentScopeResponse,
+  BicepDeploymentStartParams,
+  BicepDeploymentStartResponse,
+  BicepDeploymentWaitForCompletionParams,
+  BicepUpdatedDeploymentParameter,
+  ParametersFileUpdateOption,
 } from "../language";
-import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
-import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
-import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
-import { LocationTreeItem } from "../tree/LocationTreeItem";
-import { TreeManager } from "../tree/TreeManager";
-import { localize } from "../utils/localize";
-import { OutputChannelManager } from "../utils/OutputChannelManager";
-import { Command } from "./types";
+import {
+  LanguageClient,
+  TextDocumentIdentifier,
+} from "vscode-languageclient/node";
+import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
+import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
+import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
 
 export class DeployCommand implements Command {
-  private _none: IAzureQuickPickItem = {
-    label: localize("none", "$(circle-slash) None"),
+  private _none = localize("none", "$(circle-slash) None");
+  private _browse = localize("browse", "$(file-directory) Browse...");
+  private _yes: IAzureQuickPickItem = {
+    label: localize("yes", "Yes"),
     data: undefined,
   };
-  private _browse: IAzureQuickPickItem = {
-    label: localize("browse", "$(file-directory) Browse..."),
+  private _no: IAzureQuickPickItem = {
+    label: localize("no", "No"),
     data: undefined,
+    priority: "highest",
   };
-  private _azureAccountExtensionId = "ms-vscode.azure-account";
-  private _doNotShowAzureAccountExtensionVersionWarning = false;
-  private _doNotShowAgainMessage = "Don't show again";
+  private _yesNoQuickPickItems: IAzureQuickPickItem[] = [this._yes, this._no];
 
   public readonly id = "bicep.deploy";
 
@@ -56,36 +63,37 @@ export class DeployCommand implements Command {
     context: IActionContext,
     documentUri: vscode.Uri | undefined
   ): Promise<void> {
-    documentUri ??= vscode.window.activeTextEditor?.document.uri;
+    const deployId = Math.random().toString();
+    context.telemetry.properties.deployId = deployId;
 
-    if (!documentUri) {
-      return;
-    }
+    setOutputChannelManagerAtTheStartOfDeployment(this.outputChannelManager);
 
-    if (documentUri.scheme === "output") {
-      // The output panel in VS Code was implemented as a text editor by accident. Due to breaking change concerns,
-      // it won't be fixed in VS Code, so we need to handle it on our side.
-      // See https://github.com/microsoft/vscode/issues/58869#issuecomment-422322972 for details.
-      vscode.window.showInformationMessage(
-        "Unable to locate an active Bicep file, as the output panel is focused. Please focus a text editor first before running the command."
-      );
-
-      return;
-    }
+    documentUri = await findOrCreateActiveBicepFile(
+      context,
+      documentUri,
+      "Choose which Bicep file to deploy"
+    );
 
     const documentPath = documentUri.fsPath;
-    const textDocument = TextDocumentIdentifier.create(documentUri.fsPath);
+    // Handle spaces/special characters in folder names.
+    const textDocument = TextDocumentIdentifier.create(
+      encodeURIComponent(documentUri.path)
+    );
     this.outputChannelManager.appendToOutputChannel(
-      `Starting deployment of ${documentPath}`
+      `Preparing for deployment of ${documentPath}`
     );
 
     context.errorHandling.suppressDisplay = true;
 
     try {
-      const deploymentScopeResponse = await this.client.sendRequest(
-        deploymentScopeRequestType,
-        { textDocument: textDocument }
-      );
+      const bicepDeploymentScopeParams: BicepDeploymentScopeParams = {
+        textDocument,
+      };
+      const deploymentScopeResponse: BicepDeploymentScopeResponse =
+        await this.client.sendRequest("workspace/executeCommand", {
+          command: "getDeploymentScope",
+          arguments: [bicepDeploymentScopeParams],
+        });
       const deploymentScope = deploymentScopeResponse?.scope;
       const template = deploymentScopeResponse?.template;
 
@@ -115,36 +123,34 @@ export class DeployCommand implements Command {
         context
       );
 
-      // Remove when the below issue is resolved:
-      // https://github.com/Azure/azure-sdk-for-net/issues/27263
-      this.showWarningIfAzureAcountExtensionVersionIsLatest();
+      let deploymentStartResponse: BicepDeploymentStartResponse | undefined;
 
       switch (deploymentScope) {
         case "resourceGroup":
-          await this.handleResourceGroupDeployment(
+          deploymentStartResponse = await this.handleResourceGroupDeployment(
             context,
-            textDocument,
             documentUri,
             deploymentScope,
-            template
+            template,
+            deployId
           );
           break;
         case "subscription":
-          await this.handleSubscriptionDeployment(
+          deploymentStartResponse = await this.handleSubscriptionDeployment(
             context,
-            textDocument,
             documentUri,
             deploymentScope,
-            template
+            template,
+            deployId
           );
           break;
         case "managementGroup":
-          await this.handleManagementGroupDeployment(
+          deploymentStartResponse = await this.handleManagementGroupDeployment(
             context,
-            textDocument,
             documentUri,
             deploymentScope,
-            template
+            template,
+            deployId
           );
           break;
         case "tenant": {
@@ -159,37 +165,53 @@ export class DeployCommand implements Command {
           );
         }
       }
-    } catch (err) {
-      this.outputChannelManager.appendToOutputChannel(
-        err instanceof UserCancelledError
-          ? `Deployment canceled for ${documentPath}.`
-          : `Deployment failed for ${documentPath}. ${parseError(err).message}`
+
+      this.sendDeployWaitForCompletionCommand(
+        deployId,
+        deploymentStartResponse,
+        documentPath
       );
+    } catch (err) {
+      let errorMessage: string;
+
+      if (parseError(err).isUserCancelledError) {
+        errorMessage = `Deployment canceled for ${documentPath}.`;
+      }
+      // Long-standing issue that is pretty common for all Azure calls, but can be fixed with a simple reload of VS Code.
+      // https://github.com/microsoft/vscode-azure-account/issues/53
+      else if (parseError(err).message === "Entry not found in cache.") {
+        errorMessage = `Deployment failed for ${documentPath}. Token cache is out of date. Please reload VS Code and try again. If this problem persists, consider changing the VS Code setting "Azure: Authentication Library" to "MSAL".`;
+        context.errorHandling.suppressReportIssue = true;
+        context.errorHandling.buttons = [
+          {
+            title: localize("reloadWindow", "Reload Window"),
+            callback: async (): Promise<void> => {
+              await commands.executeCommand("workbench.action.reloadWindow");
+            },
+          },
+        ];
+      } else {
+        errorMessage = `Deployment failed for ${documentPath}. ${
+          parseError(err).message
+        }`;
+      }
+      this.outputChannelManager.appendToOutputChannel(errorMessage);
       throw err;
     }
   }
 
   private async handleManagementGroupDeployment(
     context: IActionContext,
-    textDocument: TextDocumentIdentifier,
     documentUri: vscode.Uri,
     deploymentScope: string,
-    template: string
-  ) {
-    let managementGroupTreeItem: AzManagementGroupTreeItem | undefined;
-    try {
-      managementGroupTreeItem =
-        await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<AzManagementGroupTreeItem>(
-          "",
-          context
-        );
-    } catch (exception) {
-      this.outputChannelManager.appendToOutputChannel(
-        "Deployment failed. " + parseError(exception).message
+    template: string,
+    deployId: string
+  ): Promise<BicepDeploymentStartResponse | undefined> {
+    const managementGroupTreeItem =
+      await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<AzManagementGroupTreeItem>(
+        "",
+        context
       );
-
-      throw exception;
-    }
     const managementGroupId = managementGroupTreeItem?.id;
 
     if (managementGroupId) {
@@ -203,26 +225,30 @@ export class DeployCommand implements Command {
           documentUri
         );
 
-        await this.sendDeployCommand(
+        return await this.sendDeployStartCommand(
           context,
-          textDocument,
+          documentUri.fsPath,
           parameterFilePath,
           managementGroupId,
           deploymentScope,
           location,
-          template
+          template,
+          managementGroupTreeItem.subscription,
+          deployId
         );
       }
     }
+
+    return undefined;
   }
 
   private async handleResourceGroupDeployment(
     context: IActionContext,
-    textDocument: TextDocumentIdentifier,
     documentUri: vscode.Uri,
     deploymentScope: string,
-    template: string
-  ) {
+    template: string,
+    deployId: string
+  ): Promise<BicepDeploymentStartResponse | undefined> {
     const resourceGroupTreeItem =
       await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker<AzResourceGroupTreeItem>(
         "",
@@ -236,98 +262,199 @@ export class DeployCommand implements Command {
         documentUri
       );
 
-      await this.sendDeployCommand(
+      return await this.sendDeployStartCommand(
         context,
-        textDocument,
+        documentUri.fsPath,
         parameterFilePath,
         resourceGroupId,
         deploymentScope,
         "",
-        template
+        template,
+        resourceGroupTreeItem.subscription,
+        deployId
       );
     }
+
+    return undefined;
   }
 
   private async handleSubscriptionDeployment(
     context: IActionContext,
-    textDocument: TextDocumentIdentifier,
     documentUri: vscode.Uri,
     deploymentScope: string,
-    template: string
-  ): Promise<void> {
+    template: string,
+    deployId: string
+  ): Promise<BicepDeploymentStartResponse | undefined> {
     const locationTreeItem =
       await this.treeManager.azLocationTree.showTreeItemPicker<LocationTreeItem>(
         "",
         context
       );
     const location = locationTreeItem.label;
-    const subscriptionId = locationTreeItem.subscription.subscriptionPath;
+    const subscription = locationTreeItem.subscription;
+    const subscriptionId = subscription.subscriptionPath;
+
     const parameterFilePath = await this.selectParameterFile(
       context,
       documentUri
     );
 
-    await this.sendDeployCommand(
+    return await this.sendDeployStartCommand(
       context,
-      textDocument,
+      documentUri.fsPath,
       parameterFilePath,
       subscriptionId,
       deploymentScope,
       location,
-      template
+      template,
+      subscription,
+      deployId
     );
   }
 
-  private async sendDeployCommand(
+  private async sendDeployStartCommand(
     context: IActionContext,
-    textDocument: TextDocumentIdentifier,
-    parameterFilePath: string | undefined,
+    documentPath: string,
+    parametersFilePath: string | undefined,
     id: string,
     deploymentScope: string,
     location: string,
-    template: string
-  ) {
-    if (!parameterFilePath) {
+    template: string,
+    subscription: ISubscriptionContext,
+    deployId: string
+  ): Promise<BicepDeploymentStartResponse | undefined> {
+    if (!parametersFilePath) {
       context.telemetry.properties.parameterFileProvided = "false";
       this.outputChannelManager.appendToOutputChannel(
         `No parameter file was provided`
       );
-      parameterFilePath = "";
+      parametersFilePath = "";
     } else {
       context.telemetry.properties.parameterFileProvided = "true";
     }
-    const bicepDeployParams: BicepDeployParams = {
-      textDocument,
-      parameterFilePath,
-      id,
-      deploymentScope,
-      location,
-      template,
-    };
-    const deploymentResponse: string = await this.client.sendRequest(
-      bicepDeployRequestType,
-      bicepDeployParams
+
+    const accessToken: AccessToken = await subscription.credentials.getToken(
+      []
     );
 
-    this.outputChannelManager.appendToOutputChannel(deploymentResponse);
+    if (accessToken) {
+      const token = accessToken.token;
+      const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
+      const portalUrl = subscription.environment.portalUrl;
+
+      const [parametersFileName, updatedDeploymentParameters] =
+        await this.handleMissingAndDefaultParams(
+          context,
+          documentPath,
+          parametersFilePath,
+          template
+        );
+
+      let parametersFileUpdateOption = ParametersFileUpdateOption.None;
+
+      // If all the parameters are of type secure, we will not show an option to create or update parameters file
+      if (
+        updatedDeploymentParameters.length > 0 &&
+        !updatedDeploymentParameters.every((x) => x.isSecure)
+      ) {
+        parametersFileUpdateOption = await this.askToUpdateParametersFile(
+          context,
+          documentPath,
+          await fse.pathExists(parametersFilePath),
+          parametersFileName
+        );
+      }
+
+      const deploymentStartParams: BicepDeploymentStartParams = {
+        documentPath,
+        parametersFilePath,
+        id,
+        deploymentScope,
+        location,
+        template,
+        token,
+        expiresOnTimestamp,
+        deployId,
+        portalUrl,
+        parametersFileName,
+        parametersFileUpdateOption,
+        updatedDeploymentParameters,
+      };
+      const deploymentStartResponse: BicepDeploymentStartResponse =
+        await this.client.sendRequest("workspace/executeCommand", {
+          command: "deploy/start",
+          arguments: [deploymentStartParams],
+        });
+
+      // If user chose to create/update/overwrite a parameters file at the end of deployment flow, we'll
+      // open it in vscode.
+      if (parametersFileUpdateOption !== ParametersFileUpdateOption.None) {
+        if (
+          parametersFileUpdateOption === ParametersFileUpdateOption.Create ||
+          parametersFileUpdateOption === ParametersFileUpdateOption.Overwrite
+        ) {
+          parametersFilePath = path.join(
+            path.dirname(documentPath),
+            parametersFileName
+          );
+        }
+        const parametersFileTextDocument =
+          await vscode.workspace.openTextDocument(parametersFilePath);
+        await vscode.window.showTextDocument(parametersFileTextDocument);
+      }
+      return deploymentStartResponse;
+    }
+    return undefined;
+  }
+
+  private async sendDeployWaitForCompletionCommand(
+    deployId: string,
+    deploymentStartResponse: BicepDeploymentStartResponse | undefined,
+    documentPath: string
+  ) {
+    if (deploymentStartResponse) {
+      this.outputChannelManager.appendToOutputChannel(
+        deploymentStartResponse.outputMessage
+      );
+
+      if (deploymentStartResponse.isSuccess) {
+        const viewDeploymentInPortalMessage =
+          deploymentStartResponse.viewDeploymentInPortalMessage;
+
+        if (viewDeploymentInPortalMessage) {
+          this.outputChannelManager.appendToOutputChannel(
+            viewDeploymentInPortalMessage
+          );
+        }
+        const bicepDeploymentWaitForCompletionParams: BicepDeploymentWaitForCompletionParams =
+          {
+            deployId,
+            documentPath,
+          };
+        this.client.sendRequest("workspace/executeCommand", {
+          command: "deploy/waitForCompletion",
+          arguments: [bicepDeploymentWaitForCompletionParams],
+        });
+      }
+    }
   }
 
   private async selectParameterFile(
     _context: IActionContext,
-    sourceUri: Uri | undefined
+    sourceUri: Uri
   ): Promise<string | undefined> {
-    const quickPickItems: IAzureQuickPickItem[] =
+    const quickPickItems: IAzureQuickPickItem<string>[] =
       await this.createParameterFileQuickPickList();
-    const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
+    const result: IAzureQuickPickItem<string> = await _context.ui.showQuickPick(
       quickPickItems,
       {
         canPickMany: false,
         placeHolder: `Select a parameter file`,
-        suppressPersistence: true,
+        id: sourceUri.toString(),
       }
     );
 
-    if (result == this._browse) {
+    if (result.label === this._browse) {
       const paramsPaths: Uri[] | undefined = await vscode.window.showOpenDialog(
         {
           canSelectMany: false,
@@ -336,43 +463,222 @@ export class DeployCommand implements Command {
           filters: { "JSON Files": ["json", "jsonc"] },
         }
       );
-      if (paramsPaths && paramsPaths.length == 1) {
+      if (paramsPaths && paramsPaths.length === 1) {
         const parameterFilePath = paramsPaths[0].fsPath;
         this.outputChannelManager.appendToOutputChannel(
           `Parameter file used in deployment -> ${parameterFilePath}`
         );
         return parameterFilePath;
       }
+    } else if (result.label === this._none) {
+      return undefined;
+    } else {
+      this.outputChannelManager.appendToOutputChannel(
+        `Parameter file used in deployment -> ${result.data}`
+      );
+      return result.data;
+    }
+
+    return undefined;
+  }
+
+  private async handleMissingAndDefaultParams(
+    _context: IActionContext,
+    documentPath: string,
+    parameterFilePath: string | undefined,
+    template: string | undefined
+  ): Promise<[string, BicepUpdatedDeploymentParameter[]]> {
+    const bicepDeploymentParametersResponse: BicepDeploymentParametersResponse =
+      await this.client.sendRequest("workspace/executeCommand", {
+        command: "getDeploymentParameters",
+        arguments: [documentPath, parameterFilePath, template],
+      });
+
+    if (bicepDeploymentParametersResponse.errorMessage) {
+      throw new Error(bicepDeploymentParametersResponse.errorMessage);
+    }
+
+    const updatedDeploymentParameters: BicepUpdatedDeploymentParameter[] = [];
+
+    for (const deploymentParameter of bicepDeploymentParametersResponse.deploymentParameters) {
+      const paramName = deploymentParameter.name;
+      let paramValue = undefined;
+      if (deploymentParameter.isMissingParam) {
+        paramValue = await _context.ui.showInputBox({
+          title: `Parameter: ${paramName}`,
+          placeHolder: `Please enter value for parameter "${paramName}"`,
+        });
+      } else {
+        if (deploymentParameter.isExpression) {
+          paramValue = await this.selectValueForParameterOfTypeExpression(
+            _context,
+            paramName,
+            deploymentParameter.value
+          );
+        } else {
+          const options = {
+            title: `Parameter: ${paramName}`,
+            value: deploymentParameter.value,
+            placeHolder: `Please enter value for parameter "${paramName}"`,
+          };
+          paramValue = await _context.ui.showInputBox(options);
+        }
+      }
+
+      // undefined indicates to use the expression in the parameter default value
+      if (paramValue !== undefined) {
+        const updatedDeploymentParameter: BicepUpdatedDeploymentParameter = {
+          name: paramName,
+          value: paramValue,
+          isSecure: deploymentParameter.isSecure,
+          parameterType: deploymentParameter.parameterType,
+        };
+        updatedDeploymentParameters.push(updatedDeploymentParameter);
+      }
+    }
+
+    return [
+      bicepDeploymentParametersResponse.parametersFileName,
+      updatedDeploymentParameters,
+    ];
+  }
+
+  private async askToUpdateParametersFile(
+    _context: IActionContext,
+    documentPath: string,
+    parametersFileExists: boolean,
+    parametersFileName: string
+  ) {
+    let placeholder: string;
+    let parametersFileUpdateOptionString = "None";
+    let parametersFileUpdateOption: ParametersFileUpdateOption;
+    if (parametersFileExists) {
+      parametersFileUpdateOptionString = "Update";
+      parametersFileUpdateOption = ParametersFileUpdateOption.Update;
+      placeholder = `Update ${parametersFileName} with values used in this deployment?`;
+    } else {
+      const folderContainingSourceFile = path.dirname(documentPath);
+      const parametersFilePath = path.join(
+        folderContainingSourceFile,
+        parametersFileName
+      );
+      if (fse.existsSync(parametersFilePath)) {
+        parametersFileUpdateOptionString = "Overwrite";
+        parametersFileUpdateOption = ParametersFileUpdateOption.Overwrite;
+        placeholder = `File ${parametersFileName} already exists. Do you want to overwrite it?`;
+      } else {
+        parametersFileUpdateOptionString = "Create";
+        parametersFileUpdateOption = ParametersFileUpdateOption.Create;
+        placeholder = `Create parameters file from values used in this deployment?`;
+      }
+    }
+
+    const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
+      this._yesNoQuickPickItems,
+      {
+        canPickMany: false,
+        placeHolder: placeholder,
+        suppressPersistence: true,
+      }
+    );
+
+    _context.telemetry.properties.parametersFileUpdateOption =
+      parametersFileUpdateOptionString;
+    if (result === this._yes) {
+      return parametersFileUpdateOption;
+    } else {
+      return ParametersFileUpdateOption.None;
+    }
+  }
+
+  private async selectValueForParameterOfTypeExpression(
+    _context: IActionContext,
+    paramName: string,
+    paramValue: string | undefined
+  ) {
+    const quickPickItems: IAzureQuickPickItem[] = [];
+    if (paramValue) {
+      const useExpressionValue: IAzureQuickPickItem = {
+        label: localize("useExpressionValue", `Use value of "${paramValue}"`),
+        data: undefined,
+      };
+      quickPickItems.push(useExpressionValue);
+    }
+    const enterNewValue: IAzureQuickPickItem = {
+      label: localize(
+        "enterNewValueForParameter",
+        `Enter value for "${paramName}"`
+      ),
+      data: undefined,
+    };
+    quickPickItems.push(enterNewValue);
+
+    const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
+      quickPickItems,
+      {
+        canPickMany: false,
+        placeHolder: `Select value for parameter "${paramName}"`,
+        suppressPersistence: true,
+      }
+    );
+
+    if (result === enterNewValue) {
+      const paramValue = await _context.ui.showInputBox({
+        placeHolder: `Please enter value for parameter "${paramName}"`,
+      });
+
+      return paramValue;
     }
 
     return undefined;
   }
 
   private async createParameterFileQuickPickList(): Promise<
-    IAzureQuickPickItem[]
+    IAzureQuickPickItem<string>[]
   > {
-    return [this._none].concat([this._browse]);
+    const noneQuickPickItem: IAzureQuickPickItem<string> = {
+      label: this._none,
+      data: "",
+    };
+    const browseQuickPickItem: IAzureQuickPickItem<string> = {
+      label: this._browse,
+      data: "",
+    };
+    let parameterFilesQuickPickList = [noneQuickPickItem].concat([
+      browseQuickPickItem,
+    ]);
+    const jsonFilesInFolder = await this.getJsonFilesInFolder();
+
+    if (jsonFilesInFolder) {
+      parameterFilesQuickPickList =
+        parameterFilesQuickPickList.concat(jsonFilesInFolder);
+    }
+
+    return parameterFilesQuickPickList;
   }
 
-  private showWarningIfAzureAcountExtensionVersionIsLatest() {
-    const extension: Extension<AzureAccount> | undefined =
-      extensions.getExtension<AzureAccount>(this._azureAccountExtensionId);
-    if (extension) {
-      const version: string = extension.packageJSON.version;
-      if (!this._doNotShowAzureAccountExtensionVersionWarning) {
-        if (semver.gte(version, "0.10.0")) {
-          vscode.window
-            .showInformationMessage(
-              `Detected ${version} version of Azure Account extension. If you encounter issues while signing into azure, please downgrade the version to 0.9.11 and try again.`,
-              this._doNotShowAgainMessage
-            )
-            .then((selection) => {
-              if (selection == this._doNotShowAgainMessage) {
-                this._doNotShowAzureAccountExtensionVersionWarning = true;
-              }
-            });
-        }
-      }
+  private async getJsonFilesInFolder(): Promise<IAzureQuickPickItem<string>[]> {
+    const quickPickItems: IAzureQuickPickItem<string>[] = [];
+    const workspaceJsonFiles = (
+      await vscode.workspace.findFiles("**/*.{json,jsonc}", undefined)
+    ).filter((f) => !!f.fsPath);
+
+    workspaceJsonFiles.sort((a, b) => compareStringsOrdinal(a.path, b.path));
+
+    for (const uri of workspaceJsonFiles) {
+      const workspaceRoot: string | undefined =
+        vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath;
+      const relativePath = workspaceRoot
+        ? path.relative(workspaceRoot, uri.fsPath)
+        : path.basename(uri.fsPath);
+      const quickPickItem: IAzureQuickPickItem<string> = {
+        label: `${"$(json) "} ${relativePath}`,
+        data: uri.fsPath,
+        id: uri.toString(),
+      };
+      quickPickItems.push(quickPickItem);
     }
+
+    return quickPickItems;
   }
 }

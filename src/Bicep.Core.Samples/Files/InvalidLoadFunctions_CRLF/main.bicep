@@ -53,3 +53,9 @@ var textOversize = loadTextContent('Assets/oversizeText.txt')
 var binaryOversize = loadFileAsBase64('Assets/oversizeBinary')
 
 var binaryAsText = loadTextContent('Assets/binary')
+
+var jsonObject1 = loadJsonContent('Assets/jsonInvalid.json.txt')
+var jsonObject2 = loadJsonContent('Assets/jsonValid.json.txt', '.')
+var jsonObject3 = loadJsonContent('Assets/jsonValid.json.txt', '$.')
+var jsonObject4 = loadJsonContent('Assets/jsonValid.json.txt', '.propertyThatDoesNotExist')
+var jsonObject5 = loadJsonContent('Assets/fileNotExists')

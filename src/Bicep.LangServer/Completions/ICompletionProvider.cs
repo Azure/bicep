@@ -10,5 +10,6 @@ namespace Bicep.LanguageServer.Completions
     public interface ICompletionProvider
     {
         IEnumerable<CompletionItem> GetFilteredCompletions(Compilation model, BicepCompletionContext context);
+        IEnumerable<CompletionItem> GetFilteredParamsCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext);
     }
 }

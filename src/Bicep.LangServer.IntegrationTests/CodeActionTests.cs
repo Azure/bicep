@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.CodeAction;
+using Bicep.Core.CodeAction.Fixes;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -19,10 +20,12 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -42,9 +45,41 @@ namespace Bicep.LangServer.IntegrationTests
         private const string MaxLengthTitle = "Add @maxLength";
         private const string MinValueTitle = "Add @minValue";
         private const string MaxValueTitle = "Add @maxValue";
+        private const string RemoveUnusedExistingResourceTitle = "Remove unused existing resource";
+        private const string RemoveUnusedParameterTitle = "Remove unused parameter";
+        private const string RemoveUnusedVariableTitle = "Remove unused variable";
+
+        private static readonly SharedLanguageHelperManager DefaultServer = new();
+
+        private static readonly SharedLanguageHelperManager ServerWithFileResolver = new();
+
+        private static readonly SharedLanguageHelperManager ServerWithBuiltInTypes = new();
+
+        private static readonly SharedLanguageHelperManager ServerWithNamespaceProvider = new();
 
         [NotNull]
         public TestContext? TestContext { get; set; }
+
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
+        {
+            DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
+
+            ServerWithFileResolver.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new Server.CreationOptions(FileResolver: new FileResolver())));
+
+            ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create())));
+
+            ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider)));
+        }
+
+        [ClassCleanup]
+        public static async Task ClassCleanup()
+        {
+            await DefaultServer.DisposeAsync();
+            await ServerWithFileResolver.DisposeAsync();
+            await ServerWithBuiltInTypes.DisposeAsync();
+            await ServerWithNamespaceProvider.DisposeAsync();
+        }
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
@@ -54,52 +89,76 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From(fileUri);
 
             // start language server
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new FileResolver()));
+            var helper = await ServerWithFileResolver.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
+
             var client = helper.Client;
 
             // construct a parallel compilation
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
-            var fixables = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().OfType<IFixable>();
+            var fixables = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().OfType<IFixable>().ToList();
 
             foreach (var fixable in fixables)
             {
                 foreach (var span in GetOverlappingSpans(fixable.Span))
                 {
-                    var quickFixes = await client.RequestCodeAction(new CodeActionParams
+                    using (new AssertionScope().WithVisualCursor(compilation.SourceFileGrouping.EntryPoint, fixable.Span))
                     {
-                        TextDocument = new TextDocumentIdentifier(uri),
-                        Range = span.ToRange(lineStarts),
-                    });
-
-                    // Assert.
-                    quickFixes.Should().NotBeNull();
-
-                    var quickFixList = quickFixes.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
-                    var bicepFixList = fixable.Fixes.ToList();
-
-                    quickFixList.Should().HaveSameCount(bicepFixList);
-
-                    for (int i = 0; i < quickFixList.Count; i++)
-                    {
-                        var quickFix = quickFixList[i];
-                        var bicepFix = bicepFixList[i];
-
-                        quickFix.IsCodeAction.Should().BeTrue();
-                        quickFix.CodeAction!.Kind.Should().Be(CodeActionKind.QuickFix);
-                        quickFix.CodeAction.Title.Should().Be(bicepFix.Description);
-                        quickFix.CodeAction.Edit!.Changes.Should().ContainKey(uri);
-
-                        var textEditList = quickFix.CodeAction.Edit.Changes![uri].ToList();
-                        var replacementList = bicepFix.Replacements.ToList();
-
-                        for (int j = 0; j < textEditList.Count; j++)
+                        var range = span.ToRange(lineStarts);
+                        var quickFixes = await client.RequestCodeAction(new CodeActionParams
                         {
-                            var textEdit = textEditList[j];
-                            var replacement = replacementList[j];
+                            TextDocument = new TextDocumentIdentifier(uri),
+                            Range = range,
+                        });
 
-                            textEdit.Range.Should().Be(replacement.ToRange(lineStarts));
-                            textEdit.NewText.Should().Be(replacement.Text);
+                        // Assert.
+                        quickFixes.Should().NotBeNull();
+
+                        var spansOverlapOrAbut = (IFixable f) =>
+                        {
+                            if (span.Position <= f.Span.Position)
+                            {
+                                return span.GetEndPosition() >= f.Span.Position;
+                            }
+
+                            return f.Span.GetEndPosition() >= span.Position;
+                        };
+
+                        var bicepFixes = fixables.Where(spansOverlapOrAbut).SelectMany(f => f.Fixes).ToHashSet();
+                        var quickFixList = quickFixes.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
+
+                        var bicepFixDescriptions = bicepFixes.Select(f => f.Description);
+                        var quickFixTitles = quickFixList.Select(f => f.CodeAction.Title);
+                        bicepFixDescriptions.Should().BeEquivalentTo(quickFixTitles);
+
+                        for (int i = 0; i < quickFixList.Count; i++)
+                        {
+                            var quickFix = quickFixList[i];
+
+                            quickFix.IsCodeAction.Should().BeTrue();
+                            quickFix.CodeAction!.Kind.Should().Be(CodeActionKind.QuickFix);
+                            quickFix.CodeAction.Edit!.Changes.Should().ContainKey(uri);
+
+                            var textEditList = quickFix.CodeAction.Edit.Changes![uri].ToList();
+
+                            bicepFixes.RemoveWhere(fix =>
+                            {
+                                if (fix.Description != quickFix.CodeAction.Title)
+                                {
+                                    return false;
+                                }
+
+                                var replacementSet = fix.Replacements.ToHashSet();
+                                foreach (var edit in textEditList)
+                                {
+                                    replacementSet.RemoveWhere(replacement => edit.Range == replacement.ToRange(lineStarts) && edit.NewText == replacement.Text);
+                                }
+
+                                return replacementSet.Count == 0;
+                            }).Should().Be(1, "No matching fix found.");
                         }
+
+                        bicepFixes.Count.Should().Be(0);
                     }
                 }
             }
@@ -177,7 +236,7 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
             fileSystemDict[bicepConfigUri.ToUri()] = bicepConfigFileContents;
 
-            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(fileSystemDict, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(fileSystemDict, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
             diagnostics.Should().HaveCount(1);
@@ -187,16 +246,12 @@ namespace Bicep.LangServer.IntegrationTests
                     x.Code.Should().Be("no-unused-params");
                 });
 
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
-                this.TestContext,
-                bicepFileContents,
-                documentUri,
-                creationOptions: new Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            ILanguageClient client = helper.Client;
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, bicepFileContents, documentUri);
 
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
-            var codeActions = await client.RequestCodeAction(new CodeActionParams
+            var codeActions = await helper.Client.RequestCodeAction(new CodeActionParams
             {
                 TextDocument = new TextDocumentIdentifier(documentUri),
                 Range = diagnostics.First().ToRange(lineStarts)
@@ -220,7 +275,7 @@ resource test";
                 [uri] = bicepFileContents,
             };
 
-            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
             diagnostics.Should().HaveCount(2);
@@ -282,7 +337,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
                 [uri] = bicepFileContents,
             };
 
-            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
             diagnostics.Should().HaveCount(3);
@@ -303,24 +358,20 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
                     x.Code.Should().Be("BCP037");
                 });
 
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
-                this.TestContext,
-                bicepFileContents,
-                documentUri,
-                creationOptions: new Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider));
-            ILanguageClient client = helper.Client;
+            var helper = await ServerWithNamespaceProvider.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, bicepFileContents, documentUri);
 
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
-            var codeActions = await client.RequestCodeAction(new CodeActionParams
+            var codeActions = await helper.Client.RequestCodeAction(new CodeActionParams
             {
                 TextDocument = new TextDocumentIdentifier(documentUri),
                 Range = diagnostics.First().ToRange(lineStarts)
             });
 
-            codeActions.Count().Should().Be(2);
-
-            codeActions.Should().SatisfyRespectively(
+            var disableCodeActions = codeActions.Where(x => x.CodeAction!.Title.StartsWith("Disable "));
+            disableCodeActions.Count().Should().Be(2);
+            disableCodeActions.Should().SatisfyRespectively(
                 x =>
                 {
                     x.CodeAction!.Title.Should().Be("Disable BCP036 for this line");
@@ -414,6 +465,342 @@ param foo {type}
             codeActions.Should().NotContain(x => x.Title == title);
         }
 
+        [DataRow(
+            @"resource ap|p 'Microsoft.Web/sites@2021-03-01' existing = {
+                name: 'app'
+            }",
+            "")]
+        [DataRow(
+            @"resource ap|p 'Microsoft.Web/sites@2021-03-01' existing = {
+                name: 'app'
+            }
+var foo = 'foo'",
+            "var foo = 'foo'")]
+        [DataRow(
+            @"resource app1 'Microsoft.Web/sites@2021-03-01' = {
+                name: 'app1'
+            }
+resource ap|p2 'Microsoft.Web/sites@2021-03-01' existing = {
+                name: 'app2'
+            }",
+            @"resource app1 'Microsoft.Web/sites@2021-03-01' = {
+                name: 'app1'
+            }
+")]
+        [DataTestMethod]
+        public async Task Unused_existing_resource_actions_are_suggested(string fileWithCursors, string expectedText)
+        {
+            (var codeActions, var bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().Contain(x => x.Title.StartsWith(RemoveUnusedExistingResourceTitle));
+            codeActions.First(x => x.Title.StartsWith(RemoveUnusedExistingResourceTitle)).Kind.Should().Be(CodeActionKind.QuickFix);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith(RemoveUnusedExistingResourceTitle)));
+            updatedFile.Should().HaveSourceText(expectedText);
+        }
+
+        [DataRow(@"var fo|o = 'foo'
+var foo2 = 'foo2'", "var foo2 = 'foo2'")]
+        [DataRow(@"var fo|o = 'foo'", "")]
+        [DataRow(@"var ad|sf = 'asdf' /*
+        adf
+        */", "")]
+        [DataRow(@"var as|df = {
+          abc: 'def'
+        }", "")]
+        [DataRow(@"var ab|cd = concat('foo',/*
+        */'bar')", "")]
+        [DataRow(@"var multi|line = '''
+        This
+        is
+        a
+        multiline
+        '''", "")]
+        [DataRow(@"@description('''
+        ''')
+        var as|df = 'asdf'", "")]
+        [DataRow(@"var fo|o = 'asdf' // asdef", "")]
+        [DataRow(@"/* asdfds */var fo|o = 'asdf'", "")]
+        [DataRow(@"/* asdf */var fo|o = 'asdf'
+var bar = 'asdf'", "var bar = 'asdf'")]
+        [DataTestMethod]
+        public async Task Unused_variable_actions_are_suggested(string fileWithCursors, string expectedText)
+        {
+            (var codeActions, var bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().Contain(x => x.Title.StartsWith(RemoveUnusedVariableTitle));
+            codeActions.First(x => x.Title.StartsWith(RemoveUnusedVariableTitle)).Kind.Should().Be(CodeActionKind.QuickFix);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith(RemoveUnusedVariableTitle)));
+            updatedFile.Should().HaveSourceText(expectedText);
+        }
+
+        [DataRow(@"param fo|o string
+param foo2 string", "param foo2 string")]
+        [DataRow(@"param fo|o string", "")]
+        [DataRow(@"#disable-next-line foo
+param as|df string = '123'", "#disable-next-line foo\n")]
+        [DataRow(@"@secure()
+param fo|o string
+param foo2 string", "param foo2 string")]
+        [DataTestMethod]
+        public async Task Unused_parameter_actions_are_suggested(string fileWithCursors, string expectedText)
+        {
+            (var codeActions, var bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().Contain(x => x.Title.StartsWith(RemoveUnusedParameterTitle));
+            codeActions.First(x => x.Title.StartsWith(RemoveUnusedParameterTitle)).Kind.Should().Be(CodeActionKind.QuickFix);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith(RemoveUnusedParameterTitle)));
+            updatedFile.Should().HaveSourceText(expectedText);
+        }
+
+        [DataRow("var|")]
+        [DataRow("var |")]
+        [DataTestMethod]
+        public async Task Unused_variable_actions_are_not_suggested_for_invalid_variables(string fileWithCursors)
+        {
+            var (codeActions, _) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().NotContain(x => x.Title.StartsWith(RemoveUnusedVariableTitle));
+        }
+
+        [DataRow("param|")]
+        [DataRow("param |")]
+        [DataTestMethod]
+        public async Task Unused_parameter_actions_are_not_suggested_for_invalid_parameters(string fileWithCursors)
+        {
+            var (codeActions, _) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().NotContain(x => x.Title.StartsWith(RemoveUnusedParameterTitle));
+        }
+
+        [DataRow(@"
+var foo = { |abc: 'def', ghi: 'jkl', }
+", @"
+var foo = {
+  abc: 'def'
+  ghi: 'jkl'
+}
+")]
+        [DataRow(@"
+var foo = { |abc: 'def'
+ghi: 'jkl', }
+", @"
+var foo = {
+  abc: 'def'
+  ghi: 'jkl'
+}
+")]
+        [DataRow(@"
+var foo = ['abc', |'def']
+", @"
+var foo = [
+  'abc'
+  'def'
+]
+")]
+        [DataRow(@"
+var foo = [|'abc', 'def'
+'ghi']
+", @"
+var foo = [
+  'abc'
+  'def'
+  'ghi'
+]
+")]
+        [DataRow(@"
+@allowed(['va|l1', 'val2'])
+param foo string
+", @"
+@allowed([
+  'val1'
+  'val2'
+])
+param foo string
+")]
+        [DataRow(@"
+var nested = [
+  { foo: [ ['bar'], 12|3 ] }
+]
+", @"
+var nested = [
+  { foo: [
+    [ 'bar' ]
+    123
+  ] }
+]
+")]
+        [DataTestMethod]
+        public async Task Single_line_object_and_arrays_have_multi_line_format_codefix(string fileWithCursors, string result)
+        {
+            var (codeActions, bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().Contain(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToMultiLineDescription);
+            codeActions.First(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToMultiLineDescription).Kind.Should().Be(CodeActionKind.Refactor);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToMultiLineDescription));
+            updatedFile.Should().HaveSourceText(result);
+        }
+
+        [DataRow(@"
+var foo = {
+  abc: 'def'
+  ghi:| 'jkl'
+}
+")]
+        [DataRow(@"
+var foo = [
+  'abc'|
+  'def'
+]
+")]
+        [DataTestMethod]
+        public async Task Multi_line_object_and_arrays_should_not_show_multi_line_format_codefix(string fileWithCursors)
+        {
+            var (codeActions, bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().NotContain(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToMultiLineDescription);
+        }
+
+        [DataRow(@"
+var foo = {
+  abc: 'def'|
+  ghi: 'jkl'
+}
+", @"
+var foo = { abc: 'def', ghi: 'jkl' }
+")]
+        [DataRow(@"
+var foo = { |abc: 'def'
+ghi: 'jkl', }
+", @"
+var foo = { abc: 'def', ghi: 'jkl' }
+")]
+        [DataRow(@"
+var foo = [
+  'abc'|
+  'def'
+]
+", @"
+var foo = [ 'abc', 'def' ]
+")]
+        [DataRow(@"
+var foo = [|'abc', 'def'
+'ghi']
+", @"
+var foo = [ 'abc', 'def', 'ghi' ]
+")]
+        [DataRow(@"
+var nested = [
+  { foo: [ ['bar']
+   12|3 ]}
+]
+", @"
+var nested = [
+  { foo: [ [ 'bar' ], 123 ]}
+]
+")]
+        [DataTestMethod]
+        public async Task Multi_line_object_and_arrays_have_single_line_format_codefix(string fileWithCursors, string result)
+        {
+            var (codeActions, bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().Contain(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToSingleLineDescription);
+            codeActions.First(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToSingleLineDescription).Kind.Should().Be(CodeActionKind.Refactor);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToSingleLineDescription));
+            updatedFile.Should().HaveSourceText(result);
+        }
+
+        [DataRow(@"
+var foo = {|abc: 'def', ghi: 'jkl',}
+")]
+        [DataRow(@"
+var foo = [|'abc', 'def',]
+")]
+        [DataTestMethod]
+        public async Task Single_line_object_and_arrays_should_not_show_single_line_format_codefix(string fileWithCursors)
+        {
+            var (codeActions, bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().NotContain(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToSingleLineDescription);
+        }
+
+        [DataRow(@"
+var foo = {
+  |,,,,
+}
+")]
+        [DataRow(@"
+var foo = {|
+  a:
+}
+")]
+        [DataRow(@"
+var foo = {| a: }
+")]
+        [DataRow(@"
+var foo = [
+  |,,,,
+]
+")]
+        [DataRow(@"
+var foo = [ |abc def ]
+")]
+        [DataTestMethod]
+        public async Task Incomplete_declarations_should_not_show_codefixes(string fileWithCursors)
+        {
+            var (codeActions, bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().NotContain(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToSingleLineDescription);
+            codeActions.Should().NotContain(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToMultiLineDescription);
+        }
+
+        [DataTestMethod]
+        [DataRow(MultilineObjectsAndArraysCodeFixProvider.ConvertToSingleLineDescription, @"var foo = {
+  abc: 'def'
+  ghi:| 'jkl'
+  deep: [|
+    {|
+      nesting: {|
+        here: '!!!'
+      }
+    }
+  ]
+}
+")]
+        [DataRow(MultilineObjectsAndArraysCodeFixProvider.ConvertToMultiLineDescription, @"var foo = {
+  abc: 'def'
+  ghi:| 'jkl'
+  deep: [|
+    {|
+      nesting: {|
+        here: '!!!', same: 'line'
+      }, same: 'line'
+    }, 'same line'
+  ], same: 'line'
+}
+")]
+        public async Task Single_and_multi_line_actions_should_indent_to_match_the_formatter(string codeActionName, string fileWithCursors)
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file://{TestContext.TestName}_{Guid.NewGuid():D}/main.bicep"), file);
+            bicepFile.Should().NotHaveParseErrors("this test is only designed for valid Bicep files");
+
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, bicepFile);
+            var fileVersion = 0;
+
+            foreach (var cursor in cursors)
+            {
+                using (new AssertionScope().WithVisualCursor(bicepFile, new TextSpan(cursor, 0)))
+                {
+                    await helper.ChangeFileAsync(TestContext, bicepFile, ++fileVersion);
+                    var codeActions = await RequestCodeActions(helper.Client, bicepFile, cursor);
+                    var codeAction = GetSingleCodeAction(codeActions, codeActionName);
+
+                    var codeActionUpdatedFile = ApplyCodeAction(bicepFile, codeAction);
+
+                    await helper.ChangeFileAsync(TestContext, codeActionUpdatedFile, ++fileVersion);
+                    var formattedFile = await FormatDocument(helper.Client, codeActionUpdatedFile);
+
+                    codeActionUpdatedFile.Should().HaveEquivalentSourceText(formattedFile);
+                }
+            }
+        }
+
         private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunParameterSyntaxTest(string paramType, string? decorator = null)
         {
             string fileWithCursors = @$"
@@ -426,13 +813,18 @@ param fo|o {paramType}
 param fo|o {paramType}
 ";
             }
+            return await RunSyntaxTest(fileWithCursors);
+        }
 
+        private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunSyntaxTest(string fileWithCursors)
+        {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri);
-            var client = helper.Client;
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file://{TestContext.TestName}_{Guid.NewGuid():D}/main.bicep"), file);
 
-            var codeActions = await RequestCodeActions(client, bicepFile, cursors.Single());
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+
+            var codeActions = await RequestCodeActions(helper.Client, bicepFile, cursors.Single());
             return (codeActions, bicepFile);
         }
 
@@ -500,6 +892,29 @@ param fo|o {paramType}
             var replaced = originalFile.Substring(0, start) + textToInsert + originalFile.Substring(end);
 
             return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, replaced);
+        }
+
+        private static CodeAction GetSingleCodeAction(IEnumerable<CodeAction> codeActions, string codeActionName)
+        {
+            codeActions.Should().ContainSingle(x => x.Title == codeActionName);
+
+            return codeActions.Single(x => x.Title == codeActionName);
+        }
+
+        private static async Task<BicepFile> FormatDocument(ILanguageClient client, BicepFile bicepFile)
+        {
+            var textEditContainer = await client.TextDocument.RequestDocumentFormatting(new DocumentFormattingParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Options = new FormattingOptions
+                {
+                    TabSize = 2,
+                    InsertSpaces = true,
+                    InsertFinalNewline = true,
+                },
+            });
+
+            return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, textEditContainer!.Single().NewText);
         }
     }
 }

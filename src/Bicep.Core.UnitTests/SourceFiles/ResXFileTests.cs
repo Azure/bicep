@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.SourceFiles
         {
             if (text.Contains('\t'))
             {
-                throw new Exception($"{relativePath} should be indented with spaces, not tabs. ${Info}");
+                throw new Exception($"{relativePath} should be indented with spaces, not tabs. {Info}");
             }
         }
 

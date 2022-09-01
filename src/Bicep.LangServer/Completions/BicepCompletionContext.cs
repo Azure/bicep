@@ -21,6 +21,11 @@ namespace Bicep.LanguageServer.Completions
 {
     public class BicepCompletionContext
     {
+        public record FunctionArgumentContext(
+            FunctionCallSyntaxBase Function,
+            int ArgumentIndex
+        );
+
         // completions will replace only these token types
         // all others will result in an insertion upon completion commit
         private static readonly ImmutableHashSet<TokenType> ReplaceableTokens = new[]
@@ -41,8 +46,7 @@ namespace Bicep.LanguageServer.Completions
             ResourceAccessSyntax? resourceAccess,
             ArrayAccessSyntax? arrayAccess,
             TargetScopeSyntax? targetScope,
-            FunctionCallSyntaxBase? functionCall,
-            FunctionArgumentSyntax? functionArgument,
+            FunctionArgumentContext? functionArgument,
             ImmutableArray<ILanguageScope> activeScopes)
         {
             this.Kind = kind;
@@ -55,7 +59,6 @@ namespace Bicep.LanguageServer.Completions
             this.ResourceAccess = resourceAccess;
             this.ArrayAccess = arrayAccess;
             this.TargetScope = targetScope;
-            this.FunctionCall = functionCall;
             this.FunctionArgument = functionArgument;
             this.ActiveScopes = activeScopes;
         }
@@ -78,9 +81,7 @@ namespace Bicep.LanguageServer.Completions
 
         public TargetScopeSyntax? TargetScope { get; }
 
-        public FunctionCallSyntaxBase? FunctionCall { get; }
-
-        public FunctionArgumentSyntax? FunctionArgument { get; }
+        public FunctionArgumentContext? FunctionArgument { get; }
 
         public ImmutableArray<ILanguageScope> ActiveScopes { get; }
 
@@ -111,7 +112,7 @@ namespace Bicep.LanguageServer.Completions
 
                         if (previousTrivia is DisableNextLineDiagnosticsSyntaxTrivia)
                         {
-                            return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                            return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
                         }
                     }
                     break;
@@ -119,18 +120,18 @@ namespace Bicep.LanguageServer.Completions
                     // This will handle the following case: #disable-next-line |
                     if (triviaMatchingOffset.Text.EndsWith(' '))
                     {
-                        return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                        return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
                     }
-                    return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                    return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
                 case SyntaxTriviaType.SingleLineComment when offset > triviaMatchingOffset.Span.Position:
                 case SyntaxTriviaType.MultiLineComment when offset > triviaMatchingOffset.Span.Position && offset < triviaMatchingOffset.Span.Position + triviaMatchingOffset.Span.Length:
                     //we're in a comment, no hints here
-                    return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                    return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
             }
 
             if (IsDisableNextLineDiagnosticsDirectiveStartContext(bicepFile, offset, matchingNodes))
             {
-                return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart, replacementRange, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
             }
 
             var topLevelDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<ITopLevelNamedDeclarationSyntax, SyntaxBase>(matchingNodes);
@@ -141,9 +142,8 @@ namespace Bicep.LanguageServer.Completions
             var resourceAccessInfo = SyntaxMatcher.FindLastNodeOfType<ResourceAccessSyntax, ResourceAccessSyntax>(matchingNodes);
             var arrayAccessInfo = SyntaxMatcher.FindLastNodeOfType<ArrayAccessSyntax, ArrayAccessSyntax>(matchingNodes);
             var targetScopeInfo = SyntaxMatcher.FindLastNodeOfType<TargetScopeSyntax, TargetScopeSyntax>(matchingNodes);
-            var functionCallInfo = SyntaxMatcher.FindLastNodeOfType<FunctionCallSyntaxBase, FunctionCallSyntaxBase>(matchingNodes);
-            var functionArgumentInfo = SyntaxMatcher.FindLastNodeOfType<FunctionArgumentSyntax, FunctionArgumentSyntax>(matchingNodes);
             var activeScopes = ActiveScopesVisitor.GetActiveScopes(compilation.GetEntrypointSemanticModel().Root, offset);
+            var functionArgumentContext = TryGetFunctionArgumentContext(matchingNodes, offset);
 
             var kind = ConvertFlag(IsTopLevelDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.TopLevelDeclarationStart) |
                        ConvertFlag(IsNestedResourceStartContext(matchingNodes, topLevelDeclarationInfo, objectInfo, offset), BicepCompletionContextKind.NestedResourceDeclarationStart) |
@@ -163,12 +163,13 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsOuterExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope) |
                        ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName) |
-                       ConvertFlag(IsFunctionArgumentContext(matchingNodes, offset), BicepCompletionContextKind.FunctionArgument | BicepCompletionContextKind.Expression);
+                       ConvertFlag(functionArgumentContext is not null, BicepCompletionContextKind.FunctionArgument | BicepCompletionContextKind.Expression);
 
             if (featureProvider.ImportsEnabled)
             {
-                kind |= ConvertFlag(IsImportProviderFollower(matchingNodes, offset), BicepCompletionContextKind.ImportProviderFollower) |
-                    ConvertFlag(IsImportFollower(matchingNodes, offset), BicepCompletionContextKind.ImportFollower);
+                kind |= ConvertFlag(IsImportFollower(matchingNodes, offset), BicepCompletionContextKind.ImportFollower) |
+                    ConvertFlag(IsImportProviderFollower(matchingNodes, offset), BicepCompletionContextKind.ImportProviderFollower) |
+                    ConvertFlag(IsImportAliasFollower(matchingNodes, offset), BicepCompletionContextKind.ImportAliasFollower);
             }
 
             if (kind == BicepCompletionContextKind.None)
@@ -195,8 +196,7 @@ namespace Bicep.LanguageServer.Completions
                 resourceAccessInfo.node,
                 arrayAccessInfo.node,
                 targetScopeInfo.node,
-                functionCallInfo.node,
-                functionArgumentInfo.node,
+                functionArgumentContext,
                 activeScopes);
         }
 
@@ -572,9 +572,9 @@ namespace Bicep.LanguageServer.Completions
             if ((SyntaxMatcher.IsTailMatch<TernaryOperationSyntax>(matchingNodes) ||
                 SyntaxMatcher.IsTailMatch<TernaryOperationSyntax, Token>(matchingNodes) ||
                 SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax>(matchingNodes) ||
-                SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax, Token>(matchingNodes) || 
+                SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax, Token>(matchingNodes) ||
                 SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax, SkippedTriviaSyntax>(matchingNodes, (parenthesizedExpression, _) =>
-                    parenthesizedExpression.Expression is SkippedTriviaSyntax)) && 
+                    parenthesizedExpression.Expression is SkippedTriviaSyntax)) &&
                 matchingNodes.Skip(propertyInfo.index + 1).SkipLast(1).All(node => node is TernaryOperationSyntax or ParenthesizedExpressionSyntax))
             {
                 return true;
@@ -684,16 +684,64 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<DecoratorSyntax, PropertyAccessSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Dot) ||
             SyntaxMatcher.IsTailMatch<DecoratorSyntax, PropertyAccessSyntax>(matchingNodes, (_, propertyAccessSyntax) => offset > propertyAccessSyntax.Dot.Span.Position);
 
-        private static bool IsFunctionArgumentContext(List<SyntaxBase> matchingNodes, int offset) =>
+        private static FunctionArgumentContext? TryGetFunctionArgumentContext(List<SyntaxBase> matchingNodes, int offset)
+        {
             // someFunc(|)
             // abc.someFunc(|)
-            SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, Token>(matchingNodes, (func, _) => true) ||
+            if (SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, Token>(matchingNodes, (func, token) => token == func.OpenParen))
+            {
+                return new(Function: (FunctionCallSyntaxBase)matchingNodes[^2], ArgumentIndex: 0);
+            }
+
             // someFunc(x, |)
             // abc.someFunc(x, |)
-            SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, FunctionArgumentSyntax>(matchingNodes, (func, _) => true) ||
+            if (SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, FunctionArgumentSyntax>(matchingNodes, (func, _) => true))
+            {
+                var function = (FunctionCallSyntaxBase)matchingNodes[^2];
+                var args = function.Arguments.ToImmutableArray();
+
+                return new(Function: function, ArgumentIndex: args.IndexOf((FunctionArgumentSyntax)matchingNodes[^1]));
+            }
+
             // someFunc(x,|)
             // abc.someFunc(x,|)
-            SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, FunctionArgumentSyntax, Token>(matchingNodes, (func, _, _) => true);
+            if (SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, Token>(matchingNodes, (func, _) => true))
+            {
+                var function = (FunctionCallSyntaxBase)matchingNodes[^2];
+                var args = function.Arguments.ToImmutableArray();
+                var previousArg = args.LastOrDefault(x => x.Span.Position < offset);
+
+                return new(Function: function, ArgumentIndex: previousArg is null ? 0 : (args.IndexOf(previousArg) + 1));
+            }
+
+            // someFunc(x, 'a|bc')
+            // abc.someFunc(x, 'de|f')
+            if (SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, FunctionArgumentSyntax, StringSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.StringComplete))
+            {
+                var function = (FunctionCallSyntaxBase)matchingNodes[^4];
+                var args = function.Arguments.ToImmutableArray();
+
+                return new(Function: function, ArgumentIndex: args.IndexOf((FunctionArgumentSyntax)matchingNodes[^3]));
+            }
+
+            // someFunc(x, ab|c)
+            // abc.someFunc(x, de|f)
+            if (SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, FunctionArgumentSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, _, token) => token.Type == TokenType.Identifier))
+            {
+                var function = (FunctionCallSyntaxBase)matchingNodes[^5];
+                var args = function.Arguments.ToImmutableArray();
+
+                return new(Function: function, ArgumentIndex: args.IndexOf((FunctionArgumentSyntax)matchingNodes[^4]));
+            }
+
+            return null;
+        }
+
+        private static bool IsImportFollower(List<SyntaxBase> matchingNodes, int offset) =>
+            // import |
+            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.ProviderName.Child is SkippedTriviaSyntax && offset > import.Keyword.GetEndPosition()) ||
+            // import f|
+            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, IdentifierSyntax, Token>(matchingNodes, (import, ident, _) => import.ProviderName == ident);
 
         private static bool IsImportProviderFollower(List<SyntaxBase> matchingNodes, int offset) =>
             // import foo |
@@ -701,11 +749,9 @@ namespace Bicep.LanguageServer.Completions
             // import foo a|
             SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (import, skipped, _) => import.AsKeyword == skipped);
 
-        private static bool IsImportFollower(List<SyntaxBase> matchingNodes, int offset) =>
-            // import |
-            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.ProviderName.Child is SkippedTriviaSyntax && offset > import.Keyword.GetEndPosition()) ||
-            // import f|
-            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, IdentifierSyntax, Token>(matchingNodes, (import, ident, _) => import.ProviderName == ident);
+        private static bool IsImportAliasFollower(List<SyntaxBase> matchingNodes, int offset) =>
+            // import foo as bar |
+            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.AliasName.IsValid && offset > import.AliasName.GetEndPosition());
 
         private static bool IsOuterExpressionContext(List<SyntaxBase> matchingNodes, int offset)
         {
@@ -756,7 +802,6 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// Determines if we are inside an expression. Will not produce a correct result if context kind is set is already set to something.
         /// </summary>
-        /// <param name="matchingNodes">The matching nodes</param>
         private static bool IsInnerExpressionContext(List<SyntaxBase> matchingNodes, int offset)
         {
             if (!matchingNodes.OfType<ExpressionSyntax>().Any())
@@ -992,7 +1037,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 // use binding syntax because this is used to find accessible symbols
                 // in a child scope
-                if (symbol.BindingSyntax.Span.Contains(this.offset))
+                if (symbol.BindingSyntax.Span.ContainsInclusive(this.offset))
                 {
                     // the offset is inside the binding scope
                     // this scope is active
