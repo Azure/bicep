@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core.Parsing;
-using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core
@@ -17,6 +16,9 @@ namespace Bicep.Core
         public const string LanguageId = "bicep";
         public const string LanguageFileExtension = ".bicep";
 
+        public const string ParamsLanguageId = "bicep-params";
+        public const string ParamsFileExtension = ".bicepparam";
+
         public const string JsonLanguageId = "json";
         public const string JsoncLanguageId = "jsonc";
         public const string ArmTemplateLanguageId = "arm-template"; // Provided by the ARM Tools VSCode extension.
@@ -25,37 +27,45 @@ namespace Bicep.Core
         public const string JsoncFileExtension = ".jsonc";
         public const string ArmTemplateFileExtension = ".arm";
 
-        public const string Build = "build";
-
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
         public const int MaxLiteralCharacterLimit = 131072;
+        public const int MaxJsonFileCharacterLimit = 1048576; // arbitrary value of 1024*1024 characters.
+                                                              // since max ARM template size is 4MB, and it's encoded in UTF that each character can be 1-4 bytes,
+                                                              // we can limit maximum size of JSON file loaded to not exceed 1M characters.
+                                                              // even though loading files near this limit will make user eventually hit the 4MB limit
+                                                              // but it will not be hard to exceed the limit just by loading a single file.
+
 
         public const string ErrorName = "<error>";
         public const string MissingName = "<missing>";
 
         public const string TargetScopeKeyword = "targetScope";
         public const string ParameterKeyword = "param";
+        public const string UsingKeyword = "using";
         public const string OutputKeyword = "output";
         public const string VariableKeyword = "var";
         public const string ResourceKeyword = "resource";
         public const string ModuleKeyword = "module";
         public const string ExistingKeyword = "existing";
         public const string ImportKeyword = "import";
-        public const string FromKeyword = "from";
+        public const string AsKeyword = "as";
 
         public const string IfKeyword = "if";
         public const string ForKeyword = "for";
         public const string InKeyword = "in";
+
+        public const string ArrayType = "array";
+        public const string ObjectType = "object";
 
         public const string TargetScopeTypeTenant = "tenant";
         public const string TargetScopeTypeManagementGroup = "managementGroup";
         public const string TargetScopeTypeSubscription = "subscription";
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
 
-        public const string BicepConfigurationFileName = "bicepconfig.json";
+        public const string CopyLoopIdentifier = "copy";
 
-        public const string DisableLinterRuleCommandName = "bicep.DisableLinterRule";
+        public const string BicepConfigurationFileName = "bicepconfig.json";
 
         public const string DisableNextLineDiagnosticsKeyword = "disable-next-line";
 
@@ -73,6 +83,8 @@ namespace Bicep.Core
         public const string FalseKeyword = "false";
         public const string NullKeyword = "null";
 
+        public const string ListFunctionPrefix = "list";
+
         public static readonly ImmutableDictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>(StringComparer.Ordinal)
         {
             [TrueKeyword] = TokenType.TrueKeyword,
@@ -89,6 +101,7 @@ namespace Bicep.Core
         public const string ParameterMaxLengthPropertyName = "maxLength";
         public const string ParameterMetadataPropertyName = "metadata";
         public const string MetadataDescriptionPropertyName = "description";
+        public const string MetadataResourceTypePropertyName = "resourceType";
         public const string BatchSizePropertyName = "batchSize";
 
         // module properties
@@ -100,6 +113,7 @@ namespace Bicep.Core
         public const string ResourceScopePropertyName = "scope";
         public const string ResourceParentPropertyName = "parent";
         public const string ResourceDependsOnPropertyName = "dependsOn";
+        public const string ResourceLocationPropertyName = "location";
         public const string ResourcePropertiesPropertyName = "properties";
 
         // types
@@ -136,12 +150,16 @@ namespace Bicep.Core
         public static readonly TypeSymbol LooseString = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.AllowLooseStringAssignment);
         // SecureString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol SecureString = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.AllowLooseStringAssignment | TypeSymbolValidationFlags.IsSecure);
-        public static readonly TypeSymbol Object = new ObjectType("object", TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
-        public static readonly TypeSymbol SecureObject = new ObjectType("object", TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
+        public static readonly TypeSymbol Object = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
+        public static readonly TypeSymbol SecureObject = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
         public static readonly TypeSymbol Int = new PrimitiveType("int", TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Bool = new PrimitiveType("bool", TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Null = new PrimitiveType(NullKeyword, TypeSymbolValidationFlags.Default);
-        public static readonly TypeSymbol Array = new ArrayType("array");
+        public static readonly TypeSymbol Array = new ArrayType(ArrayType);
+
+        public static readonly TypeSymbol StringFilePath = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.IsStringFilePath);
+        public static readonly TypeSymbol StringJsonFilePath = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.IsStringFilePath | TypeSymbolValidationFlags.IsStringJsonFilePath);
+
         //Type for available loadTextContent encoding
 
         public static readonly ImmutableArray<(string name, Encoding encoding)> SupportedEncodings = new[]{
@@ -159,7 +177,7 @@ namespace Bicep.Core
 
         // types allowed to use in output and parameter declarations
         public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] { String, Object, Int, Bool, Array }.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
-
+        
         public static TypeSymbol? TryGetDeclarationType(string? typeName)
         {
             if (typeName != null && DeclarationTypes.TryGetValue(typeName, out var primitiveType))

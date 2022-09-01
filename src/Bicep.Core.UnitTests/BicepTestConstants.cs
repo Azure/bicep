@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -14,12 +16,24 @@ using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Registry;
+using Bicep.LanguageServer.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests
 {
+    public record TestFeatureProvider(
+        string AssemblyVersion,
+        string CacheRootDirectory,
+        bool RegistryEnabled,
+        bool SymbolicNameCodegenEnabled,
+        bool ImportsEnabled,
+        bool AdvancedListComprehensionEnabled,
+        bool ResourceTypedParamsAndOutputsEnabled,
+        bool ParamsFilesEnabled,
+        bool SourceMappingEnabled) : IFeatureProvider;
+
     public static class BicepTestConstants
     {
         public const string DevAssemblyFileVersion = "dev";
@@ -28,12 +42,9 @@ namespace Bicep.Core.UnitTests
 
         public static readonly FileResolver FileResolver = new();
 
-        public static readonly IFeatureProvider Features = CreateMockFeaturesProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion).Object;
+        public static readonly TestFeatureProvider Features = CreateFeatureProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, sourceMappingEnabled: false, paramsFilesEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
 
         public static readonly EmitterSettings EmitterSettings = new EmitterSettings(Features);
-
-        public static readonly EmitterSettings EmitterSettingsWithSymbolicNames = new EmitterSettings(
-            CreateMockFeaturesProvider(registryEnabled: false, symbolicNameCodegenEnabled: true, importsEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion).Object);
 
         public static readonly IAzResourceTypeLoader AzResourceTypeLoader = new AzResourceTypeLoader();
 
@@ -45,32 +56,27 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, TemplateSpecRepositoryFactory, Features);
 
+        public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
+
         public static readonly IConfigurationManager ConfigurationManager = new ConfigurationManager(new IOFileSystem());
 
-        public static readonly RootConfiguration BuiltInConfiguration = ConfigurationManager.GetBuiltInConfiguration();
+        // Linter rules added to this list will be automtically disabled for most tests.
+        public static readonly string[] AnalyzerRulesToDisableInTests = new string[] {
+            // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here
+        };
 
-        public static readonly RootConfiguration BuiltInConfigurationWithAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
+        public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersEnabled = ConfigurationManager.GetBuiltInConfiguration();
+        public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
+        public static readonly RootConfiguration BuiltInConfigurationWithProblematicAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration().WithAnalyzersDisabled(AnalyzerRulesToDisableInTests);
+
+        // By default turns off only problematic analyzers
+        public static readonly RootConfiguration BuiltInConfiguration = BuiltInConfigurationWithProblematicAnalyzersDisabled;
+
+        // By default turns off only problematic analyzers
+        public static readonly LinterAnalyzer LinterAnalyzer = new LinterAnalyzer(BuiltInConfiguration);
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
-
-        public static IFeatureProvider CreateFeaturesProvider(
-            TestContext testContext,
-            bool registryEnabled = false,
-            bool symbolicNameCodegenEnabled = false,
-            bool importsEnabled = false,
-            string assemblyFileVersion = DevAssemblyFileVersion)
-        {
-            var mock = CreateMockFeaturesProvider(
-                registryEnabled: registryEnabled,
-                symbolicNameCodegenEnabled: symbolicNameCodegenEnabled,
-                importsEnabled: importsEnabled,
-                assemblyFileVersion: assemblyFileVersion);
-
-            var testPath = FileHelper.GetCacheRootPath(testContext);
-            mock.SetupGet(m => m.CacheRootDirectory).Returns(testPath);
-
-            return mock.Object;
-        }
+        public static readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider();
 
         public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)
         {
@@ -102,21 +108,64 @@ namespace Bicep.Core.UnitTests
             return RootConfiguration.Bind(element, configurationPath);
         }
 
-        private static Mock<IFeatureProvider> CreateMockFeaturesProvider(bool registryEnabled, bool symbolicNameCodegenEnabled, bool importsEnabled, string assemblyFileVersion)
+        public static TestFeatureProvider CreateFeaturesProvider(
+            TestContext testContext,
+            bool registryEnabled = false,
+            bool symbolicNameCodegenEnabled = false,
+            bool importsEnabled = false,
+            bool resourceTypedParamsAndOutputsEnabled = false,
+            bool sourceMappingEnabled = false,
+            bool paramsFilesEnabled = false,
+            string assemblyFileVersion = DevAssemblyFileVersion)
         {
-            var mock = StrictMock.Of<IFeatureProvider>();
-            mock.SetupGet(m => m.RegistryEnabled).Returns(registryEnabled);
-            mock.SetupGet(m => m.SymbolicNameCodegenEnabled).Returns(symbolicNameCodegenEnabled);
-            mock.SetupGet(m => m.ImportsEnabled).Returns(importsEnabled);
-            mock.SetupGet(m => m.AssemblyVersion).Returns(assemblyFileVersion);
+            var features = CreateFeatureProvider(
+                registryEnabled,
+                symbolicNameCodegenEnabled,
+                importsEnabled,
+                resourceTypedParamsAndOutputsEnabled,
+                sourceMappingEnabled,
+                paramsFilesEnabled,
+                assemblyFileVersion);
 
-            return mock;
+            return features with
+            {
+                CacheRootDirectory = FileHelper.GetCacheRootPath(testContext),
+            };
+        }
+
+        private static TestFeatureProvider CreateFeatureProvider(
+            bool registryEnabled,
+            bool symbolicNameCodegenEnabled,
+            bool importsEnabled,
+            bool resourceTypedParamsAndOutputsEnabled,
+            bool sourceMappingEnabled,
+            bool paramsFilesEnabled,
+            string assemblyFileVersion)
+        {
+            return new TestFeatureProvider(
+                assemblyFileVersion,
+                string.Empty,
+                registryEnabled,
+                symbolicNameCodegenEnabled,
+                importsEnabled,
+                true,
+                resourceTypedParamsAndOutputsEnabled,
+                paramsFilesEnabled,
+                sourceMappingEnabled);
         }
 
         private static IModuleRestoreScheduler CreateMockModuleRestoreScheduler()
         {
             var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
             return new ModuleRestoreScheduler(moduleDispatcher.Object);
+        }
+
+        public static Mock<ITelemetryProvider> CreateMockTelemetryProvider()
+        {
+            var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
+            telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
+
+            return telemetryProvider;
         }
     }
 }

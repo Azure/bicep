@@ -30,7 +30,7 @@ namespace Bicep.LanguageServer.Snippets
             this.CompletionPriority = completionPriority;
             this.Placeholders = matches
                 .Select(CreatePlaceholder)
-                .OrderBy(p=>p.Index)
+                .OrderBy(p => p.Index)
                 .ToImmutableArray();
         }
 

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Bicep.Core.Parsing;
@@ -14,7 +13,7 @@ namespace Bicep.Core.PrettyPrint
     {
         public static string PrintProgram(ProgramSyntax programSyntax, PrettyPrintOptions options)
         {
-            string indent = options.IndentKindOption == IndentKindOption.Space ?  new string(' ', options.IndentSize) : "\t";
+            string indent = options.IndentKindOption == IndentKindOption.Space ? new string(' ', options.IndentSize) : "\t";
             string newline = options.NewlineOption switch
             {
                 NewlineOption.LF => "\n",
@@ -39,7 +38,7 @@ namespace Bicep.Core.PrettyPrint
 
         public static string PrintSyntax(SyntaxBase syntax, PrettyPrintOptions options)
         {
-            string indent = options.IndentKindOption == IndentKindOption.Space ?  new string(' ', options.IndentSize) : "\t";
+            string indent = options.IndentKindOption == IndentKindOption.Space ? new string(' ', options.IndentSize) : "\t";
 
             var sb = new StringBuilder();
             var documentBuildVisitor = new DocumentBuildVisitor();

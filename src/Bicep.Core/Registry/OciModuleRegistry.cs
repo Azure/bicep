@@ -4,8 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-using Azure.Identity;
+using Azure;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
@@ -26,7 +27,7 @@ namespace Bicep.Core.Registry
             : base(FileResolver)
         {
             this.cachePath = Path.Combine(features.CacheRootDirectory, ModuleReferenceSchemes.Oci);
-            this.client = new AzureContainerRegistryManager(new DefaultAzureCredential(), clientFactory);
+            this.client = new AzureContainerRegistryManager(clientFactory);
         }
 
         public override string Scheme => ModuleReferenceSchemes.Oci;
@@ -67,12 +68,12 @@ namespace Bicep.Core.Registry
         {
             var statuses = new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>();
 
-            foreach(var reference in references)
+            foreach (var reference in references)
             {
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}");
                 var (result, errorMessage) = await this.TryPullArtifactAsync(configuration, reference);
 
-                if(result is null)
+                if (result is null)
                 {
                     if (errorMessage is not null)
                     {
@@ -86,8 +87,13 @@ namespace Bicep.Core.Registry
                     }
                 }
             }
-            
+
             return statuses;
+        }
+
+        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(RootConfiguration configuration, IEnumerable<OciArtifactModuleReference> references)
+        {
+            return await base.InvalidateModulesCacheInternal(configuration, references);
         }
 
         public override async Task PublishModule(RootConfiguration configuration, OciArtifactModuleReference moduleReference, Stream compiled)
@@ -95,7 +101,20 @@ namespace Bicep.Core.Registry
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
             var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
 
-            await this.client.PushArtifactAsync(configuration, moduleReference, config, layer);
+            try
+            {
+                await this.client.PushArtifactAsync(configuration, moduleReference, config, layer);
+            }
+            catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
+            {
+                // will include several retry messages, but likely the best we can do
+                throw new ExternalModuleException(exception.Message, exception);
+            }
+            catch (RequestFailedException exception)
+            {
+                // can only happen if client retries are disabled
+                throw new ExternalModuleException(exception.Message, exception);
+            }
         }
 
         protected override void WriteModuleContent(OciArtifactModuleReference reference, OciArtifactResult result)
@@ -144,7 +163,7 @@ namespace Bicep.Core.Registry
                 // tags are case-sensitive with length up to 128
                 tagOrDigest = TagEncoder.Encode(reference.Tag);
             }
-            else if(reference.Digest is not null)
+            else if (reference.Digest is not null)
             {
                 // digests are strings like "sha256:e207a69d02b3de40d48ede9fd208d80441a9e590a83a0bc915d46244c03310d4"
                 // and are already guaranteed to be lowercase
@@ -178,11 +197,25 @@ namespace Bicep.Core.Registry
                 // we can trust the message in this exception
                 return (null, exception.Message);
             }
+            catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
+            {
+                // the message on this one is not great because it includes all the retry attempts
+                // however, we don't really have a good way to classify them in a cross-platform way
+                return (null, exception.Message);
+            }
+            catch (RequestFailedException exception)
+            {
+                // this can only happen if we disable retry on the client and a registry request failed
+                return (null, exception.Message);
+            }
             catch (Exception exception)
             {
                 return (null, $"Unhandled exception: {exception}");
             }
         }
+
+        private static bool CheckAllInnerExceptionsAreRequestFailures(AggregateException exception) =>
+            exception.InnerExceptions.All(inner => inner is RequestFailedException);
 
         private Uri GetModuleFileUri(OciArtifactModuleReference reference, ModuleFileType fileType)
         {
@@ -205,7 +238,7 @@ namespace Bicep.Core.Registry
                 ModuleFileType.Metadata => "metadata",
                 _ => throw new NotImplementedException($"Unexpected module file type '{fileType}'.")
             };
-               
+
             return Path.Combine(this.GetModuleDirectoryPath(reference), fileName);
         }
 

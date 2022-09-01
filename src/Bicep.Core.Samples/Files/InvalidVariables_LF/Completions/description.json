@@ -2,7 +2,10 @@
   {
     "label": "description",
     "kind": "function",
-    "detail": "description()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndescription(text: string): any\n\n```\n\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_description",
@@ -13,6 +16,7 @@
       "newText": "description($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   }

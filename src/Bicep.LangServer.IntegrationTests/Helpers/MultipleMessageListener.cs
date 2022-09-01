@@ -2,21 +2,24 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Bicep.LangServer.IntegrationTests
 {
-    // helper class to read messages in order and assert things about them
-    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test code does not need to follow this convention.")]
+    /// <summary>
+    /// Helper class to read messages in order and assert things about them.
+    /// </summary>
     public class MultipleMessageListener<T>
     {
-        private object lockObj = new object();
+        private const int DefaultTimeout = 30000;
+
+        private readonly object lockObj = new();
+        private readonly List<TaskCompletionSource<T>> completionSources = new();
+
         private int listenPosition = 0;
         private int writePosition = 0;
-        private List<TaskCompletionSource<T>> completionSources = new List<TaskCompletionSource<T>>();
 
-        public async Task<T> WaitNext(int timeout = 10000)
+        public async Task<T> WaitNext(int timeout = DefaultTimeout)
         {
             Task<T> onMessageTask;
             lock (lockObj)
@@ -33,7 +36,21 @@ namespace Bicep.LangServer.IntegrationTests
             return await IntegrationTestHelper.WithTimeoutAsync(onMessageTask, timeout);
         }
 
-        public async Task EnsureNoMessageSent(int timeout = 10000)
+        public async Task<List<T>> WaitForAll(int timeout = DefaultTimeout)
+        {
+            List<T> onMessageTasks = new List<T>();
+
+            foreach (var completionSource in completionSources)
+            {
+                var onMessageTask = completionSource.Task;
+                var response = await IntegrationTestHelper.WithTimeoutAsync(onMessageTask, timeout);
+                onMessageTasks.Add(response);
+            }
+
+            return onMessageTasks;
+        }
+
+        public async Task EnsureNoMessageSent(int timeout = DefaultTimeout)
         {
             Task<T> onMessageTask;
             lock (lockObj)
@@ -57,7 +74,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     completionSources.Add(new TaskCompletionSource<T>());
                 }
-                
+
                 completionSources[writePosition].SetResult(message);
                 writePosition++;
             }

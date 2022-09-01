@@ -1,32 +1,32 @@
 var textLoadDirectory = loadTextContent('Assets/path/to/nothing')
-//@[4:21) Variable textLoadDirectory. Type: string. Declaration start char: 0, length: 65
+//@[4:21) Variable textLoadDirectory. Type: error. Declaration start char: 0, length: 65
 var binaryLoadDirectory = loadFileAsBase64('Assets/path/to/nothing')
-//@[4:23) Variable binaryLoadDirectory. Type: string. Declaration start char: 0, length: 68
+//@[4:23) Variable binaryLoadDirectory. Type: error. Declaration start char: 0, length: 68
 
 var textLoadFileMissing = loadTextContent('Assets/nothing.file')
-//@[4:23) Variable textLoadFileMissing. Type: string. Declaration start char: 0, length: 64
+//@[4:23) Variable textLoadFileMissing. Type: error. Declaration start char: 0, length: 64
 var binaryLoadFileMissing = loadFileAsBase64('Assets/nothing.file')
-//@[4:25) Variable binaryLoadFileMissing. Type: string. Declaration start char: 0, length: 67
+//@[4:25) Variable binaryLoadFileMissing. Type: error. Declaration start char: 0, length: 67
 
 var textLoadFilePathEmpty = loadTextContent('')
-//@[4:25) Variable textLoadFilePathEmpty. Type: string. Declaration start char: 0, length: 47
+//@[4:25) Variable textLoadFilePathEmpty. Type: error. Declaration start char: 0, length: 47
 var binaryLoadFilePathEmpty = loadFileAsBase64('')
-//@[4:27) Variable binaryLoadFilePathEmpty. Type: string. Declaration start char: 0, length: 50
+//@[4:27) Variable binaryLoadFilePathEmpty. Type: error. Declaration start char: 0, length: 50
 
 var textLoadInvalidCharactersPath1 = loadTextContent('Assets\\TextFile.txt')
-//@[4:34) Variable textLoadInvalidCharactersPath1. Type: string. Declaration start char: 0, length: 76
+//@[4:34) Variable textLoadInvalidCharactersPath1. Type: error. Declaration start char: 0, length: 76
 var binaryLoadInvalidCharactersPath1 = loadFileAsBase64('Assets\\binary')
-//@[4:36) Variable binaryLoadInvalidCharactersPath1. Type: string. Declaration start char: 0, length: 73
+//@[4:36) Variable binaryLoadInvalidCharactersPath1. Type: error. Declaration start char: 0, length: 73
 
 var textLoadInvalidCharactersPath2 = loadTextContent('/Assets/TextFile.txt')
-//@[4:34) Variable textLoadInvalidCharactersPath2. Type: string. Declaration start char: 0, length: 76
+//@[4:34) Variable textLoadInvalidCharactersPath2. Type: error. Declaration start char: 0, length: 76
 var binaryLoadInvalidCharactersPath2 = loadFileAsBase64('/Assets/binary')
-//@[4:36) Variable binaryLoadInvalidCharactersPath2. Type: string. Declaration start char: 0, length: 73
+//@[4:36) Variable binaryLoadInvalidCharactersPath2. Type: error. Declaration start char: 0, length: 73
 
 var textLoadInvalidCharactersPath3 = loadTextContent('file://Assets/TextFile.txt')
-//@[4:34) Variable textLoadInvalidCharactersPath3. Type: string. Declaration start char: 0, length: 82
+//@[4:34) Variable textLoadInvalidCharactersPath3. Type: error. Declaration start char: 0, length: 82
 var binaryLoadInvalidCharactersPath3 = loadFileAsBase64('file://Assets/binary')
-//@[4:36) Variable binaryLoadInvalidCharactersPath3. Type: string. Declaration start char: 0, length: 79
+//@[4:36) Variable binaryLoadInvalidCharactersPath3. Type: error. Declaration start char: 0, length: 79
 
 
 var textLoadUnsupportedEncoding = loadTextContent('Assets/TextFile.txt', 'windows-1250')
@@ -92,9 +92,21 @@ var textLoadWrongEncoding29 = loadTextContent('Assets/encoding-utf8-bom.txt', 'u
 //@[4:27) Variable textLoadWrongEncoding29. Type: '💪😊😈🍕☕\r\n🐱‍👤\r\n\r\n朝辞白帝彩云间\r\n千里江陵一日还\r\n两岸猿声啼不住\r\n轻舟已过万重山\r\n\r\nΠ π Φ φ\r\n\r\n😎\r\n\r\nαα\r\nΩω\r\nΘ  \r\n\r\nZażółć gęślą jaźń\r\n\r\náéóúñü - ¡Hola!\r\n\r\n二头肌二头肌\r\n\r\n\r\n二头肌\r\nΘ二头肌α\r\n\r\n𐐷\r\n\\u{10437}\r\n\\u{D801}\\u{DC37}\r\n\r\n❆ Hello\\u{20}World\\u{21} ❁\r\n\r\n\ta\tb\tc\td\te\tf\tg\th\t\r\n8\t♜\t♞\t♝\t♛\t♚\t♝\t♞\t♜\t8\r\n7\t♟\t♟\t♟\t♟\t♟\t♟\t♟\t♟\t7\r\n6\t\t\t\t\t\t\t\t\t6\r\n5\t\t\t\t\t\t\t\t\t5\r\n4\t\t\t\t\t\t\t\t\t4\r\n3\t\t\t\t\t\t\t\t\t3\r\n2\t♙\t♙\t♙\t♙\t♙\t♙\t♙\t♙\t2\r\n1\t♖\t♘\t♗\t♕\t♔\t♗\t♘\t♖\t1\r\n\ta\tb\tc\td\te\tf\tg\th\r\n'. Declaration start char: 0, length: 89
 
 var textOversize = loadTextContent('Assets/oversizeText.txt')
-//@[4:16) Variable textOversize. Type: string. Declaration start char: 0, length: 61
+//@[4:16) Variable textOversize. Type: error. Declaration start char: 0, length: 61
 var binaryOversize = loadFileAsBase64('Assets/oversizeBinary')
-//@[4:18) Variable binaryOversize. Type: string. Declaration start char: 0, length: 62
+//@[4:18) Variable binaryOversize. Type: error. Declaration start char: 0, length: 62
 
 var binaryAsText = loadTextContent('Assets/binary')
 //@[4:16) Variable binaryAsText. Type: '���G�T���h�3q�a$�W���\t��6;�lg{[�2U�H��5�k��م\'���Rs���\\�&�h��\\�+���hN���wo\\��ð�!��f�$\n�]����g.t�-�a����8 ���1N���"!���U���&��k��$Y���E��E��W���ݗ�K�ٯ܆Mw_�p��߳�����\'��QL�Pv����O�aw��g3�������k���ėk.��S�R���%@y�"���(���-�s�(L�%]e�`��\r�]���1JD��0�u�\t��A�-�|�9yz�0ix�mؤG>���)�F�"�U�O��d�n���o<{�@�"�53��5�d�������ɶ\r2�,��}��18��nl��@�`R����*N��t�&G+5}�� �|��.P�Q(�}�߶��1ꩴN�f#�<��{��Q-�l\\�*�t�;�뤞��j�\rr�;hh2�B��ݜ,,)ŮYEhٕ��I;��L�HȊ�i3ƣw3��ӿ��7,]VT��z�9�7XR�O@�01�V�DU�m}=Z������M��D�t��Mb���M�R�t|W�0dB�*0��&�!�y����=p��h��\tJ���Ni�������ʥ����(���@$���.VYad���`�/U[7�|`;ރ��LH*���b׮ּ-Y�:�T��Q�*e�ȧ(]�nڠ�T����pW�>[|�e�9oA���&�:ʗ��cPL~G����]m��[����rO��66 @��Os�.�A}ylWBjV��x4ӈ���^iLf�r�v �?$�d�\'� �$�tP��1ßT�v.��wd\\j6�uj\rA]$��p�j�`i!�\\_��un������� :�7�s3��!���DMp�"��j9�ô�ģ��f�0B}���fZ�v�25� <hJja�7�31tHD��ԓ��>�@��I�1��K��0f;1v�;8Ҟ�b1|wq�z8��i�b����׵A9k�us�;�<@���?_iUB1D ��E�'. Declaration start char: 0, length: 51
+
+var jsonObject1 = loadJsonContent('Assets/jsonInvalid.json.txt')
+//@[4:15) Variable jsonObject1. Type: object. Declaration start char: 0, length: 64
+var jsonObject2 = loadJsonContent('Assets/jsonValid.json.txt', '.')
+//@[4:15) Variable jsonObject2. Type: error. Declaration start char: 0, length: 67
+var jsonObject3 = loadJsonContent('Assets/jsonValid.json.txt', '$.')
+//@[4:15) Variable jsonObject3. Type: error. Declaration start char: 0, length: 68
+var jsonObject4 = loadJsonContent('Assets/jsonValid.json.txt', '.propertyThatDoesNotExist')
+//@[4:15) Variable jsonObject4. Type: error. Declaration start char: 0, length: 91
+var jsonObject5 = loadJsonContent('Assets/fileNotExists')
+//@[4:15) Variable jsonObject5. Type: error. Declaration start char: 0, length: 57
+

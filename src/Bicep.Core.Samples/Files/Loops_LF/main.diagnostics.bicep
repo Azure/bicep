@@ -6,6 +6,7 @@ param index int
 resource singleResource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: '${name}single-resource-name'
   location: resourceGroup().location
+//@[12:036) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
@@ -108,6 +109,7 @@ resource storageAccounts2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 resource firstSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in range(0, length(accounts)): {
   name: '${name}-set1-${i}'
   location: resourceGroup().location
+//@[12:036) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
@@ -117,6 +119,7 @@ resource firstSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in ran
 resource secondSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in range(0, length(accounts)): {
   name: '${name}-set2-${i}'
   location: resourceGroup().location
+//@[12:036) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
@@ -130,6 +133,7 @@ resource secondSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in ra
 resource anotherSingleResource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: '${name}single-resource-name'
   location: resourceGroup().location
+//@[12:036) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
@@ -145,6 +149,7 @@ var vnetConfigurations = [
   {
     name: 'one'
     location: resourceGroup().location
+//@[14:038) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   }
   {
     name: 'two'
@@ -265,16 +270,18 @@ output existingIndexedResourceLocation string = existingStorageAccounts[index/2]
 output existingIndexedResourceAccessTier string = existingStorageAccounts[index%3].properties.accessTier
 
 resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in []: {
-//@[9:24) [BCP179 (Warning)] The loop item variable "zone" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |duplicatedNames|
+//@[09:024) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "zone" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |duplicatedNames|
   name: 'no loop variable'
   location: 'eastus'
+//@[12:020) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus'|
 }]
 
 // reference to a resource collection whose name expression does not reference any loop variables
 resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in []: {
-//@[9:34) [BCP179 (Warning)] The loop item variable "zone" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |referenceToDuplicateNames|
+//@[09:034) [BCP179 (Warning)] Unique resource or deployment name is required when looping. The loop item variable "zone" must be referenced in at least one of the value expressions of the following properties: "name" (CodeDescription: none) |referenceToDuplicateNames|
   name: 'no loop variable 2'
   location: 'eastus'
+//@[12:020) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus'|
   dependsOn: [
     duplicatedNames[index]
   ]
@@ -397,6 +404,7 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
 resource filteredZones 'Microsoft.Network/dnsZones@2018-05-01' = [for i in range(0,10): if(i % 3 == 0) {
   name: 'zone${i}'
   location: resourceGroup().location
+//@[12:036) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
 }]
 
 module filteredModules 'passthrough.bicep' = [for i in range(0,6): if(i % 2 == 0) {

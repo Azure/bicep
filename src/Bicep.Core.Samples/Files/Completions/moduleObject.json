@@ -85,13 +85,14 @@
       "newText": "{\n\t$0\n}"
     },
     "command": {
+      "title": "module body completion snippet",
       "command": "bicep.Telemetry",
       "arguments": [
         {
+          "EventName": "snippet/modulebody",
           "Properties": {
             "name": "{}"
-          },
-          "EventName": "ModuleBodySnippetInsertion"
+          }
         }
       ]
     }

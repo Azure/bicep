@@ -2,20 +2,16 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Rules;
-using Bicep.Core.UnitTests.Assertions;
-using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public class UseProtectedSettingsForCommandToExecuteSecretsRuleTests : LinterRuleTestsBase
+    public class ProtectCommandToExecuteSecretsRuleTests : LinterRuleTestsBase
     {
-        private void CompileAndTest(string text, OnCompileErrors onCompileErrors, string[] expectedMessages)
+        private void CompileAndTest(string text, string[] expectedMessages)
         {
-            AssertLinterRuleDiagnostics(UseProtectedSettingsForCommandToExecuteSecretsRule.Code, text, expectedMessages, onCompileErrors);
+            AssertLinterRuleDiagnostics(ProtectCommandToExecuteSecretsRule.Code, text, expectedMessages);
         }
 
         // Modified from https://docs.microsoft.com/en-us/azure/azure-arc/servers/manage-vm-extensions-template#template-file-for-windows-1
@@ -50,12 +46,11 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
   }
 }
             ",
-              OnCompileErrors.Fail,
               new string[] {
                 // TTK error message:
                 //  [-] CommandToExecute Must Use ProtectedSettings For Secrets (62 ms)
                 //    CommandToExecute references parameter 'arguments' of type 'secureString', but is not in .protectedSettings
-                "Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'arguments'"
+                "[23] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'arguments'"
               }
             );
         }
@@ -92,9 +87,8 @@ resource customScriptExtension 'Microsoft.Compute/virtualMachines/extensions@202
   }
 }
             ",
-              OnCompileErrors.Fail,
               new string[] {
-                "Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'arguments'"
+                "[23] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'arguments'"
                }
             );
         }
@@ -192,9 +186,8 @@ resource vmNameSql_installpostgresql 'Microsoft.Compute/virtualMachines/extensio
   }
 }
             ",
-              OnCompileErrors.Fail,
               new string[] {
-                "Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'adminPasswordOrKey'"
+                "[84] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'adminPasswordOrKey'"
                }
             );
         }
@@ -226,9 +219,8 @@ resource vmName_CustomScript 'Microsoft.HybridCompute/machines/extensions@2019-0
   }
 }
             ",
-              OnCompileErrors.Fail,
               new string[] {
-                "Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'commandToExecute'"
+                "[17] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'commandToExecute'"
               }
             );
         }
@@ -260,7 +252,6 @@ resource vmName_CustomScript 'Microsoft.HybridCompute/machines/extensions@2019-0
   }
 }
             ",
-              OnCompileErrors.Fail,
               new string[] { }
             );
         }
@@ -296,7 +287,6 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
   }
 }
             ",
-              OnCompileErrors.Fail,
               new string[] { }
             );
         }
@@ -332,7 +322,6 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
   }
 }
             ",
-              OnCompileErrors.Fail,
               new string[] { }
             );
         }
@@ -369,7 +358,6 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
   }
 }
             ",
-              OnCompileErrors.Fail,
               new string[] { }
             );
         }
@@ -399,9 +387,8 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
   }
 }
             ",
-              OnCompileErrors.Fail,
               new string[] {
-                "Use protectedSettings for commandToExecute secrets. Found possible secret: function 'listKeys'"
+                "[18] Use protectedSettings for commandToExecute secrets. Found possible secret: function 'listKeys'"
               }
             );
         }
@@ -432,9 +419,8 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
   }
 }
             ",
-              OnCompileErrors.Fail,
               new string[] {
-                "Use protectedSettings for commandToExecute secrets. Found possible secret: function 'listKeys'"
+                "[19] Use protectedSettings for commandToExecute secrets. Found possible secret: function 'listKeys'"
               }
             );
         }

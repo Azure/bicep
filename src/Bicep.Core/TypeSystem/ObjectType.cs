@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -22,7 +21,7 @@ namespace Bicep.Core.TypeSystem
             : base(name)
         {
             this.ValidationFlags = validationFlags;
-            this.Properties = properties.ToImmutableDictionary(property => property.Name, LanguageConstants.IdentifierComparer);
+            this.Properties = properties.ToImmutableSortedDictionary(property => property.Name, property => property, LanguageConstants.IdentifierComparer);
             this.MethodResolver = methodResolverBuilder(this);
             this.AdditionalPropertiesType = additionalPropertiesType;
             this.AdditionalPropertiesFlags = additionalPropertiesFlags;
@@ -32,7 +31,7 @@ namespace Bicep.Core.TypeSystem
 
         public override TypeSymbolValidationFlags ValidationFlags { get; }
 
-        public ImmutableDictionary<string, TypeProperty> Properties { get; }
+        public ImmutableSortedDictionary<string, TypeProperty> Properties { get; }
 
         public ITypeReference? AdditionalPropertiesType { get; }
 

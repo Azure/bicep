@@ -1,26 +1,26 @@
 ﻿// Application Insights Auto Scale Settings
 resource /*${1:appInsightsAutoScaleSettings}*/appInsightsAutoScaleSettings 'Microsoft.Insights/autoscalesettings@2015-04-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: /*${3:location}*/'location'
   tags: {
-    Application_Type: /*'${3|web,other|}'*/'web'
-    /*'hidden-link:${4:appServiceId}'*/'appServiceId': 'Resource'
+    Application_Type: /*'${4|web,other|}'*/'web'
+    /*'hidden-link:${5:appServiceId}'*/'appServiceId': 'Resource'
   }
   properties: {
-    name: /*${5:'name'}*/'name'
+    name: /*${6:'name'}*/'name'
     profiles: [
       {
-        name: /*${6:'name'}*/'name'
+        name: /*${7:'name'}*/'name'
         capacity: {
-          minimum: /*${7:'minimum'}*/'minimum'
-          maximum: /*${8:'maximum'}*/'maximum'
-          default: /*${9:'default'}*/'default'
+          minimum: /*${8:'minimum'}*/'minimum'
+          maximum: /*${9:'maximum'}*/'maximum'
+          default: /*${10:'default'}*/'default'
         }
         rules: [
           {
             metricTrigger: {
-              metricName: /*${10:'name'}*/'name'
-              metricResourceUri: /*${11:'metricResourceUri'}*/'metricResourceUri'
+              metricName: /*${11:'name'}*/'name'
+              metricResourceUri: /*${12:'metricResourceUri'}*/'metricResourceUri'
               timeGrain: 'PT1M'
               statistic: 'Average'
               timeWindow: 'PT10M'
@@ -31,14 +31,14 @@ resource /*${1:appInsightsAutoScaleSettings}*/appInsightsAutoScaleSettings 'Micr
             scaleAction: {
               direction: 'Increase'
               type: 'ChangeCount'
-              value:  /*${12:'value'}*/'value'
+              value:  /*${13:'value'}*/'value'
               cooldown: 'PT10M'
             }
           }
           {
             metricTrigger: {
-              metricName: /*${13:'metricName'}*/'metricName'
-              metricResourceUri: /*${14:'metricResourceUri'}*/'metricResourceUri'
+              metricName: /*${14:'metricName'}*/'metricName'
+              metricResourceUri: /*${15:'metricResourceUri'}*/'metricResourceUri'
               timeGrain: 'PT1M'
               statistic: 'Average'
               timeWindow: 'PT1H'
@@ -49,7 +49,7 @@ resource /*${1:appInsightsAutoScaleSettings}*/appInsightsAutoScaleSettings 'Micr
             scaleAction: {
               direction: 'Decrease'
               type: 'ChangeCount'
-              value: /*${15:'value'}*/'value'
+              value: /*${16:'value'}*/'value'
               cooldown: 'PT1H'
             }
           }
@@ -57,6 +57,6 @@ resource /*${1:appInsightsAutoScaleSettings}*/appInsightsAutoScaleSettings 'Micr
       }
     ]
     enabled: false
-    targetResourceUri: /*${16:'targetResourceUri'}*/'targetResourceUri'
+    targetResourceUri: /*${17:'targetResourceUri'}*/'targetResourceUri'
   }
 }

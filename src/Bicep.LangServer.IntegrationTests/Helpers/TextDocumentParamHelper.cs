@@ -4,6 +4,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Bicep.Core;
 using System.IO;
+using Bicep.Core.FileSystem;
 
 namespace Bicep.LangServer.IntegrationTests.Helpers
 {
@@ -14,7 +15,7 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
             {
                 TextDocument = new TextDocumentItem
                 {
-                    LanguageId = LanguageConstants.LanguageId,
+                    LanguageId = PathHelper.HasBicepparamsExension(documentUri.ToUri()) ? LanguageConstants.ParamsLanguageId : LanguageConstants.LanguageId,
                     Version = version,
                     Uri = documentUri,
                     Text = text,
@@ -52,6 +53,20 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
                 {
                     Version = version,
                     Uri = documentUri
+                }
+            };
+        }
+
+        public static DidSaveTextDocumentParams CreateDidSaveTextDocumentParams(DocumentUri documentUri, string text, int version)
+        {
+            return new DidSaveTextDocumentParams
+            {
+                TextDocument = new TextDocumentItem
+                {
+                    LanguageId = LanguageConstants.LanguageId,
+                    Version = version,
+                    Uri = documentUri,
+                    Text = text
                 }
             };
         }

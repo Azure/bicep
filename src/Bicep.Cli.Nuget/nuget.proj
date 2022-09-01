@@ -4,11 +4,12 @@
   During the CI build, this happens via artifact download action.
 
   Prerequisites:
-  - Copy bicep.exe and *.pdb from Bicep CLI publish directory to bicep\ directory under this project.
+  - Copy bicep.exe and *.pdb from Bicep CLI publish directory to the tools\ directory under this project.
+  - Copy the project.assets.json file from Bicep CLI project to the tools\ directory under this project.
 -->
 <Project Sdk="Microsoft.Build.NoTargets">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <!-- NoTargets SDK no longer sets Language, which is required by NerdBank.GitVersioning -->
     <Language>C#</Language>
 
@@ -18,13 +19,19 @@
     <BicepBinariesDirectory>$(MSBuildProjectDirectory)\tools</BicepBinariesDirectory>
     <BicepExePathWindows>$(BicepBinariesDirectory)\bicep.exe</BicepExePathWindows>
     <BicepExePathNonWindows>$(BicepBinariesDirectory)\bicep</BicepExePathNonWindows>
+
+    <BicepCliAssetsFile>$(MSBuildProjectDirectory)\tools\project.assets.json</BicepCliAssetsFile>
+    <NoticeFileName>ThirdPartyNotices.txt</NoticeFileName>
+
+    <GenerateNoticeBeforeTargets>RunTool</GenerateNoticeBeforeTargets>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NuGet.CommandLine" Version="5.8.1">
+    <PackageReference Include="NuGet.CommandLine" Version="6.2.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" Version="$(GenerateNoticePackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,11 +43,21 @@
     <BicepExecutable Include="$(BicepExePathNonWindows)" Condition= " Exists('$(BicepExePathNonWindows)') " />
   </ItemGroup>
 
+  <Target Name="PrepareForNoticeGeneration" BeforeTargets="GenerateNotice">
+    <ItemGroup>
+      <GenerateNoticeAssetFile Include="$(BicepCliAssetsFile)" />
+    </ItemGroup>
+    <PropertyGroup>
+      <GenerateNoticeOutputPath>$(IntermediateOutputPath)$(NoticeFileName)</GenerateNoticeOutputPath>
+    </PropertyGroup>
+  </Target>
+
   <Target Name="RunTool" AfterTargets="Build" DependsOnTargets="GetBuildVersion">
-    <Error Text="This project requires the RuntimeSuffix property (-r in dotnet build) to set explicitly." Condition=" $(RuntimeSuffix) == '' " />
+    <Error Text="This project requires the RuntimeSuffix property (/p:RuntimeSuffix=rid in dotnet build) to set explicitly." Condition=" $(RuntimeSuffix) == '' " />
     <Error Text="Unexpected number of bicep executables found: @(BicepExecutable->Count())" Condition=" @(BicepExecutable->Count()) != 1 " />
 
-    <Exec Command="$(NugetExePath) pack @(NuSpec) -Version $(NuGetPackageVersion) -NonInteractive -Properties rid=$(RuntimeSuffix)"
+    <!-- the Properties parameter value must be enclosed in quotes to avoid build breaks on non-windows machines -->
+    <Exec Command="$(NugetExePath) pack @(NuSpec) -Version $(NuGetPackageVersion) -NonInteractive -Properties &quot;rid=$(RuntimeSuffix);NoticeFileName=$(NoticeFileName);Configuration=$(Configuration);TargetFramework=$(TargetFramework)&quot;"
           WorkingDirectory="$(MSBuildProjectDirectory)" />
   </Target>
 </Project>

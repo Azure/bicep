@@ -6,13 +6,17 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.IntegrationTests.Extensibility
 {
     public static class StorageNamespaceType
     {
         public const string BuiltInName = "storage";
+
+        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
+        {
+            "name",
+        }.ToImmutableHashSet();
 
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: false,
@@ -31,10 +35,12 @@ namespace Bicep.Core.IntegrationTests.Extensibility
 
         private class StorageTypeProvider : IResourceTypeProvider
         {
-            private readonly ImmutableDictionary<ResourceTypeReference, ResourceTypeComponents> resourceTypes = new [] {
+            private readonly ImmutableDictionary<ResourceTypeReference, ResourceTypeComponents> resourceTypes = new[] {
                 new ResourceTypeComponents(
                     ResourceTypeReference.Parse("service"),
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
+                    ResourceScope.None,
+                    ResourceFlags.None,
                     new ObjectType("Service properties", TypeSymbolValidationFlags.Default, new[]
                     {
                         new TypeProperty("staticWebsiteEnabled", LanguageConstants.Bool),
@@ -44,6 +50,8 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                 new ResourceTypeComponents(
                     ResourceTypeReference.Parse("container"),
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
+                    ResourceScope.None,
+                    ResourceFlags.None,
                     new ObjectType("Container properties", TypeSymbolValidationFlags.Default, new[]
                     {
                         new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
@@ -51,6 +59,8 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                 new ResourceTypeComponents(
                     ResourceTypeReference.Parse("blob"),
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
+                    ResourceScope.None,
+                    ResourceFlags.None,
                     new ObjectType("Blob properties", TypeSymbolValidationFlags.Default, new[]
                     {
                         new TypeProperty("containerName", LanguageConstants.String, TypePropertyFlags.Required),
@@ -64,12 +74,19 @@ namespace Bicep.Core.IntegrationTests.Extensibility
 
             public ResourceType? TryGetDefinedType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
             {
-                if (resourceTypes.TryGetValue(reference) is not {} resourceType)
+                if (resourceTypes.TryGetValue(reference) is not { } resourceType)
                 {
                     return null;
                 }
 
-                return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body);
+                return new(
+                    declaringNamespace,
+                    resourceType.TypeReference,
+                    resourceType.ValidParentScopes,
+                    resourceType.ReadOnlyScopes,
+                    resourceType.Flags,
+                    resourceType.Body,
+                    UniqueIdentifierProperties);
             }
 
             public bool HasDefinedType(ResourceTypeReference typeReference)

@@ -18,7 +18,7 @@ namespace Bicep.Core.Semantics
             {
                 return syntax as FunctionCallSyntaxBase;
             }
-            
+
             return null;
         }
 

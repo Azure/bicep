@@ -20,7 +20,7 @@ namespace Bicep.Core.Syntax
             this.Expression = expression;
             this.CloseParen = closeParen;
         }
-        
+
         public Token OpenParen { get; }
 
         public SyntaxBase Expression { get; }

@@ -1,18 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Semantics;
-using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
-using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
@@ -142,9 +132,9 @@ output sub int = sum
 param psExpression string = resourceGroup().location
 ")]
         [DataTestMethod]
-        public void InvalidNonEmptyDefault_TestFails(int diagnosticCount, string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        public void InvalidNonEmptyDefault_TestFails(int diagnosticCount, string text, OnCompileErrors onCompileErrors = OnCompileErrors.IncludeErrors)
         {
-            AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount, onCompileErrors);
+            AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount, new Options(onCompileErrors));
         }
 
         [DataRow(1, @"
@@ -208,7 +198,7 @@ output sub int = sum
         [DataTestMethod]
         public void HandlesSyntaxErrors(int diagnosticCount, string text)
         {
-            AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount, OnCompileErrors.Ignore);
+            AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount, new Options(OnCompileErrors.Ignore));
         }
 
     }

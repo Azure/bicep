@@ -1,80 +1,80 @@
 /*
   This tests the various cases of invalid expressions.
 */
-//@[2:4) NewLine |\n\n|
+//@[02:04) NewLine |\n\n|
 
 // bad expressions
 //@[18:19) NewLine |\n|
 var bad = a+
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bad|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bad|
+//@[08:09) Assignment |=|
 //@[10:11) Identifier |a|
 //@[11:12) Plus |+|
 //@[12:13) NewLine |\n|
 var bad = *
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bad|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bad|
+//@[08:09) Assignment |=|
 //@[10:11) Asterisk |*|
 //@[11:12) NewLine |\n|
 var bad = /
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bad|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bad|
+//@[08:09) Assignment |=|
 //@[10:11) Slash |/|
 //@[11:12) NewLine |\n|
 var bad = %
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bad|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bad|
+//@[08:09) Assignment |=|
 //@[10:11) Modulo |%|
 //@[11:12) NewLine |\n|
 var bad = 33-
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bad|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bad|
+//@[08:09) Assignment |=|
 //@[10:12) Integer |33|
 //@[12:13) Minus |-|
 //@[13:14) NewLine |\n|
 var bad = --33
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bad|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bad|
+//@[08:09) Assignment |=|
 //@[10:11) Minus |-|
 //@[11:12) Minus |-|
 //@[12:14) Integer |33|
 //@[14:15) NewLine |\n|
 var bad = 3 * 4 /
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bad|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bad|
+//@[08:09) Assignment |=|
 //@[10:11) Integer |3|
 //@[12:13) Asterisk |*|
 //@[14:15) Integer |4|
 //@[16:17) Slash |/|
 //@[17:18) NewLine |\n|
 var bad = 222222222222222222222222222222222222222222 * 4
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bad|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bad|
+//@[08:09) Assignment |=|
 //@[10:52) Integer |222222222222222222222222222222222222222222|
 //@[53:54) Asterisk |*|
 //@[55:56) Integer |4|
 //@[56:57) NewLine |\n|
 var bad = (null) ?
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bad|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bad|
+//@[08:09) Assignment |=|
 //@[10:11) LeftParen |(|
 //@[11:15) NullKeyword |null|
 //@[15:16) RightParen |)|
 //@[17:18) Question |?|
 //@[18:19) NewLine |\n|
 var bad = (null) ? :
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bad|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bad|
+//@[08:09) Assignment |=|
 //@[10:11) LeftParen |(|
 //@[11:15) NullKeyword |null|
 //@[15:16) RightParen |)|
@@ -82,9 +82,9 @@ var bad = (null) ? :
 //@[19:20) Colon |:|
 //@[20:21) NewLine |\n|
 var bad = (null) ? !
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bad|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bad|
+//@[08:09) Assignment |=|
 //@[10:11) LeftParen |(|
 //@[11:15) NullKeyword |null|
 //@[15:16) RightParen |)|
@@ -92,18 +92,18 @@ var bad = (null) ? !
 //@[19:20) Exclamation |!|
 //@[20:21) NewLine |\n|
 var bad = (null)!
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bad|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bad|
+//@[08:09) Assignment |=|
 //@[10:11) LeftParen |(|
 //@[11:15) NullKeyword |null|
 //@[15:16) RightParen |)|
 //@[16:17) Exclamation |!|
 //@[17:18) NewLine |\n|
 var bad = (null)[0]
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bad|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bad|
+//@[08:09) Assignment |=|
 //@[10:11) LeftParen |(|
 //@[11:15) NullKeyword |null|
 //@[15:16) RightParen |)|
@@ -112,25 +112,25 @@ var bad = (null)[0]
 //@[18:19) RightSquare |]|
 //@[19:20) NewLine |\n|
 var bad = ()
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bad|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bad|
+//@[08:09) Assignment |=|
 //@[10:11) LeftParen |(|
 //@[11:12) RightParen |)|
 //@[12:13) NewLine |\n|
 var bad = 
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bad|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bad|
+//@[08:09) Assignment |=|
 //@[10:12) NewLine |\n\n|
 
 // variables not supported
 //@[26:27) NewLine |\n|
 var x = a + 2
-//@[0:3) Identifier |var|
-//@[4:5) Identifier |x|
-//@[6:7) Assignment |=|
-//@[8:9) Identifier |a|
+//@[00:03) Identifier |var|
+//@[04:05) Identifier |x|
+//@[06:07) Assignment |=|
+//@[08:09) Identifier |a|
 //@[10:11) Plus |+|
 //@[12:13) Integer |2|
 //@[13:15) NewLine |\n\n|
@@ -138,53 +138,53 @@ var x = a + 2
 // unary NOT
 //@[12:13) NewLine |\n|
 var not = !null
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |not|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |not|
+//@[08:09) Assignment |=|
 //@[10:11) Exclamation |!|
 //@[11:15) NullKeyword |null|
 //@[15:16) NewLine |\n|
 var not = !4
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |not|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |not|
+//@[08:09) Assignment |=|
 //@[10:11) Exclamation |!|
 //@[11:12) Integer |4|
 //@[12:13) NewLine |\n|
 var not = !'s'
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |not|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |not|
+//@[08:09) Assignment |=|
 //@[10:11) Exclamation |!|
 //@[11:14) StringComplete |'s'|
 //@[14:15) NewLine |\n|
 var not = ![
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |not|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |not|
+//@[08:09) Assignment |=|
 //@[10:11) Exclamation |!|
 //@[11:12) LeftSquare |[|
 //@[12:13) NewLine |\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:2) NewLine |\n|
+//@[00:01) RightSquare |]|
+//@[01:02) NewLine |\n|
 var not = !{
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |not|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |not|
+//@[08:09) Assignment |=|
 //@[10:11) Exclamation |!|
 //@[11:12) LeftBrace |{|
 //@[12:13) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
 
 // unary not chaining will be added in the future
 //@[49:50) NewLine |\n|
 var not = !!!!!!!true
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |not|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |not|
+//@[08:09) Assignment |=|
 //@[10:11) Exclamation |!|
 //@[11:12) Exclamation |!|
 //@[12:13) Exclamation |!|
@@ -198,8 +198,8 @@ var not = !!!!!!!true
 // unary minus chaining will not be supported (to reserve -- in case we need it)
 //@[80:81) NewLine |\n|
 var minus = ------12
-//@[0:3) Identifier |var|
-//@[4:9) Identifier |minus|
+//@[00:03) Identifier |var|
+//@[04:09) Identifier |minus|
 //@[10:11) Assignment |=|
 //@[12:13) Minus |-|
 //@[13:14) Minus |-|
@@ -213,102 +213,102 @@ var minus = ------12
 // unary minus
 //@[14:15) NewLine |\n|
 var minus = -true
-//@[0:3) Identifier |var|
-//@[4:9) Identifier |minus|
+//@[00:03) Identifier |var|
+//@[04:09) Identifier |minus|
 //@[10:11) Assignment |=|
 //@[12:13) Minus |-|
 //@[13:17) TrueKeyword |true|
 //@[17:18) NewLine |\n|
 var minus = -null
-//@[0:3) Identifier |var|
-//@[4:9) Identifier |minus|
+//@[00:03) Identifier |var|
+//@[04:09) Identifier |minus|
 //@[10:11) Assignment |=|
 //@[12:13) Minus |-|
 //@[13:17) NullKeyword |null|
 //@[17:18) NewLine |\n|
 var minus = -'s'
-//@[0:3) Identifier |var|
-//@[4:9) Identifier |minus|
+//@[00:03) Identifier |var|
+//@[04:09) Identifier |minus|
 //@[10:11) Assignment |=|
 //@[12:13) Minus |-|
 //@[13:16) StringComplete |'s'|
 //@[16:17) NewLine |\n|
 var minus = -[
-//@[0:3) Identifier |var|
-//@[4:9) Identifier |minus|
+//@[00:03) Identifier |var|
+//@[04:09) Identifier |minus|
 //@[10:11) Assignment |=|
 //@[12:13) Minus |-|
 //@[13:14) LeftSquare |[|
 //@[14:15) NewLine |\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:2) NewLine |\n|
+//@[00:01) RightSquare |]|
+//@[01:02) NewLine |\n|
 var minus = -{
-//@[0:3) Identifier |var|
-//@[4:9) Identifier |minus|
+//@[00:03) Identifier |var|
+//@[04:09) Identifier |minus|
 //@[10:11) Assignment |=|
 //@[12:13) Minus |-|
 //@[13:14) LeftBrace |{|
 //@[14:15) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
 
 // multiplicative
 //@[17:18) NewLine |\n|
 var mod = 's' % true
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |mod|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |mod|
+//@[08:09) Assignment |=|
 //@[10:13) StringComplete |'s'|
 //@[14:15) Modulo |%|
 //@[16:20) TrueKeyword |true|
 //@[20:21) NewLine |\n|
 var mul = true * null
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |mul|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |mul|
+//@[08:09) Assignment |=|
 //@[10:14) TrueKeyword |true|
 //@[15:16) Asterisk |*|
 //@[17:21) NullKeyword |null|
 //@[21:22) NewLine |\n|
 var div = {
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |div|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |div|
+//@[08:09) Assignment |=|
 //@[10:11) LeftBrace |{|
 //@[11:12) NewLine |\n|
 } / [
-//@[0:1) RightBrace |}|
-//@[2:3) Slash |/|
-//@[4:5) LeftSquare |[|
-//@[5:6) NewLine |\n|
+//@[00:01) RightBrace |}|
+//@[02:03) Slash |/|
+//@[04:05) LeftSquare |[|
+//@[05:06) NewLine |\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightSquare |]|
+//@[01:03) NewLine |\n\n|
 
 // additive
 //@[11:12) NewLine |\n|
 var add = null + 's'
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |add|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |add|
+//@[08:09) Assignment |=|
 //@[10:14) NullKeyword |null|
 //@[15:16) Plus |+|
 //@[17:20) StringComplete |'s'|
 //@[20:21) NewLine |\n|
 var sub = true - false
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |sub|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |sub|
+//@[08:09) Assignment |=|
 //@[10:14) TrueKeyword |true|
 //@[15:16) Minus |-|
 //@[17:22) FalseKeyword |false|
 //@[22:23) NewLine |\n|
 var add = 'bad' + 'str'
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |add|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |add|
+//@[08:09) Assignment |=|
 //@[10:15) StringComplete |'bad'|
 //@[16:17) Plus |+|
 //@[18:23) StringComplete |'str'|
@@ -317,81 +317,81 @@ var add = 'bad' + 'str'
 // equality (== and != can't have a type error because they work on "any" type)
 //@[79:80) NewLine |\n|
 var eq = true =~ null
-//@[0:3) Identifier |var|
-//@[4:6) Identifier |eq|
-//@[7:8) Assignment |=|
-//@[9:13) TrueKeyword |true|
+//@[00:03) Identifier |var|
+//@[04:06) Identifier |eq|
+//@[07:08) Assignment |=|
+//@[09:13) TrueKeyword |true|
 //@[14:16) EqualsInsensitive |=~|
 //@[17:21) NullKeyword |null|
 //@[21:22) NewLine |\n|
 var ne = 15 !~ [
-//@[0:3) Identifier |var|
-//@[4:6) Identifier |ne|
-//@[7:8) Assignment |=|
-//@[9:11) Integer |15|
+//@[00:03) Identifier |var|
+//@[04:06) Identifier |ne|
+//@[07:08) Assignment |=|
+//@[09:11) Integer |15|
 //@[12:14) NotEqualsInsensitive |!~|
 //@[15:16) LeftSquare |[|
 //@[16:17) NewLine |\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightSquare |]|
+//@[01:03) NewLine |\n\n|
 
 // relational
 //@[13:14) NewLine |\n|
 var lt = 4 < 's'
-//@[0:3) Identifier |var|
-//@[4:6) Identifier |lt|
-//@[7:8) Assignment |=|
-//@[9:10) Integer |4|
+//@[00:03) Identifier |var|
+//@[04:06) Identifier |lt|
+//@[07:08) Assignment |=|
+//@[09:10) Integer |4|
 //@[11:12) LessThan |<|
 //@[13:16) StringComplete |'s'|
 //@[16:17) NewLine |\n|
 var lteq = null <= 10
-//@[0:3) Identifier |var|
-//@[4:8) Identifier |lteq|
-//@[9:10) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:08) Identifier |lteq|
+//@[09:10) Assignment |=|
 //@[11:15) NullKeyword |null|
 //@[16:18) LessThanOrEqual |<=|
 //@[19:21) Integer |10|
 //@[21:22) NewLine |\n|
 var gt = false>[
-//@[0:3) Identifier |var|
-//@[4:6) Identifier |gt|
-//@[7:8) Assignment |=|
-//@[9:14) FalseKeyword |false|
+//@[00:03) Identifier |var|
+//@[04:06) Identifier |gt|
+//@[07:08) Assignment |=|
+//@[09:14) FalseKeyword |false|
 //@[14:15) GreaterThan |>|
 //@[15:16) LeftSquare |[|
 //@[16:17) NewLine |\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:2) NewLine |\n|
+//@[00:01) RightSquare |]|
+//@[01:02) NewLine |\n|
 var gteq = {
-//@[0:3) Identifier |var|
-//@[4:8) Identifier |gteq|
-//@[9:10) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:08) Identifier |gteq|
+//@[09:10) Assignment |=|
 //@[11:12) LeftBrace |{|
 //@[12:13) NewLine |\n|
 } >= false
-//@[0:1) RightBrace |}|
-//@[2:4) GreaterThanOrEqual |>=|
-//@[5:10) FalseKeyword |false|
+//@[00:01) RightBrace |}|
+//@[02:04) GreaterThanOrEqual |>=|
+//@[05:10) FalseKeyword |false|
 //@[10:12) NewLine |\n\n|
 
 // logical
 //@[10:11) NewLine |\n|
 var and = null && 'a'
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |and|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |and|
+//@[08:09) Assignment |=|
 //@[10:14) NullKeyword |null|
 //@[15:17) LogicalAnd |&&|
 //@[18:21) StringComplete |'a'|
 //@[21:22) NewLine |\n|
 var or = 10 || 4
-//@[0:3) Identifier |var|
-//@[4:6) Identifier |or|
-//@[7:8) Assignment |=|
-//@[9:11) Integer |10|
+//@[00:03) Identifier |var|
+//@[04:06) Identifier |or|
+//@[07:08) Assignment |=|
+//@[09:11) Integer |10|
 //@[12:14) LogicalOr ||||
 //@[15:16) Integer |4|
 //@[16:18) NewLine |\n\n|
@@ -399,8 +399,8 @@ var or = 10 || 4
 // conditional
 //@[14:15) NewLine |\n|
 var ternary = null ? 4 : false
-//@[0:3) Identifier |var|
-//@[4:11) Identifier |ternary|
+//@[00:03) Identifier |var|
+//@[04:11) Identifier |ternary|
 //@[12:13) Assignment |=|
 //@[14:18) NullKeyword |null|
 //@[19:20) Question |?|
@@ -412,8 +412,8 @@ var ternary = null ? 4 : false
 // complex expressions
 //@[22:23) NewLine |\n|
 var complex = test(2 + 3*4, true || false && null)
-//@[0:3) Identifier |var|
-//@[4:11) Identifier |complex|
+//@[00:03) Identifier |var|
+//@[04:11) Identifier |complex|
 //@[12:13) Assignment |=|
 //@[14:18) Identifier |test|
 //@[18:19) LeftParen |(|
@@ -431,8 +431,8 @@ var complex = test(2 + 3*4, true || false && null)
 //@[49:50) RightParen |)|
 //@[50:51) NewLine |\n|
 var complex = -2 && 3 && !4 && 5
-//@[0:3) Identifier |var|
-//@[4:11) Identifier |complex|
+//@[00:03) Identifier |var|
+//@[04:11) Identifier |complex|
 //@[12:13) Assignment |=|
 //@[14:15) Minus |-|
 //@[15:16) Integer |2|
@@ -445,8 +445,8 @@ var complex = -2 && 3 && !4 && 5
 //@[31:32) Integer |5|
 //@[32:33) NewLine |\n|
 var complex = null ? !4: false
-//@[0:3) Identifier |var|
-//@[4:11) Identifier |complex|
+//@[00:03) Identifier |var|
+//@[04:11) Identifier |complex|
 //@[12:13) Assignment |=|
 //@[14:18) NullKeyword |null|
 //@[19:20) Question |?|
@@ -456,8 +456,8 @@ var complex = null ? !4: false
 //@[25:30) FalseKeyword |false|
 //@[30:31) NewLine |\n|
 var complex = true == false != null == 4 != 'a' ? -2 && 3 && !4 && 5 : true || false && null
-//@[0:3) Identifier |var|
-//@[4:11) Identifier |complex|
+//@[00:03) Identifier |var|
+//@[04:11) Identifier |complex|
 //@[12:13) Assignment |=|
 //@[14:18) TrueKeyword |true|
 //@[19:21) Equals |==|
@@ -487,8 +487,8 @@ var complex = true == false != null == 4 != 'a' ? -2 && 3 && !4 && 5 : true || f
 //@[92:94) NewLine |\n\n|
 
 var nestedTernary = null ? 1 : 2 ? true ? 'a': 'b' : false ? 'd' : 15
-//@[0:3) Identifier |var|
-//@[4:17) Identifier |nestedTernary|
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |nestedTernary|
 //@[18:19) Assignment |=|
 //@[20:24) NullKeyword |null|
 //@[25:26) Question |?|
@@ -509,8 +509,8 @@ var nestedTernary = null ? 1 : 2 ? true ? 'a': 'b' : false ? 'd' : 15
 //@[67:69) Integer |15|
 //@[69:70) NewLine |\n|
 var nestedTernary = (null ? 1 : 2) ? (true ? 'a': 'b') : (false ? 'd' : 15)
-//@[0:3) Identifier |var|
-//@[4:17) Identifier |nestedTernary|
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |nestedTernary|
 //@[18:19) Assignment |=|
 //@[20:21) LeftParen |(|
 //@[21:25) NullKeyword |null|
@@ -540,25 +540,25 @@ var nestedTernary = (null ? 1 : 2) ? (true ? 'a': 'b') : (false ? 'd' : 15)
 // bad array access
 //@[19:20) NewLine |\n|
 var errorInsideArrayAccess = [
-//@[0:3) Identifier |var|
-//@[4:26) Identifier |errorInsideArrayAccess|
+//@[00:03) Identifier |var|
+//@[04:26) Identifier |errorInsideArrayAccess|
 //@[27:28) Assignment |=|
 //@[29:30) LeftSquare |[|
 //@[30:31) NewLine |\n|
   !null
-//@[2:3) Exclamation |!|
-//@[3:7) NullKeyword |null|
-//@[7:8) NewLine |\n|
+//@[02:03) Exclamation |!|
+//@[03:07) NullKeyword |null|
+//@[07:08) NewLine |\n|
 ][!0]
-//@[0:1) RightSquare |]|
-//@[1:2) LeftSquare |[|
-//@[2:3) Exclamation |!|
-//@[3:4) Integer |0|
-//@[4:5) RightSquare |]|
-//@[5:6) NewLine |\n|
+//@[00:01) RightSquare |]|
+//@[01:02) LeftSquare |[|
+//@[02:03) Exclamation |!|
+//@[03:04) Integer |0|
+//@[04:05) RightSquare |]|
+//@[05:06) NewLine |\n|
 var integerIndexOnNonArray = (null)[0]
-//@[0:3) Identifier |var|
-//@[4:26) Identifier |integerIndexOnNonArray|
+//@[00:03) Identifier |var|
+//@[04:26) Identifier |integerIndexOnNonArray|
 //@[27:28) Assignment |=|
 //@[29:30) LeftParen |(|
 //@[30:34) NullKeyword |null|
@@ -568,8 +568,8 @@ var integerIndexOnNonArray = (null)[0]
 //@[37:38) RightSquare |]|
 //@[38:39) NewLine |\n|
 var stringIndexOnNonObject = 'test'['test']
-//@[0:3) Identifier |var|
-//@[4:26) Identifier |stringIndexOnNonObject|
+//@[00:03) Identifier |var|
+//@[04:26) Identifier |stringIndexOnNonObject|
 //@[27:28) Assignment |=|
 //@[29:35) StringComplete |'test'|
 //@[35:36) LeftSquare |[|
@@ -577,20 +577,20 @@ var stringIndexOnNonObject = 'test'['test']
 //@[42:43) RightSquare |]|
 //@[43:44) NewLine |\n|
 var malformedStringIndex = {
-//@[0:3) Identifier |var|
-//@[4:24) Identifier |malformedStringIndex|
+//@[00:03) Identifier |var|
+//@[04:24) Identifier |malformedStringIndex|
 //@[25:26) Assignment |=|
 //@[27:28) LeftBrace |{|
 //@[28:29) NewLine |\n|
 }['test\e']
-//@[0:1) RightBrace |}|
-//@[1:2) LeftSquare |[|
-//@[2:10) StringComplete |'test\e'|
+//@[00:01) RightBrace |}|
+//@[01:02) LeftSquare |[|
+//@[02:10) StringComplete |'test\e'|
 //@[10:11) RightSquare |]|
 //@[11:12) NewLine |\n|
 var invalidIndexTypeOverAny = any(true)[true]
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |invalidIndexTypeOverAny|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |invalidIndexTypeOverAny|
 //@[28:29) Assignment |=|
 //@[30:33) Identifier |any|
 //@[33:34) LeftParen |(|
@@ -601,8 +601,8 @@ var invalidIndexTypeOverAny = any(true)[true]
 //@[44:45) RightSquare |]|
 //@[45:46) NewLine |\n|
 var badIndexOverArray = [][null]
-//@[0:3) Identifier |var|
-//@[4:21) Identifier |badIndexOverArray|
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |badIndexOverArray|
 //@[22:23) Assignment |=|
 //@[24:25) LeftSquare |[|
 //@[25:26) RightSquare |]|
@@ -611,8 +611,8 @@ var badIndexOverArray = [][null]
 //@[31:32) RightSquare |]|
 //@[32:33) NewLine |\n|
 var badIndexOverArray2 = []['s']
-//@[0:3) Identifier |var|
-//@[4:22) Identifier |badIndexOverArray2|
+//@[00:03) Identifier |var|
+//@[04:22) Identifier |badIndexOverArray2|
 //@[23:24) Assignment |=|
 //@[25:26) LeftSquare |[|
 //@[26:27) RightSquare |]|
@@ -621,8 +621,8 @@ var badIndexOverArray2 = []['s']
 //@[31:32) RightSquare |]|
 //@[32:33) NewLine |\n|
 var badIndexOverObj = {}[true]
-//@[0:3) Identifier |var|
-//@[4:19) Identifier |badIndexOverObj|
+//@[00:03) Identifier |var|
+//@[04:19) Identifier |badIndexOverObj|
 //@[20:21) Assignment |=|
 //@[22:23) LeftBrace |{|
 //@[23:24) RightBrace |}|
@@ -631,8 +631,8 @@ var badIndexOverObj = {}[true]
 //@[29:30) RightSquare |]|
 //@[30:31) NewLine |\n|
 var badIndexOverObj2 = {}[0]
-//@[0:3) Identifier |var|
-//@[4:20) Identifier |badIndexOverObj2|
+//@[00:03) Identifier |var|
+//@[04:20) Identifier |badIndexOverObj2|
 //@[21:22) Assignment |=|
 //@[23:24) LeftBrace |{|
 //@[24:25) RightBrace |}|
@@ -641,8 +641,8 @@ var badIndexOverObj2 = {}[0]
 //@[27:28) RightSquare |]|
 //@[28:29) NewLine |\n|
 var badExpressionIndexer = {}[base64('a')]
-//@[0:3) Identifier |var|
-//@[4:24) Identifier |badExpressionIndexer|
+//@[00:03) Identifier |var|
+//@[04:24) Identifier |badExpressionIndexer|
 //@[25:26) Assignment |=|
 //@[27:28) LeftBrace |{|
 //@[28:29) RightBrace |}|
@@ -657,16 +657,16 @@ var badExpressionIndexer = {}[base64('a')]
 // bad propertyAccess
 //@[21:22) NewLine |\n|
 var dotAccessOnNonObject = true.foo
-//@[0:3) Identifier |var|
-//@[4:24) Identifier |dotAccessOnNonObject|
+//@[00:03) Identifier |var|
+//@[04:24) Identifier |dotAccessOnNonObject|
 //@[25:26) Assignment |=|
 //@[27:31) TrueKeyword |true|
 //@[31:32) Dot |.|
 //@[32:35) Identifier |foo|
 //@[35:36) NewLine |\n|
 var badExpressionInPropertyAccess = resourceGroup()[!'location']
-//@[0:3) Identifier |var|
-//@[4:33) Identifier |badExpressionInPropertyAccess|
+//@[00:03) Identifier |var|
+//@[04:33) Identifier |badExpressionInPropertyAccess|
 //@[34:35) Assignment |=|
 //@[36:49) Identifier |resourceGroup|
 //@[49:50) LeftParen |(|
@@ -678,8 +678,8 @@ var badExpressionInPropertyAccess = resourceGroup()[!'location']
 //@[64:66) NewLine |\n\n|
 
 var propertyAccessOnVariable = x.foo
-//@[0:3) Identifier |var|
-//@[4:28) Identifier |propertyAccessOnVariable|
+//@[00:03) Identifier |var|
+//@[04:28) Identifier |propertyAccessOnVariable|
 //@[29:30) Assignment |=|
 //@[31:32) Identifier |x|
 //@[32:33) Dot |.|
@@ -689,22 +689,22 @@ var propertyAccessOnVariable = x.foo
 // missing property in property access
 //@[38:39) NewLine |\n|
 var oneValidDeclaration = {}
-//@[0:3) Identifier |var|
-//@[4:23) Identifier |oneValidDeclaration|
+//@[00:03) Identifier |var|
+//@[04:23) Identifier |oneValidDeclaration|
 //@[24:25) Assignment |=|
 //@[26:27) LeftBrace |{|
 //@[27:28) RightBrace |}|
 //@[28:29) NewLine |\n|
 var missingPropertyName = oneValidDeclaration.
-//@[0:3) Identifier |var|
-//@[4:23) Identifier |missingPropertyName|
+//@[00:03) Identifier |var|
+//@[04:23) Identifier |missingPropertyName|
 //@[24:25) Assignment |=|
 //@[26:45) Identifier |oneValidDeclaration|
 //@[45:46) Dot |.|
 //@[46:47) NewLine |\n|
 var missingPropertyInsideAnExpression = oneValidDeclaration. + oneValidDeclaration.
-//@[0:3) Identifier |var|
-//@[4:37) Identifier |missingPropertyInsideAnExpression|
+//@[00:03) Identifier |var|
+//@[04:37) Identifier |missingPropertyInsideAnExpression|
 //@[38:39) Assignment |=|
 //@[40:59) Identifier |oneValidDeclaration|
 //@[59:60) Dot |.|
@@ -716,8 +716,8 @@ var missingPropertyInsideAnExpression = oneValidDeclaration. + oneValidDeclarati
 // function used like a variable
 //@[32:33) NewLine |\n|
 var funcvarvar = concat + base64 || !uniqueString
-//@[0:3) Identifier |var|
-//@[4:14) Identifier |funcvarvar|
+//@[00:03) Identifier |var|
+//@[04:14) Identifier |funcvarvar|
 //@[15:16) Assignment |=|
 //@[17:23) Identifier |concat|
 //@[24:25) Plus |+|
@@ -727,15 +727,15 @@ var funcvarvar = concat + base64 || !uniqueString
 //@[37:49) Identifier |uniqueString|
 //@[49:50) NewLine |\n|
 param funcvarparam bool = concat
-//@[0:5) Identifier |param|
-//@[6:18) Identifier |funcvarparam|
+//@[00:05) Identifier |param|
+//@[06:18) Identifier |funcvarparam|
 //@[19:23) Identifier |bool|
 //@[24:25) Assignment |=|
 //@[26:32) Identifier |concat|
 //@[32:33) NewLine |\n|
 output funcvarout array = padLeft
-//@[0:6) Identifier |output|
-//@[7:17) Identifier |funcvarout|
+//@[00:06) Identifier |output|
+//@[07:17) Identifier |funcvarout|
 //@[18:23) Identifier |array|
 //@[24:25) Assignment |=|
 //@[26:33) Identifier |padLeft|
@@ -744,8 +744,8 @@ output funcvarout array = padLeft
 // non-existent function
 //@[24:25) NewLine |\n|
 var fakeFunc = red() + green() * orange()
-//@[0:3) Identifier |var|
-//@[4:12) Identifier |fakeFunc|
+//@[00:03) Identifier |var|
+//@[04:12) Identifier |fakeFunc|
 //@[13:14) Assignment |=|
 //@[15:18) Identifier |red|
 //@[18:19) LeftParen |(|
@@ -760,8 +760,8 @@ var fakeFunc = red() + green() * orange()
 //@[40:41) RightParen |)|
 //@[41:42) NewLine |\n|
 param fakeFuncP string = blue()
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |fakeFuncP|
+//@[00:05) Identifier |param|
+//@[06:15) Identifier |fakeFuncP|
 //@[16:22) Identifier |string|
 //@[23:24) Assignment |=|
 //@[25:29) Identifier |blue|
@@ -772,8 +772,8 @@ param fakeFuncP string = blue()
 // non-existent variable
 //@[24:25) NewLine |\n|
 var fakeVar = concat(totallyFakeVar, 's')
-//@[0:3) Identifier |var|
-//@[4:11) Identifier |fakeVar|
+//@[00:03) Identifier |var|
+//@[04:11) Identifier |fakeVar|
 //@[12:13) Assignment |=|
 //@[14:20) Identifier |concat|
 //@[20:21) LeftParen |(|
@@ -786,16 +786,16 @@ var fakeVar = concat(totallyFakeVar, 's')
 // bad functions arguments
 //@[26:27) NewLine |\n|
 var concatNotEnough = concat()
-//@[0:3) Identifier |var|
-//@[4:19) Identifier |concatNotEnough|
+//@[00:03) Identifier |var|
+//@[04:19) Identifier |concatNotEnough|
 //@[20:21) Assignment |=|
 //@[22:28) Identifier |concat|
 //@[28:29) LeftParen |(|
 //@[29:30) RightParen |)|
 //@[30:31) NewLine |\n|
 var padLeftNotEnough = padLeft('s')
-//@[0:3) Identifier |var|
-//@[4:20) Identifier |padLeftNotEnough|
+//@[00:03) Identifier |var|
+//@[04:20) Identifier |padLeftNotEnough|
 //@[21:22) Assignment |=|
 //@[23:30) Identifier |padLeft|
 //@[30:31) LeftParen |(|
@@ -803,29 +803,29 @@ var padLeftNotEnough = padLeft('s')
 //@[34:35) RightParen |)|
 //@[35:36) NewLine |\n|
 var takeTooMany = take([
-//@[0:3) Identifier |var|
-//@[4:15) Identifier |takeTooMany|
+//@[00:03) Identifier |var|
+//@[04:15) Identifier |takeTooMany|
 //@[16:17) Assignment |=|
 //@[18:22) Identifier |take|
 //@[22:23) LeftParen |(|
 //@[23:24) LeftSquare |[|
 //@[24:25) NewLine |\n|
 ],1,2,'s')
-//@[0:1) RightSquare |]|
-//@[1:2) Comma |,|
-//@[2:3) Integer |1|
-//@[3:4) Comma |,|
-//@[4:5) Integer |2|
-//@[5:6) Comma |,|
-//@[6:9) StringComplete |'s'|
-//@[9:10) RightParen |)|
+//@[00:01) RightSquare |]|
+//@[01:02) Comma |,|
+//@[02:03) Integer |1|
+//@[03:04) Comma |,|
+//@[04:05) Integer |2|
+//@[05:06) Comma |,|
+//@[06:09) StringComplete |'s'|
+//@[09:10) RightParen |)|
 //@[10:12) NewLine |\n\n|
 
 // missing arguments
 //@[20:21) NewLine |\n|
 var trailingArgumentComma = format('s',)
-//@[0:3) Identifier |var|
-//@[4:25) Identifier |trailingArgumentComma|
+//@[00:03) Identifier |var|
+//@[04:25) Identifier |trailingArgumentComma|
 //@[26:27) Assignment |=|
 //@[28:34) Identifier |format|
 //@[34:35) LeftParen |(|
@@ -834,8 +834,8 @@ var trailingArgumentComma = format('s',)
 //@[39:40) RightParen |)|
 //@[40:41) NewLine |\n|
 var onlyArgumentComma = concat(,)
-//@[0:3) Identifier |var|
-//@[4:21) Identifier |onlyArgumentComma|
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |onlyArgumentComma|
 //@[22:23) Assignment |=|
 //@[24:30) Identifier |concat|
 //@[30:31) LeftParen |(|
@@ -843,8 +843,8 @@ var onlyArgumentComma = concat(,)
 //@[32:33) RightParen |)|
 //@[33:34) NewLine |\n|
 var multipleArgumentCommas = concat(,,,,,)
-//@[0:3) Identifier |var|
-//@[4:26) Identifier |multipleArgumentCommas|
+//@[00:03) Identifier |var|
+//@[04:26) Identifier |multipleArgumentCommas|
 //@[27:28) Assignment |=|
 //@[29:35) Identifier |concat|
 //@[35:36) LeftParen |(|
@@ -856,8 +856,8 @@ var multipleArgumentCommas = concat(,,,,,)
 //@[41:42) RightParen |)|
 //@[42:43) NewLine |\n|
 var emptyArgInBetween = concat(true,,false)
-//@[0:3) Identifier |var|
-//@[4:21) Identifier |emptyArgInBetween|
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |emptyArgInBetween|
 //@[22:23) Assignment |=|
 //@[24:30) Identifier |concat|
 //@[30:31) LeftParen |(|
@@ -868,8 +868,8 @@ var emptyArgInBetween = concat(true,,false)
 //@[42:43) RightParen |)|
 //@[43:44) NewLine |\n|
 var leadingEmptyArg = concat(,[])
-//@[0:3) Identifier |var|
-//@[4:19) Identifier |leadingEmptyArg|
+//@[00:03) Identifier |var|
+//@[04:19) Identifier |leadingEmptyArg|
 //@[20:21) Assignment |=|
 //@[22:28) Identifier |concat|
 //@[28:29) LeftParen |(|
@@ -879,8 +879,8 @@ var leadingEmptyArg = concat(,[])
 //@[32:33) RightParen |)|
 //@[33:34) NewLine |\n|
 var leadingAndTrailingEmptyArg = concat(,'s',)
-//@[0:3) Identifier |var|
-//@[4:30) Identifier |leadingAndTrailingEmptyArg|
+//@[00:03) Identifier |var|
+//@[04:30) Identifier |leadingAndTrailingEmptyArg|
 //@[31:32) Assignment |=|
 //@[33:39) Identifier |concat|
 //@[39:40) LeftParen |(|
@@ -893,20 +893,20 @@ var leadingAndTrailingEmptyArg = concat(,'s',)
 // wrong argument types
 //@[23:24) NewLine |\n|
 var concatWrongTypes = concat({
-//@[0:3) Identifier |var|
-//@[4:20) Identifier |concatWrongTypes|
+//@[00:03) Identifier |var|
+//@[04:20) Identifier |concatWrongTypes|
 //@[21:22) Assignment |=|
 //@[23:29) Identifier |concat|
 //@[29:30) LeftParen |(|
 //@[30:31) LeftBrace |{|
 //@[31:32) NewLine |\n|
 })
-//@[0:1) RightBrace |}|
-//@[1:2) RightParen |)|
-//@[2:3) NewLine |\n|
+//@[00:01) RightBrace |}|
+//@[01:02) RightParen |)|
+//@[02:03) NewLine |\n|
 var concatWrongTypesContradiction = concat('s', [
-//@[0:3) Identifier |var|
-//@[4:33) Identifier |concatWrongTypesContradiction|
+//@[00:03) Identifier |var|
+//@[04:33) Identifier |concatWrongTypesContradiction|
 //@[34:35) Assignment |=|
 //@[36:42) Identifier |concat|
 //@[42:43) LeftParen |(|
@@ -915,12 +915,12 @@ var concatWrongTypesContradiction = concat('s', [
 //@[48:49) LeftSquare |[|
 //@[49:50) NewLine |\n|
 ])
-//@[0:1) RightSquare |]|
-//@[1:2) RightParen |)|
-//@[2:3) NewLine |\n|
+//@[00:01) RightSquare |]|
+//@[01:02) RightParen |)|
+//@[02:03) NewLine |\n|
 var indexOfWrongTypes = indexOf(1,1)
-//@[0:3) Identifier |var|
-//@[4:21) Identifier |indexOfWrongTypes|
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |indexOfWrongTypes|
 //@[22:23) Assignment |=|
 //@[24:31) Identifier |indexOf|
 //@[31:32) LeftParen |(|
@@ -933,8 +933,8 @@ var indexOfWrongTypes = indexOf(1,1)
 // not enough params
 //@[20:21) NewLine |\n|
 var test1 = listKeys('abcd')
-//@[0:3) Identifier |var|
-//@[4:9) Identifier |test1|
+//@[00:03) Identifier |var|
+//@[04:09) Identifier |test1|
 //@[10:11) Assignment |=|
 //@[12:20) Identifier |listKeys|
 //@[20:21) LeftParen |(|
@@ -945,8 +945,8 @@ var test1 = listKeys('abcd')
 // list spelled wrong 
 //@[22:23) NewLine |\n|
 var test2 = lsitKeys('abcd', '2020-01-01')
-//@[0:3) Identifier |var|
-//@[4:9) Identifier |test2|
+//@[00:03) Identifier |var|
+//@[04:09) Identifier |test2|
 //@[10:11) Assignment |=|
 //@[12:20) Identifier |lsitKeys|
 //@[20:21) LeftParen |(|
@@ -959,8 +959,8 @@ var test2 = lsitKeys('abcd', '2020-01-01')
 // just 'lis' instead of 'list'
 //@[31:32) NewLine |\n|
 var test3 = lis('abcd', '2020-01-01')
-//@[0:3) Identifier |var|
-//@[4:9) Identifier |test3|
+//@[00:03) Identifier |var|
+//@[04:09) Identifier |test3|
 //@[10:11) Assignment |=|
 //@[12:15) Identifier |lis|
 //@[15:16) LeftParen |(|
@@ -971,98 +971,98 @@ var test3 = lis('abcd', '2020-01-01')
 //@[37:39) NewLine |\n\n|
 
 var sampleObject = {
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |sampleObject|
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |sampleObject|
 //@[17:18) Assignment |=|
 //@[19:20) LeftBrace |{|
 //@[20:21) NewLine |\n|
   myInt: 42
-//@[2:7) Identifier |myInt|
-//@[7:8) Colon |:|
-//@[9:11) Integer |42|
+//@[02:07) Identifier |myInt|
+//@[07:08) Colon |:|
+//@[09:11) Integer |42|
 //@[11:12) NewLine |\n|
   myStr: 's'
-//@[2:7) Identifier |myStr|
-//@[7:8) Colon |:|
-//@[9:12) StringComplete |'s'|
+//@[02:07) Identifier |myStr|
+//@[07:08) Colon |:|
+//@[09:12) StringComplete |'s'|
 //@[12:13) NewLine |\n|
   myBool: false
-//@[2:8) Identifier |myBool|
-//@[8:9) Colon |:|
+//@[02:08) Identifier |myBool|
+//@[08:09) Colon |:|
 //@[10:15) FalseKeyword |false|
 //@[15:16) NewLine |\n|
   myNull: null
-//@[2:8) Identifier |myNull|
-//@[8:9) Colon |:|
+//@[02:08) Identifier |myNull|
+//@[08:09) Colon |:|
 //@[10:14) NullKeyword |null|
 //@[14:15) NewLine |\n|
   myInner: {
-//@[2:9) Identifier |myInner|
-//@[9:10) Colon |:|
+//@[02:09) Identifier |myInner|
+//@[09:10) Colon |:|
 //@[11:12) LeftBrace |{|
 //@[12:13) NewLine |\n|
     anotherStr: 'a'
-//@[4:14) Identifier |anotherStr|
+//@[04:14) Identifier |anotherStr|
 //@[14:15) Colon |:|
 //@[16:19) StringComplete |'a'|
 //@[19:20) NewLine |\n|
     otherArr: [
-//@[4:12) Identifier |otherArr|
+//@[04:12) Identifier |otherArr|
 //@[12:13) Colon |:|
 //@[14:15) LeftSquare |[|
 //@[15:16) NewLine |\n|
       's'
-//@[6:9) StringComplete |'s'|
-//@[9:10) NewLine |\n|
+//@[06:09) StringComplete |'s'|
+//@[09:10) NewLine |\n|
       'a'
-//@[6:9) StringComplete |'a'|
-//@[9:10) NewLine |\n|
+//@[06:09) StringComplete |'a'|
+//@[09:10) NewLine |\n|
     ]
-//@[4:5) RightSquare |]|
-//@[5:6) NewLine |\n|
+//@[04:05) RightSquare |]|
+//@[05:06) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[02:03) RightBrace |}|
+//@[03:04) NewLine |\n|
   myArr: [
-//@[2:7) Identifier |myArr|
-//@[7:8) Colon |:|
-//@[9:10) LeftSquare |[|
+//@[02:07) Identifier |myArr|
+//@[07:08) Colon |:|
+//@[09:10) LeftSquare |[|
 //@[10:11) NewLine |\n|
     1
-//@[4:5) Integer |1|
-//@[5:6) NewLine |\n|
+//@[04:05) Integer |1|
+//@[05:06) NewLine |\n|
     2
-//@[4:5) Integer |2|
-//@[5:6) NewLine |\n|
+//@[04:05) Integer |2|
+//@[05:06) NewLine |\n|
     3
-//@[4:5) Integer |3|
-//@[5:6) NewLine |\n|
+//@[04:05) Integer |3|
+//@[05:06) NewLine |\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:4) NewLine |\n|
+//@[02:03) RightSquare |]|
+//@[03:04) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
 
 var badProperty = sampleObject.myFake
-//@[0:3) Identifier |var|
-//@[4:15) Identifier |badProperty|
+//@[00:03) Identifier |var|
+//@[04:15) Identifier |badProperty|
 //@[16:17) Assignment |=|
 //@[18:30) Identifier |sampleObject|
 //@[30:31) Dot |.|
 //@[31:37) Identifier |myFake|
 //@[37:38) NewLine |\n|
 var badSpelling = sampleObject.myNul
-//@[0:3) Identifier |var|
-//@[4:15) Identifier |badSpelling|
+//@[00:03) Identifier |var|
+//@[04:15) Identifier |badSpelling|
 //@[16:17) Assignment |=|
 //@[18:30) Identifier |sampleObject|
 //@[30:31) Dot |.|
 //@[31:36) Identifier |myNul|
 //@[36:37) NewLine |\n|
 var badPropertyIndexer = sampleObject['fake']
-//@[0:3) Identifier |var|
-//@[4:22) Identifier |badPropertyIndexer|
+//@[00:03) Identifier |var|
+//@[04:22) Identifier |badPropertyIndexer|
 //@[23:24) Assignment |=|
 //@[25:37) Identifier |sampleObject|
 //@[37:38) LeftSquare |[|
@@ -1070,8 +1070,8 @@ var badPropertyIndexer = sampleObject['fake']
 //@[44:45) RightSquare |]|
 //@[45:46) NewLine |\n|
 var badType = sampleObject.myStr / 32
-//@[0:3) Identifier |var|
-//@[4:11) Identifier |badType|
+//@[00:03) Identifier |var|
+//@[04:11) Identifier |badType|
 //@[12:13) Assignment |=|
 //@[14:26) Identifier |sampleObject|
 //@[26:27) Dot |.|
@@ -1080,8 +1080,8 @@ var badType = sampleObject.myStr / 32
 //@[35:37) Integer |32|
 //@[37:38) NewLine |\n|
 var badInnerProperty = sampleObject.myInner.fake
-//@[0:3) Identifier |var|
-//@[4:20) Identifier |badInnerProperty|
+//@[00:03) Identifier |var|
+//@[04:20) Identifier |badInnerProperty|
 //@[21:22) Assignment |=|
 //@[23:35) Identifier |sampleObject|
 //@[35:36) Dot |.|
@@ -1090,8 +1090,8 @@ var badInnerProperty = sampleObject.myInner.fake
 //@[44:48) Identifier |fake|
 //@[48:49) NewLine |\n|
 var badInnerType = sampleObject.myInner.anotherStr + 2
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |badInnerType|
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |badInnerType|
 //@[17:18) Assignment |=|
 //@[19:31) Identifier |sampleObject|
 //@[31:32) Dot |.|
@@ -1102,8 +1102,8 @@ var badInnerType = sampleObject.myInner.anotherStr + 2
 //@[53:54) Integer |2|
 //@[54:55) NewLine |\n|
 var badArrayIndexer = sampleObject.myArr['s']
-//@[0:3) Identifier |var|
-//@[4:19) Identifier |badArrayIndexer|
+//@[00:03) Identifier |var|
+//@[04:19) Identifier |badArrayIndexer|
 //@[20:21) Assignment |=|
 //@[22:34) Identifier |sampleObject|
 //@[34:35) Dot |.|
@@ -1113,8 +1113,8 @@ var badArrayIndexer = sampleObject.myArr['s']
 //@[44:45) RightSquare |]|
 //@[45:46) NewLine |\n|
 var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
-//@[0:3) Identifier |var|
-//@[4:24) Identifier |badInnerArrayIndexer|
+//@[00:03) Identifier |var|
+//@[04:24) Identifier |badInnerArrayIndexer|
 //@[25:26) Assignment |=|
 //@[27:39) Identifier |sampleObject|
 //@[39:40) Dot |.|
@@ -1126,8 +1126,8 @@ var badInnerArrayIndexer = sampleObject.myInner.otherArr['s']
 //@[60:61) RightSquare |]|
 //@[61:62) NewLine |\n|
 var badIndexer = sampleObject.myStr['s']
-//@[0:3) Identifier |var|
-//@[4:14) Identifier |badIndexer|
+//@[00:03) Identifier |var|
+//@[04:14) Identifier |badIndexer|
 //@[15:16) Assignment |=|
 //@[17:29) Identifier |sampleObject|
 //@[29:30) Dot |.|
@@ -1137,8 +1137,8 @@ var badIndexer = sampleObject.myStr['s']
 //@[39:40) RightSquare |]|
 //@[40:41) NewLine |\n|
 var badInnerArray = sampleObject.myInner.fakeArr['s']
-//@[0:3) Identifier |var|
-//@[4:17) Identifier |badInnerArray|
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |badInnerArray|
 //@[18:19) Assignment |=|
 //@[20:32) Identifier |sampleObject|
 //@[32:33) Dot |.|
@@ -1150,8 +1150,8 @@ var badInnerArray = sampleObject.myInner.fakeArr['s']
 //@[52:53) RightSquare |]|
 //@[53:54) NewLine |\n|
 var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
-//@[0:3) Identifier |var|
-//@[4:47) Identifier |invalidPropertyCallOnInstanceFunctionAccess|
+//@[00:03) Identifier |var|
+//@[04:47) Identifier |invalidPropertyCallOnInstanceFunctionAccess|
 //@[48:49) Assignment |=|
 //@[50:51) Identifier |a|
 //@[51:52) Dot |.|
@@ -1166,8 +1166,8 @@ var invalidPropertyCallOnInstanceFunctionAccess = a.b.c.bar().baz
 //@[62:65) Identifier |baz|
 //@[65:66) NewLine |\n|
 var invalidInstanceFunctionAccess = a.b.c.bar()
-//@[0:3) Identifier |var|
-//@[4:33) Identifier |invalidInstanceFunctionAccess|
+//@[00:03) Identifier |var|
+//@[04:33) Identifier |invalidInstanceFunctionAccess|
 //@[34:35) Assignment |=|
 //@[36:37) Identifier |a|
 //@[37:38) Dot |.|
@@ -1180,8 +1180,8 @@ var invalidInstanceFunctionAccess = a.b.c.bar()
 //@[46:47) RightParen |)|
 //@[47:48) NewLine |\n|
 var invalidInstanceFunctionCall = az.az()
-//@[0:3) Identifier |var|
-//@[4:31) Identifier |invalidInstanceFunctionCall|
+//@[00:03) Identifier |var|
+//@[04:31) Identifier |invalidInstanceFunctionCall|
 //@[32:33) Assignment |=|
 //@[34:36) Identifier |az|
 //@[36:37) Dot |.|
@@ -1190,32 +1190,32 @@ var invalidInstanceFunctionCall = az.az()
 //@[40:41) RightParen |)|
 //@[41:42) NewLine |\n|
 var invalidPropertyAccessOnAzNamespace = az.az
-//@[0:3) Identifier |var|
-//@[4:38) Identifier |invalidPropertyAccessOnAzNamespace|
+//@[00:03) Identifier |var|
+//@[04:38) Identifier |invalidPropertyAccessOnAzNamespace|
 //@[39:40) Assignment |=|
 //@[41:43) Identifier |az|
 //@[43:44) Dot |.|
 //@[44:46) Identifier |az|
 //@[46:47) NewLine |\n|
 var invalidPropertyAccessOnSysNamespace = sys.az
-//@[0:3) Identifier |var|
-//@[4:39) Identifier |invalidPropertyAccessOnSysNamespace|
+//@[00:03) Identifier |var|
+//@[04:39) Identifier |invalidPropertyAccessOnSysNamespace|
 //@[40:41) Assignment |=|
 //@[42:45) Identifier |sys|
 //@[45:46) Dot |.|
 //@[46:48) Identifier |az|
 //@[48:49) NewLine |\n|
 var invalidOperands = 1 + az
-//@[0:3) Identifier |var|
-//@[4:19) Identifier |invalidOperands|
+//@[00:03) Identifier |var|
+//@[04:19) Identifier |invalidOperands|
 //@[20:21) Assignment |=|
 //@[22:23) Integer |1|
 //@[24:25) Plus |+|
 //@[26:28) Identifier |az|
 //@[28:29) NewLine |\n|
 var invalidStringAddition = 'hello' + sampleObject.myStr
-//@[0:3) Identifier |var|
-//@[4:25) Identifier |invalidStringAddition|
+//@[00:03) Identifier |var|
+//@[04:25) Identifier |invalidStringAddition|
 //@[26:27) Assignment |=|
 //@[28:35) StringComplete |'hello'|
 //@[36:37) Plus |+|
@@ -1225,32 +1225,32 @@ var invalidStringAddition = 'hello' + sampleObject.myStr
 //@[56:58) NewLine |\n\n|
 
 var bannedFunctions = {
-//@[0:3) Identifier |var|
-//@[4:19) Identifier |bannedFunctions|
+//@[00:03) Identifier |var|
+//@[04:19) Identifier |bannedFunctions|
 //@[20:21) Assignment |=|
 //@[22:23) LeftBrace |{|
 //@[23:24) NewLine |\n|
   var: variables()
-//@[2:5) Identifier |var|
-//@[5:6) Colon |:|
-//@[7:16) Identifier |variables|
+//@[02:05) Identifier |var|
+//@[05:06) Colon |:|
+//@[07:16) Identifier |variables|
 //@[16:17) LeftParen |(|
 //@[17:18) RightParen |)|
 //@[18:19) NewLine |\n|
   param: parameters() + 2
-//@[2:7) Identifier |param|
-//@[7:8) Colon |:|
-//@[9:19) Identifier |parameters|
+//@[02:07) Identifier |param|
+//@[07:08) Colon |:|
+//@[09:19) Identifier |parameters|
 //@[19:20) LeftParen |(|
 //@[20:21) RightParen |)|
 //@[22:23) Plus |+|
 //@[24:25) Integer |2|
 //@[25:26) NewLine |\n|
   if: sys.if(null,null)
-//@[2:4) Identifier |if|
-//@[4:5) Colon |:|
-//@[6:9) Identifier |sys|
-//@[9:10) Dot |.|
+//@[02:04) Identifier |if|
+//@[04:05) Colon |:|
+//@[06:09) Identifier |sys|
+//@[09:10) Dot |.|
 //@[10:12) Identifier |if|
 //@[12:13) LeftParen |(|
 //@[13:17) NullKeyword |null|
@@ -1259,26 +1259,26 @@ var bannedFunctions = {
 //@[22:23) RightParen |)|
 //@[23:24) NewLine |\n|
   obj: sys.createArray()
-//@[2:5) Identifier |obj|
-//@[5:6) Colon |:|
-//@[7:10) Identifier |sys|
+//@[02:05) Identifier |obj|
+//@[05:06) Colon |:|
+//@[07:10) Identifier |sys|
 //@[10:11) Dot |.|
 //@[11:22) Identifier |createArray|
 //@[22:23) LeftParen |(|
 //@[23:24) RightParen |)|
 //@[24:25) NewLine |\n|
   arr: sys.createObject()
-//@[2:5) Identifier |arr|
-//@[5:6) Colon |:|
-//@[7:10) Identifier |sys|
+//@[02:05) Identifier |arr|
+//@[05:06) Colon |:|
+//@[07:10) Identifier |sys|
 //@[10:11) Dot |.|
 //@[11:23) Identifier |createObject|
 //@[23:24) LeftParen |(|
 //@[24:25) RightParen |)|
 //@[25:26) NewLine |\n|
   numeric: sys.add(1) + sys.sub(2,3) + sys.mul(8,'s') + sys.div(true) + sys.mod(null, false)
-//@[2:9) Identifier |numeric|
-//@[9:10) Colon |:|
+//@[02:09) Identifier |numeric|
+//@[09:10) Colon |:|
 //@[11:14) Identifier |sys|
 //@[14:15) Dot |.|
 //@[15:18) Identifier |add|
@@ -1321,7 +1321,7 @@ var bannedFunctions = {
 //@[91:92) RightParen |)|
 //@[92:93) NewLine |\n|
   relational: sys.less() && sys.lessOrEquals() && sys.greater() && sys.greaterOrEquals()
-//@[2:12) Identifier |relational|
+//@[02:12) Identifier |relational|
 //@[12:13) Colon |:|
 //@[14:17) Identifier |sys|
 //@[17:18) Dot |.|
@@ -1348,8 +1348,8 @@ var bannedFunctions = {
 //@[87:88) RightParen |)|
 //@[88:89) NewLine |\n|
   equals: sys.equals()
-//@[2:8) Identifier |equals|
-//@[8:9) Colon |:|
+//@[02:08) Identifier |equals|
+//@[08:09) Colon |:|
 //@[10:13) Identifier |sys|
 //@[13:14) Dot |.|
 //@[14:20) Identifier |equals|
@@ -1357,9 +1357,9 @@ var bannedFunctions = {
 //@[21:22) RightParen |)|
 //@[22:23) NewLine |\n|
   bool: sys.not() || sys.and() || sys.or()
-//@[2:6) Identifier |bool|
-//@[6:7) Colon |:|
-//@[8:11) Identifier |sys|
+//@[02:06) Identifier |bool|
+//@[06:07) Colon |:|
+//@[08:11) Identifier |sys|
 //@[11:12) Dot |.|
 //@[12:15) Identifier |not|
 //@[15:16) LeftParen |(|
@@ -1378,16 +1378,16 @@ var bannedFunctions = {
 //@[41:42) RightParen |)|
 //@[42:43) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
 
 // we can get function completions from namespaces
 //@[50:51) NewLine |\n|
 // #completionTest(22) -> azFunctions
 //@[37:38) NewLine |\n|
 var azFunctions = az.a
-//@[0:3) Identifier |var|
-//@[4:15) Identifier |azFunctions|
+//@[00:03) Identifier |var|
+//@[04:15) Identifier |azFunctions|
 //@[16:17) Assignment |=|
 //@[18:20) Identifier |az|
 //@[20:21) Dot |.|
@@ -1396,8 +1396,8 @@ var azFunctions = az.a
 // #completionTest(24) -> sysFunctions
 //@[38:39) NewLine |\n|
 var sysFunctions = sys.a
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |sysFunctions|
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |sysFunctions|
 //@[17:18) Assignment |=|
 //@[19:22) Identifier |sys|
 //@[22:23) Dot |.|
@@ -1407,8 +1407,8 @@ var sysFunctions = sys.a
 // #completionTest(33) -> sysFunctions
 //@[38:39) NewLine |\n|
 var sysFunctionsInParens = (sys.a)
-//@[0:3) Identifier |var|
-//@[4:24) Identifier |sysFunctionsInParens|
+//@[00:03) Identifier |var|
+//@[04:24) Identifier |sysFunctionsInParens|
 //@[25:26) Assignment |=|
 //@[27:28) LeftParen |(|
 //@[28:31) Identifier |sys|
@@ -1420,8 +1420,8 @@ var sysFunctionsInParens = (sys.a)
 // missing method name
 //@[22:23) NewLine |\n|
 var missingMethodName = az.()
-//@[0:3) Identifier |var|
-//@[4:21) Identifier |missingMethodName|
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |missingMethodName|
 //@[22:23) Assignment |=|
 //@[24:26) Identifier |az|
 //@[26:27) Dot |.|
@@ -1432,8 +1432,8 @@ var missingMethodName = az.()
 // missing indexer
 //@[18:19) NewLine |\n|
 var missingIndexerOnLiteralArray = [][][]
-//@[0:3) Identifier |var|
-//@[4:32) Identifier |missingIndexerOnLiteralArray|
+//@[00:03) Identifier |var|
+//@[04:32) Identifier |missingIndexerOnLiteralArray|
 //@[33:34) Assignment |=|
 //@[35:36) LeftSquare |[|
 //@[36:37) RightSquare |]|
@@ -1443,8 +1443,8 @@ var missingIndexerOnLiteralArray = [][][]
 //@[40:41) RightSquare |]|
 //@[41:42) NewLine |\n|
 var missingIndexerOnIdentifier = nonExistentIdentifier[][1][]
-//@[0:3) Identifier |var|
-//@[4:30) Identifier |missingIndexerOnIdentifier|
+//@[00:03) Identifier |var|
+//@[04:30) Identifier |missingIndexerOnIdentifier|
 //@[31:32) Assignment |=|
 //@[33:54) Identifier |nonExistentIdentifier|
 //@[54:55) LeftSquare |[|
@@ -1459,8 +1459,8 @@ var missingIndexerOnIdentifier = nonExistentIdentifier[][1][]
 // empty parens - should produce expected expression diagnostic
 //@[63:64) NewLine |\n|
 var emptyParens = ()
-//@[0:3) Identifier |var|
-//@[4:15) Identifier |emptyParens|
+//@[00:03) Identifier |var|
+//@[04:15) Identifier |emptyParens|
 //@[16:17) Assignment |=|
 //@[18:19) LeftParen |(|
 //@[19:20) RightParen |)|
@@ -1469,8 +1469,8 @@ var emptyParens = ()
 // #completionTest(26) -> symbols
 //@[33:34) NewLine |\n|
 var anotherEmptyParens = ()
-//@[0:3) Identifier |var|
-//@[4:22) Identifier |anotherEmptyParens|
+//@[00:03) Identifier |var|
+//@[04:22) Identifier |anotherEmptyParens|
 //@[23:24) Assignment |=|
 //@[25:26) LeftParen |(|
 //@[26:27) RightParen |)|
@@ -1479,24 +1479,24 @@ var anotherEmptyParens = ()
 // keywords can't be called like functions
 //@[42:43) NewLine |\n|
 var nullness = null()
-//@[0:3) Identifier |var|
-//@[4:12) Identifier |nullness|
+//@[00:03) Identifier |var|
+//@[04:12) Identifier |nullness|
 //@[13:14) Assignment |=|
 //@[15:19) NullKeyword |null|
 //@[19:20) LeftParen |(|
 //@[20:21) RightParen |)|
 //@[21:22) NewLine |\n|
 var truth = true()
-//@[0:3) Identifier |var|
-//@[4:9) Identifier |truth|
+//@[00:03) Identifier |var|
+//@[04:09) Identifier |truth|
 //@[10:11) Assignment |=|
 //@[12:16) TrueKeyword |true|
 //@[16:17) LeftParen |(|
 //@[17:18) RightParen |)|
 //@[18:19) NewLine |\n|
 var falsehood = false()
-//@[0:3) Identifier |var|
-//@[4:13) Identifier |falsehood|
+//@[00:03) Identifier |var|
+//@[04:13) Identifier |falsehood|
 //@[14:15) Assignment |=|
 //@[16:21) FalseKeyword |false|
 //@[21:22) LeftParen |(|
@@ -1504,104 +1504,152 @@ var falsehood = false()
 //@[23:25) NewLine |\n\n|
 
 var partialObject = {
-//@[0:3) Identifier |var|
-//@[4:17) Identifier |partialObject|
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |partialObject|
 //@[18:19) Assignment |=|
 //@[20:21) LeftBrace |{|
 //@[21:22) NewLine |\n|
   2: true
-//@[2:3) Integer |2|
-//@[3:4) Colon |:|
-//@[5:9) TrueKeyword |true|
-//@[9:10) NewLine |\n|
+//@[02:03) Integer |2|
+//@[03:04) Colon |:|
+//@[05:09) TrueKeyword |true|
+//@[09:10) NewLine |\n|
   +
-//@[2:3) Plus |+|
-//@[3:4) NewLine |\n|
+//@[02:03) Plus |+|
+//@[03:04) NewLine |\n|
   3 : concat('s')
-//@[2:3) Integer |3|
-//@[4:5) Colon |:|
-//@[6:12) Identifier |concat|
+//@[02:03) Integer |3|
+//@[04:05) Colon |:|
+//@[06:12) Identifier |concat|
 //@[12:13) LeftParen |(|
 //@[13:16) StringComplete |'s'|
 //@[16:17) RightParen |)|
 //@[17:18) NewLine |\n|
   
-//@[2:3) NewLine |\n|
+//@[02:03) NewLine |\n|
   's' 
-//@[2:5) StringComplete |'s'|
-//@[6:7) NewLine |\n|
+//@[02:05) StringComplete |'s'|
+//@[06:07) NewLine |\n|
   's' \
-//@[2:5) StringComplete |'s'|
-//@[6:7) Unrecognized |\|
-//@[7:8) NewLine |\n|
+//@[02:05) StringComplete |'s'|
+//@[06:07) Unrecognized |\|
+//@[07:08) NewLine |\n|
   'e'   =
-//@[2:5) StringComplete |'e'|
-//@[8:9) Assignment |=|
-//@[9:10) NewLine |\n|
+//@[02:05) StringComplete |'e'|
+//@[08:09) Assignment |=|
+//@[09:10) NewLine |\n|
   's' :
-//@[2:5) StringComplete |'s'|
-//@[6:7) Colon |:|
-//@[7:9) NewLine |\n\n|
+//@[02:05) StringComplete |'s'|
+//@[06:07) Colon |:|
+//@[07:09) NewLine |\n\n|
 
   a
-//@[2:3) Identifier |a|
-//@[3:4) NewLine |\n|
+//@[02:03) Identifier |a|
+//@[03:04) NewLine |\n|
   b $
-//@[2:3) Identifier |b|
-//@[4:5) Unrecognized |$|
-//@[5:6) NewLine |\n|
+//@[02:03) Identifier |b|
+//@[04:05) Unrecognized |$|
+//@[05:06) NewLine |\n|
   a # 22
-//@[2:3) Identifier |a|
-//@[4:5) Unrecognized |#|
-//@[6:8) Integer |22|
-//@[8:9) NewLine |\n|
+//@[02:03) Identifier |a|
+//@[04:05) Unrecognized |#|
+//@[06:08) Integer |22|
+//@[08:09) NewLine |\n|
   c :
-//@[2:3) Identifier |c|
-//@[4:5) Colon |:|
-//@[5:6) NewLine |\n|
+//@[02:03) Identifier |c|
+//@[04:05) Colon |:|
+//@[05:06) NewLine |\n|
   d  : %
-//@[2:3) Identifier |d|
-//@[5:6) Colon |:|
-//@[7:8) Modulo |%|
-//@[8:9) NewLine |\n|
+//@[02:03) Identifier |d|
+//@[05:06) Colon |:|
+//@[07:08) Modulo |%|
+//@[08:09) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
 
 // dangling decorators - to make sure the tests work, please do not add contents after this line
 //@[96:97) NewLine |\n|
 @concat()
-//@[0:1) At |@|
-//@[1:7) Identifier |concat|
-//@[7:8) LeftParen |(|
-//@[8:9) RightParen |)|
-//@[9:10) NewLine |\n|
+//@[00:01) At |@|
+//@[01:07) Identifier |concat|
+//@[07:08) LeftParen |(|
+//@[08:09) RightParen |)|
+//@[09:10) NewLine |\n|
 @sys.secure()
-//@[0:1) At |@|
-//@[1:4) Identifier |sys|
-//@[4:5) Dot |.|
-//@[5:11) Identifier |secure|
+//@[00:01) At |@|
+//@[01:04) Identifier |sys|
+//@[04:05) Dot |.|
+//@[05:11) Identifier |secure|
 //@[11:12) LeftParen |(|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
 xxxxx
-//@[0:5) Identifier |xxxxx|
-//@[5:8) NewLine |\n\n\n|
+//@[00:05) Identifier |xxxxx|
+//@[05:08) NewLine |\n\n\n|
 
 
+var noElements = ()
+//@[00:03) Identifier |var|
+//@[04:14) Identifier |noElements|
+//@[15:16) Assignment |=|
+//@[17:18) LeftParen |(|
+//@[18:19) RightParen |)|
+//@[19:20) NewLine |\n|
+var justAComma = (,)
+//@[00:03) Identifier |var|
+//@[04:14) Identifier |justAComma|
+//@[15:16) Assignment |=|
+//@[17:18) LeftParen |(|
+//@[18:19) Comma |,|
+//@[19:20) RightParen |)|
+//@[20:21) NewLine |\n|
+var twoElements = (1, 2)
+//@[00:03) Identifier |var|
+//@[04:15) Identifier |twoElements|
+//@[16:17) Assignment |=|
+//@[18:19) LeftParen |(|
+//@[19:20) Integer |1|
+//@[20:21) Comma |,|
+//@[22:23) Integer |2|
+//@[23:24) RightParen |)|
+//@[24:25) NewLine |\n|
+var threeElements = (1, 2, 3)
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |threeElements|
+//@[18:19) Assignment |=|
+//@[20:21) LeftParen |(|
+//@[21:22) Integer |1|
+//@[22:23) Comma |,|
+//@[24:25) Integer |2|
+//@[25:26) Comma |,|
+//@[27:28) Integer |3|
+//@[28:29) RightParen |)|
+//@[29:30) NewLine |\n|
+var unterminated1 = (
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |unterminated1|
+//@[18:19) Assignment |=|
+//@[20:21) LeftParen |(|
+//@[21:22) NewLine |\n|
+var unterminated2 = (,
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |unterminated2|
+//@[18:19) Assignment |=|
+//@[20:21) LeftParen |(|
+//@[21:22) Comma |,|
+//@[22:24) NewLine |\n\n|
+
+// trailing decorator with no declaration
+//@[41:42) NewLine |\n|
 @minLength()
-//@[0:1) At |@|
-//@[1:10) Identifier |minLength|
+//@[00:01) At |@|
+//@[01:10) Identifier |minLength|
 //@[10:11) LeftParen |(|
 //@[11:12) RightParen |)|
-//@[12:21) NewLine |\n\n\n\n\n\n\n\n\n|
+//@[12:16) NewLine |\n\n\n\n|
 
 
 
 
-
-
-
-
-
-//@[0:0) EndOfFile ||
+//@[00:00) EndOfFile ||

@@ -49,7 +49,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 }
 
                 yield return CreateFixableDiagnosticForSpan(defaultValueSyntax.Span,
-                    new CodeFix(CoreResources.SecureParameterDefaultFixTitle, true,
+                    new CodeFix(CoreResources.SecureParameterDefaultFixTitle, true, CodeFixKind.QuickFix,
                             new CodeReplacement(defaultValueSyntax.Span, string.Empty)));
             }
         }
@@ -70,7 +70,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private bool ExpressionContainsNewGuid(ExpressionSyntax expression)
+        private static bool ExpressionContainsNewGuid(ExpressionSyntax expression)
         {
             var visitor = new NewGuidVisitor();
             expression.Accept(visitor);

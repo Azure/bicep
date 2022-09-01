@@ -24,15 +24,19 @@ resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   }
 }
 
+#disable-next-line outputs-should-not-contain-secrets
 output pkStandard string = listKeys(stg.id, stg.apiVersion).keys[0].value
+#disable-next-line outputs-should-not-contain-secrets
 output pkMethod string = stg.listKeys().keys[0].value
+#disable-next-line outputs-should-not-contain-secrets
 output pkMethodVersionOverride string = stg.listKeys('2021-01-01').keys[0].value
+#disable-next-line outputs-should-not-contain-secrets
 output pkMethodPayload string = stg.listKeys(stg.apiVersion, {
   key1: 'val1'
 })
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['pkStandard'].value", "[listKeys(resourceId('Microsoft.Storage/storageAccounts', 'testacc'), '2019-06-01').keys[0].value]");
             result.Template.Should().HaveValueAtPath("$.outputs['pkMethod'].value", "[listKeys(resourceId('Microsoft.Storage/storageAccounts', 'testacc'), '2019-06-01').keys[0].value]");
             result.Template.Should().HaveValueAtPath("$.outputs['pkMethodVersionOverride'].value", "[listKeys(resourceId('Microsoft.Storage/storageAccounts', 'testacc'), '2021-01-01').keys[0].value]");
@@ -48,15 +52,19 @@ resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' existing = {
   name: 'testacc'
 }
 
+#disable-next-line outputs-should-not-contain-secrets
 output pkStandard string = listKeys(stg.id, stg.apiVersion).keys[0].value
+#disable-next-line outputs-should-not-contain-secrets
 output pkMethod string = stg.listKeys().keys[0].value
+#disable-next-line outputs-should-not-contain-secrets
 output pkMethodVersionOverride string = stg.listKeys('2021-01-01').keys[0].value
+#disable-next-line outputs-should-not-contain-secrets
 output pkMethodPayload string = stg.listKeys(stg.apiVersion, {
   key1: 'val1'
 })
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['pkStandard'].value", "[listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'other'), 'Microsoft.Storage/storageAccounts', 'testacc'), '2019-06-01').keys[0].value]");
             result.Template.Should().HaveValueAtPath("$.outputs['pkMethod'].value", "[listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'other'), 'Microsoft.Storage/storageAccounts', 'testacc'), '2019-06-01').keys[0].value]");
             result.Template.Should().HaveValueAtPath("$.outputs['pkMethodVersionOverride'].value", "[listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'other'), 'Microsoft.Storage/storageAccounts', 'testacc'), '2021-01-01').keys[0].value]");
@@ -83,9 +91,7 @@ var disallowed = {
   c: stg.totallyMadeUpMethod()
 }
 ");
-            result.Should().HaveDiagnostics(new[] {
-                ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"allowed\" is declared but never used."),
-                ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"disallowed\" is declared but never used."),
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP109", DiagnosticLevel.Error, "The type \"Microsoft.Storage/storageAccounts\" does not contain function \"lis\"."),
                 ("BCP109", DiagnosticLevel.Error, "The type \"Microsoft.Storage/storageAccounts\" does not contain function \"lsit\"."),
                 ("BCP109", DiagnosticLevel.Error, "The type \"Microsoft.Storage/storageAccounts\" does not contain function \"totallyMadeUpMethod\"."),

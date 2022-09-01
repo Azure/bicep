@@ -16,6 +16,15 @@ namespace Bicep.Core.UnitTests.Utils
             return symbols;
         }
 
+        public static IList<Symbol> CollectSymbols(ParamsSemanticModel model)
+        {
+            var symbols = new List<Symbol>();
+            var visitor = new SymbolCollectorVisitor(symbols);
+            visitor.Visit(model.Root);
+
+            return symbols;
+        }
+
         private class SymbolCollectorVisitor : SymbolVisitor
         {
             private readonly IList<Symbol> symbols;

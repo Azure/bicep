@@ -1,14 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.Visitors;
 using Bicep.Core.Workspaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Bicep.Core.Rewriters
 {
@@ -16,7 +13,7 @@ namespace Bicep.Core.Rewriters
     {
         public static (BicepFile bicepFile, bool hasChanges) Rewrite(Compilation prevCompilation, BicepFile bicepFile, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
         {
-            var semanticModel = new SemanticModel(prevCompilation, bicepFile, prevCompilation.SourceFileGrouping.FileResolver, prevCompilation.Configuration);
+            var semanticModel = new SemanticModel(prevCompilation, bicepFile, prevCompilation.SourceFileGrouping.FileResolver, prevCompilation.GetEntrypointSemanticModel().LinterAnalyzer);
             var newProgramSyntax = rewriteVisitorBuilder(semanticModel).Rewrite(bicepFile.ProgramSyntax);
 
             if (object.ReferenceEquals(bicepFile.ProgramSyntax, newProgramSyntax))

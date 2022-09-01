@@ -4,10 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -166,7 +164,7 @@ namespace Bicep.Core.Semantics
                 var typeBySymbol = new Dictionary<ImportedNamespaceSymbol, NamespaceType>();
                 foreach (var symbol in symbols)
                 {
-                    if (symbol.TryGetNamespaceType() is {} namespaceType)
+                    if (symbol.TryGetNamespaceType() is { } namespaceType)
                     {
                         typeBySymbol[symbol] = namespaceType;
                     }

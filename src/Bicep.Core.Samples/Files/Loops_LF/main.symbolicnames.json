@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4677966447708206616"
+      "templateHash": "11841506402998298236"
     }
   },
   "parameters": {
@@ -435,7 +435,7 @@
     },
     "singleModule": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "test",
       "properties": {
         "expressionEvaluationOptions": {
@@ -482,7 +482,7 @@
         "batchSize": 3
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[variables('moduleSetup')[copyIndex()]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -531,7 +531,7 @@
         "count": "[length(variables('moduleSetup'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[variables('moduleSetup')[copyIndex()]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -576,7 +576,7 @@
     },
     "singleModuleWithIndexedDependencies": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "hello",
       "properties": {
         "expressionEvaluationOptions": {
@@ -626,7 +626,7 @@
         "count": "[length(variables('moduleSetup'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[variables('moduleSetup')[copyIndex()]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -676,7 +676,7 @@
         "count": "[length(variables('regions'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('apim-{0}-{1}', variables('regions')[copyIndex()], parameters('name'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -722,7 +722,7 @@
         "count": "[length(range(0, 6))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('stuff{0}', range(0, 6)[copyIndex()])]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -768,7 +768,7 @@
         "count": "[length(parameters('accounts'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('stuff-{0}', copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -831,7 +831,7 @@
     },
     "indexedCollectionIdentity": {
       "type": "object",
-      "value": "[reference('storageAccounts', '2019-06-01', 'full').identity]"
+      "value": "[reference(format('storageAccounts[{0}]', parameters('index')), '2019-06-01', 'full').identity]"
     },
     "indexedEndpointPair": {
       "type": "object",
@@ -870,7 +870,7 @@
     },
     "existingIndexedResourceLocation": {
       "type": "string",
-      "value": "[reference('existingStorageAccounts', '2019-06-01', 'full').location]"
+      "value": "[reference(format('existingStorageAccounts[{0}]', div(parameters('index'), 2)), '2019-06-01', 'full').location]"
     },
     "existingIndexedResourceAccessTier": {
       "type": "string",

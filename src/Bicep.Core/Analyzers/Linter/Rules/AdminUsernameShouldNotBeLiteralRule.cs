@@ -2,13 +2,11 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
@@ -37,7 +35,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private class ResourceVisitor : SyntaxVisitor
         {
-            public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            public List<IDiagnostic> diagnostics = new();
 
             private readonly AdminUsernameShouldNotBeLiteralRule parent;
             private readonly SemanticModel model;
@@ -59,7 +57,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private class PropertiesVisitor : SyntaxVisitor
         {
-            private List<IDiagnostic> diagnostics;
+            private readonly List<IDiagnostic> diagnostics;
 
             private const string adminUsernamePropertyName = "adminusername";
             private readonly AdminUsernameShouldNotBeLiteralRule parent;

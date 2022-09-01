@@ -3,6 +3,7 @@
 resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: 'basicblobs'
   location: 'westus'
+//@[12:20) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westus'|
   kind: 'BlobStorage'
   sku: {
     name: 'Standard_GRS'
@@ -18,6 +19,7 @@ resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
 resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
   name: 'myencryptedone'
   location: 'eastus2'
+//@[12:21) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus2' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus2'|
   properties: {
     supportsHttpsTrafficOnly: true
     accessTier: 'Hot'
@@ -42,10 +44,11 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
   name: 'myencryptedone2'
   location: 'eastus2'
+//@[12:21) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus2' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus2'|
   properties: {
     supportsHttpsTrafficOnly: !false
     accessTier: true ? 'Hot' : 'Cold'
-//@[16:37) [BCP036 (Warning)] The property "accessTier" expected a value of type "'Cool' | 'Hot' | null" but the provided value is of type "'Cold' | 'Hot'". (CodeDescription: none) |true ? 'Hot' : 'Cold'|
+//@[16:37) [BCP036 (Warning)] The property "accessTier" expected a value of type "'Cool' | 'Hot' | null" but the provided value is of type "'Cold' | 'Hot'". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |true ? 'Hot' : 'Cold'|
     encryption: {
       keySource: 'Microsoft.Storage'
       services: {
@@ -74,6 +77,7 @@ param appServicePlanTier string
 param appServicePlanInstances int
 
 var location = resourceGroup().location
+//@[15:39) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
 
 resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   // dependsOn: resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosAccountName)
@@ -85,7 +89,7 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   }
   properties: {
     name: hostingPlanName // just hostingPlanName results in an error
-//@[4:8) [BCP037 (Warning)] The property "name" is not allowed on objects of type "AppServicePlanProperties". Permissible properties include "freeOfferExpirationTime", "hostingEnvironmentProfile", "hyperV", "isSpot", "isXenon", "maximumElasticWorkerCount", "perSiteScaling", "reserved", "spotExpirationTime", "targetWorkerCount", "targetWorkerSizeId", "workerTierName". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |name|
+//@[04:08) [BCP037 (Warning)] The property "name" is not allowed on objects of type "AppServicePlanProperties". Permissible properties include "freeOfferExpirationTime", "hostingEnvironmentProfile", "hyperV", "isSpot", "isXenon", "maximumElasticWorkerCount", "perSiteScaling", "reserved", "spotExpirationTime", "targetWorkerCount", "targetWorkerSizeId", "workerTierName". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |name|
   }
 }
 
@@ -95,7 +99,7 @@ var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
 // this variable is not accessed anywhere in this template and depends on a run-time reference
 // it should not be present at all in the template output as there is nowhere logical to put it
 var cosmosDbEndpoint = cosmosDbRef.documentEndpoint
-//@[4:20) [no-unused-vars (Warning)] Variable "cosmosDbEndpoint" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |cosmosDbEndpoint|
+//@[04:20) [no-unused-vars (Warning)] Variable "cosmosDbEndpoint" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |cosmosDbEndpoint|
 
 param webSiteName string
 param cosmosDb object
@@ -128,9 +132,9 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 }
 
 var _siteApiVersion = site.apiVersion
-//@[4:19) [no-unused-vars (Warning)] Variable "_siteApiVersion" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |_siteApiVersion|
+//@[04:19) [no-unused-vars (Warning)] Variable "_siteApiVersion" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |_siteApiVersion|
 var _siteType = site.type
-//@[4:13) [no-unused-vars (Warning)] Variable "_siteType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |_siteType|
+//@[04:13) [no-unused-vars (Warning)] Variable "_siteType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |_siteType|
 
 output siteApiVersion string = site.apiVersion
 output siteType string = site.type
@@ -238,6 +242,7 @@ param shouldDeployVm bool = true
 resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (shouldDeployVm) {
   name: 'vmName'
   location: 'westus'
+//@[12:20) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westus'|
   properties: {
     osProfile: {
       windowsConfiguration: {
@@ -281,6 +286,7 @@ resource existing1 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
 }
 
 resource existing2 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
+//@[09:18) [no-unused-existing-resources (Warning)] Existing resource "existing2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-existing-resources)) |existing2|
 //@[19:65) [BCP081 (Warning)] Resource type "Mock.Rp/existingExtensionResource@2020-01-01" does not have types available. (CodeDescription: none) |'Mock.Rp/existingExtensionResource@2020-01-01'|
   name: 'existing2'
   scope: existing1
@@ -354,7 +360,7 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
 
 // duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
 var canHaveDuplicatesAcrossScopes = 'hello'
-//@[4:33) [no-unused-vars (Warning)] Variable "canHaveDuplicatesAcrossScopes" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |canHaveDuplicatesAcrossScopes|
+//@[04:33) [no-unused-vars (Warning)] Variable "canHaveDuplicatesAcrossScopes" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |canHaveDuplicatesAcrossScopes|
 resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
   name: 'vnet-${canHaveDuplicatesAcrossScopes}'
   properties: {
@@ -366,7 +372,7 @@ resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-
 
 // duplicate in global and multiple loop scopes are allowed (inner hides the outer)
 var duplicatesEverywhere = 'hello'
-//@[4:24) [no-unused-vars (Warning)] Variable "duplicatesEverywhere" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |duplicatesEverywhere|
+//@[04:24) [no-unused-vars (Warning)] Variable "duplicatesEverywhere" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |duplicatesEverywhere|
 resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
   name: 'vnet-${duplicatesEverywhere}'
   properties: {
@@ -411,6 +417,7 @@ resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
 
 resource p1_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: resourceGroup().location
+//@[12:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   name: 'myVnet'
   properties: {
     addressSpace: {

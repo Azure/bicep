@@ -18,7 +18,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             actual.TypeKind.Should().Be(TypeKind.Never);
             actual.Should().BeOfType<UnionType>();
 
-            ((UnionType) actual).Members.Should().BeEmpty();
+            ((UnionType)actual).Members.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             actual.TypeKind.Should().Be(TypeKind.Union);
             actual.Should().BeOfType<UnionType>();
 
-            ((UnionType) actual).Members.Select(x => x.Type).Should().Equal(LanguageConstants.Bool, LanguageConstants.String);
+            ((UnionType)actual).Members.Select(x => x.Type).Should().Equal(LanguageConstants.Bool, LanguageConstants.String);
         }
 
         [TestMethod]
@@ -54,7 +54,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             actual.TypeKind.Should().Be(TypeKind.Union);
             actual.Should().BeOfType<UnionType>();
 
-            ((UnionType) actual).Members.Select(x => x.Type).Should().Equal(LanguageConstants.Array, LanguageConstants.Bool, LanguageConstants.Null, LanguageConstants.Object, LanguageConstants.String);
+            ((UnionType)actual).Members.Select(x => x.Type).Should().Equal(LanguageConstants.Array, LanguageConstants.Bool, LanguageConstants.Null, LanguageConstants.Object, LanguageConstants.String);
         }
 
         [TestMethod]
@@ -105,11 +105,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
 
         [TestMethod]
-        public void UnionsOfStringsAndStringLiteralTypesShouldProduceStringType()
+        public void UnionsOfStringsAndStringLiteralTypesShouldNotDropLiterals()
         {
-            TypeHelper.CreateTypeUnion(LanguageConstants.String, new StringLiteralType("hello"), new StringLiteralType("there")).Should().BeSameAs(LanguageConstants.String);
+            TypeHelper.CreateTypeUnion(LanguageConstants.String, new StringLiteralType("hello"), new StringLiteralType("there")).Name.Should().Be("'hello' | 'there' | string");
+            
+            TypeHelper.CreateTypeUnion(LanguageConstants.String, new StringLiteralType("hello"), new StringLiteralType("there"), LanguageConstants.String).Name.Should().Be("'hello' | 'there' | string");
 
-            TypeHelper.CreateTypeUnion(LanguageConstants.String, new StringLiteralType("hello"), LanguageConstants.Bool, new StringLiteralType("there")).Name.Should().Be("bool | string");
+            TypeHelper.CreateTypeUnion(LanguageConstants.String, new StringLiteralType("hello"), LanguageConstants.Bool, new StringLiteralType("there")).Name.Should().Be("'hello' | 'there' | bool | string");
         }
 
         [TestMethod]
@@ -132,4 +134,3 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
     }
 }
-

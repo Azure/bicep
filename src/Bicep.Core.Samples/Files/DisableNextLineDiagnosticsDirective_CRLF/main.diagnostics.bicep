@@ -11,6 +11,7 @@ var vmProperties = {
 resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'vm'
   location: 'West US'
+//@[12:21) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'West US' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'West US'|
 #disable-next-line BCP036 BCP037
   properties: vmProperties
 }

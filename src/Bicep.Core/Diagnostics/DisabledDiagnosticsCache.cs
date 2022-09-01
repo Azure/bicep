@@ -29,7 +29,7 @@ namespace Bicep.Core.Diagnostics
 
         public record DisableNextLineDirectiveEndPositionAndCodes(int endPosition, ImmutableArray<string> diagnosticCodes);
 
-        private ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes> GetDisableNextLineDiagnosticDirectivesCache()
+        public ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes> GetDisableNextLineDiagnosticDirectivesCache()
         {
             var visitor = new SyntaxTriviaVisitor(lineStarts);
             visitor.Visit(programSyntax);

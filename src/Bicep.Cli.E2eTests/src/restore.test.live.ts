@@ -4,7 +4,7 @@
 /**
  * Live tests for "bicep restore".
  *
- * @group Live
+ * @group live
  */
 
 import {
@@ -22,21 +22,19 @@ import {
   writeTempFile,
   readFileSync,
 } from "./utils/fs";
-import {
-  environments,
-  createEnvironmentOverrides,
-} from "./utils/liveTestEnvironments";
-
-const testArea = "restore";
+import { getEnvironment } from "./utils/liveTestEnvironments";
 
 async function emptyModuleCacheRoot() {
   await emptyDir(moduleCacheRoot);
 }
 
 describe("bicep restore", () => {
+  const testArea = "restore";
+  const environment = getEnvironment();
+
   beforeEach(emptyModuleCacheRoot);
 
-  it.each(environments)("should restore template specs (%p)", (environment) => {
+  it("should restore template specs", () => {
     const bicep = `
 module storageAccountModuleV1 'ts:${environment.templateSpecSubscriptionId}/bicep-ci/storageAccountSpec-${environment.resourceSuffix}:v1' = {
   name: 'storageAccountModuleV1'
@@ -55,7 +53,8 @@ module storageAccountModuleV2 'ts/test-specs:STORAGEACCOUNTSPEC-${environment.re
 
 module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.0.0' = {
   name: 'webAppModuleV1'
-}`;
+}
+`;
 
     const bicepPath = writeTempFile("restore-ts", "main.bicep", bicep);
     const exampleConfig = readFileSync(
@@ -65,7 +64,7 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
     writeTempFile("restore-ts", "bicepconfig.json", exampleConfig);
 
     invokingBicepCommand("restore", bicepPath)
-      .withEnvironmentOverrides(createEnvironmentOverrides(environment))
+      .withEnvironmentOverrides(environment.environmentOverrides)
       .shouldSucceed()
       .withEmptyStdout();
 
@@ -91,16 +90,15 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
     );
   });
 
-  it.each(environments)("should restore OCI artifacts (%p)", (environment) => {
+  it("should restore OCI artifacts", () => {
     const builder = new BicepRegistryReferenceBuilder(
       environment.registryUri,
       testArea
     );
 
-    const environmentOverrides = createEnvironmentOverrides(environment);
     const storageRef = builder.getBicepReference("storage", "v1");
     publishModule(
-      environmentOverrides,
+      environment.environmentOverrides,
       storageRef,
       "modules" + environment.suffix,
       "storage.bicep"
@@ -108,7 +106,7 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
 
     const passthroughRef = builder.getBicepReference("passthrough", "v1");
     publishModule(
-      environmentOverrides,
+      environment.environmentOverrides,
       passthroughRef,
       "modules" + environment.suffix,
       "passthrough.bicep"
@@ -158,8 +156,15 @@ module storage '${storageRef}' = {
   }
 }
 
+module mcrModule 'br/public:samples/hello-world:1.0.1' = {
+  name: 'mcrModule'
+  params: {
+    name: 'BicepE2E'
+  }
+}
+
 output blobEndpoint string = storage.outputs.blobEndpoint
-    `;
+`;
 
     const bicepPath = writeTempFile("restore-br", "main.bicep", bicep);
 
@@ -169,7 +174,7 @@ output blobEndpoint string = storage.outputs.blobEndpoint
     writeTempFile("restore-br", "bicepconfig.json", exampleConfig);
 
     invokingBicepCommand("restore", bicepPath)
-      .withEnvironmentOverrides(environmentOverrides)
+      .withEnvironmentOverrides(environment.environmentOverrides)
       .shouldSucceed()
       .withEmptyStdout();
 
@@ -183,6 +188,12 @@ output blobEndpoint string = storage.outputs.blobEndpoint
       builder.registry,
       "restore$storage",
       `v1_${builder.tagSuffix}$4002000`
+    );
+
+    expectBrModuleStructure(
+      "mcr.microsoft.com",
+      "bicep$samples$hello-world",
+      "1.0.1$"
     );
   });
 });

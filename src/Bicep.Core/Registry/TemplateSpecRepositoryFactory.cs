@@ -21,11 +21,10 @@ namespace Bicep.Core.Registry
         {
             var options = new ArmClientOptions();
             options.Diagnostics.ApplySharedResourceManagerSettings();
-            options.ApiVersions.SetApiVersion("templateSpecs", "2021-05-01");
-            options.Scope = configuration.Cloud.AuthenticationScope;
+            options.Environment = new ArmEnvironment(configuration.Cloud.ResourceManagerEndpointUri, configuration.Cloud.AuthenticationScope);
 
             var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.ActiveDirectoryAuthorityUri);
-            var armClient = new ArmClient(subscriptionId, configuration.Cloud.ResourceManagerEndpointUri, credential, options);
+            var armClient = new ArmClient(credential, subscriptionId, options);
 
             return new TemplateSpecRepository(armClient);
         }

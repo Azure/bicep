@@ -22,7 +22,7 @@ namespace Bicep.Core.TypeSystem
 
         public TypeSymbol ParameterType { get; }
 
-        public void Deconstruct(out FunctionOverload source, out int argumentIndex,  out TypeSymbol argumentType, out TypeSymbol parameterType)
+        public void Deconstruct(out FunctionOverload source, out int argumentIndex, out TypeSymbol argumentType, out TypeSymbol parameterType)
         {
             source = this.Source;
             argumentIndex = this.ArgumentIndex;

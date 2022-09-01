@@ -37,7 +37,7 @@ var loadedBinaryInObject = {
 }
 
 var loadedTextArray = [
-//@[4:19) Variable loadedTextArray. Type: array. Declaration start char: 0, length: 108
+//@[4:19) Variable loadedTextArray. Type: ('Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n Donec laoreet sem tortor, ut dignissim ipsum ornare vel.\n  Duis ac ipsum turpis.\n\tMaecenas at condimentum dui.\n Suspendisse aliquet efficitur iaculis.\nIn hac habitasse platea dictumst.\nEtiam consectetur ut libero ac lobortis.\n\tNullam vitae auctor massa.\nFusce tincidunt urna purus, sit amet.\n' | Assets/binary)[]. Declaration start char: 0, length: 108
   loadTextContent('Assets/TextFile.LF.txt')
   loadFileAsBase64('Assets/binary')
 ]
@@ -107,4 +107,32 @@ var testJsonObject = testJson.object
 //@[4:18) Variable testJsonObject. Type: object. Declaration start char: 0, length: 36
 var testJsonNestedString = testJson.object.nestedString
 //@[4:24) Variable testJsonNestedString. Type: 'someVal'. Declaration start char: 0, length: 55
+
+var testJson2 = loadJsonContent('./Assets/test.json.txt')
+//@[4:13) Variable testJson2. Type: object. Declaration start char: 0, length: 57
+var testJsonString2 = testJson.string
+//@[4:19) Variable testJsonString2. Type: 'someVal'. Declaration start char: 0, length: 37
+var testJsonString2_1 = loadJsonContent('./Assets/test.json.txt', '.string')
+//@[4:21) Variable testJsonString2_1. Type: 'someVal'. Declaration start char: 0, length: 76
+var testJsonInt2 = testJson.int
+//@[4:16) Variable testJsonInt2. Type: int. Declaration start char: 0, length: 31
+var testJsonInt2_1 = loadJsonContent('./Assets/test.json.txt', '.int')
+//@[4:18) Variable testJsonInt2_1. Type: int. Declaration start char: 0, length: 70
+var testJsonArrayVal2 = testJson.array[0]
+//@[4:21) Variable testJsonArrayVal2. Type: int. Declaration start char: 0, length: 41
+var testJsonArrayVal2_1 = loadJsonContent('./Assets/test.json.txt', '.array[0]')
+//@[4:23) Variable testJsonArrayVal2_1. Type: int. Declaration start char: 0, length: 80
+var testJsonObject2 = testJson.object
+//@[4:19) Variable testJsonObject2. Type: object. Declaration start char: 0, length: 37
+var testJsonObject2_1 = loadJsonContent('./Assets/test.json.txt', '.object')
+//@[4:21) Variable testJsonObject2_1. Type: object. Declaration start char: 0, length: 76
+var testJsonNestedString2 = testJson.object.nestedString
+//@[4:25) Variable testJsonNestedString2. Type: 'someVal'. Declaration start char: 0, length: 56
+var testJsonNestedString2_1 = testJsonObject2_1.nestedString
+//@[4:27) Variable testJsonNestedString2_1. Type: 'someVal'. Declaration start char: 0, length: 60
+var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object.nestedString')
+//@[4:27) Variable testJsonNestedString2_2. Type: 'someVal'. Declaration start char: 0, length: 95
+
+var testJsonTokensAsArray = loadJsonContent('./Assets/test2.json.txt', '.products[?(@.price > 3)].name')
+//@[4:25) Variable testJsonTokensAsArray. Type: ('pizza' | 'salad')[]. Declaration start char: 0, length: 104
 

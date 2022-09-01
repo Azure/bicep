@@ -24,7 +24,7 @@ namespace Bicep.LanguageServer.Extensions
                 Message = diagnostic.Message,
                 Source = diagnostic.Source,
                 Range = diagnostic.ToRange(lineStarts),
-                Tags = ToDiagnosticTags(diagnostic.Label),
+                Tags = ToDiagnosticTags(diagnostic.Styling),
                 CodeDescription = codeDescription
             };
         }
@@ -59,12 +59,12 @@ namespace Bicep.LanguageServer.Extensions
                         _ => throw new ArgumentException($"Unrecognized level {level}"),
                     };
 
-        private static Container<DiagnosticTag>? ToDiagnosticTags(DiagnosticLabel? label) => label switch
+        private static Container<DiagnosticTag>? ToDiagnosticTags(DiagnosticStyling styling) => styling switch
         {
-            null => null,
-            DiagnosticLabel.Unnecessary => new Container<DiagnosticTag>(DiagnosticTag.Unnecessary),
-            DiagnosticLabel.Deprecated => new Container<DiagnosticTag>(DiagnosticTag.Deprecated),
-            _ => throw new ArgumentException($"Unrecognized label {label}"),
+            DiagnosticStyling.Default => null,
+            DiagnosticStyling.ShowCodeAsUnused => new Container<DiagnosticTag>(DiagnosticTag.Unnecessary),
+            DiagnosticStyling.ShowCodeDeprecated => new Container<DiagnosticTag>(DiagnosticTag.Deprecated),
+            _ => throw new ArgumentException($"Unrecognized {nameof(DiagnosticStyling)} {styling}"),
         };
     }
 }

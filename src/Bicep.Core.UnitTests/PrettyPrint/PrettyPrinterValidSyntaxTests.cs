@@ -19,20 +19,20 @@ namespace Bicep.Core.UnitTests.PrettyPrint
 
 param foo int
 
-     
-     
+
+
 
 
 var bar = 1 + mod(foo, 3)
 var baz = {
     x: [
 
-  
+
 
 111
 222
 
-  
+
 
 
 333
@@ -56,11 +56,11 @@ aaa: bbb
 ccc: ddd
 
 
-  
+
 }
 }
 
-  
+
 
 
 ",
@@ -70,6 +70,7 @@ ccc: ddd
 var bar = 1 + mod(foo, 3)
 var baz = {
   x: [
+
     111
     222
 
@@ -78,13 +79,16 @@ var baz = {
 
     555
     666
+
   ]
   y: {
+
     mmm: nnn
     ppp: qqq
 
     aaa: bbb
     ccc: ddd
+
   }
 }");
 
@@ -222,39 +226,32 @@ param bar array = [     /*I can be anywhere */          // I can be anywhere
   false
 ]",
 // Formatted.
-@"param foo object = {
-  // I can be anywhere
+@"param foo object = { // I can be anywhere
 }
 
-param foo object = {
-  // I can be anywhere
+param foo object = { // I can be anywhere
   abc: true
 }
 
-param foo object = {
-  /* I can be anywhere */
+param foo object = { /* I can be anywhere */
   abc: true
   xyz: false
 }
 
-param foo object = {
-  /* I can
+param foo object = { /* I can
   be anywhere */
   abc: true
   xyz: false
 }
 
-param bar array = [
-  // I can be anywhere
+param bar array = [ // I can be anywhere
 ]
 
-param bar array = [
-  // I can be anywhere
+param bar array = [ // I can be anywhere
   true
 ]
 
-param bar array = [
-  /*I can be anywhere */ // I can be anywhere
+param bar array = [ /*I can be anywhere */ // I can be anywhere
   true
   false
 ]");
@@ -298,52 +295,41 @@ param bar array = [
   false
    /* I can be anywhere */       /* I can be anywhere */]",
 // Formatted.
-@"param foo object = {
-  /* I can be anywhere */
-}
+@"param foo object = { /* I can be anywhere */}
 
 param foo object = {
-  /* I can be anywhere */
-}
+/* I can be anywhere */}
 
 param foo object = {
   abc: true
-  /* I can be anywhere */
-}
+/* I can be anywhere */}
 
 param foo object = {
   abc: true
   xyz: false
-  /* I can be anywhere */
-}
+/* I can be anywhere */}
 
 param foo object = {
   abc: true
   xyz: false
-  /* I
+/* I
   can
   be anywhere
-  */
-}
+  */}
 
 param bar array = [
-  /* I can be anywhere */
-]
+/* I can be anywhere */]
 
-param bar array = [
-  /* I can be anywhere */
-]
+param bar array = [ /* I can be anywhere */]
 
 param bar array = [
   true
-  /* I can be anywhere */
-]
+/* I can be anywhere */]
 
 param bar array = [
   true
   false
-  /* I can be anywhere */ /* I can be anywhere */
-]");
+/* I can be anywhere */ /* I can be anywhere */]");
 
         [TestMethod]
         public void PrintProgram_EmptyBlocks_ShouldFormatCorrectly() => this.TestPrintProgram(
@@ -356,7 +342,7 @@ param foo object = {
 }
 param foo object = {
 
-   
+
 
 
 }
@@ -369,20 +355,30 @@ param bar array = [
 ]
 param bar array = [
 
-  
+
 
 
 ]",
 // Formatted.
 @"param foo object = {}
-param foo object = {}
-param foo object = {}
-param foo object = {}
+param foo object = {
+}
+param foo object = {
+
+}
+param foo object = {
+
+}
 
 param bar array = []
-param bar array = []
-param bar array = []
-param bar array = []");
+param bar array = [
+]
+param bar array = [
+
+]
+param bar array = [
+
+]");
 
         [TestMethod]
         public void PrintProgram_MultilineComment_ShouldReplaceNewlinesInTheCommentToo() => this.TestPrintProgram(
@@ -475,6 +471,7 @@ var call = func1(func2(1), func3(true)[0].a.b.c)
 resource myResource1 'myResource' = {
   name: 'myName'
   obj: {
+
     x: y
     m: [
       1
@@ -484,22 +481,27 @@ resource myResource1 'myResource' = {
         abc: edf
       }
     ]
+
   }
 }
 
 module myModule 'myModule' = {
+
   name: concat('a', 'b', 'c')
 
   params: {
     myParam: call.blah[3]
   }
+
 }
 
 resource myResource2 'myResource' = {
   something: 'foo/${myName}/bar'
   properties: {
-    emptyObj: {}
-    emptyArr: []
+    emptyObj: {
+    }
+    emptyArr: [
+    ]
   }
 }
 
@@ -507,7 +509,9 @@ output myOutput1 int = 1 + num * 3
 output myOutput2 string = yes ? 'yes' : 'no'
 output myOutput3 object = yes ? {
   value: 42
-} : {}");
+} : {
+
+}");
 
         [TestMethod]
         public void PrintProgram_CommentBomb_ShouldFormatCorrectly()
@@ -584,8 +588,7 @@ var foo = {
 // I can be anywhere
 param foo string // I can be anywhere
 // I can be anywhere
-param bar string = {
-  /* I can be
+param bar string = { /* I can be
 anywhere */ /* I can be anywhere */
   foo: true
   bar /* I can be anywhere */: false
@@ -594,11 +597,13 @@ anywhere */ /* I can be anywhere */
     az /* I can be anywhere */.func /* I can be anywhere */('foobar', '/', 'bar')[ /* I can be anywhere */1 /* I can be anywhere */] /* I can be anywhere */. /* I can be anywhere */baz // I can be anywhere
     true
     {
-      m: [] /* I can be any
+      m: [
+      ] /* I can be any
 where */
       kkk: [
         // I can be any where
         // I can be any where
+
       ]
       x: y
       p: q
@@ -607,10 +612,66 @@ where */
       // I can be anywhere
     }
     null
-    /* I can be anywhere */ /* I can be anywhere */
-  ] // I can be any where
+  /* I can be anywhere */ /* I can be anywhere */] // I can be any where
 }
 /* I can be anywhere */");
+        }
+
+        [TestMethod]
+        public void PrintProgram_WithDisableNextLineDiagnosticsDirective_ShouldFormatCorrectly()
+        {
+            var input = @"/* asdfasdf */
+var test = 'adfsdf'
+
+
+#disable-next-line asdf /*
+
+
+*/
+#disable-next-line BCP036
+param string storageAccount = 'testAccount'
+          #disable-next-line BCP036  // test
+param string location1 = 'testLocation'
+         #disable-next-line BCP036
+param string location2 = 'testLocation'";
+
+            var output = @"/* asdfasdf */
+var test = 'adfsdf'
+
+#disable-next-line asdf /*
+
+
+*/
+#disable-next-line BCP036
+param string storageAccount = 'testAccount'
+#disable-next-line BCP036 // test
+param string location1 = 'testLocation'
+#disable-next-line BCP036
+param string location2 = 'testLocation'";
+            this.TestPrintProgram(input, output);
+        }
+
+        [TestMethod]
+        public void PrintProgram_WithDisableNextLineDiagnosticsDirectivePartOfEofToken_ShouldFormatCorrectly1()
+        {
+            var input = @"/* asdfasdf */
+var test = 'adfsdf'
+
+
+
+#disable-next-line asdf /*
+
+
+*/";
+
+            var output = @"/* asdfasdf */
+var test = 'adfsdf'
+
+#disable-next-line asdf /*
+
+
+*/";
+            this.TestPrintProgram(input, output);
         }
     }
 }

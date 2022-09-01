@@ -146,10 +146,12 @@ output resource1Type string = existing1.type
             {
                 var testSubscriptionId = "87d64d6d-6d17-4ad7-b507-16d9bc498781";
                 var testRgName = "testRg";
-                var evaluated = TemplateEvaluator.Evaluate(template, config => config with {
+                var evaluated = TemplateEvaluator.Evaluate(template, config => config with
+                {
                     SubscriptionId = testSubscriptionId,
                     ResourceGroup = testRgName,
-                    Parameters = new() {
+                    Parameters = new()
+                    {
                         ["parentName"] = "myParent",
                         ["childName"] = "myChild",
                     }
@@ -219,10 +221,12 @@ output abcVal string = testRes.properties.abc
 
             using (new AssertionScope())
             {
-                var evaluated = TemplateEvaluator.Evaluate(template, config => config with {
-                    Parameters = new() {
+                var evaluated = TemplateEvaluator.Evaluate(template, config => config with
+                {
+                    Parameters = new()
+                    {
                         ["abcVal"] = "test!!!",
-                    },                    
+                    },
                 });
 
                 evaluated.Should().HaveValueAtPath("$.outputs['abcVal'].value", "test!!!");
@@ -242,15 +246,18 @@ output abcVal string = testRes.properties.abc
 
             using (new AssertionScope())
             {
-                var evaluated = TemplateEvaluator.Evaluate(template, config => config with {
-                    OnReferenceFunc = (resourceId, apiVersion, fullBody) => {
+                var evaluated = TemplateEvaluator.Evaluate(template, config => config with
+                {
+                    OnReferenceFunc = (resourceId, apiVersion, fullBody) =>
+                    {
                         if (resourceId == $"/subscriptions/{config.SubscriptionId}/resourceGroups/{config.ResourceGroup}/providers/My.Rp/res1/testRes" && apiVersion == "2020-01-01" && !fullBody)
                         {
-                            return new JObject {
+                            return new JObject
+                            {
                                 ["abc"] = "test!!!",
                             };
                         }
-                        
+
                         throw new NotImplementedException();
                     },
                 });
@@ -262,55 +269,340 @@ output abcVal string = testRes.properties.abc
         [TestMethod]
         public void Items_function_evaluation_works()
         {
-            var (template, _, _) = CompilationHelper.Compile(@"
+            var result = CompilationHelper.Compile(@"
 param inputObj object
 
 output inputObjKeys array = [for item in items(inputObj): item.key]
 output inputObjValues array = [for item in items(inputObj): item.value]
 ");
 
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with
+            {
+                Parameters = new()
+                {
+                    ["inputObj"] = new JObject
+                    {
+                        ["ghiKey"] = "ghiValue",
+                        ["defKey"] = "defValue",
+                        ["abcKey"] = "abcValue",
+                        ["123Key"] = "123Value",
+                        ["GHIKey"] = "GHIValue",
+                        ["DEFKey"] = "DEFValue",
+                        ["ABCKey"] = "ABCValue",
+                        ["456Key"] = "456Value",
+                    }
+                }
+            });
+
+            evaluated.Should().HaveValueAtPath("$.outputs['inputObjKeys'].value", new JArray
+            {
+                "123Key",
+                "456Key",
+                "abcKey",
+                "ABCKey",
+                "defKey",
+                "DEFKey",
+                "ghiKey",
+                "GHIKey",
+            });
+
+            evaluated.Should().HaveValueAtPath("$.outputs['inputObjValues'].value", new JArray
+            {
+                "123Value",
+                "456Value",
+                "abcValue",
+                "ABCValue",
+                "defValue",
+                "DEFValue",
+                "ghiValue",
+                "GHIValue",
+            });
+        }
+
+        [TestMethod]
+        public void Join_function_evaluation_works()
+        {
+            var result = CompilationHelper.Compile(@"
+var foo = [
+  'abc'
+  'def'
+  'ghi'
+]
+
+output joined1 string = join(foo, '')
+output joined2 string = join(foo, ',')
+output joined3 string = join([
+  'I'
+  'love'
+  'Bicep'
+], ' ')
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+            evaluated.Should().HaveValueAtPath("$.outputs['joined1'].value", "abcdefghi");
+            evaluated.Should().HaveValueAtPath("$.outputs['joined2'].value", "abc,def,ghi");
+            evaluated.Should().HaveValueAtPath("$.outputs['joined3'].value", "I love Bicep");
+        }
+
+        [TestMethod]
+        public void indexof_contains_function_evaluation_works()
+        {
+            var (template, _, _) = CompilationHelper.Compile(@"
+param inputString string
+param inputArray array
+
+output strIdxFooLC int = indexOf(inputString, 'foo')
+output strIdxFooUC int = indexOf(inputString, 'FOO')
+output strIdxBarLC int = indexOf(inputString, 'bar')
+output strIdxBarUC int = indexOf(inputString, 'BAR')
+output containsStrFooLC bool = contains(inputString, 'foo')
+output containsStrFooUC bool = contains(inputString, 'FOO')
+output containsStrBarLC bool = contains(inputString, 'bar')
+output containsStrBarUC bool = contains(inputString, 'BAR')
+
+output arrIdxFooLC int = indexOf(inputArray, 'foo')
+output arrIdxFooUC int = indexOf(inputArray, 'FOO')
+output arrIdxBarLC int = indexOf(inputArray, 'bar')
+output arrIdxBarUC int = indexOf(inputArray, 'BAR')
+output arrIdxfalse int = indexOf(inputArray, false)
+output arrIdx123 int = indexOf(inputArray, 123)
+output containsArrFooLC bool = contains(inputArray, 'foo')
+output containsArrFooUC bool = contains(inputArray, 'FOO')
+output containsArrBarLC bool = contains(inputArray, 'bar')
+output containsArrBarUC bool = contains(inputArray, 'BAR')
+output containsArrfalse bool = contains(inputArray, false)
+output containsArr123 bool = contains(inputArray, 123)
+");
+
             using (new AssertionScope())
             {
-                var evaluated = TemplateEvaluator.Evaluate(template, config => config with {
+                var evaluated = TemplateEvaluator.Evaluate(template, config => config with
+                {
                     Parameters = new()
                     {
-                        ["inputObj"] = new JObject
+                        ["inputString"] = "FOOBAR",
+                        ["inputArray"] = new JArray
                         {
-                            ["ghiKey"] = "ghiValue",
-                            ["defKey"] = "defValue",
-                            ["abcKey"] = "abcValue",
-                            ["123Key"] = "123Value",
-                            ["GHIKey"] = "GHIValue",
-                            ["DEFKey"] = "DEFValue",
-                            ["ABCKey"] = "ABCValue",
-                            ["456Key"] = "456Value",
+                            "FOO",
+                            "BAR"
                         }
                     }
                 });
 
-                evaluated.Should().HaveValueAtPath("$.outputs['inputObjKeys'].value", new JArray
-                {
-                    "123Key",
-                    "456Key",
-                    "abcKey",
-                    "ABCKey",
-                    "defKey",
-                    "DEFKey",
-                    "ghiKey",
-                    "GHIKey",
-                });
+                evaluated.Should().HaveValueAtPath("$.outputs['strIdxFooLC'].value", new JValue(0));
+                evaluated.Should().HaveValueAtPath("$.outputs['strIdxFooUC'].value", new JValue(0));
+                evaluated.Should().HaveValueAtPath("$.outputs['strIdxBarLC'].value", new JValue(3));
+                evaluated.Should().HaveValueAtPath("$.outputs['strIdxBarUC'].value", new JValue(3));
 
-                evaluated.Should().HaveValueAtPath("$.outputs['inputObjValues'].value", new JArray
+                evaluated.Should().HaveValueAtPath("$.outputs['containsStrFooLC'].value", new JValue(false)); // case-sensitive
+                evaluated.Should().HaveValueAtPath("$.outputs['containsStrFooUC'].value", new JValue(true));
+                evaluated.Should().HaveValueAtPath("$.outputs['containsStrBarLC'].value", new JValue(false)); // case-sensitive
+                evaluated.Should().HaveValueAtPath("$.outputs['containsStrBarUC'].value", new JValue(true));
+
+                evaluated.Should().HaveValueAtPath("$.outputs['arrIdxFooLC'].value", new JValue(-1));
+                evaluated.Should().HaveValueAtPath("$.outputs['arrIdxFooUC'].value", new JValue(0));
+                evaluated.Should().HaveValueAtPath("$.outputs['arrIdxBarLC'].value", new JValue(-1));
+                evaluated.Should().HaveValueAtPath("$.outputs['arrIdxBarUC'].value", new JValue(1));
+                evaluated.Should().HaveValueAtPath("$.outputs['arrIdxfalse'].value", new JValue(-1));
+                evaluated.Should().HaveValueAtPath("$.outputs['arrIdx123'].value", new JValue(-1));
+
+                evaluated.Should().HaveValueAtPath("$.outputs['containsArrFooLC'].value", new JValue(false));
+                evaluated.Should().HaveValueAtPath("$.outputs['containsArrFooUC'].value", new JValue(true));
+                evaluated.Should().HaveValueAtPath("$.outputs['containsArrBarLC'].value", new JValue(false));
+                evaluated.Should().HaveValueAtPath("$.outputs['containsArrBarUC'].value", new JValue(true));
+                evaluated.Should().HaveValueAtPath("$.outputs['containsArrfalse'].value", new JValue(false));
+                evaluated.Should().HaveValueAtPath("$.outputs['containsArr123'].value", new JValue(false));
+            }
+        }
+
+        [TestMethod]
+        public void List_comprehension_function_evaluation_works()
+        {
+            var (template, _, _) = CompilationHelper.Compile(@"
+var doggos = [
+  'Evie'
+  'Casper'
+  'Indy'
+  'Kira'
+]
+
+var numbers = range(0, 4)
+
+var sayHello = map(doggos, i => 'Hello ${i}!')
+
+var isEven = filter(numbers, i => 0 == i % 2)
+
+var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, j => 0 == j % 2), i)), x => doggos[x])
+
+var flattenedArrayOfArrays = flatten([[0, 1], [2, 3], [4, 5]])
+var flattenedEmptyArray = flatten([])
+
+var mapSayHi = map(['abc', 'def', 'ghi'], foo => 'Hi ${foo}!')
+var mapEmpty = map([], foo => 'Hi ${foo}!')
+var mapObject = map(range(0, length(doggos)), i => {
+  i: i
+  doggo: doggos[i]
+  greeting: 'Ahoy, ${doggos[i]}!'
+})
+var mapArray = flatten(map(range(1, 3), i => [i * 2, (i * 2) + 1]))
+var mapMultiLineArray = flatten(map(range(1, 3), i => [
+  i * 3
+  (i * 3) + 1
+  (i * 3) + 2
+]))
+
+var filterEqualityCheck = filter(['abc', 'def', 'ghi'], foo => 'def' == foo)
+var filterEmpty = filter([], foo => 'def' == foo)
+
+var sortNumeric = sort([8, 3, 10, -13, 5], (x, y) => x < y)
+var sortAlpha = sort(['ghi', 'abc', 'def'], (x, y) => x < y)
+var sortAlphaReverse = sort(['ghi', 'abc', 'def'], (x, y) => x > y)
+var sortByObjectKey = sort([
+  { key: 124, name: 'Second' }
+  { key: 298, name: 'Third' }
+  { key: 24, name: 'First' }
+  { key: 1232, name: 'Fourth' }
+], (x, y) => int(x.key) < int(y.key))
+var sortEmpty = sort([], (x, y) => int(x) < int(y))
+
+var reduceStringConcat = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat(cur, next))
+var reduceFactorial = reduce(range(1, 5), 1, (cur, next) => cur * next)
+var reduceObjectUnion = reduce([
+  { foo: 123 }
+  { bar: 456 }
+  { baz: 789 }
+], {}, (cur, next) => union(cur, next))
+var reduceEmpty = reduce([], 0, (cur, next) => cur)
+");
+
+            using (new AssertionScope())
+            {
+                var evaluated = TemplateEvaluator.Evaluate(template);
+
+                evaluated.Should().HaveValueAtPath("$.variables['sayHello']", new JArray
                 {
-                    "123Value",
-                    "456Value",
-                    "abcValue",
-                    "ABCValue",
-                    "defValue",
-                    "DEFValue",
-                    "ghiValue",
-                    "GHIValue",
+                    "Hello Evie!",
+                    "Hello Casper!",
+                    "Hello Indy!",
+                    "Hello Kira!",
                 });
+                evaluated.Should().HaveValueAtPath("$.variables['isEven']", new JArray
+                {
+                    0,
+                    2,
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['evenDoggosNestedLambdas']", new JArray
+                {
+                    "Evie",
+                    "Indy",
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['flattenedArrayOfArrays']", new JArray {
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['flattenedEmptyArray']", new JArray { });
+                evaluated.Should().HaveValueAtPath("$.variables['mapSayHi']", new JArray {
+                    "Hi abc!",
+                    "Hi def!",
+                    "Hi ghi!"
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['mapEmpty']", new JArray { });
+                evaluated.Should().HaveValueAtPath("$.variables['mapObject']", new JArray {
+                    new JObject {
+                        ["i"] = 0,
+                        ["doggo"] = "Evie",
+                        ["greeting"] = "Ahoy, Evie!"
+                    },
+                    new JObject {
+                        ["i"] = 1,
+                        ["doggo"] = "Casper",
+                        ["greeting"] = "Ahoy, Casper!"
+                    },
+                    new JObject {
+                        ["i"] = 2,
+                        ["doggo"] = "Indy",
+                        ["greeting"] = "Ahoy, Indy!"
+                    },
+                    new JObject {
+                        ["i"] = 3,
+                        ["doggo"] = "Kira",
+                        ["greeting"] = "Ahoy, Kira!"
+                    }
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['mapArray']", new JArray {
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['mapMultiLineArray']", new JArray {
+                    3,
+                    4,
+                    5,
+                    6,
+                    7,
+                    8,
+                    9,
+                    10,
+                    11
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['filterEqualityCheck']", new JArray {
+                    "def"
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['filterEmpty']", new JArray { });
+                evaluated.Should().HaveValueAtPath("$.variables['sortNumeric']", new JArray {
+                    -13,
+                    3,
+                    5,
+                    8,
+                    10
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['sortAlpha']", new JArray {
+                    "abc",
+                    "def",
+                    "ghi"
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['sortAlphaReverse']", new JArray {
+                    "ghi",
+                    "def",
+                    "abc"
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['sortByObjectKey']", new JArray {
+                    new JObject {
+                        ["key"] = 24,
+                        ["name"] = "First"
+                    },
+                    new JObject {
+                        ["key"] = 124,
+                        ["name"] = "Second"
+                    },
+                    new JObject {
+                        ["key"] = 298,
+                        ["name"] = "Third"
+                    },
+                    new JObject {
+                        ["key"] = 1232,
+                        ["name"] = "Fourth"
+                    }
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['sortEmpty']", new JArray { });
+                evaluated.Should().HaveValueAtPath("$.variables['reduceStringConcat']", "abcdefghi");
+                evaluated.Should().HaveValueAtPath("$.variables['reduceFactorial']", 120);
+                evaluated.Should().HaveValueAtPath("$.variables['reduceObjectUnion']", new JObject
+                {
+                    ["foo"] = 123,
+                    ["bar"] = 456,
+                    ["baz"] = 789
+                });
+                evaluated.Should().HaveValueAtPath("$.variables['reduceEmpty']", 0);
             }
         }
     }

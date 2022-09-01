@@ -40,7 +40,7 @@ namespace Bicep.Core.UnitTests.Assertions
             Diagnostic diagnostic = GetDiagnosticFromSubject();
 
             using (new AssertionScope())
-{
+            {
                 diagnostic.Should().HaveMessage(message, because, becauseArgs);
             }
 

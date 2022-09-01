@@ -3,14 +3,13 @@
 [![Good First Issues](https://img.shields.io/github/issues/Azure/Bicep/good%20first%20issue?color=important&label=good%20first%20issue&style=flat)](https://github.com/Azure/Bicep/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 [![Needs Feedback](https://img.shields.io/github/issues/Azure/Bicep/needs%20feedback?color=blue&label=needs%20feedback%20&style=flat)](https://github.com/Azure/bicep/issues?q=is%3Aopen+is%3Aissue+label%3A%22needs+feedback%22)
 
-# Project Bicep - an ARM DSL
+# Azure Bicep
+
+For all you need to know about the Bicep language, check out our [Bicep documentation](https://docs.microsoft.com/azure/azure-resource-manager/bicep/).
 
 ## What is Bicep?
 
 Bicep is a Domain Specific Language (DSL) for deploying Azure resources declaratively. It aims to drastically simplify the authoring experience with a cleaner syntax, improved type safety, and better support for modularity and code re-use. Bicep is a **transparent abstraction** over ARM and ARM templates, which means anything that can be done in an ARM Template can be done in Bicep (outside of temporary [known limitations](#known-limitations)). All resource `types`, `apiVersions`, and `properties` that are valid in an ARM template are equally valid in Bicep on day one (Note: even if Bicep warns that type information is not available for a resource, it can still be deployed).
-
-
-
 
 Bicep code is transpiled to standard ARM Template JSON files, which effectively treats the ARM Template as an Intermediate Language (IL).
 
@@ -37,11 +36,11 @@ To get going with Bicep:
 1. **Start by [installing the tooling](https://docs.microsoft.com/azure/azure-resource-manager/bicep/install).**
 2. **Complete the [Bicep Learning Path](https://docs.microsoft.com/learn/paths/bicep-deploy/)**
 
-Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo) or use the [VS Code Devcontainer/Codespaces](https://github.com/Azure/vscode-remote-try-bicep) repo to get a preconfigured environment.
+Alternatively, you can use the [VS Code Devcontainer/Codespaces](https://github.com/Azure/vscode-remote-try-bicep) repo to get a preconfigured environment.
 
 If you have an existing ARM Template or set of resources that you would like to convert to `.bicep` format, see [Decompiling an ARM Template](https://docs.microsoft.com/azure/azure-resource-manager/bicep/decompile).
 
-Full details of how the bicep language works can be found in the [Bicep documentation](https://docs.microsoft.com/azure/azure-resource-manager/bicep/) and there is a rich library of [examples](https://github.com/Azure/bicep/tree/main/docs/examples) to help you get a jumpstart.
+Also, there is a rich library of examples in the [azure-quickstart-templates](https://github.com/Azure/azure-quickstart-templates) repo to help you get started.
 
 ## How does Bicep work?
 
@@ -57,7 +56,6 @@ For more detail on taking advantage of new Bicep constructs that replace an equi
 
 ## Known limitations
 
-* No support for single-line object and arrays (i.e. `['a', 'b', 'c']`) ([#586](https://github.com/Azure/bicep/issues/586)).
 * Bicep is newline sensitive. We are exploring ways we can remove/relax this restriction ([#146](https://github.com/Azure/bicep/issues/146))
 * No support for the concept of apiProfile which is used to map a single apiProfile to a set apiVersion for each resource type. We are looking to bring support for this type of capability, but suspect it will work slightly differently. Discussion is in [#622](https://github.com/Azure/bicep/issues/622)
 
@@ -67,9 +65,9 @@ For more detail on taking advantage of new Bicep constructs that replace an equi
 
 1. Day 0 resource provider support. Any Azure resource — whether in private or public preview or GA — can be provisioned using Bicep.
 2. Much simpler syntax [compared to equivalent ARM Template JSON](https://docs.microsoft.com/azure/azure-resource-manager/bicep/compare-template-syntax)
-3. No state or state files to manage. All state is stored in Azure, so makes it easy to collaborate and make changes to resources confidently. 
+3. No state or state files to manage. All state is stored in Azure, so makes it easy to collaborate and make changes to resources confidently.
 4. Tooling is the cornerstone to any great experience with a programming language. Our VS Code extension for Bicep makes it extremely easy to author and get started with advanced type validation based on all Azure resource type [API definitions](https://github.com/Azure/azure-rest-api-specs/tree/master/specification).
-5. Easily break apart your code with native [modules](https://docs.microsoft.com/azure/azure-resource-manager/bicep/modules) 
+5. Easily break apart your code with native [modules](https://docs.microsoft.com/azure/azure-resource-manager/bicep/modules)
 6. Supported by Microsoft support and 100% free to use.
 
 **Why create a new language instead of using an existing one?**
@@ -101,7 +99,8 @@ One of our goals is to make the transition from ARM Templates to Bicep as easy a
 Note that while we want to make it easy to transition to Bicep, we will continue to support and enhance the underlying ARM Template JSON language. As mentioned in [What is Bicep?](#what-is-bicep), ARM Template JSON remains the wire format that will be sent to Azure to carry out a deployment.
 
 ## Get Help, Report an issue
-We are here to help you be successful with Bicep, please do not hesitate to reach out to us. 
+
+We are here to help you be successful with Bicep, please do not hesitate to reach out to us.
 
 * If you need help or have a generic question such as ‘where can I find an example for…’ or ‘I need help converting my ARM Template to Bicep’ you can [open a discussion]( https://github.com/Azure/bicep/discussions)
 * If you have a bug to report or a new feature request for Bicep please [open an issue]( https://github.com/Azure/bicep/issues)
@@ -124,16 +123,18 @@ We are here to help you be successful with Bicep, please do not hesitate to reac
 Because we are now treating the ARM Template as an IL, we expect and encourage other implementations of IL (ARM Template) generation. We'll keep a running list of alternatives for creating ARM templates that may better fit your use case.
 
 * [Farmer](https://compositionalit.github.io/farmer/) (@isaacabraham) - Generate and deploy ARM Templates on .NET
-* [Cloud Maker](https://cloudmaker.ai) (@cloud-maker-ai) - Draw deployable infrastructure diagrams that are converted to ARM templates
+* [Cloud Maker](https://cloudmaker.ai) (@cloud-maker-ai) - Draw deployable infrastructure diagrams that are converted to ARM templates or Bicep
 
 ## Telemetry
 
 When using the Bicep VS Code extension, VS Code collects usage data and sends it to Microsoft to help improve our products and services. Read our [privacy statement](https://go.microsoft.com/fwlink/?LinkID=528096&clcid=0x409) to learn more. If you don’t wish to send usage data to Microsoft, you can set the `telemetry.enableTelemetry` setting to `false`. Learn more in our [FAQ](https://code.visualstudio.com/docs/supporting/faq#_how-to-disable-telemetry-reporting).
 
 ## License
+
 All files except for the [Azure Architecture SVG Icons](./src/vscode-bicep/src/visualizer/app/assets/icons/azure) in the repository are subject to the [MIT license](./LICENSE).
 
 The [Azure Architecture SVG Icons](./src/vscode-bicep/src/visualizer/app/assets/icons/azure) used in the Bicep VS Code extension are subject to the [Terms of Use](https://docs.microsoft.com/azure/architecture/icons/#terms).
 
 ## Contributing
+
 See [Contributing to Bicep](./CONTRIBUTING.md) for information on building/running the code, contributing code, contributing examples and contributing feature requests or bug reports.

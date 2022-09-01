@@ -5,23 +5,39 @@
 
   Prerequisites:
   - Copy bicep.exe and *.pdb from Bicep CLI publish directory to bicep\ directory under this project.
+  - Copy project.assets.json file from Bicep CLI project to bicep\ directory under this project.
 -->
 <Project Sdk="Microsoft.Build.NoTargets">
   <PropertyGroup>
-    <TargetFramework>net472</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <!-- NoTargets SDK no longer sets Language, which is required by NerdBank.GitVersioning -->
     <Language>C#</Language>
+
+    <BicepCliAssetsFile>$(MSBuildProjectDirectory)\bicep\project.assets.json</BicepCliAssetsFile>
+    <NoticeFileName>ThirdPartyNotices.txt</NoticeFileName>
+
+    <GenerateNoticeBeforeTargets>RunTool</GenerateNoticeBeforeTargets>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Tools.InnoSetup" Version="6.0.5" />
+    <PackageReference Include="Azure.Deployments.Internal.GenerateNotice" Version="$(GenerateNoticePackageVersion)" />
   </ItemGroup>
 
   <ItemGroup>
     <IssFile Include="bicep.iss" />
   </ItemGroup>
 
+  <Target Name="PrepareForNoticeGeneration" BeforeTargets="GenerateNotice">
+    <ItemGroup>
+      <GenerateNoticeAssetFile Include="$(BicepCliAssetsFile)" />
+    </ItemGroup>
+    <PropertyGroup>
+      <GenerateNoticeOutputPath>$(IntermediateOutputPath)$(NoticeFileName)</GenerateNoticeOutputPath>
+    </PropertyGroup>
+  </Target>
+
   <Target Name="RunTool" AfterTargets="Build" DependsOnTargets="GetBuildVersion">
-    <Exec Command="$(InnoSetupCompiler) %(IssFile.FullPath) /O$(OutDir) /DMyAppVersion=$(BuildVersion)" />
+    <Exec Command="$(InnoSetupCompiler) %(IssFile.FullPath) /O$(OutDir) /DMyAppVersion=$(BuildVersion) /DConfiguration=$(Configuration) /DTargetFramework=$(TargetFramework) /DNoticeFileName=$(NoticeFileName)" />
   </Target>
 </Project>

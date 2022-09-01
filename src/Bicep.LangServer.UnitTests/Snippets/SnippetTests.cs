@@ -40,13 +40,13 @@ namespace Bicep.LangServer.UnitTests.Snippets
                     x.Index.Should().Be(1);
                     x.Name.Should().Be("Identifier");
                     x.Span.ToString().Should().Be("[9:24]");
-                }, 
+                },
                 x =>
                 {
                     x.Index.Should().Be(2);
                     x.Name.Should().Be("Provider");
                     x.Span.ToString().Should().Be("[36:49]");
-                }, 
+                },
                 x =>
                 {
                     x.Index.Should().Be(3);
@@ -141,7 +141,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
         [TestMethod]
         public void SnippetPlaceholderTextWithMultipleChoicesShouldReturnFirstOneByDefault()
         {
-           string text = @"var testIdentifier = '${1|Enabled,Disabled|}'";
+            string text = @"var testIdentifier = '${1|Enabled,Disabled|}'";
 
             string expectedTextAfterPlaceholderReplacements = "var testIdentifier = 'Enabled'";
 

@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
-using Azure.Core;
-using Azure.Core.Pipeline;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Bicep.Core.Registry;
@@ -26,11 +25,14 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public async Task FindTemplateSpecByIdAsync_TemplateSpecNotFound_ThrowsTemplateSpecException()
         {
-            var client = CreateMockClient(templateSpecVersionMock => templateSpecVersionMock
-                .Setup(x => x.GetAsync(It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new RequestFailedException(404, "Not found.")));
+            var templateSpecVersionResourceMock = CreateMockTemplateSpecVersionResource(
+                mock => mock
+                    .Setup(x => x.GetAsync(It.IsAny<CancellationToken>()))
+                    .ThrowsAsync(new RequestFailedException(404, "Not found.")));
 
-            var repository = new TemplateSpecRepository(client);
+            var clientMock = CreateMockClient(templateSpecVersionResourceMock);
+
+            var repository = new TemplateSpecRepository(clientMock);
 
             await Invoking(async () => await repository.FindTemplateSpecByIdAsync(TestTemplateSpecId))
                 .Should()
@@ -41,11 +43,13 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public async Task FindTemplateSpecByIdAsync_GotUnexpectedRequestFailedException_ConvertsToTemplateSpecException()
         {
-            var client = CreateMockClient(templateSpecVersionMock => templateSpecVersionMock
-                .Setup(x => x.GetAsync(It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new RequestFailedException("Unexpected error.")));
+            var templateSpecVersionResourceMock = CreateMockTemplateSpecVersionResource(mock =>
+                mock.Setup(x => x.GetAsync(It.IsAny<CancellationToken>()))
+                    .ThrowsAsync(new RequestFailedException("Unexpected error.")));
 
-            var repository = new TemplateSpecRepository(client);
+            var clientMock = CreateMockClient(templateSpecVersionResourceMock);
+
+            var repository = new TemplateSpecRepository(clientMock);
 
             await Invoking(async () => await repository.FindTemplateSpecByIdAsync(TestTemplateSpecId))
                 .Should()
@@ -56,48 +60,70 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public async Task FindTemplateSpecByIdAsync_TemlateSpecFound_ReturnsTemplateSpec()
         {
-            var data = new TemplateSpecVersionData("westus")
-            {
-                MainTemplate = "{}"
-            };
+            var data = new TemplateSpecVersionData("westus");
+            var content = JsonSerializer.Serialize(data, new JsonSerializerOptions { WriteIndented = true });
 
-            var client = CreateMockClient(
-                templateSpecVersionMock => templateSpecVersionMock
-                    .SetupGet(x => x.Data)
-                    .Returns(data),
-                templateSpecVersionMock => templateSpecVersionMock
+            var templateSpecVersionResourceMock = CreateMockTemplateSpecVersionResource(
+                mock => mock
                     .Setup(x => x.GetAsync(It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(CreateMockResponse(templateSpecVersionMock.Object)));
+                    .ReturnsAsync(CreateMockResponse(content)));
 
-            var repository = new TemplateSpecRepository(client);
+            var clientMock = CreateMockClient(templateSpecVersionResourceMock);
+
+            var repository = new TemplateSpecRepository(clientMock);
 
             var templateSpec = await repository.FindTemplateSpecByIdAsync(TestTemplateSpecId);
 
-            templateSpec.MainTemplate.ValueEquals("{}").Should().BeTrue();
+            templateSpec.Content.ReplaceLineEndings().Should().Be(@"{
+  ""Location"": {
+    ""Name"": ""westus"",
+    ""DisplayName"": ""West US""
+  },
+  ""Tags"": {},
+  ""Description"": null,
+  ""LinkedTemplates"": [],
+  ""Metadata"": null,
+  ""MainTemplate"": null,
+  ""UiFormDefinition"": null,
+  ""Id"": null,
+  ""Name"": null,
+  ""ResourceType"": {
+    ""Namespace"": null,
+    ""Type"": null
+  },
+  ""SystemData"": null
+}".ReplaceLineEndings());
         }
 
-        private static ArmClient CreateMockClient(params Action<Mock<TemplateSpecVersion>>[] setUpTemplateSpecVersionMockActions)
+        private static TemplateSpecVersionResource CreateMockTemplateSpecVersionResource(params Action<Mock<TemplateSpecVersionResource>>[] setUpTemplateSpecVersionMockActions)
         {
-            var templateSpecVersionMock = StrictMock.Of<TemplateSpecVersion>();
+            var templateSpecVersionMock = StrictMock.Of<TemplateSpecVersionResource>();
 
             foreach (var action in setUpTemplateSpecVersionMockActions)
             {
                 action.Invoke(templateSpecVersionMock);
             }
 
+            return templateSpecVersionMock.Object;
+        }
+
+        private static ArmClient CreateMockClient(TemplateSpecVersionResource resource)
+        {
             var clientMock = StrictMock.Of<ArmClient>();
-            //clientMock.Setup(x => x.GetTemplateSpecVersion(It.IsAny<ResourceIdentifier>())).Returns(templateSpecVersionMock.Object);
-            clientMock.Setup(x => x.UseClientContext(It.IsAny<Func<Uri, TokenCredential, ArmClientOptions, HttpPipeline, TemplateSpecVersion>>()))
-                .Returns(templateSpecVersionMock.Object);
+
+            clientMock.Setup(x => x.GetResourceClient(It.IsAny<Func<TemplateSpecVersionResource>>()))
+                .Returns(resource);
 
             return clientMock.Object;
         }
 
-        private static Response<T> CreateMockResponse<T>(T value)
+        private static Response<TemplateSpecVersionResource> CreateMockResponse(string content)
         {
-            var responseMock = StrictMock.Of<Response<T>>();
-            responseMock.SetupGet(m => m.Value).Returns(value);
-            responseMock.Setup(m => m.GetRawResponse()).Returns(StrictMock.Of<Response>().Object);
+            var rawResponseMock = StrictMock.Of<Response>();
+            rawResponseMock.SetupGet(x => x.Content).Returns(BinaryData.FromString(content));
+
+            var responseMock = StrictMock.Of<Response<TemplateSpecVersionResource>>();
+            responseMock.Setup(m => m.GetRawResponse()).Returns(rawResponseMock.Object);
 
             return responseMock.Object;
         }

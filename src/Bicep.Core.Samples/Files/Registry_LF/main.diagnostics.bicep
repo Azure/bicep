@@ -3,6 +3,7 @@ targetScope = 'subscription'
 resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   name: 'adotfrank-rg'
   location: deployment().location
+//@[12:33) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'deployment().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |deployment().location|
 }
 
 module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {

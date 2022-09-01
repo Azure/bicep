@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
 
@@ -9,16 +9,17 @@ namespace Bicep.Core.CodeAction
         private readonly CodeReplacement replacement;
         private readonly IEnumerable<CodeReplacement>? additionalReplacements;
 
-        public CodeFix(string description, bool isPreferred, CodeReplacement replacement)
+        public CodeFix(string description, bool isPreferred, CodeFixKind kind, CodeReplacement replacement)
         {
             this.Description = description;
             this.IsPreferred = isPreferred;
+            this.Kind = kind;
             this.replacement = replacement;
             this.additionalReplacements = null;
         }
 
-        public CodeFix(string description, bool isPreferred, CodeReplacement replacement, params CodeReplacement[] additionalReplacement)
-            : this(description, isPreferred, replacement)
+        public CodeFix(string description, bool isPreferred, CodeFixKind kind, CodeReplacement replacement, params CodeReplacement[] additionalReplacement)
+            : this(description, isPreferred, kind, replacement)
         {
             this.additionalReplacements = additionalReplacement;
         }
@@ -30,6 +31,8 @@ namespace Bicep.Core.CodeAction
         /// In VSCode, preferred actions are used by the "auto fix" command and can be targeted by keybindings.
         /// </summary>
         public bool IsPreferred { get; }
+
+        public CodeFixKind Kind { get; }
 
         public IEnumerable<CodeReplacement> Replacements
         {

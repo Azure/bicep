@@ -11,7 +11,7 @@ namespace Bicep.Core.Samples
 {
     public static class DataSets
     {
-        public static DataSet AKS_LF => CreateDataSet(); 
+        public static DataSet AKS_LF => CreateDataSet();
 
         public static DataSet Dependencies_LF => CreateDataSet();
 
@@ -89,7 +89,15 @@ namespace Bicep.Core.Samples
 
         public static DataSet InvalidLoadFunctions_CRLF => CreateDataSet();
 
+        public static DataSet InvalidLambdas_LF => CreateDataSet();
+
         public static DataSet LoadFunctions_CRLF => CreateDataSet();
+
+        public static DataSet NewlineSensitivity_LF => CreateDataSet();
+
+        public static DataSet InvalidNewlineSensitivity_LF => CreateDataSet();
+
+        public static DataSet Lambdas_LF => CreateDataSet();
 
         public static IEnumerable<DataSet> AllDataSets =>
             typeof(DataSets)

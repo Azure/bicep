@@ -14,7 +14,7 @@ namespace Bicep.Core.Workspaces
             this.MainTemplateFile = mainTemplateFile;
         }
 
-        public Uri FileUri { get;}
+        public Uri FileUri { get; }
 
         public string? TemplateSpecId { get; }
 

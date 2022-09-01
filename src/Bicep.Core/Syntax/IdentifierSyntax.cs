@@ -11,7 +11,7 @@ namespace Bicep.Core.Syntax
     /// <summary>
     /// Represents a well-formed identifier.
     /// </summary>
-    [DebuggerDisplay("IdentifierName = {" + nameof(IdentifierName) +"}")]
+    [DebuggerDisplay("IdentifierName = {" + nameof(IdentifierName) + "}")]
     public class IdentifierSyntax : SyntaxBase
     {
         public IdentifierSyntax(SyntaxBase child)

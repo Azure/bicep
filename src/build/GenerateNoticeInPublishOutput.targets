@@ -1,0 +1,15 @@
+<Project>
+  <PropertyGroup>
+    <NoticeFileName>ThirdPartyNotices.txt</NoticeFileName>
+    <GenerateNoticeAfterTargets>Publish</GenerateNoticeAfterTargets>
+  </PropertyGroup>
+
+  <Target Name="PrepareForNoticeGeneration" BeforeTargets="GenerateNotice">
+    <ItemGroup>
+      <GenerateNoticeAssetFile Include="$(ProjectAssetsFile)" />
+    </ItemGroup>
+    <PropertyGroup>
+      <GenerateNoticeOutputPath>$(PublishDir)\$(NoticeFileName)</GenerateNoticeOutputPath>
+    </PropertyGroup>
+  </Target>
+</Project>

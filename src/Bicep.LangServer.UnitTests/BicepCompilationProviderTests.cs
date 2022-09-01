@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.Configuration;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -35,13 +35,13 @@ namespace Bicep.LangServer.UnitTests
             var fileResolver = CreateFileResolver(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
 
-            var provider = new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), fileResolver, dispatcher);
+            var provider = new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateWithAzTypes(), fileResolver, dispatcher, BicepTestConstants.ApiVersionProvider);
 
             var sourceFile = SourceFileFactory.CreateSourceFile(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
             var workspace = new Workspace();
             workspace.UpsertSourceFile(sourceFile);
-            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
-            var context = provider.Create(workspace, fileUri, ImmutableDictionary<ISourceFile, ISemanticModel>.Empty, configuration);
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
+            var context = provider.Create(workspace, fileUri, ImmutableDictionary<ISourceFile, ISemanticModel>.Empty, configuration, new LinterAnalyzer(configuration));
 
             context.Compilation.Should().NotBeNull();
             // TODO: remove Where when the support of modifiers is dropped.

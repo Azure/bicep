@@ -25,7 +25,7 @@ namespace Bicep.Core.Analyzers.Interfaces
 
         DiagnosticLevel DiagnosticLevel { get; }
 
-        DiagnosticLabel? DiagnosticLabel { get; }
+        DiagnosticStyling DiagnosticStyling { get; }
 
         Uri? Uri { get; }
 

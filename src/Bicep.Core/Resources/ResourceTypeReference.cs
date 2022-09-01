@@ -1,14 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Bicep.Core.Extensions;
-using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Resources
 {
@@ -76,7 +72,7 @@ namespace Bicep.Core.Resources
             return new ResourceTypeReference(
                 baseType.TypeSegments.AddRange(nestedType.TypeSegments),
                 nestedType.ApiVersion ?? baseType.ApiVersion);
-         }
+        }
 
         public static ResourceTypeReference Parse(string resourceType)
             => TryParse(resourceType) ?? throw new ArgumentException($"Unable to parse '{resourceType}'", nameof(resourceType));

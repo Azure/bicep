@@ -7,10 +7,10 @@ namespace Bicep.Core.Navigation
 {
     public static class SyntaxTriviaExtensions
     {
-        public static SyntaxTrivia? TryFindMostSpecificTriviaInclusive(this SyntaxBase root, int offset, Func<SyntaxTrivia, bool> predicate) => 
+        public static SyntaxTrivia? TryFindMostSpecificTriviaInclusive(this SyntaxBase root, int offset, Func<SyntaxTrivia, bool> predicate) =>
             TryFindMostSpecificTriviaInternal(root, offset, predicate, inclusive: true);
 
-        public static SyntaxTrivia? TryFindMostSpecificTriviaExclusive(this SyntaxBase root, int offset, Func<SyntaxTrivia, bool> predicate) => 
+        public static SyntaxTrivia? TryFindMostSpecificTriviaExclusive(this SyntaxBase root, int offset, Func<SyntaxTrivia, bool> predicate) =>
             TryFindMostSpecificTriviaInternal(root, offset, predicate, inclusive: false);
 
         private static SyntaxTrivia? TryFindMostSpecificTriviaInternal(SyntaxBase root, int offset, Func<SyntaxTrivia, bool> predicate, bool inclusive)

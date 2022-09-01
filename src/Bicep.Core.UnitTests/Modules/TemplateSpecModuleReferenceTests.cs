@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using Bicep.Core.Configuration;
 using Bicep.Core.Modules;
 using FluentAssertions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.UnitTests.Assertions;
 
@@ -59,7 +58,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void TryParse_InvalidReference_ReturnsNullAndSetsFailureBuilder(string rawValue)
         {
-            var parsed = TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder);
+            var parsed = TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, out var failureBuilder);
 
             parsed.Should().BeNull();
             ((object?)failureBuilder).Should().NotBeNull();
@@ -110,7 +109,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         [DataTestMethod]
         [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method)]
-        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName,  string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
+        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
         {
             var reference = TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, out var errorBuilder);
 
@@ -216,7 +215,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static TemplateSpecModuleReference Parse(string rawValue)
         {
-            var parsed = TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder);
+            var parsed = TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, out var failureBuilder);
 
             parsed.Should().NotBeNull();
             ((object?)failureBuilder).Should().BeNull();

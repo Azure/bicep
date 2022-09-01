@@ -16,25 +16,25 @@ namespace Bicep.Core.Diagnostics
             string code,
             string message,
             Uri? documentationUri = null,
-            DiagnosticLabel? label = null,
+            DiagnosticStyling styling = DiagnosticStyling.Default,
             string? source = null)
         {
             Span = span;
             Level = level;
             Code = code;
             Message = message;
-            Label = label;
+            Styling = styling;
             Uri = documentationUri;
             Source = source ?? LanguageConstants.LanguageId;
         }
 
         public string Source { get; protected set; }
-     
+
         public TextSpan Span { get; }
 
         public DiagnosticLevel Level { get; }
 
-        public DiagnosticLabel? Label { get; }
+        public DiagnosticStyling Styling { get; }
 
         public string Code { get; }
 

@@ -33,9 +33,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            List<IDiagnostic> diagnostics = new();
 
-            foreach (ResourceMetadata resource in model.AllResources)
+            foreach (DeclaredResourceMetadata resource in model.DeclaredResources)
             {
                 ResourceDeclarationSyntax resourceSyntax = resource.Symbol.DeclaringResource;
                 if (resourceSyntax.TryGetBody()?.TryGetPropertyByNameRecursive("properties", "storageProfile", "imageReference") is ObjectPropertySyntax imageReferenceSyntax)

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15395751030098486023"
+      "templateHash": "10240706720521431566"
     }
   },
   "parameters": {
@@ -28,20 +28,19 @@
     ]
   },
   "resources": {
-    "basicGrandchild": {
+    "basicParent::basicChild::basicGrandchild": {
       "type": "My.Rp/parentType/childType/grandchildType",
       "apiVersion": "2020-12-01",
       "name": "[format('{0}/{1}/{2}', 'basicParent', 'basicChild', 'basicGrandchild')]",
       "properties": {
         "size": "[reference('basicParent').size]",
-        "style": "[reference('basicChild').style]"
+        "style": "[reference('basicParent::basicChild').style]"
       },
       "dependsOn": [
-        "basicChild",
-        "basicParent"
+        "basicParent::basicChild"
       ]
     },
-    "basicChild": {
+    "basicParent::basicChild": {
       "type": "My.Rp/parentType/childType",
       "apiVersion": "2020-12-01",
       "name": "[format('{0}/{1}', 'basicParent', 'basicChild')]",
@@ -53,49 +52,48 @@
         "basicParent"
       ]
     },
-    "basicSibling": {
+    "basicParent::basicSibling": {
       "type": "My.Rp/parentType/childType",
       "apiVersion": "2020-12-01",
       "name": "[format('{0}/{1}', 'basicParent', 'basicSibling')]",
       "properties": {
         "size": "[reference('basicParent').size]",
-        "style": "[reference('basicGrandchild').style]"
+        "style": "[reference('basicParent::basicChild::basicGrandchild').style]"
       },
       "dependsOn": [
-        "basicGrandchild",
+        "basicParent::basicChild::basicGrandchild",
         "basicParent"
       ]
     },
-    "existingGrandchild": {
+    "existingParent::existingChild::existingGrandchild": {
       "type": "My.Rp/parentType/childType/grandchildType",
       "apiVersion": "2020-12-01",
       "name": "[format('{0}/{1}/{2}', 'existingParent', 'existingChild', 'existingGrandchild')]",
       "properties": {
         "size": "[reference('existingParent').size]",
-        "style": "[reference('existingChild').style]"
+        "style": "[reference('existingParent::existingChild').style]"
       }
     },
-    "existingChild": {
+    "existingParent::existingChild": {
       "existing": true,
       "type": "My.Rp/parentType/childType",
       "apiVersion": "2020-12-01",
       "name": "[format('{0}/{1}', 'existingParent', 'existingChild')]"
     },
-    "conditionGrandchild": {
+    "conditionParent::conditionChild::conditionGrandchild": {
       "condition": "[and(and(parameters('createParent'), parameters('createChild')), parameters('createGrandchild'))]",
       "type": "My.Rp/parentType/childType/grandchildType",
       "apiVersion": "2020-12-01",
       "name": "[format('{0}/{1}/{2}', 'conditionParent', 'conditionChild', 'conditionGrandchild')]",
       "properties": {
         "size": "[reference('conditionParent').size]",
-        "style": "[reference('conditionChild').style]"
+        "style": "[reference('conditionParent::conditionChild').style]"
       },
       "dependsOn": [
-        "conditionChild",
-        "conditionParent"
+        "conditionParent::conditionChild"
       ]
     },
-    "conditionChild": {
+    "conditionParent::conditionChild": {
       "condition": "[and(parameters('createParent'), parameters('createChild'))]",
       "type": "My.Rp/parentType/childType",
       "apiVersion": "2020-12-01",
@@ -104,7 +102,7 @@
         "conditionParent"
       ]
     },
-    "loopChild": {
+    "loopParent::loopChild": {
       "copy": {
         "name": "loopChild",
         "count": "[length(variables('items'))]"
@@ -145,15 +143,15 @@
   "outputs": {
     "referenceBasicChild": {
       "type": "string",
-      "value": "[reference('basicChild').size]"
+      "value": "[reference('basicParent::basicChild').size]"
     },
     "referenceBasicGrandchild": {
       "type": "string",
-      "value": "[reference('basicGrandchild').style]"
+      "value": "[reference('basicParent::basicChild::basicGrandchild').style]"
     },
     "loopChildOutput": {
       "type": "string",
-      "value": "[resourceInfo(format('loopChild[{0}]', 0)).name]"
+      "value": "[resourceInfo(format('loopParent::loopChild[{0}]', 0)).name]"
     }
   }
 }

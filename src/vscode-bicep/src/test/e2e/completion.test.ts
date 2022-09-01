@@ -5,7 +5,10 @@ import { Range } from "vscode";
 import { Position } from "vscode";
 
 import { readExampleFile } from "./examples";
-import { executeCompletionItemProviderCommand } from "./commands";
+import {
+  executeCloseAllEditors,
+  executeCompletionItemProvider,
+} from "./commands";
 import { expectDefined } from "../utils/assert";
 import { retryWhile, sleep } from "../utils/time";
 
@@ -22,23 +25,23 @@ describe("completion", (): void => {
 
     editor = await vscode.window.showTextDocument(document);
 
-    // Give the language server sometime to finish compilation. If this is the first test
+    // Give the language server some time to finish compilation. If this is the first test
     // to run it may take long for the compilation to complete because JIT is not "warmed up".
     await sleep(2000);
   });
 
   afterAll(async () => {
-    await vscode.commands.executeCommand("workbench.action.closeAllEditors");
+    await executeCloseAllEditors();
   });
 
-  it("should provide completion while typing an indentifier", async () => {
+  it("should provide completion while typing an identifier", async () => {
     await editor.edit((editBuilder) =>
       editBuilder.insert(new Position(17, 0), "var foo = data")
     );
 
     const completionList = await retryWhile(
       async () =>
-        await executeCompletionItemProviderCommand(
+        await executeCompletionItemProvider(
           document.uri,
           new vscode.Position(17, 14)
         ),

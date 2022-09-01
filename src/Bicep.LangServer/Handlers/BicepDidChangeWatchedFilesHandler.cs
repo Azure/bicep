@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
-using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Configuration;
 using MediatR;
@@ -20,13 +19,13 @@ namespace Bicep.LanguageServer.Handlers
 {
     public sealed class BicepDidChangeWatchedFilesHandler : DidChangeWatchedFilesHandlerBase
     {
-        private readonly IWorkspace workspace;
         private readonly ICompilationManager compilationManager;
+        private readonly IBicepConfigChangeHandler bicepConfigChangeHandler;
 
-        public BicepDidChangeWatchedFilesHandler(ICompilationManager compilationManager, IWorkspace workspace)
+        public BicepDidChangeWatchedFilesHandler(ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler)
         {
+            this.bicepConfigChangeHandler = bicepConfigChangeHandler;
             this.compilationManager = compilationManager;
-            this.workspace = workspace;
         }
 
         public override Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken)
@@ -40,7 +39,7 @@ namespace Bicep.LanguageServer.Handlers
             if (bicepConfigFileChangeEvents.Any())
             {
                 Uri uri = bicepConfigFileChangeEvents.First().Uri.ToUri();
-                BicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace(compilationManager, workspace);
+                bicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace();
             }
 
             compilationManager.HandleFileChanges(fileEvents);

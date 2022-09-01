@@ -11,6 +11,20 @@ dotnet_diagnostic.IDE0065.severity = warning
 # Add braces
 dotnet_diagnostic.IDE0011.severity = warning
 
+# Remove unnecessary import
+dotnet_diagnostic.IDE0005.severity = none
+
+# Private member is unused
+dotnet_diagnostic.IDE0051.severity = warning
+
+# Unused local variables
+dotnet_diagnostic.CA1804.severity = warning
+# Private methods that are not called from any other code
+dotnet_diagnostic.CA1811.severity = warning
+# Avoid unused private fields
+dotnet_diagnostic.CA1823.severity = warning
+# Use string.Contains(char) instead of string.Contains(string) with single characters
+dotnet_diagnostic.CA1847.severity = warning
 # Review SQL queries for security vulnerabilities
 dotnet_diagnostic.CA2100.severity = warning
 # Review visible event handlers
@@ -197,6 +211,11 @@ dotnet_diagnostic.CA5401.severity = warning
 dotnet_diagnostic.CA5402.severity = warning
 # Do not hard-code certificate
 dotnet_diagnostic.CA5403.severity = warning
+
+# Parameter 'parameter' has no matching param tag in the XML comment for 'parameter' (but other parameters do)
+dotnet_diagnostic.CS1573.severity = suggestion
+# Missing XML comment for publicly visible type or member 'Type_or_Member'
+dotnet_diagnostic.CS1591.severity = none
 
 # VSTHRD200: Use "Async" suffix for async methods
 dotnet_diagnostic.VSTHRD200.severity = none

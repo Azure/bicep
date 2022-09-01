@@ -84,11 +84,13 @@ var myArrWithObjects = [
   }
 ]
 
-var expressionIndexOnAny = any({})[az.resourceGroup().location]
+var expressionIndexOnAny = any({
+})[az.resourceGroup().location]
 
 var anyIndexOnAny = any(true)[any(false)]
 
 var deploymentName = deployment().name
+var templateContentVersion = deployment().properties.template.contentVersion
 var templateLinkUri = deployment().properties.templateLink.uri
 var templateLinkId = deployment().properties.templateLink.id
 
@@ -104,12 +106,14 @@ var intIndexer = [
 ][0]
 
 var functionOnIndexer1 = concat([
-  's'
-][0], 's')
+    's'
+  ][0], 's')
 
-var functionOnIndexer2 = concat([][0], 's')
+var functionOnIndexer2 = concat([
+  ][0], 's')
 
-var functionOnIndexer3 = concat([][0], any('s'))
+var functionOnIndexer3 = concat([
+  ][0], any('s'))
 
 var singleQuote = '\''
 var myPropertyName = '${singleQuote}foo${singleQuote}'
@@ -125,11 +129,11 @@ var previousEmitLimit = [
     a: {
       b: base64('s')
       c: concat([
-        12 + 3
-      ], [
-        !true
-        'hello'
-      ])
+          12 + 3
+        ], [
+          !true
+          'hello'
+        ])
       d: az.resourceGroup().location
       e: concat([
         true
@@ -149,18 +153,18 @@ var previousEmitLimit2 = [
     a: {
       b: base64('s')
       c: union({
-        a: 12 + 3
-      }, {
-        b: !true
-        c: 'hello'
-      })
+          a: 12 + 3
+        }, {
+          b: !true
+          c: 'hello'
+        })
       d: az.resourceGroup().location
       e: union({
-        x: true
-      }, {})
+          x: true
+        }, {})
       f: intersection({
-        q: 's' == 12
-      }, {})
+          q: 's' == 12
+        }, {})
     }
   }
 ]
@@ -171,9 +175,11 @@ var previousEmitLimit3 = {
     b: {
       a: az.resourceGroup().location
     } == 2
-    c: concat([], [
-      true
-    ])
+    c: concat([
+
+      ], [
+        true
+      ])
   }
 }
 
@@ -316,3 +322,18 @@ module.exports = function (context) {
     context.done();
 }
 '''
+
+var providersTest = providers('Microsoft.Resources').namespace
+var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
+
+var copyBlockInObject = {
+  copy: [
+    {
+      name: 'blah'
+      count: '[notAFunction()]'
+      input: {}
+    }
+  ]
+}
+
+var joinedString = join([ 'I', 'love', 'Bicep!' ], ' ')

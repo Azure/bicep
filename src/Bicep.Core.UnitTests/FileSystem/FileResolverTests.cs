@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.IO;
 using Bicep.Core.FileSystem;
@@ -96,7 +95,7 @@ namespace Bicep.Core.UnitTests.FileSystem
 
             File.WriteAllText(tempFile, "abcd\r\ndef\r\n\r\nghi");
             fileResolver.TryReadAsBase64(tempFileUri, out var fileContents, out var failureMessage).Should().BeTrue();
-            fileContents.Should().Equals("YWJjZA0KZGVmDQoNCmdoaQ==");
+            fileContents.Should().Be("YWJjZA0KZGVmDQoNCmdoaQ==");
             failureMessage.Should().BeNull();
 
             fileResolver.TryReadAsBase64(tempFileUri, out fileContents, out failureMessage, 8).Should().BeFalse();
@@ -199,6 +198,29 @@ namespace Bicep.Core.UnitTests.FileSystem
 
             result.Should().Be(expectedResult);
             readContents.Should().Be(expectedContents);
+        }
+
+
+        [TestMethod]
+        public void In_memory_file_resolver_should_simulate_directory_paths_correctly()
+        {   //file://path
+            var fileTextsByUri = new Dictionary<Uri, string>
+            {
+                [new Uri("file://path/to/file.bicep")] = "param foo int",
+                [new Uri("file://path/to/nested/file.bicep")] = "param bar int",
+                [new Uri("file://path/toOther/file.bicep")] = "param foo string"
+            };
+
+            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
+
+            fileResolver.GetDirectories(new Uri("file://path"), "").Should().SatisfyRespectively(
+                x => x.AbsoluteUri.Should().Be("file://path/to"),
+                x => x.AbsoluteUri.Should().Be("file://path/toOther")
+            );
+
+            fileResolver.GetDirectories(new Uri("file://path/to"), "").Should().SatisfyRespectively(
+                x => x.AbsoluteUri.Should().Be("file://path/to/nested")
+            );
         }
     }
 }

@@ -1,16 +1,16 @@
 ﻿// KeyVault
 resource /*${1:keyVault}*/keyVault 'Microsoft.KeyVault/vaults@2019-09-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: /*${3:location}*/'location'
   properties: {
     enabledForDeployment: true
     enabledForTemplateDeployment: true
     enabledForDiskEncryption: true
-    tenantId: /*${3:'tenantId'}*/'tenantId'
+    tenantId: /*${4:'tenantId'}*/'tenantId'
     accessPolicies: [
       {
-        tenantId: /*${3:'tenantId'}*/'tenantId'
-        objectId: /*${4:'objectId'}*/'objectId'
+        tenantId: /*${4:'tenantId'}*/'tenantId'
+        objectId: /*${5:'objectId'}*/'objectId'
         permissions: {
           keys: [
             'get'

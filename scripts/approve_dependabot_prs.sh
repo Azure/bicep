@@ -1,19 +1,20 @@
 #!/bin/bash
 
+# Ignore any PRs before this date
 AFTER="2021-06-15"
 
-# azure/bicep
-REPO="azure/bicep"
-PRS=$(gh pr list -R $REPO --search "is:open is:pr author:app/dependabot review:required created:>$AFTER" | awk '{print $1}')
-while read -r PR && [ "$PR" != "" ]; do
-  gh pr merge -R $REPO --auto --squash $PR
-  gh pr review -R $REPO --approve $PR
-done <<< "$PRS"
+# The repos to approve & merge PRs for
+REPOS=(
+  "azure/bicep"
+  "azure/bicep-types-az"
+  "azure/bicep-types-k8s"
+  "azure/bicep-shared-tools"
+)
 
-# azure/bicep-types-az
-REPO="azure/bicep-types-az"
-PRS=$(gh pr list -R $REPO --search "is:open is:pr author:app/dependabot review:required created:>$AFTER" | awk '{print $1}')
-while read -r PR && [ "$PR" != "" ]; do
-  gh pr merge -R $REPO --auto --squash $PR
-  gh pr review -R $REPO --approve $PR
-done <<< "$PRS"
+for REPO in "${REPOS[@]}"; do
+  PRS=$(gh pr list -R $REPO --search "is:open is:pr author:app/dependabot review:required created:>$AFTER" | awk '{print $1}')
+  while read -r PR && [ "$PR" != "" ]; do
+    gh pr merge -R $REPO --auto --squash $PR
+    gh pr review -R $REPO --approve $PR
+  done <<< "$PRS"
+done

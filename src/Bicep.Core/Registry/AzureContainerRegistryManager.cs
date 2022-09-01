@@ -3,11 +3,12 @@
 
 using Azure;
 using Azure.Containers.ContainerRegistry.Specialized;
-using Azure.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,19 +22,34 @@ namespace Bicep.Core.Registry
         private const StringComparison MediaTypeComparison = StringComparison.OrdinalIgnoreCase;
         private const StringComparison DigestComparison = StringComparison.Ordinal;
 
-        private readonly TokenCredential tokenCredential;
         private readonly IContainerRegistryClientFactory clientFactory;
 
-        public AzureContainerRegistryManager(TokenCredential tokenCredential, IContainerRegistryClientFactory clientFactory)
+        public AzureContainerRegistryManager(IContainerRegistryClientFactory clientFactory)
         {
-            this.tokenCredential = tokenCredential;
             this.clientFactory = clientFactory;
         }
 
-        public async Task<OciArtifactResult> PullArtifactAsync(Configuration.RootConfiguration configuration, OciArtifactModuleReference moduleReference)
+        public async Task<OciArtifactResult> PullArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference moduleReference)
         {
             var client = this.CreateBlobClient(configuration, moduleReference);
-            var (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
+
+            OciManifest manifest;
+            Stream manifestStream;
+            string manifestDigest;
+
+            try
+            {
+                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference}.");
+                // Try authenticated client first.
+                (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
+            }
+            catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
+            {
+                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference} failed, received code {exception.Status}. Fallback to anonymous pull.");
+                // Fall back to anonymous client.
+                client = this.CreateBlobClient(configuration, moduleReference, anonymousAccess: true);
+                (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
+            }
 
             var moduleStream = await ProcessManifest(client, manifest);
 
@@ -70,14 +86,16 @@ namespace Bicep.Core.Registry
 
             manifestStream.Position = 0;
             // BUG: the client closes the stream :( (is it still the case?)
-            var manifestUploadResult = await blobClient.UploadManifestAsync(manifestStream, new UploadManifestOptions { Tag = moduleReference.Tag });
+            var manifestUploadResult = await blobClient.UploadManifestAsync(manifestStream, new UploadManifestOptions(tag: moduleReference.Tag));
         }
 
         private static Uri GetRegistryUri(OciArtifactModuleReference moduleReference) => new($"https://{moduleReference.Registry}");
 
-        private ContainerRegistryBlobClient CreateBlobClient(Configuration.RootConfiguration configuration, OciArtifactModuleReference moduleReference) => this.clientFactory.CreateBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository);
+        private ContainerRegistryBlobClient CreateBlobClient(RootConfiguration configuration, OciArtifactModuleReference moduleReference, bool anonymousAccess = false) => anonymousAccess
+            ? this.clientFactory.CreateAnonymouosBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository)
+            : this.clientFactory.CreateAuthenticatedBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository);
 
-        private static async Task<(OciManifest,Stream, string)> DownloadManifestAsync(OciArtifactModuleReference moduleReference, ContainerRegistryBlobClient client)
+        private static async Task<(OciManifest, Stream, string)> DownloadManifestAsync(OciArtifactModuleReference moduleReference, ContainerRegistryBlobClient client)
         {
             Response<DownloadManifestResult> manifestResponse;
             try
@@ -85,7 +103,7 @@ namespace Bicep.Core.Registry
                 // either Tag or Digest is null (enforced by reference parser) and DownloadManifestOptions throws if both or neither are null
                 manifestResponse = await client.DownloadManifestAsync(new DownloadManifestOptions(tag: moduleReference.Tag, digest: moduleReference.Digest));
             }
-            catch(RequestFailedException exception) when (exception.Status == 404)
+            catch (RequestFailedException exception) when (exception.Status == 404)
             {
                 // manifest does not exist
                 throw new OciModuleRegistryException("The module does not exist in the registry.", exception);
@@ -138,7 +156,7 @@ namespace Bicep.Core.Registry
         {
             var stream = blobResponse.Value.Content;
 
-            if(descriptor.Size != stream.Length)
+            if (descriptor.Size != stream.Length)
             {
                 throw new InvalidModuleException($"Expected blob size of {descriptor.Size} bytes but received {stream.Length} bytes from the registry.");
             }
@@ -147,7 +165,7 @@ namespace Bicep.Core.Registry
             string digestFromContents = DescriptorFactory.ComputeDigest(DescriptorFactory.AlgorithmIdentifierSha256, stream);
             stream.Position = 0;
 
-            if(!string.Equals(descriptor.Digest, digestFromContents, DigestComparison))
+            if (!string.Equals(descriptor.Digest, digestFromContents, DigestComparison))
             {
                 throw new InvalidModuleException($"There is a mismatch in the layer digests. Received content digest = {digestFromContents}, Requested digest = {descriptor.Digest}");
             }
@@ -155,7 +173,7 @@ namespace Bicep.Core.Registry
 
         private static async Task<Stream> ProcessLayer(ContainerRegistryBlobClient client, OciDescriptor layer)
         {
-            if(!string.Equals(layer.MediaType, BicepMediaTypes.BicepModuleLayerV1Json, MediaTypeComparison))
+            if (!string.Equals(layer.MediaType, BicepMediaTypes.BicepModuleLayerV1Json, MediaTypeComparison))
             {
                 throw new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".");
             }
@@ -178,12 +196,12 @@ namespace Bicep.Core.Registry
         private static void ProcessConfig(OciDescriptor config)
         {
             // media types are case insensitive
-            if(!string.Equals(config.MediaType, BicepMediaTypes.BicepModuleConfigV1, MediaTypeComparison))
+            if (!string.Equals(config.MediaType, BicepMediaTypes.BicepModuleConfigV1, MediaTypeComparison))
             {
                 throw new InvalidModuleException($"Did not expect config media type \"{config.MediaType}\".");
             }
 
-            if(config.Size != 0)
+            if (config.Size != 0)
             {
                 throw new InvalidModuleException("Expected an empty config blob.");
             }
@@ -195,7 +213,7 @@ namespace Bicep.Core.Registry
             {
                 return OciSerialization.Deserialize<OciManifest>(stream);
             }
-            catch(Exception exception)
+            catch (Exception exception)
             {
                 throw new InvalidModuleException("Unable to deserialize the module manifest.", exception);
             }

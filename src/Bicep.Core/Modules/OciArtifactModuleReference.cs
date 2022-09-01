@@ -46,7 +46,7 @@ namespace Bicep.Core.Modules
         public OciArtifactModuleReference(string registry, string repository, string? tag, string? digest)
              : base(ModuleReferenceSchemes.Oci)
         {
-            switch(tag,digest)
+            switch (tag, digest)
             {
                 case (null, null):
                     throw new ArgumentException($"Both {nameof(tag)} and {nameof(digest)} cannot be null.");
@@ -93,7 +93,7 @@ namespace Bicep.Core.Modules
 
         public override bool Equals(object? obj)
         {
-            if(obj is not OciArtifactModuleReference other)
+            if (obj is not OciArtifactModuleReference other)
             {
                 return false;
             }
@@ -145,7 +145,7 @@ namespace Bicep.Core.Modules
             }
 
             string registry = artifactUri.Authority;
-            if(registry.Length > MaxRegistryLength)
+            if (registry.Length > MaxRegistryLength)
             {
                 failureBuilder = x => x.InvalidOciArtifactReferenceRegistryTooLong(aliasName, GetBadReference(rawValue), registry, MaxRegistryLength);
                 return null;
@@ -173,13 +173,13 @@ namespace Bicep.Core.Modules
 
             // on a valid ref it would look something like "bar:v1" or "bar@sha256:e207a69d02b3de40d48ede9fd208d80441a9e590a83a0bc915d46244c03310d4"
             var lastSegment = artifactUri.Segments[^1];
-            
+
             static (int index, char? delimiter) FindLastSegmentDelimiter(string lastSegment)
             {
-                for(int i = 0; i < lastSegment.Length; i++)
+                for (int i = 0; i < lastSegment.Length; i++)
                 {
                     var current = lastSegment[i];
-                    if(current == ':' || current == '@')
+                    if (current == ':' || current == '@')
                     {
                         return (i, current);
                     }
@@ -188,7 +188,7 @@ namespace Bicep.Core.Modules
                 return (-1, null);
             }
 
-            var (indexOfLastSegmentDelimiter, delimiter) = FindLastSegmentDelimiter(lastSegment);            
+            var (indexOfLastSegmentDelimiter, delimiter) = FindLastSegmentDelimiter(lastSegment);
 
             // users will type references from left to right, so we should validate the last component of the module path
             // before we complain about the missing tag, which is the last part of the module ref
@@ -243,7 +243,7 @@ namespace Bicep.Core.Modules
 
                 case '@':
                     var digest = tagOrDigest;
-                    if(!DigestRegex.IsMatch(digest))
+                    if (!DigestRegex.IsMatch(digest))
                     {
                         failureBuilder = x => x.InvalidOciArtifactReferenceInvalidDigest(aliasName, GetBadReference(rawValue), digest);
                         return null;

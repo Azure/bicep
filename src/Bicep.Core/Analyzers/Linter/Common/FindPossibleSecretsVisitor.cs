@@ -1,20 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
-using Bicep.Core.Visitors;
-using System;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Common
 {
     public sealed class FindPossibleSecretsVisitor : SyntaxVisitor
     {
+        // TODO: Refactor to not use visitor
+
         public record PossibleSecret
         {
             public SyntaxBase Syntax { get; }
@@ -27,26 +26,23 @@ namespace Bicep.Core.Analyzers.Linter.Common
             }
         }
 
-        private const string ListFunctionPrefix = "list";
         private readonly SemanticModel semanticModel;
-        private readonly SyntaxBase syntax;
-        private readonly List<PossibleSecret> possibleSecrets = new List<PossibleSecret>();
+        private readonly List<PossibleSecret> possibleSecrets = new();
 
         /// <summary>
-        /// Searches in an expression for possible references to sensitive data, such as secure parameters or list* functions (may but
+        /// Searches in an expression for possible references to sensitive data, such as secure parameters or list* functions (many but
         /// not all of which return sensitive information)
         /// </summary>
-        public static IImmutableList<PossibleSecret> FindPossibleSecrets(SemanticModel semanticModel, SyntaxBase syntax)
+        public static IImmutableList<PossibleSecret> FindPossibleSecretsInExpression(SemanticModel semanticModel, SyntaxBase syntax)
         {
-            FindPossibleSecretsVisitor visitor = new FindPossibleSecretsVisitor(semanticModel, syntax);
+            FindPossibleSecretsVisitor visitor = new(semanticModel);
             visitor.Visit(syntax);
             return visitor.possibleSecrets.ToImmutableList();
         }
 
-        private FindPossibleSecretsVisitor(SemanticModel model, SyntaxBase syntax)
+        private FindPossibleSecretsVisitor(SemanticModel model)
         {
             this.semanticModel = model;
-            this.syntax = syntax;
         }
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
@@ -77,7 +73,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
             //
 
             if (SemanticModelHelper.TryGetFunctionInNamespace(semanticModel, AzNamespaceType.BuiltInName, syntax) is FunctionCallSyntaxBase listFunction
-                && listFunction.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix))
+                && listFunction.Name.IdentifierName.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix))
             {
                 string foundMessage = string.Format(CoreResources.PossibleSecretMessageFunction, syntax.Name.IdentifierName);
                 this.possibleSecrets.Add(new PossibleSecret(syntax, foundMessage));
@@ -88,12 +84,12 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
         {
-            if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix))
+            if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix))
             {
                 bool found = false;
 
                 Symbol? baseSymbol = semanticModel.GetSymbolInfo(syntax.BaseExpression);
-                if (baseSymbol is ResourceSymbol resource)
+                if (baseSymbol is ResourceSymbol)
                 {
                     // It's a usage of a list*() member function for a resource value, e.g.:
                     //

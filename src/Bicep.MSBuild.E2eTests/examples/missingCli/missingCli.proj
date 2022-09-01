@@ -16,7 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- the following file name is intentionally wrong -->
     <Bicep Include="empty.bicep"/>
   </ItemGroup>
 </Project>

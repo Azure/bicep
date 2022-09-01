@@ -1,0 +1,82 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "coalesceObjectToTest": {
+      "type": "object",
+      "defaultValue": {
+        "null1": null,
+        "null2": null,
+        "string": "default",
+        "int": 1,
+        "object": { "first": "default" },
+        "array": [ 1 ]
+      }
+    },
+    "insensitiveToTest": {
+      "type": "object",
+      "defaultValue": {
+        "left": "value",
+        "right": "value",
+        "leftInsensitive": "valuE",
+        "rightInsensitive": "Value"
+      }
+    }
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "andExampleOutput": {
+      "type": "bool",
+      "value": "[and(bool('true'), bool('false'))]"
+    },
+    "orExampleOutput": {
+      "type": "bool",
+      "value": "[or(bool('true'), bool('false'))]"
+    },
+    "notExampleOutput": {
+      "type": "bool",
+      "value": "[not(bool('true'))]"
+    },
+    "coalesceStringOutput": {
+      "type": "string",
+      "value": "[coalesce(coalesce(parameters('coalesceObjectToTest').null1, parameters('coalesceObjectToTest').null2), parameters('coalesceObjectToTest').string)]"
+    },
+    "coalesceIntOutput": {
+      "type": "int",
+      "value": "[coalesce(coalesce(parameters('coalesceObjectToTest').null1, parameters('coalesceObjectToTest').null2), parameters('coalesceObjectToTest').int)]"
+    },
+    "coalesceObjectOutput": {
+      "type": "object",
+      "value": "[coalesce(coalesce(parameters('coalesceObjectToTest').null1, parameters('coalesceObjectToTest').null2), parameters('coalesceObjectToTest').object)]"
+    },
+    "coalesceArrayOutput": {
+      "type": "array",
+      "value": "[coalesce(coalesce(parameters('coalesceObjectToTest').null1, parameters('coalesceObjectToTest').null2), parameters('coalesceObjectToTest').array)]"
+    },
+    "coalesceEmptyOutput": {
+      "type": "bool",
+      "value": "[empty(coalesce(parameters('coalesceObjectToTest').null1, parameters('coalesceObjectToTest').null2))]"
+    },
+    "emptyFunctionsOutput": {
+      "type": "bool",
+      "value": "[if(equals(null(), json('null')), true(), false())]"
+    },
+    "equalsInsensitiveWithLower": {
+      "type": "bool",
+      "value": "[equals(toLower(parameters('insensitiveToTest').leftInsensitive),toLower(parameters('insensitiveToTest').rightInsensitive))]"
+    },
+    "notEqualsInsensitiveWithLower": {
+      "type": "bool",
+      "value": "[not(equals(toLower(parameters('insensitiveToTest').leftInsensitive),toLower(parameters('insensitiveToTest').rightInsensitive)))]"
+    },
+    "notEquals": {
+      "type": "bool",
+      "value": "[not(equals(parameters('insensitiveToTest').left,parameters('insensitiveToTest').right))]"
+    },
+    "items_1": {
+      "type": "array",
+      "value": "[items(parameters('insensitiveToTest'))]"
+    }
+  }
+}

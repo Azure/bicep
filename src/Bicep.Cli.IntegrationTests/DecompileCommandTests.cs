@@ -84,13 +84,13 @@ namespace Bicep.Cli.IntegrationTests
     }
 }";
 
-        private readonly string[] DecompilationDisclaimer= new[]
+        private readonly string[] DecompilationDisclaimer = new[]
         {
             "WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.",
             "You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.",
             "If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues."
         };
-                    
+
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -206,7 +206,7 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 output.AsLines().Should().BeEquivalentTo(
-                    "resource resName 'My.Rp/testType@2020-01-01' = {", 
+                    "resource resName 'My.Rp/testType@2020-01-01' = {",
                     "  name: 'resName'",
                     "  location: resourceGroup().location",
                     "  properties: {",
@@ -299,12 +299,50 @@ namespace Bicep.Cli.IntegrationTests
             {
                 // keep the output stream open while we attempt to write to it
                 // this should force an access denied error
-                var (output, error, result) = await Bicep("decompile", jsonPath);
+                var (output, error, result) = await Bicep("decompile", "--force", jsonPath);
 
                 output.Should().BeEmpty();
                 error.AsLines().Should().Contain(DecompilationDisclaimer);
                 error.AsLines().Should().ContainMatch($"{jsonPath}: Decompilation failed with fatal error *");
                 result.Should().Be(1);
+            }
+        }
+
+        [TestMethod]
+        public async Task Decompile_OutputFileExists_ShouldFail()
+        {
+            var (jsonPath, bicepPath) = Setup(TestContext, string.Empty, inputFile: "OutputFileExists.json");
+
+            // ReSharper disable once ConvertToUsingDeclaration
+            using (new FileStream(bicepPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+            {
+                // keep the output stream open while we attempt to write to it
+                // this should force an access denied error
+                await Bicep("decompile",jsonPath);
+                var (output, error, result) = await Bicep("decompile", jsonPath);
+
+                output.Should().BeEmpty();
+                error.AsLines().Should().ContainMatch($"The output path \"{bicepPath}\" already exists. Use --force to overwrite the existing file.");
+                result.Should().Be(1);
+            }
+        }
+
+        [TestMethod]
+        public async Task Decompile_OutputFileExists_Force_ShouldSuccess()
+        {
+            var (jsonPath, bicepPath) = Setup(TestContext, string.Empty, inputFile: "OutputFileExistsForce.json");
+
+            // ReSharper disable once ConvertToUsingDeclaration
+            using (new FileStream(bicepPath, FileMode.Create, FileAccess.ReadWrite, FileShare.None))
+            {
+                // keep the output stream open while we attempt to write to it
+                // this should force an access denied error
+                await Bicep("decompile", jsonPath);
+                var (output, error, result) = await Bicep("decompile", "--force", jsonPath);
+                output.Should().BeEmpty();
+                error.AsLines().Should().Contain(DecompilationDisclaimer);
+                result.Should().Be(1);
+
             }
         }
 

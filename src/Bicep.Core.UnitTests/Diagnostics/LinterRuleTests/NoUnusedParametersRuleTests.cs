@@ -1,10 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
@@ -22,24 +21,25 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void CompileAndTest(string text, params string[] unusedParams)
         {
-            CompileAndTest(text, OnCompileErrors.Fail, unusedParams);
+            CompileAndTest(text, OnCompileErrors.IncludeErrors, unusedParams);
         }
 
         private void CompileAndTest(string text, OnCompileErrors onCompileErrors, params string[] unusedParams)
         {
-            AssertLinterRuleDiagnostics(NoUnusedParametersRule.Code, text, onCompileErrors, diags =>
-            {
-                if (unusedParams.Any())
+            AssertLinterRuleDiagnostics(NoUnusedParametersRule.Code, text, diags =>
                 {
-                    var rule = new NoUnusedParametersRule();
-                    string[] expectedMessages = unusedParams.Select(p => rule.GetMessage(p)).ToArray();
-                    diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
-                }
-                else
-                {
-                    diags.Should().BeEmpty();
-                }
-            });
+                    if (unusedParams.Any())
+                    {
+                        var rule = new NoUnusedParametersRule();
+                        string[] expectedMessages = unusedParams.Select(p => rule.GetMessage(p)).ToArray();
+                        diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
+                    }
+                    else
+                    {
+                        diags.Should().BeEmpty();
+                    }
+                },
+                new Options(onCompileErrors));
         }
 
         [DataRow(@"
@@ -149,6 +149,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void Conditions(string text, params string[] unusedParams)
         {
             CompileAndTest(text, unusedParams);
+        }
+
+        [DataRow(@"param")] // Don't show as unused - no param name
+        [DataRow(@"param // whoops")] // Don't show as unused - no param name
+        [DataTestMethod]
+        public void Errors(string text, params string[] unusedParams)
+        {
+            CompileAndTest(text, OnCompileErrors.Ignore);
         }
     }
 }

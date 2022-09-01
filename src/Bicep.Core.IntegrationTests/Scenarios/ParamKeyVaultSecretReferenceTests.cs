@@ -6,7 +6,6 @@ using FluentAssertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions.Execution;
 using Bicep.Core.Diagnostics;
-using System.Linq;
 
 namespace Bicep.Core.IntegrationTests.Scenarios
 {

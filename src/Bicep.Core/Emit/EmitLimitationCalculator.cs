@@ -1,16 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Utils;
+using Bicep.Core.Extensions;
+using Bicep.Core.Syntax.Visitors;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Emit
 {
@@ -18,25 +22,30 @@ namespace Bicep.Core.Emit
     {
         public static EmitLimitationInfo Calculate(SemanticModel model)
         {
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var diagnostics = ToListDiagnosticWriter.Create();
 
-            var moduleScopeData = ScopeHelper.GetModuleScopeInfo(model, diagnosticWriter);
-            var resourceScopeData = ScopeHelper.GetResourceScopeInfo(model, diagnosticWriter);
+            var moduleScopeData = ScopeHelper.GetModuleScopeInfo(model, diagnostics);
+            var resourceScopeData = ScopeHelper.GetResourceScopeInfo(model, diagnostics);
 
-            DeployTimeConstantValidator.Validate(model, diagnosticWriter);
-            ForSyntaxValidatorVisitor.Validate(model, diagnosticWriter);
-            FunctionPlacementValidatorVisitor.Validate(model, diagnosticWriter);
+            DeployTimeConstantValidator.Validate(model, diagnostics);
+            ForSyntaxValidatorVisitor.Validate(model, diagnostics);
+            FunctionPlacementValidatorVisitor.Validate(model, diagnostics);
+            IntegerValidatorVisitor.Validate(model, diagnostics);
 
-            DetectDuplicateNames(model, diagnosticWriter, resourceScopeData, moduleScopeData);
-            DetectIncorrectlyFormattedNames(model, diagnosticWriter);
-            DetectUnexpectedResourceLoopInvariantProperties(model, diagnosticWriter);
-            DetectUnexpectedModuleLoopInvariantProperties(model, diagnosticWriter);
-            DetectUnsupportedModuleParameterAssignments(model, diagnosticWriter);
+            DetectDuplicateNames(model, diagnostics, resourceScopeData, moduleScopeData);
+            DetectIncorrectlyFormattedNames(model, diagnostics);
+            DetectUnexpectedResourceLoopInvariantProperties(model, diagnostics);
+            DetectUnexpectedModuleLoopInvariantProperties(model, diagnostics);
+            DetectUnsupportedModuleParameterAssignments(model, diagnostics);
+            DetectCopyVariableName(model, diagnostics);
+            DetectInvalidValueForParentProperty(model, diagnostics);
+            BlockLambdasOutsideFunctionArguments(model, diagnostics);
+            BlockUnsupportedLambdaVariableUsage(model, diagnostics);
 
-            return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
+            return new(diagnostics.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
 
-        private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<ResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
+        private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
         {
             // TODO generalize or move into Az extension
 
@@ -91,13 +100,26 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static IEnumerable<ResourceDefinition> GetResourceDefinitions(SemanticModel semanticModel, ImmutableDictionary<ResourceMetadata, ScopeHelper.ScopeData> resourceScopeData)
+        private static IEnumerable<ResourceDefinition> GetResourceDefinitions(SemanticModel semanticModel, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData)
         {
-            foreach (var resource in semanticModel.AllResources)
+            foreach (var resource in semanticModel.DeclaredResources)
             {
                 if (resource.IsExistingResource)
                 {
                     // 'existing' resources are not being deployed so duplicates are allowed
+                    continue;
+                }
+
+                if (!resource.IsAzResource)
+                {
+                    // comparison checks currently blocked for non-ARM resources
+                    continue;
+                }
+
+                if (resource.TryGetNameSyntax() is not { } resourceName ||
+                    resourceName is not StringSyntax resourceNameString)
+                {
+                    // the resource doesn't have a name set, or it's not a string and thus difficult to analyze
                     continue;
                 }
 
@@ -112,30 +134,24 @@ namespace Bicep.Core.Emit
                     resourceScope = semanticModel.ResourceAncestors.GetAncestors(resource).LastOrDefault()?.Resource;
                 }
 
-                if (resource.NameSyntax is not StringSyntax namePropertyValue)
-                {
-                    //currently limiting check to 'name' property values that are strings, although it can be references or other syntaxes
-                    continue;
-                }
-
-                yield return new ResourceDefinition(resource.Symbol.Name, resourceScope, resource.TypeReference.FormatType(), namePropertyValue);
+                yield return new ResourceDefinition(resource.Symbol.Name, resourceScope, resource.TypeReference.FormatType(), resourceNameString);
             }
         }
 
-        public static void DetectIncorrectlyFormattedNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        private static void DetectIncorrectlyFormattedNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
             // TODO move into Az extension
-            foreach (var resource in semanticModel.AllResources)
+            foreach (var resource in semanticModel.DeclaredResources)
             {
-                if (resource.Type.DeclaringNamespace.ProviderName != AzNamespaceType.BuiltInName)
+                if (!resource.IsAzResource)
                 {
-                    // non-az resource
                     continue;
                 }
 
-                if (resource.NameSyntax is not StringSyntax resourceNameString)
+                if (resource.TryGetNameSyntax() is not { } resourceName ||
+                    resourceName is not StringSyntax resourceNameString)
                 {
-                    // not easy to do analysis if it's not a string!
+                    // the resource doesn't have a name set, or it's not a string and thus difficult to analyze
                     continue;
                 }
 
@@ -146,7 +162,7 @@ namespace Bicep.Core.Emit
                     // e.g. '{parent.name}/child' or 'parent/child'
                     if (resourceNameString.SegmentValues.Any(v => v.Contains('/')))
                     {
-                        diagnosticWriter.Write(resource.NameSyntax, x => x.ChildResourceNameContainsQualifiers());
+                        diagnosticWriter.Write(resourceNameString, x => x.ChildResourceNameContainsQualifiers());
                     }
                 }
                 else
@@ -165,7 +181,7 @@ namespace Bicep.Core.Emit
                         // So we can only accurately show a diagnostic if there are TOO MANY '/' characters.
                         if (slashCount > expectedSlashCount)
                         {
-                            diagnosticWriter.Write(resource.NameSyntax, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
+                            diagnosticWriter.Write(resourceNameString, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
                         }
                     }
                     else
@@ -173,16 +189,16 @@ namespace Bicep.Core.Emit
                         // We know exactly how many '/' characters must be present, because we have a string literal. So expect an exact match.
                         if (slashCount != expectedSlashCount)
                         {
-                            diagnosticWriter.Write(resource.NameSyntax, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
+                            diagnosticWriter.Write(resourceNameString, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
                         }
                     }
                 }
             }
         }
 
-        public static void DetectUnexpectedResourceLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        private static void DetectUnexpectedResourceLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
-            foreach (var resource in semanticModel.AllResources)
+            foreach (var resource in semanticModel.DeclaredResources)
             {
                 if (resource.IsExistingResource)
                 {
@@ -233,7 +249,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static void DetectUnexpectedModuleLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        private static void DetectUnexpectedModuleLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
             foreach (var module in semanticModel.Root.ModuleDeclarations)
             {
@@ -278,7 +294,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public static void DetectUnsupportedModuleParameterAssignments(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        private static void DetectUnsupportedModuleParameterAssignments(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
             foreach (var moduleSymbol in semanticModel.Root.ModuleDeclarations)
             {
@@ -304,6 +320,113 @@ namespace Bicep.Core.Emit
                         // ideally we would add a runtime function to take care of the conversion in these cases, but it doesn't exist yet
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(paramsValue).ModuleParametersPropertyRequiresObjectLiteral());
                         break;
+                }
+            }
+        }
+
+        private static void DetectCopyVariableName(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            var copyVariableSymbol = semanticModel.Root.VariableDeclarations.FirstOrDefault(x => x.Name.Equals(LanguageConstants.CopyLoopIdentifier, StringComparison.OrdinalIgnoreCase));
+            if (copyVariableSymbol is not null)
+            {
+                diagnosticWriter.Write(DiagnosticBuilder.ForPosition(copyVariableSymbol.NameSyntax).ReservedIdentifier(LanguageConstants.CopyLoopIdentifier));
+            }
+        }
+
+        public static void DetectInvalidValueForParentProperty(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
+        {
+            foreach (var resourceDeclarationSymbol in semanticModel.Root.ResourceDeclarations)
+            {
+                if (resourceDeclarationSymbol.TryGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is { } referenceParentSyntax)
+                {
+                    var (baseSyntax, _) = SyntaxHelper.UnwrapArrayAccessSyntax(referenceParentSyntax);
+
+                    if (semanticModel.ResourceMetadata.TryLookup(baseSyntax) is not { } && !semanticModel.GetTypeInfo(baseSyntax).IsError())
+                    {
+                        // we throw an error diagnostic when the parent property contains a value that cannot be computed or does not directly reference another resource.
+                        // this includes ternary operator expressions, which Bicep does not support
+                        diagnosticWriter.Write(referenceParentSyntax, x => x.InvalidValueForParentProperty());
+                    }
+                }
+            }
+        }
+
+        private static void BlockLambdasOutsideFunctionArguments(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            foreach (var lambda in SyntaxAggregator.AggregateByType<LambdaSyntax>(model.Root.Syntax))
+            {
+                foreach (var ancestor in model.Binder.EnumerateAncestorsUpwards(lambda))
+                {
+                    if (ancestor is FunctionArgumentSyntax)
+                    {
+                        // we're inside a function argument - all good
+                        break;
+                    }
+
+                    if (ancestor is ParenthesizedExpressionSyntax)
+                    {
+                        // we've got a parenthesized expression - keep searching upwards
+                        continue;
+                    }
+
+                    // lambdas are not valid inside any other syntax - raise an error and exit
+                    diagnostics.Write(lambda, x => x.LambdaFunctionsOnlyValidInFunctionArguments());
+                    break;
+                }
+            }
+        }
+
+        private static void BlockUnsupportedLambdaVariableUsage(SemanticModel model, IDiagnosticWriter diagnostics)
+        {
+            IEnumerable<LocalVariableSymbol> CollectLambdaVariables(SyntaxBase syntax)
+            {
+                return SyntaxAggregator.AggregateByType<VariableAccessSyntax>(syntax)
+                    .Select(v => model.Binder.GetSymbolInfo(v))
+                    .OfType<LocalVariableSymbol>()
+                    .Distinct()
+                    .Where(symbol => symbol.LocalKind == LocalKind.LambdaItemVariable);
+            }
+
+            var visited = new HashSet<SyntaxBase>();
+            foreach (var lambda in SyntaxAggregator.AggregateByType<LambdaSyntax>(model.Root.Syntax))
+            {
+                foreach (var functionCall in SyntaxAggregator.AggregateByType<FunctionCallSyntaxBase>(lambda.Body))
+                {
+                    // Block the usage of lambdas inside reference() or list*() functions.
+                    // The Deployment Engine needs to be able to process these upfront to build the deployment graph, so they cannot contain unevaluated lambda variables.
+                    if (!visited.Contains(functionCall) &&
+                        model.GetSymbolInfo(functionCall) is FunctionSymbol functionSymbol &&
+                        functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining))
+                    {
+                        var blockedSymbols = functionCall.Arguments.SelectMany(x => CollectLambdaVariables(x.Expression)).Distinct()
+                            .Select(s => s.Name).ToImmutableArray();
+
+                        if (blockedSymbols.Any())
+                        {
+                            diagnostics.Write(functionCall, x => x.LambdaVariablesInInlineFunctionUnsupported(functionCall.Name.IdentifierName, blockedSymbols));
+                        }
+                    }
+
+                    visited.Add(functionCall);
+                }
+
+                foreach (var arrayAccess in SyntaxAggregator.AggregateByType<ArrayAccessSyntax>(lambda.Body))
+                {
+                    // Block the usage of lambdas to index into arrays of resources, as this may result in the generation of a reference() or list*() function call.
+                    // The Deployment Engine needs to be able to process these upfront to build the deployment graph, so they cannot contain unevaluated lambda variables.
+                    if (!visited.Contains(arrayAccess) &&
+                        model.GetSymbolInfo(arrayAccess.BaseExpression) is ModuleSymbol or ResourceSymbol)
+                    {
+                        var blockedSymbols = CollectLambdaVariables(arrayAccess.IndexExpression)
+                            .Select(s => s.Name).ToImmutableArray();
+
+                        if (blockedSymbols.Any())
+                        {
+                            diagnostics.Write(arrayAccess.IndexExpression, x => x.LambdaVariablesInResourceOrModuleArrayAccessUnsupported(blockedSymbols));
+                        }
+                    }
+
+                    visited.Add(arrayAccess);
                 }
             }
         }

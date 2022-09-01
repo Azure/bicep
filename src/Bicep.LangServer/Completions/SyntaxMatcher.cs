@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
@@ -30,7 +32,7 @@ namespace Bicep.LanguageServer.Completions
                    (predicate is null || predicate(one, two));
         }
 
-        public static bool IsTailMatch<T1, T2, T3>(IList<SyntaxBase> nodes, Func<T1, T2, T3, bool> predicate) 
+        public static bool IsTailMatch<T1, T2, T3>(IList<SyntaxBase> nodes, Func<T1, T2, T3, bool> predicate)
             where T1 : SyntaxBase
             where T2 : SyntaxBase
             where T3 : SyntaxBase
@@ -152,6 +154,18 @@ namespace Bicep.LanguageServer.Completions
             });
 
             return nodes;
+        }
+
+        public static ImmutableArray<SyntaxBase> FindNodesInRange(ProgramSyntax syntax, int startOffset, int endOffset)
+        {
+            var startNodes = FindNodesMatchingOffset(syntax, startOffset);
+            var endNodes = FindNodesMatchingOffset(syntax, endOffset);
+
+            return startNodes
+                .Zip(endNodes, (x, y) => object.ReferenceEquals(x, y) ? x : null)
+                .TakeWhile(x => x is not null)
+                .WhereNotNull()
+                .ToImmutableArray();
         }
 
         public static List<SyntaxBase> FindNodesMatchingOffsetExclusive(ProgramSyntax syntax, int offset)

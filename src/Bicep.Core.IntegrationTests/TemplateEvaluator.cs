@@ -6,16 +6,13 @@ using Newtonsoft.Json.Linq;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Templates.Engines;
-using Azure.Deployments.Core.Collections;
-using Azure.Deployments.Core.Instrumentation;
-using Azure.Deployments.Templates.Schema;
-using Azure.Deployments.Core.Extensions;
 using Azure.Deployments.Expression.Engines;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Core.ErrorResponses;
-using System.Collections.Immutable;
 using Bicep.Core.UnitTests.Utils;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -60,7 +57,7 @@ namespace Bicep.Core.IntegrationTests
             var typeSegments = resource.Type.Value.Split('/');
             var nameSegments = resource.Name.Value.Split('/');
 
-            var types = new [] { typeSegments.First() }
+            var types = new[] { typeSegments.First() }
                 .Concat(typeSegments.Skip(1).Zip(nameSegments, (type, name) => $"{type}/{name}"));
 
             return $"{scopeString}providers/{string.Join('/', types)}";
@@ -68,7 +65,8 @@ namespace Bicep.Core.IntegrationTests
 
         private static void ProcessTemplateLanguageExpressions(Template template, EvaluationConfiguration config, TemplateDeploymentScope deploymentScope)
         {
-            var scopeString = deploymentScope switch {
+            var scopeString = deploymentScope switch
+            {
                 TemplateDeploymentScope.Tenant => "/",
                 TemplateDeploymentScope.ManagementGroup => $"/providers/Microsoft.Management/managementGroups/{config.ManagementGroup}/",
                 TemplateDeploymentScope.Subscription => $"/subscriptions/{config.SubscriptionId}/",
@@ -80,24 +78,24 @@ namespace Bicep.Core.IntegrationTests
 
             var evaluationContext = TemplateEngine.GetExpressionEvaluationContext(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template);
             var defaultEvaluateFunction = evaluationContext.EvaluateFunction;
-            evaluationContext.EvaluateFunction = (FunctionExpression functionExpression, JToken[] parameters, TemplateErrorAdditionalInfo additionalInfo) =>
+            evaluationContext.EvaluateFunction = (FunctionExpression functionExpression, FunctionArgument[] parameters, TemplateErrorAdditionalInfo additionalInfo) =>
             {
-                if (functionExpression.Function.StartsWithOrdinalInsensitively("list") && config.OnListFunc is not null)
+                if (functionExpression.Function.StartsWithOrdinalInsensitively(LanguageConstants.ListFunctionPrefix) && config.OnListFunc is not null)
                 {
                     return config.OnListFunc(
                         functionExpression.Function,
-                        parameters[0].ToString(),
-                        parameters[1].ToString(),
-                        parameters.Length > 2 ? parameters[2] : null);
+                        parameters[0].Token.ToString(),
+                        parameters[1].Token.ToString(),
+                        parameters.Length > 2 ? parameters[2].Token : null);
                 }
 
                 if (functionExpression.Function.EqualsOrdinalInsensitively("reference"))
                 {
-                    var resourceId = parameters[0].ToString();
-                    var apiVersion = parameters.Length > 1 ? parameters[1].ToString() : null;
-                    var fullBody = parameters.Length > 2 ? parameters[2].ToString().EqualsOrdinalInsensitively("Full") : false;
+                    var resourceId = parameters[0].Token.ToString();
+                    var apiVersion = parameters.Length > 1 ? parameters[1].Token.ToString() : null;
+                    var fullBody = parameters.Length > 2 ? parameters[2].Token.ToString().EqualsOrdinalInsensitively("Full") : false;
 
-                    if (resourceLookup.TryGetValue(resourceId, out var foundResource) && 
+                    if (resourceLookup.TryGetValue(resourceId, out var foundResource) &&
                         (apiVersion is null || StringComparer.OrdinalIgnoreCase.Equals(apiVersion, foundResource.ApiVersion.Value)))
                     {
                         return fullBody ? foundResource.ToJToken() : foundResource.Properties.ToJToken();
@@ -157,7 +155,8 @@ namespace Bicep.Core.IntegrationTests
             var metadata = new InsensitiveDictionary<JToken>(config.Metadata);
             if (deploymentScope == TemplateDeploymentScope.Subscription || deploymentScope == TemplateDeploymentScope.ResourceGroup)
             {
-                metadata["subscription"] = new JObject {
+                metadata["subscription"] = new JObject
+                {
                     ["id"] = $"/subscriptions/{config.SubscriptionId}",
                     ["subscriptionId"] = config.SubscriptionId,
                     ["tenantId"] = config.TenantId,
@@ -165,21 +164,24 @@ namespace Bicep.Core.IntegrationTests
             }
             if (deploymentScope == TemplateDeploymentScope.ResourceGroup)
             {
-                metadata["resourceGroup"] = new JObject {
+                metadata["resourceGroup"] = new JObject
+                {
                     ["id"] = $"/subscriptions/{config.SubscriptionId}/resourceGroups/{config.ResourceGroup}",
                     ["location"] = config.RgLocation,
                 };
             };
             if (deploymentScope == TemplateDeploymentScope.ManagementGroup)
             {
-                metadata["managementGroup"] = new JObject {
+                metadata["managementGroup"] = new JObject
+                {
                     ["id"] = $"/providers/Microsoft.Management/managementGroups/{config.ManagementGroup}",
                     ["name"] = config.ManagementGroup,
                     ["type"] = "Microsoft.Management/managementGroups",
                 };
             };
             // tenant() function is available at all scopes
-            metadata["tenant"] = new JObject {
+            metadata["tenant"] = new JObject
+            {
                 ["tenantId"] = config.TenantId,
             };
 
@@ -187,14 +189,14 @@ namespace Bicep.Core.IntegrationTests
             {
                 var template = TemplateEngine.ParseTemplate(templateJtoken.ToString());
 
-                TemplateEngine.ValidateTemplate(template, "2020-06-01", deploymentScope);
+                TemplateEngine.ValidateTemplate(template, "2020-10-01", deploymentScope);
                 TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(config.Parameters), metadata, new InsensitiveDictionary<JToken>());
 
-                TemplateEngine.ProcessTemplateLanguageExpressions(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, "2020-06-01");
+                TemplateEngine.ProcessTemplateLanguageExpressions(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, "2020-10-01");
 
                 ProcessTemplateLanguageExpressions(template, config, deploymentScope);
 
-                TemplateEngine.ValidateProcessedTemplate(template, "2020-06-01", deploymentScope);
+                TemplateEngine.ValidateProcessedTemplate(template, "2020-10-01", deploymentScope);
 
                 return template.ToJToken();
             }

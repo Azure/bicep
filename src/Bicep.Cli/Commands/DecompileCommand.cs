@@ -6,7 +6,6 @@ using Bicep.Cli.Services;
 using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Logging;
 using System;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.Commands
@@ -20,11 +19,11 @@ namespace Bicep.Cli.Commands
         private readonly DecompilationWriter writer;
 
         public DecompileCommand(
-            ILogger logger, 
-            IDiagnosticLogger diagnosticLogger, 
-            InvocationContext invocationContext, 
+            ILogger logger,
+            IDiagnosticLogger diagnosticLogger,
+            InvocationContext invocationContext,
             CompilationService compilationService,
-            DecompilationWriter writer) 
+            DecompilationWriter writer)
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;

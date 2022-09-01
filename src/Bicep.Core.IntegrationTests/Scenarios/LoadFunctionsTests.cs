@@ -7,13 +7,14 @@ using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
+using Bicep.Core.Diagnostics;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests.Scenarios
 {
     /// <summary>
-    /// Tests below will not test actual loading file just the fact that bicep function accepts parameters and produces expected values in ARM template output. 
+    /// Tests below will not test actual loading file just the fact that bicep function accepts parameters and produces expected values in ARM template output.
     /// Loading file is done via IFileResolver - here we use InMemoryFileResolver, therefore no actual file reading can be tested.
     /// Testing FileResolver is covered in a separate place. E2E Testing is done in baseline tests
     /// </summary>
@@ -27,7 +28,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 ";
         private static readonly string B64_TEXT_CONTENT = Convert.ToBase64String(Encoding.UTF8.GetBytes(TEXT_CONTENT));
-        public enum FunctionCase { loadTextContent, loadFileAsBase64 }
+        public enum FunctionCase { loadTextContent, loadFileAsBase64, loadJsonContent }
         private static string ExpectedResult(FunctionCase function) => function switch
         {
             FunctionCase.loadTextContent => TEXT_CONTENT,
@@ -42,13 +43,13 @@ Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deseru
         {
             var (template, diags, _) = CompilationHelper.Compile(
     ("main.bicep", @"
-var script = " + function.ToString() + @"('script.sh')
+var script = " + function + @"('script.sh')
 
 output out string = script
 "),
     ("script.sh", TEXT_CONTENT));
 
-            diags.Should().BeEmpty();
+            diags.ExcludingLinterDiagnostics().Should().BeEmpty();
             template!.Should().NotBeNull();
             var testToken = template!.SelectToken("$.variables.script");
             using (new AssertionScope())
@@ -66,19 +67,19 @@ output out string = script
     ("main.bicep", @"
 var script = {
   name: 'script'
-  content: " + function.ToString() + @"('script.sh')
+  content: " + function + @"('script.sh')
 }
 
 output out object = script
 "),
     ("script.sh", TEXT_CONTENT));
 
-            diags.Should().BeEmpty();
-            template!.Should().NotBeNull();
-            var testToken = template!.SelectToken("$.variables.script.content");
+            diags.ExcludingLinterDiagnostics().Should().BeEmpty();
             using (new AssertionScope())
             {
-                testToken.Should().NotBeNull().And.DeepEqual(ExpectedResult(function));
+                template!.Should().NotBeNull();
+                template!.SelectToken("$.variables.script.content").Should().DeepEqual("[variables('$fxv#0')]");
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(ExpectedResult(function));
             }
         }
 
@@ -89,22 +90,22 @@ output out object = script
         {
             var (template, diags, _) = CompilationHelper.Compile(
     ("main.bicep", @"
-var message = 'Body: ${" + function.ToString() + @"('message.txt')}'
+var message = 'Body: ${" + function + @"('message.txt')}'
 
 output out string = message
 "),
     ("message.txt", TEXT_CONTENT));
 
-            diags.Should().BeEmpty();
+            diags.ExcludingLinterDiagnostics().Should().BeEmpty();
             template!.Should().NotBeNull();
-            var testToken = template!.SelectToken("$.variables.message");
             using (new AssertionScope())
             {
-                testToken.Should().NotBeNull().And.DeepEqual("[format('Body: {0}', '" + ExpectedResult(function) + "')]");
+                template!.SelectToken("$.variables['$fxv#0']").Should().NotBeNull().And.DeepEqual(ExpectedResult(function));
+                template!.SelectToken("$.variables.message").Should().NotBeNull().And.DeepEqual("[format('Body: {0}', variables('$fxv#0'))]");
             }
         }
 
-        
+
         [DataTestMethod]
         [DataRow("utf-8")]
         [DataRow("utf-16BE")]
@@ -115,18 +116,18 @@ output out string = message
         {
             var (template, diags, _) = CompilationHelper.Compile(
     ("main.bicep", @"
-var message = 'Body: ${loadTextContent('message.txt', '" + encoding + @"')}'
+var message = loadTextContent('message.txt', '" + encoding + @"')
 
 output out string = message
 "),
     ("message.txt", TEXT_CONTENT));
 
-            diags.Should().BeEmpty();
+            diags.ExcludingLinterDiagnostics().Should().BeEmpty();
             template!.Should().NotBeNull();
             var testToken = template!.SelectToken("$.variables.message");
             using (new AssertionScope())
             {
-                testToken.Should().NotBeNull().And.DeepEqual("[format('Body: {0}', '" + TEXT_CONTENT + "')]");
+                testToken.Should().NotBeNull().And.DeepEqual(TEXT_CONTENT);
             }
         }
 
@@ -148,7 +149,7 @@ var message = 'Body: ${loadTextContent('message.txt', '" + encoding + @"')}'
     ("message.txt", TEXT_CONTENT));
 
             template!.Should().BeNull();
-            diags.Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
+            diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
         }
 
         [DataTestMethod]
@@ -167,7 +168,7 @@ var message = 'Body: ${loadTextContent('message.txt', encoding)}'
     ("message.txt", TEXT_CONTENT));
 
             template!.Should().BeNull();
-            diags.Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
+            diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
         }
 
         [DataTestMethod]
@@ -202,31 +203,36 @@ var message = 'Body: ${loadTextContent('message.txt', encoding)}'
             var (template, diags, _) = CompilationHelper.Compile(
     ("main.bicep", @"
 " + declaration + @"
-var message = 'Body: ${" + function.ToString() + @"(" + filePath + ((encoding is null) ? string.Empty : (", " + encoding)) + @")}'
+var message = " + function + @"(" + filePath + ((encoding is null) ? string.Empty : (", " + encoding)) + @")
 output out string = message
 "),
     ("message.txt", TEXT_CONTENT));
 
-            diags.Should().BeEmpty();
+            diags.ExcludingLinterDiagnostics().Should().BeEmpty();
             template!.Should().NotBeNull();
             var testToken = template!.SelectToken("$.variables.message");
             using (new AssertionScope())
             {
-                testToken.Should().NotBeNull().And.DeepEqual("[format('Body: {0}', '" + ExpectedResult(function) + "')]");
+                testToken.Should().NotBeNull().And.DeepEqual(ExpectedResult(function));
             }
         }
 
         [DataTestMethod]
         [DataRow(FunctionCase.loadTextContent, "var fileName = 'message.txt'", "'${fileName}'", DisplayName = "loadTextContent: variable in interpolation")]
         [DataRow(FunctionCase.loadFileAsBase64, "var fileName = 'message.txt'", "'${fileName}'", DisplayName = "loadFileAsBase64: variable in interpolation")]
+        [DataRow(FunctionCase.loadJsonContent, "var fileName = 'message.txt'", "'${fileName}'", DisplayName = "loadJsonContent: variable in interpolation")]
         [DataRow(FunctionCase.loadTextContent, "", "'${'fileName'}'", DisplayName = "loadTextContent: string literal in interpolation")]
         [DataRow(FunctionCase.loadFileAsBase64, "", "'${'fileName'}'", DisplayName = "loadFileAsBase64: string literal in interpolation")]
+        [DataRow(FunctionCase.loadJsonContent, "", "'${'fileName'}'", DisplayName = "loadJsonContent: string literal in interpolation")]
         [DataRow(FunctionCase.loadTextContent, "param fileName string = 'message.txt'", "fileName", DisplayName = "loadTextContent: parameter")]
         [DataRow(FunctionCase.loadFileAsBase64, "param fileName string = 'message.txt'", "fileName", DisplayName = "loadFileAsBase64: parameter")]
+        [DataRow(FunctionCase.loadJsonContent, "param fileName string = 'message.txt'", "fileName", DisplayName = "loadJsonContent: parameter")]
         [DataRow(FunctionCase.loadTextContent, @"param fileName string = 'message.txt'
 var _fileName = fileName", "_fileName", DisplayName = "loadTextContent: variable from parameter")]
         [DataRow(FunctionCase.loadFileAsBase64, @"param fileName string = 'message.txt'
 var _fileName = fileName", "_fileName", DisplayName = "loadFileAsBase64: variable from parameter")]
+        [DataRow(FunctionCase.loadJsonContent, @"param fileName string = 'message.txt'
+var _fileName = fileName", "_fileName", DisplayName = "loadJsonContent: variable from parameter")]
         [DataRow(FunctionCase.loadTextContent, @"param fileName string = 'message.txt'
 var fileNames = [
 fileName
@@ -235,6 +241,10 @@ fileName
 var fileNames = [
 fileName
 ]", "fileNames[0]", DisplayName = "loadFileAsBase64: param as array value")]
+        [DataRow(FunctionCase.loadJsonContent, @"param fileName string = 'message.txt'
+var fileNames = [
+fileName
+]", "fileNames[0]", DisplayName = "loadJsonContent: param as array value")]
         [DataRow(FunctionCase.loadTextContent, @"param fileName string = 'message.txt'
 var files = [
  {
@@ -247,6 +257,12 @@ var files = [
   name: fileName
  }
 ]", "files[0].name", DisplayName = "loadFileAsBase64: param as object property in array")]
+        [DataRow(FunctionCase.loadJsonContent, @"param fileName string = 'message.txt'
+var files = [
+ {
+  name: fileName
+ }
+]", "files[0].name", DisplayName = "loadJsonContent: param as object property in array")]
         [DataRow(FunctionCase.loadTextContent, @"param encoding string = 'us-ascii'
 var files = [
  {
@@ -254,18 +270,35 @@ var files = [
   encoding: encoding
  }
 ]", "files[0].name", "files[0].encoding", DisplayName = "loadTextContent: encoding param as object property in array")]
-        public void LoadFunction_RequiresCompileTimeConstantArguments_Invalid(FunctionCase function, string declaration, string filePath, string? encoding = null)
+        [DataRow(FunctionCase.loadJsonContent, @"param encoding string = 'us-ascii'
+param path string = '$'
+var files = [
+ {
+  name: 'message.json'
+  path: path
+  encoding: encoding
+ }
+]", "files[0].name", "files[0].path", DisplayName = "loadJsonContent: path param as object property in array")]
+        [DataRow(FunctionCase.loadJsonContent, @"param encoding string = 'us-ascii'
+var files = [
+ {
+  name: 'message.json'
+  path: '$'
+  encoding: encoding
+ }
+]", "files[0].name", "'$'", "files[0].encoding", DisplayName = "loadJsonContent: encoding param as object property in array")]
+        public void LoadFunction_RequiresCompileTimeConstantArguments_Invalid(FunctionCase function, string declaration, params string[] args)
         {
             //notice - here we will not test actual loading file with given encoding - just the fact that bicep function accepts all .NET available encodings
             var (template, diags, _) = CompilationHelper.Compile(
     ("main.bicep", @"
 " + declaration + @"
-var message = 'Body: ${" + function.ToString() + @"(" + filePath + ((encoding is null) ? string.Empty : (", " + encoding)) + @")}'
+var message = 'Body: ${" + function + @"(" + string.Join(", ", args) + @")}'
 "),
     ("message.txt", TEXT_CONTENT));
 
             template!.Should().BeNull();
-            diags.Should().ContainSingleDiagnostic("BCP032", Diagnostics.DiagnosticLevel.Error, "The value must be a compile-time constant.");
+            diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP032", Diagnostics.DiagnosticLevel.Error, "The value must be a compile-time constant.");
         }
 
         private const string LOGIC_APP = @"
@@ -316,7 +349,7 @@ resource logicApps 'Microsoft.Logic/workflows@2019-05-01' = [ for app in apps :{
     ("logicApp1.json", LOGIC_APP), ("logicApp2.json", LOGIC_APP));
 
             template!.Should().BeNull();
-            diags.Should().ContainSingleDiagnostic("BCP032", Diagnostics.DiagnosticLevel.Error, "The value must be a compile-time constant.");
+            diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP032", Diagnostics.DiagnosticLevel.Error, "The value must be a compile-time constant.");
         }
 
         [TestMethod]
@@ -345,7 +378,7 @@ resource logicApps 'Microsoft.Logic/workflows@2019-05-01' = [ for (app, i) in ap
     ("logicApp1.json", LOGIC_APP), ("logicApp2.json", LOGIC_APP));
 
             template!.Should().BeNull();
-            diags.Should().ContainSingleDiagnostic("BCP032", Diagnostics.DiagnosticLevel.Error, "The value must be a compile-time constant.");
+            diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP032", Diagnostics.DiagnosticLevel.Error, "The value must be a compile-time constant.");
         }
 
         [TestMethod]
@@ -374,7 +407,7 @@ resource logicApps 'Microsoft.Logic/workflows@2019-05-01' = [ for (app, i) in ap
     ("logicApp1.json", LOGIC_APP), ("logicApp2.json", LOGIC_APP));
 
             template!.Should().NotBeNull();
-            diags.Should().BeEmpty();
+            diags.ExcludingLinterDiagnostics().Should().BeEmpty();
         }
 
         public static IEnumerable<object[]> LoadFunction_InvalidPath_Data
@@ -402,7 +435,7 @@ resource logicApps 'Microsoft.Logic/workflows@2019-05-01' = [ for (app, i) in ap
         {
             var (template, diags, _) = CompilationHelper.Compile(
     ("main.bicep", @"
-var script = " + function.ToString() + @"('" + invalidPath + @"')
+var script = " + function + @"('" + invalidPath + @"')
 
 output out string = script
 "),
@@ -414,11 +447,12 @@ output out string = script
         [DataTestMethod]
         [DataRow(FunctionCase.loadTextContent)]
         [DataRow(FunctionCase.loadFileAsBase64)]
+        [DataRow(FunctionCase.loadJsonContent)]
         public void LoadFunction_FileDoesNotExist(FunctionCase function)
         {
             var (template, diags, _) = CompilationHelper.Compile(
     ("main.bicep", @"
-var script = " + function.ToString() + @"('script.cmd')
+var script = " + function + @"('script.cmd')
 
 output out string = script
 "),
@@ -426,6 +460,273 @@ output out string = script
 
             template!.Should().BeNull();
             diags.Should().ContainDiagnostic("BCP091", Diagnostics.DiagnosticLevel.Error, "An error occurred reading file. Could not find file \"/path/to/script.cmd\"");
+        }
+
+        /**** loadJsonContent ****/
+        private const string TEST_JSON = @"{
+  ""propString"": ""propStringValue"",
+  ""propBoolTrue"": true,
+  ""propBoolFalse"": false,
+  ""propNull"": null,
+  ""propInt"" : 1073741824,
+  ""propIntNegative"" : -1073741824,
+  ""propBigInt"" : 4611686018427387904,
+  ""propBigIntNegative"" : -4611686018427387904,
+  ""propFloat"" : 1.618033988749894,
+  ""propFloatNegative"" : -1.618033988749894,
+  ""propArrayString"" : [
+    ""stringArray1"",
+    ""stringArray2"",
+    ""stringArray3"",
+  ],
+  ""propArrayInt"" : [
+    153584335,
+    -5889645,
+    4611686018427387904,
+  ],
+  ""propArrayFloat"" : [
+    1.61803398874,
+    3.14159265359,
+    -1.73205080757,
+  ],
+  ""propObject"" : {
+      ""subObjectPropString"": ""subObjectPropStringValue"",
+      ""subObjectPropBoolTrue"": true,
+      ""subObjectPropBoolFalse"": false,
+      ""subObjectPropNull"": null,
+      ""subObjectPropInt"" : 1234542113245,
+      ""subObjectPropFloat"" : 1.618033988749894,
+      ""subObjectPropArrayString"" : [
+        ""subObjectStringArray1"",
+        ""subObjectStringArray2"",
+        ""subObjectStringArray3"",
+      ],
+      ""subObjectPropArrayInt"" : [
+        153584335,
+        -5889645,
+        4611686018427387904,
+      ],
+      ""subObjectPropArrayFloat"" : [
+        1.61803398874,
+        3.14159265359,
+        -1.73205080757,
+      ]
+  },
+  ""armExpression"": ""[createObject('armObjProp', 'armObjValue')]""
+}";
+        private const string TEST_JSON_ARM = @"{
+  ""propString"": ""propStringValue"",
+  ""propBoolTrue"": true,
+  ""propBoolFalse"": false,
+  ""propNull"": ""[null()]"",
+  ""propInt"": 1073741824,
+  ""propIntNegative"": -1073741824,
+  ""propBigInt"": 4611686018427387904,
+  ""propBigIntNegative"": ""[json('-4611686018427387904')]"",
+  ""propFloat"": ""[json('1.618033988749894')]"",
+  ""propFloatNegative"": ""[json('-1.618033988749894')]"",
+  ""propArrayString"": [
+    ""stringArray1"",
+    ""stringArray2"",
+    ""stringArray3""
+  ],
+  ""propArrayInt"": [
+    153584335,
+    -5889645,
+    4611686018427387904
+  ],
+  ""propArrayFloat"": [
+    ""[json('1.61803398874')]"",
+    ""[json('3.14159265359')]"",
+    ""[json('-1.73205080757')]""
+  ],
+  ""propObject"": {
+    ""subObjectPropString"": ""subObjectPropStringValue"",
+    ""subObjectPropBoolTrue"": true,
+    ""subObjectPropBoolFalse"": false,
+    ""subObjectPropNull"": ""[null()]"",
+    ""subObjectPropInt"": 1234542113245,
+    ""subObjectPropFloat"": ""[json('1.618033988749894')]"",
+    ""subObjectPropArrayString"": [
+      ""subObjectStringArray1"",
+      ""subObjectStringArray2"",
+      ""subObjectStringArray3""
+    ],
+    ""subObjectPropArrayInt"": [
+      153584335,
+      -5889645,
+      4611686018427387904
+    ],
+    ""subObjectPropArrayFloat"": [
+      ""[json('1.61803398874')]"",
+      ""[json('3.14159265359')]"",
+      ""[json('-1.73205080757')]""
+    ]
+  },
+  ""armExpression"": ""[[createObject('armObjProp', 'armObjValue')]""
+}";
+
+        [TestMethod]
+        public void LoadJsonFunction()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+    ("main.bicep", @"
+var fileObj = loadJsonContent('file.json')
+"),
+    ("file.json", TEST_JSON));
+
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.ExcludingLinterDiagnostics().Should().BeEmpty();
+            }
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.variables.fileObj").Should().DeepEqual("[variables('$fxv#0')]");
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(JToken.Parse(TEST_JSON_ARM));
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow("$")]
+        [DataRow(".propObject")]
+        [DataRow(".propArrayFloat[0]")]
+        [DataRow(".propObject.subObjectPropString")]
+        [DataRow(".propObject.subObjectPropFloat")]
+        [DataRow(".propObject.subObjectPropFloat")]
+        [DataRow(".propObject.subObjectPropArrayInt[0]")]
+        public void LoadJsonFunction_withPath(string path)
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+var fileObj = loadJsonContent('file.json', '" + path + @"')
+"),
+                ("file.json", TEST_JSON));
+
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.ExcludingLinterDiagnostics().Should().BeEmpty();
+            }
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.variables.fileObj").Should().DeepEqual("[variables('$fxv#0')]");
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(JToken.Parse(TEST_JSON_ARM).SelectToken(path)!);
+            }
+        }
+
+        [TestMethod]
+        [DataRow(".")]
+        [DataRow("[]")]
+        [DataRow("[0]")]
+        [DataRow("$.")]
+        [DataRow(".propObject[0]")]
+        [DataRow(".propArrayFloat[5]")]
+        [DataRow(".propObject/subObjectPropString")]
+        [DataRow(".propObj")]
+        public void LoadJsonFunction_withPath_errorWhenPathInvalidOrDoesNotExist(string path)
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+var fileObj = loadJsonContent('file.json', '" + path + @"')
+"),
+                ("file.json", TEST_JSON));
+
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP235", DiagnosticLevel.Error, "Specified JSONPath does not exist in the given file or is invalid.") });
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow("utf-8")]
+        [DataRow("utf-16BE")]
+        [DataRow("utf-16")]
+        [DataRow("us-ascii")]
+        [DataRow("iso-8859-1")]
+        public void LoadJsonContent_AcceptsAvailableEncoding(string encoding)
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+var fileObj = loadJsonContent('file.json', '$', '" + encoding + @"')
+"),
+                ("file.json", TEST_JSON));
+
+            using (new AssertionScope())
+            {
+                diags.ExcludingLinterDiagnostics().Should().BeEmpty();
+                template!.Should().NotBeNull();
+            }
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.variables.fileObj").Should().DeepEqual("[variables('$fxv#0')]");
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(JToken.Parse(TEST_JSON_ARM));
+            }
+        }
+
+        [DataTestMethod]
+        [DataRow("utf")]
+        [DataRow("utf-32be")]
+        [DataRow("utf-32le")]
+        [DataRow("utf-7")]
+        [DataRow("iso-8859-2")]
+        [DataRow("en-us")]
+        [DataRow("")]
+        public void LoadJsonContent_DisallowsUnknownEncoding(string encoding)
+        {
+            //notice - here we will not test actual loading file with given encoding - just the fact that bicep function accepts all .NET available encodings
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+var fileObj = loadJsonContent('message.txt', '$', '" + encoding + @"')'
+"),
+                ("file.json", TEST_JSON));
+            using (new AssertionScope())
+            {
+                template!.Should().BeNull();
+                diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
+            }
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/7208
+        /// </summary>
+        [TestMethod]
+        public void LoadJsonFunction_withPath_selectingMultipleTokens()
+        {
+            var (template, diags, _) = CompilationHelper.Compile(
+                ("main.bicep", @"
+var fileObj = loadJsonContent('file.json',  '.products[?(@.price > 3)].name')
+"),
+                ("file.json", @"
+{
+    ""products"" : [
+        {
+            ""name"": ""pizza"",
+            ""price"": 5.00
+        },
+        {
+            ""name"": ""salad"",
+            ""price"": 3.99
+        },
+        {
+            ""name"": ""bread"",
+            ""price"": 2.00
+        }
+    ]
+}
+"));
+
+            using (new AssertionScope())
+            {
+                template!.Should().NotBeNull();
+                diags.ExcludingLinterDiagnostics().Should().BeEmpty();
+            }
+            using (new AssertionScope())
+            {
+                template!.SelectToken("$.variables.fileObj").Should().DeepEqual("[variables('$fxv#0')]");
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(new JArray("pizza", "salad"));
+            }
         }
     }
 }

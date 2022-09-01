@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Parsing
 {
@@ -113,7 +112,7 @@ namespace Bicep.Core.Parsing
             var textBeforePosition = text.Substring(0, position);
             int indexOfPreviousNewLine = textBeforePosition.LastIndexOf('\n');
 
-            if (indexOfPreviousNewLine < 0|| position == 0)
+            if (indexOfPreviousNewLine < 0 || position == 0)
             {
                 return text.Substring(0, position);
             }

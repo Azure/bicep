@@ -5,13 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
-using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Analyzers.Linter
 {
@@ -25,20 +24,20 @@ namespace Bicep.Core.Analyzers.Linter
 
         private readonly RootConfiguration configuration;
 
-        private ImmutableArray<IBicepAnalyzerRule> ruleSet;
+        private readonly LinterRulesProvider linterRulesProvider;
 
-        private ImmutableArray<IDiagnostic> ruleCreationErrors;
+        private readonly ImmutableArray<IBicepAnalyzerRule> ruleSet;
 
-        // TODO: This should be controlled by a core component, not an analyzer
-        public const string FailedRuleCode = "linter-internal-error";
+        private readonly ImmutableArray<IDiagnostic> ruleCreationErrors;
 
         public LinterAnalyzer(RootConfiguration configuration)
         {
             this.configuration = configuration;
+            this.linterRulesProvider = new LinterRulesProvider();
             (this.ruleSet, this.ruleCreationErrors) = CreateLinterRules();
         }
 
-        private bool LinterEnabled => this.configuration.Analyzers.GetValue(LinterEnabledSetting, false);
+        private bool LinterEnabled => this.configuration.Analyzers.GetValue(LinterEnabledSetting, false); // defaults to true in base bicepconfig.json file
 
         private bool LinterVerbose => this.configuration.Analyzers.GetValue(LinterVerboseSetting, false);
 
@@ -47,27 +46,11 @@ namespace Bicep.Core.Analyzers.Linter
             var errors = new List<IDiagnostic>();
             var rules = new List<IBicepAnalyzerRule>();
 
-            var ruleTypes = Assembly.GetExecutingAssembly()
-                .GetTypes()
-                .Where(t => typeof(IBicepAnalyzerRule).IsAssignableFrom(t)
-                            && t.IsClass
-                            && t.IsPublic
-                            && t.GetConstructor(Type.EmptyTypes) != null);
+            var ruleTypes = linterRulesProvider.GetRuleTypes();
 
             foreach (var ruleType in ruleTypes)
             {
-                try
-                {
-                    rules.Add(Activator.CreateInstance(ruleType) as IBicepAnalyzerRule ?? throw new InvalidOperationException($"Failed to create an instance of \"{ruleType.Name}\"."));
-                }
-                catch (Exception ex)
-                {
-                    string message = string.Format("Analyzer '{0}' could not instantiate rule '{1}'. {2}",
-                        AnalyzerName,
-                        ruleType.Name,
-                        ex.InnerException?.Message ?? ex.Message);
-                    errors.Add(CreateInternalErrorDiagnostic(AnalyzerName, message));
-                }
+                rules.Add(Activator.CreateInstance(ruleType) as IBicepAnalyzerRule ?? throw new InvalidOperationException($"Failed to create an instance of \"{ruleType.Name}\"."));
             }
 
             return (rules.ToImmutableArray(), errors.ToImmutableArray());
@@ -125,12 +108,5 @@ namespace Bicep.Core.Analyzers.Linter
                 "Bicep Linter Configuration",
                 configMessage);
         }
-
-        private static IDiagnostic CreateInternalErrorDiagnostic(string analyzerName, string message) => new AnalyzerDiagnostic(
-            analyzerName,
-            new TextSpan(0, 0),
-            DiagnosticLevel.Warning,
-            LinterAnalyzer.FailedRuleCode,
-            message);
     }
 }

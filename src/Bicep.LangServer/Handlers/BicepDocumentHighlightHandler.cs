@@ -35,7 +35,8 @@ namespace Bicep.LanguageServer.Handlers
                 .Select(referenceSyntax => new DocumentHighlight
                 {
                     Range = PositionHelper.GetNameRange(result.Context.LineStarts, referenceSyntax),
-                    Kind = referenceSyntax switch {
+                    Kind = referenceSyntax switch
+                    {
                         INamedDeclarationSyntax _ => DocumentHighlightKind.Write,
                         ObjectPropertySyntax _ => DocumentHighlightKind.Write,
                         _ => DocumentHighlightKind.Read,

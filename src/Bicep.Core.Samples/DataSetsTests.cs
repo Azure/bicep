@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -24,7 +23,7 @@ namespace Bicep.Core.Samples
         {
             dataSet.Name.Should().NotBeNullOrWhiteSpace();
             dataSet.DisplayName.Should().NotBeNullOrWhiteSpace();
-            
+
             // Bicep files may be empty
             dataSet.Bicep.Should().NotBeNull();
             dataSet.Tokens.Should().NotBeNull();

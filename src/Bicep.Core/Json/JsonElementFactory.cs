@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 
 namespace Bicep.Core.Json
@@ -56,6 +55,6 @@ namespace Bicep.Core.Json
         }
 
         public static JsonElement? CreateNullableElement<T>(T? value, JsonSerializerOptions? options = null) =>
-            value is not null ?  CreateElement(value, options) : null;
+            value is not null ? CreateElement(value, options) : null;
     }
 }

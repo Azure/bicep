@@ -4,7 +4,6 @@
 using System;
 using System.Linq;
 using Bicep.Core.Extensions;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -17,7 +16,7 @@ namespace Bicep.Core.Decompiler.Rewriters
     //   resource resA 'My.Rp/resA@2020-01-01' = {
     //     name: parentName
     //   }
-    //   
+    //
     //   resource resB 'My.Rp/resA/childB@2020-01-01' = {
     //     name: '${parentName}/resB'
     //     dependsOn: [
@@ -91,7 +90,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 return syntax;
             }
 
-            foreach (var otherResource in semanticModel.AllResources)
+            foreach (var otherResource in semanticModel.DeclaredResources)
             {
                 var otherResourceSymbol = otherResource.Symbol;
 
@@ -115,16 +114,16 @@ namespace Bicep.Core.Decompiler.Rewriters
                 }
 
                 var replacementNameProp = new ObjectPropertySyntax(resourceNameProp.Key, resourceNameProp.Colon, newName);
-                var parentProp = new ObjectPropertySyntax(
-                    SyntaxFactory.CreateIdentifier(LanguageConstants.ResourceParentPropertyName),
-                    SyntaxFactory.ColonToken,
+                var parentProp = SyntaxFactory.CreateObjectProperty(
+                    LanguageConstants.ResourceParentPropertyName,
                     SyntaxFactory.CreateVariableAccess(otherResourceSymbol.Name));
 
-                var replacementBody = new ObjectSyntax(
-                    resourceBody.OpenBrace,
-                    // parent prop comes first!
-                    parentProp.AsEnumerable().Concat(resourceBody.Children.Replace(resourceNameProp, replacementNameProp)),
-                    resourceBody.CloseBrace);
+                // parent prop comes first!
+                var newProperties = parentProp.AsEnumerable()
+                    .Concat(resourceBody.Children.Replace(resourceNameProp, replacementNameProp))
+                    .OfType<ObjectPropertySyntax>();
+
+                var replacementBody = SyntaxFactory.CreateObject(newProperties);
 
                 // at the top we just checked if there is a legitimate body
                 // but to do the replacement correctly we may need to wrap it inside an IfConditionSyntax

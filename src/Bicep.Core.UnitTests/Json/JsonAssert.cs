@@ -18,7 +18,7 @@ namespace Bicep.Core.UnitTests.Json
             }
 
             var delta = GetDelta(expected, actual);
-            
+
             throw new AssertFailedException($"The specified JSON objects are not equal.\r\nExpected:\r\n{expected}\r\nActual:\r\n{actual}\r\nDelta:{delta}");
         }
 

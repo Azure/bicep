@@ -1,2 +1,1 @@
-# Install the Bicep VS Code extension
-Please refer to our new documentation for installing the Bicep VS code extension on [Microsoft Docs](https://docs.microsoft.com/azure/azure-resource-manager/bicep/install#vs-code-and-bicep-extension).
+# This doc has been moved to [aka.ms/bicep-install](https://aka.ms/bicep-install).

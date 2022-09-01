@@ -1,0 +1,27 @@
+
+<!--
+  Preview this file by prepending http://htmlpreview.github.io/? to its URL
+  e.g. http://htmlpreview.github.io/?https://raw.githubusercontent.com/Azure/bicep/main/src/monarch/test/baselines/invalid_issue2421.html
+-->
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+  </head>
+  <body>
+    <pre class="hljs">
+<span class="hljs-comment">//comment - this is highlighted correctly</span>
+
+<span class="hljs-keyword">resource</span> <span class="hljs-variable">webApp</span> <span class="hljs-string">&#39;</span><span class="hljs-string">Microsoft.Web/sites@2020-12-01&#39;</span> = {
+  <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">foo&#39;</span>
+  <span class="hljs-comment">//comment inside resource - this is not highlighted correctly.  Further highlighting also gets broken</span>
+}
+
+<span class="hljs-keyword">resource</span> <span class="hljs-variable">webApp</span> <span class="hljs-string">&#39;</span><span class="hljs-string">Microsoft.Web/sites@2020-12-01&#39;</span> = {
+  <span class="hljs-variable">name</span>: <span class="hljs-string">&#39;</span><span class="hljs-string">foo&#39;</span>
+  <span class="hljs-comment">//comment inside resource - still broken</span>
+}
+
+
+    </pre>
+  </body>
+</html>

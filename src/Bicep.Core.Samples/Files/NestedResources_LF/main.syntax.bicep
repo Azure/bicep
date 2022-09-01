@@ -1,680 +1,681 @@
 resource basicParent 'My.Rp/parentType@2020-12-01' = {
-//@[0:659) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:20)  IdentifierSyntax
-//@[9:20)   Identifier |basicParent|
-//@[21:50)  StringSyntax
-//@[21:50)   StringComplete |'My.Rp/parentType@2020-12-01'|
-//@[51:52)  Assignment |=|
-//@[53:659)  ObjectSyntax
-//@[53:54)   LeftBrace |{|
-//@[54:55)   NewLine |\n|
+//@[00:2073) ProgramSyntax
+//@[00:0659) ├─ResourceDeclarationSyntax
+//@[00:0008) | ├─Token(Identifier) |resource|
+//@[09:0020) | ├─IdentifierSyntax
+//@[09:0020) | | └─Token(Identifier) |basicParent|
+//@[21:0050) | ├─StringSyntax
+//@[21:0050) | | └─Token(StringComplete) |'My.Rp/parentType@2020-12-01'|
+//@[51:0052) | ├─Token(Assignment) |=|
+//@[53:0659) | └─ObjectSyntax
+//@[53:0054) |   ├─Token(LeftBrace) |{|
+//@[54:0055) |   ├─Token(NewLine) |\n|
   name: 'basicParent'
-//@[2:21)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:21)    StringSyntax
-//@[8:21)     StringComplete |'basicParent'|
-//@[21:22)   NewLine |\n|
+//@[02:0021) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0021) |   | └─StringSyntax
+//@[08:0021) |   |   └─Token(StringComplete) |'basicParent'|
+//@[21:0022) |   ├─Token(NewLine) |\n|
   properties: {
-//@[2:37)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:37)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:16)     NewLine |\n|
+//@[02:0037) |   ├─ObjectPropertySyntax
+//@[02:0012) |   | ├─IdentifierSyntax
+//@[02:0012) |   | | └─Token(Identifier) |properties|
+//@[12:0013) |   | ├─Token(Colon) |:|
+//@[14:0037) |   | └─ObjectSyntax
+//@[14:0015) |   |   ├─Token(LeftBrace) |{|
+//@[15:0016) |   |   ├─Token(NewLine) |\n|
     size: 'large'
-//@[4:17)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |size|
-//@[8:9)      Colon |:|
-//@[10:17)      StringSyntax
-//@[10:17)       StringComplete |'large'|
-//@[17:18)     NewLine |\n|
+//@[04:0017) |   |   ├─ObjectPropertySyntax
+//@[04:0008) |   |   | ├─IdentifierSyntax
+//@[04:0008) |   |   | | └─Token(Identifier) |size|
+//@[08:0009) |   |   | ├─Token(Colon) |:|
+//@[10:0017) |   |   | └─StringSyntax
+//@[10:0017) |   |   |   └─Token(StringComplete) |'large'|
+//@[17:0018) |   |   ├─Token(NewLine) |\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\n\n|
+//@[02:0003) |   |   └─Token(RightBrace) |}|
+//@[03:0005) |   ├─Token(NewLine) |\n\n|
 
   resource basicChild 'childType' = {
-//@[2:349)   ResourceDeclarationSyntax
-//@[2:10)    Identifier |resource|
-//@[11:21)    IdentifierSyntax
-//@[11:21)     Identifier |basicChild|
-//@[22:33)    StringSyntax
-//@[22:33)     StringComplete |'childType'|
-//@[34:35)    Assignment |=|
-//@[36:349)    ObjectSyntax
-//@[36:37)     LeftBrace |{|
-//@[37:38)     NewLine |\n|
+//@[02:0349) |   ├─ResourceDeclarationSyntax
+//@[02:0010) |   | ├─Token(Identifier) |resource|
+//@[11:0021) |   | ├─IdentifierSyntax
+//@[11:0021) |   | | └─Token(Identifier) |basicChild|
+//@[22:0033) |   | ├─StringSyntax
+//@[22:0033) |   | | └─Token(StringComplete) |'childType'|
+//@[34:0035) |   | ├─Token(Assignment) |=|
+//@[36:0349) |   | └─ObjectSyntax
+//@[36:0037) |   |   ├─Token(LeftBrace) |{|
+//@[37:0038) |   |   ├─Token(NewLine) |\n|
     name: 'basicChild'
-//@[4:22)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |name|
-//@[8:9)      Colon |:|
-//@[10:22)      StringSyntax
-//@[10:22)       StringComplete |'basicChild'|
-//@[22:23)     NewLine |\n|
+//@[04:0022) |   |   ├─ObjectPropertySyntax
+//@[04:0008) |   |   | ├─IdentifierSyntax
+//@[04:0008) |   |   | | └─Token(Identifier) |name|
+//@[08:0009) |   |   | ├─Token(Colon) |:|
+//@[10:0022) |   |   | └─StringSyntax
+//@[10:0022) |   |   |   └─Token(StringComplete) |'basicChild'|
+//@[22:0023) |   |   ├─Token(NewLine) |\n|
     properties: {
-//@[4:84)     ObjectPropertySyntax
-//@[4:14)      IdentifierSyntax
-//@[4:14)       Identifier |properties|
-//@[14:15)      Colon |:|
-//@[16:84)      ObjectSyntax
-//@[16:17)       LeftBrace |{|
-//@[17:18)       NewLine |\n|
+//@[04:0084) |   |   ├─ObjectPropertySyntax
+//@[04:0014) |   |   | ├─IdentifierSyntax
+//@[04:0014) |   |   | | └─Token(Identifier) |properties|
+//@[14:0015) |   |   | ├─Token(Colon) |:|
+//@[16:0084) |   |   | └─ObjectSyntax
+//@[16:0017) |   |   |   ├─Token(LeftBrace) |{|
+//@[17:0018) |   |   |   ├─Token(NewLine) |\n|
       size: basicParent.properties.large
-//@[6:40)       ObjectPropertySyntax
-//@[6:10)        IdentifierSyntax
-//@[6:10)         Identifier |size|
-//@[10:11)        Colon |:|
-//@[12:40)        PropertyAccessSyntax
-//@[12:34)         PropertyAccessSyntax
-//@[12:23)          VariableAccessSyntax
-//@[12:23)           IdentifierSyntax
-//@[12:23)            Identifier |basicParent|
-//@[23:24)          Dot |.|
-//@[24:34)          IdentifierSyntax
-//@[24:34)           Identifier |properties|
-//@[34:35)         Dot |.|
-//@[35:40)         IdentifierSyntax
-//@[35:40)          Identifier |large|
-//@[40:41)       NewLine |\n|
+//@[06:0040) |   |   |   ├─ObjectPropertySyntax
+//@[06:0010) |   |   |   | ├─IdentifierSyntax
+//@[06:0010) |   |   |   | | └─Token(Identifier) |size|
+//@[10:0011) |   |   |   | ├─Token(Colon) |:|
+//@[12:0040) |   |   |   | └─PropertyAccessSyntax
+//@[12:0034) |   |   |   |   ├─PropertyAccessSyntax
+//@[12:0023) |   |   |   |   | ├─VariableAccessSyntax
+//@[12:0023) |   |   |   |   | | └─IdentifierSyntax
+//@[12:0023) |   |   |   |   | |   └─Token(Identifier) |basicParent|
+//@[23:0024) |   |   |   |   | ├─Token(Dot) |.|
+//@[24:0034) |   |   |   |   | └─IdentifierSyntax
+//@[24:0034) |   |   |   |   |   └─Token(Identifier) |properties|
+//@[34:0035) |   |   |   |   ├─Token(Dot) |.|
+//@[35:0040) |   |   |   |   └─IdentifierSyntax
+//@[35:0040) |   |   |   |     └─Token(Identifier) |large|
+//@[40:0041) |   |   |   ├─Token(NewLine) |\n|
       style: 'cool'
-//@[6:19)       ObjectPropertySyntax
-//@[6:11)        IdentifierSyntax
-//@[6:11)         Identifier |style|
-//@[11:12)        Colon |:|
-//@[13:19)        StringSyntax
-//@[13:19)         StringComplete |'cool'|
-//@[19:20)       NewLine |\n|
+//@[06:0019) |   |   |   ├─ObjectPropertySyntax
+//@[06:0011) |   |   |   | ├─IdentifierSyntax
+//@[06:0011) |   |   |   | | └─Token(Identifier) |style|
+//@[11:0012) |   |   |   | ├─Token(Colon) |:|
+//@[13:0019) |   |   |   | └─StringSyntax
+//@[13:0019) |   |   |   |   └─Token(StringComplete) |'cool'|
+//@[19:0020) |   |   |   ├─Token(NewLine) |\n|
     }
-//@[4:5)       RightBrace |}|
-//@[5:7)     NewLine |\n\n|
+//@[04:0005) |   |   |   └─Token(RightBrace) |}|
+//@[05:0007) |   |   ├─Token(NewLine) |\n\n|
 
     resource basicGrandchild 'grandchildType' = {
-//@[4:198)     ResourceDeclarationSyntax
-//@[4:12)      Identifier |resource|
-//@[13:28)      IdentifierSyntax
-//@[13:28)       Identifier |basicGrandchild|
-//@[29:45)      StringSyntax
-//@[29:45)       StringComplete |'grandchildType'|
-//@[46:47)      Assignment |=|
-//@[48:198)      ObjectSyntax
-//@[48:49)       LeftBrace |{|
-//@[49:50)       NewLine |\n|
+//@[04:0198) |   |   ├─ResourceDeclarationSyntax
+//@[04:0012) |   |   | ├─Token(Identifier) |resource|
+//@[13:0028) |   |   | ├─IdentifierSyntax
+//@[13:0028) |   |   | | └─Token(Identifier) |basicGrandchild|
+//@[29:0045) |   |   | ├─StringSyntax
+//@[29:0045) |   |   | | └─Token(StringComplete) |'grandchildType'|
+//@[46:0047) |   |   | ├─Token(Assignment) |=|
+//@[48:0198) |   |   | └─ObjectSyntax
+//@[48:0049) |   |   |   ├─Token(LeftBrace) |{|
+//@[49:0050) |   |   |   ├─Token(NewLine) |\n|
       name: 'basicGrandchild'
-//@[6:29)       ObjectPropertySyntax
-//@[6:10)        IdentifierSyntax
-//@[6:10)         Identifier |name|
-//@[10:11)        Colon |:|
-//@[12:29)        StringSyntax
-//@[12:29)         StringComplete |'basicGrandchild'|
-//@[29:30)       NewLine |\n|
+//@[06:0029) |   |   |   ├─ObjectPropertySyntax
+//@[06:0010) |   |   |   | ├─IdentifierSyntax
+//@[06:0010) |   |   |   | | └─Token(Identifier) |name|
+//@[10:0011) |   |   |   | ├─Token(Colon) |:|
+//@[12:0029) |   |   |   | └─StringSyntax
+//@[12:0029) |   |   |   |   └─Token(StringComplete) |'basicGrandchild'|
+//@[29:0030) |   |   |   ├─Token(NewLine) |\n|
       properties: {
-//@[6:112)       ObjectPropertySyntax
-//@[6:16)        IdentifierSyntax
-//@[6:16)         Identifier |properties|
-//@[16:17)        Colon |:|
-//@[18:112)        ObjectSyntax
-//@[18:19)         LeftBrace |{|
-//@[19:20)         NewLine |\n|
+//@[06:0112) |   |   |   ├─ObjectPropertySyntax
+//@[06:0016) |   |   |   | ├─IdentifierSyntax
+//@[06:0016) |   |   |   | | └─Token(Identifier) |properties|
+//@[16:0017) |   |   |   | ├─Token(Colon) |:|
+//@[18:0112) |   |   |   | └─ObjectSyntax
+//@[18:0019) |   |   |   |   ├─Token(LeftBrace) |{|
+//@[19:0020) |   |   |   |   ├─Token(NewLine) |\n|
         size: basicParent.properties.size
-//@[8:41)         ObjectPropertySyntax
-//@[8:12)          IdentifierSyntax
-//@[8:12)           Identifier |size|
-//@[12:13)          Colon |:|
-//@[14:41)          PropertyAccessSyntax
-//@[14:36)           PropertyAccessSyntax
-//@[14:25)            VariableAccessSyntax
-//@[14:25)             IdentifierSyntax
-//@[14:25)              Identifier |basicParent|
-//@[25:26)            Dot |.|
-//@[26:36)            IdentifierSyntax
-//@[26:36)             Identifier |properties|
-//@[36:37)           Dot |.|
-//@[37:41)           IdentifierSyntax
-//@[37:41)            Identifier |size|
-//@[41:42)         NewLine |\n|
+//@[08:0041) |   |   |   |   ├─ObjectPropertySyntax
+//@[08:0012) |   |   |   |   | ├─IdentifierSyntax
+//@[08:0012) |   |   |   |   | | └─Token(Identifier) |size|
+//@[12:0013) |   |   |   |   | ├─Token(Colon) |:|
+//@[14:0041) |   |   |   |   | └─PropertyAccessSyntax
+//@[14:0036) |   |   |   |   |   ├─PropertyAccessSyntax
+//@[14:0025) |   |   |   |   |   | ├─VariableAccessSyntax
+//@[14:0025) |   |   |   |   |   | | └─IdentifierSyntax
+//@[14:0025) |   |   |   |   |   | |   └─Token(Identifier) |basicParent|
+//@[25:0026) |   |   |   |   |   | ├─Token(Dot) |.|
+//@[26:0036) |   |   |   |   |   | └─IdentifierSyntax
+//@[26:0036) |   |   |   |   |   |   └─Token(Identifier) |properties|
+//@[36:0037) |   |   |   |   |   ├─Token(Dot) |.|
+//@[37:0041) |   |   |   |   |   └─IdentifierSyntax
+//@[37:0041) |   |   |   |   |     └─Token(Identifier) |size|
+//@[41:0042) |   |   |   |   ├─Token(NewLine) |\n|
         style: basicChild.properties.style
-//@[8:42)         ObjectPropertySyntax
-//@[8:13)          IdentifierSyntax
-//@[8:13)           Identifier |style|
-//@[13:14)          Colon |:|
-//@[15:42)          PropertyAccessSyntax
-//@[15:36)           PropertyAccessSyntax
-//@[15:25)            VariableAccessSyntax
-//@[15:25)             IdentifierSyntax
-//@[15:25)              Identifier |basicChild|
-//@[25:26)            Dot |.|
-//@[26:36)            IdentifierSyntax
-//@[26:36)             Identifier |properties|
-//@[36:37)           Dot |.|
-//@[37:42)           IdentifierSyntax
-//@[37:42)            Identifier |style|
-//@[42:43)         NewLine |\n|
+//@[08:0042) |   |   |   |   ├─ObjectPropertySyntax
+//@[08:0013) |   |   |   |   | ├─IdentifierSyntax
+//@[08:0013) |   |   |   |   | | └─Token(Identifier) |style|
+//@[13:0014) |   |   |   |   | ├─Token(Colon) |:|
+//@[15:0042) |   |   |   |   | └─PropertyAccessSyntax
+//@[15:0036) |   |   |   |   |   ├─PropertyAccessSyntax
+//@[15:0025) |   |   |   |   |   | ├─VariableAccessSyntax
+//@[15:0025) |   |   |   |   |   | | └─IdentifierSyntax
+//@[15:0025) |   |   |   |   |   | |   └─Token(Identifier) |basicChild|
+//@[25:0026) |   |   |   |   |   | ├─Token(Dot) |.|
+//@[26:0036) |   |   |   |   |   | └─IdentifierSyntax
+//@[26:0036) |   |   |   |   |   |   └─Token(Identifier) |properties|
+//@[36:0037) |   |   |   |   |   ├─Token(Dot) |.|
+//@[37:0042) |   |   |   |   |   └─IdentifierSyntax
+//@[37:0042) |   |   |   |   |     └─Token(Identifier) |style|
+//@[42:0043) |   |   |   |   ├─Token(NewLine) |\n|
       }
-//@[6:7)         RightBrace |}|
-//@[7:8)       NewLine |\n|
+//@[06:0007) |   |   |   |   └─Token(RightBrace) |}|
+//@[07:0008) |   |   |   ├─Token(NewLine) |\n|
     }
-//@[4:5)       RightBrace |}|
-//@[5:6)     NewLine |\n|
+//@[04:0005) |   |   |   └─Token(RightBrace) |}|
+//@[05:0006) |   |   ├─Token(NewLine) |\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\n\n|
+//@[02:0003) |   |   └─Token(RightBrace) |}|
+//@[03:0005) |   ├─Token(NewLine) |\n\n|
 
   resource basicSibling 'childType' = {
-//@[2:190)   ResourceDeclarationSyntax
-//@[2:10)    Identifier |resource|
-//@[11:23)    IdentifierSyntax
-//@[11:23)     Identifier |basicSibling|
-//@[24:35)    StringSyntax
-//@[24:35)     StringComplete |'childType'|
-//@[36:37)    Assignment |=|
-//@[38:190)    ObjectSyntax
-//@[38:39)     LeftBrace |{|
-//@[39:40)     NewLine |\n|
+//@[02:0190) |   ├─ResourceDeclarationSyntax
+//@[02:0010) |   | ├─Token(Identifier) |resource|
+//@[11:0023) |   | ├─IdentifierSyntax
+//@[11:0023) |   | | └─Token(Identifier) |basicSibling|
+//@[24:0035) |   | ├─StringSyntax
+//@[24:0035) |   | | └─Token(StringComplete) |'childType'|
+//@[36:0037) |   | ├─Token(Assignment) |=|
+//@[38:0190) |   | └─ObjectSyntax
+//@[38:0039) |   |   ├─Token(LeftBrace) |{|
+//@[39:0040) |   |   ├─Token(NewLine) |\n|
     name: 'basicSibling'
-//@[4:24)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |name|
-//@[8:9)      Colon |:|
-//@[10:24)      StringSyntax
-//@[10:24)       StringComplete |'basicSibling'|
-//@[24:25)     NewLine |\n|
+//@[04:0024) |   |   ├─ObjectPropertySyntax
+//@[04:0008) |   |   | ├─IdentifierSyntax
+//@[04:0008) |   |   | | └─Token(Identifier) |name|
+//@[08:0009) |   |   | ├─Token(Colon) |:|
+//@[10:0024) |   |   | └─StringSyntax
+//@[10:0024) |   |   |   └─Token(StringComplete) |'basicSibling'|
+//@[24:0025) |   |   ├─Token(NewLine) |\n|
     properties: {
-//@[4:121)     ObjectPropertySyntax
-//@[4:14)      IdentifierSyntax
-//@[4:14)       Identifier |properties|
-//@[14:15)      Colon |:|
-//@[16:121)      ObjectSyntax
-//@[16:17)       LeftBrace |{|
-//@[17:18)       NewLine |\n|
+//@[04:0121) |   |   ├─ObjectPropertySyntax
+//@[04:0014) |   |   | ├─IdentifierSyntax
+//@[04:0014) |   |   | | └─Token(Identifier) |properties|
+//@[14:0015) |   |   | ├─Token(Colon) |:|
+//@[16:0121) |   |   | └─ObjectSyntax
+//@[16:0017) |   |   |   ├─Token(LeftBrace) |{|
+//@[17:0018) |   |   |   ├─Token(NewLine) |\n|
       size: basicParent.properties.size
-//@[6:39)       ObjectPropertySyntax
-//@[6:10)        IdentifierSyntax
-//@[6:10)         Identifier |size|
-//@[10:11)        Colon |:|
-//@[12:39)        PropertyAccessSyntax
-//@[12:34)         PropertyAccessSyntax
-//@[12:23)          VariableAccessSyntax
-//@[12:23)           IdentifierSyntax
-//@[12:23)            Identifier |basicParent|
-//@[23:24)          Dot |.|
-//@[24:34)          IdentifierSyntax
-//@[24:34)           Identifier |properties|
-//@[34:35)         Dot |.|
-//@[35:39)         IdentifierSyntax
-//@[35:39)          Identifier |size|
-//@[39:40)       NewLine |\n|
+//@[06:0039) |   |   |   ├─ObjectPropertySyntax
+//@[06:0010) |   |   |   | ├─IdentifierSyntax
+//@[06:0010) |   |   |   | | └─Token(Identifier) |size|
+//@[10:0011) |   |   |   | ├─Token(Colon) |:|
+//@[12:0039) |   |   |   | └─PropertyAccessSyntax
+//@[12:0034) |   |   |   |   ├─PropertyAccessSyntax
+//@[12:0023) |   |   |   |   | ├─VariableAccessSyntax
+//@[12:0023) |   |   |   |   | | └─IdentifierSyntax
+//@[12:0023) |   |   |   |   | |   └─Token(Identifier) |basicParent|
+//@[23:0024) |   |   |   |   | ├─Token(Dot) |.|
+//@[24:0034) |   |   |   |   | └─IdentifierSyntax
+//@[24:0034) |   |   |   |   |   └─Token(Identifier) |properties|
+//@[34:0035) |   |   |   |   ├─Token(Dot) |.|
+//@[35:0039) |   |   |   |   └─IdentifierSyntax
+//@[35:0039) |   |   |   |     └─Token(Identifier) |size|
+//@[39:0040) |   |   |   ├─Token(NewLine) |\n|
       style: basicChild::basicGrandchild.properties.style
-//@[6:57)       ObjectPropertySyntax
-//@[6:11)        IdentifierSyntax
-//@[6:11)         Identifier |style|
-//@[11:12)        Colon |:|
-//@[13:57)        PropertyAccessSyntax
-//@[13:51)         PropertyAccessSyntax
-//@[13:40)          ResourceAccessSyntax
-//@[13:23)           VariableAccessSyntax
-//@[13:23)            IdentifierSyntax
-//@[13:23)             Identifier |basicChild|
-//@[23:25)           DoubleColon |::|
-//@[25:40)           IdentifierSyntax
-//@[25:40)            Identifier |basicGrandchild|
-//@[40:41)          Dot |.|
-//@[41:51)          IdentifierSyntax
-//@[41:51)           Identifier |properties|
-//@[51:52)         Dot |.|
-//@[52:57)         IdentifierSyntax
-//@[52:57)          Identifier |style|
-//@[57:58)       NewLine |\n|
+//@[06:0057) |   |   |   ├─ObjectPropertySyntax
+//@[06:0011) |   |   |   | ├─IdentifierSyntax
+//@[06:0011) |   |   |   | | └─Token(Identifier) |style|
+//@[11:0012) |   |   |   | ├─Token(Colon) |:|
+//@[13:0057) |   |   |   | └─PropertyAccessSyntax
+//@[13:0051) |   |   |   |   ├─PropertyAccessSyntax
+//@[13:0040) |   |   |   |   | ├─ResourceAccessSyntax
+//@[13:0023) |   |   |   |   | | ├─VariableAccessSyntax
+//@[13:0023) |   |   |   |   | | | └─IdentifierSyntax
+//@[13:0023) |   |   |   |   | | |   └─Token(Identifier) |basicChild|
+//@[23:0025) |   |   |   |   | | ├─Token(DoubleColon) |::|
+//@[25:0040) |   |   |   |   | | └─IdentifierSyntax
+//@[25:0040) |   |   |   |   | |   └─Token(Identifier) |basicGrandchild|
+//@[40:0041) |   |   |   |   | ├─Token(Dot) |.|
+//@[41:0051) |   |   |   |   | └─IdentifierSyntax
+//@[41:0051) |   |   |   |   |   └─Token(Identifier) |properties|
+//@[51:0052) |   |   |   |   ├─Token(Dot) |.|
+//@[52:0057) |   |   |   |   └─IdentifierSyntax
+//@[52:0057) |   |   |   |     └─Token(Identifier) |style|
+//@[57:0058) |   |   |   ├─Token(NewLine) |\n|
     }
-//@[4:5)       RightBrace |}|
-//@[5:6)     NewLine |\n|
+//@[04:0005) |   |   |   └─Token(RightBrace) |}|
+//@[05:0006) |   |   ├─Token(NewLine) |\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:4)   NewLine |\n|
+//@[02:0003) |   |   └─Token(RightBrace) |}|
+//@[03:0004) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0002) ├─Token(NewLine) |\n|
 // #completionTest(50) -> childResources
-//@[40:41) NewLine |\n|
+//@[40:0041) ├─Token(NewLine) |\n|
 output referenceBasicChild string = basicParent::basicChild.properties.size
-//@[0:75) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:26)  IdentifierSyntax
-//@[7:26)   Identifier |referenceBasicChild|
-//@[27:33)  TypeSyntax
-//@[27:33)   Identifier |string|
-//@[34:35)  Assignment |=|
-//@[36:75)  PropertyAccessSyntax
-//@[36:70)   PropertyAccessSyntax
-//@[36:59)    ResourceAccessSyntax
-//@[36:47)     VariableAccessSyntax
-//@[36:47)      IdentifierSyntax
-//@[36:47)       Identifier |basicParent|
-//@[47:49)     DoubleColon |::|
-//@[49:59)     IdentifierSyntax
-//@[49:59)      Identifier |basicChild|
-//@[59:60)    Dot |.|
-//@[60:70)    IdentifierSyntax
-//@[60:70)     Identifier |properties|
-//@[70:71)   Dot |.|
-//@[71:75)   IdentifierSyntax
-//@[71:75)    Identifier |size|
-//@[75:76) NewLine |\n|
+//@[00:0075) ├─OutputDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |output|
+//@[07:0026) | ├─IdentifierSyntax
+//@[07:0026) | | └─Token(Identifier) |referenceBasicChild|
+//@[27:0033) | ├─SimpleTypeSyntax
+//@[27:0033) | | └─Token(Identifier) |string|
+//@[34:0035) | ├─Token(Assignment) |=|
+//@[36:0075) | └─PropertyAccessSyntax
+//@[36:0070) |   ├─PropertyAccessSyntax
+//@[36:0059) |   | ├─ResourceAccessSyntax
+//@[36:0047) |   | | ├─VariableAccessSyntax
+//@[36:0047) |   | | | └─IdentifierSyntax
+//@[36:0047) |   | | |   └─Token(Identifier) |basicParent|
+//@[47:0049) |   | | ├─Token(DoubleColon) |::|
+//@[49:0059) |   | | └─IdentifierSyntax
+//@[49:0059) |   | |   └─Token(Identifier) |basicChild|
+//@[59:0060) |   | ├─Token(Dot) |.|
+//@[60:0070) |   | └─IdentifierSyntax
+//@[60:0070) |   |   └─Token(Identifier) |properties|
+//@[70:0071) |   ├─Token(Dot) |.|
+//@[71:0075) |   └─IdentifierSyntax
+//@[71:0075) |     └─Token(Identifier) |size|
+//@[75:0076) ├─Token(NewLine) |\n|
 // #completionTest(67) -> grandChildResources
-//@[45:46) NewLine |\n|
+//@[45:0046) ├─Token(NewLine) |\n|
 output referenceBasicGrandchild string = basicParent::basicChild::basicGrandchild.properties.style
-//@[0:98) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:31)  IdentifierSyntax
-//@[7:31)   Identifier |referenceBasicGrandchild|
-//@[32:38)  TypeSyntax
-//@[32:38)   Identifier |string|
-//@[39:40)  Assignment |=|
-//@[41:98)  PropertyAccessSyntax
-//@[41:92)   PropertyAccessSyntax
-//@[41:81)    ResourceAccessSyntax
-//@[41:64)     ResourceAccessSyntax
-//@[41:52)      VariableAccessSyntax
-//@[41:52)       IdentifierSyntax
-//@[41:52)        Identifier |basicParent|
-//@[52:54)      DoubleColon |::|
-//@[54:64)      IdentifierSyntax
-//@[54:64)       Identifier |basicChild|
-//@[64:66)     DoubleColon |::|
-//@[66:81)     IdentifierSyntax
-//@[66:81)      Identifier |basicGrandchild|
-//@[81:82)    Dot |.|
-//@[82:92)    IdentifierSyntax
-//@[82:92)     Identifier |properties|
-//@[92:93)   Dot |.|
-//@[93:98)   IdentifierSyntax
-//@[93:98)    Identifier |style|
-//@[98:100) NewLine |\n\n|
+//@[00:0098) ├─OutputDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |output|
+//@[07:0031) | ├─IdentifierSyntax
+//@[07:0031) | | └─Token(Identifier) |referenceBasicGrandchild|
+//@[32:0038) | ├─SimpleTypeSyntax
+//@[32:0038) | | └─Token(Identifier) |string|
+//@[39:0040) | ├─Token(Assignment) |=|
+//@[41:0098) | └─PropertyAccessSyntax
+//@[41:0092) |   ├─PropertyAccessSyntax
+//@[41:0081) |   | ├─ResourceAccessSyntax
+//@[41:0064) |   | | ├─ResourceAccessSyntax
+//@[41:0052) |   | | | ├─VariableAccessSyntax
+//@[41:0052) |   | | | | └─IdentifierSyntax
+//@[41:0052) |   | | | |   └─Token(Identifier) |basicParent|
+//@[52:0054) |   | | | ├─Token(DoubleColon) |::|
+//@[54:0064) |   | | | └─IdentifierSyntax
+//@[54:0064) |   | | |   └─Token(Identifier) |basicChild|
+//@[64:0066) |   | | ├─Token(DoubleColon) |::|
+//@[66:0081) |   | | └─IdentifierSyntax
+//@[66:0081) |   | |   └─Token(Identifier) |basicGrandchild|
+//@[81:0082) |   | ├─Token(Dot) |.|
+//@[82:0092) |   | └─IdentifierSyntax
+//@[82:0092) |   |   └─Token(Identifier) |properties|
+//@[92:0093) |   ├─Token(Dot) |.|
+//@[93:0098) |   └─IdentifierSyntax
+//@[93:0098) |     └─Token(Identifier) |style|
+//@[98:0100) ├─Token(NewLine) |\n\n|
 
 resource existingParent 'My.Rp/parentType@2020-12-01' existing = {
-//@[0:386) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:23)  IdentifierSyntax
-//@[9:23)   Identifier |existingParent|
-//@[24:53)  StringSyntax
-//@[24:53)   StringComplete |'My.Rp/parentType@2020-12-01'|
-//@[54:62)  Identifier |existing|
-//@[63:64)  Assignment |=|
-//@[65:386)  ObjectSyntax
-//@[65:66)   LeftBrace |{|
-//@[66:67)   NewLine |\n|
+//@[00:0386) ├─ResourceDeclarationSyntax
+//@[00:0008) | ├─Token(Identifier) |resource|
+//@[09:0023) | ├─IdentifierSyntax
+//@[09:0023) | | └─Token(Identifier) |existingParent|
+//@[24:0053) | ├─StringSyntax
+//@[24:0053) | | └─Token(StringComplete) |'My.Rp/parentType@2020-12-01'|
+//@[54:0062) | ├─Token(Identifier) |existing|
+//@[63:0064) | ├─Token(Assignment) |=|
+//@[65:0386) | └─ObjectSyntax
+//@[65:0066) |   ├─Token(LeftBrace) |{|
+//@[66:0067) |   ├─Token(NewLine) |\n|
   name: 'existingParent'
-//@[2:24)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:24)    StringSyntax
-//@[8:24)     StringComplete |'existingParent'|
-//@[24:26)   NewLine |\n\n|
+//@[02:0024) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0024) |   | └─StringSyntax
+//@[08:0024) |   |   └─Token(StringComplete) |'existingParent'|
+//@[24:0026) |   ├─Token(NewLine) |\n\n|
 
   resource existingChild 'childType' existing = {
-//@[2:291)   ResourceDeclarationSyntax
-//@[2:10)    Identifier |resource|
-//@[11:24)    IdentifierSyntax
-//@[11:24)     Identifier |existingChild|
-//@[25:36)    StringSyntax
-//@[25:36)     StringComplete |'childType'|
-//@[37:45)    Identifier |existing|
-//@[46:47)    Assignment |=|
-//@[48:291)    ObjectSyntax
-//@[48:49)     LeftBrace |{|
-//@[49:50)     NewLine |\n|
+//@[02:0291) |   ├─ResourceDeclarationSyntax
+//@[02:0010) |   | ├─Token(Identifier) |resource|
+//@[11:0024) |   | ├─IdentifierSyntax
+//@[11:0024) |   | | └─Token(Identifier) |existingChild|
+//@[25:0036) |   | ├─StringSyntax
+//@[25:0036) |   | | └─Token(StringComplete) |'childType'|
+//@[37:0045) |   | ├─Token(Identifier) |existing|
+//@[46:0047) |   | ├─Token(Assignment) |=|
+//@[48:0291) |   | └─ObjectSyntax
+//@[48:0049) |   |   ├─Token(LeftBrace) |{|
+//@[49:0050) |   |   ├─Token(NewLine) |\n|
     name: 'existingChild'
-//@[4:25)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |name|
-//@[8:9)      Colon |:|
-//@[10:25)      StringSyntax
-//@[10:25)       StringComplete |'existingChild'|
-//@[25:27)     NewLine |\n\n|
+//@[04:0025) |   |   ├─ObjectPropertySyntax
+//@[04:0008) |   |   | ├─IdentifierSyntax
+//@[04:0008) |   |   | | └─Token(Identifier) |name|
+//@[08:0009) |   |   | ├─Token(Colon) |:|
+//@[10:0025) |   |   | └─StringSyntax
+//@[10:0025) |   |   |   └─Token(StringComplete) |'existingChild'|
+//@[25:0027) |   |   ├─Token(NewLine) |\n\n|
 
     resource existingGrandchild 'grandchildType' = {
-//@[4:210)     ResourceDeclarationSyntax
-//@[4:12)      Identifier |resource|
-//@[13:31)      IdentifierSyntax
-//@[13:31)       Identifier |existingGrandchild|
-//@[32:48)      StringSyntax
-//@[32:48)       StringComplete |'grandchildType'|
-//@[49:50)      Assignment |=|
-//@[51:210)      ObjectSyntax
-//@[51:52)       LeftBrace |{|
-//@[52:53)       NewLine |\n|
+//@[04:0210) |   |   ├─ResourceDeclarationSyntax
+//@[04:0012) |   |   | ├─Token(Identifier) |resource|
+//@[13:0031) |   |   | ├─IdentifierSyntax
+//@[13:0031) |   |   | | └─Token(Identifier) |existingGrandchild|
+//@[32:0048) |   |   | ├─StringSyntax
+//@[32:0048) |   |   | | └─Token(StringComplete) |'grandchildType'|
+//@[49:0050) |   |   | ├─Token(Assignment) |=|
+//@[51:0210) |   |   | └─ObjectSyntax
+//@[51:0052) |   |   |   ├─Token(LeftBrace) |{|
+//@[52:0053) |   |   |   ├─Token(NewLine) |\n|
       name: 'existingGrandchild'
-//@[6:32)       ObjectPropertySyntax
-//@[6:10)        IdentifierSyntax
-//@[6:10)         Identifier |name|
-//@[10:11)        Colon |:|
-//@[12:32)        StringSyntax
-//@[12:32)         StringComplete |'existingGrandchild'|
-//@[32:33)       NewLine |\n|
+//@[06:0032) |   |   |   ├─ObjectPropertySyntax
+//@[06:0010) |   |   |   | ├─IdentifierSyntax
+//@[06:0010) |   |   |   | | └─Token(Identifier) |name|
+//@[10:0011) |   |   |   | ├─Token(Colon) |:|
+//@[12:0032) |   |   |   | └─StringSyntax
+//@[12:0032) |   |   |   |   └─Token(StringComplete) |'existingGrandchild'|
+//@[32:0033) |   |   |   ├─Token(NewLine) |\n|
       properties: {
-//@[6:118)       ObjectPropertySyntax
-//@[6:16)        IdentifierSyntax
-//@[6:16)         Identifier |properties|
-//@[16:17)        Colon |:|
-//@[18:118)        ObjectSyntax
-//@[18:19)         LeftBrace |{|
-//@[19:20)         NewLine |\n|
+//@[06:0118) |   |   |   ├─ObjectPropertySyntax
+//@[06:0016) |   |   |   | ├─IdentifierSyntax
+//@[06:0016) |   |   |   | | └─Token(Identifier) |properties|
+//@[16:0017) |   |   |   | ├─Token(Colon) |:|
+//@[18:0118) |   |   |   | └─ObjectSyntax
+//@[18:0019) |   |   |   |   ├─Token(LeftBrace) |{|
+//@[19:0020) |   |   |   |   ├─Token(NewLine) |\n|
         size: existingParent.properties.size
-//@[8:44)         ObjectPropertySyntax
-//@[8:12)          IdentifierSyntax
-//@[8:12)           Identifier |size|
-//@[12:13)          Colon |:|
-//@[14:44)          PropertyAccessSyntax
-//@[14:39)           PropertyAccessSyntax
-//@[14:28)            VariableAccessSyntax
-//@[14:28)             IdentifierSyntax
-//@[14:28)              Identifier |existingParent|
-//@[28:29)            Dot |.|
-//@[29:39)            IdentifierSyntax
-//@[29:39)             Identifier |properties|
-//@[39:40)           Dot |.|
-//@[40:44)           IdentifierSyntax
-//@[40:44)            Identifier |size|
-//@[44:45)         NewLine |\n|
+//@[08:0044) |   |   |   |   ├─ObjectPropertySyntax
+//@[08:0012) |   |   |   |   | ├─IdentifierSyntax
+//@[08:0012) |   |   |   |   | | └─Token(Identifier) |size|
+//@[12:0013) |   |   |   |   | ├─Token(Colon) |:|
+//@[14:0044) |   |   |   |   | └─PropertyAccessSyntax
+//@[14:0039) |   |   |   |   |   ├─PropertyAccessSyntax
+//@[14:0028) |   |   |   |   |   | ├─VariableAccessSyntax
+//@[14:0028) |   |   |   |   |   | | └─IdentifierSyntax
+//@[14:0028) |   |   |   |   |   | |   └─Token(Identifier) |existingParent|
+//@[28:0029) |   |   |   |   |   | ├─Token(Dot) |.|
+//@[29:0039) |   |   |   |   |   | └─IdentifierSyntax
+//@[29:0039) |   |   |   |   |   |   └─Token(Identifier) |properties|
+//@[39:0040) |   |   |   |   |   ├─Token(Dot) |.|
+//@[40:0044) |   |   |   |   |   └─IdentifierSyntax
+//@[40:0044) |   |   |   |   |     └─Token(Identifier) |size|
+//@[44:0045) |   |   |   |   ├─Token(NewLine) |\n|
         style: existingChild.properties.style
-//@[8:45)         ObjectPropertySyntax
-//@[8:13)          IdentifierSyntax
-//@[8:13)           Identifier |style|
-//@[13:14)          Colon |:|
-//@[15:45)          PropertyAccessSyntax
-//@[15:39)           PropertyAccessSyntax
-//@[15:28)            VariableAccessSyntax
-//@[15:28)             IdentifierSyntax
-//@[15:28)              Identifier |existingChild|
-//@[28:29)            Dot |.|
-//@[29:39)            IdentifierSyntax
-//@[29:39)             Identifier |properties|
-//@[39:40)           Dot |.|
-//@[40:45)           IdentifierSyntax
-//@[40:45)            Identifier |style|
-//@[45:46)         NewLine |\n|
+//@[08:0045) |   |   |   |   ├─ObjectPropertySyntax
+//@[08:0013) |   |   |   |   | ├─IdentifierSyntax
+//@[08:0013) |   |   |   |   | | └─Token(Identifier) |style|
+//@[13:0014) |   |   |   |   | ├─Token(Colon) |:|
+//@[15:0045) |   |   |   |   | └─PropertyAccessSyntax
+//@[15:0039) |   |   |   |   |   ├─PropertyAccessSyntax
+//@[15:0028) |   |   |   |   |   | ├─VariableAccessSyntax
+//@[15:0028) |   |   |   |   |   | | └─IdentifierSyntax
+//@[15:0028) |   |   |   |   |   | |   └─Token(Identifier) |existingChild|
+//@[28:0029) |   |   |   |   |   | ├─Token(Dot) |.|
+//@[29:0039) |   |   |   |   |   | └─IdentifierSyntax
+//@[29:0039) |   |   |   |   |   |   └─Token(Identifier) |properties|
+//@[39:0040) |   |   |   |   |   ├─Token(Dot) |.|
+//@[40:0045) |   |   |   |   |   └─IdentifierSyntax
+//@[40:0045) |   |   |   |   |     └─Token(Identifier) |style|
+//@[45:0046) |   |   |   |   ├─Token(NewLine) |\n|
       }
-//@[6:7)         RightBrace |}|
-//@[7:8)       NewLine |\n|
+//@[06:0007) |   |   |   |   └─Token(RightBrace) |}|
+//@[07:0008) |   |   |   ├─Token(NewLine) |\n|
     }
-//@[4:5)       RightBrace |}|
-//@[5:6)     NewLine |\n|
+//@[04:0005) |   |   |   └─Token(RightBrace) |}|
+//@[05:0006) |   |   ├─Token(NewLine) |\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:4)   NewLine |\n|
+//@[02:0003) |   |   └─Token(RightBrace) |}|
+//@[03:0004) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 param createParent bool
-//@[0:23) ParameterDeclarationSyntax
-//@[0:5)  Identifier |param|
-//@[6:18)  IdentifierSyntax
-//@[6:18)   Identifier |createParent|
-//@[19:23)  TypeSyntax
-//@[19:23)   Identifier |bool|
-//@[23:24) NewLine |\n|
+//@[00:0023) ├─ParameterDeclarationSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0018) | ├─IdentifierSyntax
+//@[06:0018) | | └─Token(Identifier) |createParent|
+//@[19:0023) | └─SimpleTypeSyntax
+//@[19:0023) |   └─Token(Identifier) |bool|
+//@[23:0024) ├─Token(NewLine) |\n|
 param createChild bool
-//@[0:22) ParameterDeclarationSyntax
-//@[0:5)  Identifier |param|
-//@[6:17)  IdentifierSyntax
-//@[6:17)   Identifier |createChild|
-//@[18:22)  TypeSyntax
-//@[18:22)   Identifier |bool|
-//@[22:23) NewLine |\n|
+//@[00:0022) ├─ParameterDeclarationSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0017) | ├─IdentifierSyntax
+//@[06:0017) | | └─Token(Identifier) |createChild|
+//@[18:0022) | └─SimpleTypeSyntax
+//@[18:0022) |   └─Token(Identifier) |bool|
+//@[22:0023) ├─Token(NewLine) |\n|
 param createGrandchild bool
-//@[0:27) ParameterDeclarationSyntax
-//@[0:5)  Identifier |param|
-//@[6:22)  IdentifierSyntax
-//@[6:22)   Identifier |createGrandchild|
-//@[23:27)  TypeSyntax
-//@[23:27)   Identifier |bool|
-//@[27:28) NewLine |\n|
+//@[00:0027) ├─ParameterDeclarationSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0022) | ├─IdentifierSyntax
+//@[06:0022) | | └─Token(Identifier) |createGrandchild|
+//@[23:0027) | └─SimpleTypeSyntax
+//@[23:0027) |   └─Token(Identifier) |bool|
+//@[27:0028) ├─Token(NewLine) |\n|
 resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
-//@[0:433) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:24)  IdentifierSyntax
-//@[9:24)   Identifier |conditionParent|
-//@[25:54)  StringSyntax
-//@[25:54)   StringComplete |'My.Rp/parentType@2020-12-01'|
-//@[55:56)  Assignment |=|
-//@[57:433)  IfConditionSyntax
-//@[57:59)   Identifier |if|
-//@[60:74)   ParenthesizedExpressionSyntax
-//@[60:61)    LeftParen |(|
-//@[61:73)    VariableAccessSyntax
-//@[61:73)     IdentifierSyntax
-//@[61:73)      Identifier |createParent|
-//@[73:74)    RightParen |)|
-//@[75:433)   ObjectSyntax
-//@[75:76)    LeftBrace |{|
-//@[76:77)    NewLine |\n|
+//@[00:0433) ├─ResourceDeclarationSyntax
+//@[00:0008) | ├─Token(Identifier) |resource|
+//@[09:0024) | ├─IdentifierSyntax
+//@[09:0024) | | └─Token(Identifier) |conditionParent|
+//@[25:0054) | ├─StringSyntax
+//@[25:0054) | | └─Token(StringComplete) |'My.Rp/parentType@2020-12-01'|
+//@[55:0056) | ├─Token(Assignment) |=|
+//@[57:0433) | └─IfConditionSyntax
+//@[57:0059) |   ├─Token(Identifier) |if|
+//@[60:0074) |   ├─ParenthesizedExpressionSyntax
+//@[60:0061) |   | ├─Token(LeftParen) |(|
+//@[61:0073) |   | ├─VariableAccessSyntax
+//@[61:0073) |   | | └─IdentifierSyntax
+//@[61:0073) |   | |   └─Token(Identifier) |createParent|
+//@[73:0074) |   | └─Token(RightParen) |)|
+//@[75:0433) |   └─ObjectSyntax
+//@[75:0076) |     ├─Token(LeftBrace) |{|
+//@[76:0077) |     ├─Token(NewLine) |\n|
   name: 'conditionParent'
-//@[2:25)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:25)     StringSyntax
-//@[8:25)      StringComplete |'conditionParent'|
-//@[25:27)    NewLine |\n\n|
+//@[02:0025) |     ├─ObjectPropertySyntax
+//@[02:0006) |     | ├─IdentifierSyntax
+//@[02:0006) |     | | └─Token(Identifier) |name|
+//@[06:0007) |     | ├─Token(Colon) |:|
+//@[08:0025) |     | └─StringSyntax
+//@[08:0025) |     |   └─Token(StringComplete) |'conditionParent'|
+//@[25:0027) |     ├─Token(NewLine) |\n\n|
 
   resource conditionChild 'childType' = if (createChild) {
-//@[2:327)    ResourceDeclarationSyntax
-//@[2:10)     Identifier |resource|
-//@[11:25)     IdentifierSyntax
-//@[11:25)      Identifier |conditionChild|
-//@[26:37)     StringSyntax
-//@[26:37)      StringComplete |'childType'|
-//@[38:39)     Assignment |=|
-//@[40:327)     IfConditionSyntax
-//@[40:42)      Identifier |if|
-//@[43:56)      ParenthesizedExpressionSyntax
-//@[43:44)       LeftParen |(|
-//@[44:55)       VariableAccessSyntax
-//@[44:55)        IdentifierSyntax
-//@[44:55)         Identifier |createChild|
-//@[55:56)       RightParen |)|
-//@[57:327)      ObjectSyntax
-//@[57:58)       LeftBrace |{|
-//@[58:59)       NewLine |\n|
+//@[02:0327) |     ├─ResourceDeclarationSyntax
+//@[02:0010) |     | ├─Token(Identifier) |resource|
+//@[11:0025) |     | ├─IdentifierSyntax
+//@[11:0025) |     | | └─Token(Identifier) |conditionChild|
+//@[26:0037) |     | ├─StringSyntax
+//@[26:0037) |     | | └─Token(StringComplete) |'childType'|
+//@[38:0039) |     | ├─Token(Assignment) |=|
+//@[40:0327) |     | └─IfConditionSyntax
+//@[40:0042) |     |   ├─Token(Identifier) |if|
+//@[43:0056) |     |   ├─ParenthesizedExpressionSyntax
+//@[43:0044) |     |   | ├─Token(LeftParen) |(|
+//@[44:0055) |     |   | ├─VariableAccessSyntax
+//@[44:0055) |     |   | | └─IdentifierSyntax
+//@[44:0055) |     |   | |   └─Token(Identifier) |createChild|
+//@[55:0056) |     |   | └─Token(RightParen) |)|
+//@[57:0327) |     |   └─ObjectSyntax
+//@[57:0058) |     |     ├─Token(LeftBrace) |{|
+//@[58:0059) |     |     ├─Token(NewLine) |\n|
     name: 'conditionChild'
-//@[4:26)       ObjectPropertySyntax
-//@[4:8)        IdentifierSyntax
-//@[4:8)         Identifier |name|
-//@[8:9)        Colon |:|
-//@[10:26)        StringSyntax
-//@[10:26)         StringComplete |'conditionChild'|
-//@[26:28)       NewLine |\n\n|
+//@[04:0026) |     |     ├─ObjectPropertySyntax
+//@[04:0008) |     |     | ├─IdentifierSyntax
+//@[04:0008) |     |     | | └─Token(Identifier) |name|
+//@[08:0009) |     |     | ├─Token(Colon) |:|
+//@[10:0026) |     |     | └─StringSyntax
+//@[10:0026) |     |     |   └─Token(StringComplete) |'conditionChild'|
+//@[26:0028) |     |     ├─Token(NewLine) |\n\n|
 
     resource conditionGrandchild 'grandchildType' = if (createGrandchild) {
-//@[4:236)       ResourceDeclarationSyntax
-//@[4:12)        Identifier |resource|
-//@[13:32)        IdentifierSyntax
-//@[13:32)         Identifier |conditionGrandchild|
-//@[33:49)        StringSyntax
-//@[33:49)         StringComplete |'grandchildType'|
-//@[50:51)        Assignment |=|
-//@[52:236)        IfConditionSyntax
-//@[52:54)         Identifier |if|
-//@[55:73)         ParenthesizedExpressionSyntax
-//@[55:56)          LeftParen |(|
-//@[56:72)          VariableAccessSyntax
-//@[56:72)           IdentifierSyntax
-//@[56:72)            Identifier |createGrandchild|
-//@[72:73)          RightParen |)|
-//@[74:236)         ObjectSyntax
-//@[74:75)          LeftBrace |{|
-//@[75:76)          NewLine |\n|
+//@[04:0236) |     |     ├─ResourceDeclarationSyntax
+//@[04:0012) |     |     | ├─Token(Identifier) |resource|
+//@[13:0032) |     |     | ├─IdentifierSyntax
+//@[13:0032) |     |     | | └─Token(Identifier) |conditionGrandchild|
+//@[33:0049) |     |     | ├─StringSyntax
+//@[33:0049) |     |     | | └─Token(StringComplete) |'grandchildType'|
+//@[50:0051) |     |     | ├─Token(Assignment) |=|
+//@[52:0236) |     |     | └─IfConditionSyntax
+//@[52:0054) |     |     |   ├─Token(Identifier) |if|
+//@[55:0073) |     |     |   ├─ParenthesizedExpressionSyntax
+//@[55:0056) |     |     |   | ├─Token(LeftParen) |(|
+//@[56:0072) |     |     |   | ├─VariableAccessSyntax
+//@[56:0072) |     |     |   | | └─IdentifierSyntax
+//@[56:0072) |     |     |   | |   └─Token(Identifier) |createGrandchild|
+//@[72:0073) |     |     |   | └─Token(RightParen) |)|
+//@[74:0236) |     |     |   └─ObjectSyntax
+//@[74:0075) |     |     |     ├─Token(LeftBrace) |{|
+//@[75:0076) |     |     |     ├─Token(NewLine) |\n|
       name: 'conditionGrandchild'
-//@[6:33)          ObjectPropertySyntax
-//@[6:10)           IdentifierSyntax
-//@[6:10)            Identifier |name|
-//@[10:11)           Colon |:|
-//@[12:33)           StringSyntax
-//@[12:33)            StringComplete |'conditionGrandchild'|
-//@[33:34)          NewLine |\n|
+//@[06:0033) |     |     |     ├─ObjectPropertySyntax
+//@[06:0010) |     |     |     | ├─IdentifierSyntax
+//@[06:0010) |     |     |     | | └─Token(Identifier) |name|
+//@[10:0011) |     |     |     | ├─Token(Colon) |:|
+//@[12:0033) |     |     |     | └─StringSyntax
+//@[12:0033) |     |     |     |   └─Token(StringComplete) |'conditionGrandchild'|
+//@[33:0034) |     |     |     ├─Token(NewLine) |\n|
       properties: {
-//@[6:120)          ObjectPropertySyntax
-//@[6:16)           IdentifierSyntax
-//@[6:16)            Identifier |properties|
-//@[16:17)           Colon |:|
-//@[18:120)           ObjectSyntax
-//@[18:19)            LeftBrace |{|
-//@[19:20)            NewLine |\n|
+//@[06:0120) |     |     |     ├─ObjectPropertySyntax
+//@[06:0016) |     |     |     | ├─IdentifierSyntax
+//@[06:0016) |     |     |     | | └─Token(Identifier) |properties|
+//@[16:0017) |     |     |     | ├─Token(Colon) |:|
+//@[18:0120) |     |     |     | └─ObjectSyntax
+//@[18:0019) |     |     |     |   ├─Token(LeftBrace) |{|
+//@[19:0020) |     |     |     |   ├─Token(NewLine) |\n|
         size: conditionParent.properties.size
-//@[8:45)            ObjectPropertySyntax
-//@[8:12)             IdentifierSyntax
-//@[8:12)              Identifier |size|
-//@[12:13)             Colon |:|
-//@[14:45)             PropertyAccessSyntax
-//@[14:40)              PropertyAccessSyntax
-//@[14:29)               VariableAccessSyntax
-//@[14:29)                IdentifierSyntax
-//@[14:29)                 Identifier |conditionParent|
-//@[29:30)               Dot |.|
-//@[30:40)               IdentifierSyntax
-//@[30:40)                Identifier |properties|
-//@[40:41)              Dot |.|
-//@[41:45)              IdentifierSyntax
-//@[41:45)               Identifier |size|
-//@[45:46)            NewLine |\n|
+//@[08:0045) |     |     |     |   ├─ObjectPropertySyntax
+//@[08:0012) |     |     |     |   | ├─IdentifierSyntax
+//@[08:0012) |     |     |     |   | | └─Token(Identifier) |size|
+//@[12:0013) |     |     |     |   | ├─Token(Colon) |:|
+//@[14:0045) |     |     |     |   | └─PropertyAccessSyntax
+//@[14:0040) |     |     |     |   |   ├─PropertyAccessSyntax
+//@[14:0029) |     |     |     |   |   | ├─VariableAccessSyntax
+//@[14:0029) |     |     |     |   |   | | └─IdentifierSyntax
+//@[14:0029) |     |     |     |   |   | |   └─Token(Identifier) |conditionParent|
+//@[29:0030) |     |     |     |   |   | ├─Token(Dot) |.|
+//@[30:0040) |     |     |     |   |   | └─IdentifierSyntax
+//@[30:0040) |     |     |     |   |   |   └─Token(Identifier) |properties|
+//@[40:0041) |     |     |     |   |   ├─Token(Dot) |.|
+//@[41:0045) |     |     |     |   |   └─IdentifierSyntax
+//@[41:0045) |     |     |     |   |     └─Token(Identifier) |size|
+//@[45:0046) |     |     |     |   ├─Token(NewLine) |\n|
         style: conditionChild.properties.style
-//@[8:46)            ObjectPropertySyntax
-//@[8:13)             IdentifierSyntax
-//@[8:13)              Identifier |style|
-//@[13:14)             Colon |:|
-//@[15:46)             PropertyAccessSyntax
-//@[15:40)              PropertyAccessSyntax
-//@[15:29)               VariableAccessSyntax
-//@[15:29)                IdentifierSyntax
-//@[15:29)                 Identifier |conditionChild|
-//@[29:30)               Dot |.|
-//@[30:40)               IdentifierSyntax
-//@[30:40)                Identifier |properties|
-//@[40:41)              Dot |.|
-//@[41:46)              IdentifierSyntax
-//@[41:46)               Identifier |style|
-//@[46:47)            NewLine |\n|
+//@[08:0046) |     |     |     |   ├─ObjectPropertySyntax
+//@[08:0013) |     |     |     |   | ├─IdentifierSyntax
+//@[08:0013) |     |     |     |   | | └─Token(Identifier) |style|
+//@[13:0014) |     |     |     |   | ├─Token(Colon) |:|
+//@[15:0046) |     |     |     |   | └─PropertyAccessSyntax
+//@[15:0040) |     |     |     |   |   ├─PropertyAccessSyntax
+//@[15:0029) |     |     |     |   |   | ├─VariableAccessSyntax
+//@[15:0029) |     |     |     |   |   | | └─IdentifierSyntax
+//@[15:0029) |     |     |     |   |   | |   └─Token(Identifier) |conditionChild|
+//@[29:0030) |     |     |     |   |   | ├─Token(Dot) |.|
+//@[30:0040) |     |     |     |   |   | └─IdentifierSyntax
+//@[30:0040) |     |     |     |   |   |   └─Token(Identifier) |properties|
+//@[40:0041) |     |     |     |   |   ├─Token(Dot) |.|
+//@[41:0046) |     |     |     |   |   └─IdentifierSyntax
+//@[41:0046) |     |     |     |   |     └─Token(Identifier) |style|
+//@[46:0047) |     |     |     |   ├─Token(NewLine) |\n|
       }
-//@[6:7)            RightBrace |}|
-//@[7:8)          NewLine |\n|
+//@[06:0007) |     |     |     |   └─Token(RightBrace) |}|
+//@[07:0008) |     |     |     ├─Token(NewLine) |\n|
     }
-//@[4:5)          RightBrace |}|
-//@[5:6)       NewLine |\n|
+//@[04:0005) |     |     |     └─Token(RightBrace) |}|
+//@[05:0006) |     |     ├─Token(NewLine) |\n|
   }
-//@[2:3)       RightBrace |}|
-//@[3:4)    NewLine |\n|
+//@[02:0003) |     |     └─Token(RightBrace) |}|
+//@[03:0004) |     ├─Token(NewLine) |\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |     └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 var items = [
-//@[0:27) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:9)  IdentifierSyntax
-//@[4:9)   Identifier |items|
-//@[10:11)  Assignment |=|
-//@[12:27)  ArraySyntax
-//@[12:13)   LeftSquare |[|
-//@[13:14)   NewLine |\n|
+//@[00:0027) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0009) | ├─IdentifierSyntax
+//@[04:0009) | | └─Token(Identifier) |items|
+//@[10:0011) | ├─Token(Assignment) |=|
+//@[12:0027) | └─ArraySyntax
+//@[12:0013) |   ├─Token(LeftSquare) |[|
+//@[13:0014) |   ├─Token(NewLine) |\n|
   'a'
-//@[2:5)   ArrayItemSyntax
-//@[2:5)    StringSyntax
-//@[2:5)     StringComplete |'a'|
-//@[5:6)   NewLine |\n|
+//@[02:0005) |   ├─ArrayItemSyntax
+//@[02:0005) |   | └─StringSyntax
+//@[02:0005) |   |   └─Token(StringComplete) |'a'|
+//@[05:0006) |   ├─Token(NewLine) |\n|
   'b'
-//@[2:5)   ArrayItemSyntax
-//@[2:5)    StringSyntax
-//@[2:5)     StringComplete |'b'|
-//@[5:6)   NewLine |\n|
+//@[02:0005) |   ├─ArrayItemSyntax
+//@[02:0005) |   | └─StringSyntax
+//@[02:0005) |   |   └─Token(StringComplete) |'b'|
+//@[05:0006) |   ├─Token(NewLine) |\n|
 ]
-//@[0:1)   RightSquare |]|
-//@[1:2) NewLine |\n|
+//@[00:0001) |   └─Token(RightSquare) |]|
+//@[01:0002) ├─Token(NewLine) |\n|
 resource loopParent 'My.Rp/parentType@2020-12-01' = {
-//@[0:161) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:19)  IdentifierSyntax
-//@[9:19)   Identifier |loopParent|
-//@[20:49)  StringSyntax
-//@[20:49)   StringComplete |'My.Rp/parentType@2020-12-01'|
-//@[50:51)  Assignment |=|
-//@[52:161)  ObjectSyntax
-//@[52:53)   LeftBrace |{|
-//@[53:54)   NewLine |\n|
+//@[00:0161) ├─ResourceDeclarationSyntax
+//@[00:0008) | ├─Token(Identifier) |resource|
+//@[09:0019) | ├─IdentifierSyntax
+//@[09:0019) | | └─Token(Identifier) |loopParent|
+//@[20:0049) | ├─StringSyntax
+//@[20:0049) | | └─Token(StringComplete) |'My.Rp/parentType@2020-12-01'|
+//@[50:0051) | ├─Token(Assignment) |=|
+//@[52:0161) | └─ObjectSyntax
+//@[52:0053) |   ├─Token(LeftBrace) |{|
+//@[53:0054) |   ├─Token(NewLine) |\n|
   name: 'loopParent'
-//@[2:20)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:20)    StringSyntax
-//@[8:20)     StringComplete |'loopParent'|
-//@[20:22)   NewLine |\n\n|
+//@[02:0020) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0020) |   | └─StringSyntax
+//@[08:0020) |   |   └─Token(StringComplete) |'loopParent'|
+//@[20:0022) |   ├─Token(NewLine) |\n\n|
 
   resource loopChild 'childType' = [for item in items: {
-//@[2:83)   ResourceDeclarationSyntax
-//@[2:10)    Identifier |resource|
-//@[11:20)    IdentifierSyntax
-//@[11:20)     Identifier |loopChild|
-//@[21:32)    StringSyntax
-//@[21:32)     StringComplete |'childType'|
-//@[33:34)    Assignment |=|
-//@[35:83)    ForSyntax
-//@[35:36)     LeftSquare |[|
-//@[36:39)     Identifier |for|
-//@[40:44)     LocalVariableSyntax
-//@[40:44)      IdentifierSyntax
-//@[40:44)       Identifier |item|
-//@[45:47)     Identifier |in|
-//@[48:53)     VariableAccessSyntax
-//@[48:53)      IdentifierSyntax
-//@[48:53)       Identifier |items|
-//@[53:54)     Colon |:|
-//@[55:82)     ObjectSyntax
-//@[55:56)      LeftBrace |{|
-//@[56:57)      NewLine |\n|
+//@[02:0083) |   ├─ResourceDeclarationSyntax
+//@[02:0010) |   | ├─Token(Identifier) |resource|
+//@[11:0020) |   | ├─IdentifierSyntax
+//@[11:0020) |   | | └─Token(Identifier) |loopChild|
+//@[21:0032) |   | ├─StringSyntax
+//@[21:0032) |   | | └─Token(StringComplete) |'childType'|
+//@[33:0034) |   | ├─Token(Assignment) |=|
+//@[35:0083) |   | └─ForSyntax
+//@[35:0036) |   |   ├─Token(LeftSquare) |[|
+//@[36:0039) |   |   ├─Token(Identifier) |for|
+//@[40:0044) |   |   ├─LocalVariableSyntax
+//@[40:0044) |   |   | └─IdentifierSyntax
+//@[40:0044) |   |   |   └─Token(Identifier) |item|
+//@[45:0047) |   |   ├─Token(Identifier) |in|
+//@[48:0053) |   |   ├─VariableAccessSyntax
+//@[48:0053) |   |   | └─IdentifierSyntax
+//@[48:0053) |   |   |   └─Token(Identifier) |items|
+//@[53:0054) |   |   ├─Token(Colon) |:|
+//@[55:0082) |   |   ├─ObjectSyntax
+//@[55:0056) |   |   | ├─Token(LeftBrace) |{|
+//@[56:0057) |   |   | ├─Token(NewLine) |\n|
     name: 'loopChild'
-//@[4:21)      ObjectPropertySyntax
-//@[4:8)       IdentifierSyntax
-//@[4:8)        Identifier |name|
-//@[8:9)       Colon |:|
-//@[10:21)       StringSyntax
-//@[10:21)        StringComplete |'loopChild'|
-//@[21:22)      NewLine |\n|
+//@[04:0021) |   |   | ├─ObjectPropertySyntax
+//@[04:0008) |   |   | | ├─IdentifierSyntax
+//@[04:0008) |   |   | | | └─Token(Identifier) |name|
+//@[08:0009) |   |   | | ├─Token(Colon) |:|
+//@[10:0021) |   |   | | └─StringSyntax
+//@[10:0021) |   |   | |   └─Token(StringComplete) |'loopChild'|
+//@[21:0022) |   |   | ├─Token(NewLine) |\n|
   }]
-//@[2:3)      RightBrace |}|
-//@[3:4)     RightSquare |]|
-//@[4:5)   NewLine |\n|
+//@[02:0003) |   |   | └─Token(RightBrace) |}|
+//@[03:0004) |   |   └─Token(RightSquare) |]|
+//@[04:0005) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 output loopChildOutput string = loopParent::loopChild[0].name
-//@[0:61) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:22)  IdentifierSyntax
-//@[7:22)   Identifier |loopChildOutput|
-//@[23:29)  TypeSyntax
-//@[23:29)   Identifier |string|
-//@[30:31)  Assignment |=|
-//@[32:61)  PropertyAccessSyntax
-//@[32:56)   ArrayAccessSyntax
-//@[32:53)    ResourceAccessSyntax
-//@[32:42)     VariableAccessSyntax
-//@[32:42)      IdentifierSyntax
-//@[32:42)       Identifier |loopParent|
-//@[42:44)     DoubleColon |::|
-//@[44:53)     IdentifierSyntax
-//@[44:53)      Identifier |loopChild|
-//@[53:54)    LeftSquare |[|
-//@[54:55)    IntegerLiteralSyntax
-//@[54:55)     Integer |0|
-//@[55:56)    RightSquare |]|
-//@[56:57)   Dot |.|
-//@[57:61)   IdentifierSyntax
-//@[57:61)    Identifier |name|
-//@[61:61) EndOfFile ||
+//@[00:0061) ├─OutputDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |output|
+//@[07:0022) | ├─IdentifierSyntax
+//@[07:0022) | | └─Token(Identifier) |loopChildOutput|
+//@[23:0029) | ├─SimpleTypeSyntax
+//@[23:0029) | | └─Token(Identifier) |string|
+//@[30:0031) | ├─Token(Assignment) |=|
+//@[32:0061) | └─PropertyAccessSyntax
+//@[32:0056) |   ├─ArrayAccessSyntax
+//@[32:0053) |   | ├─ResourceAccessSyntax
+//@[32:0042) |   | | ├─VariableAccessSyntax
+//@[32:0042) |   | | | └─IdentifierSyntax
+//@[32:0042) |   | | |   └─Token(Identifier) |loopParent|
+//@[42:0044) |   | | ├─Token(DoubleColon) |::|
+//@[44:0053) |   | | └─IdentifierSyntax
+//@[44:0053) |   | |   └─Token(Identifier) |loopChild|
+//@[53:0054) |   | ├─Token(LeftSquare) |[|
+//@[54:0055) |   | ├─IntegerLiteralSyntax
+//@[54:0055) |   | | └─Token(Integer) |0|
+//@[55:0056) |   | └─Token(RightSquare) |]|
+//@[56:0057) |   ├─Token(Dot) |.|
+//@[57:0061) |   └─IdentifierSyntax
+//@[57:0061) |     └─Token(Identifier) |name|
+//@[61:0061) └─Token(EndOfFile) ||

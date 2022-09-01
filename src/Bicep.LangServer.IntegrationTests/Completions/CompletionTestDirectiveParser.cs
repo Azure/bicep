@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
@@ -20,7 +20,7 @@ namespace Bicep.LangServer.IntegrationTests.Completions
             var program = ParserHelper.Parse(text);
             var lineStarts = TextCoordinateConverter.GetLineStarts(text);
             var triggers = new List<CompletionTrigger>();
-            
+
             var visitor = new CompletionTriggerCollector(triggers, lineStarts);
             visitor.Visit(program);
 

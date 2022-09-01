@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using static Bicep.Core.Semantics.FunctionOverloadBuilder;
 
 namespace Bicep.Core.Semantics
 {
@@ -30,12 +31,17 @@ namespace Bicep.Core.Semantics
 
         public static bool IsSecure(this ParameterSymbol parameterSymbol)
         {
+            return HasDecorator(parameterSymbol, "secure");
+        }
+
+        public static bool HasDecorator(this ParameterSymbol parameterSymbol, string decoratorName)
+        {
             // local function
-            bool isSecure(DecoratorSyntax? value) => value?.Expression is FunctionCallSyntax functionCallSyntax && functionCallSyntax.NameEquals("secure");
+            bool hasDecorator(DecoratorSyntax? value, string decoratorName) => value?.Expression is FunctionCallSyntax functionCallSyntax && functionCallSyntax.NameEquals(decoratorName);
 
             if (parameterSymbol?.DeclaringSyntax is ParameterDeclarationSyntax paramDeclaration)
             {
-                return paramDeclaration.Decorators.Any(d => isSecure(d));
+                return paramDeclaration.Decorators.Any(d => hasDecorator(d, decoratorName));
             }
             return false;
         }
@@ -45,7 +51,8 @@ namespace Bicep.Core.Semantics
         /// </summary>
         /// <param name="functionSymbol">The function symbol to inspect</param>
         /// <param name="argIndex">The index of the function argument</param>
-        public static TypeSymbol GetDeclaredArgumentType(this FunctionSymbol functionSymbol, int argIndex)
+        /// <param name="getAssignedArgumentType">Function to look up the assigned type of a given argument</param>
+        public static TypeSymbol GetDeclaredArgumentType(this FunctionSymbol functionSymbol, int argIndex, GetFunctionArgumentType? getAssignedArgumentType = null)
         {
             // if we have a mix of wildcard and non-wildcard overloads, prioritize the non-wildcard overloads.
             // the wildcards have super generic type definitions, so don't result in helpful completions.
@@ -55,7 +62,23 @@ namespace Bicep.Core.Semantics
 
             var argTypes = overloads
                 .Where(x => x.MaximumArgumentCount is null || argIndex < x.MaximumArgumentCount)
-                .Select(x => argIndex < x.FixedParameters.Length ? x.FixedParameters[argIndex].Type : (x.VariableParameter?.Type ?? LanguageConstants.Never));
+                .Select(overload => {
+                    if (argIndex < overload.FixedParameters.Length)
+                    {
+                        var parameter = overload.FixedParameters[argIndex];
+
+                        if (parameter.Calculator is not null &&
+                            getAssignedArgumentType is not null &&
+                            parameter.Calculator(getAssignedArgumentType) is {} calculatedType)
+                        {
+                            return calculatedType;
+                        }
+
+                        return parameter.Type;
+                    }
+
+                    return overload.VariableParameter?.Type ?? LanguageConstants.Never;
+                });
 
             return TypeHelper.CreateTypeUnion(argTypes);
         }

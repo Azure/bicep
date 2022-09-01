@@ -38,7 +38,7 @@ Easily explore all available resource types and api versions for a given type. Y
 
 ### Snippets
 
-Bicep has a small set of snippets for core language keywords (`param`, `var`, `resource`, `module`, `output`). The snippets are contextual, so they should only show up in the places they are valid. We plan to convert all of the ARM Template resource snippets that are used by the ARM Tools VS Code extension into bicep snippets.
+Bicep has a small set of snippets for core language keywords (`param`, `var`, `resource`, `module`, `output`). The snippets are contextual, so they should only show up in the places they are valid. All of the ARM Template resource snippets available in the ARM Tools VS Code extension are available as bicep resource snippets.
 
 ![snippets for top level keywords](/docs/images/snippets.gif)
 

@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
@@ -69,7 +67,7 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
         {
-            if(syntax.Operator == UnaryOperator.Minus)
+            if (syntax.Operator == UnaryOperator.Minus)
             {
                 // the unary minus operator is allowed in compile time constants
                 // to support negative integer literals

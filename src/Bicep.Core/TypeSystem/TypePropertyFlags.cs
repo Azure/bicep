@@ -54,7 +54,7 @@ namespace Bicep.Core.TypeSystem
         LoopVariant = 1 << 7,
 
         /// <summary>
-        /// On non-required properties, this allows the property type to be treated as "<x> | null" (where <x> is the current property type)
+        /// On non-required properties, this allows the property type to be treated as "&lt;x$gt; | null" (where &lt;x&gt; is the current property type)
         /// for the purposes of type checking the value assigned to the property.
         /// </summary>
         AllowImplicitNull = 1 << 8,
@@ -62,6 +62,11 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// Property that is not defined in Swagger, but still might be valid. We will show warning instead error.
         /// </summary>
-        FallbackProperty = 1 << 9
+        FallbackProperty = 1 << 9,
+
+        /// <summary>
+        /// Language system property, i.e. id, type, api-version
+        /// </summary>
+        SystemProperty = 1 << 10
     }
 }

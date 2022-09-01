@@ -122,7 +122,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             dispatcher.TryGetModuleReference(goodModule, configuration, out var goodValidationBuilder).Should().Be(validRef);
             goodValidationBuilder!.Should().BeNull();
-            
+
             dispatcher.TryGetModuleReference(badModule, configuration, out var badValidationBuilder).Should().BeNull();
             badValidationBuilder!.Should().NotBeNull();
             badValidationBuilder!.Should().HaveCode("BCPMock");
