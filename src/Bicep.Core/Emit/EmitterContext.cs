@@ -4,6 +4,8 @@ using System.Collections.Immutable;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Syntax;
+using Bicep.Core.Visitors;
 
 namespace Bicep.Core.Emit
 {
@@ -11,11 +13,12 @@ namespace Bicep.Core.Emit
     {
         public EmitterContext(SemanticModel semanticModel, EmitterSettings settings)
         {
-            this.Settings = settings;
-            this.SemanticModel = semanticModel;
-            this.DataFlowAnalyzer = new(semanticModel);
-            this.VariablesToInline = InlineDependencyVisitor.GetVariablesToInline(semanticModel);
-            this.ResourceDependencies = ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
+            Settings = settings;
+            SemanticModel = semanticModel;
+            DataFlowAnalyzer = new(semanticModel);
+            VariablesToInline = InlineDependencyVisitor.GetVariablesToInline(semanticModel);
+            ResourceDependencies = ResourceDependencyVisitor.GetResourceDependencies(semanticModel);
+            FunctionVariables = FunctionVariableGeneratorVisitor.GetFunctionVariables(semanticModel).ToImmutableDictionary();
         }
 
         public EmitterSettings Settings { get; }
@@ -27,6 +30,8 @@ namespace Bicep.Core.Emit
         public ImmutableHashSet<VariableSymbol> VariablesToInline { get; }
 
         public ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> ResourceDependencies { get; }
+
+        public ImmutableDictionary<FunctionCallSyntaxBase, FunctionVariable> FunctionVariables { get; }
 
         public ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> ModuleScopeData => SemanticModel.EmitLimitationInfo.ModuleScopeData;
 

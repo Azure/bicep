@@ -85,6 +85,7 @@
       "newText": "{\n\tname: $1\n\tlocation: $2\n}$0"
     },
     "command": {
+      "title": "resource body completion snippet",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -115,6 +116,7 @@
       "newText": "{\n  name: ${1:'name'}\n  location: ${2:location}\n}\n"
     },
     "command": {
+      "title": "resource body completion snippet",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -145,6 +147,7 @@
       "newText": "{\n\t$0\n}"
     },
     "command": {
+      "title": "resource body completion snippet",
       "command": "bicep.Telemetry",
       "arguments": [
         {

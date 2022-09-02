@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Extensions;
-using Bicep.RegistryModuleTool.ModuleFileValidators;
+using Bicep.RegistryModuleTool.ModuleValidators;
 using System.Collections.Generic;
 using System.Linq;
 

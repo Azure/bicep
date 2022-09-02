@@ -79,7 +79,7 @@ const CommandBarComponent: VFC<CommandBarProps> = (props) => (
         />
       </CommandBarButton>
     </TooltipHost>
-    <TooltipHost content="Layout">
+    <TooltipHost content="Reset layout">
       <CommandBarButton onClick={props.onLayout}>
         <VscWand
           size={20}

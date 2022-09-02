@@ -30,9 +30,17 @@ namespace Bicep.Core.TypeSystem
             return visitor.deployTimeConstantContainers;
         }
 
+        public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
+        {
+            if (!syntax.IsExistingResource())
+            {
+                base.VisitResourceDeclarationSyntax(syntax);
+            }
+        }
+
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
-            if (syntax.TryGetTypeProperty(this.semanticModel.Binder, this.semanticModel.TypeManager) is { } typeProperty &&
+            if (syntax.TryGetTypeProperty(this.semanticModel) is { } typeProperty &&
                 typeProperty.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
             {
                 // The property type exists and and has the DTC flag.

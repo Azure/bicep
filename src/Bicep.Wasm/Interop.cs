@@ -21,6 +21,7 @@ using Bicep.Core.Features;
 using Bicep.Core.Configuration;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 
 namespace Bicep.Wasm
 {
@@ -168,10 +169,10 @@ namespace Bicep.Wasm
             var fileResolver = new FileResolver();
             var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider());
             var configurationManager = new ConfigurationManager(new IOFileSystem());
-            var configuration = configurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
+            var configuration = configurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri, configuration);
 
-            return new Compilation(features, namespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
+            return new Compilation(features, namespaceProvider, sourceFileGrouping, configuration, new ApiVersionProvider(), new LinterAnalyzer(configuration));
         }
 
         private static string ReadStreamToEnd(Stream stream)

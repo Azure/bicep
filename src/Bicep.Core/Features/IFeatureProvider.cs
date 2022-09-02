@@ -16,5 +16,9 @@ namespace Bicep.Core.Features
         bool ImportsEnabled { get; }
 
         bool ResourceTypedParamsAndOutputsEnabled { get; }
+
+        bool SourceMappingEnabled { get; }
+
+        bool ParamsFilesEnabled { get; }
     }
 }

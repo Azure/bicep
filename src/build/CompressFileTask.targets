@@ -1,0 +1,27 @@
+<Project>
+  <PropertyGroup>
+    <CompressFileTaskImported>true</CompressFileTaskImported>
+  </PropertyGroup>
+  
+  <UsingTask TaskName="CompressFile" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <SourceFile ParameterType="System.String" Required="true" />
+      <TargetFile ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.IO.Compression" />
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+          Directory.CreateDirectory(Path.GetDirectoryName(TargetFile));
+          using (var inputStream = File.OpenRead(SourceFile))
+          using (var outputStream = File.Create(TargetFile))
+          using (var compressionStream = new DeflateStream(outputStream, CompressionLevel.Optimal))
+          {
+              inputStream.CopyTo(compressionStream);
+          }
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+</Project>

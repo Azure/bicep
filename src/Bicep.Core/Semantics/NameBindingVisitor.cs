@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
-using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics.Namespaces;
@@ -247,7 +246,7 @@ namespace Bicep.Core.Semantics
             this.Visit(syntax.Name);
             this.Visit(syntax.OpenParen);
             allowedFlags = allowedFlags.HasAnyDecoratorFlag() ? FunctionFlags.Default : allowedFlags;
-            this.VisitNodes(syntax.Arguments);
+            this.VisitNodes(syntax.Children);
             this.Visit(syntax.CloseParen);
             allowedFlags = currentFlags;
 

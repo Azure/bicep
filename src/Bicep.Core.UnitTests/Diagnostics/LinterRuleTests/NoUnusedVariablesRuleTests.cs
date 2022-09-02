@@ -22,24 +22,25 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void CompileAndTest(string text, params string[] unusedVars)
         {
-            CompileAndTest(text, OnCompileErrors.Fail, unusedVars);
+            CompileAndTest(text, OnCompileErrors.IncludeErrors, unusedVars);
         }
 
         private void CompileAndTest(string text, OnCompileErrors onCompileErrors, params string[] unusedVars)
         {
-            AssertLinterRuleDiagnostics(NoUnusedVariablesRule.Code, text, onCompileErrors, diags =>
-            {
-                if (unusedVars.Any())
+            AssertLinterRuleDiagnostics(NoUnusedVariablesRule.Code, text, diags =>
                 {
-                    var rule = new NoUnusedVariablesRule();
-                    string[] expectedMessages = unusedVars.Select(p => rule.GetMessage(p)).ToArray();
-                    diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
-                }
-                else
-                {
-                    diags.Should().BeEmpty();
-                }
-            });
+                    if (unusedVars.Any())
+                    {
+                        var rule = new NoUnusedVariablesRule();
+                        string[] expectedMessages = unusedVars.Select(p => rule.GetMessage(p)).ToArray();
+                        diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
+                    }
+                    else
+                    {
+                        diags.Should().BeEmpty();
+                    }
+                },
+                new Options(onCompileErrors));
         }
 
         [DataRow(@"
@@ -90,6 +91,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void SyntaxErrors(string text, params string[] unusedVars)
         {
             CompileAndTest(text, OnCompileErrors.Ignore, unusedVars);
+        }
+
+        [DataRow(@"var")] // Don't show as unused - no param name
+        [DataRow(@"var // whoops")] // Don't show as unused - no param name
+        [DataTestMethod]
+        public void Errors(string text, params string[] unusedParams)
+        {
+            CompileAndTest(text, OnCompileErrors.Ignore);
         }
     }
 }

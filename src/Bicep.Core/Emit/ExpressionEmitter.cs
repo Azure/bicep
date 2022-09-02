@@ -10,7 +10,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Az;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
@@ -25,11 +24,11 @@ namespace Bicep.Core.Emit
             SingleStringHandling = ExpressionSerializerSingleStringHandling.SerializeAsString
         });
 
-        private readonly JsonTextWriter writer;
+        private readonly PositionTrackingJsonTextWriter writer;
         private readonly EmitterContext context;
         private readonly ExpressionConverter converter;
 
-        public ExpressionEmitter(JsonTextWriter writer, EmitterContext context)
+        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context)
         {
             this.writer = writer;
             this.context = context;
@@ -65,7 +64,9 @@ namespace Bicep.Core.Emit
 
                     foreach (ArrayItemSyntax itemSyntax in arraySyntax.Items)
                     {
-                        EmitExpression(itemSyntax.Value);
+                        writer.WriteExpressionWithPosition(
+                            itemSyntax.Value,
+                            () => EmitExpression(itemSyntax.Value));
                     }
 
                     writer.WriteEndArray();
@@ -115,22 +116,34 @@ namespace Bicep.Core.Emit
         public void EmitIndexedSymbolReference(DeclaredResourceMetadata resource, SyntaxBase indexExpression, SyntaxBase newContext)
         {
             var expression = converter.CreateConverterForIndexReplacement(resource.Symbol.NameSyntax, indexExpression, newContext)
-                .GenerateSymbolicReference(resource.Symbol.Name, indexExpression);
+                .GenerateSymbolicReference(resource, indexExpression);
 
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
         }
 
+        public void EmitSymbolReference(DeclaredResourceMetadata resource)
+        {
+            var expression = converter.GenerateSymbolicReference(resource, null);
+
+            writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
+        }
+
+        public string GetSymbolicName(DeclaredResourceMetadata resource)
+            => converter.GetSymbolicName(resource);
+
         public void EmitIndexedSymbolReference(ModuleSymbol moduleSymbol, SyntaxBase indexExpression, SyntaxBase newContext)
         {
             var expression = converter.CreateConverterForIndexReplacement(ExpressionConverter.GetModuleNameSyntax(moduleSymbol), indexExpression, newContext)
-                .GenerateSymbolicReference(moduleSymbol.Name, indexExpression);
+                .GenerateSymbolicReference(moduleSymbol, indexExpression);
 
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
         }
 
         public void EmitResourceIdReference(DeclaredResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
-            var converterForContext = this.converter.CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, newContext);
+            var nameComponents = SyntaxFactory.CreateArray(this.converter.GetResourceNameSyntaxSegments(resource));
+
+            var converterForContext = this.converter.CreateConverterForIndexReplacement(nameComponents, indexExpression, newContext);
 
             var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(resource);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
@@ -223,76 +236,75 @@ namespace Bicep.Core.Emit
                 };
             }
 
-            writer.WriteStartObject();
-
-            if (name is not null)
+            writer.WriteObjectWithPosition(syntax, () =>
             {
-                this.EmitProperty("name", name);
-            }
-
-            // construct the length ARM expression from the Bicep array expression
-            // type check has already ensured that the array expression is an array
-            this.EmitPropertyWithTransform(
-                "count",
-                syntax.Expression,
-                arrayExpression => new FunctionExpression("length", new[] { arrayExpression }, Array.Empty<LanguageExpression>()));
-
-            if (batchSize.HasValue)
-            {
-                this.EmitProperty("mode", "serial");
-                this.EmitProperty("batchSize", () => writer.WriteValue(batchSize.Value));
-            }
-
-            if (input != null)
-            {
-                if (copyIndexOverride == null)
+                if (name is not null)
                 {
-                    if (CanEmitAsInputDirectly(input))
+                    this.EmitProperty("name", name);
+                }
+
+                // construct the length ARM expression from the Bicep array expression
+                // type check has already ensured that the array expression is an array
+                this.EmitPropertyWithTransform(
+                    "count",
+                    syntax.Expression,
+                    arrayExpression => new FunctionExpression("length", new[] { arrayExpression }, Array.Empty<LanguageExpression>()));
+
+                if (batchSize.HasValue)
+                {
+                    this.EmitProperty("mode", "serial");
+                    this.EmitProperty("batchSize", () => writer.WriteValue(batchSize.Value));
+                }
+
+                if (input != null)
+                {
+                    if (copyIndexOverride == null)
                     {
-                        this.EmitProperty("input", input);
+                        if (CanEmitAsInputDirectly(input))
+                        {
+                            this.EmitProperty("input", input);
+                        }
+                        else
+                        {
+                            this.EmitPropertyWithTransform("input", input, converted => ExpressionConverter.ToFunctionExpression(converted));
+                        }
                     }
                     else
                     {
-                        this.EmitPropertyWithTransform("input", input, converted => ExpressionConverter.ToFunctionExpression(converted));
+                        this.EmitPropertyWithTransform("input", input, expression =>
+                        {
+                            if (!CanEmitAsInputDirectly(input))
+                            {
+                                expression = ExpressionConverter.ToFunctionExpression(expression);
+                            }
+
+                            // the named copy index in the serialized expression is incorrect
+                            // because the object syntax here does not match the JSON equivalent due to the presence of { "value": ... } wrappers
+                            // for now, we will manually replace the copy index in the converted expression
+                            // this approach will not work for nested property loops
+                            var visitor = new LanguageExpressionVisitor
+                            {
+                                OnFunctionExpression = function =>
+                                {
+                                    if (string.Equals(function.Function, "copyIndex") &&
+                                        function.Parameters.Length == 1 &&
+                                        function.Parameters[0] is JTokenExpression)
+                                    {
+                                        // it's an invocation of the copyIndex function with 1 argument with a literal value
+                                        // replace the argument with the correct value
+                                        function.Parameters = new LanguageExpression[] { new JTokenExpression("value") };
+                                    }
+                                }
+                            };
+
+                            // mutate the expression
+                            expression.Accept(visitor);
+
+                            return expression;
+                        });
                     }
                 }
-                else
-                {
-                    this.EmitPropertyWithTransform("input", input, expression =>
-                    {
-                        if (!CanEmitAsInputDirectly(input))
-                        {
-                            expression = ExpressionConverter.ToFunctionExpression(expression);
-                        }
-
-                        // the named copy index in the serialized expression is incorrect
-                        // because the object syntax here does not match the JSON equivalent due to the presence of { "value": ... } wrappers
-                        // for now, we will manually replace the copy index in the converted expression
-                        // this approach will not work for nested property loops
-                        var visitor = new LanguageExpressionVisitor
-                        {
-                            OnFunctionExpression = function =>
-                            {
-                                if (string.Equals(function.Function, "copyIndex") &&
-                                    function.Parameters.Length == 1 &&
-                                    function.Parameters[0] is JTokenExpression)
-                                {
-                                    // it's an invocation of the copyIndex function with 1 argument with a literal value
-                                    // replace the argument with the correct value
-                                    function.Parameters = new LanguageExpression[] { new JTokenExpression("value") };
-                                }
-                            }
-                        };
-
-                        // mutate the expression
-                        expression.Accept(visitor);
-
-                        return expression;
-                    });
-                }
-            }
-
-            writer.WriteEndObject();
+            });
         }
 
         public void EmitObjectProperties(ObjectSyntax objectSyntax, ISet<string>? propertiesToOmit = null)
@@ -303,7 +315,7 @@ namespace Bicep.Core.Emit
             if (propertyLookup.Contains(true))
             {
                 // we have properties whose value is a for-expression
-                this.EmitProperty("copy", () =>
+                this.EmitCopyProperty(() =>
                 {
                     this.writer.WriteStartArray();
 
@@ -348,11 +360,7 @@ namespace Bicep.Core.Emit
         {
             if (syntax is InstanceFunctionCallSyntax instanceFunctionCall && string.Equals(instanceFunctionCall.Name.IdentifierName, "getSecret", LanguageConstants.IdentifierComparison))
             {
-                var baseSyntax = instanceFunctionCall.BaseExpression switch
-                {
-                    ArrayAccessSyntax arrayAccessSyntax => arrayAccessSyntax.BaseExpression,
-                    _ => instanceFunctionCall.BaseExpression,
-                };
+                var (baseSyntax, _) = SyntaxHelper.UnwrapArrayAccessSyntax(instanceFunctionCall.BaseExpression);
 
                 if (context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax) is not { } resource ||
                     !StringComparer.OrdinalIgnoreCase.Equals(resource.TypeReference.FormatType(), AzResourceTypeProvider.ResourceTypeKeyVault))
@@ -381,14 +389,14 @@ namespace Bicep.Core.Emit
                 writer.WriteEndObject(); // keyVault
 
                 writer.WritePropertyName("secretName");
-                var secretName = converter.ConvertExpression(instanceFunctionCall.Arguments[0].Expression);
+                var secretName = converter.ConvertExpression(instanceFunctionCall.GetArgumentByPosition(0).Expression);
                 var secretNameSerialised = ExpressionSerializer.SerializeExpression(secretName);
                 writer.WriteValue(secretNameSerialised);
 
-                if (instanceFunctionCall.Arguments.Length > 1)
+                if (instanceFunctionCall.Arguments.Count() > 1)
                 {
                     writer.WritePropertyName("secretVersion");
-                    var secretVersion = converter.ConvertExpression(instanceFunctionCall.Arguments[1].Expression);
+                    var secretVersion = converter.ConvertExpression(instanceFunctionCall.GetArgumentByPosition(1).Expression);
                     var secretVersionSerialised = ExpressionSerializer.SerializeExpression(secretVersion);
                     writer.WriteValue(secretVersionSerialised);
                 }
@@ -414,10 +422,14 @@ namespace Bicep.Core.Emit
                 var serialized = ExpressionSerializer.SerializeExpression(transformed);
 
                 this.writer.WriteValue(serialized);
-            });
+            },
+            value);
 
         public void EmitProperty(string name, Action valueFunc)
             => EmitPropertyInternal(new JTokenExpression(name), valueFunc);
+
+        public void EmitCopyProperty(Action valueFunc)
+            => EmitPropertyInternal(new JTokenExpression(LanguageConstants.CopyLoopIdentifier), valueFunc, skipCopyCheck: true);
 
         public void EmitProperty(string name, string value)
             => EmitPropertyInternal(new JTokenExpression(name), value);
@@ -428,12 +440,15 @@ namespace Bicep.Core.Emit
         public void EmitProperty(SyntaxBase syntaxKey, SyntaxBase syntaxValue)
             => EmitPropertyInternal(converter.ConvertExpression(syntaxKey), syntaxValue);
 
-        private void EmitPropertyInternal(LanguageExpression expressionKey, Action valueFunc)
+        private void EmitPropertyInternal(LanguageExpression expressionKey, Action valueFunc, SyntaxBase? location = null, bool skipCopyCheck = false)
         {
             var serializedName = ExpressionSerializer.SerializeExpression(expressionKey);
-            writer.WritePropertyName(serializedName);
-
-            valueFunc();
+            if (!skipCopyCheck && serializedName.Equals(LanguageConstants.CopyLoopIdentifier, StringComparison.OrdinalIgnoreCase))
+            {
+                // we escape "copy" property name with a ARM expression to avoid it being interpreted by ARM as a copy instruction
+                serializedName = $"[string('{serializedName}')]";
+            }
+            writer.WritePropertyWithPosition(location, serializedName, valueFunc);
         }
 
         private void EmitPropertyInternal(LanguageExpression expressionKey, string value)
@@ -444,7 +459,7 @@ namespace Bicep.Core.Emit
             });
 
         private void EmitPropertyInternal(LanguageExpression expressionKey, SyntaxBase syntaxValue)
-            => EmitPropertyInternal(expressionKey, () => EmitExpression(syntaxValue));
+            => EmitPropertyInternal(expressionKey, () => EmitExpression(syntaxValue), syntaxValue);
 
         public void EmitOptionalPropertyExpression(string name, SyntaxBase? expression)
         {
@@ -455,4 +470,3 @@ namespace Bicep.Core.Emit
         }
     }
 }
-

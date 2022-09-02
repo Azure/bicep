@@ -137,9 +137,7 @@ namespace Bicep.Core.Text
                     return -1;
                 }
 
-                var temp = current;
-                current = previous;
-                previous = temp;
+                (previous, current) = (current, previous);
             }
 
             /*

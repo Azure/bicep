@@ -48,7 +48,8 @@ resource resC 'My.Rp/myResourceType@2020-01-01' = {
 
 resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
   name: '${resC.name}/resD'
-  properties: {}
+  properties: {
+  }
 }
 
 resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {

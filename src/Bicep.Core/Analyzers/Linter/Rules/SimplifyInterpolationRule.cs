@@ -1,13 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -88,7 +88,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     // We only want to trigger if the expression is of type string (because interpolation
                     // using non-string types can be a perfectly valid way to convert to string, e.g. '${intVar}')
                     var type = model.GetTypeInfo(expression);
-                    if (IsStrictlyAssignableToString(type))
+                    if (type.IsStrictlyAssignableToString())
                     {
                         AddCodeFix(valueSyntax.Span, expression.ToText());
                     }
@@ -101,12 +101,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 var codeReplacement = new CodeReplacement(span, name);
                 var fix = new CodeFix(CoreResources.SimplifyInterpolationFixTitle, true, CodeFixKind.QuickFix, codeReplacement);
                 spanFixes[span] = fix;
-            }
-
-            private static bool IsStrictlyAssignableToString(TypeSymbol typeSymbol)
-            {
-                return typeSymbol is not AnyType
-                    && TypeValidator.AreTypesAssignable(typeSymbol, LanguageConstants.String);
             }
         }
     }

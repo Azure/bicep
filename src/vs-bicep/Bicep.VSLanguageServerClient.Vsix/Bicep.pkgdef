@@ -1,0 +1,23 @@
+[$RootKey$\ShellFileAssociations\.bicep]
+"DefaultIconMoniker"="8c3d631c-7c5b-469d-ac8a-4838177d7c50:0"
+
+// Registers the bicep grammar file with Visual Studio
+[$RootKey$\TextMate\Repositories]
+"BicepTextmateRepository"="$PackageFolder$\TextMateSyntaxes"
+
+// Defines where the language configuration file for a given grammar name is (value of the ScopeName tag in the bicep.tmlanguage file).
+[$RootKey$\TextMate\LanguageConfiguration\GrammarMapping]
+"source.bicep"="$PackageFolder$\TextMateSyntaxes\language-configuration.json"
+
+// Defines where the language configuration file for a given language name is (partial value of the content type name)
+[$RootKey$\TextMate\LanguageConfiguration\ContentTypeMapping]
+"bicep"="$PackageFolder$\TextMateSyntaxes\language-configuration.json"
+
+[$RootKey$\AutomationProperties\TextEditor\Bicep]
+@="Bicep Tools Options"
+"Description"="Options for tab size, indent type and line number display"
+"Name"="Bicep"
+"Package"="{F5E7E720-1401-11D1-883B-0000F87579D2}"
+"ResourcePackage"="{7bbebedb-0520-44f3-a5e0-e3d8855f1944}"
+"ProfileSave"=dword:00000001
+"VSSettingsMigration"=dword:00000001

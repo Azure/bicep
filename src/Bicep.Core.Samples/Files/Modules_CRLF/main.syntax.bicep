@@ -1,3194 +1,3195 @@
 
-//@[0:2) NewLine |\r\n|
+//@[000:8466) ProgramSyntax
+//@[000:0002) ├─Token(NewLine) |\r\n|
 @sys.description('this is deployTimeSuffix param')
-//@[0:93) ParameterDeclarationSyntax
-//@[0:50)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:50)   InstanceFunctionCallSyntax
-//@[1:4)    VariableAccessSyntax
-//@[1:4)     IdentifierSyntax
-//@[1:4)      Identifier |sys|
-//@[4:5)    Dot |.|
-//@[5:16)    IdentifierSyntax
-//@[5:16)     Identifier |description|
-//@[16:17)    LeftParen |(|
-//@[17:49)    FunctionArgumentSyntax
-//@[17:49)     StringSyntax
-//@[17:49)      StringComplete |'this is deployTimeSuffix param'|
-//@[49:50)    RightParen |)|
-//@[50:52)  NewLine |\r\n|
+//@[000:0093) ├─ParameterDeclarationSyntax
+//@[000:0050) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0050) | | └─InstanceFunctionCallSyntax
+//@[001:0004) | |   ├─VariableAccessSyntax
+//@[001:0004) | |   | └─IdentifierSyntax
+//@[001:0004) | |   |   └─Token(Identifier) |sys|
+//@[004:0005) | |   ├─Token(Dot) |.|
+//@[005:0016) | |   ├─IdentifierSyntax
+//@[005:0016) | |   | └─Token(Identifier) |description|
+//@[016:0017) | |   ├─Token(LeftParen) |(|
+//@[017:0049) | |   ├─FunctionArgumentSyntax
+//@[017:0049) | |   | └─StringSyntax
+//@[017:0049) | |   |   └─Token(StringComplete) |'this is deployTimeSuffix param'|
+//@[049:0050) | |   └─Token(RightParen) |)|
+//@[050:0052) | ├─Token(NewLine) |\r\n|
 param deployTimeSuffix string = newGuid()
-//@[0:5)  Identifier |param|
-//@[6:22)  IdentifierSyntax
-//@[6:22)   Identifier |deployTimeSuffix|
-//@[23:29)  SimpleTypeSyntax
-//@[23:29)   Identifier |string|
-//@[30:41)  ParameterDefaultValueSyntax
-//@[30:31)   Assignment |=|
-//@[32:41)   FunctionCallSyntax
-//@[32:39)    IdentifierSyntax
-//@[32:39)     Identifier |newGuid|
-//@[39:40)    LeftParen |(|
-//@[40:41)    RightParen |)|
-//@[41:45) NewLine |\r\n\r\n|
+//@[000:0005) | ├─Token(Identifier) |param|
+//@[006:0022) | ├─IdentifierSyntax
+//@[006:0022) | | └─Token(Identifier) |deployTimeSuffix|
+//@[023:0029) | ├─SimpleTypeSyntax
+//@[023:0029) | | └─Token(Identifier) |string|
+//@[030:0041) | └─ParameterDefaultValueSyntax
+//@[030:0031) |   ├─Token(Assignment) |=|
+//@[032:0041) |   └─FunctionCallSyntax
+//@[032:0039) |     ├─IdentifierSyntax
+//@[032:0039) |     | └─Token(Identifier) |newGuid|
+//@[039:0040) |     ├─Token(LeftParen) |(|
+//@[040:0041) |     └─Token(RightParen) |)|
+//@[041:0045) ├─Token(NewLine) |\r\n\r\n|
 
 @sys.description('this module a')
-//@[0:252) ModuleDeclarationSyntax
-//@[0:33)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:33)   InstanceFunctionCallSyntax
-//@[1:4)    VariableAccessSyntax
-//@[1:4)     IdentifierSyntax
-//@[1:4)      Identifier |sys|
-//@[4:5)    Dot |.|
-//@[5:16)    IdentifierSyntax
-//@[5:16)     Identifier |description|
-//@[16:17)    LeftParen |(|
-//@[17:32)    FunctionArgumentSyntax
-//@[17:32)     StringSyntax
-//@[17:32)      StringComplete |'this module a'|
-//@[32:33)    RightParen |)|
-//@[33:35)  NewLine |\r\n|
+//@[000:0252) ├─ModuleDeclarationSyntax
+//@[000:0033) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0033) | | └─InstanceFunctionCallSyntax
+//@[001:0004) | |   ├─VariableAccessSyntax
+//@[001:0004) | |   | └─IdentifierSyntax
+//@[001:0004) | |   |   └─Token(Identifier) |sys|
+//@[004:0005) | |   ├─Token(Dot) |.|
+//@[005:0016) | |   ├─IdentifierSyntax
+//@[005:0016) | |   | └─Token(Identifier) |description|
+//@[016:0017) | |   ├─Token(LeftParen) |(|
+//@[017:0032) | |   ├─FunctionArgumentSyntax
+//@[017:0032) | |   | └─StringSyntax
+//@[017:0032) | |   |   └─Token(StringComplete) |'this module a'|
+//@[032:0033) | |   └─Token(RightParen) |)|
+//@[033:0035) | ├─Token(NewLine) |\r\n|
 module modATest './modulea.bicep' = {
-//@[0:6)  Identifier |module|
-//@[7:15)  IdentifierSyntax
-//@[7:15)   Identifier |modATest|
-//@[16:33)  StringSyntax
-//@[16:33)   StringComplete |'./modulea.bicep'|
-//@[34:35)  Assignment |=|
-//@[36:217)  ObjectSyntax
-//@[36:37)   LeftBrace |{|
-//@[37:39)   NewLine |\r\n|
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0015) | ├─IdentifierSyntax
+//@[007:0015) | | └─Token(Identifier) |modATest|
+//@[016:0033) | ├─StringSyntax
+//@[016:0033) | | └─Token(StringComplete) |'./modulea.bicep'|
+//@[034:0035) | ├─Token(Assignment) |=|
+//@[036:0217) | └─ObjectSyntax
+//@[036:0037) |   ├─Token(LeftBrace) |{|
+//@[037:0039) |   ├─Token(NewLine) |\r\n|
   name: 'modATest'
-//@[2:18)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:18)    StringSyntax
-//@[8:18)     StringComplete |'modATest'|
-//@[18:20)   NewLine |\r\n|
+//@[002:0018) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0018) |   | └─StringSyntax
+//@[008:0018) |   |   └─Token(StringComplete) |'modATest'|
+//@[018:0020) |   ├─Token(NewLine) |\r\n|
   params: {
-//@[2:155)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:155)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\r\n|
+//@[002:0155) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[010:0155) |   | └─ObjectSyntax
+//@[010:0011) |   |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   |   ├─Token(NewLine) |\r\n|
     stringParamB: 'hello!'
-//@[4:26)     ObjectPropertySyntax
-//@[4:16)      IdentifierSyntax
-//@[4:16)       Identifier |stringParamB|
-//@[16:17)      Colon |:|
-//@[18:26)      StringSyntax
-//@[18:26)       StringComplete |'hello!'|
-//@[26:28)     NewLine |\r\n|
+//@[004:0026) |   |   ├─ObjectPropertySyntax
+//@[004:0016) |   |   | ├─IdentifierSyntax
+//@[004:0016) |   |   | | └─Token(Identifier) |stringParamB|
+//@[016:0017) |   |   | ├─Token(Colon) |:|
+//@[018:0026) |   |   | └─StringSyntax
+//@[018:0026) |   |   |   └─Token(StringComplete) |'hello!'|
+//@[026:0028) |   |   ├─Token(NewLine) |\r\n|
     objParam: {
-//@[4:36)     ObjectPropertySyntax
-//@[4:12)      IdentifierSyntax
-//@[4:12)       Identifier |objParam|
-//@[12:13)      Colon |:|
-//@[14:36)      ObjectSyntax
-//@[14:15)       LeftBrace |{|
-//@[15:17)       NewLine |\r\n|
+//@[004:0036) |   |   ├─ObjectPropertySyntax
+//@[004:0012) |   |   | ├─IdentifierSyntax
+//@[004:0012) |   |   | | └─Token(Identifier) |objParam|
+//@[012:0013) |   |   | ├─Token(Colon) |:|
+//@[014:0036) |   |   | └─ObjectSyntax
+//@[014:0015) |   |   |   ├─Token(LeftBrace) |{|
+//@[015:0017) |   |   |   ├─Token(NewLine) |\r\n|
       a: 'b'
-//@[6:12)       ObjectPropertySyntax
-//@[6:7)        IdentifierSyntax
-//@[6:7)         Identifier |a|
-//@[7:8)        Colon |:|
-//@[9:12)        StringSyntax
-//@[9:12)         StringComplete |'b'|
-//@[12:14)       NewLine |\r\n|
+//@[006:0012) |   |   |   ├─ObjectPropertySyntax
+//@[006:0007) |   |   |   | ├─IdentifierSyntax
+//@[006:0007) |   |   |   | | └─Token(Identifier) |a|
+//@[007:0008) |   |   |   | ├─Token(Colon) |:|
+//@[009:0012) |   |   |   | └─StringSyntax
+//@[009:0012) |   |   |   |   └─Token(StringComplete) |'b'|
+//@[012:0014) |   |   |   ├─Token(NewLine) |\r\n|
     }
-//@[4:5)       RightBrace |}|
-//@[5:7)     NewLine |\r\n|
+//@[004:0005) |   |   |   └─Token(RightBrace) |}|
+//@[005:0007) |   |   ├─Token(NewLine) |\r\n|
     arrayParam: [
-//@[4:71)     ObjectPropertySyntax
-//@[4:14)      IdentifierSyntax
-//@[4:14)       Identifier |arrayParam|
-//@[14:15)      Colon |:|
-//@[16:71)      ArraySyntax
-//@[16:17)       LeftSquare |[|
-//@[17:19)       NewLine |\r\n|
+//@[004:0071) |   |   ├─ObjectPropertySyntax
+//@[004:0014) |   |   | ├─IdentifierSyntax
+//@[004:0014) |   |   | | └─Token(Identifier) |arrayParam|
+//@[014:0015) |   |   | ├─Token(Colon) |:|
+//@[016:0071) |   |   | └─ArraySyntax
+//@[016:0017) |   |   |   ├─Token(LeftSquare) |[|
+//@[017:0019) |   |   |   ├─Token(NewLine) |\r\n|
       {
-//@[6:32)       ArrayItemSyntax
-//@[6:32)        ObjectSyntax
-//@[6:7)         LeftBrace |{|
-//@[7:9)         NewLine |\r\n|
+//@[006:0032) |   |   |   ├─ArrayItemSyntax
+//@[006:0032) |   |   |   | └─ObjectSyntax
+//@[006:0007) |   |   |   |   ├─Token(LeftBrace) |{|
+//@[007:0009) |   |   |   |   ├─Token(NewLine) |\r\n|
         a: 'b'
-//@[8:14)         ObjectPropertySyntax
-//@[8:9)          IdentifierSyntax
-//@[8:9)           Identifier |a|
-//@[9:10)          Colon |:|
-//@[11:14)          StringSyntax
-//@[11:14)           StringComplete |'b'|
-//@[14:16)         NewLine |\r\n|
+//@[008:0014) |   |   |   |   ├─ObjectPropertySyntax
+//@[008:0009) |   |   |   |   | ├─IdentifierSyntax
+//@[008:0009) |   |   |   |   | | └─Token(Identifier) |a|
+//@[009:0010) |   |   |   |   | ├─Token(Colon) |:|
+//@[011:0014) |   |   |   |   | └─StringSyntax
+//@[011:0014) |   |   |   |   |   └─Token(StringComplete) |'b'|
+//@[014:0016) |   |   |   |   ├─Token(NewLine) |\r\n|
       }
-//@[6:7)         RightBrace |}|
-//@[7:9)       NewLine |\r\n|
+//@[006:0007) |   |   |   |   └─Token(RightBrace) |}|
+//@[007:0009) |   |   |   ├─Token(NewLine) |\r\n|
       'abc'
-//@[6:11)       ArrayItemSyntax
-//@[6:11)        StringSyntax
-//@[6:11)         StringComplete |'abc'|
-//@[11:13)       NewLine |\r\n|
+//@[006:0011) |   |   |   ├─ArrayItemSyntax
+//@[006:0011) |   |   |   | └─StringSyntax
+//@[006:0011) |   |   |   |   └─Token(StringComplete) |'abc'|
+//@[011:0013) |   |   |   ├─Token(NewLine) |\r\n|
     ]
-//@[4:5)       RightSquare |]|
-//@[5:7)     NewLine |\r\n|
+//@[004:0005) |   |   |   └─Token(RightSquare) |]|
+//@[005:0007) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:7) NewLine |\r\n\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0007) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
 @sys.description('this module b')
-//@[0:136) ModuleDeclarationSyntax
-//@[0:33)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:33)   InstanceFunctionCallSyntax
-//@[1:4)    VariableAccessSyntax
-//@[1:4)     IdentifierSyntax
-//@[1:4)      Identifier |sys|
-//@[4:5)    Dot |.|
-//@[5:16)    IdentifierSyntax
-//@[5:16)     Identifier |description|
-//@[16:17)    LeftParen |(|
-//@[17:32)    FunctionArgumentSyntax
-//@[17:32)     StringSyntax
-//@[17:32)      StringComplete |'this module b'|
-//@[32:33)    RightParen |)|
-//@[33:35)  NewLine |\r\n|
+//@[000:0136) ├─ModuleDeclarationSyntax
+//@[000:0033) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0033) | | └─InstanceFunctionCallSyntax
+//@[001:0004) | |   ├─VariableAccessSyntax
+//@[001:0004) | |   | └─IdentifierSyntax
+//@[001:0004) | |   |   └─Token(Identifier) |sys|
+//@[004:0005) | |   ├─Token(Dot) |.|
+//@[005:0016) | |   ├─IdentifierSyntax
+//@[005:0016) | |   | └─Token(Identifier) |description|
+//@[016:0017) | |   ├─Token(LeftParen) |(|
+//@[017:0032) | |   ├─FunctionArgumentSyntax
+//@[017:0032) | |   | └─StringSyntax
+//@[017:0032) | |   |   └─Token(StringComplete) |'this module b'|
+//@[032:0033) | |   └─Token(RightParen) |)|
+//@[033:0035) | ├─Token(NewLine) |\r\n|
 module modB './child/moduleb.bicep' = {
-//@[0:6)  Identifier |module|
-//@[7:11)  IdentifierSyntax
-//@[7:11)   Identifier |modB|
-//@[12:35)  StringSyntax
-//@[12:35)   StringComplete |'./child/moduleb.bicep'|
-//@[36:37)  Assignment |=|
-//@[38:101)  ObjectSyntax
-//@[38:39)   LeftBrace |{|
-//@[39:41)   NewLine |\r\n|
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0011) | ├─IdentifierSyntax
+//@[007:0011) | | └─Token(Identifier) |modB|
+//@[012:0035) | ├─StringSyntax
+//@[012:0035) | | └─Token(StringComplete) |'./child/moduleb.bicep'|
+//@[036:0037) | ├─Token(Assignment) |=|
+//@[038:0101) | └─ObjectSyntax
+//@[038:0039) |   ├─Token(LeftBrace) |{|
+//@[039:0041) |   ├─Token(NewLine) |\r\n|
   name: 'modB'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'modB'|
-//@[14:16)   NewLine |\r\n|
+//@[002:0014) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0014) |   | └─StringSyntax
+//@[008:0014) |   |   └─Token(StringComplete) |'modB'|
+//@[014:0016) |   ├─Token(NewLine) |\r\n|
   params: {
-//@[2:41)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:41)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\r\n|
+//@[002:0041) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[010:0041) |   | └─ObjectSyntax
+//@[010:0011) |   |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   |   ├─Token(NewLine) |\r\n|
     location: 'West US'
-//@[4:23)     ObjectPropertySyntax
-//@[4:12)      IdentifierSyntax
-//@[4:12)       Identifier |location|
-//@[12:13)      Colon |:|
-//@[14:23)      StringSyntax
-//@[14:23)       StringComplete |'West US'|
-//@[23:25)     NewLine |\r\n|
+//@[004:0023) |   |   ├─ObjectPropertySyntax
+//@[004:0012) |   |   | ├─IdentifierSyntax
+//@[004:0012) |   |   | | └─Token(Identifier) |location|
+//@[012:0013) |   |   | ├─Token(Colon) |:|
+//@[014:0023) |   |   | └─StringSyntax
+//@[014:0023) |   |   |   └─Token(StringComplete) |'West US'|
+//@[023:0025) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 @sys.description('this is just module b with a condition')
-//@[0:203) ModuleDeclarationSyntax
-//@[0:58)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:58)   InstanceFunctionCallSyntax
-//@[1:4)    VariableAccessSyntax
-//@[1:4)     IdentifierSyntax
-//@[1:4)      Identifier |sys|
-//@[4:5)    Dot |.|
-//@[5:16)    IdentifierSyntax
-//@[5:16)     Identifier |description|
-//@[16:17)    LeftParen |(|
-//@[17:57)    FunctionArgumentSyntax
-//@[17:57)     StringSyntax
-//@[17:57)      StringComplete |'this is just module b with a condition'|
-//@[57:58)    RightParen |)|
-//@[58:60)  NewLine |\r\n|
+//@[000:0203) ├─ModuleDeclarationSyntax
+//@[000:0058) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0058) | | └─InstanceFunctionCallSyntax
+//@[001:0004) | |   ├─VariableAccessSyntax
+//@[001:0004) | |   | └─IdentifierSyntax
+//@[001:0004) | |   |   └─Token(Identifier) |sys|
+//@[004:0005) | |   ├─Token(Dot) |.|
+//@[005:0016) | |   ├─IdentifierSyntax
+//@[005:0016) | |   | └─Token(Identifier) |description|
+//@[016:0017) | |   ├─Token(LeftParen) |(|
+//@[017:0057) | |   ├─FunctionArgumentSyntax
+//@[017:0057) | |   | └─StringSyntax
+//@[017:0057) | |   |   └─Token(StringComplete) |'this is just module b with a condition'|
+//@[057:0058) | |   └─Token(RightParen) |)|
+//@[058:0060) | ├─Token(NewLine) |\r\n|
 module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
-//@[0:6)  Identifier |module|
-//@[7:24)  IdentifierSyntax
-//@[7:24)   Identifier |modBWithCondition|
-//@[25:48)  StringSyntax
-//@[25:48)   StringComplete |'./child/moduleb.bicep'|
-//@[49:50)  Assignment |=|
-//@[51:143)  IfConditionSyntax
-//@[51:53)   Identifier |if|
-//@[54:66)   ParenthesizedExpressionSyntax
-//@[54:55)    LeftParen |(|
-//@[55:65)    BinaryOperationSyntax
-//@[55:60)     BinaryOperationSyntax
-//@[55:56)      IntegerLiteralSyntax
-//@[55:56)       Integer |1|
-//@[57:58)      Plus |+|
-//@[59:60)      IntegerLiteralSyntax
-//@[59:60)       Integer |1|
-//@[61:63)     Equals |==|
-//@[64:65)     IntegerLiteralSyntax
-//@[64:65)      Integer |2|
-//@[65:66)    RightParen |)|
-//@[67:143)   ObjectSyntax
-//@[67:68)    LeftBrace |{|
-//@[68:70)    NewLine |\r\n|
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0024) | ├─IdentifierSyntax
+//@[007:0024) | | └─Token(Identifier) |modBWithCondition|
+//@[025:0048) | ├─StringSyntax
+//@[025:0048) | | └─Token(StringComplete) |'./child/moduleb.bicep'|
+//@[049:0050) | ├─Token(Assignment) |=|
+//@[051:0143) | └─IfConditionSyntax
+//@[051:0053) |   ├─Token(Identifier) |if|
+//@[054:0066) |   ├─ParenthesizedExpressionSyntax
+//@[054:0055) |   | ├─Token(LeftParen) |(|
+//@[055:0065) |   | ├─BinaryOperationSyntax
+//@[055:0060) |   | | ├─BinaryOperationSyntax
+//@[055:0056) |   | | | ├─IntegerLiteralSyntax
+//@[055:0056) |   | | | | └─Token(Integer) |1|
+//@[057:0058) |   | | | ├─Token(Plus) |+|
+//@[059:0060) |   | | | └─IntegerLiteralSyntax
+//@[059:0060) |   | | |   └─Token(Integer) |1|
+//@[061:0063) |   | | ├─Token(Equals) |==|
+//@[064:0065) |   | | └─IntegerLiteralSyntax
+//@[064:0065) |   | |   └─Token(Integer) |2|
+//@[065:0066) |   | └─Token(RightParen) |)|
+//@[067:0143) |   └─ObjectSyntax
+//@[067:0068) |     ├─Token(LeftBrace) |{|
+//@[068:0070) |     ├─Token(NewLine) |\r\n|
   name: 'modBWithCondition'
-//@[2:27)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:27)     StringSyntax
-//@[8:27)      StringComplete |'modBWithCondition'|
-//@[27:29)    NewLine |\r\n|
+//@[002:0027) |     ├─ObjectPropertySyntax
+//@[002:0006) |     | ├─IdentifierSyntax
+//@[002:0006) |     | | └─Token(Identifier) |name|
+//@[006:0007) |     | ├─Token(Colon) |:|
+//@[008:0027) |     | └─StringSyntax
+//@[008:0027) |     |   └─Token(StringComplete) |'modBWithCondition'|
+//@[027:0029) |     ├─Token(NewLine) |\r\n|
   params: {
-//@[2:41)    ObjectPropertySyntax
-//@[2:8)     IdentifierSyntax
-//@[2:8)      Identifier |params|
-//@[8:9)     Colon |:|
-//@[10:41)     ObjectSyntax
-//@[10:11)      LeftBrace |{|
-//@[11:13)      NewLine |\r\n|
+//@[002:0041) |     ├─ObjectPropertySyntax
+//@[002:0008) |     | ├─IdentifierSyntax
+//@[002:0008) |     | | └─Token(Identifier) |params|
+//@[008:0009) |     | ├─Token(Colon) |:|
+//@[010:0041) |     | └─ObjectSyntax
+//@[010:0011) |     |   ├─Token(LeftBrace) |{|
+//@[011:0013) |     |   ├─Token(NewLine) |\r\n|
     location: 'East US'
-//@[4:23)      ObjectPropertySyntax
-//@[4:12)       IdentifierSyntax
-//@[4:12)        Identifier |location|
-//@[12:13)       Colon |:|
-//@[14:23)       StringSyntax
-//@[14:23)        StringComplete |'East US'|
-//@[23:25)      NewLine |\r\n|
+//@[004:0023) |     |   ├─ObjectPropertySyntax
+//@[004:0012) |     |   | ├─IdentifierSyntax
+//@[004:0012) |     |   | | └─Token(Identifier) |location|
+//@[012:0013) |     |   | ├─Token(Colon) |:|
+//@[014:0023) |     |   | └─StringSyntax
+//@[014:0023) |     |   |   └─Token(StringComplete) |'East US'|
+//@[023:0025) |     |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:0003) |     |   └─Token(RightBrace) |}|
+//@[003:0005) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |     └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module modC './child/modulec.json' = {
-//@[0:100) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:11)  IdentifierSyntax
-//@[7:11)   Identifier |modC|
-//@[12:34)  StringSyntax
-//@[12:34)   StringComplete |'./child/modulec.json'|
-//@[35:36)  Assignment |=|
-//@[37:100)  ObjectSyntax
-//@[37:38)   LeftBrace |{|
-//@[38:40)   NewLine |\r\n|
+//@[000:0100) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0011) | ├─IdentifierSyntax
+//@[007:0011) | | └─Token(Identifier) |modC|
+//@[012:0034) | ├─StringSyntax
+//@[012:0034) | | └─Token(StringComplete) |'./child/modulec.json'|
+//@[035:0036) | ├─Token(Assignment) |=|
+//@[037:0100) | └─ObjectSyntax
+//@[037:0038) |   ├─Token(LeftBrace) |{|
+//@[038:0040) |   ├─Token(NewLine) |\r\n|
   name: 'modC'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'modC'|
-//@[14:16)   NewLine |\r\n|
+//@[002:0014) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0014) |   | └─StringSyntax
+//@[008:0014) |   |   └─Token(StringComplete) |'modC'|
+//@[014:0016) |   ├─Token(NewLine) |\r\n|
   params: {
-//@[2:41)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:41)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\r\n|
+//@[002:0041) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[010:0041) |   | └─ObjectSyntax
+//@[010:0011) |   |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   |   ├─Token(NewLine) |\r\n|
     location: 'West US'
-//@[4:23)     ObjectPropertySyntax
-//@[4:12)      IdentifierSyntax
-//@[4:12)       Identifier |location|
-//@[12:13)      Colon |:|
-//@[14:23)      StringSyntax
-//@[14:23)       StringComplete |'West US'|
-//@[23:25)     NewLine |\r\n|
+//@[004:0023) |   |   ├─ObjectPropertySyntax
+//@[004:0012) |   |   | ├─IdentifierSyntax
+//@[004:0012) |   |   | | └─Token(Identifier) |location|
+//@[012:0013) |   |   | ├─Token(Colon) |:|
+//@[014:0023) |   |   | └─StringSyntax
+//@[014:0023) |   |   |   └─Token(StringComplete) |'West US'|
+//@[023:0025) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module modCWithCondition './child/modulec.json' = if (2 - 1 == 1) {
-//@[0:142) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:24)  IdentifierSyntax
-//@[7:24)   Identifier |modCWithCondition|
-//@[25:47)  StringSyntax
-//@[25:47)   StringComplete |'./child/modulec.json'|
-//@[48:49)  Assignment |=|
-//@[50:142)  IfConditionSyntax
-//@[50:52)   Identifier |if|
-//@[53:65)   ParenthesizedExpressionSyntax
-//@[53:54)    LeftParen |(|
-//@[54:64)    BinaryOperationSyntax
-//@[54:59)     BinaryOperationSyntax
-//@[54:55)      IntegerLiteralSyntax
-//@[54:55)       Integer |2|
-//@[56:57)      Minus |-|
-//@[58:59)      IntegerLiteralSyntax
-//@[58:59)       Integer |1|
-//@[60:62)     Equals |==|
-//@[63:64)     IntegerLiteralSyntax
-//@[63:64)      Integer |1|
-//@[64:65)    RightParen |)|
-//@[66:142)   ObjectSyntax
-//@[66:67)    LeftBrace |{|
-//@[67:69)    NewLine |\r\n|
+//@[000:0142) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0024) | ├─IdentifierSyntax
+//@[007:0024) | | └─Token(Identifier) |modCWithCondition|
+//@[025:0047) | ├─StringSyntax
+//@[025:0047) | | └─Token(StringComplete) |'./child/modulec.json'|
+//@[048:0049) | ├─Token(Assignment) |=|
+//@[050:0142) | └─IfConditionSyntax
+//@[050:0052) |   ├─Token(Identifier) |if|
+//@[053:0065) |   ├─ParenthesizedExpressionSyntax
+//@[053:0054) |   | ├─Token(LeftParen) |(|
+//@[054:0064) |   | ├─BinaryOperationSyntax
+//@[054:0059) |   | | ├─BinaryOperationSyntax
+//@[054:0055) |   | | | ├─IntegerLiteralSyntax
+//@[054:0055) |   | | | | └─Token(Integer) |2|
+//@[056:0057) |   | | | ├─Token(Minus) |-|
+//@[058:0059) |   | | | └─IntegerLiteralSyntax
+//@[058:0059) |   | | |   └─Token(Integer) |1|
+//@[060:0062) |   | | ├─Token(Equals) |==|
+//@[063:0064) |   | | └─IntegerLiteralSyntax
+//@[063:0064) |   | |   └─Token(Integer) |1|
+//@[064:0065) |   | └─Token(RightParen) |)|
+//@[066:0142) |   └─ObjectSyntax
+//@[066:0067) |     ├─Token(LeftBrace) |{|
+//@[067:0069) |     ├─Token(NewLine) |\r\n|
   name: 'modCWithCondition'
-//@[2:27)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:27)     StringSyntax
-//@[8:27)      StringComplete |'modCWithCondition'|
-//@[27:29)    NewLine |\r\n|
+//@[002:0027) |     ├─ObjectPropertySyntax
+//@[002:0006) |     | ├─IdentifierSyntax
+//@[002:0006) |     | | └─Token(Identifier) |name|
+//@[006:0007) |     | ├─Token(Colon) |:|
+//@[008:0027) |     | └─StringSyntax
+//@[008:0027) |     |   └─Token(StringComplete) |'modCWithCondition'|
+//@[027:0029) |     ├─Token(NewLine) |\r\n|
   params: {
-//@[2:41)    ObjectPropertySyntax
-//@[2:8)     IdentifierSyntax
-//@[2:8)      Identifier |params|
-//@[8:9)     Colon |:|
-//@[10:41)     ObjectSyntax
-//@[10:11)      LeftBrace |{|
-//@[11:13)      NewLine |\r\n|
+//@[002:0041) |     ├─ObjectPropertySyntax
+//@[002:0008) |     | ├─IdentifierSyntax
+//@[002:0008) |     | | └─Token(Identifier) |params|
+//@[008:0009) |     | ├─Token(Colon) |:|
+//@[010:0041) |     | └─ObjectSyntax
+//@[010:0011) |     |   ├─Token(LeftBrace) |{|
+//@[011:0013) |     |   ├─Token(NewLine) |\r\n|
     location: 'East US'
-//@[4:23)      ObjectPropertySyntax
-//@[4:12)       IdentifierSyntax
-//@[4:12)        Identifier |location|
-//@[12:13)       Colon |:|
-//@[14:23)       StringSyntax
-//@[14:23)        StringComplete |'East US'|
-//@[23:25)      NewLine |\r\n|
+//@[004:0023) |     |   ├─ObjectPropertySyntax
+//@[004:0012) |     |   | ├─IdentifierSyntax
+//@[004:0012) |     |   | | └─Token(Identifier) |location|
+//@[012:0013) |     |   | ├─Token(Colon) |:|
+//@[014:0023) |     |   | └─StringSyntax
+//@[014:0023) |     |   |   └─Token(StringComplete) |'East US'|
+//@[023:0025) |     |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:0003) |     |   └─Token(RightBrace) |}|
+//@[003:0005) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |     └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module optionalWithNoParams1 './child/optionalParams.bicep'= {
-//@[0:98) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:28)  IdentifierSyntax
-//@[7:28)   Identifier |optionalWithNoParams1|
-//@[29:59)  StringSyntax
-//@[29:59)   StringComplete |'./child/optionalParams.bicep'|
-//@[59:60)  Assignment |=|
-//@[61:98)  ObjectSyntax
-//@[61:62)   LeftBrace |{|
-//@[62:64)   NewLine |\r\n|
+//@[000:0098) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0028) | ├─IdentifierSyntax
+//@[007:0028) | | └─Token(Identifier) |optionalWithNoParams1|
+//@[029:0059) | ├─StringSyntax
+//@[029:0059) | | └─Token(StringComplete) |'./child/optionalParams.bicep'|
+//@[059:0060) | ├─Token(Assignment) |=|
+//@[061:0098) | └─ObjectSyntax
+//@[061:0062) |   ├─Token(LeftBrace) |{|
+//@[062:0064) |   ├─Token(NewLine) |\r\n|
   name: 'optionalWithNoParams1'
-//@[2:31)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:31)    StringSyntax
-//@[8:31)     StringComplete |'optionalWithNoParams1'|
-//@[31:33)   NewLine |\r\n|
+//@[002:0031) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0031) |   | └─StringSyntax
+//@[008:0031) |   |   └─Token(StringComplete) |'optionalWithNoParams1'|
+//@[031:0033) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module optionalWithNoParams2 './child/optionalParams.bicep'= {
-//@[0:116) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:28)  IdentifierSyntax
-//@[7:28)   Identifier |optionalWithNoParams2|
-//@[29:59)  StringSyntax
-//@[29:59)   StringComplete |'./child/optionalParams.bicep'|
-//@[59:60)  Assignment |=|
-//@[61:116)  ObjectSyntax
-//@[61:62)   LeftBrace |{|
-//@[62:64)   NewLine |\r\n|
+//@[000:0116) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0028) | ├─IdentifierSyntax
+//@[007:0028) | | └─Token(Identifier) |optionalWithNoParams2|
+//@[029:0059) | ├─StringSyntax
+//@[029:0059) | | └─Token(StringComplete) |'./child/optionalParams.bicep'|
+//@[059:0060) | ├─Token(Assignment) |=|
+//@[061:0116) | └─ObjectSyntax
+//@[061:0062) |   ├─Token(LeftBrace) |{|
+//@[062:0064) |   ├─Token(NewLine) |\r\n|
   name: 'optionalWithNoParams2'
-//@[2:31)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:31)    StringSyntax
-//@[8:31)     StringComplete |'optionalWithNoParams2'|
-//@[31:33)   NewLine |\r\n|
+//@[002:0031) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0031) |   | └─StringSyntax
+//@[008:0031) |   |   └─Token(StringComplete) |'optionalWithNoParams2'|
+//@[031:0033) |   ├─Token(NewLine) |\r\n|
   params: {
-//@[2:16)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:16)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\r\n|
+//@[002:0016) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[010:0016) |   | └─ObjectSyntax
+//@[010:0011) |   |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module optionalWithAllParams './child/optionalParams.bicep'= {
-//@[0:210) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:28)  IdentifierSyntax
-//@[7:28)   Identifier |optionalWithAllParams|
-//@[29:59)  StringSyntax
-//@[29:59)   StringComplete |'./child/optionalParams.bicep'|
-//@[59:60)  Assignment |=|
-//@[61:210)  ObjectSyntax
-//@[61:62)   LeftBrace |{|
-//@[62:64)   NewLine |\r\n|
+//@[000:0210) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0028) | ├─IdentifierSyntax
+//@[007:0028) | | └─Token(Identifier) |optionalWithAllParams|
+//@[029:0059) | ├─StringSyntax
+//@[029:0059) | | └─Token(StringComplete) |'./child/optionalParams.bicep'|
+//@[059:0060) | ├─Token(Assignment) |=|
+//@[061:0210) | └─ObjectSyntax
+//@[061:0062) |   ├─Token(LeftBrace) |{|
+//@[062:0064) |   ├─Token(NewLine) |\r\n|
   name: 'optionalWithNoParams3'
-//@[2:31)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:31)    StringSyntax
-//@[8:31)     StringComplete |'optionalWithNoParams3'|
-//@[31:33)   NewLine |\r\n|
+//@[002:0031) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0031) |   | └─StringSyntax
+//@[008:0031) |   |   └─Token(StringComplete) |'optionalWithNoParams3'|
+//@[031:0033) |   ├─Token(NewLine) |\r\n|
   params: {
-//@[2:110)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:110)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\r\n|
+//@[002:0110) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[010:0110) |   | └─ObjectSyntax
+//@[010:0011) |   |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   |   ├─Token(NewLine) |\r\n|
     optionalString: 'abc'
-//@[4:25)     ObjectPropertySyntax
-//@[4:18)      IdentifierSyntax
-//@[4:18)       Identifier |optionalString|
-//@[18:19)      Colon |:|
-//@[20:25)      StringSyntax
-//@[20:25)       StringComplete |'abc'|
-//@[25:27)     NewLine |\r\n|
+//@[004:0025) |   |   ├─ObjectPropertySyntax
+//@[004:0018) |   |   | ├─IdentifierSyntax
+//@[004:0018) |   |   | | └─Token(Identifier) |optionalString|
+//@[018:0019) |   |   | ├─Token(Colon) |:|
+//@[020:0025) |   |   | └─StringSyntax
+//@[020:0025) |   |   |   └─Token(StringComplete) |'abc'|
+//@[025:0027) |   |   ├─Token(NewLine) |\r\n|
     optionalInt: 42
-//@[4:19)     ObjectPropertySyntax
-//@[4:15)      IdentifierSyntax
-//@[4:15)       Identifier |optionalInt|
-//@[15:16)      Colon |:|
-//@[17:19)      IntegerLiteralSyntax
-//@[17:19)       Integer |42|
-//@[19:21)     NewLine |\r\n|
+//@[004:0019) |   |   ├─ObjectPropertySyntax
+//@[004:0015) |   |   | ├─IdentifierSyntax
+//@[004:0015) |   |   | | └─Token(Identifier) |optionalInt|
+//@[015:0016) |   |   | ├─Token(Colon) |:|
+//@[017:0019) |   |   | └─IntegerLiteralSyntax
+//@[017:0019) |   |   |   └─Token(Integer) |42|
+//@[019:0021) |   |   ├─Token(NewLine) |\r\n|
     optionalObj: { }
-//@[4:20)     ObjectPropertySyntax
-//@[4:15)      IdentifierSyntax
-//@[4:15)       Identifier |optionalObj|
-//@[15:16)      Colon |:|
-//@[17:20)      ObjectSyntax
-//@[17:18)       LeftBrace |{|
-//@[19:20)       RightBrace |}|
-//@[20:22)     NewLine |\r\n|
+//@[004:0020) |   |   ├─ObjectPropertySyntax
+//@[004:0015) |   |   | ├─IdentifierSyntax
+//@[004:0015) |   |   | | └─Token(Identifier) |optionalObj|
+//@[015:0016) |   |   | ├─Token(Colon) |:|
+//@[017:0020) |   |   | └─ObjectSyntax
+//@[017:0018) |   |   |   ├─Token(LeftBrace) |{|
+//@[019:0020) |   |   |   └─Token(RightBrace) |}|
+//@[020:0022) |   |   ├─Token(NewLine) |\r\n|
     optionalArray: [ ]
-//@[4:22)     ObjectPropertySyntax
-//@[4:17)      IdentifierSyntax
-//@[4:17)       Identifier |optionalArray|
-//@[17:18)      Colon |:|
-//@[19:22)      ArraySyntax
-//@[19:20)       LeftSquare |[|
-//@[21:22)       RightSquare |]|
-//@[22:24)     NewLine |\r\n|
+//@[004:0022) |   |   ├─ObjectPropertySyntax
+//@[004:0017) |   |   | ├─IdentifierSyntax
+//@[004:0017) |   |   | | └─Token(Identifier) |optionalArray|
+//@[017:0018) |   |   | ├─Token(Colon) |:|
+//@[019:0022) |   |   | └─ArraySyntax
+//@[019:0020) |   |   |   ├─Token(LeftSquare) |[|
+//@[021:0022) |   |   |   └─Token(RightSquare) |]|
+//@[022:0024) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
-//@[0:233) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:28)  IdentifierSyntax
-//@[9:28)   Identifier |resWithDependencies|
-//@[29:62)  StringSyntax
-//@[29:62)   StringComplete |'Mock.Rp/mockResource@2020-01-01'|
-//@[63:64)  Assignment |=|
-//@[65:233)  ObjectSyntax
-//@[65:66)   LeftBrace |{|
-//@[66:68)   NewLine |\r\n|
+//@[000:0233) ├─ResourceDeclarationSyntax
+//@[000:0008) | ├─Token(Identifier) |resource|
+//@[009:0028) | ├─IdentifierSyntax
+//@[009:0028) | | └─Token(Identifier) |resWithDependencies|
+//@[029:0062) | ├─StringSyntax
+//@[029:0062) | | └─Token(StringComplete) |'Mock.Rp/mockResource@2020-01-01'|
+//@[063:0064) | ├─Token(Assignment) |=|
+//@[065:0233) | └─ObjectSyntax
+//@[065:0066) |   ├─Token(LeftBrace) |{|
+//@[066:0068) |   ├─Token(NewLine) |\r\n|
   name: 'harry'
-//@[2:15)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:15)    StringSyntax
-//@[8:15)     StringComplete |'harry'|
-//@[15:17)   NewLine |\r\n|
+//@[002:0015) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0015) |   | └─StringSyntax
+//@[008:0015) |   |   └─Token(StringComplete) |'harry'|
+//@[015:0017) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:145)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:145)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:0145) |   ├─ObjectPropertySyntax
+//@[002:0012) |   | ├─IdentifierSyntax
+//@[002:0012) |   | | └─Token(Identifier) |properties|
+//@[012:0013) |   | ├─Token(Colon) |:|
+//@[014:0145) |   | └─ObjectSyntax
+//@[014:0015) |   |   ├─Token(LeftBrace) |{|
+//@[015:0017) |   |   ├─Token(NewLine) |\r\n|
     modADep: modATest.outputs.stringOutputA
-//@[4:43)     ObjectPropertySyntax
-//@[4:11)      IdentifierSyntax
-//@[4:11)       Identifier |modADep|
-//@[11:12)      Colon |:|
-//@[13:43)      PropertyAccessSyntax
-//@[13:29)       PropertyAccessSyntax
-//@[13:21)        VariableAccessSyntax
-//@[13:21)         IdentifierSyntax
-//@[13:21)          Identifier |modATest|
-//@[21:22)        Dot |.|
-//@[22:29)        IdentifierSyntax
-//@[22:29)         Identifier |outputs|
-//@[29:30)       Dot |.|
-//@[30:43)       IdentifierSyntax
-//@[30:43)        Identifier |stringOutputA|
-//@[43:45)     NewLine |\r\n|
+//@[004:0043) |   |   ├─ObjectPropertySyntax
+//@[004:0011) |   |   | ├─IdentifierSyntax
+//@[004:0011) |   |   | | └─Token(Identifier) |modADep|
+//@[011:0012) |   |   | ├─Token(Colon) |:|
+//@[013:0043) |   |   | └─PropertyAccessSyntax
+//@[013:0029) |   |   |   ├─PropertyAccessSyntax
+//@[013:0021) |   |   |   | ├─VariableAccessSyntax
+//@[013:0021) |   |   |   | | └─IdentifierSyntax
+//@[013:0021) |   |   |   | |   └─Token(Identifier) |modATest|
+//@[021:0022) |   |   |   | ├─Token(Dot) |.|
+//@[022:0029) |   |   |   | └─IdentifierSyntax
+//@[022:0029) |   |   |   |   └─Token(Identifier) |outputs|
+//@[029:0030) |   |   |   ├─Token(Dot) |.|
+//@[030:0043) |   |   |   └─IdentifierSyntax
+//@[030:0043) |   |   |     └─Token(Identifier) |stringOutputA|
+//@[043:0045) |   |   ├─Token(NewLine) |\r\n|
     modBDep: modB.outputs.myResourceId
-//@[4:38)     ObjectPropertySyntax
-//@[4:11)      IdentifierSyntax
-//@[4:11)       Identifier |modBDep|
-//@[11:12)      Colon |:|
-//@[13:38)      PropertyAccessSyntax
-//@[13:25)       PropertyAccessSyntax
-//@[13:17)        VariableAccessSyntax
-//@[13:17)         IdentifierSyntax
-//@[13:17)          Identifier |modB|
-//@[17:18)        Dot |.|
-//@[18:25)        IdentifierSyntax
-//@[18:25)         Identifier |outputs|
-//@[25:26)       Dot |.|
-//@[26:38)       IdentifierSyntax
-//@[26:38)        Identifier |myResourceId|
-//@[38:40)     NewLine |\r\n|
+//@[004:0038) |   |   ├─ObjectPropertySyntax
+//@[004:0011) |   |   | ├─IdentifierSyntax
+//@[004:0011) |   |   | | └─Token(Identifier) |modBDep|
+//@[011:0012) |   |   | ├─Token(Colon) |:|
+//@[013:0038) |   |   | └─PropertyAccessSyntax
+//@[013:0025) |   |   |   ├─PropertyAccessSyntax
+//@[013:0017) |   |   |   | ├─VariableAccessSyntax
+//@[013:0017) |   |   |   | | └─IdentifierSyntax
+//@[013:0017) |   |   |   | |   └─Token(Identifier) |modB|
+//@[017:0018) |   |   |   | ├─Token(Dot) |.|
+//@[018:0025) |   |   |   | └─IdentifierSyntax
+//@[018:0025) |   |   |   |   └─Token(Identifier) |outputs|
+//@[025:0026) |   |   |   ├─Token(Dot) |.|
+//@[026:0038) |   |   |   └─IdentifierSyntax
+//@[026:0038) |   |   |     └─Token(Identifier) |myResourceId|
+//@[038:0040) |   |   ├─Token(NewLine) |\r\n|
     modCDep: modC.outputs.myResourceId
-//@[4:38)     ObjectPropertySyntax
-//@[4:11)      IdentifierSyntax
-//@[4:11)       Identifier |modCDep|
-//@[11:12)      Colon |:|
-//@[13:38)      PropertyAccessSyntax
-//@[13:25)       PropertyAccessSyntax
-//@[13:17)        VariableAccessSyntax
-//@[13:17)         IdentifierSyntax
-//@[13:17)          Identifier |modC|
-//@[17:18)        Dot |.|
-//@[18:25)        IdentifierSyntax
-//@[18:25)         Identifier |outputs|
-//@[25:26)       Dot |.|
-//@[26:38)       IdentifierSyntax
-//@[26:38)        Identifier |myResourceId|
-//@[38:40)     NewLine |\r\n|
+//@[004:0038) |   |   ├─ObjectPropertySyntax
+//@[004:0011) |   |   | ├─IdentifierSyntax
+//@[004:0011) |   |   | | └─Token(Identifier) |modCDep|
+//@[011:0012) |   |   | ├─Token(Colon) |:|
+//@[013:0038) |   |   | └─PropertyAccessSyntax
+//@[013:0025) |   |   |   ├─PropertyAccessSyntax
+//@[013:0017) |   |   |   | ├─VariableAccessSyntax
+//@[013:0017) |   |   |   | | └─IdentifierSyntax
+//@[013:0017) |   |   |   | |   └─Token(Identifier) |modC|
+//@[017:0018) |   |   |   | ├─Token(Dot) |.|
+//@[018:0025) |   |   |   | └─IdentifierSyntax
+//@[018:0025) |   |   |   |   └─Token(Identifier) |outputs|
+//@[025:0026) |   |   |   ├─Token(Dot) |.|
+//@[026:0038) |   |   |   └─IdentifierSyntax
+//@[026:0038) |   |   |     └─Token(Identifier) |myResourceId|
+//@[038:0040) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module optionalWithAllParamsAndManualDependency './child/optionalParams.bicep'= {
-//@[0:321) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:47)  IdentifierSyntax
-//@[7:47)   Identifier |optionalWithAllParamsAndManualDependency|
-//@[48:78)  StringSyntax
-//@[48:78)   StringComplete |'./child/optionalParams.bicep'|
-//@[78:79)  Assignment |=|
-//@[80:321)  ObjectSyntax
-//@[80:81)   LeftBrace |{|
-//@[81:83)   NewLine |\r\n|
+//@[000:0321) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0047) | ├─IdentifierSyntax
+//@[007:0047) | | └─Token(Identifier) |optionalWithAllParamsAndManualDependency|
+//@[048:0078) | ├─StringSyntax
+//@[048:0078) | | └─Token(StringComplete) |'./child/optionalParams.bicep'|
+//@[078:0079) | ├─Token(Assignment) |=|
+//@[080:0321) | └─ObjectSyntax
+//@[080:0081) |   ├─Token(LeftBrace) |{|
+//@[081:0083) |   ├─Token(NewLine) |\r\n|
   name: 'optionalWithAllParamsAndManualDependency'
-//@[2:50)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:50)    StringSyntax
-//@[8:50)     StringComplete |'optionalWithAllParamsAndManualDependency'|
-//@[50:52)   NewLine |\r\n|
+//@[002:0050) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0050) |   | └─StringSyntax
+//@[008:0050) |   |   └─Token(StringComplete) |'optionalWithAllParamsAndManualDependency'|
+//@[050:0052) |   ├─Token(NewLine) |\r\n|
   params: {
-//@[2:110)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:110)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\r\n|
+//@[002:0110) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[010:0110) |   | └─ObjectSyntax
+//@[010:0011) |   |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   |   ├─Token(NewLine) |\r\n|
     optionalString: 'abc'
-//@[4:25)     ObjectPropertySyntax
-//@[4:18)      IdentifierSyntax
-//@[4:18)       Identifier |optionalString|
-//@[18:19)      Colon |:|
-//@[20:25)      StringSyntax
-//@[20:25)       StringComplete |'abc'|
-//@[25:27)     NewLine |\r\n|
+//@[004:0025) |   |   ├─ObjectPropertySyntax
+//@[004:0018) |   |   | ├─IdentifierSyntax
+//@[004:0018) |   |   | | └─Token(Identifier) |optionalString|
+//@[018:0019) |   |   | ├─Token(Colon) |:|
+//@[020:0025) |   |   | └─StringSyntax
+//@[020:0025) |   |   |   └─Token(StringComplete) |'abc'|
+//@[025:0027) |   |   ├─Token(NewLine) |\r\n|
     optionalInt: 42
-//@[4:19)     ObjectPropertySyntax
-//@[4:15)      IdentifierSyntax
-//@[4:15)       Identifier |optionalInt|
-//@[15:16)      Colon |:|
-//@[17:19)      IntegerLiteralSyntax
-//@[17:19)       Integer |42|
-//@[19:21)     NewLine |\r\n|
+//@[004:0019) |   |   ├─ObjectPropertySyntax
+//@[004:0015) |   |   | ├─IdentifierSyntax
+//@[004:0015) |   |   | | └─Token(Identifier) |optionalInt|
+//@[015:0016) |   |   | ├─Token(Colon) |:|
+//@[017:0019) |   |   | └─IntegerLiteralSyntax
+//@[017:0019) |   |   |   └─Token(Integer) |42|
+//@[019:0021) |   |   ├─Token(NewLine) |\r\n|
     optionalObj: { }
-//@[4:20)     ObjectPropertySyntax
-//@[4:15)      IdentifierSyntax
-//@[4:15)       Identifier |optionalObj|
-//@[15:16)      Colon |:|
-//@[17:20)      ObjectSyntax
-//@[17:18)       LeftBrace |{|
-//@[19:20)       RightBrace |}|
-//@[20:22)     NewLine |\r\n|
+//@[004:0020) |   |   ├─ObjectPropertySyntax
+//@[004:0015) |   |   | ├─IdentifierSyntax
+//@[004:0015) |   |   | | └─Token(Identifier) |optionalObj|
+//@[015:0016) |   |   | ├─Token(Colon) |:|
+//@[017:0020) |   |   | └─ObjectSyntax
+//@[017:0018) |   |   |   ├─Token(LeftBrace) |{|
+//@[019:0020) |   |   |   └─Token(RightBrace) |}|
+//@[020:0022) |   |   ├─Token(NewLine) |\r\n|
     optionalArray: [ ]
-//@[4:22)     ObjectPropertySyntax
-//@[4:17)      IdentifierSyntax
-//@[4:17)       Identifier |optionalArray|
-//@[17:18)      Colon |:|
-//@[19:22)      ArraySyntax
-//@[19:20)       LeftSquare |[|
-//@[21:22)       RightSquare |]|
-//@[22:24)     NewLine |\r\n|
+//@[004:0022) |   |   ├─ObjectPropertySyntax
+//@[004:0017) |   |   | ├─IdentifierSyntax
+//@[004:0017) |   |   | | └─Token(Identifier) |optionalArray|
+//@[017:0018) |   |   | ├─Token(Colon) |:|
+//@[019:0022) |   |   | └─ArraySyntax
+//@[019:0020) |   |   |   ├─Token(LeftSquare) |[|
+//@[021:0022) |   |   |   └─Token(RightSquare) |]|
+//@[022:0024) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
   dependsOn: [
-//@[2:71)   ObjectPropertySyntax
-//@[2:11)    IdentifierSyntax
-//@[2:11)     Identifier |dependsOn|
-//@[11:12)    Colon |:|
-//@[13:71)    ArraySyntax
-//@[13:14)     LeftSquare |[|
-//@[14:16)     NewLine |\r\n|
+//@[002:0071) |   ├─ObjectPropertySyntax
+//@[002:0011) |   | ├─IdentifierSyntax
+//@[002:0011) |   | | └─Token(Identifier) |dependsOn|
+//@[011:0012) |   | ├─Token(Colon) |:|
+//@[013:0071) |   | └─ArraySyntax
+//@[013:0014) |   |   ├─Token(LeftSquare) |[|
+//@[014:0016) |   |   ├─Token(NewLine) |\r\n|
     resWithDependencies
-//@[4:23)     ArrayItemSyntax
-//@[4:23)      VariableAccessSyntax
-//@[4:23)       IdentifierSyntax
-//@[4:23)        Identifier |resWithDependencies|
-//@[23:25)     NewLine |\r\n|
+//@[004:0023) |   |   ├─ArrayItemSyntax
+//@[004:0023) |   |   | └─VariableAccessSyntax
+//@[004:0023) |   |   |   └─IdentifierSyntax
+//@[004:0023) |   |   |     └─Token(Identifier) |resWithDependencies|
+//@[023:0025) |   |   ├─Token(NewLine) |\r\n|
     optionalWithAllParams
-//@[4:25)     ArrayItemSyntax
-//@[4:25)      VariableAccessSyntax
-//@[4:25)       IdentifierSyntax
-//@[4:25)        Identifier |optionalWithAllParams|
-//@[25:27)     NewLine |\r\n|
+//@[004:0025) |   |   ├─ArrayItemSyntax
+//@[004:0025) |   |   | └─VariableAccessSyntax
+//@[004:0025) |   |   |   └─IdentifierSyntax
+//@[004:0025) |   |   |     └─Token(Identifier) |optionalWithAllParams|
+//@[025:0027) |   |   ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)     RightSquare |]|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightSquare) |]|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module optionalWithImplicitDependency './child/optionalParams.bicep'= {
-//@[0:300) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:37)  IdentifierSyntax
-//@[7:37)   Identifier |optionalWithImplicitDependency|
-//@[38:68)  StringSyntax
-//@[38:68)   StringComplete |'./child/optionalParams.bicep'|
-//@[68:69)  Assignment |=|
-//@[70:300)  ObjectSyntax
-//@[70:71)   LeftBrace |{|
-//@[71:73)   NewLine |\r\n|
+//@[000:0300) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0037) | ├─IdentifierSyntax
+//@[007:0037) | | └─Token(Identifier) |optionalWithImplicitDependency|
+//@[038:0068) | ├─StringSyntax
+//@[038:0068) | | └─Token(StringComplete) |'./child/optionalParams.bicep'|
+//@[068:0069) | ├─Token(Assignment) |=|
+//@[070:0300) | └─ObjectSyntax
+//@[070:0071) |   ├─Token(LeftBrace) |{|
+//@[071:0073) |   ├─Token(NewLine) |\r\n|
   name: 'optionalWithImplicitDependency'
-//@[2:40)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:40)    StringSyntax
-//@[8:40)     StringComplete |'optionalWithImplicitDependency'|
-//@[40:42)   NewLine |\r\n|
+//@[002:0040) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0040) |   | └─StringSyntax
+//@[008:0040) |   |   └─Token(StringComplete) |'optionalWithImplicitDependency'|
+//@[040:0042) |   ├─Token(NewLine) |\r\n|
   params: {
-//@[2:182)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:182)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\r\n|
+//@[002:0182) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[010:0182) |   | └─ObjectSyntax
+//@[010:0011) |   |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   |   ├─Token(NewLine) |\r\n|
     optionalString: concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)
-//@[4:97)     ObjectPropertySyntax
-//@[4:18)      IdentifierSyntax
-//@[4:18)       Identifier |optionalString|
-//@[18:19)      Colon |:|
-//@[20:97)      FunctionCallSyntax
-//@[20:26)       IdentifierSyntax
-//@[20:26)        Identifier |concat|
-//@[26:27)       LeftParen |(|
-//@[27:50)       FunctionArgumentSyntax
-//@[27:49)        PropertyAccessSyntax
-//@[27:46)         VariableAccessSyntax
-//@[27:46)          IdentifierSyntax
-//@[27:46)           Identifier |resWithDependencies|
-//@[46:47)         Dot |.|
-//@[47:49)         IdentifierSyntax
-//@[47:49)          Identifier |id|
-//@[49:50)        Comma |,|
-//@[51:96)       FunctionArgumentSyntax
-//@[51:96)        PropertyAccessSyntax
-//@[51:91)         VariableAccessSyntax
-//@[51:91)          IdentifierSyntax
-//@[51:91)           Identifier |optionalWithAllParamsAndManualDependency|
-//@[91:92)         Dot |.|
-//@[92:96)         IdentifierSyntax
-//@[92:96)          Identifier |name|
-//@[96:97)       RightParen |)|
-//@[97:99)     NewLine |\r\n|
+//@[004:0097) |   |   ├─ObjectPropertySyntax
+//@[004:0018) |   |   | ├─IdentifierSyntax
+//@[004:0018) |   |   | | └─Token(Identifier) |optionalString|
+//@[018:0019) |   |   | ├─Token(Colon) |:|
+//@[020:0097) |   |   | └─FunctionCallSyntax
+//@[020:0026) |   |   |   ├─IdentifierSyntax
+//@[020:0026) |   |   |   | └─Token(Identifier) |concat|
+//@[026:0027) |   |   |   ├─Token(LeftParen) |(|
+//@[027:0049) |   |   |   ├─FunctionArgumentSyntax
+//@[027:0049) |   |   |   | └─PropertyAccessSyntax
+//@[027:0046) |   |   |   |   ├─VariableAccessSyntax
+//@[027:0046) |   |   |   |   | └─IdentifierSyntax
+//@[027:0046) |   |   |   |   |   └─Token(Identifier) |resWithDependencies|
+//@[046:0047) |   |   |   |   ├─Token(Dot) |.|
+//@[047:0049) |   |   |   |   └─IdentifierSyntax
+//@[047:0049) |   |   |   |     └─Token(Identifier) |id|
+//@[049:0050) |   |   |   ├─Token(Comma) |,|
+//@[051:0096) |   |   |   ├─FunctionArgumentSyntax
+//@[051:0096) |   |   |   | └─PropertyAccessSyntax
+//@[051:0091) |   |   |   |   ├─VariableAccessSyntax
+//@[051:0091) |   |   |   |   | └─IdentifierSyntax
+//@[051:0091) |   |   |   |   |   └─Token(Identifier) |optionalWithAllParamsAndManualDependency|
+//@[091:0092) |   |   |   |   ├─Token(Dot) |.|
+//@[092:0096) |   |   |   |   └─IdentifierSyntax
+//@[092:0096) |   |   |   |     └─Token(Identifier) |name|
+//@[096:0097) |   |   |   └─Token(RightParen) |)|
+//@[097:0099) |   |   ├─Token(NewLine) |\r\n|
     optionalInt: 42
-//@[4:19)     ObjectPropertySyntax
-//@[4:15)      IdentifierSyntax
-//@[4:15)       Identifier |optionalInt|
-//@[15:16)      Colon |:|
-//@[17:19)      IntegerLiteralSyntax
-//@[17:19)       Integer |42|
-//@[19:21)     NewLine |\r\n|
+//@[004:0019) |   |   ├─ObjectPropertySyntax
+//@[004:0015) |   |   | ├─IdentifierSyntax
+//@[004:0015) |   |   | | └─Token(Identifier) |optionalInt|
+//@[015:0016) |   |   | ├─Token(Colon) |:|
+//@[017:0019) |   |   | └─IntegerLiteralSyntax
+//@[017:0019) |   |   |   └─Token(Integer) |42|
+//@[019:0021) |   |   ├─Token(NewLine) |\r\n|
     optionalObj: { }
-//@[4:20)     ObjectPropertySyntax
-//@[4:15)      IdentifierSyntax
-//@[4:15)       Identifier |optionalObj|
-//@[15:16)      Colon |:|
-//@[17:20)      ObjectSyntax
-//@[17:18)       LeftBrace |{|
-//@[19:20)       RightBrace |}|
-//@[20:22)     NewLine |\r\n|
+//@[004:0020) |   |   ├─ObjectPropertySyntax
+//@[004:0015) |   |   | ├─IdentifierSyntax
+//@[004:0015) |   |   | | └─Token(Identifier) |optionalObj|
+//@[015:0016) |   |   | ├─Token(Colon) |:|
+//@[017:0020) |   |   | └─ObjectSyntax
+//@[017:0018) |   |   |   ├─Token(LeftBrace) |{|
+//@[019:0020) |   |   |   └─Token(RightBrace) |}|
+//@[020:0022) |   |   ├─Token(NewLine) |\r\n|
     optionalArray: [ ]
-//@[4:22)     ObjectPropertySyntax
-//@[4:17)      IdentifierSyntax
-//@[4:17)       Identifier |optionalArray|
-//@[17:18)      Colon |:|
-//@[19:22)      ArraySyntax
-//@[19:20)       LeftSquare |[|
-//@[21:22)       RightSquare |]|
-//@[22:24)     NewLine |\r\n|
+//@[004:0022) |   |   ├─ObjectPropertySyntax
+//@[004:0017) |   |   | ├─IdentifierSyntax
+//@[004:0017) |   |   | | └─Token(Identifier) |optionalArray|
+//@[017:0018) |   |   | ├─Token(Colon) |:|
+//@[019:0022) |   |   | └─ArraySyntax
+//@[019:0020) |   |   |   ├─Token(LeftSquare) |[|
+//@[021:0022) |   |   |   └─Token(RightSquare) |]|
+//@[022:0024) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module moduleWithCalculatedName './child/optionalParams.bicep'= {
-//@[0:331) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:31)  IdentifierSyntax
-//@[7:31)   Identifier |moduleWithCalculatedName|
-//@[32:62)  StringSyntax
-//@[32:62)   StringComplete |'./child/optionalParams.bicep'|
-//@[62:63)  Assignment |=|
-//@[64:331)  ObjectSyntax
-//@[64:65)   LeftBrace |{|
-//@[65:67)   NewLine |\r\n|
+//@[000:0331) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0031) | ├─IdentifierSyntax
+//@[007:0031) | | └─Token(Identifier) |moduleWithCalculatedName|
+//@[032:0062) | ├─StringSyntax
+//@[032:0062) | | └─Token(StringComplete) |'./child/optionalParams.bicep'|
+//@[062:0063) | ├─Token(Assignment) |=|
+//@[064:0331) | └─ObjectSyntax
+//@[064:0065) |   ├─Token(LeftBrace) |{|
+//@[065:0067) |   ├─Token(NewLine) |\r\n|
   name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
-//@[2:77)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:77)    StringSyntax
-//@[8:11)     StringLeftPiece |'${|
-//@[11:56)     PropertyAccessSyntax
-//@[11:51)      VariableAccessSyntax
-//@[11:51)       IdentifierSyntax
-//@[11:51)        Identifier |optionalWithAllParamsAndManualDependency|
-//@[51:52)      Dot |.|
-//@[52:56)      IdentifierSyntax
-//@[52:56)       Identifier |name|
-//@[56:59)     StringMiddlePiece |}${|
-//@[59:75)     VariableAccessSyntax
-//@[59:75)      IdentifierSyntax
-//@[59:75)       Identifier |deployTimeSuffix|
-//@[75:77)     StringRightPiece |}'|
-//@[77:79)   NewLine |\r\n|
+//@[002:0077) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0077) |   | └─StringSyntax
+//@[008:0011) |   |   ├─Token(StringLeftPiece) |'${|
+//@[011:0056) |   |   ├─PropertyAccessSyntax
+//@[011:0051) |   |   | ├─VariableAccessSyntax
+//@[011:0051) |   |   | | └─IdentifierSyntax
+//@[011:0051) |   |   | |   └─Token(Identifier) |optionalWithAllParamsAndManualDependency|
+//@[051:0052) |   |   | ├─Token(Dot) |.|
+//@[052:0056) |   |   | └─IdentifierSyntax
+//@[052:0056) |   |   |   └─Token(Identifier) |name|
+//@[056:0059) |   |   ├─Token(StringMiddlePiece) |}${|
+//@[059:0075) |   |   ├─VariableAccessSyntax
+//@[059:0075) |   |   | └─IdentifierSyntax
+//@[059:0075) |   |   |   └─Token(Identifier) |deployTimeSuffix|
+//@[075:0077) |   |   └─Token(StringRightPiece) |}'|
+//@[077:0079) |   ├─Token(NewLine) |\r\n|
   params: {
-//@[2:182)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:182)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\r\n|
+//@[002:0182) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[010:0182) |   | └─ObjectSyntax
+//@[010:0011) |   |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   |   ├─Token(NewLine) |\r\n|
     optionalString: concat(resWithDependencies.id, optionalWithAllParamsAndManualDependency.name)
-//@[4:97)     ObjectPropertySyntax
-//@[4:18)      IdentifierSyntax
-//@[4:18)       Identifier |optionalString|
-//@[18:19)      Colon |:|
-//@[20:97)      FunctionCallSyntax
-//@[20:26)       IdentifierSyntax
-//@[20:26)        Identifier |concat|
-//@[26:27)       LeftParen |(|
-//@[27:50)       FunctionArgumentSyntax
-//@[27:49)        PropertyAccessSyntax
-//@[27:46)         VariableAccessSyntax
-//@[27:46)          IdentifierSyntax
-//@[27:46)           Identifier |resWithDependencies|
-//@[46:47)         Dot |.|
-//@[47:49)         IdentifierSyntax
-//@[47:49)          Identifier |id|
-//@[49:50)        Comma |,|
-//@[51:96)       FunctionArgumentSyntax
-//@[51:96)        PropertyAccessSyntax
-//@[51:91)         VariableAccessSyntax
-//@[51:91)          IdentifierSyntax
-//@[51:91)           Identifier |optionalWithAllParamsAndManualDependency|
-//@[91:92)         Dot |.|
-//@[92:96)         IdentifierSyntax
-//@[92:96)          Identifier |name|
-//@[96:97)       RightParen |)|
-//@[97:99)     NewLine |\r\n|
+//@[004:0097) |   |   ├─ObjectPropertySyntax
+//@[004:0018) |   |   | ├─IdentifierSyntax
+//@[004:0018) |   |   | | └─Token(Identifier) |optionalString|
+//@[018:0019) |   |   | ├─Token(Colon) |:|
+//@[020:0097) |   |   | └─FunctionCallSyntax
+//@[020:0026) |   |   |   ├─IdentifierSyntax
+//@[020:0026) |   |   |   | └─Token(Identifier) |concat|
+//@[026:0027) |   |   |   ├─Token(LeftParen) |(|
+//@[027:0049) |   |   |   ├─FunctionArgumentSyntax
+//@[027:0049) |   |   |   | └─PropertyAccessSyntax
+//@[027:0046) |   |   |   |   ├─VariableAccessSyntax
+//@[027:0046) |   |   |   |   | └─IdentifierSyntax
+//@[027:0046) |   |   |   |   |   └─Token(Identifier) |resWithDependencies|
+//@[046:0047) |   |   |   |   ├─Token(Dot) |.|
+//@[047:0049) |   |   |   |   └─IdentifierSyntax
+//@[047:0049) |   |   |   |     └─Token(Identifier) |id|
+//@[049:0050) |   |   |   ├─Token(Comma) |,|
+//@[051:0096) |   |   |   ├─FunctionArgumentSyntax
+//@[051:0096) |   |   |   | └─PropertyAccessSyntax
+//@[051:0091) |   |   |   |   ├─VariableAccessSyntax
+//@[051:0091) |   |   |   |   | └─IdentifierSyntax
+//@[051:0091) |   |   |   |   |   └─Token(Identifier) |optionalWithAllParamsAndManualDependency|
+//@[091:0092) |   |   |   |   ├─Token(Dot) |.|
+//@[092:0096) |   |   |   |   └─IdentifierSyntax
+//@[092:0096) |   |   |   |     └─Token(Identifier) |name|
+//@[096:0097) |   |   |   └─Token(RightParen) |)|
+//@[097:0099) |   |   ├─Token(NewLine) |\r\n|
     optionalInt: 42
-//@[4:19)     ObjectPropertySyntax
-//@[4:15)      IdentifierSyntax
-//@[4:15)       Identifier |optionalInt|
-//@[15:16)      Colon |:|
-//@[17:19)      IntegerLiteralSyntax
-//@[17:19)       Integer |42|
-//@[19:21)     NewLine |\r\n|
+//@[004:0019) |   |   ├─ObjectPropertySyntax
+//@[004:0015) |   |   | ├─IdentifierSyntax
+//@[004:0015) |   |   | | └─Token(Identifier) |optionalInt|
+//@[015:0016) |   |   | ├─Token(Colon) |:|
+//@[017:0019) |   |   | └─IntegerLiteralSyntax
+//@[017:0019) |   |   |   └─Token(Integer) |42|
+//@[019:0021) |   |   ├─Token(NewLine) |\r\n|
     optionalObj: { }
-//@[4:20)     ObjectPropertySyntax
-//@[4:15)      IdentifierSyntax
-//@[4:15)       Identifier |optionalObj|
-//@[15:16)      Colon |:|
-//@[17:20)      ObjectSyntax
-//@[17:18)       LeftBrace |{|
-//@[19:20)       RightBrace |}|
-//@[20:22)     NewLine |\r\n|
+//@[004:0020) |   |   ├─ObjectPropertySyntax
+//@[004:0015) |   |   | ├─IdentifierSyntax
+//@[004:0015) |   |   | | └─Token(Identifier) |optionalObj|
+//@[015:0016) |   |   | ├─Token(Colon) |:|
+//@[017:0020) |   |   | └─ObjectSyntax
+//@[017:0018) |   |   |   ├─Token(LeftBrace) |{|
+//@[019:0020) |   |   |   └─Token(RightBrace) |}|
+//@[020:0022) |   |   ├─Token(NewLine) |\r\n|
     optionalArray: [ ]
-//@[4:22)     ObjectPropertySyntax
-//@[4:17)      IdentifierSyntax
-//@[4:17)       Identifier |optionalArray|
-//@[17:18)      Colon |:|
-//@[19:22)      ArraySyntax
-//@[19:20)       LeftSquare |[|
-//@[21:22)       RightSquare |]|
-//@[22:24)     NewLine |\r\n|
+//@[004:0022) |   |   ├─ObjectPropertySyntax
+//@[004:0017) |   |   | ├─IdentifierSyntax
+//@[004:0017) |   |   | | └─Token(Identifier) |optionalArray|
+//@[017:0018) |   |   | ├─Token(Colon) |:|
+//@[019:0022) |   |   | └─ArraySyntax
+//@[019:0020) |   |   |   ├─Token(LeftSquare) |[|
+//@[021:0022) |   |   |   └─Token(RightSquare) |]|
+//@[022:0024) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 resource resWithCalculatedNameDependencies 'Mock.Rp/mockResource@2020-01-01' = {
-//@[0:241) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:42)  IdentifierSyntax
-//@[9:42)   Identifier |resWithCalculatedNameDependencies|
-//@[43:76)  StringSyntax
-//@[43:76)   StringComplete |'Mock.Rp/mockResource@2020-01-01'|
-//@[77:78)  Assignment |=|
-//@[79:241)  ObjectSyntax
-//@[79:80)   LeftBrace |{|
-//@[80:82)   NewLine |\r\n|
+//@[000:0241) ├─ResourceDeclarationSyntax
+//@[000:0008) | ├─Token(Identifier) |resource|
+//@[009:0042) | ├─IdentifierSyntax
+//@[009:0042) | | └─Token(Identifier) |resWithCalculatedNameDependencies|
+//@[043:0076) | ├─StringSyntax
+//@[043:0076) | | └─Token(StringComplete) |'Mock.Rp/mockResource@2020-01-01'|
+//@[077:0078) | ├─Token(Assignment) |=|
+//@[079:0241) | └─ObjectSyntax
+//@[079:0080) |   ├─Token(LeftBrace) |{|
+//@[080:0082) |   ├─Token(NewLine) |\r\n|
   name: '${optionalWithAllParamsAndManualDependency.name}${deployTimeSuffix}'
-//@[2:77)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:77)    StringSyntax
-//@[8:11)     StringLeftPiece |'${|
-//@[11:56)     PropertyAccessSyntax
-//@[11:51)      VariableAccessSyntax
-//@[11:51)       IdentifierSyntax
-//@[11:51)        Identifier |optionalWithAllParamsAndManualDependency|
-//@[51:52)      Dot |.|
-//@[52:56)      IdentifierSyntax
-//@[52:56)       Identifier |name|
-//@[56:59)     StringMiddlePiece |}${|
-//@[59:75)     VariableAccessSyntax
-//@[59:75)      IdentifierSyntax
-//@[59:75)       Identifier |deployTimeSuffix|
-//@[75:77)     StringRightPiece |}'|
-//@[77:79)   NewLine |\r\n|
+//@[002:0077) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0077) |   | └─StringSyntax
+//@[008:0011) |   |   ├─Token(StringLeftPiece) |'${|
+//@[011:0056) |   |   ├─PropertyAccessSyntax
+//@[011:0051) |   |   | ├─VariableAccessSyntax
+//@[011:0051) |   |   | | └─IdentifierSyntax
+//@[011:0051) |   |   | |   └─Token(Identifier) |optionalWithAllParamsAndManualDependency|
+//@[051:0052) |   |   | ├─Token(Dot) |.|
+//@[052:0056) |   |   | └─IdentifierSyntax
+//@[052:0056) |   |   |   └─Token(Identifier) |name|
+//@[056:0059) |   |   ├─Token(StringMiddlePiece) |}${|
+//@[059:0075) |   |   ├─VariableAccessSyntax
+//@[059:0075) |   |   | └─IdentifierSyntax
+//@[059:0075) |   |   |   └─Token(Identifier) |deployTimeSuffix|
+//@[075:0077) |   |   └─Token(StringRightPiece) |}'|
+//@[077:0079) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:77)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:77)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:0077) |   ├─ObjectPropertySyntax
+//@[002:0012) |   | ├─IdentifierSyntax
+//@[002:0012) |   | | └─Token(Identifier) |properties|
+//@[012:0013) |   | ├─Token(Colon) |:|
+//@[014:0077) |   | └─ObjectSyntax
+//@[014:0015) |   |   ├─Token(LeftBrace) |{|
+//@[015:0017) |   |   ├─Token(NewLine) |\r\n|
     modADep: moduleWithCalculatedName.outputs.outputObj
-//@[4:55)     ObjectPropertySyntax
-//@[4:11)      IdentifierSyntax
-//@[4:11)       Identifier |modADep|
-//@[11:12)      Colon |:|
-//@[13:55)      PropertyAccessSyntax
-//@[13:45)       PropertyAccessSyntax
-//@[13:37)        VariableAccessSyntax
-//@[13:37)         IdentifierSyntax
-//@[13:37)          Identifier |moduleWithCalculatedName|
-//@[37:38)        Dot |.|
-//@[38:45)        IdentifierSyntax
-//@[38:45)         Identifier |outputs|
-//@[45:46)       Dot |.|
-//@[46:55)       IdentifierSyntax
-//@[46:55)        Identifier |outputObj|
-//@[55:57)     NewLine |\r\n|
+//@[004:0055) |   |   ├─ObjectPropertySyntax
+//@[004:0011) |   |   | ├─IdentifierSyntax
+//@[004:0011) |   |   | | └─Token(Identifier) |modADep|
+//@[011:0012) |   |   | ├─Token(Colon) |:|
+//@[013:0055) |   |   | └─PropertyAccessSyntax
+//@[013:0045) |   |   |   ├─PropertyAccessSyntax
+//@[013:0037) |   |   |   | ├─VariableAccessSyntax
+//@[013:0037) |   |   |   | | └─IdentifierSyntax
+//@[013:0037) |   |   |   | |   └─Token(Identifier) |moduleWithCalculatedName|
+//@[037:0038) |   |   |   | ├─Token(Dot) |.|
+//@[038:0045) |   |   |   | └─IdentifierSyntax
+//@[038:0045) |   |   |   |   └─Token(Identifier) |outputs|
+//@[045:0046) |   |   |   ├─Token(Dot) |.|
+//@[046:0055) |   |   |   └─IdentifierSyntax
+//@[046:0055) |   |   |     └─Token(Identifier) |outputObj|
+//@[055:0057) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 output stringOutputA string = modATest.outputs.stringOutputA
-//@[0:60) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:20)  IdentifierSyntax
-//@[7:20)   Identifier |stringOutputA|
-//@[21:27)  SimpleTypeSyntax
-//@[21:27)   Identifier |string|
-//@[28:29)  Assignment |=|
-//@[30:60)  PropertyAccessSyntax
-//@[30:46)   PropertyAccessSyntax
-//@[30:38)    VariableAccessSyntax
-//@[30:38)     IdentifierSyntax
-//@[30:38)      Identifier |modATest|
-//@[38:39)    Dot |.|
-//@[39:46)    IdentifierSyntax
-//@[39:46)     Identifier |outputs|
-//@[46:47)   Dot |.|
-//@[47:60)   IdentifierSyntax
-//@[47:60)    Identifier |stringOutputA|
-//@[60:62) NewLine |\r\n|
+//@[000:0060) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0020) | ├─IdentifierSyntax
+//@[007:0020) | | └─Token(Identifier) |stringOutputA|
+//@[021:0027) | ├─SimpleTypeSyntax
+//@[021:0027) | | └─Token(Identifier) |string|
+//@[028:0029) | ├─Token(Assignment) |=|
+//@[030:0060) | └─PropertyAccessSyntax
+//@[030:0046) |   ├─PropertyAccessSyntax
+//@[030:0038) |   | ├─VariableAccessSyntax
+//@[030:0038) |   | | └─IdentifierSyntax
+//@[030:0038) |   | |   └─Token(Identifier) |modATest|
+//@[038:0039) |   | ├─Token(Dot) |.|
+//@[039:0046) |   | └─IdentifierSyntax
+//@[039:0046) |   |   └─Token(Identifier) |outputs|
+//@[046:0047) |   ├─Token(Dot) |.|
+//@[047:0060) |   └─IdentifierSyntax
+//@[047:0060) |     └─Token(Identifier) |stringOutputA|
+//@[060:0062) ├─Token(NewLine) |\r\n|
 output stringOutputB string = modATest.outputs.stringOutputB
-//@[0:60) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:20)  IdentifierSyntax
-//@[7:20)   Identifier |stringOutputB|
-//@[21:27)  SimpleTypeSyntax
-//@[21:27)   Identifier |string|
-//@[28:29)  Assignment |=|
-//@[30:60)  PropertyAccessSyntax
-//@[30:46)   PropertyAccessSyntax
-//@[30:38)    VariableAccessSyntax
-//@[30:38)     IdentifierSyntax
-//@[30:38)      Identifier |modATest|
-//@[38:39)    Dot |.|
-//@[39:46)    IdentifierSyntax
-//@[39:46)     Identifier |outputs|
-//@[46:47)   Dot |.|
-//@[47:60)   IdentifierSyntax
-//@[47:60)    Identifier |stringOutputB|
-//@[60:62) NewLine |\r\n|
+//@[000:0060) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0020) | ├─IdentifierSyntax
+//@[007:0020) | | └─Token(Identifier) |stringOutputB|
+//@[021:0027) | ├─SimpleTypeSyntax
+//@[021:0027) | | └─Token(Identifier) |string|
+//@[028:0029) | ├─Token(Assignment) |=|
+//@[030:0060) | └─PropertyAccessSyntax
+//@[030:0046) |   ├─PropertyAccessSyntax
+//@[030:0038) |   | ├─VariableAccessSyntax
+//@[030:0038) |   | | └─IdentifierSyntax
+//@[030:0038) |   | |   └─Token(Identifier) |modATest|
+//@[038:0039) |   | ├─Token(Dot) |.|
+//@[039:0046) |   | └─IdentifierSyntax
+//@[039:0046) |   |   └─Token(Identifier) |outputs|
+//@[046:0047) |   ├─Token(Dot) |.|
+//@[047:0060) |   └─IdentifierSyntax
+//@[047:0060) |     └─Token(Identifier) |stringOutputB|
+//@[060:0062) ├─Token(NewLine) |\r\n|
 output objOutput object = modATest.outputs.objOutput
-//@[0:52) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:16)  IdentifierSyntax
-//@[7:16)   Identifier |objOutput|
-//@[17:23)  SimpleTypeSyntax
-//@[17:23)   Identifier |object|
-//@[24:25)  Assignment |=|
-//@[26:52)  PropertyAccessSyntax
-//@[26:42)   PropertyAccessSyntax
-//@[26:34)    VariableAccessSyntax
-//@[26:34)     IdentifierSyntax
-//@[26:34)      Identifier |modATest|
-//@[34:35)    Dot |.|
-//@[35:42)    IdentifierSyntax
-//@[35:42)     Identifier |outputs|
-//@[42:43)   Dot |.|
-//@[43:52)   IdentifierSyntax
-//@[43:52)    Identifier |objOutput|
-//@[52:54) NewLine |\r\n|
+//@[000:0052) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0016) | ├─IdentifierSyntax
+//@[007:0016) | | └─Token(Identifier) |objOutput|
+//@[017:0023) | ├─SimpleTypeSyntax
+//@[017:0023) | | └─Token(Identifier) |object|
+//@[024:0025) | ├─Token(Assignment) |=|
+//@[026:0052) | └─PropertyAccessSyntax
+//@[026:0042) |   ├─PropertyAccessSyntax
+//@[026:0034) |   | ├─VariableAccessSyntax
+//@[026:0034) |   | | └─IdentifierSyntax
+//@[026:0034) |   | |   └─Token(Identifier) |modATest|
+//@[034:0035) |   | ├─Token(Dot) |.|
+//@[035:0042) |   | └─IdentifierSyntax
+//@[035:0042) |   |   └─Token(Identifier) |outputs|
+//@[042:0043) |   ├─Token(Dot) |.|
+//@[043:0052) |   └─IdentifierSyntax
+//@[043:0052) |     └─Token(Identifier) |objOutput|
+//@[052:0054) ├─Token(NewLine) |\r\n|
 output arrayOutput array = modATest.outputs.arrayOutput
-//@[0:55) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:18)  IdentifierSyntax
-//@[7:18)   Identifier |arrayOutput|
-//@[19:24)  SimpleTypeSyntax
-//@[19:24)   Identifier |array|
-//@[25:26)  Assignment |=|
-//@[27:55)  PropertyAccessSyntax
-//@[27:43)   PropertyAccessSyntax
-//@[27:35)    VariableAccessSyntax
-//@[27:35)     IdentifierSyntax
-//@[27:35)      Identifier |modATest|
-//@[35:36)    Dot |.|
-//@[36:43)    IdentifierSyntax
-//@[36:43)     Identifier |outputs|
-//@[43:44)   Dot |.|
-//@[44:55)   IdentifierSyntax
-//@[44:55)    Identifier |arrayOutput|
-//@[55:57) NewLine |\r\n|
+//@[000:0055) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0018) | ├─IdentifierSyntax
+//@[007:0018) | | └─Token(Identifier) |arrayOutput|
+//@[019:0024) | ├─SimpleTypeSyntax
+//@[019:0024) | | └─Token(Identifier) |array|
+//@[025:0026) | ├─Token(Assignment) |=|
+//@[027:0055) | └─PropertyAccessSyntax
+//@[027:0043) |   ├─PropertyAccessSyntax
+//@[027:0035) |   | ├─VariableAccessSyntax
+//@[027:0035) |   | | └─IdentifierSyntax
+//@[027:0035) |   | |   └─Token(Identifier) |modATest|
+//@[035:0036) |   | ├─Token(Dot) |.|
+//@[036:0043) |   | └─IdentifierSyntax
+//@[036:0043) |   |   └─Token(Identifier) |outputs|
+//@[043:0044) |   ├─Token(Dot) |.|
+//@[044:0055) |   └─IdentifierSyntax
+//@[044:0055) |     └─Token(Identifier) |arrayOutput|
+//@[055:0057) ├─Token(NewLine) |\r\n|
 output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputObj
-//@[0:82) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:30)  IdentifierSyntax
-//@[7:30)   Identifier |modCalculatedNameOutput|
-//@[31:37)  SimpleTypeSyntax
-//@[31:37)   Identifier |object|
-//@[38:39)  Assignment |=|
-//@[40:82)  PropertyAccessSyntax
-//@[40:72)   PropertyAccessSyntax
-//@[40:64)    VariableAccessSyntax
-//@[40:64)     IdentifierSyntax
-//@[40:64)      Identifier |moduleWithCalculatedName|
-//@[64:65)    Dot |.|
-//@[65:72)    IdentifierSyntax
-//@[65:72)     Identifier |outputs|
-//@[72:73)   Dot |.|
-//@[73:82)   IdentifierSyntax
-//@[73:82)    Identifier |outputObj|
-//@[82:86) NewLine |\r\n\r\n|
+//@[000:0082) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0030) | ├─IdentifierSyntax
+//@[007:0030) | | └─Token(Identifier) |modCalculatedNameOutput|
+//@[031:0037) | ├─SimpleTypeSyntax
+//@[031:0037) | | └─Token(Identifier) |object|
+//@[038:0039) | ├─Token(Assignment) |=|
+//@[040:0082) | └─PropertyAccessSyntax
+//@[040:0072) |   ├─PropertyAccessSyntax
+//@[040:0064) |   | ├─VariableAccessSyntax
+//@[040:0064) |   | | └─IdentifierSyntax
+//@[040:0064) |   | |   └─Token(Identifier) |moduleWithCalculatedName|
+//@[064:0065) |   | ├─Token(Dot) |.|
+//@[065:0072) |   | └─IdentifierSyntax
+//@[065:0072) |   |   └─Token(Identifier) |outputs|
+//@[072:0073) |   ├─Token(Dot) |.|
+//@[073:0082) |   └─IdentifierSyntax
+//@[073:0082) |     └─Token(Identifier) |outputObj|
+//@[082:0086) ├─Token(NewLine) |\r\n\r\n|
 
 /*
   valid loop cases
 */ 
-//@[3:7) NewLine |\r\n\r\n|
+//@[003:0007) ├─Token(NewLine) |\r\n\r\n|
 
 @sys.description('this is myModules')
-//@[0:162) VariableDeclarationSyntax
-//@[0:37)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:37)   InstanceFunctionCallSyntax
-//@[1:4)    VariableAccessSyntax
-//@[1:4)     IdentifierSyntax
-//@[1:4)      Identifier |sys|
-//@[4:5)    Dot |.|
-//@[5:16)    IdentifierSyntax
-//@[5:16)     Identifier |description|
-//@[16:17)    LeftParen |(|
-//@[17:36)    FunctionArgumentSyntax
-//@[17:36)     StringSyntax
-//@[17:36)      StringComplete |'this is myModules'|
-//@[36:37)    RightParen |)|
-//@[37:39)  NewLine |\r\n|
+//@[000:0162) ├─VariableDeclarationSyntax
+//@[000:0037) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0037) | | └─InstanceFunctionCallSyntax
+//@[001:0004) | |   ├─VariableAccessSyntax
+//@[001:0004) | |   | └─IdentifierSyntax
+//@[001:0004) | |   |   └─Token(Identifier) |sys|
+//@[004:0005) | |   ├─Token(Dot) |.|
+//@[005:0016) | |   ├─IdentifierSyntax
+//@[005:0016) | |   | └─Token(Identifier) |description|
+//@[016:0017) | |   ├─Token(LeftParen) |(|
+//@[017:0036) | |   ├─FunctionArgumentSyntax
+//@[017:0036) | |   | └─StringSyntax
+//@[017:0036) | |   |   └─Token(StringComplete) |'this is myModules'|
+//@[036:0037) | |   └─Token(RightParen) |)|
+//@[037:0039) | ├─Token(NewLine) |\r\n|
 var myModules = [
-//@[0:3)  Identifier |var|
-//@[4:13)  IdentifierSyntax
-//@[4:13)   Identifier |myModules|
-//@[14:15)  Assignment |=|
-//@[16:123)  ArraySyntax
-//@[16:17)   LeftSquare |[|
-//@[17:19)   NewLine |\r\n|
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0013) | ├─IdentifierSyntax
+//@[004:0013) | | └─Token(Identifier) |myModules|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0123) | └─ArraySyntax
+//@[016:0017) |   ├─Token(LeftSquare) |[|
+//@[017:0019) |   ├─Token(NewLine) |\r\n|
   {
-//@[2:50)   ArrayItemSyntax
-//@[2:50)    ObjectSyntax
-//@[2:3)     LeftBrace |{|
-//@[3:5)     NewLine |\r\n|
+//@[002:0050) |   ├─ArrayItemSyntax
+//@[002:0050) |   | └─ObjectSyntax
+//@[002:0003) |   |   ├─Token(LeftBrace) |{|
+//@[003:0005) |   |   ├─Token(NewLine) |\r\n|
     name: 'one'
-//@[4:15)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |name|
-//@[8:9)      Colon |:|
-//@[10:15)      StringSyntax
-//@[10:15)       StringComplete |'one'|
-//@[15:17)     NewLine |\r\n|
+//@[004:0015) |   |   ├─ObjectPropertySyntax
+//@[004:0008) |   |   | ├─IdentifierSyntax
+//@[004:0008) |   |   | | └─Token(Identifier) |name|
+//@[008:0009) |   |   | ├─Token(Colon) |:|
+//@[010:0015) |   |   | └─StringSyntax
+//@[010:0015) |   |   |   └─Token(StringComplete) |'one'|
+//@[015:0017) |   |   ├─Token(NewLine) |\r\n|
     location: 'eastus2'
-//@[4:23)     ObjectPropertySyntax
-//@[4:12)      IdentifierSyntax
-//@[4:12)       Identifier |location|
-//@[12:13)      Colon |:|
-//@[14:23)      StringSyntax
-//@[14:23)       StringComplete |'eastus2'|
-//@[23:25)     NewLine |\r\n|
+//@[004:0023) |   |   ├─ObjectPropertySyntax
+//@[004:0012) |   |   | ├─IdentifierSyntax
+//@[004:0012) |   |   | | └─Token(Identifier) |location|
+//@[012:0013) |   |   | ├─Token(Colon) |:|
+//@[014:0023) |   |   | └─StringSyntax
+//@[014:0023) |   |   |   └─Token(StringComplete) |'eastus2'|
+//@[023:0025) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
   {
-//@[2:49)   ArrayItemSyntax
-//@[2:49)    ObjectSyntax
-//@[2:3)     LeftBrace |{|
-//@[3:5)     NewLine |\r\n|
+//@[002:0049) |   ├─ArrayItemSyntax
+//@[002:0049) |   | └─ObjectSyntax
+//@[002:0003) |   |   ├─Token(LeftBrace) |{|
+//@[003:0005) |   |   ├─Token(NewLine) |\r\n|
     name: 'two'
-//@[4:15)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |name|
-//@[8:9)      Colon |:|
-//@[10:15)      StringSyntax
-//@[10:15)       StringComplete |'two'|
-//@[15:17)     NewLine |\r\n|
+//@[004:0015) |   |   ├─ObjectPropertySyntax
+//@[004:0008) |   |   | ├─IdentifierSyntax
+//@[004:0008) |   |   | | └─Token(Identifier) |name|
+//@[008:0009) |   |   | ├─Token(Colon) |:|
+//@[010:0015) |   |   | └─StringSyntax
+//@[010:0015) |   |   |   └─Token(StringComplete) |'two'|
+//@[015:0017) |   |   ├─Token(NewLine) |\r\n|
     location: 'westus'
-//@[4:22)     ObjectPropertySyntax
-//@[4:12)      IdentifierSyntax
-//@[4:12)       Identifier |location|
-//@[12:13)      Colon |:|
-//@[14:22)      StringSyntax
-//@[14:22)       StringComplete |'westus'|
-//@[22:24)     NewLine |\r\n|
+//@[004:0022) |   |   ├─ObjectPropertySyntax
+//@[004:0012) |   |   | ├─IdentifierSyntax
+//@[004:0012) |   |   | | └─Token(Identifier) |location|
+//@[012:0013) |   |   | ├─Token(Colon) |:|
+//@[014:0022) |   |   | └─StringSyntax
+//@[014:0022) |   |   |   └─Token(StringComplete) |'westus'|
+//@[022:0024) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 ]
-//@[0:1)   RightSquare |]|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightSquare) |]|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 var emptyArray = []
-//@[0:19) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:14)  IdentifierSyntax
-//@[4:14)   Identifier |emptyArray|
-//@[15:16)  Assignment |=|
-//@[17:19)  ArraySyntax
-//@[17:18)   LeftSquare |[|
-//@[18:19)   RightSquare |]|
-//@[19:23) NewLine |\r\n\r\n|
+//@[000:0019) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0014) | ├─IdentifierSyntax
+//@[004:0014) | | └─Token(Identifier) |emptyArray|
+//@[015:0016) | ├─Token(Assignment) |=|
+//@[017:0019) | └─ArraySyntax
+//@[017:0018) |   ├─Token(LeftSquare) |[|
+//@[018:0019) |   └─Token(RightSquare) |]|
+//@[019:0023) ├─Token(NewLine) |\r\n\r\n|
 
 // simple module loop
-//@[21:23) NewLine |\r\n|
+//@[021:0023) ├─Token(NewLine) |\r\n|
 module storageResources 'modulea.bicep' = [for module in myModules: {
-//@[0:189) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:23)  IdentifierSyntax
-//@[7:23)   Identifier |storageResources|
-//@[24:39)  StringSyntax
-//@[24:39)   StringComplete |'modulea.bicep'|
-//@[40:41)  Assignment |=|
-//@[42:189)  ForSyntax
-//@[42:43)   LeftSquare |[|
-//@[43:46)   Identifier |for|
-//@[47:53)   LocalVariableSyntax
-//@[47:53)    IdentifierSyntax
-//@[47:53)     Identifier |module|
-//@[54:56)   Identifier |in|
-//@[57:66)   VariableAccessSyntax
-//@[57:66)    IdentifierSyntax
-//@[57:66)     Identifier |myModules|
-//@[66:67)   Colon |:|
-//@[68:188)   ObjectSyntax
-//@[68:69)    LeftBrace |{|
-//@[69:71)    NewLine |\r\n|
+//@[000:0189) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0023) | ├─IdentifierSyntax
+//@[007:0023) | | └─Token(Identifier) |storageResources|
+//@[024:0039) | ├─StringSyntax
+//@[024:0039) | | └─Token(StringComplete) |'modulea.bicep'|
+//@[040:0041) | ├─Token(Assignment) |=|
+//@[042:0189) | └─ForSyntax
+//@[042:0043) |   ├─Token(LeftSquare) |[|
+//@[043:0046) |   ├─Token(Identifier) |for|
+//@[047:0053) |   ├─LocalVariableSyntax
+//@[047:0053) |   | └─IdentifierSyntax
+//@[047:0053) |   |   └─Token(Identifier) |module|
+//@[054:0056) |   ├─Token(Identifier) |in|
+//@[057:0066) |   ├─VariableAccessSyntax
+//@[057:0066) |   | └─IdentifierSyntax
+//@[057:0066) |   |   └─Token(Identifier) |myModules|
+//@[066:0067) |   ├─Token(Colon) |:|
+//@[068:0188) |   ├─ObjectSyntax
+//@[068:0069) |   | ├─Token(LeftBrace) |{|
+//@[069:0071) |   | ├─Token(NewLine) |\r\n|
   name: module.name
-//@[2:19)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:19)     PropertyAccessSyntax
-//@[8:14)      VariableAccessSyntax
-//@[8:14)       IdentifierSyntax
-//@[8:14)        Identifier |module|
-//@[14:15)      Dot |.|
-//@[15:19)      IdentifierSyntax
-//@[15:19)       Identifier |name|
-//@[19:21)    NewLine |\r\n|
+//@[002:0019) |   | ├─ObjectPropertySyntax
+//@[002:0006) |   | | ├─IdentifierSyntax
+//@[002:0006) |   | | | └─Token(Identifier) |name|
+//@[006:0007) |   | | ├─Token(Colon) |:|
+//@[008:0019) |   | | └─PropertyAccessSyntax
+//@[008:0014) |   | |   ├─VariableAccessSyntax
+//@[008:0014) |   | |   | └─IdentifierSyntax
+//@[008:0014) |   | |   |   └─Token(Identifier) |module|
+//@[014:0015) |   | |   ├─Token(Dot) |.|
+//@[015:0019) |   | |   └─IdentifierSyntax
+//@[015:0019) |   | |     └─Token(Identifier) |name|
+//@[019:0021) |   | ├─Token(NewLine) |\r\n|
   params: {
-//@[2:93)    ObjectPropertySyntax
-//@[2:8)     IdentifierSyntax
-//@[2:8)      Identifier |params|
-//@[8:9)     Colon |:|
-//@[10:93)     ObjectSyntax
-//@[10:11)      LeftBrace |{|
-//@[11:13)      NewLine |\r\n|
+//@[002:0093) |   | ├─ObjectPropertySyntax
+//@[002:0008) |   | | ├─IdentifierSyntax
+//@[002:0008) |   | | | └─Token(Identifier) |params|
+//@[008:0009) |   | | ├─Token(Colon) |:|
+//@[010:0093) |   | | └─ObjectSyntax
+//@[010:0011) |   | |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   | |   ├─Token(NewLine) |\r\n|
     arrayParam: []
-//@[4:18)      ObjectPropertySyntax
-//@[4:14)       IdentifierSyntax
-//@[4:14)        Identifier |arrayParam|
-//@[14:15)       Colon |:|
-//@[16:18)       ArraySyntax
-//@[16:17)        LeftSquare |[|
-//@[17:18)        RightSquare |]|
-//@[18:20)      NewLine |\r\n|
+//@[004:0018) |   | |   ├─ObjectPropertySyntax
+//@[004:0014) |   | |   | ├─IdentifierSyntax
+//@[004:0014) |   | |   | | └─Token(Identifier) |arrayParam|
+//@[014:0015) |   | |   | ├─Token(Colon) |:|
+//@[016:0018) |   | |   | └─ArraySyntax
+//@[016:0017) |   | |   |   ├─Token(LeftSquare) |[|
+//@[017:0018) |   | |   |   └─Token(RightSquare) |]|
+//@[018:0020) |   | |   ├─Token(NewLine) |\r\n|
     objParam: module
-//@[4:20)      ObjectPropertySyntax
-//@[4:12)       IdentifierSyntax
-//@[4:12)        Identifier |objParam|
-//@[12:13)       Colon |:|
-//@[14:20)       VariableAccessSyntax
-//@[14:20)        IdentifierSyntax
-//@[14:20)         Identifier |module|
-//@[20:22)      NewLine |\r\n|
+//@[004:0020) |   | |   ├─ObjectPropertySyntax
+//@[004:0012) |   | |   | ├─IdentifierSyntax
+//@[004:0012) |   | |   | | └─Token(Identifier) |objParam|
+//@[012:0013) |   | |   | ├─Token(Colon) |:|
+//@[014:0020) |   | |   | └─VariableAccessSyntax
+//@[014:0020) |   | |   |   └─IdentifierSyntax
+//@[014:0020) |   | |   |     └─Token(Identifier) |module|
+//@[020:0022) |   | |   ├─Token(NewLine) |\r\n|
     stringParamB: module.location
-//@[4:33)      ObjectPropertySyntax
-//@[4:16)       IdentifierSyntax
-//@[4:16)        Identifier |stringParamB|
-//@[16:17)       Colon |:|
-//@[18:33)       PropertyAccessSyntax
-//@[18:24)        VariableAccessSyntax
-//@[18:24)         IdentifierSyntax
-//@[18:24)          Identifier |module|
-//@[24:25)        Dot |.|
-//@[25:33)        IdentifierSyntax
-//@[25:33)         Identifier |location|
-//@[33:35)      NewLine |\r\n|
+//@[004:0033) |   | |   ├─ObjectPropertySyntax
+//@[004:0016) |   | |   | ├─IdentifierSyntax
+//@[004:0016) |   | |   | | └─Token(Identifier) |stringParamB|
+//@[016:0017) |   | |   | ├─Token(Colon) |:|
+//@[018:0033) |   | |   | └─PropertyAccessSyntax
+//@[018:0024) |   | |   |   ├─VariableAccessSyntax
+//@[018:0024) |   | |   |   | └─IdentifierSyntax
+//@[018:0024) |   | |   |   |   └─Token(Identifier) |module|
+//@[024:0025) |   | |   |   ├─Token(Dot) |.|
+//@[025:0033) |   | |   |   └─IdentifierSyntax
+//@[025:0033) |   | |   |     └─Token(Identifier) |location|
+//@[033:0035) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:0003) |   | |   └─Token(RightBrace) |}|
+//@[003:0005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:0001) |   | └─Token(RightBrace) |}|
+//@[001:0002) |   └─Token(RightSquare) |]|
+//@[002:0006) ├─Token(NewLine) |\r\n\r\n|
 
 // simple indexed module loop
-//@[29:31) NewLine |\r\n|
+//@[029:0031) ├─Token(NewLine) |\r\n|
 module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules: {
-//@[0:256) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:32)  IdentifierSyntax
-//@[7:32)   Identifier |storageResourcesWithIndex|
-//@[33:48)  StringSyntax
-//@[33:48)   StringComplete |'modulea.bicep'|
-//@[49:50)  Assignment |=|
-//@[51:256)  ForSyntax
-//@[51:52)   LeftSquare |[|
-//@[52:55)   Identifier |for|
-//@[56:67)   ForVariableBlockSyntax
-//@[56:57)    LeftParen |(|
-//@[57:63)    LocalVariableSyntax
-//@[57:63)     IdentifierSyntax
-//@[57:63)      Identifier |module|
-//@[63:64)    Comma |,|
-//@[65:66)    LocalVariableSyntax
-//@[65:66)     IdentifierSyntax
-//@[65:66)      Identifier |i|
-//@[66:67)    RightParen |)|
-//@[68:70)   Identifier |in|
-//@[71:80)   VariableAccessSyntax
-//@[71:80)    IdentifierSyntax
-//@[71:80)     Identifier |myModules|
-//@[80:81)   Colon |:|
-//@[82:255)   ObjectSyntax
-//@[82:83)    LeftBrace |{|
-//@[83:85)    NewLine |\r\n|
+//@[000:0256) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0032) | ├─IdentifierSyntax
+//@[007:0032) | | └─Token(Identifier) |storageResourcesWithIndex|
+//@[033:0048) | ├─StringSyntax
+//@[033:0048) | | └─Token(StringComplete) |'modulea.bicep'|
+//@[049:0050) | ├─Token(Assignment) |=|
+//@[051:0256) | └─ForSyntax
+//@[051:0052) |   ├─Token(LeftSquare) |[|
+//@[052:0055) |   ├─Token(Identifier) |for|
+//@[056:0067) |   ├─VariableBlockSyntax
+//@[056:0057) |   | ├─Token(LeftParen) |(|
+//@[057:0063) |   | ├─LocalVariableSyntax
+//@[057:0063) |   | | └─IdentifierSyntax
+//@[057:0063) |   | |   └─Token(Identifier) |module|
+//@[063:0064) |   | ├─Token(Comma) |,|
+//@[065:0066) |   | ├─LocalVariableSyntax
+//@[065:0066) |   | | └─IdentifierSyntax
+//@[065:0066) |   | |   └─Token(Identifier) |i|
+//@[066:0067) |   | └─Token(RightParen) |)|
+//@[068:0070) |   ├─Token(Identifier) |in|
+//@[071:0080) |   ├─VariableAccessSyntax
+//@[071:0080) |   | └─IdentifierSyntax
+//@[071:0080) |   |   └─Token(Identifier) |myModules|
+//@[080:0081) |   ├─Token(Colon) |:|
+//@[082:0255) |   ├─ObjectSyntax
+//@[082:0083) |   | ├─Token(LeftBrace) |{|
+//@[083:0085) |   | ├─Token(NewLine) |\r\n|
   name: module.name
-//@[2:19)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:19)     PropertyAccessSyntax
-//@[8:14)      VariableAccessSyntax
-//@[8:14)       IdentifierSyntax
-//@[8:14)        Identifier |module|
-//@[14:15)      Dot |.|
-//@[15:19)      IdentifierSyntax
-//@[15:19)       Identifier |name|
-//@[19:21)    NewLine |\r\n|
+//@[002:0019) |   | ├─ObjectPropertySyntax
+//@[002:0006) |   | | ├─IdentifierSyntax
+//@[002:0006) |   | | | └─Token(Identifier) |name|
+//@[006:0007) |   | | ├─Token(Colon) |:|
+//@[008:0019) |   | | └─PropertyAccessSyntax
+//@[008:0014) |   | |   ├─VariableAccessSyntax
+//@[008:0014) |   | |   | └─IdentifierSyntax
+//@[008:0014) |   | |   |   └─Token(Identifier) |module|
+//@[014:0015) |   | |   ├─Token(Dot) |.|
+//@[015:0019) |   | |   └─IdentifierSyntax
+//@[015:0019) |   | |     └─Token(Identifier) |name|
+//@[019:0021) |   | ├─Token(NewLine) |\r\n|
   params: {
-//@[2:146)    ObjectPropertySyntax
-//@[2:8)     IdentifierSyntax
-//@[2:8)      Identifier |params|
-//@[8:9)     Colon |:|
-//@[10:146)     ObjectSyntax
-//@[10:11)      LeftBrace |{|
-//@[11:13)      NewLine |\r\n|
+//@[002:0146) |   | ├─ObjectPropertySyntax
+//@[002:0008) |   | | ├─IdentifierSyntax
+//@[002:0008) |   | | | └─Token(Identifier) |params|
+//@[008:0009) |   | | ├─Token(Colon) |:|
+//@[010:0146) |   | | └─ObjectSyntax
+//@[010:0011) |   | |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   | |   ├─Token(NewLine) |\r\n|
     arrayParam: [
-//@[4:37)      ObjectPropertySyntax
-//@[4:14)       IdentifierSyntax
-//@[4:14)        Identifier |arrayParam|
-//@[14:15)       Colon |:|
-//@[16:37)       ArraySyntax
-//@[16:17)        LeftSquare |[|
-//@[17:19)        NewLine |\r\n|
+//@[004:0037) |   | |   ├─ObjectPropertySyntax
+//@[004:0014) |   | |   | ├─IdentifierSyntax
+//@[004:0014) |   | |   | | └─Token(Identifier) |arrayParam|
+//@[014:0015) |   | |   | ├─Token(Colon) |:|
+//@[016:0037) |   | |   | └─ArraySyntax
+//@[016:0017) |   | |   |   ├─Token(LeftSquare) |[|
+//@[017:0019) |   | |   |   ├─Token(NewLine) |\r\n|
       i + 1
-//@[6:11)        ArrayItemSyntax
-//@[6:11)         BinaryOperationSyntax
-//@[6:7)          VariableAccessSyntax
-//@[6:7)           IdentifierSyntax
-//@[6:7)            Identifier |i|
-//@[8:9)          Plus |+|
-//@[10:11)          IntegerLiteralSyntax
-//@[10:11)           Integer |1|
-//@[11:13)        NewLine |\r\n|
+//@[006:0011) |   | |   |   ├─ArrayItemSyntax
+//@[006:0011) |   | |   |   | └─BinaryOperationSyntax
+//@[006:0007) |   | |   |   |   ├─VariableAccessSyntax
+//@[006:0007) |   | |   |   |   | └─IdentifierSyntax
+//@[006:0007) |   | |   |   |   |   └─Token(Identifier) |i|
+//@[008:0009) |   | |   |   |   ├─Token(Plus) |+|
+//@[010:0011) |   | |   |   |   └─IntegerLiteralSyntax
+//@[010:0011) |   | |   |   |     └─Token(Integer) |1|
+//@[011:0013) |   | |   |   ├─Token(NewLine) |\r\n|
     ]
-//@[4:5)        RightSquare |]|
-//@[5:7)      NewLine |\r\n|
+//@[004:0005) |   | |   |   └─Token(RightSquare) |]|
+//@[005:0007) |   | |   ├─Token(NewLine) |\r\n|
     objParam: module
-//@[4:20)      ObjectPropertySyntax
-//@[4:12)       IdentifierSyntax
-//@[4:12)        Identifier |objParam|
-//@[12:13)       Colon |:|
-//@[14:20)       VariableAccessSyntax
-//@[14:20)        IdentifierSyntax
-//@[14:20)         Identifier |module|
-//@[20:22)      NewLine |\r\n|
+//@[004:0020) |   | |   ├─ObjectPropertySyntax
+//@[004:0012) |   | |   | ├─IdentifierSyntax
+//@[004:0012) |   | |   | | └─Token(Identifier) |objParam|
+//@[012:0013) |   | |   | ├─Token(Colon) |:|
+//@[014:0020) |   | |   | └─VariableAccessSyntax
+//@[014:0020) |   | |   |   └─IdentifierSyntax
+//@[014:0020) |   | |   |     └─Token(Identifier) |module|
+//@[020:0022) |   | |   ├─Token(NewLine) |\r\n|
     stringParamB: module.location
-//@[4:33)      ObjectPropertySyntax
-//@[4:16)       IdentifierSyntax
-//@[4:16)        Identifier |stringParamB|
-//@[16:17)       Colon |:|
-//@[18:33)       PropertyAccessSyntax
-//@[18:24)        VariableAccessSyntax
-//@[18:24)         IdentifierSyntax
-//@[18:24)          Identifier |module|
-//@[24:25)        Dot |.|
-//@[25:33)        IdentifierSyntax
-//@[25:33)         Identifier |location|
-//@[33:35)      NewLine |\r\n|
+//@[004:0033) |   | |   ├─ObjectPropertySyntax
+//@[004:0016) |   | |   | ├─IdentifierSyntax
+//@[004:0016) |   | |   | | └─Token(Identifier) |stringParamB|
+//@[016:0017) |   | |   | ├─Token(Colon) |:|
+//@[018:0033) |   | |   | └─PropertyAccessSyntax
+//@[018:0024) |   | |   |   ├─VariableAccessSyntax
+//@[018:0024) |   | |   |   | └─IdentifierSyntax
+//@[018:0024) |   | |   |   |   └─Token(Identifier) |module|
+//@[024:0025) |   | |   |   ├─Token(Dot) |.|
+//@[025:0033) |   | |   |   └─IdentifierSyntax
+//@[025:0033) |   | |   |     └─Token(Identifier) |location|
+//@[033:0035) |   | |   ├─Token(NewLine) |\r\n|
     stringParamA: concat('a', i)
-//@[4:32)      ObjectPropertySyntax
-//@[4:16)       IdentifierSyntax
-//@[4:16)        Identifier |stringParamA|
-//@[16:17)       Colon |:|
-//@[18:32)       FunctionCallSyntax
-//@[18:24)        IdentifierSyntax
-//@[18:24)         Identifier |concat|
-//@[24:25)        LeftParen |(|
-//@[25:29)        FunctionArgumentSyntax
-//@[25:28)         StringSyntax
-//@[25:28)          StringComplete |'a'|
-//@[28:29)         Comma |,|
-//@[30:31)        FunctionArgumentSyntax
-//@[30:31)         VariableAccessSyntax
-//@[30:31)          IdentifierSyntax
-//@[30:31)           Identifier |i|
-//@[31:32)        RightParen |)|
-//@[32:34)      NewLine |\r\n|
+//@[004:0032) |   | |   ├─ObjectPropertySyntax
+//@[004:0016) |   | |   | ├─IdentifierSyntax
+//@[004:0016) |   | |   | | └─Token(Identifier) |stringParamA|
+//@[016:0017) |   | |   | ├─Token(Colon) |:|
+//@[018:0032) |   | |   | └─FunctionCallSyntax
+//@[018:0024) |   | |   |   ├─IdentifierSyntax
+//@[018:0024) |   | |   |   | └─Token(Identifier) |concat|
+//@[024:0025) |   | |   |   ├─Token(LeftParen) |(|
+//@[025:0028) |   | |   |   ├─FunctionArgumentSyntax
+//@[025:0028) |   | |   |   | └─StringSyntax
+//@[025:0028) |   | |   |   |   └─Token(StringComplete) |'a'|
+//@[028:0029) |   | |   |   ├─Token(Comma) |,|
+//@[030:0031) |   | |   |   ├─FunctionArgumentSyntax
+//@[030:0031) |   | |   |   | └─VariableAccessSyntax
+//@[030:0031) |   | |   |   |   └─IdentifierSyntax
+//@[030:0031) |   | |   |   |     └─Token(Identifier) |i|
+//@[031:0032) |   | |   |   └─Token(RightParen) |)|
+//@[032:0034) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:0003) |   | |   └─Token(RightBrace) |}|
+//@[003:0005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:0001) |   | └─Token(RightBrace) |}|
+//@[001:0002) |   └─Token(RightSquare) |]|
+//@[002:0006) ├─Token(NewLine) |\r\n\r\n|
 
 // nested module loop
-//@[21:23) NewLine |\r\n|
+//@[021:0023) ├─Token(NewLine) |\r\n|
 module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
-//@[0:246) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:23)  IdentifierSyntax
-//@[7:23)   Identifier |nestedModuleLoop|
-//@[24:39)  StringSyntax
-//@[24:39)   StringComplete |'modulea.bicep'|
-//@[40:41)  Assignment |=|
-//@[42:246)  ForSyntax
-//@[42:43)   LeftSquare |[|
-//@[43:46)   Identifier |for|
-//@[47:53)   LocalVariableSyntax
-//@[47:53)    IdentifierSyntax
-//@[47:53)     Identifier |module|
-//@[54:56)   Identifier |in|
-//@[57:66)   VariableAccessSyntax
-//@[57:66)    IdentifierSyntax
-//@[57:66)     Identifier |myModules|
-//@[66:67)   Colon |:|
-//@[68:245)   ObjectSyntax
-//@[68:69)    LeftBrace |{|
-//@[69:71)    NewLine |\r\n|
+//@[000:0246) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0023) | ├─IdentifierSyntax
+//@[007:0023) | | └─Token(Identifier) |nestedModuleLoop|
+//@[024:0039) | ├─StringSyntax
+//@[024:0039) | | └─Token(StringComplete) |'modulea.bicep'|
+//@[040:0041) | ├─Token(Assignment) |=|
+//@[042:0246) | └─ForSyntax
+//@[042:0043) |   ├─Token(LeftSquare) |[|
+//@[043:0046) |   ├─Token(Identifier) |for|
+//@[047:0053) |   ├─LocalVariableSyntax
+//@[047:0053) |   | └─IdentifierSyntax
+//@[047:0053) |   |   └─Token(Identifier) |module|
+//@[054:0056) |   ├─Token(Identifier) |in|
+//@[057:0066) |   ├─VariableAccessSyntax
+//@[057:0066) |   | └─IdentifierSyntax
+//@[057:0066) |   |   └─Token(Identifier) |myModules|
+//@[066:0067) |   ├─Token(Colon) |:|
+//@[068:0245) |   ├─ObjectSyntax
+//@[068:0069) |   | ├─Token(LeftBrace) |{|
+//@[069:0071) |   | ├─Token(NewLine) |\r\n|
   name: module.name
-//@[2:19)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:19)     PropertyAccessSyntax
-//@[8:14)      VariableAccessSyntax
-//@[8:14)       IdentifierSyntax
-//@[8:14)        Identifier |module|
-//@[14:15)      Dot |.|
-//@[15:19)      IdentifierSyntax
-//@[15:19)       Identifier |name|
-//@[19:21)    NewLine |\r\n|
+//@[002:0019) |   | ├─ObjectPropertySyntax
+//@[002:0006) |   | | ├─IdentifierSyntax
+//@[002:0006) |   | | | └─Token(Identifier) |name|
+//@[006:0007) |   | | ├─Token(Colon) |:|
+//@[008:0019) |   | | └─PropertyAccessSyntax
+//@[008:0014) |   | |   ├─VariableAccessSyntax
+//@[008:0014) |   | |   | └─IdentifierSyntax
+//@[008:0014) |   | |   |   └─Token(Identifier) |module|
+//@[014:0015) |   | |   ├─Token(Dot) |.|
+//@[015:0019) |   | |   └─IdentifierSyntax
+//@[015:0019) |   | |     └─Token(Identifier) |name|
+//@[019:0021) |   | ├─Token(NewLine) |\r\n|
   params: {
-//@[2:150)    ObjectPropertySyntax
-//@[2:8)     IdentifierSyntax
-//@[2:8)      Identifier |params|
-//@[8:9)     Colon |:|
-//@[10:150)     ObjectSyntax
-//@[10:11)      LeftBrace |{|
-//@[11:13)      NewLine |\r\n|
+//@[002:0150) |   | ├─ObjectPropertySyntax
+//@[002:0008) |   | | ├─IdentifierSyntax
+//@[002:0008) |   | | | └─Token(Identifier) |params|
+//@[008:0009) |   | | ├─Token(Colon) |:|
+//@[010:0150) |   | | └─ObjectSyntax
+//@[010:0011) |   | |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   | |   ├─Token(NewLine) |\r\n|
     arrayParam: [for i in range(0,3): concat('test-', i, '-', module.name)]
-//@[4:75)      ObjectPropertySyntax
-//@[4:14)       IdentifierSyntax
-//@[4:14)        Identifier |arrayParam|
-//@[14:15)       Colon |:|
-//@[16:75)       ForSyntax
-//@[16:17)        LeftSquare |[|
-//@[17:20)        Identifier |for|
-//@[21:22)        LocalVariableSyntax
-//@[21:22)         IdentifierSyntax
-//@[21:22)          Identifier |i|
-//@[23:25)        Identifier |in|
-//@[26:36)        FunctionCallSyntax
-//@[26:31)         IdentifierSyntax
-//@[26:31)          Identifier |range|
-//@[31:32)         LeftParen |(|
-//@[32:34)         FunctionArgumentSyntax
-//@[32:33)          IntegerLiteralSyntax
-//@[32:33)           Integer |0|
-//@[33:34)          Comma |,|
-//@[34:35)         FunctionArgumentSyntax
-//@[34:35)          IntegerLiteralSyntax
-//@[34:35)           Integer |3|
-//@[35:36)         RightParen |)|
-//@[36:37)        Colon |:|
-//@[38:74)        FunctionCallSyntax
-//@[38:44)         IdentifierSyntax
-//@[38:44)          Identifier |concat|
-//@[44:45)         LeftParen |(|
-//@[45:53)         FunctionArgumentSyntax
-//@[45:52)          StringSyntax
-//@[45:52)           StringComplete |'test-'|
-//@[52:53)          Comma |,|
-//@[54:56)         FunctionArgumentSyntax
-//@[54:55)          VariableAccessSyntax
-//@[54:55)           IdentifierSyntax
-//@[54:55)            Identifier |i|
-//@[55:56)          Comma |,|
-//@[57:61)         FunctionArgumentSyntax
-//@[57:60)          StringSyntax
-//@[57:60)           StringComplete |'-'|
-//@[60:61)          Comma |,|
-//@[62:73)         FunctionArgumentSyntax
-//@[62:73)          PropertyAccessSyntax
-//@[62:68)           VariableAccessSyntax
-//@[62:68)            IdentifierSyntax
-//@[62:68)             Identifier |module|
-//@[68:69)           Dot |.|
-//@[69:73)           IdentifierSyntax
-//@[69:73)            Identifier |name|
-//@[73:74)         RightParen |)|
-//@[74:75)        RightSquare |]|
-//@[75:77)      NewLine |\r\n|
+//@[004:0075) |   | |   ├─ObjectPropertySyntax
+//@[004:0014) |   | |   | ├─IdentifierSyntax
+//@[004:0014) |   | |   | | └─Token(Identifier) |arrayParam|
+//@[014:0015) |   | |   | ├─Token(Colon) |:|
+//@[016:0075) |   | |   | └─ForSyntax
+//@[016:0017) |   | |   |   ├─Token(LeftSquare) |[|
+//@[017:0020) |   | |   |   ├─Token(Identifier) |for|
+//@[021:0022) |   | |   |   ├─LocalVariableSyntax
+//@[021:0022) |   | |   |   | └─IdentifierSyntax
+//@[021:0022) |   | |   |   |   └─Token(Identifier) |i|
+//@[023:0025) |   | |   |   ├─Token(Identifier) |in|
+//@[026:0036) |   | |   |   ├─FunctionCallSyntax
+//@[026:0031) |   | |   |   | ├─IdentifierSyntax
+//@[026:0031) |   | |   |   | | └─Token(Identifier) |range|
+//@[031:0032) |   | |   |   | ├─Token(LeftParen) |(|
+//@[032:0033) |   | |   |   | ├─FunctionArgumentSyntax
+//@[032:0033) |   | |   |   | | └─IntegerLiteralSyntax
+//@[032:0033) |   | |   |   | |   └─Token(Integer) |0|
+//@[033:0034) |   | |   |   | ├─Token(Comma) |,|
+//@[034:0035) |   | |   |   | ├─FunctionArgumentSyntax
+//@[034:0035) |   | |   |   | | └─IntegerLiteralSyntax
+//@[034:0035) |   | |   |   | |   └─Token(Integer) |3|
+//@[035:0036) |   | |   |   | └─Token(RightParen) |)|
+//@[036:0037) |   | |   |   ├─Token(Colon) |:|
+//@[038:0074) |   | |   |   ├─FunctionCallSyntax
+//@[038:0044) |   | |   |   | ├─IdentifierSyntax
+//@[038:0044) |   | |   |   | | └─Token(Identifier) |concat|
+//@[044:0045) |   | |   |   | ├─Token(LeftParen) |(|
+//@[045:0052) |   | |   |   | ├─FunctionArgumentSyntax
+//@[045:0052) |   | |   |   | | └─StringSyntax
+//@[045:0052) |   | |   |   | |   └─Token(StringComplete) |'test-'|
+//@[052:0053) |   | |   |   | ├─Token(Comma) |,|
+//@[054:0055) |   | |   |   | ├─FunctionArgumentSyntax
+//@[054:0055) |   | |   |   | | └─VariableAccessSyntax
+//@[054:0055) |   | |   |   | |   └─IdentifierSyntax
+//@[054:0055) |   | |   |   | |     └─Token(Identifier) |i|
+//@[055:0056) |   | |   |   | ├─Token(Comma) |,|
+//@[057:0060) |   | |   |   | ├─FunctionArgumentSyntax
+//@[057:0060) |   | |   |   | | └─StringSyntax
+//@[057:0060) |   | |   |   | |   └─Token(StringComplete) |'-'|
+//@[060:0061) |   | |   |   | ├─Token(Comma) |,|
+//@[062:0073) |   | |   |   | ├─FunctionArgumentSyntax
+//@[062:0073) |   | |   |   | | └─PropertyAccessSyntax
+//@[062:0068) |   | |   |   | |   ├─VariableAccessSyntax
+//@[062:0068) |   | |   |   | |   | └─IdentifierSyntax
+//@[062:0068) |   | |   |   | |   |   └─Token(Identifier) |module|
+//@[068:0069) |   | |   |   | |   ├─Token(Dot) |.|
+//@[069:0073) |   | |   |   | |   └─IdentifierSyntax
+//@[069:0073) |   | |   |   | |     └─Token(Identifier) |name|
+//@[073:0074) |   | |   |   | └─Token(RightParen) |)|
+//@[074:0075) |   | |   |   └─Token(RightSquare) |]|
+//@[075:0077) |   | |   ├─Token(NewLine) |\r\n|
     objParam: module
-//@[4:20)      ObjectPropertySyntax
-//@[4:12)       IdentifierSyntax
-//@[4:12)        Identifier |objParam|
-//@[12:13)       Colon |:|
-//@[14:20)       VariableAccessSyntax
-//@[14:20)        IdentifierSyntax
-//@[14:20)         Identifier |module|
-//@[20:22)      NewLine |\r\n|
+//@[004:0020) |   | |   ├─ObjectPropertySyntax
+//@[004:0012) |   | |   | ├─IdentifierSyntax
+//@[004:0012) |   | |   | | └─Token(Identifier) |objParam|
+//@[012:0013) |   | |   | ├─Token(Colon) |:|
+//@[014:0020) |   | |   | └─VariableAccessSyntax
+//@[014:0020) |   | |   |   └─IdentifierSyntax
+//@[014:0020) |   | |   |     └─Token(Identifier) |module|
+//@[020:0022) |   | |   ├─Token(NewLine) |\r\n|
     stringParamB: module.location
-//@[4:33)      ObjectPropertySyntax
-//@[4:16)       IdentifierSyntax
-//@[4:16)        Identifier |stringParamB|
-//@[16:17)       Colon |:|
-//@[18:33)       PropertyAccessSyntax
-//@[18:24)        VariableAccessSyntax
-//@[18:24)         IdentifierSyntax
-//@[18:24)          Identifier |module|
-//@[24:25)        Dot |.|
-//@[25:33)        IdentifierSyntax
-//@[25:33)         Identifier |location|
-//@[33:35)      NewLine |\r\n|
+//@[004:0033) |   | |   ├─ObjectPropertySyntax
+//@[004:0016) |   | |   | ├─IdentifierSyntax
+//@[004:0016) |   | |   | | └─Token(Identifier) |stringParamB|
+//@[016:0017) |   | |   | ├─Token(Colon) |:|
+//@[018:0033) |   | |   | └─PropertyAccessSyntax
+//@[018:0024) |   | |   |   ├─VariableAccessSyntax
+//@[018:0024) |   | |   |   | └─IdentifierSyntax
+//@[018:0024) |   | |   |   |   └─Token(Identifier) |module|
+//@[024:0025) |   | |   |   ├─Token(Dot) |.|
+//@[025:0033) |   | |   |   └─IdentifierSyntax
+//@[025:0033) |   | |   |     └─Token(Identifier) |location|
+//@[033:0035) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:0003) |   | |   └─Token(RightBrace) |}|
+//@[003:0005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:0001) |   | └─Token(RightBrace) |}|
+//@[001:0002) |   └─Token(RightSquare) |]|
+//@[002:0006) ├─Token(NewLine) |\r\n\r\n|
 
 // duplicate identifiers across scopes are allowed (inner hides the outer)
-//@[74:76) NewLine |\r\n|
+//@[074:0076) ├─Token(NewLine) |\r\n|
 module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
-//@[0:234) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:37)  IdentifierSyntax
-//@[7:37)   Identifier |duplicateIdentifiersWithinLoop|
-//@[38:53)  StringSyntax
-//@[38:53)   StringComplete |'modulea.bicep'|
-//@[54:55)  Assignment |=|
-//@[56:234)  ForSyntax
-//@[56:57)   LeftSquare |[|
-//@[57:60)   Identifier |for|
-//@[61:62)   LocalVariableSyntax
-//@[61:62)    IdentifierSyntax
-//@[61:62)     Identifier |x|
-//@[63:65)   Identifier |in|
-//@[66:76)   VariableAccessSyntax
-//@[66:76)    IdentifierSyntax
-//@[66:76)     Identifier |emptyArray|
-//@[76:77)   Colon |:|
-//@[77:233)   ObjectSyntax
-//@[77:78)    LeftBrace |{|
-//@[78:80)    NewLine |\r\n|
+//@[000:0234) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0037) | ├─IdentifierSyntax
+//@[007:0037) | | └─Token(Identifier) |duplicateIdentifiersWithinLoop|
+//@[038:0053) | ├─StringSyntax
+//@[038:0053) | | └─Token(StringComplete) |'modulea.bicep'|
+//@[054:0055) | ├─Token(Assignment) |=|
+//@[056:0234) | └─ForSyntax
+//@[056:0057) |   ├─Token(LeftSquare) |[|
+//@[057:0060) |   ├─Token(Identifier) |for|
+//@[061:0062) |   ├─LocalVariableSyntax
+//@[061:0062) |   | └─IdentifierSyntax
+//@[061:0062) |   |   └─Token(Identifier) |x|
+//@[063:0065) |   ├─Token(Identifier) |in|
+//@[066:0076) |   ├─VariableAccessSyntax
+//@[066:0076) |   | └─IdentifierSyntax
+//@[066:0076) |   |   └─Token(Identifier) |emptyArray|
+//@[076:0077) |   ├─Token(Colon) |:|
+//@[077:0233) |   ├─ObjectSyntax
+//@[077:0078) |   | ├─Token(LeftBrace) |{|
+//@[078:0080) |   | ├─Token(NewLine) |\r\n|
   name: 'hello-${x}'
-//@[2:20)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:20)     StringSyntax
-//@[8:17)      StringLeftPiece |'hello-${|
-//@[17:18)      VariableAccessSyntax
-//@[17:18)       IdentifierSyntax
-//@[17:18)        Identifier |x|
-//@[18:20)      StringRightPiece |}'|
-//@[20:22)    NewLine |\r\n|
+//@[002:0020) |   | ├─ObjectPropertySyntax
+//@[002:0006) |   | | ├─IdentifierSyntax
+//@[002:0006) |   | | | └─Token(Identifier) |name|
+//@[006:0007) |   | | ├─Token(Colon) |:|
+//@[008:0020) |   | | └─StringSyntax
+//@[008:0017) |   | |   ├─Token(StringLeftPiece) |'hello-${|
+//@[017:0018) |   | |   ├─VariableAccessSyntax
+//@[017:0018) |   | |   | └─IdentifierSyntax
+//@[017:0018) |   | |   |   └─Token(Identifier) |x|
+//@[018:0020) |   | |   └─Token(StringRightPiece) |}'|
+//@[020:0022) |   | ├─Token(NewLine) |\r\n|
   params: {
-//@[2:128)    ObjectPropertySyntax
-//@[2:8)     IdentifierSyntax
-//@[2:8)      Identifier |params|
-//@[8:9)     Colon |:|
-//@[10:128)     ObjectSyntax
-//@[10:11)      LeftBrace |{|
-//@[11:13)      NewLine |\r\n|
+//@[002:0128) |   | ├─ObjectPropertySyntax
+//@[002:0008) |   | | ├─IdentifierSyntax
+//@[002:0008) |   | | | └─Token(Identifier) |params|
+//@[008:0009) |   | | ├─Token(Colon) |:|
+//@[010:0128) |   | | └─ObjectSyntax
+//@[010:0011) |   | |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   | |   ├─Token(NewLine) |\r\n|
     objParam: {}
-//@[4:16)      ObjectPropertySyntax
-//@[4:12)       IdentifierSyntax
-//@[4:12)        Identifier |objParam|
-//@[12:13)       Colon |:|
-//@[14:16)       ObjectSyntax
-//@[14:15)        LeftBrace |{|
-//@[15:16)        RightBrace |}|
-//@[16:18)      NewLine |\r\n|
+//@[004:0016) |   | |   ├─ObjectPropertySyntax
+//@[004:0012) |   | |   | ├─IdentifierSyntax
+//@[004:0012) |   | |   | | └─Token(Identifier) |objParam|
+//@[012:0013) |   | |   | ├─Token(Colon) |:|
+//@[014:0016) |   | |   | └─ObjectSyntax
+//@[014:0015) |   | |   |   ├─Token(LeftBrace) |{|
+//@[015:0016) |   | |   |   └─Token(RightBrace) |}|
+//@[016:0018) |   | |   ├─Token(NewLine) |\r\n|
     stringParamA: 'test'
-//@[4:24)      ObjectPropertySyntax
-//@[4:16)       IdentifierSyntax
-//@[4:16)        Identifier |stringParamA|
-//@[16:17)       Colon |:|
-//@[18:24)       StringSyntax
-//@[18:24)        StringComplete |'test'|
-//@[24:26)      NewLine |\r\n|
+//@[004:0024) |   | |   ├─ObjectPropertySyntax
+//@[004:0016) |   | |   | ├─IdentifierSyntax
+//@[004:0016) |   | |   | | └─Token(Identifier) |stringParamA|
+//@[016:0017) |   | |   | ├─Token(Colon) |:|
+//@[018:0024) |   | |   | └─StringSyntax
+//@[018:0024) |   | |   |   └─Token(StringComplete) |'test'|
+//@[024:0026) |   | |   ├─Token(NewLine) |\r\n|
     stringParamB: 'test'
-//@[4:24)      ObjectPropertySyntax
-//@[4:16)       IdentifierSyntax
-//@[4:16)        Identifier |stringParamB|
-//@[16:17)       Colon |:|
-//@[18:24)       StringSyntax
-//@[18:24)        StringComplete |'test'|
-//@[24:26)      NewLine |\r\n|
+//@[004:0024) |   | |   ├─ObjectPropertySyntax
+//@[004:0016) |   | |   | ├─IdentifierSyntax
+//@[004:0016) |   | |   | | └─Token(Identifier) |stringParamB|
+//@[016:0017) |   | |   | ├─Token(Colon) |:|
+//@[018:0024) |   | |   | └─StringSyntax
+//@[018:0024) |   | |   |   └─Token(StringComplete) |'test'|
+//@[024:0026) |   | |   ├─Token(NewLine) |\r\n|
     arrayParam: [for x in emptyArray: x]
-//@[4:40)      ObjectPropertySyntax
-//@[4:14)       IdentifierSyntax
-//@[4:14)        Identifier |arrayParam|
-//@[14:15)       Colon |:|
-//@[16:40)       ForSyntax
-//@[16:17)        LeftSquare |[|
-//@[17:20)        Identifier |for|
-//@[21:22)        LocalVariableSyntax
-//@[21:22)         IdentifierSyntax
-//@[21:22)          Identifier |x|
-//@[23:25)        Identifier |in|
-//@[26:36)        VariableAccessSyntax
-//@[26:36)         IdentifierSyntax
-//@[26:36)          Identifier |emptyArray|
-//@[36:37)        Colon |:|
-//@[38:39)        VariableAccessSyntax
-//@[38:39)         IdentifierSyntax
-//@[38:39)          Identifier |x|
-//@[39:40)        RightSquare |]|
-//@[40:42)      NewLine |\r\n|
+//@[004:0040) |   | |   ├─ObjectPropertySyntax
+//@[004:0014) |   | |   | ├─IdentifierSyntax
+//@[004:0014) |   | |   | | └─Token(Identifier) |arrayParam|
+//@[014:0015) |   | |   | ├─Token(Colon) |:|
+//@[016:0040) |   | |   | └─ForSyntax
+//@[016:0017) |   | |   |   ├─Token(LeftSquare) |[|
+//@[017:0020) |   | |   |   ├─Token(Identifier) |for|
+//@[021:0022) |   | |   |   ├─LocalVariableSyntax
+//@[021:0022) |   | |   |   | └─IdentifierSyntax
+//@[021:0022) |   | |   |   |   └─Token(Identifier) |x|
+//@[023:0025) |   | |   |   ├─Token(Identifier) |in|
+//@[026:0036) |   | |   |   ├─VariableAccessSyntax
+//@[026:0036) |   | |   |   | └─IdentifierSyntax
+//@[026:0036) |   | |   |   |   └─Token(Identifier) |emptyArray|
+//@[036:0037) |   | |   |   ├─Token(Colon) |:|
+//@[038:0039) |   | |   |   ├─VariableAccessSyntax
+//@[038:0039) |   | |   |   | └─IdentifierSyntax
+//@[038:0039) |   | |   |   |   └─Token(Identifier) |x|
+//@[039:0040) |   | |   |   └─Token(RightSquare) |]|
+//@[040:0042) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:0003) |   | |   └─Token(RightBrace) |}|
+//@[003:0005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:0001) |   | └─Token(RightBrace) |}|
+//@[001:0002) |   └─Token(RightSquare) |]|
+//@[002:0006) ├─Token(NewLine) |\r\n\r\n|
 
 // duplicate identifiers across scopes are allowed (inner hides the outer)
-//@[74:76) NewLine |\r\n|
+//@[074:0076) ├─Token(NewLine) |\r\n|
 var duplicateAcrossScopes = 'hello'
-//@[0:35) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:25)  IdentifierSyntax
-//@[4:25)   Identifier |duplicateAcrossScopes|
-//@[26:27)  Assignment |=|
-//@[28:35)  StringSyntax
-//@[28:35)   StringComplete |'hello'|
-//@[35:37) NewLine |\r\n|
+//@[000:0035) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0025) | ├─IdentifierSyntax
+//@[004:0025) | | └─Token(Identifier) |duplicateAcrossScopes|
+//@[026:0027) | ├─Token(Assignment) |=|
+//@[028:0035) | └─StringSyntax
+//@[028:0035) |   └─Token(StringComplete) |'hello'|
+//@[035:0037) ├─Token(NewLine) |\r\n|
 module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
-//@[0:264) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:34)  IdentifierSyntax
-//@[7:34)   Identifier |duplicateInGlobalAndOneLoop|
-//@[35:50)  StringSyntax
-//@[35:50)   StringComplete |'modulea.bicep'|
-//@[51:52)  Assignment |=|
-//@[53:264)  ForSyntax
-//@[53:54)   LeftSquare |[|
-//@[54:57)   Identifier |for|
-//@[58:79)   LocalVariableSyntax
-//@[58:79)    IdentifierSyntax
-//@[58:79)     Identifier |duplicateAcrossScopes|
-//@[80:82)   Identifier |in|
-//@[83:85)   ArraySyntax
-//@[83:84)    LeftSquare |[|
-//@[84:85)    RightSquare |]|
-//@[85:86)   Colon |:|
-//@[87:263)   ObjectSyntax
-//@[87:88)    LeftBrace |{|
-//@[88:90)    NewLine |\r\n|
+//@[000:0264) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0034) | ├─IdentifierSyntax
+//@[007:0034) | | └─Token(Identifier) |duplicateInGlobalAndOneLoop|
+//@[035:0050) | ├─StringSyntax
+//@[035:0050) | | └─Token(StringComplete) |'modulea.bicep'|
+//@[051:0052) | ├─Token(Assignment) |=|
+//@[053:0264) | └─ForSyntax
+//@[053:0054) |   ├─Token(LeftSquare) |[|
+//@[054:0057) |   ├─Token(Identifier) |for|
+//@[058:0079) |   ├─LocalVariableSyntax
+//@[058:0079) |   | └─IdentifierSyntax
+//@[058:0079) |   |   └─Token(Identifier) |duplicateAcrossScopes|
+//@[080:0082) |   ├─Token(Identifier) |in|
+//@[083:0085) |   ├─ArraySyntax
+//@[083:0084) |   | ├─Token(LeftSquare) |[|
+//@[084:0085) |   | └─Token(RightSquare) |]|
+//@[085:0086) |   ├─Token(Colon) |:|
+//@[087:0263) |   ├─ObjectSyntax
+//@[087:0088) |   | ├─Token(LeftBrace) |{|
+//@[088:0090) |   | ├─Token(NewLine) |\r\n|
   name: 'hello-${duplicateAcrossScopes}'
-//@[2:40)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:40)     StringSyntax
-//@[8:17)      StringLeftPiece |'hello-${|
-//@[17:38)      VariableAccessSyntax
-//@[17:38)       IdentifierSyntax
-//@[17:38)        Identifier |duplicateAcrossScopes|
-//@[38:40)      StringRightPiece |}'|
-//@[40:42)    NewLine |\r\n|
+//@[002:0040) |   | ├─ObjectPropertySyntax
+//@[002:0006) |   | | ├─IdentifierSyntax
+//@[002:0006) |   | | | └─Token(Identifier) |name|
+//@[006:0007) |   | | ├─Token(Colon) |:|
+//@[008:0040) |   | | └─StringSyntax
+//@[008:0017) |   | |   ├─Token(StringLeftPiece) |'hello-${|
+//@[017:0038) |   | |   ├─VariableAccessSyntax
+//@[017:0038) |   | |   | └─IdentifierSyntax
+//@[017:0038) |   | |   |   └─Token(Identifier) |duplicateAcrossScopes|
+//@[038:0040) |   | |   └─Token(StringRightPiece) |}'|
+//@[040:0042) |   | ├─Token(NewLine) |\r\n|
   params: {
-//@[2:128)    ObjectPropertySyntax
-//@[2:8)     IdentifierSyntax
-//@[2:8)      Identifier |params|
-//@[8:9)     Colon |:|
-//@[10:128)     ObjectSyntax
-//@[10:11)      LeftBrace |{|
-//@[11:13)      NewLine |\r\n|
+//@[002:0128) |   | ├─ObjectPropertySyntax
+//@[002:0008) |   | | ├─IdentifierSyntax
+//@[002:0008) |   | | | └─Token(Identifier) |params|
+//@[008:0009) |   | | ├─Token(Colon) |:|
+//@[010:0128) |   | | └─ObjectSyntax
+//@[010:0011) |   | |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   | |   ├─Token(NewLine) |\r\n|
     objParam: {}
-//@[4:16)      ObjectPropertySyntax
-//@[4:12)       IdentifierSyntax
-//@[4:12)        Identifier |objParam|
-//@[12:13)       Colon |:|
-//@[14:16)       ObjectSyntax
-//@[14:15)        LeftBrace |{|
-//@[15:16)        RightBrace |}|
-//@[16:18)      NewLine |\r\n|
+//@[004:0016) |   | |   ├─ObjectPropertySyntax
+//@[004:0012) |   | |   | ├─IdentifierSyntax
+//@[004:0012) |   | |   | | └─Token(Identifier) |objParam|
+//@[012:0013) |   | |   | ├─Token(Colon) |:|
+//@[014:0016) |   | |   | └─ObjectSyntax
+//@[014:0015) |   | |   |   ├─Token(LeftBrace) |{|
+//@[015:0016) |   | |   |   └─Token(RightBrace) |}|
+//@[016:0018) |   | |   ├─Token(NewLine) |\r\n|
     stringParamA: 'test'
-//@[4:24)      ObjectPropertySyntax
-//@[4:16)       IdentifierSyntax
-//@[4:16)        Identifier |stringParamA|
-//@[16:17)       Colon |:|
-//@[18:24)       StringSyntax
-//@[18:24)        StringComplete |'test'|
-//@[24:26)      NewLine |\r\n|
+//@[004:0024) |   | |   ├─ObjectPropertySyntax
+//@[004:0016) |   | |   | ├─IdentifierSyntax
+//@[004:0016) |   | |   | | └─Token(Identifier) |stringParamA|
+//@[016:0017) |   | |   | ├─Token(Colon) |:|
+//@[018:0024) |   | |   | └─StringSyntax
+//@[018:0024) |   | |   |   └─Token(StringComplete) |'test'|
+//@[024:0026) |   | |   ├─Token(NewLine) |\r\n|
     stringParamB: 'test'
-//@[4:24)      ObjectPropertySyntax
-//@[4:16)       IdentifierSyntax
-//@[4:16)        Identifier |stringParamB|
-//@[16:17)       Colon |:|
-//@[18:24)       StringSyntax
-//@[18:24)        StringComplete |'test'|
-//@[24:26)      NewLine |\r\n|
+//@[004:0024) |   | |   ├─ObjectPropertySyntax
+//@[004:0016) |   | |   | ├─IdentifierSyntax
+//@[004:0016) |   | |   | | └─Token(Identifier) |stringParamB|
+//@[016:0017) |   | |   | ├─Token(Colon) |:|
+//@[018:0024) |   | |   | └─StringSyntax
+//@[018:0024) |   | |   |   └─Token(StringComplete) |'test'|
+//@[024:0026) |   | |   ├─Token(NewLine) |\r\n|
     arrayParam: [for x in emptyArray: x]
-//@[4:40)      ObjectPropertySyntax
-//@[4:14)       IdentifierSyntax
-//@[4:14)        Identifier |arrayParam|
-//@[14:15)       Colon |:|
-//@[16:40)       ForSyntax
-//@[16:17)        LeftSquare |[|
-//@[17:20)        Identifier |for|
-//@[21:22)        LocalVariableSyntax
-//@[21:22)         IdentifierSyntax
-//@[21:22)          Identifier |x|
-//@[23:25)        Identifier |in|
-//@[26:36)        VariableAccessSyntax
-//@[26:36)         IdentifierSyntax
-//@[26:36)          Identifier |emptyArray|
-//@[36:37)        Colon |:|
-//@[38:39)        VariableAccessSyntax
-//@[38:39)         IdentifierSyntax
-//@[38:39)          Identifier |x|
-//@[39:40)        RightSquare |]|
-//@[40:42)      NewLine |\r\n|
+//@[004:0040) |   | |   ├─ObjectPropertySyntax
+//@[004:0014) |   | |   | ├─IdentifierSyntax
+//@[004:0014) |   | |   | | └─Token(Identifier) |arrayParam|
+//@[014:0015) |   | |   | ├─Token(Colon) |:|
+//@[016:0040) |   | |   | └─ForSyntax
+//@[016:0017) |   | |   |   ├─Token(LeftSquare) |[|
+//@[017:0020) |   | |   |   ├─Token(Identifier) |for|
+//@[021:0022) |   | |   |   ├─LocalVariableSyntax
+//@[021:0022) |   | |   |   | └─IdentifierSyntax
+//@[021:0022) |   | |   |   |   └─Token(Identifier) |x|
+//@[023:0025) |   | |   |   ├─Token(Identifier) |in|
+//@[026:0036) |   | |   |   ├─VariableAccessSyntax
+//@[026:0036) |   | |   |   | └─IdentifierSyntax
+//@[026:0036) |   | |   |   |   └─Token(Identifier) |emptyArray|
+//@[036:0037) |   | |   |   ├─Token(Colon) |:|
+//@[038:0039) |   | |   |   ├─VariableAccessSyntax
+//@[038:0039) |   | |   |   | └─IdentifierSyntax
+//@[038:0039) |   | |   |   |   └─Token(Identifier) |x|
+//@[039:0040) |   | |   |   └─Token(RightSquare) |]|
+//@[040:0042) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:0003) |   | |   └─Token(RightBrace) |}|
+//@[003:0005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:0001) |   | └─Token(RightBrace) |}|
+//@[001:0002) |   └─Token(RightSquare) |]|
+//@[002:0006) ├─Token(NewLine) |\r\n\r\n|
 
 var someDuplicate = true
-//@[0:24) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:17)  IdentifierSyntax
-//@[4:17)   Identifier |someDuplicate|
-//@[18:19)  Assignment |=|
-//@[20:24)  BooleanLiteralSyntax
-//@[20:24)   TrueKeyword |true|
-//@[24:26) NewLine |\r\n|
+//@[000:0024) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0017) | ├─IdentifierSyntax
+//@[004:0017) | | └─Token(Identifier) |someDuplicate|
+//@[018:0019) | ├─Token(Assignment) |=|
+//@[020:0024) | └─BooleanLiteralSyntax
+//@[020:0024) |   └─Token(TrueKeyword) |true|
+//@[024:0026) ├─Token(NewLine) |\r\n|
 var otherDuplicate = false
-//@[0:26) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:18)  IdentifierSyntax
-//@[4:18)   Identifier |otherDuplicate|
-//@[19:20)  Assignment |=|
-//@[21:26)  BooleanLiteralSyntax
-//@[21:26)   FalseKeyword |false|
-//@[26:28) NewLine |\r\n|
+//@[000:0026) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0018) | ├─IdentifierSyntax
+//@[004:0018) | | └─Token(Identifier) |otherDuplicate|
+//@[019:0020) | ├─Token(Assignment) |=|
+//@[021:0026) | └─BooleanLiteralSyntax
+//@[021:0026) |   └─Token(FalseKeyword) |false|
+//@[026:0028) ├─Token(NewLine) |\r\n|
 module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
-//@[0:263) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:27)  IdentifierSyntax
-//@[7:27)   Identifier |duplicatesEverywhere|
-//@[28:43)  StringSyntax
-//@[28:43)   StringComplete |'modulea.bicep'|
-//@[44:45)  Assignment |=|
-//@[46:263)  ForSyntax
-//@[46:47)   LeftSquare |[|
-//@[47:50)   Identifier |for|
-//@[51:64)   LocalVariableSyntax
-//@[51:64)    IdentifierSyntax
-//@[51:64)     Identifier |someDuplicate|
-//@[65:67)   Identifier |in|
-//@[68:70)   ArraySyntax
-//@[68:69)    LeftSquare |[|
-//@[69:70)    RightSquare |]|
-//@[70:71)   Colon |:|
-//@[72:262)   ObjectSyntax
-//@[72:73)    LeftBrace |{|
-//@[73:75)    NewLine |\r\n|
+//@[000:0263) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0027) | ├─IdentifierSyntax
+//@[007:0027) | | └─Token(Identifier) |duplicatesEverywhere|
+//@[028:0043) | ├─StringSyntax
+//@[028:0043) | | └─Token(StringComplete) |'modulea.bicep'|
+//@[044:0045) | ├─Token(Assignment) |=|
+//@[046:0263) | └─ForSyntax
+//@[046:0047) |   ├─Token(LeftSquare) |[|
+//@[047:0050) |   ├─Token(Identifier) |for|
+//@[051:0064) |   ├─LocalVariableSyntax
+//@[051:0064) |   | └─IdentifierSyntax
+//@[051:0064) |   |   └─Token(Identifier) |someDuplicate|
+//@[065:0067) |   ├─Token(Identifier) |in|
+//@[068:0070) |   ├─ArraySyntax
+//@[068:0069) |   | ├─Token(LeftSquare) |[|
+//@[069:0070) |   | └─Token(RightSquare) |]|
+//@[070:0071) |   ├─Token(Colon) |:|
+//@[072:0262) |   ├─ObjectSyntax
+//@[072:0073) |   | ├─Token(LeftBrace) |{|
+//@[073:0075) |   | ├─Token(NewLine) |\r\n|
   name: 'hello-${someDuplicate}'
-//@[2:32)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:32)     StringSyntax
-//@[8:17)      StringLeftPiece |'hello-${|
-//@[17:30)      VariableAccessSyntax
-//@[17:30)       IdentifierSyntax
-//@[17:30)        Identifier |someDuplicate|
-//@[30:32)      StringRightPiece |}'|
-//@[32:34)    NewLine |\r\n|
+//@[002:0032) |   | ├─ObjectPropertySyntax
+//@[002:0006) |   | | ├─IdentifierSyntax
+//@[002:0006) |   | | | └─Token(Identifier) |name|
+//@[006:0007) |   | | ├─Token(Colon) |:|
+//@[008:0032) |   | | └─StringSyntax
+//@[008:0017) |   | |   ├─Token(StringLeftPiece) |'hello-${|
+//@[017:0030) |   | |   ├─VariableAccessSyntax
+//@[017:0030) |   | |   | └─IdentifierSyntax
+//@[017:0030) |   | |   |   └─Token(Identifier) |someDuplicate|
+//@[030:0032) |   | |   └─Token(StringRightPiece) |}'|
+//@[032:0034) |   | ├─Token(NewLine) |\r\n|
   params: {
-//@[2:150)    ObjectPropertySyntax
-//@[2:8)     IdentifierSyntax
-//@[2:8)      Identifier |params|
-//@[8:9)     Colon |:|
-//@[10:150)     ObjectSyntax
-//@[10:11)      LeftBrace |{|
-//@[11:13)      NewLine |\r\n|
+//@[002:0150) |   | ├─ObjectPropertySyntax
+//@[002:0008) |   | | ├─IdentifierSyntax
+//@[002:0008) |   | | | └─Token(Identifier) |params|
+//@[008:0009) |   | | ├─Token(Colon) |:|
+//@[010:0150) |   | | └─ObjectSyntax
+//@[010:0011) |   | |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   | |   ├─Token(NewLine) |\r\n|
     objParam: {}
-//@[4:16)      ObjectPropertySyntax
-//@[4:12)       IdentifierSyntax
-//@[4:12)        Identifier |objParam|
-//@[12:13)       Colon |:|
-//@[14:16)       ObjectSyntax
-//@[14:15)        LeftBrace |{|
-//@[15:16)        RightBrace |}|
-//@[16:18)      NewLine |\r\n|
+//@[004:0016) |   | |   ├─ObjectPropertySyntax
+//@[004:0012) |   | |   | ├─IdentifierSyntax
+//@[004:0012) |   | |   | | └─Token(Identifier) |objParam|
+//@[012:0013) |   | |   | ├─Token(Colon) |:|
+//@[014:0016) |   | |   | └─ObjectSyntax
+//@[014:0015) |   | |   |   ├─Token(LeftBrace) |{|
+//@[015:0016) |   | |   |   └─Token(RightBrace) |}|
+//@[016:0018) |   | |   ├─Token(NewLine) |\r\n|
     stringParamB: 'test'
-//@[4:24)      ObjectPropertySyntax
-//@[4:16)       IdentifierSyntax
-//@[4:16)        Identifier |stringParamB|
-//@[16:17)       Colon |:|
-//@[18:24)       StringSyntax
-//@[18:24)        StringComplete |'test'|
-//@[24:26)      NewLine |\r\n|
+//@[004:0024) |   | |   ├─ObjectPropertySyntax
+//@[004:0016) |   | |   | ├─IdentifierSyntax
+//@[004:0016) |   | |   | | └─Token(Identifier) |stringParamB|
+//@[016:0017) |   | |   | ├─Token(Colon) |:|
+//@[018:0024) |   | |   | └─StringSyntax
+//@[018:0024) |   | |   |   └─Token(StringComplete) |'test'|
+//@[024:0026) |   | |   ├─Token(NewLine) |\r\n|
     arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
-//@[4:88)      ObjectPropertySyntax
-//@[4:14)       IdentifierSyntax
-//@[4:14)        Identifier |arrayParam|
-//@[14:15)       Colon |:|
-//@[16:88)       ForSyntax
-//@[16:17)        LeftSquare |[|
-//@[17:20)        Identifier |for|
-//@[21:35)        LocalVariableSyntax
-//@[21:35)         IdentifierSyntax
-//@[21:35)          Identifier |otherDuplicate|
-//@[36:38)        Identifier |in|
-//@[39:49)        VariableAccessSyntax
-//@[39:49)         IdentifierSyntax
-//@[39:49)          Identifier |emptyArray|
-//@[49:50)        Colon |:|
-//@[51:87)        StringSyntax
-//@[51:54)         StringLeftPiece |'${|
-//@[54:67)         VariableAccessSyntax
-//@[54:67)          IdentifierSyntax
-//@[54:67)           Identifier |someDuplicate|
-//@[67:71)         StringMiddlePiece |}-${|
-//@[71:85)         VariableAccessSyntax
-//@[71:85)          IdentifierSyntax
-//@[71:85)           Identifier |otherDuplicate|
-//@[85:87)         StringRightPiece |}'|
-//@[87:88)        RightSquare |]|
-//@[88:90)      NewLine |\r\n|
+//@[004:0088) |   | |   ├─ObjectPropertySyntax
+//@[004:0014) |   | |   | ├─IdentifierSyntax
+//@[004:0014) |   | |   | | └─Token(Identifier) |arrayParam|
+//@[014:0015) |   | |   | ├─Token(Colon) |:|
+//@[016:0088) |   | |   | └─ForSyntax
+//@[016:0017) |   | |   |   ├─Token(LeftSquare) |[|
+//@[017:0020) |   | |   |   ├─Token(Identifier) |for|
+//@[021:0035) |   | |   |   ├─LocalVariableSyntax
+//@[021:0035) |   | |   |   | └─IdentifierSyntax
+//@[021:0035) |   | |   |   |   └─Token(Identifier) |otherDuplicate|
+//@[036:0038) |   | |   |   ├─Token(Identifier) |in|
+//@[039:0049) |   | |   |   ├─VariableAccessSyntax
+//@[039:0049) |   | |   |   | └─IdentifierSyntax
+//@[039:0049) |   | |   |   |   └─Token(Identifier) |emptyArray|
+//@[049:0050) |   | |   |   ├─Token(Colon) |:|
+//@[051:0087) |   | |   |   ├─StringSyntax
+//@[051:0054) |   | |   |   | ├─Token(StringLeftPiece) |'${|
+//@[054:0067) |   | |   |   | ├─VariableAccessSyntax
+//@[054:0067) |   | |   |   | | └─IdentifierSyntax
+//@[054:0067) |   | |   |   | |   └─Token(Identifier) |someDuplicate|
+//@[067:0071) |   | |   |   | ├─Token(StringMiddlePiece) |}-${|
+//@[071:0085) |   | |   |   | ├─VariableAccessSyntax
+//@[071:0085) |   | |   |   | | └─IdentifierSyntax
+//@[071:0085) |   | |   |   | |   └─Token(Identifier) |otherDuplicate|
+//@[085:0087) |   | |   |   | └─Token(StringRightPiece) |}'|
+//@[087:0088) |   | |   |   └─Token(RightSquare) |]|
+//@[088:0090) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:0003) |   | |   └─Token(RightBrace) |}|
+//@[003:0005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:0001) |   | └─Token(RightBrace) |}|
+//@[001:0002) |   └─Token(RightSquare) |]|
+//@[002:0006) ├─Token(NewLine) |\r\n\r\n|
 
 module propertyLoopInsideParameterValue 'modulea.bicep' = {
-//@[0:438) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:39)  IdentifierSyntax
-//@[7:39)   Identifier |propertyLoopInsideParameterValue|
-//@[40:55)  StringSyntax
-//@[40:55)   StringComplete |'modulea.bicep'|
-//@[56:57)  Assignment |=|
-//@[58:438)  ObjectSyntax
-//@[58:59)   LeftBrace |{|
-//@[59:61)   NewLine |\r\n|
+//@[000:0438) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0039) | ├─IdentifierSyntax
+//@[007:0039) | | └─Token(Identifier) |propertyLoopInsideParameterValue|
+//@[040:0055) | ├─StringSyntax
+//@[040:0055) | | └─Token(StringComplete) |'modulea.bicep'|
+//@[056:0057) | ├─Token(Assignment) |=|
+//@[058:0438) | └─ObjectSyntax
+//@[058:0059) |   ├─Token(LeftBrace) |{|
+//@[059:0061) |   ├─Token(NewLine) |\r\n|
   name: 'propertyLoopInsideParameterValue'
-//@[2:42)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:42)    StringSyntax
-//@[8:42)     StringComplete |'propertyLoopInsideParameterValue'|
-//@[42:44)   NewLine |\r\n|
+//@[002:0042) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0042) |   | └─StringSyntax
+//@[008:0042) |   |   └─Token(StringComplete) |'propertyLoopInsideParameterValue'|
+//@[042:0044) |   ├─Token(NewLine) |\r\n|
   params: {
-//@[2:330)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:330)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\r\n|
+//@[002:0330) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[010:0330) |   | └─ObjectSyntax
+//@[010:0011) |   |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   |   ├─Token(NewLine) |\r\n|
     objParam: {
-//@[4:209)     ObjectPropertySyntax
-//@[4:12)      IdentifierSyntax
-//@[4:12)       Identifier |objParam|
-//@[12:13)      Colon |:|
-//@[14:209)      ObjectSyntax
-//@[14:15)       LeftBrace |{|
-//@[15:17)       NewLine |\r\n|
+//@[004:0209) |   |   ├─ObjectPropertySyntax
+//@[004:0012) |   |   | ├─IdentifierSyntax
+//@[004:0012) |   |   | | └─Token(Identifier) |objParam|
+//@[012:0013) |   |   | ├─Token(Colon) |:|
+//@[014:0209) |   |   | └─ObjectSyntax
+//@[014:0015) |   |   |   ├─Token(LeftBrace) |{|
+//@[015:0017) |   |   |   ├─Token(NewLine) |\r\n|
       a: [for i in range(0,10): i]
-//@[6:34)       ObjectPropertySyntax
-//@[6:7)        IdentifierSyntax
-//@[6:7)         Identifier |a|
-//@[7:8)        Colon |:|
-//@[9:34)        ForSyntax
-//@[9:10)         LeftSquare |[|
-//@[10:13)         Identifier |for|
-//@[14:15)         LocalVariableSyntax
-//@[14:15)          IdentifierSyntax
-//@[14:15)           Identifier |i|
-//@[16:18)         Identifier |in|
-//@[19:30)         FunctionCallSyntax
-//@[19:24)          IdentifierSyntax
-//@[19:24)           Identifier |range|
-//@[24:25)          LeftParen |(|
-//@[25:27)          FunctionArgumentSyntax
-//@[25:26)           IntegerLiteralSyntax
-//@[25:26)            Integer |0|
-//@[26:27)           Comma |,|
-//@[27:29)          FunctionArgumentSyntax
-//@[27:29)           IntegerLiteralSyntax
-//@[27:29)            Integer |10|
-//@[29:30)          RightParen |)|
-//@[30:31)         Colon |:|
-//@[32:33)         VariableAccessSyntax
-//@[32:33)          IdentifierSyntax
-//@[32:33)           Identifier |i|
-//@[33:34)         RightSquare |]|
-//@[34:36)       NewLine |\r\n|
+//@[006:0034) |   |   |   ├─ObjectPropertySyntax
+//@[006:0007) |   |   |   | ├─IdentifierSyntax
+//@[006:0007) |   |   |   | | └─Token(Identifier) |a|
+//@[007:0008) |   |   |   | ├─Token(Colon) |:|
+//@[009:0034) |   |   |   | └─ForSyntax
+//@[009:0010) |   |   |   |   ├─Token(LeftSquare) |[|
+//@[010:0013) |   |   |   |   ├─Token(Identifier) |for|
+//@[014:0015) |   |   |   |   ├─LocalVariableSyntax
+//@[014:0015) |   |   |   |   | └─IdentifierSyntax
+//@[014:0015) |   |   |   |   |   └─Token(Identifier) |i|
+//@[016:0018) |   |   |   |   ├─Token(Identifier) |in|
+//@[019:0030) |   |   |   |   ├─FunctionCallSyntax
+//@[019:0024) |   |   |   |   | ├─IdentifierSyntax
+//@[019:0024) |   |   |   |   | | └─Token(Identifier) |range|
+//@[024:0025) |   |   |   |   | ├─Token(LeftParen) |(|
+//@[025:0026) |   |   |   |   | ├─FunctionArgumentSyntax
+//@[025:0026) |   |   |   |   | | └─IntegerLiteralSyntax
+//@[025:0026) |   |   |   |   | |   └─Token(Integer) |0|
+//@[026:0027) |   |   |   |   | ├─Token(Comma) |,|
+//@[027:0029) |   |   |   |   | ├─FunctionArgumentSyntax
+//@[027:0029) |   |   |   |   | | └─IntegerLiteralSyntax
+//@[027:0029) |   |   |   |   | |   └─Token(Integer) |10|
+//@[029:0030) |   |   |   |   | └─Token(RightParen) |)|
+//@[030:0031) |   |   |   |   ├─Token(Colon) |:|
+//@[032:0033) |   |   |   |   ├─VariableAccessSyntax
+//@[032:0033) |   |   |   |   | └─IdentifierSyntax
+//@[032:0033) |   |   |   |   |   └─Token(Identifier) |i|
+//@[033:0034) |   |   |   |   └─Token(RightSquare) |]|
+//@[034:0036) |   |   |   ├─Token(NewLine) |\r\n|
       b: [for i in range(1,2): i]
-//@[6:33)       ObjectPropertySyntax
-//@[6:7)        IdentifierSyntax
-//@[6:7)         Identifier |b|
-//@[7:8)        Colon |:|
-//@[9:33)        ForSyntax
-//@[9:10)         LeftSquare |[|
-//@[10:13)         Identifier |for|
-//@[14:15)         LocalVariableSyntax
-//@[14:15)          IdentifierSyntax
-//@[14:15)           Identifier |i|
-//@[16:18)         Identifier |in|
-//@[19:29)         FunctionCallSyntax
-//@[19:24)          IdentifierSyntax
-//@[19:24)           Identifier |range|
-//@[24:25)          LeftParen |(|
-//@[25:27)          FunctionArgumentSyntax
-//@[25:26)           IntegerLiteralSyntax
-//@[25:26)            Integer |1|
-//@[26:27)           Comma |,|
-//@[27:28)          FunctionArgumentSyntax
-//@[27:28)           IntegerLiteralSyntax
-//@[27:28)            Integer |2|
-//@[28:29)          RightParen |)|
-//@[29:30)         Colon |:|
-//@[31:32)         VariableAccessSyntax
-//@[31:32)          IdentifierSyntax
-//@[31:32)           Identifier |i|
-//@[32:33)         RightSquare |]|
-//@[33:35)       NewLine |\r\n|
+//@[006:0033) |   |   |   ├─ObjectPropertySyntax
+//@[006:0007) |   |   |   | ├─IdentifierSyntax
+//@[006:0007) |   |   |   | | └─Token(Identifier) |b|
+//@[007:0008) |   |   |   | ├─Token(Colon) |:|
+//@[009:0033) |   |   |   | └─ForSyntax
+//@[009:0010) |   |   |   |   ├─Token(LeftSquare) |[|
+//@[010:0013) |   |   |   |   ├─Token(Identifier) |for|
+//@[014:0015) |   |   |   |   ├─LocalVariableSyntax
+//@[014:0015) |   |   |   |   | └─IdentifierSyntax
+//@[014:0015) |   |   |   |   |   └─Token(Identifier) |i|
+//@[016:0018) |   |   |   |   ├─Token(Identifier) |in|
+//@[019:0029) |   |   |   |   ├─FunctionCallSyntax
+//@[019:0024) |   |   |   |   | ├─IdentifierSyntax
+//@[019:0024) |   |   |   |   | | └─Token(Identifier) |range|
+//@[024:0025) |   |   |   |   | ├─Token(LeftParen) |(|
+//@[025:0026) |   |   |   |   | ├─FunctionArgumentSyntax
+//@[025:0026) |   |   |   |   | | └─IntegerLiteralSyntax
+//@[025:0026) |   |   |   |   | |   └─Token(Integer) |1|
+//@[026:0027) |   |   |   |   | ├─Token(Comma) |,|
+//@[027:0028) |   |   |   |   | ├─FunctionArgumentSyntax
+//@[027:0028) |   |   |   |   | | └─IntegerLiteralSyntax
+//@[027:0028) |   |   |   |   | |   └─Token(Integer) |2|
+//@[028:0029) |   |   |   |   | └─Token(RightParen) |)|
+//@[029:0030) |   |   |   |   ├─Token(Colon) |:|
+//@[031:0032) |   |   |   |   ├─VariableAccessSyntax
+//@[031:0032) |   |   |   |   | └─IdentifierSyntax
+//@[031:0032) |   |   |   |   |   └─Token(Identifier) |i|
+//@[032:0033) |   |   |   |   └─Token(RightSquare) |]|
+//@[033:0035) |   |   |   ├─Token(NewLine) |\r\n|
       c: {
-//@[6:56)       ObjectPropertySyntax
-//@[6:7)        IdentifierSyntax
-//@[6:7)         Identifier |c|
-//@[7:8)        Colon |:|
-//@[9:56)        ObjectSyntax
-//@[9:10)         LeftBrace |{|
-//@[10:12)         NewLine |\r\n|
+//@[006:0056) |   |   |   ├─ObjectPropertySyntax
+//@[006:0007) |   |   |   | ├─IdentifierSyntax
+//@[006:0007) |   |   |   | | └─Token(Identifier) |c|
+//@[007:0008) |   |   |   | ├─Token(Colon) |:|
+//@[009:0056) |   |   |   | └─ObjectSyntax
+//@[009:0010) |   |   |   |   ├─Token(LeftBrace) |{|
+//@[010:0012) |   |   |   |   ├─Token(NewLine) |\r\n|
         d: [for j in range(2,3): j]
-//@[8:35)         ObjectPropertySyntax
-//@[8:9)          IdentifierSyntax
-//@[8:9)           Identifier |d|
-//@[9:10)          Colon |:|
-//@[11:35)          ForSyntax
-//@[11:12)           LeftSquare |[|
-//@[12:15)           Identifier |for|
-//@[16:17)           LocalVariableSyntax
-//@[16:17)            IdentifierSyntax
-//@[16:17)             Identifier |j|
-//@[18:20)           Identifier |in|
-//@[21:31)           FunctionCallSyntax
-//@[21:26)            IdentifierSyntax
-//@[21:26)             Identifier |range|
-//@[26:27)            LeftParen |(|
-//@[27:29)            FunctionArgumentSyntax
-//@[27:28)             IntegerLiteralSyntax
-//@[27:28)              Integer |2|
-//@[28:29)             Comma |,|
-//@[29:30)            FunctionArgumentSyntax
-//@[29:30)             IntegerLiteralSyntax
-//@[29:30)              Integer |3|
-//@[30:31)            RightParen |)|
-//@[31:32)           Colon |:|
-//@[33:34)           VariableAccessSyntax
-//@[33:34)            IdentifierSyntax
-//@[33:34)             Identifier |j|
-//@[34:35)           RightSquare |]|
-//@[35:37)         NewLine |\r\n|
+//@[008:0035) |   |   |   |   ├─ObjectPropertySyntax
+//@[008:0009) |   |   |   |   | ├─IdentifierSyntax
+//@[008:0009) |   |   |   |   | | └─Token(Identifier) |d|
+//@[009:0010) |   |   |   |   | ├─Token(Colon) |:|
+//@[011:0035) |   |   |   |   | └─ForSyntax
+//@[011:0012) |   |   |   |   |   ├─Token(LeftSquare) |[|
+//@[012:0015) |   |   |   |   |   ├─Token(Identifier) |for|
+//@[016:0017) |   |   |   |   |   ├─LocalVariableSyntax
+//@[016:0017) |   |   |   |   |   | └─IdentifierSyntax
+//@[016:0017) |   |   |   |   |   |   └─Token(Identifier) |j|
+//@[018:0020) |   |   |   |   |   ├─Token(Identifier) |in|
+//@[021:0031) |   |   |   |   |   ├─FunctionCallSyntax
+//@[021:0026) |   |   |   |   |   | ├─IdentifierSyntax
+//@[021:0026) |   |   |   |   |   | | └─Token(Identifier) |range|
+//@[026:0027) |   |   |   |   |   | ├─Token(LeftParen) |(|
+//@[027:0028) |   |   |   |   |   | ├─FunctionArgumentSyntax
+//@[027:0028) |   |   |   |   |   | | └─IntegerLiteralSyntax
+//@[027:0028) |   |   |   |   |   | |   └─Token(Integer) |2|
+//@[028:0029) |   |   |   |   |   | ├─Token(Comma) |,|
+//@[029:0030) |   |   |   |   |   | ├─FunctionArgumentSyntax
+//@[029:0030) |   |   |   |   |   | | └─IntegerLiteralSyntax
+//@[029:0030) |   |   |   |   |   | |   └─Token(Integer) |3|
+//@[030:0031) |   |   |   |   |   | └─Token(RightParen) |)|
+//@[031:0032) |   |   |   |   |   ├─Token(Colon) |:|
+//@[033:0034) |   |   |   |   |   ├─VariableAccessSyntax
+//@[033:0034) |   |   |   |   |   | └─IdentifierSyntax
+//@[033:0034) |   |   |   |   |   |   └─Token(Identifier) |j|
+//@[034:0035) |   |   |   |   |   └─Token(RightSquare) |]|
+//@[035:0037) |   |   |   |   ├─Token(NewLine) |\r\n|
       }
-//@[6:7)         RightBrace |}|
-//@[7:9)       NewLine |\r\n|
+//@[006:0007) |   |   |   |   └─Token(RightBrace) |}|
+//@[007:0009) |   |   |   ├─Token(NewLine) |\r\n|
       e: [for k in range(4,4): {
-//@[6:56)       ObjectPropertySyntax
-//@[6:7)        IdentifierSyntax
-//@[6:7)         Identifier |e|
-//@[7:8)        Colon |:|
-//@[9:56)        ForSyntax
-//@[9:10)         LeftSquare |[|
-//@[10:13)         Identifier |for|
-//@[14:15)         LocalVariableSyntax
-//@[14:15)          IdentifierSyntax
-//@[14:15)           Identifier |k|
-//@[16:18)         Identifier |in|
-//@[19:29)         FunctionCallSyntax
-//@[19:24)          IdentifierSyntax
-//@[19:24)           Identifier |range|
-//@[24:25)          LeftParen |(|
-//@[25:27)          FunctionArgumentSyntax
-//@[25:26)           IntegerLiteralSyntax
-//@[25:26)            Integer |4|
-//@[26:27)           Comma |,|
-//@[27:28)          FunctionArgumentSyntax
-//@[27:28)           IntegerLiteralSyntax
-//@[27:28)            Integer |4|
-//@[28:29)          RightParen |)|
-//@[29:30)         Colon |:|
-//@[31:55)         ObjectSyntax
-//@[31:32)          LeftBrace |{|
-//@[32:34)          NewLine |\r\n|
+//@[006:0056) |   |   |   ├─ObjectPropertySyntax
+//@[006:0007) |   |   |   | ├─IdentifierSyntax
+//@[006:0007) |   |   |   | | └─Token(Identifier) |e|
+//@[007:0008) |   |   |   | ├─Token(Colon) |:|
+//@[009:0056) |   |   |   | └─ForSyntax
+//@[009:0010) |   |   |   |   ├─Token(LeftSquare) |[|
+//@[010:0013) |   |   |   |   ├─Token(Identifier) |for|
+//@[014:0015) |   |   |   |   ├─LocalVariableSyntax
+//@[014:0015) |   |   |   |   | └─IdentifierSyntax
+//@[014:0015) |   |   |   |   |   └─Token(Identifier) |k|
+//@[016:0018) |   |   |   |   ├─Token(Identifier) |in|
+//@[019:0029) |   |   |   |   ├─FunctionCallSyntax
+//@[019:0024) |   |   |   |   | ├─IdentifierSyntax
+//@[019:0024) |   |   |   |   | | └─Token(Identifier) |range|
+//@[024:0025) |   |   |   |   | ├─Token(LeftParen) |(|
+//@[025:0026) |   |   |   |   | ├─FunctionArgumentSyntax
+//@[025:0026) |   |   |   |   | | └─IntegerLiteralSyntax
+//@[025:0026) |   |   |   |   | |   └─Token(Integer) |4|
+//@[026:0027) |   |   |   |   | ├─Token(Comma) |,|
+//@[027:0028) |   |   |   |   | ├─FunctionArgumentSyntax
+//@[027:0028) |   |   |   |   | | └─IntegerLiteralSyntax
+//@[027:0028) |   |   |   |   | |   └─Token(Integer) |4|
+//@[028:0029) |   |   |   |   | └─Token(RightParen) |)|
+//@[029:0030) |   |   |   |   ├─Token(Colon) |:|
+//@[031:0055) |   |   |   |   ├─ObjectSyntax
+//@[031:0032) |   |   |   |   | ├─Token(LeftBrace) |{|
+//@[032:0034) |   |   |   |   | ├─Token(NewLine) |\r\n|
         f: k
-//@[8:12)          ObjectPropertySyntax
-//@[8:9)           IdentifierSyntax
-//@[8:9)            Identifier |f|
-//@[9:10)           Colon |:|
-//@[11:12)           VariableAccessSyntax
-//@[11:12)            IdentifierSyntax
-//@[11:12)             Identifier |k|
-//@[12:14)          NewLine |\r\n|
+//@[008:0012) |   |   |   |   | ├─ObjectPropertySyntax
+//@[008:0009) |   |   |   |   | | ├─IdentifierSyntax
+//@[008:0009) |   |   |   |   | | | └─Token(Identifier) |f|
+//@[009:0010) |   |   |   |   | | ├─Token(Colon) |:|
+//@[011:0012) |   |   |   |   | | └─VariableAccessSyntax
+//@[011:0012) |   |   |   |   | |   └─IdentifierSyntax
+//@[011:0012) |   |   |   |   | |     └─Token(Identifier) |k|
+//@[012:0014) |   |   |   |   | ├─Token(NewLine) |\r\n|
       }]
-//@[6:7)          RightBrace |}|
-//@[7:8)         RightSquare |]|
-//@[8:10)       NewLine |\r\n|
+//@[006:0007) |   |   |   |   | └─Token(RightBrace) |}|
+//@[007:0008) |   |   |   |   └─Token(RightSquare) |]|
+//@[008:0010) |   |   |   ├─Token(NewLine) |\r\n|
     }
-//@[4:5)       RightBrace |}|
-//@[5:7)     NewLine |\r\n|
+//@[004:0005) |   |   |   └─Token(RightBrace) |}|
+//@[005:0007) |   |   ├─Token(NewLine) |\r\n|
     stringParamB: ''
-//@[4:20)     ObjectPropertySyntax
-//@[4:16)      IdentifierSyntax
-//@[4:16)       Identifier |stringParamB|
-//@[16:17)      Colon |:|
-//@[18:20)      StringSyntax
-//@[18:20)       StringComplete |''|
-//@[20:22)     NewLine |\r\n|
+//@[004:0020) |   |   ├─ObjectPropertySyntax
+//@[004:0016) |   |   | ├─IdentifierSyntax
+//@[004:0016) |   |   | | └─Token(Identifier) |stringParamB|
+//@[016:0017) |   |   | ├─Token(Colon) |:|
+//@[018:0020) |   |   | └─StringSyntax
+//@[018:0020) |   |   |   └─Token(StringComplete) |''|
+//@[020:0022) |   |   ├─Token(NewLine) |\r\n|
     arrayParam: [
-//@[4:79)     ObjectPropertySyntax
-//@[4:14)      IdentifierSyntax
-//@[4:14)       Identifier |arrayParam|
-//@[14:15)      Colon |:|
-//@[16:79)      ArraySyntax
-//@[16:17)       LeftSquare |[|
-//@[17:19)       NewLine |\r\n|
+//@[004:0079) |   |   ├─ObjectPropertySyntax
+//@[004:0014) |   |   | ├─IdentifierSyntax
+//@[004:0014) |   |   | | └─Token(Identifier) |arrayParam|
+//@[014:0015) |   |   | ├─Token(Colon) |:|
+//@[016:0079) |   |   | └─ArraySyntax
+//@[016:0017) |   |   |   ├─Token(LeftSquare) |[|
+//@[017:0019) |   |   |   ├─Token(NewLine) |\r\n|
       {
-//@[6:53)       ArrayItemSyntax
-//@[6:53)        ObjectSyntax
-//@[6:7)         LeftBrace |{|
-//@[7:9)         NewLine |\r\n|
+//@[006:0053) |   |   |   ├─ArrayItemSyntax
+//@[006:0053) |   |   |   | └─ObjectSyntax
+//@[006:0007) |   |   |   |   ├─Token(LeftBrace) |{|
+//@[007:0009) |   |   |   |   ├─Token(NewLine) |\r\n|
         e: [for j in range(7,7): j]
-//@[8:35)         ObjectPropertySyntax
-//@[8:9)          IdentifierSyntax
-//@[8:9)           Identifier |e|
-//@[9:10)          Colon |:|
-//@[11:35)          ForSyntax
-//@[11:12)           LeftSquare |[|
-//@[12:15)           Identifier |for|
-//@[16:17)           LocalVariableSyntax
-//@[16:17)            IdentifierSyntax
-//@[16:17)             Identifier |j|
-//@[18:20)           Identifier |in|
-//@[21:31)           FunctionCallSyntax
-//@[21:26)            IdentifierSyntax
-//@[21:26)             Identifier |range|
-//@[26:27)            LeftParen |(|
-//@[27:29)            FunctionArgumentSyntax
-//@[27:28)             IntegerLiteralSyntax
-//@[27:28)              Integer |7|
-//@[28:29)             Comma |,|
-//@[29:30)            FunctionArgumentSyntax
-//@[29:30)             IntegerLiteralSyntax
-//@[29:30)              Integer |7|
-//@[30:31)            RightParen |)|
-//@[31:32)           Colon |:|
-//@[33:34)           VariableAccessSyntax
-//@[33:34)            IdentifierSyntax
-//@[33:34)             Identifier |j|
-//@[34:35)           RightSquare |]|
-//@[35:37)         NewLine |\r\n|
+//@[008:0035) |   |   |   |   ├─ObjectPropertySyntax
+//@[008:0009) |   |   |   |   | ├─IdentifierSyntax
+//@[008:0009) |   |   |   |   | | └─Token(Identifier) |e|
+//@[009:0010) |   |   |   |   | ├─Token(Colon) |:|
+//@[011:0035) |   |   |   |   | └─ForSyntax
+//@[011:0012) |   |   |   |   |   ├─Token(LeftSquare) |[|
+//@[012:0015) |   |   |   |   |   ├─Token(Identifier) |for|
+//@[016:0017) |   |   |   |   |   ├─LocalVariableSyntax
+//@[016:0017) |   |   |   |   |   | └─IdentifierSyntax
+//@[016:0017) |   |   |   |   |   |   └─Token(Identifier) |j|
+//@[018:0020) |   |   |   |   |   ├─Token(Identifier) |in|
+//@[021:0031) |   |   |   |   |   ├─FunctionCallSyntax
+//@[021:0026) |   |   |   |   |   | ├─IdentifierSyntax
+//@[021:0026) |   |   |   |   |   | | └─Token(Identifier) |range|
+//@[026:0027) |   |   |   |   |   | ├─Token(LeftParen) |(|
+//@[027:0028) |   |   |   |   |   | ├─FunctionArgumentSyntax
+//@[027:0028) |   |   |   |   |   | | └─IntegerLiteralSyntax
+//@[027:0028) |   |   |   |   |   | |   └─Token(Integer) |7|
+//@[028:0029) |   |   |   |   |   | ├─Token(Comma) |,|
+//@[029:0030) |   |   |   |   |   | ├─FunctionArgumentSyntax
+//@[029:0030) |   |   |   |   |   | | └─IntegerLiteralSyntax
+//@[029:0030) |   |   |   |   |   | |   └─Token(Integer) |7|
+//@[030:0031) |   |   |   |   |   | └─Token(RightParen) |)|
+//@[031:0032) |   |   |   |   |   ├─Token(Colon) |:|
+//@[033:0034) |   |   |   |   |   ├─VariableAccessSyntax
+//@[033:0034) |   |   |   |   |   | └─IdentifierSyntax
+//@[033:0034) |   |   |   |   |   |   └─Token(Identifier) |j|
+//@[034:0035) |   |   |   |   |   └─Token(RightSquare) |]|
+//@[035:0037) |   |   |   |   ├─Token(NewLine) |\r\n|
       }
-//@[6:7)         RightBrace |}|
-//@[7:9)       NewLine |\r\n|
+//@[006:0007) |   |   |   |   └─Token(RightBrace) |}|
+//@[007:0009) |   |   |   ├─Token(NewLine) |\r\n|
     ]
-//@[4:5)       RightSquare |]|
-//@[5:7)     NewLine |\r\n|
+//@[004:0005) |   |   |   └─Token(RightSquare) |]|
+//@[005:0007) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
-//@[0:514) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:50)  IdentifierSyntax
-//@[7:50)   Identifier |propertyLoopInsideParameterValueWithIndexes|
-//@[51:66)  StringSyntax
-//@[51:66)   StringComplete |'modulea.bicep'|
-//@[67:68)  Assignment |=|
-//@[69:514)  ObjectSyntax
-//@[69:70)   LeftBrace |{|
-//@[70:72)   NewLine |\r\n|
+//@[000:0514) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0050) | ├─IdentifierSyntax
+//@[007:0050) | | └─Token(Identifier) |propertyLoopInsideParameterValueWithIndexes|
+//@[051:0066) | ├─StringSyntax
+//@[051:0066) | | └─Token(StringComplete) |'modulea.bicep'|
+//@[067:0068) | ├─Token(Assignment) |=|
+//@[069:0514) | └─ObjectSyntax
+//@[069:0070) |   ├─Token(LeftBrace) |{|
+//@[070:0072) |   ├─Token(NewLine) |\r\n|
   name: 'propertyLoopInsideParameterValueWithIndexes'
-//@[2:53)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:53)    StringSyntax
-//@[8:53)     StringComplete |'propertyLoopInsideParameterValueWithIndexes'|
-//@[53:55)   NewLine |\r\n|
+//@[002:0053) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0053) |   | └─StringSyntax
+//@[008:0053) |   |   └─Token(StringComplete) |'propertyLoopInsideParameterValueWithIndexes'|
+//@[053:0055) |   ├─Token(NewLine) |\r\n|
   params: {
-//@[2:384)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:384)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\r\n|
+//@[002:0384) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[010:0384) |   | └─ObjectSyntax
+//@[010:0011) |   |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   |   ├─Token(NewLine) |\r\n|
     objParam: {
-//@[4:263)     ObjectPropertySyntax
-//@[4:12)      IdentifierSyntax
-//@[4:12)       Identifier |objParam|
-//@[12:13)      Colon |:|
-//@[14:263)      ObjectSyntax
-//@[14:15)       LeftBrace |{|
-//@[15:17)       NewLine |\r\n|
+//@[004:0263) |   |   ├─ObjectPropertySyntax
+//@[004:0012) |   |   | ├─IdentifierSyntax
+//@[004:0012) |   |   | | └─Token(Identifier) |objParam|
+//@[012:0013) |   |   | ├─Token(Colon) |:|
+//@[014:0263) |   |   | └─ObjectSyntax
+//@[014:0015) |   |   |   ├─Token(LeftBrace) |{|
+//@[015:0017) |   |   |   ├─Token(NewLine) |\r\n|
       a: [for (i, i2) in range(0,10): i + i2]
-//@[6:45)       ObjectPropertySyntax
-//@[6:7)        IdentifierSyntax
-//@[6:7)         Identifier |a|
-//@[7:8)        Colon |:|
-//@[9:45)        ForSyntax
-//@[9:10)         LeftSquare |[|
-//@[10:13)         Identifier |for|
-//@[14:21)         ForVariableBlockSyntax
-//@[14:15)          LeftParen |(|
-//@[15:16)          LocalVariableSyntax
-//@[15:16)           IdentifierSyntax
-//@[15:16)            Identifier |i|
-//@[16:17)          Comma |,|
-//@[18:20)          LocalVariableSyntax
-//@[18:20)           IdentifierSyntax
-//@[18:20)            Identifier |i2|
-//@[20:21)          RightParen |)|
-//@[22:24)         Identifier |in|
-//@[25:36)         FunctionCallSyntax
-//@[25:30)          IdentifierSyntax
-//@[25:30)           Identifier |range|
-//@[30:31)          LeftParen |(|
-//@[31:33)          FunctionArgumentSyntax
-//@[31:32)           IntegerLiteralSyntax
-//@[31:32)            Integer |0|
-//@[32:33)           Comma |,|
-//@[33:35)          FunctionArgumentSyntax
-//@[33:35)           IntegerLiteralSyntax
-//@[33:35)            Integer |10|
-//@[35:36)          RightParen |)|
-//@[36:37)         Colon |:|
-//@[38:44)         BinaryOperationSyntax
-//@[38:39)          VariableAccessSyntax
-//@[38:39)           IdentifierSyntax
-//@[38:39)            Identifier |i|
-//@[40:41)          Plus |+|
-//@[42:44)          VariableAccessSyntax
-//@[42:44)           IdentifierSyntax
-//@[42:44)            Identifier |i2|
-//@[44:45)         RightSquare |]|
-//@[45:47)       NewLine |\r\n|
+//@[006:0045) |   |   |   ├─ObjectPropertySyntax
+//@[006:0007) |   |   |   | ├─IdentifierSyntax
+//@[006:0007) |   |   |   | | └─Token(Identifier) |a|
+//@[007:0008) |   |   |   | ├─Token(Colon) |:|
+//@[009:0045) |   |   |   | └─ForSyntax
+//@[009:0010) |   |   |   |   ├─Token(LeftSquare) |[|
+//@[010:0013) |   |   |   |   ├─Token(Identifier) |for|
+//@[014:0021) |   |   |   |   ├─VariableBlockSyntax
+//@[014:0015) |   |   |   |   | ├─Token(LeftParen) |(|
+//@[015:0016) |   |   |   |   | ├─LocalVariableSyntax
+//@[015:0016) |   |   |   |   | | └─IdentifierSyntax
+//@[015:0016) |   |   |   |   | |   └─Token(Identifier) |i|
+//@[016:0017) |   |   |   |   | ├─Token(Comma) |,|
+//@[018:0020) |   |   |   |   | ├─LocalVariableSyntax
+//@[018:0020) |   |   |   |   | | └─IdentifierSyntax
+//@[018:0020) |   |   |   |   | |   └─Token(Identifier) |i2|
+//@[020:0021) |   |   |   |   | └─Token(RightParen) |)|
+//@[022:0024) |   |   |   |   ├─Token(Identifier) |in|
+//@[025:0036) |   |   |   |   ├─FunctionCallSyntax
+//@[025:0030) |   |   |   |   | ├─IdentifierSyntax
+//@[025:0030) |   |   |   |   | | └─Token(Identifier) |range|
+//@[030:0031) |   |   |   |   | ├─Token(LeftParen) |(|
+//@[031:0032) |   |   |   |   | ├─FunctionArgumentSyntax
+//@[031:0032) |   |   |   |   | | └─IntegerLiteralSyntax
+//@[031:0032) |   |   |   |   | |   └─Token(Integer) |0|
+//@[032:0033) |   |   |   |   | ├─Token(Comma) |,|
+//@[033:0035) |   |   |   |   | ├─FunctionArgumentSyntax
+//@[033:0035) |   |   |   |   | | └─IntegerLiteralSyntax
+//@[033:0035) |   |   |   |   | |   └─Token(Integer) |10|
+//@[035:0036) |   |   |   |   | └─Token(RightParen) |)|
+//@[036:0037) |   |   |   |   ├─Token(Colon) |:|
+//@[038:0044) |   |   |   |   ├─BinaryOperationSyntax
+//@[038:0039) |   |   |   |   | ├─VariableAccessSyntax
+//@[038:0039) |   |   |   |   | | └─IdentifierSyntax
+//@[038:0039) |   |   |   |   | |   └─Token(Identifier) |i|
+//@[040:0041) |   |   |   |   | ├─Token(Plus) |+|
+//@[042:0044) |   |   |   |   | └─VariableAccessSyntax
+//@[042:0044) |   |   |   |   |   └─IdentifierSyntax
+//@[042:0044) |   |   |   |   |     └─Token(Identifier) |i2|
+//@[044:0045) |   |   |   |   └─Token(RightSquare) |]|
+//@[045:0047) |   |   |   ├─Token(NewLine) |\r\n|
       b: [for (i, i2) in range(1,2): i / i2]
-//@[6:44)       ObjectPropertySyntax
-//@[6:7)        IdentifierSyntax
-//@[6:7)         Identifier |b|
-//@[7:8)        Colon |:|
-//@[9:44)        ForSyntax
-//@[9:10)         LeftSquare |[|
-//@[10:13)         Identifier |for|
-//@[14:21)         ForVariableBlockSyntax
-//@[14:15)          LeftParen |(|
-//@[15:16)          LocalVariableSyntax
-//@[15:16)           IdentifierSyntax
-//@[15:16)            Identifier |i|
-//@[16:17)          Comma |,|
-//@[18:20)          LocalVariableSyntax
-//@[18:20)           IdentifierSyntax
-//@[18:20)            Identifier |i2|
-//@[20:21)          RightParen |)|
-//@[22:24)         Identifier |in|
-//@[25:35)         FunctionCallSyntax
-//@[25:30)          IdentifierSyntax
-//@[25:30)           Identifier |range|
-//@[30:31)          LeftParen |(|
-//@[31:33)          FunctionArgumentSyntax
-//@[31:32)           IntegerLiteralSyntax
-//@[31:32)            Integer |1|
-//@[32:33)           Comma |,|
-//@[33:34)          FunctionArgumentSyntax
-//@[33:34)           IntegerLiteralSyntax
-//@[33:34)            Integer |2|
-//@[34:35)          RightParen |)|
-//@[35:36)         Colon |:|
-//@[37:43)         BinaryOperationSyntax
-//@[37:38)          VariableAccessSyntax
-//@[37:38)           IdentifierSyntax
-//@[37:38)            Identifier |i|
-//@[39:40)          Slash |/|
-//@[41:43)          VariableAccessSyntax
-//@[41:43)           IdentifierSyntax
-//@[41:43)            Identifier |i2|
-//@[43:44)         RightSquare |]|
-//@[44:46)       NewLine |\r\n|
+//@[006:0044) |   |   |   ├─ObjectPropertySyntax
+//@[006:0007) |   |   |   | ├─IdentifierSyntax
+//@[006:0007) |   |   |   | | └─Token(Identifier) |b|
+//@[007:0008) |   |   |   | ├─Token(Colon) |:|
+//@[009:0044) |   |   |   | └─ForSyntax
+//@[009:0010) |   |   |   |   ├─Token(LeftSquare) |[|
+//@[010:0013) |   |   |   |   ├─Token(Identifier) |for|
+//@[014:0021) |   |   |   |   ├─VariableBlockSyntax
+//@[014:0015) |   |   |   |   | ├─Token(LeftParen) |(|
+//@[015:0016) |   |   |   |   | ├─LocalVariableSyntax
+//@[015:0016) |   |   |   |   | | └─IdentifierSyntax
+//@[015:0016) |   |   |   |   | |   └─Token(Identifier) |i|
+//@[016:0017) |   |   |   |   | ├─Token(Comma) |,|
+//@[018:0020) |   |   |   |   | ├─LocalVariableSyntax
+//@[018:0020) |   |   |   |   | | └─IdentifierSyntax
+//@[018:0020) |   |   |   |   | |   └─Token(Identifier) |i2|
+//@[020:0021) |   |   |   |   | └─Token(RightParen) |)|
+//@[022:0024) |   |   |   |   ├─Token(Identifier) |in|
+//@[025:0035) |   |   |   |   ├─FunctionCallSyntax
+//@[025:0030) |   |   |   |   | ├─IdentifierSyntax
+//@[025:0030) |   |   |   |   | | └─Token(Identifier) |range|
+//@[030:0031) |   |   |   |   | ├─Token(LeftParen) |(|
+//@[031:0032) |   |   |   |   | ├─FunctionArgumentSyntax
+//@[031:0032) |   |   |   |   | | └─IntegerLiteralSyntax
+//@[031:0032) |   |   |   |   | |   └─Token(Integer) |1|
+//@[032:0033) |   |   |   |   | ├─Token(Comma) |,|
+//@[033:0034) |   |   |   |   | ├─FunctionArgumentSyntax
+//@[033:0034) |   |   |   |   | | └─IntegerLiteralSyntax
+//@[033:0034) |   |   |   |   | |   └─Token(Integer) |2|
+//@[034:0035) |   |   |   |   | └─Token(RightParen) |)|
+//@[035:0036) |   |   |   |   ├─Token(Colon) |:|
+//@[037:0043) |   |   |   |   ├─BinaryOperationSyntax
+//@[037:0038) |   |   |   |   | ├─VariableAccessSyntax
+//@[037:0038) |   |   |   |   | | └─IdentifierSyntax
+//@[037:0038) |   |   |   |   | |   └─Token(Identifier) |i|
+//@[039:0040) |   |   |   |   | ├─Token(Slash) |/|
+//@[041:0043) |   |   |   |   | └─VariableAccessSyntax
+//@[041:0043) |   |   |   |   |   └─IdentifierSyntax
+//@[041:0043) |   |   |   |   |     └─Token(Identifier) |i2|
+//@[043:0044) |   |   |   |   └─Token(RightSquare) |]|
+//@[044:0046) |   |   |   ├─Token(NewLine) |\r\n|
       c: {
-//@[6:67)       ObjectPropertySyntax
-//@[6:7)        IdentifierSyntax
-//@[6:7)         Identifier |c|
-//@[7:8)        Colon |:|
-//@[9:67)        ObjectSyntax
-//@[9:10)         LeftBrace |{|
-//@[10:12)         NewLine |\r\n|
+//@[006:0067) |   |   |   ├─ObjectPropertySyntax
+//@[006:0007) |   |   |   | ├─IdentifierSyntax
+//@[006:0007) |   |   |   | | └─Token(Identifier) |c|
+//@[007:0008) |   |   |   | ├─Token(Colon) |:|
+//@[009:0067) |   |   |   | └─ObjectSyntax
+//@[009:0010) |   |   |   |   ├─Token(LeftBrace) |{|
+//@[010:0012) |   |   |   |   ├─Token(NewLine) |\r\n|
         d: [for (j, j2) in range(2,3): j * j2]
-//@[8:46)         ObjectPropertySyntax
-//@[8:9)          IdentifierSyntax
-//@[8:9)           Identifier |d|
-//@[9:10)          Colon |:|
-//@[11:46)          ForSyntax
-//@[11:12)           LeftSquare |[|
-//@[12:15)           Identifier |for|
-//@[16:23)           ForVariableBlockSyntax
-//@[16:17)            LeftParen |(|
-//@[17:18)            LocalVariableSyntax
-//@[17:18)             IdentifierSyntax
-//@[17:18)              Identifier |j|
-//@[18:19)            Comma |,|
-//@[20:22)            LocalVariableSyntax
-//@[20:22)             IdentifierSyntax
-//@[20:22)              Identifier |j2|
-//@[22:23)            RightParen |)|
-//@[24:26)           Identifier |in|
-//@[27:37)           FunctionCallSyntax
-//@[27:32)            IdentifierSyntax
-//@[27:32)             Identifier |range|
-//@[32:33)            LeftParen |(|
-//@[33:35)            FunctionArgumentSyntax
-//@[33:34)             IntegerLiteralSyntax
-//@[33:34)              Integer |2|
-//@[34:35)             Comma |,|
-//@[35:36)            FunctionArgumentSyntax
-//@[35:36)             IntegerLiteralSyntax
-//@[35:36)              Integer |3|
-//@[36:37)            RightParen |)|
-//@[37:38)           Colon |:|
-//@[39:45)           BinaryOperationSyntax
-//@[39:40)            VariableAccessSyntax
-//@[39:40)             IdentifierSyntax
-//@[39:40)              Identifier |j|
-//@[41:42)            Asterisk |*|
-//@[43:45)            VariableAccessSyntax
-//@[43:45)             IdentifierSyntax
-//@[43:45)              Identifier |j2|
-//@[45:46)           RightSquare |]|
-//@[46:48)         NewLine |\r\n|
+//@[008:0046) |   |   |   |   ├─ObjectPropertySyntax
+//@[008:0009) |   |   |   |   | ├─IdentifierSyntax
+//@[008:0009) |   |   |   |   | | └─Token(Identifier) |d|
+//@[009:0010) |   |   |   |   | ├─Token(Colon) |:|
+//@[011:0046) |   |   |   |   | └─ForSyntax
+//@[011:0012) |   |   |   |   |   ├─Token(LeftSquare) |[|
+//@[012:0015) |   |   |   |   |   ├─Token(Identifier) |for|
+//@[016:0023) |   |   |   |   |   ├─VariableBlockSyntax
+//@[016:0017) |   |   |   |   |   | ├─Token(LeftParen) |(|
+//@[017:0018) |   |   |   |   |   | ├─LocalVariableSyntax
+//@[017:0018) |   |   |   |   |   | | └─IdentifierSyntax
+//@[017:0018) |   |   |   |   |   | |   └─Token(Identifier) |j|
+//@[018:0019) |   |   |   |   |   | ├─Token(Comma) |,|
+//@[020:0022) |   |   |   |   |   | ├─LocalVariableSyntax
+//@[020:0022) |   |   |   |   |   | | └─IdentifierSyntax
+//@[020:0022) |   |   |   |   |   | |   └─Token(Identifier) |j2|
+//@[022:0023) |   |   |   |   |   | └─Token(RightParen) |)|
+//@[024:0026) |   |   |   |   |   ├─Token(Identifier) |in|
+//@[027:0037) |   |   |   |   |   ├─FunctionCallSyntax
+//@[027:0032) |   |   |   |   |   | ├─IdentifierSyntax
+//@[027:0032) |   |   |   |   |   | | └─Token(Identifier) |range|
+//@[032:0033) |   |   |   |   |   | ├─Token(LeftParen) |(|
+//@[033:0034) |   |   |   |   |   | ├─FunctionArgumentSyntax
+//@[033:0034) |   |   |   |   |   | | └─IntegerLiteralSyntax
+//@[033:0034) |   |   |   |   |   | |   └─Token(Integer) |2|
+//@[034:0035) |   |   |   |   |   | ├─Token(Comma) |,|
+//@[035:0036) |   |   |   |   |   | ├─FunctionArgumentSyntax
+//@[035:0036) |   |   |   |   |   | | └─IntegerLiteralSyntax
+//@[035:0036) |   |   |   |   |   | |   └─Token(Integer) |3|
+//@[036:0037) |   |   |   |   |   | └─Token(RightParen) |)|
+//@[037:0038) |   |   |   |   |   ├─Token(Colon) |:|
+//@[039:0045) |   |   |   |   |   ├─BinaryOperationSyntax
+//@[039:0040) |   |   |   |   |   | ├─VariableAccessSyntax
+//@[039:0040) |   |   |   |   |   | | └─IdentifierSyntax
+//@[039:0040) |   |   |   |   |   | |   └─Token(Identifier) |j|
+//@[041:0042) |   |   |   |   |   | ├─Token(Asterisk) |*|
+//@[043:0045) |   |   |   |   |   | └─VariableAccessSyntax
+//@[043:0045) |   |   |   |   |   |   └─IdentifierSyntax
+//@[043:0045) |   |   |   |   |   |     └─Token(Identifier) |j2|
+//@[045:0046) |   |   |   |   |   └─Token(RightSquare) |]|
+//@[046:0048) |   |   |   |   ├─Token(NewLine) |\r\n|
       }
-//@[6:7)         RightBrace |}|
-//@[7:9)       NewLine |\r\n|
+//@[006:0007) |   |   |   |   └─Token(RightBrace) |}|
+//@[007:0009) |   |   |   ├─Token(NewLine) |\r\n|
       e: [for (k, k2) in range(4,4): {
-//@[6:77)       ObjectPropertySyntax
-//@[6:7)        IdentifierSyntax
-//@[6:7)         Identifier |e|
-//@[7:8)        Colon |:|
-//@[9:77)        ForSyntax
-//@[9:10)         LeftSquare |[|
-//@[10:13)         Identifier |for|
-//@[14:21)         ForVariableBlockSyntax
-//@[14:15)          LeftParen |(|
-//@[15:16)          LocalVariableSyntax
-//@[15:16)           IdentifierSyntax
-//@[15:16)            Identifier |k|
-//@[16:17)          Comma |,|
-//@[18:20)          LocalVariableSyntax
-//@[18:20)           IdentifierSyntax
-//@[18:20)            Identifier |k2|
-//@[20:21)          RightParen |)|
-//@[22:24)         Identifier |in|
-//@[25:35)         FunctionCallSyntax
-//@[25:30)          IdentifierSyntax
-//@[25:30)           Identifier |range|
-//@[30:31)          LeftParen |(|
-//@[31:33)          FunctionArgumentSyntax
-//@[31:32)           IntegerLiteralSyntax
-//@[31:32)            Integer |4|
-//@[32:33)           Comma |,|
-//@[33:34)          FunctionArgumentSyntax
-//@[33:34)           IntegerLiteralSyntax
-//@[33:34)            Integer |4|
-//@[34:35)          RightParen |)|
-//@[35:36)         Colon |:|
-//@[37:76)         ObjectSyntax
-//@[37:38)          LeftBrace |{|
-//@[38:40)          NewLine |\r\n|
+//@[006:0077) |   |   |   ├─ObjectPropertySyntax
+//@[006:0007) |   |   |   | ├─IdentifierSyntax
+//@[006:0007) |   |   |   | | └─Token(Identifier) |e|
+//@[007:0008) |   |   |   | ├─Token(Colon) |:|
+//@[009:0077) |   |   |   | └─ForSyntax
+//@[009:0010) |   |   |   |   ├─Token(LeftSquare) |[|
+//@[010:0013) |   |   |   |   ├─Token(Identifier) |for|
+//@[014:0021) |   |   |   |   ├─VariableBlockSyntax
+//@[014:0015) |   |   |   |   | ├─Token(LeftParen) |(|
+//@[015:0016) |   |   |   |   | ├─LocalVariableSyntax
+//@[015:0016) |   |   |   |   | | └─IdentifierSyntax
+//@[015:0016) |   |   |   |   | |   └─Token(Identifier) |k|
+//@[016:0017) |   |   |   |   | ├─Token(Comma) |,|
+//@[018:0020) |   |   |   |   | ├─LocalVariableSyntax
+//@[018:0020) |   |   |   |   | | └─IdentifierSyntax
+//@[018:0020) |   |   |   |   | |   └─Token(Identifier) |k2|
+//@[020:0021) |   |   |   |   | └─Token(RightParen) |)|
+//@[022:0024) |   |   |   |   ├─Token(Identifier) |in|
+//@[025:0035) |   |   |   |   ├─FunctionCallSyntax
+//@[025:0030) |   |   |   |   | ├─IdentifierSyntax
+//@[025:0030) |   |   |   |   | | └─Token(Identifier) |range|
+//@[030:0031) |   |   |   |   | ├─Token(LeftParen) |(|
+//@[031:0032) |   |   |   |   | ├─FunctionArgumentSyntax
+//@[031:0032) |   |   |   |   | | └─IntegerLiteralSyntax
+//@[031:0032) |   |   |   |   | |   └─Token(Integer) |4|
+//@[032:0033) |   |   |   |   | ├─Token(Comma) |,|
+//@[033:0034) |   |   |   |   | ├─FunctionArgumentSyntax
+//@[033:0034) |   |   |   |   | | └─IntegerLiteralSyntax
+//@[033:0034) |   |   |   |   | |   └─Token(Integer) |4|
+//@[034:0035) |   |   |   |   | └─Token(RightParen) |)|
+//@[035:0036) |   |   |   |   ├─Token(Colon) |:|
+//@[037:0076) |   |   |   |   ├─ObjectSyntax
+//@[037:0038) |   |   |   |   | ├─Token(LeftBrace) |{|
+//@[038:0040) |   |   |   |   | ├─Token(NewLine) |\r\n|
         f: k
-//@[8:12)          ObjectPropertySyntax
-//@[8:9)           IdentifierSyntax
-//@[8:9)            Identifier |f|
-//@[9:10)           Colon |:|
-//@[11:12)           VariableAccessSyntax
-//@[11:12)            IdentifierSyntax
-//@[11:12)             Identifier |k|
-//@[12:14)          NewLine |\r\n|
+//@[008:0012) |   |   |   |   | ├─ObjectPropertySyntax
+//@[008:0009) |   |   |   |   | | ├─IdentifierSyntax
+//@[008:0009) |   |   |   |   | | | └─Token(Identifier) |f|
+//@[009:0010) |   |   |   |   | | ├─Token(Colon) |:|
+//@[011:0012) |   |   |   |   | | └─VariableAccessSyntax
+//@[011:0012) |   |   |   |   | |   └─IdentifierSyntax
+//@[011:0012) |   |   |   |   | |     └─Token(Identifier) |k|
+//@[012:0014) |   |   |   |   | ├─Token(NewLine) |\r\n|
         g: k2
-//@[8:13)          ObjectPropertySyntax
-//@[8:9)           IdentifierSyntax
-//@[8:9)            Identifier |g|
-//@[9:10)           Colon |:|
-//@[11:13)           VariableAccessSyntax
-//@[11:13)            IdentifierSyntax
-//@[11:13)             Identifier |k2|
-//@[13:15)          NewLine |\r\n|
+//@[008:0013) |   |   |   |   | ├─ObjectPropertySyntax
+//@[008:0009) |   |   |   |   | | ├─IdentifierSyntax
+//@[008:0009) |   |   |   |   | | | └─Token(Identifier) |g|
+//@[009:0010) |   |   |   |   | | ├─Token(Colon) |:|
+//@[011:0013) |   |   |   |   | | └─VariableAccessSyntax
+//@[011:0013) |   |   |   |   | |   └─IdentifierSyntax
+//@[011:0013) |   |   |   |   | |     └─Token(Identifier) |k2|
+//@[013:0015) |   |   |   |   | ├─Token(NewLine) |\r\n|
       }]
-//@[6:7)          RightBrace |}|
-//@[7:8)         RightSquare |]|
-//@[8:10)       NewLine |\r\n|
+//@[006:0007) |   |   |   |   | └─Token(RightBrace) |}|
+//@[007:0008) |   |   |   |   └─Token(RightSquare) |]|
+//@[008:0010) |   |   |   ├─Token(NewLine) |\r\n|
     }
-//@[4:5)       RightBrace |}|
-//@[5:7)     NewLine |\r\n|
+//@[004:0005) |   |   |   └─Token(RightBrace) |}|
+//@[005:0007) |   |   ├─Token(NewLine) |\r\n|
     stringParamB: ''
-//@[4:20)     ObjectPropertySyntax
-//@[4:16)      IdentifierSyntax
-//@[4:16)       Identifier |stringParamB|
-//@[16:17)      Colon |:|
-//@[18:20)      StringSyntax
-//@[18:20)       StringComplete |''|
-//@[20:22)     NewLine |\r\n|
+//@[004:0020) |   |   ├─ObjectPropertySyntax
+//@[004:0016) |   |   | ├─IdentifierSyntax
+//@[004:0016) |   |   | | └─Token(Identifier) |stringParamB|
+//@[016:0017) |   |   | ├─Token(Colon) |:|
+//@[018:0020) |   |   | └─StringSyntax
+//@[018:0020) |   |   |   └─Token(StringComplete) |''|
+//@[020:0022) |   |   ├─Token(NewLine) |\r\n|
     arrayParam: [
-//@[4:79)     ObjectPropertySyntax
-//@[4:14)      IdentifierSyntax
-//@[4:14)       Identifier |arrayParam|
-//@[14:15)      Colon |:|
-//@[16:79)      ArraySyntax
-//@[16:17)       LeftSquare |[|
-//@[17:19)       NewLine |\r\n|
+//@[004:0079) |   |   ├─ObjectPropertySyntax
+//@[004:0014) |   |   | ├─IdentifierSyntax
+//@[004:0014) |   |   | | └─Token(Identifier) |arrayParam|
+//@[014:0015) |   |   | ├─Token(Colon) |:|
+//@[016:0079) |   |   | └─ArraySyntax
+//@[016:0017) |   |   |   ├─Token(LeftSquare) |[|
+//@[017:0019) |   |   |   ├─Token(NewLine) |\r\n|
       {
-//@[6:53)       ArrayItemSyntax
-//@[6:53)        ObjectSyntax
-//@[6:7)         LeftBrace |{|
-//@[7:9)         NewLine |\r\n|
+//@[006:0053) |   |   |   ├─ArrayItemSyntax
+//@[006:0053) |   |   |   | └─ObjectSyntax
+//@[006:0007) |   |   |   |   ├─Token(LeftBrace) |{|
+//@[007:0009) |   |   |   |   ├─Token(NewLine) |\r\n|
         e: [for j in range(7,7): j]
-//@[8:35)         ObjectPropertySyntax
-//@[8:9)          IdentifierSyntax
-//@[8:9)           Identifier |e|
-//@[9:10)          Colon |:|
-//@[11:35)          ForSyntax
-//@[11:12)           LeftSquare |[|
-//@[12:15)           Identifier |for|
-//@[16:17)           LocalVariableSyntax
-//@[16:17)            IdentifierSyntax
-//@[16:17)             Identifier |j|
-//@[18:20)           Identifier |in|
-//@[21:31)           FunctionCallSyntax
-//@[21:26)            IdentifierSyntax
-//@[21:26)             Identifier |range|
-//@[26:27)            LeftParen |(|
-//@[27:29)            FunctionArgumentSyntax
-//@[27:28)             IntegerLiteralSyntax
-//@[27:28)              Integer |7|
-//@[28:29)             Comma |,|
-//@[29:30)            FunctionArgumentSyntax
-//@[29:30)             IntegerLiteralSyntax
-//@[29:30)              Integer |7|
-//@[30:31)            RightParen |)|
-//@[31:32)           Colon |:|
-//@[33:34)           VariableAccessSyntax
-//@[33:34)            IdentifierSyntax
-//@[33:34)             Identifier |j|
-//@[34:35)           RightSquare |]|
-//@[35:37)         NewLine |\r\n|
+//@[008:0035) |   |   |   |   ├─ObjectPropertySyntax
+//@[008:0009) |   |   |   |   | ├─IdentifierSyntax
+//@[008:0009) |   |   |   |   | | └─Token(Identifier) |e|
+//@[009:0010) |   |   |   |   | ├─Token(Colon) |:|
+//@[011:0035) |   |   |   |   | └─ForSyntax
+//@[011:0012) |   |   |   |   |   ├─Token(LeftSquare) |[|
+//@[012:0015) |   |   |   |   |   ├─Token(Identifier) |for|
+//@[016:0017) |   |   |   |   |   ├─LocalVariableSyntax
+//@[016:0017) |   |   |   |   |   | └─IdentifierSyntax
+//@[016:0017) |   |   |   |   |   |   └─Token(Identifier) |j|
+//@[018:0020) |   |   |   |   |   ├─Token(Identifier) |in|
+//@[021:0031) |   |   |   |   |   ├─FunctionCallSyntax
+//@[021:0026) |   |   |   |   |   | ├─IdentifierSyntax
+//@[021:0026) |   |   |   |   |   | | └─Token(Identifier) |range|
+//@[026:0027) |   |   |   |   |   | ├─Token(LeftParen) |(|
+//@[027:0028) |   |   |   |   |   | ├─FunctionArgumentSyntax
+//@[027:0028) |   |   |   |   |   | | └─IntegerLiteralSyntax
+//@[027:0028) |   |   |   |   |   | |   └─Token(Integer) |7|
+//@[028:0029) |   |   |   |   |   | ├─Token(Comma) |,|
+//@[029:0030) |   |   |   |   |   | ├─FunctionArgumentSyntax
+//@[029:0030) |   |   |   |   |   | | └─IntegerLiteralSyntax
+//@[029:0030) |   |   |   |   |   | |   └─Token(Integer) |7|
+//@[030:0031) |   |   |   |   |   | └─Token(RightParen) |)|
+//@[031:0032) |   |   |   |   |   ├─Token(Colon) |:|
+//@[033:0034) |   |   |   |   |   ├─VariableAccessSyntax
+//@[033:0034) |   |   |   |   |   | └─IdentifierSyntax
+//@[033:0034) |   |   |   |   |   |   └─Token(Identifier) |j|
+//@[034:0035) |   |   |   |   |   └─Token(RightSquare) |]|
+//@[035:0037) |   |   |   |   ├─Token(NewLine) |\r\n|
       }
-//@[6:7)         RightBrace |}|
-//@[7:9)       NewLine |\r\n|
+//@[006:0007) |   |   |   |   └─Token(RightBrace) |}|
+//@[007:0009) |   |   |   ├─Token(NewLine) |\r\n|
     ]
-//@[4:5)       RightSquare |]|
-//@[5:7)     NewLine |\r\n|
+//@[004:0005) |   |   |   └─Token(RightSquare) |]|
+//@[005:0007) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
-//@[0:529) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:55)  IdentifierSyntax
-//@[7:55)   Identifier |propertyLoopInsideParameterValueInsideModuleLoop|
-//@[56:71)  StringSyntax
-//@[56:71)   StringComplete |'modulea.bicep'|
-//@[72:73)  Assignment |=|
-//@[74:529)  ForSyntax
-//@[74:75)   LeftSquare |[|
-//@[75:78)   Identifier |for|
-//@[79:84)   LocalVariableSyntax
-//@[79:84)    IdentifierSyntax
-//@[79:84)     Identifier |thing|
-//@[85:87)   Identifier |in|
-//@[88:98)   FunctionCallSyntax
-//@[88:93)    IdentifierSyntax
-//@[88:93)     Identifier |range|
-//@[93:94)    LeftParen |(|
-//@[94:96)    FunctionArgumentSyntax
-//@[94:95)     IntegerLiteralSyntax
-//@[94:95)      Integer |0|
-//@[95:96)     Comma |,|
-//@[96:97)    FunctionArgumentSyntax
-//@[96:97)     IntegerLiteralSyntax
-//@[96:97)      Integer |1|
-//@[97:98)    RightParen |)|
-//@[98:99)   Colon |:|
-//@[100:528)   ObjectSyntax
-//@[100:101)    LeftBrace |{|
-//@[101:103)    NewLine |\r\n|
+//@[000:0529) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0055) | ├─IdentifierSyntax
+//@[007:0055) | | └─Token(Identifier) |propertyLoopInsideParameterValueInsideModuleLoop|
+//@[056:0071) | ├─StringSyntax
+//@[056:0071) | | └─Token(StringComplete) |'modulea.bicep'|
+//@[072:0073) | ├─Token(Assignment) |=|
+//@[074:0529) | └─ForSyntax
+//@[074:0075) |   ├─Token(LeftSquare) |[|
+//@[075:0078) |   ├─Token(Identifier) |for|
+//@[079:0084) |   ├─LocalVariableSyntax
+//@[079:0084) |   | └─IdentifierSyntax
+//@[079:0084) |   |   └─Token(Identifier) |thing|
+//@[085:0087) |   ├─Token(Identifier) |in|
+//@[088:0098) |   ├─FunctionCallSyntax
+//@[088:0093) |   | ├─IdentifierSyntax
+//@[088:0093) |   | | └─Token(Identifier) |range|
+//@[093:0094) |   | ├─Token(LeftParen) |(|
+//@[094:0095) |   | ├─FunctionArgumentSyntax
+//@[094:0095) |   | | └─IntegerLiteralSyntax
+//@[094:0095) |   | |   └─Token(Integer) |0|
+//@[095:0096) |   | ├─Token(Comma) |,|
+//@[096:0097) |   | ├─FunctionArgumentSyntax
+//@[096:0097) |   | | └─IntegerLiteralSyntax
+//@[096:0097) |   | |   └─Token(Integer) |1|
+//@[097:0098) |   | └─Token(RightParen) |)|
+//@[098:0099) |   ├─Token(Colon) |:|
+//@[100:0528) |   ├─ObjectSyntax
+//@[100:0101) |   | ├─Token(LeftBrace) |{|
+//@[101:0103) |   | ├─Token(NewLine) |\r\n|
   name: 'propertyLoopInsideParameterValueInsideModuleLoop'
-//@[2:58)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:58)     StringSyntax
-//@[8:58)      StringComplete |'propertyLoopInsideParameterValueInsideModuleLoop'|
-//@[58:60)    NewLine |\r\n|
+//@[002:0058) |   | ├─ObjectPropertySyntax
+//@[002:0006) |   | | ├─IdentifierSyntax
+//@[002:0006) |   | | | └─Token(Identifier) |name|
+//@[006:0007) |   | | ├─Token(Colon) |:|
+//@[008:0058) |   | | └─StringSyntax
+//@[008:0058) |   | |   └─Token(StringComplete) |'propertyLoopInsideParameterValueInsideModuleLoop'|
+//@[058:0060) |   | ├─Token(NewLine) |\r\n|
   params: {
-//@[2:362)    ObjectPropertySyntax
-//@[2:8)     IdentifierSyntax
-//@[2:8)      Identifier |params|
-//@[8:9)     Colon |:|
-//@[10:362)     ObjectSyntax
-//@[10:11)      LeftBrace |{|
-//@[11:13)      NewLine |\r\n|
+//@[002:0362) |   | ├─ObjectPropertySyntax
+//@[002:0008) |   | | ├─IdentifierSyntax
+//@[002:0008) |   | | | └─Token(Identifier) |params|
+//@[008:0009) |   | | ├─Token(Colon) |:|
+//@[010:0362) |   | | └─ObjectSyntax
+//@[010:0011) |   | |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   | |   ├─Token(NewLine) |\r\n|
     objParam: {
-//@[4:233)      ObjectPropertySyntax
-//@[4:12)       IdentifierSyntax
-//@[4:12)        Identifier |objParam|
-//@[12:13)       Colon |:|
-//@[14:233)       ObjectSyntax
-//@[14:15)        LeftBrace |{|
-//@[15:17)        NewLine |\r\n|
+//@[004:0233) |   | |   ├─ObjectPropertySyntax
+//@[004:0012) |   | |   | ├─IdentifierSyntax
+//@[004:0012) |   | |   | | └─Token(Identifier) |objParam|
+//@[012:0013) |   | |   | ├─Token(Colon) |:|
+//@[014:0233) |   | |   | └─ObjectSyntax
+//@[014:0015) |   | |   |   ├─Token(LeftBrace) |{|
+//@[015:0017) |   | |   |   ├─Token(NewLine) |\r\n|
       a: [for i in range(0,10): i + thing]
-//@[6:42)        ObjectPropertySyntax
-//@[6:7)         IdentifierSyntax
-//@[6:7)          Identifier |a|
-//@[7:8)         Colon |:|
-//@[9:42)         ForSyntax
-//@[9:10)          LeftSquare |[|
-//@[10:13)          Identifier |for|
-//@[14:15)          LocalVariableSyntax
-//@[14:15)           IdentifierSyntax
-//@[14:15)            Identifier |i|
-//@[16:18)          Identifier |in|
-//@[19:30)          FunctionCallSyntax
-//@[19:24)           IdentifierSyntax
-//@[19:24)            Identifier |range|
-//@[24:25)           LeftParen |(|
-//@[25:27)           FunctionArgumentSyntax
-//@[25:26)            IntegerLiteralSyntax
-//@[25:26)             Integer |0|
-//@[26:27)            Comma |,|
-//@[27:29)           FunctionArgumentSyntax
-//@[27:29)            IntegerLiteralSyntax
-//@[27:29)             Integer |10|
-//@[29:30)           RightParen |)|
-//@[30:31)          Colon |:|
-//@[32:41)          BinaryOperationSyntax
-//@[32:33)           VariableAccessSyntax
-//@[32:33)            IdentifierSyntax
-//@[32:33)             Identifier |i|
-//@[34:35)           Plus |+|
-//@[36:41)           VariableAccessSyntax
-//@[36:41)            IdentifierSyntax
-//@[36:41)             Identifier |thing|
-//@[41:42)          RightSquare |]|
-//@[42:44)        NewLine |\r\n|
+//@[006:0042) |   | |   |   ├─ObjectPropertySyntax
+//@[006:0007) |   | |   |   | ├─IdentifierSyntax
+//@[006:0007) |   | |   |   | | └─Token(Identifier) |a|
+//@[007:0008) |   | |   |   | ├─Token(Colon) |:|
+//@[009:0042) |   | |   |   | └─ForSyntax
+//@[009:0010) |   | |   |   |   ├─Token(LeftSquare) |[|
+//@[010:0013) |   | |   |   |   ├─Token(Identifier) |for|
+//@[014:0015) |   | |   |   |   ├─LocalVariableSyntax
+//@[014:0015) |   | |   |   |   | └─IdentifierSyntax
+//@[014:0015) |   | |   |   |   |   └─Token(Identifier) |i|
+//@[016:0018) |   | |   |   |   ├─Token(Identifier) |in|
+//@[019:0030) |   | |   |   |   ├─FunctionCallSyntax
+//@[019:0024) |   | |   |   |   | ├─IdentifierSyntax
+//@[019:0024) |   | |   |   |   | | └─Token(Identifier) |range|
+//@[024:0025) |   | |   |   |   | ├─Token(LeftParen) |(|
+//@[025:0026) |   | |   |   |   | ├─FunctionArgumentSyntax
+//@[025:0026) |   | |   |   |   | | └─IntegerLiteralSyntax
+//@[025:0026) |   | |   |   |   | |   └─Token(Integer) |0|
+//@[026:0027) |   | |   |   |   | ├─Token(Comma) |,|
+//@[027:0029) |   | |   |   |   | ├─FunctionArgumentSyntax
+//@[027:0029) |   | |   |   |   | | └─IntegerLiteralSyntax
+//@[027:0029) |   | |   |   |   | |   └─Token(Integer) |10|
+//@[029:0030) |   | |   |   |   | └─Token(RightParen) |)|
+//@[030:0031) |   | |   |   |   ├─Token(Colon) |:|
+//@[032:0041) |   | |   |   |   ├─BinaryOperationSyntax
+//@[032:0033) |   | |   |   |   | ├─VariableAccessSyntax
+//@[032:0033) |   | |   |   |   | | └─IdentifierSyntax
+//@[032:0033) |   | |   |   |   | |   └─Token(Identifier) |i|
+//@[034:0035) |   | |   |   |   | ├─Token(Plus) |+|
+//@[036:0041) |   | |   |   |   | └─VariableAccessSyntax
+//@[036:0041) |   | |   |   |   |   └─IdentifierSyntax
+//@[036:0041) |   | |   |   |   |     └─Token(Identifier) |thing|
+//@[041:0042) |   | |   |   |   └─Token(RightSquare) |]|
+//@[042:0044) |   | |   |   ├─Token(NewLine) |\r\n|
       b: [for i in range(1,2): i * thing]
-//@[6:41)        ObjectPropertySyntax
-//@[6:7)         IdentifierSyntax
-//@[6:7)          Identifier |b|
-//@[7:8)         Colon |:|
-//@[9:41)         ForSyntax
-//@[9:10)          LeftSquare |[|
-//@[10:13)          Identifier |for|
-//@[14:15)          LocalVariableSyntax
-//@[14:15)           IdentifierSyntax
-//@[14:15)            Identifier |i|
-//@[16:18)          Identifier |in|
-//@[19:29)          FunctionCallSyntax
-//@[19:24)           IdentifierSyntax
-//@[19:24)            Identifier |range|
-//@[24:25)           LeftParen |(|
-//@[25:27)           FunctionArgumentSyntax
-//@[25:26)            IntegerLiteralSyntax
-//@[25:26)             Integer |1|
-//@[26:27)            Comma |,|
-//@[27:28)           FunctionArgumentSyntax
-//@[27:28)            IntegerLiteralSyntax
-//@[27:28)             Integer |2|
-//@[28:29)           RightParen |)|
-//@[29:30)          Colon |:|
-//@[31:40)          BinaryOperationSyntax
-//@[31:32)           VariableAccessSyntax
-//@[31:32)            IdentifierSyntax
-//@[31:32)             Identifier |i|
-//@[33:34)           Asterisk |*|
-//@[35:40)           VariableAccessSyntax
-//@[35:40)            IdentifierSyntax
-//@[35:40)             Identifier |thing|
-//@[40:41)          RightSquare |]|
-//@[41:43)        NewLine |\r\n|
+//@[006:0041) |   | |   |   ├─ObjectPropertySyntax
+//@[006:0007) |   | |   |   | ├─IdentifierSyntax
+//@[006:0007) |   | |   |   | | └─Token(Identifier) |b|
+//@[007:0008) |   | |   |   | ├─Token(Colon) |:|
+//@[009:0041) |   | |   |   | └─ForSyntax
+//@[009:0010) |   | |   |   |   ├─Token(LeftSquare) |[|
+//@[010:0013) |   | |   |   |   ├─Token(Identifier) |for|
+//@[014:0015) |   | |   |   |   ├─LocalVariableSyntax
+//@[014:0015) |   | |   |   |   | └─IdentifierSyntax
+//@[014:0015) |   | |   |   |   |   └─Token(Identifier) |i|
+//@[016:0018) |   | |   |   |   ├─Token(Identifier) |in|
+//@[019:0029) |   | |   |   |   ├─FunctionCallSyntax
+//@[019:0024) |   | |   |   |   | ├─IdentifierSyntax
+//@[019:0024) |   | |   |   |   | | └─Token(Identifier) |range|
+//@[024:0025) |   | |   |   |   | ├─Token(LeftParen) |(|
+//@[025:0026) |   | |   |   |   | ├─FunctionArgumentSyntax
+//@[025:0026) |   | |   |   |   | | └─IntegerLiteralSyntax
+//@[025:0026) |   | |   |   |   | |   └─Token(Integer) |1|
+//@[026:0027) |   | |   |   |   | ├─Token(Comma) |,|
+//@[027:0028) |   | |   |   |   | ├─FunctionArgumentSyntax
+//@[027:0028) |   | |   |   |   | | └─IntegerLiteralSyntax
+//@[027:0028) |   | |   |   |   | |   └─Token(Integer) |2|
+//@[028:0029) |   | |   |   |   | └─Token(RightParen) |)|
+//@[029:0030) |   | |   |   |   ├─Token(Colon) |:|
+//@[031:0040) |   | |   |   |   ├─BinaryOperationSyntax
+//@[031:0032) |   | |   |   |   | ├─VariableAccessSyntax
+//@[031:0032) |   | |   |   |   | | └─IdentifierSyntax
+//@[031:0032) |   | |   |   |   | |   └─Token(Identifier) |i|
+//@[033:0034) |   | |   |   |   | ├─Token(Asterisk) |*|
+//@[035:0040) |   | |   |   |   | └─VariableAccessSyntax
+//@[035:0040) |   | |   |   |   |   └─IdentifierSyntax
+//@[035:0040) |   | |   |   |   |     └─Token(Identifier) |thing|
+//@[040:0041) |   | |   |   |   └─Token(RightSquare) |]|
+//@[041:0043) |   | |   |   ├─Token(NewLine) |\r\n|
       c: {
-//@[6:56)        ObjectPropertySyntax
-//@[6:7)         IdentifierSyntax
-//@[6:7)          Identifier |c|
-//@[7:8)         Colon |:|
-//@[9:56)         ObjectSyntax
-//@[9:10)          LeftBrace |{|
-//@[10:12)          NewLine |\r\n|
+//@[006:0056) |   | |   |   ├─ObjectPropertySyntax
+//@[006:0007) |   | |   |   | ├─IdentifierSyntax
+//@[006:0007) |   | |   |   | | └─Token(Identifier) |c|
+//@[007:0008) |   | |   |   | ├─Token(Colon) |:|
+//@[009:0056) |   | |   |   | └─ObjectSyntax
+//@[009:0010) |   | |   |   |   ├─Token(LeftBrace) |{|
+//@[010:0012) |   | |   |   |   ├─Token(NewLine) |\r\n|
         d: [for j in range(2,3): j]
-//@[8:35)          ObjectPropertySyntax
-//@[8:9)           IdentifierSyntax
-//@[8:9)            Identifier |d|
-//@[9:10)           Colon |:|
-//@[11:35)           ForSyntax
-//@[11:12)            LeftSquare |[|
-//@[12:15)            Identifier |for|
-//@[16:17)            LocalVariableSyntax
-//@[16:17)             IdentifierSyntax
-//@[16:17)              Identifier |j|
-//@[18:20)            Identifier |in|
-//@[21:31)            FunctionCallSyntax
-//@[21:26)             IdentifierSyntax
-//@[21:26)              Identifier |range|
-//@[26:27)             LeftParen |(|
-//@[27:29)             FunctionArgumentSyntax
-//@[27:28)              IntegerLiteralSyntax
-//@[27:28)               Integer |2|
-//@[28:29)              Comma |,|
-//@[29:30)             FunctionArgumentSyntax
-//@[29:30)              IntegerLiteralSyntax
-//@[29:30)               Integer |3|
-//@[30:31)             RightParen |)|
-//@[31:32)            Colon |:|
-//@[33:34)            VariableAccessSyntax
-//@[33:34)             IdentifierSyntax
-//@[33:34)              Identifier |j|
-//@[34:35)            RightSquare |]|
-//@[35:37)          NewLine |\r\n|
+//@[008:0035) |   | |   |   |   ├─ObjectPropertySyntax
+//@[008:0009) |   | |   |   |   | ├─IdentifierSyntax
+//@[008:0009) |   | |   |   |   | | └─Token(Identifier) |d|
+//@[009:0010) |   | |   |   |   | ├─Token(Colon) |:|
+//@[011:0035) |   | |   |   |   | └─ForSyntax
+//@[011:0012) |   | |   |   |   |   ├─Token(LeftSquare) |[|
+//@[012:0015) |   | |   |   |   |   ├─Token(Identifier) |for|
+//@[016:0017) |   | |   |   |   |   ├─LocalVariableSyntax
+//@[016:0017) |   | |   |   |   |   | └─IdentifierSyntax
+//@[016:0017) |   | |   |   |   |   |   └─Token(Identifier) |j|
+//@[018:0020) |   | |   |   |   |   ├─Token(Identifier) |in|
+//@[021:0031) |   | |   |   |   |   ├─FunctionCallSyntax
+//@[021:0026) |   | |   |   |   |   | ├─IdentifierSyntax
+//@[021:0026) |   | |   |   |   |   | | └─Token(Identifier) |range|
+//@[026:0027) |   | |   |   |   |   | ├─Token(LeftParen) |(|
+//@[027:0028) |   | |   |   |   |   | ├─FunctionArgumentSyntax
+//@[027:0028) |   | |   |   |   |   | | └─IntegerLiteralSyntax
+//@[027:0028) |   | |   |   |   |   | |   └─Token(Integer) |2|
+//@[028:0029) |   | |   |   |   |   | ├─Token(Comma) |,|
+//@[029:0030) |   | |   |   |   |   | ├─FunctionArgumentSyntax
+//@[029:0030) |   | |   |   |   |   | | └─IntegerLiteralSyntax
+//@[029:0030) |   | |   |   |   |   | |   └─Token(Integer) |3|
+//@[030:0031) |   | |   |   |   |   | └─Token(RightParen) |)|
+//@[031:0032) |   | |   |   |   |   ├─Token(Colon) |:|
+//@[033:0034) |   | |   |   |   |   ├─VariableAccessSyntax
+//@[033:0034) |   | |   |   |   |   | └─IdentifierSyntax
+//@[033:0034) |   | |   |   |   |   |   └─Token(Identifier) |j|
+//@[034:0035) |   | |   |   |   |   └─Token(RightSquare) |]|
+//@[035:0037) |   | |   |   |   ├─Token(NewLine) |\r\n|
       }
-//@[6:7)          RightBrace |}|
-//@[7:9)        NewLine |\r\n|
+//@[006:0007) |   | |   |   |   └─Token(RightBrace) |}|
+//@[007:0009) |   | |   |   ├─Token(NewLine) |\r\n|
       e: [for k in range(4,4): {
-//@[6:64)        ObjectPropertySyntax
-//@[6:7)         IdentifierSyntax
-//@[6:7)          Identifier |e|
-//@[7:8)         Colon |:|
-//@[9:64)         ForSyntax
-//@[9:10)          LeftSquare |[|
-//@[10:13)          Identifier |for|
-//@[14:15)          LocalVariableSyntax
-//@[14:15)           IdentifierSyntax
-//@[14:15)            Identifier |k|
-//@[16:18)          Identifier |in|
-//@[19:29)          FunctionCallSyntax
-//@[19:24)           IdentifierSyntax
-//@[19:24)            Identifier |range|
-//@[24:25)           LeftParen |(|
-//@[25:27)           FunctionArgumentSyntax
-//@[25:26)            IntegerLiteralSyntax
-//@[25:26)             Integer |4|
-//@[26:27)            Comma |,|
-//@[27:28)           FunctionArgumentSyntax
-//@[27:28)            IntegerLiteralSyntax
-//@[27:28)             Integer |4|
-//@[28:29)           RightParen |)|
-//@[29:30)          Colon |:|
-//@[31:63)          ObjectSyntax
-//@[31:32)           LeftBrace |{|
-//@[32:34)           NewLine |\r\n|
+//@[006:0064) |   | |   |   ├─ObjectPropertySyntax
+//@[006:0007) |   | |   |   | ├─IdentifierSyntax
+//@[006:0007) |   | |   |   | | └─Token(Identifier) |e|
+//@[007:0008) |   | |   |   | ├─Token(Colon) |:|
+//@[009:0064) |   | |   |   | └─ForSyntax
+//@[009:0010) |   | |   |   |   ├─Token(LeftSquare) |[|
+//@[010:0013) |   | |   |   |   ├─Token(Identifier) |for|
+//@[014:0015) |   | |   |   |   ├─LocalVariableSyntax
+//@[014:0015) |   | |   |   |   | └─IdentifierSyntax
+//@[014:0015) |   | |   |   |   |   └─Token(Identifier) |k|
+//@[016:0018) |   | |   |   |   ├─Token(Identifier) |in|
+//@[019:0029) |   | |   |   |   ├─FunctionCallSyntax
+//@[019:0024) |   | |   |   |   | ├─IdentifierSyntax
+//@[019:0024) |   | |   |   |   | | └─Token(Identifier) |range|
+//@[024:0025) |   | |   |   |   | ├─Token(LeftParen) |(|
+//@[025:0026) |   | |   |   |   | ├─FunctionArgumentSyntax
+//@[025:0026) |   | |   |   |   | | └─IntegerLiteralSyntax
+//@[025:0026) |   | |   |   |   | |   └─Token(Integer) |4|
+//@[026:0027) |   | |   |   |   | ├─Token(Comma) |,|
+//@[027:0028) |   | |   |   |   | ├─FunctionArgumentSyntax
+//@[027:0028) |   | |   |   |   | | └─IntegerLiteralSyntax
+//@[027:0028) |   | |   |   |   | |   └─Token(Integer) |4|
+//@[028:0029) |   | |   |   |   | └─Token(RightParen) |)|
+//@[029:0030) |   | |   |   |   ├─Token(Colon) |:|
+//@[031:0063) |   | |   |   |   ├─ObjectSyntax
+//@[031:0032) |   | |   |   |   | ├─Token(LeftBrace) |{|
+//@[032:0034) |   | |   |   |   | ├─Token(NewLine) |\r\n|
         f: k - thing
-//@[8:20)           ObjectPropertySyntax
-//@[8:9)            IdentifierSyntax
-//@[8:9)             Identifier |f|
-//@[9:10)            Colon |:|
-//@[11:20)            BinaryOperationSyntax
-//@[11:12)             VariableAccessSyntax
-//@[11:12)              IdentifierSyntax
-//@[11:12)               Identifier |k|
-//@[13:14)             Minus |-|
-//@[15:20)             VariableAccessSyntax
-//@[15:20)              IdentifierSyntax
-//@[15:20)               Identifier |thing|
-//@[20:22)           NewLine |\r\n|
+//@[008:0020) |   | |   |   |   | ├─ObjectPropertySyntax
+//@[008:0009) |   | |   |   |   | | ├─IdentifierSyntax
+//@[008:0009) |   | |   |   |   | | | └─Token(Identifier) |f|
+//@[009:0010) |   | |   |   |   | | ├─Token(Colon) |:|
+//@[011:0020) |   | |   |   |   | | └─BinaryOperationSyntax
+//@[011:0012) |   | |   |   |   | |   ├─VariableAccessSyntax
+//@[011:0012) |   | |   |   |   | |   | └─IdentifierSyntax
+//@[011:0012) |   | |   |   |   | |   |   └─Token(Identifier) |k|
+//@[013:0014) |   | |   |   |   | |   ├─Token(Minus) |-|
+//@[015:0020) |   | |   |   |   | |   └─VariableAccessSyntax
+//@[015:0020) |   | |   |   |   | |     └─IdentifierSyntax
+//@[015:0020) |   | |   |   |   | |       └─Token(Identifier) |thing|
+//@[020:0022) |   | |   |   |   | ├─Token(NewLine) |\r\n|
       }]
-//@[6:7)           RightBrace |}|
-//@[7:8)          RightSquare |]|
-//@[8:10)        NewLine |\r\n|
+//@[006:0007) |   | |   |   |   | └─Token(RightBrace) |}|
+//@[007:0008) |   | |   |   |   └─Token(RightSquare) |]|
+//@[008:0010) |   | |   |   ├─Token(NewLine) |\r\n|
     }
-//@[4:5)        RightBrace |}|
-//@[5:7)      NewLine |\r\n|
+//@[004:0005) |   | |   |   └─Token(RightBrace) |}|
+//@[005:0007) |   | |   ├─Token(NewLine) |\r\n|
     stringParamB: ''
-//@[4:20)      ObjectPropertySyntax
-//@[4:16)       IdentifierSyntax
-//@[4:16)        Identifier |stringParamB|
-//@[16:17)       Colon |:|
-//@[18:20)       StringSyntax
-//@[18:20)        StringComplete |''|
-//@[20:22)      NewLine |\r\n|
+//@[004:0020) |   | |   ├─ObjectPropertySyntax
+//@[004:0016) |   | |   | ├─IdentifierSyntax
+//@[004:0016) |   | |   | | └─Token(Identifier) |stringParamB|
+//@[016:0017) |   | |   | ├─Token(Colon) |:|
+//@[018:0020) |   | |   | └─StringSyntax
+//@[018:0020) |   | |   |   └─Token(StringComplete) |''|
+//@[020:0022) |   | |   ├─Token(NewLine) |\r\n|
     arrayParam: [
-//@[4:87)      ObjectPropertySyntax
-//@[4:14)       IdentifierSyntax
-//@[4:14)        Identifier |arrayParam|
-//@[14:15)       Colon |:|
-//@[16:87)       ArraySyntax
-//@[16:17)        LeftSquare |[|
-//@[17:19)        NewLine |\r\n|
+//@[004:0087) |   | |   ├─ObjectPropertySyntax
+//@[004:0014) |   | |   | ├─IdentifierSyntax
+//@[004:0014) |   | |   | | └─Token(Identifier) |arrayParam|
+//@[014:0015) |   | |   | ├─Token(Colon) |:|
+//@[016:0087) |   | |   | └─ArraySyntax
+//@[016:0017) |   | |   |   ├─Token(LeftSquare) |[|
+//@[017:0019) |   | |   |   ├─Token(NewLine) |\r\n|
       {
-//@[6:61)        ArrayItemSyntax
-//@[6:61)         ObjectSyntax
-//@[6:7)          LeftBrace |{|
-//@[7:9)          NewLine |\r\n|
+//@[006:0061) |   | |   |   ├─ArrayItemSyntax
+//@[006:0061) |   | |   |   | └─ObjectSyntax
+//@[006:0007) |   | |   |   |   ├─Token(LeftBrace) |{|
+//@[007:0009) |   | |   |   |   ├─Token(NewLine) |\r\n|
         e: [for j in range(7,7): j % thing]
-//@[8:43)          ObjectPropertySyntax
-//@[8:9)           IdentifierSyntax
-//@[8:9)            Identifier |e|
-//@[9:10)           Colon |:|
-//@[11:43)           ForSyntax
-//@[11:12)            LeftSquare |[|
-//@[12:15)            Identifier |for|
-//@[16:17)            LocalVariableSyntax
-//@[16:17)             IdentifierSyntax
-//@[16:17)              Identifier |j|
-//@[18:20)            Identifier |in|
-//@[21:31)            FunctionCallSyntax
-//@[21:26)             IdentifierSyntax
-//@[21:26)              Identifier |range|
-//@[26:27)             LeftParen |(|
-//@[27:29)             FunctionArgumentSyntax
-//@[27:28)              IntegerLiteralSyntax
-//@[27:28)               Integer |7|
-//@[28:29)              Comma |,|
-//@[29:30)             FunctionArgumentSyntax
-//@[29:30)              IntegerLiteralSyntax
-//@[29:30)               Integer |7|
-//@[30:31)             RightParen |)|
-//@[31:32)            Colon |:|
-//@[33:42)            BinaryOperationSyntax
-//@[33:34)             VariableAccessSyntax
-//@[33:34)              IdentifierSyntax
-//@[33:34)               Identifier |j|
-//@[35:36)             Modulo |%|
-//@[37:42)             VariableAccessSyntax
-//@[37:42)              IdentifierSyntax
-//@[37:42)               Identifier |thing|
-//@[42:43)            RightSquare |]|
-//@[43:45)          NewLine |\r\n|
+//@[008:0043) |   | |   |   |   ├─ObjectPropertySyntax
+//@[008:0009) |   | |   |   |   | ├─IdentifierSyntax
+//@[008:0009) |   | |   |   |   | | └─Token(Identifier) |e|
+//@[009:0010) |   | |   |   |   | ├─Token(Colon) |:|
+//@[011:0043) |   | |   |   |   | └─ForSyntax
+//@[011:0012) |   | |   |   |   |   ├─Token(LeftSquare) |[|
+//@[012:0015) |   | |   |   |   |   ├─Token(Identifier) |for|
+//@[016:0017) |   | |   |   |   |   ├─LocalVariableSyntax
+//@[016:0017) |   | |   |   |   |   | └─IdentifierSyntax
+//@[016:0017) |   | |   |   |   |   |   └─Token(Identifier) |j|
+//@[018:0020) |   | |   |   |   |   ├─Token(Identifier) |in|
+//@[021:0031) |   | |   |   |   |   ├─FunctionCallSyntax
+//@[021:0026) |   | |   |   |   |   | ├─IdentifierSyntax
+//@[021:0026) |   | |   |   |   |   | | └─Token(Identifier) |range|
+//@[026:0027) |   | |   |   |   |   | ├─Token(LeftParen) |(|
+//@[027:0028) |   | |   |   |   |   | ├─FunctionArgumentSyntax
+//@[027:0028) |   | |   |   |   |   | | └─IntegerLiteralSyntax
+//@[027:0028) |   | |   |   |   |   | |   └─Token(Integer) |7|
+//@[028:0029) |   | |   |   |   |   | ├─Token(Comma) |,|
+//@[029:0030) |   | |   |   |   |   | ├─FunctionArgumentSyntax
+//@[029:0030) |   | |   |   |   |   | | └─IntegerLiteralSyntax
+//@[029:0030) |   | |   |   |   |   | |   └─Token(Integer) |7|
+//@[030:0031) |   | |   |   |   |   | └─Token(RightParen) |)|
+//@[031:0032) |   | |   |   |   |   ├─Token(Colon) |:|
+//@[033:0042) |   | |   |   |   |   ├─BinaryOperationSyntax
+//@[033:0034) |   | |   |   |   |   | ├─VariableAccessSyntax
+//@[033:0034) |   | |   |   |   |   | | └─IdentifierSyntax
+//@[033:0034) |   | |   |   |   |   | |   └─Token(Identifier) |j|
+//@[035:0036) |   | |   |   |   |   | ├─Token(Modulo) |%|
+//@[037:0042) |   | |   |   |   |   | └─VariableAccessSyntax
+//@[037:0042) |   | |   |   |   |   |   └─IdentifierSyntax
+//@[037:0042) |   | |   |   |   |   |     └─Token(Identifier) |thing|
+//@[042:0043) |   | |   |   |   |   └─Token(RightSquare) |]|
+//@[043:0045) |   | |   |   |   ├─Token(NewLine) |\r\n|
       }
-//@[6:7)          RightBrace |}|
-//@[7:9)        NewLine |\r\n|
+//@[006:0007) |   | |   |   |   └─Token(RightBrace) |}|
+//@[007:0009) |   | |   |   ├─Token(NewLine) |\r\n|
     ]
-//@[4:5)        RightSquare |]|
-//@[5:7)      NewLine |\r\n|
+//@[004:0005) |   | |   |   └─Token(RightSquare) |]|
+//@[005:0007) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:0003) |   | |   └─Token(RightBrace) |}|
+//@[003:0005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:8) NewLine |\r\n\r\n\r\n|
+//@[000:0001) |   | └─Token(RightBrace) |}|
+//@[001:0002) |   └─Token(RightSquare) |]|
+//@[002:0008) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
 // BEGIN: Key Vault Secret Reference
-//@[36:40) NewLine |\r\n\r\n|
+//@[036:0040) ├─Token(NewLine) |\r\n\r\n|
 
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-//@[0:90) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:11)  IdentifierSyntax
-//@[9:11)   Identifier |kv|
-//@[12:50)  StringSyntax
-//@[12:50)   StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
-//@[51:59)  Identifier |existing|
-//@[60:61)  Assignment |=|
-//@[62:90)  ObjectSyntax
-//@[62:63)   LeftBrace |{|
-//@[63:65)   NewLine |\r\n|
+//@[000:0090) ├─ResourceDeclarationSyntax
+//@[000:0008) | ├─Token(Identifier) |resource|
+//@[009:0011) | ├─IdentifierSyntax
+//@[009:0011) | | └─Token(Identifier) |kv|
+//@[012:0050) | ├─StringSyntax
+//@[012:0050) | | └─Token(StringComplete) |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[051:0059) | ├─Token(Identifier) |existing|
+//@[060:0061) | ├─Token(Assignment) |=|
+//@[062:0090) | └─ObjectSyntax
+//@[062:0063) |   ├─Token(LeftBrace) |{|
+//@[063:0065) |   ├─Token(NewLine) |\r\n|
   name: 'testkeyvault'
-//@[2:22)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:22)    StringSyntax
-//@[8:22)     StringComplete |'testkeyvault'|
-//@[22:24)   NewLine |\r\n|
+//@[002:0022) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0022) |   | └─StringSyntax
+//@[008:0022) |   |   └─Token(StringComplete) |'testkeyvault'|
+//@[022:0024) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module secureModule1 'child/secureParams.bicep' = {
-//@[0:213) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:20)  IdentifierSyntax
-//@[7:20)   Identifier |secureModule1|
-//@[21:47)  StringSyntax
-//@[21:47)   StringComplete |'child/secureParams.bicep'|
-//@[48:49)  Assignment |=|
-//@[50:213)  ObjectSyntax
-//@[50:51)   LeftBrace |{|
-//@[51:53)   NewLine |\r\n|
+//@[000:0213) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0020) | ├─IdentifierSyntax
+//@[007:0020) | | └─Token(Identifier) |secureModule1|
+//@[021:0047) | ├─StringSyntax
+//@[021:0047) | | └─Token(StringComplete) |'child/secureParams.bicep'|
+//@[048:0049) | ├─Token(Assignment) |=|
+//@[050:0213) | └─ObjectSyntax
+//@[050:0051) |   ├─Token(LeftBrace) |{|
+//@[051:0053) |   ├─Token(NewLine) |\r\n|
   name: 'secureModule1'
-//@[2:23)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:23)    StringSyntax
-//@[8:23)     StringComplete |'secureModule1'|
-//@[23:25)   NewLine |\r\n|
+//@[002:0023) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0023) |   | └─StringSyntax
+//@[008:0023) |   |   └─Token(StringComplete) |'secureModule1'|
+//@[023:0025) |   ├─Token(NewLine) |\r\n|
   params: {
-//@[2:132)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:132)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\r\n|
+//@[002:0132) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[010:0132) |   | └─ObjectSyntax
+//@[010:0011) |   |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   |   ├─Token(NewLine) |\r\n|
     secureStringParam1: kv.getSecret('mySecret')
-//@[4:48)     ObjectPropertySyntax
-//@[4:22)      IdentifierSyntax
-//@[4:22)       Identifier |secureStringParam1|
-//@[22:23)      Colon |:|
-//@[24:48)      InstanceFunctionCallSyntax
-//@[24:26)       VariableAccessSyntax
-//@[24:26)        IdentifierSyntax
-//@[24:26)         Identifier |kv|
-//@[26:27)       Dot |.|
-//@[27:36)       IdentifierSyntax
-//@[27:36)        Identifier |getSecret|
-//@[36:37)       LeftParen |(|
-//@[37:47)       FunctionArgumentSyntax
-//@[37:47)        StringSyntax
-//@[37:47)         StringComplete |'mySecret'|
-//@[47:48)       RightParen |)|
-//@[48:50)     NewLine |\r\n|
+//@[004:0048) |   |   ├─ObjectPropertySyntax
+//@[004:0022) |   |   | ├─IdentifierSyntax
+//@[004:0022) |   |   | | └─Token(Identifier) |secureStringParam1|
+//@[022:0023) |   |   | ├─Token(Colon) |:|
+//@[024:0048) |   |   | └─InstanceFunctionCallSyntax
+//@[024:0026) |   |   |   ├─VariableAccessSyntax
+//@[024:0026) |   |   |   | └─IdentifierSyntax
+//@[024:0026) |   |   |   |   └─Token(Identifier) |kv|
+//@[026:0027) |   |   |   ├─Token(Dot) |.|
+//@[027:0036) |   |   |   ├─IdentifierSyntax
+//@[027:0036) |   |   |   | └─Token(Identifier) |getSecret|
+//@[036:0037) |   |   |   ├─Token(LeftParen) |(|
+//@[037:0047) |   |   |   ├─FunctionArgumentSyntax
+//@[037:0047) |   |   |   | └─StringSyntax
+//@[037:0047) |   |   |   |   └─Token(StringComplete) |'mySecret'|
+//@[047:0048) |   |   |   └─Token(RightParen) |)|
+//@[048:0050) |   |   ├─Token(NewLine) |\r\n|
     secureStringParam2: kv.getSecret('mySecret','secretVersion')
-//@[4:64)     ObjectPropertySyntax
-//@[4:22)      IdentifierSyntax
-//@[4:22)       Identifier |secureStringParam2|
-//@[22:23)      Colon |:|
-//@[24:64)      InstanceFunctionCallSyntax
-//@[24:26)       VariableAccessSyntax
-//@[24:26)        IdentifierSyntax
-//@[24:26)         Identifier |kv|
-//@[26:27)       Dot |.|
-//@[27:36)       IdentifierSyntax
-//@[27:36)        Identifier |getSecret|
-//@[36:37)       LeftParen |(|
-//@[37:48)       FunctionArgumentSyntax
-//@[37:47)        StringSyntax
-//@[37:47)         StringComplete |'mySecret'|
-//@[47:48)        Comma |,|
-//@[48:63)       FunctionArgumentSyntax
-//@[48:63)        StringSyntax
-//@[48:63)         StringComplete |'secretVersion'|
-//@[63:64)       RightParen |)|
-//@[64:66)     NewLine |\r\n|
+//@[004:0064) |   |   ├─ObjectPropertySyntax
+//@[004:0022) |   |   | ├─IdentifierSyntax
+//@[004:0022) |   |   | | └─Token(Identifier) |secureStringParam2|
+//@[022:0023) |   |   | ├─Token(Colon) |:|
+//@[024:0064) |   |   | └─InstanceFunctionCallSyntax
+//@[024:0026) |   |   |   ├─VariableAccessSyntax
+//@[024:0026) |   |   |   | └─IdentifierSyntax
+//@[024:0026) |   |   |   |   └─Token(Identifier) |kv|
+//@[026:0027) |   |   |   ├─Token(Dot) |.|
+//@[027:0036) |   |   |   ├─IdentifierSyntax
+//@[027:0036) |   |   |   | └─Token(Identifier) |getSecret|
+//@[036:0037) |   |   |   ├─Token(LeftParen) |(|
+//@[037:0047) |   |   |   ├─FunctionArgumentSyntax
+//@[037:0047) |   |   |   | └─StringSyntax
+//@[037:0047) |   |   |   |   └─Token(StringComplete) |'mySecret'|
+//@[047:0048) |   |   |   ├─Token(Comma) |,|
+//@[048:0063) |   |   |   ├─FunctionArgumentSyntax
+//@[048:0063) |   |   |   | └─StringSyntax
+//@[048:0063) |   |   |   |   └─Token(StringComplete) |'secretVersion'|
+//@[063:0064) |   |   |   └─Token(RightParen) |)|
+//@[064:0066) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 resource scopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-//@[0:134) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:17)  IdentifierSyntax
-//@[9:17)   Identifier |scopedKv|
-//@[18:56)  StringSyntax
-//@[18:56)   StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
-//@[57:65)  Identifier |existing|
-//@[66:67)  Assignment |=|
-//@[68:134)  ObjectSyntax
-//@[68:69)   LeftBrace |{|
-//@[69:71)   NewLine |\r\n|
+//@[000:0134) ├─ResourceDeclarationSyntax
+//@[000:0008) | ├─Token(Identifier) |resource|
+//@[009:0017) | ├─IdentifierSyntax
+//@[009:0017) | | └─Token(Identifier) |scopedKv|
+//@[018:0056) | ├─StringSyntax
+//@[018:0056) | | └─Token(StringComplete) |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[057:0065) | ├─Token(Identifier) |existing|
+//@[066:0067) | ├─Token(Assignment) |=|
+//@[068:0134) | └─ObjectSyntax
+//@[068:0069) |   ├─Token(LeftBrace) |{|
+//@[069:0071) |   ├─Token(NewLine) |\r\n|
   name: 'testkeyvault'
-//@[2:22)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:22)    StringSyntax
-//@[8:22)     StringComplete |'testkeyvault'|
-//@[22:24)   NewLine |\r\n|
+//@[002:0022) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0022) |   | └─StringSyntax
+//@[008:0022) |   |   └─Token(StringComplete) |'testkeyvault'|
+//@[022:0024) |   ├─Token(NewLine) |\r\n|
   scope: resourceGroup('otherGroup')
-//@[2:36)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:36)    FunctionCallSyntax
-//@[9:22)     IdentifierSyntax
-//@[9:22)      Identifier |resourceGroup|
-//@[22:23)     LeftParen |(|
-//@[23:35)     FunctionArgumentSyntax
-//@[23:35)      StringSyntax
-//@[23:35)       StringComplete |'otherGroup'|
-//@[35:36)     RightParen |)|
-//@[36:38)   NewLine |\r\n|
+//@[002:0036) |   ├─ObjectPropertySyntax
+//@[002:0007) |   | ├─IdentifierSyntax
+//@[002:0007) |   | | └─Token(Identifier) |scope|
+//@[007:0008) |   | ├─Token(Colon) |:|
+//@[009:0036) |   | └─FunctionCallSyntax
+//@[009:0022) |   |   ├─IdentifierSyntax
+//@[009:0022) |   |   | └─Token(Identifier) |resourceGroup|
+//@[022:0023) |   |   ├─Token(LeftParen) |(|
+//@[023:0035) |   |   ├─FunctionArgumentSyntax
+//@[023:0035) |   |   | └─StringSyntax
+//@[023:0035) |   |   |   └─Token(StringComplete) |'otherGroup'|
+//@[035:0036) |   |   └─Token(RightParen) |)|
+//@[036:0038) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module secureModule2 'child/secureParams.bicep' = {
-//@[0:225) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:20)  IdentifierSyntax
-//@[7:20)   Identifier |secureModule2|
-//@[21:47)  StringSyntax
-//@[21:47)   StringComplete |'child/secureParams.bicep'|
-//@[48:49)  Assignment |=|
-//@[50:225)  ObjectSyntax
-//@[50:51)   LeftBrace |{|
-//@[51:53)   NewLine |\r\n|
+//@[000:0225) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0020) | ├─IdentifierSyntax
+//@[007:0020) | | └─Token(Identifier) |secureModule2|
+//@[021:0047) | ├─StringSyntax
+//@[021:0047) | | └─Token(StringComplete) |'child/secureParams.bicep'|
+//@[048:0049) | ├─Token(Assignment) |=|
+//@[050:0225) | └─ObjectSyntax
+//@[050:0051) |   ├─Token(LeftBrace) |{|
+//@[051:0053) |   ├─Token(NewLine) |\r\n|
   name: 'secureModule2'
-//@[2:23)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:23)    StringSyntax
-//@[8:23)     StringComplete |'secureModule2'|
-//@[23:25)   NewLine |\r\n|
+//@[002:0023) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0023) |   | └─StringSyntax
+//@[008:0023) |   |   └─Token(StringComplete) |'secureModule2'|
+//@[023:0025) |   ├─Token(NewLine) |\r\n|
   params: {
-//@[2:144)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:144)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\r\n|
+//@[002:0144) |   ├─ObjectPropertySyntax
+//@[002:0008) |   | ├─IdentifierSyntax
+//@[002:0008) |   | | └─Token(Identifier) |params|
+//@[008:0009) |   | ├─Token(Colon) |:|
+//@[010:0144) |   | └─ObjectSyntax
+//@[010:0011) |   |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   |   ├─Token(NewLine) |\r\n|
     secureStringParam1: scopedKv.getSecret('mySecret')
-//@[4:54)     ObjectPropertySyntax
-//@[4:22)      IdentifierSyntax
-//@[4:22)       Identifier |secureStringParam1|
-//@[22:23)      Colon |:|
-//@[24:54)      InstanceFunctionCallSyntax
-//@[24:32)       VariableAccessSyntax
-//@[24:32)        IdentifierSyntax
-//@[24:32)         Identifier |scopedKv|
-//@[32:33)       Dot |.|
-//@[33:42)       IdentifierSyntax
-//@[33:42)        Identifier |getSecret|
-//@[42:43)       LeftParen |(|
-//@[43:53)       FunctionArgumentSyntax
-//@[43:53)        StringSyntax
-//@[43:53)         StringComplete |'mySecret'|
-//@[53:54)       RightParen |)|
-//@[54:56)     NewLine |\r\n|
+//@[004:0054) |   |   ├─ObjectPropertySyntax
+//@[004:0022) |   |   | ├─IdentifierSyntax
+//@[004:0022) |   |   | | └─Token(Identifier) |secureStringParam1|
+//@[022:0023) |   |   | ├─Token(Colon) |:|
+//@[024:0054) |   |   | └─InstanceFunctionCallSyntax
+//@[024:0032) |   |   |   ├─VariableAccessSyntax
+//@[024:0032) |   |   |   | └─IdentifierSyntax
+//@[024:0032) |   |   |   |   └─Token(Identifier) |scopedKv|
+//@[032:0033) |   |   |   ├─Token(Dot) |.|
+//@[033:0042) |   |   |   ├─IdentifierSyntax
+//@[033:0042) |   |   |   | └─Token(Identifier) |getSecret|
+//@[042:0043) |   |   |   ├─Token(LeftParen) |(|
+//@[043:0053) |   |   |   ├─FunctionArgumentSyntax
+//@[043:0053) |   |   |   | └─StringSyntax
+//@[043:0053) |   |   |   |   └─Token(StringComplete) |'mySecret'|
+//@[053:0054) |   |   |   └─Token(RightParen) |)|
+//@[054:0056) |   |   ├─Token(NewLine) |\r\n|
     secureStringParam2: scopedKv.getSecret('mySecret','secretVersion')
-//@[4:70)     ObjectPropertySyntax
-//@[4:22)      IdentifierSyntax
-//@[4:22)       Identifier |secureStringParam2|
-//@[22:23)      Colon |:|
-//@[24:70)      InstanceFunctionCallSyntax
-//@[24:32)       VariableAccessSyntax
-//@[24:32)        IdentifierSyntax
-//@[24:32)         Identifier |scopedKv|
-//@[32:33)       Dot |.|
-//@[33:42)       IdentifierSyntax
-//@[33:42)        Identifier |getSecret|
-//@[42:43)       LeftParen |(|
-//@[43:54)       FunctionArgumentSyntax
-//@[43:53)        StringSyntax
-//@[43:53)         StringComplete |'mySecret'|
-//@[53:54)        Comma |,|
-//@[54:69)       FunctionArgumentSyntax
-//@[54:69)        StringSyntax
-//@[54:69)         StringComplete |'secretVersion'|
-//@[69:70)       RightParen |)|
-//@[70:72)     NewLine |\r\n|
+//@[004:0070) |   |   ├─ObjectPropertySyntax
+//@[004:0022) |   |   | ├─IdentifierSyntax
+//@[004:0022) |   |   | | └─Token(Identifier) |secureStringParam2|
+//@[022:0023) |   |   | ├─Token(Colon) |:|
+//@[024:0070) |   |   | └─InstanceFunctionCallSyntax
+//@[024:0032) |   |   |   ├─VariableAccessSyntax
+//@[024:0032) |   |   |   | └─IdentifierSyntax
+//@[024:0032) |   |   |   |   └─Token(Identifier) |scopedKv|
+//@[032:0033) |   |   |   ├─Token(Dot) |.|
+//@[033:0042) |   |   |   ├─IdentifierSyntax
+//@[033:0042) |   |   |   | └─Token(Identifier) |getSecret|
+//@[042:0043) |   |   |   ├─Token(LeftParen) |(|
+//@[043:0053) |   |   |   ├─FunctionArgumentSyntax
+//@[043:0053) |   |   |   | └─StringSyntax
+//@[043:0053) |   |   |   |   └─Token(StringComplete) |'mySecret'|
+//@[053:0054) |   |   |   ├─Token(Comma) |,|
+//@[054:0069) |   |   |   ├─FunctionArgumentSyntax
+//@[054:0069) |   |   |   | └─StringSyntax
+//@[054:0069) |   |   |   |   └─Token(StringComplete) |'secretVersion'|
+//@[069:0070) |   |   |   └─Token(RightParen) |)|
+//@[070:0072) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 //looped module with looped existing resource (Issue #2862)
-//@[59:61) NewLine |\r\n|
+//@[059:0061) ├─Token(NewLine) |\r\n|
 var vaults = [
-//@[0:200) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:10)  IdentifierSyntax
-//@[4:10)   Identifier |vaults|
-//@[11:12)  Assignment |=|
-//@[13:200)  ArraySyntax
-//@[13:14)   LeftSquare |[|
-//@[14:16)   NewLine |\r\n|
+//@[000:0200) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0010) | ├─IdentifierSyntax
+//@[004:0010) | | └─Token(Identifier) |vaults|
+//@[011:0012) | ├─Token(Assignment) |=|
+//@[013:0200) | └─ArraySyntax
+//@[013:0014) |   ├─Token(LeftSquare) |[|
+//@[014:0016) |   ├─Token(NewLine) |\r\n|
   {
-//@[2:89)   ArrayItemSyntax
-//@[2:89)    ObjectSyntax
-//@[2:3)     LeftBrace |{|
-//@[3:5)     NewLine |\r\n|
+//@[002:0089) |   ├─ArrayItemSyntax
+//@[002:0089) |   | └─ObjectSyntax
+//@[002:0003) |   |   ├─Token(LeftBrace) |{|
+//@[003:0005) |   |   ├─Token(NewLine) |\r\n|
     vaultName: 'test-1-kv'
-//@[4:26)     ObjectPropertySyntax
-//@[4:13)      IdentifierSyntax
-//@[4:13)       Identifier |vaultName|
-//@[13:14)      Colon |:|
-//@[15:26)      StringSyntax
-//@[15:26)       StringComplete |'test-1-kv'|
-//@[26:28)     NewLine |\r\n|
+//@[004:0026) |   |   ├─ObjectPropertySyntax
+//@[004:0013) |   |   | ├─IdentifierSyntax
+//@[004:0013) |   |   | | └─Token(Identifier) |vaultName|
+//@[013:0014) |   |   | ├─Token(Colon) |:|
+//@[015:0026) |   |   | └─StringSyntax
+//@[015:0026) |   |   |   └─Token(StringComplete) |'test-1-kv'|
+//@[026:0028) |   |   ├─Token(NewLine) |\r\n|
     vaultRG: 'test-1-rg'
-//@[4:24)     ObjectPropertySyntax
-//@[4:11)      IdentifierSyntax
-//@[4:11)       Identifier |vaultRG|
-//@[11:12)      Colon |:|
-//@[13:24)      StringSyntax
-//@[13:24)       StringComplete |'test-1-rg'|
-//@[24:26)     NewLine |\r\n|
+//@[004:0024) |   |   ├─ObjectPropertySyntax
+//@[004:0011) |   |   | ├─IdentifierSyntax
+//@[004:0011) |   |   | | └─Token(Identifier) |vaultRG|
+//@[011:0012) |   |   | ├─Token(Colon) |:|
+//@[013:0024) |   |   | └─StringSyntax
+//@[013:0024) |   |   |   └─Token(StringComplete) |'test-1-rg'|
+//@[024:0026) |   |   ├─Token(NewLine) |\r\n|
     vaultSub: 'abcd-efgh'
-//@[4:25)     ObjectPropertySyntax
-//@[4:12)      IdentifierSyntax
-//@[4:12)       Identifier |vaultSub|
-//@[12:13)      Colon |:|
-//@[14:25)      StringSyntax
-//@[14:25)       StringComplete |'abcd-efgh'|
-//@[25:27)     NewLine |\r\n|
+//@[004:0025) |   |   ├─ObjectPropertySyntax
+//@[004:0012) |   |   | ├─IdentifierSyntax
+//@[004:0012) |   |   | | └─Token(Identifier) |vaultSub|
+//@[012:0013) |   |   | ├─Token(Colon) |:|
+//@[014:0025) |   |   | └─StringSyntax
+//@[014:0025) |   |   |   └─Token(StringComplete) |'abcd-efgh'|
+//@[025:0027) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
   {
-//@[2:90)   ArrayItemSyntax
-//@[2:90)    ObjectSyntax
-//@[2:3)     LeftBrace |{|
-//@[3:5)     NewLine |\r\n|
+//@[002:0090) |   ├─ArrayItemSyntax
+//@[002:0090) |   | └─ObjectSyntax
+//@[002:0003) |   |   ├─Token(LeftBrace) |{|
+//@[003:0005) |   |   ├─Token(NewLine) |\r\n|
     vaultName: 'test-2-kv'
-//@[4:26)     ObjectPropertySyntax
-//@[4:13)      IdentifierSyntax
-//@[4:13)       Identifier |vaultName|
-//@[13:14)      Colon |:|
-//@[15:26)      StringSyntax
-//@[15:26)       StringComplete |'test-2-kv'|
-//@[26:28)     NewLine |\r\n|
+//@[004:0026) |   |   ├─ObjectPropertySyntax
+//@[004:0013) |   |   | ├─IdentifierSyntax
+//@[004:0013) |   |   | | └─Token(Identifier) |vaultName|
+//@[013:0014) |   |   | ├─Token(Colon) |:|
+//@[015:0026) |   |   | └─StringSyntax
+//@[015:0026) |   |   |   └─Token(StringComplete) |'test-2-kv'|
+//@[026:0028) |   |   ├─Token(NewLine) |\r\n|
     vaultRG: 'test-2-rg'
-//@[4:24)     ObjectPropertySyntax
-//@[4:11)      IdentifierSyntax
-//@[4:11)       Identifier |vaultRG|
-//@[11:12)      Colon |:|
-//@[13:24)      StringSyntax
-//@[13:24)       StringComplete |'test-2-rg'|
-//@[24:26)     NewLine |\r\n|
+//@[004:0024) |   |   ├─ObjectPropertySyntax
+//@[004:0011) |   |   | ├─IdentifierSyntax
+//@[004:0011) |   |   | | └─Token(Identifier) |vaultRG|
+//@[011:0012) |   |   | ├─Token(Colon) |:|
+//@[013:0024) |   |   | └─StringSyntax
+//@[013:0024) |   |   |   └─Token(StringComplete) |'test-2-rg'|
+//@[024:0026) |   |   ├─Token(NewLine) |\r\n|
     vaultSub: 'ijkl-1adg1'
-//@[4:26)     ObjectPropertySyntax
-//@[4:12)      IdentifierSyntax
-//@[4:12)       Identifier |vaultSub|
-//@[12:13)      Colon |:|
-//@[14:26)      StringSyntax
-//@[14:26)       StringComplete |'ijkl-1adg1'|
-//@[26:28)     NewLine |\r\n|
+//@[004:0026) |   |   ├─ObjectPropertySyntax
+//@[004:0012) |   |   | ├─IdentifierSyntax
+//@[004:0012) |   |   | | └─Token(Identifier) |vaultSub|
+//@[012:0013) |   |   | ├─Token(Colon) |:|
+//@[014:0026) |   |   | └─StringSyntax
+//@[014:0026) |   |   |   └─Token(StringComplete) |'ijkl-1adg1'|
+//@[026:0028) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 ]
-//@[0:1)   RightSquare |]|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) |   └─Token(RightSquare) |]|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 var secrets = [
-//@[0:132) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:11)  IdentifierSyntax
-//@[4:11)   Identifier |secrets|
-//@[12:13)  Assignment |=|
-//@[14:132)  ArraySyntax
-//@[14:15)   LeftSquare |[|
-//@[15:17)   NewLine |\r\n|
+//@[000:0132) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0011) | ├─IdentifierSyntax
+//@[004:0011) | | └─Token(Identifier) |secrets|
+//@[012:0013) | ├─Token(Assignment) |=|
+//@[014:0132) | └─ArraySyntax
+//@[014:0015) |   ├─Token(LeftSquare) |[|
+//@[015:0017) |   ├─Token(NewLine) |\r\n|
   {
-//@[2:55)   ArrayItemSyntax
-//@[2:55)    ObjectSyntax
-//@[2:3)     LeftBrace |{|
-//@[3:5)     NewLine |\r\n|
+//@[002:0055) |   ├─ArrayItemSyntax
+//@[002:0055) |   | └─ObjectSyntax
+//@[002:0003) |   |   ├─Token(LeftBrace) |{|
+//@[003:0005) |   |   ├─Token(NewLine) |\r\n|
     name: 'secret01'
-//@[4:20)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |name|
-//@[8:9)      Colon |:|
-//@[10:20)      StringSyntax
-//@[10:20)       StringComplete |'secret01'|
-//@[20:22)     NewLine |\r\n|
+//@[004:0020) |   |   ├─ObjectPropertySyntax
+//@[004:0008) |   |   | ├─IdentifierSyntax
+//@[004:0008) |   |   | | └─Token(Identifier) |name|
+//@[008:0009) |   |   | ├─Token(Colon) |:|
+//@[010:0020) |   |   | └─StringSyntax
+//@[010:0020) |   |   |   └─Token(StringComplete) |'secret01'|
+//@[020:0022) |   |   ├─Token(NewLine) |\r\n|
     version: 'versionA'
-//@[4:23)     ObjectPropertySyntax
-//@[4:11)      IdentifierSyntax
-//@[4:11)       Identifier |version|
-//@[11:12)      Colon |:|
-//@[13:23)      StringSyntax
-//@[13:23)       StringComplete |'versionA'|
-//@[23:25)     NewLine |\r\n|
+//@[004:0023) |   |   ├─ObjectPropertySyntax
+//@[004:0011) |   |   | ├─IdentifierSyntax
+//@[004:0011) |   |   | | └─Token(Identifier) |version|
+//@[011:0012) |   |   | ├─Token(Colon) |:|
+//@[013:0023) |   |   | └─StringSyntax
+//@[013:0023) |   |   |   └─Token(StringComplete) |'versionA'|
+//@[023:0025) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
   {
-//@[2:55)   ArrayItemSyntax
-//@[2:55)    ObjectSyntax
-//@[2:3)     LeftBrace |{|
-//@[3:5)     NewLine |\r\n|
+//@[002:0055) |   ├─ArrayItemSyntax
+//@[002:0055) |   | └─ObjectSyntax
+//@[002:0003) |   |   ├─Token(LeftBrace) |{|
+//@[003:0005) |   |   ├─Token(NewLine) |\r\n|
     name: 'secret02'
-//@[4:20)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |name|
-//@[8:9)      Colon |:|
-//@[10:20)      StringSyntax
-//@[10:20)       StringComplete |'secret02'|
-//@[20:22)     NewLine |\r\n|
+//@[004:0020) |   |   ├─ObjectPropertySyntax
+//@[004:0008) |   |   | ├─IdentifierSyntax
+//@[004:0008) |   |   | | └─Token(Identifier) |name|
+//@[008:0009) |   |   | ├─Token(Colon) |:|
+//@[010:0020) |   |   | └─StringSyntax
+//@[010:0020) |   |   |   └─Token(StringComplete) |'secret02'|
+//@[020:0022) |   |   ├─Token(NewLine) |\r\n|
     version: 'versionB'
-//@[4:23)     ObjectPropertySyntax
-//@[4:11)      IdentifierSyntax
-//@[4:11)       Identifier |version|
-//@[11:12)      Colon |:|
-//@[13:23)      StringSyntax
-//@[13:23)       StringComplete |'versionB'|
-//@[23:25)     NewLine |\r\n|
+//@[004:0023) |   |   ├─ObjectPropertySyntax
+//@[004:0011) |   |   | ├─IdentifierSyntax
+//@[004:0011) |   |   | | └─Token(Identifier) |version|
+//@[011:0012) |   |   | ├─Token(Colon) |:|
+//@[013:0023) |   |   | └─StringSyntax
+//@[013:0023) |   |   |   └─Token(StringComplete) |'versionB'|
+//@[023:0025) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) |   |   └─Token(RightBrace) |}|
+//@[003:0005) |   ├─Token(NewLine) |\r\n|
 ]
-//@[0:1)   RightSquare |]|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightSquare) |]|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 resource loopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = [for vault in vaults: {
-//@[0:175) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:17)  IdentifierSyntax
-//@[9:17)   Identifier |loopedKv|
-//@[18:56)  StringSyntax
-//@[18:56)   StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
-//@[57:65)  Identifier |existing|
-//@[66:67)  Assignment |=|
-//@[68:175)  ForSyntax
-//@[68:69)   LeftSquare |[|
-//@[69:72)   Identifier |for|
-//@[73:78)   LocalVariableSyntax
-//@[73:78)    IdentifierSyntax
-//@[73:78)     Identifier |vault|
-//@[79:81)   Identifier |in|
-//@[82:88)   VariableAccessSyntax
-//@[82:88)    IdentifierSyntax
-//@[82:88)     Identifier |vaults|
-//@[88:89)   Colon |:|
-//@[90:174)   ObjectSyntax
-//@[90:91)    LeftBrace |{|
-//@[91:93)    NewLine |\r\n|
+//@[000:0175) ├─ResourceDeclarationSyntax
+//@[000:0008) | ├─Token(Identifier) |resource|
+//@[009:0017) | ├─IdentifierSyntax
+//@[009:0017) | | └─Token(Identifier) |loopedKv|
+//@[018:0056) | ├─StringSyntax
+//@[018:0056) | | └─Token(StringComplete) |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[057:0065) | ├─Token(Identifier) |existing|
+//@[066:0067) | ├─Token(Assignment) |=|
+//@[068:0175) | └─ForSyntax
+//@[068:0069) |   ├─Token(LeftSquare) |[|
+//@[069:0072) |   ├─Token(Identifier) |for|
+//@[073:0078) |   ├─LocalVariableSyntax
+//@[073:0078) |   | └─IdentifierSyntax
+//@[073:0078) |   |   └─Token(Identifier) |vault|
+//@[079:0081) |   ├─Token(Identifier) |in|
+//@[082:0088) |   ├─VariableAccessSyntax
+//@[082:0088) |   | └─IdentifierSyntax
+//@[082:0088) |   |   └─Token(Identifier) |vaults|
+//@[088:0089) |   ├─Token(Colon) |:|
+//@[090:0174) |   ├─ObjectSyntax
+//@[090:0091) |   | ├─Token(LeftBrace) |{|
+//@[091:0093) |   | ├─Token(NewLine) |\r\n|
   name: vault.vaultName
-//@[2:23)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:23)     PropertyAccessSyntax
-//@[8:13)      VariableAccessSyntax
-//@[8:13)       IdentifierSyntax
-//@[8:13)        Identifier |vault|
-//@[13:14)      Dot |.|
-//@[14:23)      IdentifierSyntax
-//@[14:23)       Identifier |vaultName|
-//@[23:25)    NewLine |\r\n|
+//@[002:0023) |   | ├─ObjectPropertySyntax
+//@[002:0006) |   | | ├─IdentifierSyntax
+//@[002:0006) |   | | | └─Token(Identifier) |name|
+//@[006:0007) |   | | ├─Token(Colon) |:|
+//@[008:0023) |   | | └─PropertyAccessSyntax
+//@[008:0013) |   | |   ├─VariableAccessSyntax
+//@[008:0013) |   | |   | └─IdentifierSyntax
+//@[008:0013) |   | |   |   └─Token(Identifier) |vault|
+//@[013:0014) |   | |   ├─Token(Dot) |.|
+//@[014:0023) |   | |   └─IdentifierSyntax
+//@[014:0023) |   | |     └─Token(Identifier) |vaultName|
+//@[023:0025) |   | ├─Token(NewLine) |\r\n|
   scope: resourceGroup(vault.vaultSub, vault.vaultRG)
-//@[2:53)    ObjectPropertySyntax
-//@[2:7)     IdentifierSyntax
-//@[2:7)      Identifier |scope|
-//@[7:8)     Colon |:|
-//@[9:53)     FunctionCallSyntax
-//@[9:22)      IdentifierSyntax
-//@[9:22)       Identifier |resourceGroup|
-//@[22:23)      LeftParen |(|
-//@[23:38)      FunctionArgumentSyntax
-//@[23:37)       PropertyAccessSyntax
-//@[23:28)        VariableAccessSyntax
-//@[23:28)         IdentifierSyntax
-//@[23:28)          Identifier |vault|
-//@[28:29)        Dot |.|
-//@[29:37)        IdentifierSyntax
-//@[29:37)         Identifier |vaultSub|
-//@[37:38)       Comma |,|
-//@[39:52)      FunctionArgumentSyntax
-//@[39:52)       PropertyAccessSyntax
-//@[39:44)        VariableAccessSyntax
-//@[39:44)         IdentifierSyntax
-//@[39:44)          Identifier |vault|
-//@[44:45)        Dot |.|
-//@[45:52)        IdentifierSyntax
-//@[45:52)         Identifier |vaultRG|
-//@[52:53)      RightParen |)|
-//@[53:55)    NewLine |\r\n|
+//@[002:0053) |   | ├─ObjectPropertySyntax
+//@[002:0007) |   | | ├─IdentifierSyntax
+//@[002:0007) |   | | | └─Token(Identifier) |scope|
+//@[007:0008) |   | | ├─Token(Colon) |:|
+//@[009:0053) |   | | └─FunctionCallSyntax
+//@[009:0022) |   | |   ├─IdentifierSyntax
+//@[009:0022) |   | |   | └─Token(Identifier) |resourceGroup|
+//@[022:0023) |   | |   ├─Token(LeftParen) |(|
+//@[023:0037) |   | |   ├─FunctionArgumentSyntax
+//@[023:0037) |   | |   | └─PropertyAccessSyntax
+//@[023:0028) |   | |   |   ├─VariableAccessSyntax
+//@[023:0028) |   | |   |   | └─IdentifierSyntax
+//@[023:0028) |   | |   |   |   └─Token(Identifier) |vault|
+//@[028:0029) |   | |   |   ├─Token(Dot) |.|
+//@[029:0037) |   | |   |   └─IdentifierSyntax
+//@[029:0037) |   | |   |     └─Token(Identifier) |vaultSub|
+//@[037:0038) |   | |   ├─Token(Comma) |,|
+//@[039:0052) |   | |   ├─FunctionArgumentSyntax
+//@[039:0052) |   | |   | └─PropertyAccessSyntax
+//@[039:0044) |   | |   |   ├─VariableAccessSyntax
+//@[039:0044) |   | |   |   | └─IdentifierSyntax
+//@[039:0044) |   | |   |   |   └─Token(Identifier) |vault|
+//@[044:0045) |   | |   |   ├─Token(Dot) |.|
+//@[045:0052) |   | |   |   └─IdentifierSyntax
+//@[045:0052) |   | |   |     └─Token(Identifier) |vaultRG|
+//@[052:0053) |   | |   └─Token(RightParen) |)|
+//@[053:0055) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:0001) |   | └─Token(RightBrace) |}|
+//@[001:0002) |   └─Token(RightSquare) |]|
+//@[002:0006) ├─Token(NewLine) |\r\n\r\n|
 
 module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secrets: {
-//@[0:278) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:25)  IdentifierSyntax
-//@[7:25)   Identifier |secureModuleLooped|
-//@[26:52)  StringSyntax
-//@[26:52)   StringComplete |'child/secureParams.bicep'|
-//@[53:54)  Assignment |=|
-//@[55:278)  ForSyntax
-//@[55:56)   LeftSquare |[|
-//@[56:59)   Identifier |for|
-//@[60:71)   ForVariableBlockSyntax
-//@[60:61)    LeftParen |(|
-//@[61:67)    LocalVariableSyntax
-//@[61:67)     IdentifierSyntax
-//@[61:67)      Identifier |secret|
-//@[67:68)    Comma |,|
-//@[69:70)    LocalVariableSyntax
-//@[69:70)     IdentifierSyntax
-//@[69:70)      Identifier |i|
-//@[70:71)    RightParen |)|
-//@[72:74)   Identifier |in|
-//@[75:82)   VariableAccessSyntax
-//@[75:82)    IdentifierSyntax
-//@[75:82)     Identifier |secrets|
-//@[82:83)   Colon |:|
-//@[84:277)   ObjectSyntax
-//@[84:85)    LeftBrace |{|
-//@[85:87)    NewLine |\r\n|
+//@[000:0278) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0025) | ├─IdentifierSyntax
+//@[007:0025) | | └─Token(Identifier) |secureModuleLooped|
+//@[026:0052) | ├─StringSyntax
+//@[026:0052) | | └─Token(StringComplete) |'child/secureParams.bicep'|
+//@[053:0054) | ├─Token(Assignment) |=|
+//@[055:0278) | └─ForSyntax
+//@[055:0056) |   ├─Token(LeftSquare) |[|
+//@[056:0059) |   ├─Token(Identifier) |for|
+//@[060:0071) |   ├─VariableBlockSyntax
+//@[060:0061) |   | ├─Token(LeftParen) |(|
+//@[061:0067) |   | ├─LocalVariableSyntax
+//@[061:0067) |   | | └─IdentifierSyntax
+//@[061:0067) |   | |   └─Token(Identifier) |secret|
+//@[067:0068) |   | ├─Token(Comma) |,|
+//@[069:0070) |   | ├─LocalVariableSyntax
+//@[069:0070) |   | | └─IdentifierSyntax
+//@[069:0070) |   | |   └─Token(Identifier) |i|
+//@[070:0071) |   | └─Token(RightParen) |)|
+//@[072:0074) |   ├─Token(Identifier) |in|
+//@[075:0082) |   ├─VariableAccessSyntax
+//@[075:0082) |   | └─IdentifierSyntax
+//@[075:0082) |   |   └─Token(Identifier) |secrets|
+//@[082:0083) |   ├─Token(Colon) |:|
+//@[084:0277) |   ├─ObjectSyntax
+//@[084:0085) |   | ├─Token(LeftBrace) |{|
+//@[085:0087) |   | ├─Token(NewLine) |\r\n|
   name: 'secureModuleLooped-${i}'
-//@[2:33)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:33)     StringSyntax
-//@[8:30)      StringLeftPiece |'secureModuleLooped-${|
-//@[30:31)      VariableAccessSyntax
-//@[30:31)       IdentifierSyntax
-//@[30:31)        Identifier |i|
-//@[31:33)      StringRightPiece |}'|
-//@[33:35)    NewLine |\r\n|
+//@[002:0033) |   | ├─ObjectPropertySyntax
+//@[002:0006) |   | | ├─IdentifierSyntax
+//@[002:0006) |   | | | └─Token(Identifier) |name|
+//@[006:0007) |   | | ├─Token(Colon) |:|
+//@[008:0033) |   | | └─StringSyntax
+//@[008:0030) |   | |   ├─Token(StringLeftPiece) |'secureModuleLooped-${|
+//@[030:0031) |   | |   ├─VariableAccessSyntax
+//@[030:0031) |   | |   | └─IdentifierSyntax
+//@[030:0031) |   | |   |   └─Token(Identifier) |i|
+//@[031:0033) |   | |   └─Token(StringRightPiece) |}'|
+//@[033:0035) |   | ├─Token(NewLine) |\r\n|
   params: {
-//@[2:152)    ObjectPropertySyntax
-//@[2:8)     IdentifierSyntax
-//@[2:8)      Identifier |params|
-//@[8:9)     Colon |:|
-//@[10:152)     ObjectSyntax
-//@[10:11)      LeftBrace |{|
-//@[11:13)      NewLine |\r\n|
+//@[002:0152) |   | ├─ObjectPropertySyntax
+//@[002:0008) |   | | ├─IdentifierSyntax
+//@[002:0008) |   | | | └─Token(Identifier) |params|
+//@[008:0009) |   | | ├─Token(Colon) |:|
+//@[010:0152) |   | | └─ObjectSyntax
+//@[010:0011) |   | |   ├─Token(LeftBrace) |{|
+//@[011:0013) |   | |   ├─Token(NewLine) |\r\n|
     secureStringParam1: loopedKv[i].getSecret(secret.name)
-//@[4:58)      ObjectPropertySyntax
-//@[4:22)       IdentifierSyntax
-//@[4:22)        Identifier |secureStringParam1|
-//@[22:23)       Colon |:|
-//@[24:58)       InstanceFunctionCallSyntax
-//@[24:35)        ArrayAccessSyntax
-//@[24:32)         VariableAccessSyntax
-//@[24:32)          IdentifierSyntax
-//@[24:32)           Identifier |loopedKv|
-//@[32:33)         LeftSquare |[|
-//@[33:34)         VariableAccessSyntax
-//@[33:34)          IdentifierSyntax
-//@[33:34)           Identifier |i|
-//@[34:35)         RightSquare |]|
-//@[35:36)        Dot |.|
-//@[36:45)        IdentifierSyntax
-//@[36:45)         Identifier |getSecret|
-//@[45:46)        LeftParen |(|
-//@[46:57)        FunctionArgumentSyntax
-//@[46:57)         PropertyAccessSyntax
-//@[46:52)          VariableAccessSyntax
-//@[46:52)           IdentifierSyntax
-//@[46:52)            Identifier |secret|
-//@[52:53)          Dot |.|
-//@[53:57)          IdentifierSyntax
-//@[53:57)           Identifier |name|
-//@[57:58)        RightParen |)|
-//@[58:60)      NewLine |\r\n|
+//@[004:0058) |   | |   ├─ObjectPropertySyntax
+//@[004:0022) |   | |   | ├─IdentifierSyntax
+//@[004:0022) |   | |   | | └─Token(Identifier) |secureStringParam1|
+//@[022:0023) |   | |   | ├─Token(Colon) |:|
+//@[024:0058) |   | |   | └─InstanceFunctionCallSyntax
+//@[024:0035) |   | |   |   ├─ArrayAccessSyntax
+//@[024:0032) |   | |   |   | ├─VariableAccessSyntax
+//@[024:0032) |   | |   |   | | └─IdentifierSyntax
+//@[024:0032) |   | |   |   | |   └─Token(Identifier) |loopedKv|
+//@[032:0033) |   | |   |   | ├─Token(LeftSquare) |[|
+//@[033:0034) |   | |   |   | ├─VariableAccessSyntax
+//@[033:0034) |   | |   |   | | └─IdentifierSyntax
+//@[033:0034) |   | |   |   | |   └─Token(Identifier) |i|
+//@[034:0035) |   | |   |   | └─Token(RightSquare) |]|
+//@[035:0036) |   | |   |   ├─Token(Dot) |.|
+//@[036:0045) |   | |   |   ├─IdentifierSyntax
+//@[036:0045) |   | |   |   | └─Token(Identifier) |getSecret|
+//@[045:0046) |   | |   |   ├─Token(LeftParen) |(|
+//@[046:0057) |   | |   |   ├─FunctionArgumentSyntax
+//@[046:0057) |   | |   |   | └─PropertyAccessSyntax
+//@[046:0052) |   | |   |   |   ├─VariableAccessSyntax
+//@[046:0052) |   | |   |   |   | └─IdentifierSyntax
+//@[046:0052) |   | |   |   |   |   └─Token(Identifier) |secret|
+//@[052:0053) |   | |   |   |   ├─Token(Dot) |.|
+//@[053:0057) |   | |   |   |   └─IdentifierSyntax
+//@[053:0057) |   | |   |   |     └─Token(Identifier) |name|
+//@[057:0058) |   | |   |   └─Token(RightParen) |)|
+//@[058:0060) |   | |   ├─Token(NewLine) |\r\n|
     secureStringParam2: loopedKv[i].getSecret(secret.name, secret.version)
-//@[4:74)      ObjectPropertySyntax
-//@[4:22)       IdentifierSyntax
-//@[4:22)        Identifier |secureStringParam2|
-//@[22:23)       Colon |:|
-//@[24:74)       InstanceFunctionCallSyntax
-//@[24:35)        ArrayAccessSyntax
-//@[24:32)         VariableAccessSyntax
-//@[24:32)          IdentifierSyntax
-//@[24:32)           Identifier |loopedKv|
-//@[32:33)         LeftSquare |[|
-//@[33:34)         VariableAccessSyntax
-//@[33:34)          IdentifierSyntax
-//@[33:34)           Identifier |i|
-//@[34:35)         RightSquare |]|
-//@[35:36)        Dot |.|
-//@[36:45)        IdentifierSyntax
-//@[36:45)         Identifier |getSecret|
-//@[45:46)        LeftParen |(|
-//@[46:58)        FunctionArgumentSyntax
-//@[46:57)         PropertyAccessSyntax
-//@[46:52)          VariableAccessSyntax
-//@[46:52)           IdentifierSyntax
-//@[46:52)            Identifier |secret|
-//@[52:53)          Dot |.|
-//@[53:57)          IdentifierSyntax
-//@[53:57)           Identifier |name|
-//@[57:58)         Comma |,|
-//@[59:73)        FunctionArgumentSyntax
-//@[59:73)         PropertyAccessSyntax
-//@[59:65)          VariableAccessSyntax
-//@[59:65)           IdentifierSyntax
-//@[59:65)            Identifier |secret|
-//@[65:66)          Dot |.|
-//@[66:73)          IdentifierSyntax
-//@[66:73)           Identifier |version|
-//@[73:74)        RightParen |)|
-//@[74:76)      NewLine |\r\n|
+//@[004:0074) |   | |   ├─ObjectPropertySyntax
+//@[004:0022) |   | |   | ├─IdentifierSyntax
+//@[004:0022) |   | |   | | └─Token(Identifier) |secureStringParam2|
+//@[022:0023) |   | |   | ├─Token(Colon) |:|
+//@[024:0074) |   | |   | └─InstanceFunctionCallSyntax
+//@[024:0035) |   | |   |   ├─ArrayAccessSyntax
+//@[024:0032) |   | |   |   | ├─VariableAccessSyntax
+//@[024:0032) |   | |   |   | | └─IdentifierSyntax
+//@[024:0032) |   | |   |   | |   └─Token(Identifier) |loopedKv|
+//@[032:0033) |   | |   |   | ├─Token(LeftSquare) |[|
+//@[033:0034) |   | |   |   | ├─VariableAccessSyntax
+//@[033:0034) |   | |   |   | | └─IdentifierSyntax
+//@[033:0034) |   | |   |   | |   └─Token(Identifier) |i|
+//@[034:0035) |   | |   |   | └─Token(RightSquare) |]|
+//@[035:0036) |   | |   |   ├─Token(Dot) |.|
+//@[036:0045) |   | |   |   ├─IdentifierSyntax
+//@[036:0045) |   | |   |   | └─Token(Identifier) |getSecret|
+//@[045:0046) |   | |   |   ├─Token(LeftParen) |(|
+//@[046:0057) |   | |   |   ├─FunctionArgumentSyntax
+//@[046:0057) |   | |   |   | └─PropertyAccessSyntax
+//@[046:0052) |   | |   |   |   ├─VariableAccessSyntax
+//@[046:0052) |   | |   |   |   | └─IdentifierSyntax
+//@[046:0052) |   | |   |   |   |   └─Token(Identifier) |secret|
+//@[052:0053) |   | |   |   |   ├─Token(Dot) |.|
+//@[053:0057) |   | |   |   |   └─IdentifierSyntax
+//@[053:0057) |   | |   |   |     └─Token(Identifier) |name|
+//@[057:0058) |   | |   |   ├─Token(Comma) |,|
+//@[059:0073) |   | |   |   ├─FunctionArgumentSyntax
+//@[059:0073) |   | |   |   | └─PropertyAccessSyntax
+//@[059:0065) |   | |   |   |   ├─VariableAccessSyntax
+//@[059:0065) |   | |   |   |   | └─IdentifierSyntax
+//@[059:0065) |   | |   |   |   |   └─Token(Identifier) |secret|
+//@[065:0066) |   | |   |   |   ├─Token(Dot) |.|
+//@[066:0073) |   | |   |   |   └─IdentifierSyntax
+//@[066:0073) |   | |   |   |     └─Token(Identifier) |version|
+//@[073:0074) |   | |   |   └─Token(RightParen) |)|
+//@[074:0076) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:0003) |   | |   └─Token(RightBrace) |}|
+//@[003:0005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:8) NewLine |\r\n\r\n\r\n|
+//@[000:0001) |   | └─Token(RightBrace) |}|
+//@[001:0002) |   └─Token(RightSquare) |]|
+//@[002:0008) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
 // END: Key Vault Secret Reference
-//@[34:38) NewLine |\r\n\r\n|
+//@[034:0038) ├─Token(NewLine) |\r\n\r\n|
 
 module withSpace 'module with space.bicep' = {
-//@[0:70) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:16)  IdentifierSyntax
-//@[7:16)   Identifier |withSpace|
-//@[17:42)  StringSyntax
-//@[17:42)   StringComplete |'module with space.bicep'|
-//@[43:44)  Assignment |=|
-//@[45:70)  ObjectSyntax
-//@[45:46)   LeftBrace |{|
-//@[46:48)   NewLine |\r\n|
+//@[000:0070) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0016) | ├─IdentifierSyntax
+//@[007:0016) | | └─Token(Identifier) |withSpace|
+//@[017:0042) | ├─StringSyntax
+//@[017:0042) | | └─Token(StringComplete) |'module with space.bicep'|
+//@[043:0044) | ├─Token(Assignment) |=|
+//@[045:0070) | └─ObjectSyntax
+//@[045:0046) |   ├─Token(LeftBrace) |{|
+//@[046:0048) |   ├─Token(NewLine) |\r\n|
   name: 'withSpace'
-//@[2:19)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:19)    StringSyntax
-//@[8:19)     StringComplete |'withSpace'|
-//@[19:21)   NewLine |\r\n|
+//@[002:0019) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0019) |   | └─StringSyntax
+//@[008:0019) |   |   └─Token(StringComplete) |'withSpace'|
+//@[019:0021) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module folderWithSpace 'child/folder with space/child with space.bicep' = {
-//@[0:104) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:22)  IdentifierSyntax
-//@[7:22)   Identifier |folderWithSpace|
-//@[23:71)  StringSyntax
-//@[23:71)   StringComplete |'child/folder with space/child with space.bicep'|
-//@[72:73)  Assignment |=|
-//@[74:104)  ObjectSyntax
-//@[74:75)   LeftBrace |{|
-//@[75:77)   NewLine |\r\n|
+//@[000:0104) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0022) | ├─IdentifierSyntax
+//@[007:0022) | | └─Token(Identifier) |folderWithSpace|
+//@[023:0071) | ├─StringSyntax
+//@[023:0071) | | └─Token(StringComplete) |'child/folder with space/child with space.bicep'|
+//@[072:0073) | ├─Token(Assignment) |=|
+//@[074:0104) | └─ObjectSyntax
+//@[074:0075) |   ├─Token(LeftBrace) |{|
+//@[075:0077) |   ├─Token(NewLine) |\r\n|
   name: 'childWithSpace'
-//@[2:24)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:24)    StringSyntax
-//@[8:24)     StringComplete |'childWithSpace'|
-//@[24:26)   NewLine |\r\n|
+//@[002:0024) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0024) |   | └─StringSyntax
+//@[008:0024) |   |   └─Token(StringComplete) |'childWithSpace'|
+//@[024:0026) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 
-//@[0:0) EndOfFile ||
+//@[000:0000) └─Token(EndOfFile) ||

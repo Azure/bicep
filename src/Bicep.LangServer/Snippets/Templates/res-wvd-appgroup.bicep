@@ -1,5 +1,5 @@
-﻿// WVD AppGroup
-resource /*${1:applicationGroup}*/applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {
+// WVD AppGroup
+resource /*${1:applicationGroup}*/applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@2021-07-12' = {
   name: /*${2:'name'}*/'name'
   location: /*${3:location}*/'location'
   properties: {

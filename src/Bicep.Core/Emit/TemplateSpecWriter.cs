@@ -3,7 +3,6 @@
 
 using System;
 using Bicep.Core.Semantics;
-using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
 {
@@ -16,7 +15,7 @@ namespace Bicep.Core.Emit
             this.semanticModel = semanticModel;
         }
 
-        public void Write(JsonTextWriter writer)
+        public void Write(SourceAwareJsonTextWriter writer)
         {
             if (this.semanticModel.SourceFile?.TemplateSpecId is not { } templateSpecId)
             {

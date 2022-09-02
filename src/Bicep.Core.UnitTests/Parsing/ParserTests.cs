@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -105,7 +106,6 @@ namespace Bicep.Core.UnitTests.Parsing
 
         [DataTestMethod]
         [DataRow("'${>}def'")]
-        [DataRow("'${concat(}def'")]
         [DataRow("'${concat)}def'")]
         [DataRow("'${'nest\\ed'}def'")]
         [DataRow("'${a b c}def'")]
@@ -143,7 +143,7 @@ namespace Bicep.Core.UnitTests.Parsing
         public void FunctionsShouldParseCorrectly(string text, string expected, int expectedArgumentCount)
         {
             var expression = (FunctionCallSyntax)RunExpressionTest(text, expected, typeof(FunctionCallSyntax));
-            expression.Arguments.Length.Should().Be(expectedArgumentCount);
+            expression.Arguments.Count().Should().Be(expectedArgumentCount);
         }
 
         [DataTestMethod]
@@ -384,6 +384,14 @@ namespace Bicep.Core.UnitTests.Parsing
             visitor.Visit(expression);
 
             return buffer.ToString();
+        }
+        
+        [TestMethod]
+        public void testParams(){
+            var test = ParserHelper.Parse("set myint = 12 \n");
+            
+            Trace.WriteLine("Test running!");
+            Trace.WriteLine("Test ended");
         }
     }
 }

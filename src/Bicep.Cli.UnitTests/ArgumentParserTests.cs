@@ -174,6 +174,35 @@ namespace Bicep.Cli.UnitTests
             buildArguments!.NoRestore.Should().BeTrue();
         }
 
+        [TestMethod]
+        public void License_argument_should_return_appropriate_RootArguments_instance()
+        {
+            var arguments = ArgumentParser.TryParse(new[] { "--license" });
+
+            arguments.Should().BeOfType<RootArguments>();
+            if(arguments is RootArguments rootArguments)
+            {
+                rootArguments.PrintHelp.Should().BeFalse();
+                rootArguments.PrintVersion.Should().BeFalse();
+                rootArguments.PrintLicense.Should().BeTrue();
+                rootArguments.PrintThirdPartyNotices.Should().BeFalse();
+            }
+        }
+
+        [TestMethod]
+        public void Third_party_notices_argument_should_return_appropriate_RootArguments_instance()
+        {
+            var arguments = ArgumentParser.TryParse(new[] { "--third-party-notices" });
+
+            arguments.Should().BeOfType<RootArguments>();
+            if (arguments is RootArguments rootArguments)
+            {
+                rootArguments.PrintHelp.Should().BeFalse();
+                rootArguments.PrintVersion.Should().BeFalse();
+                rootArguments.PrintLicense.Should().BeFalse();
+                rootArguments.PrintThirdPartyNotices.Should().BeTrue();
+            }
+        }
 
         [TestMethod]
         public void Version_argument_should_return_VersionArguments_instance()
@@ -181,6 +210,13 @@ namespace Bicep.Cli.UnitTests
             var arguments = ArgumentParser.TryParse(new[] { "--version" });
 
             arguments.Should().BeOfType<RootArguments>();
+            if(arguments is RootArguments rootArguments)
+            {
+                rootArguments.PrintHelp.Should().BeFalse();
+                rootArguments.PrintVersion.Should().BeTrue();
+                rootArguments.PrintLicense.Should().BeFalse();
+                rootArguments.PrintThirdPartyNotices.Should().BeFalse();
+            }
         }
 
         [TestMethod]
@@ -189,6 +225,13 @@ namespace Bicep.Cli.UnitTests
             var arguments = ArgumentParser.TryParse(new[] { "--help" });
 
             arguments.Should().BeOfType<RootArguments>();
+            if (arguments is RootArguments rootArguments)
+            {
+                rootArguments.PrintHelp.Should().BeTrue();
+                rootArguments.PrintVersion.Should().BeFalse();
+                rootArguments.PrintLicense.Should().BeFalse();
+                rootArguments.PrintThirdPartyNotices.Should().BeFalse();
+            }
         }
 
         [TestMethod]
@@ -197,6 +240,13 @@ namespace Bicep.Cli.UnitTests
             var arguments = ArgumentParser.TryParse(new[] { "-v" });
 
             arguments.Should().BeOfType<RootArguments>();
+            if (arguments is RootArguments rootArguments)
+            {
+                rootArguments.PrintHelp.Should().BeFalse();
+                rootArguments.PrintVersion.Should().BeTrue();
+                rootArguments.PrintLicense.Should().BeFalse();
+                rootArguments.PrintThirdPartyNotices.Should().BeFalse();
+            }
         }
 
         [TestMethod]
@@ -205,6 +255,13 @@ namespace Bicep.Cli.UnitTests
             var arguments = ArgumentParser.TryParse(new[] { "-h" });
 
             arguments.Should().BeOfType<RootArguments>();
+            if (arguments is RootArguments rootArguments)
+            {
+                rootArguments.PrintHelp.Should().BeTrue();
+                rootArguments.PrintVersion.Should().BeFalse();
+                rootArguments.PrintLicense.Should().BeFalse();
+                rootArguments.PrintThirdPartyNotices.Should().BeFalse();
+            }
         }
 
         [TestMethod]
@@ -303,12 +360,24 @@ namespace Bicep.Cli.UnitTests
         }
 
         [TestMethod]
-        public void Restore_should_parse_correctly()
+        public void Restore__with_no_force_should_parse_correctly()
         {
             var arguments = ArgumentParser.TryParse(new[] { "restore", "file1" });
             arguments.Should().BeOfType<RestoreArguments>();
             var typed = (RestoreArguments)arguments!;
 
+            typed.ForceModulesRestore.Should().Be(false);
+            typed.InputFile.Should().Be("file1");
+        }
+
+        [TestMethod]
+        public void Restore_with_force_should_parse_correctly()
+        {
+            var arguments = ArgumentParser.TryParse(new[] { "restore", "--force", "file1" });
+            arguments.Should().BeOfType<RestoreArguments>();
+            var typed = (RestoreArguments)arguments!;
+
+            typed.ForceModulesRestore.Should().Be(true);
             typed.InputFile.Should().Be("file1");
         }
     }

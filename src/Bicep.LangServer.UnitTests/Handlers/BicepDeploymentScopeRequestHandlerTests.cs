@@ -13,11 +13,14 @@ using Bicep.Core.Registry;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
+using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
@@ -33,6 +36,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         private static readonly FileResolver FileResolver = new();
         private static readonly IConfigurationManager configurationManager = new ConfigurationManager(new IOFileSystem());
         private readonly ModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
+        private readonly ISerializer Serializer = StrictMock.Of<ISerializer>().Object;
 
         [TestMethod]
         public async Task Handle_WithInvalidInputFile_ReturnsBicepDeploymentScopeResponseWithErrorMessage()
@@ -49,10 +53,13 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 BicepTestConstants.EmitterSettings,
                 bicepCompilationManager,
                 configurationManager,
+                new DeploymentFileCompilationCache(),
                 BicepTestConstants.Features,
                 FileResolver,
                 ModuleDispatcher,
-                BicepTestConstants.NamespaceProvider);
+                BicepTestConstants.NamespaceProvider,
+                Serializer,
+                BicepTestConstants.ApiVersionProvider);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
             BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
@@ -81,10 +88,13 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 BicepTestConstants.EmitterSettings,
                 bicepCompilationManager,
                 configurationManager,
+                new DeploymentFileCompilationCache(),
                 BicepTestConstants.Features,
                 FileResolver,
                 ModuleDispatcher,
-                BicepTestConstants.NamespaceProvider);
+                BicepTestConstants.NamespaceProvider,
+                Serializer,
+                BicepTestConstants.ApiVersionProvider);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
             BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
@@ -111,10 +121,13 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 BicepTestConstants.EmitterSettings,
                 bicepCompilationManager,
                 configurationManager,
+                new DeploymentFileCompilationCache(),
                 BicepTestConstants.Features,
                 FileResolver,
                 ModuleDispatcher,
-                BicepTestConstants.NamespaceProvider);
+                BicepTestConstants.NamespaceProvider,
+                Serializer,
+                BicepTestConstants.ApiVersionProvider);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
             BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
@@ -165,10 +178,13 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 BicepTestConstants.EmitterSettings,
                 bicepCompilationManager,
                 configurationManager,
+                new DeploymentFileCompilationCache(),
                 BicepTestConstants.Features,
                 FileResolver,
                 ModuleDispatcher,
-                BicepTestConstants.NamespaceProvider);
+                BicepTestConstants.NamespaceProvider,
+                Serializer,
+                BicepTestConstants.ApiVersionProvider);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
             BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
@@ -176,6 +192,43 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepDeploymentScopeResponse = await bicepDeploymentScopeRequestHandler.Handle(bicepDeploymentScopeParams, CancellationToken.None);
 
             bicepDeploymentScopeResponse.scope.Should().Be(result);
+        }
+
+        [TestMethod]
+        public async Task Handle_WithValidInputFile_VerifyCompilationEntryIsAddedToDeploymentFileCompilationCache()
+        {
+            string bicepFileContents = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'name'
+  location: 'global'
+}";
+            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache();
+
+            BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
+                BicepTestConstants.EmitterSettings,
+                bicepCompilationManager,
+                configurationManager,
+                deploymentFileCompilationCache,
+                BicepTestConstants.Features,
+                FileResolver,
+                ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider,
+                Serializer,
+                BicepTestConstants.ApiVersionProvider);
+
+            var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
+            BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
+
+            await bicepDeploymentScopeRequestHandler.Handle(bicepDeploymentScopeParams, CancellationToken.None);
+
+            var compilationFromDeploymentFileCompilationCache = deploymentFileCompilationCache.FindAndRemoveCompilation(documentUri);
+            var compilationFromCompilationManager = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
+
+            compilationFromCompilationManager.Should().NotBeNull();
+            compilationFromDeploymentFileCompilationCache?.Should().NotBeNull();
+            compilationFromCompilationManager.Should().BeSameAs(compilationFromDeploymentFileCompilationCache!);
         }
     }
 }

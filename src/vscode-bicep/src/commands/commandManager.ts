@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import vscode, { ExtensionContext } from "vscode";
+import { ExtensionContext, Uri } from "vscode";
 import * as fse from "fs-extra";
 import { Disposable } from "../utils/disposable";
 import { Command } from "./types";
@@ -9,7 +9,6 @@ import * as azureextensionui from "@microsoft/vscode-azext-utils";
 import assert from "assert";
 
 export class CommandManager extends Disposable {
-  private static readonly commandsRegistredContextKey = "commandsRegistered";
   private _packageJson: IPackageJson | undefined;
 
   public constructor(private readonly _ctx: ExtensionContext) {
@@ -20,12 +19,6 @@ export class CommandManager extends Disposable {
     ...commands: T
   ): Promise<void> {
     commands.map((command) => this.registerCommand(command));
-
-    await vscode.commands.executeCommand(
-      "setContext",
-      CommandManager.commandsRegistredContextKey,
-      true
-    );
   }
 
   private registerCommand<T extends Command>(command: T): void {
@@ -39,7 +32,38 @@ export class CommandManager extends Disposable {
     azureextensionui.registerCommand(
       command.id,
       async (context: azureextensionui.IActionContext, ...args: unknown[]) => {
-        return await command.execute(context, ...args);
+        let documentUri: Uri | undefined = undefined;
+        let isFromWalkthrough = false;
+
+        if (args[0] instanceof Uri) {
+          // First argument is a Uri (this is how VsCode communicates the target URI for a comment invoked through a menu, context menu, etc.)
+          documentUri = args[0];
+          args = args.slice(1);
+        }
+
+        // If the command is coming from a [command:xxx] inside a markdown file (e.g. from
+        //   a walkthrough), and the command contains a query string, the query string values
+        //   will be in an object in the next argument.
+        if (
+          !!args[0] &&
+          args[0] instanceof Object &&
+          "walkthrough" in args[0] &&
+          args[0]["walkthrough"] === "true"
+        ) {
+          // Marked as a walkthrough via query string in markdow
+          isFromWalkthrough = true;
+        }
+
+        // Commands starting with bicep.gettingStarted are obviously from the walkthrough
+        if (command.id.startsWith("bicep.gettingStarted")) {
+          isFromWalkthrough = true;
+        }
+
+        if (isFromWalkthrough) {
+          context.telemetry.properties.contextValue = "walkthrough";
+        }
+
+        return await command.execute(context, documentUri, ...args);
       },
       undefined,
       telemetryId
@@ -58,23 +82,44 @@ export class CommandManager extends Disposable {
     assert(!!activationEvents, "Missing activationEvents in package.json");
     const activationKey = `onCommand:${command.id}`;
     const activation: string | undefined = activationEvents.find(
-      (a) => a == activationKey
+      (a) => a === activationKey
     );
     assert(
       !!activation,
-      `Code error: Add an entry for '${activationKey}' to package.json's activationEvents array. This ensures that the command will be functional even if the extension is not yet activated.`
+      `Internal error: Add an entry for '${activationKey}' to package.json's activationEvents array. This ensures that the command will be functional even if the extension is not yet activated.`
     );
 
     assert(
       command.id.startsWith("bicep."),
       `Command ID doesn't start with 'bicep.': ${command.id}`
     );
+
+    // Walkthrough commands shouldn't be shown in the command palette
+    if (command.id.match(/gettingStarted/i)) {
+      const commandPaletteWhen: string | undefined =
+        this._packageJson.contributes?.menus?.commandPalette?.find(
+          (m) => m.command === command.id
+        )?.when;
+      assert(
+        commandPaletteWhen === "never",
+        `Internal error: Add an entry for '${command.id}' to package.json's contributes/menus/commandPalette array with a 'when' value of 'never'.`
+      );
+    }
   }
 }
 
 interface IPackageJson {
-  commands?: {
-    command: string;
+  contributes: {
+    commands?: {
+      command: string;
+    };
+    menus?: {
+      commandPalette?: {
+        command: string;
+        when?: string;
+        group?: string;
+      }[];
+    };
   };
   activationEvents?: string[];
 }

@@ -12,6 +12,7 @@ const notBefore = (regex: string) => `(?!${regex})`;
 const identifierStart = "[_a-zA-Z]";
 const identifierContinue = "[_a-zA-Z0-9]";
 const identifier = bounded(`${identifierStart}${identifierContinue}*`);
+const directive = bounded(`[_a-zA-Z-0-9]+`);
 
 // whitespace. ideally we'd tokenize in-line block comments, but that's a lot of work. For now, ignore them.
 const ws = `(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*`;
@@ -112,29 +113,17 @@ const identifierExpression: Mode = {
   keywords: KEYWORDS,
 };
 
-const objectPropertyKeyIdentifier: Mode = {
-  className: "property",
-  match: `(${identifier})`,
-};
-
-const objectProperty: Mode = {
-  begin: `${after(`^`)}${notBefore(`${ws}}`)}`,
-  end: before(`$`),
-  contains: withComments([
-    objectPropertyKeyIdentifier,
-    stringLiteral,
-    {
-      begin: after(`:${ws}`),
-      end: before(`${ws}$`),
-      contains: withComments([expression]),
-    },
-  ]),
-};
-
 const objectLiteral: Mode = {
   begin: `{`,
   end: `}`,
-  contains: withComments([objectProperty]),
+  contains: withComments([
+    {
+      className: "property",
+      match: `${identifier}${before(`${ws}:`)}`,
+      relevance: 0,
+    },
+    expression
+  ]),
 }
 
 const arrayLiteral: Mode = {
@@ -148,7 +137,6 @@ const functionCall: Mode = {
   begin: `(${identifier})${ws}\\(`,
   end: `\\)`,
   contains: withComments([expression]),
-  keywords: KEYWORDS,
 };
 
 const decorator: Mode = {
@@ -156,6 +144,33 @@ const decorator: Mode = {
   begin: `@${ws}${before(identifier)}`,
   end: ``,
   contains: withComments([functionCall]),
+};
+
+const lambdaStart = `(` +
+  `\\(${ws}${identifier}${ws}(,${ws}${identifier}${ws})*\\)|` +
+  `\\(${ws}\\)|` +
+  `${ws}${identifier}${ws}` +
+`)${before(`${ws}=>`)}`;
+
+const lambda: Mode = {
+  begin: lambdaStart,
+  returnBegin: true,
+  end: `${ws}=>`,
+  contains: withComments([
+    identifierExpression,
+  ]),
+};
+
+const directiveStatement: Mode = {
+  begin: `${after(`^${ws}`)}#${directive}`,
+  end: `$`,
+  className: 'meta',
+  contains: withComments([
+    {
+      className: 'variable',
+      match: directive,
+    },
+  ]),
 };
 
 expression.variants = [
@@ -168,6 +183,8 @@ expression.variants = [
   identifierExpression,
   functionCall,
   decorator,
+  lambda,
+  directiveStatement,
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -18,10 +18,20 @@ namespace Bicep.Cli.Arguments
                 case var a when new Regex(Constants.Argument.HelpRegex).IsMatch(a):
                     PrintHelp = true;
                     break;
+
+                case var a when new Regex(Constants.Argument.LicenseRegex).IsMatch(a):
+                    PrintLicense = true;
+                    break;
+
+                case var a when new Regex(Constants.Argument.ThirdPartyNoticesRegex).IsMatch(a):
+                    PrintThirdPartyNotices = true;
+                    break;
             };
         }
 
         public bool PrintHelp { get; }
         public bool PrintVersion { get; }
+        public bool PrintLicense { get; }
+        public bool PrintThirdPartyNotices { get; }
     }
 }
