@@ -95,23 +95,24 @@ namespace Bicep.Core.Semantics.Namespaces
         public NamespaceType? TryGetNamespace(string name)
             => this.namespaceTypes.TryGetValue(name);
 
-        public ResourceType? TryGetResourceType(ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
+        public ImmutableArray<ResourceType> GetMatchingResourceTypes(ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
-            // TODO should we return an array of matching types here?
             var definedTypes = namespaceTypes.Values
                 .Select(type => type.ResourceTypeProvider.TryGetDefinedType(type, typeReference, flags))
-                .WhereNotNull();
+                .WhereNotNull()
+                .ToImmutableArray();
 
-            if (definedTypes.FirstOrDefault() is { } definedType)
+            if (definedTypes.Any())
             {
-                return definedType;
+                return definedTypes;
             }
 
-            var generatedTypes = namespaceTypes.Values
+            var fallbackTypes = namespaceTypes.Values
                 .Select(type => type.ResourceTypeProvider.TryGenerateFallbackType(type, typeReference, flags))
-                .WhereNotNull();
+                .WhereNotNull()
+                .ToImmutableArray();
 
-            return generatedTypes.FirstOrDefault();
+            return fallbackTypes;
         }
 
         public IEnumerable<ResourceTypeReference> GetAvailableResourceTypes()
