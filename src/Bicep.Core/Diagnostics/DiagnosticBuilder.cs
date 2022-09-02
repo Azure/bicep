@@ -1518,7 +1518,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP260",
                 $"The parameter \"{identifier}\" expects a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
-             
+
             public Diagnostic UsingDeclarationNotSpecified() => new(
                 TextSpan,
                 DiagnosticLevel.Warning,
@@ -1534,6 +1534,14 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP263",
                 "The file specified in the using declaration path does not exist");
+
+            public FixableErrorDiagnostic SymbolicNameShadowsAKnownFunction(string name, string knownFunctionNamespace, string knownFunctionName) => new(
+                TextSpan,
+                "BCP264",
+                $"The name \"{name}\" is not a function. Did you mean \"{knownFunctionNamespace}.{knownFunctionName}\"?",
+                null,
+                DiagnosticStyling.Default,
+                new CodeFix($"Change \"{name}\" to \"{knownFunctionNamespace}.{knownFunctionName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, $"{knownFunctionNamespace}.{knownFunctionName}")));
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

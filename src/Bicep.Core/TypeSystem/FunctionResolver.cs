@@ -69,7 +69,7 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private FunctionSymbol? TryGetFunctionSymbol(string name)
+        public FunctionSymbol? TryGetFunctionSymbol(string name)
         {
             // symbol comparison relies on object equality; use of this cache ensures that different symbols with the same name are not returned.
             // we also cache negative lookups (null) so that we don't slow down when looking up references to a missing symbol
