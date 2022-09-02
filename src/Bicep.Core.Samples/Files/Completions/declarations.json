@@ -2592,6 +2592,36 @@
     }
   },
   {
+    "label": "res-service-bus",
+    "kind": "snippet",
+    "detail": "Service Bus Namespace",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2021-06-01-preview' = {\n  name: 'name'\n  location: location\n  sku: {\n    name: 'Basic'\n    capacity: 1\n    tier: 'Basic'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-service-bus",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:serviceBusNamespace} 'Microsoft.ServiceBus/namespaces@2021-06-01-preview' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  sku: {\n    name: ${4|'Basic','Standard','Premium'|}\n    capacity: ${5:1}\n    tier: ${6|'Basic','Standard','Premium'|}\n  }\n}\n"
+    },
+    "command": {
+      "title": "top level snippet completion",
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "snippet/toplevel",
+          "Properties": {
+            "name": "res-service-bus"
+          }
+        }
+      ]
+    }
+  },
+  {
     "label": "res-shared-image-gallery",
     "kind": "snippet",
     "detail": "Create Image Gallery",
