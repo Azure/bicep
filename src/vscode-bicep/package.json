@@ -36,7 +36,6 @@
   "homepage": "https://github.com/Azure/bicep/blob/main/README.md",
   "activationEvents": [
     "onLanguage:bicep",
-    "onLanguage:bicep-params",
     "onCommand:bicep.build",
     "onCommand:bicep.generateParams",
     "onCommand:bicep.createConfigFile",
@@ -112,17 +111,6 @@
         "configuration": "../textmate/language-configuration.json"
       },
       {
-        "id": "bicep-params",
-        "aliases": [
-          "Bicep Parameters",
-          "Bicep Params"
-        ],
-        "extensions": [
-          ".bicepparam"
-        ],
-        "configuration": "./language-configuration.json"
-      },
-      {
         "id": "jsonc",
         "filenames": [
           "bicepconfig.json"
@@ -142,11 +130,6 @@
       },
       {
         "language": "bicep",
-        "scopeName": "source.bicep",
-        "path": "./syntaxes/bicep.tmlanguage"
-      },
-      {
-        "language": "bicep-params",
         "scopeName": "source.bicep",
         "path": "./syntaxes/bicep.tmlanguage"
       }

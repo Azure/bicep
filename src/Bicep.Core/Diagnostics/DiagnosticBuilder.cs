@@ -42,6 +42,9 @@ namespace Bicep.Core.Diagnostics
             private static string ToQuotedString(IEnumerable<string> elements)
                 => elements.Any() ? $"\"{elements.ConcatString("\", \"")}\"" : "";
 
+            private static string ToQuotedStringWithCaseInsensitiveOrdering(IEnumerable<string> elements)
+                => ToQuotedString(elements.OrderBy(s => s, StringComparer.OrdinalIgnoreCase));
+
             private static string BuildVariableDependencyChainClause(IEnumerable<string>? variableDependencyChain) => variableDependencyChain is not null
                 ? $" You are referencing a variable which cannot be calculated at the start (\"{string.Join("\" -> \"", variableDependencyChain)}\")."
                 : string.Empty;
@@ -1535,9 +1538,14 @@ namespace Bicep.Core.Diagnostics
                 "BCP263",
                 "The file specified in the using declaration path does not exist");
 
-            public FixableErrorDiagnostic SymbolicNameShadowsAKnownFunction(string name, string knownFunctionNamespace, string knownFunctionName) => new(
+            public ErrorDiagnostic AmbiguousResourceTypeBetweenImports(string resourceTypeName, IEnumerable<string> namespaces) => new(
                 TextSpan,
                 "BCP264",
+                $"Resource type \"{resourceTypeName}\" is declared in multiple imported namespaces ({ToQuotedStringWithCaseInsensitiveOrdering(namespaces)}), and must be fully-qualified.");
+
+            public FixableErrorDiagnostic SymbolicNameShadowsAKnownFunction(string name, string knownFunctionNamespace, string knownFunctionName) => new(
+                TextSpan,
+                "BCP265",
                 $"The name \"{name}\" is not a function. Did you mean \"{knownFunctionNamespace}.{knownFunctionName}\"?",
                 null,
                 DiagnosticStyling.Default,
