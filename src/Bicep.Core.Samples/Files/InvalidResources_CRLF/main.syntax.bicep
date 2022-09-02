@@ -1,12080 +1,12062 @@
 
-//@[0:2) NewLine |\r\n|
+//@[000:51671) ProgramSyntax
+//@[000:00002) ├─Token(NewLine) |\r\n|
 // wrong declaration
-//@[20:22) NewLine |\r\n|
+//@[020:00022) ├─Token(NewLine) |\r\n|
 bad
-//@[0:3) SkippedTriviaSyntax
-//@[0:3)  Identifier |bad|
-//@[3:7) NewLine |\r\n\r\n|
+//@[000:00003) ├─SkippedTriviaSyntax
+//@[000:00003) | └─Token(Identifier) |bad|
+//@[003:00007) ├─Token(NewLine) |\r\n\r\n|
 
 // incomplete #completionTest(9) -> empty
-//@[41:43) NewLine |\r\n|
+//@[041:00043) ├─Token(NewLine) |\r\n|
 resource 
-//@[0:9) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:9)  IdentifierSyntax
-//@[9:9)   SkippedTriviaSyntax
-//@[9:9)  SkippedTriviaSyntax
-//@[9:9)  SkippedTriviaSyntax
-//@[9:9)  SkippedTriviaSyntax
-//@[9:11) NewLine |\r\n|
+//@[000:00009) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00009) | ├─IdentifierSyntax
+//@[009:00009) | | └─SkippedTriviaSyntax
+//@[009:00009) | ├─SkippedTriviaSyntax
+//@[009:00009) | ├─SkippedTriviaSyntax
+//@[009:00009) | └─SkippedTriviaSyntax
+//@[009:00011) ├─Token(NewLine) |\r\n|
 resource foo
-//@[0:12) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[12:12)  SkippedTriviaSyntax
-//@[12:12)  SkippedTriviaSyntax
-//@[12:12)  SkippedTriviaSyntax
-//@[12:14) NewLine |\r\n|
+//@[000:00012) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[012:00012) | ├─SkippedTriviaSyntax
+//@[012:00012) | ├─SkippedTriviaSyntax
+//@[012:00012) | └─SkippedTriviaSyntax
+//@[012:00014) ├─Token(NewLine) |\r\n|
 resource fo/o
-//@[0:13) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:11)  IdentifierSyntax
-//@[9:11)   Identifier |fo|
-//@[11:13)  SkippedTriviaSyntax
-//@[11:12)   Slash |/|
-//@[12:13)   Identifier |o|
-//@[13:13)  SkippedTriviaSyntax
-//@[13:13)  SkippedTriviaSyntax
-//@[13:15) NewLine |\r\n|
+//@[000:00013) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00011) | ├─IdentifierSyntax
+//@[009:00011) | | └─Token(Identifier) |fo|
+//@[011:00013) | ├─SkippedTriviaSyntax
+//@[011:00012) | | ├─Token(Slash) |/|
+//@[012:00013) | | └─Token(Identifier) |o|
+//@[013:00013) | ├─SkippedTriviaSyntax
+//@[013:00013) | └─SkippedTriviaSyntax
+//@[013:00015) ├─Token(NewLine) |\r\n|
 resource foo 'ddd'
-//@[0:18) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:18)  StringSyntax
-//@[13:18)   StringComplete |'ddd'|
-//@[18:18)  SkippedTriviaSyntax
-//@[18:18)  SkippedTriviaSyntax
-//@[18:22) NewLine |\r\n\r\n|
+//@[000:00018) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00018) | ├─StringSyntax
+//@[013:00018) | | └─Token(StringComplete) |'ddd'|
+//@[018:00018) | ├─SkippedTriviaSyntax
+//@[018:00018) | └─SkippedTriviaSyntax
+//@[018:00022) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(23) -> resourceTypes
-//@[39:41) NewLine |\r\n|
+//@[039:00041) ├─Token(NewLine) |\r\n|
 resource trailingSpace  
-//@[0:24) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:22)  IdentifierSyntax
-//@[9:22)   Identifier |trailingSpace|
-//@[24:24)  SkippedTriviaSyntax
-//@[24:24)  SkippedTriviaSyntax
-//@[24:24)  SkippedTriviaSyntax
-//@[24:28) NewLine |\r\n\r\n|
+//@[000:00024) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00022) | ├─IdentifierSyntax
+//@[009:00022) | | └─Token(Identifier) |trailingSpace|
+//@[024:00024) | ├─SkippedTriviaSyntax
+//@[024:00024) | ├─SkippedTriviaSyntax
+//@[024:00024) | └─SkippedTriviaSyntax
+//@[024:00028) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(19,20) -> resourceObject
-//@[43:45) NewLine |\r\n|
+//@[043:00045) ├─Token(NewLine) |\r\n|
 resource foo 'ddd'= 
-//@[0:20) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:18)  StringSyntax
-//@[13:18)   StringComplete |'ddd'|
-//@[18:19)  Assignment |=|
-//@[20:20)  SkippedTriviaSyntax
-//@[20:24) NewLine |\r\n\r\n|
+//@[000:00020) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00018) | ├─StringSyntax
+//@[013:00018) | | └─Token(StringComplete) |'ddd'|
+//@[018:00019) | ├─Token(Assignment) |=|
+//@[020:00020) | └─SkippedTriviaSyntax
+//@[020:00024) ├─Token(NewLine) |\r\n\r\n|
 
 // wrong resource type
-//@[22:24) NewLine |\r\n|
+//@[022:00024) ├─Token(NewLine) |\r\n|
 resource foo 'ddd'={
-//@[0:23) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:18)  StringSyntax
-//@[13:18)   StringComplete |'ddd'|
-//@[18:19)  Assignment |=|
-//@[19:23)  ObjectSyntax
-//@[19:20)   LeftBrace |{|
-//@[20:22)   NewLine |\r\n|
+//@[000:00023) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00018) | ├─StringSyntax
+//@[013:00018) | | └─Token(StringComplete) |'ddd'|
+//@[018:00019) | ├─Token(Assignment) |=|
+//@[019:00023) | └─ObjectSyntax
+//@[019:00020) |   ├─Token(LeftBrace) |{|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource foo 'ddd'=if (1 + 1 == 2) {
-//@[0:39) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:18)  StringSyntax
-//@[13:18)   StringComplete |'ddd'|
-//@[18:19)  Assignment |=|
-//@[19:39)  IfConditionSyntax
-//@[19:21)   Identifier |if|
-//@[22:34)   ParenthesizedExpressionSyntax
-//@[22:23)    LeftParen |(|
-//@[23:33)    BinaryOperationSyntax
-//@[23:28)     BinaryOperationSyntax
-//@[23:24)      IntegerLiteralSyntax
-//@[23:24)       Integer |1|
-//@[25:26)      Plus |+|
-//@[27:28)      IntegerLiteralSyntax
-//@[27:28)       Integer |1|
-//@[29:31)     Equals |==|
-//@[32:33)     IntegerLiteralSyntax
-//@[32:33)      Integer |2|
-//@[33:34)    RightParen |)|
-//@[35:39)   ObjectSyntax
-//@[35:36)    LeftBrace |{|
-//@[36:38)    NewLine |\r\n|
+//@[000:00039) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00018) | ├─StringSyntax
+//@[013:00018) | | └─Token(StringComplete) |'ddd'|
+//@[018:00019) | ├─Token(Assignment) |=|
+//@[019:00039) | └─IfConditionSyntax
+//@[019:00021) |   ├─Token(Identifier) |if|
+//@[022:00034) |   ├─ParenthesizedExpressionSyntax
+//@[022:00023) |   | ├─Token(LeftParen) |(|
+//@[023:00033) |   | ├─BinaryOperationSyntax
+//@[023:00028) |   | | ├─BinaryOperationSyntax
+//@[023:00024) |   | | | ├─IntegerLiteralSyntax
+//@[023:00024) |   | | | | └─Token(Integer) |1|
+//@[025:00026) |   | | | ├─Token(Plus) |+|
+//@[027:00028) |   | | | └─IntegerLiteralSyntax
+//@[027:00028) |   | | |   └─Token(Integer) |1|
+//@[029:00031) |   | | ├─Token(Equals) |==|
+//@[032:00033) |   | | └─IntegerLiteralSyntax
+//@[032:00033) |   | |   └─Token(Integer) |2|
+//@[033:00034) |   | └─Token(RightParen) |)|
+//@[035:00039) |   └─ObjectSyntax
+//@[035:00036) |     ├─Token(LeftBrace) |{|
+//@[036:00038) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // using string interpolation for the resource type
-//@[51:53) NewLine |\r\n|
+//@[051:00053) ├─Token(NewLine) |\r\n|
 resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
-//@[0:64) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:58)  StringSyntax
-//@[13:26)   StringLeftPiece |'Microsoft.${|
-//@[26:34)   VariableAccessSyntax
-//@[26:34)    IdentifierSyntax
-//@[26:34)     Identifier |provider|
-//@[34:58)   StringRightPiece |}/foos@2020-02-02-alpha'|
-//@[58:59)  Assignment |=|
-//@[60:64)  ObjectSyntax
-//@[60:61)   LeftBrace |{|
-//@[61:63)   NewLine |\r\n|
+//@[000:00064) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00058) | ├─StringSyntax
+//@[013:00026) | | ├─Token(StringLeftPiece) |'Microsoft.${|
+//@[026:00034) | | ├─VariableAccessSyntax
+//@[026:00034) | | | └─IdentifierSyntax
+//@[026:00034) | | |   └─Token(Identifier) |provider|
+//@[034:00058) | | └─Token(StringRightPiece) |}/foos@2020-02-02-alpha'|
+//@[058:00059) | ├─Token(Assignment) |=|
+//@[060:00064) | └─ObjectSyntax
+//@[060:00061) |   ├─Token(LeftBrace) |{|
+//@[061:00063) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= if (true) {
-//@[0:74) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:58)  StringSyntax
-//@[13:26)   StringLeftPiece |'Microsoft.${|
-//@[26:34)   VariableAccessSyntax
-//@[26:34)    IdentifierSyntax
-//@[26:34)     Identifier |provider|
-//@[34:58)   StringRightPiece |}/foos@2020-02-02-alpha'|
-//@[58:59)  Assignment |=|
-//@[60:74)  IfConditionSyntax
-//@[60:62)   Identifier |if|
-//@[63:69)   ParenthesizedExpressionSyntax
-//@[63:64)    LeftParen |(|
-//@[64:68)    BooleanLiteralSyntax
-//@[64:68)     TrueKeyword |true|
-//@[68:69)    RightParen |)|
-//@[70:74)   ObjectSyntax
-//@[70:71)    LeftBrace |{|
-//@[71:73)    NewLine |\r\n|
+//@[000:00074) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00058) | ├─StringSyntax
+//@[013:00026) | | ├─Token(StringLeftPiece) |'Microsoft.${|
+//@[026:00034) | | ├─VariableAccessSyntax
+//@[026:00034) | | | └─IdentifierSyntax
+//@[026:00034) | | |   └─Token(Identifier) |provider|
+//@[034:00058) | | └─Token(StringRightPiece) |}/foos@2020-02-02-alpha'|
+//@[058:00059) | ├─Token(Assignment) |=|
+//@[060:00074) | └─IfConditionSyntax
+//@[060:00062) |   ├─Token(Identifier) |if|
+//@[063:00069) |   ├─ParenthesizedExpressionSyntax
+//@[063:00064) |   | ├─Token(LeftParen) |(|
+//@[064:00068) |   | ├─BooleanLiteralSyntax
+//@[064:00068) |   | | └─Token(TrueKeyword) |true|
+//@[068:00069) |   | └─Token(RightParen) |)|
+//@[070:00074) |   └─ObjectSyntax
+//@[070:00071) |     ├─Token(LeftBrace) |{|
+//@[071:00073) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // missing required property
-//@[28:30) NewLine |\r\n|
+//@[028:00030) ├─Token(NewLine) |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
-//@[0:55) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[51:55)  ObjectSyntax
-//@[51:52)   LeftBrace |{|
-//@[52:54)   NewLine |\r\n|
+//@[000:00055) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[051:00055) | └─ObjectSyntax
+//@[051:00052) |   ├─Token(LeftBrace) |{|
+//@[052:00054) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
-//@[0:77) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[52:77)  IfConditionSyntax
-//@[52:54)   Identifier |if|
-//@[55:72)   ParenthesizedExpressionSyntax
-//@[55:56)    LeftParen |(|
-//@[56:71)    BinaryOperationSyntax
-//@[56:60)     VariableAccessSyntax
-//@[56:60)      IdentifierSyntax
-//@[56:60)       Identifier |name|
-//@[61:63)     Equals |==|
-//@[64:71)     StringSyntax
-//@[64:71)      StringComplete |'value'|
-//@[71:72)    RightParen |)|
-//@[73:77)   ObjectSyntax
-//@[73:74)    LeftBrace |{|
-//@[74:76)    NewLine |\r\n|
+//@[000:00077) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00077) | └─IfConditionSyntax
+//@[052:00054) |   ├─Token(Identifier) |if|
+//@[055:00072) |   ├─ParenthesizedExpressionSyntax
+//@[055:00056) |   | ├─Token(LeftParen) |(|
+//@[056:00071) |   | ├─BinaryOperationSyntax
+//@[056:00060) |   | | ├─VariableAccessSyntax
+//@[056:00060) |   | | | └─IdentifierSyntax
+//@[056:00060) |   | | |   └─Token(Identifier) |name|
+//@[061:00063) |   | | ├─Token(Equals) |==|
+//@[064:00071) |   | | └─StringSyntax
+//@[064:00071) |   | |   └─Token(StringComplete) |'value'|
+//@[071:00072) |   | └─Token(RightParen) |)|
+//@[073:00077) |   └─ObjectSyntax
+//@[073:00074) |     ├─Token(LeftBrace) |{|
+//@[074:00076) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
-//@[0:83) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[52:83)  IfConditionSyntax
-//@[52:54)   Identifier |if|
-//@[55:78)   ParenthesizedExpressionSyntax
-//@[55:56)    LeftParen |(|
-//@[56:77)    BinaryOperationSyntax
-//@[56:68)     PropertyAccessSyntax
-//@[56:66)      ObjectSyntax
-//@[56:57)       LeftBrace |{|
-//@[58:58)       SkippedTriviaSyntax
-//@[58:64)       ObjectPropertySyntax
-//@[58:61)        StringSyntax
-//@[58:61)         StringComplete |'a'|
-//@[61:62)        Colon |:|
-//@[63:64)        VariableAccessSyntax
-//@[63:64)         IdentifierSyntax
-//@[63:64)          Identifier |b|
-//@[65:65)       SkippedTriviaSyntax
-//@[65:66)       RightBrace |}|
-//@[66:67)      Dot |.|
-//@[67:68)      IdentifierSyntax
-//@[67:68)       Identifier |a|
-//@[69:71)     Equals |==|
-//@[72:77)     StringSyntax
-//@[72:77)      StringComplete |'foo'|
-//@[77:78)    RightParen |)|
-//@[79:83)   ObjectSyntax
-//@[79:80)    LeftBrace |{|
-//@[80:82)    NewLine |\r\n|
+//@[000:00083) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00083) | └─IfConditionSyntax
+//@[052:00054) |   ├─Token(Identifier) |if|
+//@[055:00078) |   ├─ParenthesizedExpressionSyntax
+//@[055:00056) |   | ├─Token(LeftParen) |(|
+//@[056:00077) |   | ├─BinaryOperationSyntax
+//@[056:00068) |   | | ├─PropertyAccessSyntax
+//@[056:00066) |   | | | ├─ObjectSyntax
+//@[056:00057) |   | | | | ├─Token(LeftBrace) |{|
+//@[058:00064) |   | | | | ├─ObjectPropertySyntax
+//@[058:00061) |   | | | | | ├─StringSyntax
+//@[058:00061) |   | | | | | | └─Token(StringComplete) |'a'|
+//@[061:00062) |   | | | | | ├─Token(Colon) |:|
+//@[063:00064) |   | | | | | └─VariableAccessSyntax
+//@[063:00064) |   | | | | |   └─IdentifierSyntax
+//@[063:00064) |   | | | | |     └─Token(Identifier) |b|
+//@[065:00066) |   | | | | └─Token(RightBrace) |}|
+//@[066:00067) |   | | | ├─Token(Dot) |.|
+//@[067:00068) |   | | | └─IdentifierSyntax
+//@[067:00068) |   | | |   └─Token(Identifier) |a|
+//@[069:00071) |   | | ├─Token(Equals) |==|
+//@[072:00077) |   | | └─StringSyntax
+//@[072:00077) |   | |   └─Token(StringComplete) |'foo'|
+//@[077:00078) |   | └─Token(RightParen) |)|
+//@[079:00083) |   └─ObjectSyntax
+//@[079:00080) |     ├─Token(LeftBrace) |{|
+//@[080:00082) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // simulate typing if condition
-//@[31:33) NewLine |\r\n|
+//@[031:00033) ├─Token(NewLine) |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
-//@[0:54) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[52:54)  IfConditionSyntax
-//@[52:54)   Identifier |if|
-//@[54:54)   SkippedTriviaSyntax
-//@[54:54)   SkippedTriviaSyntax
-//@[54:58) NewLine |\r\n\r\n|
+//@[000:00054) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00054) | └─IfConditionSyntax
+//@[052:00054) |   ├─Token(Identifier) |if|
+//@[054:00054) |   ├─SkippedTriviaSyntax
+//@[054:00054) |   └─SkippedTriviaSyntax
+//@[054:00058) ├─Token(NewLine) |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
-//@[0:56) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[52:56)  IfConditionSyntax
-//@[52:54)   Identifier |if|
-//@[55:56)   ParenthesizedExpressionSyntax
-//@[55:56)    LeftParen |(|
-//@[56:56)    SkippedTriviaSyntax
-//@[56:56)    SkippedTriviaSyntax
-//@[56:56)   SkippedTriviaSyntax
-//@[56:60) NewLine |\r\n\r\n|
+//@[000:00056) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00056) | └─IfConditionSyntax
+//@[052:00054) |   ├─Token(Identifier) |if|
+//@[055:00056) |   ├─ParenthesizedExpressionSyntax
+//@[055:00056) |   | ├─Token(LeftParen) |(|
+//@[056:00056) |   | ├─SkippedTriviaSyntax
+//@[056:00056) |   | └─SkippedTriviaSyntax
+//@[056:00056) |   └─SkippedTriviaSyntax
+//@[056:00060) ├─Token(NewLine) |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
-//@[0:60) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[52:60)  IfConditionSyntax
-//@[52:54)   Identifier |if|
-//@[55:60)   ParenthesizedExpressionSyntax
-//@[55:56)    LeftParen |(|
-//@[56:60)    BooleanLiteralSyntax
-//@[56:60)     TrueKeyword |true|
-//@[60:60)    SkippedTriviaSyntax
-//@[60:60)   SkippedTriviaSyntax
-//@[60:64) NewLine |\r\n\r\n|
+//@[000:00060) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00060) | └─IfConditionSyntax
+//@[052:00054) |   ├─Token(Identifier) |if|
+//@[055:00060) |   ├─ParenthesizedExpressionSyntax
+//@[055:00056) |   | ├─Token(LeftParen) |(|
+//@[056:00060) |   | ├─BooleanLiteralSyntax
+//@[056:00060) |   | | └─Token(TrueKeyword) |true|
+//@[060:00060) |   | └─SkippedTriviaSyntax
+//@[060:00060) |   └─SkippedTriviaSyntax
+//@[060:00064) ├─Token(NewLine) |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true)
-//@[0:61) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[52:61)  IfConditionSyntax
-//@[52:54)   Identifier |if|
-//@[55:61)   ParenthesizedExpressionSyntax
-//@[55:56)    LeftParen |(|
-//@[56:60)    BooleanLiteralSyntax
-//@[56:60)     TrueKeyword |true|
-//@[60:61)    RightParen |)|
-//@[61:61)   SkippedTriviaSyntax
-//@[61:65) NewLine |\r\n\r\n|
+//@[000:00061) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00061) | └─IfConditionSyntax
+//@[052:00054) |   ├─Token(Identifier) |if|
+//@[055:00061) |   ├─ParenthesizedExpressionSyntax
+//@[055:00056) |   | ├─Token(LeftParen) |(|
+//@[056:00060) |   | ├─BooleanLiteralSyntax
+//@[056:00060) |   | | └─Token(TrueKeyword) |true|
+//@[060:00061) |   | └─Token(RightParen) |)|
+//@[061:00061) |   └─SkippedTriviaSyntax
+//@[061:00065) ├─Token(NewLine) |\r\n\r\n|
 
 // missing condition
-//@[20:22) NewLine |\r\n|
+//@[020:00022) ├─Token(NewLine) |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
-//@[0:74) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[52:74)  IfConditionSyntax
-//@[52:54)   Identifier |if|
-//@[55:55)   SkippedTriviaSyntax
-//@[55:74)   ObjectSyntax
-//@[55:56)    LeftBrace |{|
-//@[56:58)    NewLine |\r\n|
+//@[000:00074) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00074) | └─IfConditionSyntax
+//@[052:00054) |   ├─Token(Identifier) |if|
+//@[055:00055) |   ├─SkippedTriviaSyntax
+//@[055:00074) |   └─ObjectSyntax
+//@[055:00056) |     ├─Token(LeftBrace) |{|
+//@[056:00058) |     ├─Token(NewLine) |\r\n|
   name: 'foo'
-//@[2:13)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:13)     StringSyntax
-//@[8:13)      StringComplete |'foo'|
-//@[13:15)    NewLine |\r\n|
+//@[002:00013) |     ├─ObjectPropertySyntax
+//@[002:00006) |     | ├─IdentifierSyntax
+//@[002:00006) |     | | └─Token(Identifier) |name|
+//@[006:00007) |     | ├─Token(Colon) |:|
+//@[008:00013) |     | └─StringSyntax
+//@[008:00013) |     |   └─Token(StringComplete) |'foo'|
+//@[013:00015) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // empty condition
-//@[18:20) NewLine |\r\n|
+//@[018:00020) ├─Token(NewLine) |\r\n|
 // #completionTest(56) -> symbols
-//@[33:35) NewLine |\r\n|
+//@[033:00035) ├─Token(NewLine) |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
-//@[0:77) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[52:77)  IfConditionSyntax
-//@[52:54)   Identifier |if|
-//@[55:57)   ParenthesizedExpressionSyntax
-//@[55:56)    LeftParen |(|
-//@[56:56)    SkippedTriviaSyntax
-//@[56:57)    RightParen |)|
-//@[58:77)   ObjectSyntax
-//@[58:59)    LeftBrace |{|
-//@[59:61)    NewLine |\r\n|
+//@[000:00077) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00077) | └─IfConditionSyntax
+//@[052:00054) |   ├─Token(Identifier) |if|
+//@[055:00057) |   ├─ParenthesizedExpressionSyntax
+//@[055:00056) |   | ├─Token(LeftParen) |(|
+//@[056:00056) |   | ├─SkippedTriviaSyntax
+//@[056:00057) |   | └─Token(RightParen) |)|
+//@[058:00077) |   └─ObjectSyntax
+//@[058:00059) |     ├─Token(LeftBrace) |{|
+//@[059:00061) |     ├─Token(NewLine) |\r\n|
   name: 'foo'
-//@[2:13)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:13)     StringSyntax
-//@[8:13)      StringComplete |'foo'|
-//@[13:15)    NewLine |\r\n|
+//@[002:00013) |     ├─ObjectPropertySyntax
+//@[002:00006) |     | ├─IdentifierSyntax
+//@[002:00006) |     | | └─Token(Identifier) |name|
+//@[006:00007) |     | ├─Token(Colon) |:|
+//@[008:00013) |     | └─StringSyntax
+//@[008:00013) |     |   └─Token(StringComplete) |'foo'|
+//@[013:00015) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(57, 59) -> symbols
-//@[37:39) NewLine |\r\n|
+//@[037:00039) ├─Token(NewLine) |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
-//@[0:82) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[52:82)  IfConditionSyntax
-//@[52:54)   Identifier |if|
-//@[55:62)   ParenthesizedExpressionSyntax
-//@[55:56)    LeftParen |(|
-//@[61:61)    SkippedTriviaSyntax
-//@[61:62)    RightParen |)|
-//@[63:82)   ObjectSyntax
-//@[63:64)    LeftBrace |{|
-//@[64:66)    NewLine |\r\n|
+//@[000:00082) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00082) | └─IfConditionSyntax
+//@[052:00054) |   ├─Token(Identifier) |if|
+//@[055:00062) |   ├─ParenthesizedExpressionSyntax
+//@[055:00056) |   | ├─Token(LeftParen) |(|
+//@[056:00056) |   | ├─SkippedTriviaSyntax
+//@[061:00062) |   | └─Token(RightParen) |)|
+//@[063:00082) |   └─ObjectSyntax
+//@[063:00064) |     ├─Token(LeftBrace) |{|
+//@[064:00066) |     ├─Token(NewLine) |\r\n|
   name: 'foo'
-//@[2:13)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:13)     StringSyntax
-//@[8:13)      StringComplete |'foo'|
-//@[13:15)    NewLine |\r\n|
+//@[002:00013) |     ├─ObjectPropertySyntax
+//@[002:00006) |     | ├─IdentifierSyntax
+//@[002:00006) |     | | └─Token(Identifier) |name|
+//@[006:00007) |     | ├─Token(Colon) |:|
+//@[008:00013) |     | └─StringSyntax
+//@[008:00013) |     |   └─Token(StringComplete) |'foo'|
+//@[013:00015) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // invalid condition type
-//@[25:27) NewLine |\r\n|
+//@[025:00027) ├─Token(NewLine) |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
-//@[0:80) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[52:80)  IfConditionSyntax
-//@[52:54)   Identifier |if|
-//@[55:60)   ParenthesizedExpressionSyntax
-//@[55:56)    LeftParen |(|
-//@[56:59)    IntegerLiteralSyntax
-//@[56:59)     Integer |123|
-//@[59:60)    RightParen |)|
-//@[61:80)   ObjectSyntax
-//@[61:62)    LeftBrace |{|
-//@[62:64)    NewLine |\r\n|
+//@[000:00080) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00080) | └─IfConditionSyntax
+//@[052:00054) |   ├─Token(Identifier) |if|
+//@[055:00060) |   ├─ParenthesizedExpressionSyntax
+//@[055:00056) |   | ├─Token(LeftParen) |(|
+//@[056:00059) |   | ├─IntegerLiteralSyntax
+//@[056:00059) |   | | └─Token(Integer) |123|
+//@[059:00060) |   | └─Token(RightParen) |)|
+//@[061:00080) |   └─ObjectSyntax
+//@[061:00062) |     ├─Token(LeftBrace) |{|
+//@[062:00064) |     ├─Token(NewLine) |\r\n|
   name: 'foo'
-//@[2:13)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:13)     StringSyntax
-//@[8:13)      StringComplete |'foo'|
-//@[13:15)    NewLine |\r\n|
+//@[002:00013) |     ├─ObjectPropertySyntax
+//@[002:00006) |     | ├─IdentifierSyntax
+//@[002:00006) |     | | └─Token(Identifier) |name|
+//@[006:00007) |     | ├─Token(Colon) |:|
+//@[008:00013) |     | └─StringSyntax
+//@[008:00013) |     |   └─Token(StringComplete) |'foo'|
+//@[013:00015) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // runtime functions are no allowed in resource conditions
-//@[58:60) NewLine |\r\n|
+//@[058:00060) ├─Token(NewLine) |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
-//@[0:165) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[51:52)  Assignment |=|
-//@[53:165)  IfConditionSyntax
-//@[53:55)   Identifier |if|
-//@[56:145)   ParenthesizedExpressionSyntax
-//@[56:57)    LeftParen |(|
-//@[57:144)    BinaryOperationSyntax
-//@[57:129)     PropertyAccessSyntax
-//@[57:124)      FunctionCallSyntax
-//@[57:66)       IdentifierSyntax
-//@[57:66)        Identifier |reference|
-//@[66:67)       LeftParen |(|
-//@[67:110)       FunctionArgumentSyntax
-//@[67:109)        StringSyntax
-//@[67:109)         StringComplete |'Micorosft.Management/managementGroups/MG'|
-//@[109:110)        Comma |,|
-//@[111:123)       FunctionArgumentSyntax
-//@[111:123)        StringSyntax
-//@[111:123)         StringComplete |'2020-05-01'|
-//@[123:124)       RightParen |)|
-//@[124:125)      Dot |.|
-//@[125:129)      IdentifierSyntax
-//@[125:129)       Identifier |name|
-//@[130:132)     Equals |==|
-//@[133:144)     StringSyntax
-//@[133:144)      StringComplete |'something'|
-//@[144:145)    RightParen |)|
-//@[146:165)   ObjectSyntax
-//@[146:147)    LeftBrace |{|
-//@[147:149)    NewLine |\r\n|
+//@[000:00165) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[051:00052) | ├─Token(Assignment) |=|
+//@[053:00165) | └─IfConditionSyntax
+//@[053:00055) |   ├─Token(Identifier) |if|
+//@[056:00145) |   ├─ParenthesizedExpressionSyntax
+//@[056:00057) |   | ├─Token(LeftParen) |(|
+//@[057:00144) |   | ├─BinaryOperationSyntax
+//@[057:00129) |   | | ├─PropertyAccessSyntax
+//@[057:00124) |   | | | ├─FunctionCallSyntax
+//@[057:00066) |   | | | | ├─IdentifierSyntax
+//@[057:00066) |   | | | | | └─Token(Identifier) |reference|
+//@[066:00067) |   | | | | ├─Token(LeftParen) |(|
+//@[067:00109) |   | | | | ├─FunctionArgumentSyntax
+//@[067:00109) |   | | | | | └─StringSyntax
+//@[067:00109) |   | | | | |   └─Token(StringComplete) |'Micorosft.Management/managementGroups/MG'|
+//@[109:00110) |   | | | | ├─Token(Comma) |,|
+//@[111:00123) |   | | | | ├─FunctionArgumentSyntax
+//@[111:00123) |   | | | | | └─StringSyntax
+//@[111:00123) |   | | | | |   └─Token(StringComplete) |'2020-05-01'|
+//@[123:00124) |   | | | | └─Token(RightParen) |)|
+//@[124:00125) |   | | | ├─Token(Dot) |.|
+//@[125:00129) |   | | | └─IdentifierSyntax
+//@[125:00129) |   | | |   └─Token(Identifier) |name|
+//@[130:00132) |   | | ├─Token(Equals) |==|
+//@[133:00144) |   | | └─StringSyntax
+//@[133:00144) |   | |   └─Token(StringComplete) |'something'|
+//@[144:00145) |   | └─Token(RightParen) |)|
+//@[146:00165) |   └─ObjectSyntax
+//@[146:00147) |     ├─Token(LeftBrace) |{|
+//@[147:00149) |     ├─Token(NewLine) |\r\n|
   name: 'foo'
-//@[2:13)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:13)     StringSyntax
-//@[8:13)      StringComplete |'foo'|
-//@[13:15)    NewLine |\r\n|
+//@[002:00013) |     ├─ObjectPropertySyntax
+//@[002:00006) |     | ├─IdentifierSyntax
+//@[002:00006) |     | | └─Token(Identifier) |name|
+//@[006:00007) |     | ├─Token(Colon) |:|
+//@[008:00013) |     | └─StringSyntax
+//@[008:00013) |     |   └─Token(StringComplete) |'foo'|
+//@[013:00015) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-05-01').bar == true) {
-//@[0:119) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[51:52)  Assignment |=|
-//@[53:119)  IfConditionSyntax
-//@[53:55)   Identifier |if|
-//@[56:99)   ParenthesizedExpressionSyntax
-//@[56:57)    LeftParen |(|
-//@[57:98)    BinaryOperationSyntax
-//@[57:90)     PropertyAccessSyntax
-//@[57:86)      FunctionCallSyntax
-//@[57:65)       IdentifierSyntax
-//@[57:65)        Identifier |listKeys|
-//@[65:66)       LeftParen |(|
-//@[66:72)       FunctionArgumentSyntax
-//@[66:71)        StringSyntax
-//@[66:71)         StringComplete |'foo'|
-//@[71:72)        Comma |,|
-//@[73:85)       FunctionArgumentSyntax
-//@[73:85)        StringSyntax
-//@[73:85)         StringComplete |'2020-05-01'|
-//@[85:86)       RightParen |)|
-//@[86:87)      Dot |.|
-//@[87:90)      IdentifierSyntax
-//@[87:90)       Identifier |bar|
-//@[91:93)     Equals |==|
-//@[94:98)     BooleanLiteralSyntax
-//@[94:98)      TrueKeyword |true|
-//@[98:99)    RightParen |)|
-//@[100:119)   ObjectSyntax
-//@[100:101)    LeftBrace |{|
-//@[101:103)    NewLine |\r\n|
+//@[000:00119) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[051:00052) | ├─Token(Assignment) |=|
+//@[053:00119) | └─IfConditionSyntax
+//@[053:00055) |   ├─Token(Identifier) |if|
+//@[056:00099) |   ├─ParenthesizedExpressionSyntax
+//@[056:00057) |   | ├─Token(LeftParen) |(|
+//@[057:00098) |   | ├─BinaryOperationSyntax
+//@[057:00090) |   | | ├─PropertyAccessSyntax
+//@[057:00086) |   | | | ├─FunctionCallSyntax
+//@[057:00065) |   | | | | ├─IdentifierSyntax
+//@[057:00065) |   | | | | | └─Token(Identifier) |listKeys|
+//@[065:00066) |   | | | | ├─Token(LeftParen) |(|
+//@[066:00071) |   | | | | ├─FunctionArgumentSyntax
+//@[066:00071) |   | | | | | └─StringSyntax
+//@[066:00071) |   | | | | |   └─Token(StringComplete) |'foo'|
+//@[071:00072) |   | | | | ├─Token(Comma) |,|
+//@[073:00085) |   | | | | ├─FunctionArgumentSyntax
+//@[073:00085) |   | | | | | └─StringSyntax
+//@[073:00085) |   | | | | |   └─Token(StringComplete) |'2020-05-01'|
+//@[085:00086) |   | | | | └─Token(RightParen) |)|
+//@[086:00087) |   | | | ├─Token(Dot) |.|
+//@[087:00090) |   | | | └─IdentifierSyntax
+//@[087:00090) |   | | |   └─Token(Identifier) |bar|
+//@[091:00093) |   | | ├─Token(Equals) |==|
+//@[094:00098) |   | | └─BooleanLiteralSyntax
+//@[094:00098) |   | |   └─Token(TrueKeyword) |true|
+//@[098:00099) |   | └─Token(RightParen) |)|
+//@[100:00119) |   └─ObjectSyntax
+//@[100:00101) |     ├─Token(LeftBrace) |{|
+//@[101:00103) |     ├─Token(NewLine) |\r\n|
   name: 'foo'
-//@[2:13)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:13)     StringSyntax
-//@[8:13)      StringComplete |'foo'|
-//@[13:15)    NewLine |\r\n|
+//@[002:00013) |     ├─ObjectPropertySyntax
+//@[002:00006) |     | ├─IdentifierSyntax
+//@[002:00006) |     | | └─Token(Identifier) |name|
+//@[006:00007) |     | ├─Token(Colon) |:|
+//@[008:00013) |     | └─StringSyntax
+//@[008:00013) |     |   └─Token(StringComplete) |'foo'|
+//@[013:00015) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // duplicate property at the top level
-//@[38:40) NewLine |\r\n|
+//@[038:00040) ├─Token(NewLine) |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:85) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[52:85)  ObjectSyntax
-//@[52:53)   LeftBrace |{|
-//@[53:55)   NewLine |\r\n|
+//@[000:00085) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00085) | └─ObjectSyntax
+//@[052:00053) |   ├─Token(LeftBrace) |{|
+//@[053:00055) |   ├─Token(NewLine) |\r\n|
   name: 'foo'
-//@[2:13)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:13)    StringSyntax
-//@[8:13)     StringComplete |'foo'|
-//@[13:15)   NewLine |\r\n|
+//@[002:00013) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00013) |   | └─StringSyntax
+//@[008:00013) |   |   └─Token(StringComplete) |'foo'|
+//@[013:00015) |   ├─Token(NewLine) |\r\n|
   name: true
-//@[2:12)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:12)    BooleanLiteralSyntax
-//@[8:12)     TrueKeyword |true|
-//@[12:14)   NewLine |\r\n|
+//@[002:00012) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00012) |   | └─BooleanLiteralSyntax
+//@[008:00012) |   |   └─Token(TrueKeyword) |true|
+//@[012:00014) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // duplicate property at the top level with string literal syntax
-//@[65:67) NewLine |\r\n|
+//@[065:00067) ├─Token(NewLine) |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:87) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[52:87)  ObjectSyntax
-//@[52:53)   LeftBrace |{|
-//@[53:55)   NewLine |\r\n|
+//@[000:00087) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00087) | └─ObjectSyntax
+//@[052:00053) |   ├─Token(LeftBrace) |{|
+//@[053:00055) |   ├─Token(NewLine) |\r\n|
   name: 'foo'
-//@[2:13)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:13)    StringSyntax
-//@[8:13)     StringComplete |'foo'|
-//@[13:15)   NewLine |\r\n|
+//@[002:00013) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00013) |   | └─StringSyntax
+//@[008:00013) |   |   └─Token(StringComplete) |'foo'|
+//@[013:00015) |   ├─Token(NewLine) |\r\n|
   'name': true
-//@[2:14)   ObjectPropertySyntax
-//@[2:8)    StringSyntax
-//@[2:8)     StringComplete |'name'|
-//@[8:9)    Colon |:|
-//@[10:14)    BooleanLiteralSyntax
-//@[10:14)     TrueKeyword |true|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─StringSyntax
+//@[002:00008) |   | | └─Token(StringComplete) |'name'|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00014) |   | └─BooleanLiteralSyntax
+//@[010:00014) |   |   └─Token(TrueKeyword) |true|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // duplicate property inside
-//@[28:30) NewLine |\r\n|
+//@[028:00030) ├─Token(NewLine) |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:121) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[52:121)  ObjectSyntax
-//@[52:53)   LeftBrace |{|
-//@[53:55)   NewLine |\r\n|
+//@[000:00121) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00121) | └─ObjectSyntax
+//@[052:00053) |   ├─Token(LeftBrace) |{|
+//@[053:00055) |   ├─Token(NewLine) |\r\n|
   name: 'foo'
-//@[2:13)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:13)    StringSyntax
-//@[8:13)     StringComplete |'foo'|
-//@[13:15)   NewLine |\r\n|
+//@[002:00013) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00013) |   | └─StringSyntax
+//@[008:00013) |   |   └─Token(StringComplete) |'foo'|
+//@[013:00015) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:48)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:48)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00048) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00048) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     foo: 'a'
-//@[4:12)     ObjectPropertySyntax
-//@[4:7)      IdentifierSyntax
-//@[4:7)       Identifier |foo|
-//@[7:8)      Colon |:|
-//@[9:12)      StringSyntax
-//@[9:12)       StringComplete |'a'|
-//@[12:14)     NewLine |\r\n|
+//@[004:00012) |   |   ├─ObjectPropertySyntax
+//@[004:00007) |   |   | ├─IdentifierSyntax
+//@[004:00007) |   |   | | └─Token(Identifier) |foo|
+//@[007:00008) |   |   | ├─Token(Colon) |:|
+//@[009:00012) |   |   | └─StringSyntax
+//@[009:00012) |   |   |   └─Token(StringComplete) |'a'|
+//@[012:00014) |   |   ├─Token(NewLine) |\r\n|
     foo: 'a'
-//@[4:12)     ObjectPropertySyntax
-//@[4:7)      IdentifierSyntax
-//@[4:7)       Identifier |foo|
-//@[7:8)      Colon |:|
-//@[9:12)      StringSyntax
-//@[9:12)       StringComplete |'a'|
-//@[12:14)     NewLine |\r\n|
+//@[004:00012) |   |   ├─ObjectPropertySyntax
+//@[004:00007) |   |   | ├─IdentifierSyntax
+//@[004:00007) |   |   | | └─Token(Identifier) |foo|
+//@[007:00008) |   |   | ├─Token(Colon) |:|
+//@[009:00012) |   |   | └─StringSyntax
+//@[009:00012) |   |   |   └─Token(StringComplete) |'a'|
+//@[012:00014) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // duplicate property inside with string literal syntax
-//@[55:57) NewLine |\r\n|
+//@[055:00057) ├─Token(NewLine) |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:123) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[52:123)  ObjectSyntax
-//@[52:53)   LeftBrace |{|
-//@[53:55)   NewLine |\r\n|
+//@[000:00123) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00123) | └─ObjectSyntax
+//@[052:00053) |   ├─Token(LeftBrace) |{|
+//@[053:00055) |   ├─Token(NewLine) |\r\n|
   name: 'foo'
-//@[2:13)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:13)    StringSyntax
-//@[8:13)     StringComplete |'foo'|
-//@[13:15)   NewLine |\r\n|
+//@[002:00013) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00013) |   | └─StringSyntax
+//@[008:00013) |   |   └─Token(StringComplete) |'foo'|
+//@[013:00015) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:50)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:50)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00050) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00050) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     foo: 'a'
-//@[4:12)     ObjectPropertySyntax
-//@[4:7)      IdentifierSyntax
-//@[4:7)       Identifier |foo|
-//@[7:8)      Colon |:|
-//@[9:12)      StringSyntax
-//@[9:12)       StringComplete |'a'|
-//@[12:14)     NewLine |\r\n|
+//@[004:00012) |   |   ├─ObjectPropertySyntax
+//@[004:00007) |   |   | ├─IdentifierSyntax
+//@[004:00007) |   |   | | └─Token(Identifier) |foo|
+//@[007:00008) |   |   | ├─Token(Colon) |:|
+//@[009:00012) |   |   | └─StringSyntax
+//@[009:00012) |   |   |   └─Token(StringComplete) |'a'|
+//@[012:00014) |   |   ├─Token(NewLine) |\r\n|
     'foo': 'a'
-//@[4:14)     ObjectPropertySyntax
-//@[4:9)      StringSyntax
-//@[4:9)       StringComplete |'foo'|
-//@[9:10)      Colon |:|
-//@[11:14)      StringSyntax
-//@[11:14)       StringComplete |'a'|
-//@[14:16)     NewLine |\r\n|
+//@[004:00014) |   |   ├─ObjectPropertySyntax
+//@[004:00009) |   |   | ├─StringSyntax
+//@[004:00009) |   |   | | └─Token(StringComplete) |'foo'|
+//@[009:00010) |   |   | ├─Token(Colon) |:|
+//@[011:00014) |   |   | └─StringSyntax
+//@[011:00014) |   |   |   └─Token(StringComplete) |'a'|
+//@[014:00016) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // wrong property types
-//@[23:25) NewLine |\r\n|
+//@[023:00025) ├─Token(NewLine) |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:124) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51)  Assignment |=|
-//@[52:124)  ObjectSyntax
-//@[52:53)   LeftBrace |{|
-//@[53:55)   NewLine |\r\n|
+//@[000:00124) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00124) | └─ObjectSyntax
+//@[052:00053) |   ├─Token(LeftBrace) |{|
+//@[053:00055) |   ├─Token(NewLine) |\r\n|
   name: 'foo'
-//@[2:13)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:13)    StringSyntax
-//@[8:13)     StringComplete |'foo'|
-//@[13:15)   NewLine |\r\n|
+//@[002:00013) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00013) |   | └─StringSyntax
+//@[008:00013) |   |   └─Token(StringComplete) |'foo'|
+//@[013:00015) |   ├─Token(NewLine) |\r\n|
   location: [
-//@[2:18)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:18)    ArraySyntax
-//@[12:13)     LeftSquare |[|
-//@[13:15)     NewLine |\r\n|
+//@[002:00018) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00018) |   | └─ArraySyntax
+//@[012:00013) |   |   ├─Token(LeftSquare) |[|
+//@[013:00015) |   |   ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)     RightSquare |]|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightSquare) |]|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
   tags: 'tag are not a string?'
-//@[2:31)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |tags|
-//@[6:7)    Colon |:|
-//@[8:31)    StringSyntax
-//@[8:31)     StringComplete |'tag are not a string?'|
-//@[31:33)   NewLine |\r\n|
+//@[002:00031) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |tags|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00031) |   | └─StringSyntax
+//@[008:00031) |   |   └─Token(StringComplete) |'tag are not a string?'|
+//@[031:00033) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:231) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |bar|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[51:52)  Assignment |=|
-//@[53:231)  ObjectSyntax
-//@[53:54)   LeftBrace |{|
-//@[54:56)   NewLine |\r\n|
+//@[000:00231) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |bar|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[051:00052) | ├─Token(Assignment) |=|
+//@[053:00231) | └─ObjectSyntax
+//@[053:00054) |   ├─Token(LeftBrace) |{|
+//@[054:00056) |   ├─Token(NewLine) |\r\n|
   name: true ? 's' : 'a' + 1
-//@[2:28)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:28)    TernaryOperationSyntax
-//@[8:12)     BooleanLiteralSyntax
-//@[8:12)      TrueKeyword |true|
-//@[13:14)     Question |?|
-//@[15:18)     StringSyntax
-//@[15:18)      StringComplete |'s'|
-//@[19:20)     Colon |:|
-//@[21:28)     BinaryOperationSyntax
-//@[21:24)      StringSyntax
-//@[21:24)       StringComplete |'a'|
-//@[25:26)      Plus |+|
-//@[27:28)      IntegerLiteralSyntax
-//@[27:28)       Integer |1|
-//@[28:30)   NewLine |\r\n|
+//@[002:00028) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00028) |   | └─TernaryOperationSyntax
+//@[008:00012) |   |   ├─BooleanLiteralSyntax
+//@[008:00012) |   |   | └─Token(TrueKeyword) |true|
+//@[013:00014) |   |   ├─Token(Question) |?|
+//@[015:00018) |   |   ├─StringSyntax
+//@[015:00018) |   |   | └─Token(StringComplete) |'s'|
+//@[019:00020) |   |   ├─Token(Colon) |:|
+//@[021:00028) |   |   └─BinaryOperationSyntax
+//@[021:00024) |   |     ├─StringSyntax
+//@[021:00024) |   |     | └─Token(StringComplete) |'a'|
+//@[025:00026) |   |     ├─Token(Plus) |+|
+//@[027:00028) |   |     └─IntegerLiteralSyntax
+//@[027:00028) |   |       └─Token(Integer) |1|
+//@[028:00030) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:142)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:142)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00142) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00142) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     x: foo()
-//@[4:12)     ObjectPropertySyntax
-//@[4:5)      IdentifierSyntax
-//@[4:5)       Identifier |x|
-//@[5:6)      Colon |:|
-//@[7:12)      FunctionCallSyntax
-//@[7:10)       IdentifierSyntax
-//@[7:10)        Identifier |foo|
-//@[10:11)       LeftParen |(|
-//@[11:12)       RightParen |)|
-//@[12:14)     NewLine |\r\n|
+//@[004:00012) |   |   ├─ObjectPropertySyntax
+//@[004:00005) |   |   | ├─IdentifierSyntax
+//@[004:00005) |   |   | | └─Token(Identifier) |x|
+//@[005:00006) |   |   | ├─Token(Colon) |:|
+//@[007:00012) |   |   | └─FunctionCallSyntax
+//@[007:00010) |   |   |   ├─IdentifierSyntax
+//@[007:00010) |   |   |   | └─Token(Identifier) |foo|
+//@[010:00011) |   |   |   ├─Token(LeftParen) |(|
+//@[011:00012) |   |   |   └─Token(RightParen) |)|
+//@[012:00014) |   |   ├─Token(NewLine) |\r\n|
     y: true && (null || !4)
-//@[4:27)     ObjectPropertySyntax
-//@[4:5)      IdentifierSyntax
-//@[4:5)       Identifier |y|
-//@[5:6)      Colon |:|
-//@[7:27)      BinaryOperationSyntax
-//@[7:11)       BooleanLiteralSyntax
-//@[7:11)        TrueKeyword |true|
-//@[12:14)       LogicalAnd |&&|
-//@[15:27)       ParenthesizedExpressionSyntax
-//@[15:16)        LeftParen |(|
-//@[16:26)        BinaryOperationSyntax
-//@[16:20)         NullLiteralSyntax
-//@[16:20)          NullKeyword |null|
-//@[21:23)         LogicalOr ||||
-//@[24:26)         UnaryOperationSyntax
-//@[24:25)          Exclamation |!|
-//@[25:26)          IntegerLiteralSyntax
-//@[25:26)           Integer |4|
-//@[26:27)        RightParen |)|
-//@[27:29)     NewLine |\r\n|
+//@[004:00027) |   |   ├─ObjectPropertySyntax
+//@[004:00005) |   |   | ├─IdentifierSyntax
+//@[004:00005) |   |   | | └─Token(Identifier) |y|
+//@[005:00006) |   |   | ├─Token(Colon) |:|
+//@[007:00027) |   |   | └─BinaryOperationSyntax
+//@[007:00011) |   |   |   ├─BooleanLiteralSyntax
+//@[007:00011) |   |   |   | └─Token(TrueKeyword) |true|
+//@[012:00014) |   |   |   ├─Token(LogicalAnd) |&&|
+//@[015:00027) |   |   |   └─ParenthesizedExpressionSyntax
+//@[015:00016) |   |   |     ├─Token(LeftParen) |(|
+//@[016:00026) |   |   |     ├─BinaryOperationSyntax
+//@[016:00020) |   |   |     | ├─NullLiteralSyntax
+//@[016:00020) |   |   |     | | └─Token(NullKeyword) |null|
+//@[021:00023) |   |   |     | ├─Token(LogicalOr) ||||
+//@[024:00026) |   |   |     | └─UnaryOperationSyntax
+//@[024:00025) |   |   |     |   ├─Token(Exclamation) |!|
+//@[025:00026) |   |   |     |   └─IntegerLiteralSyntax
+//@[025:00026) |   |   |     |     └─Token(Integer) |4|
+//@[026:00027) |   |   |     └─Token(RightParen) |)|
+//@[027:00029) |   |   ├─Token(NewLine) |\r\n|
     a: [
-//@[4:77)     ObjectPropertySyntax
-//@[4:5)      IdentifierSyntax
-//@[4:5)       Identifier |a|
-//@[5:6)      Colon |:|
-//@[7:77)      ArraySyntax
-//@[7:8)       LeftSquare |[|
-//@[8:10)       NewLine |\r\n|
+//@[004:00077) |   |   ├─ObjectPropertySyntax
+//@[004:00005) |   |   | ├─IdentifierSyntax
+//@[004:00005) |   |   | | └─Token(Identifier) |a|
+//@[005:00006) |   |   | ├─Token(Colon) |:|
+//@[007:00077) |   |   | └─ArraySyntax
+//@[007:00008) |   |   |   ├─Token(LeftSquare) |[|
+//@[008:00010) |   |   |   ├─Token(NewLine) |\r\n|
       a
-//@[6:7)       ArrayItemSyntax
-//@[6:7)        VariableAccessSyntax
-//@[6:7)         IdentifierSyntax
-//@[6:7)          Identifier |a|
-//@[7:9)       NewLine |\r\n|
+//@[006:00007) |   |   |   ├─ArrayItemSyntax
+//@[006:00007) |   |   |   | └─VariableAccessSyntax
+//@[006:00007) |   |   |   |   └─IdentifierSyntax
+//@[006:00007) |   |   |   |     └─Token(Identifier) |a|
+//@[007:00009) |   |   |   ├─Token(NewLine) |\r\n|
       !null
-//@[6:11)       ArrayItemSyntax
-//@[6:11)        UnaryOperationSyntax
-//@[6:7)         Exclamation |!|
-//@[7:11)         NullLiteralSyntax
-//@[7:11)          NullKeyword |null|
-//@[11:13)       NewLine |\r\n|
+//@[006:00011) |   |   |   ├─ArrayItemSyntax
+//@[006:00011) |   |   |   | └─UnaryOperationSyntax
+//@[006:00007) |   |   |   |   ├─Token(Exclamation) |!|
+//@[007:00011) |   |   |   |   └─NullLiteralSyntax
+//@[007:00011) |   |   |   |     └─Token(NullKeyword) |null|
+//@[011:00013) |   |   |   ├─Token(NewLine) |\r\n|
       true && true || true + -true * 4
-//@[6:38)       ArrayItemSyntax
-//@[6:38)        BinaryOperationSyntax
-//@[6:18)         BinaryOperationSyntax
-//@[6:10)          BooleanLiteralSyntax
-//@[6:10)           TrueKeyword |true|
-//@[11:13)          LogicalAnd |&&|
-//@[14:18)          BooleanLiteralSyntax
-//@[14:18)           TrueKeyword |true|
-//@[19:21)         LogicalOr ||||
-//@[22:38)         BinaryOperationSyntax
-//@[22:26)          BooleanLiteralSyntax
-//@[22:26)           TrueKeyword |true|
-//@[27:28)          Plus |+|
-//@[29:38)          BinaryOperationSyntax
-//@[29:34)           UnaryOperationSyntax
-//@[29:30)            Minus |-|
-//@[30:34)            BooleanLiteralSyntax
-//@[30:34)             TrueKeyword |true|
-//@[35:36)           Asterisk |*|
-//@[37:38)           IntegerLiteralSyntax
-//@[37:38)            Integer |4|
-//@[38:40)       NewLine |\r\n|
+//@[006:00038) |   |   |   ├─ArrayItemSyntax
+//@[006:00038) |   |   |   | └─BinaryOperationSyntax
+//@[006:00018) |   |   |   |   ├─BinaryOperationSyntax
+//@[006:00010) |   |   |   |   | ├─BooleanLiteralSyntax
+//@[006:00010) |   |   |   |   | | └─Token(TrueKeyword) |true|
+//@[011:00013) |   |   |   |   | ├─Token(LogicalAnd) |&&|
+//@[014:00018) |   |   |   |   | └─BooleanLiteralSyntax
+//@[014:00018) |   |   |   |   |   └─Token(TrueKeyword) |true|
+//@[019:00021) |   |   |   |   ├─Token(LogicalOr) ||||
+//@[022:00038) |   |   |   |   └─BinaryOperationSyntax
+//@[022:00026) |   |   |   |     ├─BooleanLiteralSyntax
+//@[022:00026) |   |   |   |     | └─Token(TrueKeyword) |true|
+//@[027:00028) |   |   |   |     ├─Token(Plus) |+|
+//@[029:00038) |   |   |   |     └─BinaryOperationSyntax
+//@[029:00034) |   |   |   |       ├─UnaryOperationSyntax
+//@[029:00030) |   |   |   |       | ├─Token(Minus) |-|
+//@[030:00034) |   |   |   |       | └─BooleanLiteralSyntax
+//@[030:00034) |   |   |   |       |   └─Token(TrueKeyword) |true|
+//@[035:00036) |   |   |   |       ├─Token(Asterisk) |*|
+//@[037:00038) |   |   |   |       └─IntegerLiteralSyntax
+//@[037:00038) |   |   |   |         └─Token(Integer) |4|
+//@[038:00040) |   |   |   ├─Token(NewLine) |\r\n|
     ]
-//@[4:5)       RightSquare |]|
-//@[5:7)     NewLine |\r\n|
+//@[004:00005) |   |   |   └─Token(RightSquare) |]|
+//@[005:00007) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // there should be no completions without the colon
-//@[51:53) NewLine |\r\n|
+//@[051:00053) ├─Token(NewLine) |\r\n|
 resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:138) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:34)  IdentifierSyntax
-//@[9:34)   Identifier |noCompletionsWithoutColon|
-//@[35:85)  StringSyntax
-//@[35:85)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[86:87)  Assignment |=|
-//@[88:138)  ObjectSyntax
-//@[88:89)   LeftBrace |{|
-//@[89:91)   NewLine |\r\n|
+//@[000:00138) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00034) | ├─IdentifierSyntax
+//@[009:00034) | | └─Token(Identifier) |noCompletionsWithoutColon|
+//@[035:00085) | ├─StringSyntax
+//@[035:00085) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[086:00087) | ├─Token(Assignment) |=|
+//@[088:00138) | └─ObjectSyntax
+//@[088:00089) |   ├─Token(LeftBrace) |{|
+//@[089:00091) |   ├─Token(NewLine) |\r\n|
   // #completionTest(7,8) -> empty
-//@[34:36)   NewLine |\r\n|
+//@[034:00036) |   ├─Token(NewLine) |\r\n|
   kind  
-//@[2:8)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[8:8)    SkippedTriviaSyntax
-//@[8:8)    SkippedTriviaSyntax
-//@[8:10)   NewLine |\r\n|
+//@[002:00008) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[008:00008) |   | ├─SkippedTriviaSyntax
+//@[008:00008) |   | └─SkippedTriviaSyntax
+//@[008:00010) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:138) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:33)  IdentifierSyntax
-//@[9:33)   Identifier |noCompletionsBeforeColon|
-//@[34:84)  StringSyntax
-//@[34:84)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[85:86)  Assignment |=|
-//@[87:138)  ObjectSyntax
-//@[87:88)   LeftBrace |{|
-//@[88:90)   NewLine |\r\n|
+//@[000:00138) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00033) | ├─IdentifierSyntax
+//@[009:00033) | | └─Token(Identifier) |noCompletionsBeforeColon|
+//@[034:00084) | ├─StringSyntax
+//@[034:00084) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[085:00086) | ├─Token(Assignment) |=|
+//@[087:00138) | └─ObjectSyntax
+//@[087:00088) |   ├─Token(LeftBrace) |{|
+//@[088:00090) |   ├─Token(NewLine) |\r\n|
   // #completionTest(7,8) -> empty
-//@[34:36)   NewLine |\r\n|
+//@[034:00036) |   ├─Token(NewLine) |\r\n|
   kind  :
-//@[2:9)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[8:9)    Colon |:|
-//@[9:9)    SkippedTriviaSyntax
-//@[9:11)   NewLine |\r\n|
+//@[002:00009) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[009:00009) |   | └─SkippedTriviaSyntax
+//@[009:00011) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // unsupported resource ref
-//@[27:29) NewLine |\r\n|
+//@[027:00029) ├─Token(NewLine) |\r\n|
 var resrefvar = bar.name
-//@[0:24) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:13)  IdentifierSyntax
-//@[4:13)   Identifier |resrefvar|
-//@[14:15)  Assignment |=|
-//@[16:24)  PropertyAccessSyntax
-//@[16:19)   VariableAccessSyntax
-//@[16:19)    IdentifierSyntax
-//@[16:19)     Identifier |bar|
-//@[19:20)   Dot |.|
-//@[20:24)   IdentifierSyntax
-//@[20:24)    Identifier |name|
-//@[24:28) NewLine |\r\n\r\n|
+//@[000:00024) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00013) | ├─IdentifierSyntax
+//@[004:00013) | | └─Token(Identifier) |resrefvar|
+//@[014:00015) | ├─Token(Assignment) |=|
+//@[016:00024) | └─PropertyAccessSyntax
+//@[016:00019) |   ├─VariableAccessSyntax
+//@[016:00019) |   | └─IdentifierSyntax
+//@[016:00019) |   |   └─Token(Identifier) |bar|
+//@[019:00020) |   ├─Token(Dot) |.|
+//@[020:00024) |   └─IdentifierSyntax
+//@[020:00024) |     └─Token(Identifier) |name|
+//@[024:00028) ├─Token(NewLine) |\r\n\r\n|
 
 param resrefpar string = foo.id
-//@[0:31) ParameterDeclarationSyntax
-//@[0:5)  Identifier |param|
-//@[6:15)  IdentifierSyntax
-//@[6:15)   Identifier |resrefpar|
-//@[16:22)  SimpleTypeSyntax
-//@[16:22)   Identifier |string|
-//@[23:31)  ParameterDefaultValueSyntax
-//@[23:24)   Assignment |=|
-//@[25:31)   PropertyAccessSyntax
-//@[25:28)    VariableAccessSyntax
-//@[25:28)     IdentifierSyntax
-//@[25:28)      Identifier |foo|
-//@[28:29)    Dot |.|
-//@[29:31)    IdentifierSyntax
-//@[29:31)     Identifier |id|
-//@[31:35) NewLine |\r\n\r\n|
+//@[000:00031) ├─ParameterDeclarationSyntax
+//@[000:00005) | ├─Token(Identifier) |param|
+//@[006:00015) | ├─IdentifierSyntax
+//@[006:00015) | | └─Token(Identifier) |resrefpar|
+//@[016:00022) | ├─SimpleTypeSyntax
+//@[016:00022) | | └─Token(Identifier) |string|
+//@[023:00031) | └─ParameterDefaultValueSyntax
+//@[023:00024) |   ├─Token(Assignment) |=|
+//@[025:00031) |   └─PropertyAccessSyntax
+//@[025:00028) |     ├─VariableAccessSyntax
+//@[025:00028) |     | └─IdentifierSyntax
+//@[025:00028) |     |   └─Token(Identifier) |foo|
+//@[028:00029) |     ├─Token(Dot) |.|
+//@[029:00031) |     └─IdentifierSyntax
+//@[029:00031) |       └─Token(Identifier) |id|
+//@[031:00035) ├─Token(NewLine) |\r\n\r\n|
 
 output resrefout bool = bar.id
-//@[0:30) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:16)  IdentifierSyntax
-//@[7:16)   Identifier |resrefout|
-//@[17:21)  SimpleTypeSyntax
-//@[17:21)   Identifier |bool|
-//@[22:23)  Assignment |=|
-//@[24:30)  PropertyAccessSyntax
-//@[24:27)   VariableAccessSyntax
-//@[24:27)    IdentifierSyntax
-//@[24:27)     Identifier |bar|
-//@[27:28)   Dot |.|
-//@[28:30)   IdentifierSyntax
-//@[28:30)    Identifier |id|
-//@[30:34) NewLine |\r\n\r\n|
+//@[000:00030) ├─OutputDeclarationSyntax
+//@[000:00006) | ├─Token(Identifier) |output|
+//@[007:00016) | ├─IdentifierSyntax
+//@[007:00016) | | └─Token(Identifier) |resrefout|
+//@[017:00021) | ├─SimpleTypeSyntax
+//@[017:00021) | | └─Token(Identifier) |bool|
+//@[022:00023) | ├─Token(Assignment) |=|
+//@[024:00030) | └─PropertyAccessSyntax
+//@[024:00027) |   ├─VariableAccessSyntax
+//@[024:00027) |   | └─IdentifierSyntax
+//@[024:00027) |   |   └─Token(Identifier) |bar|
+//@[027:00028) |   ├─Token(Dot) |.|
+//@[028:00030) |   └─IdentifierSyntax
+//@[028:00030) |     └─Token(Identifier) |id|
+//@[030:00034) ├─Token(NewLine) |\r\n\r\n|
 
 // attempting to set read-only properties
-//@[41:43) NewLine |\r\n|
+//@[041:00043) ├─Token(NewLine) |\r\n|
 resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:119) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |baz|
-//@[13:50)  StringSyntax
-//@[13:50)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[51:52)  Assignment |=|
-//@[53:119)  ObjectSyntax
-//@[53:54)   LeftBrace |{|
-//@[54:56)   NewLine |\r\n|
+//@[000:00119) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |baz|
+//@[013:00050) | ├─StringSyntax
+//@[013:00050) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[051:00052) | ├─Token(Assignment) |=|
+//@[053:00119) | └─ObjectSyntax
+//@[053:00054) |   ├─Token(LeftBrace) |{|
+//@[054:00056) |   ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'test'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'test'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
   id: 2
-//@[2:7)   ObjectPropertySyntax
-//@[2:4)    IdentifierSyntax
-//@[2:4)     Identifier |id|
-//@[4:5)    Colon |:|
-//@[6:7)    IntegerLiteralSyntax
-//@[6:7)     Integer |2|
-//@[7:9)   NewLine |\r\n|
+//@[002:00007) |   ├─ObjectPropertySyntax
+//@[002:00004) |   | ├─IdentifierSyntax
+//@[002:00004) |   | | └─Token(Identifier) |id|
+//@[004:00005) |   | ├─Token(Colon) |:|
+//@[006:00007) |   | └─IntegerLiteralSyntax
+//@[006:00007) |   |   └─Token(Integer) |2|
+//@[007:00009) |   ├─Token(NewLine) |\r\n|
   type: 'hello'
-//@[2:15)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |type|
-//@[6:7)    Colon |:|
-//@[8:15)    StringSyntax
-//@[8:15)     StringComplete |'hello'|
-//@[15:17)   NewLine |\r\n|
+//@[002:00015) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |type|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00015) |   | └─StringSyntax
+//@[008:00015) |   |   └─Token(StringComplete) |'hello'|
+//@[015:00017) |   ├─Token(NewLine) |\r\n|
   apiVersion: true
-//@[2:18)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |apiVersion|
-//@[12:13)    Colon |:|
-//@[14:18)    BooleanLiteralSyntax
-//@[14:18)     TrueKeyword |true|
-//@[18:20)   NewLine |\r\n|
+//@[002:00018) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |apiVersion|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00018) |   | └─BooleanLiteralSyntax
+//@[014:00018) |   |   └─Token(TrueKeyword) |true|
+//@[018:00020) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource readOnlyPropertyAssignment 'Microsoft.Network/virtualNetworks@2020-06-01' = {
-//@[0:352) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |readOnlyPropertyAssignment|
-//@[36:82)  StringSyntax
-//@[36:82)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[83:84)  Assignment |=|
-//@[85:352)  ObjectSyntax
-//@[85:86)   LeftBrace |{|
-//@[86:88)   NewLine |\r\n|
+//@[000:00352) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |readOnlyPropertyAssignment|
+//@[036:00082) | ├─StringSyntax
+//@[036:00082) | | └─Token(StringComplete) |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[083:00084) | ├─Token(Assignment) |=|
+//@[085:00352) | └─ObjectSyntax
+//@[085:00086) |   ├─Token(LeftBrace) |{|
+//@[086:00088) |   ├─Token(NewLine) |\r\n|
   name: 'vnet-bicep'
-//@[2:20)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:20)    StringSyntax
-//@[8:20)     StringComplete |'vnet-bicep'|
-//@[20:22)   NewLine |\r\n|
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00020) |   | └─StringSyntax
+//@[008:00020) |   |   └─Token(StringComplete) |'vnet-bicep'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
   location: 'westeurope'
-//@[2:24)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:24)    StringSyntax
-//@[12:24)     StringComplete |'westeurope'|
-//@[24:26)   NewLine |\r\n|
+//@[002:00024) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00024) |   | └─StringSyntax
+//@[012:00024) |   |   └─Token(StringComplete) |'westeurope'|
+//@[024:00026) |   ├─Token(NewLine) |\r\n|
   etag: 'assigning-to-read-only-value'
-//@[2:38)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |etag|
-//@[6:7)    Colon |:|
-//@[8:38)    StringSyntax
-//@[8:38)     StringComplete |'assigning-to-read-only-value'|
-//@[38:40)   NewLine |\r\n|
+//@[002:00038) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |etag|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00038) |   | └─StringSyntax
+//@[008:00038) |   |   └─Token(StringComplete) |'assigning-to-read-only-value'|
+//@[038:00040) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:173)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:173)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00173) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00173) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     resourceGuid: 'assigning-to-read-only-value'
-//@[4:48)     ObjectPropertySyntax
-//@[4:16)      IdentifierSyntax
-//@[4:16)       Identifier |resourceGuid|
-//@[16:17)      Colon |:|
-//@[18:48)      StringSyntax
-//@[18:48)       StringComplete |'assigning-to-read-only-value'|
-//@[48:50)     NewLine |\r\n|
+//@[004:00048) |   |   ├─ObjectPropertySyntax
+//@[004:00016) |   |   | ├─IdentifierSyntax
+//@[004:00016) |   |   | | └─Token(Identifier) |resourceGuid|
+//@[016:00017) |   |   | ├─Token(Colon) |:|
+//@[018:00048) |   |   | └─StringSyntax
+//@[018:00048) |   |   |   └─Token(StringComplete) |'assigning-to-read-only-value'|
+//@[048:00050) |   |   ├─Token(NewLine) |\r\n|
     addressSpace: {
-//@[4:84)     ObjectPropertySyntax
-//@[4:16)      IdentifierSyntax
-//@[4:16)       Identifier |addressSpace|
-//@[16:17)      Colon |:|
-//@[18:84)      ObjectSyntax
-//@[18:19)       LeftBrace |{|
-//@[19:21)       NewLine |\r\n|
+//@[004:00084) |   |   ├─ObjectPropertySyntax
+//@[004:00016) |   |   | ├─IdentifierSyntax
+//@[004:00016) |   |   | | └─Token(Identifier) |addressSpace|
+//@[016:00017) |   |   | ├─Token(Colon) |:|
+//@[018:00084) |   |   | └─ObjectSyntax
+//@[018:00019) |   |   |   ├─Token(LeftBrace) |{|
+//@[019:00021) |   |   |   ├─Token(NewLine) |\r\n|
       addressPrefixes: [
-//@[6:56)       ObjectPropertySyntax
-//@[6:21)        IdentifierSyntax
-//@[6:21)         Identifier |addressPrefixes|
-//@[21:22)        Colon |:|
-//@[23:56)        ArraySyntax
-//@[23:24)         LeftSquare |[|
-//@[24:26)         NewLine |\r\n|
+//@[006:00056) |   |   |   ├─ObjectPropertySyntax
+//@[006:00021) |   |   |   | ├─IdentifierSyntax
+//@[006:00021) |   |   |   | | └─Token(Identifier) |addressPrefixes|
+//@[021:00022) |   |   |   | ├─Token(Colon) |:|
+//@[023:00056) |   |   |   | └─ArraySyntax
+//@[023:00024) |   |   |   |   ├─Token(LeftSquare) |[|
+//@[024:00026) |   |   |   |   ├─Token(NewLine) |\r\n|
         '10.0.0.0/16'
-//@[8:21)         ArrayItemSyntax
-//@[8:21)          StringSyntax
-//@[8:21)           StringComplete |'10.0.0.0/16'|
-//@[21:23)         NewLine |\r\n|
+//@[008:00021) |   |   |   |   ├─ArrayItemSyntax
+//@[008:00021) |   |   |   |   | └─StringSyntax
+//@[008:00021) |   |   |   |   |   └─Token(StringComplete) |'10.0.0.0/16'|
+//@[021:00023) |   |   |   |   ├─Token(NewLine) |\r\n|
       ]
-//@[6:7)         RightSquare |]|
-//@[7:9)       NewLine |\r\n|
+//@[006:00007) |   |   |   |   └─Token(RightSquare) |]|
+//@[007:00009) |   |   |   ├─Token(NewLine) |\r\n|
     }
-//@[4:5)       RightBrace |}|
-//@[5:7)     NewLine |\r\n|
+//@[004:00005) |   |   |   └─Token(RightBrace) |}|
+//@[005:00007) |   |   ├─Token(NewLine) |\r\n|
     subnets: []
-//@[4:15)     ObjectPropertySyntax
-//@[4:11)      IdentifierSyntax
-//@[4:11)       Identifier |subnets|
-//@[11:12)      Colon |:|
-//@[13:15)      ArraySyntax
-//@[13:14)       LeftSquare |[|
-//@[14:15)       RightSquare |]|
-//@[15:17)     NewLine |\r\n|
+//@[004:00015) |   |   ├─ObjectPropertySyntax
+//@[004:00011) |   |   | ├─IdentifierSyntax
+//@[004:00011) |   |   | | └─Token(Identifier) |subnets|
+//@[011:00012) |   |   | ├─Token(Colon) |:|
+//@[013:00015) |   |   | └─ArraySyntax
+//@[013:00014) |   |   |   ├─Token(LeftSquare) |[|
+//@[014:00015) |   |   |   └─Token(RightSquare) |]|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:113) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:19)  IdentifierSyntax
-//@[9:19)   Identifier |badDepends|
-//@[20:57)  StringSyntax
-//@[20:57)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[58:59)  Assignment |=|
-//@[60:113)  ObjectSyntax
-//@[60:61)   LeftBrace |{|
-//@[61:63)   NewLine |\r\n|
+//@[000:00113) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00019) | ├─IdentifierSyntax
+//@[009:00019) | | └─Token(Identifier) |badDepends|
+//@[020:00057) | ├─StringSyntax
+//@[020:00057) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[058:00059) | ├─Token(Assignment) |=|
+//@[060:00113) | └─ObjectSyntax
+//@[060:00061) |   ├─Token(LeftBrace) |{|
+//@[061:00063) |   ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'test'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'test'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
   dependsOn: [
-//@[2:31)   ObjectPropertySyntax
-//@[2:11)    IdentifierSyntax
-//@[2:11)     Identifier |dependsOn|
-//@[11:12)    Colon |:|
-//@[13:31)    ArraySyntax
-//@[13:14)     LeftSquare |[|
-//@[14:16)     NewLine |\r\n|
+//@[002:00031) |   ├─ObjectPropertySyntax
+//@[002:00011) |   | ├─IdentifierSyntax
+//@[002:00011) |   | | └─Token(Identifier) |dependsOn|
+//@[011:00012) |   | ├─Token(Colon) |:|
+//@[013:00031) |   | └─ArraySyntax
+//@[013:00014) |   |   ├─Token(LeftSquare) |[|
+//@[014:00016) |   |   ├─Token(NewLine) |\r\n|
     baz.id
-//@[4:10)     ArrayItemSyntax
-//@[4:10)      PropertyAccessSyntax
-//@[4:7)       VariableAccessSyntax
-//@[4:7)        IdentifierSyntax
-//@[4:7)         Identifier |baz|
-//@[7:8)       Dot |.|
-//@[8:10)       IdentifierSyntax
-//@[8:10)        Identifier |id|
-//@[10:12)     NewLine |\r\n|
+//@[004:00010) |   |   ├─ArrayItemSyntax
+//@[004:00010) |   |   | └─PropertyAccessSyntax
+//@[004:00007) |   |   |   ├─VariableAccessSyntax
+//@[004:00007) |   |   |   | └─IdentifierSyntax
+//@[004:00007) |   |   |   |   └─Token(Identifier) |baz|
+//@[007:00008) |   |   |   ├─Token(Dot) |.|
+//@[008:00010) |   |   |   └─IdentifierSyntax
+//@[008:00010) |   |   |     └─Token(Identifier) |id|
+//@[010:00012) |   |   ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)     RightSquare |]|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightSquare) |]|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:125) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:20)  IdentifierSyntax
-//@[9:20)   Identifier |badDepends2|
-//@[21:58)  StringSyntax
-//@[21:58)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[59:60)  Assignment |=|
-//@[61:125)  ObjectSyntax
-//@[61:62)   LeftBrace |{|
-//@[62:64)   NewLine |\r\n|
+//@[000:00125) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00020) | ├─IdentifierSyntax
+//@[009:00020) | | └─Token(Identifier) |badDepends2|
+//@[021:00058) | ├─StringSyntax
+//@[021:00058) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[059:00060) | ├─Token(Assignment) |=|
+//@[061:00125) | └─ObjectSyntax
+//@[061:00062) |   ├─Token(LeftBrace) |{|
+//@[062:00064) |   ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'test'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'test'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
   dependsOn: [
-//@[2:42)   ObjectPropertySyntax
-//@[2:11)    IdentifierSyntax
-//@[2:11)     Identifier |dependsOn|
-//@[11:12)    Colon |:|
-//@[13:42)    ArraySyntax
-//@[13:14)     LeftSquare |[|
-//@[14:16)     NewLine |\r\n|
+//@[002:00042) |   ├─ObjectPropertySyntax
+//@[002:00011) |   | ├─IdentifierSyntax
+//@[002:00011) |   | | └─Token(Identifier) |dependsOn|
+//@[011:00012) |   | ├─Token(Colon) |:|
+//@[013:00042) |   | └─ArraySyntax
+//@[013:00014) |   |   ├─Token(LeftSquare) |[|
+//@[014:00016) |   |   ├─Token(NewLine) |\r\n|
     'hello'
-//@[4:11)     ArrayItemSyntax
-//@[4:11)      StringSyntax
-//@[4:11)       StringComplete |'hello'|
-//@[11:13)     NewLine |\r\n|
+//@[004:00011) |   |   ├─ArrayItemSyntax
+//@[004:00011) |   |   | └─StringSyntax
+//@[004:00011) |   |   |   └─Token(StringComplete) |'hello'|
+//@[011:00013) |   |   ├─Token(NewLine) |\r\n|
     true
-//@[4:8)     ArrayItemSyntax
-//@[4:8)      BooleanLiteralSyntax
-//@[4:8)       TrueKeyword |true|
-//@[8:10)     NewLine |\r\n|
+//@[004:00008) |   |   ├─ArrayItemSyntax
+//@[004:00008) |   |   | └─BooleanLiteralSyntax
+//@[004:00008) |   |   |   └─Token(TrueKeyword) |true|
+//@[008:00010) |   |   ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)     RightSquare |]|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightSquare) |]|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:81) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:20)  IdentifierSyntax
-//@[9:20)   Identifier |badDepends3|
-//@[21:58)  StringSyntax
-//@[21:58)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[59:60)  Assignment |=|
-//@[61:81)  ObjectSyntax
-//@[61:62)   LeftBrace |{|
-//@[62:64)   NewLine |\r\n|
+//@[000:00081) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00020) | ├─IdentifierSyntax
+//@[009:00020) | | └─Token(Identifier) |badDepends3|
+//@[021:00058) | ├─StringSyntax
+//@[021:00058) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[059:00060) | ├─Token(Assignment) |=|
+//@[061:00081) | └─ObjectSyntax
+//@[061:00062) |   ├─Token(LeftBrace) |{|
+//@[062:00064) |   ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'test'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'test'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:119) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:20)  IdentifierSyntax
-//@[9:20)   Identifier |badDepends4|
-//@[21:58)  StringSyntax
-//@[21:58)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[59:60)  Assignment |=|
-//@[61:119)  ObjectSyntax
-//@[61:62)   LeftBrace |{|
-//@[62:64)   NewLine |\r\n|
+//@[000:00119) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00020) | ├─IdentifierSyntax
+//@[009:00020) | | └─Token(Identifier) |badDepends4|
+//@[021:00058) | ├─StringSyntax
+//@[021:00058) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[059:00060) | ├─Token(Assignment) |=|
+//@[061:00119) | └─ObjectSyntax
+//@[061:00062) |   ├─Token(LeftBrace) |{|
+//@[062:00064) |   ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'test'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'test'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
   dependsOn: [
-//@[2:36)   ObjectPropertySyntax
-//@[2:11)    IdentifierSyntax
-//@[2:11)     Identifier |dependsOn|
-//@[11:12)    Colon |:|
-//@[13:36)    ArraySyntax
-//@[13:14)     LeftSquare |[|
-//@[14:16)     NewLine |\r\n|
+//@[002:00036) |   ├─ObjectPropertySyntax
+//@[002:00011) |   | ├─IdentifierSyntax
+//@[002:00011) |   | | └─Token(Identifier) |dependsOn|
+//@[011:00012) |   | ├─Token(Colon) |:|
+//@[013:00036) |   | └─ArraySyntax
+//@[013:00014) |   |   ├─Token(LeftSquare) |[|
+//@[014:00016) |   |   ├─Token(NewLine) |\r\n|
     badDepends3
-//@[4:15)     ArrayItemSyntax
-//@[4:15)      VariableAccessSyntax
-//@[4:15)       IdentifierSyntax
-//@[4:15)        Identifier |badDepends3|
-//@[15:17)     NewLine |\r\n|
+//@[004:00015) |   |   ├─ArrayItemSyntax
+//@[004:00015) |   |   | └─VariableAccessSyntax
+//@[004:00015) |   |   |   └─IdentifierSyntax
+//@[004:00015) |   |   |     └─Token(Identifier) |badDepends3|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)     RightSquare |]|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightSquare) |]|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:117) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:20)  IdentifierSyntax
-//@[9:20)   Identifier |badDepends5|
-//@[21:58)  StringSyntax
-//@[21:58)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[59:60)  Assignment |=|
-//@[61:117)  ObjectSyntax
-//@[61:62)   LeftBrace |{|
-//@[62:64)   NewLine |\r\n|
+//@[000:00117) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00020) | ├─IdentifierSyntax
+//@[009:00020) | | └─Token(Identifier) |badDepends5|
+//@[021:00058) | ├─StringSyntax
+//@[021:00058) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[059:00060) | ├─Token(Assignment) |=|
+//@[061:00117) | └─ObjectSyntax
+//@[061:00062) |   ├─Token(LeftBrace) |{|
+//@[062:00064) |   ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'test'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'test'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
   dependsOn: badDepends3.dependsOn
-//@[2:34)   ObjectPropertySyntax
-//@[2:11)    IdentifierSyntax
-//@[2:11)     Identifier |dependsOn|
-//@[11:12)    Colon |:|
-//@[13:34)    PropertyAccessSyntax
-//@[13:24)     VariableAccessSyntax
-//@[13:24)      IdentifierSyntax
-//@[13:24)       Identifier |badDepends3|
-//@[24:25)     Dot |.|
-//@[25:34)     IdentifierSyntax
-//@[25:34)      Identifier |dependsOn|
-//@[34:36)   NewLine |\r\n|
+//@[002:00034) |   ├─ObjectPropertySyntax
+//@[002:00011) |   | ├─IdentifierSyntax
+//@[002:00011) |   | | └─Token(Identifier) |dependsOn|
+//@[011:00012) |   | ├─Token(Colon) |:|
+//@[013:00034) |   | └─PropertyAccessSyntax
+//@[013:00024) |   |   ├─VariableAccessSyntax
+//@[013:00024) |   |   | └─IdentifierSyntax
+//@[013:00024) |   |   |   └─Token(Identifier) |badDepends3|
+//@[024:00025) |   |   ├─Token(Dot) |.|
+//@[025:00034) |   |   └─IdentifierSyntax
+//@[025:00034) |   |     └─Token(Identifier) |dependsOn|
+//@[034:00036) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 var interpVal = 'abc'
-//@[0:21) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:13)  IdentifierSyntax
-//@[4:13)   Identifier |interpVal|
-//@[14:15)  Assignment |=|
-//@[16:21)  StringSyntax
-//@[16:21)   StringComplete |'abc'|
-//@[21:23) NewLine |\r\n|
+//@[000:00021) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00013) | ├─IdentifierSyntax
+//@[004:00013) | | └─Token(Identifier) |interpVal|
+//@[014:00015) | ├─Token(Assignment) |=|
+//@[016:00021) | └─StringSyntax
+//@[016:00021) |   └─Token(StringComplete) |'abc'|
+//@[021:00023) ├─Token(NewLine) |\r\n|
 resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:205) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:18)  IdentifierSyntax
-//@[9:18)   Identifier |badInterp|
-//@[19:56)  StringSyntax
-//@[19:56)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[57:58)  Assignment |=|
-//@[59:205)  ObjectSyntax
-//@[59:60)   LeftBrace |{|
-//@[60:62)   NewLine |\r\n|
+//@[000:00205) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00018) | ├─IdentifierSyntax
+//@[009:00018) | | └─Token(Identifier) |badInterp|
+//@[019:00056) | ├─StringSyntax
+//@[019:00056) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[057:00058) | ├─Token(Assignment) |=|
+//@[059:00205) | └─ObjectSyntax
+//@[059:00060) |   ├─Token(LeftBrace) |{|
+//@[060:00062) |   ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'test'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'test'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
   '${interpVal}': 'unsupported' // resource definition does not allow for additionalProperties
-//@[2:31)   ObjectPropertySyntax
-//@[2:16)    StringSyntax
-//@[2:5)     StringLeftPiece |'${|
-//@[5:14)     VariableAccessSyntax
-//@[5:14)      IdentifierSyntax
-//@[5:14)       Identifier |interpVal|
-//@[14:16)     StringRightPiece |}'|
-//@[16:17)    Colon |:|
-//@[18:31)    StringSyntax
-//@[18:31)     StringComplete |'unsupported'|
-//@[94:96)   NewLine |\r\n|
+//@[002:00031) |   ├─ObjectPropertySyntax
+//@[002:00016) |   | ├─StringSyntax
+//@[002:00005) |   | | ├─Token(StringLeftPiece) |'${|
+//@[005:00014) |   | | ├─VariableAccessSyntax
+//@[005:00014) |   | | | └─IdentifierSyntax
+//@[005:00014) |   | | |   └─Token(Identifier) |interpVal|
+//@[014:00016) |   | | └─Token(StringRightPiece) |}'|
+//@[016:00017) |   | ├─Token(Colon) |:|
+//@[018:00031) |   | └─StringSyntax
+//@[018:00031) |   |   └─Token(StringComplete) |'unsupported'|
+//@[094:00096) |   ├─Token(NewLine) |\r\n|
   '${undefinedSymbol}': true
-//@[2:28)   ObjectPropertySyntax
-//@[2:22)    StringSyntax
-//@[2:5)     StringLeftPiece |'${|
-//@[5:20)     VariableAccessSyntax
-//@[5:20)      IdentifierSyntax
-//@[5:20)       Identifier |undefinedSymbol|
-//@[20:22)     StringRightPiece |}'|
-//@[22:23)    Colon |:|
-//@[24:28)    BooleanLiteralSyntax
-//@[24:28)     TrueKeyword |true|
-//@[28:30)   NewLine |\r\n|
+//@[002:00028) |   ├─ObjectPropertySyntax
+//@[002:00022) |   | ├─StringSyntax
+//@[002:00005) |   | | ├─Token(StringLeftPiece) |'${|
+//@[005:00020) |   | | ├─VariableAccessSyntax
+//@[005:00020) |   | | | └─IdentifierSyntax
+//@[005:00020) |   | | |   └─Token(Identifier) |undefinedSymbol|
+//@[020:00022) |   | | └─Token(StringRightPiece) |}'|
+//@[022:00023) |   | ├─Token(Colon) |:|
+//@[024:00028) |   | └─BooleanLiteralSyntax
+//@[024:00028) |   |   └─Token(TrueKeyword) |true|
+//@[028:00030) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 module validModule './module.bicep' = {
-//@[0:106) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:18)  IdentifierSyntax
-//@[7:18)   Identifier |validModule|
-//@[19:35)  StringSyntax
-//@[19:35)   StringComplete |'./module.bicep'|
-//@[36:37)  Assignment |=|
-//@[38:106)  ObjectSyntax
-//@[38:39)   LeftBrace |{|
-//@[39:41)   NewLine |\r\n|
+//@[000:00106) ├─ModuleDeclarationSyntax
+//@[000:00006) | ├─Token(Identifier) |module|
+//@[007:00018) | ├─IdentifierSyntax
+//@[007:00018) | | └─Token(Identifier) |validModule|
+//@[019:00035) | ├─StringSyntax
+//@[019:00035) | | └─Token(StringComplete) |'./module.bicep'|
+//@[036:00037) | ├─Token(Assignment) |=|
+//@[038:00106) | └─ObjectSyntax
+//@[038:00039) |   ├─Token(LeftBrace) |{|
+//@[039:00041) |   ├─Token(NewLine) |\r\n|
   name: 'storageDeploy'
-//@[2:23)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:23)    StringSyntax
-//@[8:23)     StringComplete |'storageDeploy'|
-//@[23:25)   NewLine |\r\n|
+//@[002:00023) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00023) |   | └─StringSyntax
+//@[008:00023) |   |   └─Token(StringComplete) |'storageDeploy'|
+//@[023:00025) |   ├─Token(NewLine) |\r\n|
   params: {
-//@[2:37)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:37)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\r\n|
+//@[002:00037) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |params|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00037) |   | └─ObjectSyntax
+//@[010:00011) |   |   ├─Token(LeftBrace) |{|
+//@[011:00013) |   |   ├─Token(NewLine) |\r\n|
     name: 'contoso'
-//@[4:19)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |name|
-//@[8:9)      Colon |:|
-//@[10:19)      StringSyntax
-//@[10:19)       StringComplete |'contoso'|
-//@[19:21)     NewLine |\r\n|
+//@[004:00019) |   |   ├─ObjectPropertySyntax
+//@[004:00008) |   |   | ├─IdentifierSyntax
+//@[004:00008) |   |   | | └─Token(Identifier) |name|
+//@[008:00009) |   |   | ├─Token(Colon) |:|
+//@[010:00019) |   |   | └─StringSyntax
+//@[010:00019) |   |   |   └─Token(StringComplete) |'contoso'|
+//@[019:00021) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
-//@[0:174) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:25)  IdentifierSyntax
-//@[9:25)   Identifier |runtimeValidRes1|
-//@[26:72)  StringSyntax
-//@[26:72)   StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
-//@[73:74)  Assignment |=|
-//@[75:174)  ObjectSyntax
-//@[75:76)   LeftBrace |{|
-//@[76:78)   NewLine |\r\n|
+//@[000:00174) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00025) | ├─IdentifierSyntax
+//@[009:00025) | | └─Token(Identifier) |runtimeValidRes1|
+//@[026:00072) | ├─StringSyntax
+//@[026:00072) | | └─Token(StringComplete) |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[073:00074) | ├─Token(Assignment) |=|
+//@[075:00174) | └─ObjectSyntax
+//@[075:00076) |   ├─Token(LeftBrace) |{|
+//@[076:00078) |   ├─Token(NewLine) |\r\n|
   name: 'name1'
-//@[2:15)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:15)    StringSyntax
-//@[8:15)     StringComplete |'name1'|
-//@[15:17)   NewLine |\r\n|
+//@[002:00015) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00015) |   | └─StringSyntax
+//@[008:00015) |   |   └─Token(StringComplete) |'name1'|
+//@[015:00017) |   ├─Token(NewLine) |\r\n|
   location: 'eastus'
-//@[2:20)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:20)    StringSyntax
-//@[12:20)     StringComplete |'eastus'|
-//@[20:22)   NewLine |\r\n|
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00020) |   | └─StringSyntax
+//@[012:00020) |   |   └─Token(StringComplete) |'eastus'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:54)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:54)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00054) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00054) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     evictionPolicy: 'Deallocate'
-//@[4:32)     ObjectPropertySyntax
-//@[4:18)      IdentifierSyntax
-//@[4:18)       Identifier |evictionPolicy|
-//@[18:19)      Colon |:|
-//@[20:32)      StringSyntax
-//@[20:32)       StringComplete |'Deallocate'|
-//@[32:34)     NewLine |\r\n|
+//@[004:00032) |   |   ├─ObjectPropertySyntax
+//@[004:00018) |   |   | ├─IdentifierSyntax
+//@[004:00018) |   |   | | └─Token(Identifier) |evictionPolicy|
+//@[018:00019) |   |   | ├─Token(Colon) |:|
+//@[020:00032) |   |   | └─StringSyntax
+//@[020:00032) |   |   |   └─Token(StringComplete) |'Deallocate'|
+//@[032:00034) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:329) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:25)  IdentifierSyntax
-//@[9:25)   Identifier |runtimeValidRes2|
-//@[26:76)  StringSyntax
-//@[26:76)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[77:78)  Assignment |=|
-//@[79:329)  ObjectSyntax
-//@[79:80)   LeftBrace |{|
-//@[80:82)   NewLine |\r\n|
+//@[000:00329) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00025) | ├─IdentifierSyntax
+//@[009:00025) | | └─Token(Identifier) |runtimeValidRes2|
+//@[026:00076) | ├─StringSyntax
+//@[026:00076) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[077:00078) | ├─Token(Assignment) |=|
+//@[079:00329) | └─ObjectSyntax
+//@[079:00080) |   ├─Token(LeftBrace) |{|
+//@[080:00082) |   ├─Token(NewLine) |\r\n|
   name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
-//@[2:89)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:89)    FunctionCallSyntax
-//@[8:14)     IdentifierSyntax
-//@[8:14)      Identifier |concat|
-//@[14:15)     LeftParen |(|
-//@[15:66)     FunctionArgumentSyntax
-//@[15:65)      FunctionCallSyntax
-//@[15:21)       IdentifierSyntax
-//@[15:21)        Identifier |concat|
-//@[21:22)       LeftParen |(|
-//@[22:42)       FunctionArgumentSyntax
-//@[22:41)        PropertyAccessSyntax
-//@[22:38)         VariableAccessSyntax
-//@[22:38)          IdentifierSyntax
-//@[22:38)           Identifier |runtimeValidRes1|
-//@[38:39)         Dot |.|
-//@[39:41)         IdentifierSyntax
-//@[39:41)          Identifier |id|
-//@[41:42)        Comma |,|
-//@[43:64)       FunctionArgumentSyntax
-//@[43:64)        PropertyAccessSyntax
-//@[43:59)         VariableAccessSyntax
-//@[43:59)          IdentifierSyntax
-//@[43:59)           Identifier |runtimeValidRes1|
-//@[59:60)         Dot |.|
-//@[60:64)         IdentifierSyntax
-//@[60:64)          Identifier |name|
-//@[64:65)       RightParen |)|
-//@[65:66)      Comma |,|
-//@[67:88)     FunctionArgumentSyntax
-//@[67:88)      PropertyAccessSyntax
-//@[67:83)       VariableAccessSyntax
-//@[67:83)        IdentifierSyntax
-//@[67:83)         Identifier |runtimeValidRes1|
-//@[83:84)       Dot |.|
-//@[84:88)       IdentifierSyntax
-//@[84:88)        Identifier |type|
-//@[88:89)     RightParen |)|
-//@[89:91)   NewLine |\r\n|
+//@[002:00089) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00089) |   | └─FunctionCallSyntax
+//@[008:00014) |   |   ├─IdentifierSyntax
+//@[008:00014) |   |   | └─Token(Identifier) |concat|
+//@[014:00015) |   |   ├─Token(LeftParen) |(|
+//@[015:00065) |   |   ├─FunctionArgumentSyntax
+//@[015:00065) |   |   | └─FunctionCallSyntax
+//@[015:00021) |   |   |   ├─IdentifierSyntax
+//@[015:00021) |   |   |   | └─Token(Identifier) |concat|
+//@[021:00022) |   |   |   ├─Token(LeftParen) |(|
+//@[022:00041) |   |   |   ├─FunctionArgumentSyntax
+//@[022:00041) |   |   |   | └─PropertyAccessSyntax
+//@[022:00038) |   |   |   |   ├─VariableAccessSyntax
+//@[022:00038) |   |   |   |   | └─IdentifierSyntax
+//@[022:00038) |   |   |   |   |   └─Token(Identifier) |runtimeValidRes1|
+//@[038:00039) |   |   |   |   ├─Token(Dot) |.|
+//@[039:00041) |   |   |   |   └─IdentifierSyntax
+//@[039:00041) |   |   |   |     └─Token(Identifier) |id|
+//@[041:00042) |   |   |   ├─Token(Comma) |,|
+//@[043:00064) |   |   |   ├─FunctionArgumentSyntax
+//@[043:00064) |   |   |   | └─PropertyAccessSyntax
+//@[043:00059) |   |   |   |   ├─VariableAccessSyntax
+//@[043:00059) |   |   |   |   | └─IdentifierSyntax
+//@[043:00059) |   |   |   |   |   └─Token(Identifier) |runtimeValidRes1|
+//@[059:00060) |   |   |   |   ├─Token(Dot) |.|
+//@[060:00064) |   |   |   |   └─IdentifierSyntax
+//@[060:00064) |   |   |   |     └─Token(Identifier) |name|
+//@[064:00065) |   |   |   └─Token(RightParen) |)|
+//@[065:00066) |   |   ├─Token(Comma) |,|
+//@[067:00088) |   |   ├─FunctionArgumentSyntax
+//@[067:00088) |   |   | └─PropertyAccessSyntax
+//@[067:00083) |   |   |   ├─VariableAccessSyntax
+//@[067:00083) |   |   |   | └─IdentifierSyntax
+//@[067:00083) |   |   |   |   └─Token(Identifier) |runtimeValidRes1|
+//@[083:00084) |   |   |   ├─Token(Dot) |.|
+//@[084:00088) |   |   |   └─IdentifierSyntax
+//@[084:00088) |   |   |     └─Token(Identifier) |type|
+//@[088:00089) |   |   └─Token(RightParen) |)|
+//@[089:00091) |   ├─Token(NewLine) |\r\n|
   kind:'AzureCLI'
-//@[2:17)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[6:7)    Colon |:|
-//@[7:17)    StringSyntax
-//@[7:17)     StringComplete |'AzureCLI'|
-//@[17:19)   NewLine |\r\n|
+//@[002:00017) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[007:00017) |   | └─StringSyntax
+//@[007:00017) |   |   └─Token(StringComplete) |'AzureCLI'|
+//@[017:00019) |   ├─Token(NewLine) |\r\n|
   location: 'eastus'
-//@[2:20)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:20)    StringSyntax
-//@[12:20)     StringComplete |'eastus'|
-//@[20:22)   NewLine |\r\n|
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00020) |   | └─StringSyntax
+//@[012:00020) |   |   └─Token(StringComplete) |'eastus'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:112)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:112)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00112) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00112) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     azCliVersion: '2.0'
-//@[4:23)     ObjectPropertySyntax
-//@[4:16)      IdentifierSyntax
-//@[4:16)       Identifier |azCliVersion|
-//@[16:17)      Colon |:|
-//@[18:23)      StringSyntax
-//@[18:23)       StringComplete |'2.0'|
-//@[23:25)     NewLine |\r\n|
+//@[004:00023) |   |   ├─ObjectPropertySyntax
+//@[004:00016) |   |   | ├─IdentifierSyntax
+//@[004:00016) |   |   | | └─Token(Identifier) |azCliVersion|
+//@[016:00017) |   |   | ├─Token(Colon) |:|
+//@[018:00023) |   |   | └─StringSyntax
+//@[018:00023) |   |   |   └─Token(StringComplete) |'2.0'|
+//@[023:00025) |   |   ├─Token(NewLine) |\r\n|
     retentionInterval: runtimeValidRes1.properties.evictionPolicy
-//@[4:65)     ObjectPropertySyntax
-//@[4:21)      IdentifierSyntax
-//@[4:21)       Identifier |retentionInterval|
-//@[21:22)      Colon |:|
-//@[23:65)      PropertyAccessSyntax
-//@[23:50)       PropertyAccessSyntax
-//@[23:39)        VariableAccessSyntax
-//@[23:39)         IdentifierSyntax
-//@[23:39)          Identifier |runtimeValidRes1|
-//@[39:40)        Dot |.|
-//@[40:50)        IdentifierSyntax
-//@[40:50)         Identifier |properties|
-//@[50:51)       Dot |.|
-//@[51:65)       IdentifierSyntax
-//@[51:65)        Identifier |evictionPolicy|
-//@[65:67)     NewLine |\r\n|
+//@[004:00065) |   |   ├─ObjectPropertySyntax
+//@[004:00021) |   |   | ├─IdentifierSyntax
+//@[004:00021) |   |   | | └─Token(Identifier) |retentionInterval|
+//@[021:00022) |   |   | ├─Token(Colon) |:|
+//@[023:00065) |   |   | └─PropertyAccessSyntax
+//@[023:00050) |   |   |   ├─PropertyAccessSyntax
+//@[023:00039) |   |   |   | ├─VariableAccessSyntax
+//@[023:00039) |   |   |   | | └─IdentifierSyntax
+//@[023:00039) |   |   |   | |   └─Token(Identifier) |runtimeValidRes1|
+//@[039:00040) |   |   |   | ├─Token(Dot) |.|
+//@[040:00050) |   |   |   | └─IdentifierSyntax
+//@[040:00050) |   |   |   |   └─Token(Identifier) |properties|
+//@[050:00051) |   |   |   ├─Token(Dot) |.|
+//@[051:00065) |   |   |   └─IdentifierSyntax
+//@[051:00065) |   |   |     └─Token(Identifier) |evictionPolicy|
+//@[065:00067) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:131) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:25)  IdentifierSyntax
-//@[9:25)   Identifier |runtimeValidRes3|
-//@[26:85)  StringSyntax
-//@[26:85)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[86:87)  Assignment |=|
-//@[88:131)  ObjectSyntax
-//@[88:89)   LeftBrace |{|
-//@[89:91)   NewLine |\r\n|
+//@[000:00131) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00025) | ├─IdentifierSyntax
+//@[009:00025) | | └─Token(Identifier) |runtimeValidRes3|
+//@[026:00085) | ├─StringSyntax
+//@[026:00085) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[086:00087) | ├─Token(Assignment) |=|
+//@[088:00131) | └─ObjectSyntax
+//@[088:00089) |   ├─Token(LeftBrace) |{|
+//@[089:00091) |   ├─Token(NewLine) |\r\n|
   name: '${runtimeValidRes1.name}_v1'
-//@[2:37)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:37)    StringSyntax
-//@[8:11)     StringLeftPiece |'${|
-//@[11:32)     PropertyAccessSyntax
-//@[11:27)      VariableAccessSyntax
-//@[11:27)       IdentifierSyntax
-//@[11:27)        Identifier |runtimeValidRes1|
-//@[27:28)      Dot |.|
-//@[28:32)      IdentifierSyntax
-//@[28:32)       Identifier |name|
-//@[32:37)     StringRightPiece |}_v1'|
-//@[37:39)   NewLine |\r\n|
+//@[002:00037) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00037) |   | └─StringSyntax
+//@[008:00011) |   |   ├─Token(StringLeftPiece) |'${|
+//@[011:00032) |   |   ├─PropertyAccessSyntax
+//@[011:00027) |   |   | ├─VariableAccessSyntax
+//@[011:00027) |   |   | | └─IdentifierSyntax
+//@[011:00027) |   |   | |   └─Token(Identifier) |runtimeValidRes1|
+//@[027:00028) |   |   | ├─Token(Dot) |.|
+//@[028:00032) |   |   | └─IdentifierSyntax
+//@[028:00032) |   |   |   └─Token(Identifier) |name|
+//@[032:00037) |   |   └─Token(StringRightPiece) |}_v1'|
+//@[037:00039) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:135) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:25)  IdentifierSyntax
-//@[9:25)   Identifier |runtimeValidRes4|
-//@[26:85)  StringSyntax
-//@[26:85)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[86:87)  Assignment |=|
-//@[88:135)  ObjectSyntax
-//@[88:89)   LeftBrace |{|
-//@[89:91)   NewLine |\r\n|
+//@[000:00135) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00025) | ├─IdentifierSyntax
+//@[009:00025) | | └─Token(Identifier) |runtimeValidRes4|
+//@[026:00085) | ├─StringSyntax
+//@[026:00085) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[086:00087) | ├─Token(Assignment) |=|
+//@[088:00135) | └─ObjectSyntax
+//@[088:00089) |   ├─Token(LeftBrace) |{|
+//@[089:00091) |   ├─Token(NewLine) |\r\n|
   name: concat(validModule['name'], 'v1')
-//@[2:41)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:41)    FunctionCallSyntax
-//@[8:14)     IdentifierSyntax
-//@[8:14)      Identifier |concat|
-//@[14:15)     LeftParen |(|
-//@[15:35)     FunctionArgumentSyntax
-//@[15:34)      ArrayAccessSyntax
-//@[15:26)       VariableAccessSyntax
-//@[15:26)        IdentifierSyntax
-//@[15:26)         Identifier |validModule|
-//@[26:27)       LeftSquare |[|
-//@[27:33)       StringSyntax
-//@[27:33)        StringComplete |'name'|
-//@[33:34)       RightSquare |]|
-//@[34:35)      Comma |,|
-//@[36:40)     FunctionArgumentSyntax
-//@[36:40)      StringSyntax
-//@[36:40)       StringComplete |'v1'|
-//@[40:41)     RightParen |)|
-//@[41:43)   NewLine |\r\n|
+//@[002:00041) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00041) |   | └─FunctionCallSyntax
+//@[008:00014) |   |   ├─IdentifierSyntax
+//@[008:00014) |   |   | └─Token(Identifier) |concat|
+//@[014:00015) |   |   ├─Token(LeftParen) |(|
+//@[015:00034) |   |   ├─FunctionArgumentSyntax
+//@[015:00034) |   |   | └─ArrayAccessSyntax
+//@[015:00026) |   |   |   ├─VariableAccessSyntax
+//@[015:00026) |   |   |   | └─IdentifierSyntax
+//@[015:00026) |   |   |   |   └─Token(Identifier) |validModule|
+//@[026:00027) |   |   |   ├─Token(LeftSquare) |[|
+//@[027:00033) |   |   |   ├─StringSyntax
+//@[027:00033) |   |   |   | └─Token(StringComplete) |'name'|
+//@[033:00034) |   |   |   └─Token(RightSquare) |]|
+//@[034:00035) |   |   ├─Token(Comma) |,|
+//@[036:00040) |   |   ├─FunctionArgumentSyntax
+//@[036:00040) |   |   | └─StringSyntax
+//@[036:00040) |   |   |   └─Token(StringComplete) |'v1'|
+//@[040:00041) |   |   └─Token(RightParen) |)|
+//@[041:00043) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeValidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:126) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:25)  IdentifierSyntax
-//@[9:25)   Identifier |runtimeValidRes5|
-//@[26:85)  StringSyntax
-//@[26:85)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[86:87)  Assignment |=|
-//@[88:126)  ObjectSyntax
-//@[88:89)   LeftBrace |{|
-//@[89:91)   NewLine |\r\n|
+//@[000:00126) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00025) | ├─IdentifierSyntax
+//@[009:00025) | | └─Token(Identifier) |runtimeValidRes5|
+//@[026:00085) | ├─StringSyntax
+//@[026:00085) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[086:00087) | ├─Token(Assignment) |=|
+//@[088:00126) | └─ObjectSyntax
+//@[088:00089) |   ├─Token(LeftBrace) |{|
+//@[089:00091) |   ├─Token(NewLine) |\r\n|
   name: '${validModule.name}_v1'
-//@[2:32)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:32)    StringSyntax
-//@[8:11)     StringLeftPiece |'${|
-//@[11:27)     PropertyAccessSyntax
-//@[11:22)      VariableAccessSyntax
-//@[11:22)       IdentifierSyntax
-//@[11:22)        Identifier |validModule|
-//@[22:23)      Dot |.|
-//@[23:27)      IdentifierSyntax
-//@[23:27)       Identifier |name|
-//@[27:32)     StringRightPiece |}_v1'|
-//@[32:34)   NewLine |\r\n|
+//@[002:00032) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00032) |   | └─StringSyntax
+//@[008:00011) |   |   ├─Token(StringLeftPiece) |'${|
+//@[011:00027) |   |   ├─PropertyAccessSyntax
+//@[011:00022) |   |   | ├─VariableAccessSyntax
+//@[011:00022) |   |   | | └─IdentifierSyntax
+//@[011:00022) |   |   | |   └─Token(Identifier) |validModule|
+//@[022:00023) |   |   | ├─Token(Dot) |.|
+//@[023:00027) |   |   | └─IdentifierSyntax
+//@[023:00027) |   |   |   └─Token(Identifier) |name|
+//@[027:00032) |   |   └─Token(StringRightPiece) |}_v1'|
+//@[032:00034) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:129) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |runtimeInvalidRes1|
-//@[28:87)  StringSyntax
-//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89)  Assignment |=|
-//@[90:129)  ObjectSyntax
-//@[90:91)   LeftBrace |{|
-//@[91:93)   NewLine |\r\n|
+//@[000:00129) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |runtimeInvalidRes1|
+//@[028:00087) | ├─StringSyntax
+//@[028:00087) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:00089) | ├─Token(Assignment) |=|
+//@[090:00129) | └─ObjectSyntax
+//@[090:00091) |   ├─Token(LeftBrace) |{|
+//@[091:00093) |   ├─Token(NewLine) |\r\n|
   name: runtimeValidRes1.location
-//@[2:33)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:33)    PropertyAccessSyntax
-//@[8:24)     VariableAccessSyntax
-//@[8:24)      IdentifierSyntax
-//@[8:24)       Identifier |runtimeValidRes1|
-//@[24:25)     Dot |.|
-//@[25:33)     IdentifierSyntax
-//@[25:33)      Identifier |location|
-//@[33:35)   NewLine |\r\n|
+//@[002:00033) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00033) |   | └─PropertyAccessSyntax
+//@[008:00024) |   |   ├─VariableAccessSyntax
+//@[008:00024) |   |   | └─IdentifierSyntax
+//@[008:00024) |   |   |   └─Token(Identifier) |runtimeValidRes1|
+//@[024:00025) |   |   ├─Token(Dot) |.|
+//@[025:00033) |   |   └─IdentifierSyntax
+//@[025:00033) |   |     └─Token(Identifier) |location|
+//@[033:00035) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes2 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:132) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |runtimeInvalidRes2|
-//@[28:87)  StringSyntax
-//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89)  Assignment |=|
-//@[90:132)  ObjectSyntax
-//@[90:91)   LeftBrace |{|
-//@[91:93)   NewLine |\r\n|
+//@[000:00132) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |runtimeInvalidRes2|
+//@[028:00087) | ├─StringSyntax
+//@[028:00087) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:00089) | ├─Token(Assignment) |=|
+//@[090:00132) | └─ObjectSyntax
+//@[090:00091) |   ├─Token(LeftBrace) |{|
+//@[091:00093) |   ├─Token(NewLine) |\r\n|
   name: runtimeValidRes1['location']
-//@[2:36)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:36)    ArrayAccessSyntax
-//@[8:24)     VariableAccessSyntax
-//@[8:24)      IdentifierSyntax
-//@[8:24)       Identifier |runtimeValidRes1|
-//@[24:25)     LeftSquare |[|
-//@[25:35)     StringSyntax
-//@[25:35)      StringComplete |'location'|
-//@[35:36)     RightSquare |]|
-//@[36:38)   NewLine |\r\n|
+//@[002:00036) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00036) |   | └─ArrayAccessSyntax
+//@[008:00024) |   |   ├─VariableAccessSyntax
+//@[008:00024) |   |   | └─IdentifierSyntax
+//@[008:00024) |   |   |   └─Token(Identifier) |runtimeValidRes1|
+//@[024:00025) |   |   ├─Token(LeftSquare) |[|
+//@[025:00035) |   |   ├─StringSyntax
+//@[025:00035) |   |   | └─Token(StringComplete) |'location'|
+//@[035:00036) |   |   └─Token(RightSquare) |]|
+//@[036:00038) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:292) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |runtimeInvalidRes3|
-//@[28:78)  StringSyntax
-//@[28:78)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[79:80)  Assignment |=|
-//@[81:292)  ObjectSyntax
-//@[81:82)   LeftBrace |{|
-//@[82:84)   NewLine |\r\n|
+//@[000:00292) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |runtimeInvalidRes3|
+//@[028:00078) | ├─StringSyntax
+//@[028:00078) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[079:00080) | ├─Token(Assignment) |=|
+//@[081:00292) | └─ObjectSyntax
+//@[081:00082) |   ├─Token(LeftBrace) |{|
+//@[082:00084) |   ├─Token(NewLine) |\r\n|
   name: runtimeValidRes1.properties.evictionPolicy
-//@[2:50)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:50)    PropertyAccessSyntax
-//@[8:35)     PropertyAccessSyntax
-//@[8:24)      VariableAccessSyntax
-//@[8:24)       IdentifierSyntax
-//@[8:24)        Identifier |runtimeValidRes1|
-//@[24:25)      Dot |.|
-//@[25:35)      IdentifierSyntax
-//@[25:35)       Identifier |properties|
-//@[35:36)     Dot |.|
-//@[36:50)     IdentifierSyntax
-//@[36:50)      Identifier |evictionPolicy|
-//@[50:52)   NewLine |\r\n|
+//@[002:00050) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00050) |   | └─PropertyAccessSyntax
+//@[008:00035) |   |   ├─PropertyAccessSyntax
+//@[008:00024) |   |   | ├─VariableAccessSyntax
+//@[008:00024) |   |   | | └─IdentifierSyntax
+//@[008:00024) |   |   | |   └─Token(Identifier) |runtimeValidRes1|
+//@[024:00025) |   |   | ├─Token(Dot) |.|
+//@[025:00035) |   |   | └─IdentifierSyntax
+//@[025:00035) |   |   |   └─Token(Identifier) |properties|
+//@[035:00036) |   |   ├─Token(Dot) |.|
+//@[036:00050) |   |   └─IdentifierSyntax
+//@[036:00050) |   |     └─Token(Identifier) |evictionPolicy|
+//@[050:00052) |   ├─Token(NewLine) |\r\n|
   kind:'AzureCLI'
-//@[2:17)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[6:7)    Colon |:|
-//@[7:17)    StringSyntax
-//@[7:17)     StringComplete |'AzureCLI'|
-//@[17:19)   NewLine |\r\n|
+//@[002:00017) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[007:00017) |   | └─StringSyntax
+//@[007:00017) |   |   └─Token(StringComplete) |'AzureCLI'|
+//@[017:00019) |   ├─Token(NewLine) |\r\n|
   location: 'eastus'
-//@[2:20)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:20)    StringSyntax
-//@[12:20)     StringComplete |'eastus'|
-//@[20:22)   NewLine |\r\n|
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00020) |   | └─StringSyntax
+//@[012:00020) |   |   └─Token(StringComplete) |'eastus'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:112)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:112)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00112) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00112) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     azCliVersion: '2.0'
-//@[4:23)     ObjectPropertySyntax
-//@[4:16)      IdentifierSyntax
-//@[4:16)       Identifier |azCliVersion|
-//@[16:17)      Colon |:|
-//@[18:23)      StringSyntax
-//@[18:23)       StringComplete |'2.0'|
-//@[23:25)     NewLine |\r\n|
+//@[004:00023) |   |   ├─ObjectPropertySyntax
+//@[004:00016) |   |   | ├─IdentifierSyntax
+//@[004:00016) |   |   | | └─Token(Identifier) |azCliVersion|
+//@[016:00017) |   |   | ├─Token(Colon) |:|
+//@[018:00023) |   |   | └─StringSyntax
+//@[018:00023) |   |   |   └─Token(StringComplete) |'2.0'|
+//@[023:00025) |   |   ├─Token(NewLine) |\r\n|
     retentionInterval: runtimeValidRes1.properties.evictionPolicy
-//@[4:65)     ObjectPropertySyntax
-//@[4:21)      IdentifierSyntax
-//@[4:21)       Identifier |retentionInterval|
-//@[21:22)      Colon |:|
-//@[23:65)      PropertyAccessSyntax
-//@[23:50)       PropertyAccessSyntax
-//@[23:39)        VariableAccessSyntax
-//@[23:39)         IdentifierSyntax
-//@[23:39)          Identifier |runtimeValidRes1|
-//@[39:40)        Dot |.|
-//@[40:50)        IdentifierSyntax
-//@[40:50)         Identifier |properties|
-//@[50:51)       Dot |.|
-//@[51:65)       IdentifierSyntax
-//@[51:65)        Identifier |evictionPolicy|
-//@[65:67)     NewLine |\r\n|
+//@[004:00065) |   |   ├─ObjectPropertySyntax
+//@[004:00021) |   |   | ├─IdentifierSyntax
+//@[004:00021) |   |   | | └─Token(Identifier) |retentionInterval|
+//@[021:00022) |   |   | ├─Token(Colon) |:|
+//@[023:00065) |   |   | └─PropertyAccessSyntax
+//@[023:00050) |   |   |   ├─PropertyAccessSyntax
+//@[023:00039) |   |   |   | ├─VariableAccessSyntax
+//@[023:00039) |   |   |   | | └─IdentifierSyntax
+//@[023:00039) |   |   |   | |   └─Token(Identifier) |runtimeValidRes1|
+//@[039:00040) |   |   |   | ├─Token(Dot) |.|
+//@[040:00050) |   |   |   | └─IdentifierSyntax
+//@[040:00050) |   |   |   |   └─Token(Identifier) |properties|
+//@[050:00051) |   |   |   ├─Token(Dot) |.|
+//@[051:00065) |   |   |   └─IdentifierSyntax
+//@[051:00065) |   |   |     └─Token(Identifier) |evictionPolicy|
+//@[065:00067) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:149) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |runtimeInvalidRes4|
-//@[28:87)  StringSyntax
-//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89)  Assignment |=|
-//@[90:149)  ObjectSyntax
-//@[90:91)   LeftBrace |{|
-//@[91:93)   NewLine |\r\n|
+//@[000:00149) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |runtimeInvalidRes4|
+//@[028:00087) | ├─StringSyntax
+//@[028:00087) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:00089) | ├─Token(Assignment) |=|
+//@[090:00149) | └─ObjectSyntax
+//@[090:00091) |   ├─Token(LeftBrace) |{|
+//@[091:00093) |   ├─Token(NewLine) |\r\n|
   name: runtimeValidRes1['properties'].evictionPolicy
-//@[2:53)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:53)    PropertyAccessSyntax
-//@[8:38)     ArrayAccessSyntax
-//@[8:24)      VariableAccessSyntax
-//@[8:24)       IdentifierSyntax
-//@[8:24)        Identifier |runtimeValidRes1|
-//@[24:25)      LeftSquare |[|
-//@[25:37)      StringSyntax
-//@[25:37)       StringComplete |'properties'|
-//@[37:38)      RightSquare |]|
-//@[38:39)     Dot |.|
-//@[39:53)     IdentifierSyntax
-//@[39:53)      Identifier |evictionPolicy|
-//@[53:55)   NewLine |\r\n|
+//@[002:00053) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00053) |   | └─PropertyAccessSyntax
+//@[008:00038) |   |   ├─ArrayAccessSyntax
+//@[008:00024) |   |   | ├─VariableAccessSyntax
+//@[008:00024) |   |   | | └─IdentifierSyntax
+//@[008:00024) |   |   | |   └─Token(Identifier) |runtimeValidRes1|
+//@[024:00025) |   |   | ├─Token(LeftSquare) |[|
+//@[025:00037) |   |   | ├─StringSyntax
+//@[025:00037) |   |   | | └─Token(StringComplete) |'properties'|
+//@[037:00038) |   |   | └─Token(RightSquare) |]|
+//@[038:00039) |   |   ├─Token(Dot) |.|
+//@[039:00053) |   |   └─IdentifierSyntax
+//@[039:00053) |   |     └─Token(Identifier) |evictionPolicy|
+//@[053:00055) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:152) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |runtimeInvalidRes5|
-//@[28:87)  StringSyntax
-//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89)  Assignment |=|
-//@[90:152)  ObjectSyntax
-//@[90:91)   LeftBrace |{|
-//@[91:93)   NewLine |\r\n|
+//@[000:00152) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |runtimeInvalidRes5|
+//@[028:00087) | ├─StringSyntax
+//@[028:00087) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:00089) | ├─Token(Assignment) |=|
+//@[090:00152) | └─ObjectSyntax
+//@[090:00091) |   ├─Token(LeftBrace) |{|
+//@[091:00093) |   ├─Token(NewLine) |\r\n|
   name: runtimeValidRes1['properties']['evictionPolicy']
-//@[2:56)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:56)    ArrayAccessSyntax
-//@[8:38)     ArrayAccessSyntax
-//@[8:24)      VariableAccessSyntax
-//@[8:24)       IdentifierSyntax
-//@[8:24)        Identifier |runtimeValidRes1|
-//@[24:25)      LeftSquare |[|
-//@[25:37)      StringSyntax
-//@[25:37)       StringComplete |'properties'|
-//@[37:38)      RightSquare |]|
-//@[38:39)     LeftSquare |[|
-//@[39:55)     StringSyntax
-//@[39:55)      StringComplete |'evictionPolicy'|
-//@[55:56)     RightSquare |]|
-//@[56:58)   NewLine |\r\n|
+//@[002:00056) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00056) |   | └─ArrayAccessSyntax
+//@[008:00038) |   |   ├─ArrayAccessSyntax
+//@[008:00024) |   |   | ├─VariableAccessSyntax
+//@[008:00024) |   |   | | └─IdentifierSyntax
+//@[008:00024) |   |   | |   └─Token(Identifier) |runtimeValidRes1|
+//@[024:00025) |   |   | ├─Token(LeftSquare) |[|
+//@[025:00037) |   |   | ├─StringSyntax
+//@[025:00037) |   |   | | └─Token(StringComplete) |'properties'|
+//@[037:00038) |   |   | └─Token(RightSquare) |]|
+//@[038:00039) |   |   ├─Token(LeftSquare) |[|
+//@[039:00055) |   |   ├─StringSyntax
+//@[039:00055) |   |   | └─Token(StringComplete) |'evictionPolicy'|
+//@[055:00056) |   |   └─Token(RightSquare) |]|
+//@[056:00058) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:149) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |runtimeInvalidRes6|
-//@[28:87)  StringSyntax
-//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89)  Assignment |=|
-//@[90:149)  ObjectSyntax
-//@[90:91)   LeftBrace |{|
-//@[91:93)   NewLine |\r\n|
+//@[000:00149) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |runtimeInvalidRes6|
+//@[028:00087) | ├─StringSyntax
+//@[028:00087) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:00089) | ├─Token(Assignment) |=|
+//@[090:00149) | └─ObjectSyntax
+//@[090:00091) |   ├─Token(LeftBrace) |{|
+//@[091:00093) |   ├─Token(NewLine) |\r\n|
   name: runtimeValidRes1.properties['evictionPolicy']
-//@[2:53)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:53)    ArrayAccessSyntax
-//@[8:35)     PropertyAccessSyntax
-//@[8:24)      VariableAccessSyntax
-//@[8:24)       IdentifierSyntax
-//@[8:24)        Identifier |runtimeValidRes1|
-//@[24:25)      Dot |.|
-//@[25:35)      IdentifierSyntax
-//@[25:35)       Identifier |properties|
-//@[35:36)     LeftSquare |[|
-//@[36:52)     StringSyntax
-//@[36:52)      StringComplete |'evictionPolicy'|
-//@[52:53)     RightSquare |]|
-//@[53:55)   NewLine |\r\n|
+//@[002:00053) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00053) |   | └─ArrayAccessSyntax
+//@[008:00035) |   |   ├─PropertyAccessSyntax
+//@[008:00024) |   |   | ├─VariableAccessSyntax
+//@[008:00024) |   |   | | └─IdentifierSyntax
+//@[008:00024) |   |   | |   └─Token(Identifier) |runtimeValidRes1|
+//@[024:00025) |   |   | ├─Token(Dot) |.|
+//@[025:00035) |   |   | └─IdentifierSyntax
+//@[025:00035) |   |   |   └─Token(Identifier) |properties|
+//@[035:00036) |   |   ├─Token(LeftSquare) |[|
+//@[036:00052) |   |   ├─StringSyntax
+//@[036:00052) |   |   | └─Token(StringComplete) |'evictionPolicy'|
+//@[052:00053) |   |   └─Token(RightSquare) |]|
+//@[053:00055) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:144) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |runtimeInvalidRes7|
-//@[28:87)  StringSyntax
-//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89)  Assignment |=|
-//@[90:144)  ObjectSyntax
-//@[90:91)   LeftBrace |{|
-//@[91:93)   NewLine |\r\n|
+//@[000:00144) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |runtimeInvalidRes7|
+//@[028:00087) | ├─StringSyntax
+//@[028:00087) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:00089) | ├─Token(Assignment) |=|
+//@[090:00144) | └─ObjectSyntax
+//@[090:00091) |   ├─Token(LeftBrace) |{|
+//@[091:00093) |   ├─Token(NewLine) |\r\n|
   name: runtimeValidRes2.properties.azCliVersion
-//@[2:48)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:48)    PropertyAccessSyntax
-//@[8:35)     PropertyAccessSyntax
-//@[8:24)      VariableAccessSyntax
-//@[8:24)       IdentifierSyntax
-//@[8:24)        Identifier |runtimeValidRes2|
-//@[24:25)      Dot |.|
-//@[25:35)      IdentifierSyntax
-//@[25:35)       Identifier |properties|
-//@[35:36)     Dot |.|
-//@[36:48)     IdentifierSyntax
-//@[36:48)      Identifier |azCliVersion|
-//@[48:50)   NewLine |\r\n|
+//@[002:00048) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00048) |   | └─PropertyAccessSyntax
+//@[008:00035) |   |   ├─PropertyAccessSyntax
+//@[008:00024) |   |   | ├─VariableAccessSyntax
+//@[008:00024) |   |   | | └─IdentifierSyntax
+//@[008:00024) |   |   | |   └─Token(Identifier) |runtimeValidRes2|
+//@[024:00025) |   |   | ├─Token(Dot) |.|
+//@[025:00035) |   |   | └─IdentifierSyntax
+//@[025:00035) |   |   |   └─Token(Identifier) |properties|
+//@[035:00036) |   |   ├─Token(Dot) |.|
+//@[036:00048) |   |   └─IdentifierSyntax
+//@[036:00048) |   |     └─Token(Identifier) |azCliVersion|
+//@[048:00050) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 var magicString1 = 'location'
-//@[0:29) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:16)  IdentifierSyntax
-//@[4:16)   Identifier |magicString1|
-//@[17:18)  Assignment |=|
-//@[19:29)  StringSyntax
-//@[19:29)   StringComplete |'location'|
-//@[29:31) NewLine |\r\n|
+//@[000:00029) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00016) | ├─IdentifierSyntax
+//@[004:00016) | | └─Token(Identifier) |magicString1|
+//@[017:00018) | ├─Token(Assignment) |=|
+//@[019:00029) | └─StringSyntax
+//@[019:00029) |   └─Token(StringComplete) |'location'|
+//@[029:00031) ├─Token(NewLine) |\r\n|
 resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:139) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |runtimeInvalidRes8|
-//@[28:87)  StringSyntax
-//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89)  Assignment |=|
-//@[90:139)  ObjectSyntax
-//@[90:91)   LeftBrace |{|
-//@[91:93)   NewLine |\r\n|
+//@[000:00139) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |runtimeInvalidRes8|
+//@[028:00087) | ├─StringSyntax
+//@[028:00087) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:00089) | ├─Token(Assignment) |=|
+//@[090:00139) | └─ObjectSyntax
+//@[090:00091) |   ├─Token(LeftBrace) |{|
+//@[091:00093) |   ├─Token(NewLine) |\r\n|
   name: runtimeValidRes2['${magicString1}']
-//@[2:43)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:43)    ArrayAccessSyntax
-//@[8:24)     VariableAccessSyntax
-//@[8:24)      IdentifierSyntax
-//@[8:24)       Identifier |runtimeValidRes2|
-//@[24:25)     LeftSquare |[|
-//@[25:42)     StringSyntax
-//@[25:28)      StringLeftPiece |'${|
-//@[28:40)      VariableAccessSyntax
-//@[28:40)       IdentifierSyntax
-//@[28:40)        Identifier |magicString1|
-//@[40:42)      StringRightPiece |}'|
-//@[42:43)     RightSquare |]|
-//@[43:45)   NewLine |\r\n|
+//@[002:00043) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00043) |   | └─ArrayAccessSyntax
+//@[008:00024) |   |   ├─VariableAccessSyntax
+//@[008:00024) |   |   | └─IdentifierSyntax
+//@[008:00024) |   |   |   └─Token(Identifier) |runtimeValidRes2|
+//@[024:00025) |   |   ├─Token(LeftSquare) |[|
+//@[025:00042) |   |   ├─StringSyntax
+//@[025:00028) |   |   | ├─Token(StringLeftPiece) |'${|
+//@[028:00040) |   |   | ├─VariableAccessSyntax
+//@[028:00040) |   |   | | └─IdentifierSyntax
+//@[028:00040) |   |   | |   └─Token(Identifier) |magicString1|
+//@[040:00042) |   |   | └─Token(StringRightPiece) |}'|
+//@[042:00043) |   |   └─Token(RightSquare) |]|
+//@[043:00045) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
-//@[132:134) NewLine |\r\n|
+//@[132:00134) ├─Token(NewLine) |\r\n|
 var magicString2 = 'name'
-//@[0:25) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:16)  IdentifierSyntax
-//@[4:16)   Identifier |magicString2|
-//@[17:18)  Assignment |=|
-//@[19:25)  StringSyntax
-//@[19:25)   StringComplete |'name'|
-//@[25:27) NewLine |\r\n|
+//@[000:00025) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00016) | ├─IdentifierSyntax
+//@[004:00016) | | └─Token(Identifier) |magicString2|
+//@[017:00018) | ├─Token(Assignment) |=|
+//@[019:00025) | └─StringSyntax
+//@[019:00025) |   └─Token(StringComplete) |'name'|
+//@[025:00027) ├─Token(NewLine) |\r\n|
 resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:139) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |runtimeInvalidRes9|
-//@[28:87)  StringSyntax
-//@[28:87)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89)  Assignment |=|
-//@[90:139)  ObjectSyntax
-//@[90:91)   LeftBrace |{|
-//@[91:93)   NewLine |\r\n|
+//@[000:00139) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |runtimeInvalidRes9|
+//@[028:00087) | ├─StringSyntax
+//@[028:00087) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:00089) | ├─Token(Assignment) |=|
+//@[090:00139) | └─ObjectSyntax
+//@[090:00091) |   ├─Token(LeftBrace) |{|
+//@[091:00093) |   ├─Token(NewLine) |\r\n|
   name: runtimeValidRes2['${magicString2}']
-//@[2:43)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:43)    ArrayAccessSyntax
-//@[8:24)     VariableAccessSyntax
-//@[8:24)      IdentifierSyntax
-//@[8:24)       Identifier |runtimeValidRes2|
-//@[24:25)     LeftSquare |[|
-//@[25:42)     StringSyntax
-//@[25:28)      StringLeftPiece |'${|
-//@[28:40)      VariableAccessSyntax
-//@[28:40)       IdentifierSyntax
-//@[28:40)        Identifier |magicString2|
-//@[40:42)      StringRightPiece |}'|
-//@[42:43)     RightSquare |]|
-//@[43:45)   NewLine |\r\n|
+//@[002:00043) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00043) |   | └─ArrayAccessSyntax
+//@[008:00024) |   |   ├─VariableAccessSyntax
+//@[008:00024) |   |   | └─IdentifierSyntax
+//@[008:00024) |   |   |   └─Token(Identifier) |runtimeValidRes2|
+//@[024:00025) |   |   ├─Token(LeftSquare) |[|
+//@[025:00042) |   |   ├─StringSyntax
+//@[025:00028) |   |   | ├─Token(StringLeftPiece) |'${|
+//@[028:00040) |   |   | ├─VariableAccessSyntax
+//@[028:00040) |   |   | | └─IdentifierSyntax
+//@[028:00040) |   |   | |   └─Token(Identifier) |magicString2|
+//@[040:00042) |   |   | └─Token(StringRightPiece) |}'|
+//@[042:00043) |   |   └─Token(RightSquare) |]|
+//@[043:00045) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:135) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:28)  IdentifierSyntax
-//@[9:28)   Identifier |runtimeInvalidRes10|
-//@[29:88)  StringSyntax
-//@[29:88)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90)  Assignment |=|
-//@[91:135)  ObjectSyntax
-//@[91:92)   LeftBrace |{|
-//@[92:94)   NewLine |\r\n|
+//@[000:00135) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00028) | ├─IdentifierSyntax
+//@[009:00028) | | └─Token(Identifier) |runtimeInvalidRes10|
+//@[029:00088) | ├─StringSyntax
+//@[029:00088) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:00090) | ├─Token(Assignment) |=|
+//@[091:00135) | └─ObjectSyntax
+//@[091:00092) |   ├─Token(LeftBrace) |{|
+//@[092:00094) |   ├─Token(NewLine) |\r\n|
   name: '${runtimeValidRes3.location}'
-//@[2:38)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:38)    StringSyntax
-//@[8:11)     StringLeftPiece |'${|
-//@[11:36)     PropertyAccessSyntax
-//@[11:27)      VariableAccessSyntax
-//@[11:27)       IdentifierSyntax
-//@[11:27)        Identifier |runtimeValidRes3|
-//@[27:28)      Dot |.|
-//@[28:36)      IdentifierSyntax
-//@[28:36)       Identifier |location|
-//@[36:38)     StringRightPiece |}'|
-//@[38:40)   NewLine |\r\n|
+//@[002:00038) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00038) |   | └─StringSyntax
+//@[008:00011) |   |   ├─Token(StringLeftPiece) |'${|
+//@[011:00036) |   |   ├─PropertyAccessSyntax
+//@[011:00027) |   |   | ├─VariableAccessSyntax
+//@[011:00027) |   |   | | └─IdentifierSyntax
+//@[011:00027) |   |   | |   └─Token(Identifier) |runtimeValidRes3|
+//@[027:00028) |   |   | ├─Token(Dot) |.|
+//@[028:00036) |   |   | └─IdentifierSyntax
+//@[028:00036) |   |   |   └─Token(Identifier) |location|
+//@[036:00038) |   |   └─Token(StringRightPiece) |}'|
+//@[038:00040) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:131) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:28)  IdentifierSyntax
-//@[9:28)   Identifier |runtimeInvalidRes11|
-//@[29:88)  StringSyntax
-//@[29:88)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90)  Assignment |=|
-//@[91:131)  ObjectSyntax
-//@[91:92)   LeftBrace |{|
-//@[92:94)   NewLine |\r\n|
+//@[000:00131) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00028) | ├─IdentifierSyntax
+//@[009:00028) | | └─Token(Identifier) |runtimeInvalidRes11|
+//@[029:00088) | ├─StringSyntax
+//@[029:00088) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:00090) | ├─Token(Assignment) |=|
+//@[091:00131) | └─ObjectSyntax
+//@[091:00092) |   ├─Token(LeftBrace) |{|
+//@[092:00094) |   ├─Token(NewLine) |\r\n|
   name: validModule.params['name']
-//@[2:34)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:34)    ArrayAccessSyntax
-//@[8:26)     PropertyAccessSyntax
-//@[8:19)      VariableAccessSyntax
-//@[8:19)       IdentifierSyntax
-//@[8:19)        Identifier |validModule|
-//@[19:20)      Dot |.|
-//@[20:26)      IdentifierSyntax
-//@[20:26)       Identifier |params|
-//@[26:27)     LeftSquare |[|
-//@[27:33)     StringSyntax
-//@[27:33)      StringComplete |'name'|
-//@[33:34)     RightSquare |]|
-//@[34:36)   NewLine |\r\n|
+//@[002:00034) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00034) |   | └─ArrayAccessSyntax
+//@[008:00026) |   |   ├─PropertyAccessSyntax
+//@[008:00019) |   |   | ├─VariableAccessSyntax
+//@[008:00019) |   |   | | └─IdentifierSyntax
+//@[008:00019) |   |   | |   └─Token(Identifier) |validModule|
+//@[019:00020) |   |   | ├─Token(Dot) |.|
+//@[020:00026) |   |   | └─IdentifierSyntax
+//@[020:00026) |   |   |   └─Token(Identifier) |params|
+//@[026:00027) |   |   ├─Token(LeftSquare) |[|
+//@[027:00033) |   |   ├─StringSyntax
+//@[027:00033) |   |   | └─Token(StringComplete) |'name'|
+//@[033:00034) |   |   └─Token(RightSquare) |]|
+//@[034:00036) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:240) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:28)  IdentifierSyntax
-//@[9:28)   Identifier |runtimeInvalidRes12|
-//@[29:88)  StringSyntax
-//@[29:88)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90)  Assignment |=|
-//@[91:240)  ObjectSyntax
-//@[91:92)   LeftBrace |{|
-//@[92:94)   NewLine |\r\n|
+//@[000:00240) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00028) | ├─IdentifierSyntax
+//@[009:00028) | | └─Token(Identifier) |runtimeInvalidRes12|
+//@[029:00088) | ├─StringSyntax
+//@[029:00088) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:00090) | ├─Token(Assignment) |=|
+//@[091:00240) | └─ObjectSyntax
+//@[091:00092) |   ├─Token(LeftBrace) |{|
+//@[092:00094) |   ├─Token(NewLine) |\r\n|
   name: concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
-//@[2:143)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:143)    FunctionCallSyntax
-//@[8:14)     IdentifierSyntax
-//@[8:14)      Identifier |concat|
-//@[14:15)     LeftParen |(|
-//@[15:41)     FunctionArgumentSyntax
-//@[15:40)      PropertyAccessSyntax
-//@[15:31)       VariableAccessSyntax
-//@[15:31)        IdentifierSyntax
-//@[15:31)         Identifier |runtimeValidRes1|
-//@[31:32)       Dot |.|
-//@[32:40)       IdentifierSyntax
-//@[32:40)        Identifier |location|
-//@[40:41)      Comma |,|
-//@[42:71)     FunctionArgumentSyntax
-//@[42:70)      ArrayAccessSyntax
-//@[42:58)       VariableAccessSyntax
-//@[42:58)        IdentifierSyntax
-//@[42:58)         Identifier |runtimeValidRes2|
-//@[58:59)       LeftSquare |[|
-//@[59:69)       StringSyntax
-//@[59:69)        StringComplete |'location'|
-//@[69:70)       RightSquare |]|
-//@[70:71)      Comma |,|
-//@[72:118)     FunctionArgumentSyntax
-//@[72:117)      PropertyAccessSyntax
-//@[72:104)       ArrayAccessSyntax
-//@[72:90)        VariableAccessSyntax
-//@[72:90)         IdentifierSyntax
-//@[72:90)          Identifier |runtimeInvalidRes3|
-//@[90:91)        LeftSquare |[|
-//@[91:103)        StringSyntax
-//@[91:103)         StringComplete |'properties'|
-//@[103:104)        RightSquare |]|
-//@[104:105)       Dot |.|
-//@[105:117)       IdentifierSyntax
-//@[105:117)        Identifier |azCliVersion|
-//@[117:118)      Comma |,|
-//@[119:142)     FunctionArgumentSyntax
-//@[119:142)      PropertyAccessSyntax
-//@[119:137)       PropertyAccessSyntax
-//@[119:130)        VariableAccessSyntax
-//@[119:130)         IdentifierSyntax
-//@[119:130)          Identifier |validModule|
-//@[130:131)        Dot |.|
-//@[131:137)        IdentifierSyntax
-//@[131:137)         Identifier |params|
-//@[137:138)       Dot |.|
-//@[138:142)       IdentifierSyntax
-//@[138:142)        Identifier |name|
-//@[142:143)     RightParen |)|
-//@[143:145)   NewLine |\r\n|
+//@[002:00143) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00143) |   | └─FunctionCallSyntax
+//@[008:00014) |   |   ├─IdentifierSyntax
+//@[008:00014) |   |   | └─Token(Identifier) |concat|
+//@[014:00015) |   |   ├─Token(LeftParen) |(|
+//@[015:00040) |   |   ├─FunctionArgumentSyntax
+//@[015:00040) |   |   | └─PropertyAccessSyntax
+//@[015:00031) |   |   |   ├─VariableAccessSyntax
+//@[015:00031) |   |   |   | └─IdentifierSyntax
+//@[015:00031) |   |   |   |   └─Token(Identifier) |runtimeValidRes1|
+//@[031:00032) |   |   |   ├─Token(Dot) |.|
+//@[032:00040) |   |   |   └─IdentifierSyntax
+//@[032:00040) |   |   |     └─Token(Identifier) |location|
+//@[040:00041) |   |   ├─Token(Comma) |,|
+//@[042:00070) |   |   ├─FunctionArgumentSyntax
+//@[042:00070) |   |   | └─ArrayAccessSyntax
+//@[042:00058) |   |   |   ├─VariableAccessSyntax
+//@[042:00058) |   |   |   | └─IdentifierSyntax
+//@[042:00058) |   |   |   |   └─Token(Identifier) |runtimeValidRes2|
+//@[058:00059) |   |   |   ├─Token(LeftSquare) |[|
+//@[059:00069) |   |   |   ├─StringSyntax
+//@[059:00069) |   |   |   | └─Token(StringComplete) |'location'|
+//@[069:00070) |   |   |   └─Token(RightSquare) |]|
+//@[070:00071) |   |   ├─Token(Comma) |,|
+//@[072:00117) |   |   ├─FunctionArgumentSyntax
+//@[072:00117) |   |   | └─PropertyAccessSyntax
+//@[072:00104) |   |   |   ├─ArrayAccessSyntax
+//@[072:00090) |   |   |   | ├─VariableAccessSyntax
+//@[072:00090) |   |   |   | | └─IdentifierSyntax
+//@[072:00090) |   |   |   | |   └─Token(Identifier) |runtimeInvalidRes3|
+//@[090:00091) |   |   |   | ├─Token(LeftSquare) |[|
+//@[091:00103) |   |   |   | ├─StringSyntax
+//@[091:00103) |   |   |   | | └─Token(StringComplete) |'properties'|
+//@[103:00104) |   |   |   | └─Token(RightSquare) |]|
+//@[104:00105) |   |   |   ├─Token(Dot) |.|
+//@[105:00117) |   |   |   └─IdentifierSyntax
+//@[105:00117) |   |   |     └─Token(Identifier) |azCliVersion|
+//@[117:00118) |   |   ├─Token(Comma) |,|
+//@[119:00142) |   |   ├─FunctionArgumentSyntax
+//@[119:00142) |   |   | └─PropertyAccessSyntax
+//@[119:00137) |   |   |   ├─PropertyAccessSyntax
+//@[119:00130) |   |   |   | ├─VariableAccessSyntax
+//@[119:00130) |   |   |   | | └─IdentifierSyntax
+//@[119:00130) |   |   |   | |   └─Token(Identifier) |validModule|
+//@[130:00131) |   |   |   | ├─Token(Dot) |.|
+//@[131:00137) |   |   |   | └─IdentifierSyntax
+//@[131:00137) |   |   |   |   └─Token(Identifier) |params|
+//@[137:00138) |   |   |   ├─Token(Dot) |.|
+//@[138:00142) |   |   |   └─IdentifierSyntax
+//@[138:00142) |   |   |     └─Token(Identifier) |name|
+//@[142:00143) |   |   └─Token(RightParen) |)|
+//@[143:00145) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:243) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:28)  IdentifierSyntax
-//@[9:28)   Identifier |runtimeInvalidRes13|
-//@[29:88)  StringSyntax
-//@[29:88)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90)  Assignment |=|
-//@[91:243)  ObjectSyntax
-//@[91:92)   LeftBrace |{|
-//@[92:94)   NewLine |\r\n|
+//@[000:00243) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00028) | ├─IdentifierSyntax
+//@[009:00028) | | └─Token(Identifier) |runtimeInvalidRes13|
+//@[029:00088) | ├─StringSyntax
+//@[029:00088) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:00090) | ├─Token(Assignment) |=|
+//@[091:00243) | └─ObjectSyntax
+//@[091:00092) |   ├─Token(LeftBrace) |{|
+//@[092:00094) |   ├─Token(NewLine) |\r\n|
   name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
-//@[2:146)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:146)    StringSyntax
-//@[8:11)     StringLeftPiece |'${|
-//@[11:36)     PropertyAccessSyntax
-//@[11:27)      VariableAccessSyntax
-//@[11:27)       IdentifierSyntax
-//@[11:27)        Identifier |runtimeValidRes1|
-//@[27:28)      Dot |.|
-//@[28:36)      IdentifierSyntax
-//@[28:36)       Identifier |location|
-//@[36:39)     StringMiddlePiece |}${|
-//@[39:67)     ArrayAccessSyntax
-//@[39:55)      VariableAccessSyntax
-//@[39:55)       IdentifierSyntax
-//@[39:55)        Identifier |runtimeValidRes2|
-//@[55:56)      LeftSquare |[|
-//@[56:66)      StringSyntax
-//@[56:66)       StringComplete |'location'|
-//@[66:67)      RightSquare |]|
-//@[67:70)     StringMiddlePiece |}${|
-//@[70:115)     ArrayAccessSyntax
-//@[70:99)      PropertyAccessSyntax
-//@[70:88)       VariableAccessSyntax
-//@[70:88)        IdentifierSyntax
-//@[70:88)         Identifier |runtimeInvalidRes3|
-//@[88:89)       Dot |.|
-//@[89:99)       IdentifierSyntax
-//@[89:99)        Identifier |properties|
-//@[99:100)      LeftSquare |[|
-//@[100:114)      StringSyntax
-//@[100:114)       StringComplete |'azCliVersion'|
-//@[114:115)      RightSquare |]|
-//@[115:118)     StringMiddlePiece |}${|
-//@[118:144)     PropertyAccessSyntax
-//@[118:139)      ArrayAccessSyntax
-//@[118:129)       VariableAccessSyntax
-//@[118:129)        IdentifierSyntax
-//@[118:129)         Identifier |validModule|
-//@[129:130)       LeftSquare |[|
-//@[130:138)       StringSyntax
-//@[130:138)        StringComplete |'params'|
-//@[138:139)       RightSquare |]|
-//@[139:140)      Dot |.|
-//@[140:144)      IdentifierSyntax
-//@[140:144)       Identifier |name|
-//@[144:146)     StringRightPiece |}'|
-//@[146:148)   NewLine |\r\n|
+//@[002:00146) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00146) |   | └─StringSyntax
+//@[008:00011) |   |   ├─Token(StringLeftPiece) |'${|
+//@[011:00036) |   |   ├─PropertyAccessSyntax
+//@[011:00027) |   |   | ├─VariableAccessSyntax
+//@[011:00027) |   |   | | └─IdentifierSyntax
+//@[011:00027) |   |   | |   └─Token(Identifier) |runtimeValidRes1|
+//@[027:00028) |   |   | ├─Token(Dot) |.|
+//@[028:00036) |   |   | └─IdentifierSyntax
+//@[028:00036) |   |   |   └─Token(Identifier) |location|
+//@[036:00039) |   |   ├─Token(StringMiddlePiece) |}${|
+//@[039:00067) |   |   ├─ArrayAccessSyntax
+//@[039:00055) |   |   | ├─VariableAccessSyntax
+//@[039:00055) |   |   | | └─IdentifierSyntax
+//@[039:00055) |   |   | |   └─Token(Identifier) |runtimeValidRes2|
+//@[055:00056) |   |   | ├─Token(LeftSquare) |[|
+//@[056:00066) |   |   | ├─StringSyntax
+//@[056:00066) |   |   | | └─Token(StringComplete) |'location'|
+//@[066:00067) |   |   | └─Token(RightSquare) |]|
+//@[067:00070) |   |   ├─Token(StringMiddlePiece) |}${|
+//@[070:00115) |   |   ├─ArrayAccessSyntax
+//@[070:00099) |   |   | ├─PropertyAccessSyntax
+//@[070:00088) |   |   | | ├─VariableAccessSyntax
+//@[070:00088) |   |   | | | └─IdentifierSyntax
+//@[070:00088) |   |   | | |   └─Token(Identifier) |runtimeInvalidRes3|
+//@[088:00089) |   |   | | ├─Token(Dot) |.|
+//@[089:00099) |   |   | | └─IdentifierSyntax
+//@[089:00099) |   |   | |   └─Token(Identifier) |properties|
+//@[099:00100) |   |   | ├─Token(LeftSquare) |[|
+//@[100:00114) |   |   | ├─StringSyntax
+//@[100:00114) |   |   | | └─Token(StringComplete) |'azCliVersion'|
+//@[114:00115) |   |   | └─Token(RightSquare) |]|
+//@[115:00118) |   |   ├─Token(StringMiddlePiece) |}${|
+//@[118:00144) |   |   ├─PropertyAccessSyntax
+//@[118:00139) |   |   | ├─ArrayAccessSyntax
+//@[118:00129) |   |   | | ├─VariableAccessSyntax
+//@[118:00129) |   |   | | | └─IdentifierSyntax
+//@[118:00129) |   |   | | |   └─Token(Identifier) |validModule|
+//@[129:00130) |   |   | | ├─Token(LeftSquare) |[|
+//@[130:00138) |   |   | | ├─StringSyntax
+//@[130:00138) |   |   | | | └─Token(StringComplete) |'params'|
+//@[138:00139) |   |   | | └─Token(RightSquare) |]|
+//@[139:00140) |   |   | ├─Token(Dot) |.|
+//@[140:00144) |   |   | └─IdentifierSyntax
+//@[140:00144) |   |   |   └─Token(Identifier) |name|
+//@[144:00146) |   |   └─Token(StringRightPiece) |}'|
+//@[146:00148) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // variable related runtime validation
-//@[38:40) NewLine |\r\n|
+//@[038:00040) ├─Token(NewLine) |\r\n|
 var runtimefoo1 = runtimeValidRes1['location']
-//@[0:46) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:15)  IdentifierSyntax
-//@[4:15)   Identifier |runtimefoo1|
-//@[16:17)  Assignment |=|
-//@[18:46)  ArrayAccessSyntax
-//@[18:34)   VariableAccessSyntax
-//@[18:34)    IdentifierSyntax
-//@[18:34)     Identifier |runtimeValidRes1|
-//@[34:35)   LeftSquare |[|
-//@[35:45)   StringSyntax
-//@[35:45)    StringComplete |'location'|
-//@[45:46)   RightSquare |]|
-//@[46:48) NewLine |\r\n|
+//@[000:00046) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00015) | ├─IdentifierSyntax
+//@[004:00015) | | └─Token(Identifier) |runtimefoo1|
+//@[016:00017) | ├─Token(Assignment) |=|
+//@[018:00046) | └─ArrayAccessSyntax
+//@[018:00034) |   ├─VariableAccessSyntax
+//@[018:00034) |   | └─IdentifierSyntax
+//@[018:00034) |   |   └─Token(Identifier) |runtimeValidRes1|
+//@[034:00035) |   ├─Token(LeftSquare) |[|
+//@[035:00045) |   ├─StringSyntax
+//@[035:00045) |   | └─Token(StringComplete) |'location'|
+//@[045:00046) |   └─Token(RightSquare) |]|
+//@[046:00048) ├─Token(NewLine) |\r\n|
 var runtimefoo2 = runtimeValidRes2['properties'].azCliVersion
-//@[0:61) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:15)  IdentifierSyntax
-//@[4:15)   Identifier |runtimefoo2|
-//@[16:17)  Assignment |=|
-//@[18:61)  PropertyAccessSyntax
-//@[18:48)   ArrayAccessSyntax
-//@[18:34)    VariableAccessSyntax
-//@[18:34)     IdentifierSyntax
-//@[18:34)      Identifier |runtimeValidRes2|
-//@[34:35)    LeftSquare |[|
-//@[35:47)    StringSyntax
-//@[35:47)     StringComplete |'properties'|
-//@[47:48)    RightSquare |]|
-//@[48:49)   Dot |.|
-//@[49:61)   IdentifierSyntax
-//@[49:61)    Identifier |azCliVersion|
-//@[61:63) NewLine |\r\n|
+//@[000:00061) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00015) | ├─IdentifierSyntax
+//@[004:00015) | | └─Token(Identifier) |runtimefoo2|
+//@[016:00017) | ├─Token(Assignment) |=|
+//@[018:00061) | └─PropertyAccessSyntax
+//@[018:00048) |   ├─ArrayAccessSyntax
+//@[018:00034) |   | ├─VariableAccessSyntax
+//@[018:00034) |   | | └─IdentifierSyntax
+//@[018:00034) |   | |   └─Token(Identifier) |runtimeValidRes2|
+//@[034:00035) |   | ├─Token(LeftSquare) |[|
+//@[035:00047) |   | ├─StringSyntax
+//@[035:00047) |   | | └─Token(StringComplete) |'properties'|
+//@[047:00048) |   | └─Token(RightSquare) |]|
+//@[048:00049) |   ├─Token(Dot) |.|
+//@[049:00061) |   └─IdentifierSyntax
+//@[049:00061) |     └─Token(Identifier) |azCliVersion|
+//@[061:00063) ├─Token(NewLine) |\r\n|
 var runtimefoo3 = runtimeValidRes2
-//@[0:34) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:15)  IdentifierSyntax
-//@[4:15)   Identifier |runtimefoo3|
-//@[16:17)  Assignment |=|
-//@[18:34)  VariableAccessSyntax
-//@[18:34)   IdentifierSyntax
-//@[18:34)    Identifier |runtimeValidRes2|
-//@[34:36) NewLine |\r\n|
+//@[000:00034) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00015) | ├─IdentifierSyntax
+//@[004:00015) | | └─Token(Identifier) |runtimefoo3|
+//@[016:00017) | ├─Token(Assignment) |=|
+//@[018:00034) | └─VariableAccessSyntax
+//@[018:00034) |   └─IdentifierSyntax
+//@[018:00034) |     └─Token(Identifier) |runtimeValidRes2|
+//@[034:00036) ├─Token(NewLine) |\r\n|
 var runtimefoo4 = {
-//@[0:42) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:15)  IdentifierSyntax
-//@[4:15)   Identifier |runtimefoo4|
-//@[16:17)  Assignment |=|
-//@[18:42)  ObjectSyntax
-//@[18:19)   LeftBrace |{|
-//@[19:21)   NewLine |\r\n|
+//@[000:00042) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00015) | ├─IdentifierSyntax
+//@[004:00015) | | └─Token(Identifier) |runtimefoo4|
+//@[016:00017) | ├─Token(Assignment) |=|
+//@[018:00042) | └─ObjectSyntax
+//@[018:00019) |   ├─Token(LeftBrace) |{|
+//@[019:00021) |   ├─Token(NewLine) |\r\n|
   hop: runtimefoo2
-//@[2:18)   ObjectPropertySyntax
-//@[2:5)    IdentifierSyntax
-//@[2:5)     Identifier |hop|
-//@[5:6)    Colon |:|
-//@[7:18)    VariableAccessSyntax
-//@[7:18)     IdentifierSyntax
-//@[7:18)      Identifier |runtimefoo2|
-//@[18:20)   NewLine |\r\n|
+//@[002:00018) |   ├─ObjectPropertySyntax
+//@[002:00005) |   | ├─IdentifierSyntax
+//@[002:00005) |   | | └─Token(Identifier) |hop|
+//@[005:00006) |   | ├─Token(Colon) |:|
+//@[007:00018) |   | └─VariableAccessSyntax
+//@[007:00018) |   |   └─IdentifierSyntax
+//@[007:00018) |   |     └─Token(Identifier) |runtimefoo2|
+//@[018:00020) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 var runtimeInvalid = {
-//@[0:119) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:18)  IdentifierSyntax
-//@[4:18)   Identifier |runtimeInvalid|
-//@[19:20)  Assignment |=|
-//@[21:119)  ObjectSyntax
-//@[21:22)   LeftBrace |{|
-//@[22:24)   NewLine |\r\n|
+//@[000:00119) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00018) | ├─IdentifierSyntax
+//@[004:00018) | | └─Token(Identifier) |runtimeInvalid|
+//@[019:00020) | ├─Token(Assignment) |=|
+//@[021:00119) | └─ObjectSyntax
+//@[021:00022) |   ├─Token(LeftBrace) |{|
+//@[022:00024) |   ├─Token(NewLine) |\r\n|
   foo1: runtimefoo1
-//@[2:19)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |foo1|
-//@[6:7)    Colon |:|
-//@[8:19)    VariableAccessSyntax
-//@[8:19)     IdentifierSyntax
-//@[8:19)      Identifier |runtimefoo1|
-//@[19:21)   NewLine |\r\n|
+//@[002:00019) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |foo1|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00019) |   | └─VariableAccessSyntax
+//@[008:00019) |   |   └─IdentifierSyntax
+//@[008:00019) |   |     └─Token(Identifier) |runtimefoo1|
+//@[019:00021) |   ├─Token(NewLine) |\r\n|
   foo2: runtimefoo2
-//@[2:19)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |foo2|
-//@[6:7)    Colon |:|
-//@[8:19)    VariableAccessSyntax
-//@[8:19)     IdentifierSyntax
-//@[8:19)      Identifier |runtimefoo2|
-//@[19:21)   NewLine |\r\n|
+//@[002:00019) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |foo2|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00019) |   | └─VariableAccessSyntax
+//@[008:00019) |   |   └─IdentifierSyntax
+//@[008:00019) |   |     └─Token(Identifier) |runtimefoo2|
+//@[019:00021) |   ├─Token(NewLine) |\r\n|
   foo3: runtimefoo3
-//@[2:19)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |foo3|
-//@[6:7)    Colon |:|
-//@[8:19)    VariableAccessSyntax
-//@[8:19)     IdentifierSyntax
-//@[8:19)      Identifier |runtimefoo3|
-//@[19:21)   NewLine |\r\n|
+//@[002:00019) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |foo3|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00019) |   | └─VariableAccessSyntax
+//@[008:00019) |   |   └─IdentifierSyntax
+//@[008:00019) |   |     └─Token(Identifier) |runtimefoo3|
+//@[019:00021) |   ├─Token(NewLine) |\r\n|
   foo4: runtimeValidRes1.name
-//@[2:29)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |foo4|
-//@[6:7)    Colon |:|
-//@[8:29)    PropertyAccessSyntax
-//@[8:24)     VariableAccessSyntax
-//@[8:24)      IdentifierSyntax
-//@[8:24)       Identifier |runtimeValidRes1|
-//@[24:25)     Dot |.|
-//@[25:29)     IdentifierSyntax
-//@[25:29)      Identifier |name|
-//@[29:31)   NewLine |\r\n|
+//@[002:00029) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |foo4|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00029) |   | └─PropertyAccessSyntax
+//@[008:00024) |   |   ├─VariableAccessSyntax
+//@[008:00024) |   |   | └─IdentifierSyntax
+//@[008:00024) |   |   |   └─Token(Identifier) |runtimeValidRes1|
+//@[024:00025) |   |   ├─Token(Dot) |.|
+//@[025:00029) |   |   └─IdentifierSyntax
+//@[025:00029) |   |     └─Token(Identifier) |name|
+//@[029:00031) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 var runtimeValid = {
-//@[0:151) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:16)  IdentifierSyntax
-//@[4:16)   Identifier |runtimeValid|
-//@[17:18)  Assignment |=|
-//@[19:151)  ObjectSyntax
-//@[19:20)   LeftBrace |{|
-//@[20:22)   NewLine |\r\n|
+//@[000:00151) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00016) | ├─IdentifierSyntax
+//@[004:00016) | | └─Token(Identifier) |runtimeValid|
+//@[017:00018) | ├─Token(Assignment) |=|
+//@[019:00151) | └─ObjectSyntax
+//@[019:00020) |   ├─Token(LeftBrace) |{|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
   foo1: runtimeValidRes1.name
-//@[2:29)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |foo1|
-//@[6:7)    Colon |:|
-//@[8:29)    PropertyAccessSyntax
-//@[8:24)     VariableAccessSyntax
-//@[8:24)      IdentifierSyntax
-//@[8:24)       Identifier |runtimeValidRes1|
-//@[24:25)     Dot |.|
-//@[25:29)     IdentifierSyntax
-//@[25:29)      Identifier |name|
-//@[29:31)   NewLine |\r\n|
+//@[002:00029) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |foo1|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00029) |   | └─PropertyAccessSyntax
+//@[008:00024) |   |   ├─VariableAccessSyntax
+//@[008:00024) |   |   | └─IdentifierSyntax
+//@[008:00024) |   |   |   └─Token(Identifier) |runtimeValidRes1|
+//@[024:00025) |   |   ├─Token(Dot) |.|
+//@[025:00029) |   |   └─IdentifierSyntax
+//@[025:00029) |   |     └─Token(Identifier) |name|
+//@[029:00031) |   ├─Token(NewLine) |\r\n|
   foo2: runtimeValidRes1.apiVersion
-//@[2:35)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |foo2|
-//@[6:7)    Colon |:|
-//@[8:35)    PropertyAccessSyntax
-//@[8:24)     VariableAccessSyntax
-//@[8:24)      IdentifierSyntax
-//@[8:24)       Identifier |runtimeValidRes1|
-//@[24:25)     Dot |.|
-//@[25:35)     IdentifierSyntax
-//@[25:35)      Identifier |apiVersion|
-//@[35:37)   NewLine |\r\n|
+//@[002:00035) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |foo2|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00035) |   | └─PropertyAccessSyntax
+//@[008:00024) |   |   ├─VariableAccessSyntax
+//@[008:00024) |   |   | └─IdentifierSyntax
+//@[008:00024) |   |   |   └─Token(Identifier) |runtimeValidRes1|
+//@[024:00025) |   |   ├─Token(Dot) |.|
+//@[025:00035) |   |   └─IdentifierSyntax
+//@[025:00035) |   |     └─Token(Identifier) |apiVersion|
+//@[035:00037) |   ├─Token(NewLine) |\r\n|
   foo3: runtimeValidRes2.type
-//@[2:29)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |foo3|
-//@[6:7)    Colon |:|
-//@[8:29)    PropertyAccessSyntax
-//@[8:24)     VariableAccessSyntax
-//@[8:24)      IdentifierSyntax
-//@[8:24)       Identifier |runtimeValidRes2|
-//@[24:25)     Dot |.|
-//@[25:29)     IdentifierSyntax
-//@[25:29)      Identifier |type|
-//@[29:31)   NewLine |\r\n|
+//@[002:00029) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |foo3|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00029) |   | └─PropertyAccessSyntax
+//@[008:00024) |   |   ├─VariableAccessSyntax
+//@[008:00024) |   |   | └─IdentifierSyntax
+//@[008:00024) |   |   |   └─Token(Identifier) |runtimeValidRes2|
+//@[024:00025) |   |   ├─Token(Dot) |.|
+//@[025:00029) |   |   └─IdentifierSyntax
+//@[025:00029) |   |     └─Token(Identifier) |type|
+//@[029:00031) |   ├─Token(NewLine) |\r\n|
   foo4: runtimeValidRes2.id
-//@[2:27)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |foo4|
-//@[6:7)    Colon |:|
-//@[8:27)    PropertyAccessSyntax
-//@[8:24)     VariableAccessSyntax
-//@[8:24)      IdentifierSyntax
-//@[8:24)       Identifier |runtimeValidRes2|
-//@[24:25)     Dot |.|
-//@[25:27)     IdentifierSyntax
-//@[25:27)      Identifier |id|
-//@[27:29)   NewLine |\r\n|
+//@[002:00027) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |foo4|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00027) |   | └─PropertyAccessSyntax
+//@[008:00024) |   |   ├─VariableAccessSyntax
+//@[008:00024) |   |   | └─IdentifierSyntax
+//@[008:00024) |   |   |   └─Token(Identifier) |runtimeValidRes2|
+//@[024:00025) |   |   ├─Token(Dot) |.|
+//@[025:00027) |   |   └─IdentifierSyntax
+//@[025:00027) |   |     └─Token(Identifier) |id|
+//@[027:00029) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes14 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:124) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:28)  IdentifierSyntax
-//@[9:28)   Identifier |runtimeInvalidRes14|
-//@[29:88)  StringSyntax
-//@[29:88)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90)  Assignment |=|
-//@[91:124)  ObjectSyntax
-//@[91:92)   LeftBrace |{|
-//@[92:94)   NewLine |\r\n|
+//@[000:00124) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00028) | ├─IdentifierSyntax
+//@[009:00028) | | └─Token(Identifier) |runtimeInvalidRes14|
+//@[029:00088) | ├─StringSyntax
+//@[029:00088) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:00090) | ├─Token(Assignment) |=|
+//@[091:00124) | └─ObjectSyntax
+//@[091:00092) |   ├─Token(LeftBrace) |{|
+//@[092:00094) |   ├─Token(NewLine) |\r\n|
   name: runtimeInvalid.foo1
-//@[2:27)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:27)    PropertyAccessSyntax
-//@[8:22)     VariableAccessSyntax
-//@[8:22)      IdentifierSyntax
-//@[8:22)       Identifier |runtimeInvalid|
-//@[22:23)     Dot |.|
-//@[23:27)     IdentifierSyntax
-//@[23:27)      Identifier |foo1|
-//@[27:29)   NewLine |\r\n|
+//@[002:00027) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00027) |   | └─PropertyAccessSyntax
+//@[008:00022) |   |   ├─VariableAccessSyntax
+//@[008:00022) |   |   | └─IdentifierSyntax
+//@[008:00022) |   |   |   └─Token(Identifier) |runtimeInvalid|
+//@[022:00023) |   |   ├─Token(Dot) |.|
+//@[023:00027) |   |   └─IdentifierSyntax
+//@[023:00027) |   |     └─Token(Identifier) |foo1|
+//@[027:00029) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes15 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:124) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:28)  IdentifierSyntax
-//@[9:28)   Identifier |runtimeInvalidRes15|
-//@[29:88)  StringSyntax
-//@[29:88)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90)  Assignment |=|
-//@[91:124)  ObjectSyntax
-//@[91:92)   LeftBrace |{|
-//@[92:94)   NewLine |\r\n|
+//@[000:00124) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00028) | ├─IdentifierSyntax
+//@[009:00028) | | └─Token(Identifier) |runtimeInvalidRes15|
+//@[029:00088) | ├─StringSyntax
+//@[029:00088) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:00090) | ├─Token(Assignment) |=|
+//@[091:00124) | └─ObjectSyntax
+//@[091:00092) |   ├─Token(LeftBrace) |{|
+//@[092:00094) |   ├─Token(NewLine) |\r\n|
   name: runtimeInvalid.foo2
-//@[2:27)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:27)    PropertyAccessSyntax
-//@[8:22)     VariableAccessSyntax
-//@[8:22)      IdentifierSyntax
-//@[8:22)       Identifier |runtimeInvalid|
-//@[22:23)     Dot |.|
-//@[23:27)     IdentifierSyntax
-//@[23:27)      Identifier |foo2|
-//@[27:29)   NewLine |\r\n|
+//@[002:00027) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00027) |   | └─PropertyAccessSyntax
+//@[008:00022) |   |   ├─VariableAccessSyntax
+//@[008:00022) |   |   | └─IdentifierSyntax
+//@[008:00022) |   |   |   └─Token(Identifier) |runtimeInvalid|
+//@[022:00023) |   |   ├─Token(Dot) |.|
+//@[023:00027) |   |   └─IdentifierSyntax
+//@[023:00027) |   |     └─Token(Identifier) |foo2|
+//@[027:00029) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes16 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:148) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:28)  IdentifierSyntax
-//@[9:28)   Identifier |runtimeInvalidRes16|
-//@[29:88)  StringSyntax
-//@[29:88)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90)  Assignment |=|
-//@[91:148)  ObjectSyntax
-//@[91:92)   LeftBrace |{|
-//@[92:94)   NewLine |\r\n|
+//@[000:00148) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00028) | ├─IdentifierSyntax
+//@[009:00028) | | └─Token(Identifier) |runtimeInvalidRes16|
+//@[029:00088) | ├─StringSyntax
+//@[029:00088) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:00090) | ├─Token(Assignment) |=|
+//@[091:00148) | └─ObjectSyntax
+//@[091:00092) |   ├─Token(LeftBrace) |{|
+//@[092:00094) |   ├─Token(NewLine) |\r\n|
   name: runtimeInvalid.foo3.properties.azCliVersion
-//@[2:51)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:51)    PropertyAccessSyntax
-//@[8:38)     PropertyAccessSyntax
-//@[8:27)      PropertyAccessSyntax
-//@[8:22)       VariableAccessSyntax
-//@[8:22)        IdentifierSyntax
-//@[8:22)         Identifier |runtimeInvalid|
-//@[22:23)       Dot |.|
-//@[23:27)       IdentifierSyntax
-//@[23:27)        Identifier |foo3|
-//@[27:28)      Dot |.|
-//@[28:38)      IdentifierSyntax
-//@[28:38)       Identifier |properties|
-//@[38:39)     Dot |.|
-//@[39:51)     IdentifierSyntax
-//@[39:51)      Identifier |azCliVersion|
-//@[51:53)   NewLine |\r\n|
+//@[002:00051) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00051) |   | └─PropertyAccessSyntax
+//@[008:00038) |   |   ├─PropertyAccessSyntax
+//@[008:00027) |   |   | ├─PropertyAccessSyntax
+//@[008:00022) |   |   | | ├─VariableAccessSyntax
+//@[008:00022) |   |   | | | └─IdentifierSyntax
+//@[008:00022) |   |   | | |   └─Token(Identifier) |runtimeInvalid|
+//@[022:00023) |   |   | | ├─Token(Dot) |.|
+//@[023:00027) |   |   | | └─IdentifierSyntax
+//@[023:00027) |   |   | |   └─Token(Identifier) |foo3|
+//@[027:00028) |   |   | ├─Token(Dot) |.|
+//@[028:00038) |   |   | └─IdentifierSyntax
+//@[028:00038) |   |   |   └─Token(Identifier) |properties|
+//@[038:00039) |   |   ├─Token(Dot) |.|
+//@[039:00051) |   |   └─IdentifierSyntax
+//@[039:00051) |   |     └─Token(Identifier) |azCliVersion|
+//@[051:00053) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // Note: This is actually a runtime valid value. However, other properties of the variable cannot be resolved, so we block this.
-//@[128:130) NewLine |\r\n|
+//@[128:00130) ├─Token(NewLine) |\r\n|
 resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:124) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:28)  IdentifierSyntax
-//@[9:28)   Identifier |runtimeInvalidRes17|
-//@[29:88)  StringSyntax
-//@[29:88)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90)  Assignment |=|
-//@[91:124)  ObjectSyntax
-//@[91:92)   LeftBrace |{|
-//@[92:94)   NewLine |\r\n|
+//@[000:00124) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00028) | ├─IdentifierSyntax
+//@[009:00028) | | └─Token(Identifier) |runtimeInvalidRes17|
+//@[029:00088) | ├─StringSyntax
+//@[029:00088) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:00090) | ├─Token(Assignment) |=|
+//@[091:00124) | └─ObjectSyntax
+//@[091:00092) |   ├─Token(LeftBrace) |{|
+//@[092:00094) |   ├─Token(NewLine) |\r\n|
   name: runtimeInvalid.foo4
-//@[2:27)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:27)    PropertyAccessSyntax
-//@[8:22)     VariableAccessSyntax
-//@[8:22)      IdentifierSyntax
-//@[8:22)       Identifier |runtimeInvalid|
-//@[22:23)     Dot |.|
-//@[23:27)     IdentifierSyntax
-//@[23:27)      Identifier |foo4|
-//@[27:29)   NewLine |\r\n|
+//@[002:00027) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00027) |   | └─PropertyAccessSyntax
+//@[008:00022) |   |   ├─VariableAccessSyntax
+//@[008:00022) |   |   | └─IdentifierSyntax
+//@[008:00022) |   |   |   └─Token(Identifier) |runtimeInvalid|
+//@[022:00023) |   |   ├─Token(Dot) |.|
+//@[023:00027) |   |   └─IdentifierSyntax
+//@[023:00027) |   |     └─Token(Identifier) |foo4|
+//@[027:00029) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:226) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:28)  IdentifierSyntax
-//@[9:28)   Identifier |runtimeInvalidRes18|
-//@[29:88)  StringSyntax
-//@[29:88)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90)  Assignment |=|
-//@[91:226)  ObjectSyntax
-//@[91:92)   LeftBrace |{|
-//@[92:94)   NewLine |\r\n|
+//@[000:00226) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00028) | ├─IdentifierSyntax
+//@[009:00028) | | └─Token(Identifier) |runtimeInvalidRes18|
+//@[029:00088) | ├─StringSyntax
+//@[029:00088) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:00090) | ├─Token(Assignment) |=|
+//@[091:00226) | └─ObjectSyntax
+//@[091:00092) |   ├─Token(LeftBrace) |{|
+//@[092:00094) |   ├─Token(NewLine) |\r\n|
   name: concat(runtimeInvalid.foo1, runtimeValidRes2['properties'].azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
-//@[2:129)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:129)    FunctionCallSyntax
-//@[8:14)     IdentifierSyntax
-//@[8:14)      Identifier |concat|
-//@[14:15)     LeftParen |(|
-//@[15:35)     FunctionArgumentSyntax
-//@[15:34)      PropertyAccessSyntax
-//@[15:29)       VariableAccessSyntax
-//@[15:29)        IdentifierSyntax
-//@[15:29)         Identifier |runtimeInvalid|
-//@[29:30)       Dot |.|
-//@[30:34)       IdentifierSyntax
-//@[30:34)        Identifier |foo1|
-//@[34:35)      Comma |,|
-//@[36:80)     FunctionArgumentSyntax
-//@[36:79)      PropertyAccessSyntax
-//@[36:66)       ArrayAccessSyntax
-//@[36:52)        VariableAccessSyntax
-//@[36:52)         IdentifierSyntax
-//@[36:52)          Identifier |runtimeValidRes2|
-//@[52:53)        LeftSquare |[|
-//@[53:65)        StringSyntax
-//@[53:65)         StringComplete |'properties'|
-//@[65:66)        RightSquare |]|
-//@[66:67)       Dot |.|
-//@[67:79)       IdentifierSyntax
-//@[67:79)        Identifier |azCliVersion|
-//@[79:80)      Comma |,|
-//@[81:112)     FunctionArgumentSyntax
-//@[81:111)      StringSyntax
-//@[81:84)       StringLeftPiece |'${|
-//@[84:109)       PropertyAccessSyntax
-//@[84:100)        VariableAccessSyntax
-//@[84:100)         IdentifierSyntax
-//@[84:100)          Identifier |runtimeValidRes1|
-//@[100:101)        Dot |.|
-//@[101:109)        IdentifierSyntax
-//@[101:109)         Identifier |location|
-//@[109:111)       StringRightPiece |}'|
-//@[111:112)      Comma |,|
-//@[113:128)     FunctionArgumentSyntax
-//@[113:128)      PropertyAccessSyntax
-//@[113:124)       VariableAccessSyntax
-//@[113:124)        IdentifierSyntax
-//@[113:124)         Identifier |runtimefoo4|
-//@[124:125)       Dot |.|
-//@[125:128)       IdentifierSyntax
-//@[125:128)        Identifier |hop|
-//@[128:129)     RightParen |)|
-//@[129:131)   NewLine |\r\n|
+//@[002:00129) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00129) |   | └─FunctionCallSyntax
+//@[008:00014) |   |   ├─IdentifierSyntax
+//@[008:00014) |   |   | └─Token(Identifier) |concat|
+//@[014:00015) |   |   ├─Token(LeftParen) |(|
+//@[015:00034) |   |   ├─FunctionArgumentSyntax
+//@[015:00034) |   |   | └─PropertyAccessSyntax
+//@[015:00029) |   |   |   ├─VariableAccessSyntax
+//@[015:00029) |   |   |   | └─IdentifierSyntax
+//@[015:00029) |   |   |   |   └─Token(Identifier) |runtimeInvalid|
+//@[029:00030) |   |   |   ├─Token(Dot) |.|
+//@[030:00034) |   |   |   └─IdentifierSyntax
+//@[030:00034) |   |   |     └─Token(Identifier) |foo1|
+//@[034:00035) |   |   ├─Token(Comma) |,|
+//@[036:00079) |   |   ├─FunctionArgumentSyntax
+//@[036:00079) |   |   | └─PropertyAccessSyntax
+//@[036:00066) |   |   |   ├─ArrayAccessSyntax
+//@[036:00052) |   |   |   | ├─VariableAccessSyntax
+//@[036:00052) |   |   |   | | └─IdentifierSyntax
+//@[036:00052) |   |   |   | |   └─Token(Identifier) |runtimeValidRes2|
+//@[052:00053) |   |   |   | ├─Token(LeftSquare) |[|
+//@[053:00065) |   |   |   | ├─StringSyntax
+//@[053:00065) |   |   |   | | └─Token(StringComplete) |'properties'|
+//@[065:00066) |   |   |   | └─Token(RightSquare) |]|
+//@[066:00067) |   |   |   ├─Token(Dot) |.|
+//@[067:00079) |   |   |   └─IdentifierSyntax
+//@[067:00079) |   |   |     └─Token(Identifier) |azCliVersion|
+//@[079:00080) |   |   ├─Token(Comma) |,|
+//@[081:00111) |   |   ├─FunctionArgumentSyntax
+//@[081:00111) |   |   | └─StringSyntax
+//@[081:00084) |   |   |   ├─Token(StringLeftPiece) |'${|
+//@[084:00109) |   |   |   ├─PropertyAccessSyntax
+//@[084:00100) |   |   |   | ├─VariableAccessSyntax
+//@[084:00100) |   |   |   | | └─IdentifierSyntax
+//@[084:00100) |   |   |   | |   └─Token(Identifier) |runtimeValidRes1|
+//@[100:00101) |   |   |   | ├─Token(Dot) |.|
+//@[101:00109) |   |   |   | └─IdentifierSyntax
+//@[101:00109) |   |   |   |   └─Token(Identifier) |location|
+//@[109:00111) |   |   |   └─Token(StringRightPiece) |}'|
+//@[111:00112) |   |   ├─Token(Comma) |,|
+//@[113:00128) |   |   ├─FunctionArgumentSyntax
+//@[113:00128) |   |   | └─PropertyAccessSyntax
+//@[113:00124) |   |   |   ├─VariableAccessSyntax
+//@[113:00124) |   |   |   | └─IdentifierSyntax
+//@[113:00124) |   |   |   |   └─Token(Identifier) |runtimefoo4|
+//@[124:00125) |   |   |   ├─Token(Dot) |.|
+//@[125:00128) |   |   |   └─IdentifierSyntax
+//@[125:00128) |   |   |     └─Token(Identifier) |hop|
+//@[128:00129) |   |   └─Token(RightParen) |)|
+//@[129:00131) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeValidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:119) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:25)  IdentifierSyntax
-//@[9:25)   Identifier |runtimeValidRes6|
-//@[26:85)  StringSyntax
-//@[26:85)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[86:87)  Assignment |=|
-//@[88:119)  ObjectSyntax
-//@[88:89)   LeftBrace |{|
-//@[89:91)   NewLine |\r\n|
+//@[000:00119) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00025) | ├─IdentifierSyntax
+//@[009:00025) | | └─Token(Identifier) |runtimeValidRes6|
+//@[026:00085) | ├─StringSyntax
+//@[026:00085) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[086:00087) | ├─Token(Assignment) |=|
+//@[088:00119) | └─ObjectSyntax
+//@[088:00089) |   ├─Token(LeftBrace) |{|
+//@[089:00091) |   ├─Token(NewLine) |\r\n|
   name: runtimeValid.foo1
-//@[2:25)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:25)    PropertyAccessSyntax
-//@[8:20)     VariableAccessSyntax
-//@[8:20)      IdentifierSyntax
-//@[8:20)       Identifier |runtimeValid|
-//@[20:21)     Dot |.|
-//@[21:25)     IdentifierSyntax
-//@[21:25)      Identifier |foo1|
-//@[25:27)   NewLine |\r\n|
+//@[002:00025) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00025) |   | └─PropertyAccessSyntax
+//@[008:00020) |   |   ├─VariableAccessSyntax
+//@[008:00020) |   |   | └─IdentifierSyntax
+//@[008:00020) |   |   |   └─Token(Identifier) |runtimeValid|
+//@[020:00021) |   |   ├─Token(Dot) |.|
+//@[021:00025) |   |   └─IdentifierSyntax
+//@[021:00025) |   |     └─Token(Identifier) |foo1|
+//@[025:00027) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeValidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:119) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:25)  IdentifierSyntax
-//@[9:25)   Identifier |runtimeValidRes7|
-//@[26:85)  StringSyntax
-//@[26:85)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[86:87)  Assignment |=|
-//@[88:119)  ObjectSyntax
-//@[88:89)   LeftBrace |{|
-//@[89:91)   NewLine |\r\n|
+//@[000:00119) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00025) | ├─IdentifierSyntax
+//@[009:00025) | | └─Token(Identifier) |runtimeValidRes7|
+//@[026:00085) | ├─StringSyntax
+//@[026:00085) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[086:00087) | ├─Token(Assignment) |=|
+//@[088:00119) | └─ObjectSyntax
+//@[088:00089) |   ├─Token(LeftBrace) |{|
+//@[089:00091) |   ├─Token(NewLine) |\r\n|
   name: runtimeValid.foo2
-//@[2:25)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:25)    PropertyAccessSyntax
-//@[8:20)     VariableAccessSyntax
-//@[8:20)      IdentifierSyntax
-//@[8:20)       Identifier |runtimeValid|
-//@[20:21)     Dot |.|
-//@[21:25)     IdentifierSyntax
-//@[21:25)      Identifier |foo2|
-//@[25:27)   NewLine |\r\n|
+//@[002:00025) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00025) |   | └─PropertyAccessSyntax
+//@[008:00020) |   |   ├─VariableAccessSyntax
+//@[008:00020) |   |   | └─IdentifierSyntax
+//@[008:00020) |   |   |   └─Token(Identifier) |runtimeValid|
+//@[020:00021) |   |   ├─Token(Dot) |.|
+//@[021:00025) |   |   └─IdentifierSyntax
+//@[021:00025) |   |     └─Token(Identifier) |foo2|
+//@[025:00027) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeValidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:119) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:25)  IdentifierSyntax
-//@[9:25)   Identifier |runtimeValidRes8|
-//@[26:85)  StringSyntax
-//@[26:85)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[86:87)  Assignment |=|
-//@[88:119)  ObjectSyntax
-//@[88:89)   LeftBrace |{|
-//@[89:91)   NewLine |\r\n|
+//@[000:00119) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00025) | ├─IdentifierSyntax
+//@[009:00025) | | └─Token(Identifier) |runtimeValidRes8|
+//@[026:00085) | ├─StringSyntax
+//@[026:00085) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[086:00087) | ├─Token(Assignment) |=|
+//@[088:00119) | └─ObjectSyntax
+//@[088:00089) |   ├─Token(LeftBrace) |{|
+//@[089:00091) |   ├─Token(NewLine) |\r\n|
   name: runtimeValid.foo3
-//@[2:25)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:25)    PropertyAccessSyntax
-//@[8:20)     VariableAccessSyntax
-//@[8:20)      IdentifierSyntax
-//@[8:20)       Identifier |runtimeValid|
-//@[20:21)     Dot |.|
-//@[21:25)     IdentifierSyntax
-//@[21:25)      Identifier |foo3|
-//@[25:27)   NewLine |\r\n|
+//@[002:00025) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00025) |   | └─PropertyAccessSyntax
+//@[008:00020) |   |   ├─VariableAccessSyntax
+//@[008:00020) |   |   | └─IdentifierSyntax
+//@[008:00020) |   |   |   └─Token(Identifier) |runtimeValid|
+//@[020:00021) |   |   ├─Token(Dot) |.|
+//@[021:00025) |   |   └─IdentifierSyntax
+//@[021:00025) |   |     └─Token(Identifier) |foo3|
+//@[025:00027) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:119) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:25)  IdentifierSyntax
-//@[9:25)   Identifier |runtimeValidRes9|
-//@[26:85)  StringSyntax
-//@[26:85)   StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[86:87)  Assignment |=|
-//@[88:119)  ObjectSyntax
-//@[88:89)   LeftBrace |{|
-//@[89:91)   NewLine |\r\n|
+//@[000:00119) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00025) | ├─IdentifierSyntax
+//@[009:00025) | | └─Token(Identifier) |runtimeValidRes9|
+//@[026:00085) | ├─StringSyntax
+//@[026:00085) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[086:00087) | ├─Token(Assignment) |=|
+//@[088:00119) | └─ObjectSyntax
+//@[088:00089) |   ├─Token(LeftBrace) |{|
+//@[089:00091) |   ├─Token(NewLine) |\r\n|
   name: runtimeValid.foo4
-//@[2:25)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:25)    PropertyAccessSyntax
-//@[8:20)     VariableAccessSyntax
-//@[8:20)      IdentifierSyntax
-//@[8:20)       Identifier |runtimeValid|
-//@[20:21)     Dot |.|
-//@[21:25)     IdentifierSyntax
-//@[21:25)      Identifier |foo4|
-//@[25:27)   NewLine |\r\n|
+//@[002:00025) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00025) |   | └─PropertyAccessSyntax
+//@[008:00020) |   |   ├─VariableAccessSyntax
+//@[008:00020) |   |   | └─IdentifierSyntax
+//@[008:00020) |   |   |   └─Token(Identifier) |runtimeValid|
+//@[020:00021) |   |   ├─Token(Dot) |.|
+//@[021:00025) |   |   └─IdentifierSyntax
+//@[021:00025) |   |     └─Token(Identifier) |foo4|
+//@[025:00027) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:7) NewLine |\r\n\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00007) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
 resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
-//@[0:130) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:28)  IdentifierSyntax
-//@[9:28)   Identifier |loopForRuntimeCheck|
-//@[29:68)  StringSyntax
-//@[29:68)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[69:70)  Assignment |=|
-//@[71:130)  ForSyntax
-//@[71:72)   LeftSquare |[|
-//@[72:75)   Identifier |for|
-//@[76:81)   LocalVariableSyntax
-//@[76:81)    IdentifierSyntax
-//@[76:81)     Identifier |thing|
-//@[82:84)   Identifier |in|
-//@[85:87)   ArraySyntax
-//@[85:86)    LeftSquare |[|
-//@[86:87)    RightSquare |]|
-//@[87:88)   Colon |:|
-//@[89:129)   ObjectSyntax
-//@[89:90)    LeftBrace |{|
-//@[90:92)    NewLine |\r\n|
+//@[000:00130) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00028) | ├─IdentifierSyntax
+//@[009:00028) | | └─Token(Identifier) |loopForRuntimeCheck|
+//@[029:00068) | ├─StringSyntax
+//@[029:00068) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[069:00070) | ├─Token(Assignment) |=|
+//@[071:00130) | └─ForSyntax
+//@[071:00072) |   ├─Token(LeftSquare) |[|
+//@[072:00075) |   ├─Token(Identifier) |for|
+//@[076:00081) |   ├─LocalVariableSyntax
+//@[076:00081) |   | └─IdentifierSyntax
+//@[076:00081) |   |   └─Token(Identifier) |thing|
+//@[082:00084) |   ├─Token(Identifier) |in|
+//@[085:00087) |   ├─ArraySyntax
+//@[085:00086) |   | ├─Token(LeftSquare) |[|
+//@[086:00087) |   | └─Token(RightSquare) |]|
+//@[087:00088) |   ├─Token(Colon) |:|
+//@[089:00129) |   ├─ObjectSyntax
+//@[089:00090) |   | ├─Token(LeftBrace) |{|
+//@[090:00092) |   | ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:14)     StringSyntax
-//@[8:14)      StringComplete |'test'|
-//@[14:16)    NewLine |\r\n|
+//@[002:00014) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00014) |   | | └─StringSyntax
+//@[008:00014) |   | |   └─Token(StringComplete) |'test'|
+//@[014:00016) |   | ├─Token(NewLine) |\r\n|
   location: 'test'
-//@[2:18)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:18)     StringSyntax
-//@[12:18)      StringComplete |'test'|
-//@[18:20)    NewLine |\r\n|
+//@[002:00018) |   | ├─ObjectPropertySyntax
+//@[002:00010) |   | | ├─IdentifierSyntax
+//@[002:00010) |   | | | └─Token(Identifier) |location|
+//@[010:00011) |   | | ├─Token(Colon) |:|
+//@[012:00018) |   | | └─StringSyntax
+//@[012:00018) |   | |   └─Token(StringComplete) |'test'|
+//@[018:00020) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 var runtimeCheckVar = loopForRuntimeCheck[0].properties.zoneType
-//@[0:64) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:19)  IdentifierSyntax
-//@[4:19)   Identifier |runtimeCheckVar|
-//@[20:21)  Assignment |=|
-//@[22:64)  PropertyAccessSyntax
-//@[22:55)   PropertyAccessSyntax
-//@[22:44)    ArrayAccessSyntax
-//@[22:41)     VariableAccessSyntax
-//@[22:41)      IdentifierSyntax
-//@[22:41)       Identifier |loopForRuntimeCheck|
-//@[41:42)     LeftSquare |[|
-//@[42:43)     IntegerLiteralSyntax
-//@[42:43)      Integer |0|
-//@[43:44)     RightSquare |]|
-//@[44:45)    Dot |.|
-//@[45:55)    IdentifierSyntax
-//@[45:55)     Identifier |properties|
-//@[55:56)   Dot |.|
-//@[56:64)   IdentifierSyntax
-//@[56:64)    Identifier |zoneType|
-//@[64:66) NewLine |\r\n|
+//@[000:00064) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00019) | ├─IdentifierSyntax
+//@[004:00019) | | └─Token(Identifier) |runtimeCheckVar|
+//@[020:00021) | ├─Token(Assignment) |=|
+//@[022:00064) | └─PropertyAccessSyntax
+//@[022:00055) |   ├─PropertyAccessSyntax
+//@[022:00044) |   | ├─ArrayAccessSyntax
+//@[022:00041) |   | | ├─VariableAccessSyntax
+//@[022:00041) |   | | | └─IdentifierSyntax
+//@[022:00041) |   | | |   └─Token(Identifier) |loopForRuntimeCheck|
+//@[041:00042) |   | | ├─Token(LeftSquare) |[|
+//@[042:00043) |   | | ├─IntegerLiteralSyntax
+//@[042:00043) |   | | | └─Token(Integer) |0|
+//@[043:00044) |   | | └─Token(RightSquare) |]|
+//@[044:00045) |   | ├─Token(Dot) |.|
+//@[045:00055) |   | └─IdentifierSyntax
+//@[045:00055) |   |   └─Token(Identifier) |properties|
+//@[055:00056) |   ├─Token(Dot) |.|
+//@[056:00064) |   └─IdentifierSyntax
+//@[056:00064) |     └─Token(Identifier) |zoneType|
+//@[064:00066) ├─Token(NewLine) |\r\n|
 var runtimeCheckVar2 = runtimeCheckVar
-//@[0:38) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:20)  IdentifierSyntax
-//@[4:20)   Identifier |runtimeCheckVar2|
-//@[21:22)  Assignment |=|
-//@[23:38)  VariableAccessSyntax
-//@[23:38)   IdentifierSyntax
-//@[23:38)    Identifier |runtimeCheckVar|
-//@[38:42) NewLine |\r\n\r\n|
+//@[000:00038) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00020) | ├─IdentifierSyntax
+//@[004:00020) | | └─Token(Identifier) |runtimeCheckVar2|
+//@[021:00022) | ├─Token(Assignment) |=|
+//@[023:00038) | └─VariableAccessSyntax
+//@[023:00038) |   └─IdentifierSyntax
+//@[023:00038) |     └─Token(Identifier) |runtimeCheckVar|
+//@[038:00042) ├─Token(NewLine) |\r\n\r\n|
 
 resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = {
-//@[0:131) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:38)  IdentifierSyntax
-//@[9:38)   Identifier |singleResourceForRuntimeCheck|
-//@[39:78)  StringSyntax
-//@[39:78)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[79:80)  Assignment |=|
-//@[81:131)  ObjectSyntax
-//@[81:82)   LeftBrace |{|
-//@[82:84)   NewLine |\r\n|
+//@[000:00131) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00038) | ├─IdentifierSyntax
+//@[009:00038) | | └─Token(Identifier) |singleResourceForRuntimeCheck|
+//@[039:00078) | ├─StringSyntax
+//@[039:00078) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[079:00080) | ├─Token(Assignment) |=|
+//@[081:00131) | └─ObjectSyntax
+//@[081:00082) |   ├─Token(LeftBrace) |{|
+//@[082:00084) |   ├─Token(NewLine) |\r\n|
   name: runtimeCheckVar2
-//@[2:24)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:24)    VariableAccessSyntax
-//@[8:24)     IdentifierSyntax
-//@[8:24)      Identifier |runtimeCheckVar2|
-//@[24:26)   NewLine |\r\n|
+//@[002:00024) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00024) |   | └─VariableAccessSyntax
+//@[008:00024) |   |   └─IdentifierSyntax
+//@[008:00024) |   |     └─Token(Identifier) |runtimeCheckVar2|
+//@[024:00026) |   ├─Token(NewLine) |\r\n|
   location: 'test'
-//@[2:18)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:18)    StringSyntax
-//@[12:18)     StringComplete |'test'|
-//@[18:20)   NewLine |\r\n|
+//@[002:00018) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00018) |   | └─StringSyntax
+//@[012:00018) |   |   └─Token(StringComplete) |'test'|
+//@[018:00020) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
-//@[0:141) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:29)  IdentifierSyntax
-//@[9:29)   Identifier |loopForRuntimeCheck2|
-//@[30:69)  StringSyntax
-//@[30:69)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[70:71)  Assignment |=|
-//@[72:141)  ForSyntax
-//@[72:73)   LeftSquare |[|
-//@[73:76)   Identifier |for|
-//@[77:82)   LocalVariableSyntax
-//@[77:82)    IdentifierSyntax
-//@[77:82)     Identifier |thing|
-//@[83:85)   Identifier |in|
-//@[86:88)   ArraySyntax
-//@[86:87)    LeftSquare |[|
-//@[87:88)    RightSquare |]|
-//@[88:89)   Colon |:|
-//@[90:140)   ObjectSyntax
-//@[90:91)    LeftBrace |{|
-//@[91:93)    NewLine |\r\n|
+//@[000:00141) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00029) | ├─IdentifierSyntax
+//@[009:00029) | | └─Token(Identifier) |loopForRuntimeCheck2|
+//@[030:00069) | ├─StringSyntax
+//@[030:00069) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[070:00071) | ├─Token(Assignment) |=|
+//@[072:00141) | └─ForSyntax
+//@[072:00073) |   ├─Token(LeftSquare) |[|
+//@[073:00076) |   ├─Token(Identifier) |for|
+//@[077:00082) |   ├─LocalVariableSyntax
+//@[077:00082) |   | └─IdentifierSyntax
+//@[077:00082) |   |   └─Token(Identifier) |thing|
+//@[083:00085) |   ├─Token(Identifier) |in|
+//@[086:00088) |   ├─ArraySyntax
+//@[086:00087) |   | ├─Token(LeftSquare) |[|
+//@[087:00088) |   | └─Token(RightSquare) |]|
+//@[088:00089) |   ├─Token(Colon) |:|
+//@[090:00140) |   ├─ObjectSyntax
+//@[090:00091) |   | ├─Token(LeftBrace) |{|
+//@[091:00093) |   | ├─Token(NewLine) |\r\n|
   name: runtimeCheckVar2
-//@[2:24)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:24)     VariableAccessSyntax
-//@[8:24)      IdentifierSyntax
-//@[8:24)       Identifier |runtimeCheckVar2|
-//@[24:26)    NewLine |\r\n|
+//@[002:00024) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00024) |   | | └─VariableAccessSyntax
+//@[008:00024) |   | |   └─IdentifierSyntax
+//@[008:00024) |   | |     └─Token(Identifier) |runtimeCheckVar2|
+//@[024:00026) |   | ├─Token(NewLine) |\r\n|
   location: 'test'
-//@[2:18)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:18)     StringSyntax
-//@[12:18)      StringComplete |'test'|
-//@[18:20)    NewLine |\r\n|
+//@[002:00018) |   | ├─ObjectPropertySyntax
+//@[002:00010) |   | | ├─IdentifierSyntax
+//@[002:00010) |   | | | └─Token(Identifier) |location|
+//@[010:00011) |   | | ├─Token(Colon) |:|
+//@[012:00018) |   | | └─StringSyntax
+//@[012:00018) |   | |   └─Token(StringComplete) |'test'|
+//@[018:00020) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
-//@[0:172) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:29)  IdentifierSyntax
-//@[9:29)   Identifier |loopForRuntimeCheck3|
-//@[30:69)  StringSyntax
-//@[30:69)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[70:71)  Assignment |=|
-//@[72:172)  ForSyntax
-//@[72:73)   LeftSquare |[|
-//@[73:76)   Identifier |for|
-//@[77:87)   LocalVariableSyntax
-//@[77:87)    IdentifierSyntax
-//@[77:87)     Identifier |otherThing|
-//@[88:90)   Identifier |in|
-//@[91:93)   ArraySyntax
-//@[91:92)    LeftSquare |[|
-//@[92:93)    RightSquare |]|
-//@[93:94)   Colon |:|
-//@[95:171)   ObjectSyntax
-//@[95:96)    LeftBrace |{|
-//@[96:98)    NewLine |\r\n|
+//@[000:00172) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00029) | ├─IdentifierSyntax
+//@[009:00029) | | └─Token(Identifier) |loopForRuntimeCheck3|
+//@[030:00069) | ├─StringSyntax
+//@[030:00069) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[070:00071) | ├─Token(Assignment) |=|
+//@[072:00172) | └─ForSyntax
+//@[072:00073) |   ├─Token(LeftSquare) |[|
+//@[073:00076) |   ├─Token(Identifier) |for|
+//@[077:00087) |   ├─LocalVariableSyntax
+//@[077:00087) |   | └─IdentifierSyntax
+//@[077:00087) |   |   └─Token(Identifier) |otherThing|
+//@[088:00090) |   ├─Token(Identifier) |in|
+//@[091:00093) |   ├─ArraySyntax
+//@[091:00092) |   | ├─Token(LeftSquare) |[|
+//@[092:00093) |   | └─Token(RightSquare) |]|
+//@[093:00094) |   ├─Token(Colon) |:|
+//@[095:00171) |   ├─ObjectSyntax
+//@[095:00096) |   | ├─Token(LeftBrace) |{|
+//@[096:00098) |   | ├─Token(NewLine) |\r\n|
   name: loopForRuntimeCheck[0].properties.zoneType
-//@[2:50)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:50)     PropertyAccessSyntax
-//@[8:41)      PropertyAccessSyntax
-//@[8:30)       ArrayAccessSyntax
-//@[8:27)        VariableAccessSyntax
-//@[8:27)         IdentifierSyntax
-//@[8:27)          Identifier |loopForRuntimeCheck|
-//@[27:28)        LeftSquare |[|
-//@[28:29)        IntegerLiteralSyntax
-//@[28:29)         Integer |0|
-//@[29:30)        RightSquare |]|
-//@[30:31)       Dot |.|
-//@[31:41)       IdentifierSyntax
-//@[31:41)        Identifier |properties|
-//@[41:42)      Dot |.|
-//@[42:50)      IdentifierSyntax
-//@[42:50)       Identifier |zoneType|
-//@[50:52)    NewLine |\r\n|
+//@[002:00050) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00050) |   | | └─PropertyAccessSyntax
+//@[008:00041) |   | |   ├─PropertyAccessSyntax
+//@[008:00030) |   | |   | ├─ArrayAccessSyntax
+//@[008:00027) |   | |   | | ├─VariableAccessSyntax
+//@[008:00027) |   | |   | | | └─IdentifierSyntax
+//@[008:00027) |   | |   | | |   └─Token(Identifier) |loopForRuntimeCheck|
+//@[027:00028) |   | |   | | ├─Token(LeftSquare) |[|
+//@[028:00029) |   | |   | | ├─IntegerLiteralSyntax
+//@[028:00029) |   | |   | | | └─Token(Integer) |0|
+//@[029:00030) |   | |   | | └─Token(RightSquare) |]|
+//@[030:00031) |   | |   | ├─Token(Dot) |.|
+//@[031:00041) |   | |   | └─IdentifierSyntax
+//@[031:00041) |   | |   |   └─Token(Identifier) |properties|
+//@[041:00042) |   | |   ├─Token(Dot) |.|
+//@[042:00050) |   | |   └─IdentifierSyntax
+//@[042:00050) |   | |     └─Token(Identifier) |zoneType|
+//@[050:00052) |   | ├─Token(NewLine) |\r\n|
   location: 'test'
-//@[2:18)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:18)     StringSyntax
-//@[12:18)      StringComplete |'test'|
-//@[18:20)    NewLine |\r\n|
+//@[002:00018) |   | ├─ObjectPropertySyntax
+//@[002:00010) |   | | ├─IdentifierSyntax
+//@[002:00010) |   | | | └─Token(Identifier) |location|
+//@[010:00011) |   | | ├─Token(Colon) |:|
+//@[012:00018) |   | | └─StringSyntax
+//@[012:00018) |   | |   └─Token(StringComplete) |'test'|
+//@[018:00020) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
-//@[0:69) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:24)  IdentifierSyntax
-//@[4:24)   Identifier |varForRuntimeCheck4a|
-//@[25:26)  Assignment |=|
-//@[27:69)  PropertyAccessSyntax
-//@[27:60)   PropertyAccessSyntax
-//@[27:49)    ArrayAccessSyntax
-//@[27:46)     VariableAccessSyntax
-//@[27:46)      IdentifierSyntax
-//@[27:46)       Identifier |loopForRuntimeCheck|
-//@[46:47)     LeftSquare |[|
-//@[47:48)     IntegerLiteralSyntax
-//@[47:48)      Integer |0|
-//@[48:49)     RightSquare |]|
-//@[49:50)    Dot |.|
-//@[50:60)    IdentifierSyntax
-//@[50:60)     Identifier |properties|
-//@[60:61)   Dot |.|
-//@[61:69)   IdentifierSyntax
-//@[61:69)    Identifier |zoneType|
-//@[69:71) NewLine |\r\n|
+//@[000:00069) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00024) | ├─IdentifierSyntax
+//@[004:00024) | | └─Token(Identifier) |varForRuntimeCheck4a|
+//@[025:00026) | ├─Token(Assignment) |=|
+//@[027:00069) | └─PropertyAccessSyntax
+//@[027:00060) |   ├─PropertyAccessSyntax
+//@[027:00049) |   | ├─ArrayAccessSyntax
+//@[027:00046) |   | | ├─VariableAccessSyntax
+//@[027:00046) |   | | | └─IdentifierSyntax
+//@[027:00046) |   | | |   └─Token(Identifier) |loopForRuntimeCheck|
+//@[046:00047) |   | | ├─Token(LeftSquare) |[|
+//@[047:00048) |   | | ├─IntegerLiteralSyntax
+//@[047:00048) |   | | | └─Token(Integer) |0|
+//@[048:00049) |   | | └─Token(RightSquare) |]|
+//@[049:00050) |   | ├─Token(Dot) |.|
+//@[050:00060) |   | └─IdentifierSyntax
+//@[050:00060) |   |   └─Token(Identifier) |properties|
+//@[060:00061) |   ├─Token(Dot) |.|
+//@[061:00069) |   └─IdentifierSyntax
+//@[061:00069) |     └─Token(Identifier) |zoneType|
+//@[069:00071) ├─Token(NewLine) |\r\n|
 var varForRuntimeCheck4b = varForRuntimeCheck4a
-//@[0:47) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:24)  IdentifierSyntax
-//@[4:24)   Identifier |varForRuntimeCheck4b|
-//@[25:26)  Assignment |=|
-//@[27:47)  VariableAccessSyntax
-//@[27:47)   IdentifierSyntax
-//@[27:47)    Identifier |varForRuntimeCheck4a|
-//@[47:49) NewLine |\r\n|
+//@[000:00047) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00024) | ├─IdentifierSyntax
+//@[004:00024) | | └─Token(Identifier) |varForRuntimeCheck4b|
+//@[025:00026) | ├─Token(Assignment) |=|
+//@[027:00047) | └─VariableAccessSyntax
+//@[027:00047) |   └─IdentifierSyntax
+//@[027:00047) |     └─Token(Identifier) |varForRuntimeCheck4a|
+//@[047:00049) ├─Token(NewLine) |\r\n|
 resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
-//@[0:150) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:29)  IdentifierSyntax
-//@[9:29)   Identifier |loopForRuntimeCheck4|
-//@[30:69)  StringSyntax
-//@[30:69)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[70:71)  Assignment |=|
-//@[72:150)  ForSyntax
-//@[72:73)   LeftSquare |[|
-//@[73:76)   Identifier |for|
-//@[77:87)   LocalVariableSyntax
-//@[77:87)    IdentifierSyntax
-//@[77:87)     Identifier |otherThing|
-//@[88:90)   Identifier |in|
-//@[91:93)   ArraySyntax
-//@[91:92)    LeftSquare |[|
-//@[92:93)    RightSquare |]|
-//@[93:94)   Colon |:|
-//@[95:149)   ObjectSyntax
-//@[95:96)    LeftBrace |{|
-//@[96:98)    NewLine |\r\n|
+//@[000:00150) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00029) | ├─IdentifierSyntax
+//@[009:00029) | | └─Token(Identifier) |loopForRuntimeCheck4|
+//@[030:00069) | ├─StringSyntax
+//@[030:00069) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[070:00071) | ├─Token(Assignment) |=|
+//@[072:00150) | └─ForSyntax
+//@[072:00073) |   ├─Token(LeftSquare) |[|
+//@[073:00076) |   ├─Token(Identifier) |for|
+//@[077:00087) |   ├─LocalVariableSyntax
+//@[077:00087) |   | └─IdentifierSyntax
+//@[077:00087) |   |   └─Token(Identifier) |otherThing|
+//@[088:00090) |   ├─Token(Identifier) |in|
+//@[091:00093) |   ├─ArraySyntax
+//@[091:00092) |   | ├─Token(LeftSquare) |[|
+//@[092:00093) |   | └─Token(RightSquare) |]|
+//@[093:00094) |   ├─Token(Colon) |:|
+//@[095:00149) |   ├─ObjectSyntax
+//@[095:00096) |   | ├─Token(LeftBrace) |{|
+//@[096:00098) |   | ├─Token(NewLine) |\r\n|
   name: varForRuntimeCheck4b
-//@[2:28)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:28)     VariableAccessSyntax
-//@[8:28)      IdentifierSyntax
-//@[8:28)       Identifier |varForRuntimeCheck4b|
-//@[28:30)    NewLine |\r\n|
+//@[002:00028) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00028) |   | | └─VariableAccessSyntax
+//@[008:00028) |   | |   └─IdentifierSyntax
+//@[008:00028) |   | |     └─Token(Identifier) |varForRuntimeCheck4b|
+//@[028:00030) |   | ├─Token(NewLine) |\r\n|
   location: 'test'
-//@[2:18)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:18)     StringSyntax
-//@[12:18)      StringComplete |'test'|
-//@[18:20)    NewLine |\r\n|
+//@[002:00018) |   | ├─ObjectPropertySyntax
+//@[002:00010) |   | | ├─IdentifierSyntax
+//@[002:00010) |   | | | └─Token(Identifier) |location|
+//@[010:00011) |   | | ├─Token(Colon) |:|
+//@[012:00018) |   | | └─StringSyntax
+//@[012:00018) |   | |   └─Token(StringComplete) |'test'|
+//@[018:00020) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[0:153) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:34)  IdentifierSyntax
-//@[9:34)   Identifier |missingTopLevelProperties|
-//@[35:89)  StringSyntax
-//@[35:89)   StringComplete |'Microsoft.Storage/storageAccounts@2020-08-01-preview'|
-//@[90:91)  Assignment |=|
-//@[92:153)  ObjectSyntax
-//@[92:93)   LeftBrace |{|
-//@[93:95)   NewLine |\r\n|
+//@[000:00153) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00034) | ├─IdentifierSyntax
+//@[009:00034) | | └─Token(Identifier) |missingTopLevelProperties|
+//@[035:00089) | ├─StringSyntax
+//@[035:00089) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2020-08-01-preview'|
+//@[090:00091) | ├─Token(Assignment) |=|
+//@[092:00153) | └─ObjectSyntax
+//@[092:00093) |   ├─Token(LeftBrace) |{|
+//@[093:00095) |   ├─Token(NewLine) |\r\n|
   // #completionTest(0, 1, 2) -> topLevelProperties
-//@[51:53)   NewLine |\r\n|
+//@[051:00053) |   ├─Token(NewLine) |\r\n|
   
-//@[2:4)   NewLine |\r\n|
+//@[002:00004) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[0:305) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:44)  IdentifierSyntax
-//@[9:44)   Identifier |missingTopLevelPropertiesExceptName|
-//@[45:99)  StringSyntax
-//@[45:99)   StringComplete |'Microsoft.Storage/storageAccounts@2020-08-01-preview'|
-//@[100:101)  Assignment |=|
-//@[102:305)  ObjectSyntax
-//@[102:103)   LeftBrace |{|
-//@[103:105)   NewLine |\r\n|
+//@[000:00305) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00044) | ├─IdentifierSyntax
+//@[009:00044) | | └─Token(Identifier) |missingTopLevelPropertiesExceptName|
+//@[045:00099) | ├─StringSyntax
+//@[045:00099) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2020-08-01-preview'|
+//@[100:00101) | ├─Token(Assignment) |=|
+//@[102:00305) | └─ObjectSyntax
+//@[102:00103) |   ├─Token(LeftBrace) |{|
+//@[103:00105) |   ├─Token(NewLine) |\r\n|
   // #completionTest(2) -> topLevelPropertiesMinusNameNoColon
-//@[61:63)   NewLine |\r\n|
+//@[061:00063) |   ├─Token(NewLine) |\r\n|
   name: 'me'
-//@[2:12)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:12)    StringSyntax
-//@[8:12)     StringComplete |'me'|
-//@[12:14)   NewLine |\r\n|
+//@[002:00012) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00012) |   | └─StringSyntax
+//@[008:00012) |   |   └─Token(StringComplete) |'me'|
+//@[012:00014) |   ├─Token(NewLine) |\r\n|
   // do not remove whitespace before the closing curly
-//@[54:56)   NewLine |\r\n|
+//@[054:00056) |   ├─Token(NewLine) |\r\n|
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
-//@[60:62)   NewLine |\r\n|
+//@[060:00062) |   ├─Token(NewLine) |\r\n|
   
-//@[2:4)   NewLine |\r\n|
+//@[002:00004) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(24,25,26,49,65,69,70) -> virtualNetworksResourceTypes
-//@[72:74) NewLine |\r\n|
+//@[072:00074) ├─Token(NewLine) |\r\n|
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
-//@[0:531) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:23)  IdentifierSyntax
-//@[9:23)   Identifier |unfinishedVnet|
-//@[24:70)  StringSyntax
-//@[24:70)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[71:72)  Assignment |=|
-//@[73:531)  ObjectSyntax
-//@[73:74)   LeftBrace |{|
-//@[74:76)   NewLine |\r\n|
+//@[000:00531) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00023) | ├─IdentifierSyntax
+//@[009:00023) | | └─Token(Identifier) |unfinishedVnet|
+//@[024:00070) | ├─StringSyntax
+//@[024:00070) | | └─Token(StringComplete) |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[071:00072) | ├─Token(Assignment) |=|
+//@[073:00531) | └─ObjectSyntax
+//@[073:00074) |   ├─Token(LeftBrace) |{|
+//@[074:00076) |   ├─Token(NewLine) |\r\n|
   name: 'v'
-//@[2:11)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:11)    StringSyntax
-//@[8:11)     StringComplete |'v'|
-//@[11:13)   NewLine |\r\n|
+//@[002:00011) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00011) |   | └─StringSyntax
+//@[008:00011) |   |   └─Token(StringComplete) |'v'|
+//@[011:00013) |   ├─Token(NewLine) |\r\n|
   location: 'eastus'
-//@[2:20)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:20)    StringSyntax
-//@[12:20)     StringComplete |'eastus'|
-//@[20:22)   NewLine |\r\n|
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00020) |   | └─StringSyntax
+//@[012:00020) |   |   └─Token(StringComplete) |'eastus'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:417)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:417)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00417) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00417) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     subnets: [
-//@[4:395)     ObjectPropertySyntax
-//@[4:11)      IdentifierSyntax
-//@[4:11)       Identifier |subnets|
-//@[11:12)      Colon |:|
-//@[13:395)      ArraySyntax
-//@[13:14)       LeftSquare |[|
-//@[14:16)       NewLine |\r\n|
+//@[004:00395) |   |   ├─ObjectPropertySyntax
+//@[004:00011) |   |   | ├─IdentifierSyntax
+//@[004:00011) |   |   | | └─Token(Identifier) |subnets|
+//@[011:00012) |   |   | ├─Token(Colon) |:|
+//@[013:00395) |   |   | └─ArraySyntax
+//@[013:00014) |   |   |   ├─Token(LeftSquare) |[|
+//@[014:00016) |   |   |   ├─Token(NewLine) |\r\n|
       {
-//@[6:372)       ArrayItemSyntax
-//@[6:372)        ObjectSyntax
-//@[6:7)         LeftBrace |{|
-//@[7:9)         NewLine |\r\n|
+//@[006:00372) |   |   |   ├─ArrayItemSyntax
+//@[006:00372) |   |   |   | └─ObjectSyntax
+//@[006:00007) |   |   |   |   ├─Token(LeftBrace) |{|
+//@[007:00009) |   |   |   |   ├─Token(NewLine) |\r\n|
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
-//@[78:80)         NewLine |\r\n|
+//@[078:00080) |   |   |   |   ├─Token(NewLine) |\r\n|
        
-//@[7:9)         NewLine |\r\n|
+//@[007:00009) |   |   |   |   ├─Token(NewLine) |\r\n|
         // #completionTest(0,1,2,3,4,5,6,7) -> empty
-//@[52:54)         NewLine |\r\n|
+//@[052:00054) |   |   |   |   ├─Token(NewLine) |\r\n|
         properties: {
-//@[8:211)         ObjectPropertySyntax
-//@[8:18)          IdentifierSyntax
-//@[8:18)           Identifier |properties|
-//@[18:19)          Colon |:|
-//@[20:211)          ObjectSyntax
-//@[20:21)           LeftBrace |{|
-//@[21:23)           NewLine |\r\n|
+//@[008:00211) |   |   |   |   ├─ObjectPropertySyntax
+//@[008:00018) |   |   |   |   | ├─IdentifierSyntax
+//@[008:00018) |   |   |   |   | | └─Token(Identifier) |properties|
+//@[018:00019) |   |   |   |   | ├─Token(Colon) |:|
+//@[020:00211) |   |   |   |   | └─ObjectSyntax
+//@[020:00021) |   |   |   |   |   ├─Token(LeftBrace) |{|
+//@[021:00023) |   |   |   |   |   ├─Token(NewLine) |\r\n|
           delegations: [
-//@[10:177)           ObjectPropertySyntax
-//@[10:21)            IdentifierSyntax
-//@[10:21)             Identifier |delegations|
-//@[21:22)            Colon |:|
-//@[23:177)            ArraySyntax
-//@[23:24)             LeftSquare |[|
-//@[24:26)             NewLine |\r\n|
+//@[010:00177) |   |   |   |   |   ├─ObjectPropertySyntax
+//@[010:00021) |   |   |   |   |   | ├─IdentifierSyntax
+//@[010:00021) |   |   |   |   |   | | └─Token(Identifier) |delegations|
+//@[021:00022) |   |   |   |   |   | ├─Token(Colon) |:|
+//@[023:00177) |   |   |   |   |   | └─ArraySyntax
+//@[023:00024) |   |   |   |   |   |   ├─Token(LeftSquare) |[|
+//@[024:00026) |   |   |   |   |   |   ├─Token(NewLine) |\r\n|
             {
-//@[12:138)             ArrayItemSyntax
-//@[12:138)              ObjectSyntax
-//@[12:13)               LeftBrace |{|
-//@[13:15)               NewLine |\r\n|
+//@[012:00138) |   |   |   |   |   |   ├─ArrayItemSyntax
+//@[012:00138) |   |   |   |   |   |   | └─ObjectSyntax
+//@[012:00013) |   |   |   |   |   |   |   ├─Token(LeftBrace) |{|
+//@[013:00015) |   |   |   |   |   |   |   ├─Token(NewLine) |\r\n|
               // #completionTest(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14) -> delegationProperties
-//@[92:94)               NewLine |\r\n|
+//@[092:00094) |   |   |   |   |   |   |   ├─Token(NewLine) |\r\n|
               
-//@[14:16)               NewLine |\r\n|
+//@[014:00016) |   |   |   |   |   |   |   ├─Token(NewLine) |\r\n|
             }
-//@[12:13)               RightBrace |}|
-//@[13:15)             NewLine |\r\n|
+//@[012:00013) |   |   |   |   |   |   |   └─Token(RightBrace) |}|
+//@[013:00015) |   |   |   |   |   |   ├─Token(NewLine) |\r\n|
           ]
-//@[10:11)             RightSquare |]|
-//@[11:13)           NewLine |\r\n|
+//@[010:00011) |   |   |   |   |   |   └─Token(RightSquare) |]|
+//@[011:00013) |   |   |   |   |   ├─Token(NewLine) |\r\n|
         }
-//@[8:9)           RightBrace |}|
-//@[9:11)         NewLine |\r\n|
+//@[008:00009) |   |   |   |   |   └─Token(RightBrace) |}|
+//@[009:00011) |   |   |   |   ├─Token(NewLine) |\r\n|
       }
-//@[6:7)         RightBrace |}|
-//@[7:9)       NewLine |\r\n|
+//@[006:00007) |   |   |   |   └─Token(RightBrace) |}|
+//@[007:00009) |   |   |   ├─Token(NewLine) |\r\n|
     ]
-//@[4:5)       RightSquare |]|
-//@[5:7)     NewLine |\r\n|
+//@[004:00005) |   |   |   └─Token(RightSquare) |]|
+//@[005:00007) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 /*
 Discriminator key missing
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:148) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:32)  IdentifierSyntax
-//@[9:32)   Identifier |discriminatorKeyMissing|
-//@[33:83)  StringSyntax
-//@[33:83)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[84:85)  Assignment |=|
-//@[86:148)  ObjectSyntax
-//@[86:87)   LeftBrace |{|
-//@[87:89)   NewLine |\r\n|
+//@[000:00148) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00032) | ├─IdentifierSyntax
+//@[009:00032) | | └─Token(Identifier) |discriminatorKeyMissing|
+//@[033:00083) | ├─StringSyntax
+//@[033:00083) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[084:00085) | ├─Token(Assignment) |=|
+//@[086:00148) | └─ObjectSyntax
+//@[086:00087) |   ├─Token(LeftBrace) |{|
+//@[087:00089) |   ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
-//@[52:54)   NewLine |\r\n|
+//@[052:00054) |   ├─Token(NewLine) |\r\n|
   
-//@[2:4)   NewLine |\r\n|
+//@[002:00004) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 /*
 Discriminator key missing (conditional)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(true) {
-//@[0:160) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |discriminatorKeyMissing_if|
-//@[36:86)  StringSyntax
-//@[36:86)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[87:88)  Assignment |=|
-//@[89:160)  IfConditionSyntax
-//@[89:91)   Identifier |if|
-//@[91:97)   ParenthesizedExpressionSyntax
-//@[91:92)    LeftParen |(|
-//@[92:96)    BooleanLiteralSyntax
-//@[92:96)     TrueKeyword |true|
-//@[96:97)    RightParen |)|
-//@[98:160)   ObjectSyntax
-//@[98:99)    LeftBrace |{|
-//@[99:101)    NewLine |\r\n|
+//@[000:00160) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |discriminatorKeyMissing_if|
+//@[036:00086) | ├─StringSyntax
+//@[036:00086) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[087:00088) | ├─Token(Assignment) |=|
+//@[089:00160) | └─IfConditionSyntax
+//@[089:00091) |   ├─Token(Identifier) |if|
+//@[091:00097) |   ├─ParenthesizedExpressionSyntax
+//@[091:00092) |   | ├─Token(LeftParen) |(|
+//@[092:00096) |   | ├─BooleanLiteralSyntax
+//@[092:00096) |   | | └─Token(TrueKeyword) |true|
+//@[096:00097) |   | └─Token(RightParen) |)|
+//@[098:00160) |   └─ObjectSyntax
+//@[098:00099) |     ├─Token(LeftBrace) |{|
+//@[099:00101) |     ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
-//@[52:54)    NewLine |\r\n|
+//@[052:00054) |     ├─Token(NewLine) |\r\n|
   
-//@[2:4)    NewLine |\r\n|
+//@[002:00004) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 /*
 Discriminator key missing (loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-//@[0:171) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:36)  IdentifierSyntax
-//@[9:36)   Identifier |discriminatorKeyMissing_for|
-//@[37:87)  StringSyntax
-//@[37:87)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[88:89)  Assignment |=|
-//@[90:171)  ForSyntax
-//@[90:91)   LeftSquare |[|
-//@[91:94)   Identifier |for|
-//@[95:100)   LocalVariableSyntax
-//@[95:100)    IdentifierSyntax
-//@[95:100)     Identifier |thing|
-//@[101:103)   Identifier |in|
-//@[104:106)   ArraySyntax
-//@[104:105)    LeftSquare |[|
-//@[105:106)    RightSquare |]|
-//@[106:107)   Colon |:|
-//@[108:170)   ObjectSyntax
-//@[108:109)    LeftBrace |{|
-//@[109:111)    NewLine |\r\n|
+//@[000:00171) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00036) | ├─IdentifierSyntax
+//@[009:00036) | | └─Token(Identifier) |discriminatorKeyMissing_for|
+//@[037:00087) | ├─StringSyntax
+//@[037:00087) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[088:00089) | ├─Token(Assignment) |=|
+//@[090:00171) | └─ForSyntax
+//@[090:00091) |   ├─Token(LeftSquare) |[|
+//@[091:00094) |   ├─Token(Identifier) |for|
+//@[095:00100) |   ├─LocalVariableSyntax
+//@[095:00100) |   | └─IdentifierSyntax
+//@[095:00100) |   |   └─Token(Identifier) |thing|
+//@[101:00103) |   ├─Token(Identifier) |in|
+//@[104:00106) |   ├─ArraySyntax
+//@[104:00105) |   | ├─Token(LeftSquare) |[|
+//@[105:00106) |   | └─Token(RightSquare) |]|
+//@[106:00107) |   ├─Token(Colon) |:|
+//@[108:00170) |   ├─ObjectSyntax
+//@[108:00109) |   | ├─Token(LeftBrace) |{|
+//@[109:00111) |   | ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
-//@[52:54)    NewLine |\r\n|
+//@[052:00054) |   | ├─Token(NewLine) |\r\n|
   
-//@[2:4)    NewLine |\r\n|
+//@[002:00004) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 /*
 Discriminator key missing (filtered loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
-//@[0:183) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:39)  IdentifierSyntax
-//@[9:39)   Identifier |discriminatorKeyMissing_for_if|
-//@[40:90)  StringSyntax
-//@[40:90)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[91:92)  Assignment |=|
-//@[93:183)  ForSyntax
-//@[93:94)   LeftSquare |[|
-//@[94:97)   Identifier |for|
-//@[98:103)   LocalVariableSyntax
-//@[98:103)    IdentifierSyntax
-//@[98:103)     Identifier |thing|
-//@[104:106)   Identifier |in|
-//@[107:109)   ArraySyntax
-//@[107:108)    LeftSquare |[|
-//@[108:109)    RightSquare |]|
-//@[109:110)   Colon |:|
-//@[111:182)   IfConditionSyntax
-//@[111:113)    Identifier |if|
-//@[113:119)    ParenthesizedExpressionSyntax
-//@[113:114)     LeftParen |(|
-//@[114:118)     BooleanLiteralSyntax
-//@[114:118)      TrueKeyword |true|
-//@[118:119)     RightParen |)|
-//@[120:182)    ObjectSyntax
-//@[120:121)     LeftBrace |{|
-//@[121:123)     NewLine |\r\n|
+//@[000:00183) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00039) | ├─IdentifierSyntax
+//@[009:00039) | | └─Token(Identifier) |discriminatorKeyMissing_for_if|
+//@[040:00090) | ├─StringSyntax
+//@[040:00090) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[091:00092) | ├─Token(Assignment) |=|
+//@[093:00183) | └─ForSyntax
+//@[093:00094) |   ├─Token(LeftSquare) |[|
+//@[094:00097) |   ├─Token(Identifier) |for|
+//@[098:00103) |   ├─LocalVariableSyntax
+//@[098:00103) |   | └─IdentifierSyntax
+//@[098:00103) |   |   └─Token(Identifier) |thing|
+//@[104:00106) |   ├─Token(Identifier) |in|
+//@[107:00109) |   ├─ArraySyntax
+//@[107:00108) |   | ├─Token(LeftSquare) |[|
+//@[108:00109) |   | └─Token(RightSquare) |]|
+//@[109:00110) |   ├─Token(Colon) |:|
+//@[111:00182) |   ├─IfConditionSyntax
+//@[111:00113) |   | ├─Token(Identifier) |if|
+//@[113:00119) |   | ├─ParenthesizedExpressionSyntax
+//@[113:00114) |   | | ├─Token(LeftParen) |(|
+//@[114:00118) |   | | ├─BooleanLiteralSyntax
+//@[114:00118) |   | | | └─Token(TrueKeyword) |true|
+//@[118:00119) |   | | └─Token(RightParen) |)|
+//@[120:00182) |   | └─ObjectSyntax
+//@[120:00121) |   |   ├─Token(LeftBrace) |{|
+//@[121:00123) |   |   ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
-//@[52:54)     NewLine |\r\n|
+//@[052:00054) |   |   ├─Token(NewLine) |\r\n|
   
-//@[2:4)     NewLine |\r\n|
+//@[002:00004) |   |   ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)     RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   |   └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 /*
 Discriminator key value missing with property access
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:175) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:37)  IdentifierSyntax
-//@[9:37)   Identifier |discriminatorKeyValueMissing|
-//@[38:88)  StringSyntax
-//@[38:88)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[89:90)  Assignment |=|
-//@[91:175)  ObjectSyntax
-//@[91:92)   LeftBrace |{|
-//@[92:94)   NewLine |\r\n|
+//@[000:00175) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00037) | ├─IdentifierSyntax
+//@[009:00037) | | └─Token(Identifier) |discriminatorKeyValueMissing|
+//@[038:00088) | ├─StringSyntax
+//@[038:00088) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[089:00090) | ├─Token(Assignment) |=|
+//@[091:00175) | └─ObjectSyntax
+//@[091:00092) |   ├─Token(LeftBrace) |{|
+//@[092:00094) |   ├─Token(NewLine) |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols
-//@[66:68)   NewLine |\r\n|
+//@[066:00068) |   ├─Token(NewLine) |\r\n|
   kind:   
-//@[2:10)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[6:7)    Colon |:|
-//@[10:10)    SkippedTriviaSyntax
-//@[10:12)   NewLine |\r\n|
+//@[002:00010) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[010:00010) |   | └─SkippedTriviaSyntax
+//@[010:00012) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:00062) ├─Token(NewLine) |\r\n|
 var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
-//@[0:76) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:43)  IdentifierSyntax
-//@[4:43)   Identifier |discriminatorKeyValueMissingCompletions|
-//@[44:45)  Assignment |=|
-//@[46:76)  PropertyAccessSyntax
-//@[46:74)   VariableAccessSyntax
-//@[46:74)    IdentifierSyntax
-//@[46:74)     Identifier |discriminatorKeyValueMissing|
-//@[74:75)   Dot |.|
-//@[75:76)   IdentifierSyntax
-//@[75:76)    Identifier |p|
-//@[76:78) NewLine |\r\n|
+//@[000:00076) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00043) | ├─IdentifierSyntax
+//@[004:00043) | | └─Token(Identifier) |discriminatorKeyValueMissingCompletions|
+//@[044:00045) | ├─Token(Assignment) |=|
+//@[046:00076) | └─PropertyAccessSyntax
+//@[046:00074) |   ├─VariableAccessSyntax
+//@[046:00074) |   | └─IdentifierSyntax
+//@[046:00074) |   |   └─Token(Identifier) |discriminatorKeyValueMissing|
+//@[074:00075) |   ├─Token(Dot) |.|
+//@[075:00076) |   └─IdentifierSyntax
+//@[075:00076) |     └─Token(Identifier) |p|
+//@[076:00078) ├─Token(NewLine) |\r\n|
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:00062) ├─Token(NewLine) |\r\n|
 var discriminatorKeyValueMissingCompletions2 = discriminatorKeyValueMissing.
-//@[0:76) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:44)  IdentifierSyntax
-//@[4:44)   Identifier |discriminatorKeyValueMissingCompletions2|
-//@[45:46)  Assignment |=|
-//@[47:76)  PropertyAccessSyntax
-//@[47:75)   VariableAccessSyntax
-//@[47:75)    IdentifierSyntax
-//@[47:75)     Identifier |discriminatorKeyValueMissing|
-//@[75:76)   Dot |.|
-//@[76:76)   IdentifierSyntax
-//@[76:76)    SkippedTriviaSyntax
-//@[76:80) NewLine |\r\n\r\n|
+//@[000:00076) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00044) | ├─IdentifierSyntax
+//@[004:00044) | | └─Token(Identifier) |discriminatorKeyValueMissingCompletions2|
+//@[045:00046) | ├─Token(Assignment) |=|
+//@[047:00076) | └─PropertyAccessSyntax
+//@[047:00075) |   ├─VariableAccessSyntax
+//@[047:00075) |   | └─IdentifierSyntax
+//@[047:00075) |   |   └─Token(Identifier) |discriminatorKeyValueMissing|
+//@[075:00076) |   ├─Token(Dot) |.|
+//@[076:00076) |   └─IdentifierSyntax
+//@[076:00076) |     └─SkippedTriviaSyntax
+//@[076:00080) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(76) -> missingDiscriminatorPropertyIndexPlusSymbols
-//@[70:72) NewLine |\r\n|
+//@[070:00072) ├─Token(NewLine) |\r\n|
 var discriminatorKeyValueMissingCompletions3 = discriminatorKeyValueMissing[]
-//@[0:77) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:44)  IdentifierSyntax
-//@[4:44)   Identifier |discriminatorKeyValueMissingCompletions3|
-//@[45:46)  Assignment |=|
-//@[47:77)  ArrayAccessSyntax
-//@[47:75)   VariableAccessSyntax
-//@[47:75)    IdentifierSyntax
-//@[47:75)     Identifier |discriminatorKeyValueMissing|
-//@[75:76)   LeftSquare |[|
-//@[76:76)   SkippedTriviaSyntax
-//@[76:77)   RightSquare |]|
-//@[77:81) NewLine |\r\n\r\n|
+//@[000:00077) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00044) | ├─IdentifierSyntax
+//@[004:00044) | | └─Token(Identifier) |discriminatorKeyValueMissingCompletions3|
+//@[045:00046) | ├─Token(Assignment) |=|
+//@[047:00077) | └─ArrayAccessSyntax
+//@[047:00075) |   ├─VariableAccessSyntax
+//@[047:00075) |   | └─IdentifierSyntax
+//@[047:00075) |   |   └─Token(Identifier) |discriminatorKeyValueMissing|
+//@[075:00076) |   ├─Token(LeftSquare) |[|
+//@[076:00076) |   ├─SkippedTriviaSyntax
+//@[076:00077) |   └─Token(RightSquare) |]|
+//@[077:00081) ├─Token(NewLine) |\r\n\r\n|
 
 /*
 Discriminator key value missing with property access (conditional)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(false) {
-//@[0:191) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:40)  IdentifierSyntax
-//@[9:40)   Identifier |discriminatorKeyValueMissing_if|
-//@[41:91)  StringSyntax
-//@[41:91)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[92:93)  Assignment |=|
-//@[94:191)  IfConditionSyntax
-//@[94:96)   Identifier |if|
-//@[96:103)   ParenthesizedExpressionSyntax
-//@[96:97)    LeftParen |(|
-//@[97:102)    BooleanLiteralSyntax
-//@[97:102)     FalseKeyword |false|
-//@[102:103)    RightParen |)|
-//@[104:191)   ObjectSyntax
-//@[104:105)    LeftBrace |{|
-//@[105:107)    NewLine |\r\n|
+//@[000:00191) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00040) | ├─IdentifierSyntax
+//@[009:00040) | | └─Token(Identifier) |discriminatorKeyValueMissing_if|
+//@[041:00091) | ├─StringSyntax
+//@[041:00091) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[092:00093) | ├─Token(Assignment) |=|
+//@[094:00191) | └─IfConditionSyntax
+//@[094:00096) |   ├─Token(Identifier) |if|
+//@[096:00103) |   ├─ParenthesizedExpressionSyntax
+//@[096:00097) |   | ├─Token(LeftParen) |(|
+//@[097:00102) |   | ├─BooleanLiteralSyntax
+//@[097:00102) |   | | └─Token(FalseKeyword) |false|
+//@[102:00103) |   | └─Token(RightParen) |)|
+//@[104:00191) |   └─ObjectSyntax
+//@[104:00105) |     ├─Token(LeftBrace) |{|
+//@[105:00107) |     ├─Token(NewLine) |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_if
-//@[69:71)    NewLine |\r\n|
+//@[069:00071) |     ├─Token(NewLine) |\r\n|
   kind:   
-//@[2:10)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |kind|
-//@[6:7)     Colon |:|
-//@[10:10)     SkippedTriviaSyntax
-//@[10:12)    NewLine |\r\n|
+//@[002:00010) |     ├─ObjectPropertySyntax
+//@[002:00006) |     | ├─IdentifierSyntax
+//@[002:00006) |     | | └─Token(Identifier) |kind|
+//@[006:00007) |     | ├─Token(Colon) |:|
+//@[010:00010) |     | └─SkippedTriviaSyntax
+//@[010:00012) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:00062) ├─Token(NewLine) |\r\n|
 var discriminatorKeyValueMissingCompletions_if = discriminatorKeyValueMissing_if.p
-//@[0:82) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:46)  IdentifierSyntax
-//@[4:46)   Identifier |discriminatorKeyValueMissingCompletions_if|
-//@[47:48)  Assignment |=|
-//@[49:82)  PropertyAccessSyntax
-//@[49:80)   VariableAccessSyntax
-//@[49:80)    IdentifierSyntax
-//@[49:80)     Identifier |discriminatorKeyValueMissing_if|
-//@[80:81)   Dot |.|
-//@[81:82)   IdentifierSyntax
-//@[81:82)    Identifier |p|
-//@[82:84) NewLine |\r\n|
+//@[000:00082) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00046) | ├─IdentifierSyntax
+//@[004:00046) | | └─Token(Identifier) |discriminatorKeyValueMissingCompletions_if|
+//@[047:00048) | ├─Token(Assignment) |=|
+//@[049:00082) | └─PropertyAccessSyntax
+//@[049:00080) |   ├─VariableAccessSyntax
+//@[049:00080) |   | └─IdentifierSyntax
+//@[049:00080) |   |   └─Token(Identifier) |discriminatorKeyValueMissing_if|
+//@[080:00081) |   ├─Token(Dot) |.|
+//@[081:00082) |   └─IdentifierSyntax
+//@[081:00082) |     └─Token(Identifier) |p|
+//@[082:00084) ├─Token(NewLine) |\r\n|
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:00062) ├─Token(NewLine) |\r\n|
 var discriminatorKeyValueMissingCompletions2_if = discriminatorKeyValueMissing_if.
-//@[0:82) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:47)  IdentifierSyntax
-//@[4:47)   Identifier |discriminatorKeyValueMissingCompletions2_if|
-//@[48:49)  Assignment |=|
-//@[50:82)  PropertyAccessSyntax
-//@[50:81)   VariableAccessSyntax
-//@[50:81)    IdentifierSyntax
-//@[50:81)     Identifier |discriminatorKeyValueMissing_if|
-//@[81:82)   Dot |.|
-//@[82:82)   IdentifierSyntax
-//@[82:82)    SkippedTriviaSyntax
-//@[82:86) NewLine |\r\n\r\n|
+//@[000:00082) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00047) | ├─IdentifierSyntax
+//@[004:00047) | | └─Token(Identifier) |discriminatorKeyValueMissingCompletions2_if|
+//@[048:00049) | ├─Token(Assignment) |=|
+//@[050:00082) | └─PropertyAccessSyntax
+//@[050:00081) |   ├─VariableAccessSyntax
+//@[050:00081) |   | └─IdentifierSyntax
+//@[050:00081) |   |   └─Token(Identifier) |discriminatorKeyValueMissing_if|
+//@[081:00082) |   ├─Token(Dot) |.|
+//@[082:00082) |   └─IdentifierSyntax
+//@[082:00082) |     └─SkippedTriviaSyntax
+//@[082:00086) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(82) -> missingDiscriminatorPropertyIndexPlusSymbols_if
-//@[73:75) NewLine |\r\n|
+//@[073:00075) ├─Token(NewLine) |\r\n|
 var discriminatorKeyValueMissingCompletions3_if = discriminatorKeyValueMissing_if[]
-//@[0:83) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:47)  IdentifierSyntax
-//@[4:47)   Identifier |discriminatorKeyValueMissingCompletions3_if|
-//@[48:49)  Assignment |=|
-//@[50:83)  ArrayAccessSyntax
-//@[50:81)   VariableAccessSyntax
-//@[50:81)    IdentifierSyntax
-//@[50:81)     Identifier |discriminatorKeyValueMissing_if|
-//@[81:82)   LeftSquare |[|
-//@[82:82)   SkippedTriviaSyntax
-//@[82:83)   RightSquare |]|
-//@[83:87) NewLine |\r\n\r\n|
+//@[000:00083) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00047) | ├─IdentifierSyntax
+//@[004:00047) | | └─Token(Identifier) |discriminatorKeyValueMissingCompletions3_if|
+//@[048:00049) | ├─Token(Assignment) |=|
+//@[050:00083) | └─ArrayAccessSyntax
+//@[050:00081) |   ├─VariableAccessSyntax
+//@[050:00081) |   | └─IdentifierSyntax
+//@[050:00081) |   |   └─Token(Identifier) |discriminatorKeyValueMissing_if|
+//@[081:00082) |   ├─Token(LeftSquare) |[|
+//@[082:00082) |   ├─SkippedTriviaSyntax
+//@[082:00083) |   └─Token(RightSquare) |]|
+//@[083:00087) ├─Token(NewLine) |\r\n\r\n|
 
 /*
 Discriminator key value missing with property access (loops)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-//@[0:202) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:41)  IdentifierSyntax
-//@[9:41)   Identifier |discriminatorKeyValueMissing_for|
-//@[42:92)  StringSyntax
-//@[42:92)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[93:94)  Assignment |=|
-//@[95:202)  ForSyntax
-//@[95:96)   LeftSquare |[|
-//@[96:99)   Identifier |for|
-//@[100:105)   LocalVariableSyntax
-//@[100:105)    IdentifierSyntax
-//@[100:105)     Identifier |thing|
-//@[106:108)   Identifier |in|
-//@[109:111)   ArraySyntax
-//@[109:110)    LeftSquare |[|
-//@[110:111)    RightSquare |]|
-//@[111:112)   Colon |:|
-//@[113:201)   ObjectSyntax
-//@[113:114)    LeftBrace |{|
-//@[114:116)    NewLine |\r\n|
+//@[000:00202) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00041) | ├─IdentifierSyntax
+//@[009:00041) | | └─Token(Identifier) |discriminatorKeyValueMissing_for|
+//@[042:00092) | ├─StringSyntax
+//@[042:00092) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[093:00094) | ├─Token(Assignment) |=|
+//@[095:00202) | └─ForSyntax
+//@[095:00096) |   ├─Token(LeftSquare) |[|
+//@[096:00099) |   ├─Token(Identifier) |for|
+//@[100:00105) |   ├─LocalVariableSyntax
+//@[100:00105) |   | └─IdentifierSyntax
+//@[100:00105) |   |   └─Token(Identifier) |thing|
+//@[106:00108) |   ├─Token(Identifier) |in|
+//@[109:00111) |   ├─ArraySyntax
+//@[109:00110) |   | ├─Token(LeftSquare) |[|
+//@[110:00111) |   | └─Token(RightSquare) |]|
+//@[111:00112) |   ├─Token(Colon) |:|
+//@[113:00201) |   ├─ObjectSyntax
+//@[113:00114) |   | ├─Token(LeftBrace) |{|
+//@[114:00116) |   | ├─Token(NewLine) |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for
-//@[70:72)    NewLine |\r\n|
+//@[070:00072) |   | ├─Token(NewLine) |\r\n|
   kind:   
-//@[2:10)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |kind|
-//@[6:7)     Colon |:|
-//@[10:10)     SkippedTriviaSyntax
-//@[10:12)    NewLine |\r\n|
+//@[002:00010) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |kind|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[010:00010) |   | | └─SkippedTriviaSyntax
+//@[010:00012) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 // cannot . access properties of a resource loop
-//@[48:50) NewLine |\r\n|
+//@[048:00050) ├─Token(NewLine) |\r\n|
 var resourceListIsNotSingleResource = discriminatorKeyValueMissing_for.kind
-//@[0:75) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:35)  IdentifierSyntax
-//@[4:35)   Identifier |resourceListIsNotSingleResource|
-//@[36:37)  Assignment |=|
-//@[38:75)  PropertyAccessSyntax
-//@[38:70)   VariableAccessSyntax
-//@[38:70)    IdentifierSyntax
-//@[38:70)     Identifier |discriminatorKeyValueMissing_for|
-//@[70:71)   Dot |.|
-//@[71:75)   IdentifierSyntax
-//@[71:75)    Identifier |kind|
-//@[75:79) NewLine |\r\n\r\n|
+//@[000:00075) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00035) | ├─IdentifierSyntax
+//@[004:00035) | | └─Token(Identifier) |resourceListIsNotSingleResource|
+//@[036:00037) | ├─Token(Assignment) |=|
+//@[038:00075) | └─PropertyAccessSyntax
+//@[038:00070) |   ├─VariableAccessSyntax
+//@[038:00070) |   | └─IdentifierSyntax
+//@[038:00070) |   |   └─Token(Identifier) |discriminatorKeyValueMissing_for|
+//@[070:00071) |   ├─Token(Dot) |.|
+//@[071:00075) |   └─IdentifierSyntax
+//@[071:00075) |     └─Token(Identifier) |kind|
+//@[075:00079) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:00062) ├─Token(NewLine) |\r\n|
 var discriminatorKeyValueMissingCompletions_for = discriminatorKeyValueMissing_for[0].p
-//@[0:87) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:47)  IdentifierSyntax
-//@[4:47)   Identifier |discriminatorKeyValueMissingCompletions_for|
-//@[48:49)  Assignment |=|
-//@[50:87)  PropertyAccessSyntax
-//@[50:85)   ArrayAccessSyntax
-//@[50:82)    VariableAccessSyntax
-//@[50:82)     IdentifierSyntax
-//@[50:82)      Identifier |discriminatorKeyValueMissing_for|
-//@[82:83)    LeftSquare |[|
-//@[83:84)    IntegerLiteralSyntax
-//@[83:84)     Integer |0|
-//@[84:85)    RightSquare |]|
-//@[85:86)   Dot |.|
-//@[86:87)   IdentifierSyntax
-//@[86:87)    Identifier |p|
-//@[87:89) NewLine |\r\n|
+//@[000:00087) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00047) | ├─IdentifierSyntax
+//@[004:00047) | | └─Token(Identifier) |discriminatorKeyValueMissingCompletions_for|
+//@[048:00049) | ├─Token(Assignment) |=|
+//@[050:00087) | └─PropertyAccessSyntax
+//@[050:00085) |   ├─ArrayAccessSyntax
+//@[050:00082) |   | ├─VariableAccessSyntax
+//@[050:00082) |   | | └─IdentifierSyntax
+//@[050:00082) |   | |   └─Token(Identifier) |discriminatorKeyValueMissing_for|
+//@[082:00083) |   | ├─Token(LeftSquare) |[|
+//@[083:00084) |   | ├─IntegerLiteralSyntax
+//@[083:00084) |   | | └─Token(Integer) |0|
+//@[084:00085) |   | └─Token(RightSquare) |]|
+//@[085:00086) |   ├─Token(Dot) |.|
+//@[086:00087) |   └─IdentifierSyntax
+//@[086:00087) |     └─Token(Identifier) |p|
+//@[087:00089) ├─Token(NewLine) |\r\n|
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:00062) ├─Token(NewLine) |\r\n|
 var discriminatorKeyValueMissingCompletions2_for = discriminatorKeyValueMissing_for[0].
-//@[0:87) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:48)  IdentifierSyntax
-//@[4:48)   Identifier |discriminatorKeyValueMissingCompletions2_for|
-//@[49:50)  Assignment |=|
-//@[51:87)  PropertyAccessSyntax
-//@[51:86)   ArrayAccessSyntax
-//@[51:83)    VariableAccessSyntax
-//@[51:83)     IdentifierSyntax
-//@[51:83)      Identifier |discriminatorKeyValueMissing_for|
-//@[83:84)    LeftSquare |[|
-//@[84:85)    IntegerLiteralSyntax
-//@[84:85)     Integer |0|
-//@[85:86)    RightSquare |]|
-//@[86:87)   Dot |.|
-//@[87:87)   IdentifierSyntax
-//@[87:87)    SkippedTriviaSyntax
-//@[87:91) NewLine |\r\n\r\n|
+//@[000:00087) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00048) | ├─IdentifierSyntax
+//@[004:00048) | | └─Token(Identifier) |discriminatorKeyValueMissingCompletions2_for|
+//@[049:00050) | ├─Token(Assignment) |=|
+//@[051:00087) | └─PropertyAccessSyntax
+//@[051:00086) |   ├─ArrayAccessSyntax
+//@[051:00083) |   | ├─VariableAccessSyntax
+//@[051:00083) |   | | └─IdentifierSyntax
+//@[051:00083) |   | |   └─Token(Identifier) |discriminatorKeyValueMissing_for|
+//@[083:00084) |   | ├─Token(LeftSquare) |[|
+//@[084:00085) |   | ├─IntegerLiteralSyntax
+//@[084:00085) |   | | └─Token(Integer) |0|
+//@[085:00086) |   | └─Token(RightSquare) |]|
+//@[086:00087) |   ├─Token(Dot) |.|
+//@[087:00087) |   └─IdentifierSyntax
+//@[087:00087) |     └─SkippedTriviaSyntax
+//@[087:00091) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(87) -> missingDiscriminatorPropertyIndexPlusSymbols_for
-//@[74:76) NewLine |\r\n|
+//@[074:00076) ├─Token(NewLine) |\r\n|
 var discriminatorKeyValueMissingCompletions3_for = discriminatorKeyValueMissing_for[0][]
-//@[0:88) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:48)  IdentifierSyntax
-//@[4:48)   Identifier |discriminatorKeyValueMissingCompletions3_for|
-//@[49:50)  Assignment |=|
-//@[51:88)  ArrayAccessSyntax
-//@[51:86)   ArrayAccessSyntax
-//@[51:83)    VariableAccessSyntax
-//@[51:83)     IdentifierSyntax
-//@[51:83)      Identifier |discriminatorKeyValueMissing_for|
-//@[83:84)    LeftSquare |[|
-//@[84:85)    IntegerLiteralSyntax
-//@[84:85)     Integer |0|
-//@[85:86)    RightSquare |]|
-//@[86:87)   LeftSquare |[|
-//@[87:87)   SkippedTriviaSyntax
-//@[87:88)   RightSquare |]|
-//@[88:92) NewLine |\r\n\r\n|
+//@[000:00088) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00048) | ├─IdentifierSyntax
+//@[004:00048) | | └─Token(Identifier) |discriminatorKeyValueMissingCompletions3_for|
+//@[049:00050) | ├─Token(Assignment) |=|
+//@[051:00088) | └─ArrayAccessSyntax
+//@[051:00086) |   ├─ArrayAccessSyntax
+//@[051:00083) |   | ├─VariableAccessSyntax
+//@[051:00083) |   | | └─IdentifierSyntax
+//@[051:00083) |   | |   └─Token(Identifier) |discriminatorKeyValueMissing_for|
+//@[083:00084) |   | ├─Token(LeftSquare) |[|
+//@[084:00085) |   | ├─IntegerLiteralSyntax
+//@[084:00085) |   | | └─Token(Integer) |0|
+//@[085:00086) |   | └─Token(RightSquare) |]|
+//@[086:00087) |   ├─Token(LeftSquare) |[|
+//@[087:00087) |   ├─SkippedTriviaSyntax
+//@[087:00088) |   └─Token(RightSquare) |]|
+//@[088:00092) ├─Token(NewLine) |\r\n\r\n|
 
 /*
 Discriminator key value missing with property access (filtered loops)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
-//@[0:217) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:44)  IdentifierSyntax
-//@[9:44)   Identifier |discriminatorKeyValueMissing_for_if|
-//@[45:95)  StringSyntax
-//@[45:95)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[96:97)  Assignment |=|
-//@[98:217)  ForSyntax
-//@[98:99)   LeftSquare |[|
-//@[99:102)   Identifier |for|
-//@[103:108)   LocalVariableSyntax
-//@[103:108)    IdentifierSyntax
-//@[103:108)     Identifier |thing|
-//@[109:111)   Identifier |in|
-//@[112:114)   ArraySyntax
-//@[112:113)    LeftSquare |[|
-//@[113:114)    RightSquare |]|
-//@[114:115)   Colon |:|
-//@[116:216)   IfConditionSyntax
-//@[116:118)    Identifier |if|
-//@[118:124)    ParenthesizedExpressionSyntax
-//@[118:119)     LeftParen |(|
-//@[119:123)     BooleanLiteralSyntax
-//@[119:123)      TrueKeyword |true|
-//@[123:124)     RightParen |)|
-//@[125:216)    ObjectSyntax
-//@[125:126)     LeftBrace |{|
-//@[126:128)     NewLine |\r\n|
+//@[000:00217) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00044) | ├─IdentifierSyntax
+//@[009:00044) | | └─Token(Identifier) |discriminatorKeyValueMissing_for_if|
+//@[045:00095) | ├─StringSyntax
+//@[045:00095) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[096:00097) | ├─Token(Assignment) |=|
+//@[098:00217) | └─ForSyntax
+//@[098:00099) |   ├─Token(LeftSquare) |[|
+//@[099:00102) |   ├─Token(Identifier) |for|
+//@[103:00108) |   ├─LocalVariableSyntax
+//@[103:00108) |   | └─IdentifierSyntax
+//@[103:00108) |   |   └─Token(Identifier) |thing|
+//@[109:00111) |   ├─Token(Identifier) |in|
+//@[112:00114) |   ├─ArraySyntax
+//@[112:00113) |   | ├─Token(LeftSquare) |[|
+//@[113:00114) |   | └─Token(RightSquare) |]|
+//@[114:00115) |   ├─Token(Colon) |:|
+//@[116:00216) |   ├─IfConditionSyntax
+//@[116:00118) |   | ├─Token(Identifier) |if|
+//@[118:00124) |   | ├─ParenthesizedExpressionSyntax
+//@[118:00119) |   | | ├─Token(LeftParen) |(|
+//@[119:00123) |   | | ├─BooleanLiteralSyntax
+//@[119:00123) |   | | | └─Token(TrueKeyword) |true|
+//@[123:00124) |   | | └─Token(RightParen) |)|
+//@[125:00216) |   | └─ObjectSyntax
+//@[125:00126) |   |   ├─Token(LeftBrace) |{|
+//@[126:00128) |   |   ├─Token(NewLine) |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for_if
-//@[73:75)     NewLine |\r\n|
+//@[073:00075) |   |   ├─Token(NewLine) |\r\n|
   kind:   
-//@[2:10)     ObjectPropertySyntax
-//@[2:6)      IdentifierSyntax
-//@[2:6)       Identifier |kind|
-//@[6:7)      Colon |:|
-//@[10:10)      SkippedTriviaSyntax
-//@[10:12)     NewLine |\r\n|
+//@[002:00010) |   |   ├─ObjectPropertySyntax
+//@[002:00006) |   |   | ├─IdentifierSyntax
+//@[002:00006) |   |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   |   | ├─Token(Colon) |:|
+//@[010:00010) |   |   | └─SkippedTriviaSyntax
+//@[010:00012) |   |   ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)     RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   |   └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 // cannot . access properties of a resource loop
-//@[48:50) NewLine |\r\n|
+//@[048:00050) ├─Token(NewLine) |\r\n|
 var resourceListIsNotSingleResource_if = discriminatorKeyValueMissing_for_if.kind
-//@[0:81) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:38)  IdentifierSyntax
-//@[4:38)   Identifier |resourceListIsNotSingleResource_if|
-//@[39:40)  Assignment |=|
-//@[41:81)  PropertyAccessSyntax
-//@[41:76)   VariableAccessSyntax
-//@[41:76)    IdentifierSyntax
-//@[41:76)     Identifier |discriminatorKeyValueMissing_for_if|
-//@[76:77)   Dot |.|
-//@[77:81)   IdentifierSyntax
-//@[77:81)    Identifier |kind|
-//@[81:85) NewLine |\r\n\r\n|
+//@[000:00081) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00038) | ├─IdentifierSyntax
+//@[004:00038) | | └─Token(Identifier) |resourceListIsNotSingleResource_if|
+//@[039:00040) | ├─Token(Assignment) |=|
+//@[041:00081) | └─PropertyAccessSyntax
+//@[041:00076) |   ├─VariableAccessSyntax
+//@[041:00076) |   | └─IdentifierSyntax
+//@[041:00076) |   |   └─Token(Identifier) |discriminatorKeyValueMissing_for_if|
+//@[076:00077) |   ├─Token(Dot) |.|
+//@[077:00081) |   └─IdentifierSyntax
+//@[077:00081) |     └─Token(Identifier) |kind|
+//@[081:00085) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(93) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:00062) ├─Token(NewLine) |\r\n|
 var discriminatorKeyValueMissingCompletions_for_if = discriminatorKeyValueMissing_for_if[0].p
-//@[0:93) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:50)  IdentifierSyntax
-//@[4:50)   Identifier |discriminatorKeyValueMissingCompletions_for_if|
-//@[51:52)  Assignment |=|
-//@[53:93)  PropertyAccessSyntax
-//@[53:91)   ArrayAccessSyntax
-//@[53:88)    VariableAccessSyntax
-//@[53:88)     IdentifierSyntax
-//@[53:88)      Identifier |discriminatorKeyValueMissing_for_if|
-//@[88:89)    LeftSquare |[|
-//@[89:90)    IntegerLiteralSyntax
-//@[89:90)     Integer |0|
-//@[90:91)    RightSquare |]|
-//@[91:92)   Dot |.|
-//@[92:93)   IdentifierSyntax
-//@[92:93)    Identifier |p|
-//@[93:95) NewLine |\r\n|
+//@[000:00093) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00050) | ├─IdentifierSyntax
+//@[004:00050) | | └─Token(Identifier) |discriminatorKeyValueMissingCompletions_for_if|
+//@[051:00052) | ├─Token(Assignment) |=|
+//@[053:00093) | └─PropertyAccessSyntax
+//@[053:00091) |   ├─ArrayAccessSyntax
+//@[053:00088) |   | ├─VariableAccessSyntax
+//@[053:00088) |   | | └─IdentifierSyntax
+//@[053:00088) |   | |   └─Token(Identifier) |discriminatorKeyValueMissing_for_if|
+//@[088:00089) |   | ├─Token(LeftSquare) |[|
+//@[089:00090) |   | ├─IntegerLiteralSyntax
+//@[089:00090) |   | | └─Token(Integer) |0|
+//@[090:00091) |   | └─Token(RightSquare) |]|
+//@[091:00092) |   ├─Token(Dot) |.|
+//@[092:00093) |   └─IdentifierSyntax
+//@[092:00093) |     └─Token(Identifier) |p|
+//@[093:00095) ├─Token(NewLine) |\r\n|
 // #completionTest(93) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:00062) ├─Token(NewLine) |\r\n|
 var discriminatorKeyValueMissingCompletions2_for_if = discriminatorKeyValueMissing_for_if[0].
-//@[0:93) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:51)  IdentifierSyntax
-//@[4:51)   Identifier |discriminatorKeyValueMissingCompletions2_for_if|
-//@[52:53)  Assignment |=|
-//@[54:93)  PropertyAccessSyntax
-//@[54:92)   ArrayAccessSyntax
-//@[54:89)    VariableAccessSyntax
-//@[54:89)     IdentifierSyntax
-//@[54:89)      Identifier |discriminatorKeyValueMissing_for_if|
-//@[89:90)    LeftSquare |[|
-//@[90:91)    IntegerLiteralSyntax
-//@[90:91)     Integer |0|
-//@[91:92)    RightSquare |]|
-//@[92:93)   Dot |.|
-//@[93:93)   IdentifierSyntax
-//@[93:93)    SkippedTriviaSyntax
-//@[93:97) NewLine |\r\n\r\n|
+//@[000:00093) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00051) | ├─IdentifierSyntax
+//@[004:00051) | | └─Token(Identifier) |discriminatorKeyValueMissingCompletions2_for_if|
+//@[052:00053) | ├─Token(Assignment) |=|
+//@[054:00093) | └─PropertyAccessSyntax
+//@[054:00092) |   ├─ArrayAccessSyntax
+//@[054:00089) |   | ├─VariableAccessSyntax
+//@[054:00089) |   | | └─IdentifierSyntax
+//@[054:00089) |   | |   └─Token(Identifier) |discriminatorKeyValueMissing_for_if|
+//@[089:00090) |   | ├─Token(LeftSquare) |[|
+//@[090:00091) |   | ├─IntegerLiteralSyntax
+//@[090:00091) |   | | └─Token(Integer) |0|
+//@[091:00092) |   | └─Token(RightSquare) |]|
+//@[092:00093) |   ├─Token(Dot) |.|
+//@[093:00093) |   └─IdentifierSyntax
+//@[093:00093) |     └─SkippedTriviaSyntax
+//@[093:00097) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(93) -> missingDiscriminatorPropertyIndexPlusSymbols_for_if
-//@[77:79) NewLine |\r\n|
+//@[077:00079) ├─Token(NewLine) |\r\n|
 var discriminatorKeyValueMissingCompletions3_for_if = discriminatorKeyValueMissing_for_if[0][]
-//@[0:94) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:51)  IdentifierSyntax
-//@[4:51)   Identifier |discriminatorKeyValueMissingCompletions3_for_if|
-//@[52:53)  Assignment |=|
-//@[54:94)  ArrayAccessSyntax
-//@[54:92)   ArrayAccessSyntax
-//@[54:89)    VariableAccessSyntax
-//@[54:89)     IdentifierSyntax
-//@[54:89)      Identifier |discriminatorKeyValueMissing_for_if|
-//@[89:90)    LeftSquare |[|
-//@[90:91)    IntegerLiteralSyntax
-//@[90:91)     Integer |0|
-//@[91:92)    RightSquare |]|
-//@[92:93)   LeftSquare |[|
-//@[93:93)   SkippedTriviaSyntax
-//@[93:94)   RightSquare |]|
-//@[94:98) NewLine |\r\n\r\n|
+//@[000:00094) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00051) | ├─IdentifierSyntax
+//@[004:00051) | | └─Token(Identifier) |discriminatorKeyValueMissingCompletions3_for_if|
+//@[052:00053) | ├─Token(Assignment) |=|
+//@[054:00094) | └─ArrayAccessSyntax
+//@[054:00092) |   ├─ArrayAccessSyntax
+//@[054:00089) |   | ├─VariableAccessSyntax
+//@[054:00089) |   | | └─IdentifierSyntax
+//@[054:00089) |   | |   └─Token(Identifier) |discriminatorKeyValueMissing_for_if|
+//@[089:00090) |   | ├─Token(LeftSquare) |[|
+//@[090:00091) |   | ├─IntegerLiteralSyntax
+//@[090:00091) |   | | └─Token(Integer) |0|
+//@[091:00092) |   | └─Token(RightSquare) |]|
+//@[092:00093) |   ├─Token(LeftSquare) |[|
+//@[093:00093) |   ├─SkippedTriviaSyntax
+//@[093:00094) |   └─Token(RightSquare) |]|
+//@[094:00098) ├─Token(NewLine) |\r\n\r\n|
 
 /*
 Discriminator value set 1
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:266) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:31)  IdentifierSyntax
-//@[9:31)   Identifier |discriminatorKeySetOne|
-//@[32:82)  StringSyntax
-//@[32:82)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[83:84)  Assignment |=|
-//@[85:266)  ObjectSyntax
-//@[85:86)   LeftBrace |{|
-//@[86:88)   NewLine |\r\n|
+//@[000:00266) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00031) | ├─IdentifierSyntax
+//@[009:00031) | | └─Token(Identifier) |discriminatorKeySetOne|
+//@[032:00082) | ├─StringSyntax
+//@[032:00082) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[083:00084) | ├─Token(Assignment) |=|
+//@[085:00266) | └─ObjectSyntax
+//@[085:00086) |   ├─Token(LeftBrace) |{|
+//@[086:00088) |   ├─Token(NewLine) |\r\n|
   kind: 'AzureCLI'
-//@[2:18)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[6:7)    Colon |:|
-//@[8:18)    StringSyntax
-//@[8:18)     StringComplete |'AzureCLI'|
-//@[18:20)   NewLine |\r\n|
+//@[002:00018) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00018) |   | └─StringSyntax
+//@[008:00018) |   |   └─Token(StringComplete) |'AzureCLI'|
+//@[018:00020) |   ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57)   NewLine |\r\n|
+//@[055:00057) |   ├─Token(NewLine) |\r\n|
   
-//@[2:4)   NewLine |\r\n|
+//@[002:00004) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:94)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:94)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00094) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00094) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-//@[66:68)     NewLine |\r\n|
+//@[066:00068) |   |   ├─Token(NewLine) |\r\n|
     
-//@[4:6)     NewLine |\r\n|
+//@[004:00006) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 // #completionTest(75) -> cliPropertyAccess
-//@[43:45) NewLine |\r\n|
+//@[043:00045) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
-//@[0:75) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:37)  IdentifierSyntax
-//@[4:37)   Identifier |discriminatorKeySetOneCompletions|
-//@[38:39)  Assignment |=|
-//@[40:75)  PropertyAccessSyntax
-//@[40:73)   PropertyAccessSyntax
-//@[40:62)    VariableAccessSyntax
-//@[40:62)     IdentifierSyntax
-//@[40:62)      Identifier |discriminatorKeySetOne|
-//@[62:63)    Dot |.|
-//@[63:73)    IdentifierSyntax
-//@[63:73)     Identifier |properties|
-//@[73:74)   Dot |.|
-//@[74:75)   IdentifierSyntax
-//@[74:75)    Identifier |a|
-//@[75:77) NewLine |\r\n|
+//@[000:00075) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00037) | ├─IdentifierSyntax
+//@[004:00037) | | └─Token(Identifier) |discriminatorKeySetOneCompletions|
+//@[038:00039) | ├─Token(Assignment) |=|
+//@[040:00075) | └─PropertyAccessSyntax
+//@[040:00073) |   ├─PropertyAccessSyntax
+//@[040:00062) |   | ├─VariableAccessSyntax
+//@[040:00062) |   | | └─IdentifierSyntax
+//@[040:00062) |   | |   └─Token(Identifier) |discriminatorKeySetOne|
+//@[062:00063) |   | ├─Token(Dot) |.|
+//@[063:00073) |   | └─IdentifierSyntax
+//@[063:00073) |   |   └─Token(Identifier) |properties|
+//@[073:00074) |   ├─Token(Dot) |.|
+//@[074:00075) |   └─IdentifierSyntax
+//@[074:00075) |     └─Token(Identifier) |a|
+//@[075:00077) ├─Token(NewLine) |\r\n|
 // #completionTest(75) -> cliPropertyAccess
-//@[43:45) NewLine |\r\n|
+//@[043:00045) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetOneCompletions2 = discriminatorKeySetOne.properties.
-//@[0:75) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:38)  IdentifierSyntax
-//@[4:38)   Identifier |discriminatorKeySetOneCompletions2|
-//@[39:40)  Assignment |=|
-//@[41:75)  PropertyAccessSyntax
-//@[41:74)   PropertyAccessSyntax
-//@[41:63)    VariableAccessSyntax
-//@[41:63)     IdentifierSyntax
-//@[41:63)      Identifier |discriminatorKeySetOne|
-//@[63:64)    Dot |.|
-//@[64:74)    IdentifierSyntax
-//@[64:74)     Identifier |properties|
-//@[74:75)   Dot |.|
-//@[75:75)   IdentifierSyntax
-//@[75:75)    SkippedTriviaSyntax
-//@[75:79) NewLine |\r\n\r\n|
+//@[000:00075) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00038) | ├─IdentifierSyntax
+//@[004:00038) | | └─Token(Identifier) |discriminatorKeySetOneCompletions2|
+//@[039:00040) | ├─Token(Assignment) |=|
+//@[041:00075) | └─PropertyAccessSyntax
+//@[041:00074) |   ├─PropertyAccessSyntax
+//@[041:00063) |   | ├─VariableAccessSyntax
+//@[041:00063) |   | | └─IdentifierSyntax
+//@[041:00063) |   | |   └─Token(Identifier) |discriminatorKeySetOne|
+//@[063:00064) |   | ├─Token(Dot) |.|
+//@[064:00074) |   | └─IdentifierSyntax
+//@[064:00074) |   |   └─Token(Identifier) |properties|
+//@[074:00075) |   ├─Token(Dot) |.|
+//@[075:00075) |   └─IdentifierSyntax
+//@[075:00075) |     └─SkippedTriviaSyntax
+//@[075:00079) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(75) -> cliPropertyAccessIndexesPlusSymbols
-//@[61:63) NewLine |\r\n|
+//@[061:00063) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetOneCompletions3 = discriminatorKeySetOne.properties[]
-//@[0:76) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:38)  IdentifierSyntax
-//@[4:38)   Identifier |discriminatorKeySetOneCompletions3|
-//@[39:40)  Assignment |=|
-//@[41:76)  ArrayAccessSyntax
-//@[41:74)   PropertyAccessSyntax
-//@[41:63)    VariableAccessSyntax
-//@[41:63)     IdentifierSyntax
-//@[41:63)      Identifier |discriminatorKeySetOne|
-//@[63:64)    Dot |.|
-//@[64:74)    IdentifierSyntax
-//@[64:74)     Identifier |properties|
-//@[74:75)   LeftSquare |[|
-//@[75:75)   SkippedTriviaSyntax
-//@[75:76)   RightSquare |]|
-//@[76:80) NewLine |\r\n\r\n|
+//@[000:00076) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00038) | ├─IdentifierSyntax
+//@[004:00038) | | └─Token(Identifier) |discriminatorKeySetOneCompletions3|
+//@[039:00040) | ├─Token(Assignment) |=|
+//@[041:00076) | └─ArrayAccessSyntax
+//@[041:00074) |   ├─PropertyAccessSyntax
+//@[041:00063) |   | ├─VariableAccessSyntax
+//@[041:00063) |   | | └─IdentifierSyntax
+//@[041:00063) |   | |   └─Token(Identifier) |discriminatorKeySetOne|
+//@[063:00064) |   | ├─Token(Dot) |.|
+//@[064:00074) |   | └─IdentifierSyntax
+//@[064:00074) |   |   └─Token(Identifier) |properties|
+//@[074:00075) |   ├─Token(LeftSquare) |[|
+//@[075:00075) |   ├─SkippedTriviaSyntax
+//@[075:00076) |   └─Token(RightSquare) |]|
+//@[076:00080) ├─Token(NewLine) |\r\n\r\n|
 
 /*
 Discriminator value set 1 (conditional)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(2==3) {
-//@[0:278) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:34)  IdentifierSyntax
-//@[9:34)   Identifier |discriminatorKeySetOne_if|
-//@[35:85)  StringSyntax
-//@[35:85)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[86:87)  Assignment |=|
-//@[88:278)  IfConditionSyntax
-//@[88:90)   Identifier |if|
-//@[90:96)   ParenthesizedExpressionSyntax
-//@[90:91)    LeftParen |(|
-//@[91:95)    BinaryOperationSyntax
-//@[91:92)     IntegerLiteralSyntax
-//@[91:92)      Integer |2|
-//@[92:94)     Equals |==|
-//@[94:95)     IntegerLiteralSyntax
-//@[94:95)      Integer |3|
-//@[95:96)    RightParen |)|
-//@[97:278)   ObjectSyntax
-//@[97:98)    LeftBrace |{|
-//@[98:100)    NewLine |\r\n|
+//@[000:00278) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00034) | ├─IdentifierSyntax
+//@[009:00034) | | └─Token(Identifier) |discriminatorKeySetOne_if|
+//@[035:00085) | ├─StringSyntax
+//@[035:00085) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[086:00087) | ├─Token(Assignment) |=|
+//@[088:00278) | └─IfConditionSyntax
+//@[088:00090) |   ├─Token(Identifier) |if|
+//@[090:00096) |   ├─ParenthesizedExpressionSyntax
+//@[090:00091) |   | ├─Token(LeftParen) |(|
+//@[091:00095) |   | ├─BinaryOperationSyntax
+//@[091:00092) |   | | ├─IntegerLiteralSyntax
+//@[091:00092) |   | | | └─Token(Integer) |2|
+//@[092:00094) |   | | ├─Token(Equals) |==|
+//@[094:00095) |   | | └─IntegerLiteralSyntax
+//@[094:00095) |   | |   └─Token(Integer) |3|
+//@[095:00096) |   | └─Token(RightParen) |)|
+//@[097:00278) |   └─ObjectSyntax
+//@[097:00098) |     ├─Token(LeftBrace) |{|
+//@[098:00100) |     ├─Token(NewLine) |\r\n|
   kind: 'AzureCLI'
-//@[2:18)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |kind|
-//@[6:7)     Colon |:|
-//@[8:18)     StringSyntax
-//@[8:18)      StringComplete |'AzureCLI'|
-//@[18:20)    NewLine |\r\n|
+//@[002:00018) |     ├─ObjectPropertySyntax
+//@[002:00006) |     | ├─IdentifierSyntax
+//@[002:00006) |     | | └─Token(Identifier) |kind|
+//@[006:00007) |     | ├─Token(Colon) |:|
+//@[008:00018) |     | └─StringSyntax
+//@[008:00018) |     |   └─Token(StringComplete) |'AzureCLI'|
+//@[018:00020) |     ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57)    NewLine |\r\n|
+//@[055:00057) |     ├─Token(NewLine) |\r\n|
   
-//@[2:4)    NewLine |\r\n|
+//@[002:00004) |     ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:94)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:94)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00094) |     ├─ObjectPropertySyntax
+//@[002:00012) |     | ├─IdentifierSyntax
+//@[002:00012) |     | | └─Token(Identifier) |properties|
+//@[012:00013) |     | ├─Token(Colon) |:|
+//@[014:00094) |     | └─ObjectSyntax
+//@[014:00015) |     |   ├─Token(LeftBrace) |{|
+//@[015:00017) |     |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-//@[66:68)      NewLine |\r\n|
+//@[066:00068) |     |   ├─Token(NewLine) |\r\n|
     
-//@[4:6)      NewLine |\r\n|
+//@[004:00006) |     |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |     |   └─Token(RightBrace) |}|
+//@[003:00005) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 // #completionTest(81) -> cliPropertyAccess
-//@[43:45) NewLine |\r\n|
+//@[043:00045) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetOneCompletions_if = discriminatorKeySetOne_if.properties.a
-//@[0:81) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:40)  IdentifierSyntax
-//@[4:40)   Identifier |discriminatorKeySetOneCompletions_if|
-//@[41:42)  Assignment |=|
-//@[43:81)  PropertyAccessSyntax
-//@[43:79)   PropertyAccessSyntax
-//@[43:68)    VariableAccessSyntax
-//@[43:68)     IdentifierSyntax
-//@[43:68)      Identifier |discriminatorKeySetOne_if|
-//@[68:69)    Dot |.|
-//@[69:79)    IdentifierSyntax
-//@[69:79)     Identifier |properties|
-//@[79:80)   Dot |.|
-//@[80:81)   IdentifierSyntax
-//@[80:81)    Identifier |a|
-//@[81:83) NewLine |\r\n|
+//@[000:00081) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00040) | ├─IdentifierSyntax
+//@[004:00040) | | └─Token(Identifier) |discriminatorKeySetOneCompletions_if|
+//@[041:00042) | ├─Token(Assignment) |=|
+//@[043:00081) | └─PropertyAccessSyntax
+//@[043:00079) |   ├─PropertyAccessSyntax
+//@[043:00068) |   | ├─VariableAccessSyntax
+//@[043:00068) |   | | └─IdentifierSyntax
+//@[043:00068) |   | |   └─Token(Identifier) |discriminatorKeySetOne_if|
+//@[068:00069) |   | ├─Token(Dot) |.|
+//@[069:00079) |   | └─IdentifierSyntax
+//@[069:00079) |   |   └─Token(Identifier) |properties|
+//@[079:00080) |   ├─Token(Dot) |.|
+//@[080:00081) |   └─IdentifierSyntax
+//@[080:00081) |     └─Token(Identifier) |a|
+//@[081:00083) ├─Token(NewLine) |\r\n|
 // #completionTest(81) -> cliPropertyAccess
-//@[43:45) NewLine |\r\n|
+//@[043:00045) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetOneCompletions2_if = discriminatorKeySetOne_if.properties.
-//@[0:81) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:41)  IdentifierSyntax
-//@[4:41)   Identifier |discriminatorKeySetOneCompletions2_if|
-//@[42:43)  Assignment |=|
-//@[44:81)  PropertyAccessSyntax
-//@[44:80)   PropertyAccessSyntax
-//@[44:69)    VariableAccessSyntax
-//@[44:69)     IdentifierSyntax
-//@[44:69)      Identifier |discriminatorKeySetOne_if|
-//@[69:70)    Dot |.|
-//@[70:80)    IdentifierSyntax
-//@[70:80)     Identifier |properties|
-//@[80:81)   Dot |.|
-//@[81:81)   IdentifierSyntax
-//@[81:81)    SkippedTriviaSyntax
-//@[81:85) NewLine |\r\n\r\n|
+//@[000:00081) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00041) | ├─IdentifierSyntax
+//@[004:00041) | | └─Token(Identifier) |discriminatorKeySetOneCompletions2_if|
+//@[042:00043) | ├─Token(Assignment) |=|
+//@[044:00081) | └─PropertyAccessSyntax
+//@[044:00080) |   ├─PropertyAccessSyntax
+//@[044:00069) |   | ├─VariableAccessSyntax
+//@[044:00069) |   | | └─IdentifierSyntax
+//@[044:00069) |   | |   └─Token(Identifier) |discriminatorKeySetOne_if|
+//@[069:00070) |   | ├─Token(Dot) |.|
+//@[070:00080) |   | └─IdentifierSyntax
+//@[070:00080) |   |   └─Token(Identifier) |properties|
+//@[080:00081) |   ├─Token(Dot) |.|
+//@[081:00081) |   └─IdentifierSyntax
+//@[081:00081) |     └─SkippedTriviaSyntax
+//@[081:00085) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(81) -> cliPropertyAccessIndexesPlusSymbols_if
-//@[64:66) NewLine |\r\n|
+//@[064:00066) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetOneCompletions3_if = discriminatorKeySetOne_if.properties[]
-//@[0:82) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:41)  IdentifierSyntax
-//@[4:41)   Identifier |discriminatorKeySetOneCompletions3_if|
-//@[42:43)  Assignment |=|
-//@[44:82)  ArrayAccessSyntax
-//@[44:80)   PropertyAccessSyntax
-//@[44:69)    VariableAccessSyntax
-//@[44:69)     IdentifierSyntax
-//@[44:69)      Identifier |discriminatorKeySetOne_if|
-//@[69:70)    Dot |.|
-//@[70:80)    IdentifierSyntax
-//@[70:80)     Identifier |properties|
-//@[80:81)   LeftSquare |[|
-//@[81:81)   SkippedTriviaSyntax
-//@[81:82)   RightSquare |]|
-//@[82:86) NewLine |\r\n\r\n|
+//@[000:00082) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00041) | ├─IdentifierSyntax
+//@[004:00041) | | └─Token(Identifier) |discriminatorKeySetOneCompletions3_if|
+//@[042:00043) | ├─Token(Assignment) |=|
+//@[044:00082) | └─ArrayAccessSyntax
+//@[044:00080) |   ├─PropertyAccessSyntax
+//@[044:00069) |   | ├─VariableAccessSyntax
+//@[044:00069) |   | | └─IdentifierSyntax
+//@[044:00069) |   | |   └─Token(Identifier) |discriminatorKeySetOne_if|
+//@[069:00070) |   | ├─Token(Dot) |.|
+//@[070:00080) |   | └─IdentifierSyntax
+//@[070:00080) |   |   └─Token(Identifier) |properties|
+//@[080:00081) |   ├─Token(LeftSquare) |[|
+//@[081:00081) |   ├─SkippedTriviaSyntax
+//@[081:00082) |   └─Token(RightSquare) |]|
+//@[082:00086) ├─Token(NewLine) |\r\n\r\n|
 
 /*
 Discriminator value set 1 (loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: {
-//@[0:290) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |discriminatorKeySetOne_for|
-//@[36:86)  StringSyntax
-//@[36:86)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[87:88)  Assignment |=|
-//@[89:290)  ForSyntax
-//@[89:90)   LeftSquare |[|
-//@[91:94)   Identifier |for|
-//@[95:100)   LocalVariableSyntax
-//@[95:100)    IdentifierSyntax
-//@[95:100)     Identifier |thing|
-//@[101:103)   Identifier |in|
-//@[104:106)   ArraySyntax
-//@[104:105)    LeftSquare |[|
-//@[105:106)    RightSquare |]|
-//@[106:107)   Colon |:|
-//@[108:289)   ObjectSyntax
-//@[108:109)    LeftBrace |{|
-//@[109:111)    NewLine |\r\n|
+//@[000:00290) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |discriminatorKeySetOne_for|
+//@[036:00086) | ├─StringSyntax
+//@[036:00086) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[087:00088) | ├─Token(Assignment) |=|
+//@[089:00290) | └─ForSyntax
+//@[089:00090) |   ├─Token(LeftSquare) |[|
+//@[091:00094) |   ├─Token(Identifier) |for|
+//@[095:00100) |   ├─LocalVariableSyntax
+//@[095:00100) |   | └─IdentifierSyntax
+//@[095:00100) |   |   └─Token(Identifier) |thing|
+//@[101:00103) |   ├─Token(Identifier) |in|
+//@[104:00106) |   ├─ArraySyntax
+//@[104:00105) |   | ├─Token(LeftSquare) |[|
+//@[105:00106) |   | └─Token(RightSquare) |]|
+//@[106:00107) |   ├─Token(Colon) |:|
+//@[108:00289) |   ├─ObjectSyntax
+//@[108:00109) |   | ├─Token(LeftBrace) |{|
+//@[109:00111) |   | ├─Token(NewLine) |\r\n|
   kind: 'AzureCLI'
-//@[2:18)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |kind|
-//@[6:7)     Colon |:|
-//@[8:18)     StringSyntax
-//@[8:18)      StringComplete |'AzureCLI'|
-//@[18:20)    NewLine |\r\n|
+//@[002:00018) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |kind|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00018) |   | | └─StringSyntax
+//@[008:00018) |   | |   └─Token(StringComplete) |'AzureCLI'|
+//@[018:00020) |   | ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57)    NewLine |\r\n|
+//@[055:00057) |   | ├─Token(NewLine) |\r\n|
   
-//@[2:4)    NewLine |\r\n|
+//@[002:00004) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:94)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:94)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00094) |   | ├─ObjectPropertySyntax
+//@[002:00012) |   | | ├─IdentifierSyntax
+//@[002:00012) |   | | | └─Token(Identifier) |properties|
+//@[012:00013) |   | | ├─Token(Colon) |:|
+//@[014:00094) |   | | └─ObjectSyntax
+//@[014:00015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-//@[66:68)      NewLine |\r\n|
+//@[066:00068) |   | |   ├─Token(NewLine) |\r\n|
     
-//@[4:6)      NewLine |\r\n|
+//@[004:00006) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 // #completionTest(86) -> cliPropertyAccess
-//@[43:45) NewLine |\r\n|
+//@[043:00045) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetOneCompletions_for = discriminatorKeySetOne_for[0].properties.a
-//@[0:86) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:41)  IdentifierSyntax
-//@[4:41)   Identifier |discriminatorKeySetOneCompletions_for|
-//@[42:43)  Assignment |=|
-//@[44:86)  PropertyAccessSyntax
-//@[44:84)   PropertyAccessSyntax
-//@[44:73)    ArrayAccessSyntax
-//@[44:70)     VariableAccessSyntax
-//@[44:70)      IdentifierSyntax
-//@[44:70)       Identifier |discriminatorKeySetOne_for|
-//@[70:71)     LeftSquare |[|
-//@[71:72)     IntegerLiteralSyntax
-//@[71:72)      Integer |0|
-//@[72:73)     RightSquare |]|
-//@[73:74)    Dot |.|
-//@[74:84)    IdentifierSyntax
-//@[74:84)     Identifier |properties|
-//@[84:85)   Dot |.|
-//@[85:86)   IdentifierSyntax
-//@[85:86)    Identifier |a|
-//@[86:88) NewLine |\r\n|
+//@[000:00086) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00041) | ├─IdentifierSyntax
+//@[004:00041) | | └─Token(Identifier) |discriminatorKeySetOneCompletions_for|
+//@[042:00043) | ├─Token(Assignment) |=|
+//@[044:00086) | └─PropertyAccessSyntax
+//@[044:00084) |   ├─PropertyAccessSyntax
+//@[044:00073) |   | ├─ArrayAccessSyntax
+//@[044:00070) |   | | ├─VariableAccessSyntax
+//@[044:00070) |   | | | └─IdentifierSyntax
+//@[044:00070) |   | | |   └─Token(Identifier) |discriminatorKeySetOne_for|
+//@[070:00071) |   | | ├─Token(LeftSquare) |[|
+//@[071:00072) |   | | ├─IntegerLiteralSyntax
+//@[071:00072) |   | | | └─Token(Integer) |0|
+//@[072:00073) |   | | └─Token(RightSquare) |]|
+//@[073:00074) |   | ├─Token(Dot) |.|
+//@[074:00084) |   | └─IdentifierSyntax
+//@[074:00084) |   |   └─Token(Identifier) |properties|
+//@[084:00085) |   ├─Token(Dot) |.|
+//@[085:00086) |   └─IdentifierSyntax
+//@[085:00086) |     └─Token(Identifier) |a|
+//@[086:00088) ├─Token(NewLine) |\r\n|
 // #completionTest(94) -> cliPropertyAccess
-//@[43:45) NewLine |\r\n|
+//@[043:00045) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetOneCompletions2_for = discriminatorKeySetOne_for[any(true)].properties.
-//@[0:94) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:42)  IdentifierSyntax
-//@[4:42)   Identifier |discriminatorKeySetOneCompletions2_for|
-//@[43:44)  Assignment |=|
-//@[45:94)  PropertyAccessSyntax
-//@[45:93)   PropertyAccessSyntax
-//@[45:82)    ArrayAccessSyntax
-//@[45:71)     VariableAccessSyntax
-//@[45:71)      IdentifierSyntax
-//@[45:71)       Identifier |discriminatorKeySetOne_for|
-//@[71:72)     LeftSquare |[|
-//@[72:81)     FunctionCallSyntax
-//@[72:75)      IdentifierSyntax
-//@[72:75)       Identifier |any|
-//@[75:76)      LeftParen |(|
-//@[76:80)      FunctionArgumentSyntax
-//@[76:80)       BooleanLiteralSyntax
-//@[76:80)        TrueKeyword |true|
-//@[80:81)      RightParen |)|
-//@[81:82)     RightSquare |]|
-//@[82:83)    Dot |.|
-//@[83:93)    IdentifierSyntax
-//@[83:93)     Identifier |properties|
-//@[93:94)   Dot |.|
-//@[94:94)   IdentifierSyntax
-//@[94:94)    SkippedTriviaSyntax
-//@[94:98) NewLine |\r\n\r\n|
+//@[000:00094) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00042) | ├─IdentifierSyntax
+//@[004:00042) | | └─Token(Identifier) |discriminatorKeySetOneCompletions2_for|
+//@[043:00044) | ├─Token(Assignment) |=|
+//@[045:00094) | └─PropertyAccessSyntax
+//@[045:00093) |   ├─PropertyAccessSyntax
+//@[045:00082) |   | ├─ArrayAccessSyntax
+//@[045:00071) |   | | ├─VariableAccessSyntax
+//@[045:00071) |   | | | └─IdentifierSyntax
+//@[045:00071) |   | | |   └─Token(Identifier) |discriminatorKeySetOne_for|
+//@[071:00072) |   | | ├─Token(LeftSquare) |[|
+//@[072:00081) |   | | ├─FunctionCallSyntax
+//@[072:00075) |   | | | ├─IdentifierSyntax
+//@[072:00075) |   | | | | └─Token(Identifier) |any|
+//@[075:00076) |   | | | ├─Token(LeftParen) |(|
+//@[076:00080) |   | | | ├─FunctionArgumentSyntax
+//@[076:00080) |   | | | | └─BooleanLiteralSyntax
+//@[076:00080) |   | | | |   └─Token(TrueKeyword) |true|
+//@[080:00081) |   | | | └─Token(RightParen) |)|
+//@[081:00082) |   | | └─Token(RightSquare) |]|
+//@[082:00083) |   | ├─Token(Dot) |.|
+//@[083:00093) |   | └─IdentifierSyntax
+//@[083:00093) |   |   └─Token(Identifier) |properties|
+//@[093:00094) |   ├─Token(Dot) |.|
+//@[094:00094) |   └─IdentifierSyntax
+//@[094:00094) |     └─SkippedTriviaSyntax
+//@[094:00098) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(86) -> cliPropertyAccessIndexesPlusSymbols_for
-//@[65:67) NewLine |\r\n|
+//@[065:00067) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetOneCompletions3_for = discriminatorKeySetOne_for[1].properties[]
-//@[0:87) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:42)  IdentifierSyntax
-//@[4:42)   Identifier |discriminatorKeySetOneCompletions3_for|
-//@[43:44)  Assignment |=|
-//@[45:87)  ArrayAccessSyntax
-//@[45:85)   PropertyAccessSyntax
-//@[45:74)    ArrayAccessSyntax
-//@[45:71)     VariableAccessSyntax
-//@[45:71)      IdentifierSyntax
-//@[45:71)       Identifier |discriminatorKeySetOne_for|
-//@[71:72)     LeftSquare |[|
-//@[72:73)     IntegerLiteralSyntax
-//@[72:73)      Integer |1|
-//@[73:74)     RightSquare |]|
-//@[74:75)    Dot |.|
-//@[75:85)    IdentifierSyntax
-//@[75:85)     Identifier |properties|
-//@[85:86)   LeftSquare |[|
-//@[86:86)   SkippedTriviaSyntax
-//@[86:87)   RightSquare |]|
-//@[87:91) NewLine |\r\n\r\n|
+//@[000:00087) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00042) | ├─IdentifierSyntax
+//@[004:00042) | | └─Token(Identifier) |discriminatorKeySetOneCompletions3_for|
+//@[043:00044) | ├─Token(Assignment) |=|
+//@[045:00087) | └─ArrayAccessSyntax
+//@[045:00085) |   ├─PropertyAccessSyntax
+//@[045:00074) |   | ├─ArrayAccessSyntax
+//@[045:00071) |   | | ├─VariableAccessSyntax
+//@[045:00071) |   | | | └─IdentifierSyntax
+//@[045:00071) |   | | |   └─Token(Identifier) |discriminatorKeySetOne_for|
+//@[071:00072) |   | | ├─Token(LeftSquare) |[|
+//@[072:00073) |   | | ├─IntegerLiteralSyntax
+//@[072:00073) |   | | | └─Token(Integer) |1|
+//@[073:00074) |   | | └─Token(RightSquare) |]|
+//@[074:00075) |   | ├─Token(Dot) |.|
+//@[075:00085) |   | └─IdentifierSyntax
+//@[075:00085) |   |   └─Token(Identifier) |properties|
+//@[085:00086) |   ├─Token(LeftSquare) |[|
+//@[086:00086) |   ├─SkippedTriviaSyntax
+//@[086:00087) |   └─Token(RightSquare) |]|
+//@[087:00091) ├─Token(NewLine) |\r\n\r\n|
 
 /*
 Discriminator value set 1 (filtered loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: if(true) {
-//@[0:302) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:38)  IdentifierSyntax
-//@[9:38)   Identifier |discriminatorKeySetOne_for_if|
-//@[39:89)  StringSyntax
-//@[39:89)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[90:91)  Assignment |=|
-//@[92:302)  ForSyntax
-//@[92:93)   LeftSquare |[|
-//@[94:97)   Identifier |for|
-//@[98:103)   LocalVariableSyntax
-//@[98:103)    IdentifierSyntax
-//@[98:103)     Identifier |thing|
-//@[104:106)   Identifier |in|
-//@[107:109)   ArraySyntax
-//@[107:108)    LeftSquare |[|
-//@[108:109)    RightSquare |]|
-//@[109:110)   Colon |:|
-//@[111:301)   IfConditionSyntax
-//@[111:113)    Identifier |if|
-//@[113:119)    ParenthesizedExpressionSyntax
-//@[113:114)     LeftParen |(|
-//@[114:118)     BooleanLiteralSyntax
-//@[114:118)      TrueKeyword |true|
-//@[118:119)     RightParen |)|
-//@[120:301)    ObjectSyntax
-//@[120:121)     LeftBrace |{|
-//@[121:123)     NewLine |\r\n|
+//@[000:00302) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00038) | ├─IdentifierSyntax
+//@[009:00038) | | └─Token(Identifier) |discriminatorKeySetOne_for_if|
+//@[039:00089) | ├─StringSyntax
+//@[039:00089) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[090:00091) | ├─Token(Assignment) |=|
+//@[092:00302) | └─ForSyntax
+//@[092:00093) |   ├─Token(LeftSquare) |[|
+//@[094:00097) |   ├─Token(Identifier) |for|
+//@[098:00103) |   ├─LocalVariableSyntax
+//@[098:00103) |   | └─IdentifierSyntax
+//@[098:00103) |   |   └─Token(Identifier) |thing|
+//@[104:00106) |   ├─Token(Identifier) |in|
+//@[107:00109) |   ├─ArraySyntax
+//@[107:00108) |   | ├─Token(LeftSquare) |[|
+//@[108:00109) |   | └─Token(RightSquare) |]|
+//@[109:00110) |   ├─Token(Colon) |:|
+//@[111:00301) |   ├─IfConditionSyntax
+//@[111:00113) |   | ├─Token(Identifier) |if|
+//@[113:00119) |   | ├─ParenthesizedExpressionSyntax
+//@[113:00114) |   | | ├─Token(LeftParen) |(|
+//@[114:00118) |   | | ├─BooleanLiteralSyntax
+//@[114:00118) |   | | | └─Token(TrueKeyword) |true|
+//@[118:00119) |   | | └─Token(RightParen) |)|
+//@[120:00301) |   | └─ObjectSyntax
+//@[120:00121) |   |   ├─Token(LeftBrace) |{|
+//@[121:00123) |   |   ├─Token(NewLine) |\r\n|
   kind: 'AzureCLI'
-//@[2:18)     ObjectPropertySyntax
-//@[2:6)      IdentifierSyntax
-//@[2:6)       Identifier |kind|
-//@[6:7)      Colon |:|
-//@[8:18)      StringSyntax
-//@[8:18)       StringComplete |'AzureCLI'|
-//@[18:20)     NewLine |\r\n|
+//@[002:00018) |   |   ├─ObjectPropertySyntax
+//@[002:00006) |   |   | ├─IdentifierSyntax
+//@[002:00006) |   |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   |   | ├─Token(Colon) |:|
+//@[008:00018) |   |   | └─StringSyntax
+//@[008:00018) |   |   |   └─Token(StringComplete) |'AzureCLI'|
+//@[018:00020) |   |   ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57)     NewLine |\r\n|
+//@[055:00057) |   |   ├─Token(NewLine) |\r\n|
   
-//@[2:4)     NewLine |\r\n|
+//@[002:00004) |   |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:94)     ObjectPropertySyntax
-//@[2:12)      IdentifierSyntax
-//@[2:12)       Identifier |properties|
-//@[12:13)      Colon |:|
-//@[14:94)      ObjectSyntax
-//@[14:15)       LeftBrace |{|
-//@[15:17)       NewLine |\r\n|
+//@[002:00094) |   |   ├─ObjectPropertySyntax
+//@[002:00012) |   |   | ├─IdentifierSyntax
+//@[002:00012) |   |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   |   | ├─Token(Colon) |:|
+//@[014:00094) |   |   | └─ObjectSyntax
+//@[014:00015) |   |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-//@[66:68)       NewLine |\r\n|
+//@[066:00068) |   |   |   ├─Token(NewLine) |\r\n|
     
-//@[4:6)       NewLine |\r\n|
+//@[004:00006) |   |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)       RightBrace |}|
-//@[3:5)     NewLine |\r\n|
+//@[002:00003) |   |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   |   ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)     RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:00001) |   |   └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 // #completionTest(92) -> cliPropertyAccess
-//@[43:45) NewLine |\r\n|
+//@[043:00045) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetOneCompletions_for_if = discriminatorKeySetOne_for_if[0].properties.a
-//@[0:92) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:44)  IdentifierSyntax
-//@[4:44)   Identifier |discriminatorKeySetOneCompletions_for_if|
-//@[45:46)  Assignment |=|
-//@[47:92)  PropertyAccessSyntax
-//@[47:90)   PropertyAccessSyntax
-//@[47:79)    ArrayAccessSyntax
-//@[47:76)     VariableAccessSyntax
-//@[47:76)      IdentifierSyntax
-//@[47:76)       Identifier |discriminatorKeySetOne_for_if|
-//@[76:77)     LeftSquare |[|
-//@[77:78)     IntegerLiteralSyntax
-//@[77:78)      Integer |0|
-//@[78:79)     RightSquare |]|
-//@[79:80)    Dot |.|
-//@[80:90)    IdentifierSyntax
-//@[80:90)     Identifier |properties|
-//@[90:91)   Dot |.|
-//@[91:92)   IdentifierSyntax
-//@[91:92)    Identifier |a|
-//@[92:94) NewLine |\r\n|
+//@[000:00092) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00044) | ├─IdentifierSyntax
+//@[004:00044) | | └─Token(Identifier) |discriminatorKeySetOneCompletions_for_if|
+//@[045:00046) | ├─Token(Assignment) |=|
+//@[047:00092) | └─PropertyAccessSyntax
+//@[047:00090) |   ├─PropertyAccessSyntax
+//@[047:00079) |   | ├─ArrayAccessSyntax
+//@[047:00076) |   | | ├─VariableAccessSyntax
+//@[047:00076) |   | | | └─IdentifierSyntax
+//@[047:00076) |   | | |   └─Token(Identifier) |discriminatorKeySetOne_for_if|
+//@[076:00077) |   | | ├─Token(LeftSquare) |[|
+//@[077:00078) |   | | ├─IntegerLiteralSyntax
+//@[077:00078) |   | | | └─Token(Integer) |0|
+//@[078:00079) |   | | └─Token(RightSquare) |]|
+//@[079:00080) |   | ├─Token(Dot) |.|
+//@[080:00090) |   | └─IdentifierSyntax
+//@[080:00090) |   |   └─Token(Identifier) |properties|
+//@[090:00091) |   ├─Token(Dot) |.|
+//@[091:00092) |   └─IdentifierSyntax
+//@[091:00092) |     └─Token(Identifier) |a|
+//@[092:00094) ├─Token(NewLine) |\r\n|
 // #completionTest(100) -> cliPropertyAccess
-//@[44:46) NewLine |\r\n|
+//@[044:00046) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetOneCompletions2_for_if = discriminatorKeySetOne_for_if[any(true)].properties.
-//@[0:100) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:45)  IdentifierSyntax
-//@[4:45)   Identifier |discriminatorKeySetOneCompletions2_for_if|
-//@[46:47)  Assignment |=|
-//@[48:100)  PropertyAccessSyntax
-//@[48:99)   PropertyAccessSyntax
-//@[48:88)    ArrayAccessSyntax
-//@[48:77)     VariableAccessSyntax
-//@[48:77)      IdentifierSyntax
-//@[48:77)       Identifier |discriminatorKeySetOne_for_if|
-//@[77:78)     LeftSquare |[|
-//@[78:87)     FunctionCallSyntax
-//@[78:81)      IdentifierSyntax
-//@[78:81)       Identifier |any|
-//@[81:82)      LeftParen |(|
-//@[82:86)      FunctionArgumentSyntax
-//@[82:86)       BooleanLiteralSyntax
-//@[82:86)        TrueKeyword |true|
-//@[86:87)      RightParen |)|
-//@[87:88)     RightSquare |]|
-//@[88:89)    Dot |.|
-//@[89:99)    IdentifierSyntax
-//@[89:99)     Identifier |properties|
-//@[99:100)   Dot |.|
-//@[100:100)   IdentifierSyntax
-//@[100:100)    SkippedTriviaSyntax
-//@[100:104) NewLine |\r\n\r\n|
+//@[000:00100) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00045) | ├─IdentifierSyntax
+//@[004:00045) | | └─Token(Identifier) |discriminatorKeySetOneCompletions2_for_if|
+//@[046:00047) | ├─Token(Assignment) |=|
+//@[048:00100) | └─PropertyAccessSyntax
+//@[048:00099) |   ├─PropertyAccessSyntax
+//@[048:00088) |   | ├─ArrayAccessSyntax
+//@[048:00077) |   | | ├─VariableAccessSyntax
+//@[048:00077) |   | | | └─IdentifierSyntax
+//@[048:00077) |   | | |   └─Token(Identifier) |discriminatorKeySetOne_for_if|
+//@[077:00078) |   | | ├─Token(LeftSquare) |[|
+//@[078:00087) |   | | ├─FunctionCallSyntax
+//@[078:00081) |   | | | ├─IdentifierSyntax
+//@[078:00081) |   | | | | └─Token(Identifier) |any|
+//@[081:00082) |   | | | ├─Token(LeftParen) |(|
+//@[082:00086) |   | | | ├─FunctionArgumentSyntax
+//@[082:00086) |   | | | | └─BooleanLiteralSyntax
+//@[082:00086) |   | | | |   └─Token(TrueKeyword) |true|
+//@[086:00087) |   | | | └─Token(RightParen) |)|
+//@[087:00088) |   | | └─Token(RightSquare) |]|
+//@[088:00089) |   | ├─Token(Dot) |.|
+//@[089:00099) |   | └─IdentifierSyntax
+//@[089:00099) |   |   └─Token(Identifier) |properties|
+//@[099:00100) |   ├─Token(Dot) |.|
+//@[100:00100) |   └─IdentifierSyntax
+//@[100:00100) |     └─SkippedTriviaSyntax
+//@[100:00104) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(92) -> cliPropertyAccessIndexesPlusSymbols_for_if
-//@[68:70) NewLine |\r\n|
+//@[068:00070) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetOneCompletions3_for_if = discriminatorKeySetOne_for_if[1].properties[]
-//@[0:93) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:45)  IdentifierSyntax
-//@[4:45)   Identifier |discriminatorKeySetOneCompletions3_for_if|
-//@[46:47)  Assignment |=|
-//@[48:93)  ArrayAccessSyntax
-//@[48:91)   PropertyAccessSyntax
-//@[48:80)    ArrayAccessSyntax
-//@[48:77)     VariableAccessSyntax
-//@[48:77)      IdentifierSyntax
-//@[48:77)       Identifier |discriminatorKeySetOne_for_if|
-//@[77:78)     LeftSquare |[|
-//@[78:79)     IntegerLiteralSyntax
-//@[78:79)      Integer |1|
-//@[79:80)     RightSquare |]|
-//@[80:81)    Dot |.|
-//@[81:91)    IdentifierSyntax
-//@[81:91)     Identifier |properties|
-//@[91:92)   LeftSquare |[|
-//@[92:92)   SkippedTriviaSyntax
-//@[92:93)   RightSquare |]|
-//@[93:99) NewLine |\r\n\r\n\r\n|
+//@[000:00093) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00045) | ├─IdentifierSyntax
+//@[004:00045) | | └─Token(Identifier) |discriminatorKeySetOneCompletions3_for_if|
+//@[046:00047) | ├─Token(Assignment) |=|
+//@[048:00093) | └─ArrayAccessSyntax
+//@[048:00091) |   ├─PropertyAccessSyntax
+//@[048:00080) |   | ├─ArrayAccessSyntax
+//@[048:00077) |   | | ├─VariableAccessSyntax
+//@[048:00077) |   | | | └─IdentifierSyntax
+//@[048:00077) |   | | |   └─Token(Identifier) |discriminatorKeySetOne_for_if|
+//@[077:00078) |   | | ├─Token(LeftSquare) |[|
+//@[078:00079) |   | | ├─IntegerLiteralSyntax
+//@[078:00079) |   | | | └─Token(Integer) |1|
+//@[079:00080) |   | | └─Token(RightSquare) |]|
+//@[080:00081) |   | ├─Token(Dot) |.|
+//@[081:00091) |   | └─IdentifierSyntax
+//@[081:00091) |   |   └─Token(Identifier) |properties|
+//@[091:00092) |   ├─Token(LeftSquare) |[|
+//@[092:00092) |   ├─SkippedTriviaSyntax
+//@[092:00093) |   └─Token(RightSquare) |]|
+//@[093:00099) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
 /*
 Discriminator value set 2
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:272) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:31)  IdentifierSyntax
-//@[9:31)   Identifier |discriminatorKeySetTwo|
-//@[32:82)  StringSyntax
-//@[32:82)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[83:84)  Assignment |=|
-//@[85:272)  ObjectSyntax
-//@[85:86)   LeftBrace |{|
-//@[86:88)   NewLine |\r\n|
+//@[000:00272) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00031) | ├─IdentifierSyntax
+//@[009:00031) | | └─Token(Identifier) |discriminatorKeySetTwo|
+//@[032:00082) | ├─StringSyntax
+//@[032:00082) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[083:00084) | ├─Token(Assignment) |=|
+//@[085:00272) | └─ObjectSyntax
+//@[085:00086) |   ├─Token(LeftBrace) |{|
+//@[086:00088) |   ├─Token(NewLine) |\r\n|
   kind: 'AzurePowerShell'
-//@[2:25)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[6:7)    Colon |:|
-//@[8:25)    StringSyntax
-//@[8:25)     StringComplete |'AzurePowerShell'|
-//@[25:27)   NewLine |\r\n|
+//@[002:00025) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00025) |   | └─StringSyntax
+//@[008:00025) |   |   └─Token(StringComplete) |'AzurePowerShell'|
+//@[025:00027) |   ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57)   NewLine |\r\n|
+//@[055:00057) |   ├─Token(NewLine) |\r\n|
   
-//@[2:4)   NewLine |\r\n|
+//@[002:00004) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:93)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:93)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00093) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00093) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-//@[65:67)     NewLine |\r\n|
+//@[065:00067) |   |   ├─Token(NewLine) |\r\n|
     
-//@[4:6)     NewLine |\r\n|
+//@[004:00006) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 // #completionTest(75) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletions = discriminatorKeySetTwo.properties.a
-//@[0:75) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:37)  IdentifierSyntax
-//@[4:37)   Identifier |discriminatorKeySetTwoCompletions|
-//@[38:39)  Assignment |=|
-//@[40:75)  PropertyAccessSyntax
-//@[40:73)   PropertyAccessSyntax
-//@[40:62)    VariableAccessSyntax
-//@[40:62)     IdentifierSyntax
-//@[40:62)      Identifier |discriminatorKeySetTwo|
-//@[62:63)    Dot |.|
-//@[63:73)    IdentifierSyntax
-//@[63:73)     Identifier |properties|
-//@[73:74)   Dot |.|
-//@[74:75)   IdentifierSyntax
-//@[74:75)    Identifier |a|
-//@[75:77) NewLine |\r\n|
+//@[000:00075) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00037) | ├─IdentifierSyntax
+//@[004:00037) | | └─Token(Identifier) |discriminatorKeySetTwoCompletions|
+//@[038:00039) | ├─Token(Assignment) |=|
+//@[040:00075) | └─PropertyAccessSyntax
+//@[040:00073) |   ├─PropertyAccessSyntax
+//@[040:00062) |   | ├─VariableAccessSyntax
+//@[040:00062) |   | | └─IdentifierSyntax
+//@[040:00062) |   | |   └─Token(Identifier) |discriminatorKeySetTwo|
+//@[062:00063) |   | ├─Token(Dot) |.|
+//@[063:00073) |   | └─IdentifierSyntax
+//@[063:00073) |   |   └─Token(Identifier) |properties|
+//@[073:00074) |   ├─Token(Dot) |.|
+//@[074:00075) |   └─IdentifierSyntax
+//@[074:00075) |     └─Token(Identifier) |a|
+//@[075:00077) ├─Token(NewLine) |\r\n|
 // #completionTest(75) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletions2 = discriminatorKeySetTwo.properties.
-//@[0:75) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:38)  IdentifierSyntax
-//@[4:38)   Identifier |discriminatorKeySetTwoCompletions2|
-//@[39:40)  Assignment |=|
-//@[41:75)  PropertyAccessSyntax
-//@[41:74)   PropertyAccessSyntax
-//@[41:63)    VariableAccessSyntax
-//@[41:63)     IdentifierSyntax
-//@[41:63)      Identifier |discriminatorKeySetTwo|
-//@[63:64)    Dot |.|
-//@[64:74)    IdentifierSyntax
-//@[64:74)     Identifier |properties|
-//@[74:75)   Dot |.|
-//@[75:75)   IdentifierSyntax
-//@[75:75)    SkippedTriviaSyntax
-//@[75:79) NewLine |\r\n\r\n|
+//@[000:00075) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00038) | ├─IdentifierSyntax
+//@[004:00038) | | └─Token(Identifier) |discriminatorKeySetTwoCompletions2|
+//@[039:00040) | ├─Token(Assignment) |=|
+//@[041:00075) | └─PropertyAccessSyntax
+//@[041:00074) |   ├─PropertyAccessSyntax
+//@[041:00063) |   | ├─VariableAccessSyntax
+//@[041:00063) |   | | └─IdentifierSyntax
+//@[041:00063) |   | |   └─Token(Identifier) |discriminatorKeySetTwo|
+//@[063:00064) |   | ├─Token(Dot) |.|
+//@[064:00074) |   | └─IdentifierSyntax
+//@[064:00074) |   |   └─Token(Identifier) |properties|
+//@[074:00075) |   ├─Token(Dot) |.|
+//@[075:00075) |   └─IdentifierSyntax
+//@[075:00075) |     └─SkippedTriviaSyntax
+//@[075:00079) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(90) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
-//@[0:90) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:49)  IdentifierSyntax
-//@[4:49)   Identifier |discriminatorKeySetTwoCompletionsArrayIndexer|
-//@[50:51)  Assignment |=|
-//@[52:90)  PropertyAccessSyntax
-//@[52:88)   ArrayAccessSyntax
-//@[52:74)    VariableAccessSyntax
-//@[52:74)     IdentifierSyntax
-//@[52:74)      Identifier |discriminatorKeySetTwo|
-//@[74:75)    LeftSquare |[|
-//@[75:87)    StringSyntax
-//@[75:87)     StringComplete |'properties'|
-//@[87:88)    RightSquare |]|
-//@[88:89)   Dot |.|
-//@[89:90)   IdentifierSyntax
-//@[89:90)    Identifier |a|
-//@[90:92) NewLine |\r\n|
+//@[000:00090) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00049) | ├─IdentifierSyntax
+//@[004:00049) | | └─Token(Identifier) |discriminatorKeySetTwoCompletionsArrayIndexer|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00090) | └─PropertyAccessSyntax
+//@[052:00088) |   ├─ArrayAccessSyntax
+//@[052:00074) |   | ├─VariableAccessSyntax
+//@[052:00074) |   | | └─IdentifierSyntax
+//@[052:00074) |   | |   └─Token(Identifier) |discriminatorKeySetTwo|
+//@[074:00075) |   | ├─Token(LeftSquare) |[|
+//@[075:00087) |   | ├─StringSyntax
+//@[075:00087) |   | | └─Token(StringComplete) |'properties'|
+//@[087:00088) |   | └─Token(RightSquare) |]|
+//@[088:00089) |   ├─Token(Dot) |.|
+//@[089:00090) |   └─IdentifierSyntax
+//@[089:00090) |     └─Token(Identifier) |a|
+//@[090:00092) ├─Token(NewLine) |\r\n|
 // #completionTest(90) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer2 = discriminatorKeySetTwo['properties'].
-//@[0:90) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:50)  IdentifierSyntax
-//@[4:50)   Identifier |discriminatorKeySetTwoCompletionsArrayIndexer2|
-//@[51:52)  Assignment |=|
-//@[53:90)  PropertyAccessSyntax
-//@[53:89)   ArrayAccessSyntax
-//@[53:75)    VariableAccessSyntax
-//@[53:75)     IdentifierSyntax
-//@[53:75)      Identifier |discriminatorKeySetTwo|
-//@[75:76)    LeftSquare |[|
-//@[76:88)    StringSyntax
-//@[76:88)     StringComplete |'properties'|
-//@[88:89)    RightSquare |]|
-//@[89:90)   Dot |.|
-//@[90:90)   IdentifierSyntax
-//@[90:90)    SkippedTriviaSyntax
-//@[90:94) NewLine |\r\n\r\n|
+//@[000:00090) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00050) | ├─IdentifierSyntax
+//@[004:00050) | | └─Token(Identifier) |discriminatorKeySetTwoCompletionsArrayIndexer2|
+//@[051:00052) | ├─Token(Assignment) |=|
+//@[053:00090) | └─PropertyAccessSyntax
+//@[053:00089) |   ├─ArrayAccessSyntax
+//@[053:00075) |   | ├─VariableAccessSyntax
+//@[053:00075) |   | | └─IdentifierSyntax
+//@[053:00075) |   | |   └─Token(Identifier) |discriminatorKeySetTwo|
+//@[075:00076) |   | ├─Token(LeftSquare) |[|
+//@[076:00088) |   | ├─StringSyntax
+//@[076:00088) |   | | └─Token(StringComplete) |'properties'|
+//@[088:00089) |   | └─Token(RightSquare) |]|
+//@[089:00090) |   ├─Token(Dot) |.|
+//@[090:00090) |   └─IdentifierSyntax
+//@[090:00090) |     └─SkippedTriviaSyntax
+//@[090:00094) ├─Token(NewLine) |\r\n\r\n|
 
 /*
 Discriminator value set 2 (conditional)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:275) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:34)  IdentifierSyntax
-//@[9:34)   Identifier |discriminatorKeySetTwo_if|
-//@[35:85)  StringSyntax
-//@[35:85)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[86:87)  Assignment |=|
-//@[88:275)  ObjectSyntax
-//@[88:89)   LeftBrace |{|
-//@[89:91)   NewLine |\r\n|
+//@[000:00275) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00034) | ├─IdentifierSyntax
+//@[009:00034) | | └─Token(Identifier) |discriminatorKeySetTwo_if|
+//@[035:00085) | ├─StringSyntax
+//@[035:00085) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[086:00087) | ├─Token(Assignment) |=|
+//@[088:00275) | └─ObjectSyntax
+//@[088:00089) |   ├─Token(LeftBrace) |{|
+//@[089:00091) |   ├─Token(NewLine) |\r\n|
   kind: 'AzurePowerShell'
-//@[2:25)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[6:7)    Colon |:|
-//@[8:25)    StringSyntax
-//@[8:25)     StringComplete |'AzurePowerShell'|
-//@[25:27)   NewLine |\r\n|
+//@[002:00025) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00025) |   | └─StringSyntax
+//@[008:00025) |   |   └─Token(StringComplete) |'AzurePowerShell'|
+//@[025:00027) |   ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57)   NewLine |\r\n|
+//@[055:00057) |   ├─Token(NewLine) |\r\n|
   
-//@[2:4)   NewLine |\r\n|
+//@[002:00004) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:93)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:93)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00093) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00093) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-//@[65:67)     NewLine |\r\n|
+//@[065:00067) |   |   ├─Token(NewLine) |\r\n|
     
-//@[4:6)     NewLine |\r\n|
+//@[004:00006) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 // #completionTest(81) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletions_if = discriminatorKeySetTwo_if.properties.a
-//@[0:81) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:40)  IdentifierSyntax
-//@[4:40)   Identifier |discriminatorKeySetTwoCompletions_if|
-//@[41:42)  Assignment |=|
-//@[43:81)  PropertyAccessSyntax
-//@[43:79)   PropertyAccessSyntax
-//@[43:68)    VariableAccessSyntax
-//@[43:68)     IdentifierSyntax
-//@[43:68)      Identifier |discriminatorKeySetTwo_if|
-//@[68:69)    Dot |.|
-//@[69:79)    IdentifierSyntax
-//@[69:79)     Identifier |properties|
-//@[79:80)   Dot |.|
-//@[80:81)   IdentifierSyntax
-//@[80:81)    Identifier |a|
-//@[81:83) NewLine |\r\n|
+//@[000:00081) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00040) | ├─IdentifierSyntax
+//@[004:00040) | | └─Token(Identifier) |discriminatorKeySetTwoCompletions_if|
+//@[041:00042) | ├─Token(Assignment) |=|
+//@[043:00081) | └─PropertyAccessSyntax
+//@[043:00079) |   ├─PropertyAccessSyntax
+//@[043:00068) |   | ├─VariableAccessSyntax
+//@[043:00068) |   | | └─IdentifierSyntax
+//@[043:00068) |   | |   └─Token(Identifier) |discriminatorKeySetTwo_if|
+//@[068:00069) |   | ├─Token(Dot) |.|
+//@[069:00079) |   | └─IdentifierSyntax
+//@[069:00079) |   |   └─Token(Identifier) |properties|
+//@[079:00080) |   ├─Token(Dot) |.|
+//@[080:00081) |   └─IdentifierSyntax
+//@[080:00081) |     └─Token(Identifier) |a|
+//@[081:00083) ├─Token(NewLine) |\r\n|
 // #completionTest(81) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletions2_if = discriminatorKeySetTwo_if.properties.
-//@[0:81) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:41)  IdentifierSyntax
-//@[4:41)   Identifier |discriminatorKeySetTwoCompletions2_if|
-//@[42:43)  Assignment |=|
-//@[44:81)  PropertyAccessSyntax
-//@[44:80)   PropertyAccessSyntax
-//@[44:69)    VariableAccessSyntax
-//@[44:69)     IdentifierSyntax
-//@[44:69)      Identifier |discriminatorKeySetTwo_if|
-//@[69:70)    Dot |.|
-//@[70:80)    IdentifierSyntax
-//@[70:80)     Identifier |properties|
-//@[80:81)   Dot |.|
-//@[81:81)   IdentifierSyntax
-//@[81:81)    SkippedTriviaSyntax
-//@[81:85) NewLine |\r\n\r\n|
+//@[000:00081) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00041) | ├─IdentifierSyntax
+//@[004:00041) | | └─Token(Identifier) |discriminatorKeySetTwoCompletions2_if|
+//@[042:00043) | ├─Token(Assignment) |=|
+//@[044:00081) | └─PropertyAccessSyntax
+//@[044:00080) |   ├─PropertyAccessSyntax
+//@[044:00069) |   | ├─VariableAccessSyntax
+//@[044:00069) |   | | └─IdentifierSyntax
+//@[044:00069) |   | |   └─Token(Identifier) |discriminatorKeySetTwo_if|
+//@[069:00070) |   | ├─Token(Dot) |.|
+//@[070:00080) |   | └─IdentifierSyntax
+//@[070:00080) |   |   └─Token(Identifier) |properties|
+//@[080:00081) |   ├─Token(Dot) |.|
+//@[081:00081) |   └─IdentifierSyntax
+//@[081:00081) |     └─SkippedTriviaSyntax
+//@[081:00085) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(96) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer_if = discriminatorKeySetTwo_if['properties'].a
-//@[0:96) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:52)  IdentifierSyntax
-//@[4:52)   Identifier |discriminatorKeySetTwoCompletionsArrayIndexer_if|
-//@[53:54)  Assignment |=|
-//@[55:96)  PropertyAccessSyntax
-//@[55:94)   ArrayAccessSyntax
-//@[55:80)    VariableAccessSyntax
-//@[55:80)     IdentifierSyntax
-//@[55:80)      Identifier |discriminatorKeySetTwo_if|
-//@[80:81)    LeftSquare |[|
-//@[81:93)    StringSyntax
-//@[81:93)     StringComplete |'properties'|
-//@[93:94)    RightSquare |]|
-//@[94:95)   Dot |.|
-//@[95:96)   IdentifierSyntax
-//@[95:96)    Identifier |a|
-//@[96:98) NewLine |\r\n|
+//@[000:00096) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00052) | ├─IdentifierSyntax
+//@[004:00052) | | └─Token(Identifier) |discriminatorKeySetTwoCompletionsArrayIndexer_if|
+//@[053:00054) | ├─Token(Assignment) |=|
+//@[055:00096) | └─PropertyAccessSyntax
+//@[055:00094) |   ├─ArrayAccessSyntax
+//@[055:00080) |   | ├─VariableAccessSyntax
+//@[055:00080) |   | | └─IdentifierSyntax
+//@[055:00080) |   | |   └─Token(Identifier) |discriminatorKeySetTwo_if|
+//@[080:00081) |   | ├─Token(LeftSquare) |[|
+//@[081:00093) |   | ├─StringSyntax
+//@[081:00093) |   | | └─Token(StringComplete) |'properties'|
+//@[093:00094) |   | └─Token(RightSquare) |]|
+//@[094:00095) |   ├─Token(Dot) |.|
+//@[095:00096) |   └─IdentifierSyntax
+//@[095:00096) |     └─Token(Identifier) |a|
+//@[096:00098) ├─Token(NewLine) |\r\n|
 // #completionTest(96) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer2_if = discriminatorKeySetTwo_if['properties'].
-//@[0:96) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:53)  IdentifierSyntax
-//@[4:53)   Identifier |discriminatorKeySetTwoCompletionsArrayIndexer2_if|
-//@[54:55)  Assignment |=|
-//@[56:96)  PropertyAccessSyntax
-//@[56:95)   ArrayAccessSyntax
-//@[56:81)    VariableAccessSyntax
-//@[56:81)     IdentifierSyntax
-//@[56:81)      Identifier |discriminatorKeySetTwo_if|
-//@[81:82)    LeftSquare |[|
-//@[82:94)    StringSyntax
-//@[82:94)     StringComplete |'properties'|
-//@[94:95)    RightSquare |]|
-//@[95:96)   Dot |.|
-//@[96:96)   IdentifierSyntax
-//@[96:96)    SkippedTriviaSyntax
-//@[96:102) NewLine |\r\n\r\n\r\n|
+//@[000:00096) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00053) | ├─IdentifierSyntax
+//@[004:00053) | | └─Token(Identifier) |discriminatorKeySetTwoCompletionsArrayIndexer2_if|
+//@[054:00055) | ├─Token(Assignment) |=|
+//@[056:00096) | └─PropertyAccessSyntax
+//@[056:00095) |   ├─ArrayAccessSyntax
+//@[056:00081) |   | ├─VariableAccessSyntax
+//@[056:00081) |   | | └─IdentifierSyntax
+//@[056:00081) |   | |   └─Token(Identifier) |discriminatorKeySetTwo_if|
+//@[081:00082) |   | ├─Token(LeftSquare) |[|
+//@[082:00094) |   | ├─StringSyntax
+//@[082:00094) |   | | └─Token(StringComplete) |'properties'|
+//@[094:00095) |   | └─Token(RightSquare) |]|
+//@[095:00096) |   ├─Token(Dot) |.|
+//@[096:00096) |   └─IdentifierSyntax
+//@[096:00096) |     └─SkippedTriviaSyntax
+//@[096:00102) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
 /*
 Discriminator value set 2 (loops)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-//@[0:295) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |discriminatorKeySetTwo_for|
-//@[36:86)  StringSyntax
-//@[36:86)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[87:88)  Assignment |=|
-//@[89:295)  ForSyntax
-//@[89:90)   LeftSquare |[|
-//@[90:93)   Identifier |for|
-//@[94:99)   LocalVariableSyntax
-//@[94:99)    IdentifierSyntax
-//@[94:99)     Identifier |thing|
-//@[100:102)   Identifier |in|
-//@[103:105)   ArraySyntax
-//@[103:104)    LeftSquare |[|
-//@[104:105)    RightSquare |]|
-//@[105:106)   Colon |:|
-//@[107:294)   ObjectSyntax
-//@[107:108)    LeftBrace |{|
-//@[108:110)    NewLine |\r\n|
+//@[000:00295) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |discriminatorKeySetTwo_for|
+//@[036:00086) | ├─StringSyntax
+//@[036:00086) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[087:00088) | ├─Token(Assignment) |=|
+//@[089:00295) | └─ForSyntax
+//@[089:00090) |   ├─Token(LeftSquare) |[|
+//@[090:00093) |   ├─Token(Identifier) |for|
+//@[094:00099) |   ├─LocalVariableSyntax
+//@[094:00099) |   | └─IdentifierSyntax
+//@[094:00099) |   |   └─Token(Identifier) |thing|
+//@[100:00102) |   ├─Token(Identifier) |in|
+//@[103:00105) |   ├─ArraySyntax
+//@[103:00104) |   | ├─Token(LeftSquare) |[|
+//@[104:00105) |   | └─Token(RightSquare) |]|
+//@[105:00106) |   ├─Token(Colon) |:|
+//@[107:00294) |   ├─ObjectSyntax
+//@[107:00108) |   | ├─Token(LeftBrace) |{|
+//@[108:00110) |   | ├─Token(NewLine) |\r\n|
   kind: 'AzurePowerShell'
-//@[2:25)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |kind|
-//@[6:7)     Colon |:|
-//@[8:25)     StringSyntax
-//@[8:25)      StringComplete |'AzurePowerShell'|
-//@[25:27)    NewLine |\r\n|
+//@[002:00025) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |kind|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00025) |   | | └─StringSyntax
+//@[008:00025) |   | |   └─Token(StringComplete) |'AzurePowerShell'|
+//@[025:00027) |   | ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57)    NewLine |\r\n|
+//@[055:00057) |   | ├─Token(NewLine) |\r\n|
   
-//@[2:4)    NewLine |\r\n|
+//@[002:00004) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:93)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:93)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00093) |   | ├─ObjectPropertySyntax
+//@[002:00012) |   | | ├─IdentifierSyntax
+//@[002:00012) |   | | | └─Token(Identifier) |properties|
+//@[012:00013) |   | | ├─Token(Colon) |:|
+//@[014:00093) |   | | └─ObjectSyntax
+//@[014:00015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-//@[65:67)      NewLine |\r\n|
+//@[065:00067) |   | |   ├─Token(NewLine) |\r\n|
     
-//@[4:6)      NewLine |\r\n|
+//@[004:00006) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 // #completionTest(86) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletions_for = discriminatorKeySetTwo_for[0].properties.a
-//@[0:86) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:41)  IdentifierSyntax
-//@[4:41)   Identifier |discriminatorKeySetTwoCompletions_for|
-//@[42:43)  Assignment |=|
-//@[44:86)  PropertyAccessSyntax
-//@[44:84)   PropertyAccessSyntax
-//@[44:73)    ArrayAccessSyntax
-//@[44:70)     VariableAccessSyntax
-//@[44:70)      IdentifierSyntax
-//@[44:70)       Identifier |discriminatorKeySetTwo_for|
-//@[70:71)     LeftSquare |[|
-//@[71:72)     IntegerLiteralSyntax
-//@[71:72)      Integer |0|
-//@[72:73)     RightSquare |]|
-//@[73:74)    Dot |.|
-//@[74:84)    IdentifierSyntax
-//@[74:84)     Identifier |properties|
-//@[84:85)   Dot |.|
-//@[85:86)   IdentifierSyntax
-//@[85:86)    Identifier |a|
-//@[86:88) NewLine |\r\n|
+//@[000:00086) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00041) | ├─IdentifierSyntax
+//@[004:00041) | | └─Token(Identifier) |discriminatorKeySetTwoCompletions_for|
+//@[042:00043) | ├─Token(Assignment) |=|
+//@[044:00086) | └─PropertyAccessSyntax
+//@[044:00084) |   ├─PropertyAccessSyntax
+//@[044:00073) |   | ├─ArrayAccessSyntax
+//@[044:00070) |   | | ├─VariableAccessSyntax
+//@[044:00070) |   | | | └─IdentifierSyntax
+//@[044:00070) |   | | |   └─Token(Identifier) |discriminatorKeySetTwo_for|
+//@[070:00071) |   | | ├─Token(LeftSquare) |[|
+//@[071:00072) |   | | ├─IntegerLiteralSyntax
+//@[071:00072) |   | | | └─Token(Integer) |0|
+//@[072:00073) |   | | └─Token(RightSquare) |]|
+//@[073:00074) |   | ├─Token(Dot) |.|
+//@[074:00084) |   | └─IdentifierSyntax
+//@[074:00084) |   |   └─Token(Identifier) |properties|
+//@[084:00085) |   ├─Token(Dot) |.|
+//@[085:00086) |   └─IdentifierSyntax
+//@[085:00086) |     └─Token(Identifier) |a|
+//@[086:00088) ├─Token(NewLine) |\r\n|
 // #completionTest(86) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletions2_for = discriminatorKeySetTwo_for[0].properties.
-//@[0:86) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:42)  IdentifierSyntax
-//@[4:42)   Identifier |discriminatorKeySetTwoCompletions2_for|
-//@[43:44)  Assignment |=|
-//@[45:86)  PropertyAccessSyntax
-//@[45:85)   PropertyAccessSyntax
-//@[45:74)    ArrayAccessSyntax
-//@[45:71)     VariableAccessSyntax
-//@[45:71)      IdentifierSyntax
-//@[45:71)       Identifier |discriminatorKeySetTwo_for|
-//@[71:72)     LeftSquare |[|
-//@[72:73)     IntegerLiteralSyntax
-//@[72:73)      Integer |0|
-//@[73:74)     RightSquare |]|
-//@[74:75)    Dot |.|
-//@[75:85)    IdentifierSyntax
-//@[75:85)     Identifier |properties|
-//@[85:86)   Dot |.|
-//@[86:86)   IdentifierSyntax
-//@[86:86)    SkippedTriviaSyntax
-//@[86:90) NewLine |\r\n\r\n|
+//@[000:00086) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00042) | ├─IdentifierSyntax
+//@[004:00042) | | └─Token(Identifier) |discriminatorKeySetTwoCompletions2_for|
+//@[043:00044) | ├─Token(Assignment) |=|
+//@[045:00086) | └─PropertyAccessSyntax
+//@[045:00085) |   ├─PropertyAccessSyntax
+//@[045:00074) |   | ├─ArrayAccessSyntax
+//@[045:00071) |   | | ├─VariableAccessSyntax
+//@[045:00071) |   | | | └─IdentifierSyntax
+//@[045:00071) |   | | |   └─Token(Identifier) |discriminatorKeySetTwo_for|
+//@[071:00072) |   | | ├─Token(LeftSquare) |[|
+//@[072:00073) |   | | ├─IntegerLiteralSyntax
+//@[072:00073) |   | | | └─Token(Integer) |0|
+//@[073:00074) |   | | └─Token(RightSquare) |]|
+//@[074:00075) |   | ├─Token(Dot) |.|
+//@[075:00085) |   | └─IdentifierSyntax
+//@[075:00085) |   |   └─Token(Identifier) |properties|
+//@[085:00086) |   ├─Token(Dot) |.|
+//@[086:00086) |   └─IdentifierSyntax
+//@[086:00086) |     └─SkippedTriviaSyntax
+//@[086:00090) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(101) -> powershellPropertyAccess
-//@[51:53) NewLine |\r\n|
+//@[051:00053) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer_for = discriminatorKeySetTwo_for[0]['properties'].a
-//@[0:101) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:53)  IdentifierSyntax
-//@[4:53)   Identifier |discriminatorKeySetTwoCompletionsArrayIndexer_for|
-//@[54:55)  Assignment |=|
-//@[56:101)  PropertyAccessSyntax
-//@[56:99)   ArrayAccessSyntax
-//@[56:85)    ArrayAccessSyntax
-//@[56:82)     VariableAccessSyntax
-//@[56:82)      IdentifierSyntax
-//@[56:82)       Identifier |discriminatorKeySetTwo_for|
-//@[82:83)     LeftSquare |[|
-//@[83:84)     IntegerLiteralSyntax
-//@[83:84)      Integer |0|
-//@[84:85)     RightSquare |]|
-//@[85:86)    LeftSquare |[|
-//@[86:98)    StringSyntax
-//@[86:98)     StringComplete |'properties'|
-//@[98:99)    RightSquare |]|
-//@[99:100)   Dot |.|
-//@[100:101)   IdentifierSyntax
-//@[100:101)    Identifier |a|
-//@[101:103) NewLine |\r\n|
+//@[000:00101) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00053) | ├─IdentifierSyntax
+//@[004:00053) | | └─Token(Identifier) |discriminatorKeySetTwoCompletionsArrayIndexer_for|
+//@[054:00055) | ├─Token(Assignment) |=|
+//@[056:00101) | └─PropertyAccessSyntax
+//@[056:00099) |   ├─ArrayAccessSyntax
+//@[056:00085) |   | ├─ArrayAccessSyntax
+//@[056:00082) |   | | ├─VariableAccessSyntax
+//@[056:00082) |   | | | └─IdentifierSyntax
+//@[056:00082) |   | | |   └─Token(Identifier) |discriminatorKeySetTwo_for|
+//@[082:00083) |   | | ├─Token(LeftSquare) |[|
+//@[083:00084) |   | | ├─IntegerLiteralSyntax
+//@[083:00084) |   | | | └─Token(Integer) |0|
+//@[084:00085) |   | | └─Token(RightSquare) |]|
+//@[085:00086) |   | ├─Token(LeftSquare) |[|
+//@[086:00098) |   | ├─StringSyntax
+//@[086:00098) |   | | └─Token(StringComplete) |'properties'|
+//@[098:00099) |   | └─Token(RightSquare) |]|
+//@[099:00100) |   ├─Token(Dot) |.|
+//@[100:00101) |   └─IdentifierSyntax
+//@[100:00101) |     └─Token(Identifier) |a|
+//@[101:00103) ├─Token(NewLine) |\r\n|
 // #completionTest(101) -> powershellPropertyAccess
-//@[51:53) NewLine |\r\n|
+//@[051:00053) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer2_for = discriminatorKeySetTwo_for[0]['properties'].
-//@[0:101) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:54)  IdentifierSyntax
-//@[4:54)   Identifier |discriminatorKeySetTwoCompletionsArrayIndexer2_for|
-//@[55:56)  Assignment |=|
-//@[57:101)  PropertyAccessSyntax
-//@[57:100)   ArrayAccessSyntax
-//@[57:86)    ArrayAccessSyntax
-//@[57:83)     VariableAccessSyntax
-//@[57:83)      IdentifierSyntax
-//@[57:83)       Identifier |discriminatorKeySetTwo_for|
-//@[83:84)     LeftSquare |[|
-//@[84:85)     IntegerLiteralSyntax
-//@[84:85)      Integer |0|
-//@[85:86)     RightSquare |]|
-//@[86:87)    LeftSquare |[|
-//@[87:99)    StringSyntax
-//@[87:99)     StringComplete |'properties'|
-//@[99:100)    RightSquare |]|
-//@[100:101)   Dot |.|
-//@[101:101)   IdentifierSyntax
-//@[101:101)    SkippedTriviaSyntax
-//@[101:107) NewLine |\r\n\r\n\r\n|
+//@[000:00101) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00054) | ├─IdentifierSyntax
+//@[004:00054) | | └─Token(Identifier) |discriminatorKeySetTwoCompletionsArrayIndexer2_for|
+//@[055:00056) | ├─Token(Assignment) |=|
+//@[057:00101) | └─PropertyAccessSyntax
+//@[057:00100) |   ├─ArrayAccessSyntax
+//@[057:00086) |   | ├─ArrayAccessSyntax
+//@[057:00083) |   | | ├─VariableAccessSyntax
+//@[057:00083) |   | | | └─IdentifierSyntax
+//@[057:00083) |   | | |   └─Token(Identifier) |discriminatorKeySetTwo_for|
+//@[083:00084) |   | | ├─Token(LeftSquare) |[|
+//@[084:00085) |   | | ├─IntegerLiteralSyntax
+//@[084:00085) |   | | | └─Token(Integer) |0|
+//@[085:00086) |   | | └─Token(RightSquare) |]|
+//@[086:00087) |   | ├─Token(LeftSquare) |[|
+//@[087:00099) |   | ├─StringSyntax
+//@[087:00099) |   | | └─Token(StringComplete) |'properties'|
+//@[099:00100) |   | └─Token(RightSquare) |]|
+//@[100:00101) |   ├─Token(Dot) |.|
+//@[101:00101) |   └─IdentifierSyntax
+//@[101:00101) |     └─SkippedTriviaSyntax
+//@[101:00107) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
 /*
 Discriminator value set 2 (filtered loops)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
-//@[0:307) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:38)  IdentifierSyntax
-//@[9:38)   Identifier |discriminatorKeySetTwo_for_if|
-//@[39:89)  StringSyntax
-//@[39:89)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[90:91)  Assignment |=|
-//@[92:307)  ForSyntax
-//@[92:93)   LeftSquare |[|
-//@[93:96)   Identifier |for|
-//@[97:102)   LocalVariableSyntax
-//@[97:102)    IdentifierSyntax
-//@[97:102)     Identifier |thing|
-//@[103:105)   Identifier |in|
-//@[106:108)   ArraySyntax
-//@[106:107)    LeftSquare |[|
-//@[107:108)    RightSquare |]|
-//@[108:109)   Colon |:|
-//@[110:306)   IfConditionSyntax
-//@[110:112)    Identifier |if|
-//@[112:118)    ParenthesizedExpressionSyntax
-//@[112:113)     LeftParen |(|
-//@[113:117)     BooleanLiteralSyntax
-//@[113:117)      TrueKeyword |true|
-//@[117:118)     RightParen |)|
-//@[119:306)    ObjectSyntax
-//@[119:120)     LeftBrace |{|
-//@[120:122)     NewLine |\r\n|
+//@[000:00307) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00038) | ├─IdentifierSyntax
+//@[009:00038) | | └─Token(Identifier) |discriminatorKeySetTwo_for_if|
+//@[039:00089) | ├─StringSyntax
+//@[039:00089) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[090:00091) | ├─Token(Assignment) |=|
+//@[092:00307) | └─ForSyntax
+//@[092:00093) |   ├─Token(LeftSquare) |[|
+//@[093:00096) |   ├─Token(Identifier) |for|
+//@[097:00102) |   ├─LocalVariableSyntax
+//@[097:00102) |   | └─IdentifierSyntax
+//@[097:00102) |   |   └─Token(Identifier) |thing|
+//@[103:00105) |   ├─Token(Identifier) |in|
+//@[106:00108) |   ├─ArraySyntax
+//@[106:00107) |   | ├─Token(LeftSquare) |[|
+//@[107:00108) |   | └─Token(RightSquare) |]|
+//@[108:00109) |   ├─Token(Colon) |:|
+//@[110:00306) |   ├─IfConditionSyntax
+//@[110:00112) |   | ├─Token(Identifier) |if|
+//@[112:00118) |   | ├─ParenthesizedExpressionSyntax
+//@[112:00113) |   | | ├─Token(LeftParen) |(|
+//@[113:00117) |   | | ├─BooleanLiteralSyntax
+//@[113:00117) |   | | | └─Token(TrueKeyword) |true|
+//@[117:00118) |   | | └─Token(RightParen) |)|
+//@[119:00306) |   | └─ObjectSyntax
+//@[119:00120) |   |   ├─Token(LeftBrace) |{|
+//@[120:00122) |   |   ├─Token(NewLine) |\r\n|
   kind: 'AzurePowerShell'
-//@[2:25)     ObjectPropertySyntax
-//@[2:6)      IdentifierSyntax
-//@[2:6)       Identifier |kind|
-//@[6:7)      Colon |:|
-//@[8:25)      StringSyntax
-//@[8:25)       StringComplete |'AzurePowerShell'|
-//@[25:27)     NewLine |\r\n|
+//@[002:00025) |   |   ├─ObjectPropertySyntax
+//@[002:00006) |   |   | ├─IdentifierSyntax
+//@[002:00006) |   |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   |   | ├─Token(Colon) |:|
+//@[008:00025) |   |   | └─StringSyntax
+//@[008:00025) |   |   |   └─Token(StringComplete) |'AzurePowerShell'|
+//@[025:00027) |   |   ├─Token(NewLine) |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57)     NewLine |\r\n|
+//@[055:00057) |   |   ├─Token(NewLine) |\r\n|
   
-//@[2:4)     NewLine |\r\n|
+//@[002:00004) |   |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:93)     ObjectPropertySyntax
-//@[2:12)      IdentifierSyntax
-//@[2:12)       Identifier |properties|
-//@[12:13)      Colon |:|
-//@[14:93)      ObjectSyntax
-//@[14:15)       LeftBrace |{|
-//@[15:17)       NewLine |\r\n|
+//@[002:00093) |   |   ├─ObjectPropertySyntax
+//@[002:00012) |   |   | ├─IdentifierSyntax
+//@[002:00012) |   |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   |   | ├─Token(Colon) |:|
+//@[014:00093) |   |   | └─ObjectSyntax
+//@[014:00015) |   |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-//@[65:67)       NewLine |\r\n|
+//@[065:00067) |   |   |   ├─Token(NewLine) |\r\n|
     
-//@[4:6)       NewLine |\r\n|
+//@[004:00006) |   |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)       RightBrace |}|
-//@[3:5)     NewLine |\r\n|
+//@[002:00003) |   |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   |   ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)     RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:00001) |   |   └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 // #completionTest(92) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletions_for_if = discriminatorKeySetTwo_for_if[0].properties.a
-//@[0:92) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:44)  IdentifierSyntax
-//@[4:44)   Identifier |discriminatorKeySetTwoCompletions_for_if|
-//@[45:46)  Assignment |=|
-//@[47:92)  PropertyAccessSyntax
-//@[47:90)   PropertyAccessSyntax
-//@[47:79)    ArrayAccessSyntax
-//@[47:76)     VariableAccessSyntax
-//@[47:76)      IdentifierSyntax
-//@[47:76)       Identifier |discriminatorKeySetTwo_for_if|
-//@[76:77)     LeftSquare |[|
-//@[77:78)     IntegerLiteralSyntax
-//@[77:78)      Integer |0|
-//@[78:79)     RightSquare |]|
-//@[79:80)    Dot |.|
-//@[80:90)    IdentifierSyntax
-//@[80:90)     Identifier |properties|
-//@[90:91)   Dot |.|
-//@[91:92)   IdentifierSyntax
-//@[91:92)    Identifier |a|
-//@[92:94) NewLine |\r\n|
+//@[000:00092) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00044) | ├─IdentifierSyntax
+//@[004:00044) | | └─Token(Identifier) |discriminatorKeySetTwoCompletions_for_if|
+//@[045:00046) | ├─Token(Assignment) |=|
+//@[047:00092) | └─PropertyAccessSyntax
+//@[047:00090) |   ├─PropertyAccessSyntax
+//@[047:00079) |   | ├─ArrayAccessSyntax
+//@[047:00076) |   | | ├─VariableAccessSyntax
+//@[047:00076) |   | | | └─IdentifierSyntax
+//@[047:00076) |   | | |   └─Token(Identifier) |discriminatorKeySetTwo_for_if|
+//@[076:00077) |   | | ├─Token(LeftSquare) |[|
+//@[077:00078) |   | | ├─IntegerLiteralSyntax
+//@[077:00078) |   | | | └─Token(Integer) |0|
+//@[078:00079) |   | | └─Token(RightSquare) |]|
+//@[079:00080) |   | ├─Token(Dot) |.|
+//@[080:00090) |   | └─IdentifierSyntax
+//@[080:00090) |   |   └─Token(Identifier) |properties|
+//@[090:00091) |   ├─Token(Dot) |.|
+//@[091:00092) |   └─IdentifierSyntax
+//@[091:00092) |     └─Token(Identifier) |a|
+//@[092:00094) ├─Token(NewLine) |\r\n|
 // #completionTest(92) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletions2_for_if = discriminatorKeySetTwo_for_if[0].properties.
-//@[0:92) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:45)  IdentifierSyntax
-//@[4:45)   Identifier |discriminatorKeySetTwoCompletions2_for_if|
-//@[46:47)  Assignment |=|
-//@[48:92)  PropertyAccessSyntax
-//@[48:91)   PropertyAccessSyntax
-//@[48:80)    ArrayAccessSyntax
-//@[48:77)     VariableAccessSyntax
-//@[48:77)      IdentifierSyntax
-//@[48:77)       Identifier |discriminatorKeySetTwo_for_if|
-//@[77:78)     LeftSquare |[|
-//@[78:79)     IntegerLiteralSyntax
-//@[78:79)      Integer |0|
-//@[79:80)     RightSquare |]|
-//@[80:81)    Dot |.|
-//@[81:91)    IdentifierSyntax
-//@[81:91)     Identifier |properties|
-//@[91:92)   Dot |.|
-//@[92:92)   IdentifierSyntax
-//@[92:92)    SkippedTriviaSyntax
-//@[92:96) NewLine |\r\n\r\n|
+//@[000:00092) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00045) | ├─IdentifierSyntax
+//@[004:00045) | | └─Token(Identifier) |discriminatorKeySetTwoCompletions2_for_if|
+//@[046:00047) | ├─Token(Assignment) |=|
+//@[048:00092) | └─PropertyAccessSyntax
+//@[048:00091) |   ├─PropertyAccessSyntax
+//@[048:00080) |   | ├─ArrayAccessSyntax
+//@[048:00077) |   | | ├─VariableAccessSyntax
+//@[048:00077) |   | | | └─IdentifierSyntax
+//@[048:00077) |   | | |   └─Token(Identifier) |discriminatorKeySetTwo_for_if|
+//@[077:00078) |   | | ├─Token(LeftSquare) |[|
+//@[078:00079) |   | | ├─IntegerLiteralSyntax
+//@[078:00079) |   | | | └─Token(Integer) |0|
+//@[079:00080) |   | | └─Token(RightSquare) |]|
+//@[080:00081) |   | ├─Token(Dot) |.|
+//@[081:00091) |   | └─IdentifierSyntax
+//@[081:00091) |   |   └─Token(Identifier) |properties|
+//@[091:00092) |   ├─Token(Dot) |.|
+//@[092:00092) |   └─IdentifierSyntax
+//@[092:00092) |     └─SkippedTriviaSyntax
+//@[092:00096) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(107) -> powershellPropertyAccess
-//@[51:53) NewLine |\r\n|
+//@[051:00053) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer_for_if = discriminatorKeySetTwo_for_if[0]['properties'].a
-//@[0:107) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:56)  IdentifierSyntax
-//@[4:56)   Identifier |discriminatorKeySetTwoCompletionsArrayIndexer_for_if|
-//@[57:58)  Assignment |=|
-//@[59:107)  PropertyAccessSyntax
-//@[59:105)   ArrayAccessSyntax
-//@[59:91)    ArrayAccessSyntax
-//@[59:88)     VariableAccessSyntax
-//@[59:88)      IdentifierSyntax
-//@[59:88)       Identifier |discriminatorKeySetTwo_for_if|
-//@[88:89)     LeftSquare |[|
-//@[89:90)     IntegerLiteralSyntax
-//@[89:90)      Integer |0|
-//@[90:91)     RightSquare |]|
-//@[91:92)    LeftSquare |[|
-//@[92:104)    StringSyntax
-//@[92:104)     StringComplete |'properties'|
-//@[104:105)    RightSquare |]|
-//@[105:106)   Dot |.|
-//@[106:107)   IdentifierSyntax
-//@[106:107)    Identifier |a|
-//@[107:109) NewLine |\r\n|
+//@[000:00107) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00056) | ├─IdentifierSyntax
+//@[004:00056) | | └─Token(Identifier) |discriminatorKeySetTwoCompletionsArrayIndexer_for_if|
+//@[057:00058) | ├─Token(Assignment) |=|
+//@[059:00107) | └─PropertyAccessSyntax
+//@[059:00105) |   ├─ArrayAccessSyntax
+//@[059:00091) |   | ├─ArrayAccessSyntax
+//@[059:00088) |   | | ├─VariableAccessSyntax
+//@[059:00088) |   | | | └─IdentifierSyntax
+//@[059:00088) |   | | |   └─Token(Identifier) |discriminatorKeySetTwo_for_if|
+//@[088:00089) |   | | ├─Token(LeftSquare) |[|
+//@[089:00090) |   | | ├─IntegerLiteralSyntax
+//@[089:00090) |   | | | └─Token(Integer) |0|
+//@[090:00091) |   | | └─Token(RightSquare) |]|
+//@[091:00092) |   | ├─Token(LeftSquare) |[|
+//@[092:00104) |   | ├─StringSyntax
+//@[092:00104) |   | | └─Token(StringComplete) |'properties'|
+//@[104:00105) |   | └─Token(RightSquare) |]|
+//@[105:00106) |   ├─Token(Dot) |.|
+//@[106:00107) |   └─IdentifierSyntax
+//@[106:00107) |     └─Token(Identifier) |a|
+//@[107:00109) ├─Token(NewLine) |\r\n|
 // #completionTest(107) -> powershellPropertyAccess
-//@[51:53) NewLine |\r\n|
+//@[051:00053) ├─Token(NewLine) |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetTwo_for_if[0]['properties'].
-//@[0:107) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:57)  IdentifierSyntax
-//@[4:57)   Identifier |discriminatorKeySetTwoCompletionsArrayIndexer2_for_if|
-//@[58:59)  Assignment |=|
-//@[60:107)  PropertyAccessSyntax
-//@[60:106)   ArrayAccessSyntax
-//@[60:92)    ArrayAccessSyntax
-//@[60:89)     VariableAccessSyntax
-//@[60:89)      IdentifierSyntax
-//@[60:89)       Identifier |discriminatorKeySetTwo_for_if|
-//@[89:90)     LeftSquare |[|
-//@[90:91)     IntegerLiteralSyntax
-//@[90:91)      Integer |0|
-//@[91:92)     RightSquare |]|
-//@[92:93)    LeftSquare |[|
-//@[93:105)    StringSyntax
-//@[93:105)     StringComplete |'properties'|
-//@[105:106)    RightSquare |]|
-//@[106:107)   Dot |.|
-//@[107:107)   IdentifierSyntax
-//@[107:107)    SkippedTriviaSyntax
-//@[107:115) NewLine |\r\n\r\n\r\n\r\n|
+//@[000:00107) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00057) | ├─IdentifierSyntax
+//@[004:00057) | | └─Token(Identifier) |discriminatorKeySetTwoCompletionsArrayIndexer2_for_if|
+//@[058:00059) | ├─Token(Assignment) |=|
+//@[060:00107) | └─PropertyAccessSyntax
+//@[060:00106) |   ├─ArrayAccessSyntax
+//@[060:00092) |   | ├─ArrayAccessSyntax
+//@[060:00089) |   | | ├─VariableAccessSyntax
+//@[060:00089) |   | | | └─IdentifierSyntax
+//@[060:00089) |   | | |   └─Token(Identifier) |discriminatorKeySetTwo_for_if|
+//@[089:00090) |   | | ├─Token(LeftSquare) |[|
+//@[090:00091) |   | | ├─IntegerLiteralSyntax
+//@[090:00091) |   | | | └─Token(Integer) |0|
+//@[091:00092) |   | | └─Token(RightSquare) |]|
+//@[092:00093) |   | ├─Token(LeftSquare) |[|
+//@[093:00105) |   | ├─StringSyntax
+//@[093:00105) |   | | └─Token(StringComplete) |'properties'|
+//@[105:00106) |   | └─Token(RightSquare) |]|
+//@[106:00107) |   ├─Token(Dot) |.|
+//@[107:00107) |   └─IdentifierSyntax
+//@[107:00107) |     └─SkippedTriviaSyntax
+//@[107:00115) ├─Token(NewLine) |\r\n\r\n\r\n\r\n|
 
 
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:132) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:31)  IdentifierSyntax
-//@[9:31)   Identifier |incorrectPropertiesKey|
-//@[32:82)  StringSyntax
-//@[32:82)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[83:84)  Assignment |=|
-//@[85:132)  ObjectSyntax
-//@[85:86)   LeftBrace |{|
-//@[86:88)   NewLine |\r\n|
+//@[000:00132) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00031) | ├─IdentifierSyntax
+//@[009:00031) | | └─Token(Identifier) |incorrectPropertiesKey|
+//@[032:00082) | ├─StringSyntax
+//@[032:00082) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[083:00084) | ├─Token(Assignment) |=|
+//@[085:00132) | └─ObjectSyntax
+//@[085:00086) |   ├─Token(LeftBrace) |{|
+//@[086:00088) |   ├─Token(NewLine) |\r\n|
   kind: 'AzureCLI'
-//@[2:18)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[6:7)    Colon |:|
-//@[8:18)    StringSyntax
-//@[8:18)     StringComplete |'AzureCLI'|
-//@[18:22)   NewLine |\r\n\r\n|
+//@[002:00018) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00018) |   | └─StringSyntax
+//@[008:00018) |   |   └─Token(StringComplete) |'AzureCLI'|
+//@[018:00022) |   ├─Token(NewLine) |\r\n\r\n|
 
   propertes: {
-//@[2:19)   ObjectPropertySyntax
-//@[2:11)    IdentifierSyntax
-//@[2:11)     Identifier |propertes|
-//@[11:12)    Colon |:|
-//@[13:19)    ObjectSyntax
-//@[13:14)     LeftBrace |{|
-//@[14:16)     NewLine |\r\n|
+//@[002:00019) |   ├─ObjectPropertySyntax
+//@[002:00011) |   | ├─IdentifierSyntax
+//@[002:00011) |   | | └─Token(Identifier) |propertes|
+//@[011:00012) |   | ├─Token(Colon) |:|
+//@[013:00019) |   | └─ObjectSyntax
+//@[013:00014) |   |   ├─Token(LeftBrace) |{|
+//@[014:00016) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 var mock = incorrectPropertiesKey.p
-//@[0:35) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:8)  IdentifierSyntax
-//@[4:8)   Identifier |mock|
-//@[9:10)  Assignment |=|
-//@[11:35)  PropertyAccessSyntax
-//@[11:33)   VariableAccessSyntax
-//@[11:33)    IdentifierSyntax
-//@[11:33)     Identifier |incorrectPropertiesKey|
-//@[33:34)   Dot |.|
-//@[34:35)   IdentifierSyntax
-//@[34:35)    Identifier |p|
-//@[35:39) NewLine |\r\n\r\n|
+//@[000:00035) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00008) | ├─IdentifierSyntax
+//@[004:00008) | | └─Token(Identifier) |mock|
+//@[009:00010) | ├─Token(Assignment) |=|
+//@[011:00035) | └─PropertyAccessSyntax
+//@[011:00033) |   ├─VariableAccessSyntax
+//@[011:00033) |   | └─IdentifierSyntax
+//@[011:00033) |   |   └─Token(Identifier) |incorrectPropertiesKey|
+//@[033:00034) |   ├─Token(Dot) |.|
+//@[034:00035) |   └─IdentifierSyntax
+//@[034:00035) |     └─Token(Identifier) |p|
+//@[035:00039) ├─Token(NewLine) |\r\n\r\n|
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:796) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:32)  IdentifierSyntax
-//@[9:32)   Identifier |incorrectPropertiesKey2|
-//@[33:83)  StringSyntax
-//@[33:83)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[84:85)  Assignment |=|
-//@[86:796)  ObjectSyntax
-//@[86:87)   LeftBrace |{|
-//@[87:89)   NewLine |\r\n|
+//@[000:00796) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00032) | ├─IdentifierSyntax
+//@[009:00032) | | └─Token(Identifier) |incorrectPropertiesKey2|
+//@[033:00083) | ├─StringSyntax
+//@[033:00083) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[084:00085) | ├─Token(Assignment) |=|
+//@[086:00796) | └─ObjectSyntax
+//@[086:00087) |   ├─Token(LeftBrace) |{|
+//@[087:00089) |   ├─Token(NewLine) |\r\n|
   kind: 'AzureCLI'
-//@[2:18)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[6:7)    Colon |:|
-//@[8:18)    StringSyntax
-//@[8:18)     StringComplete |'AzureCLI'|
-//@[18:20)   NewLine |\r\n|
+//@[002:00018) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00018) |   | └─StringSyntax
+//@[008:00018) |   |   └─Token(StringComplete) |'AzureCLI'|
+//@[018:00020) |   ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'test'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'test'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
   location: ''
-//@[2:14)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:14)    StringSyntax
-//@[12:14)     StringComplete |''|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00014) |   | └─StringSyntax
+//@[012:00014) |   |   └─Token(StringComplete) |''|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:652)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:652)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00652) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00652) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     azCliVersion: '2'
-//@[4:21)     ObjectPropertySyntax
-//@[4:16)      IdentifierSyntax
-//@[4:16)       Identifier |azCliVersion|
-//@[16:17)      Colon |:|
-//@[18:21)      StringSyntax
-//@[18:21)       StringComplete |'2'|
-//@[21:23)     NewLine |\r\n|
+//@[004:00021) |   |   ├─ObjectPropertySyntax
+//@[004:00016) |   |   | ├─IdentifierSyntax
+//@[004:00016) |   |   | | └─Token(Identifier) |azCliVersion|
+//@[016:00017) |   |   | ├─Token(Colon) |:|
+//@[018:00021) |   |   | └─StringSyntax
+//@[018:00021) |   |   |   └─Token(StringComplete) |'2'|
+//@[021:00023) |   |   ├─Token(NewLine) |\r\n|
     retentionInterval: 'PT1H'
-//@[4:29)     ObjectPropertySyntax
-//@[4:21)      IdentifierSyntax
-//@[4:21)       Identifier |retentionInterval|
-//@[21:22)      Colon |:|
-//@[23:29)      StringSyntax
-//@[23:29)       StringComplete |'PT1H'|
-//@[29:31)     NewLine |\r\n|
+//@[004:00029) |   |   ├─ObjectPropertySyntax
+//@[004:00021) |   |   | ├─IdentifierSyntax
+//@[004:00021) |   |   | | └─Token(Identifier) |retentionInterval|
+//@[021:00022) |   |   | ├─Token(Colon) |:|
+//@[023:00029) |   |   | └─StringSyntax
+//@[023:00029) |   |   |   └─Token(StringComplete) |'PT1H'|
+//@[029:00031) |   |   ├─Token(NewLine) |\r\n|
     
-//@[4:6)     NewLine |\r\n|
+//@[004:00006) |   |   ├─Token(NewLine) |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliPropertiesMinusSpecified
-//@[80:82)     NewLine |\r\n|
+//@[080:00082) |   |   ├─Token(NewLine) |\r\n|
     
-//@[4:6)     NewLine |\r\n|
+//@[004:00006) |   |   ├─Token(NewLine) |\r\n|
     // #completionTest(22,23) -> cleanupPreferencesPlusSymbols
-//@[62:64)     NewLine |\r\n|
+//@[062:00064) |   |   ├─Token(NewLine) |\r\n|
     cleanupPreference: 
-//@[4:23)     ObjectPropertySyntax
-//@[4:21)      IdentifierSyntax
-//@[4:21)       Identifier |cleanupPreference|
-//@[21:22)      Colon |:|
-//@[23:23)      SkippedTriviaSyntax
-//@[23:27)     NewLine |\r\n\r\n|
+//@[004:00023) |   |   ├─ObjectPropertySyntax
+//@[004:00021) |   |   | ├─IdentifierSyntax
+//@[004:00021) |   |   | | └─Token(Identifier) |cleanupPreference|
+//@[021:00022) |   |   | ├─Token(Colon) |:|
+//@[023:00023) |   |   | └─SkippedTriviaSyntax
+//@[023:00027) |   |   ├─Token(NewLine) |\r\n\r\n|
 
     // #completionTest(25,26) -> arrayPlusSymbols
-//@[49:51)     NewLine |\r\n|
+//@[049:00051) |   |   ├─Token(NewLine) |\r\n|
     supportingScriptUris: 
-//@[4:26)     ObjectPropertySyntax
-//@[4:24)      IdentifierSyntax
-//@[4:24)       Identifier |supportingScriptUris|
-//@[24:25)      Colon |:|
-//@[26:26)      SkippedTriviaSyntax
-//@[26:30)     NewLine |\r\n\r\n|
+//@[004:00026) |   |   ├─ObjectPropertySyntax
+//@[004:00024) |   |   | ├─IdentifierSyntax
+//@[004:00024) |   |   | | └─Token(Identifier) |supportingScriptUris|
+//@[024:00025) |   |   | ├─Token(Colon) |:|
+//@[026:00026) |   |   | └─SkippedTriviaSyntax
+//@[026:00030) |   |   ├─Token(NewLine) |\r\n\r\n|
 
     // #completionTest(27,28) -> objectPlusSymbols
-//@[50:52)     NewLine |\r\n|
+//@[050:00052) |   |   ├─Token(NewLine) |\r\n|
     storageAccountSettings: 
-//@[4:28)     ObjectPropertySyntax
-//@[4:26)      IdentifierSyntax
-//@[4:26)       Identifier |storageAccountSettings|
-//@[26:27)      Colon |:|
-//@[28:28)      SkippedTriviaSyntax
-//@[28:32)     NewLine |\r\n\r\n|
+//@[004:00028) |   |   ├─ObjectPropertySyntax
+//@[004:00026) |   |   | ├─IdentifierSyntax
+//@[004:00026) |   |   | | └─Token(Identifier) |storageAccountSettings|
+//@[026:00027) |   |   | ├─Token(Colon) |:|
+//@[028:00028) |   |   | └─SkippedTriviaSyntax
+//@[028:00032) |   |   ├─Token(NewLine) |\r\n\r\n|
 
     environmentVariables: [
-//@[4:226)     ObjectPropertySyntax
-//@[4:24)      IdentifierSyntax
-//@[4:24)       Identifier |environmentVariables|
-//@[24:25)      Colon |:|
-//@[26:226)      ArraySyntax
-//@[26:27)       LeftSquare |[|
-//@[27:29)       NewLine |\r\n|
+//@[004:00226) |   |   ├─ObjectPropertySyntax
+//@[004:00024) |   |   | ├─IdentifierSyntax
+//@[004:00024) |   |   | | └─Token(Identifier) |environmentVariables|
+//@[024:00025) |   |   | ├─Token(Colon) |:|
+//@[026:00226) |   |   | └─ArraySyntax
+//@[026:00027) |   |   |   ├─Token(LeftSquare) |[|
+//@[027:00029) |   |   |   ├─Token(NewLine) |\r\n|
       {
-//@[6:98)       ArrayItemSyntax
-//@[6:98)        ObjectSyntax
-//@[6:7)         LeftBrace |{|
-//@[7:9)         NewLine |\r\n|
+//@[006:00098) |   |   |   ├─ArrayItemSyntax
+//@[006:00098) |   |   |   | └─ObjectSyntax
+//@[006:00007) |   |   |   |   ├─Token(LeftBrace) |{|
+//@[007:00009) |   |   |   |   ├─Token(NewLine) |\r\n|
         // #completionTest(0,2,4,6,8) -> environmentVariableProperties
-//@[70:72)         NewLine |\r\n|
+//@[070:00072) |   |   |   |   ├─Token(NewLine) |\r\n|
         
-//@[8:10)         NewLine |\r\n|
+//@[008:00010) |   |   |   |   ├─Token(NewLine) |\r\n|
       }
-//@[6:7)         RightBrace |}|
-//@[7:9)       NewLine |\r\n|
+//@[006:00007) |   |   |   |   └─Token(RightBrace) |}|
+//@[007:00009) |   |   |   ├─Token(NewLine) |\r\n|
       // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbolsWithRequiredProperties
-//@[82:84)       NewLine |\r\n|
+//@[082:00084) |   |   |   ├─Token(NewLine) |\r\n|
       
-//@[6:8)       NewLine |\r\n|
+//@[006:00008) |   |   |   ├─Token(NewLine) |\r\n|
     ]
-//@[4:5)       RightSquare |]|
-//@[5:7)     NewLine |\r\n|
+//@[004:00005) |   |   |   └─Token(RightSquare) |]|
+//@[005:00007) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(21) -> resourceTypes
-//@[39:41) NewLine |\r\n|
+//@[039:00041) ├─Token(NewLine) |\r\n|
 resource missingType 
-//@[0:21) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:20)  IdentifierSyntax
-//@[9:20)   Identifier |missingType|
-//@[21:21)  SkippedTriviaSyntax
-//@[21:21)  SkippedTriviaSyntax
-//@[21:21)  SkippedTriviaSyntax
-//@[21:25) NewLine |\r\n\r\n|
+//@[000:00021) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00020) | ├─IdentifierSyntax
+//@[009:00020) | | └─Token(Identifier) |missingType|
+//@[021:00021) | ├─SkippedTriviaSyntax
+//@[021:00021) | ├─SkippedTriviaSyntax
+//@[021:00021) | └─SkippedTriviaSyntax
+//@[021:00025) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(37,38,39,40,41,42,43,44) -> resourceTypes
-//@[60:62) NewLine |\r\n|
+//@[060:00062) ├─Token(NewLine) |\r\n|
 resource startedTypingTypeWithQuotes 'virma'
-//@[0:44) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:36)  IdentifierSyntax
-//@[9:36)   Identifier |startedTypingTypeWithQuotes|
-//@[37:44)  StringSyntax
-//@[37:44)   StringComplete |'virma'|
-//@[44:44)  SkippedTriviaSyntax
-//@[44:44)  SkippedTriviaSyntax
-//@[44:48) NewLine |\r\n\r\n|
+//@[000:00044) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00036) | ├─IdentifierSyntax
+//@[009:00036) | | └─Token(Identifier) |startedTypingTypeWithQuotes|
+//@[037:00044) | ├─StringSyntax
+//@[037:00044) | | └─Token(StringComplete) |'virma'|
+//@[044:00044) | ├─SkippedTriviaSyntax
+//@[044:00044) | └─SkippedTriviaSyntax
+//@[044:00048) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(40,41,42,43,44,45) -> resourceTypes
-//@[54:56) NewLine |\r\n|
+//@[054:00056) ├─Token(NewLine) |\r\n|
 resource startedTypingTypeWithoutQuotes virma
-//@[0:45) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:39)  IdentifierSyntax
-//@[9:39)   Identifier |startedTypingTypeWithoutQuotes|
-//@[40:45)  SkippedTriviaSyntax
-//@[40:45)   Identifier |virma|
-//@[45:45)  SkippedTriviaSyntax
-//@[45:45)  SkippedTriviaSyntax
-//@[45:49) NewLine |\r\n\r\n|
+//@[000:00045) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00039) | ├─IdentifierSyntax
+//@[009:00039) | | └─Token(Identifier) |startedTypingTypeWithoutQuotes|
+//@[040:00045) | ├─SkippedTriviaSyntax
+//@[040:00045) | | └─Token(Identifier) |virma|
+//@[045:00045) | ├─SkippedTriviaSyntax
+//@[045:00045) | └─SkippedTriviaSyntax
+//@[045:00049) ├─Token(NewLine) |\r\n\r\n|
 
 resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
-//@[0:93) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:30)  IdentifierSyntax
-//@[9:30)   Identifier |dashesInPropertyNames|
-//@[31:86)  StringSyntax
-//@[31:86)   StringComplete |'Microsoft.ContainerService/managedClusters@2020-09-01'|
-//@[87:88)  Assignment |=|
-//@[89:93)  ObjectSyntax
-//@[89:90)   LeftBrace |{|
-//@[90:92)   NewLine |\r\n|
+//@[000:00093) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00030) | ├─IdentifierSyntax
+//@[009:00030) | | └─Token(Identifier) |dashesInPropertyNames|
+//@[031:00086) | ├─StringSyntax
+//@[031:00086) | | └─Token(StringComplete) |'Microsoft.ContainerService/managedClusters@2020-09-01'|
+//@[087:00088) | ├─Token(Assignment) |=|
+//@[089:00093) | └─ObjectSyntax
+//@[089:00090) |   ├─Token(LeftBrace) |{|
+//@[090:00092) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
-//@[61:63) NewLine |\r\n|
+//@[061:00063) ├─Token(NewLine) |\r\n|
 var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
-//@[0:78) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:23)  IdentifierSyntax
-//@[4:23)   Identifier |letsAccessTheDashes|
-//@[24:25)  Assignment |=|
-//@[26:78)  PropertyAccessSyntax
-//@[26:76)   PropertyAccessSyntax
-//@[26:58)    PropertyAccessSyntax
-//@[26:47)     VariableAccessSyntax
-//@[26:47)      IdentifierSyntax
-//@[26:47)       Identifier |dashesInPropertyNames|
-//@[47:48)     Dot |.|
-//@[48:58)     IdentifierSyntax
-//@[48:58)      Identifier |properties|
-//@[58:59)    Dot |.|
-//@[59:76)    IdentifierSyntax
-//@[59:76)     Identifier |autoScalerProfile|
-//@[76:77)   Dot |.|
-//@[77:78)   IdentifierSyntax
-//@[77:78)    Identifier |s|
-//@[78:80) NewLine |\r\n|
+//@[000:00078) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00023) | ├─IdentifierSyntax
+//@[004:00023) | | └─Token(Identifier) |letsAccessTheDashes|
+//@[024:00025) | ├─Token(Assignment) |=|
+//@[026:00078) | └─PropertyAccessSyntax
+//@[026:00076) |   ├─PropertyAccessSyntax
+//@[026:00058) |   | ├─PropertyAccessSyntax
+//@[026:00047) |   | | ├─VariableAccessSyntax
+//@[026:00047) |   | | | └─IdentifierSyntax
+//@[026:00047) |   | | |   └─Token(Identifier) |dashesInPropertyNames|
+//@[047:00048) |   | | ├─Token(Dot) |.|
+//@[048:00058) |   | | └─IdentifierSyntax
+//@[048:00058) |   | |   └─Token(Identifier) |properties|
+//@[058:00059) |   | ├─Token(Dot) |.|
+//@[059:00076) |   | └─IdentifierSyntax
+//@[059:00076) |   |   └─Token(Identifier) |autoScalerProfile|
+//@[076:00077) |   ├─Token(Dot) |.|
+//@[077:00078) |   └─IdentifierSyntax
+//@[077:00078) |     └─Token(Identifier) |s|
+//@[078:00080) ├─Token(NewLine) |\r\n|
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
-//@[61:63) NewLine |\r\n|
+//@[061:00063) ├─Token(NewLine) |\r\n|
 var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
-//@[0:78) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:24)  IdentifierSyntax
-//@[4:24)   Identifier |letsAccessTheDashes2|
-//@[25:26)  Assignment |=|
-//@[27:78)  PropertyAccessSyntax
-//@[27:77)   PropertyAccessSyntax
-//@[27:59)    PropertyAccessSyntax
-//@[27:48)     VariableAccessSyntax
-//@[27:48)      IdentifierSyntax
-//@[27:48)       Identifier |dashesInPropertyNames|
-//@[48:49)     Dot |.|
-//@[49:59)     IdentifierSyntax
-//@[49:59)      Identifier |properties|
-//@[59:60)    Dot |.|
-//@[60:77)    IdentifierSyntax
-//@[60:77)     Identifier |autoScalerProfile|
-//@[77:78)   Dot |.|
-//@[78:78)   IdentifierSyntax
-//@[78:78)    SkippedTriviaSyntax
-//@[78:82) NewLine |\r\n\r\n|
+//@[000:00078) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00024) | ├─IdentifierSyntax
+//@[004:00024) | | └─Token(Identifier) |letsAccessTheDashes2|
+//@[025:00026) | ├─Token(Assignment) |=|
+//@[027:00078) | └─PropertyAccessSyntax
+//@[027:00077) |   ├─PropertyAccessSyntax
+//@[027:00059) |   | ├─PropertyAccessSyntax
+//@[027:00048) |   | | ├─VariableAccessSyntax
+//@[027:00048) |   | | | └─IdentifierSyntax
+//@[027:00048) |   | | |   └─Token(Identifier) |dashesInPropertyNames|
+//@[048:00049) |   | | ├─Token(Dot) |.|
+//@[049:00059) |   | | └─IdentifierSyntax
+//@[049:00059) |   | |   └─Token(Identifier) |properties|
+//@[059:00060) |   | ├─Token(Dot) |.|
+//@[060:00077) |   | └─IdentifierSyntax
+//@[060:00077) |   |   └─Token(Identifier) |autoScalerProfile|
+//@[077:00078) |   ├─Token(Dot) |.|
+//@[078:00078) |   └─IdentifierSyntax
+//@[078:00078) |     └─SkippedTriviaSyntax
+//@[078:00082) ├─Token(NewLine) |\r\n\r\n|
 
 /* 
 Nested discriminator missing key
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
-//@[0:190) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:38)  IdentifierSyntax
-//@[9:38)   Identifier |nestedDiscriminatorMissingKey|
-//@[39:97)  StringSyntax
-//@[39:97)   StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
-//@[98:99)  Assignment |=|
-//@[100:190)  ObjectSyntax
-//@[100:101)   LeftBrace |{|
-//@[101:103)   NewLine |\r\n|
+//@[000:00190) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00038) | ├─IdentifierSyntax
+//@[009:00038) | | └─Token(Identifier) |nestedDiscriminatorMissingKey|
+//@[039:00097) | ├─StringSyntax
+//@[039:00097) | | └─Token(StringComplete) |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[098:00099) | ├─Token(Assignment) |=|
+//@[100:00190) | └─ObjectSyntax
+//@[100:00101) |   ├─Token(LeftBrace) |{|
+//@[101:00103) |   ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'test'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'test'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
   location: 'l'
-//@[2:15)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:15)    StringSyntax
-//@[12:15)     StringComplete |'l'|
-//@[15:17)   NewLine |\r\n|
+//@[002:00015) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00015) |   | └─StringSyntax
+//@[012:00015) |   |   └─Token(StringComplete) |'l'|
+//@[015:00017) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:51)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:51)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00051) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00051) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     //createMode: 'Default'
-//@[27:31)     NewLine |\r\n\r\n|
+//@[027:00031) |   |   ├─Token(NewLine) |\r\n\r\n|
 
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 // #completionTest(90) -> createMode
-//@[36:38) NewLine |\r\n|
+//@[036:00038) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.properties.cr
-//@[0:90) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:44)  IdentifierSyntax
-//@[4:44)   Identifier |nestedDiscriminatorMissingKeyCompletions|
-//@[45:46)  Assignment |=|
-//@[47:90)  PropertyAccessSyntax
-//@[47:87)   PropertyAccessSyntax
-//@[47:76)    VariableAccessSyntax
-//@[47:76)     IdentifierSyntax
-//@[47:76)      Identifier |nestedDiscriminatorMissingKey|
-//@[76:77)    Dot |.|
-//@[77:87)    IdentifierSyntax
-//@[77:87)     Identifier |properties|
-//@[87:88)   Dot |.|
-//@[88:90)   IdentifierSyntax
-//@[88:90)    Identifier |cr|
-//@[90:92) NewLine |\r\n|
+//@[000:00090) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00044) | ├─IdentifierSyntax
+//@[004:00044) | | └─Token(Identifier) |nestedDiscriminatorMissingKeyCompletions|
+//@[045:00046) | ├─Token(Assignment) |=|
+//@[047:00090) | └─PropertyAccessSyntax
+//@[047:00087) |   ├─PropertyAccessSyntax
+//@[047:00076) |   | ├─VariableAccessSyntax
+//@[047:00076) |   | | └─IdentifierSyntax
+//@[047:00076) |   | |   └─Token(Identifier) |nestedDiscriminatorMissingKey|
+//@[076:00077) |   | ├─Token(Dot) |.|
+//@[077:00087) |   | └─IdentifierSyntax
+//@[077:00087) |   |   └─Token(Identifier) |properties|
+//@[087:00088) |   ├─Token(Dot) |.|
+//@[088:00090) |   └─IdentifierSyntax
+//@[088:00090) |     └─Token(Identifier) |cr|
+//@[090:00092) ├─Token(NewLine) |\r\n|
 // #completionTest(92) -> createMode
-//@[36:38) NewLine |\r\n|
+//@[036:00038) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].
-//@[0:92) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:45)  IdentifierSyntax
-//@[4:45)   Identifier |nestedDiscriminatorMissingKeyCompletions2|
-//@[46:47)  Assignment |=|
-//@[48:92)  PropertyAccessSyntax
-//@[48:91)   ArrayAccessSyntax
-//@[48:77)    VariableAccessSyntax
-//@[48:77)     IdentifierSyntax
-//@[48:77)      Identifier |nestedDiscriminatorMissingKey|
-//@[77:78)    LeftSquare |[|
-//@[78:90)    StringSyntax
-//@[78:90)     StringComplete |'properties'|
-//@[90:91)    RightSquare |]|
-//@[91:92)   Dot |.|
-//@[92:92)   IdentifierSyntax
-//@[92:92)    SkippedTriviaSyntax
-//@[92:96) NewLine |\r\n\r\n|
+//@[000:00092) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00045) | ├─IdentifierSyntax
+//@[004:00045) | | └─Token(Identifier) |nestedDiscriminatorMissingKeyCompletions2|
+//@[046:00047) | ├─Token(Assignment) |=|
+//@[048:00092) | └─PropertyAccessSyntax
+//@[048:00091) |   ├─ArrayAccessSyntax
+//@[048:00077) |   | ├─VariableAccessSyntax
+//@[048:00077) |   | | └─IdentifierSyntax
+//@[048:00077) |   | |   └─Token(Identifier) |nestedDiscriminatorMissingKey|
+//@[077:00078) |   | ├─Token(LeftSquare) |[|
+//@[078:00090) |   | ├─StringSyntax
+//@[078:00090) |   | | └─Token(StringComplete) |'properties'|
+//@[090:00091) |   | └─Token(RightSquare) |]|
+//@[091:00092) |   ├─Token(Dot) |.|
+//@[092:00092) |   └─IdentifierSyntax
+//@[092:00092) |     └─SkippedTriviaSyntax
+//@[092:00096) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(94) -> createModeIndexPlusSymbols
-//@[52:54) NewLine |\r\n|
+//@[052:00054) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKey.properties['']
-//@[0:96) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:49)  IdentifierSyntax
-//@[4:49)   Identifier |nestedDiscriminatorMissingKeyIndexCompletions|
-//@[50:51)  Assignment |=|
-//@[52:96)  ArrayAccessSyntax
-//@[52:92)   PropertyAccessSyntax
-//@[52:81)    VariableAccessSyntax
-//@[52:81)     IdentifierSyntax
-//@[52:81)      Identifier |nestedDiscriminatorMissingKey|
-//@[81:82)    Dot |.|
-//@[82:92)    IdentifierSyntax
-//@[82:92)     Identifier |properties|
-//@[92:93)   LeftSquare |[|
-//@[93:95)   StringSyntax
-//@[93:95)    StringComplete |''|
-//@[95:96)   RightSquare |]|
-//@[96:100) NewLine |\r\n\r\n|
+//@[000:00096) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00049) | ├─IdentifierSyntax
+//@[004:00049) | | └─Token(Identifier) |nestedDiscriminatorMissingKeyIndexCompletions|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00096) | └─ArrayAccessSyntax
+//@[052:00092) |   ├─PropertyAccessSyntax
+//@[052:00081) |   | ├─VariableAccessSyntax
+//@[052:00081) |   | | └─IdentifierSyntax
+//@[052:00081) |   | |   └─Token(Identifier) |nestedDiscriminatorMissingKey|
+//@[081:00082) |   | ├─Token(Dot) |.|
+//@[082:00092) |   | └─IdentifierSyntax
+//@[082:00092) |   |   └─Token(Identifier) |properties|
+//@[092:00093) |   ├─Token(LeftSquare) |[|
+//@[093:00095) |   ├─StringSyntax
+//@[093:00095) |   | └─Token(StringComplete) |''|
+//@[095:00096) |   └─Token(RightSquare) |]|
+//@[096:00100) ├─Token(NewLine) |\r\n\r\n|
 
 /* 
 Nested discriminator missing key (conditional)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if(bool(1)) {
-//@[0:205) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:41)  IdentifierSyntax
-//@[9:41)   Identifier |nestedDiscriminatorMissingKey_if|
-//@[42:100)  StringSyntax
-//@[42:100)   StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
-//@[101:102)  Assignment |=|
-//@[103:205)  IfConditionSyntax
-//@[103:105)   Identifier |if|
-//@[105:114)   ParenthesizedExpressionSyntax
-//@[105:106)    LeftParen |(|
-//@[106:113)    FunctionCallSyntax
-//@[106:110)     IdentifierSyntax
-//@[106:110)      Identifier |bool|
-//@[110:111)     LeftParen |(|
-//@[111:112)     FunctionArgumentSyntax
-//@[111:112)      IntegerLiteralSyntax
-//@[111:112)       Integer |1|
-//@[112:113)     RightParen |)|
-//@[113:114)    RightParen |)|
-//@[115:205)   ObjectSyntax
-//@[115:116)    LeftBrace |{|
-//@[116:118)    NewLine |\r\n|
+//@[000:00205) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00041) | ├─IdentifierSyntax
+//@[009:00041) | | └─Token(Identifier) |nestedDiscriminatorMissingKey_if|
+//@[042:00100) | ├─StringSyntax
+//@[042:00100) | | └─Token(StringComplete) |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[101:00102) | ├─Token(Assignment) |=|
+//@[103:00205) | └─IfConditionSyntax
+//@[103:00105) |   ├─Token(Identifier) |if|
+//@[105:00114) |   ├─ParenthesizedExpressionSyntax
+//@[105:00106) |   | ├─Token(LeftParen) |(|
+//@[106:00113) |   | ├─FunctionCallSyntax
+//@[106:00110) |   | | ├─IdentifierSyntax
+//@[106:00110) |   | | | └─Token(Identifier) |bool|
+//@[110:00111) |   | | ├─Token(LeftParen) |(|
+//@[111:00112) |   | | ├─FunctionArgumentSyntax
+//@[111:00112) |   | | | └─IntegerLiteralSyntax
+//@[111:00112) |   | | |   └─Token(Integer) |1|
+//@[112:00113) |   | | └─Token(RightParen) |)|
+//@[113:00114) |   | └─Token(RightParen) |)|
+//@[115:00205) |   └─ObjectSyntax
+//@[115:00116) |     ├─Token(LeftBrace) |{|
+//@[116:00118) |     ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:14)     StringSyntax
-//@[8:14)      StringComplete |'test'|
-//@[14:16)    NewLine |\r\n|
+//@[002:00014) |     ├─ObjectPropertySyntax
+//@[002:00006) |     | ├─IdentifierSyntax
+//@[002:00006) |     | | └─Token(Identifier) |name|
+//@[006:00007) |     | ├─Token(Colon) |:|
+//@[008:00014) |     | └─StringSyntax
+//@[008:00014) |     |   └─Token(StringComplete) |'test'|
+//@[014:00016) |     ├─Token(NewLine) |\r\n|
   location: 'l'
-//@[2:15)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:15)     StringSyntax
-//@[12:15)      StringComplete |'l'|
-//@[15:17)    NewLine |\r\n|
+//@[002:00015) |     ├─ObjectPropertySyntax
+//@[002:00010) |     | ├─IdentifierSyntax
+//@[002:00010) |     | | └─Token(Identifier) |location|
+//@[010:00011) |     | ├─Token(Colon) |:|
+//@[012:00015) |     | └─StringSyntax
+//@[012:00015) |     |   └─Token(StringComplete) |'l'|
+//@[015:00017) |     ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:51)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:51)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00051) |     ├─ObjectPropertySyntax
+//@[002:00012) |     | ├─IdentifierSyntax
+//@[002:00012) |     | | └─Token(Identifier) |properties|
+//@[012:00013) |     | ├─Token(Colon) |:|
+//@[014:00051) |     | └─ObjectSyntax
+//@[014:00015) |     |   ├─Token(LeftBrace) |{|
+//@[015:00017) |     |   ├─Token(NewLine) |\r\n|
     //createMode: 'Default'
-//@[27:31)      NewLine |\r\n\r\n|
+//@[027:00031) |     |   ├─Token(NewLine) |\r\n\r\n|
 
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |     |   └─Token(RightBrace) |}|
+//@[003:00005) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 // #completionTest(96) -> createMode
-//@[36:38) NewLine |\r\n|
+//@[036:00038) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorMissingKeyCompletions_if = nestedDiscriminatorMissingKey_if.properties.cr
-//@[0:96) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:47)  IdentifierSyntax
-//@[4:47)   Identifier |nestedDiscriminatorMissingKeyCompletions_if|
-//@[48:49)  Assignment |=|
-//@[50:96)  PropertyAccessSyntax
-//@[50:93)   PropertyAccessSyntax
-//@[50:82)    VariableAccessSyntax
-//@[50:82)     IdentifierSyntax
-//@[50:82)      Identifier |nestedDiscriminatorMissingKey_if|
-//@[82:83)    Dot |.|
-//@[83:93)    IdentifierSyntax
-//@[83:93)     Identifier |properties|
-//@[93:94)   Dot |.|
-//@[94:96)   IdentifierSyntax
-//@[94:96)    Identifier |cr|
-//@[96:98) NewLine |\r\n|
+//@[000:00096) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00047) | ├─IdentifierSyntax
+//@[004:00047) | | └─Token(Identifier) |nestedDiscriminatorMissingKeyCompletions_if|
+//@[048:00049) | ├─Token(Assignment) |=|
+//@[050:00096) | └─PropertyAccessSyntax
+//@[050:00093) |   ├─PropertyAccessSyntax
+//@[050:00082) |   | ├─VariableAccessSyntax
+//@[050:00082) |   | | └─IdentifierSyntax
+//@[050:00082) |   | |   └─Token(Identifier) |nestedDiscriminatorMissingKey_if|
+//@[082:00083) |   | ├─Token(Dot) |.|
+//@[083:00093) |   | └─IdentifierSyntax
+//@[083:00093) |   |   └─Token(Identifier) |properties|
+//@[093:00094) |   ├─Token(Dot) |.|
+//@[094:00096) |   └─IdentifierSyntax
+//@[094:00096) |     └─Token(Identifier) |cr|
+//@[096:00098) ├─Token(NewLine) |\r\n|
 // #completionTest(98) -> createMode
-//@[36:38) NewLine |\r\n|
+//@[036:00038) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorMissingKeyCompletions2_if = nestedDiscriminatorMissingKey_if['properties'].
-//@[0:98) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:48)  IdentifierSyntax
-//@[4:48)   Identifier |nestedDiscriminatorMissingKeyCompletions2_if|
-//@[49:50)  Assignment |=|
-//@[51:98)  PropertyAccessSyntax
-//@[51:97)   ArrayAccessSyntax
-//@[51:83)    VariableAccessSyntax
-//@[51:83)     IdentifierSyntax
-//@[51:83)      Identifier |nestedDiscriminatorMissingKey_if|
-//@[83:84)    LeftSquare |[|
-//@[84:96)    StringSyntax
-//@[84:96)     StringComplete |'properties'|
-//@[96:97)    RightSquare |]|
-//@[97:98)   Dot |.|
-//@[98:98)   IdentifierSyntax
-//@[98:98)    SkippedTriviaSyntax
-//@[98:102) NewLine |\r\n\r\n|
+//@[000:00098) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00048) | ├─IdentifierSyntax
+//@[004:00048) | | └─Token(Identifier) |nestedDiscriminatorMissingKeyCompletions2_if|
+//@[049:00050) | ├─Token(Assignment) |=|
+//@[051:00098) | └─PropertyAccessSyntax
+//@[051:00097) |   ├─ArrayAccessSyntax
+//@[051:00083) |   | ├─VariableAccessSyntax
+//@[051:00083) |   | | └─IdentifierSyntax
+//@[051:00083) |   | |   └─Token(Identifier) |nestedDiscriminatorMissingKey_if|
+//@[083:00084) |   | ├─Token(LeftSquare) |[|
+//@[084:00096) |   | ├─StringSyntax
+//@[084:00096) |   | | └─Token(StringComplete) |'properties'|
+//@[096:00097) |   | └─Token(RightSquare) |]|
+//@[097:00098) |   ├─Token(Dot) |.|
+//@[098:00098) |   └─IdentifierSyntax
+//@[098:00098) |     └─SkippedTriviaSyntax
+//@[098:00102) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(100) -> createModeIndexPlusSymbols_if
-//@[56:58) NewLine |\r\n|
+//@[056:00058) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorMissingKeyIndexCompletions_if = nestedDiscriminatorMissingKey_if.properties['']
-//@[0:102) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:52)  IdentifierSyntax
-//@[4:52)   Identifier |nestedDiscriminatorMissingKeyIndexCompletions_if|
-//@[53:54)  Assignment |=|
-//@[55:102)  ArrayAccessSyntax
-//@[55:98)   PropertyAccessSyntax
-//@[55:87)    VariableAccessSyntax
-//@[55:87)     IdentifierSyntax
-//@[55:87)      Identifier |nestedDiscriminatorMissingKey_if|
-//@[87:88)    Dot |.|
-//@[88:98)    IdentifierSyntax
-//@[88:98)     Identifier |properties|
-//@[98:99)   LeftSquare |[|
-//@[99:101)   StringSyntax
-//@[99:101)    StringComplete |''|
-//@[101:102)   RightSquare |]|
-//@[102:106) NewLine |\r\n\r\n|
+//@[000:00102) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00052) | ├─IdentifierSyntax
+//@[004:00052) | | └─Token(Identifier) |nestedDiscriminatorMissingKeyIndexCompletions_if|
+//@[053:00054) | ├─Token(Assignment) |=|
+//@[055:00102) | └─ArrayAccessSyntax
+//@[055:00098) |   ├─PropertyAccessSyntax
+//@[055:00087) |   | ├─VariableAccessSyntax
+//@[055:00087) |   | | └─IdentifierSyntax
+//@[055:00087) |   | |   └─Token(Identifier) |nestedDiscriminatorMissingKey_if|
+//@[087:00088) |   | ├─Token(Dot) |.|
+//@[088:00098) |   | └─IdentifierSyntax
+//@[088:00098) |   |   └─Token(Identifier) |properties|
+//@[098:00099) |   ├─Token(LeftSquare) |[|
+//@[099:00101) |   ├─StringSyntax
+//@[099:00101) |   | └─Token(StringComplete) |''|
+//@[101:00102) |   └─Token(RightSquare) |]|
+//@[102:00106) ├─Token(NewLine) |\r\n\r\n|
 
 /* 
 Nested discriminator missing key (loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
-//@[0:213) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:42)  IdentifierSyntax
-//@[9:42)   Identifier |nestedDiscriminatorMissingKey_for|
-//@[43:101)  StringSyntax
-//@[43:101)   StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
-//@[102:103)  Assignment |=|
-//@[104:213)  ForSyntax
-//@[104:105)   LeftSquare |[|
-//@[105:108)   Identifier |for|
-//@[109:114)   LocalVariableSyntax
-//@[109:114)    IdentifierSyntax
-//@[109:114)     Identifier |thing|
-//@[115:117)   Identifier |in|
-//@[118:120)   ArraySyntax
-//@[118:119)    LeftSquare |[|
-//@[119:120)    RightSquare |]|
-//@[120:121)   Colon |:|
-//@[122:212)   ObjectSyntax
-//@[122:123)    LeftBrace |{|
-//@[123:125)    NewLine |\r\n|
+//@[000:00213) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00042) | ├─IdentifierSyntax
+//@[009:00042) | | └─Token(Identifier) |nestedDiscriminatorMissingKey_for|
+//@[043:00101) | ├─StringSyntax
+//@[043:00101) | | └─Token(StringComplete) |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[102:00103) | ├─Token(Assignment) |=|
+//@[104:00213) | └─ForSyntax
+//@[104:00105) |   ├─Token(LeftSquare) |[|
+//@[105:00108) |   ├─Token(Identifier) |for|
+//@[109:00114) |   ├─LocalVariableSyntax
+//@[109:00114) |   | └─IdentifierSyntax
+//@[109:00114) |   |   └─Token(Identifier) |thing|
+//@[115:00117) |   ├─Token(Identifier) |in|
+//@[118:00120) |   ├─ArraySyntax
+//@[118:00119) |   | ├─Token(LeftSquare) |[|
+//@[119:00120) |   | └─Token(RightSquare) |]|
+//@[120:00121) |   ├─Token(Colon) |:|
+//@[122:00212) |   ├─ObjectSyntax
+//@[122:00123) |   | ├─Token(LeftBrace) |{|
+//@[123:00125) |   | ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:14)     StringSyntax
-//@[8:14)      StringComplete |'test'|
-//@[14:16)    NewLine |\r\n|
+//@[002:00014) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00014) |   | | └─StringSyntax
+//@[008:00014) |   | |   └─Token(StringComplete) |'test'|
+//@[014:00016) |   | ├─Token(NewLine) |\r\n|
   location: 'l'
-//@[2:15)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:15)     StringSyntax
-//@[12:15)      StringComplete |'l'|
-//@[15:17)    NewLine |\r\n|
+//@[002:00015) |   | ├─ObjectPropertySyntax
+//@[002:00010) |   | | ├─IdentifierSyntax
+//@[002:00010) |   | | | └─Token(Identifier) |location|
+//@[010:00011) |   | | ├─Token(Colon) |:|
+//@[012:00015) |   | | └─StringSyntax
+//@[012:00015) |   | |   └─Token(StringComplete) |'l'|
+//@[015:00017) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:51)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:51)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00051) |   | ├─ObjectPropertySyntax
+//@[002:00012) |   | | ├─IdentifierSyntax
+//@[002:00012) |   | | | └─Token(Identifier) |properties|
+//@[012:00013) |   | | ├─Token(Colon) |:|
+//@[014:00051) |   | | └─ObjectSyntax
+//@[014:00015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     //createMode: 'Default'
-//@[27:31)      NewLine |\r\n\r\n|
+//@[027:00031) |   | |   ├─Token(NewLine) |\r\n\r\n|
 
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 // #completionTest(101) -> createMode
-//@[37:39) NewLine |\r\n|
+//@[037:00039) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorMissingKeyCompletions_for = nestedDiscriminatorMissingKey_for[0].properties.cr
-//@[0:101) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:48)  IdentifierSyntax
-//@[4:48)   Identifier |nestedDiscriminatorMissingKeyCompletions_for|
-//@[49:50)  Assignment |=|
-//@[51:101)  PropertyAccessSyntax
-//@[51:98)   PropertyAccessSyntax
-//@[51:87)    ArrayAccessSyntax
-//@[51:84)     VariableAccessSyntax
-//@[51:84)      IdentifierSyntax
-//@[51:84)       Identifier |nestedDiscriminatorMissingKey_for|
-//@[84:85)     LeftSquare |[|
-//@[85:86)     IntegerLiteralSyntax
-//@[85:86)      Integer |0|
-//@[86:87)     RightSquare |]|
-//@[87:88)    Dot |.|
-//@[88:98)    IdentifierSyntax
-//@[88:98)     Identifier |properties|
-//@[98:99)   Dot |.|
-//@[99:101)   IdentifierSyntax
-//@[99:101)    Identifier |cr|
-//@[101:103) NewLine |\r\n|
+//@[000:00101) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00048) | ├─IdentifierSyntax
+//@[004:00048) | | └─Token(Identifier) |nestedDiscriminatorMissingKeyCompletions_for|
+//@[049:00050) | ├─Token(Assignment) |=|
+//@[051:00101) | └─PropertyAccessSyntax
+//@[051:00098) |   ├─PropertyAccessSyntax
+//@[051:00087) |   | ├─ArrayAccessSyntax
+//@[051:00084) |   | | ├─VariableAccessSyntax
+//@[051:00084) |   | | | └─IdentifierSyntax
+//@[051:00084) |   | | |   └─Token(Identifier) |nestedDiscriminatorMissingKey_for|
+//@[084:00085) |   | | ├─Token(LeftSquare) |[|
+//@[085:00086) |   | | ├─IntegerLiteralSyntax
+//@[085:00086) |   | | | └─Token(Integer) |0|
+//@[086:00087) |   | | └─Token(RightSquare) |]|
+//@[087:00088) |   | ├─Token(Dot) |.|
+//@[088:00098) |   | └─IdentifierSyntax
+//@[088:00098) |   |   └─Token(Identifier) |properties|
+//@[098:00099) |   ├─Token(Dot) |.|
+//@[099:00101) |   └─IdentifierSyntax
+//@[099:00101) |     └─Token(Identifier) |cr|
+//@[101:00103) ├─Token(NewLine) |\r\n|
 // #completionTest(103) -> createMode
-//@[37:39) NewLine |\r\n|
+//@[037:00039) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorMissingKeyCompletions2_for = nestedDiscriminatorMissingKey_for[0]['properties'].
-//@[0:103) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:49)  IdentifierSyntax
-//@[4:49)   Identifier |nestedDiscriminatorMissingKeyCompletions2_for|
-//@[50:51)  Assignment |=|
-//@[52:103)  PropertyAccessSyntax
-//@[52:102)   ArrayAccessSyntax
-//@[52:88)    ArrayAccessSyntax
-//@[52:85)     VariableAccessSyntax
-//@[52:85)      IdentifierSyntax
-//@[52:85)       Identifier |nestedDiscriminatorMissingKey_for|
-//@[85:86)     LeftSquare |[|
-//@[86:87)     IntegerLiteralSyntax
-//@[86:87)      Integer |0|
-//@[87:88)     RightSquare |]|
-//@[88:89)    LeftSquare |[|
-//@[89:101)    StringSyntax
-//@[89:101)     StringComplete |'properties'|
-//@[101:102)    RightSquare |]|
-//@[102:103)   Dot |.|
-//@[103:103)   IdentifierSyntax
-//@[103:103)    SkippedTriviaSyntax
-//@[103:107) NewLine |\r\n\r\n|
+//@[000:00103) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00049) | ├─IdentifierSyntax
+//@[004:00049) | | └─Token(Identifier) |nestedDiscriminatorMissingKeyCompletions2_for|
+//@[050:00051) | ├─Token(Assignment) |=|
+//@[052:00103) | └─PropertyAccessSyntax
+//@[052:00102) |   ├─ArrayAccessSyntax
+//@[052:00088) |   | ├─ArrayAccessSyntax
+//@[052:00085) |   | | ├─VariableAccessSyntax
+//@[052:00085) |   | | | └─IdentifierSyntax
+//@[052:00085) |   | | |   └─Token(Identifier) |nestedDiscriminatorMissingKey_for|
+//@[085:00086) |   | | ├─Token(LeftSquare) |[|
+//@[086:00087) |   | | ├─IntegerLiteralSyntax
+//@[086:00087) |   | | | └─Token(Integer) |0|
+//@[087:00088) |   | | └─Token(RightSquare) |]|
+//@[088:00089) |   | ├─Token(LeftSquare) |[|
+//@[089:00101) |   | ├─StringSyntax
+//@[089:00101) |   | | └─Token(StringComplete) |'properties'|
+//@[101:00102) |   | └─Token(RightSquare) |]|
+//@[102:00103) |   ├─Token(Dot) |.|
+//@[103:00103) |   └─IdentifierSyntax
+//@[103:00103) |     └─SkippedTriviaSyntax
+//@[103:00107) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(105) -> createModeIndexPlusSymbols_for
-//@[57:59) NewLine |\r\n|
+//@[057:00059) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissingKey_for[0].properties['']
-//@[0:107) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:53)  IdentifierSyntax
-//@[4:53)   Identifier |nestedDiscriminatorMissingKeyIndexCompletions_for|
-//@[54:55)  Assignment |=|
-//@[56:107)  ArrayAccessSyntax
-//@[56:103)   PropertyAccessSyntax
-//@[56:92)    ArrayAccessSyntax
-//@[56:89)     VariableAccessSyntax
-//@[56:89)      IdentifierSyntax
-//@[56:89)       Identifier |nestedDiscriminatorMissingKey_for|
-//@[89:90)     LeftSquare |[|
-//@[90:91)     IntegerLiteralSyntax
-//@[90:91)      Integer |0|
-//@[91:92)     RightSquare |]|
-//@[92:93)    Dot |.|
-//@[93:103)    IdentifierSyntax
-//@[93:103)     Identifier |properties|
-//@[103:104)   LeftSquare |[|
-//@[104:106)   StringSyntax
-//@[104:106)    StringComplete |''|
-//@[106:107)   RightSquare |]|
-//@[107:113) NewLine |\r\n\r\n\r\n|
+//@[000:00107) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00053) | ├─IdentifierSyntax
+//@[004:00053) | | └─Token(Identifier) |nestedDiscriminatorMissingKeyIndexCompletions_for|
+//@[054:00055) | ├─Token(Assignment) |=|
+//@[056:00107) | └─ArrayAccessSyntax
+//@[056:00103) |   ├─PropertyAccessSyntax
+//@[056:00092) |   | ├─ArrayAccessSyntax
+//@[056:00089) |   | | ├─VariableAccessSyntax
+//@[056:00089) |   | | | └─IdentifierSyntax
+//@[056:00089) |   | | |   └─Token(Identifier) |nestedDiscriminatorMissingKey_for|
+//@[089:00090) |   | | ├─Token(LeftSquare) |[|
+//@[090:00091) |   | | ├─IntegerLiteralSyntax
+//@[090:00091) |   | | | └─Token(Integer) |0|
+//@[091:00092) |   | | └─Token(RightSquare) |]|
+//@[092:00093) |   | ├─Token(Dot) |.|
+//@[093:00103) |   | └─IdentifierSyntax
+//@[093:00103) |   |   └─Token(Identifier) |properties|
+//@[103:00104) |   ├─Token(LeftSquare) |[|
+//@[104:00106) |   ├─StringSyntax
+//@[104:00106) |   | └─Token(StringComplete) |''|
+//@[106:00107) |   └─Token(RightSquare) |]|
+//@[107:00113) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
 /* 
 Nested discriminator missing key (filtered loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
-//@[0:225) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:45)  IdentifierSyntax
-//@[9:45)   Identifier |nestedDiscriminatorMissingKey_for_if|
-//@[46:104)  StringSyntax
-//@[46:104)   StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
-//@[105:106)  Assignment |=|
-//@[107:225)  ForSyntax
-//@[107:108)   LeftSquare |[|
-//@[108:111)   Identifier |for|
-//@[112:117)   LocalVariableSyntax
-//@[112:117)    IdentifierSyntax
-//@[112:117)     Identifier |thing|
-//@[118:120)   Identifier |in|
-//@[121:123)   ArraySyntax
-//@[121:122)    LeftSquare |[|
-//@[122:123)    RightSquare |]|
-//@[123:124)   Colon |:|
-//@[125:224)   IfConditionSyntax
-//@[125:127)    Identifier |if|
-//@[127:133)    ParenthesizedExpressionSyntax
-//@[127:128)     LeftParen |(|
-//@[128:132)     BooleanLiteralSyntax
-//@[128:132)      TrueKeyword |true|
-//@[132:133)     RightParen |)|
-//@[134:224)    ObjectSyntax
-//@[134:135)     LeftBrace |{|
-//@[135:137)     NewLine |\r\n|
+//@[000:00225) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00045) | ├─IdentifierSyntax
+//@[009:00045) | | └─Token(Identifier) |nestedDiscriminatorMissingKey_for_if|
+//@[046:00104) | ├─StringSyntax
+//@[046:00104) | | └─Token(StringComplete) |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[105:00106) | ├─Token(Assignment) |=|
+//@[107:00225) | └─ForSyntax
+//@[107:00108) |   ├─Token(LeftSquare) |[|
+//@[108:00111) |   ├─Token(Identifier) |for|
+//@[112:00117) |   ├─LocalVariableSyntax
+//@[112:00117) |   | └─IdentifierSyntax
+//@[112:00117) |   |   └─Token(Identifier) |thing|
+//@[118:00120) |   ├─Token(Identifier) |in|
+//@[121:00123) |   ├─ArraySyntax
+//@[121:00122) |   | ├─Token(LeftSquare) |[|
+//@[122:00123) |   | └─Token(RightSquare) |]|
+//@[123:00124) |   ├─Token(Colon) |:|
+//@[125:00224) |   ├─IfConditionSyntax
+//@[125:00127) |   | ├─Token(Identifier) |if|
+//@[127:00133) |   | ├─ParenthesizedExpressionSyntax
+//@[127:00128) |   | | ├─Token(LeftParen) |(|
+//@[128:00132) |   | | ├─BooleanLiteralSyntax
+//@[128:00132) |   | | | └─Token(TrueKeyword) |true|
+//@[132:00133) |   | | └─Token(RightParen) |)|
+//@[134:00224) |   | └─ObjectSyntax
+//@[134:00135) |   |   ├─Token(LeftBrace) |{|
+//@[135:00137) |   |   ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)     ObjectPropertySyntax
-//@[2:6)      IdentifierSyntax
-//@[2:6)       Identifier |name|
-//@[6:7)      Colon |:|
-//@[8:14)      StringSyntax
-//@[8:14)       StringComplete |'test'|
-//@[14:16)     NewLine |\r\n|
+//@[002:00014) |   |   ├─ObjectPropertySyntax
+//@[002:00006) |   |   | ├─IdentifierSyntax
+//@[002:00006) |   |   | | └─Token(Identifier) |name|
+//@[006:00007) |   |   | ├─Token(Colon) |:|
+//@[008:00014) |   |   | └─StringSyntax
+//@[008:00014) |   |   |   └─Token(StringComplete) |'test'|
+//@[014:00016) |   |   ├─Token(NewLine) |\r\n|
   location: 'l'
-//@[2:15)     ObjectPropertySyntax
-//@[2:10)      IdentifierSyntax
-//@[2:10)       Identifier |location|
-//@[10:11)      Colon |:|
-//@[12:15)      StringSyntax
-//@[12:15)       StringComplete |'l'|
-//@[15:17)     NewLine |\r\n|
+//@[002:00015) |   |   ├─ObjectPropertySyntax
+//@[002:00010) |   |   | ├─IdentifierSyntax
+//@[002:00010) |   |   | | └─Token(Identifier) |location|
+//@[010:00011) |   |   | ├─Token(Colon) |:|
+//@[012:00015) |   |   | └─StringSyntax
+//@[012:00015) |   |   |   └─Token(StringComplete) |'l'|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:51)     ObjectPropertySyntax
-//@[2:12)      IdentifierSyntax
-//@[2:12)       Identifier |properties|
-//@[12:13)      Colon |:|
-//@[14:51)      ObjectSyntax
-//@[14:15)       LeftBrace |{|
-//@[15:17)       NewLine |\r\n|
+//@[002:00051) |   |   ├─ObjectPropertySyntax
+//@[002:00012) |   |   | ├─IdentifierSyntax
+//@[002:00012) |   |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   |   | ├─Token(Colon) |:|
+//@[014:00051) |   |   | └─ObjectSyntax
+//@[014:00015) |   |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   |   ├─Token(NewLine) |\r\n|
     //createMode: 'Default'
-//@[27:31)       NewLine |\r\n\r\n|
+//@[027:00031) |   |   |   ├─Token(NewLine) |\r\n\r\n|
 
   }
-//@[2:3)       RightBrace |}|
-//@[3:5)     NewLine |\r\n|
+//@[002:00003) |   |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   |   ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)     RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:00001) |   |   └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 // #completionTest(107) -> createMode
-//@[37:39) NewLine |\r\n|
+//@[037:00039) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorMissingKeyCompletions_for_if = nestedDiscriminatorMissingKey_for_if[0].properties.cr
-//@[0:107) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:51)  IdentifierSyntax
-//@[4:51)   Identifier |nestedDiscriminatorMissingKeyCompletions_for_if|
-//@[52:53)  Assignment |=|
-//@[54:107)  PropertyAccessSyntax
-//@[54:104)   PropertyAccessSyntax
-//@[54:93)    ArrayAccessSyntax
-//@[54:90)     VariableAccessSyntax
-//@[54:90)      IdentifierSyntax
-//@[54:90)       Identifier |nestedDiscriminatorMissingKey_for_if|
-//@[90:91)     LeftSquare |[|
-//@[91:92)     IntegerLiteralSyntax
-//@[91:92)      Integer |0|
-//@[92:93)     RightSquare |]|
-//@[93:94)    Dot |.|
-//@[94:104)    IdentifierSyntax
-//@[94:104)     Identifier |properties|
-//@[104:105)   Dot |.|
-//@[105:107)   IdentifierSyntax
-//@[105:107)    Identifier |cr|
-//@[107:109) NewLine |\r\n|
+//@[000:00107) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00051) | ├─IdentifierSyntax
+//@[004:00051) | | └─Token(Identifier) |nestedDiscriminatorMissingKeyCompletions_for_if|
+//@[052:00053) | ├─Token(Assignment) |=|
+//@[054:00107) | └─PropertyAccessSyntax
+//@[054:00104) |   ├─PropertyAccessSyntax
+//@[054:00093) |   | ├─ArrayAccessSyntax
+//@[054:00090) |   | | ├─VariableAccessSyntax
+//@[054:00090) |   | | | └─IdentifierSyntax
+//@[054:00090) |   | | |   └─Token(Identifier) |nestedDiscriminatorMissingKey_for_if|
+//@[090:00091) |   | | ├─Token(LeftSquare) |[|
+//@[091:00092) |   | | ├─IntegerLiteralSyntax
+//@[091:00092) |   | | | └─Token(Integer) |0|
+//@[092:00093) |   | | └─Token(RightSquare) |]|
+//@[093:00094) |   | ├─Token(Dot) |.|
+//@[094:00104) |   | └─IdentifierSyntax
+//@[094:00104) |   |   └─Token(Identifier) |properties|
+//@[104:00105) |   ├─Token(Dot) |.|
+//@[105:00107) |   └─IdentifierSyntax
+//@[105:00107) |     └─Token(Identifier) |cr|
+//@[107:00109) ├─Token(NewLine) |\r\n|
 // #completionTest(109) -> createMode
-//@[37:39) NewLine |\r\n|
+//@[037:00039) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorMissingKeyCompletions2_for_if = nestedDiscriminatorMissingKey_for_if[0]['properties'].
-//@[0:109) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:52)  IdentifierSyntax
-//@[4:52)   Identifier |nestedDiscriminatorMissingKeyCompletions2_for_if|
-//@[53:54)  Assignment |=|
-//@[55:109)  PropertyAccessSyntax
-//@[55:108)   ArrayAccessSyntax
-//@[55:94)    ArrayAccessSyntax
-//@[55:91)     VariableAccessSyntax
-//@[55:91)      IdentifierSyntax
-//@[55:91)       Identifier |nestedDiscriminatorMissingKey_for_if|
-//@[91:92)     LeftSquare |[|
-//@[92:93)     IntegerLiteralSyntax
-//@[92:93)      Integer |0|
-//@[93:94)     RightSquare |]|
-//@[94:95)    LeftSquare |[|
-//@[95:107)    StringSyntax
-//@[95:107)     StringComplete |'properties'|
-//@[107:108)    RightSquare |]|
-//@[108:109)   Dot |.|
-//@[109:109)   IdentifierSyntax
-//@[109:109)    SkippedTriviaSyntax
-//@[109:113) NewLine |\r\n\r\n|
+//@[000:00109) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00052) | ├─IdentifierSyntax
+//@[004:00052) | | └─Token(Identifier) |nestedDiscriminatorMissingKeyCompletions2_for_if|
+//@[053:00054) | ├─Token(Assignment) |=|
+//@[055:00109) | └─PropertyAccessSyntax
+//@[055:00108) |   ├─ArrayAccessSyntax
+//@[055:00094) |   | ├─ArrayAccessSyntax
+//@[055:00091) |   | | ├─VariableAccessSyntax
+//@[055:00091) |   | | | └─IdentifierSyntax
+//@[055:00091) |   | | |   └─Token(Identifier) |nestedDiscriminatorMissingKey_for_if|
+//@[091:00092) |   | | ├─Token(LeftSquare) |[|
+//@[092:00093) |   | | ├─IntegerLiteralSyntax
+//@[092:00093) |   | | | └─Token(Integer) |0|
+//@[093:00094) |   | | └─Token(RightSquare) |]|
+//@[094:00095) |   | ├─Token(LeftSquare) |[|
+//@[095:00107) |   | ├─StringSyntax
+//@[095:00107) |   | | └─Token(StringComplete) |'properties'|
+//@[107:00108) |   | └─Token(RightSquare) |]|
+//@[108:00109) |   ├─Token(Dot) |.|
+//@[109:00109) |   └─IdentifierSyntax
+//@[109:00109) |     └─SkippedTriviaSyntax
+//@[109:00113) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(111) -> createModeIndexPlusSymbols_for_if
-//@[60:62) NewLine |\r\n|
+//@[060:00062) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorMissingKeyIndexCompletions_for_if = nestedDiscriminatorMissingKey_for_if[0].properties['']
-//@[0:113) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:56)  IdentifierSyntax
-//@[4:56)   Identifier |nestedDiscriminatorMissingKeyIndexCompletions_for_if|
-//@[57:58)  Assignment |=|
-//@[59:113)  ArrayAccessSyntax
-//@[59:109)   PropertyAccessSyntax
-//@[59:98)    ArrayAccessSyntax
-//@[59:95)     VariableAccessSyntax
-//@[59:95)      IdentifierSyntax
-//@[59:95)       Identifier |nestedDiscriminatorMissingKey_for_if|
-//@[95:96)     LeftSquare |[|
-//@[96:97)     IntegerLiteralSyntax
-//@[96:97)      Integer |0|
-//@[97:98)     RightSquare |]|
-//@[98:99)    Dot |.|
-//@[99:109)    IdentifierSyntax
-//@[99:109)     Identifier |properties|
-//@[109:110)   LeftSquare |[|
-//@[110:112)   StringSyntax
-//@[110:112)    StringComplete |''|
-//@[112:113)   RightSquare |]|
-//@[113:119) NewLine |\r\n\r\n\r\n|
+//@[000:00113) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00056) | ├─IdentifierSyntax
+//@[004:00056) | | └─Token(Identifier) |nestedDiscriminatorMissingKeyIndexCompletions_for_if|
+//@[057:00058) | ├─Token(Assignment) |=|
+//@[059:00113) | └─ArrayAccessSyntax
+//@[059:00109) |   ├─PropertyAccessSyntax
+//@[059:00098) |   | ├─ArrayAccessSyntax
+//@[059:00095) |   | | ├─VariableAccessSyntax
+//@[059:00095) |   | | | └─IdentifierSyntax
+//@[059:00095) |   | | |   └─Token(Identifier) |nestedDiscriminatorMissingKey_for_if|
+//@[095:00096) |   | | ├─Token(LeftSquare) |[|
+//@[096:00097) |   | | ├─IntegerLiteralSyntax
+//@[096:00097) |   | | | └─Token(Integer) |0|
+//@[097:00098) |   | | └─Token(RightSquare) |]|
+//@[098:00099) |   | ├─Token(Dot) |.|
+//@[099:00109) |   | └─IdentifierSyntax
+//@[099:00109) |   |   └─Token(Identifier) |properties|
+//@[109:00110) |   ├─Token(LeftSquare) |[|
+//@[110:00112) |   ├─StringSyntax
+//@[110:00112) |   | └─Token(StringComplete) |''|
+//@[112:00113) |   └─Token(RightSquare) |]|
+//@[113:00119) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
 /*
 Nested discriminator
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
-//@[0:178) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:28)  IdentifierSyntax
-//@[9:28)   Identifier |nestedDiscriminator|
-//@[29:87)  StringSyntax
-//@[29:87)   StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
-//@[88:89)  Assignment |=|
-//@[90:178)  ObjectSyntax
-//@[90:91)   LeftBrace |{|
-//@[91:93)   NewLine |\r\n|
+//@[000:00178) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00028) | ├─IdentifierSyntax
+//@[009:00028) | | └─Token(Identifier) |nestedDiscriminator|
+//@[029:00087) | ├─StringSyntax
+//@[029:00087) | | └─Token(StringComplete) |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[088:00089) | ├─Token(Assignment) |=|
+//@[090:00178) | └─ObjectSyntax
+//@[090:00091) |   ├─Token(LeftBrace) |{|
+//@[091:00093) |   ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'test'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'test'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
   location: 'l'
-//@[2:15)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:15)    StringSyntax
-//@[12:15)     StringComplete |'l'|
-//@[15:17)   NewLine |\r\n|
+//@[002:00015) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00015) |   | └─StringSyntax
+//@[012:00015) |   |   └─Token(StringComplete) |'l'|
+//@[015:00017) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:49)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:49)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00049) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00049) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     createMode: 'Default'
-//@[4:25)     ObjectPropertySyntax
-//@[4:14)      IdentifierSyntax
-//@[4:14)       Identifier |createMode|
-//@[14:15)      Colon |:|
-//@[16:25)      StringSyntax
-//@[16:25)       StringComplete |'Default'|
-//@[25:29)     NewLine |\r\n\r\n|
+//@[004:00025) |   |   ├─ObjectPropertySyntax
+//@[004:00014) |   |   | ├─IdentifierSyntax
+//@[004:00014) |   |   | | └─Token(Identifier) |createMode|
+//@[014:00015) |   |   | ├─Token(Colon) |:|
+//@[016:00025) |   |   | └─StringSyntax
+//@[016:00025) |   |   |   └─Token(StringComplete) |'Default'|
+//@[025:00029) |   |   ├─Token(NewLine) |\r\n\r\n|
 
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 // #completionTest(69) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
-//@[0:69) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:34)  IdentifierSyntax
-//@[4:34)   Identifier |nestedDiscriminatorCompletions|
-//@[35:36)  Assignment |=|
-//@[37:69)  PropertyAccessSyntax
-//@[37:67)   PropertyAccessSyntax
-//@[37:56)    VariableAccessSyntax
-//@[37:56)     IdentifierSyntax
-//@[37:56)      Identifier |nestedDiscriminator|
-//@[56:57)    Dot |.|
-//@[57:67)    IdentifierSyntax
-//@[57:67)     Identifier |properties|
-//@[67:68)   Dot |.|
-//@[68:69)   IdentifierSyntax
-//@[68:69)    Identifier |a|
-//@[69:71) NewLine |\r\n|
+//@[000:00069) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00034) | ├─IdentifierSyntax
+//@[004:00034) | | └─Token(Identifier) |nestedDiscriminatorCompletions|
+//@[035:00036) | ├─Token(Assignment) |=|
+//@[037:00069) | └─PropertyAccessSyntax
+//@[037:00067) |   ├─PropertyAccessSyntax
+//@[037:00056) |   | ├─VariableAccessSyntax
+//@[037:00056) |   | | └─IdentifierSyntax
+//@[037:00056) |   | |   └─Token(Identifier) |nestedDiscriminator|
+//@[056:00057) |   | ├─Token(Dot) |.|
+//@[057:00067) |   | └─IdentifierSyntax
+//@[057:00067) |   |   └─Token(Identifier) |properties|
+//@[067:00068) |   ├─Token(Dot) |.|
+//@[068:00069) |   └─IdentifierSyntax
+//@[068:00069) |     └─Token(Identifier) |a|
+//@[069:00071) ├─Token(NewLine) |\r\n|
 // #completionTest(73) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
-//@[0:73) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:35)  IdentifierSyntax
-//@[4:35)   Identifier |nestedDiscriminatorCompletions2|
-//@[36:37)  Assignment |=|
-//@[38:73)  PropertyAccessSyntax
-//@[38:71)   ArrayAccessSyntax
-//@[38:57)    VariableAccessSyntax
-//@[38:57)     IdentifierSyntax
-//@[38:57)      Identifier |nestedDiscriminator|
-//@[57:58)    LeftSquare |[|
-//@[58:70)    StringSyntax
-//@[58:70)     StringComplete |'properties'|
-//@[70:71)    RightSquare |]|
-//@[71:72)   Dot |.|
-//@[72:73)   IdentifierSyntax
-//@[72:73)    Identifier |a|
-//@[73:75) NewLine |\r\n|
+//@[000:00073) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00035) | ├─IdentifierSyntax
+//@[004:00035) | | └─Token(Identifier) |nestedDiscriminatorCompletions2|
+//@[036:00037) | ├─Token(Assignment) |=|
+//@[038:00073) | └─PropertyAccessSyntax
+//@[038:00071) |   ├─ArrayAccessSyntax
+//@[038:00057) |   | ├─VariableAccessSyntax
+//@[038:00057) |   | | └─IdentifierSyntax
+//@[038:00057) |   | |   └─Token(Identifier) |nestedDiscriminator|
+//@[057:00058) |   | ├─Token(LeftSquare) |[|
+//@[058:00070) |   | ├─StringSyntax
+//@[058:00070) |   | | └─Token(StringComplete) |'properties'|
+//@[070:00071) |   | └─Token(RightSquare) |]|
+//@[071:00072) |   ├─Token(Dot) |.|
+//@[072:00073) |   └─IdentifierSyntax
+//@[072:00073) |     └─Token(Identifier) |a|
+//@[073:00075) ├─Token(NewLine) |\r\n|
 // #completionTest(69) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions3 = nestedDiscriminator.properties.
-//@[0:69) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:35)  IdentifierSyntax
-//@[4:35)   Identifier |nestedDiscriminatorCompletions3|
-//@[36:37)  Assignment |=|
-//@[38:69)  PropertyAccessSyntax
-//@[38:68)   PropertyAccessSyntax
-//@[38:57)    VariableAccessSyntax
-//@[38:57)     IdentifierSyntax
-//@[38:57)      Identifier |nestedDiscriminator|
-//@[57:58)    Dot |.|
-//@[58:68)    IdentifierSyntax
-//@[58:68)     Identifier |properties|
-//@[68:69)   Dot |.|
-//@[69:69)   IdentifierSyntax
-//@[69:69)    SkippedTriviaSyntax
-//@[69:71) NewLine |\r\n|
+//@[000:00069) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00035) | ├─IdentifierSyntax
+//@[004:00035) | | └─Token(Identifier) |nestedDiscriminatorCompletions3|
+//@[036:00037) | ├─Token(Assignment) |=|
+//@[038:00069) | └─PropertyAccessSyntax
+//@[038:00068) |   ├─PropertyAccessSyntax
+//@[038:00057) |   | ├─VariableAccessSyntax
+//@[038:00057) |   | | └─IdentifierSyntax
+//@[038:00057) |   | |   └─Token(Identifier) |nestedDiscriminator|
+//@[057:00058) |   | ├─Token(Dot) |.|
+//@[058:00068) |   | └─IdentifierSyntax
+//@[058:00068) |   |   └─Token(Identifier) |properties|
+//@[068:00069) |   ├─Token(Dot) |.|
+//@[069:00069) |   └─IdentifierSyntax
+//@[069:00069) |     └─SkippedTriviaSyntax
+//@[069:00071) ├─Token(NewLine) |\r\n|
 // #completionTest(72) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
-//@[0:72) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:35)  IdentifierSyntax
-//@[4:35)   Identifier |nestedDiscriminatorCompletions4|
-//@[36:37)  Assignment |=|
-//@[38:72)  PropertyAccessSyntax
-//@[38:71)   ArrayAccessSyntax
-//@[38:57)    VariableAccessSyntax
-//@[38:57)     IdentifierSyntax
-//@[38:57)      Identifier |nestedDiscriminator|
-//@[57:58)    LeftSquare |[|
-//@[58:70)    StringSyntax
-//@[58:70)     StringComplete |'properties'|
-//@[70:71)    RightSquare |]|
-//@[71:72)   Dot |.|
-//@[72:72)   IdentifierSyntax
-//@[72:72)    SkippedTriviaSyntax
-//@[72:76) NewLine |\r\n\r\n|
+//@[000:00072) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00035) | ├─IdentifierSyntax
+//@[004:00035) | | └─Token(Identifier) |nestedDiscriminatorCompletions4|
+//@[036:00037) | ├─Token(Assignment) |=|
+//@[038:00072) | └─PropertyAccessSyntax
+//@[038:00071) |   ├─ArrayAccessSyntax
+//@[038:00057) |   | ├─VariableAccessSyntax
+//@[038:00057) |   | | └─IdentifierSyntax
+//@[038:00057) |   | |   └─Token(Identifier) |nestedDiscriminator|
+//@[057:00058) |   | ├─Token(LeftSquare) |[|
+//@[058:00070) |   | ├─StringSyntax
+//@[058:00070) |   | | └─Token(StringComplete) |'properties'|
+//@[070:00071) |   | └─Token(RightSquare) |]|
+//@[071:00072) |   ├─Token(Dot) |.|
+//@[072:00072) |   └─IdentifierSyntax
+//@[072:00072) |     └─SkippedTriviaSyntax
+//@[072:00076) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(79) -> defaultCreateModeIndexes
-//@[50:52) NewLine |\r\n|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
-//@[0:80) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:44)  IdentifierSyntax
-//@[4:44)   Identifier |nestedDiscriminatorArrayIndexCompletions|
-//@[45:46)  Assignment |=|
-//@[47:80)  ArrayAccessSyntax
-//@[47:77)   PropertyAccessSyntax
-//@[47:66)    VariableAccessSyntax
-//@[47:66)     IdentifierSyntax
-//@[47:66)      Identifier |nestedDiscriminator|
-//@[66:67)    Dot |.|
-//@[67:77)    IdentifierSyntax
-//@[67:77)     Identifier |properties|
-//@[77:78)   LeftSquare |[|
-//@[78:79)   VariableAccessSyntax
-//@[78:79)    IdentifierSyntax
-//@[78:79)     Identifier |a|
-//@[79:80)   RightSquare |]|
-//@[80:84) NewLine |\r\n\r\n|
+//@[000:00080) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00044) | ├─IdentifierSyntax
+//@[004:00044) | | └─Token(Identifier) |nestedDiscriminatorArrayIndexCompletions|
+//@[045:00046) | ├─Token(Assignment) |=|
+//@[047:00080) | └─ArrayAccessSyntax
+//@[047:00077) |   ├─PropertyAccessSyntax
+//@[047:00066) |   | ├─VariableAccessSyntax
+//@[047:00066) |   | | └─IdentifierSyntax
+//@[047:00066) |   | |   └─Token(Identifier) |nestedDiscriminator|
+//@[066:00067) |   | ├─Token(Dot) |.|
+//@[067:00077) |   | └─IdentifierSyntax
+//@[067:00077) |   |   └─Token(Identifier) |properties|
+//@[077:00078) |   ├─Token(LeftSquare) |[|
+//@[078:00079) |   ├─VariableAccessSyntax
+//@[078:00079) |   | └─IdentifierSyntax
+//@[078:00079) |   |   └─Token(Identifier) |a|
+//@[079:00080) |   └─Token(RightSquare) |]|
+//@[080:00084) ├─Token(NewLine) |\r\n\r\n|
 
 /*
 Nested discriminator (conditional)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource nestedDiscriminator_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if(true) {
-//@[0:190) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:31)  IdentifierSyntax
-//@[9:31)   Identifier |nestedDiscriminator_if|
-//@[32:90)  StringSyntax
-//@[32:90)   StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
-//@[91:92)  Assignment |=|
-//@[93:190)  IfConditionSyntax
-//@[93:95)   Identifier |if|
-//@[95:101)   ParenthesizedExpressionSyntax
-//@[95:96)    LeftParen |(|
-//@[96:100)    BooleanLiteralSyntax
-//@[96:100)     TrueKeyword |true|
-//@[100:101)    RightParen |)|
-//@[102:190)   ObjectSyntax
-//@[102:103)    LeftBrace |{|
-//@[103:105)    NewLine |\r\n|
+//@[000:00190) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00031) | ├─IdentifierSyntax
+//@[009:00031) | | └─Token(Identifier) |nestedDiscriminator_if|
+//@[032:00090) | ├─StringSyntax
+//@[032:00090) | | └─Token(StringComplete) |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[091:00092) | ├─Token(Assignment) |=|
+//@[093:00190) | └─IfConditionSyntax
+//@[093:00095) |   ├─Token(Identifier) |if|
+//@[095:00101) |   ├─ParenthesizedExpressionSyntax
+//@[095:00096) |   | ├─Token(LeftParen) |(|
+//@[096:00100) |   | ├─BooleanLiteralSyntax
+//@[096:00100) |   | | └─Token(TrueKeyword) |true|
+//@[100:00101) |   | └─Token(RightParen) |)|
+//@[102:00190) |   └─ObjectSyntax
+//@[102:00103) |     ├─Token(LeftBrace) |{|
+//@[103:00105) |     ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:14)     StringSyntax
-//@[8:14)      StringComplete |'test'|
-//@[14:16)    NewLine |\r\n|
+//@[002:00014) |     ├─ObjectPropertySyntax
+//@[002:00006) |     | ├─IdentifierSyntax
+//@[002:00006) |     | | └─Token(Identifier) |name|
+//@[006:00007) |     | ├─Token(Colon) |:|
+//@[008:00014) |     | └─StringSyntax
+//@[008:00014) |     |   └─Token(StringComplete) |'test'|
+//@[014:00016) |     ├─Token(NewLine) |\r\n|
   location: 'l'
-//@[2:15)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:15)     StringSyntax
-//@[12:15)      StringComplete |'l'|
-//@[15:17)    NewLine |\r\n|
+//@[002:00015) |     ├─ObjectPropertySyntax
+//@[002:00010) |     | ├─IdentifierSyntax
+//@[002:00010) |     | | └─Token(Identifier) |location|
+//@[010:00011) |     | ├─Token(Colon) |:|
+//@[012:00015) |     | └─StringSyntax
+//@[012:00015) |     |   └─Token(StringComplete) |'l'|
+//@[015:00017) |     ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:49)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:49)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00049) |     ├─ObjectPropertySyntax
+//@[002:00012) |     | ├─IdentifierSyntax
+//@[002:00012) |     | | └─Token(Identifier) |properties|
+//@[012:00013) |     | ├─Token(Colon) |:|
+//@[014:00049) |     | └─ObjectSyntax
+//@[014:00015) |     |   ├─Token(LeftBrace) |{|
+//@[015:00017) |     |   ├─Token(NewLine) |\r\n|
     createMode: 'Default'
-//@[4:25)      ObjectPropertySyntax
-//@[4:14)       IdentifierSyntax
-//@[4:14)        Identifier |createMode|
-//@[14:15)       Colon |:|
-//@[16:25)       StringSyntax
-//@[16:25)        StringComplete |'Default'|
-//@[25:29)      NewLine |\r\n\r\n|
+//@[004:00025) |     |   ├─ObjectPropertySyntax
+//@[004:00014) |     |   | ├─IdentifierSyntax
+//@[004:00014) |     |   | | └─Token(Identifier) |createMode|
+//@[014:00015) |     |   | ├─Token(Colon) |:|
+//@[016:00025) |     |   | └─StringSyntax
+//@[016:00025) |     |   |   └─Token(StringComplete) |'Default'|
+//@[025:00029) |     |   ├─Token(NewLine) |\r\n\r\n|
 
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |     |   └─Token(RightBrace) |}|
+//@[003:00005) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 // #completionTest(75) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions_if = nestedDiscriminator_if.properties.a
-//@[0:75) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:37)  IdentifierSyntax
-//@[4:37)   Identifier |nestedDiscriminatorCompletions_if|
-//@[38:39)  Assignment |=|
-//@[40:75)  PropertyAccessSyntax
-//@[40:73)   PropertyAccessSyntax
-//@[40:62)    VariableAccessSyntax
-//@[40:62)     IdentifierSyntax
-//@[40:62)      Identifier |nestedDiscriminator_if|
-//@[62:63)    Dot |.|
-//@[63:73)    IdentifierSyntax
-//@[63:73)     Identifier |properties|
-//@[73:74)   Dot |.|
-//@[74:75)   IdentifierSyntax
-//@[74:75)    Identifier |a|
-//@[75:77) NewLine |\r\n|
+//@[000:00075) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00037) | ├─IdentifierSyntax
+//@[004:00037) | | └─Token(Identifier) |nestedDiscriminatorCompletions_if|
+//@[038:00039) | ├─Token(Assignment) |=|
+//@[040:00075) | └─PropertyAccessSyntax
+//@[040:00073) |   ├─PropertyAccessSyntax
+//@[040:00062) |   | ├─VariableAccessSyntax
+//@[040:00062) |   | | └─IdentifierSyntax
+//@[040:00062) |   | |   └─Token(Identifier) |nestedDiscriminator_if|
+//@[062:00063) |   | ├─Token(Dot) |.|
+//@[063:00073) |   | └─IdentifierSyntax
+//@[063:00073) |   |   └─Token(Identifier) |properties|
+//@[073:00074) |   ├─Token(Dot) |.|
+//@[074:00075) |   └─IdentifierSyntax
+//@[074:00075) |     └─Token(Identifier) |a|
+//@[075:00077) ├─Token(NewLine) |\r\n|
 // #completionTest(79) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions2_if = nestedDiscriminator_if['properties'].a
-//@[0:79) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:38)  IdentifierSyntax
-//@[4:38)   Identifier |nestedDiscriminatorCompletions2_if|
-//@[39:40)  Assignment |=|
-//@[41:79)  PropertyAccessSyntax
-//@[41:77)   ArrayAccessSyntax
-//@[41:63)    VariableAccessSyntax
-//@[41:63)     IdentifierSyntax
-//@[41:63)      Identifier |nestedDiscriminator_if|
-//@[63:64)    LeftSquare |[|
-//@[64:76)    StringSyntax
-//@[64:76)     StringComplete |'properties'|
-//@[76:77)    RightSquare |]|
-//@[77:78)   Dot |.|
-//@[78:79)   IdentifierSyntax
-//@[78:79)    Identifier |a|
-//@[79:81) NewLine |\r\n|
+//@[000:00079) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00038) | ├─IdentifierSyntax
+//@[004:00038) | | └─Token(Identifier) |nestedDiscriminatorCompletions2_if|
+//@[039:00040) | ├─Token(Assignment) |=|
+//@[041:00079) | └─PropertyAccessSyntax
+//@[041:00077) |   ├─ArrayAccessSyntax
+//@[041:00063) |   | ├─VariableAccessSyntax
+//@[041:00063) |   | | └─IdentifierSyntax
+//@[041:00063) |   | |   └─Token(Identifier) |nestedDiscriminator_if|
+//@[063:00064) |   | ├─Token(LeftSquare) |[|
+//@[064:00076) |   | ├─StringSyntax
+//@[064:00076) |   | | └─Token(StringComplete) |'properties'|
+//@[076:00077) |   | └─Token(RightSquare) |]|
+//@[077:00078) |   ├─Token(Dot) |.|
+//@[078:00079) |   └─IdentifierSyntax
+//@[078:00079) |     └─Token(Identifier) |a|
+//@[079:00081) ├─Token(NewLine) |\r\n|
 // #completionTest(75) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions3_if = nestedDiscriminator_if.properties.
-//@[0:75) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:38)  IdentifierSyntax
-//@[4:38)   Identifier |nestedDiscriminatorCompletions3_if|
-//@[39:40)  Assignment |=|
-//@[41:75)  PropertyAccessSyntax
-//@[41:74)   PropertyAccessSyntax
-//@[41:63)    VariableAccessSyntax
-//@[41:63)     IdentifierSyntax
-//@[41:63)      Identifier |nestedDiscriminator_if|
-//@[63:64)    Dot |.|
-//@[64:74)    IdentifierSyntax
-//@[64:74)     Identifier |properties|
-//@[74:75)   Dot |.|
-//@[75:75)   IdentifierSyntax
-//@[75:75)    SkippedTriviaSyntax
-//@[75:77) NewLine |\r\n|
+//@[000:00075) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00038) | ├─IdentifierSyntax
+//@[004:00038) | | └─Token(Identifier) |nestedDiscriminatorCompletions3_if|
+//@[039:00040) | ├─Token(Assignment) |=|
+//@[041:00075) | └─PropertyAccessSyntax
+//@[041:00074) |   ├─PropertyAccessSyntax
+//@[041:00063) |   | ├─VariableAccessSyntax
+//@[041:00063) |   | | └─IdentifierSyntax
+//@[041:00063) |   | |   └─Token(Identifier) |nestedDiscriminator_if|
+//@[063:00064) |   | ├─Token(Dot) |.|
+//@[064:00074) |   | └─IdentifierSyntax
+//@[064:00074) |   |   └─Token(Identifier) |properties|
+//@[074:00075) |   ├─Token(Dot) |.|
+//@[075:00075) |   └─IdentifierSyntax
+//@[075:00075) |     └─SkippedTriviaSyntax
+//@[075:00077) ├─Token(NewLine) |\r\n|
 // #completionTest(78) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions4_if = nestedDiscriminator_if['properties'].
-//@[0:78) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:38)  IdentifierSyntax
-//@[4:38)   Identifier |nestedDiscriminatorCompletions4_if|
-//@[39:40)  Assignment |=|
-//@[41:78)  PropertyAccessSyntax
-//@[41:77)   ArrayAccessSyntax
-//@[41:63)    VariableAccessSyntax
-//@[41:63)     IdentifierSyntax
-//@[41:63)      Identifier |nestedDiscriminator_if|
-//@[63:64)    LeftSquare |[|
-//@[64:76)    StringSyntax
-//@[64:76)     StringComplete |'properties'|
-//@[76:77)    RightSquare |]|
-//@[77:78)   Dot |.|
-//@[78:78)   IdentifierSyntax
-//@[78:78)    SkippedTriviaSyntax
-//@[78:82) NewLine |\r\n\r\n|
+//@[000:00078) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00038) | ├─IdentifierSyntax
+//@[004:00038) | | └─Token(Identifier) |nestedDiscriminatorCompletions4_if|
+//@[039:00040) | ├─Token(Assignment) |=|
+//@[041:00078) | └─PropertyAccessSyntax
+//@[041:00077) |   ├─ArrayAccessSyntax
+//@[041:00063) |   | ├─VariableAccessSyntax
+//@[041:00063) |   | | └─IdentifierSyntax
+//@[041:00063) |   | |   └─Token(Identifier) |nestedDiscriminator_if|
+//@[063:00064) |   | ├─Token(LeftSquare) |[|
+//@[064:00076) |   | ├─StringSyntax
+//@[064:00076) |   | | └─Token(StringComplete) |'properties'|
+//@[076:00077) |   | └─Token(RightSquare) |]|
+//@[077:00078) |   ├─Token(Dot) |.|
+//@[078:00078) |   └─IdentifierSyntax
+//@[078:00078) |     └─SkippedTriviaSyntax
+//@[078:00082) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(85) -> defaultCreateModeIndexes_if
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorArrayIndexCompletions_if = nestedDiscriminator_if.properties[a]
-//@[0:86) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:47)  IdentifierSyntax
-//@[4:47)   Identifier |nestedDiscriminatorArrayIndexCompletions_if|
-//@[48:49)  Assignment |=|
-//@[50:86)  ArrayAccessSyntax
-//@[50:83)   PropertyAccessSyntax
-//@[50:72)    VariableAccessSyntax
-//@[50:72)     IdentifierSyntax
-//@[50:72)      Identifier |nestedDiscriminator_if|
-//@[72:73)    Dot |.|
-//@[73:83)    IdentifierSyntax
-//@[73:83)     Identifier |properties|
-//@[83:84)   LeftSquare |[|
-//@[84:85)   VariableAccessSyntax
-//@[84:85)    IdentifierSyntax
-//@[84:85)     Identifier |a|
-//@[85:86)   RightSquare |]|
-//@[86:92) NewLine |\r\n\r\n\r\n|
+//@[000:00086) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00047) | ├─IdentifierSyntax
+//@[004:00047) | | └─Token(Identifier) |nestedDiscriminatorArrayIndexCompletions_if|
+//@[048:00049) | ├─Token(Assignment) |=|
+//@[050:00086) | └─ArrayAccessSyntax
+//@[050:00083) |   ├─PropertyAccessSyntax
+//@[050:00072) |   | ├─VariableAccessSyntax
+//@[050:00072) |   | | └─IdentifierSyntax
+//@[050:00072) |   | |   └─Token(Identifier) |nestedDiscriminator_if|
+//@[072:00073) |   | ├─Token(Dot) |.|
+//@[073:00083) |   | └─IdentifierSyntax
+//@[073:00083) |   |   └─Token(Identifier) |properties|
+//@[083:00084) |   ├─Token(LeftSquare) |[|
+//@[084:00085) |   ├─VariableAccessSyntax
+//@[084:00085) |   | └─IdentifierSyntax
+//@[084:00085) |   |   └─Token(Identifier) |a|
+//@[085:00086) |   └─Token(RightSquare) |]|
+//@[086:00092) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
 /*
 Nested discriminator (loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
-//@[0:201) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:32)  IdentifierSyntax
-//@[9:32)   Identifier |nestedDiscriminator_for|
-//@[33:91)  StringSyntax
-//@[33:91)   StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
-//@[92:93)  Assignment |=|
-//@[94:201)  ForSyntax
-//@[94:95)   LeftSquare |[|
-//@[95:98)   Identifier |for|
-//@[99:104)   LocalVariableSyntax
-//@[99:104)    IdentifierSyntax
-//@[99:104)     Identifier |thing|
-//@[105:107)   Identifier |in|
-//@[108:110)   ArraySyntax
-//@[108:109)    LeftSquare |[|
-//@[109:110)    RightSquare |]|
-//@[110:111)   Colon |:|
-//@[112:200)   ObjectSyntax
-//@[112:113)    LeftBrace |{|
-//@[113:115)    NewLine |\r\n|
+//@[000:00201) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00032) | ├─IdentifierSyntax
+//@[009:00032) | | └─Token(Identifier) |nestedDiscriminator_for|
+//@[033:00091) | ├─StringSyntax
+//@[033:00091) | | └─Token(StringComplete) |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[092:00093) | ├─Token(Assignment) |=|
+//@[094:00201) | └─ForSyntax
+//@[094:00095) |   ├─Token(LeftSquare) |[|
+//@[095:00098) |   ├─Token(Identifier) |for|
+//@[099:00104) |   ├─LocalVariableSyntax
+//@[099:00104) |   | └─IdentifierSyntax
+//@[099:00104) |   |   └─Token(Identifier) |thing|
+//@[105:00107) |   ├─Token(Identifier) |in|
+//@[108:00110) |   ├─ArraySyntax
+//@[108:00109) |   | ├─Token(LeftSquare) |[|
+//@[109:00110) |   | └─Token(RightSquare) |]|
+//@[110:00111) |   ├─Token(Colon) |:|
+//@[112:00200) |   ├─ObjectSyntax
+//@[112:00113) |   | ├─Token(LeftBrace) |{|
+//@[113:00115) |   | ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:14)     StringSyntax
-//@[8:14)      StringComplete |'test'|
-//@[14:16)    NewLine |\r\n|
+//@[002:00014) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00014) |   | | └─StringSyntax
+//@[008:00014) |   | |   └─Token(StringComplete) |'test'|
+//@[014:00016) |   | ├─Token(NewLine) |\r\n|
   location: 'l'
-//@[2:15)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:15)     StringSyntax
-//@[12:15)      StringComplete |'l'|
-//@[15:17)    NewLine |\r\n|
+//@[002:00015) |   | ├─ObjectPropertySyntax
+//@[002:00010) |   | | ├─IdentifierSyntax
+//@[002:00010) |   | | | └─Token(Identifier) |location|
+//@[010:00011) |   | | ├─Token(Colon) |:|
+//@[012:00015) |   | | └─StringSyntax
+//@[012:00015) |   | |   └─Token(StringComplete) |'l'|
+//@[015:00017) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:49)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:49)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00049) |   | ├─ObjectPropertySyntax
+//@[002:00012) |   | | ├─IdentifierSyntax
+//@[002:00012) |   | | | └─Token(Identifier) |properties|
+//@[012:00013) |   | | ├─Token(Colon) |:|
+//@[014:00049) |   | | └─ObjectSyntax
+//@[014:00015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     createMode: 'Default'
-//@[4:25)      ObjectPropertySyntax
-//@[4:14)       IdentifierSyntax
-//@[4:14)        Identifier |createMode|
-//@[14:15)       Colon |:|
-//@[16:25)       StringSyntax
-//@[16:25)        StringComplete |'Default'|
-//@[25:29)      NewLine |\r\n\r\n|
+//@[004:00025) |   | |   ├─ObjectPropertySyntax
+//@[004:00014) |   | |   | ├─IdentifierSyntax
+//@[004:00014) |   | |   | | └─Token(Identifier) |createMode|
+//@[014:00015) |   | |   | ├─Token(Colon) |:|
+//@[016:00025) |   | |   | └─StringSyntax
+//@[016:00025) |   | |   |   └─Token(StringComplete) |'Default'|
+//@[025:00029) |   | |   ├─Token(NewLine) |\r\n\r\n|
 
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 // #completionTest(80) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions_for = nestedDiscriminator_for[0].properties.a
-//@[0:80) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:38)  IdentifierSyntax
-//@[4:38)   Identifier |nestedDiscriminatorCompletions_for|
-//@[39:40)  Assignment |=|
-//@[41:80)  PropertyAccessSyntax
-//@[41:78)   PropertyAccessSyntax
-//@[41:67)    ArrayAccessSyntax
-//@[41:64)     VariableAccessSyntax
-//@[41:64)      IdentifierSyntax
-//@[41:64)       Identifier |nestedDiscriminator_for|
-//@[64:65)     LeftSquare |[|
-//@[65:66)     IntegerLiteralSyntax
-//@[65:66)      Integer |0|
-//@[66:67)     RightSquare |]|
-//@[67:68)    Dot |.|
-//@[68:78)    IdentifierSyntax
-//@[68:78)     Identifier |properties|
-//@[78:79)   Dot |.|
-//@[79:80)   IdentifierSyntax
-//@[79:80)    Identifier |a|
-//@[80:82) NewLine |\r\n|
+//@[000:00080) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00038) | ├─IdentifierSyntax
+//@[004:00038) | | └─Token(Identifier) |nestedDiscriminatorCompletions_for|
+//@[039:00040) | ├─Token(Assignment) |=|
+//@[041:00080) | └─PropertyAccessSyntax
+//@[041:00078) |   ├─PropertyAccessSyntax
+//@[041:00067) |   | ├─ArrayAccessSyntax
+//@[041:00064) |   | | ├─VariableAccessSyntax
+//@[041:00064) |   | | | └─IdentifierSyntax
+//@[041:00064) |   | | |   └─Token(Identifier) |nestedDiscriminator_for|
+//@[064:00065) |   | | ├─Token(LeftSquare) |[|
+//@[065:00066) |   | | ├─IntegerLiteralSyntax
+//@[065:00066) |   | | | └─Token(Integer) |0|
+//@[066:00067) |   | | └─Token(RightSquare) |]|
+//@[067:00068) |   | ├─Token(Dot) |.|
+//@[068:00078) |   | └─IdentifierSyntax
+//@[068:00078) |   |   └─Token(Identifier) |properties|
+//@[078:00079) |   ├─Token(Dot) |.|
+//@[079:00080) |   └─IdentifierSyntax
+//@[079:00080) |     └─Token(Identifier) |a|
+//@[080:00082) ├─Token(NewLine) |\r\n|
 // #completionTest(84) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions2_for = nestedDiscriminator_for[0]['properties'].a
-//@[0:84) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:39)  IdentifierSyntax
-//@[4:39)   Identifier |nestedDiscriminatorCompletions2_for|
-//@[40:41)  Assignment |=|
-//@[42:84)  PropertyAccessSyntax
-//@[42:82)   ArrayAccessSyntax
-//@[42:68)    ArrayAccessSyntax
-//@[42:65)     VariableAccessSyntax
-//@[42:65)      IdentifierSyntax
-//@[42:65)       Identifier |nestedDiscriminator_for|
-//@[65:66)     LeftSquare |[|
-//@[66:67)     IntegerLiteralSyntax
-//@[66:67)      Integer |0|
-//@[67:68)     RightSquare |]|
-//@[68:69)    LeftSquare |[|
-//@[69:81)    StringSyntax
-//@[69:81)     StringComplete |'properties'|
-//@[81:82)    RightSquare |]|
-//@[82:83)   Dot |.|
-//@[83:84)   IdentifierSyntax
-//@[83:84)    Identifier |a|
-//@[84:86) NewLine |\r\n|
+//@[000:00084) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00039) | ├─IdentifierSyntax
+//@[004:00039) | | └─Token(Identifier) |nestedDiscriminatorCompletions2_for|
+//@[040:00041) | ├─Token(Assignment) |=|
+//@[042:00084) | └─PropertyAccessSyntax
+//@[042:00082) |   ├─ArrayAccessSyntax
+//@[042:00068) |   | ├─ArrayAccessSyntax
+//@[042:00065) |   | | ├─VariableAccessSyntax
+//@[042:00065) |   | | | └─IdentifierSyntax
+//@[042:00065) |   | | |   └─Token(Identifier) |nestedDiscriminator_for|
+//@[065:00066) |   | | ├─Token(LeftSquare) |[|
+//@[066:00067) |   | | ├─IntegerLiteralSyntax
+//@[066:00067) |   | | | └─Token(Integer) |0|
+//@[067:00068) |   | | └─Token(RightSquare) |]|
+//@[068:00069) |   | ├─Token(LeftSquare) |[|
+//@[069:00081) |   | ├─StringSyntax
+//@[069:00081) |   | | └─Token(StringComplete) |'properties'|
+//@[081:00082) |   | └─Token(RightSquare) |]|
+//@[082:00083) |   ├─Token(Dot) |.|
+//@[083:00084) |   └─IdentifierSyntax
+//@[083:00084) |     └─Token(Identifier) |a|
+//@[084:00086) ├─Token(NewLine) |\r\n|
 // #completionTest(80) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions3_for = nestedDiscriminator_for[0].properties.
-//@[0:80) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:39)  IdentifierSyntax
-//@[4:39)   Identifier |nestedDiscriminatorCompletions3_for|
-//@[40:41)  Assignment |=|
-//@[42:80)  PropertyAccessSyntax
-//@[42:79)   PropertyAccessSyntax
-//@[42:68)    ArrayAccessSyntax
-//@[42:65)     VariableAccessSyntax
-//@[42:65)      IdentifierSyntax
-//@[42:65)       Identifier |nestedDiscriminator_for|
-//@[65:66)     LeftSquare |[|
-//@[66:67)     IntegerLiteralSyntax
-//@[66:67)      Integer |0|
-//@[67:68)     RightSquare |]|
-//@[68:69)    Dot |.|
-//@[69:79)    IdentifierSyntax
-//@[69:79)     Identifier |properties|
-//@[79:80)   Dot |.|
-//@[80:80)   IdentifierSyntax
-//@[80:80)    SkippedTriviaSyntax
-//@[80:82) NewLine |\r\n|
+//@[000:00080) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00039) | ├─IdentifierSyntax
+//@[004:00039) | | └─Token(Identifier) |nestedDiscriminatorCompletions3_for|
+//@[040:00041) | ├─Token(Assignment) |=|
+//@[042:00080) | └─PropertyAccessSyntax
+//@[042:00079) |   ├─PropertyAccessSyntax
+//@[042:00068) |   | ├─ArrayAccessSyntax
+//@[042:00065) |   | | ├─VariableAccessSyntax
+//@[042:00065) |   | | | └─IdentifierSyntax
+//@[042:00065) |   | | |   └─Token(Identifier) |nestedDiscriminator_for|
+//@[065:00066) |   | | ├─Token(LeftSquare) |[|
+//@[066:00067) |   | | ├─IntegerLiteralSyntax
+//@[066:00067) |   | | | └─Token(Integer) |0|
+//@[067:00068) |   | | └─Token(RightSquare) |]|
+//@[068:00069) |   | ├─Token(Dot) |.|
+//@[069:00079) |   | └─IdentifierSyntax
+//@[069:00079) |   |   └─Token(Identifier) |properties|
+//@[079:00080) |   ├─Token(Dot) |.|
+//@[080:00080) |   └─IdentifierSyntax
+//@[080:00080) |     └─SkippedTriviaSyntax
+//@[080:00082) ├─Token(NewLine) |\r\n|
 // #completionTest(83) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions4_for = nestedDiscriminator_for[0]['properties'].
-//@[0:83) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:39)  IdentifierSyntax
-//@[4:39)   Identifier |nestedDiscriminatorCompletions4_for|
-//@[40:41)  Assignment |=|
-//@[42:83)  PropertyAccessSyntax
-//@[42:82)   ArrayAccessSyntax
-//@[42:68)    ArrayAccessSyntax
-//@[42:65)     VariableAccessSyntax
-//@[42:65)      IdentifierSyntax
-//@[42:65)       Identifier |nestedDiscriminator_for|
-//@[65:66)     LeftSquare |[|
-//@[66:67)     IntegerLiteralSyntax
-//@[66:67)      Integer |0|
-//@[67:68)     RightSquare |]|
-//@[68:69)    LeftSquare |[|
-//@[69:81)    StringSyntax
-//@[69:81)     StringComplete |'properties'|
-//@[81:82)    RightSquare |]|
-//@[82:83)   Dot |.|
-//@[83:83)   IdentifierSyntax
-//@[83:83)    SkippedTriviaSyntax
-//@[83:87) NewLine |\r\n\r\n|
+//@[000:00083) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00039) | ├─IdentifierSyntax
+//@[004:00039) | | └─Token(Identifier) |nestedDiscriminatorCompletions4_for|
+//@[040:00041) | ├─Token(Assignment) |=|
+//@[042:00083) | └─PropertyAccessSyntax
+//@[042:00082) |   ├─ArrayAccessSyntax
+//@[042:00068) |   | ├─ArrayAccessSyntax
+//@[042:00065) |   | | ├─VariableAccessSyntax
+//@[042:00065) |   | | | └─IdentifierSyntax
+//@[042:00065) |   | | |   └─Token(Identifier) |nestedDiscriminator_for|
+//@[065:00066) |   | | ├─Token(LeftSquare) |[|
+//@[066:00067) |   | | ├─IntegerLiteralSyntax
+//@[066:00067) |   | | | └─Token(Integer) |0|
+//@[067:00068) |   | | └─Token(RightSquare) |]|
+//@[068:00069) |   | ├─Token(LeftSquare) |[|
+//@[069:00081) |   | ├─StringSyntax
+//@[069:00081) |   | | └─Token(StringComplete) |'properties'|
+//@[081:00082) |   | └─Token(RightSquare) |]|
+//@[082:00083) |   ├─Token(Dot) |.|
+//@[083:00083) |   └─IdentifierSyntax
+//@[083:00083) |     └─SkippedTriviaSyntax
+//@[083:00087) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(90) -> defaultCreateModeIndexes_for
-//@[54:56) NewLine |\r\n|
+//@[054:00056) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorArrayIndexCompletions_for = nestedDiscriminator_for[0].properties[a]
-//@[0:91) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:48)  IdentifierSyntax
-//@[4:48)   Identifier |nestedDiscriminatorArrayIndexCompletions_for|
-//@[49:50)  Assignment |=|
-//@[51:91)  ArrayAccessSyntax
-//@[51:88)   PropertyAccessSyntax
-//@[51:77)    ArrayAccessSyntax
-//@[51:74)     VariableAccessSyntax
-//@[51:74)      IdentifierSyntax
-//@[51:74)       Identifier |nestedDiscriminator_for|
-//@[74:75)     LeftSquare |[|
-//@[75:76)     IntegerLiteralSyntax
-//@[75:76)      Integer |0|
-//@[76:77)     RightSquare |]|
-//@[77:78)    Dot |.|
-//@[78:88)    IdentifierSyntax
-//@[78:88)     Identifier |properties|
-//@[88:89)   LeftSquare |[|
-//@[89:90)   VariableAccessSyntax
-//@[89:90)    IdentifierSyntax
-//@[89:90)     Identifier |a|
-//@[90:91)   RightSquare |]|
-//@[91:97) NewLine |\r\n\r\n\r\n|
+//@[000:00091) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00048) | ├─IdentifierSyntax
+//@[004:00048) | | └─Token(Identifier) |nestedDiscriminatorArrayIndexCompletions_for|
+//@[049:00050) | ├─Token(Assignment) |=|
+//@[051:00091) | └─ArrayAccessSyntax
+//@[051:00088) |   ├─PropertyAccessSyntax
+//@[051:00077) |   | ├─ArrayAccessSyntax
+//@[051:00074) |   | | ├─VariableAccessSyntax
+//@[051:00074) |   | | | └─IdentifierSyntax
+//@[051:00074) |   | | |   └─Token(Identifier) |nestedDiscriminator_for|
+//@[074:00075) |   | | ├─Token(LeftSquare) |[|
+//@[075:00076) |   | | ├─IntegerLiteralSyntax
+//@[075:00076) |   | | | └─Token(Integer) |0|
+//@[076:00077) |   | | └─Token(RightSquare) |]|
+//@[077:00078) |   | ├─Token(Dot) |.|
+//@[078:00088) |   | └─IdentifierSyntax
+//@[078:00088) |   |   └─Token(Identifier) |properties|
+//@[088:00089) |   ├─Token(LeftSquare) |[|
+//@[089:00090) |   ├─VariableAccessSyntax
+//@[089:00090) |   | └─IdentifierSyntax
+//@[089:00090) |   |   └─Token(Identifier) |a|
+//@[090:00091) |   └─Token(RightSquare) |]|
+//@[091:00097) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
 /*
 Nested discriminator (filtered loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
-//@[0:213) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |nestedDiscriminator_for_if|
-//@[36:94)  StringSyntax
-//@[36:94)   StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
-//@[95:96)  Assignment |=|
-//@[97:213)  ForSyntax
-//@[97:98)   LeftSquare |[|
-//@[98:101)   Identifier |for|
-//@[102:107)   LocalVariableSyntax
-//@[102:107)    IdentifierSyntax
-//@[102:107)     Identifier |thing|
-//@[108:110)   Identifier |in|
-//@[111:113)   ArraySyntax
-//@[111:112)    LeftSquare |[|
-//@[112:113)    RightSquare |]|
-//@[113:114)   Colon |:|
-//@[115:212)   IfConditionSyntax
-//@[115:117)    Identifier |if|
-//@[117:123)    ParenthesizedExpressionSyntax
-//@[117:118)     LeftParen |(|
-//@[118:122)     BooleanLiteralSyntax
-//@[118:122)      TrueKeyword |true|
-//@[122:123)     RightParen |)|
-//@[124:212)    ObjectSyntax
-//@[124:125)     LeftBrace |{|
-//@[125:127)     NewLine |\r\n|
+//@[000:00213) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |nestedDiscriminator_for_if|
+//@[036:00094) | ├─StringSyntax
+//@[036:00094) | | └─Token(StringComplete) |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[095:00096) | ├─Token(Assignment) |=|
+//@[097:00213) | └─ForSyntax
+//@[097:00098) |   ├─Token(LeftSquare) |[|
+//@[098:00101) |   ├─Token(Identifier) |for|
+//@[102:00107) |   ├─LocalVariableSyntax
+//@[102:00107) |   | └─IdentifierSyntax
+//@[102:00107) |   |   └─Token(Identifier) |thing|
+//@[108:00110) |   ├─Token(Identifier) |in|
+//@[111:00113) |   ├─ArraySyntax
+//@[111:00112) |   | ├─Token(LeftSquare) |[|
+//@[112:00113) |   | └─Token(RightSquare) |]|
+//@[113:00114) |   ├─Token(Colon) |:|
+//@[115:00212) |   ├─IfConditionSyntax
+//@[115:00117) |   | ├─Token(Identifier) |if|
+//@[117:00123) |   | ├─ParenthesizedExpressionSyntax
+//@[117:00118) |   | | ├─Token(LeftParen) |(|
+//@[118:00122) |   | | ├─BooleanLiteralSyntax
+//@[118:00122) |   | | | └─Token(TrueKeyword) |true|
+//@[122:00123) |   | | └─Token(RightParen) |)|
+//@[124:00212) |   | └─ObjectSyntax
+//@[124:00125) |   |   ├─Token(LeftBrace) |{|
+//@[125:00127) |   |   ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)     ObjectPropertySyntax
-//@[2:6)      IdentifierSyntax
-//@[2:6)       Identifier |name|
-//@[6:7)      Colon |:|
-//@[8:14)      StringSyntax
-//@[8:14)       StringComplete |'test'|
-//@[14:16)     NewLine |\r\n|
+//@[002:00014) |   |   ├─ObjectPropertySyntax
+//@[002:00006) |   |   | ├─IdentifierSyntax
+//@[002:00006) |   |   | | └─Token(Identifier) |name|
+//@[006:00007) |   |   | ├─Token(Colon) |:|
+//@[008:00014) |   |   | └─StringSyntax
+//@[008:00014) |   |   |   └─Token(StringComplete) |'test'|
+//@[014:00016) |   |   ├─Token(NewLine) |\r\n|
   location: 'l'
-//@[2:15)     ObjectPropertySyntax
-//@[2:10)      IdentifierSyntax
-//@[2:10)       Identifier |location|
-//@[10:11)      Colon |:|
-//@[12:15)      StringSyntax
-//@[12:15)       StringComplete |'l'|
-//@[15:17)     NewLine |\r\n|
+//@[002:00015) |   |   ├─ObjectPropertySyntax
+//@[002:00010) |   |   | ├─IdentifierSyntax
+//@[002:00010) |   |   | | └─Token(Identifier) |location|
+//@[010:00011) |   |   | ├─Token(Colon) |:|
+//@[012:00015) |   |   | └─StringSyntax
+//@[012:00015) |   |   |   └─Token(StringComplete) |'l'|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:49)     ObjectPropertySyntax
-//@[2:12)      IdentifierSyntax
-//@[2:12)       Identifier |properties|
-//@[12:13)      Colon |:|
-//@[14:49)      ObjectSyntax
-//@[14:15)       LeftBrace |{|
-//@[15:17)       NewLine |\r\n|
+//@[002:00049) |   |   ├─ObjectPropertySyntax
+//@[002:00012) |   |   | ├─IdentifierSyntax
+//@[002:00012) |   |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   |   | ├─Token(Colon) |:|
+//@[014:00049) |   |   | └─ObjectSyntax
+//@[014:00015) |   |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   |   ├─Token(NewLine) |\r\n|
     createMode: 'Default'
-//@[4:25)       ObjectPropertySyntax
-//@[4:14)        IdentifierSyntax
-//@[4:14)         Identifier |createMode|
-//@[14:15)        Colon |:|
-//@[16:25)        StringSyntax
-//@[16:25)         StringComplete |'Default'|
-//@[25:29)       NewLine |\r\n\r\n|
+//@[004:00025) |   |   |   ├─ObjectPropertySyntax
+//@[004:00014) |   |   |   | ├─IdentifierSyntax
+//@[004:00014) |   |   |   | | └─Token(Identifier) |createMode|
+//@[014:00015) |   |   |   | ├─Token(Colon) |:|
+//@[016:00025) |   |   |   | └─StringSyntax
+//@[016:00025) |   |   |   |   └─Token(StringComplete) |'Default'|
+//@[025:00029) |   |   |   ├─Token(NewLine) |\r\n\r\n|
 
   }
-//@[2:3)       RightBrace |}|
-//@[3:5)     NewLine |\r\n|
+//@[002:00003) |   |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   |   ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)     RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:00001) |   |   └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 // #completionTest(86) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions_for_if = nestedDiscriminator_for_if[0].properties.a
-//@[0:86) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:41)  IdentifierSyntax
-//@[4:41)   Identifier |nestedDiscriminatorCompletions_for_if|
-//@[42:43)  Assignment |=|
-//@[44:86)  PropertyAccessSyntax
-//@[44:84)   PropertyAccessSyntax
-//@[44:73)    ArrayAccessSyntax
-//@[44:70)     VariableAccessSyntax
-//@[44:70)      IdentifierSyntax
-//@[44:70)       Identifier |nestedDiscriminator_for_if|
-//@[70:71)     LeftSquare |[|
-//@[71:72)     IntegerLiteralSyntax
-//@[71:72)      Integer |0|
-//@[72:73)     RightSquare |]|
-//@[73:74)    Dot |.|
-//@[74:84)    IdentifierSyntax
-//@[74:84)     Identifier |properties|
-//@[84:85)   Dot |.|
-//@[85:86)   IdentifierSyntax
-//@[85:86)    Identifier |a|
-//@[86:88) NewLine |\r\n|
+//@[000:00086) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00041) | ├─IdentifierSyntax
+//@[004:00041) | | └─Token(Identifier) |nestedDiscriminatorCompletions_for_if|
+//@[042:00043) | ├─Token(Assignment) |=|
+//@[044:00086) | └─PropertyAccessSyntax
+//@[044:00084) |   ├─PropertyAccessSyntax
+//@[044:00073) |   | ├─ArrayAccessSyntax
+//@[044:00070) |   | | ├─VariableAccessSyntax
+//@[044:00070) |   | | | └─IdentifierSyntax
+//@[044:00070) |   | | |   └─Token(Identifier) |nestedDiscriminator_for_if|
+//@[070:00071) |   | | ├─Token(LeftSquare) |[|
+//@[071:00072) |   | | ├─IntegerLiteralSyntax
+//@[071:00072) |   | | | └─Token(Integer) |0|
+//@[072:00073) |   | | └─Token(RightSquare) |]|
+//@[073:00074) |   | ├─Token(Dot) |.|
+//@[074:00084) |   | └─IdentifierSyntax
+//@[074:00084) |   |   └─Token(Identifier) |properties|
+//@[084:00085) |   ├─Token(Dot) |.|
+//@[085:00086) |   └─IdentifierSyntax
+//@[085:00086) |     └─Token(Identifier) |a|
+//@[086:00088) ├─Token(NewLine) |\r\n|
 // #completionTest(90) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions2_for_if = nestedDiscriminator_for_if[0]['properties'].a
-//@[0:90) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:42)  IdentifierSyntax
-//@[4:42)   Identifier |nestedDiscriminatorCompletions2_for_if|
-//@[43:44)  Assignment |=|
-//@[45:90)  PropertyAccessSyntax
-//@[45:88)   ArrayAccessSyntax
-//@[45:74)    ArrayAccessSyntax
-//@[45:71)     VariableAccessSyntax
-//@[45:71)      IdentifierSyntax
-//@[45:71)       Identifier |nestedDiscriminator_for_if|
-//@[71:72)     LeftSquare |[|
-//@[72:73)     IntegerLiteralSyntax
-//@[72:73)      Integer |0|
-//@[73:74)     RightSquare |]|
-//@[74:75)    LeftSquare |[|
-//@[75:87)    StringSyntax
-//@[75:87)     StringComplete |'properties'|
-//@[87:88)    RightSquare |]|
-//@[88:89)   Dot |.|
-//@[89:90)   IdentifierSyntax
-//@[89:90)    Identifier |a|
-//@[90:92) NewLine |\r\n|
+//@[000:00090) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00042) | ├─IdentifierSyntax
+//@[004:00042) | | └─Token(Identifier) |nestedDiscriminatorCompletions2_for_if|
+//@[043:00044) | ├─Token(Assignment) |=|
+//@[045:00090) | └─PropertyAccessSyntax
+//@[045:00088) |   ├─ArrayAccessSyntax
+//@[045:00074) |   | ├─ArrayAccessSyntax
+//@[045:00071) |   | | ├─VariableAccessSyntax
+//@[045:00071) |   | | | └─IdentifierSyntax
+//@[045:00071) |   | | |   └─Token(Identifier) |nestedDiscriminator_for_if|
+//@[071:00072) |   | | ├─Token(LeftSquare) |[|
+//@[072:00073) |   | | ├─IntegerLiteralSyntax
+//@[072:00073) |   | | | └─Token(Integer) |0|
+//@[073:00074) |   | | └─Token(RightSquare) |]|
+//@[074:00075) |   | ├─Token(LeftSquare) |[|
+//@[075:00087) |   | ├─StringSyntax
+//@[075:00087) |   | | └─Token(StringComplete) |'properties'|
+//@[087:00088) |   | └─Token(RightSquare) |]|
+//@[088:00089) |   ├─Token(Dot) |.|
+//@[089:00090) |   └─IdentifierSyntax
+//@[089:00090) |     └─Token(Identifier) |a|
+//@[090:00092) ├─Token(NewLine) |\r\n|
 // #completionTest(86) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions3_for_if = nestedDiscriminator_for_if[0].properties.
-//@[0:86) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:42)  IdentifierSyntax
-//@[4:42)   Identifier |nestedDiscriminatorCompletions3_for_if|
-//@[43:44)  Assignment |=|
-//@[45:86)  PropertyAccessSyntax
-//@[45:85)   PropertyAccessSyntax
-//@[45:74)    ArrayAccessSyntax
-//@[45:71)     VariableAccessSyntax
-//@[45:71)      IdentifierSyntax
-//@[45:71)       Identifier |nestedDiscriminator_for_if|
-//@[71:72)     LeftSquare |[|
-//@[72:73)     IntegerLiteralSyntax
-//@[72:73)      Integer |0|
-//@[73:74)     RightSquare |]|
-//@[74:75)    Dot |.|
-//@[75:85)    IdentifierSyntax
-//@[75:85)     Identifier |properties|
-//@[85:86)   Dot |.|
-//@[86:86)   IdentifierSyntax
-//@[86:86)    SkippedTriviaSyntax
-//@[86:88) NewLine |\r\n|
+//@[000:00086) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00042) | ├─IdentifierSyntax
+//@[004:00042) | | └─Token(Identifier) |nestedDiscriminatorCompletions3_for_if|
+//@[043:00044) | ├─Token(Assignment) |=|
+//@[045:00086) | └─PropertyAccessSyntax
+//@[045:00085) |   ├─PropertyAccessSyntax
+//@[045:00074) |   | ├─ArrayAccessSyntax
+//@[045:00071) |   | | ├─VariableAccessSyntax
+//@[045:00071) |   | | | └─IdentifierSyntax
+//@[045:00071) |   | | |   └─Token(Identifier) |nestedDiscriminator_for_if|
+//@[071:00072) |   | | ├─Token(LeftSquare) |[|
+//@[072:00073) |   | | ├─IntegerLiteralSyntax
+//@[072:00073) |   | | | └─Token(Integer) |0|
+//@[073:00074) |   | | └─Token(RightSquare) |]|
+//@[074:00075) |   | ├─Token(Dot) |.|
+//@[075:00085) |   | └─IdentifierSyntax
+//@[075:00085) |   |   └─Token(Identifier) |properties|
+//@[085:00086) |   ├─Token(Dot) |.|
+//@[086:00086) |   └─IdentifierSyntax
+//@[086:00086) |     └─SkippedTriviaSyntax
+//@[086:00088) ├─Token(NewLine) |\r\n|
 // #completionTest(89) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:00055) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorCompletions4_for_if = nestedDiscriminator_for_if[0]['properties'].
-//@[0:89) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:42)  IdentifierSyntax
-//@[4:42)   Identifier |nestedDiscriminatorCompletions4_for_if|
-//@[43:44)  Assignment |=|
-//@[45:89)  PropertyAccessSyntax
-//@[45:88)   ArrayAccessSyntax
-//@[45:74)    ArrayAccessSyntax
-//@[45:71)     VariableAccessSyntax
-//@[45:71)      IdentifierSyntax
-//@[45:71)       Identifier |nestedDiscriminator_for_if|
-//@[71:72)     LeftSquare |[|
-//@[72:73)     IntegerLiteralSyntax
-//@[72:73)      Integer |0|
-//@[73:74)     RightSquare |]|
-//@[74:75)    LeftSquare |[|
-//@[75:87)    StringSyntax
-//@[75:87)     StringComplete |'properties'|
-//@[87:88)    RightSquare |]|
-//@[88:89)   Dot |.|
-//@[89:89)   IdentifierSyntax
-//@[89:89)    SkippedTriviaSyntax
-//@[89:93) NewLine |\r\n\r\n|
+//@[000:00089) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00042) | ├─IdentifierSyntax
+//@[004:00042) | | └─Token(Identifier) |nestedDiscriminatorCompletions4_for_if|
+//@[043:00044) | ├─Token(Assignment) |=|
+//@[045:00089) | └─PropertyAccessSyntax
+//@[045:00088) |   ├─ArrayAccessSyntax
+//@[045:00074) |   | ├─ArrayAccessSyntax
+//@[045:00071) |   | | ├─VariableAccessSyntax
+//@[045:00071) |   | | | └─IdentifierSyntax
+//@[045:00071) |   | | |   └─Token(Identifier) |nestedDiscriminator_for_if|
+//@[071:00072) |   | | ├─Token(LeftSquare) |[|
+//@[072:00073) |   | | ├─IntegerLiteralSyntax
+//@[072:00073) |   | | | └─Token(Integer) |0|
+//@[073:00074) |   | | └─Token(RightSquare) |]|
+//@[074:00075) |   | ├─Token(LeftSquare) |[|
+//@[075:00087) |   | ├─StringSyntax
+//@[075:00087) |   | | └─Token(StringComplete) |'properties'|
+//@[087:00088) |   | └─Token(RightSquare) |]|
+//@[088:00089) |   ├─Token(Dot) |.|
+//@[089:00089) |   └─IdentifierSyntax
+//@[089:00089) |     └─SkippedTriviaSyntax
+//@[089:00093) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(96) -> defaultCreateModeIndexes_for_if
-//@[57:59) NewLine |\r\n|
+//@[057:00059) ├─Token(NewLine) |\r\n|
 var nestedDiscriminatorArrayIndexCompletions_for_if = nestedDiscriminator_for_if[0].properties[a]
-//@[0:97) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:51)  IdentifierSyntax
-//@[4:51)   Identifier |nestedDiscriminatorArrayIndexCompletions_for_if|
-//@[52:53)  Assignment |=|
-//@[54:97)  ArrayAccessSyntax
-//@[54:94)   PropertyAccessSyntax
-//@[54:83)    ArrayAccessSyntax
-//@[54:80)     VariableAccessSyntax
-//@[54:80)      IdentifierSyntax
-//@[54:80)       Identifier |nestedDiscriminator_for_if|
-//@[80:81)     LeftSquare |[|
-//@[81:82)     IntegerLiteralSyntax
-//@[81:82)      Integer |0|
-//@[82:83)     RightSquare |]|
-//@[83:84)    Dot |.|
-//@[84:94)    IdentifierSyntax
-//@[84:94)     Identifier |properties|
-//@[94:95)   LeftSquare |[|
-//@[95:96)   VariableAccessSyntax
-//@[95:96)    IdentifierSyntax
-//@[95:96)     Identifier |a|
-//@[96:97)   RightSquare |]|
-//@[97:105) NewLine |\r\n\r\n\r\n\r\n|
+//@[000:00097) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00051) | ├─IdentifierSyntax
+//@[004:00051) | | └─Token(Identifier) |nestedDiscriminatorArrayIndexCompletions_for_if|
+//@[052:00053) | ├─Token(Assignment) |=|
+//@[054:00097) | └─ArrayAccessSyntax
+//@[054:00094) |   ├─PropertyAccessSyntax
+//@[054:00083) |   | ├─ArrayAccessSyntax
+//@[054:00080) |   | | ├─VariableAccessSyntax
+//@[054:00080) |   | | | └─IdentifierSyntax
+//@[054:00080) |   | | |   └─Token(Identifier) |nestedDiscriminator_for_if|
+//@[080:00081) |   | | ├─Token(LeftSquare) |[|
+//@[081:00082) |   | | ├─IntegerLiteralSyntax
+//@[081:00082) |   | | | └─Token(Integer) |0|
+//@[082:00083) |   | | └─Token(RightSquare) |]|
+//@[083:00084) |   | ├─Token(Dot) |.|
+//@[084:00094) |   | └─IdentifierSyntax
+//@[084:00094) |   |   └─Token(Identifier) |properties|
+//@[094:00095) |   ├─Token(LeftSquare) |[|
+//@[095:00096) |   ├─VariableAccessSyntax
+//@[095:00096) |   | └─IdentifierSyntax
+//@[095:00096) |   |   └─Token(Identifier) |a|
+//@[096:00097) |   └─Token(RightSquare) |]|
+//@[097:00105) ├─Token(NewLine) |\r\n\r\n\r\n\r\n|
 
 
 
 // sample resource to validate completions on the next declarations
-//@[67:69) NewLine |\r\n|
+//@[067:00069) ├─Token(NewLine) |\r\n|
 resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@2020-06-01' = if(true) {
-//@[0:209) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:42)  IdentifierSyntax
-//@[9:42)   Identifier |nestedPropertyAccessOnConditional|
-//@[43:89)  StringSyntax
-//@[43:89)   StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
-//@[90:91)  Assignment |=|
-//@[92:209)  IfConditionSyntax
-//@[92:94)   Identifier |if|
-//@[94:100)   ParenthesizedExpressionSyntax
-//@[94:95)    LeftParen |(|
-//@[95:99)    BooleanLiteralSyntax
-//@[95:99)     TrueKeyword |true|
-//@[99:100)    RightParen |)|
-//@[101:209)   ObjectSyntax
-//@[101:102)    LeftBrace |{|
-//@[102:104)    NewLine |\r\n|
+//@[000:00209) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00042) | ├─IdentifierSyntax
+//@[009:00042) | | └─Token(Identifier) |nestedPropertyAccessOnConditional|
+//@[043:00089) | ├─StringSyntax
+//@[043:00089) | | └─Token(StringComplete) |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[090:00091) | ├─Token(Assignment) |=|
+//@[092:00209) | └─IfConditionSyntax
+//@[092:00094) |   ├─Token(Identifier) |if|
+//@[094:00100) |   ├─ParenthesizedExpressionSyntax
+//@[094:00095) |   | ├─Token(LeftParen) |(|
+//@[095:00099) |   | ├─BooleanLiteralSyntax
+//@[095:00099) |   | | └─Token(TrueKeyword) |true|
+//@[099:00100) |   | └─Token(RightParen) |)|
+//@[101:00209) |   └─ObjectSyntax
+//@[101:00102) |     ├─Token(LeftBrace) |{|
+//@[102:00104) |     ├─Token(NewLine) |\r\n|
   location: 'test'
-//@[2:18)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:18)     StringSyntax
-//@[12:18)      StringComplete |'test'|
-//@[18:20)    NewLine |\r\n|
+//@[002:00018) |     ├─ObjectPropertySyntax
+//@[002:00010) |     | ├─IdentifierSyntax
+//@[002:00010) |     | | └─Token(Identifier) |location|
+//@[010:00011) |     | ├─Token(Colon) |:|
+//@[012:00018) |     | └─StringSyntax
+//@[012:00018) |     |   └─Token(StringComplete) |'test'|
+//@[018:00020) |     ├─Token(NewLine) |\r\n|
   name: 'test'
-//@[2:14)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:14)     StringSyntax
-//@[8:14)      StringComplete |'test'|
-//@[14:16)    NewLine |\r\n|
+//@[002:00014) |     ├─ObjectPropertySyntax
+//@[002:00006) |     | ├─IdentifierSyntax
+//@[002:00006) |     | | └─Token(Identifier) |name|
+//@[006:00007) |     | ├─Token(Colon) |:|
+//@[008:00014) |     | └─StringSyntax
+//@[008:00014) |     |   └─Token(StringComplete) |'test'|
+//@[014:00016) |     ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:66)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:66)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00066) |     ├─ObjectPropertySyntax
+//@[002:00012) |     | ├─IdentifierSyntax
+//@[002:00012) |     | | └─Token(Identifier) |properties|
+//@[012:00013) |     | ├─Token(Colon) |:|
+//@[014:00066) |     | └─ObjectSyntax
+//@[014:00015) |     |   ├─Token(LeftBrace) |{|
+//@[015:00017) |     |   ├─Token(NewLine) |\r\n|
     additionalCapabilities: {
-//@[4:44)      ObjectPropertySyntax
-//@[4:26)       IdentifierSyntax
-//@[4:26)        Identifier |additionalCapabilities|
-//@[26:27)       Colon |:|
-//@[28:44)       ObjectSyntax
-//@[28:29)        LeftBrace |{|
-//@[29:31)        NewLine |\r\n|
+//@[004:00044) |     |   ├─ObjectPropertySyntax
+//@[004:00026) |     |   | ├─IdentifierSyntax
+//@[004:00026) |     |   | | └─Token(Identifier) |additionalCapabilities|
+//@[026:00027) |     |   | ├─Token(Colon) |:|
+//@[028:00044) |     |   | └─ObjectSyntax
+//@[028:00029) |     |   |   ├─Token(LeftBrace) |{|
+//@[029:00031) |     |   |   ├─Token(NewLine) |\r\n|
       
-//@[6:8)        NewLine |\r\n|
+//@[006:00008) |     |   |   ├─Token(NewLine) |\r\n|
     }
-//@[4:5)        RightBrace |}|
-//@[5:7)      NewLine |\r\n|
+//@[004:00005) |     |   |   └─Token(RightBrace) |}|
+//@[005:00007) |     |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |     |   └─Token(RightBrace) |}|
+//@[003:00005) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 // this validates that we can get nested property access completions on a conditional resource
-//@[94:96) NewLine |\r\n|
+//@[094:00096) ├─Token(NewLine) |\r\n|
 //#completionTest(56) -> vmProperties
-//@[37:39) NewLine |\r\n|
+//@[037:00039) ├─Token(NewLine) |\r\n|
 var sigh = nestedPropertyAccessOnConditional.properties.
-//@[0:56) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:8)  IdentifierSyntax
-//@[4:8)   Identifier |sigh|
-//@[9:10)  Assignment |=|
-//@[11:56)  PropertyAccessSyntax
-//@[11:55)   PropertyAccessSyntax
-//@[11:44)    VariableAccessSyntax
-//@[11:44)     IdentifierSyntax
-//@[11:44)      Identifier |nestedPropertyAccessOnConditional|
-//@[44:45)    Dot |.|
-//@[45:55)    IdentifierSyntax
-//@[45:55)     Identifier |properties|
-//@[55:56)   Dot |.|
-//@[56:56)   IdentifierSyntax
-//@[56:56)    SkippedTriviaSyntax
-//@[56:60) NewLine |\r\n\r\n|
+//@[000:00056) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00008) | ├─IdentifierSyntax
+//@[004:00008) | | └─Token(Identifier) |sigh|
+//@[009:00010) | ├─Token(Assignment) |=|
+//@[011:00056) | └─PropertyAccessSyntax
+//@[011:00055) |   ├─PropertyAccessSyntax
+//@[011:00044) |   | ├─VariableAccessSyntax
+//@[011:00044) |   | | └─IdentifierSyntax
+//@[011:00044) |   | |   └─Token(Identifier) |nestedPropertyAccessOnConditional|
+//@[044:00045) |   | ├─Token(Dot) |.|
+//@[045:00055) |   | └─IdentifierSyntax
+//@[045:00055) |   |   └─Token(Identifier) |properties|
+//@[055:00056) |   ├─Token(Dot) |.|
+//@[056:00056) |   └─IdentifierSyntax
+//@[056:00056) |     └─SkippedTriviaSyntax
+//@[056:00060) ├─Token(NewLine) |\r\n\r\n|
 
 /*
   boolean property value completions
 */ 
-//@[3:5) NewLine |\r\n|
+//@[003:00005) ├─Token(NewLine) |\r\n|
 resource booleanPropertyPartialValue 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-//@[0:222) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:36)  IdentifierSyntax
-//@[9:36)   Identifier |booleanPropertyPartialValue|
-//@[37:94)  StringSyntax
-//@[37:94)   StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
-//@[95:96)  Assignment |=|
-//@[97:222)  ObjectSyntax
-//@[97:98)   LeftBrace |{|
-//@[98:100)   NewLine |\r\n|
+//@[000:00222) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00036) | ├─IdentifierSyntax
+//@[009:00036) | | └─Token(Identifier) |booleanPropertyPartialValue|
+//@[037:00094) | ├─StringSyntax
+//@[037:00094) | | └─Token(StringComplete) |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
+//@[095:00096) | ├─Token(Assignment) |=|
+//@[097:00222) | └─ObjectSyntax
+//@[097:00098) |   ├─Token(LeftBrace) |{|
+//@[098:00100) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:119)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:119)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00119) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00119) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     // #completionTest(28,29,30) -> boolPropertyValuesPlusSymbols
-//@[65:67)     NewLine |\r\n|
+//@[065:00067) |   |   ├─Token(NewLine) |\r\n|
     autoUpgradeMinorVersion: t
-//@[4:30)     ObjectPropertySyntax
-//@[4:27)      IdentifierSyntax
-//@[4:27)       Identifier |autoUpgradeMinorVersion|
-//@[27:28)      Colon |:|
-//@[29:30)      VariableAccessSyntax
-//@[29:30)       IdentifierSyntax
-//@[29:30)        Identifier |t|
-//@[30:32)     NewLine |\r\n|
+//@[004:00030) |   |   ├─ObjectPropertySyntax
+//@[004:00027) |   |   | ├─IdentifierSyntax
+//@[004:00027) |   |   | | └─Token(Identifier) |autoUpgradeMinorVersion|
+//@[027:00028) |   |   | ├─Token(Colon) |:|
+//@[029:00030) |   |   | └─VariableAccessSyntax
+//@[029:00030) |   |   |   └─IdentifierSyntax
+//@[029:00030) |   |   |     └─Token(Identifier) |t|
+//@[030:00032) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource selfScope 'My.Rp/mockResource@2020-12-01' = {
-//@[0:98) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:18)  IdentifierSyntax
-//@[9:18)   Identifier |selfScope|
-//@[19:50)  StringSyntax
-//@[19:50)   StringComplete |'My.Rp/mockResource@2020-12-01'|
-//@[51:52)  Assignment |=|
-//@[53:98)  ObjectSyntax
-//@[53:54)   LeftBrace |{|
-//@[54:56)   NewLine |\r\n|
+//@[000:00098) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00018) | ├─IdentifierSyntax
+//@[009:00018) | | └─Token(Identifier) |selfScope|
+//@[019:00050) | ├─StringSyntax
+//@[019:00050) | | └─Token(StringComplete) |'My.Rp/mockResource@2020-12-01'|
+//@[051:00052) | ├─Token(Assignment) |=|
+//@[053:00098) | └─ObjectSyntax
+//@[053:00054) |   ├─Token(LeftBrace) |{|
+//@[054:00056) |   ├─Token(NewLine) |\r\n|
   name: 'selfScope'
-//@[2:19)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:19)    StringSyntax
-//@[8:19)     StringComplete |'selfScope'|
-//@[19:21)   NewLine |\r\n|
+//@[002:00019) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00019) |   | └─StringSyntax
+//@[008:00019) |   |   └─Token(StringComplete) |'selfScope'|
+//@[019:00021) |   ├─Token(NewLine) |\r\n|
   scope: selfScope
-//@[2:18)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:18)    VariableAccessSyntax
-//@[9:18)     IdentifierSyntax
-//@[9:18)      Identifier |selfScope|
-//@[18:20)   NewLine |\r\n|
+//@[002:00018) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |scope|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00018) |   | └─VariableAccessSyntax
+//@[009:00018) |   |   └─IdentifierSyntax
+//@[009:00018) |   |     └─Token(Identifier) |selfScope|
+//@[018:00020) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 var notAResource = {
-//@[0:54) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:16)  IdentifierSyntax
-//@[4:16)   Identifier |notAResource|
-//@[17:18)  Assignment |=|
-//@[19:54)  ObjectSyntax
-//@[19:20)   LeftBrace |{|
-//@[20:22)   NewLine |\r\n|
+//@[000:00054) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00016) | ├─IdentifierSyntax
+//@[004:00016) | | └─Token(Identifier) |notAResource|
+//@[017:00018) | ├─Token(Assignment) |=|
+//@[019:00054) | └─ObjectSyntax
+//@[019:00020) |   ├─Token(LeftBrace) |{|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
   im: 'not'
-//@[2:11)   ObjectPropertySyntax
-//@[2:4)    IdentifierSyntax
-//@[2:4)     Identifier |im|
-//@[4:5)    Colon |:|
-//@[6:11)    StringSyntax
-//@[6:11)     StringComplete |'not'|
-//@[11:13)   NewLine |\r\n|
+//@[002:00011) |   ├─ObjectPropertySyntax
+//@[002:00004) |   | ├─IdentifierSyntax
+//@[002:00004) |   | | └─Token(Identifier) |im|
+//@[004:00005) |   | ├─Token(Colon) |:|
+//@[006:00011) |   | └─StringSyntax
+//@[006:00011) |   |   └─Token(StringComplete) |'not'|
+//@[011:00013) |   ├─Token(NewLine) |\r\n|
   a: 'resource!'
-//@[2:16)   ObjectPropertySyntax
-//@[2:3)    IdentifierSyntax
-//@[2:3)     Identifier |a|
-//@[3:4)    Colon |:|
-//@[5:16)    StringSyntax
-//@[5:16)     StringComplete |'resource!'|
-//@[16:18)   NewLine |\r\n|
+//@[002:00016) |   ├─ObjectPropertySyntax
+//@[002:00003) |   | ├─IdentifierSyntax
+//@[002:00003) |   | | └─Token(Identifier) |a|
+//@[003:00004) |   | ├─Token(Colon) |:|
+//@[005:00016) |   | └─StringSyntax
+//@[005:00016) |   |   └─Token(StringComplete) |'resource!'|
+//@[016:00018) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 resource invalidScope 'My.Rp/mockResource@2020-12-01' = {
-//@[0:107) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:21)  IdentifierSyntax
-//@[9:21)   Identifier |invalidScope|
-//@[22:53)  StringSyntax
-//@[22:53)   StringComplete |'My.Rp/mockResource@2020-12-01'|
-//@[54:55)  Assignment |=|
-//@[56:107)  ObjectSyntax
-//@[56:57)   LeftBrace |{|
-//@[57:59)   NewLine |\r\n|
+//@[000:00107) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00021) | ├─IdentifierSyntax
+//@[009:00021) | | └─Token(Identifier) |invalidScope|
+//@[022:00053) | ├─StringSyntax
+//@[022:00053) | | └─Token(StringComplete) |'My.Rp/mockResource@2020-12-01'|
+//@[054:00055) | ├─Token(Assignment) |=|
+//@[056:00107) | └─ObjectSyntax
+//@[056:00057) |   ├─Token(LeftBrace) |{|
+//@[057:00059) |   ├─Token(NewLine) |\r\n|
   name: 'invalidScope'
-//@[2:22)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:22)    StringSyntax
-//@[8:22)     StringComplete |'invalidScope'|
-//@[22:24)   NewLine |\r\n|
+//@[002:00022) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00022) |   | └─StringSyntax
+//@[008:00022) |   |   └─Token(StringComplete) |'invalidScope'|
+//@[022:00024) |   ├─Token(NewLine) |\r\n|
   scope: notAResource
-//@[2:21)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:21)    VariableAccessSyntax
-//@[9:21)     IdentifierSyntax
-//@[9:21)      Identifier |notAResource|
-//@[21:23)   NewLine |\r\n|
+//@[002:00021) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |scope|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00021) |   | └─VariableAccessSyntax
+//@[009:00021) |   |   └─IdentifierSyntax
+//@[009:00021) |   |     └─Token(Identifier) |notAResource|
+//@[021:00023) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource invalidScope2 'My.Rp/mockResource@2020-12-01' = {
-//@[0:112) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:22)  IdentifierSyntax
-//@[9:22)   Identifier |invalidScope2|
-//@[23:54)  StringSyntax
-//@[23:54)   StringComplete |'My.Rp/mockResource@2020-12-01'|
-//@[55:56)  Assignment |=|
-//@[57:112)  ObjectSyntax
-//@[57:58)   LeftBrace |{|
-//@[58:60)   NewLine |\r\n|
+//@[000:00112) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00022) | ├─IdentifierSyntax
+//@[009:00022) | | └─Token(Identifier) |invalidScope2|
+//@[023:00054) | ├─StringSyntax
+//@[023:00054) | | └─Token(StringComplete) |'My.Rp/mockResource@2020-12-01'|
+//@[055:00056) | ├─Token(Assignment) |=|
+//@[057:00112) | └─ObjectSyntax
+//@[057:00058) |   ├─Token(LeftBrace) |{|
+//@[058:00060) |   ├─Token(NewLine) |\r\n|
   name: 'invalidScope2'
-//@[2:23)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:23)    StringSyntax
-//@[8:23)     StringComplete |'invalidScope2'|
-//@[23:25)   NewLine |\r\n|
+//@[002:00023) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00023) |   | └─StringSyntax
+//@[008:00023) |   |   └─Token(StringComplete) |'invalidScope2'|
+//@[023:00025) |   ├─Token(NewLine) |\r\n|
   scope: resourceGroup()
-//@[2:24)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:24)    FunctionCallSyntax
-//@[9:22)     IdentifierSyntax
-//@[9:22)      Identifier |resourceGroup|
-//@[22:23)     LeftParen |(|
-//@[23:24)     RightParen |)|
-//@[24:26)   NewLine |\r\n|
+//@[002:00024) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |scope|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00024) |   | └─FunctionCallSyntax
+//@[009:00022) |   |   ├─IdentifierSyntax
+//@[009:00022) |   |   | └─Token(Identifier) |resourceGroup|
+//@[022:00023) |   |   ├─Token(LeftParen) |(|
+//@[023:00024) |   |   └─Token(RightParen) |)|
+//@[024:00026) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
-//@[0:111) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:22)  IdentifierSyntax
-//@[9:22)   Identifier |invalidScope3|
-//@[23:54)  StringSyntax
-//@[23:54)   StringComplete |'My.Rp/mockResource@2020-12-01'|
-//@[55:56)  Assignment |=|
-//@[57:111)  ObjectSyntax
-//@[57:58)   LeftBrace |{|
-//@[58:60)   NewLine |\r\n|
+//@[000:00111) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00022) | ├─IdentifierSyntax
+//@[009:00022) | | └─Token(Identifier) |invalidScope3|
+//@[023:00054) | ├─StringSyntax
+//@[023:00054) | | └─Token(StringComplete) |'My.Rp/mockResource@2020-12-01'|
+//@[055:00056) | ├─Token(Assignment) |=|
+//@[057:00111) | └─ObjectSyntax
+//@[057:00058) |   ├─Token(LeftBrace) |{|
+//@[058:00060) |   ├─Token(NewLine) |\r\n|
   name: 'invalidScope3'
-//@[2:23)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:23)    StringSyntax
-//@[8:23)     StringComplete |'invalidScope3'|
-//@[23:25)   NewLine |\r\n|
+//@[002:00023) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00023) |   | └─StringSyntax
+//@[008:00023) |   |   └─Token(StringComplete) |'invalidScope3'|
+//@[023:00025) |   ├─Token(NewLine) |\r\n|
   scope: subscription()
-//@[2:23)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:23)    FunctionCallSyntax
-//@[9:21)     IdentifierSyntax
-//@[9:21)      Identifier |subscription|
-//@[21:22)     LeftParen |(|
-//@[22:23)     RightParen |)|
-//@[23:25)   NewLine |\r\n|
+//@[002:00023) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |scope|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00023) |   | └─FunctionCallSyntax
+//@[009:00021) |   |   ├─IdentifierSyntax
+//@[009:00021) |   |   | └─Token(Identifier) |subscription|
+//@[021:00022) |   |   ├─Token(LeftParen) |(|
+//@[022:00023) |   |   └─Token(RightParen) |)|
+//@[023:00025) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource invalidDuplicateName1 'Mock.Rp/mockResource@2020-01-01' = {
-//@[0:103) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:30)  IdentifierSyntax
-//@[9:30)   Identifier |invalidDuplicateName1|
-//@[31:64)  StringSyntax
-//@[31:64)   StringComplete |'Mock.Rp/mockResource@2020-01-01'|
-//@[65:66)  Assignment |=|
-//@[67:103)  ObjectSyntax
-//@[67:68)   LeftBrace |{|
-//@[68:70)   NewLine |\r\n|
+//@[000:00103) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00030) | ├─IdentifierSyntax
+//@[009:00030) | | └─Token(Identifier) |invalidDuplicateName1|
+//@[031:00064) | ├─StringSyntax
+//@[031:00064) | | └─Token(StringComplete) |'Mock.Rp/mockResource@2020-01-01'|
+//@[065:00066) | ├─Token(Assignment) |=|
+//@[067:00103) | └─ObjectSyntax
+//@[067:00068) |   ├─Token(LeftBrace) |{|
+//@[068:00070) |   ├─Token(NewLine) |\r\n|
   name: 'invalidDuplicateName'
-//@[2:30)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:30)    StringSyntax
-//@[8:30)     StringComplete |'invalidDuplicateName'|
-//@[30:32)   NewLine |\r\n|
+//@[002:00030) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00030) |   | └─StringSyntax
+//@[008:00030) |   |   └─Token(StringComplete) |'invalidDuplicateName'|
+//@[030:00032) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 resource invalidDuplicateName2 'Mock.Rp/mockResource@2020-01-01' = {
-//@[0:103) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:30)  IdentifierSyntax
-//@[9:30)   Identifier |invalidDuplicateName2|
-//@[31:64)  StringSyntax
-//@[31:64)   StringComplete |'Mock.Rp/mockResource@2020-01-01'|
-//@[65:66)  Assignment |=|
-//@[67:103)  ObjectSyntax
-//@[67:68)   LeftBrace |{|
-//@[68:70)   NewLine |\r\n|
+//@[000:00103) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00030) | ├─IdentifierSyntax
+//@[009:00030) | | └─Token(Identifier) |invalidDuplicateName2|
+//@[031:00064) | ├─StringSyntax
+//@[031:00064) | | └─Token(StringComplete) |'Mock.Rp/mockResource@2020-01-01'|
+//@[065:00066) | ├─Token(Assignment) |=|
+//@[067:00103) | └─ObjectSyntax
+//@[067:00068) |   ├─Token(LeftBrace) |{|
+//@[068:00070) |   ├─Token(NewLine) |\r\n|
   name: 'invalidDuplicateName'
-//@[2:30)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:30)    StringSyntax
-//@[8:30)     StringComplete |'invalidDuplicateName'|
-//@[30:32)   NewLine |\r\n|
+//@[002:00030) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00030) |   | └─StringSyntax
+//@[008:00030) |   |   └─Token(StringComplete) |'invalidDuplicateName'|
+//@[030:00032) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 resource invalidDuplicateName3 'Mock.Rp/mockResource@2019-01-01' = {
-//@[0:103) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:30)  IdentifierSyntax
-//@[9:30)   Identifier |invalidDuplicateName3|
-//@[31:64)  StringSyntax
-//@[31:64)   StringComplete |'Mock.Rp/mockResource@2019-01-01'|
-//@[65:66)  Assignment |=|
-//@[67:103)  ObjectSyntax
-//@[67:68)   LeftBrace |{|
-//@[68:70)   NewLine |\r\n|
+//@[000:00103) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00030) | ├─IdentifierSyntax
+//@[009:00030) | | └─Token(Identifier) |invalidDuplicateName3|
+//@[031:00064) | ├─StringSyntax
+//@[031:00064) | | └─Token(StringComplete) |'Mock.Rp/mockResource@2019-01-01'|
+//@[065:00066) | ├─Token(Assignment) |=|
+//@[067:00103) | └─ObjectSyntax
+//@[067:00068) |   ├─Token(LeftBrace) |{|
+//@[068:00070) |   ├─Token(NewLine) |\r\n|
   name: 'invalidDuplicateName'
-//@[2:30)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:30)    StringSyntax
-//@[8:30)     StringComplete |'invalidDuplicateName'|
-//@[30:32)   NewLine |\r\n|
+//@[002:00030) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00030) |   | └─StringSyntax
+//@[008:00030) |   |   └─Token(StringComplete) |'invalidDuplicateName'|
+//@[030:00032) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource validResourceForInvalidExtensionResourceDuplicateName 'Mock.Rp/mockResource@2020-01-01' = {
-//@[0:168) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:62)  IdentifierSyntax
-//@[9:62)   Identifier |validResourceForInvalidExtensionResourceDuplicateName|
-//@[63:96)  StringSyntax
-//@[63:96)   StringComplete |'Mock.Rp/mockResource@2020-01-01'|
-//@[97:98)  Assignment |=|
-//@[99:168)  ObjectSyntax
-//@[99:100)   LeftBrace |{|
-//@[100:102)   NewLine |\r\n|
+//@[000:00168) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00062) | ├─IdentifierSyntax
+//@[009:00062) | | └─Token(Identifier) |validResourceForInvalidExtensionResourceDuplicateName|
+//@[063:00096) | ├─StringSyntax
+//@[063:00096) | | └─Token(StringComplete) |'Mock.Rp/mockResource@2020-01-01'|
+//@[097:00098) | ├─Token(Assignment) |=|
+//@[099:00168) | └─ObjectSyntax
+//@[099:00100) |   ├─Token(LeftBrace) |{|
+//@[100:00102) |   ├─Token(NewLine) |\r\n|
   name: 'validResourceForInvalidExtensionResourceDuplicateName'
-//@[2:63)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:63)    StringSyntax
-//@[8:63)     StringComplete |'validResourceForInvalidExtensionResourceDuplicateName'|
-//@[63:65)   NewLine |\r\n|
+//@[002:00063) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00063) |   | └─StringSyntax
+//@[008:00063) |   |   └─Token(StringComplete) |'validResourceForInvalidExtensionResourceDuplicateName'|
+//@[063:00065) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource invalidExtensionResourceDuplicateName1 'Mock.Rp/mockExtResource@2020-01-01' = {
-//@[0:204) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:47)  IdentifierSyntax
-//@[9:47)   Identifier |invalidExtensionResourceDuplicateName1|
-//@[48:84)  StringSyntax
-//@[48:84)   StringComplete |'Mock.Rp/mockExtResource@2020-01-01'|
-//@[85:86)  Assignment |=|
-//@[87:204)  ObjectSyntax
-//@[87:88)   LeftBrace |{|
-//@[88:90)   NewLine |\r\n|
+//@[000:00204) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00047) | ├─IdentifierSyntax
+//@[009:00047) | | └─Token(Identifier) |invalidExtensionResourceDuplicateName1|
+//@[048:00084) | ├─StringSyntax
+//@[048:00084) | | └─Token(StringComplete) |'Mock.Rp/mockExtResource@2020-01-01'|
+//@[085:00086) | ├─Token(Assignment) |=|
+//@[087:00204) | └─ObjectSyntax
+//@[087:00088) |   ├─Token(LeftBrace) |{|
+//@[088:00090) |   ├─Token(NewLine) |\r\n|
   name: 'invalidExtensionResourceDuplicateName'
-//@[2:47)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:47)    StringSyntax
-//@[8:47)     StringComplete |'invalidExtensionResourceDuplicateName'|
-//@[47:49)   NewLine |\r\n|
+//@[002:00047) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00047) |   | └─StringSyntax
+//@[008:00047) |   |   └─Token(StringComplete) |'invalidExtensionResourceDuplicateName'|
+//@[047:00049) |   ├─Token(NewLine) |\r\n|
   scope: validResourceForInvalidExtensionResourceDuplicateName
-//@[2:62)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:62)    VariableAccessSyntax
-//@[9:62)     IdentifierSyntax
-//@[9:62)      Identifier |validResourceForInvalidExtensionResourceDuplicateName|
-//@[62:64)   NewLine |\r\n|
+//@[002:00062) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |scope|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00062) |   | └─VariableAccessSyntax
+//@[009:00062) |   |   └─IdentifierSyntax
+//@[009:00062) |   |     └─Token(Identifier) |validResourceForInvalidExtensionResourceDuplicateName|
+//@[062:00064) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01-01' = {
-//@[0:204) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:47)  IdentifierSyntax
-//@[9:47)   Identifier |invalidExtensionResourceDuplicateName2|
-//@[48:84)  StringSyntax
-//@[48:84)   StringComplete |'Mock.Rp/mockExtResource@2019-01-01'|
-//@[85:86)  Assignment |=|
-//@[87:204)  ObjectSyntax
-//@[87:88)   LeftBrace |{|
-//@[88:90)   NewLine |\r\n|
+//@[000:00204) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00047) | ├─IdentifierSyntax
+//@[009:00047) | | └─Token(Identifier) |invalidExtensionResourceDuplicateName2|
+//@[048:00084) | ├─StringSyntax
+//@[048:00084) | | └─Token(StringComplete) |'Mock.Rp/mockExtResource@2019-01-01'|
+//@[085:00086) | ├─Token(Assignment) |=|
+//@[087:00204) | └─ObjectSyntax
+//@[087:00088) |   ├─Token(LeftBrace) |{|
+//@[088:00090) |   ├─Token(NewLine) |\r\n|
   name: 'invalidExtensionResourceDuplicateName'
-//@[2:47)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:47)    StringSyntax
-//@[8:47)     StringComplete |'invalidExtensionResourceDuplicateName'|
-//@[47:49)   NewLine |\r\n|
+//@[002:00047) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00047) |   | └─StringSyntax
+//@[008:00047) |   |   └─Token(StringComplete) |'invalidExtensionResourceDuplicateName'|
+//@[047:00049) |   ├─Token(NewLine) |\r\n|
   scope: validResourceForInvalidExtensionResourceDuplicateName
-//@[2:62)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:62)    VariableAccessSyntax
-//@[9:62)     IdentifierSyntax
-//@[9:62)      Identifier |validResourceForInvalidExtensionResourceDuplicateName|
-//@[62:64)   NewLine |\r\n|
+//@[002:00062) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |scope|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00062) |   | └─VariableAccessSyntax
+//@[009:00062) |   |   └─IdentifierSyntax
+//@[009:00062) |   |     └─Token(Identifier) |validResourceForInvalidExtensionResourceDuplicateName|
+//@[062:00064) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 @concat('foo', 'bar')
-//@[0:131) ResourceDeclarationSyntax
-//@[0:21)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:21)   FunctionCallSyntax
-//@[1:7)    IdentifierSyntax
-//@[1:7)     Identifier |concat|
-//@[7:8)    LeftParen |(|
-//@[8:14)    FunctionArgumentSyntax
-//@[8:13)     StringSyntax
-//@[8:13)      StringComplete |'foo'|
-//@[13:14)     Comma |,|
-//@[15:20)    FunctionArgumentSyntax
-//@[15:20)     StringSyntax
-//@[15:20)      StringComplete |'bar'|
-//@[20:21)    RightParen |)|
-//@[21:23)  NewLine |\r\n|
+//@[000:00131) ├─ResourceDeclarationSyntax
+//@[000:00021) | ├─DecoratorSyntax
+//@[000:00001) | | ├─Token(At) |@|
+//@[001:00021) | | └─FunctionCallSyntax
+//@[001:00007) | |   ├─IdentifierSyntax
+//@[001:00007) | |   | └─Token(Identifier) |concat|
+//@[007:00008) | |   ├─Token(LeftParen) |(|
+//@[008:00013) | |   ├─FunctionArgumentSyntax
+//@[008:00013) | |   | └─StringSyntax
+//@[008:00013) | |   |   └─Token(StringComplete) |'foo'|
+//@[013:00014) | |   ├─Token(Comma) |,|
+//@[015:00020) | |   ├─FunctionArgumentSyntax
+//@[015:00020) | |   | └─StringSyntax
+//@[015:00020) | |   |   └─Token(StringComplete) |'bar'|
+//@[020:00021) | |   └─Token(RightParen) |)|
+//@[021:00023) | ├─Token(NewLine) |\r\n|
 @secure()
-//@[0:9)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:9)   FunctionCallSyntax
-//@[1:7)    IdentifierSyntax
-//@[1:7)     Identifier |secure|
-//@[7:8)    LeftParen |(|
-//@[8:9)    RightParen |)|
-//@[9:11)  NewLine |\r\n|
+//@[000:00009) | ├─DecoratorSyntax
+//@[000:00001) | | ├─Token(At) |@|
+//@[001:00009) | | └─FunctionCallSyntax
+//@[001:00007) | |   ├─IdentifierSyntax
+//@[001:00007) | |   | └─Token(Identifier) |secure|
+//@[007:00008) | |   ├─Token(LeftParen) |(|
+//@[008:00009) | |   └─Token(RightParen) |)|
+//@[009:00011) | ├─Token(NewLine) |\r\n|
 resource invalidDecorator 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:8)  Identifier |resource|
-//@[9:25)  IdentifierSyntax
-//@[9:25)   Identifier |invalidDecorator|
-//@[26:63)  StringSyntax
-//@[26:63)   StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[63:64)  Assignment |=|
-//@[65:97)  ObjectSyntax
-//@[65:66)   LeftBrace |{|
-//@[66:68)   NewLine |\r\n|
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00025) | ├─IdentifierSyntax
+//@[009:00025) | | └─Token(Identifier) |invalidDecorator|
+//@[026:00063) | ├─StringSyntax
+//@[026:00063) | | └─Token(StringComplete) |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[063:00064) | ├─Token(Assignment) |=|
+//@[065:00097) | └─ObjectSyntax
+//@[065:00066) |   ├─Token(LeftBrace) |{|
+//@[066:00068) |   ├─Token(NewLine) |\r\n|
   name: 'invalidDecorator'
-//@[2:26)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:26)    StringSyntax
-//@[8:26)     StringComplete |'invalidDecorator'|
-//@[26:28)   NewLine |\r\n|
+//@[002:00026) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00026) |   | └─StringSyntax
+//@[008:00026) |   |   └─Token(StringComplete) |'invalidDecorator'|
+//@[026:00028) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource cyclicRes 'Mock.Rp/mockExistingResource@2020-01-01' = {
-//@[0:108) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:18)  IdentifierSyntax
-//@[9:18)   Identifier |cyclicRes|
-//@[19:60)  StringSyntax
-//@[19:60)   StringComplete |'Mock.Rp/mockExistingResource@2020-01-01'|
-//@[61:62)  Assignment |=|
-//@[63:108)  ObjectSyntax
-//@[63:64)   LeftBrace |{|
-//@[64:66)   NewLine |\r\n|
+//@[000:00108) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00018) | ├─IdentifierSyntax
+//@[009:00018) | | └─Token(Identifier) |cyclicRes|
+//@[019:00060) | ├─StringSyntax
+//@[019:00060) | | └─Token(StringComplete) |'Mock.Rp/mockExistingResource@2020-01-01'|
+//@[061:00062) | ├─Token(Assignment) |=|
+//@[063:00108) | └─ObjectSyntax
+//@[063:00064) |   ├─Token(LeftBrace) |{|
+//@[064:00066) |   ├─Token(NewLine) |\r\n|
   name: 'cyclicRes'
-//@[2:19)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:19)    StringSyntax
-//@[8:19)     StringComplete |'cyclicRes'|
-//@[19:21)   NewLine |\r\n|
+//@[002:00019) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00019) |   | └─StringSyntax
+//@[008:00019) |   |   └─Token(StringComplete) |'cyclicRes'|
+//@[019:00021) |   ├─Token(NewLine) |\r\n|
   scope: cyclicRes
-//@[2:18)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:18)    VariableAccessSyntax
-//@[9:18)     IdentifierSyntax
-//@[9:18)      Identifier |cyclicRes|
-//@[18:20)   NewLine |\r\n|
+//@[002:00018) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |scope|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00018) |   | └─VariableAccessSyntax
+//@[009:00018) |   |   └─IdentifierSyntax
+//@[009:00018) |   |     └─Token(Identifier) |cyclicRes|
+//@[018:00020) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource cyclicExistingRes 'Mock.Rp/mockExistingResource@2020-01-01' existing = {
-//@[0:141) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:26)  IdentifierSyntax
-//@[9:26)   Identifier |cyclicExistingRes|
-//@[27:68)  StringSyntax
-//@[27:68)   StringComplete |'Mock.Rp/mockExistingResource@2020-01-01'|
-//@[69:77)  Identifier |existing|
-//@[78:79)  Assignment |=|
-//@[80:141)  ObjectSyntax
-//@[80:81)   LeftBrace |{|
-//@[81:83)   NewLine |\r\n|
+//@[000:00141) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00026) | ├─IdentifierSyntax
+//@[009:00026) | | └─Token(Identifier) |cyclicExistingRes|
+//@[027:00068) | ├─StringSyntax
+//@[027:00068) | | └─Token(StringComplete) |'Mock.Rp/mockExistingResource@2020-01-01'|
+//@[069:00077) | ├─Token(Identifier) |existing|
+//@[078:00079) | ├─Token(Assignment) |=|
+//@[080:00141) | └─ObjectSyntax
+//@[080:00081) |   ├─Token(LeftBrace) |{|
+//@[081:00083) |   ├─Token(NewLine) |\r\n|
   name: 'cyclicExistingRes'
-//@[2:27)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:27)    StringSyntax
-//@[8:27)     StringComplete |'cyclicExistingRes'|
-//@[27:29)   NewLine |\r\n|
+//@[002:00027) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00027) |   | └─StringSyntax
+//@[008:00027) |   |   └─Token(StringComplete) |'cyclicExistingRes'|
+//@[027:00029) |   ├─Token(NewLine) |\r\n|
   scope: cyclicExistingRes
-//@[2:26)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:26)    VariableAccessSyntax
-//@[9:26)     IdentifierSyntax
-//@[9:26)      Identifier |cyclicExistingRes|
-//@[26:28)   NewLine |\r\n|
+//@[002:00026) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |scope|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00026) |   | └─VariableAccessSyntax
+//@[009:00026) |   |   └─IdentifierSyntax
+//@[009:00026) |   |     └─Token(Identifier) |cyclicExistingRes|
+//@[026:00028) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // loop parsing cases
-//@[21:23) NewLine |\r\n|
+//@[021:00023) ├─Token(NewLine) |\r\n|
 resource expectedForKeyword 'Microsoft.Storage/storageAccounts@2019-06-01' = []
-//@[0:79) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |expectedForKeyword|
-//@[28:74)  StringSyntax
-//@[28:74)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[75:76)  Assignment |=|
-//@[77:79)  SkippedTriviaSyntax
-//@[77:78)   LeftSquare |[|
-//@[78:79)   RightSquare |]|
-//@[79:83) NewLine |\r\n\r\n|
+//@[000:00079) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |expectedForKeyword|
+//@[028:00074) | ├─StringSyntax
+//@[028:00074) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[075:00076) | ├─Token(Assignment) |=|
+//@[077:00079) | └─SkippedTriviaSyntax
+//@[077:00078) |   ├─Token(LeftSquare) |[|
+//@[078:00079) |   └─Token(RightSquare) |]|
+//@[079:00083) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedForKeyword2 'Microsoft.Storage/storageAccounts@2019-06-01' = [f]
-//@[0:81) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:28)  IdentifierSyntax
-//@[9:28)   Identifier |expectedForKeyword2|
-//@[29:75)  StringSyntax
-//@[29:75)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[76:77)  Assignment |=|
-//@[78:81)  SkippedTriviaSyntax
-//@[78:79)   LeftSquare |[|
-//@[79:80)   Identifier |f|
-//@[80:81)   RightSquare |]|
-//@[81:85) NewLine |\r\n\r\n|
+//@[000:00081) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00028) | ├─IdentifierSyntax
+//@[009:00028) | | └─Token(Identifier) |expectedForKeyword2|
+//@[029:00075) | ├─StringSyntax
+//@[029:00075) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[076:00077) | ├─Token(Assignment) |=|
+//@[078:00081) | └─SkippedTriviaSyntax
+//@[078:00079) |   ├─Token(LeftSquare) |[|
+//@[079:00080) |   ├─Token(Identifier) |f|
+//@[080:00081) |   └─Token(RightSquare) |]|
+//@[081:00085) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedLoopVar 'Microsoft.Storage/storageAccounts@2019-06-01' = [for]
-//@[0:79) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:24)  IdentifierSyntax
-//@[9:24)   Identifier |expectedLoopVar|
-//@[25:71)  StringSyntax
-//@[25:71)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[72:73)  Assignment |=|
-//@[74:79)  ForSyntax
-//@[74:75)   LeftSquare |[|
-//@[75:78)   Identifier |for|
-//@[78:78)   SkippedTriviaSyntax
-//@[78:78)   SkippedTriviaSyntax
-//@[78:78)   SkippedTriviaSyntax
-//@[78:78)   SkippedTriviaSyntax
-//@[78:78)   SkippedTriviaSyntax
-//@[78:79)   RightSquare |]|
-//@[79:83) NewLine |\r\n\r\n|
+//@[000:00079) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00024) | ├─IdentifierSyntax
+//@[009:00024) | | └─Token(Identifier) |expectedLoopVar|
+//@[025:00071) | ├─StringSyntax
+//@[025:00071) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[072:00073) | ├─Token(Assignment) |=|
+//@[074:00079) | └─ForSyntax
+//@[074:00075) |   ├─Token(LeftSquare) |[|
+//@[075:00078) |   ├─Token(Identifier) |for|
+//@[078:00078) |   ├─SkippedTriviaSyntax
+//@[078:00078) |   ├─SkippedTriviaSyntax
+//@[078:00078) |   ├─SkippedTriviaSyntax
+//@[078:00078) |   ├─SkippedTriviaSyntax
+//@[078:00078) |   ├─SkippedTriviaSyntax
+//@[078:00079) |   └─Token(RightSquare) |]|
+//@[079:00083) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedInKeyword 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x]
-//@[0:83) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:26)  IdentifierSyntax
-//@[9:26)   Identifier |expectedInKeyword|
-//@[27:73)  StringSyntax
-//@[27:73)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[74:75)  Assignment |=|
-//@[76:83)  ForSyntax
-//@[76:77)   LeftSquare |[|
-//@[77:80)   Identifier |for|
-//@[81:82)   LocalVariableSyntax
-//@[81:82)    IdentifierSyntax
-//@[81:82)     Identifier |x|
-//@[82:82)   SkippedTriviaSyntax
-//@[82:82)   SkippedTriviaSyntax
-//@[82:82)   SkippedTriviaSyntax
-//@[82:82)   SkippedTriviaSyntax
-//@[82:83)   RightSquare |]|
-//@[83:87) NewLine |\r\n\r\n|
+//@[000:00083) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00026) | ├─IdentifierSyntax
+//@[009:00026) | | └─Token(Identifier) |expectedInKeyword|
+//@[027:00073) | ├─StringSyntax
+//@[027:00073) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[074:00075) | ├─Token(Assignment) |=|
+//@[076:00083) | └─ForSyntax
+//@[076:00077) |   ├─Token(LeftSquare) |[|
+//@[077:00080) |   ├─Token(Identifier) |for|
+//@[081:00082) |   ├─LocalVariableSyntax
+//@[081:00082) |   | └─IdentifierSyntax
+//@[081:00082) |   |   └─Token(Identifier) |x|
+//@[082:00082) |   ├─SkippedTriviaSyntax
+//@[082:00082) |   ├─SkippedTriviaSyntax
+//@[082:00082) |   ├─SkippedTriviaSyntax
+//@[082:00082) |   ├─SkippedTriviaSyntax
+//@[082:00083) |   └─Token(RightSquare) |]|
+//@[083:00087) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedInKeyword2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x b]
-//@[0:86) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |expectedInKeyword2|
-//@[28:74)  StringSyntax
-//@[28:74)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[75:76)  Assignment |=|
-//@[77:86)  ForSyntax
-//@[77:78)   LeftSquare |[|
-//@[78:81)   Identifier |for|
-//@[82:83)   LocalVariableSyntax
-//@[82:83)    IdentifierSyntax
-//@[82:83)     Identifier |x|
-//@[84:85)   SkippedTriviaSyntax
-//@[84:85)    Identifier |b|
-//@[85:85)   SkippedTriviaSyntax
-//@[85:85)   SkippedTriviaSyntax
-//@[85:85)   SkippedTriviaSyntax
-//@[85:86)   RightSquare |]|
-//@[86:90) NewLine |\r\n\r\n|
+//@[000:00086) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |expectedInKeyword2|
+//@[028:00074) | ├─StringSyntax
+//@[028:00074) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[075:00076) | ├─Token(Assignment) |=|
+//@[077:00086) | └─ForSyntax
+//@[077:00078) |   ├─Token(LeftSquare) |[|
+//@[078:00081) |   ├─Token(Identifier) |for|
+//@[082:00083) |   ├─LocalVariableSyntax
+//@[082:00083) |   | └─IdentifierSyntax
+//@[082:00083) |   |   └─Token(Identifier) |x|
+//@[084:00085) |   ├─SkippedTriviaSyntax
+//@[084:00085) |   | └─Token(Identifier) |b|
+//@[085:00085) |   ├─SkippedTriviaSyntax
+//@[085:00085) |   ├─SkippedTriviaSyntax
+//@[085:00085) |   ├─SkippedTriviaSyntax
+//@[085:00086) |   └─Token(RightSquare) |]|
+//@[086:00090) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedArrayExpression 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in]
-//@[0:92) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:32)  IdentifierSyntax
-//@[9:32)   Identifier |expectedArrayExpression|
-//@[33:79)  StringSyntax
-//@[33:79)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[80:81)  Assignment |=|
-//@[82:92)  ForSyntax
-//@[82:83)   LeftSquare |[|
-//@[83:86)   Identifier |for|
-//@[87:88)   LocalVariableSyntax
-//@[87:88)    IdentifierSyntax
-//@[87:88)     Identifier |x|
-//@[89:91)   Identifier |in|
-//@[91:91)   SkippedTriviaSyntax
-//@[91:91)   SkippedTriviaSyntax
-//@[91:91)   SkippedTriviaSyntax
-//@[91:92)   RightSquare |]|
-//@[92:96) NewLine |\r\n\r\n|
+//@[000:00092) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00032) | ├─IdentifierSyntax
+//@[009:00032) | | └─Token(Identifier) |expectedArrayExpression|
+//@[033:00079) | ├─StringSyntax
+//@[033:00079) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[080:00081) | ├─Token(Assignment) |=|
+//@[082:00092) | └─ForSyntax
+//@[082:00083) |   ├─Token(LeftSquare) |[|
+//@[083:00086) |   ├─Token(Identifier) |for|
+//@[087:00088) |   ├─LocalVariableSyntax
+//@[087:00088) |   | └─IdentifierSyntax
+//@[087:00088) |   |   └─Token(Identifier) |x|
+//@[089:00091) |   ├─Token(Identifier) |in|
+//@[091:00091) |   ├─SkippedTriviaSyntax
+//@[091:00091) |   ├─SkippedTriviaSyntax
+//@[091:00091) |   ├─SkippedTriviaSyntax
+//@[091:00092) |   └─Token(RightSquare) |]|
+//@[092:00096) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedColon 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y]
-//@[0:84) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:22)  IdentifierSyntax
-//@[9:22)   Identifier |expectedColon|
-//@[23:69)  StringSyntax
-//@[23:69)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[70:71)  Assignment |=|
-//@[72:84)  ForSyntax
-//@[72:73)   LeftSquare |[|
-//@[73:76)   Identifier |for|
-//@[77:78)   LocalVariableSyntax
-//@[77:78)    IdentifierSyntax
-//@[77:78)     Identifier |x|
-//@[79:81)   Identifier |in|
-//@[82:83)   VariableAccessSyntax
-//@[82:83)    IdentifierSyntax
-//@[82:83)     Identifier |y|
-//@[83:83)   SkippedTriviaSyntax
-//@[83:83)   SkippedTriviaSyntax
-//@[83:84)   RightSquare |]|
-//@[84:88) NewLine |\r\n\r\n|
+//@[000:00084) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00022) | ├─IdentifierSyntax
+//@[009:00022) | | └─Token(Identifier) |expectedColon|
+//@[023:00069) | ├─StringSyntax
+//@[023:00069) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[070:00071) | ├─Token(Assignment) |=|
+//@[072:00084) | └─ForSyntax
+//@[072:00073) |   ├─Token(LeftSquare) |[|
+//@[073:00076) |   ├─Token(Identifier) |for|
+//@[077:00078) |   ├─LocalVariableSyntax
+//@[077:00078) |   | └─IdentifierSyntax
+//@[077:00078) |   |   └─Token(Identifier) |x|
+//@[079:00081) |   ├─Token(Identifier) |in|
+//@[082:00083) |   ├─VariableAccessSyntax
+//@[082:00083) |   | └─IdentifierSyntax
+//@[082:00083) |   |   └─Token(Identifier) |y|
+//@[083:00083) |   ├─SkippedTriviaSyntax
+//@[083:00083) |   ├─SkippedTriviaSyntax
+//@[083:00084) |   └─Token(RightSquare) |]|
+//@[084:00088) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedLoopBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y:]
-//@[0:88) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:25)  IdentifierSyntax
-//@[9:25)   Identifier |expectedLoopBody|
-//@[26:72)  StringSyntax
-//@[26:72)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[73:74)  Assignment |=|
-//@[75:88)  ForSyntax
-//@[75:76)   LeftSquare |[|
-//@[76:79)   Identifier |for|
-//@[80:81)   LocalVariableSyntax
-//@[80:81)    IdentifierSyntax
-//@[80:81)     Identifier |x|
-//@[82:84)   Identifier |in|
-//@[85:86)   VariableAccessSyntax
-//@[85:86)    IdentifierSyntax
-//@[85:86)     Identifier |y|
-//@[86:87)   Colon |:|
-//@[87:87)   SkippedTriviaSyntax
-//@[87:88)   RightSquare |]|
-//@[88:92) NewLine |\r\n\r\n|
+//@[000:00088) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00025) | ├─IdentifierSyntax
+//@[009:00025) | | └─Token(Identifier) |expectedLoopBody|
+//@[026:00072) | ├─StringSyntax
+//@[026:00072) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[073:00074) | ├─Token(Assignment) |=|
+//@[075:00088) | └─ForSyntax
+//@[075:00076) |   ├─Token(LeftSquare) |[|
+//@[076:00079) |   ├─Token(Identifier) |for|
+//@[080:00081) |   ├─LocalVariableSyntax
+//@[080:00081) |   | └─IdentifierSyntax
+//@[080:00081) |   |   └─Token(Identifier) |x|
+//@[082:00084) |   ├─Token(Identifier) |in|
+//@[085:00086) |   ├─VariableAccessSyntax
+//@[085:00086) |   | └─IdentifierSyntax
+//@[085:00086) |   |   └─Token(Identifier) |y|
+//@[086:00087) |   ├─Token(Colon) |:|
+//@[087:00087) |   ├─SkippedTriviaSyntax
+//@[087:00088) |   └─Token(RightSquare) |]|
+//@[088:00092) ├─Token(NewLine) |\r\n\r\n|
 
 // loop index parsing cases
-//@[27:29) NewLine |\r\n|
+//@[027:00029) ├─Token(NewLine) |\r\n|
 resource expectedLoopItemName 'Microsoft.Network/dnsZones@2018-05-01' = [for ()]
-//@[0:80) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:29)  IdentifierSyntax
-//@[9:29)   Identifier |expectedLoopItemName|
-//@[30:69)  StringSyntax
-//@[30:69)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[70:71)  Assignment |=|
-//@[72:80)  ForSyntax
-//@[72:73)   LeftSquare |[|
-//@[73:76)   Identifier |for|
-//@[77:79)   ForVariableBlockSyntax
-//@[77:78)    LeftParen |(|
-//@[78:78)    LocalVariableSyntax
-//@[78:78)     IdentifierSyntax
-//@[78:78)      SkippedTriviaSyntax
-//@[78:78)    SkippedTriviaSyntax
-//@[78:78)    LocalVariableSyntax
-//@[78:78)     IdentifierSyntax
-//@[78:78)      SkippedTriviaSyntax
-//@[78:79)    RightParen |)|
-//@[79:79)   SkippedTriviaSyntax
-//@[79:79)   SkippedTriviaSyntax
-//@[79:79)   SkippedTriviaSyntax
-//@[79:79)   SkippedTriviaSyntax
-//@[79:80)   RightSquare |]|
-//@[80:84) NewLine |\r\n\r\n|
+//@[000:00080) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00029) | ├─IdentifierSyntax
+//@[009:00029) | | └─Token(Identifier) |expectedLoopItemName|
+//@[030:00069) | ├─StringSyntax
+//@[030:00069) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[070:00071) | ├─Token(Assignment) |=|
+//@[072:00080) | └─ForSyntax
+//@[072:00073) |   ├─Token(LeftSquare) |[|
+//@[073:00076) |   ├─Token(Identifier) |for|
+//@[077:00079) |   ├─SkippedTriviaSyntax
+//@[077:00079) |   | └─VariableBlockSyntax
+//@[077:00078) |   |   ├─Token(LeftParen) |(|
+//@[078:00079) |   |   └─Token(RightParen) |)|
+//@[079:00079) |   ├─SkippedTriviaSyntax
+//@[079:00079) |   ├─SkippedTriviaSyntax
+//@[079:00079) |   ├─SkippedTriviaSyntax
+//@[079:00079) |   ├─SkippedTriviaSyntax
+//@[079:00080) |   └─Token(RightSquare) |]|
+//@[080:00084) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedLoopItemName2 'Microsoft.Network/dnsZones@2018-05-01' = [for (
-//@[0:79) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:30)  IdentifierSyntax
-//@[9:30)   Identifier |expectedLoopItemName2|
-//@[31:70)  StringSyntax
-//@[31:70)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[71:72)  Assignment |=|
-//@[73:79)  ForSyntax
-//@[73:74)   LeftSquare |[|
-//@[74:77)   Identifier |for|
-//@[78:79)   ForVariableBlockSyntax
-//@[78:79)    LeftParen |(|
-//@[79:79)    LocalVariableSyntax
-//@[79:79)     IdentifierSyntax
-//@[79:79)      SkippedTriviaSyntax
-//@[79:79)    SkippedTriviaSyntax
-//@[79:79)    LocalVariableSyntax
-//@[79:79)     IdentifierSyntax
-//@[79:79)      SkippedTriviaSyntax
-//@[79:79)    SkippedTriviaSyntax
-//@[79:79)   SkippedTriviaSyntax
-//@[79:79)   SkippedTriviaSyntax
-//@[79:79)   SkippedTriviaSyntax
-//@[79:79)   SkippedTriviaSyntax
-//@[79:79)   SkippedTriviaSyntax
-//@[79:83) NewLine |\r\n\r\n|
+//@[000:00079) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00030) | ├─IdentifierSyntax
+//@[009:00030) | | └─Token(Identifier) |expectedLoopItemName2|
+//@[031:00070) | ├─StringSyntax
+//@[031:00070) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[071:00072) | ├─Token(Assignment) |=|
+//@[073:00079) | └─ForSyntax
+//@[073:00074) |   ├─Token(LeftSquare) |[|
+//@[074:00077) |   ├─Token(Identifier) |for|
+//@[078:00079) |   ├─VariableBlockSyntax
+//@[078:00079) |   | ├─Token(LeftParen) |(|
+//@[079:00079) |   | ├─SkippedTriviaSyntax
+//@[079:00079) |   | └─SkippedTriviaSyntax
+//@[079:00079) |   ├─SkippedTriviaSyntax
+//@[079:00079) |   ├─SkippedTriviaSyntax
+//@[079:00079) |   ├─SkippedTriviaSyntax
+//@[079:00079) |   ├─SkippedTriviaSyntax
+//@[079:00079) |   └─SkippedTriviaSyntax
+//@[079:00083) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedComma 'Microsoft.Network/dnsZones@2018-05-01' = [for (x)]
-//@[0:74) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:22)  IdentifierSyntax
-//@[9:22)   Identifier |expectedComma|
-//@[23:62)  StringSyntax
-//@[23:62)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[63:64)  Assignment |=|
-//@[65:74)  ForSyntax
-//@[65:66)   LeftSquare |[|
-//@[66:69)   Identifier |for|
-//@[70:73)   ForVariableBlockSyntax
-//@[70:71)    LeftParen |(|
-//@[71:72)    LocalVariableSyntax
-//@[71:72)     IdentifierSyntax
-//@[71:72)      Identifier |x|
-//@[72:72)    SkippedTriviaSyntax
-//@[72:72)    LocalVariableSyntax
-//@[72:72)     IdentifierSyntax
-//@[72:72)      SkippedTriviaSyntax
-//@[72:73)    RightParen |)|
-//@[73:73)   SkippedTriviaSyntax
-//@[73:73)   SkippedTriviaSyntax
-//@[73:73)   SkippedTriviaSyntax
-//@[73:73)   SkippedTriviaSyntax
-//@[73:74)   RightSquare |]|
-//@[74:78) NewLine |\r\n\r\n|
+//@[000:00074) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00022) | ├─IdentifierSyntax
+//@[009:00022) | | └─Token(Identifier) |expectedComma|
+//@[023:00062) | ├─StringSyntax
+//@[023:00062) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[063:00064) | ├─Token(Assignment) |=|
+//@[065:00074) | └─ForSyntax
+//@[065:00066) |   ├─Token(LeftSquare) |[|
+//@[066:00069) |   ├─Token(Identifier) |for|
+//@[070:00073) |   ├─SkippedTriviaSyntax
+//@[070:00073) |   | └─VariableBlockSyntax
+//@[070:00071) |   |   ├─Token(LeftParen) |(|
+//@[071:00072) |   |   ├─LocalVariableSyntax
+//@[071:00072) |   |   | └─IdentifierSyntax
+//@[071:00072) |   |   |   └─Token(Identifier) |x|
+//@[072:00073) |   |   └─Token(RightParen) |)|
+//@[073:00073) |   ├─SkippedTriviaSyntax
+//@[073:00073) |   ├─SkippedTriviaSyntax
+//@[073:00073) |   ├─SkippedTriviaSyntax
+//@[073:00073) |   ├─SkippedTriviaSyntax
+//@[073:00074) |   └─Token(RightSquare) |]|
+//@[074:00078) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedLoopIndexName 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, )]
-//@[0:84) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:30)  IdentifierSyntax
-//@[9:30)   Identifier |expectedLoopIndexName|
-//@[31:70)  StringSyntax
-//@[31:70)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[71:72)  Assignment |=|
-//@[73:84)  ForSyntax
-//@[73:74)   LeftSquare |[|
-//@[74:77)   Identifier |for|
-//@[78:83)   ForVariableBlockSyntax
-//@[78:79)    LeftParen |(|
-//@[79:80)    LocalVariableSyntax
-//@[79:80)     IdentifierSyntax
-//@[79:80)      Identifier |x|
-//@[80:81)    Comma |,|
-//@[82:82)    LocalVariableSyntax
-//@[82:82)     IdentifierSyntax
-//@[82:82)      SkippedTriviaSyntax
-//@[82:83)    RightParen |)|
-//@[83:83)   SkippedTriviaSyntax
-//@[83:83)   SkippedTriviaSyntax
-//@[83:83)   SkippedTriviaSyntax
-//@[83:83)   SkippedTriviaSyntax
-//@[83:84)   RightSquare |]|
-//@[84:88) NewLine |\r\n\r\n|
+//@[000:00084) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00030) | ├─IdentifierSyntax
+//@[009:00030) | | └─Token(Identifier) |expectedLoopIndexName|
+//@[031:00070) | ├─StringSyntax
+//@[031:00070) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[071:00072) | ├─Token(Assignment) |=|
+//@[073:00084) | └─ForSyntax
+//@[073:00074) |   ├─Token(LeftSquare) |[|
+//@[074:00077) |   ├─Token(Identifier) |for|
+//@[078:00083) |   ├─SkippedTriviaSyntax
+//@[078:00083) |   | └─VariableBlockSyntax
+//@[078:00079) |   |   ├─Token(LeftParen) |(|
+//@[079:00080) |   |   ├─LocalVariableSyntax
+//@[079:00080) |   |   | └─IdentifierSyntax
+//@[079:00080) |   |   |   └─Token(Identifier) |x|
+//@[080:00081) |   |   ├─Token(Comma) |,|
+//@[082:00083) |   |   └─Token(RightParen) |)|
+//@[083:00083) |   ├─SkippedTriviaSyntax
+//@[083:00083) |   ├─SkippedTriviaSyntax
+//@[083:00083) |   ├─SkippedTriviaSyntax
+//@[083:00083) |   ├─SkippedTriviaSyntax
+//@[083:00084) |   └─Token(RightSquare) |]|
+//@[084:00088) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedInKeyword3 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)]
-//@[0:82) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |expectedInKeyword3|
-//@[28:67)  StringSyntax
-//@[28:67)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[68:69)  Assignment |=|
-//@[70:82)  ForSyntax
-//@[70:71)   LeftSquare |[|
-//@[71:74)   Identifier |for|
-//@[75:81)   ForVariableBlockSyntax
-//@[75:76)    LeftParen |(|
-//@[76:77)    LocalVariableSyntax
-//@[76:77)     IdentifierSyntax
-//@[76:77)      Identifier |x|
-//@[77:78)    Comma |,|
-//@[79:80)    LocalVariableSyntax
-//@[79:80)     IdentifierSyntax
-//@[79:80)      Identifier |y|
-//@[80:81)    RightParen |)|
-//@[81:81)   SkippedTriviaSyntax
-//@[81:81)   SkippedTriviaSyntax
-//@[81:81)   SkippedTriviaSyntax
-//@[81:81)   SkippedTriviaSyntax
-//@[81:82)   RightSquare |]|
-//@[82:86) NewLine |\r\n\r\n|
+//@[000:00082) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |expectedInKeyword3|
+//@[028:00067) | ├─StringSyntax
+//@[028:00067) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[068:00069) | ├─Token(Assignment) |=|
+//@[070:00082) | └─ForSyntax
+//@[070:00071) |   ├─Token(LeftSquare) |[|
+//@[071:00074) |   ├─Token(Identifier) |for|
+//@[075:00081) |   ├─VariableBlockSyntax
+//@[075:00076) |   | ├─Token(LeftParen) |(|
+//@[076:00077) |   | ├─LocalVariableSyntax
+//@[076:00077) |   | | └─IdentifierSyntax
+//@[076:00077) |   | |   └─Token(Identifier) |x|
+//@[077:00078) |   | ├─Token(Comma) |,|
+//@[079:00080) |   | ├─LocalVariableSyntax
+//@[079:00080) |   | | └─IdentifierSyntax
+//@[079:00080) |   | |   └─Token(Identifier) |y|
+//@[080:00081) |   | └─Token(RightParen) |)|
+//@[081:00081) |   ├─SkippedTriviaSyntax
+//@[081:00081) |   ├─SkippedTriviaSyntax
+//@[081:00081) |   ├─SkippedTriviaSyntax
+//@[081:00081) |   ├─SkippedTriviaSyntax
+//@[081:00082) |   └─Token(RightSquare) |]|
+//@[082:00086) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedInKeyword4 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) z]
-//@[0:84) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |expectedInKeyword4|
-//@[28:67)  StringSyntax
-//@[28:67)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[68:69)  Assignment |=|
-//@[70:84)  ForSyntax
-//@[70:71)   LeftSquare |[|
-//@[71:74)   Identifier |for|
-//@[75:81)   ForVariableBlockSyntax
-//@[75:76)    LeftParen |(|
-//@[76:77)    LocalVariableSyntax
-//@[76:77)     IdentifierSyntax
-//@[76:77)      Identifier |x|
-//@[77:78)    Comma |,|
-//@[79:80)    LocalVariableSyntax
-//@[79:80)     IdentifierSyntax
-//@[79:80)      Identifier |y|
-//@[80:81)    RightParen |)|
-//@[82:83)   SkippedTriviaSyntax
-//@[82:83)    Identifier |z|
-//@[83:83)   SkippedTriviaSyntax
-//@[83:83)   SkippedTriviaSyntax
-//@[83:83)   SkippedTriviaSyntax
-//@[83:84)   RightSquare |]|
-//@[84:88) NewLine |\r\n\r\n|
+//@[000:00084) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |expectedInKeyword4|
+//@[028:00067) | ├─StringSyntax
+//@[028:00067) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[068:00069) | ├─Token(Assignment) |=|
+//@[070:00084) | └─ForSyntax
+//@[070:00071) |   ├─Token(LeftSquare) |[|
+//@[071:00074) |   ├─Token(Identifier) |for|
+//@[075:00081) |   ├─VariableBlockSyntax
+//@[075:00076) |   | ├─Token(LeftParen) |(|
+//@[076:00077) |   | ├─LocalVariableSyntax
+//@[076:00077) |   | | └─IdentifierSyntax
+//@[076:00077) |   | |   └─Token(Identifier) |x|
+//@[077:00078) |   | ├─Token(Comma) |,|
+//@[079:00080) |   | ├─LocalVariableSyntax
+//@[079:00080) |   | | └─IdentifierSyntax
+//@[079:00080) |   | |   └─Token(Identifier) |y|
+//@[080:00081) |   | └─Token(RightParen) |)|
+//@[082:00083) |   ├─SkippedTriviaSyntax
+//@[082:00083) |   | └─Token(Identifier) |z|
+//@[083:00083) |   ├─SkippedTriviaSyntax
+//@[083:00083) |   ├─SkippedTriviaSyntax
+//@[083:00083) |   ├─SkippedTriviaSyntax
+//@[083:00084) |   └─Token(RightSquare) |]|
+//@[084:00088) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedArrayExpression2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in ]
-//@[0:92) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:33)  IdentifierSyntax
-//@[9:33)   Identifier |expectedArrayExpression2|
-//@[34:73)  StringSyntax
-//@[34:73)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[74:75)  Assignment |=|
-//@[76:92)  ForSyntax
-//@[76:77)   LeftSquare |[|
-//@[77:80)   Identifier |for|
-//@[81:87)   ForVariableBlockSyntax
-//@[81:82)    LeftParen |(|
-//@[82:83)    LocalVariableSyntax
-//@[82:83)     IdentifierSyntax
-//@[82:83)      Identifier |x|
-//@[83:84)    Comma |,|
-//@[85:86)    LocalVariableSyntax
-//@[85:86)     IdentifierSyntax
-//@[85:86)      Identifier |y|
-//@[86:87)    RightParen |)|
-//@[88:90)   Identifier |in|
-//@[91:91)   SkippedTriviaSyntax
-//@[91:91)   SkippedTriviaSyntax
-//@[91:91)   SkippedTriviaSyntax
-//@[91:92)   RightSquare |]|
-//@[92:96) NewLine |\r\n\r\n|
+//@[000:00092) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00033) | ├─IdentifierSyntax
+//@[009:00033) | | └─Token(Identifier) |expectedArrayExpression2|
+//@[034:00073) | ├─StringSyntax
+//@[034:00073) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[074:00075) | ├─Token(Assignment) |=|
+//@[076:00092) | └─ForSyntax
+//@[076:00077) |   ├─Token(LeftSquare) |[|
+//@[077:00080) |   ├─Token(Identifier) |for|
+//@[081:00087) |   ├─VariableBlockSyntax
+//@[081:00082) |   | ├─Token(LeftParen) |(|
+//@[082:00083) |   | ├─LocalVariableSyntax
+//@[082:00083) |   | | └─IdentifierSyntax
+//@[082:00083) |   | |   └─Token(Identifier) |x|
+//@[083:00084) |   | ├─Token(Comma) |,|
+//@[085:00086) |   | ├─LocalVariableSyntax
+//@[085:00086) |   | | └─IdentifierSyntax
+//@[085:00086) |   | |   └─Token(Identifier) |y|
+//@[086:00087) |   | └─Token(RightParen) |)|
+//@[088:00090) |   ├─Token(Identifier) |in|
+//@[091:00091) |   ├─SkippedTriviaSyntax
+//@[091:00091) |   ├─SkippedTriviaSyntax
+//@[091:00091) |   ├─SkippedTriviaSyntax
+//@[091:00092) |   └─Token(RightSquare) |]|
+//@[092:00096) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedColon2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z]
-//@[0:83) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:23)  IdentifierSyntax
-//@[9:23)   Identifier |expectedColon2|
-//@[24:63)  StringSyntax
-//@[24:63)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[64:65)  Assignment |=|
-//@[66:83)  ForSyntax
-//@[66:67)   LeftSquare |[|
-//@[67:70)   Identifier |for|
-//@[71:77)   ForVariableBlockSyntax
-//@[71:72)    LeftParen |(|
-//@[72:73)    LocalVariableSyntax
-//@[72:73)     IdentifierSyntax
-//@[72:73)      Identifier |x|
-//@[73:74)    Comma |,|
-//@[75:76)    LocalVariableSyntax
-//@[75:76)     IdentifierSyntax
-//@[75:76)      Identifier |y|
-//@[76:77)    RightParen |)|
-//@[78:80)   Identifier |in|
-//@[81:82)   VariableAccessSyntax
-//@[81:82)    IdentifierSyntax
-//@[81:82)     Identifier |z|
-//@[82:82)   SkippedTriviaSyntax
-//@[82:82)   SkippedTriviaSyntax
-//@[82:83)   RightSquare |]|
-//@[83:87) NewLine |\r\n\r\n|
+//@[000:00083) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00023) | ├─IdentifierSyntax
+//@[009:00023) | | └─Token(Identifier) |expectedColon2|
+//@[024:00063) | ├─StringSyntax
+//@[024:00063) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[064:00065) | ├─Token(Assignment) |=|
+//@[066:00083) | └─ForSyntax
+//@[066:00067) |   ├─Token(LeftSquare) |[|
+//@[067:00070) |   ├─Token(Identifier) |for|
+//@[071:00077) |   ├─VariableBlockSyntax
+//@[071:00072) |   | ├─Token(LeftParen) |(|
+//@[072:00073) |   | ├─LocalVariableSyntax
+//@[072:00073) |   | | └─IdentifierSyntax
+//@[072:00073) |   | |   └─Token(Identifier) |x|
+//@[073:00074) |   | ├─Token(Comma) |,|
+//@[075:00076) |   | ├─LocalVariableSyntax
+//@[075:00076) |   | | └─IdentifierSyntax
+//@[075:00076) |   | |   └─Token(Identifier) |y|
+//@[076:00077) |   | └─Token(RightParen) |)|
+//@[078:00080) |   ├─Token(Identifier) |in|
+//@[081:00082) |   ├─VariableAccessSyntax
+//@[081:00082) |   | └─IdentifierSyntax
+//@[081:00082) |   |   └─Token(Identifier) |z|
+//@[082:00082) |   ├─SkippedTriviaSyntax
+//@[082:00082) |   ├─SkippedTriviaSyntax
+//@[082:00083) |   └─Token(RightSquare) |]|
+//@[083:00087) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z:]
-//@[0:87) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:26)  IdentifierSyntax
-//@[9:26)   Identifier |expectedLoopBody2|
-//@[27:66)  StringSyntax
-//@[27:66)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[67:68)  Assignment |=|
-//@[69:87)  ForSyntax
-//@[69:70)   LeftSquare |[|
-//@[70:73)   Identifier |for|
-//@[74:80)   ForVariableBlockSyntax
-//@[74:75)    LeftParen |(|
-//@[75:76)    LocalVariableSyntax
-//@[75:76)     IdentifierSyntax
-//@[75:76)      Identifier |x|
-//@[76:77)    Comma |,|
-//@[78:79)    LocalVariableSyntax
-//@[78:79)     IdentifierSyntax
-//@[78:79)      Identifier |y|
-//@[79:80)    RightParen |)|
-//@[81:83)   Identifier |in|
-//@[84:85)   VariableAccessSyntax
-//@[84:85)    IdentifierSyntax
-//@[84:85)     Identifier |z|
-//@[85:86)   Colon |:|
-//@[86:86)   SkippedTriviaSyntax
-//@[86:87)   RightSquare |]|
-//@[87:91) NewLine |\r\n\r\n|
+//@[000:00087) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00026) | ├─IdentifierSyntax
+//@[009:00026) | | └─Token(Identifier) |expectedLoopBody2|
+//@[027:00066) | ├─StringSyntax
+//@[027:00066) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[067:00068) | ├─Token(Assignment) |=|
+//@[069:00087) | └─ForSyntax
+//@[069:00070) |   ├─Token(LeftSquare) |[|
+//@[070:00073) |   ├─Token(Identifier) |for|
+//@[074:00080) |   ├─VariableBlockSyntax
+//@[074:00075) |   | ├─Token(LeftParen) |(|
+//@[075:00076) |   | ├─LocalVariableSyntax
+//@[075:00076) |   | | └─IdentifierSyntax
+//@[075:00076) |   | |   └─Token(Identifier) |x|
+//@[076:00077) |   | ├─Token(Comma) |,|
+//@[078:00079) |   | ├─LocalVariableSyntax
+//@[078:00079) |   | | └─IdentifierSyntax
+//@[078:00079) |   | |   └─Token(Identifier) |y|
+//@[079:00080) |   | └─Token(RightParen) |)|
+//@[081:00083) |   ├─Token(Identifier) |in|
+//@[084:00085) |   ├─VariableAccessSyntax
+//@[084:00085) |   | └─IdentifierSyntax
+//@[084:00085) |   |   └─Token(Identifier) |z|
+//@[085:00086) |   ├─Token(Colon) |:|
+//@[086:00086) |   ├─SkippedTriviaSyntax
+//@[086:00087) |   └─Token(RightSquare) |]|
+//@[087:00091) ├─Token(NewLine) |\r\n\r\n|
 
 // loop filter parsing cases
-//@[28:30) NewLine |\r\n|
+//@[028:00030) ├─Token(NewLine) |\r\n|
 resource expectedLoopFilterOpenParen 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if]
-//@[0:102) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:36)  IdentifierSyntax
-//@[9:36)   Identifier |expectedLoopFilterOpenParen|
-//@[37:83)  StringSyntax
-//@[37:83)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[84:85)  Assignment |=|
-//@[86:102)  ForSyntax
-//@[86:87)   LeftSquare |[|
-//@[87:90)   Identifier |for|
-//@[91:92)   LocalVariableSyntax
-//@[91:92)    IdentifierSyntax
-//@[91:92)     Identifier |x|
-//@[93:95)   Identifier |in|
-//@[96:97)   VariableAccessSyntax
-//@[96:97)    IdentifierSyntax
-//@[96:97)     Identifier |y|
-//@[97:98)   Colon |:|
-//@[99:101)   IfConditionSyntax
-//@[99:101)    Identifier |if|
-//@[101:101)    SkippedTriviaSyntax
-//@[101:101)    SkippedTriviaSyntax
-//@[101:102)   RightSquare |]|
-//@[102:104) NewLine |\r\n|
+//@[000:00102) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00036) | ├─IdentifierSyntax
+//@[009:00036) | | └─Token(Identifier) |expectedLoopFilterOpenParen|
+//@[037:00083) | ├─StringSyntax
+//@[037:00083) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[084:00085) | ├─Token(Assignment) |=|
+//@[086:00102) | └─ForSyntax
+//@[086:00087) |   ├─Token(LeftSquare) |[|
+//@[087:00090) |   ├─Token(Identifier) |for|
+//@[091:00092) |   ├─LocalVariableSyntax
+//@[091:00092) |   | └─IdentifierSyntax
+//@[091:00092) |   |   └─Token(Identifier) |x|
+//@[093:00095) |   ├─Token(Identifier) |in|
+//@[096:00097) |   ├─VariableAccessSyntax
+//@[096:00097) |   | └─IdentifierSyntax
+//@[096:00097) |   |   └─Token(Identifier) |y|
+//@[097:00098) |   ├─Token(Colon) |:|
+//@[099:00101) |   ├─IfConditionSyntax
+//@[099:00101) |   | ├─Token(Identifier) |if|
+//@[101:00101) |   | ├─SkippedTriviaSyntax
+//@[101:00101) |   | └─SkippedTriviaSyntax
+//@[101:00102) |   └─Token(RightSquare) |]|
+//@[102:00104) ├─Token(NewLine) |\r\n|
 resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if]
-//@[0:101) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:37)  IdentifierSyntax
-//@[9:37)   Identifier |expectedLoopFilterOpenParen2|
-//@[38:77)  StringSyntax
-//@[38:77)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[78:79)  Assignment |=|
-//@[80:101)  ForSyntax
-//@[80:81)   LeftSquare |[|
-//@[81:84)   Identifier |for|
-//@[85:91)   ForVariableBlockSyntax
-//@[85:86)    LeftParen |(|
-//@[86:87)    LocalVariableSyntax
-//@[86:87)     IdentifierSyntax
-//@[86:87)      Identifier |x|
-//@[87:88)    Comma |,|
-//@[89:90)    LocalVariableSyntax
-//@[89:90)     IdentifierSyntax
-//@[89:90)      Identifier |y|
-//@[90:91)    RightParen |)|
-//@[92:94)   Identifier |in|
-//@[95:96)   VariableAccessSyntax
-//@[95:96)    IdentifierSyntax
-//@[95:96)     Identifier |z|
-//@[96:97)   Colon |:|
-//@[98:100)   IfConditionSyntax
-//@[98:100)    Identifier |if|
-//@[100:100)    SkippedTriviaSyntax
-//@[100:100)    SkippedTriviaSyntax
-//@[100:101)   RightSquare |]|
-//@[101:105) NewLine |\r\n\r\n|
+//@[000:00101) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00037) | ├─IdentifierSyntax
+//@[009:00037) | | └─Token(Identifier) |expectedLoopFilterOpenParen2|
+//@[038:00077) | ├─StringSyntax
+//@[038:00077) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[078:00079) | ├─Token(Assignment) |=|
+//@[080:00101) | └─ForSyntax
+//@[080:00081) |   ├─Token(LeftSquare) |[|
+//@[081:00084) |   ├─Token(Identifier) |for|
+//@[085:00091) |   ├─VariableBlockSyntax
+//@[085:00086) |   | ├─Token(LeftParen) |(|
+//@[086:00087) |   | ├─LocalVariableSyntax
+//@[086:00087) |   | | └─IdentifierSyntax
+//@[086:00087) |   | |   └─Token(Identifier) |x|
+//@[087:00088) |   | ├─Token(Comma) |,|
+//@[089:00090) |   | ├─LocalVariableSyntax
+//@[089:00090) |   | | └─IdentifierSyntax
+//@[089:00090) |   | |   └─Token(Identifier) |y|
+//@[090:00091) |   | └─Token(RightParen) |)|
+//@[092:00094) |   ├─Token(Identifier) |in|
+//@[095:00096) |   ├─VariableAccessSyntax
+//@[095:00096) |   | └─IdentifierSyntax
+//@[095:00096) |   |   └─Token(Identifier) |z|
+//@[096:00097) |   ├─Token(Colon) |:|
+//@[098:00100) |   ├─IfConditionSyntax
+//@[098:00100) |   | ├─Token(Identifier) |if|
+//@[100:00100) |   | ├─SkippedTriviaSyntax
+//@[100:00100) |   | └─SkippedTriviaSyntax
+//@[100:00101) |   └─Token(RightSquare) |]|
+//@[101:00105) ├─Token(NewLine) |\r\n\r\n|
 
 resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if()]
-//@[0:111) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:43)  IdentifierSyntax
-//@[9:43)   Identifier |expectedLoopFilterPredicateAndBody|
-//@[44:90)  StringSyntax
-//@[44:90)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[91:92)  Assignment |=|
-//@[93:111)  ForSyntax
-//@[93:94)   LeftSquare |[|
-//@[94:97)   Identifier |for|
-//@[98:99)   LocalVariableSyntax
-//@[98:99)    IdentifierSyntax
-//@[98:99)     Identifier |x|
-//@[100:102)   Identifier |in|
-//@[103:104)   VariableAccessSyntax
-//@[103:104)    IdentifierSyntax
-//@[103:104)     Identifier |y|
-//@[104:105)   Colon |:|
-//@[106:110)   IfConditionSyntax
-//@[106:108)    Identifier |if|
-//@[108:110)    ParenthesizedExpressionSyntax
-//@[108:109)     LeftParen |(|
-//@[109:109)     SkippedTriviaSyntax
-//@[109:110)     RightParen |)|
-//@[110:110)    SkippedTriviaSyntax
-//@[110:111)   RightSquare |]|
-//@[111:113) NewLine |\r\n|
+//@[000:00111) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00043) | ├─IdentifierSyntax
+//@[009:00043) | | └─Token(Identifier) |expectedLoopFilterPredicateAndBody|
+//@[044:00090) | ├─StringSyntax
+//@[044:00090) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[091:00092) | ├─Token(Assignment) |=|
+//@[093:00111) | └─ForSyntax
+//@[093:00094) |   ├─Token(LeftSquare) |[|
+//@[094:00097) |   ├─Token(Identifier) |for|
+//@[098:00099) |   ├─LocalVariableSyntax
+//@[098:00099) |   | └─IdentifierSyntax
+//@[098:00099) |   |   └─Token(Identifier) |x|
+//@[100:00102) |   ├─Token(Identifier) |in|
+//@[103:00104) |   ├─VariableAccessSyntax
+//@[103:00104) |   | └─IdentifierSyntax
+//@[103:00104) |   |   └─Token(Identifier) |y|
+//@[104:00105) |   ├─Token(Colon) |:|
+//@[106:00110) |   ├─IfConditionSyntax
+//@[106:00108) |   | ├─Token(Identifier) |if|
+//@[108:00110) |   | ├─ParenthesizedExpressionSyntax
+//@[108:00109) |   | | ├─Token(LeftParen) |(|
+//@[109:00109) |   | | ├─SkippedTriviaSyntax
+//@[109:00110) |   | | └─Token(RightParen) |)|
+//@[110:00110) |   | └─SkippedTriviaSyntax
+//@[110:00111) |   └─Token(RightSquare) |]|
+//@[111:00113) ├─Token(NewLine) |\r\n|
 resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if()]
-//@[0:110) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:44)  IdentifierSyntax
-//@[9:44)   Identifier |expectedLoopFilterPredicateAndBody2|
-//@[45:84)  StringSyntax
-//@[45:84)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[85:86)  Assignment |=|
-//@[87:110)  ForSyntax
-//@[87:88)   LeftSquare |[|
-//@[88:91)   Identifier |for|
-//@[92:98)   ForVariableBlockSyntax
-//@[92:93)    LeftParen |(|
-//@[93:94)    LocalVariableSyntax
-//@[93:94)     IdentifierSyntax
-//@[93:94)      Identifier |x|
-//@[94:95)    Comma |,|
-//@[96:97)    LocalVariableSyntax
-//@[96:97)     IdentifierSyntax
-//@[96:97)      Identifier |y|
-//@[97:98)    RightParen |)|
-//@[99:101)   Identifier |in|
-//@[102:103)   VariableAccessSyntax
-//@[102:103)    IdentifierSyntax
-//@[102:103)     Identifier |z|
-//@[103:104)   Colon |:|
-//@[105:109)   IfConditionSyntax
-//@[105:107)    Identifier |if|
-//@[107:109)    ParenthesizedExpressionSyntax
-//@[107:108)     LeftParen |(|
-//@[108:108)     SkippedTriviaSyntax
-//@[108:109)     RightParen |)|
-//@[109:109)    SkippedTriviaSyntax
-//@[109:110)   RightSquare |]|
-//@[110:114) NewLine |\r\n\r\n|
+//@[000:00110) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00044) | ├─IdentifierSyntax
+//@[009:00044) | | └─Token(Identifier) |expectedLoopFilterPredicateAndBody2|
+//@[045:00084) | ├─StringSyntax
+//@[045:00084) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[085:00086) | ├─Token(Assignment) |=|
+//@[087:00110) | └─ForSyntax
+//@[087:00088) |   ├─Token(LeftSquare) |[|
+//@[088:00091) |   ├─Token(Identifier) |for|
+//@[092:00098) |   ├─VariableBlockSyntax
+//@[092:00093) |   | ├─Token(LeftParen) |(|
+//@[093:00094) |   | ├─LocalVariableSyntax
+//@[093:00094) |   | | └─IdentifierSyntax
+//@[093:00094) |   | |   └─Token(Identifier) |x|
+//@[094:00095) |   | ├─Token(Comma) |,|
+//@[096:00097) |   | ├─LocalVariableSyntax
+//@[096:00097) |   | | └─IdentifierSyntax
+//@[096:00097) |   | |   └─Token(Identifier) |y|
+//@[097:00098) |   | └─Token(RightParen) |)|
+//@[099:00101) |   ├─Token(Identifier) |in|
+//@[102:00103) |   ├─VariableAccessSyntax
+//@[102:00103) |   | └─IdentifierSyntax
+//@[102:00103) |   |   └─Token(Identifier) |z|
+//@[103:00104) |   ├─Token(Colon) |:|
+//@[105:00109) |   ├─IfConditionSyntax
+//@[105:00107) |   | ├─Token(Identifier) |if|
+//@[107:00109) |   | ├─ParenthesizedExpressionSyntax
+//@[107:00108) |   | | ├─Token(LeftParen) |(|
+//@[108:00108) |   | | ├─SkippedTriviaSyntax
+//@[108:00109) |   | | └─Token(RightParen) |)|
+//@[109:00109) |   | └─SkippedTriviaSyntax
+//@[109:00110) |   └─Token(RightSquare) |]|
+//@[110:00114) ├─Token(NewLine) |\r\n\r\n|
 
 // wrong body type
-//@[18:20) NewLine |\r\n|
+//@[018:00020) ├─Token(NewLine) |\r\n|
 var emptyArray = []
-//@[0:19) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:14)  IdentifierSyntax
-//@[4:14)   Identifier |emptyArray|
-//@[15:16)  Assignment |=|
-//@[17:19)  ArraySyntax
-//@[17:18)   LeftSquare |[|
-//@[18:19)   RightSquare |]|
-//@[19:21) NewLine |\r\n|
+//@[000:00019) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00014) | ├─IdentifierSyntax
+//@[004:00014) | | └─Token(Identifier) |emptyArray|
+//@[015:00016) | ├─Token(Assignment) |=|
+//@[017:00019) | └─ArraySyntax
+//@[017:00018) |   ├─Token(LeftSquare) |[|
+//@[018:00019) |   └─Token(RightSquare) |]|
+//@[019:00021) ├─Token(NewLine) |\r\n|
 resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray:4]
-//@[0:99) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:26)  IdentifierSyntax
-//@[9:26)   Identifier |wrongLoopBodyType|
-//@[27:73)  StringSyntax
-//@[27:73)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[74:75)  Assignment |=|
-//@[76:99)  ForSyntax
-//@[76:77)   LeftSquare |[|
-//@[77:80)   Identifier |for|
-//@[81:82)   LocalVariableSyntax
-//@[81:82)    IdentifierSyntax
-//@[81:82)     Identifier |x|
-//@[83:85)   Identifier |in|
-//@[86:96)   VariableAccessSyntax
-//@[86:96)    IdentifierSyntax
-//@[86:96)     Identifier |emptyArray|
-//@[96:97)   Colon |:|
-//@[97:98)   SkippedTriviaSyntax
-//@[97:98)    Integer |4|
-//@[98:99)   RightSquare |]|
-//@[99:101) NewLine |\r\n|
+//@[000:00099) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00026) | ├─IdentifierSyntax
+//@[009:00026) | | └─Token(Identifier) |wrongLoopBodyType|
+//@[027:00073) | ├─StringSyntax
+//@[027:00073) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[074:00075) | ├─Token(Assignment) |=|
+//@[076:00099) | └─ForSyntax
+//@[076:00077) |   ├─Token(LeftSquare) |[|
+//@[077:00080) |   ├─Token(Identifier) |for|
+//@[081:00082) |   ├─LocalVariableSyntax
+//@[081:00082) |   | └─IdentifierSyntax
+//@[081:00082) |   |   └─Token(Identifier) |x|
+//@[083:00085) |   ├─Token(Identifier) |in|
+//@[086:00096) |   ├─VariableAccessSyntax
+//@[086:00096) |   | └─IdentifierSyntax
+//@[086:00096) |   |   └─Token(Identifier) |emptyArray|
+//@[096:00097) |   ├─Token(Colon) |:|
+//@[097:00098) |   ├─SkippedTriviaSyntax
+//@[097:00098) |   | └─Token(Integer) |4|
+//@[098:00099) |   └─Token(RightSquare) |]|
+//@[099:00101) ├─Token(NewLine) |\r\n|
 resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
-//@[0:105) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |wrongLoopBodyType2|
-//@[28:74)  StringSyntax
-//@[28:74)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[75:76)  Assignment |=|
-//@[77:105)  ForSyntax
-//@[77:78)   LeftSquare |[|
-//@[78:81)   Identifier |for|
-//@[82:88)   ForVariableBlockSyntax
-//@[82:83)    LeftParen |(|
-//@[83:84)    LocalVariableSyntax
-//@[83:84)     IdentifierSyntax
-//@[83:84)      Identifier |x|
-//@[85:86)    Comma |,|
-//@[86:87)    LocalVariableSyntax
-//@[86:87)     IdentifierSyntax
-//@[86:87)      Identifier |i|
-//@[87:88)    RightParen |)|
-//@[89:91)   Identifier |in|
-//@[92:102)   VariableAccessSyntax
-//@[92:102)    IdentifierSyntax
-//@[92:102)     Identifier |emptyArray|
-//@[102:103)   Colon |:|
-//@[103:104)   SkippedTriviaSyntax
-//@[103:104)    Integer |4|
-//@[104:105)   RightSquare |]|
-//@[105:109) NewLine |\r\n\r\n|
+//@[000:00105) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |wrongLoopBodyType2|
+//@[028:00074) | ├─StringSyntax
+//@[028:00074) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[075:00076) | ├─Token(Assignment) |=|
+//@[077:00105) | └─ForSyntax
+//@[077:00078) |   ├─Token(LeftSquare) |[|
+//@[078:00081) |   ├─Token(Identifier) |for|
+//@[082:00088) |   ├─VariableBlockSyntax
+//@[082:00083) |   | ├─Token(LeftParen) |(|
+//@[083:00084) |   | ├─LocalVariableSyntax
+//@[083:00084) |   | | └─IdentifierSyntax
+//@[083:00084) |   | |   └─Token(Identifier) |x|
+//@[085:00086) |   | ├─Token(Comma) |,|
+//@[086:00087) |   | ├─LocalVariableSyntax
+//@[086:00087) |   | | └─IdentifierSyntax
+//@[086:00087) |   | |   └─Token(Identifier) |i|
+//@[087:00088) |   | └─Token(RightParen) |)|
+//@[089:00091) |   ├─Token(Identifier) |in|
+//@[092:00102) |   ├─VariableAccessSyntax
+//@[092:00102) |   | └─IdentifierSyntax
+//@[092:00102) |   |   └─Token(Identifier) |emptyArray|
+//@[102:00103) |   ├─Token(Colon) |:|
+//@[103:00104) |   ├─SkippedTriviaSyntax
+//@[103:00104) |   | └─Token(Integer) |4|
+//@[104:00105) |   └─Token(RightSquare) |]|
+//@[105:00109) ├─Token(NewLine) |\r\n\r\n|
 
 // duplicate variable in the same scope
-//@[39:41) NewLine |\r\n|
+//@[039:00041) ├─Token(NewLine) |\r\n|
 resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
-//@[0:112) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:29)  IdentifierSyntax
-//@[9:29)   Identifier |itemAndIndexSameName|
-//@[30:71)  StringSyntax
-//@[30:71)   StringComplete |'Microsoft.AAD/domainServices@2020-01-01'|
-//@[72:73)  Assignment |=|
-//@[74:112)  ForSyntax
-//@[74:75)   LeftSquare |[|
-//@[75:78)   Identifier |for|
-//@[79:91)   ForVariableBlockSyntax
-//@[79:80)    LeftParen |(|
-//@[80:84)    LocalVariableSyntax
-//@[80:84)     IdentifierSyntax
-//@[80:84)      Identifier |same|
-//@[84:85)    Comma |,|
-//@[86:90)    LocalVariableSyntax
-//@[86:90)     IdentifierSyntax
-//@[86:90)      Identifier |same|
-//@[90:91)    RightParen |)|
-//@[92:94)   Identifier |in|
-//@[95:105)   VariableAccessSyntax
-//@[95:105)    IdentifierSyntax
-//@[95:105)     Identifier |emptyArray|
-//@[105:106)   Colon |:|
-//@[107:111)   ObjectSyntax
-//@[107:108)    LeftBrace |{|
-//@[108:110)    NewLine |\r\n|
+//@[000:00112) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00029) | ├─IdentifierSyntax
+//@[009:00029) | | └─Token(Identifier) |itemAndIndexSameName|
+//@[030:00071) | ├─StringSyntax
+//@[030:00071) | | └─Token(StringComplete) |'Microsoft.AAD/domainServices@2020-01-01'|
+//@[072:00073) | ├─Token(Assignment) |=|
+//@[074:00112) | └─ForSyntax
+//@[074:00075) |   ├─Token(LeftSquare) |[|
+//@[075:00078) |   ├─Token(Identifier) |for|
+//@[079:00091) |   ├─VariableBlockSyntax
+//@[079:00080) |   | ├─Token(LeftParen) |(|
+//@[080:00084) |   | ├─LocalVariableSyntax
+//@[080:00084) |   | | └─IdentifierSyntax
+//@[080:00084) |   | |   └─Token(Identifier) |same|
+//@[084:00085) |   | ├─Token(Comma) |,|
+//@[086:00090) |   | ├─LocalVariableSyntax
+//@[086:00090) |   | | └─IdentifierSyntax
+//@[086:00090) |   | |   └─Token(Identifier) |same|
+//@[090:00091) |   | └─Token(RightParen) |)|
+//@[092:00094) |   ├─Token(Identifier) |in|
+//@[095:00105) |   ├─VariableAccessSyntax
+//@[095:00105) |   | └─IdentifierSyntax
+//@[095:00105) |   |   └─Token(Identifier) |emptyArray|
+//@[105:00106) |   ├─Token(Colon) |:|
+//@[107:00111) |   ├─ObjectSyntax
+//@[107:00108) |   | ├─Token(LeftBrace) |{|
+//@[108:00110) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 // errors in the array expression
-//@[33:35) NewLine |\r\n|
+//@[033:00035) ├─Token(NewLine) |\r\n|
 resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {
-//@[0:115) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:30)  IdentifierSyntax
-//@[9:30)   Identifier |arrayExpressionErrors|
-//@[31:77)  StringSyntax
-//@[31:77)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[78:79)  Assignment |=|
-//@[80:115)  ForSyntax
-//@[80:81)   LeftSquare |[|
-//@[81:84)   Identifier |for|
-//@[85:92)   LocalVariableSyntax
-//@[85:92)    IdentifierSyntax
-//@[85:92)     Identifier |account|
-//@[93:95)   Identifier |in|
-//@[96:108)   FunctionCallSyntax
-//@[96:101)    IdentifierSyntax
-//@[96:101)     Identifier |union|
-//@[101:102)    LeftParen |(|
-//@[102:105)    FunctionArgumentSyntax
-//@[102:104)     ArraySyntax
-//@[102:103)      LeftSquare |[|
-//@[103:104)      RightSquare |]|
-//@[104:105)     Comma |,|
-//@[106:107)    FunctionArgumentSyntax
-//@[106:107)     IntegerLiteralSyntax
-//@[106:107)      Integer |2|
-//@[107:108)    RightParen |)|
-//@[108:109)   Colon |:|
-//@[110:114)   ObjectSyntax
-//@[110:111)    LeftBrace |{|
-//@[111:113)    NewLine |\r\n|
+//@[000:00115) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00030) | ├─IdentifierSyntax
+//@[009:00030) | | └─Token(Identifier) |arrayExpressionErrors|
+//@[031:00077) | ├─StringSyntax
+//@[031:00077) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[078:00079) | ├─Token(Assignment) |=|
+//@[080:00115) | └─ForSyntax
+//@[080:00081) |   ├─Token(LeftSquare) |[|
+//@[081:00084) |   ├─Token(Identifier) |for|
+//@[085:00092) |   ├─LocalVariableSyntax
+//@[085:00092) |   | └─IdentifierSyntax
+//@[085:00092) |   |   └─Token(Identifier) |account|
+//@[093:00095) |   ├─Token(Identifier) |in|
+//@[096:00108) |   ├─FunctionCallSyntax
+//@[096:00101) |   | ├─IdentifierSyntax
+//@[096:00101) |   | | └─Token(Identifier) |union|
+//@[101:00102) |   | ├─Token(LeftParen) |(|
+//@[102:00104) |   | ├─FunctionArgumentSyntax
+//@[102:00104) |   | | └─ArraySyntax
+//@[102:00103) |   | |   ├─Token(LeftSquare) |[|
+//@[103:00104) |   | |   └─Token(RightSquare) |]|
+//@[104:00105) |   | ├─Token(Comma) |,|
+//@[106:00107) |   | ├─FunctionArgumentSyntax
+//@[106:00107) |   | | └─IntegerLiteralSyntax
+//@[106:00107) |   | |   └─Token(Integer) |2|
+//@[107:00108) |   | └─Token(RightParen) |)|
+//@[108:00109) |   ├─Token(Colon) |:|
+//@[110:00114) |   ├─ObjectSyntax
+//@[110:00111) |   | ├─Token(LeftBrace) |{|
+//@[111:00113) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,k) in union([], 2): {
-//@[0:120) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:31)  IdentifierSyntax
-//@[9:31)   Identifier |arrayExpressionErrors2|
-//@[32:78)  StringSyntax
-//@[32:78)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[79:80)  Assignment |=|
-//@[81:120)  ForSyntax
-//@[81:82)   LeftSquare |[|
-//@[82:85)   Identifier |for|
-//@[86:97)   ForVariableBlockSyntax
-//@[86:87)    LeftParen |(|
-//@[87:94)    LocalVariableSyntax
-//@[87:94)     IdentifierSyntax
-//@[87:94)      Identifier |account|
-//@[94:95)    Comma |,|
-//@[95:96)    LocalVariableSyntax
-//@[95:96)     IdentifierSyntax
-//@[95:96)      Identifier |k|
-//@[96:97)    RightParen |)|
-//@[98:100)   Identifier |in|
-//@[101:113)   FunctionCallSyntax
-//@[101:106)    IdentifierSyntax
-//@[101:106)     Identifier |union|
-//@[106:107)    LeftParen |(|
-//@[107:110)    FunctionArgumentSyntax
-//@[107:109)     ArraySyntax
-//@[107:108)      LeftSquare |[|
-//@[108:109)      RightSquare |]|
-//@[109:110)     Comma |,|
-//@[111:112)    FunctionArgumentSyntax
-//@[111:112)     IntegerLiteralSyntax
-//@[111:112)      Integer |2|
-//@[112:113)    RightParen |)|
-//@[113:114)   Colon |:|
-//@[115:119)   ObjectSyntax
-//@[115:116)    LeftBrace |{|
-//@[116:118)    NewLine |\r\n|
+//@[000:00120) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00031) | ├─IdentifierSyntax
+//@[009:00031) | | └─Token(Identifier) |arrayExpressionErrors2|
+//@[032:00078) | ├─StringSyntax
+//@[032:00078) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[079:00080) | ├─Token(Assignment) |=|
+//@[081:00120) | └─ForSyntax
+//@[081:00082) |   ├─Token(LeftSquare) |[|
+//@[082:00085) |   ├─Token(Identifier) |for|
+//@[086:00097) |   ├─VariableBlockSyntax
+//@[086:00087) |   | ├─Token(LeftParen) |(|
+//@[087:00094) |   | ├─LocalVariableSyntax
+//@[087:00094) |   | | └─IdentifierSyntax
+//@[087:00094) |   | |   └─Token(Identifier) |account|
+//@[094:00095) |   | ├─Token(Comma) |,|
+//@[095:00096) |   | ├─LocalVariableSyntax
+//@[095:00096) |   | | └─IdentifierSyntax
+//@[095:00096) |   | |   └─Token(Identifier) |k|
+//@[096:00097) |   | └─Token(RightParen) |)|
+//@[098:00100) |   ├─Token(Identifier) |in|
+//@[101:00113) |   ├─FunctionCallSyntax
+//@[101:00106) |   | ├─IdentifierSyntax
+//@[101:00106) |   | | └─Token(Identifier) |union|
+//@[106:00107) |   | ├─Token(LeftParen) |(|
+//@[107:00109) |   | ├─FunctionArgumentSyntax
+//@[107:00109) |   | | └─ArraySyntax
+//@[107:00108) |   | |   ├─Token(LeftSquare) |[|
+//@[108:00109) |   | |   └─Token(RightSquare) |]|
+//@[109:00110) |   | ├─Token(Comma) |,|
+//@[111:00112) |   | ├─FunctionArgumentSyntax
+//@[111:00112) |   | | └─IntegerLiteralSyntax
+//@[111:00112) |   | |   └─Token(Integer) |2|
+//@[112:00113) |   | └─Token(RightParen) |)|
+//@[113:00114) |   ├─Token(Colon) |:|
+//@[115:00119) |   ├─ObjectSyntax
+//@[115:00116) |   | ├─Token(LeftBrace) |{|
+//@[116:00118) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 // wrong array type
-//@[19:21) NewLine |\r\n|
+//@[019:00021) ├─Token(NewLine) |\r\n|
 var notAnArray = true
-//@[0:21) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:14)  IdentifierSyntax
-//@[4:14)   Identifier |notAnArray|
-//@[15:16)  Assignment |=|
-//@[17:21)  BooleanLiteralSyntax
-//@[17:21)   TrueKeyword |true|
-//@[21:23) NewLine |\r\n|
+//@[000:00021) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00014) | ├─IdentifierSyntax
+//@[004:00014) | | └─Token(Identifier) |notAnArray|
+//@[015:00016) | ├─Token(Assignment) |=|
+//@[017:00021) | └─BooleanLiteralSyntax
+//@[017:00021) |   └─Token(TrueKeyword) |true|
+//@[021:00023) ├─Token(NewLine) |\r\n|
 resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in notAnArray: {
-//@[0:106) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:23)  IdentifierSyntax
-//@[9:23)   Identifier |wrongArrayType|
-//@[24:70)  StringSyntax
-//@[24:70)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[71:72)  Assignment |=|
-//@[73:106)  ForSyntax
-//@[73:74)   LeftSquare |[|
-//@[74:77)   Identifier |for|
-//@[78:85)   LocalVariableSyntax
-//@[78:85)    IdentifierSyntax
-//@[78:85)     Identifier |account|
-//@[86:88)   Identifier |in|
-//@[89:99)   VariableAccessSyntax
-//@[89:99)    IdentifierSyntax
-//@[89:99)     Identifier |notAnArray|
-//@[99:100)   Colon |:|
-//@[101:105)   ObjectSyntax
-//@[101:102)    LeftBrace |{|
-//@[102:104)    NewLine |\r\n|
+//@[000:00106) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00023) | ├─IdentifierSyntax
+//@[009:00023) | | └─Token(Identifier) |wrongArrayType|
+//@[024:00070) | ├─StringSyntax
+//@[024:00070) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[071:00072) | ├─Token(Assignment) |=|
+//@[073:00106) | └─ForSyntax
+//@[073:00074) |   ├─Token(LeftSquare) |[|
+//@[074:00077) |   ├─Token(Identifier) |for|
+//@[078:00085) |   ├─LocalVariableSyntax
+//@[078:00085) |   | └─IdentifierSyntax
+//@[078:00085) |   |   └─Token(Identifier) |account|
+//@[086:00088) |   ├─Token(Identifier) |in|
+//@[089:00099) |   ├─VariableAccessSyntax
+//@[089:00099) |   | └─IdentifierSyntax
+//@[089:00099) |   |   └─Token(Identifier) |notAnArray|
+//@[099:00100) |   ├─Token(Colon) |:|
+//@[101:00105) |   ├─ObjectSyntax
+//@[101:00102) |   | ├─Token(LeftBrace) |{|
+//@[102:00104) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in notAnArray: {
-//@[0:111) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:24)  IdentifierSyntax
-//@[9:24)   Identifier |wrongArrayType2|
-//@[25:71)  StringSyntax
-//@[25:71)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[72:73)  Assignment |=|
-//@[74:111)  ForSyntax
-//@[74:75)   LeftSquare |[|
-//@[75:78)   Identifier |for|
-//@[79:90)   ForVariableBlockSyntax
-//@[79:80)    LeftParen |(|
-//@[80:87)    LocalVariableSyntax
-//@[80:87)     IdentifierSyntax
-//@[80:87)      Identifier |account|
-//@[87:88)    Comma |,|
-//@[88:89)    LocalVariableSyntax
-//@[88:89)     IdentifierSyntax
-//@[88:89)      Identifier |i|
-//@[89:90)    RightParen |)|
-//@[91:93)   Identifier |in|
-//@[94:104)   VariableAccessSyntax
-//@[94:104)    IdentifierSyntax
-//@[94:104)     Identifier |notAnArray|
-//@[104:105)   Colon |:|
-//@[106:110)   ObjectSyntax
-//@[106:107)    LeftBrace |{|
-//@[107:109)    NewLine |\r\n|
+//@[000:00111) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00024) | ├─IdentifierSyntax
+//@[009:00024) | | └─Token(Identifier) |wrongArrayType2|
+//@[025:00071) | ├─StringSyntax
+//@[025:00071) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[072:00073) | ├─Token(Assignment) |=|
+//@[074:00111) | └─ForSyntax
+//@[074:00075) |   ├─Token(LeftSquare) |[|
+//@[075:00078) |   ├─Token(Identifier) |for|
+//@[079:00090) |   ├─VariableBlockSyntax
+//@[079:00080) |   | ├─Token(LeftParen) |(|
+//@[080:00087) |   | ├─LocalVariableSyntax
+//@[080:00087) |   | | └─IdentifierSyntax
+//@[080:00087) |   | |   └─Token(Identifier) |account|
+//@[087:00088) |   | ├─Token(Comma) |,|
+//@[088:00089) |   | ├─LocalVariableSyntax
+//@[088:00089) |   | | └─IdentifierSyntax
+//@[088:00089) |   | |   └─Token(Identifier) |i|
+//@[089:00090) |   | └─Token(RightParen) |)|
+//@[091:00093) |   ├─Token(Identifier) |in|
+//@[094:00104) |   ├─VariableAccessSyntax
+//@[094:00104) |   | └─IdentifierSyntax
+//@[094:00104) |   |   └─Token(Identifier) |notAnArray|
+//@[104:00105) |   ├─Token(Colon) |:|
+//@[106:00110) |   ├─ObjectSyntax
+//@[106:00107) |   | ├─Token(LeftBrace) |{|
+//@[107:00109) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 // wrong filter expression type
-//@[31:33) NewLine |\r\n|
+//@[031:00033) ├─Token(NewLine) |\r\n|
 resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in emptyArray: if(4) {
-//@[0:123) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:34)  IdentifierSyntax
-//@[9:34)   Identifier |wrongFilterExpressionType|
-//@[35:81)  StringSyntax
-//@[35:81)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[82:83)  Assignment |=|
-//@[84:123)  ForSyntax
-//@[84:85)   LeftSquare |[|
-//@[85:88)   Identifier |for|
-//@[89:96)   LocalVariableSyntax
-//@[89:96)    IdentifierSyntax
-//@[89:96)     Identifier |account|
-//@[97:99)   Identifier |in|
-//@[100:110)   VariableAccessSyntax
-//@[100:110)    IdentifierSyntax
-//@[100:110)     Identifier |emptyArray|
-//@[110:111)   Colon |:|
-//@[112:122)   IfConditionSyntax
-//@[112:114)    Identifier |if|
-//@[114:117)    ParenthesizedExpressionSyntax
-//@[114:115)     LeftParen |(|
-//@[115:116)     IntegerLiteralSyntax
-//@[115:116)      Integer |4|
-//@[116:117)     RightParen |)|
-//@[118:122)    ObjectSyntax
-//@[118:119)     LeftBrace |{|
-//@[119:121)     NewLine |\r\n|
+//@[000:00123) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00034) | ├─IdentifierSyntax
+//@[009:00034) | | └─Token(Identifier) |wrongFilterExpressionType|
+//@[035:00081) | ├─StringSyntax
+//@[035:00081) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[082:00083) | ├─Token(Assignment) |=|
+//@[084:00123) | └─ForSyntax
+//@[084:00085) |   ├─Token(LeftSquare) |[|
+//@[085:00088) |   ├─Token(Identifier) |for|
+//@[089:00096) |   ├─LocalVariableSyntax
+//@[089:00096) |   | └─IdentifierSyntax
+//@[089:00096) |   |   └─Token(Identifier) |account|
+//@[097:00099) |   ├─Token(Identifier) |in|
+//@[100:00110) |   ├─VariableAccessSyntax
+//@[100:00110) |   | └─IdentifierSyntax
+//@[100:00110) |   |   └─Token(Identifier) |emptyArray|
+//@[110:00111) |   ├─Token(Colon) |:|
+//@[112:00122) |   ├─IfConditionSyntax
+//@[112:00114) |   | ├─Token(Identifier) |if|
+//@[114:00117) |   | ├─ParenthesizedExpressionSyntax
+//@[114:00115) |   | | ├─Token(LeftParen) |(|
+//@[115:00116) |   | | ├─IntegerLiteralSyntax
+//@[115:00116) |   | | | └─Token(Integer) |4|
+//@[116:00117) |   | | └─Token(RightParen) |)|
+//@[118:00122) |   | └─ObjectSyntax
+//@[118:00119) |   |   ├─Token(LeftBrace) |{|
+//@[119:00121) |   |   ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)     RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:00001) |   |   └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in emptyArray: if(concat('s')){
-//@[0:137) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |wrongFilterExpressionType2|
-//@[36:82)  StringSyntax
-//@[36:82)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[83:84)  Assignment |=|
-//@[85:137)  ForSyntax
-//@[85:86)   LeftSquare |[|
-//@[86:89)   Identifier |for|
-//@[90:101)   ForVariableBlockSyntax
-//@[90:91)    LeftParen |(|
-//@[91:98)    LocalVariableSyntax
-//@[91:98)     IdentifierSyntax
-//@[91:98)      Identifier |account|
-//@[98:99)    Comma |,|
-//@[99:100)    LocalVariableSyntax
-//@[99:100)     IdentifierSyntax
-//@[99:100)      Identifier |i|
-//@[100:101)    RightParen |)|
-//@[102:104)   Identifier |in|
-//@[105:115)   VariableAccessSyntax
-//@[105:115)    IdentifierSyntax
-//@[105:115)     Identifier |emptyArray|
-//@[115:116)   Colon |:|
-//@[117:136)   IfConditionSyntax
-//@[117:119)    Identifier |if|
-//@[119:132)    ParenthesizedExpressionSyntax
-//@[119:120)     LeftParen |(|
-//@[120:131)     FunctionCallSyntax
-//@[120:126)      IdentifierSyntax
-//@[120:126)       Identifier |concat|
-//@[126:127)      LeftParen |(|
-//@[127:130)      FunctionArgumentSyntax
-//@[127:130)       StringSyntax
-//@[127:130)        StringComplete |'s'|
-//@[130:131)      RightParen |)|
-//@[131:132)     RightParen |)|
-//@[132:136)    ObjectSyntax
-//@[132:133)     LeftBrace |{|
-//@[133:135)     NewLine |\r\n|
+//@[000:00137) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |wrongFilterExpressionType2|
+//@[036:00082) | ├─StringSyntax
+//@[036:00082) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[083:00084) | ├─Token(Assignment) |=|
+//@[085:00137) | └─ForSyntax
+//@[085:00086) |   ├─Token(LeftSquare) |[|
+//@[086:00089) |   ├─Token(Identifier) |for|
+//@[090:00101) |   ├─VariableBlockSyntax
+//@[090:00091) |   | ├─Token(LeftParen) |(|
+//@[091:00098) |   | ├─LocalVariableSyntax
+//@[091:00098) |   | | └─IdentifierSyntax
+//@[091:00098) |   | |   └─Token(Identifier) |account|
+//@[098:00099) |   | ├─Token(Comma) |,|
+//@[099:00100) |   | ├─LocalVariableSyntax
+//@[099:00100) |   | | └─IdentifierSyntax
+//@[099:00100) |   | |   └─Token(Identifier) |i|
+//@[100:00101) |   | └─Token(RightParen) |)|
+//@[102:00104) |   ├─Token(Identifier) |in|
+//@[105:00115) |   ├─VariableAccessSyntax
+//@[105:00115) |   | └─IdentifierSyntax
+//@[105:00115) |   |   └─Token(Identifier) |emptyArray|
+//@[115:00116) |   ├─Token(Colon) |:|
+//@[117:00136) |   ├─IfConditionSyntax
+//@[117:00119) |   | ├─Token(Identifier) |if|
+//@[119:00132) |   | ├─ParenthesizedExpressionSyntax
+//@[119:00120) |   | | ├─Token(LeftParen) |(|
+//@[120:00131) |   | | ├─FunctionCallSyntax
+//@[120:00126) |   | | | ├─IdentifierSyntax
+//@[120:00126) |   | | | | └─Token(Identifier) |concat|
+//@[126:00127) |   | | | ├─Token(LeftParen) |(|
+//@[127:00130) |   | | | ├─FunctionArgumentSyntax
+//@[127:00130) |   | | | | └─StringSyntax
+//@[127:00130) |   | | | |   └─Token(StringComplete) |'s'|
+//@[130:00131) |   | | | └─Token(RightParen) |)|
+//@[131:00132) |   | | └─Token(RightParen) |)|
+//@[132:00136) |   | └─ObjectSyntax
+//@[132:00133) |   |   ├─Token(LeftBrace) |{|
+//@[133:00135) |   |   ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)     RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   |   └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 // missing required properties
-//@[30:32) NewLine |\r\n|
+//@[030:00032) ├─Token(NewLine) |\r\n|
 resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
-//@[0:109) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:34)  IdentifierSyntax
-//@[9:34)   Identifier |missingRequiredProperties|
-//@[35:81)  StringSyntax
-//@[35:81)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[82:83)  Assignment |=|
-//@[84:109)  ForSyntax
-//@[84:85)   LeftSquare |[|
-//@[85:88)   Identifier |for|
-//@[89:96)   LocalVariableSyntax
-//@[89:96)    IdentifierSyntax
-//@[89:96)     Identifier |account|
-//@[97:99)   Identifier |in|
-//@[100:102)   ArraySyntax
-//@[100:101)    LeftSquare |[|
-//@[101:102)    RightSquare |]|
-//@[102:103)   Colon |:|
-//@[104:108)   ObjectSyntax
-//@[104:105)    LeftBrace |{|
-//@[105:107)    NewLine |\r\n|
+//@[000:00109) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00034) | ├─IdentifierSyntax
+//@[009:00034) | | └─Token(Identifier) |missingRequiredProperties|
+//@[035:00081) | ├─StringSyntax
+//@[035:00081) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[082:00083) | ├─Token(Assignment) |=|
+//@[084:00109) | └─ForSyntax
+//@[084:00085) |   ├─Token(LeftSquare) |[|
+//@[085:00088) |   ├─Token(Identifier) |for|
+//@[089:00096) |   ├─LocalVariableSyntax
+//@[089:00096) |   | └─IdentifierSyntax
+//@[089:00096) |   |   └─Token(Identifier) |account|
+//@[097:00099) |   ├─Token(Identifier) |in|
+//@[100:00102) |   ├─ArraySyntax
+//@[100:00101) |   | ├─Token(LeftSquare) |[|
+//@[101:00102) |   | └─Token(RightSquare) |]|
+//@[102:00103) |   ├─Token(Colon) |:|
+//@[104:00108) |   ├─ObjectSyntax
+//@[104:00105) |   | ├─Token(LeftBrace) |{|
+//@[105:00107) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,j) in []: {
-//@[0:114) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |missingRequiredProperties2|
-//@[36:82)  StringSyntax
-//@[36:82)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[83:84)  Assignment |=|
-//@[85:114)  ForSyntax
-//@[85:86)   LeftSquare |[|
-//@[86:89)   Identifier |for|
-//@[90:101)   ForVariableBlockSyntax
-//@[90:91)    LeftParen |(|
-//@[91:98)    LocalVariableSyntax
-//@[91:98)     IdentifierSyntax
-//@[91:98)      Identifier |account|
-//@[98:99)    Comma |,|
-//@[99:100)    LocalVariableSyntax
-//@[99:100)     IdentifierSyntax
-//@[99:100)      Identifier |j|
-//@[100:101)    RightParen |)|
-//@[102:104)   Identifier |in|
-//@[105:107)   ArraySyntax
-//@[105:106)    LeftSquare |[|
-//@[106:107)    RightSquare |]|
-//@[107:108)   Colon |:|
-//@[109:113)   ObjectSyntax
-//@[109:110)    LeftBrace |{|
-//@[110:112)    NewLine |\r\n|
+//@[000:00114) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |missingRequiredProperties2|
+//@[036:00082) | ├─StringSyntax
+//@[036:00082) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[083:00084) | ├─Token(Assignment) |=|
+//@[085:00114) | └─ForSyntax
+//@[085:00086) |   ├─Token(LeftSquare) |[|
+//@[086:00089) |   ├─Token(Identifier) |for|
+//@[090:00101) |   ├─VariableBlockSyntax
+//@[090:00091) |   | ├─Token(LeftParen) |(|
+//@[091:00098) |   | ├─LocalVariableSyntax
+//@[091:00098) |   | | └─IdentifierSyntax
+//@[091:00098) |   | |   └─Token(Identifier) |account|
+//@[098:00099) |   | ├─Token(Comma) |,|
+//@[099:00100) |   | ├─LocalVariableSyntax
+//@[099:00100) |   | | └─IdentifierSyntax
+//@[099:00100) |   | |   └─Token(Identifier) |j|
+//@[100:00101) |   | └─Token(RightParen) |)|
+//@[102:00104) |   ├─Token(Identifier) |in|
+//@[105:00107) |   ├─ArraySyntax
+//@[105:00106) |   | ├─Token(LeftSquare) |[|
+//@[106:00107) |   | └─Token(RightSquare) |]|
+//@[107:00108) |   ├─Token(Colon) |:|
+//@[109:00113) |   ├─ObjectSyntax
+//@[109:00110) |   | ├─Token(LeftBrace) |{|
+//@[110:00112) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 // fewer missing required properties and a wrong property
-//@[57:59) NewLine |\r\n|
+//@[057:00059) ├─Token(NewLine) |\r\n|
 resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
-//@[0:196) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:39)  IdentifierSyntax
-//@[9:39)   Identifier |missingFewerRequiredProperties|
-//@[40:86)  StringSyntax
-//@[40:86)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[87:88)  Assignment |=|
-//@[89:196)  ForSyntax
-//@[89:90)   LeftSquare |[|
-//@[90:93)   Identifier |for|
-//@[94:101)   LocalVariableSyntax
-//@[94:101)    IdentifierSyntax
-//@[94:101)     Identifier |account|
-//@[102:104)   Identifier |in|
-//@[105:107)   ArraySyntax
-//@[105:106)    LeftSquare |[|
-//@[106:107)    RightSquare |]|
-//@[107:108)   Colon |:|
-//@[109:195)   ObjectSyntax
-//@[109:110)    LeftBrace |{|
-//@[110:112)    NewLine |\r\n|
+//@[000:00196) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00039) | ├─IdentifierSyntax
+//@[009:00039) | | └─Token(Identifier) |missingFewerRequiredProperties|
+//@[040:00086) | ├─StringSyntax
+//@[040:00086) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[087:00088) | ├─Token(Assignment) |=|
+//@[089:00196) | └─ForSyntax
+//@[089:00090) |   ├─Token(LeftSquare) |[|
+//@[090:00093) |   ├─Token(Identifier) |for|
+//@[094:00101) |   ├─LocalVariableSyntax
+//@[094:00101) |   | └─IdentifierSyntax
+//@[094:00101) |   |   └─Token(Identifier) |account|
+//@[102:00104) |   ├─Token(Identifier) |in|
+//@[105:00107) |   ├─ArraySyntax
+//@[105:00106) |   | ├─Token(LeftSquare) |[|
+//@[106:00107) |   | └─Token(RightSquare) |]|
+//@[107:00108) |   ├─Token(Colon) |:|
+//@[109:00195) |   ├─ObjectSyntax
+//@[109:00110) |   | ├─Token(LeftBrace) |{|
+//@[110:00112) |   | ├─Token(NewLine) |\r\n|
   name: account
-//@[2:15)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:15)     VariableAccessSyntax
-//@[8:15)      IdentifierSyntax
-//@[8:15)       Identifier |account|
-//@[15:17)    NewLine |\r\n|
+//@[002:00015) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00015) |   | | └─VariableAccessSyntax
+//@[008:00015) |   | |   └─IdentifierSyntax
+//@[008:00015) |   | |     └─Token(Identifier) |account|
+//@[015:00017) |   | ├─Token(NewLine) |\r\n|
   location: 'eastus42'
-//@[2:22)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:22)     StringSyntax
-//@[12:22)      StringComplete |'eastus42'|
-//@[22:24)    NewLine |\r\n|
+//@[002:00022) |   | ├─ObjectPropertySyntax
+//@[002:00010) |   | | ├─IdentifierSyntax
+//@[002:00010) |   | | | └─Token(Identifier) |location|
+//@[010:00011) |   | | ├─Token(Colon) |:|
+//@[012:00022) |   | | └─StringSyntax
+//@[012:00022) |   | |   └─Token(StringComplete) |'eastus42'|
+//@[022:00024) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:39)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:39)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00039) |   | ├─ObjectPropertySyntax
+//@[002:00012) |   | | ├─IdentifierSyntax
+//@[002:00012) |   | | | └─Token(Identifier) |properties|
+//@[012:00013) |   | | ├─Token(Colon) |:|
+//@[014:00039) |   | | └─ObjectSyntax
+//@[014:00015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     wrong: 'test'
-//@[4:17)      ObjectPropertySyntax
-//@[4:9)       IdentifierSyntax
-//@[4:9)        Identifier |wrong|
-//@[9:10)       Colon |:|
-//@[11:17)       StringSyntax
-//@[11:17)        StringComplete |'test'|
-//@[17:19)      NewLine |\r\n|
+//@[004:00017) |   | |   ├─ObjectPropertySyntax
+//@[004:00009) |   | |   | ├─IdentifierSyntax
+//@[004:00009) |   | |   | | └─Token(Identifier) |wrong|
+//@[009:00010) |   | |   | ├─Token(Colon) |:|
+//@[011:00017) |   | |   | └─StringSyntax
+//@[011:00017) |   | |   |   └─Token(StringComplete) |'test'|
+//@[017:00019) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 // wrong property inside the nested property loop
-//@[49:51) NewLine |\r\n|
+//@[049:00051) ├─Token(NewLine) |\r\n|
 resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[0:262) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:34)  IdentifierSyntax
-//@[9:34)   Identifier |wrongPropertyInNestedLoop|
-//@[35:81)  StringSyntax
-//@[35:81)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[82:83)  Assignment |=|
-//@[84:262)  ForSyntax
-//@[84:85)   LeftSquare |[|
-//@[85:88)   Identifier |for|
-//@[89:90)   LocalVariableSyntax
-//@[89:90)    IdentifierSyntax
-//@[89:90)     Identifier |i|
-//@[91:93)   Identifier |in|
-//@[94:105)   FunctionCallSyntax
-//@[94:99)    IdentifierSyntax
-//@[94:99)     Identifier |range|
-//@[99:100)    LeftParen |(|
-//@[100:102)    FunctionArgumentSyntax
-//@[100:101)     IntegerLiteralSyntax
-//@[100:101)      Integer |0|
-//@[101:102)     Comma |,|
-//@[103:104)    FunctionArgumentSyntax
-//@[103:104)     IntegerLiteralSyntax
-//@[103:104)      Integer |3|
-//@[104:105)    RightParen |)|
-//@[105:106)   Colon |:|
-//@[107:261)   ObjectSyntax
-//@[107:108)    LeftBrace |{|
-//@[108:110)    NewLine |\r\n|
+//@[000:00262) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00034) | ├─IdentifierSyntax
+//@[009:00034) | | └─Token(Identifier) |wrongPropertyInNestedLoop|
+//@[035:00081) | ├─StringSyntax
+//@[035:00081) | | └─Token(StringComplete) |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[082:00083) | ├─Token(Assignment) |=|
+//@[084:00262) | └─ForSyntax
+//@[084:00085) |   ├─Token(LeftSquare) |[|
+//@[085:00088) |   ├─Token(Identifier) |for|
+//@[089:00090) |   ├─LocalVariableSyntax
+//@[089:00090) |   | └─IdentifierSyntax
+//@[089:00090) |   |   └─Token(Identifier) |i|
+//@[091:00093) |   ├─Token(Identifier) |in|
+//@[094:00105) |   ├─FunctionCallSyntax
+//@[094:00099) |   | ├─IdentifierSyntax
+//@[094:00099) |   | | └─Token(Identifier) |range|
+//@[099:00100) |   | ├─Token(LeftParen) |(|
+//@[100:00101) |   | ├─FunctionArgumentSyntax
+//@[100:00101) |   | | └─IntegerLiteralSyntax
+//@[100:00101) |   | |   └─Token(Integer) |0|
+//@[101:00102) |   | ├─Token(Comma) |,|
+//@[103:00104) |   | ├─FunctionArgumentSyntax
+//@[103:00104) |   | | └─IntegerLiteralSyntax
+//@[103:00104) |   | |   └─Token(Integer) |3|
+//@[104:00105) |   | └─Token(RightParen) |)|
+//@[105:00106) |   ├─Token(Colon) |:|
+//@[107:00261) |   ├─ObjectSyntax
+//@[107:00108) |   | ├─Token(LeftBrace) |{|
+//@[108:00110) |   | ├─Token(NewLine) |\r\n|
   name: 'vnet-${i}'
-//@[2:19)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:19)     StringSyntax
-//@[8:16)      StringLeftPiece |'vnet-${|
-//@[16:17)      VariableAccessSyntax
-//@[16:17)       IdentifierSyntax
-//@[16:17)        Identifier |i|
-//@[17:19)      StringRightPiece |}'|
-//@[19:21)    NewLine |\r\n|
+//@[002:00019) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00019) |   | | └─StringSyntax
+//@[008:00016) |   | |   ├─Token(StringLeftPiece) |'vnet-${|
+//@[016:00017) |   | |   ├─VariableAccessSyntax
+//@[016:00017) |   | |   | └─IdentifierSyntax
+//@[016:00017) |   | |   |   └─Token(Identifier) |i|
+//@[017:00019) |   | |   └─Token(StringRightPiece) |}'|
+//@[019:00021) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:127)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:127)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00127) |   | ├─ObjectPropertySyntax
+//@[002:00012) |   | | ├─IdentifierSyntax
+//@[002:00012) |   | | | └─Token(Identifier) |properties|
+//@[012:00013) |   | | ├─Token(Colon) |:|
+//@[014:00127) |   | | └─ObjectSyntax
+//@[014:00015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     subnets: [for j in range(0, 4): {
-//@[4:105)      ObjectPropertySyntax
-//@[4:11)       IdentifierSyntax
-//@[4:11)        Identifier |subnets|
-//@[11:12)       Colon |:|
-//@[13:105)       ForSyntax
-//@[13:14)        LeftSquare |[|
-//@[14:17)        Identifier |for|
-//@[18:19)        LocalVariableSyntax
-//@[18:19)         IdentifierSyntax
-//@[18:19)          Identifier |j|
-//@[20:22)        Identifier |in|
-//@[23:34)        FunctionCallSyntax
-//@[23:28)         IdentifierSyntax
-//@[23:28)          Identifier |range|
-//@[28:29)         LeftParen |(|
-//@[29:31)         FunctionArgumentSyntax
-//@[29:30)          IntegerLiteralSyntax
-//@[29:30)           Integer |0|
-//@[30:31)          Comma |,|
-//@[32:33)         FunctionArgumentSyntax
-//@[32:33)          IntegerLiteralSyntax
-//@[32:33)           Integer |4|
-//@[33:34)         RightParen |)|
-//@[34:35)        Colon |:|
-//@[36:104)        ObjectSyntax
-//@[36:37)         LeftBrace |{|
-//@[37:39)         NewLine |\r\n|
+//@[004:00105) |   | |   ├─ObjectPropertySyntax
+//@[004:00011) |   | |   | ├─IdentifierSyntax
+//@[004:00011) |   | |   | | └─Token(Identifier) |subnets|
+//@[011:00012) |   | |   | ├─Token(Colon) |:|
+//@[013:00105) |   | |   | └─ForSyntax
+//@[013:00014) |   | |   |   ├─Token(LeftSquare) |[|
+//@[014:00017) |   | |   |   ├─Token(Identifier) |for|
+//@[018:00019) |   | |   |   ├─LocalVariableSyntax
+//@[018:00019) |   | |   |   | └─IdentifierSyntax
+//@[018:00019) |   | |   |   |   └─Token(Identifier) |j|
+//@[020:00022) |   | |   |   ├─Token(Identifier) |in|
+//@[023:00034) |   | |   |   ├─FunctionCallSyntax
+//@[023:00028) |   | |   |   | ├─IdentifierSyntax
+//@[023:00028) |   | |   |   | | └─Token(Identifier) |range|
+//@[028:00029) |   | |   |   | ├─Token(LeftParen) |(|
+//@[029:00030) |   | |   |   | ├─FunctionArgumentSyntax
+//@[029:00030) |   | |   |   | | └─IntegerLiteralSyntax
+//@[029:00030) |   | |   |   | |   └─Token(Integer) |0|
+//@[030:00031) |   | |   |   | ├─Token(Comma) |,|
+//@[032:00033) |   | |   |   | ├─FunctionArgumentSyntax
+//@[032:00033) |   | |   |   | | └─IntegerLiteralSyntax
+//@[032:00033) |   | |   |   | |   └─Token(Integer) |4|
+//@[033:00034) |   | |   |   | └─Token(RightParen) |)|
+//@[034:00035) |   | |   |   ├─Token(Colon) |:|
+//@[036:00104) |   | |   |   ├─ObjectSyntax
+//@[036:00037) |   | |   |   | ├─Token(LeftBrace) |{|
+//@[037:00039) |   | |   |   | ├─Token(NewLine) |\r\n|
       doesNotExist: 'test'
-//@[6:26)         ObjectPropertySyntax
-//@[6:18)          IdentifierSyntax
-//@[6:18)           Identifier |doesNotExist|
-//@[18:19)          Colon |:|
-//@[20:26)          StringSyntax
-//@[20:26)           StringComplete |'test'|
-//@[26:28)         NewLine |\r\n|
+//@[006:00026) |   | |   |   | ├─ObjectPropertySyntax
+//@[006:00018) |   | |   |   | | ├─IdentifierSyntax
+//@[006:00018) |   | |   |   | | | └─Token(Identifier) |doesNotExist|
+//@[018:00019) |   | |   |   | | ├─Token(Colon) |:|
+//@[020:00026) |   | |   |   | | └─StringSyntax
+//@[020:00026) |   | |   |   | |   └─Token(StringComplete) |'test'|
+//@[026:00028) |   | |   |   | ├─Token(NewLine) |\r\n|
       name: 'subnet-${i}-${j}'
-//@[6:30)         ObjectPropertySyntax
-//@[6:10)          IdentifierSyntax
-//@[6:10)           Identifier |name|
-//@[10:11)          Colon |:|
-//@[12:30)          StringSyntax
-//@[12:22)           StringLeftPiece |'subnet-${|
-//@[22:23)           VariableAccessSyntax
-//@[22:23)            IdentifierSyntax
-//@[22:23)             Identifier |i|
-//@[23:27)           StringMiddlePiece |}-${|
-//@[27:28)           VariableAccessSyntax
-//@[27:28)            IdentifierSyntax
-//@[27:28)             Identifier |j|
-//@[28:30)           StringRightPiece |}'|
-//@[30:32)         NewLine |\r\n|
+//@[006:00030) |   | |   |   | ├─ObjectPropertySyntax
+//@[006:00010) |   | |   |   | | ├─IdentifierSyntax
+//@[006:00010) |   | |   |   | | | └─Token(Identifier) |name|
+//@[010:00011) |   | |   |   | | ├─Token(Colon) |:|
+//@[012:00030) |   | |   |   | | └─StringSyntax
+//@[012:00022) |   | |   |   | |   ├─Token(StringLeftPiece) |'subnet-${|
+//@[022:00023) |   | |   |   | |   ├─VariableAccessSyntax
+//@[022:00023) |   | |   |   | |   | └─IdentifierSyntax
+//@[022:00023) |   | |   |   | |   |   └─Token(Identifier) |i|
+//@[023:00027) |   | |   |   | |   ├─Token(StringMiddlePiece) |}-${|
+//@[027:00028) |   | |   |   | |   ├─VariableAccessSyntax
+//@[027:00028) |   | |   |   | |   | └─IdentifierSyntax
+//@[027:00028) |   | |   |   | |   |   └─Token(Identifier) |j|
+//@[028:00030) |   | |   |   | |   └─Token(StringRightPiece) |}'|
+//@[030:00032) |   | |   |   | ├─Token(NewLine) |\r\n|
     }]
-//@[4:5)         RightBrace |}|
-//@[5:6)        RightSquare |]|
-//@[6:8)      NewLine |\r\n|
+//@[004:00005) |   | |   |   | └─Token(RightBrace) |}|
+//@[005:00006) |   | |   |   └─Token(RightSquare) |]|
+//@[006:00008) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-01' = [for (i,k) in range(0, 3): {
-//@[0:272) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |wrongPropertyInNestedLoop2|
-//@[36:82)  StringSyntax
-//@[36:82)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[83:84)  Assignment |=|
-//@[85:272)  ForSyntax
-//@[85:86)   LeftSquare |[|
-//@[86:89)   Identifier |for|
-//@[90:95)   ForVariableBlockSyntax
-//@[90:91)    LeftParen |(|
-//@[91:92)    LocalVariableSyntax
-//@[91:92)     IdentifierSyntax
-//@[91:92)      Identifier |i|
-//@[92:93)    Comma |,|
-//@[93:94)    LocalVariableSyntax
-//@[93:94)     IdentifierSyntax
-//@[93:94)      Identifier |k|
-//@[94:95)    RightParen |)|
-//@[96:98)   Identifier |in|
-//@[99:110)   FunctionCallSyntax
-//@[99:104)    IdentifierSyntax
-//@[99:104)     Identifier |range|
-//@[104:105)    LeftParen |(|
-//@[105:107)    FunctionArgumentSyntax
-//@[105:106)     IntegerLiteralSyntax
-//@[105:106)      Integer |0|
-//@[106:107)     Comma |,|
-//@[108:109)    FunctionArgumentSyntax
-//@[108:109)     IntegerLiteralSyntax
-//@[108:109)      Integer |3|
-//@[109:110)    RightParen |)|
-//@[110:111)   Colon |:|
-//@[112:271)   ObjectSyntax
-//@[112:113)    LeftBrace |{|
-//@[113:115)    NewLine |\r\n|
+//@[000:00272) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |wrongPropertyInNestedLoop2|
+//@[036:00082) | ├─StringSyntax
+//@[036:00082) | | └─Token(StringComplete) |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[083:00084) | ├─Token(Assignment) |=|
+//@[085:00272) | └─ForSyntax
+//@[085:00086) |   ├─Token(LeftSquare) |[|
+//@[086:00089) |   ├─Token(Identifier) |for|
+//@[090:00095) |   ├─VariableBlockSyntax
+//@[090:00091) |   | ├─Token(LeftParen) |(|
+//@[091:00092) |   | ├─LocalVariableSyntax
+//@[091:00092) |   | | └─IdentifierSyntax
+//@[091:00092) |   | |   └─Token(Identifier) |i|
+//@[092:00093) |   | ├─Token(Comma) |,|
+//@[093:00094) |   | ├─LocalVariableSyntax
+//@[093:00094) |   | | └─IdentifierSyntax
+//@[093:00094) |   | |   └─Token(Identifier) |k|
+//@[094:00095) |   | └─Token(RightParen) |)|
+//@[096:00098) |   ├─Token(Identifier) |in|
+//@[099:00110) |   ├─FunctionCallSyntax
+//@[099:00104) |   | ├─IdentifierSyntax
+//@[099:00104) |   | | └─Token(Identifier) |range|
+//@[104:00105) |   | ├─Token(LeftParen) |(|
+//@[105:00106) |   | ├─FunctionArgumentSyntax
+//@[105:00106) |   | | └─IntegerLiteralSyntax
+//@[105:00106) |   | |   └─Token(Integer) |0|
+//@[106:00107) |   | ├─Token(Comma) |,|
+//@[108:00109) |   | ├─FunctionArgumentSyntax
+//@[108:00109) |   | | └─IntegerLiteralSyntax
+//@[108:00109) |   | |   └─Token(Integer) |3|
+//@[109:00110) |   | └─Token(RightParen) |)|
+//@[110:00111) |   ├─Token(Colon) |:|
+//@[112:00271) |   ├─ObjectSyntax
+//@[112:00113) |   | ├─Token(LeftBrace) |{|
+//@[113:00115) |   | ├─Token(NewLine) |\r\n|
   name: 'vnet-${i}'
-//@[2:19)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:19)     StringSyntax
-//@[8:16)      StringLeftPiece |'vnet-${|
-//@[16:17)      VariableAccessSyntax
-//@[16:17)       IdentifierSyntax
-//@[16:17)        Identifier |i|
-//@[17:19)      StringRightPiece |}'|
-//@[19:21)    NewLine |\r\n|
+//@[002:00019) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00019) |   | | └─StringSyntax
+//@[008:00016) |   | |   ├─Token(StringLeftPiece) |'vnet-${|
+//@[016:00017) |   | |   ├─VariableAccessSyntax
+//@[016:00017) |   | |   | └─IdentifierSyntax
+//@[016:00017) |   | |   |   └─Token(Identifier) |i|
+//@[017:00019) |   | |   └─Token(StringRightPiece) |}'|
+//@[019:00021) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:132)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:132)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00132) |   | ├─ObjectPropertySyntax
+//@[002:00012) |   | | ├─IdentifierSyntax
+//@[002:00012) |   | | | └─Token(Identifier) |properties|
+//@[012:00013) |   | | ├─Token(Colon) |:|
+//@[014:00132) |   | | └─ObjectSyntax
+//@[014:00015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     subnets: [for j in range(0, 4): {
-//@[4:110)      ObjectPropertySyntax
-//@[4:11)       IdentifierSyntax
-//@[4:11)        Identifier |subnets|
-//@[11:12)       Colon |:|
-//@[13:110)       ForSyntax
-//@[13:14)        LeftSquare |[|
-//@[14:17)        Identifier |for|
-//@[18:19)        LocalVariableSyntax
-//@[18:19)         IdentifierSyntax
-//@[18:19)          Identifier |j|
-//@[20:22)        Identifier |in|
-//@[23:34)        FunctionCallSyntax
-//@[23:28)         IdentifierSyntax
-//@[23:28)          Identifier |range|
-//@[28:29)         LeftParen |(|
-//@[29:31)         FunctionArgumentSyntax
-//@[29:30)          IntegerLiteralSyntax
-//@[29:30)           Integer |0|
-//@[30:31)          Comma |,|
-//@[32:33)         FunctionArgumentSyntax
-//@[32:33)          IntegerLiteralSyntax
-//@[32:33)           Integer |4|
-//@[33:34)         RightParen |)|
-//@[34:35)        Colon |:|
-//@[36:109)        ObjectSyntax
-//@[36:37)         LeftBrace |{|
-//@[37:39)         NewLine |\r\n|
+//@[004:00110) |   | |   ├─ObjectPropertySyntax
+//@[004:00011) |   | |   | ├─IdentifierSyntax
+//@[004:00011) |   | |   | | └─Token(Identifier) |subnets|
+//@[011:00012) |   | |   | ├─Token(Colon) |:|
+//@[013:00110) |   | |   | └─ForSyntax
+//@[013:00014) |   | |   |   ├─Token(LeftSquare) |[|
+//@[014:00017) |   | |   |   ├─Token(Identifier) |for|
+//@[018:00019) |   | |   |   ├─LocalVariableSyntax
+//@[018:00019) |   | |   |   | └─IdentifierSyntax
+//@[018:00019) |   | |   |   |   └─Token(Identifier) |j|
+//@[020:00022) |   | |   |   ├─Token(Identifier) |in|
+//@[023:00034) |   | |   |   ├─FunctionCallSyntax
+//@[023:00028) |   | |   |   | ├─IdentifierSyntax
+//@[023:00028) |   | |   |   | | └─Token(Identifier) |range|
+//@[028:00029) |   | |   |   | ├─Token(LeftParen) |(|
+//@[029:00030) |   | |   |   | ├─FunctionArgumentSyntax
+//@[029:00030) |   | |   |   | | └─IntegerLiteralSyntax
+//@[029:00030) |   | |   |   | |   └─Token(Integer) |0|
+//@[030:00031) |   | |   |   | ├─Token(Comma) |,|
+//@[032:00033) |   | |   |   | ├─FunctionArgumentSyntax
+//@[032:00033) |   | |   |   | | └─IntegerLiteralSyntax
+//@[032:00033) |   | |   |   | |   └─Token(Integer) |4|
+//@[033:00034) |   | |   |   | └─Token(RightParen) |)|
+//@[034:00035) |   | |   |   ├─Token(Colon) |:|
+//@[036:00109) |   | |   |   ├─ObjectSyntax
+//@[036:00037) |   | |   |   | ├─Token(LeftBrace) |{|
+//@[037:00039) |   | |   |   | ├─Token(NewLine) |\r\n|
       doesNotExist: 'test'
-//@[6:26)         ObjectPropertySyntax
-//@[6:18)          IdentifierSyntax
-//@[6:18)           Identifier |doesNotExist|
-//@[18:19)          Colon |:|
-//@[20:26)          StringSyntax
-//@[20:26)           StringComplete |'test'|
-//@[26:28)         NewLine |\r\n|
+//@[006:00026) |   | |   |   | ├─ObjectPropertySyntax
+//@[006:00018) |   | |   |   | | ├─IdentifierSyntax
+//@[006:00018) |   | |   |   | | | └─Token(Identifier) |doesNotExist|
+//@[018:00019) |   | |   |   | | ├─Token(Colon) |:|
+//@[020:00026) |   | |   |   | | └─StringSyntax
+//@[020:00026) |   | |   |   | |   └─Token(StringComplete) |'test'|
+//@[026:00028) |   | |   |   | ├─Token(NewLine) |\r\n|
       name: 'subnet-${i}-${j}-${k}'
-//@[6:35)         ObjectPropertySyntax
-//@[6:10)          IdentifierSyntax
-//@[6:10)           Identifier |name|
-//@[10:11)          Colon |:|
-//@[12:35)          StringSyntax
-//@[12:22)           StringLeftPiece |'subnet-${|
-//@[22:23)           VariableAccessSyntax
-//@[22:23)            IdentifierSyntax
-//@[22:23)             Identifier |i|
-//@[23:27)           StringMiddlePiece |}-${|
-//@[27:28)           VariableAccessSyntax
-//@[27:28)            IdentifierSyntax
-//@[27:28)             Identifier |j|
-//@[28:32)           StringMiddlePiece |}-${|
-//@[32:33)           VariableAccessSyntax
-//@[32:33)            IdentifierSyntax
-//@[32:33)             Identifier |k|
-//@[33:35)           StringRightPiece |}'|
-//@[35:37)         NewLine |\r\n|
+//@[006:00035) |   | |   |   | ├─ObjectPropertySyntax
+//@[006:00010) |   | |   |   | | ├─IdentifierSyntax
+//@[006:00010) |   | |   |   | | | └─Token(Identifier) |name|
+//@[010:00011) |   | |   |   | | ├─Token(Colon) |:|
+//@[012:00035) |   | |   |   | | └─StringSyntax
+//@[012:00022) |   | |   |   | |   ├─Token(StringLeftPiece) |'subnet-${|
+//@[022:00023) |   | |   |   | |   ├─VariableAccessSyntax
+//@[022:00023) |   | |   |   | |   | └─IdentifierSyntax
+//@[022:00023) |   | |   |   | |   |   └─Token(Identifier) |i|
+//@[023:00027) |   | |   |   | |   ├─Token(StringMiddlePiece) |}-${|
+//@[027:00028) |   | |   |   | |   ├─VariableAccessSyntax
+//@[027:00028) |   | |   |   | |   | └─IdentifierSyntax
+//@[027:00028) |   | |   |   | |   |   └─Token(Identifier) |j|
+//@[028:00032) |   | |   |   | |   ├─Token(StringMiddlePiece) |}-${|
+//@[032:00033) |   | |   |   | |   ├─VariableAccessSyntax
+//@[032:00033) |   | |   |   | |   | └─IdentifierSyntax
+//@[032:00033) |   | |   |   | |   |   └─Token(Identifier) |k|
+//@[033:00035) |   | |   |   | |   └─Token(StringRightPiece) |}'|
+//@[035:00037) |   | |   |   | ├─Token(NewLine) |\r\n|
     }]
-//@[4:5)         RightBrace |}|
-//@[5:6)        RightSquare |]|
-//@[6:8)      NewLine |\r\n|
+//@[004:00005) |   | |   |   | └─Token(RightBrace) |}|
+//@[005:00006) |   | |   |   └─Token(RightSquare) |]|
+//@[006:00008) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 // nonexistent arrays and loop variables
-//@[40:42) NewLine |\r\n|
+//@[040:00042) ├─Token(NewLine) |\r\n|
 resource nonexistentArrays 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in notAThing: {
-//@[0:280) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:26)  IdentifierSyntax
-//@[9:26)   Identifier |nonexistentArrays|
-//@[27:73)  StringSyntax
-//@[27:73)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[74:75)  Assignment |=|
-//@[76:280)  ForSyntax
-//@[76:77)   LeftSquare |[|
-//@[77:80)   Identifier |for|
-//@[81:82)   LocalVariableSyntax
-//@[81:82)    IdentifierSyntax
-//@[81:82)     Identifier |i|
-//@[83:85)   Identifier |in|
-//@[86:95)   VariableAccessSyntax
-//@[86:95)    IdentifierSyntax
-//@[86:95)     Identifier |notAThing|
-//@[95:96)   Colon |:|
-//@[97:279)   ObjectSyntax
-//@[97:98)    LeftBrace |{|
-//@[98:100)    NewLine |\r\n|
+//@[000:00280) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00026) | ├─IdentifierSyntax
+//@[009:00026) | | └─Token(Identifier) |nonexistentArrays|
+//@[027:00073) | ├─StringSyntax
+//@[027:00073) | | └─Token(StringComplete) |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[074:00075) | ├─Token(Assignment) |=|
+//@[076:00280) | └─ForSyntax
+//@[076:00077) |   ├─Token(LeftSquare) |[|
+//@[077:00080) |   ├─Token(Identifier) |for|
+//@[081:00082) |   ├─LocalVariableSyntax
+//@[081:00082) |   | └─IdentifierSyntax
+//@[081:00082) |   |   └─Token(Identifier) |i|
+//@[083:00085) |   ├─Token(Identifier) |in|
+//@[086:00095) |   ├─VariableAccessSyntax
+//@[086:00095) |   | └─IdentifierSyntax
+//@[086:00095) |   |   └─Token(Identifier) |notAThing|
+//@[095:00096) |   ├─Token(Colon) |:|
+//@[097:00279) |   ├─ObjectSyntax
+//@[097:00098) |   | ├─Token(LeftBrace) |{|
+//@[098:00100) |   | ├─Token(NewLine) |\r\n|
   name: 'vnet-${justPlainWrong}'
-//@[2:32)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:32)     StringSyntax
-//@[8:16)      StringLeftPiece |'vnet-${|
-//@[16:30)      VariableAccessSyntax
-//@[16:30)       IdentifierSyntax
-//@[16:30)        Identifier |justPlainWrong|
-//@[30:32)      StringRightPiece |}'|
-//@[32:34)    NewLine |\r\n|
+//@[002:00032) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00032) |   | | └─StringSyntax
+//@[008:00016) |   | |   ├─Token(StringLeftPiece) |'vnet-${|
+//@[016:00030) |   | |   ├─VariableAccessSyntax
+//@[016:00030) |   | |   | └─IdentifierSyntax
+//@[016:00030) |   | |   |   └─Token(Identifier) |justPlainWrong|
+//@[030:00032) |   | |   └─Token(StringRightPiece) |}'|
+//@[032:00034) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:142)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:142)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00142) |   | ├─ObjectPropertySyntax
+//@[002:00012) |   | | ├─IdentifierSyntax
+//@[002:00012) |   | | | └─Token(Identifier) |properties|
+//@[012:00013) |   | | ├─Token(Colon) |:|
+//@[014:00142) |   | | └─ObjectSyntax
+//@[014:00015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     subnets: [for j in alsoNotAThing: {
-//@[4:120)      ObjectPropertySyntax
-//@[4:11)       IdentifierSyntax
-//@[4:11)        Identifier |subnets|
-//@[11:12)       Colon |:|
-//@[13:120)       ForSyntax
-//@[13:14)        LeftSquare |[|
-//@[14:17)        Identifier |for|
-//@[18:19)        LocalVariableSyntax
-//@[18:19)         IdentifierSyntax
-//@[18:19)          Identifier |j|
-//@[20:22)        Identifier |in|
-//@[23:36)        VariableAccessSyntax
-//@[23:36)         IdentifierSyntax
-//@[23:36)          Identifier |alsoNotAThing|
-//@[36:37)        Colon |:|
-//@[38:119)        ObjectSyntax
-//@[38:39)         LeftBrace |{|
-//@[39:41)         NewLine |\r\n|
+//@[004:00120) |   | |   ├─ObjectPropertySyntax
+//@[004:00011) |   | |   | ├─IdentifierSyntax
+//@[004:00011) |   | |   | | └─Token(Identifier) |subnets|
+//@[011:00012) |   | |   | ├─Token(Colon) |:|
+//@[013:00120) |   | |   | └─ForSyntax
+//@[013:00014) |   | |   |   ├─Token(LeftSquare) |[|
+//@[014:00017) |   | |   |   ├─Token(Identifier) |for|
+//@[018:00019) |   | |   |   ├─LocalVariableSyntax
+//@[018:00019) |   | |   |   | └─IdentifierSyntax
+//@[018:00019) |   | |   |   |   └─Token(Identifier) |j|
+//@[020:00022) |   | |   |   ├─Token(Identifier) |in|
+//@[023:00036) |   | |   |   ├─VariableAccessSyntax
+//@[023:00036) |   | |   |   | └─IdentifierSyntax
+//@[023:00036) |   | |   |   |   └─Token(Identifier) |alsoNotAThing|
+//@[036:00037) |   | |   |   ├─Token(Colon) |:|
+//@[038:00119) |   | |   |   ├─ObjectSyntax
+//@[038:00039) |   | |   |   | ├─Token(LeftBrace) |{|
+//@[039:00041) |   | |   |   | ├─Token(NewLine) |\r\n|
       doesNotExist: 'test'
-//@[6:26)         ObjectPropertySyntax
-//@[6:18)          IdentifierSyntax
-//@[6:18)           Identifier |doesNotExist|
-//@[18:19)          Colon |:|
-//@[20:26)          StringSyntax
-//@[20:26)           StringComplete |'test'|
-//@[26:28)         NewLine |\r\n|
+//@[006:00026) |   | |   |   | ├─ObjectPropertySyntax
+//@[006:00018) |   | |   |   | | ├─IdentifierSyntax
+//@[006:00018) |   | |   |   | | | └─Token(Identifier) |doesNotExist|
+//@[018:00019) |   | |   |   | | ├─Token(Colon) |:|
+//@[020:00026) |   | |   |   | | └─StringSyntax
+//@[020:00026) |   | |   |   | |   └─Token(StringComplete) |'test'|
+//@[026:00028) |   | |   |   | ├─Token(NewLine) |\r\n|
       name: 'subnet-${fake}-${totallyFake}'
-//@[6:43)         ObjectPropertySyntax
-//@[6:10)          IdentifierSyntax
-//@[6:10)           Identifier |name|
-//@[10:11)          Colon |:|
-//@[12:43)          StringSyntax
-//@[12:22)           StringLeftPiece |'subnet-${|
-//@[22:26)           VariableAccessSyntax
-//@[22:26)            IdentifierSyntax
-//@[22:26)             Identifier |fake|
-//@[26:30)           StringMiddlePiece |}-${|
-//@[30:41)           VariableAccessSyntax
-//@[30:41)            IdentifierSyntax
-//@[30:41)             Identifier |totallyFake|
-//@[41:43)           StringRightPiece |}'|
-//@[43:45)         NewLine |\r\n|
+//@[006:00043) |   | |   |   | ├─ObjectPropertySyntax
+//@[006:00010) |   | |   |   | | ├─IdentifierSyntax
+//@[006:00010) |   | |   |   | | | └─Token(Identifier) |name|
+//@[010:00011) |   | |   |   | | ├─Token(Colon) |:|
+//@[012:00043) |   | |   |   | | └─StringSyntax
+//@[012:00022) |   | |   |   | |   ├─Token(StringLeftPiece) |'subnet-${|
+//@[022:00026) |   | |   |   | |   ├─VariableAccessSyntax
+//@[022:00026) |   | |   |   | |   | └─IdentifierSyntax
+//@[022:00026) |   | |   |   | |   |   └─Token(Identifier) |fake|
+//@[026:00030) |   | |   |   | |   ├─Token(StringMiddlePiece) |}-${|
+//@[030:00041) |   | |   |   | |   ├─VariableAccessSyntax
+//@[030:00041) |   | |   |   | |   | └─IdentifierSyntax
+//@[030:00041) |   | |   |   | |   |   └─Token(Identifier) |totallyFake|
+//@[041:00043) |   | |   |   | |   └─Token(StringRightPiece) |}'|
+//@[043:00045) |   | |   |   | ├─Token(NewLine) |\r\n|
     }]
-//@[4:5)         RightBrace |}|
-//@[5:6)        RightSquare |]|
-//@[6:8)      NewLine |\r\n|
+//@[004:00005) |   | |   |   | └─Token(RightBrace) |}|
+//@[005:00006) |   | |   |   └─Token(RightSquare) |]|
+//@[006:00008) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 // property loops cannot be nested
-//@[34:36) NewLine |\r\n|
+//@[034:00036) ├─Token(NewLine) |\r\n|
 resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[0:428) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:32)  IdentifierSyntax
-//@[9:32)   Identifier |propertyLoopsCannotNest|
-//@[33:79)  StringSyntax
-//@[33:79)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[80:81)  Assignment |=|
-//@[82:428)  ForSyntax
-//@[82:83)   LeftSquare |[|
-//@[83:86)   Identifier |for|
-//@[87:94)   LocalVariableSyntax
-//@[87:94)    IdentifierSyntax
-//@[87:94)     Identifier |account|
-//@[95:97)   Identifier |in|
-//@[98:113)   VariableAccessSyntax
-//@[98:113)    IdentifierSyntax
-//@[98:113)     Identifier |storageAccounts|
-//@[113:114)   Colon |:|
-//@[115:427)   ObjectSyntax
-//@[115:116)    LeftBrace |{|
-//@[116:118)    NewLine |\r\n|
+//@[000:00428) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00032) | ├─IdentifierSyntax
+//@[009:00032) | | └─Token(Identifier) |propertyLoopsCannotNest|
+//@[033:00079) | ├─StringSyntax
+//@[033:00079) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[080:00081) | ├─Token(Assignment) |=|
+//@[082:00428) | └─ForSyntax
+//@[082:00083) |   ├─Token(LeftSquare) |[|
+//@[083:00086) |   ├─Token(Identifier) |for|
+//@[087:00094) |   ├─LocalVariableSyntax
+//@[087:00094) |   | └─IdentifierSyntax
+//@[087:00094) |   |   └─Token(Identifier) |account|
+//@[095:00097) |   ├─Token(Identifier) |in|
+//@[098:00113) |   ├─VariableAccessSyntax
+//@[098:00113) |   | └─IdentifierSyntax
+//@[098:00113) |   |   └─Token(Identifier) |storageAccounts|
+//@[113:00114) |   ├─Token(Colon) |:|
+//@[115:00427) |   ├─ObjectSyntax
+//@[115:00116) |   | ├─Token(LeftBrace) |{|
+//@[116:00118) |   | ├─Token(NewLine) |\r\n|
   name: account.name
-//@[2:20)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:20)     PropertyAccessSyntax
-//@[8:15)      VariableAccessSyntax
-//@[8:15)       IdentifierSyntax
-//@[8:15)        Identifier |account|
-//@[15:16)      Dot |.|
-//@[16:20)      IdentifierSyntax
-//@[16:20)       Identifier |name|
-//@[20:22)    NewLine |\r\n|
+//@[002:00020) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00020) |   | | └─PropertyAccessSyntax
+//@[008:00015) |   | |   ├─VariableAccessSyntax
+//@[008:00015) |   | |   | └─IdentifierSyntax
+//@[008:00015) |   | |   |   └─Token(Identifier) |account|
+//@[015:00016) |   | |   ├─Token(Dot) |.|
+//@[016:00020) |   | |   └─IdentifierSyntax
+//@[016:00020) |   | |     └─Token(Identifier) |name|
+//@[020:00022) |   | ├─Token(NewLine) |\r\n|
   location: account.location
-//@[2:28)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:28)     PropertyAccessSyntax
-//@[12:19)      VariableAccessSyntax
-//@[12:19)       IdentifierSyntax
-//@[12:19)        Identifier |account|
-//@[19:20)      Dot |.|
-//@[20:28)      IdentifierSyntax
-//@[20:28)       Identifier |location|
-//@[28:30)    NewLine |\r\n|
+//@[002:00028) |   | ├─ObjectPropertySyntax
+//@[002:00010) |   | | ├─IdentifierSyntax
+//@[002:00010) |   | | | └─Token(Identifier) |location|
+//@[010:00011) |   | | ├─Token(Colon) |:|
+//@[012:00028) |   | | └─PropertyAccessSyntax
+//@[012:00019) |   | |   ├─VariableAccessSyntax
+//@[012:00019) |   | |   | └─IdentifierSyntax
+//@[012:00019) |   | |   |   └─Token(Identifier) |account|
+//@[019:00020) |   | |   ├─Token(Dot) |.|
+//@[020:00028) |   | |   └─IdentifierSyntax
+//@[020:00028) |   | |     └─Token(Identifier) |location|
+//@[028:00030) |   | ├─Token(NewLine) |\r\n|
   sku: {
-//@[2:39)    ObjectPropertySyntax
-//@[2:5)     IdentifierSyntax
-//@[2:5)      Identifier |sku|
-//@[5:6)     Colon |:|
-//@[7:39)     ObjectSyntax
-//@[7:8)      LeftBrace |{|
-//@[8:10)      NewLine |\r\n|
+//@[002:00039) |   | ├─ObjectPropertySyntax
+//@[002:00005) |   | | ├─IdentifierSyntax
+//@[002:00005) |   | | | └─Token(Identifier) |sku|
+//@[005:00006) |   | | ├─Token(Colon) |:|
+//@[007:00039) |   | | └─ObjectSyntax
+//@[007:00008) |   | |   ├─Token(LeftBrace) |{|
+//@[008:00010) |   | |   ├─Token(NewLine) |\r\n|
     name: 'Standard_LRS'
-//@[4:24)      ObjectPropertySyntax
-//@[4:8)       IdentifierSyntax
-//@[4:8)        Identifier |name|
-//@[8:9)       Colon |:|
-//@[10:24)       StringSyntax
-//@[10:24)        StringComplete |'Standard_LRS'|
-//@[24:26)      NewLine |\r\n|
+//@[004:00024) |   | |   ├─ObjectPropertySyntax
+//@[004:00008) |   | |   | ├─IdentifierSyntax
+//@[004:00008) |   | |   | | └─Token(Identifier) |name|
+//@[008:00009) |   | |   | ├─Token(Colon) |:|
+//@[010:00024) |   | |   | └─StringSyntax
+//@[010:00024) |   | |   |   └─Token(StringComplete) |'Standard_LRS'|
+//@[024:00026) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
   kind: 'StorageV2'
-//@[2:19)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |kind|
-//@[6:7)     Colon |:|
-//@[8:19)     StringSyntax
-//@[8:19)      StringComplete |'StorageV2'|
-//@[19:21)    NewLine |\r\n|
+//@[002:00019) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |kind|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00019) |   | | └─StringSyntax
+//@[008:00019) |   | |   └─Token(StringComplete) |'StorageV2'|
+//@[019:00021) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:192)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:192)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:19)      NewLine |\r\n\r\n|
+//@[002:00192) |   | ├─ObjectPropertySyntax
+//@[002:00012) |   | | ├─IdentifierSyntax
+//@[002:00012) |   | | | └─Token(Identifier) |properties|
+//@[012:00013) |   | | ├─Token(Colon) |:|
+//@[014:00192) |   | | └─ObjectSyntax
+//@[014:00015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:00019) |   | |   ├─Token(NewLine) |\r\n\r\n|
 
     networkAcls: {
-//@[4:168)      ObjectPropertySyntax
-//@[4:15)       IdentifierSyntax
-//@[4:15)        Identifier |networkAcls|
-//@[15:16)       Colon |:|
-//@[17:168)       ObjectSyntax
-//@[17:18)        LeftBrace |{|
-//@[18:20)        NewLine |\r\n|
+//@[004:00168) |   | |   ├─ObjectPropertySyntax
+//@[004:00015) |   | |   | ├─IdentifierSyntax
+//@[004:00015) |   | |   | | └─Token(Identifier) |networkAcls|
+//@[015:00016) |   | |   | ├─Token(Colon) |:|
+//@[017:00168) |   | |   | └─ObjectSyntax
+//@[017:00018) |   | |   |   ├─Token(LeftBrace) |{|
+//@[018:00020) |   | |   |   ├─Token(NewLine) |\r\n|
       virtualNetworkRules: [for rule in []: {
-//@[6:141)        ObjectPropertySyntax
-//@[6:25)         IdentifierSyntax
-//@[6:25)          Identifier |virtualNetworkRules|
-//@[25:26)         Colon |:|
-//@[27:141)         ForSyntax
-//@[27:28)          LeftSquare |[|
-//@[28:31)          Identifier |for|
-//@[32:36)          LocalVariableSyntax
-//@[32:36)           IdentifierSyntax
-//@[32:36)            Identifier |rule|
-//@[37:39)          Identifier |in|
-//@[40:42)          ArraySyntax
-//@[40:41)           LeftSquare |[|
-//@[41:42)           RightSquare |]|
-//@[42:43)          Colon |:|
-//@[44:140)          ObjectSyntax
-//@[44:45)           LeftBrace |{|
-//@[45:47)           NewLine |\r\n|
+//@[006:00141) |   | |   |   ├─ObjectPropertySyntax
+//@[006:00025) |   | |   |   | ├─IdentifierSyntax
+//@[006:00025) |   | |   |   | | └─Token(Identifier) |virtualNetworkRules|
+//@[025:00026) |   | |   |   | ├─Token(Colon) |:|
+//@[027:00141) |   | |   |   | └─ForSyntax
+//@[027:00028) |   | |   |   |   ├─Token(LeftSquare) |[|
+//@[028:00031) |   | |   |   |   ├─Token(Identifier) |for|
+//@[032:00036) |   | |   |   |   ├─LocalVariableSyntax
+//@[032:00036) |   | |   |   |   | └─IdentifierSyntax
+//@[032:00036) |   | |   |   |   |   └─Token(Identifier) |rule|
+//@[037:00039) |   | |   |   |   ├─Token(Identifier) |in|
+//@[040:00042) |   | |   |   |   ├─ArraySyntax
+//@[040:00041) |   | |   |   |   | ├─Token(LeftSquare) |[|
+//@[041:00042) |   | |   |   |   | └─Token(RightSquare) |]|
+//@[042:00043) |   | |   |   |   ├─Token(Colon) |:|
+//@[044:00140) |   | |   |   |   ├─ObjectSyntax
+//@[044:00045) |   | |   |   |   | ├─Token(LeftBrace) |{|
+//@[045:00047) |   | |   |   |   | ├─Token(NewLine) |\r\n|
         id: '${account.name}-${account.location}'
-//@[8:49)           ObjectPropertySyntax
-//@[8:10)            IdentifierSyntax
-//@[8:10)             Identifier |id|
-//@[10:11)            Colon |:|
-//@[12:49)            StringSyntax
-//@[12:15)             StringLeftPiece |'${|
-//@[15:27)             PropertyAccessSyntax
-//@[15:22)              VariableAccessSyntax
-//@[15:22)               IdentifierSyntax
-//@[15:22)                Identifier |account|
-//@[22:23)              Dot |.|
-//@[23:27)              IdentifierSyntax
-//@[23:27)               Identifier |name|
-//@[27:31)             StringMiddlePiece |}-${|
-//@[31:47)             PropertyAccessSyntax
-//@[31:38)              VariableAccessSyntax
-//@[31:38)               IdentifierSyntax
-//@[31:38)                Identifier |account|
-//@[38:39)              Dot |.|
-//@[39:47)              IdentifierSyntax
-//@[39:47)               Identifier |location|
-//@[47:49)             StringRightPiece |}'|
-//@[49:51)           NewLine |\r\n|
+//@[008:00049) |   | |   |   |   | ├─ObjectPropertySyntax
+//@[008:00010) |   | |   |   |   | | ├─IdentifierSyntax
+//@[008:00010) |   | |   |   |   | | | └─Token(Identifier) |id|
+//@[010:00011) |   | |   |   |   | | ├─Token(Colon) |:|
+//@[012:00049) |   | |   |   |   | | └─StringSyntax
+//@[012:00015) |   | |   |   |   | |   ├─Token(StringLeftPiece) |'${|
+//@[015:00027) |   | |   |   |   | |   ├─PropertyAccessSyntax
+//@[015:00022) |   | |   |   |   | |   | ├─VariableAccessSyntax
+//@[015:00022) |   | |   |   |   | |   | | └─IdentifierSyntax
+//@[015:00022) |   | |   |   |   | |   | |   └─Token(Identifier) |account|
+//@[022:00023) |   | |   |   |   | |   | ├─Token(Dot) |.|
+//@[023:00027) |   | |   |   |   | |   | └─IdentifierSyntax
+//@[023:00027) |   | |   |   |   | |   |   └─Token(Identifier) |name|
+//@[027:00031) |   | |   |   |   | |   ├─Token(StringMiddlePiece) |}-${|
+//@[031:00047) |   | |   |   |   | |   ├─PropertyAccessSyntax
+//@[031:00038) |   | |   |   |   | |   | ├─VariableAccessSyntax
+//@[031:00038) |   | |   |   |   | |   | | └─IdentifierSyntax
+//@[031:00038) |   | |   |   |   | |   | |   └─Token(Identifier) |account|
+//@[038:00039) |   | |   |   |   | |   | ├─Token(Dot) |.|
+//@[039:00047) |   | |   |   |   | |   | └─IdentifierSyntax
+//@[039:00047) |   | |   |   |   | |   |   └─Token(Identifier) |location|
+//@[047:00049) |   | |   |   |   | |   └─Token(StringRightPiece) |}'|
+//@[049:00051) |   | |   |   |   | ├─Token(NewLine) |\r\n|
         state: [for lol in []: 4]
-//@[8:33)           ObjectPropertySyntax
-//@[8:13)            IdentifierSyntax
-//@[8:13)             Identifier |state|
-//@[13:14)            Colon |:|
-//@[15:33)            ForSyntax
-//@[15:16)             LeftSquare |[|
-//@[16:19)             Identifier |for|
-//@[20:23)             LocalVariableSyntax
-//@[20:23)              IdentifierSyntax
-//@[20:23)               Identifier |lol|
-//@[24:26)             Identifier |in|
-//@[27:29)             ArraySyntax
-//@[27:28)              LeftSquare |[|
-//@[28:29)              RightSquare |]|
-//@[29:30)             Colon |:|
-//@[31:32)             IntegerLiteralSyntax
-//@[31:32)              Integer |4|
-//@[32:33)             RightSquare |]|
-//@[33:35)           NewLine |\r\n|
+//@[008:00033) |   | |   |   |   | ├─ObjectPropertySyntax
+//@[008:00013) |   | |   |   |   | | ├─IdentifierSyntax
+//@[008:00013) |   | |   |   |   | | | └─Token(Identifier) |state|
+//@[013:00014) |   | |   |   |   | | ├─Token(Colon) |:|
+//@[015:00033) |   | |   |   |   | | └─ForSyntax
+//@[015:00016) |   | |   |   |   | |   ├─Token(LeftSquare) |[|
+//@[016:00019) |   | |   |   |   | |   ├─Token(Identifier) |for|
+//@[020:00023) |   | |   |   |   | |   ├─LocalVariableSyntax
+//@[020:00023) |   | |   |   |   | |   | └─IdentifierSyntax
+//@[020:00023) |   | |   |   |   | |   |   └─Token(Identifier) |lol|
+//@[024:00026) |   | |   |   |   | |   ├─Token(Identifier) |in|
+//@[027:00029) |   | |   |   |   | |   ├─ArraySyntax
+//@[027:00028) |   | |   |   |   | |   | ├─Token(LeftSquare) |[|
+//@[028:00029) |   | |   |   |   | |   | └─Token(RightSquare) |]|
+//@[029:00030) |   | |   |   |   | |   ├─Token(Colon) |:|
+//@[031:00032) |   | |   |   |   | |   ├─IntegerLiteralSyntax
+//@[031:00032) |   | |   |   |   | |   | └─Token(Integer) |4|
+//@[032:00033) |   | |   |   |   | |   └─Token(RightSquare) |]|
+//@[033:00035) |   | |   |   |   | ├─Token(NewLine) |\r\n|
       }]
-//@[6:7)           RightBrace |}|
-//@[7:8)          RightSquare |]|
-//@[8:10)        NewLine |\r\n|
+//@[006:00007) |   | |   |   |   | └─Token(RightBrace) |}|
+//@[007:00008) |   | |   |   |   └─Token(RightSquare) |]|
+//@[008:00010) |   | |   |   ├─Token(NewLine) |\r\n|
     }
-//@[4:5)        RightBrace |}|
-//@[5:7)      NewLine |\r\n|
+//@[004:00005) |   | |   |   └─Token(RightBrace) |}|
+//@[005:00007) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00004) ├─Token(NewLine) |\r\n|
 resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in storageAccounts: {
-//@[0:441) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:33)  IdentifierSyntax
-//@[9:33)   Identifier |propertyLoopsCannotNest2|
-//@[34:80)  StringSyntax
-//@[34:80)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[81:82)  Assignment |=|
-//@[83:441)  ForSyntax
-//@[83:84)   LeftSquare |[|
-//@[84:87)   Identifier |for|
-//@[88:99)   ForVariableBlockSyntax
-//@[88:89)    LeftParen |(|
-//@[89:96)    LocalVariableSyntax
-//@[89:96)     IdentifierSyntax
-//@[89:96)      Identifier |account|
-//@[96:97)    Comma |,|
-//@[97:98)    LocalVariableSyntax
-//@[97:98)     IdentifierSyntax
-//@[97:98)      Identifier |i|
-//@[98:99)    RightParen |)|
-//@[100:102)   Identifier |in|
-//@[103:118)   VariableAccessSyntax
-//@[103:118)    IdentifierSyntax
-//@[103:118)     Identifier |storageAccounts|
-//@[118:119)   Colon |:|
-//@[120:440)   ObjectSyntax
-//@[120:121)    LeftBrace |{|
-//@[121:123)    NewLine |\r\n|
+//@[000:00441) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00033) | ├─IdentifierSyntax
+//@[009:00033) | | └─Token(Identifier) |propertyLoopsCannotNest2|
+//@[034:00080) | ├─StringSyntax
+//@[034:00080) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[081:00082) | ├─Token(Assignment) |=|
+//@[083:00441) | └─ForSyntax
+//@[083:00084) |   ├─Token(LeftSquare) |[|
+//@[084:00087) |   ├─Token(Identifier) |for|
+//@[088:00099) |   ├─VariableBlockSyntax
+//@[088:00089) |   | ├─Token(LeftParen) |(|
+//@[089:00096) |   | ├─LocalVariableSyntax
+//@[089:00096) |   | | └─IdentifierSyntax
+//@[089:00096) |   | |   └─Token(Identifier) |account|
+//@[096:00097) |   | ├─Token(Comma) |,|
+//@[097:00098) |   | ├─LocalVariableSyntax
+//@[097:00098) |   | | └─IdentifierSyntax
+//@[097:00098) |   | |   └─Token(Identifier) |i|
+//@[098:00099) |   | └─Token(RightParen) |)|
+//@[100:00102) |   ├─Token(Identifier) |in|
+//@[103:00118) |   ├─VariableAccessSyntax
+//@[103:00118) |   | └─IdentifierSyntax
+//@[103:00118) |   |   └─Token(Identifier) |storageAccounts|
+//@[118:00119) |   ├─Token(Colon) |:|
+//@[120:00440) |   ├─ObjectSyntax
+//@[120:00121) |   | ├─Token(LeftBrace) |{|
+//@[121:00123) |   | ├─Token(NewLine) |\r\n|
   name: account.name
-//@[2:20)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:20)     PropertyAccessSyntax
-//@[8:15)      VariableAccessSyntax
-//@[8:15)       IdentifierSyntax
-//@[8:15)        Identifier |account|
-//@[15:16)      Dot |.|
-//@[16:20)      IdentifierSyntax
-//@[16:20)       Identifier |name|
-//@[20:22)    NewLine |\r\n|
+//@[002:00020) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00020) |   | | └─PropertyAccessSyntax
+//@[008:00015) |   | |   ├─VariableAccessSyntax
+//@[008:00015) |   | |   | └─IdentifierSyntax
+//@[008:00015) |   | |   |   └─Token(Identifier) |account|
+//@[015:00016) |   | |   ├─Token(Dot) |.|
+//@[016:00020) |   | |   └─IdentifierSyntax
+//@[016:00020) |   | |     └─Token(Identifier) |name|
+//@[020:00022) |   | ├─Token(NewLine) |\r\n|
   location: account.location
-//@[2:28)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:28)     PropertyAccessSyntax
-//@[12:19)      VariableAccessSyntax
-//@[12:19)       IdentifierSyntax
-//@[12:19)        Identifier |account|
-//@[19:20)      Dot |.|
-//@[20:28)      IdentifierSyntax
-//@[20:28)       Identifier |location|
-//@[28:30)    NewLine |\r\n|
+//@[002:00028) |   | ├─ObjectPropertySyntax
+//@[002:00010) |   | | ├─IdentifierSyntax
+//@[002:00010) |   | | | └─Token(Identifier) |location|
+//@[010:00011) |   | | ├─Token(Colon) |:|
+//@[012:00028) |   | | └─PropertyAccessSyntax
+//@[012:00019) |   | |   ├─VariableAccessSyntax
+//@[012:00019) |   | |   | └─IdentifierSyntax
+//@[012:00019) |   | |   |   └─Token(Identifier) |account|
+//@[019:00020) |   | |   ├─Token(Dot) |.|
+//@[020:00028) |   | |   └─IdentifierSyntax
+//@[020:00028) |   | |     └─Token(Identifier) |location|
+//@[028:00030) |   | ├─Token(NewLine) |\r\n|
   sku: {
-//@[2:39)    ObjectPropertySyntax
-//@[2:5)     IdentifierSyntax
-//@[2:5)      Identifier |sku|
-//@[5:6)     Colon |:|
-//@[7:39)     ObjectSyntax
-//@[7:8)      LeftBrace |{|
-//@[8:10)      NewLine |\r\n|
+//@[002:00039) |   | ├─ObjectPropertySyntax
+//@[002:00005) |   | | ├─IdentifierSyntax
+//@[002:00005) |   | | | └─Token(Identifier) |sku|
+//@[005:00006) |   | | ├─Token(Colon) |:|
+//@[007:00039) |   | | └─ObjectSyntax
+//@[007:00008) |   | |   ├─Token(LeftBrace) |{|
+//@[008:00010) |   | |   ├─Token(NewLine) |\r\n|
     name: 'Standard_LRS'
-//@[4:24)      ObjectPropertySyntax
-//@[4:8)       IdentifierSyntax
-//@[4:8)        Identifier |name|
-//@[8:9)       Colon |:|
-//@[10:24)       StringSyntax
-//@[10:24)        StringComplete |'Standard_LRS'|
-//@[24:26)      NewLine |\r\n|
+//@[004:00024) |   | |   ├─ObjectPropertySyntax
+//@[004:00008) |   | |   | ├─IdentifierSyntax
+//@[004:00008) |   | |   | | └─Token(Identifier) |name|
+//@[008:00009) |   | |   | ├─Token(Colon) |:|
+//@[010:00024) |   | |   | └─StringSyntax
+//@[010:00024) |   | |   |   └─Token(StringComplete) |'Standard_LRS'|
+//@[024:00026) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
   kind: 'StorageV2'
-//@[2:19)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |kind|
-//@[6:7)     Colon |:|
-//@[8:19)     StringSyntax
-//@[8:19)      StringComplete |'StorageV2'|
-//@[19:21)    NewLine |\r\n|
+//@[002:00019) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |kind|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00019) |   | | └─StringSyntax
+//@[008:00019) |   | |   └─Token(StringComplete) |'StorageV2'|
+//@[019:00021) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:200)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:200)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:19)      NewLine |\r\n\r\n|
+//@[002:00200) |   | ├─ObjectPropertySyntax
+//@[002:00012) |   | | ├─IdentifierSyntax
+//@[002:00012) |   | | | └─Token(Identifier) |properties|
+//@[012:00013) |   | | ├─Token(Colon) |:|
+//@[014:00200) |   | | └─ObjectSyntax
+//@[014:00015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:00019) |   | |   ├─Token(NewLine) |\r\n\r\n|
 
     networkAcls: {
-//@[4:176)      ObjectPropertySyntax
-//@[4:15)       IdentifierSyntax
-//@[4:15)        Identifier |networkAcls|
-//@[15:16)       Colon |:|
-//@[17:176)       ObjectSyntax
-//@[17:18)        LeftBrace |{|
-//@[18:20)        NewLine |\r\n|
+//@[004:00176) |   | |   ├─ObjectPropertySyntax
+//@[004:00015) |   | |   | ├─IdentifierSyntax
+//@[004:00015) |   | |   | | └─Token(Identifier) |networkAcls|
+//@[015:00016) |   | |   | ├─Token(Colon) |:|
+//@[017:00176) |   | |   | └─ObjectSyntax
+//@[017:00018) |   | |   |   ├─Token(LeftBrace) |{|
+//@[018:00020) |   | |   |   ├─Token(NewLine) |\r\n|
       virtualNetworkRules: [for (rule,j) in []: {
-//@[6:149)        ObjectPropertySyntax
-//@[6:25)         IdentifierSyntax
-//@[6:25)          Identifier |virtualNetworkRules|
-//@[25:26)         Colon |:|
-//@[27:149)         ForSyntax
-//@[27:28)          LeftSquare |[|
-//@[28:31)          Identifier |for|
-//@[32:40)          ForVariableBlockSyntax
-//@[32:33)           LeftParen |(|
-//@[33:37)           LocalVariableSyntax
-//@[33:37)            IdentifierSyntax
-//@[33:37)             Identifier |rule|
-//@[37:38)           Comma |,|
-//@[38:39)           LocalVariableSyntax
-//@[38:39)            IdentifierSyntax
-//@[38:39)             Identifier |j|
-//@[39:40)           RightParen |)|
-//@[41:43)          Identifier |in|
-//@[44:46)          ArraySyntax
-//@[44:45)           LeftSquare |[|
-//@[45:46)           RightSquare |]|
-//@[46:47)          Colon |:|
-//@[48:148)          ObjectSyntax
-//@[48:49)           LeftBrace |{|
-//@[49:51)           NewLine |\r\n|
+//@[006:00149) |   | |   |   ├─ObjectPropertySyntax
+//@[006:00025) |   | |   |   | ├─IdentifierSyntax
+//@[006:00025) |   | |   |   | | └─Token(Identifier) |virtualNetworkRules|
+//@[025:00026) |   | |   |   | ├─Token(Colon) |:|
+//@[027:00149) |   | |   |   | └─ForSyntax
+//@[027:00028) |   | |   |   |   ├─Token(LeftSquare) |[|
+//@[028:00031) |   | |   |   |   ├─Token(Identifier) |for|
+//@[032:00040) |   | |   |   |   ├─VariableBlockSyntax
+//@[032:00033) |   | |   |   |   | ├─Token(LeftParen) |(|
+//@[033:00037) |   | |   |   |   | ├─LocalVariableSyntax
+//@[033:00037) |   | |   |   |   | | └─IdentifierSyntax
+//@[033:00037) |   | |   |   |   | |   └─Token(Identifier) |rule|
+//@[037:00038) |   | |   |   |   | ├─Token(Comma) |,|
+//@[038:00039) |   | |   |   |   | ├─LocalVariableSyntax
+//@[038:00039) |   | |   |   |   | | └─IdentifierSyntax
+//@[038:00039) |   | |   |   |   | |   └─Token(Identifier) |j|
+//@[039:00040) |   | |   |   |   | └─Token(RightParen) |)|
+//@[041:00043) |   | |   |   |   ├─Token(Identifier) |in|
+//@[044:00046) |   | |   |   |   ├─ArraySyntax
+//@[044:00045) |   | |   |   |   | ├─Token(LeftSquare) |[|
+//@[045:00046) |   | |   |   |   | └─Token(RightSquare) |]|
+//@[046:00047) |   | |   |   |   ├─Token(Colon) |:|
+//@[048:00148) |   | |   |   |   ├─ObjectSyntax
+//@[048:00049) |   | |   |   |   | ├─Token(LeftBrace) |{|
+//@[049:00051) |   | |   |   |   | ├─Token(NewLine) |\r\n|
         id: '${account.name}-${account.location}'
-//@[8:49)           ObjectPropertySyntax
-//@[8:10)            IdentifierSyntax
-//@[8:10)             Identifier |id|
-//@[10:11)            Colon |:|
-//@[12:49)            StringSyntax
-//@[12:15)             StringLeftPiece |'${|
-//@[15:27)             PropertyAccessSyntax
-//@[15:22)              VariableAccessSyntax
-//@[15:22)               IdentifierSyntax
-//@[15:22)                Identifier |account|
-//@[22:23)              Dot |.|
-//@[23:27)              IdentifierSyntax
-//@[23:27)               Identifier |name|
-//@[27:31)             StringMiddlePiece |}-${|
-//@[31:47)             PropertyAccessSyntax
-//@[31:38)              VariableAccessSyntax
-//@[31:38)               IdentifierSyntax
-//@[31:38)                Identifier |account|
-//@[38:39)              Dot |.|
-//@[39:47)              IdentifierSyntax
-//@[39:47)               Identifier |location|
-//@[47:49)             StringRightPiece |}'|
-//@[49:51)           NewLine |\r\n|
+//@[008:00049) |   | |   |   |   | ├─ObjectPropertySyntax
+//@[008:00010) |   | |   |   |   | | ├─IdentifierSyntax
+//@[008:00010) |   | |   |   |   | | | └─Token(Identifier) |id|
+//@[010:00011) |   | |   |   |   | | ├─Token(Colon) |:|
+//@[012:00049) |   | |   |   |   | | └─StringSyntax
+//@[012:00015) |   | |   |   |   | |   ├─Token(StringLeftPiece) |'${|
+//@[015:00027) |   | |   |   |   | |   ├─PropertyAccessSyntax
+//@[015:00022) |   | |   |   |   | |   | ├─VariableAccessSyntax
+//@[015:00022) |   | |   |   |   | |   | | └─IdentifierSyntax
+//@[015:00022) |   | |   |   |   | |   | |   └─Token(Identifier) |account|
+//@[022:00023) |   | |   |   |   | |   | ├─Token(Dot) |.|
+//@[023:00027) |   | |   |   |   | |   | └─IdentifierSyntax
+//@[023:00027) |   | |   |   |   | |   |   └─Token(Identifier) |name|
+//@[027:00031) |   | |   |   |   | |   ├─Token(StringMiddlePiece) |}-${|
+//@[031:00047) |   | |   |   |   | |   ├─PropertyAccessSyntax
+//@[031:00038) |   | |   |   |   | |   | ├─VariableAccessSyntax
+//@[031:00038) |   | |   |   |   | |   | | └─IdentifierSyntax
+//@[031:00038) |   | |   |   |   | |   | |   └─Token(Identifier) |account|
+//@[038:00039) |   | |   |   |   | |   | ├─Token(Dot) |.|
+//@[039:00047) |   | |   |   |   | |   | └─IdentifierSyntax
+//@[039:00047) |   | |   |   |   | |   |   └─Token(Identifier) |location|
+//@[047:00049) |   | |   |   |   | |   └─Token(StringRightPiece) |}'|
+//@[049:00051) |   | |   |   |   | ├─Token(NewLine) |\r\n|
         state: [for (lol,k) in []: 4]
-//@[8:37)           ObjectPropertySyntax
-//@[8:13)            IdentifierSyntax
-//@[8:13)             Identifier |state|
-//@[13:14)            Colon |:|
-//@[15:37)            ForSyntax
-//@[15:16)             LeftSquare |[|
-//@[16:19)             Identifier |for|
-//@[20:27)             ForVariableBlockSyntax
-//@[20:21)              LeftParen |(|
-//@[21:24)              LocalVariableSyntax
-//@[21:24)               IdentifierSyntax
-//@[21:24)                Identifier |lol|
-//@[24:25)              Comma |,|
-//@[25:26)              LocalVariableSyntax
-//@[25:26)               IdentifierSyntax
-//@[25:26)                Identifier |k|
-//@[26:27)              RightParen |)|
-//@[28:30)             Identifier |in|
-//@[31:33)             ArraySyntax
-//@[31:32)              LeftSquare |[|
-//@[32:33)              RightSquare |]|
-//@[33:34)             Colon |:|
-//@[35:36)             IntegerLiteralSyntax
-//@[35:36)              Integer |4|
-//@[36:37)             RightSquare |]|
-//@[37:39)           NewLine |\r\n|
+//@[008:00037) |   | |   |   |   | ├─ObjectPropertySyntax
+//@[008:00013) |   | |   |   |   | | ├─IdentifierSyntax
+//@[008:00013) |   | |   |   |   | | | └─Token(Identifier) |state|
+//@[013:00014) |   | |   |   |   | | ├─Token(Colon) |:|
+//@[015:00037) |   | |   |   |   | | └─ForSyntax
+//@[015:00016) |   | |   |   |   | |   ├─Token(LeftSquare) |[|
+//@[016:00019) |   | |   |   |   | |   ├─Token(Identifier) |for|
+//@[020:00027) |   | |   |   |   | |   ├─VariableBlockSyntax
+//@[020:00021) |   | |   |   |   | |   | ├─Token(LeftParen) |(|
+//@[021:00024) |   | |   |   |   | |   | ├─LocalVariableSyntax
+//@[021:00024) |   | |   |   |   | |   | | └─IdentifierSyntax
+//@[021:00024) |   | |   |   |   | |   | |   └─Token(Identifier) |lol|
+//@[024:00025) |   | |   |   |   | |   | ├─Token(Comma) |,|
+//@[025:00026) |   | |   |   |   | |   | ├─LocalVariableSyntax
+//@[025:00026) |   | |   |   |   | |   | | └─IdentifierSyntax
+//@[025:00026) |   | |   |   |   | |   | |   └─Token(Identifier) |k|
+//@[026:00027) |   | |   |   |   | |   | └─Token(RightParen) |)|
+//@[028:00030) |   | |   |   |   | |   ├─Token(Identifier) |in|
+//@[031:00033) |   | |   |   |   | |   ├─ArraySyntax
+//@[031:00032) |   | |   |   |   | |   | ├─Token(LeftSquare) |[|
+//@[032:00033) |   | |   |   |   | |   | └─Token(RightSquare) |]|
+//@[033:00034) |   | |   |   |   | |   ├─Token(Colon) |:|
+//@[035:00036) |   | |   |   |   | |   ├─IntegerLiteralSyntax
+//@[035:00036) |   | |   |   |   | |   | └─Token(Integer) |4|
+//@[036:00037) |   | |   |   |   | |   └─Token(RightSquare) |]|
+//@[037:00039) |   | |   |   |   | ├─Token(NewLine) |\r\n|
       }]
-//@[6:7)           RightBrace |}|
-//@[7:8)          RightSquare |]|
-//@[8:10)        NewLine |\r\n|
+//@[006:00007) |   | |   |   |   | └─Token(RightBrace) |}|
+//@[007:00008) |   | |   |   |   └─Token(RightSquare) |]|
+//@[008:00010) |   | |   |   ├─Token(NewLine) |\r\n|
     }
-//@[4:5)        RightBrace |}|
-//@[5:7)      NewLine |\r\n|
+//@[004:00005) |   | |   |   └─Token(RightBrace) |}|
+//@[005:00007) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 // property loops cannot be nested (even more nesting)
-//@[54:56) NewLine |\r\n|
+//@[054:00056) ├─Token(NewLine) |\r\n|
 resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[0:634) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:33)  IdentifierSyntax
-//@[9:33)   Identifier |propertyLoopsCannotNest2|
-//@[34:80)  StringSyntax
-//@[34:80)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[81:82)  Assignment |=|
-//@[83:634)  ForSyntax
-//@[83:84)   LeftSquare |[|
-//@[84:87)   Identifier |for|
-//@[88:95)   LocalVariableSyntax
-//@[88:95)    IdentifierSyntax
-//@[88:95)     Identifier |account|
-//@[96:98)   Identifier |in|
-//@[99:114)   VariableAccessSyntax
-//@[99:114)    IdentifierSyntax
-//@[99:114)     Identifier |storageAccounts|
-//@[114:115)   Colon |:|
-//@[116:633)   ObjectSyntax
-//@[116:117)    LeftBrace |{|
-//@[117:119)    NewLine |\r\n|
+//@[000:00634) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00033) | ├─IdentifierSyntax
+//@[009:00033) | | └─Token(Identifier) |propertyLoopsCannotNest2|
+//@[034:00080) | ├─StringSyntax
+//@[034:00080) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[081:00082) | ├─Token(Assignment) |=|
+//@[083:00634) | └─ForSyntax
+//@[083:00084) |   ├─Token(LeftSquare) |[|
+//@[084:00087) |   ├─Token(Identifier) |for|
+//@[088:00095) |   ├─LocalVariableSyntax
+//@[088:00095) |   | └─IdentifierSyntax
+//@[088:00095) |   |   └─Token(Identifier) |account|
+//@[096:00098) |   ├─Token(Identifier) |in|
+//@[099:00114) |   ├─VariableAccessSyntax
+//@[099:00114) |   | └─IdentifierSyntax
+//@[099:00114) |   |   └─Token(Identifier) |storageAccounts|
+//@[114:00115) |   ├─Token(Colon) |:|
+//@[116:00633) |   ├─ObjectSyntax
+//@[116:00117) |   | ├─Token(LeftBrace) |{|
+//@[117:00119) |   | ├─Token(NewLine) |\r\n|
   name: account.name
-//@[2:20)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:20)     PropertyAccessSyntax
-//@[8:15)      VariableAccessSyntax
-//@[8:15)       IdentifierSyntax
-//@[8:15)        Identifier |account|
-//@[15:16)      Dot |.|
-//@[16:20)      IdentifierSyntax
-//@[16:20)       Identifier |name|
-//@[20:22)    NewLine |\r\n|
+//@[002:00020) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00020) |   | | └─PropertyAccessSyntax
+//@[008:00015) |   | |   ├─VariableAccessSyntax
+//@[008:00015) |   | |   | └─IdentifierSyntax
+//@[008:00015) |   | |   |   └─Token(Identifier) |account|
+//@[015:00016) |   | |   ├─Token(Dot) |.|
+//@[016:00020) |   | |   └─IdentifierSyntax
+//@[016:00020) |   | |     └─Token(Identifier) |name|
+//@[020:00022) |   | ├─Token(NewLine) |\r\n|
   location: account.location
-//@[2:28)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:28)     PropertyAccessSyntax
-//@[12:19)      VariableAccessSyntax
-//@[12:19)       IdentifierSyntax
-//@[12:19)        Identifier |account|
-//@[19:20)      Dot |.|
-//@[20:28)      IdentifierSyntax
-//@[20:28)       Identifier |location|
-//@[28:30)    NewLine |\r\n|
+//@[002:00028) |   | ├─ObjectPropertySyntax
+//@[002:00010) |   | | ├─IdentifierSyntax
+//@[002:00010) |   | | | └─Token(Identifier) |location|
+//@[010:00011) |   | | ├─Token(Colon) |:|
+//@[012:00028) |   | | └─PropertyAccessSyntax
+//@[012:00019) |   | |   ├─VariableAccessSyntax
+//@[012:00019) |   | |   | └─IdentifierSyntax
+//@[012:00019) |   | |   |   └─Token(Identifier) |account|
+//@[019:00020) |   | |   ├─Token(Dot) |.|
+//@[020:00028) |   | |   └─IdentifierSyntax
+//@[020:00028) |   | |     └─Token(Identifier) |location|
+//@[028:00030) |   | ├─Token(NewLine) |\r\n|
   sku: {
-//@[2:39)    ObjectPropertySyntax
-//@[2:5)     IdentifierSyntax
-//@[2:5)      Identifier |sku|
-//@[5:6)     Colon |:|
-//@[7:39)     ObjectSyntax
-//@[7:8)      LeftBrace |{|
-//@[8:10)      NewLine |\r\n|
+//@[002:00039) |   | ├─ObjectPropertySyntax
+//@[002:00005) |   | | ├─IdentifierSyntax
+//@[002:00005) |   | | | └─Token(Identifier) |sku|
+//@[005:00006) |   | | ├─Token(Colon) |:|
+//@[007:00039) |   | | └─ObjectSyntax
+//@[007:00008) |   | |   ├─Token(LeftBrace) |{|
+//@[008:00010) |   | |   ├─Token(NewLine) |\r\n|
     name: 'Standard_LRS'
-//@[4:24)      ObjectPropertySyntax
-//@[4:8)       IdentifierSyntax
-//@[4:8)        Identifier |name|
-//@[8:9)       Colon |:|
-//@[10:24)       StringSyntax
-//@[10:24)        StringComplete |'Standard_LRS'|
-//@[24:26)      NewLine |\r\n|
+//@[004:00024) |   | |   ├─ObjectPropertySyntax
+//@[004:00008) |   | |   | ├─IdentifierSyntax
+//@[004:00008) |   | |   | | └─Token(Identifier) |name|
+//@[008:00009) |   | |   | ├─Token(Colon) |:|
+//@[010:00024) |   | |   | └─StringSyntax
+//@[010:00024) |   | |   |   └─Token(StringComplete) |'Standard_LRS'|
+//@[024:00026) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
   kind: 'StorageV2'
-//@[2:19)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |kind|
-//@[6:7)     Colon |:|
-//@[8:19)     StringSyntax
-//@[8:19)      StringComplete |'StorageV2'|
-//@[19:21)    NewLine |\r\n|
+//@[002:00019) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |kind|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00019) |   | | └─StringSyntax
+//@[008:00019) |   | |   └─Token(StringComplete) |'StorageV2'|
+//@[019:00021) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:397)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:397)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00397) |   | ├─ObjectPropertySyntax
+//@[002:00012) |   | | ├─IdentifierSyntax
+//@[002:00012) |   | | | └─Token(Identifier) |properties|
+//@[012:00013) |   | | ├─Token(Colon) |:|
+//@[014:00397) |   | | └─ObjectSyntax
+//@[014:00015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     networkAcls:  {
-//@[4:375)      ObjectPropertySyntax
-//@[4:15)       IdentifierSyntax
-//@[4:15)        Identifier |networkAcls|
-//@[15:16)       Colon |:|
-//@[18:375)       ObjectSyntax
-//@[18:19)        LeftBrace |{|
-//@[19:21)        NewLine |\r\n|
+//@[004:00375) |   | |   ├─ObjectPropertySyntax
+//@[004:00015) |   | |   | ├─IdentifierSyntax
+//@[004:00015) |   | |   | | └─Token(Identifier) |networkAcls|
+//@[015:00016) |   | |   | ├─Token(Colon) |:|
+//@[018:00375) |   | |   | └─ObjectSyntax
+//@[018:00019) |   | |   |   ├─Token(LeftBrace) |{|
+//@[019:00021) |   | |   |   ├─Token(NewLine) |\r\n|
       virtualNetworkRules: [for rule in []: {
-//@[6:347)        ObjectPropertySyntax
-//@[6:25)         IdentifierSyntax
-//@[6:25)          Identifier |virtualNetworkRules|
-//@[25:26)         Colon |:|
-//@[27:347)         ForSyntax
-//@[27:28)          LeftSquare |[|
-//@[28:31)          Identifier |for|
-//@[32:36)          LocalVariableSyntax
-//@[32:36)           IdentifierSyntax
-//@[32:36)            Identifier |rule|
-//@[37:39)          Identifier |in|
-//@[40:42)          ArraySyntax
-//@[40:41)           LeftSquare |[|
-//@[41:42)           RightSquare |]|
-//@[42:43)          Colon |:|
-//@[44:346)          ObjectSyntax
-//@[44:45)           LeftBrace |{|
-//@[45:47)           NewLine |\r\n|
+//@[006:00347) |   | |   |   ├─ObjectPropertySyntax
+//@[006:00025) |   | |   |   | ├─IdentifierSyntax
+//@[006:00025) |   | |   |   | | └─Token(Identifier) |virtualNetworkRules|
+//@[025:00026) |   | |   |   | ├─Token(Colon) |:|
+//@[027:00347) |   | |   |   | └─ForSyntax
+//@[027:00028) |   | |   |   |   ├─Token(LeftSquare) |[|
+//@[028:00031) |   | |   |   |   ├─Token(Identifier) |for|
+//@[032:00036) |   | |   |   |   ├─LocalVariableSyntax
+//@[032:00036) |   | |   |   |   | └─IdentifierSyntax
+//@[032:00036) |   | |   |   |   |   └─Token(Identifier) |rule|
+//@[037:00039) |   | |   |   |   ├─Token(Identifier) |in|
+//@[040:00042) |   | |   |   |   ├─ArraySyntax
+//@[040:00041) |   | |   |   |   | ├─Token(LeftSquare) |[|
+//@[041:00042) |   | |   |   |   | └─Token(RightSquare) |]|
+//@[042:00043) |   | |   |   |   ├─Token(Colon) |:|
+//@[044:00346) |   | |   |   |   ├─ObjectSyntax
+//@[044:00045) |   | |   |   |   | ├─Token(LeftBrace) |{|
+//@[045:00047) |   | |   |   |   | ├─Token(NewLine) |\r\n|
         // #completionTest(15,31) -> symbolsPlusRule
-//@[52:54)           NewLine |\r\n|
+//@[052:00054) |   | |   |   |   | ├─Token(NewLine) |\r\n|
         id: '${account.name}-${account.location}'
-//@[8:49)           ObjectPropertySyntax
-//@[8:10)            IdentifierSyntax
-//@[8:10)             Identifier |id|
-//@[10:11)            Colon |:|
-//@[12:49)            StringSyntax
-//@[12:15)             StringLeftPiece |'${|
-//@[15:27)             PropertyAccessSyntax
-//@[15:22)              VariableAccessSyntax
-//@[15:22)               IdentifierSyntax
-//@[15:22)                Identifier |account|
-//@[22:23)              Dot |.|
-//@[23:27)              IdentifierSyntax
-//@[23:27)               Identifier |name|
-//@[27:31)             StringMiddlePiece |}-${|
-//@[31:47)             PropertyAccessSyntax
-//@[31:38)              VariableAccessSyntax
-//@[31:38)               IdentifierSyntax
-//@[31:38)                Identifier |account|
-//@[38:39)              Dot |.|
-//@[39:47)              IdentifierSyntax
-//@[39:47)               Identifier |location|
-//@[47:49)             StringRightPiece |}'|
-//@[49:51)           NewLine |\r\n|
+//@[008:00049) |   | |   |   |   | ├─ObjectPropertySyntax
+//@[008:00010) |   | |   |   |   | | ├─IdentifierSyntax
+//@[008:00010) |   | |   |   |   | | | └─Token(Identifier) |id|
+//@[010:00011) |   | |   |   |   | | ├─Token(Colon) |:|
+//@[012:00049) |   | |   |   |   | | └─StringSyntax
+//@[012:00015) |   | |   |   |   | |   ├─Token(StringLeftPiece) |'${|
+//@[015:00027) |   | |   |   |   | |   ├─PropertyAccessSyntax
+//@[015:00022) |   | |   |   |   | |   | ├─VariableAccessSyntax
+//@[015:00022) |   | |   |   |   | |   | | └─IdentifierSyntax
+//@[015:00022) |   | |   |   |   | |   | |   └─Token(Identifier) |account|
+//@[022:00023) |   | |   |   |   | |   | ├─Token(Dot) |.|
+//@[023:00027) |   | |   |   |   | |   | └─IdentifierSyntax
+//@[023:00027) |   | |   |   |   | |   |   └─Token(Identifier) |name|
+//@[027:00031) |   | |   |   |   | |   ├─Token(StringMiddlePiece) |}-${|
+//@[031:00047) |   | |   |   |   | |   ├─PropertyAccessSyntax
+//@[031:00038) |   | |   |   |   | |   | ├─VariableAccessSyntax
+//@[031:00038) |   | |   |   |   | |   | | └─IdentifierSyntax
+//@[031:00038) |   | |   |   |   | |   | |   └─Token(Identifier) |account|
+//@[038:00039) |   | |   |   |   | |   | ├─Token(Dot) |.|
+//@[039:00047) |   | |   |   |   | |   | └─IdentifierSyntax
+//@[039:00047) |   | |   |   |   | |   |   └─Token(Identifier) |location|
+//@[047:00049) |   | |   |   |   | |   └─Token(StringRightPiece) |}'|
+//@[049:00051) |   | |   |   |   | ├─Token(NewLine) |\r\n|
         state: [for state in []: {
-//@[8:185)           ObjectPropertySyntax
-//@[8:13)            IdentifierSyntax
-//@[8:13)             Identifier |state|
-//@[13:14)            Colon |:|
-//@[15:185)            ForSyntax
-//@[15:16)             LeftSquare |[|
-//@[16:19)             Identifier |for|
-//@[20:25)             LocalVariableSyntax
-//@[20:25)              IdentifierSyntax
-//@[20:25)               Identifier |state|
-//@[26:28)             Identifier |in|
-//@[29:31)             ArraySyntax
-//@[29:30)              LeftSquare |[|
-//@[30:31)              RightSquare |]|
-//@[31:32)             Colon |:|
-//@[33:184)             ObjectSyntax
-//@[33:34)              LeftBrace |{|
-//@[34:36)              NewLine |\r\n|
+//@[008:00185) |   | |   |   |   | ├─ObjectPropertySyntax
+//@[008:00013) |   | |   |   |   | | ├─IdentifierSyntax
+//@[008:00013) |   | |   |   |   | | | └─Token(Identifier) |state|
+//@[013:00014) |   | |   |   |   | | ├─Token(Colon) |:|
+//@[015:00185) |   | |   |   |   | | └─ForSyntax
+//@[015:00016) |   | |   |   |   | |   ├─Token(LeftSquare) |[|
+//@[016:00019) |   | |   |   |   | |   ├─Token(Identifier) |for|
+//@[020:00025) |   | |   |   |   | |   ├─LocalVariableSyntax
+//@[020:00025) |   | |   |   |   | |   | └─IdentifierSyntax
+//@[020:00025) |   | |   |   |   | |   |   └─Token(Identifier) |state|
+//@[026:00028) |   | |   |   |   | |   ├─Token(Identifier) |in|
+//@[029:00031) |   | |   |   |   | |   ├─ArraySyntax
+//@[029:00030) |   | |   |   |   | |   | ├─Token(LeftSquare) |[|
+//@[030:00031) |   | |   |   |   | |   | └─Token(RightSquare) |]|
+//@[031:00032) |   | |   |   |   | |   ├─Token(Colon) |:|
+//@[033:00184) |   | |   |   |   | |   ├─ObjectSyntax
+//@[033:00034) |   | |   |   |   | |   | ├─Token(LeftBrace) |{|
+//@[034:00036) |   | |   |   |   | |   | ├─Token(NewLine) |\r\n|
           // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
-//@[92:94)              NewLine |\r\n|
+//@[092:00094) |   | |   |   |   | |   | ├─Token(NewLine) |\r\n|
           fake: [for something in []: true]
-//@[10:43)              ObjectPropertySyntax
-//@[10:14)               IdentifierSyntax
-//@[10:14)                Identifier |fake|
-//@[14:15)               Colon |:|
-//@[16:43)               ForSyntax
-//@[16:17)                LeftSquare |[|
-//@[17:20)                Identifier |for|
-//@[21:30)                LocalVariableSyntax
-//@[21:30)                 IdentifierSyntax
-//@[21:30)                  Identifier |something|
-//@[31:33)                Identifier |in|
-//@[34:36)                ArraySyntax
-//@[34:35)                 LeftSquare |[|
-//@[35:36)                 RightSquare |]|
-//@[36:37)                Colon |:|
-//@[38:42)                BooleanLiteralSyntax
-//@[38:42)                 TrueKeyword |true|
-//@[42:43)                RightSquare |]|
-//@[43:45)              NewLine |\r\n|
+//@[010:00043) |   | |   |   |   | |   | ├─ObjectPropertySyntax
+//@[010:00014) |   | |   |   |   | |   | | ├─IdentifierSyntax
+//@[010:00014) |   | |   |   |   | |   | | | └─Token(Identifier) |fake|
+//@[014:00015) |   | |   |   |   | |   | | ├─Token(Colon) |:|
+//@[016:00043) |   | |   |   |   | |   | | └─ForSyntax
+//@[016:00017) |   | |   |   |   | |   | |   ├─Token(LeftSquare) |[|
+//@[017:00020) |   | |   |   |   | |   | |   ├─Token(Identifier) |for|
+//@[021:00030) |   | |   |   |   | |   | |   ├─LocalVariableSyntax
+//@[021:00030) |   | |   |   |   | |   | |   | └─IdentifierSyntax
+//@[021:00030) |   | |   |   |   | |   | |   |   └─Token(Identifier) |something|
+//@[031:00033) |   | |   |   |   | |   | |   ├─Token(Identifier) |in|
+//@[034:00036) |   | |   |   |   | |   | |   ├─ArraySyntax
+//@[034:00035) |   | |   |   |   | |   | |   | ├─Token(LeftSquare) |[|
+//@[035:00036) |   | |   |   |   | |   | |   | └─Token(RightSquare) |]|
+//@[036:00037) |   | |   |   |   | |   | |   ├─Token(Colon) |:|
+//@[038:00042) |   | |   |   |   | |   | |   ├─BooleanLiteralSyntax
+//@[038:00042) |   | |   |   |   | |   | |   | └─Token(TrueKeyword) |true|
+//@[042:00043) |   | |   |   |   | |   | |   └─Token(RightSquare) |]|
+//@[043:00045) |   | |   |   |   | |   | ├─Token(NewLine) |\r\n|
         }]
-//@[8:9)              RightBrace |}|
-//@[9:10)             RightSquare |]|
-//@[10:12)           NewLine |\r\n|
+//@[008:00009) |   | |   |   |   | |   | └─Token(RightBrace) |}|
+//@[009:00010) |   | |   |   |   | |   └─Token(RightSquare) |]|
+//@[010:00012) |   | |   |   |   | ├─Token(NewLine) |\r\n|
       }]
-//@[6:7)           RightBrace |}|
-//@[7:8)          RightSquare |]|
-//@[8:10)        NewLine |\r\n|
+//@[006:00007) |   | |   |   |   | └─Token(RightBrace) |}|
+//@[007:00008) |   | |   |   |   └─Token(RightSquare) |]|
+//@[008:00010) |   | |   |   ├─Token(NewLine) |\r\n|
     }
-//@[4:5)        RightBrace |}|
-//@[5:7)      NewLine |\r\n|
+//@[004:00005) |   | |   |   └─Token(RightBrace) |}|
+//@[005:00007) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 // loops cannot be used inside of expressions
-//@[45:47) NewLine |\r\n|
+//@[045:00047) ├─Token(NewLine) |\r\n|
 resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[0:381) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:15)  IdentifierSyntax
-//@[9:15)   Identifier |stuffs|
-//@[16:62)  StringSyntax
-//@[16:62)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[63:64)  Assignment |=|
-//@[65:381)  ForSyntax
-//@[65:66)   LeftSquare |[|
-//@[66:69)   Identifier |for|
-//@[70:77)   LocalVariableSyntax
-//@[70:77)    IdentifierSyntax
-//@[70:77)     Identifier |account|
-//@[78:80)   Identifier |in|
-//@[81:96)   VariableAccessSyntax
-//@[81:96)    IdentifierSyntax
-//@[81:96)     Identifier |storageAccounts|
-//@[96:97)   Colon |:|
-//@[98:380)   ObjectSyntax
-//@[98:99)    LeftBrace |{|
-//@[99:101)    NewLine |\r\n|
+//@[000:00381) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00015) | ├─IdentifierSyntax
+//@[009:00015) | | └─Token(Identifier) |stuffs|
+//@[016:00062) | ├─StringSyntax
+//@[016:00062) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[063:00064) | ├─Token(Assignment) |=|
+//@[065:00381) | └─ForSyntax
+//@[065:00066) |   ├─Token(LeftSquare) |[|
+//@[066:00069) |   ├─Token(Identifier) |for|
+//@[070:00077) |   ├─LocalVariableSyntax
+//@[070:00077) |   | └─IdentifierSyntax
+//@[070:00077) |   |   └─Token(Identifier) |account|
+//@[078:00080) |   ├─Token(Identifier) |in|
+//@[081:00096) |   ├─VariableAccessSyntax
+//@[081:00096) |   | └─IdentifierSyntax
+//@[081:00096) |   |   └─Token(Identifier) |storageAccounts|
+//@[096:00097) |   ├─Token(Colon) |:|
+//@[098:00380) |   ├─ObjectSyntax
+//@[098:00099) |   | ├─Token(LeftBrace) |{|
+//@[099:00101) |   | ├─Token(NewLine) |\r\n|
   name: account.name
-//@[2:20)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:20)     PropertyAccessSyntax
-//@[8:15)      VariableAccessSyntax
-//@[8:15)       IdentifierSyntax
-//@[8:15)        Identifier |account|
-//@[15:16)      Dot |.|
-//@[16:20)      IdentifierSyntax
-//@[16:20)       Identifier |name|
-//@[20:22)    NewLine |\r\n|
+//@[002:00020) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00020) |   | | └─PropertyAccessSyntax
+//@[008:00015) |   | |   ├─VariableAccessSyntax
+//@[008:00015) |   | |   | └─IdentifierSyntax
+//@[008:00015) |   | |   |   └─Token(Identifier) |account|
+//@[015:00016) |   | |   ├─Token(Dot) |.|
+//@[016:00020) |   | |   └─IdentifierSyntax
+//@[016:00020) |   | |     └─Token(Identifier) |name|
+//@[020:00022) |   | ├─Token(NewLine) |\r\n|
   location: account.location
-//@[2:28)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:28)     PropertyAccessSyntax
-//@[12:19)      VariableAccessSyntax
-//@[12:19)       IdentifierSyntax
-//@[12:19)        Identifier |account|
-//@[19:20)      Dot |.|
-//@[20:28)      IdentifierSyntax
-//@[20:28)       Identifier |location|
-//@[28:30)    NewLine |\r\n|
+//@[002:00028) |   | ├─ObjectPropertySyntax
+//@[002:00010) |   | | ├─IdentifierSyntax
+//@[002:00010) |   | | | └─Token(Identifier) |location|
+//@[010:00011) |   | | ├─Token(Colon) |:|
+//@[012:00028) |   | | └─PropertyAccessSyntax
+//@[012:00019) |   | |   ├─VariableAccessSyntax
+//@[012:00019) |   | |   | └─IdentifierSyntax
+//@[012:00019) |   | |   |   └─Token(Identifier) |account|
+//@[019:00020) |   | |   ├─Token(Dot) |.|
+//@[020:00028) |   | |   └─IdentifierSyntax
+//@[020:00028) |   | |     └─Token(Identifier) |location|
+//@[028:00030) |   | ├─Token(NewLine) |\r\n|
   sku: {
-//@[2:39)    ObjectPropertySyntax
-//@[2:5)     IdentifierSyntax
-//@[2:5)      Identifier |sku|
-//@[5:6)     Colon |:|
-//@[7:39)     ObjectSyntax
-//@[7:8)      LeftBrace |{|
-//@[8:10)      NewLine |\r\n|
+//@[002:00039) |   | ├─ObjectPropertySyntax
+//@[002:00005) |   | | ├─IdentifierSyntax
+//@[002:00005) |   | | | └─Token(Identifier) |sku|
+//@[005:00006) |   | | ├─Token(Colon) |:|
+//@[007:00039) |   | | └─ObjectSyntax
+//@[007:00008) |   | |   ├─Token(LeftBrace) |{|
+//@[008:00010) |   | |   ├─Token(NewLine) |\r\n|
     name: 'Standard_LRS'
-//@[4:24)      ObjectPropertySyntax
-//@[4:8)       IdentifierSyntax
-//@[4:8)        Identifier |name|
-//@[8:9)       Colon |:|
-//@[10:24)       StringSyntax
-//@[10:24)        StringComplete |'Standard_LRS'|
-//@[24:26)      NewLine |\r\n|
+//@[004:00024) |   | |   ├─ObjectPropertySyntax
+//@[004:00008) |   | |   | ├─IdentifierSyntax
+//@[004:00008) |   | |   | | └─Token(Identifier) |name|
+//@[008:00009) |   | |   | ├─Token(Colon) |:|
+//@[010:00024) |   | |   | └─StringSyntax
+//@[010:00024) |   | |   |   └─Token(StringComplete) |'Standard_LRS'|
+//@[024:00026) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
   kind: 'StorageV2'
-//@[2:19)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |kind|
-//@[6:7)     Colon |:|
-//@[8:19)     StringSyntax
-//@[8:19)      StringComplete |'StorageV2'|
-//@[19:21)    NewLine |\r\n|
+//@[002:00019) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |kind|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00019) |   | | └─StringSyntax
+//@[008:00019) |   | |   └─Token(StringComplete) |'StorageV2'|
+//@[019:00021) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:162)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:162)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00162) |   | ├─ObjectPropertySyntax
+//@[002:00012) |   | | ├─IdentifierSyntax
+//@[002:00012) |   | | | └─Token(Identifier) |properties|
+//@[012:00013) |   | | ├─Token(Colon) |:|
+//@[014:00162) |   | | └─ObjectSyntax
+//@[014:00015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     networkAcls: {
-//@[4:140)      ObjectPropertySyntax
-//@[4:15)       IdentifierSyntax
-//@[4:15)        Identifier |networkAcls|
-//@[15:16)       Colon |:|
-//@[17:140)       ObjectSyntax
-//@[17:18)        LeftBrace |{|
-//@[18:20)        NewLine |\r\n|
+//@[004:00140) |   | |   ├─ObjectPropertySyntax
+//@[004:00015) |   | |   | ├─IdentifierSyntax
+//@[004:00015) |   | |   | | └─Token(Identifier) |networkAcls|
+//@[015:00016) |   | |   | ├─Token(Colon) |:|
+//@[017:00140) |   | |   | └─ObjectSyntax
+//@[017:00018) |   | |   |   ├─Token(LeftBrace) |{|
+//@[018:00020) |   | |   |   ├─Token(NewLine) |\r\n|
       virtualNetworkRules: concat([for lol in []: {
-//@[6:113)        ObjectPropertySyntax
-//@[6:25)         IdentifierSyntax
-//@[6:25)          Identifier |virtualNetworkRules|
-//@[25:26)         Colon |:|
-//@[27:113)         FunctionCallSyntax
-//@[27:33)          IdentifierSyntax
-//@[27:33)           Identifier |concat|
-//@[33:34)          LeftParen |(|
-//@[34:112)          FunctionArgumentSyntax
-//@[34:112)           ForSyntax
-//@[34:35)            LeftSquare |[|
-//@[35:38)            Identifier |for|
-//@[39:42)            LocalVariableSyntax
-//@[39:42)             IdentifierSyntax
-//@[39:42)              Identifier |lol|
-//@[43:45)            Identifier |in|
-//@[46:48)            ArraySyntax
-//@[46:47)             LeftSquare |[|
-//@[47:48)             RightSquare |]|
-//@[48:49)            Colon |:|
-//@[50:111)            ObjectSyntax
-//@[50:51)             LeftBrace |{|
-//@[51:53)             NewLine |\r\n|
+//@[006:00113) |   | |   |   ├─ObjectPropertySyntax
+//@[006:00025) |   | |   |   | ├─IdentifierSyntax
+//@[006:00025) |   | |   |   | | └─Token(Identifier) |virtualNetworkRules|
+//@[025:00026) |   | |   |   | ├─Token(Colon) |:|
+//@[027:00113) |   | |   |   | └─FunctionCallSyntax
+//@[027:00033) |   | |   |   |   ├─IdentifierSyntax
+//@[027:00033) |   | |   |   |   | └─Token(Identifier) |concat|
+//@[033:00034) |   | |   |   |   ├─Token(LeftParen) |(|
+//@[034:00112) |   | |   |   |   ├─FunctionArgumentSyntax
+//@[034:00112) |   | |   |   |   | └─ForSyntax
+//@[034:00035) |   | |   |   |   |   ├─Token(LeftSquare) |[|
+//@[035:00038) |   | |   |   |   |   ├─Token(Identifier) |for|
+//@[039:00042) |   | |   |   |   |   ├─LocalVariableSyntax
+//@[039:00042) |   | |   |   |   |   | └─IdentifierSyntax
+//@[039:00042) |   | |   |   |   |   |   └─Token(Identifier) |lol|
+//@[043:00045) |   | |   |   |   |   ├─Token(Identifier) |in|
+//@[046:00048) |   | |   |   |   |   ├─ArraySyntax
+//@[046:00047) |   | |   |   |   |   | ├─Token(LeftSquare) |[|
+//@[047:00048) |   | |   |   |   |   | └─Token(RightSquare) |]|
+//@[048:00049) |   | |   |   |   |   ├─Token(Colon) |:|
+//@[050:00111) |   | |   |   |   |   ├─ObjectSyntax
+//@[050:00051) |   | |   |   |   |   | ├─Token(LeftBrace) |{|
+//@[051:00053) |   | |   |   |   |   | ├─Token(NewLine) |\r\n|
         id: '${account.name}-${account.location}'
-//@[8:49)             ObjectPropertySyntax
-//@[8:10)              IdentifierSyntax
-//@[8:10)               Identifier |id|
-//@[10:11)              Colon |:|
-//@[12:49)              StringSyntax
-//@[12:15)               StringLeftPiece |'${|
-//@[15:27)               PropertyAccessSyntax
-//@[15:22)                VariableAccessSyntax
-//@[15:22)                 IdentifierSyntax
-//@[15:22)                  Identifier |account|
-//@[22:23)                Dot |.|
-//@[23:27)                IdentifierSyntax
-//@[23:27)                 Identifier |name|
-//@[27:31)               StringMiddlePiece |}-${|
-//@[31:47)               PropertyAccessSyntax
-//@[31:38)                VariableAccessSyntax
-//@[31:38)                 IdentifierSyntax
-//@[31:38)                  Identifier |account|
-//@[38:39)                Dot |.|
-//@[39:47)                IdentifierSyntax
-//@[39:47)                 Identifier |location|
-//@[47:49)               StringRightPiece |}'|
-//@[49:51)             NewLine |\r\n|
+//@[008:00049) |   | |   |   |   |   | ├─ObjectPropertySyntax
+//@[008:00010) |   | |   |   |   |   | | ├─IdentifierSyntax
+//@[008:00010) |   | |   |   |   |   | | | └─Token(Identifier) |id|
+//@[010:00011) |   | |   |   |   |   | | ├─Token(Colon) |:|
+//@[012:00049) |   | |   |   |   |   | | └─StringSyntax
+//@[012:00015) |   | |   |   |   |   | |   ├─Token(StringLeftPiece) |'${|
+//@[015:00027) |   | |   |   |   |   | |   ├─PropertyAccessSyntax
+//@[015:00022) |   | |   |   |   |   | |   | ├─VariableAccessSyntax
+//@[015:00022) |   | |   |   |   |   | |   | | └─IdentifierSyntax
+//@[015:00022) |   | |   |   |   |   | |   | |   └─Token(Identifier) |account|
+//@[022:00023) |   | |   |   |   |   | |   | ├─Token(Dot) |.|
+//@[023:00027) |   | |   |   |   |   | |   | └─IdentifierSyntax
+//@[023:00027) |   | |   |   |   |   | |   |   └─Token(Identifier) |name|
+//@[027:00031) |   | |   |   |   |   | |   ├─Token(StringMiddlePiece) |}-${|
+//@[031:00047) |   | |   |   |   |   | |   ├─PropertyAccessSyntax
+//@[031:00038) |   | |   |   |   |   | |   | ├─VariableAccessSyntax
+//@[031:00038) |   | |   |   |   |   | |   | | └─IdentifierSyntax
+//@[031:00038) |   | |   |   |   |   | |   | |   └─Token(Identifier) |account|
+//@[038:00039) |   | |   |   |   |   | |   | ├─Token(Dot) |.|
+//@[039:00047) |   | |   |   |   |   | |   | └─IdentifierSyntax
+//@[039:00047) |   | |   |   |   |   | |   |   └─Token(Identifier) |location|
+//@[047:00049) |   | |   |   |   |   | |   └─Token(StringRightPiece) |}'|
+//@[049:00051) |   | |   |   |   |   | ├─Token(NewLine) |\r\n|
       }])
-//@[6:7)             RightBrace |}|
-//@[7:8)            RightSquare |]|
-//@[8:9)          RightParen |)|
-//@[9:11)        NewLine |\r\n|
+//@[006:00007) |   | |   |   |   |   | └─Token(RightBrace) |}|
+//@[007:00008) |   | |   |   |   |   └─Token(RightSquare) |]|
+//@[008:00009) |   | |   |   |   └─Token(RightParen) |)|
+//@[009:00011) |   | |   |   ├─Token(NewLine) |\r\n|
     }
-//@[4:5)        RightBrace |}|
-//@[5:7)      NewLine |\r\n|
+//@[004:00005) |   | |   |   └─Token(RightBrace) |}|
+//@[005:00007) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 // using the same loop variable in a new language scope should be allowed
-//@[73:75) NewLine |\r\n|
+//@[073:00075) ├─Token(NewLine) |\r\n|
 resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[0:368) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:24)  IdentifierSyntax
-//@[9:24)   Identifier |premiumStorages|
-//@[25:71)  StringSyntax
-//@[25:71)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[72:73)  Assignment |=|
-//@[74:368)  ForSyntax
-//@[74:75)   LeftSquare |[|
-//@[75:78)   Identifier |for|
-//@[79:86)   LocalVariableSyntax
-//@[79:86)    IdentifierSyntax
-//@[79:86)     Identifier |account|
-//@[87:89)   Identifier |in|
-//@[90:105)   VariableAccessSyntax
-//@[90:105)    IdentifierSyntax
-//@[90:105)     Identifier |storageAccounts|
-//@[105:106)   Colon |:|
-//@[107:367)   ObjectSyntax
-//@[107:108)    LeftBrace |{|
-//@[108:110)    NewLine |\r\n|
+//@[000:00368) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00024) | ├─IdentifierSyntax
+//@[009:00024) | | └─Token(Identifier) |premiumStorages|
+//@[025:00071) | ├─StringSyntax
+//@[025:00071) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[072:00073) | ├─Token(Assignment) |=|
+//@[074:00368) | └─ForSyntax
+//@[074:00075) |   ├─Token(LeftSquare) |[|
+//@[075:00078) |   ├─Token(Identifier) |for|
+//@[079:00086) |   ├─LocalVariableSyntax
+//@[079:00086) |   | └─IdentifierSyntax
+//@[079:00086) |   |   └─Token(Identifier) |account|
+//@[087:00089) |   ├─Token(Identifier) |in|
+//@[090:00105) |   ├─VariableAccessSyntax
+//@[090:00105) |   | └─IdentifierSyntax
+//@[090:00105) |   |   └─Token(Identifier) |storageAccounts|
+//@[105:00106) |   ├─Token(Colon) |:|
+//@[107:00367) |   ├─ObjectSyntax
+//@[107:00108) |   | ├─Token(LeftBrace) |{|
+//@[108:00110) |   | ├─Token(NewLine) |\r\n|
   // #completionTest(7) -> symbolsPlusAccount1
-//@[46:48)    NewLine |\r\n|
+//@[046:00048) |   | ├─Token(NewLine) |\r\n|
   name: account.name
-//@[2:20)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:20)     PropertyAccessSyntax
-//@[8:15)      VariableAccessSyntax
-//@[8:15)       IdentifierSyntax
-//@[8:15)        Identifier |account|
-//@[15:16)      Dot |.|
-//@[16:20)      IdentifierSyntax
-//@[16:20)       Identifier |name|
-//@[20:22)    NewLine |\r\n|
+//@[002:00020) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00020) |   | | └─PropertyAccessSyntax
+//@[008:00015) |   | |   ├─VariableAccessSyntax
+//@[008:00015) |   | |   | └─IdentifierSyntax
+//@[008:00015) |   | |   |   └─Token(Identifier) |account|
+//@[015:00016) |   | |   ├─Token(Dot) |.|
+//@[016:00020) |   | |   └─IdentifierSyntax
+//@[016:00020) |   | |     └─Token(Identifier) |name|
+//@[020:00022) |   | ├─Token(NewLine) |\r\n|
   // #completionTest(12) -> symbolsPlusAccount2
-//@[47:49)    NewLine |\r\n|
+//@[047:00049) |   | ├─Token(NewLine) |\r\n|
   location: account.location
-//@[2:28)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:28)     PropertyAccessSyntax
-//@[12:19)      VariableAccessSyntax
-//@[12:19)       IdentifierSyntax
-//@[12:19)        Identifier |account|
-//@[19:20)      Dot |.|
-//@[20:28)      IdentifierSyntax
-//@[20:28)       Identifier |location|
-//@[28:30)    NewLine |\r\n|
+//@[002:00028) |   | ├─ObjectPropertySyntax
+//@[002:00010) |   | | ├─IdentifierSyntax
+//@[002:00010) |   | | | └─Token(Identifier) |location|
+//@[010:00011) |   | | ├─Token(Colon) |:|
+//@[012:00028) |   | | └─PropertyAccessSyntax
+//@[012:00019) |   | |   ├─VariableAccessSyntax
+//@[012:00019) |   | |   | └─IdentifierSyntax
+//@[012:00019) |   | |   |   └─Token(Identifier) |account|
+//@[019:00020) |   | |   ├─Token(Dot) |.|
+//@[020:00028) |   | |   └─IdentifierSyntax
+//@[020:00028) |   | |     └─Token(Identifier) |location|
+//@[028:00030) |   | ├─Token(NewLine) |\r\n|
   sku: {
-//@[2:84)    ObjectPropertySyntax
-//@[2:5)     IdentifierSyntax
-//@[2:5)      Identifier |sku|
-//@[5:6)     Colon |:|
-//@[7:84)     ObjectSyntax
-//@[7:8)      LeftBrace |{|
-//@[8:10)      NewLine |\r\n|
+//@[002:00084) |   | ├─ObjectPropertySyntax
+//@[002:00005) |   | | ├─IdentifierSyntax
+//@[002:00005) |   | | | └─Token(Identifier) |sku|
+//@[005:00006) |   | | ├─Token(Colon) |:|
+//@[007:00084) |   | | └─ObjectSyntax
+//@[007:00008) |   | |   ├─Token(LeftBrace) |{|
+//@[008:00010) |   | |   ├─Token(NewLine) |\r\n|
     // #completionTest(9,10) -> storageSkuNamePlusSymbols
-//@[57:59)      NewLine |\r\n|
+//@[057:00059) |   | |   ├─Token(NewLine) |\r\n|
     name: 
-//@[4:10)      ObjectPropertySyntax
-//@[4:8)       IdentifierSyntax
-//@[4:8)        Identifier |name|
-//@[8:9)       Colon |:|
-//@[10:10)       SkippedTriviaSyntax
-//@[10:12)      NewLine |\r\n|
+//@[004:00010) |   | |   ├─ObjectPropertySyntax
+//@[004:00008) |   | |   | ├─IdentifierSyntax
+//@[004:00008) |   | |   | | └─Token(Identifier) |name|
+//@[008:00009) |   | |   | ├─Token(Colon) |:|
+//@[010:00010) |   | |   | └─SkippedTriviaSyntax
+//@[010:00012) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
   kind: 'StorageV2'
-//@[2:19)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |kind|
-//@[6:7)     Colon |:|
-//@[8:19)     StringSyntax
-//@[8:19)      StringComplete |'StorageV2'|
-//@[19:21)    NewLine |\r\n|
+//@[002:00019) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |kind|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00019) |   | | └─StringSyntax
+//@[008:00019) |   | |   └─Token(StringComplete) |'StorageV2'|
+//@[019:00021) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 var directRefViaVar = premiumStorages
-//@[0:37) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:19)  IdentifierSyntax
-//@[4:19)   Identifier |directRefViaVar|
-//@[20:21)  Assignment |=|
-//@[22:37)  VariableAccessSyntax
-//@[22:37)   IdentifierSyntax
-//@[22:37)    Identifier |premiumStorages|
-//@[37:39) NewLine |\r\n|
+//@[000:00037) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00019) | ├─IdentifierSyntax
+//@[004:00019) | | └─Token(Identifier) |directRefViaVar|
+//@[020:00021) | ├─Token(Assignment) |=|
+//@[022:00037) | └─VariableAccessSyntax
+//@[022:00037) |   └─IdentifierSyntax
+//@[022:00037) |     └─Token(Identifier) |premiumStorages|
+//@[037:00039) ├─Token(NewLine) |\r\n|
 output directRefViaOutput array = union(premiumStorages, stuffs)
-//@[0:64) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:25)  IdentifierSyntax
-//@[7:25)   Identifier |directRefViaOutput|
-//@[26:31)  SimpleTypeSyntax
-//@[26:31)   Identifier |array|
-//@[32:33)  Assignment |=|
-//@[34:64)  FunctionCallSyntax
-//@[34:39)   IdentifierSyntax
-//@[34:39)    Identifier |union|
-//@[39:40)   LeftParen |(|
-//@[40:56)   FunctionArgumentSyntax
-//@[40:55)    VariableAccessSyntax
-//@[40:55)     IdentifierSyntax
-//@[40:55)      Identifier |premiumStorages|
-//@[55:56)    Comma |,|
-//@[57:63)   FunctionArgumentSyntax
-//@[57:63)    VariableAccessSyntax
-//@[57:63)     IdentifierSyntax
-//@[57:63)      Identifier |stuffs|
-//@[63:64)   RightParen |)|
-//@[64:68) NewLine |\r\n\r\n|
+//@[000:00064) ├─OutputDeclarationSyntax
+//@[000:00006) | ├─Token(Identifier) |output|
+//@[007:00025) | ├─IdentifierSyntax
+//@[007:00025) | | └─Token(Identifier) |directRefViaOutput|
+//@[026:00031) | ├─SimpleTypeSyntax
+//@[026:00031) | | └─Token(Identifier) |array|
+//@[032:00033) | ├─Token(Assignment) |=|
+//@[034:00064) | └─FunctionCallSyntax
+//@[034:00039) |   ├─IdentifierSyntax
+//@[034:00039) |   | └─Token(Identifier) |union|
+//@[039:00040) |   ├─Token(LeftParen) |(|
+//@[040:00055) |   ├─FunctionArgumentSyntax
+//@[040:00055) |   | └─VariableAccessSyntax
+//@[040:00055) |   |   └─IdentifierSyntax
+//@[040:00055) |   |     └─Token(Identifier) |premiumStorages|
+//@[055:00056) |   ├─Token(Comma) |,|
+//@[057:00063) |   ├─FunctionArgumentSyntax
+//@[057:00063) |   | └─VariableAccessSyntax
+//@[057:00063) |   |   └─IdentifierSyntax
+//@[057:00063) |   |     └─Token(Identifier) |stuffs|
+//@[063:00064) |   └─Token(RightParen) |)|
+//@[064:00068) ├─Token(NewLine) |\r\n\r\n|
 
 resource directRefViaSingleResourceBody 'Microsoft.Network/dnszones@2018-05-01' = {
-//@[0:199) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:39)  IdentifierSyntax
-//@[9:39)   Identifier |directRefViaSingleResourceBody|
-//@[40:79)  StringSyntax
-//@[40:79)   StringComplete |'Microsoft.Network/dnszones@2018-05-01'|
-//@[80:81)  Assignment |=|
-//@[82:199)  ObjectSyntax
-//@[82:83)   LeftBrace |{|
-//@[83:85)   NewLine |\r\n|
+//@[000:00199) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00039) | ├─IdentifierSyntax
+//@[009:00039) | | └─Token(Identifier) |directRefViaSingleResourceBody|
+//@[040:00079) | ├─StringSyntax
+//@[040:00079) | | └─Token(StringComplete) |'Microsoft.Network/dnszones@2018-05-01'|
+//@[080:00081) | ├─Token(Assignment) |=|
+//@[082:00199) | └─ObjectSyntax
+//@[082:00083) |   ├─Token(LeftBrace) |{|
+//@[083:00085) |   ├─Token(NewLine) |\r\n|
   name: 'myZone2'
-//@[2:17)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:17)    StringSyntax
-//@[8:17)     StringComplete |'myZone2'|
-//@[17:19)   NewLine |\r\n|
+//@[002:00017) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00017) |   | └─StringSyntax
+//@[008:00017) |   |   └─Token(StringComplete) |'myZone2'|
+//@[017:00019) |   ├─Token(NewLine) |\r\n|
   location: 'global'
-//@[2:20)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:20)    StringSyntax
-//@[12:20)     StringComplete |'global'|
-//@[20:22)   NewLine |\r\n|
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00020) |   | └─StringSyntax
+//@[012:00020) |   |   └─Token(StringComplete) |'global'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:70)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:70)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00070) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00070) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     registrationVirtualNetworks: premiumStorages
-//@[4:48)     ObjectPropertySyntax
-//@[4:31)      IdentifierSyntax
-//@[4:31)       Identifier |registrationVirtualNetworks|
-//@[31:32)      Colon |:|
-//@[33:48)      VariableAccessSyntax
-//@[33:48)       IdentifierSyntax
-//@[33:48)        Identifier |premiumStorages|
-//@[48:50)     NewLine |\r\n|
+//@[004:00048) |   |   ├─ObjectPropertySyntax
+//@[004:00031) |   |   | ├─IdentifierSyntax
+//@[004:00031) |   |   | | └─Token(Identifier) |registrationVirtualNetworks|
+//@[031:00032) |   |   | ├─Token(Colon) |:|
+//@[033:00048) |   |   | └─VariableAccessSyntax
+//@[033:00048) |   |   |   └─IdentifierSyntax
+//@[033:00048) |   |   |     └─Token(Identifier) |premiumStorages|
+//@[048:00050) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2018-05-01' = if(true) {
-//@[0:235) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:50)  IdentifierSyntax
-//@[9:50)   Identifier |directRefViaSingleConditionalResourceBody|
-//@[51:90)  StringSyntax
-//@[51:90)   StringComplete |'Microsoft.Network/dnszones@2018-05-01'|
-//@[91:92)  Assignment |=|
-//@[93:235)  IfConditionSyntax
-//@[93:95)   Identifier |if|
-//@[95:101)   ParenthesizedExpressionSyntax
-//@[95:96)    LeftParen |(|
-//@[96:100)    BooleanLiteralSyntax
-//@[96:100)     TrueKeyword |true|
-//@[100:101)    RightParen |)|
-//@[102:235)   ObjectSyntax
-//@[102:103)    LeftBrace |{|
-//@[103:105)    NewLine |\r\n|
+//@[000:00235) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00050) | ├─IdentifierSyntax
+//@[009:00050) | | └─Token(Identifier) |directRefViaSingleConditionalResourceBody|
+//@[051:00090) | ├─StringSyntax
+//@[051:00090) | | └─Token(StringComplete) |'Microsoft.Network/dnszones@2018-05-01'|
+//@[091:00092) | ├─Token(Assignment) |=|
+//@[093:00235) | └─IfConditionSyntax
+//@[093:00095) |   ├─Token(Identifier) |if|
+//@[095:00101) |   ├─ParenthesizedExpressionSyntax
+//@[095:00096) |   | ├─Token(LeftParen) |(|
+//@[096:00100) |   | ├─BooleanLiteralSyntax
+//@[096:00100) |   | | └─Token(TrueKeyword) |true|
+//@[100:00101) |   | └─Token(RightParen) |)|
+//@[102:00235) |   └─ObjectSyntax
+//@[102:00103) |     ├─Token(LeftBrace) |{|
+//@[103:00105) |     ├─Token(NewLine) |\r\n|
   name: 'myZone3'
-//@[2:17)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:17)     StringSyntax
-//@[8:17)      StringComplete |'myZone3'|
-//@[17:19)    NewLine |\r\n|
+//@[002:00017) |     ├─ObjectPropertySyntax
+//@[002:00006) |     | ├─IdentifierSyntax
+//@[002:00006) |     | | └─Token(Identifier) |name|
+//@[006:00007) |     | ├─Token(Colon) |:|
+//@[008:00017) |     | └─StringSyntax
+//@[008:00017) |     |   └─Token(StringComplete) |'myZone3'|
+//@[017:00019) |     ├─Token(NewLine) |\r\n|
   location: 'global'
-//@[2:20)    ObjectPropertySyntax
-//@[2:10)     IdentifierSyntax
-//@[2:10)      Identifier |location|
-//@[10:11)     Colon |:|
-//@[12:20)     StringSyntax
-//@[12:20)      StringComplete |'global'|
-//@[20:22)    NewLine |\r\n|
+//@[002:00020) |     ├─ObjectPropertySyntax
+//@[002:00010) |     | ├─IdentifierSyntax
+//@[002:00010) |     | | └─Token(Identifier) |location|
+//@[010:00011) |     | ├─Token(Colon) |:|
+//@[012:00020) |     | └─StringSyntax
+//@[012:00020) |     |   └─Token(StringComplete) |'global'|
+//@[020:00022) |     ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:86)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:86)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00086) |     ├─ObjectPropertySyntax
+//@[002:00012) |     | ├─IdentifierSyntax
+//@[002:00012) |     | | └─Token(Identifier) |properties|
+//@[012:00013) |     | ├─Token(Colon) |:|
+//@[014:00086) |     | └─ObjectSyntax
+//@[014:00015) |     |   ├─Token(LeftBrace) |{|
+//@[015:00017) |     |   ├─Token(NewLine) |\r\n|
     registrationVirtualNetworks: concat(premiumStorages, stuffs)
-//@[4:64)      ObjectPropertySyntax
-//@[4:31)       IdentifierSyntax
-//@[4:31)        Identifier |registrationVirtualNetworks|
-//@[31:32)       Colon |:|
-//@[33:64)       FunctionCallSyntax
-//@[33:39)        IdentifierSyntax
-//@[33:39)         Identifier |concat|
-//@[39:40)        LeftParen |(|
-//@[40:56)        FunctionArgumentSyntax
-//@[40:55)         VariableAccessSyntax
-//@[40:55)          IdentifierSyntax
-//@[40:55)           Identifier |premiumStorages|
-//@[55:56)         Comma |,|
-//@[57:63)        FunctionArgumentSyntax
-//@[57:63)         VariableAccessSyntax
-//@[57:63)          IdentifierSyntax
-//@[57:63)           Identifier |stuffs|
-//@[63:64)        RightParen |)|
-//@[64:66)      NewLine |\r\n|
+//@[004:00064) |     |   ├─ObjectPropertySyntax
+//@[004:00031) |     |   | ├─IdentifierSyntax
+//@[004:00031) |     |   | | └─Token(Identifier) |registrationVirtualNetworks|
+//@[031:00032) |     |   | ├─Token(Colon) |:|
+//@[033:00064) |     |   | └─FunctionCallSyntax
+//@[033:00039) |     |   |   ├─IdentifierSyntax
+//@[033:00039) |     |   |   | └─Token(Identifier) |concat|
+//@[039:00040) |     |   |   ├─Token(LeftParen) |(|
+//@[040:00055) |     |   |   ├─FunctionArgumentSyntax
+//@[040:00055) |     |   |   | └─VariableAccessSyntax
+//@[040:00055) |     |   |   |   └─IdentifierSyntax
+//@[040:00055) |     |   |   |     └─Token(Identifier) |premiumStorages|
+//@[055:00056) |     |   |   ├─Token(Comma) |,|
+//@[057:00063) |     |   |   ├─FunctionArgumentSyntax
+//@[057:00063) |     |   |   | └─VariableAccessSyntax
+//@[057:00063) |     |   |   |   └─IdentifierSyntax
+//@[057:00063) |     |   |   |     └─Token(Identifier) |stuffs|
+//@[063:00064) |     |   |   └─Token(RightParen) |)|
+//@[064:00066) |     |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |     |   └─Token(RightBrace) |}|
+//@[003:00005) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 @batchSize()
-//@[0:208) ResourceDeclarationSyntax
-//@[0:12)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:12)   FunctionCallSyntax
-//@[1:10)    IdentifierSyntax
-//@[1:10)     Identifier |batchSize|
-//@[10:11)    LeftParen |(|
-//@[11:12)    RightParen |)|
-//@[12:14)  NewLine |\r\n|
+//@[000:00208) ├─ResourceDeclarationSyntax
+//@[000:00012) | ├─DecoratorSyntax
+//@[000:00001) | | ├─Token(At) |@|
+//@[001:00012) | | └─FunctionCallSyntax
+//@[001:00010) | |   ├─IdentifierSyntax
+//@[001:00010) | |   | └─Token(Identifier) |batchSize|
+//@[010:00011) | |   ├─Token(LeftParen) |(|
+//@[011:00012) | |   └─Token(RightParen) |)|
+//@[012:00014) | ├─Token(NewLine) |\r\n|
 resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[0:8)  Identifier |resource|
-//@[9:43)  IdentifierSyntax
-//@[9:43)   Identifier |directRefViaSingleLoopResourceBody|
-//@[44:90)  StringSyntax
-//@[44:90)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[91:92)  Assignment |=|
-//@[93:194)  ForSyntax
-//@[93:94)   LeftSquare |[|
-//@[94:97)   Identifier |for|
-//@[98:99)   LocalVariableSyntax
-//@[98:99)    IdentifierSyntax
-//@[98:99)     Identifier |i|
-//@[100:102)   Identifier |in|
-//@[103:114)   FunctionCallSyntax
-//@[103:108)    IdentifierSyntax
-//@[103:108)     Identifier |range|
-//@[108:109)    LeftParen |(|
-//@[109:111)    FunctionArgumentSyntax
-//@[109:110)     IntegerLiteralSyntax
-//@[109:110)      Integer |0|
-//@[110:111)     Comma |,|
-//@[112:113)    FunctionArgumentSyntax
-//@[112:113)     IntegerLiteralSyntax
-//@[112:113)      Integer |3|
-//@[113:114)    RightParen |)|
-//@[114:115)   Colon |:|
-//@[116:193)   ObjectSyntax
-//@[116:117)    LeftBrace |{|
-//@[117:119)    NewLine |\r\n|
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00043) | ├─IdentifierSyntax
+//@[009:00043) | | └─Token(Identifier) |directRefViaSingleLoopResourceBody|
+//@[044:00090) | ├─StringSyntax
+//@[044:00090) | | └─Token(StringComplete) |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[091:00092) | ├─Token(Assignment) |=|
+//@[093:00194) | └─ForSyntax
+//@[093:00094) |   ├─Token(LeftSquare) |[|
+//@[094:00097) |   ├─Token(Identifier) |for|
+//@[098:00099) |   ├─LocalVariableSyntax
+//@[098:00099) |   | └─IdentifierSyntax
+//@[098:00099) |   |   └─Token(Identifier) |i|
+//@[100:00102) |   ├─Token(Identifier) |in|
+//@[103:00114) |   ├─FunctionCallSyntax
+//@[103:00108) |   | ├─IdentifierSyntax
+//@[103:00108) |   | | └─Token(Identifier) |range|
+//@[108:00109) |   | ├─Token(LeftParen) |(|
+//@[109:00110) |   | ├─FunctionArgumentSyntax
+//@[109:00110) |   | | └─IntegerLiteralSyntax
+//@[109:00110) |   | |   └─Token(Integer) |0|
+//@[110:00111) |   | ├─Token(Comma) |,|
+//@[112:00113) |   | ├─FunctionArgumentSyntax
+//@[112:00113) |   | | └─IntegerLiteralSyntax
+//@[112:00113) |   | |   └─Token(Integer) |3|
+//@[113:00114) |   | └─Token(RightParen) |)|
+//@[114:00115) |   ├─Token(Colon) |:|
+//@[116:00193) |   ├─ObjectSyntax
+//@[116:00117) |   | ├─Token(LeftBrace) |{|
+//@[117:00119) |   | ├─Token(NewLine) |\r\n|
   name: 'vnet-${i}'
-//@[2:19)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:19)     StringSyntax
-//@[8:16)      StringLeftPiece |'vnet-${|
-//@[16:17)      VariableAccessSyntax
-//@[16:17)       IdentifierSyntax
-//@[16:17)        Identifier |i|
-//@[17:19)      StringRightPiece |}'|
-//@[19:21)    NewLine |\r\n|
+//@[002:00019) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00019) |   | | └─StringSyntax
+//@[008:00016) |   | |   ├─Token(StringLeftPiece) |'vnet-${|
+//@[016:00017) |   | |   ├─VariableAccessSyntax
+//@[016:00017) |   | |   | └─IdentifierSyntax
+//@[016:00017) |   | |   |   └─Token(Identifier) |i|
+//@[017:00019) |   | |   └─Token(StringRightPiece) |}'|
+//@[019:00021) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:50)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:50)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00050) |   | ├─ObjectPropertySyntax
+//@[002:00012) |   | | ├─IdentifierSyntax
+//@[002:00012) |   | | | └─Token(Identifier) |properties|
+//@[012:00013) |   | | ├─Token(Colon) |:|
+//@[014:00050) |   | | └─ObjectSyntax
+//@[014:00015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     subnets: premiumStorages
-//@[4:28)      ObjectPropertySyntax
-//@[4:11)       IdentifierSyntax
-//@[4:11)        Identifier |subnets|
-//@[11:12)       Colon |:|
-//@[13:28)       VariableAccessSyntax
-//@[13:28)        IdentifierSyntax
-//@[13:28)         Identifier |premiumStorages|
-//@[28:30)      NewLine |\r\n|
+//@[004:00028) |   | |   ├─ObjectPropertySyntax
+//@[004:00011) |   | |   | ├─IdentifierSyntax
+//@[004:00011) |   | |   | | └─Token(Identifier) |subnets|
+//@[011:00012) |   | |   | ├─Token(Colon) |:|
+//@[013:00028) |   | |   | └─VariableAccessSyntax
+//@[013:00028) |   | |   |   └─IdentifierSyntax
+//@[013:00028) |   | |   |     └─Token(Identifier) |premiumStorages|
+//@[028:00030) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 @batchSize(0)
-//@[0:302) ResourceDeclarationSyntax
-//@[0:13)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:13)   FunctionCallSyntax
-//@[1:10)    IdentifierSyntax
-//@[1:10)     Identifier |batchSize|
-//@[10:11)    LeftParen |(|
-//@[11:12)    FunctionArgumentSyntax
-//@[11:12)     IntegerLiteralSyntax
-//@[11:12)      Integer |0|
-//@[12:13)    RightParen |)|
-//@[13:15)  NewLine |\r\n|
+//@[000:00302) ├─ResourceDeclarationSyntax
+//@[000:00013) | ├─DecoratorSyntax
+//@[000:00001) | | ├─Token(At) |@|
+//@[001:00013) | | └─FunctionCallSyntax
+//@[001:00010) | |   ├─IdentifierSyntax
+//@[001:00010) | |   | └─Token(Identifier) |batchSize|
+//@[010:00011) | |   ├─Token(LeftParen) |(|
+//@[011:00012) | |   ├─FunctionArgumentSyntax
+//@[011:00012) | |   | └─IntegerLiteralSyntax
+//@[011:00012) | |   |   └─Token(Integer) |0|
+//@[012:00013) | |   └─Token(RightParen) |)|
+//@[013:00015) | ├─Token(NewLine) |\r\n|
 resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[0:8)  Identifier |resource|
-//@[9:61)  IdentifierSyntax
-//@[9:61)   Identifier |directRefViaSingleLoopResourceBodyWithExtraDependsOn|
-//@[62:108)  StringSyntax
-//@[62:108)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[109:110)  Assignment |=|
-//@[111:287)  ForSyntax
-//@[111:112)   LeftSquare |[|
-//@[112:115)   Identifier |for|
-//@[116:117)   LocalVariableSyntax
-//@[116:117)    IdentifierSyntax
-//@[116:117)     Identifier |i|
-//@[118:120)   Identifier |in|
-//@[121:132)   FunctionCallSyntax
-//@[121:126)    IdentifierSyntax
-//@[121:126)     Identifier |range|
-//@[126:127)    LeftParen |(|
-//@[127:129)    FunctionArgumentSyntax
-//@[127:128)     IntegerLiteralSyntax
-//@[127:128)      Integer |0|
-//@[128:129)     Comma |,|
-//@[130:131)    FunctionArgumentSyntax
-//@[130:131)     IntegerLiteralSyntax
-//@[130:131)      Integer |3|
-//@[131:132)    RightParen |)|
-//@[132:133)   Colon |:|
-//@[134:286)   ObjectSyntax
-//@[134:135)    LeftBrace |{|
-//@[135:137)    NewLine |\r\n|
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00061) | ├─IdentifierSyntax
+//@[009:00061) | | └─Token(Identifier) |directRefViaSingleLoopResourceBodyWithExtraDependsOn|
+//@[062:00108) | ├─StringSyntax
+//@[062:00108) | | └─Token(StringComplete) |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[109:00110) | ├─Token(Assignment) |=|
+//@[111:00287) | └─ForSyntax
+//@[111:00112) |   ├─Token(LeftSquare) |[|
+//@[112:00115) |   ├─Token(Identifier) |for|
+//@[116:00117) |   ├─LocalVariableSyntax
+//@[116:00117) |   | └─IdentifierSyntax
+//@[116:00117) |   |   └─Token(Identifier) |i|
+//@[118:00120) |   ├─Token(Identifier) |in|
+//@[121:00132) |   ├─FunctionCallSyntax
+//@[121:00126) |   | ├─IdentifierSyntax
+//@[121:00126) |   | | └─Token(Identifier) |range|
+//@[126:00127) |   | ├─Token(LeftParen) |(|
+//@[127:00128) |   | ├─FunctionArgumentSyntax
+//@[127:00128) |   | | └─IntegerLiteralSyntax
+//@[127:00128) |   | |   └─Token(Integer) |0|
+//@[128:00129) |   | ├─Token(Comma) |,|
+//@[130:00131) |   | ├─FunctionArgumentSyntax
+//@[130:00131) |   | | └─IntegerLiteralSyntax
+//@[130:00131) |   | |   └─Token(Integer) |3|
+//@[131:00132) |   | └─Token(RightParen) |)|
+//@[132:00133) |   ├─Token(Colon) |:|
+//@[134:00286) |   ├─ObjectSyntax
+//@[134:00135) |   | ├─Token(LeftBrace) |{|
+//@[135:00137) |   | ├─Token(NewLine) |\r\n|
   name: 'vnet-${i}'
-//@[2:19)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:19)     StringSyntax
-//@[8:16)      StringLeftPiece |'vnet-${|
-//@[16:17)      VariableAccessSyntax
-//@[16:17)       IdentifierSyntax
-//@[16:17)        Identifier |i|
-//@[17:19)      StringRightPiece |}'|
-//@[19:21)    NewLine |\r\n|
+//@[002:00019) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00019) |   | | └─StringSyntax
+//@[008:00016) |   | |   ├─Token(StringLeftPiece) |'vnet-${|
+//@[016:00017) |   | |   ├─VariableAccessSyntax
+//@[016:00017) |   | |   | └─IdentifierSyntax
+//@[016:00017) |   | |   |   └─Token(Identifier) |i|
+//@[017:00019) |   | |   └─Token(StringRightPiece) |}'|
+//@[019:00021) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:98)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:98)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00098) |   | ├─ObjectPropertySyntax
+//@[002:00012) |   | | ├─IdentifierSyntax
+//@[002:00012) |   | | | └─Token(Identifier) |properties|
+//@[012:00013) |   | | ├─Token(Colon) |:|
+//@[014:00098) |   | | └─ObjectSyntax
+//@[014:00015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     subnets: premiumStorages
-//@[4:28)      ObjectPropertySyntax
-//@[4:11)       IdentifierSyntax
-//@[4:11)        Identifier |subnets|
-//@[11:12)       Colon |:|
-//@[13:28)       VariableAccessSyntax
-//@[13:28)        IdentifierSyntax
-//@[13:28)         Identifier |premiumStorages|
-//@[28:30)      NewLine |\r\n|
+//@[004:00028) |   | |   ├─ObjectPropertySyntax
+//@[004:00011) |   | |   | ├─IdentifierSyntax
+//@[004:00011) |   | |   | | └─Token(Identifier) |subnets|
+//@[011:00012) |   | |   | ├─Token(Colon) |:|
+//@[013:00028) |   | |   | └─VariableAccessSyntax
+//@[013:00028) |   | |   |   └─IdentifierSyntax
+//@[013:00028) |   | |   |     └─Token(Identifier) |premiumStorages|
+//@[028:00030) |   | |   ├─Token(NewLine) |\r\n|
     dependsOn: [
-//@[4:46)      ObjectPropertySyntax
-//@[4:13)       IdentifierSyntax
-//@[4:13)        Identifier |dependsOn|
-//@[13:14)       Colon |:|
-//@[15:46)       ArraySyntax
-//@[15:16)        LeftSquare |[|
-//@[16:18)        NewLine |\r\n|
+//@[004:00046) |   | |   ├─ObjectPropertySyntax
+//@[004:00013) |   | |   | ├─IdentifierSyntax
+//@[004:00013) |   | |   | | └─Token(Identifier) |dependsOn|
+//@[013:00014) |   | |   | ├─Token(Colon) |:|
+//@[015:00046) |   | |   | └─ArraySyntax
+//@[015:00016) |   | |   |   ├─Token(LeftSquare) |[|
+//@[016:00018) |   | |   |   ├─Token(NewLine) |\r\n|
       premiumStorages
-//@[6:21)        ArrayItemSyntax
-//@[6:21)         VariableAccessSyntax
-//@[6:21)          IdentifierSyntax
-//@[6:21)           Identifier |premiumStorages|
-//@[21:23)        NewLine |\r\n|
+//@[006:00021) |   | |   |   ├─ArrayItemSyntax
+//@[006:00021) |   | |   |   | └─VariableAccessSyntax
+//@[006:00021) |   | |   |   |   └─IdentifierSyntax
+//@[006:00021) |   | |   |   |     └─Token(Identifier) |premiumStorages|
+//@[021:00023) |   | |   |   ├─Token(NewLine) |\r\n|
     ]
-//@[4:5)        RightSquare |]|
-//@[5:7)      NewLine |\r\n|
+//@[004:00005) |   | |   |   └─Token(RightSquare) |]|
+//@[005:00007) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
   dependsOn: [
-//@[2:25)    ObjectPropertySyntax
-//@[2:11)     IdentifierSyntax
-//@[2:11)      Identifier |dependsOn|
-//@[11:12)     Colon |:|
-//@[13:25)     ArraySyntax
-//@[13:14)      LeftSquare |[|
-//@[14:16)      NewLine |\r\n|
+//@[002:00025) |   | ├─ObjectPropertySyntax
+//@[002:00011) |   | | ├─IdentifierSyntax
+//@[002:00011) |   | | | └─Token(Identifier) |dependsOn|
+//@[011:00012) |   | | ├─Token(Colon) |:|
+//@[013:00025) |   | | └─ArraySyntax
+//@[013:00014) |   | |   ├─Token(LeftSquare) |[|
+//@[014:00016) |   | |   ├─Token(NewLine) |\r\n|
     
-//@[4:6)      NewLine |\r\n|
+//@[004:00006) |   | |   ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)      RightSquare |]|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightSquare) |]|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 var expressionInPropertyLoopVar = true
-//@[0:38) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:31)  IdentifierSyntax
-//@[4:31)   Identifier |expressionInPropertyLoopVar|
-//@[32:33)  Assignment |=|
-//@[34:38)  BooleanLiteralSyntax
-//@[34:38)   TrueKeyword |true|
-//@[38:40) NewLine |\r\n|
+//@[000:00038) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00031) | ├─IdentifierSyntax
+//@[004:00031) | | └─Token(Identifier) |expressionInPropertyLoopVar|
+//@[032:00033) | ├─Token(Assignment) |=|
+//@[034:00038) | └─BooleanLiteralSyntax
+//@[034:00038) |   └─Token(TrueKeyword) |true|
+//@[038:00040) ├─Token(NewLine) |\r\n|
 resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' = {
-//@[0:232) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:38)  IdentifierSyntax
-//@[9:38)   Identifier |expressionsInPropertyLoopName|
-//@[39:78)  StringSyntax
-//@[39:78)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[79:80)  Assignment |=|
-//@[81:232)  ObjectSyntax
-//@[81:82)   LeftBrace |{|
-//@[82:84)   NewLine |\r\n|
+//@[000:00232) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00038) | ├─IdentifierSyntax
+//@[009:00038) | | └─Token(Identifier) |expressionsInPropertyLoopName|
+//@[039:00078) | ├─StringSyntax
+//@[039:00078) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[079:00080) | ├─Token(Assignment) |=|
+//@[081:00232) | └─ObjectSyntax
+//@[081:00082) |   ├─Token(LeftBrace) |{|
+//@[082:00084) |   ├─Token(NewLine) |\r\n|
   name: 'hello'
-//@[2:15)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:15)    StringSyntax
-//@[8:15)     StringComplete |'hello'|
-//@[15:17)   NewLine |\r\n|
+//@[002:00015) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00015) |   | └─StringSyntax
+//@[008:00015) |   |   └─Token(StringComplete) |'hello'|
+//@[015:00017) |   ├─Token(NewLine) |\r\n|
   location: 'eastus'
-//@[2:20)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:20)    StringSyntax
-//@[12:20)     StringComplete |'eastus'|
-//@[20:22)   NewLine |\r\n|
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00020) |   | └─StringSyntax
+//@[012:00020) |   |   └─Token(StringComplete) |'eastus'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:106)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:106)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00106) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00106) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
-//@[4:84)     ObjectPropertySyntax
-//@[4:61)      StringSyntax
-//@[4:32)       StringLeftPiece |'resolutionVirtualNetworks${|
-//@[32:59)       VariableAccessSyntax
-//@[32:59)        IdentifierSyntax
-//@[32:59)         Identifier |expressionInPropertyLoopVar|
-//@[59:61)       StringRightPiece |}'|
-//@[61:62)      Colon |:|
-//@[63:84)      ForSyntax
-//@[63:64)       LeftSquare |[|
-//@[64:67)       Identifier |for|
-//@[68:73)       LocalVariableSyntax
-//@[68:73)        IdentifierSyntax
-//@[68:73)         Identifier |thing|
-//@[74:76)       Identifier |in|
-//@[77:79)       ArraySyntax
-//@[77:78)        LeftSquare |[|
-//@[78:79)        RightSquare |]|
-//@[79:80)       Colon |:|
-//@[81:83)       ObjectSyntax
-//@[81:82)        LeftBrace |{|
-//@[82:83)        RightBrace |}|
-//@[83:84)       RightSquare |]|
-//@[84:86)     NewLine |\r\n|
+//@[004:00084) |   |   ├─ObjectPropertySyntax
+//@[004:00061) |   |   | ├─StringSyntax
+//@[004:00032) |   |   | | ├─Token(StringLeftPiece) |'resolutionVirtualNetworks${|
+//@[032:00059) |   |   | | ├─VariableAccessSyntax
+//@[032:00059) |   |   | | | └─IdentifierSyntax
+//@[032:00059) |   |   | | |   └─Token(Identifier) |expressionInPropertyLoopVar|
+//@[059:00061) |   |   | | └─Token(StringRightPiece) |}'|
+//@[061:00062) |   |   | ├─Token(Colon) |:|
+//@[063:00084) |   |   | └─ForSyntax
+//@[063:00064) |   |   |   ├─Token(LeftSquare) |[|
+//@[064:00067) |   |   |   ├─Token(Identifier) |for|
+//@[068:00073) |   |   |   ├─LocalVariableSyntax
+//@[068:00073) |   |   |   | └─IdentifierSyntax
+//@[068:00073) |   |   |   |   └─Token(Identifier) |thing|
+//@[074:00076) |   |   |   ├─Token(Identifier) |in|
+//@[077:00079) |   |   |   ├─ArraySyntax
+//@[077:00078) |   |   |   | ├─Token(LeftSquare) |[|
+//@[078:00079) |   |   |   | └─Token(RightSquare) |]|
+//@[079:00080) |   |   |   ├─Token(Colon) |:|
+//@[081:00083) |   |   |   ├─ObjectSyntax
+//@[081:00082) |   |   |   | ├─Token(LeftBrace) |{|
+//@[082:00083) |   |   |   | └─Token(RightBrace) |}|
+//@[083:00084) |   |   |   └─Token(RightSquare) |]|
+//@[084:00086) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // resource loop body that isn't an object
-//@[42:44) NewLine |\r\n|
+//@[042:00044) ├─Token(NewLine) |\r\n|
 @batchSize(-1)
-//@[0:118) ResourceDeclarationSyntax
-//@[0:14)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:14)   FunctionCallSyntax
-//@[1:10)    IdentifierSyntax
-//@[1:10)     Identifier |batchSize|
-//@[10:11)    LeftParen |(|
-//@[11:13)    FunctionArgumentSyntax
-//@[11:13)     UnaryOperationSyntax
-//@[11:12)      Minus |-|
-//@[12:13)      IntegerLiteralSyntax
-//@[12:13)       Integer |1|
-//@[13:14)    RightParen |)|
-//@[14:16)  NewLine |\r\n|
+//@[000:00118) ├─ResourceDeclarationSyntax
+//@[000:00014) | ├─DecoratorSyntax
+//@[000:00001) | | ├─Token(At) |@|
+//@[001:00014) | | └─FunctionCallSyntax
+//@[001:00010) | |   ├─IdentifierSyntax
+//@[001:00010) | |   | └─Token(Identifier) |batchSize|
+//@[010:00011) | |   ├─Token(LeftParen) |(|
+//@[011:00013) | |   ├─FunctionArgumentSyntax
+//@[011:00013) | |   | └─UnaryOperationSyntax
+//@[011:00012) | |   |   ├─Token(Minus) |-|
+//@[012:00013) | |   |   └─IntegerLiteralSyntax
+//@[012:00013) | |   |     └─Token(Integer) |1|
+//@[013:00014) | |   └─Token(RightParen) |)|
+//@[014:00016) | ├─Token(NewLine) |\r\n|
 resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
-//@[0:8)  Identifier |resource|
-//@[9:34)  IdentifierSyntax
-//@[9:34)   Identifier |nonObjectResourceLoopBody|
-//@[35:74)  StringSyntax
-//@[35:74)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[75:76)  Assignment |=|
-//@[77:102)  ForSyntax
-//@[77:78)   LeftSquare |[|
-//@[78:81)   Identifier |for|
-//@[82:87)   LocalVariableSyntax
-//@[82:87)    IdentifierSyntax
-//@[82:87)     Identifier |thing|
-//@[88:90)   Identifier |in|
-//@[91:93)   ArraySyntax
-//@[91:92)    LeftSquare |[|
-//@[92:93)    RightSquare |]|
-//@[93:94)   Colon |:|
-//@[95:101)   SkippedTriviaSyntax
-//@[95:101)    StringComplete |'test'|
-//@[101:102)   RightSquare |]|
-//@[102:104) NewLine |\r\n|
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00034) | ├─IdentifierSyntax
+//@[009:00034) | | └─Token(Identifier) |nonObjectResourceLoopBody|
+//@[035:00074) | ├─StringSyntax
+//@[035:00074) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[075:00076) | ├─Token(Assignment) |=|
+//@[077:00102) | └─ForSyntax
+//@[077:00078) |   ├─Token(LeftSquare) |[|
+//@[078:00081) |   ├─Token(Identifier) |for|
+//@[082:00087) |   ├─LocalVariableSyntax
+//@[082:00087) |   | └─IdentifierSyntax
+//@[082:00087) |   |   └─Token(Identifier) |thing|
+//@[088:00090) |   ├─Token(Identifier) |in|
+//@[091:00093) |   ├─ArraySyntax
+//@[091:00092) |   | ├─Token(LeftSquare) |[|
+//@[092:00093) |   | └─Token(RightSquare) |]|
+//@[093:00094) |   ├─Token(Colon) |:|
+//@[095:00101) |   ├─SkippedTriviaSyntax
+//@[095:00101) |   | └─Token(StringComplete) |'test'|
+//@[101:00102) |   └─Token(RightSquare) |]|
+//@[102:00104) ├─Token(NewLine) |\r\n|
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
-//@[0:110) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |nonObjectResourceLoopBody2|
-//@[36:75)  StringSyntax
-//@[36:75)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[76:77)  Assignment |=|
-//@[78:110)  ForSyntax
-//@[78:79)   LeftSquare |[|
-//@[79:82)   Identifier |for|
-//@[83:88)   LocalVariableSyntax
-//@[83:88)    IdentifierSyntax
-//@[83:88)     Identifier |thing|
-//@[89:91)   Identifier |in|
-//@[92:94)   ArraySyntax
-//@[92:93)    LeftSquare |[|
-//@[93:94)    RightSquare |]|
-//@[94:95)   Colon |:|
-//@[96:109)   SkippedTriviaSyntax
-//@[96:107)    Identifier |environment|
-//@[107:108)    LeftParen |(|
-//@[108:109)    RightParen |)|
-//@[109:110)   RightSquare |]|
-//@[110:112) NewLine |\r\n|
+//@[000:00110) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |nonObjectResourceLoopBody2|
+//@[036:00075) | ├─StringSyntax
+//@[036:00075) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[076:00077) | ├─Token(Assignment) |=|
+//@[078:00110) | └─ForSyntax
+//@[078:00079) |   ├─Token(LeftSquare) |[|
+//@[079:00082) |   ├─Token(Identifier) |for|
+//@[083:00088) |   ├─LocalVariableSyntax
+//@[083:00088) |   | └─IdentifierSyntax
+//@[083:00088) |   |   └─Token(Identifier) |thing|
+//@[089:00091) |   ├─Token(Identifier) |in|
+//@[092:00094) |   ├─ArraySyntax
+//@[092:00093) |   | ├─Token(LeftSquare) |[|
+//@[093:00094) |   | └─Token(RightSquare) |]|
+//@[094:00095) |   ├─Token(Colon) |:|
+//@[096:00109) |   ├─SkippedTriviaSyntax
+//@[096:00107) |   | ├─Token(Identifier) |environment|
+//@[107:00108) |   | ├─Token(LeftParen) |(|
+//@[108:00109) |   | └─Token(RightParen) |)|
+//@[109:00110) |   └─Token(RightSquare) |]|
+//@[110:00112) ├─Token(NewLine) |\r\n|
 resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: 'test']
-//@[0:107) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |nonObjectResourceLoopBody3|
-//@[36:75)  StringSyntax
-//@[36:75)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[76:77)  Assignment |=|
-//@[78:107)  ForSyntax
-//@[78:79)   LeftSquare |[|
-//@[79:82)   Identifier |for|
-//@[83:92)   ForVariableBlockSyntax
-//@[83:84)    LeftParen |(|
-//@[84:89)    LocalVariableSyntax
-//@[84:89)     IdentifierSyntax
-//@[84:89)      Identifier |thing|
-//@[89:90)    Comma |,|
-//@[90:91)    LocalVariableSyntax
-//@[90:91)     IdentifierSyntax
-//@[90:91)      Identifier |i|
-//@[91:92)    RightParen |)|
-//@[93:95)   Identifier |in|
-//@[96:98)   ArraySyntax
-//@[96:97)    LeftSquare |[|
-//@[97:98)    RightSquare |]|
-//@[98:99)   Colon |:|
-//@[100:106)   SkippedTriviaSyntax
-//@[100:106)    StringComplete |'test'|
-//@[106:107)   RightSquare |]|
-//@[107:109) NewLine |\r\n|
+//@[000:00107) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |nonObjectResourceLoopBody3|
+//@[036:00075) | ├─StringSyntax
+//@[036:00075) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[076:00077) | ├─Token(Assignment) |=|
+//@[078:00107) | └─ForSyntax
+//@[078:00079) |   ├─Token(LeftSquare) |[|
+//@[079:00082) |   ├─Token(Identifier) |for|
+//@[083:00092) |   ├─VariableBlockSyntax
+//@[083:00084) |   | ├─Token(LeftParen) |(|
+//@[084:00089) |   | ├─LocalVariableSyntax
+//@[084:00089) |   | | └─IdentifierSyntax
+//@[084:00089) |   | |   └─Token(Identifier) |thing|
+//@[089:00090) |   | ├─Token(Comma) |,|
+//@[090:00091) |   | ├─LocalVariableSyntax
+//@[090:00091) |   | | └─IdentifierSyntax
+//@[090:00091) |   | |   └─Token(Identifier) |i|
+//@[091:00092) |   | └─Token(RightParen) |)|
+//@[093:00095) |   ├─Token(Identifier) |in|
+//@[096:00098) |   ├─ArraySyntax
+//@[096:00097) |   | ├─Token(LeftSquare) |[|
+//@[097:00098) |   | └─Token(RightSquare) |]|
+//@[098:00099) |   ├─Token(Colon) |:|
+//@[100:00106) |   ├─SkippedTriviaSyntax
+//@[100:00106) |   | └─Token(StringComplete) |'test'|
+//@[106:00107) |   └─Token(RightSquare) |]|
+//@[107:00109) ├─Token(NewLine) |\r\n|
 resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: environment()]
-//@[0:114) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |nonObjectResourceLoopBody4|
-//@[36:75)  StringSyntax
-//@[36:75)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[76:77)  Assignment |=|
-//@[78:114)  ForSyntax
-//@[78:79)   LeftSquare |[|
-//@[79:82)   Identifier |for|
-//@[83:92)   ForVariableBlockSyntax
-//@[83:84)    LeftParen |(|
-//@[84:89)    LocalVariableSyntax
-//@[84:89)     IdentifierSyntax
-//@[84:89)      Identifier |thing|
-//@[89:90)    Comma |,|
-//@[90:91)    LocalVariableSyntax
-//@[90:91)     IdentifierSyntax
-//@[90:91)      Identifier |i|
-//@[91:92)    RightParen |)|
-//@[93:95)   Identifier |in|
-//@[96:98)   ArraySyntax
-//@[96:97)    LeftSquare |[|
-//@[97:98)    RightSquare |]|
-//@[98:99)   Colon |:|
-//@[100:113)   SkippedTriviaSyntax
-//@[100:111)    Identifier |environment|
-//@[111:112)    LeftParen |(|
-//@[112:113)    RightParen |)|
-//@[113:114)   RightSquare |]|
-//@[114:116) NewLine |\r\n|
+//@[000:00114) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |nonObjectResourceLoopBody4|
+//@[036:00075) | ├─StringSyntax
+//@[036:00075) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[076:00077) | ├─Token(Assignment) |=|
+//@[078:00114) | └─ForSyntax
+//@[078:00079) |   ├─Token(LeftSquare) |[|
+//@[079:00082) |   ├─Token(Identifier) |for|
+//@[083:00092) |   ├─VariableBlockSyntax
+//@[083:00084) |   | ├─Token(LeftParen) |(|
+//@[084:00089) |   | ├─LocalVariableSyntax
+//@[084:00089) |   | | └─IdentifierSyntax
+//@[084:00089) |   | |   └─Token(Identifier) |thing|
+//@[089:00090) |   | ├─Token(Comma) |,|
+//@[090:00091) |   | ├─LocalVariableSyntax
+//@[090:00091) |   | | └─IdentifierSyntax
+//@[090:00091) |   | |   └─Token(Identifier) |i|
+//@[091:00092) |   | └─Token(RightParen) |)|
+//@[093:00095) |   ├─Token(Identifier) |in|
+//@[096:00098) |   ├─ArraySyntax
+//@[096:00097) |   | ├─Token(LeftSquare) |[|
+//@[097:00098) |   | └─Token(RightSquare) |]|
+//@[098:00099) |   ├─Token(Colon) |:|
+//@[100:00113) |   ├─SkippedTriviaSyntax
+//@[100:00111) |   | ├─Token(Identifier) |environment|
+//@[111:00112) |   | ├─Token(LeftParen) |(|
+//@[112:00113) |   | └─Token(RightParen) |)|
+//@[113:00114) |   └─Token(RightSquare) |]|
+//@[114:00116) ├─Token(NewLine) |\r\n|
 resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) 'test']
-//@[0:116) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |nonObjectResourceLoopBody3|
-//@[36:75)  StringSyntax
-//@[36:75)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[76:77)  Assignment |=|
-//@[78:116)  ForSyntax
-//@[78:79)   LeftSquare |[|
-//@[79:82)   Identifier |for|
-//@[83:92)   ForVariableBlockSyntax
-//@[83:84)    LeftParen |(|
-//@[84:89)    LocalVariableSyntax
-//@[84:89)     IdentifierSyntax
-//@[84:89)      Identifier |thing|
-//@[89:90)    Comma |,|
-//@[90:91)    LocalVariableSyntax
-//@[90:91)     IdentifierSyntax
-//@[90:91)      Identifier |i|
-//@[91:92)    RightParen |)|
-//@[93:95)   Identifier |in|
-//@[96:98)   ArraySyntax
-//@[96:97)    LeftSquare |[|
-//@[97:98)    RightSquare |]|
-//@[98:99)   Colon |:|
-//@[100:115)   IfConditionSyntax
-//@[100:102)    Identifier |if|
-//@[102:108)    ParenthesizedExpressionSyntax
-//@[102:103)     LeftParen |(|
-//@[103:107)     BooleanLiteralSyntax
-//@[103:107)      TrueKeyword |true|
-//@[107:108)     RightParen |)|
-//@[109:115)    SkippedTriviaSyntax
-//@[109:115)     StringComplete |'test'|
-//@[115:116)   RightSquare |]|
-//@[116:118) NewLine |\r\n|
+//@[000:00116) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |nonObjectResourceLoopBody3|
+//@[036:00075) | ├─StringSyntax
+//@[036:00075) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[076:00077) | ├─Token(Assignment) |=|
+//@[078:00116) | └─ForSyntax
+//@[078:00079) |   ├─Token(LeftSquare) |[|
+//@[079:00082) |   ├─Token(Identifier) |for|
+//@[083:00092) |   ├─VariableBlockSyntax
+//@[083:00084) |   | ├─Token(LeftParen) |(|
+//@[084:00089) |   | ├─LocalVariableSyntax
+//@[084:00089) |   | | └─IdentifierSyntax
+//@[084:00089) |   | |   └─Token(Identifier) |thing|
+//@[089:00090) |   | ├─Token(Comma) |,|
+//@[090:00091) |   | ├─LocalVariableSyntax
+//@[090:00091) |   | | └─IdentifierSyntax
+//@[090:00091) |   | |   └─Token(Identifier) |i|
+//@[091:00092) |   | └─Token(RightParen) |)|
+//@[093:00095) |   ├─Token(Identifier) |in|
+//@[096:00098) |   ├─ArraySyntax
+//@[096:00097) |   | ├─Token(LeftSquare) |[|
+//@[097:00098) |   | └─Token(RightSquare) |]|
+//@[098:00099) |   ├─Token(Colon) |:|
+//@[100:00115) |   ├─IfConditionSyntax
+//@[100:00102) |   | ├─Token(Identifier) |if|
+//@[102:00108) |   | ├─ParenthesizedExpressionSyntax
+//@[102:00103) |   | | ├─Token(LeftParen) |(|
+//@[103:00107) |   | | ├─BooleanLiteralSyntax
+//@[103:00107) |   | | | └─Token(TrueKeyword) |true|
+//@[107:00108) |   | | └─Token(RightParen) |)|
+//@[109:00115) |   | └─SkippedTriviaSyntax
+//@[109:00115) |   |   └─Token(StringComplete) |'test'|
+//@[115:00116) |   └─Token(RightSquare) |]|
+//@[116:00118) ├─Token(NewLine) |\r\n|
 resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) environment()]
-//@[0:123) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |nonObjectResourceLoopBody4|
-//@[36:75)  StringSyntax
-//@[36:75)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[76:77)  Assignment |=|
-//@[78:123)  ForSyntax
-//@[78:79)   LeftSquare |[|
-//@[79:82)   Identifier |for|
-//@[83:92)   ForVariableBlockSyntax
-//@[83:84)    LeftParen |(|
-//@[84:89)    LocalVariableSyntax
-//@[84:89)     IdentifierSyntax
-//@[84:89)      Identifier |thing|
-//@[89:90)    Comma |,|
-//@[90:91)    LocalVariableSyntax
-//@[90:91)     IdentifierSyntax
-//@[90:91)      Identifier |i|
-//@[91:92)    RightParen |)|
-//@[93:95)   Identifier |in|
-//@[96:98)   ArraySyntax
-//@[96:97)    LeftSquare |[|
-//@[97:98)    RightSquare |]|
-//@[98:99)   Colon |:|
-//@[100:122)   IfConditionSyntax
-//@[100:102)    Identifier |if|
-//@[102:108)    ParenthesizedExpressionSyntax
-//@[102:103)     LeftParen |(|
-//@[103:107)     BooleanLiteralSyntax
-//@[103:107)      TrueKeyword |true|
-//@[107:108)     RightParen |)|
-//@[109:122)    SkippedTriviaSyntax
-//@[109:120)     Identifier |environment|
-//@[120:121)     LeftParen |(|
-//@[121:122)     RightParen |)|
-//@[122:123)   RightSquare |]|
-//@[123:127) NewLine |\r\n\r\n|
+//@[000:00123) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |nonObjectResourceLoopBody4|
+//@[036:00075) | ├─StringSyntax
+//@[036:00075) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[076:00077) | ├─Token(Assignment) |=|
+//@[078:00123) | └─ForSyntax
+//@[078:00079) |   ├─Token(LeftSquare) |[|
+//@[079:00082) |   ├─Token(Identifier) |for|
+//@[083:00092) |   ├─VariableBlockSyntax
+//@[083:00084) |   | ├─Token(LeftParen) |(|
+//@[084:00089) |   | ├─LocalVariableSyntax
+//@[084:00089) |   | | └─IdentifierSyntax
+//@[084:00089) |   | |   └─Token(Identifier) |thing|
+//@[089:00090) |   | ├─Token(Comma) |,|
+//@[090:00091) |   | ├─LocalVariableSyntax
+//@[090:00091) |   | | └─IdentifierSyntax
+//@[090:00091) |   | |   └─Token(Identifier) |i|
+//@[091:00092) |   | └─Token(RightParen) |)|
+//@[093:00095) |   ├─Token(Identifier) |in|
+//@[096:00098) |   ├─ArraySyntax
+//@[096:00097) |   | ├─Token(LeftSquare) |[|
+//@[097:00098) |   | └─Token(RightSquare) |]|
+//@[098:00099) |   ├─Token(Colon) |:|
+//@[100:00122) |   ├─IfConditionSyntax
+//@[100:00102) |   | ├─Token(Identifier) |if|
+//@[102:00108) |   | ├─ParenthesizedExpressionSyntax
+//@[102:00103) |   | | ├─Token(LeftParen) |(|
+//@[103:00107) |   | | ├─BooleanLiteralSyntax
+//@[103:00107) |   | | | └─Token(TrueKeyword) |true|
+//@[107:00108) |   | | └─Token(RightParen) |)|
+//@[109:00122) |   | └─SkippedTriviaSyntax
+//@[109:00120) |   |   ├─Token(Identifier) |environment|
+//@[120:00121) |   |   ├─Token(LeftParen) |(|
+//@[121:00122) |   |   └─Token(RightParen) |)|
+//@[122:00123) |   └─Token(RightSquare) |]|
+//@[123:00127) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(54,55) -> objectPlusFor
-//@[42:44) NewLine |\r\n|
+//@[042:00044) ├─Token(NewLine) |\r\n|
 resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
-//@[0:55) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:52)  StringSyntax
-//@[13:52)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[53:54)  Assignment |=|
-//@[55:55)  SkippedTriviaSyntax
-//@[55:59) NewLine |\r\n\r\n|
+//@[000:00055) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00052) | ├─StringSyntax
+//@[013:00052) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[053:00054) | ├─Token(Assignment) |=|
+//@[055:00055) | └─SkippedTriviaSyntax
+//@[055:00059) ├─Token(NewLine) |\r\n\r\n|
 
 resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
-//@[0:257) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:12)  IdentifierSyntax
-//@[9:12)   Identifier |foo|
-//@[13:52)  StringSyntax
-//@[13:52)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[53:54)  Assignment |=|
-//@[55:257)  ForSyntax
-//@[55:56)   LeftSquare |[|
-//@[56:59)   Identifier |for|
-//@[60:64)   LocalVariableSyntax
-//@[60:64)    IdentifierSyntax
-//@[60:64)     Identifier |item|
-//@[65:67)   Identifier |in|
-//@[68:70)   ArraySyntax
-//@[68:69)    LeftSquare |[|
-//@[69:70)    RightSquare |]|
-//@[70:71)   Colon |:|
-//@[72:256)   ObjectSyntax
-//@[72:73)    LeftBrace |{|
-//@[73:75)    NewLine |\r\n|
+//@[000:00257) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00012) | ├─IdentifierSyntax
+//@[009:00012) | | └─Token(Identifier) |foo|
+//@[013:00052) | ├─StringSyntax
+//@[013:00052) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[053:00054) | ├─Token(Assignment) |=|
+//@[055:00257) | └─ForSyntax
+//@[055:00056) |   ├─Token(LeftSquare) |[|
+//@[056:00059) |   ├─Token(Identifier) |for|
+//@[060:00064) |   ├─LocalVariableSyntax
+//@[060:00064) |   | └─IdentifierSyntax
+//@[060:00064) |   |   └─Token(Identifier) |item|
+//@[065:00067) |   ├─Token(Identifier) |in|
+//@[068:00070) |   ├─ArraySyntax
+//@[068:00069) |   | ├─Token(LeftSquare) |[|
+//@[069:00070) |   | └─Token(RightSquare) |]|
+//@[070:00071) |   ├─Token(Colon) |:|
+//@[072:00256) |   ├─ObjectSyntax
+//@[072:00073) |   | ├─Token(LeftBrace) |{|
+//@[073:00075) |   | ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:178)    ObjectPropertySyntax
-//@[2:12)     IdentifierSyntax
-//@[2:12)      Identifier |properties|
-//@[12:13)     Colon |:|
-//@[14:178)     ObjectSyntax
-//@[14:15)      LeftBrace |{|
-//@[15:17)      NewLine |\r\n|
+//@[002:00178) |   | ├─ObjectPropertySyntax
+//@[002:00012) |   | | ├─IdentifierSyntax
+//@[002:00012) |   | | | └─Token(Identifier) |properties|
+//@[012:00013) |   | | ├─Token(Colon) |:|
+//@[014:00178) |   | | └─ObjectSyntax
+//@[014:00015) |   | |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   | |   ├─Token(NewLine) |\r\n|
     // #completionTest(32,33) -> symbolsPlusArrayAndFor
-//@[55:57)      NewLine |\r\n|
+//@[055:00057) |   | |   ├─Token(NewLine) |\r\n|
     registrationVirtualNetworks: 
-//@[4:33)      ObjectPropertySyntax
-//@[4:31)       IdentifierSyntax
-//@[4:31)        Identifier |registrationVirtualNetworks|
-//@[31:32)       Colon |:|
-//@[33:33)       SkippedTriviaSyntax
-//@[33:35)      NewLine |\r\n|
+//@[004:00033) |   | |   ├─ObjectPropertySyntax
+//@[004:00031) |   | |   | ├─IdentifierSyntax
+//@[004:00031) |   | |   | | └─Token(Identifier) |registrationVirtualNetworks|
+//@[031:00032) |   | |   | ├─Token(Colon) |:|
+//@[033:00033) |   | |   | └─SkippedTriviaSyntax
+//@[033:00035) |   | |   ├─Token(NewLine) |\r\n|
     resolutionVirtualNetworks: [for lol in []: {
-//@[4:64)      ObjectPropertySyntax
-//@[4:29)       IdentifierSyntax
-//@[4:29)        Identifier |resolutionVirtualNetworks|
-//@[29:30)       Colon |:|
-//@[31:64)       ForSyntax
-//@[31:32)        LeftSquare |[|
-//@[32:35)        Identifier |for|
-//@[36:39)        LocalVariableSyntax
-//@[36:39)         IdentifierSyntax
-//@[36:39)          Identifier |lol|
-//@[40:42)        Identifier |in|
-//@[43:45)        ArraySyntax
-//@[43:44)         LeftSquare |[|
-//@[44:45)         RightSquare |]|
-//@[45:46)        Colon |:|
-//@[47:63)        ObjectSyntax
-//@[47:48)         LeftBrace |{|
-//@[48:50)         NewLine |\r\n|
+//@[004:00064) |   | |   ├─ObjectPropertySyntax
+//@[004:00029) |   | |   | ├─IdentifierSyntax
+//@[004:00029) |   | |   | | └─Token(Identifier) |resolutionVirtualNetworks|
+//@[029:00030) |   | |   | ├─Token(Colon) |:|
+//@[031:00064) |   | |   | └─ForSyntax
+//@[031:00032) |   | |   |   ├─Token(LeftSquare) |[|
+//@[032:00035) |   | |   |   ├─Token(Identifier) |for|
+//@[036:00039) |   | |   |   ├─LocalVariableSyntax
+//@[036:00039) |   | |   |   | └─IdentifierSyntax
+//@[036:00039) |   | |   |   |   └─Token(Identifier) |lol|
+//@[040:00042) |   | |   |   ├─Token(Identifier) |in|
+//@[043:00045) |   | |   |   ├─ArraySyntax
+//@[043:00044) |   | |   |   | ├─Token(LeftSquare) |[|
+//@[044:00045) |   | |   |   | └─Token(RightSquare) |]|
+//@[045:00046) |   | |   |   ├─Token(Colon) |:|
+//@[047:00063) |   | |   |   ├─ObjectSyntax
+//@[047:00048) |   | |   |   | ├─Token(LeftBrace) |{|
+//@[048:00050) |   | |   |   | ├─Token(NewLine) |\r\n|
       
-//@[6:8)         NewLine |\r\n|
+//@[006:00008) |   | |   |   | ├─Token(NewLine) |\r\n|
     }]
-//@[4:5)         RightBrace |}|
-//@[5:6)        RightSquare |]|
-//@[6:8)      NewLine |\r\n|
+//@[004:00005) |   | |   |   | └─Token(RightBrace) |}|
+//@[005:00006) |   | |   |   └─Token(RightSquare) |]|
+//@[006:00008) |   | |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)      RightBrace |}|
-//@[3:5)    NewLine |\r\n|
+//@[002:00003) |   | |   └─Token(RightBrace) |}|
+//@[003:00005) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
-//@[0:325) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:13)  IdentifierSyntax
-//@[9:13)   Identifier |vnet|
-//@[14:60)  StringSyntax
-//@[14:60)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[61:62)  Assignment |=|
-//@[63:325)  ObjectSyntax
-//@[63:64)   LeftBrace |{|
-//@[64:66)   NewLine |\r\n|
+//@[000:00325) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00013) | ├─IdentifierSyntax
+//@[009:00013) | | └─Token(Identifier) |vnet|
+//@[014:00060) | ├─StringSyntax
+//@[014:00060) | | └─Token(StringComplete) |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[061:00062) | ├─Token(Assignment) |=|
+//@[063:00325) | └─ObjectSyntax
+//@[063:00064) |   ├─Token(LeftBrace) |{|
+//@[064:00066) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:256)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:256)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00256) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00256) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     virtualNetworkPeerings: [for item in []: {
-//@[4:234)     ObjectPropertySyntax
-//@[4:26)      IdentifierSyntax
-//@[4:26)       Identifier |virtualNetworkPeerings|
-//@[26:27)      Colon |:|
-//@[28:234)      ForSyntax
-//@[28:29)       LeftSquare |[|
-//@[29:32)       Identifier |for|
-//@[33:37)       LocalVariableSyntax
-//@[33:37)        IdentifierSyntax
-//@[33:37)         Identifier |item|
-//@[38:40)       Identifier |in|
-//@[41:43)       ArraySyntax
-//@[41:42)        LeftSquare |[|
-//@[42:43)        RightSquare |]|
-//@[43:44)       Colon |:|
-//@[45:233)       ObjectSyntax
-//@[45:46)        LeftBrace |{|
-//@[46:48)        NewLine |\r\n|
+//@[004:00234) |   |   ├─ObjectPropertySyntax
+//@[004:00026) |   |   | ├─IdentifierSyntax
+//@[004:00026) |   |   | | └─Token(Identifier) |virtualNetworkPeerings|
+//@[026:00027) |   |   | ├─Token(Colon) |:|
+//@[028:00234) |   |   | └─ForSyntax
+//@[028:00029) |   |   |   ├─Token(LeftSquare) |[|
+//@[029:00032) |   |   |   ├─Token(Identifier) |for|
+//@[033:00037) |   |   |   ├─LocalVariableSyntax
+//@[033:00037) |   |   |   | └─IdentifierSyntax
+//@[033:00037) |   |   |   |   └─Token(Identifier) |item|
+//@[038:00040) |   |   |   ├─Token(Identifier) |in|
+//@[041:00043) |   |   |   ├─ArraySyntax
+//@[041:00042) |   |   |   | ├─Token(LeftSquare) |[|
+//@[042:00043) |   |   |   | └─Token(RightSquare) |]|
+//@[043:00044) |   |   |   ├─Token(Colon) |:|
+//@[045:00233) |   |   |   ├─ObjectSyntax
+//@[045:00046) |   |   |   | ├─Token(LeftBrace) |{|
+//@[046:00048) |   |   |   | ├─Token(NewLine) |\r\n|
         properties: {
-//@[8:178)        ObjectPropertySyntax
-//@[8:18)         IdentifierSyntax
-//@[8:18)          Identifier |properties|
-//@[18:19)         Colon |:|
-//@[20:178)         ObjectSyntax
-//@[20:21)          LeftBrace |{|
-//@[21:23)          NewLine |\r\n|
+//@[008:00178) |   |   |   | ├─ObjectPropertySyntax
+//@[008:00018) |   |   |   | | ├─IdentifierSyntax
+//@[008:00018) |   |   |   | | | └─Token(Identifier) |properties|
+//@[018:00019) |   |   |   | | ├─Token(Colon) |:|
+//@[020:00178) |   |   |   | | └─ObjectSyntax
+//@[020:00021) |   |   |   | |   ├─Token(LeftBrace) |{|
+//@[021:00023) |   |   |   | |   ├─Token(NewLine) |\r\n|
           remoteAddressSpace: {
-//@[10:144)          ObjectPropertySyntax
-//@[10:28)           IdentifierSyntax
-//@[10:28)            Identifier |remoteAddressSpace|
-//@[28:29)           Colon |:|
-//@[30:144)           ObjectSyntax
-//@[30:31)            LeftBrace |{|
-//@[31:33)            NewLine |\r\n|
+//@[010:00144) |   |   |   | |   ├─ObjectPropertySyntax
+//@[010:00028) |   |   |   | |   | ├─IdentifierSyntax
+//@[010:00028) |   |   |   | |   | | └─Token(Identifier) |remoteAddressSpace|
+//@[028:00029) |   |   |   | |   | ├─Token(Colon) |:|
+//@[030:00144) |   |   |   | |   | └─ObjectSyntax
+//@[030:00031) |   |   |   | |   |   ├─Token(LeftBrace) |{|
+//@[031:00033) |   |   |   | |   |   ├─Token(NewLine) |\r\n|
             // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
-//@[67:69)            NewLine |\r\n|
+//@[067:00069) |   |   |   | |   |   ├─Token(NewLine) |\r\n|
             addressPrefixes: 
-//@[12:29)            ObjectPropertySyntax
-//@[12:27)             IdentifierSyntax
-//@[12:27)              Identifier |addressPrefixes|
-//@[27:28)             Colon |:|
-//@[29:29)             SkippedTriviaSyntax
-//@[29:31)            NewLine |\r\n|
+//@[012:00029) |   |   |   | |   |   ├─ObjectPropertySyntax
+//@[012:00027) |   |   |   | |   |   | ├─IdentifierSyntax
+//@[012:00027) |   |   |   | |   |   | | └─Token(Identifier) |addressPrefixes|
+//@[027:00028) |   |   |   | |   |   | ├─Token(Colon) |:|
+//@[029:00029) |   |   |   | |   |   | └─SkippedTriviaSyntax
+//@[029:00031) |   |   |   | |   |   ├─Token(NewLine) |\r\n|
           }
-//@[10:11)            RightBrace |}|
-//@[11:13)          NewLine |\r\n|
+//@[010:00011) |   |   |   | |   |   └─Token(RightBrace) |}|
+//@[011:00013) |   |   |   | |   ├─Token(NewLine) |\r\n|
         }
-//@[8:9)          RightBrace |}|
-//@[9:11)        NewLine |\r\n|
+//@[008:00009) |   |   |   | |   └─Token(RightBrace) |}|
+//@[009:00011) |   |   |   | ├─Token(NewLine) |\r\n|
     }]
-//@[4:5)        RightBrace |}|
-//@[5:6)       RightSquare |]|
-//@[6:8)     NewLine |\r\n|
+//@[004:00005) |   |   |   | └─Token(RightBrace) |}|
+//@[005:00006) |   |   |   └─Token(RightSquare) |]|
+//@[006:00008) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // parent property with 'existing' resource at different scope
-//@[62:64) NewLine |\r\n|
+//@[062:00064) ├─Token(NewLine) |\r\n|
 resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[0:110) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:16)  IdentifierSyntax
-//@[9:16)   Identifier |p1_res1|
-//@[17:53)  StringSyntax
-//@[17:53)   StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
-//@[54:62)  Identifier |existing|
-//@[63:64)  Assignment |=|
-//@[65:110)  ObjectSyntax
-//@[65:66)   LeftBrace |{|
-//@[66:68)   NewLine |\r\n|
+//@[000:00110) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00016) | ├─IdentifierSyntax
+//@[009:00016) | | └─Token(Identifier) |p1_res1|
+//@[017:00053) | ├─StringSyntax
+//@[017:00053) | | └─Token(StringComplete) |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[054:00062) | ├─Token(Identifier) |existing|
+//@[063:00064) | ├─Token(Assignment) |=|
+//@[065:00110) | └─ObjectSyntax
+//@[065:00066) |   ├─Token(LeftBrace) |{|
+//@[066:00068) |   ├─Token(NewLine) |\r\n|
   scope: subscription()
-//@[2:23)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:23)    FunctionCallSyntax
-//@[9:21)     IdentifierSyntax
-//@[9:21)      Identifier |subscription|
-//@[21:22)     LeftParen |(|
-//@[22:23)     RightParen |)|
-//@[23:25)   NewLine |\r\n|
+//@[002:00023) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |scope|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00023) |   | └─FunctionCallSyntax
+//@[009:00021) |   |   ├─IdentifierSyntax
+//@[009:00021) |   |   | └─Token(Identifier) |subscription|
+//@[021:00022) |   |   ├─Token(LeftParen) |(|
+//@[022:00023) |   |   └─Token(RightParen) |)|
+//@[023:00025) |   ├─Token(NewLine) |\r\n|
   name: 'res1'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'res1'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'res1'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
-//@[0:106) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:18)  IdentifierSyntax
-//@[9:18)   Identifier |p1_child1|
-//@[19:62)  StringSyntax
-//@[19:62)   StringComplete |'Microsoft.Rp1/resource1/child1@2020-06-01'|
-//@[63:64)  Assignment |=|
-//@[65:106)  ObjectSyntax
-//@[65:66)   LeftBrace |{|
-//@[66:68)   NewLine |\r\n|
+//@[000:00106) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00018) | ├─IdentifierSyntax
+//@[009:00018) | | └─Token(Identifier) |p1_child1|
+//@[019:00062) | ├─StringSyntax
+//@[019:00062) | | └─Token(StringComplete) |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[063:00064) | ├─Token(Assignment) |=|
+//@[065:00106) | └─ObjectSyntax
+//@[065:00066) |   ├─Token(LeftBrace) |{|
+//@[066:00068) |   ├─Token(NewLine) |\r\n|
   parent: p1_res1
-//@[2:17)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |parent|
-//@[8:9)    Colon |:|
-//@[10:17)    VariableAccessSyntax
-//@[10:17)     IdentifierSyntax
-//@[10:17)      Identifier |p1_res1|
-//@[17:19)   NewLine |\r\n|
+//@[002:00017) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |parent|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00017) |   | └─VariableAccessSyntax
+//@[010:00017) |   |   └─IdentifierSyntax
+//@[010:00017) |   |     └─Token(Identifier) |p1_res1|
+//@[017:00019) |   ├─Token(NewLine) |\r\n|
   name: 'child1'
-//@[2:16)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:16)    StringSyntax
-//@[8:16)     StringComplete |'child1'|
-//@[16:18)   NewLine |\r\n|
+//@[002:00016) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00016) |   | └─StringSyntax
+//@[008:00016) |   |   └─Token(StringComplete) |'child1'|
+//@[016:00018) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // parent property with scope on child resource
-//@[47:49) NewLine |\r\n|
+//@[047:00049) ├─Token(NewLine) |\r\n|
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[0:76) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:16)  IdentifierSyntax
-//@[9:16)   Identifier |p2_res1|
-//@[17:53)  StringSyntax
-//@[17:53)   StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
-//@[54:55)  Assignment |=|
-//@[56:76)  ObjectSyntax
-//@[56:57)   LeftBrace |{|
-//@[57:59)   NewLine |\r\n|
+//@[000:00076) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00016) | ├─IdentifierSyntax
+//@[009:00016) | | └─Token(Identifier) |p2_res1|
+//@[017:00053) | ├─StringSyntax
+//@[017:00053) | | └─Token(StringComplete) |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[054:00055) | ├─Token(Assignment) |=|
+//@[056:00076) | └─ObjectSyntax
+//@[056:00057) |   ├─Token(LeftBrace) |{|
+//@[057:00059) |   ├─Token(NewLine) |\r\n|
   name: 'res1'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'res1'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'res1'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
-//@[0:76) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:16)  IdentifierSyntax
-//@[9:16)   Identifier |p2_res2|
-//@[17:53)  StringSyntax
-//@[17:53)   StringComplete |'Microsoft.Rp2/resource2@2020-06-01'|
-//@[54:55)  Assignment |=|
-//@[56:76)  ObjectSyntax
-//@[56:57)   LeftBrace |{|
-//@[57:59)   NewLine |\r\n|
+//@[000:00076) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00016) | ├─IdentifierSyntax
+//@[009:00016) | | └─Token(Identifier) |p2_res2|
+//@[017:00053) | ├─StringSyntax
+//@[017:00053) | | └─Token(StringComplete) |'Microsoft.Rp2/resource2@2020-06-01'|
+//@[054:00055) | ├─Token(Assignment) |=|
+//@[056:00076) | └─ObjectSyntax
+//@[056:00057) |   ├─Token(LeftBrace) |{|
+//@[057:00059) |   ├─Token(NewLine) |\r\n|
   name: 'res2'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'res2'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'res2'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
-//@[0:127) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:21)  IdentifierSyntax
-//@[9:21)   Identifier |p2_res2child|
-//@[22:65)  StringSyntax
-//@[22:65)   StringComplete |'Microsoft.Rp2/resource2/child2@2020-06-01'|
-//@[66:67)  Assignment |=|
-//@[68:127)  ObjectSyntax
-//@[68:69)   LeftBrace |{|
-//@[69:71)   NewLine |\r\n|
+//@[000:00127) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00021) | ├─IdentifierSyntax
+//@[009:00021) | | └─Token(Identifier) |p2_res2child|
+//@[022:00065) | ├─StringSyntax
+//@[022:00065) | | └─Token(StringComplete) |'Microsoft.Rp2/resource2/child2@2020-06-01'|
+//@[066:00067) | ├─Token(Assignment) |=|
+//@[068:00127) | └─ObjectSyntax
+//@[068:00069) |   ├─Token(LeftBrace) |{|
+//@[069:00071) |   ├─Token(NewLine) |\r\n|
   scope: p2_res1
-//@[2:16)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:16)    VariableAccessSyntax
-//@[9:16)     IdentifierSyntax
-//@[9:16)      Identifier |p2_res1|
-//@[16:18)   NewLine |\r\n|
+//@[002:00016) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |scope|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00016) |   | └─VariableAccessSyntax
+//@[009:00016) |   |   └─IdentifierSyntax
+//@[009:00016) |   |     └─Token(Identifier) |p2_res1|
+//@[016:00018) |   ├─Token(NewLine) |\r\n|
   parent: p2_res2
-//@[2:17)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |parent|
-//@[8:9)    Colon |:|
-//@[10:17)    VariableAccessSyntax
-//@[10:17)     IdentifierSyntax
-//@[10:17)      Identifier |p2_res2|
-//@[17:19)   NewLine |\r\n|
+//@[002:00017) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |parent|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00017) |   | └─VariableAccessSyntax
+//@[010:00017) |   |   └─IdentifierSyntax
+//@[010:00017) |   |     └─Token(Identifier) |p2_res2|
+//@[017:00019) |   ├─Token(NewLine) |\r\n|
   name: 'child2'
-//@[2:16)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:16)    StringSyntax
-//@[8:16)     StringComplete |'child2'|
-//@[16:18)   NewLine |\r\n|
+//@[002:00016) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00016) |   | └─StringSyntax
+//@[008:00016) |   |   └─Token(StringComplete) |'child2'|
+//@[016:00018) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // parent property self-cycle
-//@[29:31) NewLine |\r\n|
+//@[029:00031) ├─Token(NewLine) |\r\n|
 resource p3_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-//@[0:124) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:17)  IdentifierSyntax
-//@[9:17)   Identifier |p3_vmExt|
-//@[18:75)  StringSyntax
-//@[18:75)   StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
-//@[76:77)  Assignment |=|
-//@[78:124)  ObjectSyntax
-//@[78:79)   LeftBrace |{|
-//@[79:81)   NewLine |\r\n|
+//@[000:00124) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00017) | ├─IdentifierSyntax
+//@[009:00017) | | └─Token(Identifier) |p3_vmExt|
+//@[018:00075) | ├─StringSyntax
+//@[018:00075) | | └─Token(StringComplete) |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
+//@[076:00077) | ├─Token(Assignment) |=|
+//@[078:00124) | └─ObjectSyntax
+//@[078:00079) |   ├─Token(LeftBrace) |{|
+//@[079:00081) |   ├─Token(NewLine) |\r\n|
   parent: p3_vmExt
-//@[2:18)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |parent|
-//@[8:9)    Colon |:|
-//@[10:18)    VariableAccessSyntax
-//@[10:18)     IdentifierSyntax
-//@[10:18)      Identifier |p3_vmExt|
-//@[18:20)   NewLine |\r\n|
+//@[002:00018) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |parent|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00018) |   | └─VariableAccessSyntax
+//@[010:00018) |   |   └─IdentifierSyntax
+//@[010:00018) |   |     └─Token(Identifier) |p3_vmExt|
+//@[018:00020) |   ├─Token(NewLine) |\r\n|
   location: 'eastus'
-//@[2:20)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:20)    StringSyntax
-//@[12:20)     StringComplete |'eastus'|
-//@[20:22)   NewLine |\r\n|
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00020) |   | └─StringSyntax
+//@[012:00020) |   |   └─Token(StringComplete) |'eastus'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // parent property 2-cycle
-//@[26:28) NewLine |\r\n|
+//@[026:00028) ├─Token(NewLine) |\r\n|
 resource p4_vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
-//@[0:110) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:14)  IdentifierSyntax
-//@[9:14)   Identifier |p4_vm|
-//@[15:61)  StringSyntax
-//@[15:61)   StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
-//@[62:63)  Assignment |=|
-//@[64:110)  ObjectSyntax
-//@[64:65)   LeftBrace |{|
-//@[65:67)   NewLine |\r\n|
+//@[000:00110) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00014) | ├─IdentifierSyntax
+//@[009:00014) | | └─Token(Identifier) |p4_vm|
+//@[015:00061) | ├─StringSyntax
+//@[015:00061) | | └─Token(StringComplete) |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[062:00063) | ├─Token(Assignment) |=|
+//@[064:00110) | └─ObjectSyntax
+//@[064:00065) |   ├─Token(LeftBrace) |{|
+//@[065:00067) |   ├─Token(NewLine) |\r\n|
   parent: p4_vmExt
-//@[2:18)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |parent|
-//@[8:9)    Colon |:|
-//@[10:18)    VariableAccessSyntax
-//@[10:18)     IdentifierSyntax
-//@[10:18)      Identifier |p4_vmExt|
-//@[18:20)   NewLine |\r\n|
+//@[002:00018) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |parent|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00018) |   | └─VariableAccessSyntax
+//@[010:00018) |   |   └─IdentifierSyntax
+//@[010:00018) |   |     └─Token(Identifier) |p4_vmExt|
+//@[018:00020) |   ├─Token(NewLine) |\r\n|
   location: 'eastus'
-//@[2:20)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:20)    StringSyntax
-//@[12:20)     StringComplete |'eastus'|
-//@[20:22)   NewLine |\r\n|
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00020) |   | └─StringSyntax
+//@[012:00020) |   |   └─Token(StringComplete) |'eastus'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource p4_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-//@[0:121) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:17)  IdentifierSyntax
-//@[9:17)   Identifier |p4_vmExt|
-//@[18:75)  StringSyntax
-//@[18:75)   StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
-//@[76:77)  Assignment |=|
-//@[78:121)  ObjectSyntax
-//@[78:79)   LeftBrace |{|
-//@[79:81)   NewLine |\r\n|
+//@[000:00121) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00017) | ├─IdentifierSyntax
+//@[009:00017) | | └─Token(Identifier) |p4_vmExt|
+//@[018:00075) | ├─StringSyntax
+//@[018:00075) | | └─Token(StringComplete) |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
+//@[076:00077) | ├─Token(Assignment) |=|
+//@[078:00121) | └─ObjectSyntax
+//@[078:00079) |   ├─Token(LeftBrace) |{|
+//@[079:00081) |   ├─Token(NewLine) |\r\n|
   parent: p4_vm
-//@[2:15)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |parent|
-//@[8:9)    Colon |:|
-//@[10:15)    VariableAccessSyntax
-//@[10:15)     IdentifierSyntax
-//@[10:15)      Identifier |p4_vm|
-//@[15:17)   NewLine |\r\n|
+//@[002:00015) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |parent|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00015) |   | └─VariableAccessSyntax
+//@[010:00015) |   |   └─IdentifierSyntax
+//@[010:00015) |   |     └─Token(Identifier) |p4_vm|
+//@[015:00017) |   ├─Token(NewLine) |\r\n|
   location: 'eastus'
-//@[2:20)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:20)    StringSyntax
-//@[12:20)     StringComplete |'eastus'|
-//@[20:22)   NewLine |\r\n|
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00020) |   | └─StringSyntax
+//@[012:00020) |   |   └─Token(StringComplete) |'eastus'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // parent property with invalid child
-//@[37:39) NewLine |\r\n|
+//@[037:00039) ├─Token(NewLine) |\r\n|
 resource p5_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[0:76) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:16)  IdentifierSyntax
-//@[9:16)   Identifier |p5_res1|
-//@[17:53)  StringSyntax
-//@[17:53)   StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
-//@[54:55)  Assignment |=|
-//@[56:76)  ObjectSyntax
-//@[56:57)   LeftBrace |{|
-//@[57:59)   NewLine |\r\n|
+//@[000:00076) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00016) | ├─IdentifierSyntax
+//@[009:00016) | | └─Token(Identifier) |p5_res1|
+//@[017:00053) | ├─StringSyntax
+//@[017:00053) | | └─Token(StringComplete) |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[054:00055) | ├─Token(Assignment) |=|
+//@[056:00076) | └─ObjectSyntax
+//@[056:00057) |   ├─Token(LeftBrace) |{|
+//@[057:00059) |   ├─Token(NewLine) |\r\n|
   name: 'res1'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'res1'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'res1'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource p5_res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
-//@[0:102) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:16)  IdentifierSyntax
-//@[9:16)   Identifier |p5_res2|
-//@[17:60)  StringSyntax
-//@[17:60)   StringComplete |'Microsoft.Rp2/resource2/child2@2020-06-01'|
-//@[61:62)  Assignment |=|
-//@[63:102)  ObjectSyntax
-//@[63:64)   LeftBrace |{|
-//@[64:66)   NewLine |\r\n|
+//@[000:00102) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00016) | ├─IdentifierSyntax
+//@[009:00016) | | └─Token(Identifier) |p5_res2|
+//@[017:00060) | ├─StringSyntax
+//@[017:00060) | | └─Token(StringComplete) |'Microsoft.Rp2/resource2/child2@2020-06-01'|
+//@[061:00062) | ├─Token(Assignment) |=|
+//@[063:00102) | └─ObjectSyntax
+//@[063:00064) |   ├─Token(LeftBrace) |{|
+//@[064:00066) |   ├─Token(NewLine) |\r\n|
   parent: p5_res1
-//@[2:17)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |parent|
-//@[8:9)    Colon |:|
-//@[10:17)    VariableAccessSyntax
-//@[10:17)     IdentifierSyntax
-//@[10:17)      Identifier |p5_res1|
-//@[17:19)   NewLine |\r\n|
+//@[002:00017) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |parent|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00017) |   | └─VariableAccessSyntax
+//@[010:00017) |   |   └─IdentifierSyntax
+//@[010:00017) |   |     └─Token(Identifier) |p5_res1|
+//@[017:00019) |   ├─Token(NewLine) |\r\n|
   name: 'res2'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'res2'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'res2'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // parent property with invalid parent
-//@[38:40) NewLine |\r\n|
+//@[038:00040) ├─Token(NewLine) |\r\n|
 resource p6_res1 '${true}' = {
-//@[0:49) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:16)  IdentifierSyntax
-//@[9:16)   Identifier |p6_res1|
-//@[17:26)  StringSyntax
-//@[17:20)   StringLeftPiece |'${|
-//@[20:24)   BooleanLiteralSyntax
-//@[20:24)    TrueKeyword |true|
-//@[24:26)   StringRightPiece |}'|
-//@[27:28)  Assignment |=|
-//@[29:49)  ObjectSyntax
-//@[29:30)   LeftBrace |{|
-//@[30:32)   NewLine |\r\n|
+//@[000:00049) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00016) | ├─IdentifierSyntax
+//@[009:00016) | | └─Token(Identifier) |p6_res1|
+//@[017:00026) | ├─StringSyntax
+//@[017:00020) | | ├─Token(StringLeftPiece) |'${|
+//@[020:00024) | | ├─BooleanLiteralSyntax
+//@[020:00024) | | | └─Token(TrueKeyword) |true|
+//@[024:00026) | | └─Token(StringRightPiece) |}'|
+//@[027:00028) | ├─Token(Assignment) |=|
+//@[029:00049) | └─ObjectSyntax
+//@[029:00030) |   ├─Token(LeftBrace) |{|
+//@[030:00032) |   ├─Token(NewLine) |\r\n|
   name: 'res1'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'res1'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'res1'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
-//@[0:102) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:16)  IdentifierSyntax
-//@[9:16)   Identifier |p6_res2|
-//@[17:60)  StringSyntax
-//@[17:60)   StringComplete |'Microsoft.Rp1/resource1/child2@2020-06-01'|
-//@[61:62)  Assignment |=|
-//@[63:102)  ObjectSyntax
-//@[63:64)   LeftBrace |{|
-//@[64:66)   NewLine |\r\n|
+//@[000:00102) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00016) | ├─IdentifierSyntax
+//@[009:00016) | | └─Token(Identifier) |p6_res2|
+//@[017:00060) | ├─StringSyntax
+//@[017:00060) | | └─Token(StringComplete) |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+//@[061:00062) | ├─Token(Assignment) |=|
+//@[063:00102) | └─ObjectSyntax
+//@[063:00064) |   ├─Token(LeftBrace) |{|
+//@[064:00066) |   ├─Token(NewLine) |\r\n|
   parent: p6_res1
-//@[2:17)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |parent|
-//@[8:9)    Colon |:|
-//@[10:17)    VariableAccessSyntax
-//@[10:17)     IdentifierSyntax
-//@[10:17)      Identifier |p6_res1|
-//@[17:19)   NewLine |\r\n|
+//@[002:00017) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |parent|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00017) |   | └─VariableAccessSyntax
+//@[010:00017) |   |   └─IdentifierSyntax
+//@[010:00017) |   |     └─Token(Identifier) |p6_res1|
+//@[017:00019) |   ├─Token(NewLine) |\r\n|
   name: 'res2'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'res2'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'res2'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // parent property with incorrectly-formatted name
-//@[50:52) NewLine |\r\n|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 resource p7_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[0:76) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:16)  IdentifierSyntax
-//@[9:16)   Identifier |p7_res1|
-//@[17:53)  StringSyntax
-//@[17:53)   StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
-//@[54:55)  Assignment |=|
-//@[56:76)  ObjectSyntax
-//@[56:57)   LeftBrace |{|
-//@[57:59)   NewLine |\r\n|
+//@[000:00076) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00016) | ├─IdentifierSyntax
+//@[009:00016) | | └─Token(Identifier) |p7_res1|
+//@[017:00053) | ├─StringSyntax
+//@[017:00053) | | └─Token(StringComplete) |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[054:00055) | ├─Token(Assignment) |=|
+//@[056:00076) | └─ObjectSyntax
+//@[056:00057) |   ├─Token(LeftBrace) |{|
+//@[057:00059) |   ├─Token(NewLine) |\r\n|
   name: 'res1'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'res1'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00014) |   | └─StringSyntax
+//@[008:00014) |   |   └─Token(StringComplete) |'res1'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource p7_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
-//@[0:107) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:16)  IdentifierSyntax
-//@[9:16)   Identifier |p7_res2|
-//@[17:60)  StringSyntax
-//@[17:60)   StringComplete |'Microsoft.Rp1/resource1/child2@2020-06-01'|
-//@[61:62)  Assignment |=|
-//@[63:107)  ObjectSyntax
-//@[63:64)   LeftBrace |{|
-//@[64:66)   NewLine |\r\n|
+//@[000:00107) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00016) | ├─IdentifierSyntax
+//@[009:00016) | | └─Token(Identifier) |p7_res2|
+//@[017:00060) | ├─StringSyntax
+//@[017:00060) | | └─Token(StringComplete) |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+//@[061:00062) | ├─Token(Assignment) |=|
+//@[063:00107) | └─ObjectSyntax
+//@[063:00064) |   ├─Token(LeftBrace) |{|
+//@[064:00066) |   ├─Token(NewLine) |\r\n|
   parent: p7_res1
-//@[2:17)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |parent|
-//@[8:9)    Colon |:|
-//@[10:17)    VariableAccessSyntax
-//@[10:17)     IdentifierSyntax
-//@[10:17)      Identifier |p7_res1|
-//@[17:19)   NewLine |\r\n|
+//@[002:00017) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |parent|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00017) |   | └─VariableAccessSyntax
+//@[010:00017) |   |   └─IdentifierSyntax
+//@[010:00017) |   |     └─Token(Identifier) |p7_res1|
+//@[017:00019) |   ├─Token(NewLine) |\r\n|
   name: 'res1/res2'
-//@[2:19)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:19)    StringSyntax
-//@[8:19)     StringComplete |'res1/res2'|
-//@[19:21)   NewLine |\r\n|
+//@[002:00019) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00019) |   | └─StringSyntax
+//@[008:00019) |   |   └─Token(StringComplete) |'res1/res2'|
+//@[019:00021) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
-//@[0:118) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:16)  IdentifierSyntax
-//@[9:16)   Identifier |p7_res3|
-//@[17:60)  StringSyntax
-//@[17:60)   StringComplete |'Microsoft.Rp1/resource1/child2@2020-06-01'|
-//@[61:62)  Assignment |=|
-//@[63:118)  ObjectSyntax
-//@[63:64)   LeftBrace |{|
-//@[64:66)   NewLine |\r\n|
+//@[000:00118) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00016) | ├─IdentifierSyntax
+//@[009:00016) | | └─Token(Identifier) |p7_res3|
+//@[017:00060) | ├─StringSyntax
+//@[017:00060) | | └─Token(StringComplete) |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+//@[061:00062) | ├─Token(Assignment) |=|
+//@[063:00118) | └─ObjectSyntax
+//@[063:00064) |   ├─Token(LeftBrace) |{|
+//@[064:00066) |   ├─Token(NewLine) |\r\n|
   parent: p7_res1
-//@[2:17)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |parent|
-//@[8:9)    Colon |:|
-//@[10:17)    VariableAccessSyntax
-//@[10:17)     IdentifierSyntax
-//@[10:17)      Identifier |p7_res1|
-//@[17:19)   NewLine |\r\n|
+//@[002:00017) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |parent|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00017) |   | └─VariableAccessSyntax
+//@[010:00017) |   |   └─IdentifierSyntax
+//@[010:00017) |   |     └─Token(Identifier) |p7_res1|
+//@[017:00019) |   ├─Token(NewLine) |\r\n|
   name: '${p7_res1.name}/res2'
-//@[2:30)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:30)    StringSyntax
-//@[8:11)     StringLeftPiece |'${|
-//@[11:23)     PropertyAccessSyntax
-//@[11:18)      VariableAccessSyntax
-//@[11:18)       IdentifierSyntax
-//@[11:18)        Identifier |p7_res1|
-//@[18:19)      Dot |.|
-//@[19:23)      IdentifierSyntax
-//@[19:23)       Identifier |name|
-//@[23:30)     StringRightPiece |}/res2'|
-//@[30:32)   NewLine |\r\n|
+//@[002:00030) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00030) |   | └─StringSyntax
+//@[008:00011) |   |   ├─Token(StringLeftPiece) |'${|
+//@[011:00023) |   |   ├─PropertyAccessSyntax
+//@[011:00018) |   |   | ├─VariableAccessSyntax
+//@[011:00018) |   |   | | └─IdentifierSyntax
+//@[011:00018) |   |   | |   └─Token(Identifier) |p7_res1|
+//@[018:00019) |   |   | ├─Token(Dot) |.|
+//@[019:00023) |   |   | └─IdentifierSyntax
+//@[019:00023) |   |   |   └─Token(Identifier) |name|
+//@[023:00030) |   |   └─Token(StringRightPiece) |}/res2'|
+//@[030:00032) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // top-level resource with too many '/' characters
-//@[50:52) NewLine |\r\n|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[0:81) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:16)  IdentifierSyntax
-//@[9:16)   Identifier |p8_res1|
-//@[17:53)  StringSyntax
-//@[17:53)   StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
-//@[54:55)  Assignment |=|
-//@[56:81)  ObjectSyntax
-//@[56:57)   LeftBrace |{|
-//@[57:59)   NewLine |\r\n|
+//@[000:00081) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00016) | ├─IdentifierSyntax
+//@[009:00016) | | └─Token(Identifier) |p8_res1|
+//@[017:00053) | ├─StringSyntax
+//@[017:00053) | | └─Token(StringComplete) |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[054:00055) | ├─Token(Assignment) |=|
+//@[056:00081) | └─ObjectSyntax
+//@[056:00057) |   ├─Token(LeftBrace) |{|
+//@[057:00059) |   ├─Token(NewLine) |\r\n|
   name: 'res1/res2'
-//@[2:19)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:19)    StringSyntax
-//@[8:19)     StringComplete |'res1/res2'|
-//@[19:21)   NewLine |\r\n|
+//@[002:00019) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00019) |   | └─StringSyntax
+//@[008:00019) |   |   └─Token(StringComplete) |'res1/res2'|
+//@[019:00021) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
-//@[0:166) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:28)  IdentifierSyntax
-//@[9:28)   Identifier |existingResProperty|
-//@[29:75)  StringSyntax
-//@[29:75)   StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
-//@[76:84)  Identifier |existing|
-//@[85:86)  Assignment |=|
-//@[87:166)  ObjectSyntax
-//@[87:88)   LeftBrace |{|
-//@[88:90)   NewLine |\r\n|
+//@[000:00166) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00028) | ├─IdentifierSyntax
+//@[009:00028) | | └─Token(Identifier) |existingResProperty|
+//@[029:00075) | ├─StringSyntax
+//@[029:00075) | | └─Token(StringComplete) |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[076:00084) | ├─Token(Identifier) |existing|
+//@[085:00086) | ├─Token(Assignment) |=|
+//@[087:00166) | └─ObjectSyntax
+//@[087:00088) |   ├─Token(LeftBrace) |{|
+//@[088:00090) |   ├─Token(NewLine) |\r\n|
   name: 'existingResProperty'
-//@[2:29)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:29)    StringSyntax
-//@[8:29)     StringComplete |'existingResProperty'|
-//@[29:31)   NewLine |\r\n|
+//@[002:00029) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00029) |   | └─StringSyntax
+//@[008:00029) |   |   └─Token(StringComplete) |'existingResProperty'|
+//@[029:00031) |   ├─Token(NewLine) |\r\n|
   location: 'westeurope'
-//@[2:24)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:24)    StringSyntax
-//@[12:24)     StringComplete |'westeurope'|
-//@[24:26)   NewLine |\r\n|
+//@[002:00024) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00024) |   | └─StringSyntax
+//@[012:00024) |   |   └─Token(StringComplete) |'westeurope'|
+//@[024:00026) |   ├─Token(NewLine) |\r\n|
   properties: {}
-//@[2:16)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:16)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:16)     RightBrace |}|
-//@[16:18)   NewLine |\r\n|
+//@[002:00016) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00016) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00016) |   |   └─Token(RightBrace) |}|
+//@[016:00018) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-//@[0:196) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |invalidExistingLocationRef|
-//@[36:93)  StringSyntax
-//@[36:93)   StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
-//@[94:95)  Assignment |=|
-//@[96:196)  ObjectSyntax
-//@[96:97)   LeftBrace |{|
-//@[97:99)   NewLine |\r\n|
+//@[000:00196) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |invalidExistingLocationRef|
+//@[036:00093) | ├─StringSyntax
+//@[036:00093) | | └─Token(StringComplete) |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
+//@[094:00095) | ├─Token(Assignment) |=|
+//@[096:00196) | └─ObjectSyntax
+//@[096:00097) |   ├─Token(LeftBrace) |{|
+//@[097:00099) |   ├─Token(NewLine) |\r\n|
     parent: existingResProperty
-//@[4:31)   ObjectPropertySyntax
-//@[4:10)    IdentifierSyntax
-//@[4:10)     Identifier |parent|
-//@[10:11)    Colon |:|
-//@[12:31)    VariableAccessSyntax
-//@[12:31)     IdentifierSyntax
-//@[12:31)      Identifier |existingResProperty|
-//@[31:33)   NewLine |\r\n|
+//@[004:00031) |   ├─ObjectPropertySyntax
+//@[004:00010) |   | ├─IdentifierSyntax
+//@[004:00010) |   | | └─Token(Identifier) |parent|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00031) |   | └─VariableAccessSyntax
+//@[012:00031) |   |   └─IdentifierSyntax
+//@[012:00031) |   |     └─Token(Identifier) |existingResProperty|
+//@[031:00033) |   ├─Token(NewLine) |\r\n|
     name: 'myExt'
-//@[4:17)   ObjectPropertySyntax
-//@[4:8)    IdentifierSyntax
-//@[4:8)     Identifier |name|
-//@[8:9)    Colon |:|
-//@[10:17)    StringSyntax
-//@[10:17)     StringComplete |'myExt'|
-//@[17:19)   NewLine |\r\n|
+//@[004:00017) |   ├─ObjectPropertySyntax
+//@[004:00008) |   | ├─IdentifierSyntax
+//@[004:00008) |   | | └─Token(Identifier) |name|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00017) |   | └─StringSyntax
+//@[010:00017) |   |   └─Token(StringComplete) |'myExt'|
+//@[017:00019) |   ├─Token(NewLine) |\r\n|
     location: existingResProperty.location
-//@[4:42)   ObjectPropertySyntax
-//@[4:12)    IdentifierSyntax
-//@[4:12)     Identifier |location|
-//@[12:13)    Colon |:|
-//@[14:42)    PropertyAccessSyntax
-//@[14:33)     VariableAccessSyntax
-//@[14:33)      IdentifierSyntax
-//@[14:33)       Identifier |existingResProperty|
-//@[33:34)     Dot |.|
-//@[34:42)     IdentifierSyntax
-//@[34:42)      Identifier |location|
-//@[42:44)   NewLine |\r\n|
+//@[004:00042) |   ├─ObjectPropertySyntax
+//@[004:00012) |   | ├─IdentifierSyntax
+//@[004:00012) |   | | └─Token(Identifier) |location|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00042) |   | └─PropertyAccessSyntax
+//@[014:00033) |   |   ├─VariableAccessSyntax
+//@[014:00033) |   |   | └─IdentifierSyntax
+//@[014:00033) |   |   |   └─Token(Identifier) |existingResProperty|
+//@[033:00034) |   |   ├─Token(Dot) |.|
+//@[034:00042) |   |   └─IdentifierSyntax
+//@[034:00042) |   |     └─Token(Identifier) |location|
+//@[042:00044) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
-//@[0:259) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |anyTypeInDependsOn|
-//@[28:67)  StringSyntax
-//@[28:67)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[68:69)  Assignment |=|
-//@[70:259)  ObjectSyntax
-//@[70:71)   LeftBrace |{|
-//@[71:73)   NewLine |\r\n|
+//@[000:00259) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |anyTypeInDependsOn|
+//@[028:00067) | ├─StringSyntax
+//@[028:00067) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[068:00069) | ├─Token(Assignment) |=|
+//@[070:00259) | └─ObjectSyntax
+//@[070:00071) |   ├─Token(LeftBrace) |{|
+//@[071:00073) |   ├─Token(NewLine) |\r\n|
   name: 'anyTypeInDependsOn'
-//@[2:28)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:28)    StringSyntax
-//@[8:28)     StringComplete |'anyTypeInDependsOn'|
-//@[28:30)   NewLine |\r\n|
+//@[002:00028) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00028) |   | └─StringSyntax
+//@[008:00028) |   |   └─Token(StringComplete) |'anyTypeInDependsOn'|
+//@[028:00030) |   ├─Token(NewLine) |\r\n|
   location: resourceGroup().location
-//@[2:36)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:36)    PropertyAccessSyntax
-//@[12:27)     FunctionCallSyntax
-//@[12:25)      IdentifierSyntax
-//@[12:25)       Identifier |resourceGroup|
-//@[25:26)      LeftParen |(|
-//@[26:27)      RightParen |)|
-//@[27:28)     Dot |.|
-//@[28:36)     IdentifierSyntax
-//@[28:36)      Identifier |location|
-//@[36:38)   NewLine |\r\n|
+//@[002:00036) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00036) |   | └─PropertyAccessSyntax
+//@[012:00027) |   |   ├─FunctionCallSyntax
+//@[012:00025) |   |   | ├─IdentifierSyntax
+//@[012:00025) |   |   | | └─Token(Identifier) |resourceGroup|
+//@[025:00026) |   |   | ├─Token(LeftParen) |(|
+//@[026:00027) |   |   | └─Token(RightParen) |)|
+//@[027:00028) |   |   ├─Token(Dot) |.|
+//@[028:00036) |   |   └─IdentifierSyntax
+//@[028:00036) |   |     └─Token(Identifier) |location|
+//@[036:00038) |   ├─Token(NewLine) |\r\n|
   dependsOn: [
-//@[2:115)   ObjectPropertySyntax
-//@[2:11)    IdentifierSyntax
-//@[2:11)     Identifier |dependsOn|
-//@[11:12)    Colon |:|
-//@[13:115)    ArraySyntax
-//@[13:14)     LeftSquare |[|
-//@[14:16)     NewLine |\r\n|
+//@[002:00115) |   ├─ObjectPropertySyntax
+//@[002:00011) |   | ├─IdentifierSyntax
+//@[002:00011) |   | | └─Token(Identifier) |dependsOn|
+//@[011:00012) |   | ├─Token(Colon) |:|
+//@[013:00115) |   | └─ArraySyntax
+//@[013:00014) |   |   ├─Token(LeftSquare) |[|
+//@[014:00016) |   |   ├─Token(NewLine) |\r\n|
     any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
-//@[4:70)     ArrayItemSyntax
-//@[4:70)      FunctionCallSyntax
-//@[4:7)       IdentifierSyntax
-//@[4:7)        Identifier |any|
-//@[7:8)       LeftParen |(|
-//@[8:69)       FunctionArgumentSyntax
-//@[8:69)        PropertyAccessSyntax
-//@[8:45)         PropertyAccessSyntax
-//@[8:34)          VariableAccessSyntax
-//@[8:34)           IdentifierSyntax
-//@[8:34)            Identifier |invalidExistingLocationRef|
-//@[34:35)          Dot |.|
-//@[35:45)          IdentifierSyntax
-//@[35:45)           Identifier |properties|
-//@[45:46)         Dot |.|
-//@[46:69)         IdentifierSyntax
-//@[46:69)          Identifier |autoUpgradeMinorVersion|
-//@[69:70)       RightParen |)|
-//@[70:72)     NewLine |\r\n|
+//@[004:00070) |   |   ├─ArrayItemSyntax
+//@[004:00070) |   |   | └─FunctionCallSyntax
+//@[004:00007) |   |   |   ├─IdentifierSyntax
+//@[004:00007) |   |   |   | └─Token(Identifier) |any|
+//@[007:00008) |   |   |   ├─Token(LeftParen) |(|
+//@[008:00069) |   |   |   ├─FunctionArgumentSyntax
+//@[008:00069) |   |   |   | └─PropertyAccessSyntax
+//@[008:00045) |   |   |   |   ├─PropertyAccessSyntax
+//@[008:00034) |   |   |   |   | ├─VariableAccessSyntax
+//@[008:00034) |   |   |   |   | | └─IdentifierSyntax
+//@[008:00034) |   |   |   |   | |   └─Token(Identifier) |invalidExistingLocationRef|
+//@[034:00035) |   |   |   |   | ├─Token(Dot) |.|
+//@[035:00045) |   |   |   |   | └─IdentifierSyntax
+//@[035:00045) |   |   |   |   |   └─Token(Identifier) |properties|
+//@[045:00046) |   |   |   |   ├─Token(Dot) |.|
+//@[046:00069) |   |   |   |   └─IdentifierSyntax
+//@[046:00069) |   |   |   |     └─Token(Identifier) |autoUpgradeMinorVersion|
+//@[069:00070) |   |   |   └─Token(RightParen) |)|
+//@[070:00072) |   |   ├─Token(NewLine) |\r\n|
     's'
-//@[4:7)     ArrayItemSyntax
-//@[4:7)      StringSyntax
-//@[4:7)       StringComplete |'s'|
-//@[7:9)     NewLine |\r\n|
+//@[004:00007) |   |   ├─ArrayItemSyntax
+//@[004:00007) |   |   | └─StringSyntax
+//@[004:00007) |   |   |   └─Token(StringComplete) |'s'|
+//@[007:00009) |   |   ├─Token(NewLine) |\r\n|
     any(true)
-//@[4:13)     ArrayItemSyntax
-//@[4:13)      FunctionCallSyntax
-//@[4:7)       IdentifierSyntax
-//@[4:7)        Identifier |any|
-//@[7:8)       LeftParen |(|
-//@[8:12)       FunctionArgumentSyntax
-//@[8:12)        BooleanLiteralSyntax
-//@[8:12)         TrueKeyword |true|
-//@[12:13)       RightParen |)|
-//@[13:15)     NewLine |\r\n|
+//@[004:00013) |   |   ├─ArrayItemSyntax
+//@[004:00013) |   |   | └─FunctionCallSyntax
+//@[004:00007) |   |   |   ├─IdentifierSyntax
+//@[004:00007) |   |   |   | └─Token(Identifier) |any|
+//@[007:00008) |   |   |   ├─Token(LeftParen) |(|
+//@[008:00012) |   |   |   ├─FunctionArgumentSyntax
+//@[008:00012) |   |   |   | └─BooleanLiteralSyntax
+//@[008:00012) |   |   |   |   └─Token(TrueKeyword) |true|
+//@[012:00013) |   |   |   └─Token(RightParen) |)|
+//@[013:00015) |   |   ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)     RightSquare |]|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightSquare) |]|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
-//@[0:98) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:24)  IdentifierSyntax
-//@[9:24)   Identifier |anyTypeInParent|
-//@[25:70)  StringSyntax
-//@[25:70)   StringComplete |'Microsoft.Network/dnsZones/CNAME@2018-05-01'|
-//@[71:72)  Assignment |=|
-//@[73:98)  ObjectSyntax
-//@[73:74)   LeftBrace |{|
-//@[74:76)   NewLine |\r\n|
+//@[000:00098) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00024) | ├─IdentifierSyntax
+//@[009:00024) | | └─Token(Identifier) |anyTypeInParent|
+//@[025:00070) | ├─StringSyntax
+//@[025:00070) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones/CNAME@2018-05-01'|
+//@[071:00072) | ├─Token(Assignment) |=|
+//@[073:00098) | └─ObjectSyntax
+//@[073:00074) |   ├─Token(LeftBrace) |{|
+//@[074:00076) |   ├─Token(NewLine) |\r\n|
   parent: any(true)
-//@[2:19)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |parent|
-//@[8:9)    Colon |:|
-//@[10:19)    FunctionCallSyntax
-//@[10:13)     IdentifierSyntax
-//@[10:13)      Identifier |any|
-//@[13:14)     LeftParen |(|
-//@[14:18)     FunctionArgumentSyntax
-//@[14:18)      BooleanLiteralSyntax
-//@[14:18)       TrueKeyword |true|
-//@[18:19)     RightParen |)|
-//@[19:21)   NewLine |\r\n|
+//@[002:00019) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |parent|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00019) |   | └─FunctionCallSyntax
+//@[010:00013) |   |   ├─IdentifierSyntax
+//@[010:00013) |   |   | └─Token(Identifier) |any|
+//@[013:00014) |   |   ├─Token(LeftParen) |(|
+//@[014:00018) |   |   ├─FunctionArgumentSyntax
+//@[014:00018) |   |   | └─BooleanLiteralSyntax
+//@[014:00018) |   |   |   └─Token(TrueKeyword) |true|
+//@[018:00019) |   |   └─Token(RightParen) |)|
+//@[019:00021) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
-//@[0:121) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:28)  IdentifierSyntax
-//@[9:28)   Identifier |anyTypeInParentLoop|
-//@[29:74)  StringSyntax
-//@[29:74)   StringComplete |'Microsoft.Network/dnsZones/CNAME@2018-05-01'|
-//@[75:76)  Assignment |=|
-//@[77:121)  ForSyntax
-//@[77:78)   LeftSquare |[|
-//@[78:81)   Identifier |for|
-//@[82:87)   LocalVariableSyntax
-//@[82:87)    IdentifierSyntax
-//@[82:87)     Identifier |thing|
-//@[88:90)   Identifier |in|
-//@[91:93)   ArraySyntax
-//@[91:92)    LeftSquare |[|
-//@[92:93)    RightSquare |]|
-//@[93:94)   Colon |:|
-//@[95:120)   ObjectSyntax
-//@[95:96)    LeftBrace |{|
-//@[96:98)    NewLine |\r\n|
+//@[000:00121) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00028) | ├─IdentifierSyntax
+//@[009:00028) | | └─Token(Identifier) |anyTypeInParentLoop|
+//@[029:00074) | ├─StringSyntax
+//@[029:00074) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones/CNAME@2018-05-01'|
+//@[075:00076) | ├─Token(Assignment) |=|
+//@[077:00121) | └─ForSyntax
+//@[077:00078) |   ├─Token(LeftSquare) |[|
+//@[078:00081) |   ├─Token(Identifier) |for|
+//@[082:00087) |   ├─LocalVariableSyntax
+//@[082:00087) |   | └─IdentifierSyntax
+//@[082:00087) |   |   └─Token(Identifier) |thing|
+//@[088:00090) |   ├─Token(Identifier) |in|
+//@[091:00093) |   ├─ArraySyntax
+//@[091:00092) |   | ├─Token(LeftSquare) |[|
+//@[092:00093) |   | └─Token(RightSquare) |]|
+//@[093:00094) |   ├─Token(Colon) |:|
+//@[095:00120) |   ├─ObjectSyntax
+//@[095:00096) |   | ├─Token(LeftBrace) |{|
+//@[096:00098) |   | ├─Token(NewLine) |\r\n|
   parent: any(true)
-//@[2:19)    ObjectPropertySyntax
-//@[2:8)     IdentifierSyntax
-//@[2:8)      Identifier |parent|
-//@[8:9)     Colon |:|
-//@[10:19)     FunctionCallSyntax
-//@[10:13)      IdentifierSyntax
-//@[10:13)       Identifier |any|
-//@[13:14)      LeftParen |(|
-//@[14:18)      FunctionArgumentSyntax
-//@[14:18)       BooleanLiteralSyntax
-//@[14:18)        TrueKeyword |true|
-//@[18:19)      RightParen |)|
-//@[19:21)    NewLine |\r\n|
+//@[002:00019) |   | ├─ObjectPropertySyntax
+//@[002:00008) |   | | ├─IdentifierSyntax
+//@[002:00008) |   | | | └─Token(Identifier) |parent|
+//@[008:00009) |   | | ├─Token(Colon) |:|
+//@[010:00019) |   | | └─FunctionCallSyntax
+//@[010:00013) |   | |   ├─IdentifierSyntax
+//@[010:00013) |   | |   | └─Token(Identifier) |any|
+//@[013:00014) |   | |   ├─Token(LeftParen) |(|
+//@[014:00018) |   | |   ├─FunctionArgumentSyntax
+//@[014:00018) |   | |   | └─BooleanLiteralSyntax
+//@[014:00018) |   | |   |   └─Token(TrueKeyword) |true|
+//@[018:00019) |   | |   └─Token(RightParen) |)|
+//@[019:00021) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 resource anyTypeInScope 'Microsoft.Authorization/locks@2016-09-01' = {
-//@[0:115) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:23)  IdentifierSyntax
-//@[9:23)   Identifier |anyTypeInScope|
-//@[24:66)  StringSyntax
-//@[24:66)   StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
-//@[67:68)  Assignment |=|
-//@[69:115)  ObjectSyntax
-//@[69:70)   LeftBrace |{|
-//@[70:72)   NewLine |\r\n|
+//@[000:00115) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00023) | ├─IdentifierSyntax
+//@[009:00023) | | └─Token(Identifier) |anyTypeInScope|
+//@[024:00066) | ├─StringSyntax
+//@[024:00066) | | └─Token(StringComplete) |'Microsoft.Authorization/locks@2016-09-01'|
+//@[067:00068) | ├─Token(Assignment) |=|
+//@[069:00115) | └─ObjectSyntax
+//@[069:00070) |   ├─Token(LeftBrace) |{|
+//@[070:00072) |   ├─Token(NewLine) |\r\n|
   scope: any(invalidExistingLocationRef)
-//@[2:40)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:40)    FunctionCallSyntax
-//@[9:12)     IdentifierSyntax
-//@[9:12)      Identifier |any|
-//@[12:13)     LeftParen |(|
-//@[13:39)     FunctionArgumentSyntax
-//@[13:39)      VariableAccessSyntax
-//@[13:39)       IdentifierSyntax
-//@[13:39)        Identifier |invalidExistingLocationRef|
-//@[39:40)     RightParen |)|
-//@[40:42)   NewLine |\r\n|
+//@[002:00040) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |scope|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00040) |   | └─FunctionCallSyntax
+//@[009:00012) |   |   ├─IdentifierSyntax
+//@[009:00012) |   |   | └─Token(Identifier) |any|
+//@[012:00013) |   |   ├─Token(LeftParen) |(|
+//@[013:00039) |   |   ├─FunctionArgumentSyntax
+//@[013:00039) |   |   | └─VariableAccessSyntax
+//@[013:00039) |   |   |   └─IdentifierSyntax
+//@[013:00039) |   |   |     └─Token(Identifier) |invalidExistingLocationRef|
+//@[039:00040) |   |   └─Token(RightParen) |)|
+//@[040:00042) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = if(true) {
-//@[0:135) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:34)  IdentifierSyntax
-//@[9:34)   Identifier |anyTypeInScopeConditional|
-//@[35:77)  StringSyntax
-//@[35:77)   StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
-//@[78:79)  Assignment |=|
-//@[80:135)  IfConditionSyntax
-//@[80:82)   Identifier |if|
-//@[82:88)   ParenthesizedExpressionSyntax
-//@[82:83)    LeftParen |(|
-//@[83:87)    BooleanLiteralSyntax
-//@[83:87)     TrueKeyword |true|
-//@[87:88)    RightParen |)|
-//@[89:135)   ObjectSyntax
-//@[89:90)    LeftBrace |{|
-//@[90:92)    NewLine |\r\n|
+//@[000:00135) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00034) | ├─IdentifierSyntax
+//@[009:00034) | | └─Token(Identifier) |anyTypeInScopeConditional|
+//@[035:00077) | ├─StringSyntax
+//@[035:00077) | | └─Token(StringComplete) |'Microsoft.Authorization/locks@2016-09-01'|
+//@[078:00079) | ├─Token(Assignment) |=|
+//@[080:00135) | └─IfConditionSyntax
+//@[080:00082) |   ├─Token(Identifier) |if|
+//@[082:00088) |   ├─ParenthesizedExpressionSyntax
+//@[082:00083) |   | ├─Token(LeftParen) |(|
+//@[083:00087) |   | ├─BooleanLiteralSyntax
+//@[083:00087) |   | | └─Token(TrueKeyword) |true|
+//@[087:00088) |   | └─Token(RightParen) |)|
+//@[089:00135) |   └─ObjectSyntax
+//@[089:00090) |     ├─Token(LeftBrace) |{|
+//@[090:00092) |     ├─Token(NewLine) |\r\n|
   scope: any(invalidExistingLocationRef)
-//@[2:40)    ObjectPropertySyntax
-//@[2:7)     IdentifierSyntax
-//@[2:7)      Identifier |scope|
-//@[7:8)     Colon |:|
-//@[9:40)     FunctionCallSyntax
-//@[9:12)      IdentifierSyntax
-//@[9:12)       Identifier |any|
-//@[12:13)      LeftParen |(|
-//@[13:39)      FunctionArgumentSyntax
-//@[13:39)       VariableAccessSyntax
-//@[13:39)        IdentifierSyntax
-//@[13:39)         Identifier |invalidExistingLocationRef|
-//@[39:40)      RightParen |)|
-//@[40:42)    NewLine |\r\n|
+//@[002:00040) |     ├─ObjectPropertySyntax
+//@[002:00007) |     | ├─IdentifierSyntax
+//@[002:00007) |     | | └─Token(Identifier) |scope|
+//@[007:00008) |     | ├─Token(Colon) |:|
+//@[009:00040) |     | └─FunctionCallSyntax
+//@[009:00012) |     |   ├─IdentifierSyntax
+//@[009:00012) |     |   | └─Token(Identifier) |any|
+//@[012:00013) |     |   ├─Token(LeftParen) |(|
+//@[013:00039) |     |   ├─FunctionArgumentSyntax
+//@[013:00039) |     |   | └─VariableAccessSyntax
+//@[013:00039) |     |   |   └─IdentifierSyntax
+//@[013:00039) |     |   |     └─Token(Identifier) |invalidExistingLocationRef|
+//@[039:00040) |     |   └─Token(RightParen) |)|
+//@[040:00042) |     ├─Token(NewLine) |\r\n|
 }
-//@[0:1)    RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |     └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = {
-//@[0:132) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:31)  IdentifierSyntax
-//@[9:31)   Identifier |anyTypeInExistingScope|
-//@[32:76)  StringSyntax
-//@[32:76)   StringComplete |'Microsoft.Network/dnsZones/AAAA@2018-05-01'|
-//@[77:85)  Identifier |existing|
-//@[86:87)  Assignment |=|
-//@[88:132)  ObjectSyntax
-//@[88:89)   LeftBrace |{|
-//@[89:91)   NewLine |\r\n|
+//@[000:00132) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00031) | ├─IdentifierSyntax
+//@[009:00031) | | └─Token(Identifier) |anyTypeInExistingScope|
+//@[032:00076) | ├─StringSyntax
+//@[032:00076) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones/AAAA@2018-05-01'|
+//@[077:00085) | ├─Token(Identifier) |existing|
+//@[086:00087) | ├─Token(Assignment) |=|
+//@[088:00132) | └─ObjectSyntax
+//@[088:00089) |   ├─Token(LeftBrace) |{|
+//@[089:00091) |   ├─Token(NewLine) |\r\n|
   parent: any('')
-//@[2:17)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |parent|
-//@[8:9)    Colon |:|
-//@[10:17)    FunctionCallSyntax
-//@[10:13)     IdentifierSyntax
-//@[10:13)      Identifier |any|
-//@[13:14)     LeftParen |(|
-//@[14:16)     FunctionArgumentSyntax
-//@[14:16)      StringSyntax
-//@[14:16)       StringComplete |''|
-//@[16:17)     RightParen |)|
-//@[17:19)   NewLine |\r\n|
+//@[002:00017) |   ├─ObjectPropertySyntax
+//@[002:00008) |   | ├─IdentifierSyntax
+//@[002:00008) |   | | └─Token(Identifier) |parent|
+//@[008:00009) |   | ├─Token(Colon) |:|
+//@[010:00017) |   | └─FunctionCallSyntax
+//@[010:00013) |   |   ├─IdentifierSyntax
+//@[010:00013) |   |   | └─Token(Identifier) |any|
+//@[013:00014) |   |   ├─Token(LeftParen) |(|
+//@[014:00016) |   |   ├─FunctionArgumentSyntax
+//@[014:00016) |   |   | └─StringSyntax
+//@[014:00016) |   |   |   └─Token(StringComplete) |''|
+//@[016:00017) |   |   └─Token(RightParen) |)|
+//@[017:00019) |   ├─Token(NewLine) |\r\n|
   scope: any(false)
-//@[2:19)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scope|
-//@[7:8)    Colon |:|
-//@[9:19)    FunctionCallSyntax
-//@[9:12)     IdentifierSyntax
-//@[9:12)      Identifier |any|
-//@[12:13)     LeftParen |(|
-//@[13:18)     FunctionArgumentSyntax
-//@[13:18)      BooleanLiteralSyntax
-//@[13:18)       FalseKeyword |false|
-//@[18:19)     RightParen |)|
-//@[19:21)   NewLine |\r\n|
+//@[002:00019) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |scope|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00019) |   | └─FunctionCallSyntax
+//@[009:00012) |   |   ├─IdentifierSyntax
+//@[009:00012) |   |   | └─Token(Identifier) |any|
+//@[012:00013) |   |   ├─Token(LeftParen) |(|
+//@[013:00018) |   |   ├─FunctionArgumentSyntax
+//@[013:00018) |   |   | └─BooleanLiteralSyntax
+//@[013:00018) |   |   |   └─Token(FalseKeyword) |false|
+//@[018:00019) |   |   └─Token(RightParen) |)|
+//@[019:00021) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = [for thing in []: {
-//@[0:155) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |anyTypeInExistingScopeLoop|
-//@[36:80)  StringSyntax
-//@[36:80)   StringComplete |'Microsoft.Network/dnsZones/AAAA@2018-05-01'|
-//@[81:89)  Identifier |existing|
-//@[90:91)  Assignment |=|
-//@[92:155)  ForSyntax
-//@[92:93)   LeftSquare |[|
-//@[93:96)   Identifier |for|
-//@[97:102)   LocalVariableSyntax
-//@[97:102)    IdentifierSyntax
-//@[97:102)     Identifier |thing|
-//@[103:105)   Identifier |in|
-//@[106:108)   ArraySyntax
-//@[106:107)    LeftSquare |[|
-//@[107:108)    RightSquare |]|
-//@[108:109)   Colon |:|
-//@[110:154)   ObjectSyntax
-//@[110:111)    LeftBrace |{|
-//@[111:113)    NewLine |\r\n|
+//@[000:00155) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |anyTypeInExistingScopeLoop|
+//@[036:00080) | ├─StringSyntax
+//@[036:00080) | | └─Token(StringComplete) |'Microsoft.Network/dnsZones/AAAA@2018-05-01'|
+//@[081:00089) | ├─Token(Identifier) |existing|
+//@[090:00091) | ├─Token(Assignment) |=|
+//@[092:00155) | └─ForSyntax
+//@[092:00093) |   ├─Token(LeftSquare) |[|
+//@[093:00096) |   ├─Token(Identifier) |for|
+//@[097:00102) |   ├─LocalVariableSyntax
+//@[097:00102) |   | └─IdentifierSyntax
+//@[097:00102) |   |   └─Token(Identifier) |thing|
+//@[103:00105) |   ├─Token(Identifier) |in|
+//@[106:00108) |   ├─ArraySyntax
+//@[106:00107) |   | ├─Token(LeftSquare) |[|
+//@[107:00108) |   | └─Token(RightSquare) |]|
+//@[108:00109) |   ├─Token(Colon) |:|
+//@[110:00154) |   ├─ObjectSyntax
+//@[110:00111) |   | ├─Token(LeftBrace) |{|
+//@[111:00113) |   | ├─Token(NewLine) |\r\n|
   parent: any('')
-//@[2:17)    ObjectPropertySyntax
-//@[2:8)     IdentifierSyntax
-//@[2:8)      Identifier |parent|
-//@[8:9)     Colon |:|
-//@[10:17)     FunctionCallSyntax
-//@[10:13)      IdentifierSyntax
-//@[10:13)       Identifier |any|
-//@[13:14)      LeftParen |(|
-//@[14:16)      FunctionArgumentSyntax
-//@[14:16)       StringSyntax
-//@[14:16)        StringComplete |''|
-//@[16:17)      RightParen |)|
-//@[17:19)    NewLine |\r\n|
+//@[002:00017) |   | ├─ObjectPropertySyntax
+//@[002:00008) |   | | ├─IdentifierSyntax
+//@[002:00008) |   | | | └─Token(Identifier) |parent|
+//@[008:00009) |   | | ├─Token(Colon) |:|
+//@[010:00017) |   | | └─FunctionCallSyntax
+//@[010:00013) |   | |   ├─IdentifierSyntax
+//@[010:00013) |   | |   | └─Token(Identifier) |any|
+//@[013:00014) |   | |   ├─Token(LeftParen) |(|
+//@[014:00016) |   | |   ├─FunctionArgumentSyntax
+//@[014:00016) |   | |   | └─StringSyntax
+//@[014:00016) |   | |   |   └─Token(StringComplete) |''|
+//@[016:00017) |   | |   └─Token(RightParen) |)|
+//@[017:00019) |   | ├─Token(NewLine) |\r\n|
   scope: any(false)
-//@[2:19)    ObjectPropertySyntax
-//@[2:7)     IdentifierSyntax
-//@[2:7)      Identifier |scope|
-//@[7:8)     Colon |:|
-//@[9:19)     FunctionCallSyntax
-//@[9:12)      IdentifierSyntax
-//@[9:12)       Identifier |any|
-//@[12:13)      LeftParen |(|
-//@[13:18)      FunctionArgumentSyntax
-//@[13:18)       BooleanLiteralSyntax
-//@[13:18)        FalseKeyword |false|
-//@[18:19)      RightParen |)|
-//@[19:21)    NewLine |\r\n|
+//@[002:00019) |   | ├─ObjectPropertySyntax
+//@[002:00007) |   | | ├─IdentifierSyntax
+//@[002:00007) |   | | | └─Token(Identifier) |scope|
+//@[007:00008) |   | | ├─Token(Colon) |:|
+//@[009:00019) |   | | └─FunctionCallSyntax
+//@[009:00012) |   | |   ├─IdentifierSyntax
+//@[009:00012) |   | |   | └─Token(Identifier) |any|
+//@[012:00013) |   | |   ├─Token(LeftParen) |(|
+//@[013:00018) |   | |   ├─FunctionArgumentSyntax
+//@[013:00018) |   | |   | └─BooleanLiteralSyntax
+//@[013:00018) |   | |   |   └─Token(FalseKeyword) |false|
+//@[018:00019) |   | |   └─Token(RightParen) |)|
+//@[019:00021) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-05-01' = {
-//@[0:131) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:35)  IdentifierSyntax
-//@[9:35)   Identifier |tenantLevelResourceBlocked|
-//@[36:86)  StringSyntax
-//@[36:86)   StringComplete |'Microsoft.Management/managementGroups@2020-05-01'|
-//@[87:88)  Assignment |=|
-//@[89:131)  ObjectSyntax
-//@[89:90)   LeftBrace |{|
-//@[90:92)   NewLine |\r\n|
+//@[000:00131) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00035) | ├─IdentifierSyntax
+//@[009:00035) | | └─Token(Identifier) |tenantLevelResourceBlocked|
+//@[036:00086) | ├─StringSyntax
+//@[036:00086) | | └─Token(StringComplete) |'Microsoft.Management/managementGroups@2020-05-01'|
+//@[087:00088) | ├─Token(Assignment) |=|
+//@[089:00131) | └─ObjectSyntax
+//@[089:00090) |   ├─Token(LeftBrace) |{|
+//@[090:00092) |   ├─Token(NewLine) |\r\n|
   name: 'tenantLevelResourceBlocked'
-//@[2:36)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:36)    StringSyntax
-//@[8:36)     StringComplete |'tenantLevelResourceBlocked'|
-//@[36:38)   NewLine |\r\n|
+//@[002:00036) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00036) |   | └─StringSyntax
+//@[008:00036) |   |   └─Token(StringComplete) |'tenantLevelResourceBlocked'|
+//@[036:00038) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(15,36,37) -> resourceTypes
-//@[45:47) NewLine |\r\n|
+//@[045:00047) ├─Token(NewLine) |\r\n|
 resource comp1 'Microsoft.Resources/'
-//@[0:37) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:14)  IdentifierSyntax
-//@[9:14)   Identifier |comp1|
-//@[15:37)  StringSyntax
-//@[15:37)   StringComplete |'Microsoft.Resources/'|
-//@[37:37)  SkippedTriviaSyntax
-//@[37:37)  SkippedTriviaSyntax
-//@[37:41) NewLine |\r\n\r\n|
+//@[000:00037) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00014) | ├─IdentifierSyntax
+//@[009:00014) | | └─Token(Identifier) |comp1|
+//@[015:00037) | ├─StringSyntax
+//@[015:00037) | | └─Token(StringComplete) |'Microsoft.Resources/'|
+//@[037:00037) | ├─SkippedTriviaSyntax
+//@[037:00037) | └─SkippedTriviaSyntax
+//@[037:00041) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(15,16,17) -> resourceTypes
-//@[45:47) NewLine |\r\n|
+//@[045:00047) ├─Token(NewLine) |\r\n|
 resource comp2 ''
-//@[0:17) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:14)  IdentifierSyntax
-//@[9:14)   Identifier |comp2|
-//@[15:17)  StringSyntax
-//@[15:17)   StringComplete |''|
-//@[17:17)  SkippedTriviaSyntax
-//@[17:17)  SkippedTriviaSyntax
-//@[17:21) NewLine |\r\n\r\n|
+//@[000:00017) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00014) | ├─IdentifierSyntax
+//@[009:00014) | | └─Token(Identifier) |comp2|
+//@[015:00017) | ├─StringSyntax
+//@[015:00017) | | └─Token(StringComplete) |''|
+//@[017:00017) | ├─SkippedTriviaSyntax
+//@[017:00017) | └─SkippedTriviaSyntax
+//@[017:00021) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(38) -> resourceTypes
-//@[39:41) NewLine |\r\n|
+//@[039:00041) ├─Token(NewLine) |\r\n|
 resource comp3 'Microsoft.Resources/t'
-//@[0:38) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:14)  IdentifierSyntax
-//@[9:14)   Identifier |comp3|
-//@[15:38)  StringSyntax
-//@[15:38)   StringComplete |'Microsoft.Resources/t'|
-//@[38:38)  SkippedTriviaSyntax
-//@[38:38)  SkippedTriviaSyntax
-//@[38:42) NewLine |\r\n\r\n|
+//@[000:00038) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00014) | ├─IdentifierSyntax
+//@[009:00014) | | └─Token(Identifier) |comp3|
+//@[015:00038) | ├─StringSyntax
+//@[015:00038) | | └─Token(StringComplete) |'Microsoft.Resources/t'|
+//@[038:00038) | ├─SkippedTriviaSyntax
+//@[038:00038) | └─SkippedTriviaSyntax
+//@[038:00042) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(40) -> resourceTypes
-//@[39:41) NewLine |\r\n|
+//@[039:00041) ├─Token(NewLine) |\r\n|
 resource comp4 'Microsoft.Resources/t/v'
-//@[0:40) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:14)  IdentifierSyntax
-//@[9:14)   Identifier |comp4|
-//@[15:40)  StringSyntax
-//@[15:40)   StringComplete |'Microsoft.Resources/t/v'|
-//@[40:40)  SkippedTriviaSyntax
-//@[40:40)  SkippedTriviaSyntax
-//@[40:44) NewLine |\r\n\r\n|
+//@[000:00040) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00014) | ├─IdentifierSyntax
+//@[009:00014) | | └─Token(Identifier) |comp4|
+//@[015:00040) | ├─StringSyntax
+//@[015:00040) | | └─Token(StringComplete) |'Microsoft.Resources/t/v'|
+//@[040:00040) | ├─SkippedTriviaSyntax
+//@[040:00040) | └─SkippedTriviaSyntax
+//@[040:00044) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(49) -> resourceTypes
-//@[39:41) NewLine |\r\n|
+//@[039:00041) ├─Token(NewLine) |\r\n|
 resource comp5 'Microsoft.Storage/storageAccounts'
-//@[0:50) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:14)  IdentifierSyntax
-//@[9:14)   Identifier |comp5|
-//@[15:50)  StringSyntax
-//@[15:50)   StringComplete |'Microsoft.Storage/storageAccounts'|
-//@[50:50)  SkippedTriviaSyntax
-//@[50:50)  SkippedTriviaSyntax
-//@[50:54) NewLine |\r\n\r\n|
+//@[000:00050) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00014) | ├─IdentifierSyntax
+//@[009:00014) | | └─Token(Identifier) |comp5|
+//@[015:00050) | ├─StringSyntax
+//@[015:00050) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts'|
+//@[050:00050) | ├─SkippedTriviaSyntax
+//@[050:00050) | └─SkippedTriviaSyntax
+//@[050:00054) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(50) -> storageAccountsResourceTypes
-//@[54:56) NewLine |\r\n|
+//@[054:00056) ├─Token(NewLine) |\r\n|
 resource comp6 'Microsoft.Storage/storageAccounts@'
-//@[0:51) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:14)  IdentifierSyntax
-//@[9:14)   Identifier |comp6|
-//@[15:51)  StringSyntax
-//@[15:51)   StringComplete |'Microsoft.Storage/storageAccounts@'|
-//@[51:51)  SkippedTriviaSyntax
-//@[51:51)  SkippedTriviaSyntax
-//@[51:55) NewLine |\r\n\r\n|
+//@[000:00051) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00014) | ├─IdentifierSyntax
+//@[009:00014) | | └─Token(Identifier) |comp6|
+//@[015:00051) | ├─StringSyntax
+//@[015:00051) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@'|
+//@[051:00051) | ├─SkippedTriviaSyntax
+//@[051:00051) | └─SkippedTriviaSyntax
+//@[051:00055) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(52) -> templateSpecsResourceTypes
-//@[52:54) NewLine |\r\n|
+//@[052:00054) ├─Token(NewLine) |\r\n|
 resource comp7 'Microsoft.Resources/templateSpecs@20'
-//@[0:53) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:14)  IdentifierSyntax
-//@[9:14)   Identifier |comp7|
-//@[15:53)  StringSyntax
-//@[15:53)   StringComplete |'Microsoft.Resources/templateSpecs@20'|
-//@[53:53)  SkippedTriviaSyntax
-//@[53:53)  SkippedTriviaSyntax
-//@[53:57) NewLine |\r\n\r\n|
+//@[000:00053) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00014) | ├─IdentifierSyntax
+//@[009:00014) | | └─Token(Identifier) |comp7|
+//@[015:00053) | ├─StringSyntax
+//@[015:00053) | | └─Token(StringComplete) |'Microsoft.Resources/templateSpecs@20'|
+//@[053:00053) | ├─SkippedTriviaSyntax
+//@[053:00053) | └─SkippedTriviaSyntax
+//@[053:00057) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(60,61) -> virtualNetworksResourceTypes
-//@[57:59) NewLine |\r\n|
+//@[057:00059) ├─Token(NewLine) |\r\n|
 resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'
-//@[0:61) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:14)  IdentifierSyntax
-//@[9:14)   Identifier |comp8|
-//@[15:61)  StringSyntax
-//@[15:61)   StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[61:61)  SkippedTriviaSyntax
-//@[61:61)  SkippedTriviaSyntax
-//@[61:67) NewLine |\r\n\r\n\r\n|
+//@[000:00061) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00014) | ├─IdentifierSyntax
+//@[009:00014) | | └─Token(Identifier) |comp8|
+//@[015:00061) | ├─StringSyntax
+//@[015:00061) | | └─Token(StringComplete) |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[061:00061) | ├─SkippedTriviaSyntax
+//@[061:00061) | └─SkippedTriviaSyntax
+//@[061:00067) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
 // issue #3000
-//@[14:16) NewLine |\r\n|
+//@[014:00016) ├─Token(NewLine) |\r\n|
 resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
-//@[0:453) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |issue3000LogicApp1|
-//@[28:66)  StringSyntax
-//@[28:66)   StringComplete |'Microsoft.Logic/workflows@2019-05-01'|
-//@[67:68)  Assignment |=|
-//@[69:453)  ObjectSyntax
-//@[69:70)   LeftBrace |{|
-//@[70:72)   NewLine |\r\n|
+//@[000:00453) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |issue3000LogicApp1|
+//@[028:00066) | ├─StringSyntax
+//@[028:00066) | | └─Token(StringComplete) |'Microsoft.Logic/workflows@2019-05-01'|
+//@[067:00068) | ├─Token(Assignment) |=|
+//@[069:00453) | └─ObjectSyntax
+//@[069:00070) |   ├─Token(LeftBrace) |{|
+//@[070:00072) |   ├─Token(NewLine) |\r\n|
   name: 'issue3000LogicApp1'
-//@[2:28)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:28)    StringSyntax
-//@[8:28)     StringComplete |'issue3000LogicApp1'|
-//@[28:30)   NewLine |\r\n|
+//@[002:00028) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00028) |   | └─StringSyntax
+//@[008:00028) |   |   └─Token(StringComplete) |'issue3000LogicApp1'|
+//@[028:00030) |   ├─Token(NewLine) |\r\n|
   location: resourceGroup().location
-//@[2:36)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:36)    PropertyAccessSyntax
-//@[12:27)     FunctionCallSyntax
-//@[12:25)      IdentifierSyntax
-//@[12:25)       Identifier |resourceGroup|
-//@[25:26)      LeftParen |(|
-//@[26:27)      RightParen |)|
-//@[27:28)     Dot |.|
-//@[28:36)     IdentifierSyntax
-//@[28:36)      Identifier |location|
-//@[36:38)   NewLine |\r\n|
+//@[002:00036) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00036) |   | └─PropertyAccessSyntax
+//@[012:00027) |   |   ├─FunctionCallSyntax
+//@[012:00025) |   |   | ├─IdentifierSyntax
+//@[012:00025) |   |   | | └─Token(Identifier) |resourceGroup|
+//@[025:00026) |   |   | ├─Token(LeftParen) |(|
+//@[026:00027) |   |   | └─Token(RightParen) |)|
+//@[027:00028) |   |   ├─Token(Dot) |.|
+//@[028:00036) |   |   └─IdentifierSyntax
+//@[028:00036) |   |     └─Token(Identifier) |location|
+//@[036:00038) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:62)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:62)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00062) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00062) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     state: 'Enabled'
-//@[4:20)     ObjectPropertySyntax
-//@[4:9)      IdentifierSyntax
-//@[4:9)       Identifier |state|
-//@[9:10)      Colon |:|
-//@[11:20)      StringSyntax
-//@[11:20)       StringComplete |'Enabled'|
-//@[20:22)     NewLine |\r\n|
+//@[004:00020) |   |   ├─ObjectPropertySyntax
+//@[004:00009) |   |   | ├─IdentifierSyntax
+//@[004:00009) |   |   | | └─Token(Identifier) |state|
+//@[009:00010) |   |   | ├─Token(Colon) |:|
+//@[011:00020) |   |   | └─StringSyntax
+//@[011:00020) |   |   |   └─Token(StringComplete) |'Enabled'|
+//@[020:00022) |   |   ├─Token(NewLine) |\r\n|
     definition: ''
-//@[4:18)     ObjectPropertySyntax
-//@[4:14)      IdentifierSyntax
-//@[4:14)       Identifier |definition|
-//@[14:15)      Colon |:|
-//@[16:18)      StringSyntax
-//@[16:18)       StringComplete |''|
-//@[18:20)     NewLine |\r\n|
+//@[004:00018) |   |   ├─ObjectPropertySyntax
+//@[004:00014) |   |   | ├─IdentifierSyntax
+//@[004:00014) |   |   | | └─Token(Identifier) |definition|
+//@[014:00015) |   |   | ├─Token(Colon) |:|
+//@[016:00018) |   |   | └─StringSyntax
+//@[016:00018) |   |   |   └─Token(StringComplete) |''|
+//@[018:00020) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
   identity: {
-//@[2:46)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |identity|
-//@[10:11)    Colon |:|
-//@[12:46)    ObjectSyntax
-//@[12:13)     LeftBrace |{|
-//@[13:15)     NewLine |\r\n|
+//@[002:00046) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |identity|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00046) |   | └─ObjectSyntax
+//@[012:00013) |   |   ├─Token(LeftBrace) |{|
+//@[013:00015) |   |   ├─Token(NewLine) |\r\n|
     type: 'SystemAssigned'
-//@[4:26)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |type|
-//@[8:9)      Colon |:|
-//@[10:26)      StringSyntax
-//@[10:26)       StringComplete |'SystemAssigned'|
-//@[26:28)     NewLine |\r\n|
+//@[004:00026) |   |   ├─ObjectPropertySyntax
+//@[004:00008) |   |   | ├─IdentifierSyntax
+//@[004:00008) |   |   | | └─Token(Identifier) |type|
+//@[008:00009) |   |   | ├─Token(Colon) |:|
+//@[010:00026) |   |   | └─StringSyntax
+//@[010:00026) |   |   |   └─Token(StringComplete) |'SystemAssigned'|
+//@[026:00028) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
   extendedLocation: {}
-//@[2:22)   ObjectPropertySyntax
-//@[2:18)    IdentifierSyntax
-//@[2:18)     Identifier |extendedLocation|
-//@[18:19)    Colon |:|
-//@[20:22)    ObjectSyntax
-//@[20:21)     LeftBrace |{|
-//@[21:22)     RightBrace |}|
-//@[22:24)   NewLine |\r\n|
+//@[002:00022) |   ├─ObjectPropertySyntax
+//@[002:00018) |   | ├─IdentifierSyntax
+//@[002:00018) |   | | └─Token(Identifier) |extendedLocation|
+//@[018:00019) |   | ├─Token(Colon) |:|
+//@[020:00022) |   | └─ObjectSyntax
+//@[020:00021) |   |   ├─Token(LeftBrace) |{|
+//@[021:00022) |   |   └─Token(RightBrace) |}|
+//@[022:00024) |   ├─Token(NewLine) |\r\n|
   sku: {}
-//@[2:9)   ObjectPropertySyntax
-//@[2:5)    IdentifierSyntax
-//@[2:5)     Identifier |sku|
-//@[5:6)    Colon |:|
-//@[7:9)    ObjectSyntax
-//@[7:8)     LeftBrace |{|
-//@[8:9)     RightBrace |}|
-//@[9:11)   NewLine |\r\n|
+//@[002:00009) |   ├─ObjectPropertySyntax
+//@[002:00005) |   | ├─IdentifierSyntax
+//@[002:00005) |   | | └─Token(Identifier) |sku|
+//@[005:00006) |   | ├─Token(Colon) |:|
+//@[007:00009) |   | └─ObjectSyntax
+//@[007:00008) |   |   ├─Token(LeftBrace) |{|
+//@[008:00009) |   |   └─Token(RightBrace) |}|
+//@[009:00011) |   ├─Token(NewLine) |\r\n|
   kind: 'V1'
-//@[2:12)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[6:7)    Colon |:|
-//@[8:12)    StringSyntax
-//@[8:12)     StringComplete |'V1'|
-//@[12:14)   NewLine |\r\n|
+//@[002:00012) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00012) |   | └─StringSyntax
+//@[008:00012) |   |   └─Token(StringComplete) |'V1'|
+//@[012:00014) |   ├─Token(NewLine) |\r\n|
   managedBy: 'string'
-//@[2:21)   ObjectPropertySyntax
-//@[2:11)    IdentifierSyntax
-//@[2:11)     Identifier |managedBy|
-//@[11:12)    Colon |:|
-//@[13:21)    StringSyntax
-//@[13:21)     StringComplete |'string'|
-//@[21:23)   NewLine |\r\n|
+//@[002:00021) |   ├─ObjectPropertySyntax
+//@[002:00011) |   | ├─IdentifierSyntax
+//@[002:00011) |   | | └─Token(Identifier) |managedBy|
+//@[011:00012) |   | ├─Token(Colon) |:|
+//@[013:00021) |   | └─StringSyntax
+//@[013:00021) |   |   └─Token(StringComplete) |'string'|
+//@[021:00023) |   ├─Token(NewLine) |\r\n|
   mangedByExtended: [
-//@[2:48)   ObjectPropertySyntax
-//@[2:18)    IdentifierSyntax
-//@[2:18)     Identifier |mangedByExtended|
-//@[18:19)    Colon |:|
-//@[20:48)    ArraySyntax
-//@[20:21)     LeftSquare |[|
-//@[21:23)     NewLine |\r\n|
+//@[002:00048) |   ├─ObjectPropertySyntax
+//@[002:00018) |   | ├─IdentifierSyntax
+//@[002:00018) |   | | └─Token(Identifier) |mangedByExtended|
+//@[018:00019) |   | ├─Token(Colon) |:|
+//@[020:00048) |   | └─ArraySyntax
+//@[020:00021) |   |   ├─Token(LeftSquare) |[|
+//@[021:00023) |   |   ├─Token(NewLine) |\r\n|
    'str1'
-//@[3:9)     ArrayItemSyntax
-//@[3:9)      StringSyntax
-//@[3:9)       StringComplete |'str1'|
-//@[9:11)     NewLine |\r\n|
+//@[003:00009) |   |   ├─ArrayItemSyntax
+//@[003:00009) |   |   | └─StringSyntax
+//@[003:00009) |   |   |   └─Token(StringComplete) |'str1'|
+//@[009:00011) |   |   ├─Token(NewLine) |\r\n|
    'str2'
-//@[3:9)     ArrayItemSyntax
-//@[3:9)      StringSyntax
-//@[3:9)       StringComplete |'str2'|
-//@[9:11)     NewLine |\r\n|
+//@[003:00009) |   |   ├─ArrayItemSyntax
+//@[003:00009) |   |   | └─StringSyntax
+//@[003:00009) |   |   |   └─Token(StringComplete) |'str2'|
+//@[009:00011) |   |   ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)     RightSquare |]|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightSquare) |]|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
   zones: [
-//@[2:37)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |zones|
-//@[7:8)    Colon |:|
-//@[9:37)    ArraySyntax
-//@[9:10)     LeftSquare |[|
-//@[10:12)     NewLine |\r\n|
+//@[002:00037) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |zones|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00037) |   | └─ArraySyntax
+//@[009:00010) |   |   ├─Token(LeftSquare) |[|
+//@[010:00012) |   |   ├─Token(NewLine) |\r\n|
    'str1'
-//@[3:9)     ArrayItemSyntax
-//@[3:9)      StringSyntax
-//@[3:9)       StringComplete |'str1'|
-//@[9:11)     NewLine |\r\n|
+//@[003:00009) |   |   ├─ArrayItemSyntax
+//@[003:00009) |   |   | └─StringSyntax
+//@[003:00009) |   |   |   └─Token(StringComplete) |'str1'|
+//@[009:00011) |   |   ├─Token(NewLine) |\r\n|
    'str2'
-//@[3:9)     ArrayItemSyntax
-//@[3:9)      StringSyntax
-//@[3:9)       StringComplete |'str2'|
-//@[9:11)     NewLine |\r\n|
+//@[003:00009) |   |   ├─ArrayItemSyntax
+//@[003:00009) |   |   | └─StringSyntax
+//@[003:00009) |   |   |   └─Token(StringComplete) |'str2'|
+//@[009:00011) |   |   ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)     RightSquare |]|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightSquare) |]|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
   plan: {}
-//@[2:10)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |plan|
-//@[6:7)    Colon |:|
-//@[8:10)    ObjectSyntax
-//@[8:9)     LeftBrace |{|
-//@[9:10)     RightBrace |}|
-//@[10:12)   NewLine |\r\n|
+//@[002:00010) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |plan|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00010) |   | └─ObjectSyntax
+//@[008:00009) |   |   ├─Token(LeftBrace) |{|
+//@[009:00010) |   |   └─Token(RightBrace) |}|
+//@[010:00012) |   ├─Token(NewLine) |\r\n|
   eTag: ''
-//@[2:10)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |eTag|
-//@[6:7)    Colon |:|
-//@[8:10)    StringSyntax
-//@[8:10)     StringComplete |''|
-//@[10:12)   NewLine |\r\n|
+//@[002:00010) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |eTag|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00010) |   | └─StringSyntax
+//@[008:00010) |   |   └─Token(StringComplete) |''|
+//@[010:00012) |   ├─Token(NewLine) |\r\n|
   scale: {}  
-//@[2:11)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scale|
-//@[7:8)    Colon |:|
-//@[9:11)    ObjectSyntax
-//@[9:10)     LeftBrace |{|
-//@[10:11)     RightBrace |}|
-//@[13:15)   NewLine |\r\n|
+//@[002:00011) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |scale|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00011) |   | └─ObjectSyntax
+//@[009:00010) |   |   ├─Token(LeftBrace) |{|
+//@[010:00011) |   |   └─Token(RightBrace) |}|
+//@[013:00015) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
-//@[0:452) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:27)  IdentifierSyntax
-//@[9:27)   Identifier |issue3000LogicApp2|
-//@[28:66)  StringSyntax
-//@[28:66)   StringComplete |'Microsoft.Logic/workflows@2019-05-01'|
-//@[67:68)  Assignment |=|
-//@[69:452)  ObjectSyntax
-//@[69:70)   LeftBrace |{|
-//@[70:72)   NewLine |\r\n|
+//@[000:00452) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00027) | ├─IdentifierSyntax
+//@[009:00027) | | └─Token(Identifier) |issue3000LogicApp2|
+//@[028:00066) | ├─StringSyntax
+//@[028:00066) | | └─Token(StringComplete) |'Microsoft.Logic/workflows@2019-05-01'|
+//@[067:00068) | ├─Token(Assignment) |=|
+//@[069:00452) | └─ObjectSyntax
+//@[069:00070) |   ├─Token(LeftBrace) |{|
+//@[070:00072) |   ├─Token(NewLine) |\r\n|
   name: 'issue3000LogicApp2'
-//@[2:28)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:28)    StringSyntax
-//@[8:28)     StringComplete |'issue3000LogicApp2'|
-//@[28:30)   NewLine |\r\n|
+//@[002:00028) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00028) |   | └─StringSyntax
+//@[008:00028) |   |   └─Token(StringComplete) |'issue3000LogicApp2'|
+//@[028:00030) |   ├─Token(NewLine) |\r\n|
   location: resourceGroup().location
-//@[2:36)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:36)    PropertyAccessSyntax
-//@[12:27)     FunctionCallSyntax
-//@[12:25)      IdentifierSyntax
-//@[12:25)       Identifier |resourceGroup|
-//@[25:26)      LeftParen |(|
-//@[26:27)      RightParen |)|
-//@[27:28)     Dot |.|
-//@[28:36)     IdentifierSyntax
-//@[28:36)      Identifier |location|
-//@[36:38)   NewLine |\r\n|
+//@[002:00036) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00036) |   | └─PropertyAccessSyntax
+//@[012:00027) |   |   ├─FunctionCallSyntax
+//@[012:00025) |   |   | ├─IdentifierSyntax
+//@[012:00025) |   |   | | └─Token(Identifier) |resourceGroup|
+//@[025:00026) |   |   | ├─Token(LeftParen) |(|
+//@[026:00027) |   |   | └─Token(RightParen) |)|
+//@[027:00028) |   |   ├─Token(Dot) |.|
+//@[028:00036) |   |   └─IdentifierSyntax
+//@[028:00036) |   |     └─Token(Identifier) |location|
+//@[036:00038) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:62)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:62)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00062) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00062) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     state: 'Enabled'
-//@[4:20)     ObjectPropertySyntax
-//@[4:9)      IdentifierSyntax
-//@[4:9)       Identifier |state|
-//@[9:10)      Colon |:|
-//@[11:20)      StringSyntax
-//@[11:20)       StringComplete |'Enabled'|
-//@[20:22)     NewLine |\r\n|
+//@[004:00020) |   |   ├─ObjectPropertySyntax
+//@[004:00009) |   |   | ├─IdentifierSyntax
+//@[004:00009) |   |   | | └─Token(Identifier) |state|
+//@[009:00010) |   |   | ├─Token(Colon) |:|
+//@[011:00020) |   |   | └─StringSyntax
+//@[011:00020) |   |   |   └─Token(StringComplete) |'Enabled'|
+//@[020:00022) |   |   ├─Token(NewLine) |\r\n|
     definition: ''
-//@[4:18)     ObjectPropertySyntax
-//@[4:14)      IdentifierSyntax
-//@[4:14)       Identifier |definition|
-//@[14:15)      Colon |:|
-//@[16:18)      StringSyntax
-//@[16:18)       StringComplete |''|
-//@[18:20)     NewLine |\r\n|
+//@[004:00018) |   |   ├─ObjectPropertySyntax
+//@[004:00014) |   |   | ├─IdentifierSyntax
+//@[004:00014) |   |   | | └─Token(Identifier) |definition|
+//@[014:00015) |   |   | ├─Token(Colon) |:|
+//@[016:00018) |   |   | └─StringSyntax
+//@[016:00018) |   |   |   └─Token(StringComplete) |''|
+//@[018:00020) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
   identity: 'SystemAssigned'
-//@[2:28)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |identity|
-//@[10:11)    Colon |:|
-//@[12:28)    StringSyntax
-//@[12:28)     StringComplete |'SystemAssigned'|
-//@[28:30)   NewLine |\r\n|
+//@[002:00028) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |identity|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00028) |   | └─StringSyntax
+//@[012:00028) |   |   └─Token(StringComplete) |'SystemAssigned'|
+//@[028:00030) |   ├─Token(NewLine) |\r\n|
   extendedLocation: 'eastus'
-//@[2:28)   ObjectPropertySyntax
-//@[2:18)    IdentifierSyntax
-//@[2:18)     Identifier |extendedLocation|
-//@[18:19)    Colon |:|
-//@[20:28)    StringSyntax
-//@[20:28)     StringComplete |'eastus'|
-//@[28:30)   NewLine |\r\n|
+//@[002:00028) |   ├─ObjectPropertySyntax
+//@[002:00018) |   | ├─IdentifierSyntax
+//@[002:00018) |   | | └─Token(Identifier) |extendedLocation|
+//@[018:00019) |   | ├─Token(Colon) |:|
+//@[020:00028) |   | └─StringSyntax
+//@[020:00028) |   |   └─Token(StringComplete) |'eastus'|
+//@[028:00030) |   ├─Token(NewLine) |\r\n|
   sku: 'Basic'
-//@[2:14)   ObjectPropertySyntax
-//@[2:5)    IdentifierSyntax
-//@[2:5)     Identifier |sku|
-//@[5:6)    Colon |:|
-//@[7:14)    StringSyntax
-//@[7:14)     StringComplete |'Basic'|
-//@[14:16)   NewLine |\r\n|
+//@[002:00014) |   ├─ObjectPropertySyntax
+//@[002:00005) |   | ├─IdentifierSyntax
+//@[002:00005) |   | | └─Token(Identifier) |sku|
+//@[005:00006) |   | ├─Token(Colon) |:|
+//@[007:00014) |   | └─StringSyntax
+//@[007:00014) |   |   └─Token(StringComplete) |'Basic'|
+//@[014:00016) |   ├─Token(NewLine) |\r\n|
   kind: {
-//@[2:30)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[6:7)    Colon |:|
-//@[8:30)    ObjectSyntax
-//@[8:9)     LeftBrace |{|
-//@[9:11)     NewLine |\r\n|
+//@[002:00030) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00030) |   | └─ObjectSyntax
+//@[008:00009) |   |   ├─Token(LeftBrace) |{|
+//@[009:00011) |   |   ├─Token(NewLine) |\r\n|
     name: 'V1'
-//@[4:14)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |name|
-//@[8:9)      Colon |:|
-//@[10:14)      StringSyntax
-//@[10:14)       StringComplete |'V1'|
-//@[14:16)     NewLine |\r\n|
+//@[004:00014) |   |   ├─ObjectPropertySyntax
+//@[004:00008) |   |   | ├─IdentifierSyntax
+//@[004:00008) |   |   | | └─Token(Identifier) |name|
+//@[008:00009) |   |   | ├─Token(Colon) |:|
+//@[010:00014) |   |   | └─StringSyntax
+//@[010:00014) |   |   |   └─Token(StringComplete) |'V1'|
+//@[014:00016) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
   managedBy: {}
-//@[2:15)   ObjectPropertySyntax
-//@[2:11)    IdentifierSyntax
-//@[2:11)     Identifier |managedBy|
-//@[11:12)    Colon |:|
-//@[13:15)    ObjectSyntax
-//@[13:14)     LeftBrace |{|
-//@[14:15)     RightBrace |}|
-//@[15:17)   NewLine |\r\n|
+//@[002:00015) |   ├─ObjectPropertySyntax
+//@[002:00011) |   | ├─IdentifierSyntax
+//@[002:00011) |   | | └─Token(Identifier) |managedBy|
+//@[011:00012) |   | ├─Token(Colon) |:|
+//@[013:00015) |   | └─ObjectSyntax
+//@[013:00014) |   |   ├─Token(LeftBrace) |{|
+//@[014:00015) |   |   └─Token(RightBrace) |}|
+//@[015:00017) |   ├─Token(NewLine) |\r\n|
   mangedByExtended: [
-//@[2:40)   ObjectPropertySyntax
-//@[2:18)    IdentifierSyntax
-//@[2:18)     Identifier |mangedByExtended|
-//@[18:19)    Colon |:|
-//@[20:40)    ArraySyntax
-//@[20:21)     LeftSquare |[|
-//@[21:23)     NewLine |\r\n|
+//@[002:00040) |   ├─ObjectPropertySyntax
+//@[002:00018) |   | ├─IdentifierSyntax
+//@[002:00018) |   | | └─Token(Identifier) |mangedByExtended|
+//@[018:00019) |   | ├─Token(Colon) |:|
+//@[020:00040) |   | └─ArraySyntax
+//@[020:00021) |   |   ├─Token(LeftSquare) |[|
+//@[021:00023) |   |   ├─Token(NewLine) |\r\n|
    {}
-//@[3:5)     ArrayItemSyntax
-//@[3:5)      ObjectSyntax
-//@[3:4)       LeftBrace |{|
-//@[4:5)       RightBrace |}|
-//@[5:7)     NewLine |\r\n|
+//@[003:00005) |   |   ├─ArrayItemSyntax
+//@[003:00005) |   |   | └─ObjectSyntax
+//@[003:00004) |   |   |   ├─Token(LeftBrace) |{|
+//@[004:00005) |   |   |   └─Token(RightBrace) |}|
+//@[005:00007) |   |   ├─Token(NewLine) |\r\n|
    {}
-//@[3:5)     ArrayItemSyntax
-//@[3:5)      ObjectSyntax
-//@[3:4)       LeftBrace |{|
-//@[4:5)       RightBrace |}|
-//@[5:7)     NewLine |\r\n|
+//@[003:00005) |   |   ├─ArrayItemSyntax
+//@[003:00005) |   |   | └─ObjectSyntax
+//@[003:00004) |   |   |   ├─Token(LeftBrace) |{|
+//@[004:00005) |   |   |   └─Token(RightBrace) |}|
+//@[005:00007) |   |   ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)     RightSquare |]|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightSquare) |]|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
   zones: [
-//@[2:29)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |zones|
-//@[7:8)    Colon |:|
-//@[9:29)    ArraySyntax
-//@[9:10)     LeftSquare |[|
-//@[10:12)     NewLine |\r\n|
+//@[002:00029) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |zones|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00029) |   | └─ArraySyntax
+//@[009:00010) |   |   ├─Token(LeftSquare) |[|
+//@[010:00012) |   |   ├─Token(NewLine) |\r\n|
    {}
-//@[3:5)     ArrayItemSyntax
-//@[3:5)      ObjectSyntax
-//@[3:4)       LeftBrace |{|
-//@[4:5)       RightBrace |}|
-//@[5:7)     NewLine |\r\n|
+//@[003:00005) |   |   ├─ArrayItemSyntax
+//@[003:00005) |   |   | └─ObjectSyntax
+//@[003:00004) |   |   |   ├─Token(LeftBrace) |{|
+//@[004:00005) |   |   |   └─Token(RightBrace) |}|
+//@[005:00007) |   |   ├─Token(NewLine) |\r\n|
    {}
-//@[3:5)     ArrayItemSyntax
-//@[3:5)      ObjectSyntax
-//@[3:4)       LeftBrace |{|
-//@[4:5)       RightBrace |}|
-//@[5:7)     NewLine |\r\n|
+//@[003:00005) |   |   ├─ArrayItemSyntax
+//@[003:00005) |   |   | └─ObjectSyntax
+//@[003:00004) |   |   |   ├─Token(LeftBrace) |{|
+//@[004:00005) |   |   |   └─Token(RightBrace) |}|
+//@[005:00007) |   |   ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)     RightSquare |]|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightSquare) |]|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
   plan: ''
-//@[2:10)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |plan|
-//@[6:7)    Colon |:|
-//@[8:10)    StringSyntax
-//@[8:10)     StringComplete |''|
-//@[10:12)   NewLine |\r\n|
+//@[002:00010) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |plan|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00010) |   | └─StringSyntax
+//@[008:00010) |   |   └─Token(StringComplete) |''|
+//@[010:00012) |   ├─Token(NewLine) |\r\n|
   eTag: {}
-//@[2:10)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |eTag|
-//@[6:7)    Colon |:|
-//@[8:10)    ObjectSyntax
-//@[8:9)     LeftBrace |{|
-//@[9:10)     RightBrace |}|
-//@[10:12)   NewLine |\r\n|
+//@[002:00010) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |eTag|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00010) |   | └─ObjectSyntax
+//@[008:00009) |   |   ├─Token(LeftBrace) |{|
+//@[009:00010) |   |   └─Token(RightBrace) |}|
+//@[010:00012) |   ├─Token(NewLine) |\r\n|
   scale: [
-//@[2:21)   ObjectPropertySyntax
-//@[2:7)    IdentifierSyntax
-//@[2:7)     Identifier |scale|
-//@[7:8)    Colon |:|
-//@[9:21)    ArraySyntax
-//@[9:10)     LeftSquare |[|
-//@[10:12)     NewLine |\r\n|
+//@[002:00021) |   ├─ObjectPropertySyntax
+//@[002:00007) |   | ├─IdentifierSyntax
+//@[002:00007) |   | | └─Token(Identifier) |scale|
+//@[007:00008) |   | ├─Token(Colon) |:|
+//@[009:00021) |   | └─ArraySyntax
+//@[009:00010) |   |   ├─Token(LeftSquare) |[|
+//@[010:00012) |   |   ├─Token(NewLine) |\r\n|
   {}
-//@[2:4)     ArrayItemSyntax
-//@[2:4)      ObjectSyntax
-//@[2:3)       LeftBrace |{|
-//@[3:4)       RightBrace |}|
-//@[4:6)     NewLine |\r\n|
+//@[002:00004) |   |   ├─ArrayItemSyntax
+//@[002:00004) |   |   | └─ObjectSyntax
+//@[002:00003) |   |   |   ├─Token(LeftBrace) |{|
+//@[003:00004) |   |   |   └─Token(RightBrace) |}|
+//@[004:00006) |   |   ├─Token(NewLine) |\r\n|
   ]  
-//@[2:3)     RightSquare |]|
-//@[5:7)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightSquare) |]|
+//@[005:00007) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-//@[0:234) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:21)  IdentifierSyntax
-//@[9:21)   Identifier |issue3000stg|
-//@[22:68)  StringSyntax
-//@[22:68)   StringComplete |'Microsoft.Storage/storageAccounts@2021-04-01'|
-//@[69:70)  Assignment |=|
-//@[71:234)  ObjectSyntax
-//@[71:72)   LeftBrace |{|
-//@[72:74)   NewLine |\r\n|
+//@[000:00234) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00021) | ├─IdentifierSyntax
+//@[009:00021) | | └─Token(Identifier) |issue3000stg|
+//@[022:00068) | ├─StringSyntax
+//@[022:00068) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2021-04-01'|
+//@[069:00070) | ├─Token(Assignment) |=|
+//@[071:00234) | └─ObjectSyntax
+//@[071:00072) |   ├─Token(LeftBrace) |{|
+//@[072:00074) |   ├─Token(NewLine) |\r\n|
   name: 'issue3000stg'
-//@[2:22)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:22)    StringSyntax
-//@[8:22)     StringComplete |'issue3000stg'|
-//@[22:24)   NewLine |\r\n|
+//@[002:00022) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00022) |   | └─StringSyntax
+//@[008:00022) |   |   └─Token(StringComplete) |'issue3000stg'|
+//@[022:00024) |   ├─Token(NewLine) |\r\n|
   kind: 'StorageV2'
-//@[2:19)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[6:7)    Colon |:|
-//@[8:19)    StringSyntax
-//@[8:19)     StringComplete |'StorageV2'|
-//@[19:21)   NewLine |\r\n|
+//@[002:00019) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00019) |   | └─StringSyntax
+//@[008:00019) |   |   └─Token(StringComplete) |'StorageV2'|
+//@[019:00021) |   ├─Token(NewLine) |\r\n|
   location: 'West US'
-//@[2:21)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:21)    StringSyntax
-//@[12:21)     StringComplete |'West US'|
-//@[21:23)   NewLine |\r\n|
+//@[002:00021) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00021) |   | └─StringSyntax
+//@[012:00021) |   |   └─Token(StringComplete) |'West US'|
+//@[021:00023) |   ├─Token(NewLine) |\r\n|
   sku: {
-//@[2:42)   ObjectPropertySyntax
-//@[2:5)    IdentifierSyntax
-//@[2:5)     Identifier |sku|
-//@[5:6)    Colon |:|
-//@[7:42)    ObjectSyntax
-//@[7:8)     LeftBrace |{|
-//@[8:10)     NewLine |\r\n|
+//@[002:00042) |   ├─ObjectPropertySyntax
+//@[002:00005) |   | ├─IdentifierSyntax
+//@[002:00005) |   | | └─Token(Identifier) |sku|
+//@[005:00006) |   | ├─Token(Colon) |:|
+//@[007:00042) |   | └─ObjectSyntax
+//@[007:00008) |   |   ├─Token(LeftBrace) |{|
+//@[008:00010) |   |   ├─Token(NewLine) |\r\n|
     name: 'Premium_LRS'    
-//@[4:23)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |name|
-//@[8:9)      Colon |:|
-//@[10:23)      StringSyntax
-//@[10:23)       StringComplete |'Premium_LRS'|
-//@[27:29)     NewLine |\r\n|
+//@[004:00023) |   |   ├─ObjectPropertySyntax
+//@[004:00008) |   |   | ├─IdentifierSyntax
+//@[004:00008) |   |   | | └─Token(Identifier) |name|
+//@[008:00009) |   |   | ├─Token(Colon) |:|
+//@[010:00023) |   |   | └─StringSyntax
+//@[010:00023) |   |   |   └─Token(StringComplete) |'Premium_LRS'|
+//@[027:00029) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
   madeUpProperty: {}
-//@[2:20)   ObjectPropertySyntax
-//@[2:16)    IdentifierSyntax
-//@[2:16)     Identifier |madeUpProperty|
-//@[16:17)    Colon |:|
-//@[18:20)    ObjectSyntax
-//@[18:19)     LeftBrace |{|
-//@[19:20)     RightBrace |}|
-//@[20:22)   NewLine |\r\n|
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00016) |   | ├─IdentifierSyntax
+//@[002:00016) |   | | └─Token(Identifier) |madeUpProperty|
+//@[016:00017) |   | ├─Token(Colon) |:|
+//@[018:00020) |   | └─ObjectSyntax
+//@[018:00019) |   |   ├─Token(LeftBrace) |{|
+//@[019:00020) |   |   └─Token(RightBrace) |}|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
   managedByExtended: []
-//@[2:23)   ObjectPropertySyntax
-//@[2:19)    IdentifierSyntax
-//@[2:19)     Identifier |managedByExtended|
-//@[19:20)    Colon |:|
-//@[21:23)    ArraySyntax
-//@[21:22)     LeftSquare |[|
-//@[22:23)     RightSquare |]|
-//@[23:25)   NewLine |\r\n|
+//@[002:00023) |   ├─ObjectPropertySyntax
+//@[002:00019) |   | ├─IdentifierSyntax
+//@[002:00019) |   | | └─Token(Identifier) |managedByExtended|
+//@[019:00020) |   | ├─Token(Colon) |:|
+//@[021:00023) |   | └─ArraySyntax
+//@[021:00022) |   |   ├─Token(LeftSquare) |[|
+//@[022:00023) |   |   └─Token(RightSquare) |]|
+//@[023:00025) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 var issue3000stgMadeUpProperty = issue3000stg.madeUpProperty
-//@[0:60) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:30)  IdentifierSyntax
-//@[4:30)   Identifier |issue3000stgMadeUpProperty|
-//@[31:32)  Assignment |=|
-//@[33:60)  PropertyAccessSyntax
-//@[33:45)   VariableAccessSyntax
-//@[33:45)    IdentifierSyntax
-//@[33:45)     Identifier |issue3000stg|
-//@[45:46)   Dot |.|
-//@[46:60)   IdentifierSyntax
-//@[46:60)    Identifier |madeUpProperty|
-//@[60:62) NewLine |\r\n|
+//@[000:00060) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00030) | ├─IdentifierSyntax
+//@[004:00030) | | └─Token(Identifier) |issue3000stgMadeUpProperty|
+//@[031:00032) | ├─Token(Assignment) |=|
+//@[033:00060) | └─PropertyAccessSyntax
+//@[033:00045) |   ├─VariableAccessSyntax
+//@[033:00045) |   | └─IdentifierSyntax
+//@[033:00045) |   |   └─Token(Identifier) |issue3000stg|
+//@[045:00046) |   ├─Token(Dot) |.|
+//@[046:00060) |   └─IdentifierSyntax
+//@[046:00060) |     └─Token(Identifier) |madeUpProperty|
+//@[060:00062) ├─Token(NewLine) |\r\n|
 var issue3000stgManagedBy = issue3000stg.managedBy
-//@[0:50) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:25)  IdentifierSyntax
-//@[4:25)   Identifier |issue3000stgManagedBy|
-//@[26:27)  Assignment |=|
-//@[28:50)  PropertyAccessSyntax
-//@[28:40)   VariableAccessSyntax
-//@[28:40)    IdentifierSyntax
-//@[28:40)     Identifier |issue3000stg|
-//@[40:41)   Dot |.|
-//@[41:50)   IdentifierSyntax
-//@[41:50)    Identifier |managedBy|
-//@[50:52) NewLine |\r\n|
+//@[000:00050) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00025) | ├─IdentifierSyntax
+//@[004:00025) | | └─Token(Identifier) |issue3000stgManagedBy|
+//@[026:00027) | ├─Token(Assignment) |=|
+//@[028:00050) | └─PropertyAccessSyntax
+//@[028:00040) |   ├─VariableAccessSyntax
+//@[028:00040) |   | └─IdentifierSyntax
+//@[028:00040) |   |   └─Token(Identifier) |issue3000stg|
+//@[040:00041) |   ├─Token(Dot) |.|
+//@[041:00050) |   └─IdentifierSyntax
+//@[041:00050) |     └─Token(Identifier) |managedBy|
+//@[050:00052) ├─Token(NewLine) |\r\n|
 var issue3000stgManagedByExtended = issue3000stg.managedByExtended
-//@[0:66) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:33)  IdentifierSyntax
-//@[4:33)   Identifier |issue3000stgManagedByExtended|
-//@[34:35)  Assignment |=|
-//@[36:66)  PropertyAccessSyntax
-//@[36:48)   VariableAccessSyntax
-//@[36:48)    IdentifierSyntax
-//@[36:48)     Identifier |issue3000stg|
-//@[48:49)   Dot |.|
-//@[49:66)   IdentifierSyntax
-//@[49:66)    Identifier |managedByExtended|
-//@[66:70) NewLine |\r\n\r\n|
+//@[000:00066) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00033) | ├─IdentifierSyntax
+//@[004:00033) | | └─Token(Identifier) |issue3000stgManagedByExtended|
+//@[034:00035) | ├─Token(Assignment) |=|
+//@[036:00066) | └─PropertyAccessSyntax
+//@[036:00048) |   ├─VariableAccessSyntax
+//@[036:00048) |   | └─IdentifierSyntax
+//@[036:00048) |   |   └─Token(Identifier) |issue3000stg|
+//@[048:00049) |   ├─Token(Dot) |.|
+//@[049:00066) |   └─IdentifierSyntax
+//@[049:00066) |     └─Token(Identifier) |managedByExtended|
+//@[066:00070) ├─Token(NewLine) |\r\n\r\n|
 
 param dataCollectionRule object
-//@[0:31) ParameterDeclarationSyntax
-//@[0:5)  Identifier |param|
-//@[6:24)  IdentifierSyntax
-//@[6:24)   Identifier |dataCollectionRule|
-//@[25:31)  SimpleTypeSyntax
-//@[25:31)   Identifier |object|
-//@[31:33) NewLine |\r\n|
+//@[000:00031) ├─ParameterDeclarationSyntax
+//@[000:00005) | ├─Token(Identifier) |param|
+//@[006:00024) | ├─IdentifierSyntax
+//@[006:00024) | | └─Token(Identifier) |dataCollectionRule|
+//@[025:00031) | └─SimpleTypeSyntax
+//@[025:00031) |   └─Token(Identifier) |object|
+//@[031:00033) ├─Token(NewLine) |\r\n|
 param tags object
-//@[0:17) ParameterDeclarationSyntax
-//@[0:5)  Identifier |param|
-//@[6:10)  IdentifierSyntax
-//@[6:10)   Identifier |tags|
-//@[11:17)  SimpleTypeSyntax
-//@[11:17)   Identifier |object|
-//@[17:21) NewLine |\r\n\r\n|
+//@[000:00017) ├─ParameterDeclarationSyntax
+//@[000:00005) | ├─Token(Identifier) |param|
+//@[006:00010) | ├─IdentifierSyntax
+//@[006:00010) | | └─Token(Identifier) |tags|
+//@[011:00017) | └─SimpleTypeSyntax
+//@[011:00017) |   └─Token(Identifier) |object|
+//@[017:00021) ├─Token(NewLine) |\r\n\r\n|
 
 var defaultLogAnalyticsWorkspace = {
-//@[0:88) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:32)  IdentifierSyntax
-//@[4:32)   Identifier |defaultLogAnalyticsWorkspace|
-//@[33:34)  Assignment |=|
-//@[35:88)  ObjectSyntax
-//@[35:36)   LeftBrace |{|
-//@[36:38)   NewLine |\r\n|
+//@[000:00088) ├─VariableDeclarationSyntax
+//@[000:00003) | ├─Token(Identifier) |var|
+//@[004:00032) | ├─IdentifierSyntax
+//@[004:00032) | | └─Token(Identifier) |defaultLogAnalyticsWorkspace|
+//@[033:00034) | ├─Token(Assignment) |=|
+//@[035:00088) | └─ObjectSyntax
+//@[035:00036) |   ├─Token(LeftBrace) |{|
+//@[036:00038) |   ├─Token(NewLine) |\r\n|
   subscriptionId: subscription().subscriptionId
-//@[2:47)   ObjectPropertySyntax
-//@[2:16)    IdentifierSyntax
-//@[2:16)     Identifier |subscriptionId|
-//@[16:17)    Colon |:|
-//@[18:47)    PropertyAccessSyntax
-//@[18:32)     FunctionCallSyntax
-//@[18:30)      IdentifierSyntax
-//@[18:30)       Identifier |subscription|
-//@[30:31)      LeftParen |(|
-//@[31:32)      RightParen |)|
-//@[32:33)     Dot |.|
-//@[33:47)     IdentifierSyntax
-//@[33:47)      Identifier |subscriptionId|
-//@[47:49)   NewLine |\r\n|
+//@[002:00047) |   ├─ObjectPropertySyntax
+//@[002:00016) |   | ├─IdentifierSyntax
+//@[002:00016) |   | | └─Token(Identifier) |subscriptionId|
+//@[016:00017) |   | ├─Token(Colon) |:|
+//@[018:00047) |   | └─PropertyAccessSyntax
+//@[018:00032) |   |   ├─FunctionCallSyntax
+//@[018:00030) |   |   | ├─IdentifierSyntax
+//@[018:00030) |   |   | | └─Token(Identifier) |subscription|
+//@[030:00031) |   |   | ├─Token(LeftParen) |(|
+//@[031:00032) |   |   | └─Token(RightParen) |)|
+//@[032:00033) |   |   ├─Token(Dot) |.|
+//@[033:00047) |   |   └─IdentifierSyntax
+//@[033:00047) |   |     └─Token(Identifier) |subscriptionId|
+//@[047:00049) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-10-01' existing = [for logAnalyticsWorkspace in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
-//@[0:364) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:31)  IdentifierSyntax
-//@[9:31)   Identifier |logAnalyticsWorkspaces|
-//@[32:85)  StringSyntax
-//@[32:85)   StringComplete |'Microsoft.OperationalInsights/workspaces@2020-10-01'|
-//@[86:94)  Identifier |existing|
-//@[95:96)  Assignment |=|
-//@[97:364)  ForSyntax
-//@[97:98)   LeftSquare |[|
-//@[98:101)   Identifier |for|
-//@[102:123)   LocalVariableSyntax
-//@[102:123)    IdentifierSyntax
-//@[102:123)     Identifier |logAnalyticsWorkspace|
-//@[124:126)   Identifier |in|
-//@[127:181)   PropertyAccessSyntax
-//@[127:158)    PropertyAccessSyntax
-//@[127:145)     VariableAccessSyntax
-//@[127:145)      IdentifierSyntax
-//@[127:145)       Identifier |dataCollectionRule|
-//@[145:146)     Dot |.|
-//@[146:158)     IdentifierSyntax
-//@[146:158)      Identifier |destinations|
-//@[158:159)    Dot |.|
-//@[159:181)    IdentifierSyntax
-//@[159:181)     Identifier |logAnalyticsWorkspaces|
-//@[181:182)   Colon |:|
-//@[183:363)   ObjectSyntax
-//@[183:184)    LeftBrace |{|
-//@[184:186)    NewLine |\r\n|
+//@[000:00364) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00031) | ├─IdentifierSyntax
+//@[009:00031) | | └─Token(Identifier) |logAnalyticsWorkspaces|
+//@[032:00085) | ├─StringSyntax
+//@[032:00085) | | └─Token(StringComplete) |'Microsoft.OperationalInsights/workspaces@2020-10-01'|
+//@[086:00094) | ├─Token(Identifier) |existing|
+//@[095:00096) | ├─Token(Assignment) |=|
+//@[097:00364) | └─ForSyntax
+//@[097:00098) |   ├─Token(LeftSquare) |[|
+//@[098:00101) |   ├─Token(Identifier) |for|
+//@[102:00123) |   ├─LocalVariableSyntax
+//@[102:00123) |   | └─IdentifierSyntax
+//@[102:00123) |   |   └─Token(Identifier) |logAnalyticsWorkspace|
+//@[124:00126) |   ├─Token(Identifier) |in|
+//@[127:00181) |   ├─PropertyAccessSyntax
+//@[127:00158) |   | ├─PropertyAccessSyntax
+//@[127:00145) |   | | ├─VariableAccessSyntax
+//@[127:00145) |   | | | └─IdentifierSyntax
+//@[127:00145) |   | | |   └─Token(Identifier) |dataCollectionRule|
+//@[145:00146) |   | | ├─Token(Dot) |.|
+//@[146:00158) |   | | └─IdentifierSyntax
+//@[146:00158) |   | |   └─Token(Identifier) |destinations|
+//@[158:00159) |   | ├─Token(Dot) |.|
+//@[159:00181) |   | └─IdentifierSyntax
+//@[159:00181) |   |   └─Token(Identifier) |logAnalyticsWorkspaces|
+//@[181:00182) |   ├─Token(Colon) |:|
+//@[183:00363) |   ├─ObjectSyntax
+//@[183:00184) |   | ├─Token(LeftBrace) |{|
+//@[184:00186) |   | ├─Token(NewLine) |\r\n|
   name: logAnalyticsWorkspace.name
-//@[2:34)    ObjectPropertySyntax
-//@[2:6)     IdentifierSyntax
-//@[2:6)      Identifier |name|
-//@[6:7)     Colon |:|
-//@[8:34)     PropertyAccessSyntax
-//@[8:29)      VariableAccessSyntax
-//@[8:29)       IdentifierSyntax
-//@[8:29)        Identifier |logAnalyticsWorkspace|
-//@[29:30)      Dot |.|
-//@[30:34)      IdentifierSyntax
-//@[30:34)       Identifier |name|
-//@[34:36)    NewLine |\r\n|
+//@[002:00034) |   | ├─ObjectPropertySyntax
+//@[002:00006) |   | | ├─IdentifierSyntax
+//@[002:00006) |   | | | └─Token(Identifier) |name|
+//@[006:00007) |   | | ├─Token(Colon) |:|
+//@[008:00034) |   | | └─PropertyAccessSyntax
+//@[008:00029) |   | |   ├─VariableAccessSyntax
+//@[008:00029) |   | |   | └─IdentifierSyntax
+//@[008:00029) |   | |   |   └─Token(Identifier) |logAnalyticsWorkspace|
+//@[029:00030) |   | |   ├─Token(Dot) |.|
+//@[030:00034) |   | |   └─IdentifierSyntax
+//@[030:00034) |   | |     └─Token(Identifier) |name|
+//@[034:00036) |   | ├─Token(NewLine) |\r\n|
   scope: resourceGroup( union( defaultLogAnalyticsWorkspace, logAnalyticsWorkspace ).subscriptionId, logAnalyticsWorkspace.resourceGroup )
-//@[2:138)    ObjectPropertySyntax
-//@[2:7)     IdentifierSyntax
-//@[2:7)      Identifier |scope|
-//@[7:8)     Colon |:|
-//@[9:138)     FunctionCallSyntax
-//@[9:22)      IdentifierSyntax
-//@[9:22)       Identifier |resourceGroup|
-//@[22:23)      LeftParen |(|
-//@[24:100)      FunctionArgumentSyntax
-//@[24:99)       PropertyAccessSyntax
-//@[24:84)        FunctionCallSyntax
-//@[24:29)         IdentifierSyntax
-//@[24:29)          Identifier |union|
-//@[29:30)         LeftParen |(|
-//@[31:60)         FunctionArgumentSyntax
-//@[31:59)          VariableAccessSyntax
-//@[31:59)           IdentifierSyntax
-//@[31:59)            Identifier |defaultLogAnalyticsWorkspace|
-//@[59:60)          Comma |,|
-//@[61:82)         FunctionArgumentSyntax
-//@[61:82)          VariableAccessSyntax
-//@[61:82)           IdentifierSyntax
-//@[61:82)            Identifier |logAnalyticsWorkspace|
-//@[83:84)         RightParen |)|
-//@[84:85)        Dot |.|
-//@[85:99)        IdentifierSyntax
-//@[85:99)         Identifier |subscriptionId|
-//@[99:100)       Comma |,|
-//@[101:136)      FunctionArgumentSyntax
-//@[101:136)       PropertyAccessSyntax
-//@[101:122)        VariableAccessSyntax
-//@[101:122)         IdentifierSyntax
-//@[101:122)          Identifier |logAnalyticsWorkspace|
-//@[122:123)        Dot |.|
-//@[123:136)        IdentifierSyntax
-//@[123:136)         Identifier |resourceGroup|
-//@[137:138)      RightParen |)|
-//@[138:140)    NewLine |\r\n|
+//@[002:00138) |   | ├─ObjectPropertySyntax
+//@[002:00007) |   | | ├─IdentifierSyntax
+//@[002:00007) |   | | | └─Token(Identifier) |scope|
+//@[007:00008) |   | | ├─Token(Colon) |:|
+//@[009:00138) |   | | └─FunctionCallSyntax
+//@[009:00022) |   | |   ├─IdentifierSyntax
+//@[009:00022) |   | |   | └─Token(Identifier) |resourceGroup|
+//@[022:00023) |   | |   ├─Token(LeftParen) |(|
+//@[024:00099) |   | |   ├─FunctionArgumentSyntax
+//@[024:00099) |   | |   | └─PropertyAccessSyntax
+//@[024:00084) |   | |   |   ├─FunctionCallSyntax
+//@[024:00029) |   | |   |   | ├─IdentifierSyntax
+//@[024:00029) |   | |   |   | | └─Token(Identifier) |union|
+//@[029:00030) |   | |   |   | ├─Token(LeftParen) |(|
+//@[031:00059) |   | |   |   | ├─FunctionArgumentSyntax
+//@[031:00059) |   | |   |   | | └─VariableAccessSyntax
+//@[031:00059) |   | |   |   | |   └─IdentifierSyntax
+//@[031:00059) |   | |   |   | |     └─Token(Identifier) |defaultLogAnalyticsWorkspace|
+//@[059:00060) |   | |   |   | ├─Token(Comma) |,|
+//@[061:00082) |   | |   |   | ├─FunctionArgumentSyntax
+//@[061:00082) |   | |   |   | | └─VariableAccessSyntax
+//@[061:00082) |   | |   |   | |   └─IdentifierSyntax
+//@[061:00082) |   | |   |   | |     └─Token(Identifier) |logAnalyticsWorkspace|
+//@[083:00084) |   | |   |   | └─Token(RightParen) |)|
+//@[084:00085) |   | |   |   ├─Token(Dot) |.|
+//@[085:00099) |   | |   |   └─IdentifierSyntax
+//@[085:00099) |   | |   |     └─Token(Identifier) |subscriptionId|
+//@[099:00100) |   | |   ├─Token(Comma) |,|
+//@[101:00136) |   | |   ├─FunctionArgumentSyntax
+//@[101:00136) |   | |   | └─PropertyAccessSyntax
+//@[101:00122) |   | |   |   ├─VariableAccessSyntax
+//@[101:00122) |   | |   |   | └─IdentifierSyntax
+//@[101:00122) |   | |   |   |   └─Token(Identifier) |logAnalyticsWorkspace|
+//@[122:00123) |   | |   |   ├─Token(Dot) |.|
+//@[123:00136) |   | |   |   └─IdentifierSyntax
+//@[123:00136) |   | |   |     └─Token(Identifier) |resourceGroup|
+//@[137:00138) |   | |   └─Token(RightParen) |)|
+//@[138:00140) |   | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:00001) |   | └─Token(RightBrace) |}|
+//@[001:00002) |   └─Token(RightSquare) |]|
+//@[002:00006) ├─Token(NewLine) |\r\n\r\n|
 
 resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-01' = {
-//@[0:837) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:30)  IdentifierSyntax
-//@[9:30)   Identifier |dataCollectionRuleRes|
-//@[31:82)  StringSyntax
-//@[31:82)   StringComplete |'Microsoft.Insights/dataCollectionRules@2021-04-01'|
-//@[83:84)  Assignment |=|
-//@[85:837)  ObjectSyntax
-//@[85:86)   LeftBrace |{|
-//@[86:88)   NewLine |\r\n|
+//@[000:00837) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00030) | ├─IdentifierSyntax
+//@[009:00030) | | └─Token(Identifier) |dataCollectionRuleRes|
+//@[031:00082) | ├─StringSyntax
+//@[031:00082) | | └─Token(StringComplete) |'Microsoft.Insights/dataCollectionRules@2021-04-01'|
+//@[083:00084) | ├─Token(Assignment) |=|
+//@[085:00837) | └─ObjectSyntax
+//@[085:00086) |   ├─Token(LeftBrace) |{|
+//@[086:00088) |   ├─Token(NewLine) |\r\n|
   name: dataCollectionRule.name
-//@[2:31)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:31)    PropertyAccessSyntax
-//@[8:26)     VariableAccessSyntax
-//@[8:26)      IdentifierSyntax
-//@[8:26)       Identifier |dataCollectionRule|
-//@[26:27)     Dot |.|
-//@[27:31)     IdentifierSyntax
-//@[27:31)      Identifier |name|
-//@[31:33)   NewLine |\r\n|
+//@[002:00031) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00031) |   | └─PropertyAccessSyntax
+//@[008:00026) |   |   ├─VariableAccessSyntax
+//@[008:00026) |   |   | └─IdentifierSyntax
+//@[008:00026) |   |   |   └─Token(Identifier) |dataCollectionRule|
+//@[026:00027) |   |   ├─Token(Dot) |.|
+//@[027:00031) |   |   └─IdentifierSyntax
+//@[027:00031) |   |     └─Token(Identifier) |name|
+//@[031:00033) |   ├─Token(NewLine) |\r\n|
   location: dataCollectionRule.location
-//@[2:39)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:39)    PropertyAccessSyntax
-//@[12:30)     VariableAccessSyntax
-//@[12:30)      IdentifierSyntax
-//@[12:30)       Identifier |dataCollectionRule|
-//@[30:31)     Dot |.|
-//@[31:39)     IdentifierSyntax
-//@[31:39)      Identifier |location|
-//@[39:41)   NewLine |\r\n|
+//@[002:00039) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00039) |   | └─PropertyAccessSyntax
+//@[012:00030) |   |   ├─VariableAccessSyntax
+//@[012:00030) |   |   | └─IdentifierSyntax
+//@[012:00030) |   |   |   └─Token(Identifier) |dataCollectionRule|
+//@[030:00031) |   |   ├─Token(Dot) |.|
+//@[031:00039) |   |   └─IdentifierSyntax
+//@[031:00039) |   |     └─Token(Identifier) |location|
+//@[039:00041) |   ├─Token(NewLine) |\r\n|
   tags: tags
-//@[2:12)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |tags|
-//@[6:7)    Colon |:|
-//@[8:12)    VariableAccessSyntax
-//@[8:12)     IdentifierSyntax
-//@[8:12)      Identifier |tags|
-//@[12:14)   NewLine |\r\n|
+//@[002:00012) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |tags|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00012) |   | └─VariableAccessSyntax
+//@[008:00012) |   |   └─IdentifierSyntax
+//@[008:00012) |   |     └─Token(Identifier) |tags|
+//@[012:00014) |   ├─Token(NewLine) |\r\n|
   kind: dataCollectionRule.kind
-//@[2:31)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[6:7)    Colon |:|
-//@[8:31)    PropertyAccessSyntax
-//@[8:26)     VariableAccessSyntax
-//@[8:26)      IdentifierSyntax
-//@[8:26)       Identifier |dataCollectionRule|
-//@[26:27)     Dot |.|
-//@[27:31)     IdentifierSyntax
-//@[27:31)      Identifier |kind|
-//@[31:33)   NewLine |\r\n|
+//@[002:00031) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00031) |   | └─PropertyAccessSyntax
+//@[008:00026) |   |   ├─VariableAccessSyntax
+//@[008:00026) |   |   | └─IdentifierSyntax
+//@[008:00026) |   |   |   └─Token(Identifier) |dataCollectionRule|
+//@[026:00027) |   |   ├─Token(Dot) |.|
+//@[027:00031) |   |   └─IdentifierSyntax
+//@[027:00031) |   |     └─Token(Identifier) |kind|
+//@[031:00033) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:625)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:625)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00625) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00625) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     description: dataCollectionRule.description
-//@[4:47)     ObjectPropertySyntax
-//@[4:15)      IdentifierSyntax
-//@[4:15)       Identifier |description|
-//@[15:16)      Colon |:|
-//@[17:47)      PropertyAccessSyntax
-//@[17:35)       VariableAccessSyntax
-//@[17:35)        IdentifierSyntax
-//@[17:35)         Identifier |dataCollectionRule|
-//@[35:36)       Dot |.|
-//@[36:47)       IdentifierSyntax
-//@[36:47)        Identifier |description|
-//@[47:49)     NewLine |\r\n|
+//@[004:00047) |   |   ├─ObjectPropertySyntax
+//@[004:00015) |   |   | ├─IdentifierSyntax
+//@[004:00015) |   |   | | └─Token(Identifier) |description|
+//@[015:00016) |   |   | ├─Token(Colon) |:|
+//@[017:00047) |   |   | └─PropertyAccessSyntax
+//@[017:00035) |   |   |   ├─VariableAccessSyntax
+//@[017:00035) |   |   |   | └─IdentifierSyntax
+//@[017:00035) |   |   |   |   └─Token(Identifier) |dataCollectionRule|
+//@[035:00036) |   |   |   ├─Token(Dot) |.|
+//@[036:00047) |   |   |   └─IdentifierSyntax
+//@[036:00047) |   |   |     └─Token(Identifier) |description|
+//@[047:00049) |   |   ├─Token(NewLine) |\r\n|
     destinations: union(empty(dataCollectionRule.destinations.azureMonitorMetrics.name) ? {} : {
-//@[4:460)     ObjectPropertySyntax
-//@[4:16)      IdentifierSyntax
-//@[4:16)       Identifier |destinations|
-//@[16:17)      Colon |:|
-//@[18:460)      FunctionCallSyntax
-//@[18:23)       IdentifierSyntax
-//@[18:23)        Identifier |union|
-//@[23:24)       LeftParen |(|
-//@[24:215)       FunctionArgumentSyntax
-//@[24:214)        TernaryOperationSyntax
-//@[24:87)         FunctionCallSyntax
-//@[24:29)          IdentifierSyntax
-//@[24:29)           Identifier |empty|
-//@[29:30)          LeftParen |(|
-//@[30:86)          FunctionArgumentSyntax
-//@[30:86)           PropertyAccessSyntax
-//@[30:81)            PropertyAccessSyntax
-//@[30:61)             PropertyAccessSyntax
-//@[30:48)              VariableAccessSyntax
-//@[30:48)               IdentifierSyntax
-//@[30:48)                Identifier |dataCollectionRule|
-//@[48:49)              Dot |.|
-//@[49:61)              IdentifierSyntax
-//@[49:61)               Identifier |destinations|
-//@[61:62)             Dot |.|
-//@[62:81)             IdentifierSyntax
-//@[62:81)              Identifier |azureMonitorMetrics|
-//@[81:82)            Dot |.|
-//@[82:86)            IdentifierSyntax
-//@[82:86)             Identifier |name|
-//@[86:87)          RightParen |)|
-//@[88:89)         Question |?|
-//@[90:92)         ObjectSyntax
-//@[90:91)          LeftBrace |{|
-//@[91:92)          RightBrace |}|
-//@[93:94)         Colon |:|
-//@[95:214)         ObjectSyntax
-//@[95:96)          LeftBrace |{|
-//@[96:98)          NewLine |\r\n|
+//@[004:00460) |   |   ├─ObjectPropertySyntax
+//@[004:00016) |   |   | ├─IdentifierSyntax
+//@[004:00016) |   |   | | └─Token(Identifier) |destinations|
+//@[016:00017) |   |   | ├─Token(Colon) |:|
+//@[018:00460) |   |   | └─FunctionCallSyntax
+//@[018:00023) |   |   |   ├─IdentifierSyntax
+//@[018:00023) |   |   |   | └─Token(Identifier) |union|
+//@[023:00024) |   |   |   ├─Token(LeftParen) |(|
+//@[024:00214) |   |   |   ├─FunctionArgumentSyntax
+//@[024:00214) |   |   |   | └─TernaryOperationSyntax
+//@[024:00087) |   |   |   |   ├─FunctionCallSyntax
+//@[024:00029) |   |   |   |   | ├─IdentifierSyntax
+//@[024:00029) |   |   |   |   | | └─Token(Identifier) |empty|
+//@[029:00030) |   |   |   |   | ├─Token(LeftParen) |(|
+//@[030:00086) |   |   |   |   | ├─FunctionArgumentSyntax
+//@[030:00086) |   |   |   |   | | └─PropertyAccessSyntax
+//@[030:00081) |   |   |   |   | |   ├─PropertyAccessSyntax
+//@[030:00061) |   |   |   |   | |   | ├─PropertyAccessSyntax
+//@[030:00048) |   |   |   |   | |   | | ├─VariableAccessSyntax
+//@[030:00048) |   |   |   |   | |   | | | └─IdentifierSyntax
+//@[030:00048) |   |   |   |   | |   | | |   └─Token(Identifier) |dataCollectionRule|
+//@[048:00049) |   |   |   |   | |   | | ├─Token(Dot) |.|
+//@[049:00061) |   |   |   |   | |   | | └─IdentifierSyntax
+//@[049:00061) |   |   |   |   | |   | |   └─Token(Identifier) |destinations|
+//@[061:00062) |   |   |   |   | |   | ├─Token(Dot) |.|
+//@[062:00081) |   |   |   |   | |   | └─IdentifierSyntax
+//@[062:00081) |   |   |   |   | |   |   └─Token(Identifier) |azureMonitorMetrics|
+//@[081:00082) |   |   |   |   | |   ├─Token(Dot) |.|
+//@[082:00086) |   |   |   |   | |   └─IdentifierSyntax
+//@[082:00086) |   |   |   |   | |     └─Token(Identifier) |name|
+//@[086:00087) |   |   |   |   | └─Token(RightParen) |)|
+//@[088:00089) |   |   |   |   ├─Token(Question) |?|
+//@[090:00092) |   |   |   |   ├─ObjectSyntax
+//@[090:00091) |   |   |   |   | ├─Token(LeftBrace) |{|
+//@[091:00092) |   |   |   |   | └─Token(RightBrace) |}|
+//@[093:00094) |   |   |   |   ├─Token(Colon) |:|
+//@[095:00214) |   |   |   |   └─ObjectSyntax
+//@[095:00096) |   |   |   |     ├─Token(LeftBrace) |{|
+//@[096:00098) |   |   |   |     ├─Token(NewLine) |\r\n|
       azureMonitorMetrics: {
-//@[6:109)          ObjectPropertySyntax
-//@[6:25)           IdentifierSyntax
-//@[6:25)            Identifier |azureMonitorMetrics|
-//@[25:26)           Colon |:|
-//@[27:109)           ObjectSyntax
-//@[27:28)            LeftBrace |{|
-//@[28:30)            NewLine |\r\n|
+//@[006:00109) |   |   |   |     ├─ObjectPropertySyntax
+//@[006:00025) |   |   |   |     | ├─IdentifierSyntax
+//@[006:00025) |   |   |   |     | | └─Token(Identifier) |azureMonitorMetrics|
+//@[025:00026) |   |   |   |     | ├─Token(Colon) |:|
+//@[027:00109) |   |   |   |     | └─ObjectSyntax
+//@[027:00028) |   |   |   |     |   ├─Token(LeftBrace) |{|
+//@[028:00030) |   |   |   |     |   ├─Token(NewLine) |\r\n|
         name: dataCollectionRule.destinations.azureMonitorMetrics.name
-//@[8:70)            ObjectPropertySyntax
-//@[8:12)             IdentifierSyntax
-//@[8:12)              Identifier |name|
-//@[12:13)             Colon |:|
-//@[14:70)             PropertyAccessSyntax
-//@[14:65)              PropertyAccessSyntax
-//@[14:45)               PropertyAccessSyntax
-//@[14:32)                VariableAccessSyntax
-//@[14:32)                 IdentifierSyntax
-//@[14:32)                  Identifier |dataCollectionRule|
-//@[32:33)                Dot |.|
-//@[33:45)                IdentifierSyntax
-//@[33:45)                 Identifier |destinations|
-//@[45:46)               Dot |.|
-//@[46:65)               IdentifierSyntax
-//@[46:65)                Identifier |azureMonitorMetrics|
-//@[65:66)              Dot |.|
-//@[66:70)              IdentifierSyntax
-//@[66:70)               Identifier |name|
-//@[70:72)            NewLine |\r\n|
+//@[008:00070) |   |   |   |     |   ├─ObjectPropertySyntax
+//@[008:00012) |   |   |   |     |   | ├─IdentifierSyntax
+//@[008:00012) |   |   |   |     |   | | └─Token(Identifier) |name|
+//@[012:00013) |   |   |   |     |   | ├─Token(Colon) |:|
+//@[014:00070) |   |   |   |     |   | └─PropertyAccessSyntax
+//@[014:00065) |   |   |   |     |   |   ├─PropertyAccessSyntax
+//@[014:00045) |   |   |   |     |   |   | ├─PropertyAccessSyntax
+//@[014:00032) |   |   |   |     |   |   | | ├─VariableAccessSyntax
+//@[014:00032) |   |   |   |     |   |   | | | └─IdentifierSyntax
+//@[014:00032) |   |   |   |     |   |   | | |   └─Token(Identifier) |dataCollectionRule|
+//@[032:00033) |   |   |   |     |   |   | | ├─Token(Dot) |.|
+//@[033:00045) |   |   |   |     |   |   | | └─IdentifierSyntax
+//@[033:00045) |   |   |   |     |   |   | |   └─Token(Identifier) |destinations|
+//@[045:00046) |   |   |   |     |   |   | ├─Token(Dot) |.|
+//@[046:00065) |   |   |   |     |   |   | └─IdentifierSyntax
+//@[046:00065) |   |   |   |     |   |   |   └─Token(Identifier) |azureMonitorMetrics|
+//@[065:00066) |   |   |   |     |   |   ├─Token(Dot) |.|
+//@[066:00070) |   |   |   |     |   |   └─IdentifierSyntax
+//@[066:00070) |   |   |   |     |   |     └─Token(Identifier) |name|
+//@[070:00072) |   |   |   |     |   ├─Token(NewLine) |\r\n|
       }
-//@[6:7)            RightBrace |}|
-//@[7:9)          NewLine |\r\n|
+//@[006:00007) |   |   |   |     |   └─Token(RightBrace) |}|
+//@[007:00009) |   |   |   |     ├─Token(NewLine) |\r\n|
     },{
-//@[4:5)          RightBrace |}|
-//@[5:6)        Comma |,|
-//@[6:250)       FunctionArgumentSyntax
-//@[6:250)        ObjectSyntax
-//@[6:7)         LeftBrace |{|
-//@[7:9)         NewLine |\r\n|
+//@[004:00005) |   |   |   |     └─Token(RightBrace) |}|
+//@[005:00006) |   |   |   ├─Token(Comma) |,|
+//@[006:00250) |   |   |   ├─FunctionArgumentSyntax
+//@[006:00250) |   |   |   | └─ObjectSyntax
+//@[006:00007) |   |   |   |   ├─Token(LeftBrace) |{|
+//@[007:00009) |   |   |   |   ├─Token(NewLine) |\r\n|
       logAnalytics: [for (logAnalyticsWorkspace, i) in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
-//@[6:234)         ObjectPropertySyntax
-//@[6:18)          IdentifierSyntax
-//@[6:18)           Identifier |logAnalytics|
-//@[18:19)          Colon |:|
-//@[20:234)          ForSyntax
-//@[20:21)           LeftSquare |[|
-//@[21:24)           Identifier |for|
-//@[25:51)           ForVariableBlockSyntax
-//@[25:26)            LeftParen |(|
-//@[26:47)            LocalVariableSyntax
-//@[26:47)             IdentifierSyntax
-//@[26:47)              Identifier |logAnalyticsWorkspace|
-//@[47:48)            Comma |,|
-//@[49:50)            LocalVariableSyntax
-//@[49:50)             IdentifierSyntax
-//@[49:50)              Identifier |i|
-//@[50:51)            RightParen |)|
-//@[52:54)           Identifier |in|
-//@[55:109)           PropertyAccessSyntax
-//@[55:86)            PropertyAccessSyntax
-//@[55:73)             VariableAccessSyntax
-//@[55:73)              IdentifierSyntax
-//@[55:73)               Identifier |dataCollectionRule|
-//@[73:74)             Dot |.|
-//@[74:86)             IdentifierSyntax
-//@[74:86)              Identifier |destinations|
-//@[86:87)            Dot |.|
-//@[87:109)            IdentifierSyntax
-//@[87:109)             Identifier |logAnalyticsWorkspaces|
-//@[109:110)           Colon |:|
-//@[111:233)           ObjectSyntax
-//@[111:112)            LeftBrace |{|
-//@[112:114)            NewLine |\r\n|
+//@[006:00234) |   |   |   |   ├─ObjectPropertySyntax
+//@[006:00018) |   |   |   |   | ├─IdentifierSyntax
+//@[006:00018) |   |   |   |   | | └─Token(Identifier) |logAnalytics|
+//@[018:00019) |   |   |   |   | ├─Token(Colon) |:|
+//@[020:00234) |   |   |   |   | └─ForSyntax
+//@[020:00021) |   |   |   |   |   ├─Token(LeftSquare) |[|
+//@[021:00024) |   |   |   |   |   ├─Token(Identifier) |for|
+//@[025:00051) |   |   |   |   |   ├─VariableBlockSyntax
+//@[025:00026) |   |   |   |   |   | ├─Token(LeftParen) |(|
+//@[026:00047) |   |   |   |   |   | ├─LocalVariableSyntax
+//@[026:00047) |   |   |   |   |   | | └─IdentifierSyntax
+//@[026:00047) |   |   |   |   |   | |   └─Token(Identifier) |logAnalyticsWorkspace|
+//@[047:00048) |   |   |   |   |   | ├─Token(Comma) |,|
+//@[049:00050) |   |   |   |   |   | ├─LocalVariableSyntax
+//@[049:00050) |   |   |   |   |   | | └─IdentifierSyntax
+//@[049:00050) |   |   |   |   |   | |   └─Token(Identifier) |i|
+//@[050:00051) |   |   |   |   |   | └─Token(RightParen) |)|
+//@[052:00054) |   |   |   |   |   ├─Token(Identifier) |in|
+//@[055:00109) |   |   |   |   |   ├─PropertyAccessSyntax
+//@[055:00086) |   |   |   |   |   | ├─PropertyAccessSyntax
+//@[055:00073) |   |   |   |   |   | | ├─VariableAccessSyntax
+//@[055:00073) |   |   |   |   |   | | | └─IdentifierSyntax
+//@[055:00073) |   |   |   |   |   | | |   └─Token(Identifier) |dataCollectionRule|
+//@[073:00074) |   |   |   |   |   | | ├─Token(Dot) |.|
+//@[074:00086) |   |   |   |   |   | | └─IdentifierSyntax
+//@[074:00086) |   |   |   |   |   | |   └─Token(Identifier) |destinations|
+//@[086:00087) |   |   |   |   |   | ├─Token(Dot) |.|
+//@[087:00109) |   |   |   |   |   | └─IdentifierSyntax
+//@[087:00109) |   |   |   |   |   |   └─Token(Identifier) |logAnalyticsWorkspaces|
+//@[109:00110) |   |   |   |   |   ├─Token(Colon) |:|
+//@[111:00233) |   |   |   |   |   ├─ObjectSyntax
+//@[111:00112) |   |   |   |   |   | ├─Token(LeftBrace) |{|
+//@[112:00114) |   |   |   |   |   | ├─Token(NewLine) |\r\n|
         name: logAnalyticsWorkspace.destinationName
-//@[8:51)            ObjectPropertySyntax
-//@[8:12)             IdentifierSyntax
-//@[8:12)              Identifier |name|
-//@[12:13)             Colon |:|
-//@[14:51)             PropertyAccessSyntax
-//@[14:35)              VariableAccessSyntax
-//@[14:35)               IdentifierSyntax
-//@[14:35)                Identifier |logAnalyticsWorkspace|
-//@[35:36)              Dot |.|
-//@[36:51)              IdentifierSyntax
-//@[36:51)               Identifier |destinationName|
-//@[51:53)            NewLine |\r\n|
+//@[008:00051) |   |   |   |   |   | ├─ObjectPropertySyntax
+//@[008:00012) |   |   |   |   |   | | ├─IdentifierSyntax
+//@[008:00012) |   |   |   |   |   | | | └─Token(Identifier) |name|
+//@[012:00013) |   |   |   |   |   | | ├─Token(Colon) |:|
+//@[014:00051) |   |   |   |   |   | | └─PropertyAccessSyntax
+//@[014:00035) |   |   |   |   |   | |   ├─VariableAccessSyntax
+//@[014:00035) |   |   |   |   |   | |   | └─IdentifierSyntax
+//@[014:00035) |   |   |   |   |   | |   |   └─Token(Identifier) |logAnalyticsWorkspace|
+//@[035:00036) |   |   |   |   |   | |   ├─Token(Dot) |.|
+//@[036:00051) |   |   |   |   |   | |   └─IdentifierSyntax
+//@[036:00051) |   |   |   |   |   | |     └─Token(Identifier) |destinationName|
+//@[051:00053) |   |   |   |   |   | ├─Token(NewLine) |\r\n|
         workspaceResourceId: logAnalyticsWorkspaces[i].id
-//@[8:57)            ObjectPropertySyntax
-//@[8:27)             IdentifierSyntax
-//@[8:27)              Identifier |workspaceResourceId|
-//@[27:28)             Colon |:|
-//@[29:57)             PropertyAccessSyntax
-//@[29:54)              ArrayAccessSyntax
-//@[29:51)               VariableAccessSyntax
-//@[29:51)                IdentifierSyntax
-//@[29:51)                 Identifier |logAnalyticsWorkspaces|
-//@[51:52)               LeftSquare |[|
-//@[52:53)               VariableAccessSyntax
-//@[52:53)                IdentifierSyntax
-//@[52:53)                 Identifier |i|
-//@[53:54)               RightSquare |]|
-//@[54:55)              Dot |.|
-//@[55:57)              IdentifierSyntax
-//@[55:57)               Identifier |id|
-//@[57:59)            NewLine |\r\n|
+//@[008:00057) |   |   |   |   |   | ├─ObjectPropertySyntax
+//@[008:00027) |   |   |   |   |   | | ├─IdentifierSyntax
+//@[008:00027) |   |   |   |   |   | | | └─Token(Identifier) |workspaceResourceId|
+//@[027:00028) |   |   |   |   |   | | ├─Token(Colon) |:|
+//@[029:00057) |   |   |   |   |   | | └─PropertyAccessSyntax
+//@[029:00054) |   |   |   |   |   | |   ├─ArrayAccessSyntax
+//@[029:00051) |   |   |   |   |   | |   | ├─VariableAccessSyntax
+//@[029:00051) |   |   |   |   |   | |   | | └─IdentifierSyntax
+//@[029:00051) |   |   |   |   |   | |   | |   └─Token(Identifier) |logAnalyticsWorkspaces|
+//@[051:00052) |   |   |   |   |   | |   | ├─Token(LeftSquare) |[|
+//@[052:00053) |   |   |   |   |   | |   | ├─VariableAccessSyntax
+//@[052:00053) |   |   |   |   |   | |   | | └─IdentifierSyntax
+//@[052:00053) |   |   |   |   |   | |   | |   └─Token(Identifier) |i|
+//@[053:00054) |   |   |   |   |   | |   | └─Token(RightSquare) |]|
+//@[054:00055) |   |   |   |   |   | |   ├─Token(Dot) |.|
+//@[055:00057) |   |   |   |   |   | |   └─IdentifierSyntax
+//@[055:00057) |   |   |   |   |   | |     └─Token(Identifier) |id|
+//@[057:00059) |   |   |   |   |   | ├─Token(NewLine) |\r\n|
       }]
-//@[6:7)            RightBrace |}|
-//@[7:8)           RightSquare |]|
-//@[8:10)         NewLine |\r\n|
+//@[006:00007) |   |   |   |   |   | └─Token(RightBrace) |}|
+//@[007:00008) |   |   |   |   |   └─Token(RightSquare) |]|
+//@[008:00010) |   |   |   |   ├─Token(NewLine) |\r\n|
     })
-//@[4:5)         RightBrace |}|
-//@[5:6)       RightParen |)|
-//@[6:8)     NewLine |\r\n|
+//@[004:00005) |   |   |   |   └─Token(RightBrace) |}|
+//@[005:00006) |   |   |   └─Token(RightParen) |)|
+//@[006:00008) |   |   ├─Token(NewLine) |\r\n|
     dataSources: dataCollectionRule.dataSources
-//@[4:47)     ObjectPropertySyntax
-//@[4:15)      IdentifierSyntax
-//@[4:15)       Identifier |dataSources|
-//@[15:16)      Colon |:|
-//@[17:47)      PropertyAccessSyntax
-//@[17:35)       VariableAccessSyntax
-//@[17:35)        IdentifierSyntax
-//@[17:35)         Identifier |dataCollectionRule|
-//@[35:36)       Dot |.|
-//@[36:47)       IdentifierSyntax
-//@[36:47)        Identifier |dataSources|
-//@[47:49)     NewLine |\r\n|
+//@[004:00047) |   |   ├─ObjectPropertySyntax
+//@[004:00015) |   |   | ├─IdentifierSyntax
+//@[004:00015) |   |   | | └─Token(Identifier) |dataSources|
+//@[015:00016) |   |   | ├─Token(Colon) |:|
+//@[017:00047) |   |   | └─PropertyAccessSyntax
+//@[017:00035) |   |   |   ├─VariableAccessSyntax
+//@[017:00035) |   |   |   | └─IdentifierSyntax
+//@[017:00035) |   |   |   |   └─Token(Identifier) |dataCollectionRule|
+//@[035:00036) |   |   |   ├─Token(Dot) |.|
+//@[036:00047) |   |   |   └─IdentifierSyntax
+//@[036:00047) |   |   |     └─Token(Identifier) |dataSources|
+//@[047:00049) |   |   ├─Token(NewLine) |\r\n|
     dataFlows: dataCollectionRule.dataFlows
-//@[4:43)     ObjectPropertySyntax
-//@[4:13)      IdentifierSyntax
-//@[4:13)       Identifier |dataFlows|
-//@[13:14)      Colon |:|
-//@[15:43)      PropertyAccessSyntax
-//@[15:33)       VariableAccessSyntax
-//@[15:33)        IdentifierSyntax
-//@[15:33)         Identifier |dataCollectionRule|
-//@[33:34)       Dot |.|
-//@[34:43)       IdentifierSyntax
-//@[34:43)        Identifier |dataFlows|
-//@[43:45)     NewLine |\r\n|
+//@[004:00043) |   |   ├─ObjectPropertySyntax
+//@[004:00013) |   |   | ├─IdentifierSyntax
+//@[004:00013) |   |   | | └─Token(Identifier) |dataFlows|
+//@[013:00014) |   |   | ├─Token(Colon) |:|
+//@[015:00043) |   |   | └─PropertyAccessSyntax
+//@[015:00033) |   |   |   ├─VariableAccessSyntax
+//@[015:00033) |   |   |   | └─IdentifierSyntax
+//@[015:00033) |   |   |   |   └─Token(Identifier) |dataCollectionRule|
+//@[033:00034) |   |   |   ├─Token(Dot) |.|
+//@[034:00043) |   |   |   └─IdentifierSyntax
+//@[034:00043) |   |   |     └─Token(Identifier) |dataFlows|
+//@[043:00045) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-01' = {
-//@[0:445) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:31)  IdentifierSyntax
-//@[9:31)   Identifier |dataCollectionRuleRes2|
-//@[32:83)  StringSyntax
-//@[32:83)   StringComplete |'Microsoft.Insights/dataCollectionRules@2021-04-01'|
-//@[84:85)  Assignment |=|
-//@[86:445)  ObjectSyntax
-//@[86:87)   LeftBrace |{|
-//@[87:89)   NewLine |\r\n|
+//@[000:00445) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00031) | ├─IdentifierSyntax
+//@[009:00031) | | └─Token(Identifier) |dataCollectionRuleRes2|
+//@[032:00083) | ├─StringSyntax
+//@[032:00083) | | └─Token(StringComplete) |'Microsoft.Insights/dataCollectionRules@2021-04-01'|
+//@[084:00085) | ├─Token(Assignment) |=|
+//@[086:00445) | └─ObjectSyntax
+//@[086:00087) |   ├─Token(LeftBrace) |{|
+//@[087:00089) |   ├─Token(NewLine) |\r\n|
   name: dataCollectionRule.name
-//@[2:31)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:31)    PropertyAccessSyntax
-//@[8:26)     VariableAccessSyntax
-//@[8:26)      IdentifierSyntax
-//@[8:26)       Identifier |dataCollectionRule|
-//@[26:27)     Dot |.|
-//@[27:31)     IdentifierSyntax
-//@[27:31)      Identifier |name|
-//@[31:33)   NewLine |\r\n|
+//@[002:00031) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00031) |   | └─PropertyAccessSyntax
+//@[008:00026) |   |   ├─VariableAccessSyntax
+//@[008:00026) |   |   | └─IdentifierSyntax
+//@[008:00026) |   |   |   └─Token(Identifier) |dataCollectionRule|
+//@[026:00027) |   |   ├─Token(Dot) |.|
+//@[027:00031) |   |   └─IdentifierSyntax
+//@[027:00031) |   |     └─Token(Identifier) |name|
+//@[031:00033) |   ├─Token(NewLine) |\r\n|
   location: dataCollectionRule.location
-//@[2:39)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:39)    PropertyAccessSyntax
-//@[12:30)     VariableAccessSyntax
-//@[12:30)      IdentifierSyntax
-//@[12:30)       Identifier |dataCollectionRule|
-//@[30:31)     Dot |.|
-//@[31:39)     IdentifierSyntax
-//@[31:39)      Identifier |location|
-//@[39:41)   NewLine |\r\n|
+//@[002:00039) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00039) |   | └─PropertyAccessSyntax
+//@[012:00030) |   |   ├─VariableAccessSyntax
+//@[012:00030) |   |   | └─IdentifierSyntax
+//@[012:00030) |   |   |   └─Token(Identifier) |dataCollectionRule|
+//@[030:00031) |   |   ├─Token(Dot) |.|
+//@[031:00039) |   |   └─IdentifierSyntax
+//@[031:00039) |   |     └─Token(Identifier) |location|
+//@[039:00041) |   ├─Token(NewLine) |\r\n|
   tags: tags
-//@[2:12)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |tags|
-//@[6:7)    Colon |:|
-//@[8:12)    VariableAccessSyntax
-//@[8:12)     IdentifierSyntax
-//@[8:12)      Identifier |tags|
-//@[12:14)   NewLine |\r\n|
+//@[002:00012) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |tags|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00012) |   | └─VariableAccessSyntax
+//@[008:00012) |   |   └─IdentifierSyntax
+//@[008:00012) |   |     └─Token(Identifier) |tags|
+//@[012:00014) |   ├─Token(NewLine) |\r\n|
   kind: dataCollectionRule.kind
-//@[2:31)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[6:7)    Colon |:|
-//@[8:31)    PropertyAccessSyntax
-//@[8:26)     VariableAccessSyntax
-//@[8:26)      IdentifierSyntax
-//@[8:26)       Identifier |dataCollectionRule|
-//@[26:27)     Dot |.|
-//@[27:31)     IdentifierSyntax
-//@[27:31)      Identifier |kind|
-//@[31:33)   NewLine |\r\n|
+//@[002:00031) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00031) |   | └─PropertyAccessSyntax
+//@[008:00026) |   |   ├─VariableAccessSyntax
+//@[008:00026) |   |   | └─IdentifierSyntax
+//@[008:00026) |   |   |   └─Token(Identifier) |dataCollectionRule|
+//@[026:00027) |   |   ├─Token(Dot) |.|
+//@[027:00031) |   |   └─IdentifierSyntax
+//@[027:00031) |   |     └─Token(Identifier) |kind|
+//@[031:00033) |   ├─Token(NewLine) |\r\n|
   properties: {
-//@[2:232)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:232)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:17)     NewLine |\r\n|
+//@[002:00232) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00232) |   | └─ObjectSyntax
+//@[014:00015) |   |   ├─Token(LeftBrace) |{|
+//@[015:00017) |   |   ├─Token(NewLine) |\r\n|
     description: dataCollectionRule.description
-//@[4:47)     ObjectPropertySyntax
-//@[4:15)      IdentifierSyntax
-//@[4:15)       Identifier |description|
-//@[15:16)      Colon |:|
-//@[17:47)      PropertyAccessSyntax
-//@[17:35)       VariableAccessSyntax
-//@[17:35)        IdentifierSyntax
-//@[17:35)         Identifier |dataCollectionRule|
-//@[35:36)       Dot |.|
-//@[36:47)       IdentifierSyntax
-//@[36:47)        Identifier |description|
-//@[47:49)     NewLine |\r\n|
+//@[004:00047) |   |   ├─ObjectPropertySyntax
+//@[004:00015) |   |   | ├─IdentifierSyntax
+//@[004:00015) |   |   | | └─Token(Identifier) |description|
+//@[015:00016) |   |   | ├─Token(Colon) |:|
+//@[017:00047) |   |   | └─PropertyAccessSyntax
+//@[017:00035) |   |   |   ├─VariableAccessSyntax
+//@[017:00035) |   |   |   | └─IdentifierSyntax
+//@[017:00035) |   |   |   |   └─Token(Identifier) |dataCollectionRule|
+//@[035:00036) |   |   |   ├─Token(Dot) |.|
+//@[036:00047) |   |   |   └─IdentifierSyntax
+//@[036:00047) |   |   |     └─Token(Identifier) |description|
+//@[047:00049) |   |   ├─Token(NewLine) |\r\n|
     destinations: empty([]) ? [for x in []: {}] : [for x in []: {}]
-//@[4:67)     ObjectPropertySyntax
-//@[4:16)      IdentifierSyntax
-//@[4:16)       Identifier |destinations|
-//@[16:17)      Colon |:|
-//@[18:67)      TernaryOperationSyntax
-//@[18:27)       FunctionCallSyntax
-//@[18:23)        IdentifierSyntax
-//@[18:23)         Identifier |empty|
-//@[23:24)        LeftParen |(|
-//@[24:26)        FunctionArgumentSyntax
-//@[24:26)         ArraySyntax
-//@[24:25)          LeftSquare |[|
-//@[25:26)          RightSquare |]|
-//@[26:27)        RightParen |)|
-//@[28:29)       Question |?|
-//@[30:47)       ForSyntax
-//@[30:31)        LeftSquare |[|
-//@[31:34)        Identifier |for|
-//@[35:36)        LocalVariableSyntax
-//@[35:36)         IdentifierSyntax
-//@[35:36)          Identifier |x|
-//@[37:39)        Identifier |in|
-//@[40:42)        ArraySyntax
-//@[40:41)         LeftSquare |[|
-//@[41:42)         RightSquare |]|
-//@[42:43)        Colon |:|
-//@[44:46)        ObjectSyntax
-//@[44:45)         LeftBrace |{|
-//@[45:46)         RightBrace |}|
-//@[46:47)        RightSquare |]|
-//@[48:49)       Colon |:|
-//@[50:67)       ForSyntax
-//@[50:51)        LeftSquare |[|
-//@[51:54)        Identifier |for|
-//@[55:56)        LocalVariableSyntax
-//@[55:56)         IdentifierSyntax
-//@[55:56)          Identifier |x|
-//@[57:59)        Identifier |in|
-//@[60:62)        ArraySyntax
-//@[60:61)         LeftSquare |[|
-//@[61:62)         RightSquare |]|
-//@[62:63)        Colon |:|
-//@[64:66)        ObjectSyntax
-//@[64:65)         LeftBrace |{|
-//@[65:66)         RightBrace |}|
-//@[66:67)        RightSquare |]|
-//@[67:69)     NewLine |\r\n|
+//@[004:00067) |   |   ├─ObjectPropertySyntax
+//@[004:00016) |   |   | ├─IdentifierSyntax
+//@[004:00016) |   |   | | └─Token(Identifier) |destinations|
+//@[016:00017) |   |   | ├─Token(Colon) |:|
+//@[018:00067) |   |   | └─TernaryOperationSyntax
+//@[018:00027) |   |   |   ├─FunctionCallSyntax
+//@[018:00023) |   |   |   | ├─IdentifierSyntax
+//@[018:00023) |   |   |   | | └─Token(Identifier) |empty|
+//@[023:00024) |   |   |   | ├─Token(LeftParen) |(|
+//@[024:00026) |   |   |   | ├─FunctionArgumentSyntax
+//@[024:00026) |   |   |   | | └─ArraySyntax
+//@[024:00025) |   |   |   | |   ├─Token(LeftSquare) |[|
+//@[025:00026) |   |   |   | |   └─Token(RightSquare) |]|
+//@[026:00027) |   |   |   | └─Token(RightParen) |)|
+//@[028:00029) |   |   |   ├─Token(Question) |?|
+//@[030:00047) |   |   |   ├─ForSyntax
+//@[030:00031) |   |   |   | ├─Token(LeftSquare) |[|
+//@[031:00034) |   |   |   | ├─Token(Identifier) |for|
+//@[035:00036) |   |   |   | ├─LocalVariableSyntax
+//@[035:00036) |   |   |   | | └─IdentifierSyntax
+//@[035:00036) |   |   |   | |   └─Token(Identifier) |x|
+//@[037:00039) |   |   |   | ├─Token(Identifier) |in|
+//@[040:00042) |   |   |   | ├─ArraySyntax
+//@[040:00041) |   |   |   | | ├─Token(LeftSquare) |[|
+//@[041:00042) |   |   |   | | └─Token(RightSquare) |]|
+//@[042:00043) |   |   |   | ├─Token(Colon) |:|
+//@[044:00046) |   |   |   | ├─ObjectSyntax
+//@[044:00045) |   |   |   | | ├─Token(LeftBrace) |{|
+//@[045:00046) |   |   |   | | └─Token(RightBrace) |}|
+//@[046:00047) |   |   |   | └─Token(RightSquare) |]|
+//@[048:00049) |   |   |   ├─Token(Colon) |:|
+//@[050:00067) |   |   |   └─ForSyntax
+//@[050:00051) |   |   |     ├─Token(LeftSquare) |[|
+//@[051:00054) |   |   |     ├─Token(Identifier) |for|
+//@[055:00056) |   |   |     ├─LocalVariableSyntax
+//@[055:00056) |   |   |     | └─IdentifierSyntax
+//@[055:00056) |   |   |     |   └─Token(Identifier) |x|
+//@[057:00059) |   |   |     ├─Token(Identifier) |in|
+//@[060:00062) |   |   |     ├─ArraySyntax
+//@[060:00061) |   |   |     | ├─Token(LeftSquare) |[|
+//@[061:00062) |   |   |     | └─Token(RightSquare) |]|
+//@[062:00063) |   |   |     ├─Token(Colon) |:|
+//@[064:00066) |   |   |     ├─ObjectSyntax
+//@[064:00065) |   |   |     | ├─Token(LeftBrace) |{|
+//@[065:00066) |   |   |     | └─Token(RightBrace) |}|
+//@[066:00067) |   |   |     └─Token(RightSquare) |]|
+//@[067:00069) |   |   ├─Token(NewLine) |\r\n|
     dataSources: dataCollectionRule.dataSources
-//@[4:47)     ObjectPropertySyntax
-//@[4:15)      IdentifierSyntax
-//@[4:15)       Identifier |dataSources|
-//@[15:16)      Colon |:|
-//@[17:47)      PropertyAccessSyntax
-//@[17:35)       VariableAccessSyntax
-//@[17:35)        IdentifierSyntax
-//@[17:35)         Identifier |dataCollectionRule|
-//@[35:36)       Dot |.|
-//@[36:47)       IdentifierSyntax
-//@[36:47)        Identifier |dataSources|
-//@[47:49)     NewLine |\r\n|
+//@[004:00047) |   |   ├─ObjectPropertySyntax
+//@[004:00015) |   |   | ├─IdentifierSyntax
+//@[004:00015) |   |   | | └─Token(Identifier) |dataSources|
+//@[015:00016) |   |   | ├─Token(Colon) |:|
+//@[017:00047) |   |   | └─PropertyAccessSyntax
+//@[017:00035) |   |   |   ├─VariableAccessSyntax
+//@[017:00035) |   |   |   | └─IdentifierSyntax
+//@[017:00035) |   |   |   |   └─Token(Identifier) |dataCollectionRule|
+//@[035:00036) |   |   |   ├─Token(Dot) |.|
+//@[036:00047) |   |   |   └─IdentifierSyntax
+//@[036:00047) |   |   |     └─Token(Identifier) |dataSources|
+//@[047:00049) |   |   ├─Token(NewLine) |\r\n|
     dataFlows: dataCollectionRule.dataFlows
-//@[4:43)     ObjectPropertySyntax
-//@[4:13)      IdentifierSyntax
-//@[4:13)       Identifier |dataFlows|
-//@[13:14)      Colon |:|
-//@[15:43)      PropertyAccessSyntax
-//@[15:33)       VariableAccessSyntax
-//@[15:33)        IdentifierSyntax
-//@[15:33)         Identifier |dataCollectionRule|
-//@[33:34)       Dot |.|
-//@[34:43)       IdentifierSyntax
-//@[34:43)        Identifier |dataFlows|
-//@[43:45)     NewLine |\r\n|
+//@[004:00043) |   |   ├─ObjectPropertySyntax
+//@[004:00013) |   |   | ├─IdentifierSyntax
+//@[004:00013) |   |   | | └─Token(Identifier) |dataFlows|
+//@[013:00014) |   |   | ├─Token(Colon) |:|
+//@[015:00043) |   |   | └─PropertyAccessSyntax
+//@[015:00033) |   |   |   ├─VariableAccessSyntax
+//@[015:00033) |   |   |   | └─IdentifierSyntax
+//@[015:00033) |   |   |   |   └─Token(Identifier) |dataCollectionRule|
+//@[033:00034) |   |   |   ├─Token(Dot) |.|
+//@[034:00043) |   |   |   └─IdentifierSyntax
+//@[034:00043) |   |   |     └─Token(Identifier) |dataFlows|
+//@[043:00045) |   |   ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 @description('The language of the Deployment Script. AzurePowerShell or AzureCLI.')
-//@[0:176) ParameterDeclarationSyntax
-//@[0:83)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:83)   FunctionCallSyntax
-//@[1:12)    IdentifierSyntax
-//@[1:12)     Identifier |description|
-//@[12:13)    LeftParen |(|
-//@[13:82)    FunctionArgumentSyntax
-//@[13:82)     StringSyntax
-//@[13:82)      StringComplete |'The language of the Deployment Script. AzurePowerShell or AzureCLI.'|
-//@[82:83)    RightParen |)|
-//@[83:85)  NewLine |\r\n|
+//@[000:00176) ├─ParameterDeclarationSyntax
+//@[000:00083) | ├─DecoratorSyntax
+//@[000:00001) | | ├─Token(At) |@|
+//@[001:00083) | | └─FunctionCallSyntax
+//@[001:00012) | |   ├─IdentifierSyntax
+//@[001:00012) | |   | └─Token(Identifier) |description|
+//@[012:00013) | |   ├─Token(LeftParen) |(|
+//@[013:00082) | |   ├─FunctionArgumentSyntax
+//@[013:00082) | |   | └─StringSyntax
+//@[013:00082) | |   |   └─Token(StringComplete) |'The language of the Deployment Script. AzurePowerShell or AzureCLI.'|
+//@[082:00083) | |   └─Token(RightParen) |)|
+//@[083:00085) | ├─Token(NewLine) |\r\n|
 @allowed([
-//@[0:49)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:49)   FunctionCallSyntax
-//@[1:8)    IdentifierSyntax
-//@[1:8)     Identifier |allowed|
-//@[8:9)    LeftParen |(|
-//@[9:48)    FunctionArgumentSyntax
-//@[9:48)     ArraySyntax
-//@[9:10)      LeftSquare |[|
-//@[10:12)      NewLine |\r\n|
+//@[000:00049) | ├─DecoratorSyntax
+//@[000:00001) | | ├─Token(At) |@|
+//@[001:00049) | | └─FunctionCallSyntax
+//@[001:00008) | |   ├─IdentifierSyntax
+//@[001:00008) | |   | └─Token(Identifier) |allowed|
+//@[008:00009) | |   ├─Token(LeftParen) |(|
+//@[009:00048) | |   ├─FunctionArgumentSyntax
+//@[009:00048) | |   | └─ArraySyntax
+//@[009:00010) | |   |   ├─Token(LeftSquare) |[|
+//@[010:00012) | |   |   ├─Token(NewLine) |\r\n|
   'AzureCLI'
-//@[2:12)      ArrayItemSyntax
-//@[2:12)       StringSyntax
-//@[2:12)        StringComplete |'AzureCLI'|
-//@[12:14)      NewLine |\r\n|
+//@[002:00012) | |   |   ├─ArrayItemSyntax
+//@[002:00012) | |   |   | └─StringSyntax
+//@[002:00012) | |   |   |   └─Token(StringComplete) |'AzureCLI'|
+//@[012:00014) | |   |   ├─Token(NewLine) |\r\n|
   'AzurePowerShell'
-//@[2:19)      ArrayItemSyntax
-//@[2:19)       StringSyntax
-//@[2:19)        StringComplete |'AzurePowerShell'|
-//@[19:21)      NewLine |\r\n|
+//@[002:00019) | |   |   ├─ArrayItemSyntax
+//@[002:00019) | |   |   | └─StringSyntax
+//@[002:00019) | |   |   |   └─Token(StringComplete) |'AzurePowerShell'|
+//@[019:00021) | |   |   ├─Token(NewLine) |\r\n|
 ])
-//@[0:1)      RightSquare |]|
-//@[1:2)    RightParen |)|
-//@[2:4)  NewLine |\r\n|
+//@[000:00001) | |   |   └─Token(RightSquare) |]|
+//@[001:00002) | |   └─Token(RightParen) |)|
+//@[002:00004) | ├─Token(NewLine) |\r\n|
 param issue4668_kind string = 'AzureCLI'
-//@[0:5)  Identifier |param|
-//@[6:20)  IdentifierSyntax
-//@[6:20)   Identifier |issue4668_kind|
-//@[21:27)  SimpleTypeSyntax
-//@[21:27)   Identifier |string|
-//@[28:40)  ParameterDefaultValueSyntax
-//@[28:29)   Assignment |=|
-//@[30:40)   StringSyntax
-//@[30:40)    StringComplete |'AzureCLI'|
-//@[40:42) NewLine |\r\n|
+//@[000:00005) | ├─Token(Identifier) |param|
+//@[006:00020) | ├─IdentifierSyntax
+//@[006:00020) | | └─Token(Identifier) |issue4668_kind|
+//@[021:00027) | ├─SimpleTypeSyntax
+//@[021:00027) | | └─Token(Identifier) |string|
+//@[028:00040) | └─ParameterDefaultValueSyntax
+//@[028:00029) |   ├─Token(Assignment) |=|
+//@[030:00040) |   └─StringSyntax
+//@[030:00040) |     └─Token(StringComplete) |'AzureCLI'|
+//@[040:00042) ├─Token(NewLine) |\r\n|
 @description('The identity that will be used to execute the Deployment Script.')
-//@[0:113) ParameterDeclarationSyntax
-//@[0:80)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:80)   FunctionCallSyntax
-//@[1:12)    IdentifierSyntax
-//@[1:12)     Identifier |description|
-//@[12:13)    LeftParen |(|
-//@[13:79)    FunctionArgumentSyntax
-//@[13:79)     StringSyntax
-//@[13:79)      StringComplete |'The identity that will be used to execute the Deployment Script.'|
-//@[79:80)    RightParen |)|
-//@[80:82)  NewLine |\r\n|
+//@[000:00113) ├─ParameterDeclarationSyntax
+//@[000:00080) | ├─DecoratorSyntax
+//@[000:00001) | | ├─Token(At) |@|
+//@[001:00080) | | └─FunctionCallSyntax
+//@[001:00012) | |   ├─IdentifierSyntax
+//@[001:00012) | |   | └─Token(Identifier) |description|
+//@[012:00013) | |   ├─Token(LeftParen) |(|
+//@[013:00079) | |   ├─FunctionArgumentSyntax
+//@[013:00079) | |   | └─StringSyntax
+//@[013:00079) | |   |   └─Token(StringComplete) |'The identity that will be used to execute the Deployment Script.'|
+//@[079:00080) | |   └─Token(RightParen) |)|
+//@[080:00082) | ├─Token(NewLine) |\r\n|
 param issue4668_identity object
-//@[0:5)  Identifier |param|
-//@[6:24)  IdentifierSyntax
-//@[6:24)   Identifier |issue4668_identity|
-//@[25:31)  SimpleTypeSyntax
-//@[25:31)   Identifier |object|
-//@[31:33) NewLine |\r\n|
+//@[000:00005) | ├─Token(Identifier) |param|
+//@[006:00024) | ├─IdentifierSyntax
+//@[006:00024) | | └─Token(Identifier) |issue4668_identity|
+//@[025:00031) | └─SimpleTypeSyntax
+//@[025:00031) |   └─Token(Identifier) |object|
+//@[031:00033) ├─Token(NewLine) |\r\n|
 @description('The properties of the Deployment Script.')
-//@[0:91) ParameterDeclarationSyntax
-//@[0:56)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:56)   FunctionCallSyntax
-//@[1:12)    IdentifierSyntax
-//@[1:12)     Identifier |description|
-//@[12:13)    LeftParen |(|
-//@[13:55)    FunctionArgumentSyntax
-//@[13:55)     StringSyntax
-//@[13:55)      StringComplete |'The properties of the Deployment Script.'|
-//@[55:56)    RightParen |)|
-//@[56:58)  NewLine |\r\n|
+//@[000:00091) ├─ParameterDeclarationSyntax
+//@[000:00056) | ├─DecoratorSyntax
+//@[000:00001) | | ├─Token(At) |@|
+//@[001:00056) | | └─FunctionCallSyntax
+//@[001:00012) | |   ├─IdentifierSyntax
+//@[001:00012) | |   | └─Token(Identifier) |description|
+//@[012:00013) | |   ├─Token(LeftParen) |(|
+//@[013:00055) | |   ├─FunctionArgumentSyntax
+//@[013:00055) | |   | └─StringSyntax
+//@[013:00055) | |   |   └─Token(StringComplete) |'The properties of the Deployment Script.'|
+//@[055:00056) | |   └─Token(RightParen) |)|
+//@[056:00058) | ├─Token(NewLine) |\r\n|
 param issue4668_properties object
-//@[0:5)  Identifier |param|
-//@[6:26)  IdentifierSyntax
-//@[6:26)   Identifier |issue4668_properties|
-//@[27:33)  SimpleTypeSyntax
-//@[27:33)   Identifier |object|
-//@[33:35) NewLine |\r\n|
+//@[000:00005) | ├─Token(Identifier) |param|
+//@[006:00026) | ├─IdentifierSyntax
+//@[006:00026) | | └─Token(Identifier) |issue4668_properties|
+//@[027:00033) | └─SimpleTypeSyntax
+//@[027:00033) |   └─Token(Identifier) |object|
+//@[033:00035) ├─Token(NewLine) |\r\n|
 resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:229) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:31)  IdentifierSyntax
-//@[9:31)   Identifier |issue4668_mainResource|
-//@[32:82)  StringSyntax
-//@[32:82)   StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[83:84)  Assignment |=|
-//@[85:229)  ObjectSyntax
-//@[85:86)   LeftBrace |{|
-//@[86:88)   NewLine |\r\n|
+//@[000:00229) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00031) | ├─IdentifierSyntax
+//@[009:00031) | | └─Token(Identifier) |issue4668_mainResource|
+//@[032:00082) | ├─StringSyntax
+//@[032:00082) | | └─Token(StringComplete) |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[083:00084) | ├─Token(Assignment) |=|
+//@[085:00229) | └─ObjectSyntax
+//@[085:00086) |   ├─Token(LeftBrace) |{|
+//@[086:00088) |   ├─Token(NewLine) |\r\n|
   name: 'testscript'
-//@[2:20)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:20)    StringSyntax
-//@[8:20)     StringComplete |'testscript'|
-//@[20:22)   NewLine |\r\n|
+//@[002:00020) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |name|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00020) |   | └─StringSyntax
+//@[008:00020) |   |   └─Token(StringComplete) |'testscript'|
+//@[020:00022) |   ├─Token(NewLine) |\r\n|
   location: 'westeurope'
-//@[2:24)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |location|
-//@[10:11)    Colon |:|
-//@[12:24)    StringSyntax
-//@[12:24)     StringComplete |'westeurope'|
-//@[24:26)   NewLine |\r\n|
+//@[002:00024) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |location|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00024) |   | └─StringSyntax
+//@[012:00024) |   |   └─Token(StringComplete) |'westeurope'|
+//@[024:00026) |   ├─Token(NewLine) |\r\n|
   kind: issue4668_kind
-//@[2:22)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |kind|
-//@[6:7)    Colon |:|
-//@[8:22)    VariableAccessSyntax
-//@[8:22)     IdentifierSyntax
-//@[8:22)      Identifier |issue4668_kind|
-//@[22:24)   NewLine |\r\n|
+//@[002:00022) |   ├─ObjectPropertySyntax
+//@[002:00006) |   | ├─IdentifierSyntax
+//@[002:00006) |   | | └─Token(Identifier) |kind|
+//@[006:00007) |   | ├─Token(Colon) |:|
+//@[008:00022) |   | └─VariableAccessSyntax
+//@[008:00022) |   |   └─IdentifierSyntax
+//@[008:00022) |   |     └─Token(Identifier) |issue4668_kind|
+//@[022:00024) |   ├─Token(NewLine) |\r\n|
   identity: issue4668_identity
-//@[2:30)   ObjectPropertySyntax
-//@[2:10)    IdentifierSyntax
-//@[2:10)     Identifier |identity|
-//@[10:11)    Colon |:|
-//@[12:30)    VariableAccessSyntax
-//@[12:30)     IdentifierSyntax
-//@[12:30)      Identifier |issue4668_identity|
-//@[30:32)   NewLine |\r\n|
+//@[002:00030) |   ├─ObjectPropertySyntax
+//@[002:00010) |   | ├─IdentifierSyntax
+//@[002:00010) |   | | └─Token(Identifier) |identity|
+//@[010:00011) |   | ├─Token(Colon) |:|
+//@[012:00030) |   | └─VariableAccessSyntax
+//@[012:00030) |   |   └─IdentifierSyntax
+//@[012:00030) |   |     └─Token(Identifier) |issue4668_identity|
+//@[030:00032) |   ├─Token(NewLine) |\r\n|
   properties: issue4668_properties
-//@[2:34)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:34)    VariableAccessSyntax
-//@[14:34)     IdentifierSyntax
-//@[14:34)      Identifier |issue4668_properties|
-//@[34:36)   NewLine |\r\n|
+//@[002:00034) |   ├─ObjectPropertySyntax
+//@[002:00012) |   | ├─IdentifierSyntax
+//@[002:00012) |   | | └─Token(Identifier) |properties|
+//@[012:00013) |   | ├─Token(Colon) |:|
+//@[014:00034) |   | └─VariableAccessSyntax
+//@[014:00034) |   |   └─IdentifierSyntax
+//@[014:00034) |   |     └─Token(Identifier) |issue4668_properties|
+//@[034:00036) |   ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00003) ├─Token(NewLine) |\r\n|
 
-//@[0:0) EndOfFile ||
+//@[000:00000) └─Token(EndOfFile) ||

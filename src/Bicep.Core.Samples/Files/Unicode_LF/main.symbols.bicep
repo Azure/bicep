@@ -38,4 +38,4 @@ var surrogate_pairs     = '\u{D801}\u{DC37}'
 
 // ascii escapes
 var hello = '❆ Hello\u{20}World\u{21} ❁'
-//@[4:9) Variable hello. Type: '❆ Hello World! ❁'. Declaration start char: 0, length: 40
+//@[4:09) Variable hello. Type: '❆ Hello World! ❁'. Declaration start char: 0, length: 40

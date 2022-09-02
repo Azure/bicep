@@ -1,35 +1,39 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import vscode from "vscode";
-
+import { BicepVisualizerViewManager } from "./visualizer";
+import { createAzExtOutputChannel } from "./utils/AzExtOutputChannel";
+import { OutputChannelManager } from "./utils/OutputChannelManager";
 import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
-import {
-  createAzExtOutputChannel,
-  registerUIExtensionVariables,
-} from "@microsoft/vscode-azext-utils";
-
+import { registerUIExtensionVariables } from "@microsoft/vscode-azext-utils";
+import { TreeManager } from "./tree/TreeManager";
 import {
   BuildCommand,
   CommandManager,
   DeployCommand,
+  ForceModulesRestoreCommand,
+  GenerateParamsCommand,
   InsertResourceCommand,
   ShowSourceCommand,
   ShowVisualizerCommand,
   ShowVisualizerToSideCommand,
+  WalkthroughCopyToClipboardCommand,
+  WalkthroughCreateBicepFileCommand,
+  WalkthroughOpenBicepFileCommand,
 } from "./commands";
 import {
   BicepCacheContentProvider,
   launchLanguageServiceWithProgressReport,
 } from "./language";
-import { TreeManager } from "./tree/TreeManager";
 import {
   activateWithTelemetryAndErrorHandling,
   createLogger,
   Disposable,
   resetLogger,
 } from "./utils";
-import { OutputChannelManager } from "./utils/OutputChannelManager";
-import { BicepVisualizerViewManager } from "./visualizer";
+import { CreateBicepConfigurationFile } from "./commands/createConfigurationFile";
+import { ImportKubernetesManifestCommand } from "./commands/importKubernetesManifest";
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -94,11 +98,18 @@ export async function activate(
       .register(new CommandManager(context))
       .registerCommands(
         new BuildCommand(languageClient, outputChannelManager),
+        new GenerateParamsCommand(languageClient, outputChannelManager),
+        new CreateBicepConfigurationFile(languageClient),
         new DeployCommand(languageClient, outputChannelManager, treeManager),
+        new ForceModulesRestoreCommand(languageClient, outputChannelManager),
         new InsertResourceCommand(languageClient),
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
-        new ShowSourceCommand(viewManager)
+        new ShowSourceCommand(viewManager),
+        new WalkthroughCopyToClipboardCommand(),
+        new WalkthroughCreateBicepFileCommand(),
+        new WalkthroughOpenBicepFileCommand(),
+        new ImportKubernetesManifestCommand(languageClient)
       );
   });
 }

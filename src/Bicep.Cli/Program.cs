@@ -6,6 +6,7 @@ using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Exceptions;
@@ -77,6 +78,9 @@ namespace Bicep.Cli
                     case BuildArguments buildArguments when buildArguments.CommandName == Constants.Command.Build: // bicep build [options]
                         return await serviceProvider.GetRequiredService<BuildCommand>().RunAsync(buildArguments);
 
+                    case GenerateParametersFileArguments generateParametersFileArguments when generateParametersFileArguments.CommandName == Constants.Command.GenerateParamsFile: // bicep generate-params [options]
+                        return await serviceProvider.GetRequiredService<GenerateParametersFileCommand>().RunAsync(generateParametersFileArguments);
+
                     case DecompileArguments decompileArguments when decompileArguments.CommandName == Constants.Command.Decompile: // bicep decompile [options]
                         return await serviceProvider.GetRequiredService<DecompileCommand>().RunAsync(decompileArguments);
 
@@ -123,9 +127,12 @@ namespace Bicep.Cli
                 .AddSingleton<IFileSystem, FileSystem>()
                 .AddSingleton<IConfigurationManager, ConfigurationManager>()
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
+                .AddSingleton<IApiVersionProvider, ApiVersionProvider>()
                 .AddSingleton<TemplateDecompiler>()
                 .AddSingleton<DecompilationWriter>()
                 .AddSingleton<CompilationWriter>()
+                .AddSingleton<PlaceholderParametersWriter>()
+                .AddSingleton<ParametersWriter>()
                 .AddSingleton<CompilationService>()
                 .BuildServiceProvider();
         }

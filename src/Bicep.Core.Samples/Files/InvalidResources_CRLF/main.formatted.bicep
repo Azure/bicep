@@ -14,21 +14,27 @@ resource trailingSpace
 resource foo 'ddd'= 
 
 // wrong resource type
-resource foo 'ddd' = {}
+resource foo 'ddd' = {
+}
 
-resource foo 'ddd' = if (1 + 1 == 2) {}
+resource foo 'ddd' = if (1 + 1 == 2) {
+}
 
 // using string interpolation for the resource type
-resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha' = {}
+resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha' = {
+}
 
-resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha' = if (true) {}
+resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha' = if (true) {
+}
 
 // missing required property
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {
+}
 
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (name == 'value') {}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (name == 'value') {
+}
 
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if ({ 'a': b }.a == 'foo') {
 }
 
 // simulate typing if condition
@@ -103,7 +109,8 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 // wrong property types
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'foo'
-  location: []
+  location: [
+  ]
   tags: 'tag are not a string?'
 }
 
@@ -388,6 +395,7 @@ resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for oth
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
   // #completionTest(0, 1, 2) -> topLevelProperties
+
 }
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
@@ -395,6 +403,7 @@ resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@
   name: 'me'
   // do not remove whitespace before the closing curly
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
+
 }
 
 // #completionTest(24,25,26,49,65,69,70) -> virtualNetworksResourceTypes
@@ -411,6 +420,7 @@ resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
           delegations: [
             {
               // #completionTest(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14) -> delegationProperties
+
             }
           ]
         }
@@ -424,6 +434,7 @@ Discriminator key missing
 */
 resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   // #completionTest(0,1,2) -> discriminatorProperty
+
 }
 
 /*
@@ -431,6 +442,7 @@ Discriminator key missing (conditional)
 */
 resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if (true) {
   // #completionTest(0,1,2) -> discriminatorProperty
+
 }
 
 /*
@@ -438,6 +450,7 @@ Discriminator key missing (loop)
 */
 resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
   // #completionTest(0,1,2) -> discriminatorProperty
+
 }]
 
 /*
@@ -445,6 +458,7 @@ Discriminator key missing (filtered loop)
 */
 resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if (true) {
   // #completionTest(0,1,2) -> discriminatorProperty
+
 }]
 
 /*
@@ -524,6 +538,7 @@ resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-0
 
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+
   }
 }
 // #completionTest(75) -> cliPropertyAccess
@@ -543,6 +558,7 @@ resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-1
 
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+
   }
 }
 // #completionTest(81) -> cliPropertyAccess
@@ -562,6 +578,7 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+
   }
 }]
 // #completionTest(86) -> cliPropertyAccess
@@ -581,6 +598,7 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
+
   }
 }]
 // #completionTest(92) -> cliPropertyAccess
@@ -600,6 +618,7 @@ resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-0
 
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
+
   }
 }
 // #completionTest(75) -> powershellPropertyAccess
@@ -621,6 +640,7 @@ resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-1
 
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
+
   }
 }
 // #completionTest(81) -> powershellPropertyAccess
@@ -642,6 +662,7 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
+
   }
 }]
 // #completionTest(86) -> powershellPropertyAccess
@@ -663,6 +684,7 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 
   properties: {
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
+
   }
 }]
 // #completionTest(92) -> powershellPropertyAccess
@@ -678,7 +700,8 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetT
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   kind: 'AzureCLI'
 
-  propertes: {}
+  propertes: {
+  }
 }
 
 var mock = incorrectPropertiesKey.p
@@ -722,7 +745,8 @@ resource startedTypingTypeWithQuotes 'virma'
 // #completionTest(40,41,42,43,44,45) -> resourceTypes
 resource startedTypingTypeWithoutQuotes virma
 
-resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {}
+resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
+}
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
@@ -736,6 +760,7 @@ resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@20
   location: 'l'
   properties: {
     //createMode: 'Default'
+
   }
 }
 // #completionTest(90) -> createMode
@@ -754,6 +779,7 @@ resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts
   location: 'l'
   properties: {
     //createMode: 'Default'
+
   }
 }
 // #completionTest(96) -> createMode
@@ -772,6 +798,7 @@ resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccount
   location: 'l'
   properties: {
     //createMode: 'Default'
+
   }
 }]
 // #completionTest(101) -> createMode
@@ -790,6 +817,7 @@ resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAcco
   location: 'l'
   properties: {
     //createMode: 'Default'
+
   }
 }]
 // #completionTest(107) -> createMode
@@ -808,6 +836,7 @@ resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-p
   location: 'l'
   properties: {
     createMode: 'Default'
+
   }
 }
 // #completionTest(69) -> defaultCreateModeProperties
@@ -830,6 +859,7 @@ resource nestedDiscriminator_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-0
   location: 'l'
   properties: {
     createMode: 'Default'
+
   }
 }
 // #completionTest(75) -> defaultCreateModeProperties
@@ -852,6 +882,7 @@ resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-
   location: 'l'
   properties: {
     createMode: 'Default'
+
   }
 }]
 // #completionTest(80) -> defaultCreateModeProperties
@@ -874,6 +905,7 @@ resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-
   location: 'l'
   properties: {
     createMode: 'Default'
+
   }
 }]
 // #completionTest(86) -> defaultCreateModeProperties
@@ -893,7 +925,9 @@ resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@20
   location: 'test'
   name: 'test'
   properties: {
-    additionalCapabilities: {}
+    additionalCapabilities: {
+
+    }
   }
 }
 // this validates that we can get nested property access completions on a conditional resource
@@ -1000,47 +1034,56 @@ resource expectedComma 'Microsoft.Network/dnsZones@2018-05-01' = [for (x)]
 
 resource expectedLoopIndexName 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, )]
 
-resource expectedInKeyword3 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)]
+resource expectedInKeyword3 'Microsoft.Network/dnsZones@2018-05-01' = [for (x,  y)]
 
-resource expectedInKeyword4 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) z]
+resource expectedInKeyword4 'Microsoft.Network/dnsZones@2018-05-01' = [for (x,  y) z]
 
-resource expectedArrayExpression2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in ]
+resource expectedArrayExpression2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x,  y) in ]
 
-resource expectedColon2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z]
+resource expectedColon2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x,  y) in z]
 
-resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z:]
+resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x,  y) in z:]
 
 // loop filter parsing cases
 resource expectedLoopFilterOpenParen 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if]
-resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if]
+resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x,  y) in z: if]
 
 resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if()]
-resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if()]
+resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x,  y) in z: if()]
 
 // wrong body type
 var emptyArray = []
 resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray:4]
-resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
+resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x , i) in emptyArray:4]
 
 // duplicate variable in the same scope
-resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {}]
+resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
+}]
 
 // errors in the array expression
-resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {}]
-resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, k) in union([], 2): {}]
+resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {
+}]
+resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, k) in union([], 2): {
+}]
 
 // wrong array type
 var notAnArray = true
-resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in notAnArray: {}]
-resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in notAnArray: {}]
+resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in notAnArray: {
+}]
+resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in notAnArray: {
+}]
 
 // wrong filter expression type
-resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in emptyArray: if (4) {}]
-resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in emptyArray: if (concat('s')) {}]
+resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in emptyArray: if (4) {
+}]
+resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in emptyArray: if (concat('s')) {
+}]
 
 // missing required properties
-resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {}]
-resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, j) in []: {}]
+resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
+}]
+resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, j) in []: {
+}]
 
 // fewer missing required properties and a wrong property
 resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
@@ -1091,6 +1134,7 @@ resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' 
   }
   kind: 'StorageV2'
   properties: {
+
     networkAcls: {
       virtualNetworkRules: [for rule in []: {
         id: '${account.name}-${account.location}'
@@ -1107,6 +1151,7 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
   }
   kind: 'StorageV2'
   properties: {
+
     networkAcls: {
       virtualNetworkRules: [for (rule, j) in []: {
         id: '${account.name}-${account.location}'
@@ -1204,7 +1249,9 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
       premiumStorages
     ]
   }
-  dependsOn: []
+  dependsOn: [
+
+  ]
 }]
 
 var expressionInPropertyLoopVar = true
@@ -1220,10 +1267,10 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
 @batchSize(-1)
 resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
-resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: 'test']
-resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: environment()]
-resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) 'test']
-resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) environment()]
+resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing, i) in []: 'test']
+resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing, i) in []: environment()]
+resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing, i) in []: if(true) 'test']
+resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing, i) in []: if(true) environment()]
 
 // #completionTest(54,55) -> objectPlusFor
 resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
@@ -1502,15 +1549,15 @@ resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-0
   properties: {
     description: dataCollectionRule.description
     destinations: union(empty(dataCollectionRule.destinations.azureMonitorMetrics.name) ? {} : {
-      azureMonitorMetrics: {
-        name: dataCollectionRule.destinations.azureMonitorMetrics.name
-      }
-    }, {
-      logAnalytics: [for (logAnalyticsWorkspace, i) in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
-        name: logAnalyticsWorkspace.destinationName
-        workspaceResourceId: logAnalyticsWorkspaces[i].id
-      }]
-    })
+        azureMonitorMetrics: {
+          name: dataCollectionRule.destinations.azureMonitorMetrics.name
+        }
+      }, {
+        logAnalytics: [for (logAnalyticsWorkspace, i) in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
+          name: logAnalyticsWorkspace.destinationName
+          workspaceResourceId: logAnalyticsWorkspaces[i].id
+        }]
+      })
     dataSources: dataCollectionRule.dataSources
     dataFlows: dataCollectionRule.dataFlows
   }

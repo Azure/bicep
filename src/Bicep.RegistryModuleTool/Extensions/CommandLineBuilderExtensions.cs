@@ -16,7 +16,7 @@ namespace Bicep.RegistryModuleTool.Extensions
                 return builder;
             }
 
-            builder.AddGlobalOption(GlobalOptions.Verbose);
+            builder.Command.AddGlobalOption(GlobalOptions.Verbose);
 
             return builder;
         }

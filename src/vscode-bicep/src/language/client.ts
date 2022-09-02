@@ -16,6 +16,7 @@ import {
   CloseAction,
   TransportKind,
 } from "vscode-languageclient/node";
+import { writeDeploymentOutputMessageToBicepOperationsOutputChannel } from "../commands/deployHelper";
 
 const dotnetRuntimeVersion = "6.0";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
@@ -47,6 +48,10 @@ function getServerStartupOptions(
     // pause language server startup until a dotnet debugger has been attached
     args.push(`--wait-for-debugger`);
   }
+  const envVars = {
+    ...process.env,
+    ...getFeatureEnvVars(),
+  };
 
   switch (transportKind) {
     case TransportKind.stdio: {
@@ -54,7 +59,7 @@ function getServerStartupOptions(
         command: dotnetCommandPath,
         args: [languageServerPath, ...args],
         options: {
-          env: process.env,
+          env: envVars,
         },
       };
       return {
@@ -69,7 +74,7 @@ function getServerStartupOptions(
         transport: transportKind,
         args,
         options: {
-          env: process.env,
+          env: envVars,
         },
       };
       return {
@@ -127,7 +132,7 @@ async function launchLanguageService(
         ),
     },
     synchronize: {
-      // These file watcher globs should be kept in-sync with those defined in BicepDidChangeWatchedFilesHander.cs
+      // These file watcher globs should be kept in-sync with those defined in BicepDidChangeWatchedFilesHandler.cs
       fileEvents: [
         vscode.workspace.createFileSystemWatcher("**/"), // folder changes
         vscode.workspace.createFileSystemWatcher("**/*.bicep"), // .bicep file changes
@@ -155,6 +160,15 @@ async function launchLanguageService(
   getLogger().info("Bicep language service started.");
 
   await client.onReady();
+
+  client.onNotification(
+    "deploymentComplete",
+    writeDeploymentOutputMessageToBicepOperationsOutputChannel
+  );
+
+  client.onNotification("bicep/triggerEditorCompletion", () => {
+    vscode.commands.executeCommand("editor.action.triggerSuggest");
+  });
 
   getLogger().info("Bicep language service ready.");
 
@@ -253,5 +267,15 @@ function configureTelemetry(client: lsp.LanguageClient) {
       );
       return defaultErrorHandler.closed();
     },
+  };
+}
+
+function getFeatureEnvVars() {
+  const importsEnabledExperimental = vscode.workspace
+    .getConfiguration("bicep")
+    .get<boolean>("importsEnabledExperimental");
+
+  return {
+    BICEP_IMPORTS_ENABLED_EXPERIMENTAL: importsEnabledExperimental,
   };
 }

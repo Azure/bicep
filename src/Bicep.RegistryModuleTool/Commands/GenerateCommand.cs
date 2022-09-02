@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.RegistryModuleTool.Exceptions;
+using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
+using Bicep.RegistryModuleTool.ModuleValidators;
 using Bicep.RegistryModuleTool.Proxies;
 using Microsoft.Extensions.Logging;
 using System;
@@ -31,8 +34,19 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.processProxy = processProxy;
             }
 
-            protected override int Invoke(InvocationContext context)
+            protected override int InvokeInternal(InvocationContext context)
             {
+                try
+                {
+                    ModulePathValidator.ValidateModulePath(this.FileSystem);
+                }
+                catch (InvalidModuleException exception)
+                {
+                    context.Console.WriteError(exception.Message);
+
+                    return 1;
+                }
+
                 // Read or create main Bicep file.
                 this.Logger.LogInformation("Ensuring {MainBicepFile} exists...", "main Bicep file");
                 var mainBicepFile = MainBicepFile.EnsureInFileSystem(this.FileSystem);

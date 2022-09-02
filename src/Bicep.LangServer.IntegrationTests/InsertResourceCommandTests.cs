@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Azure.Deployments.Core.Json;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -32,6 +31,7 @@ using Bicep.Core.Extensions;
 using System.Linq;
 using System;
 using Bicep.LangServer.IntegrationTests.Assertions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -57,25 +57,21 @@ namespace Bicep.LangServer.IntegrationTests
         {
             return await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
-                options =>
-                {
-                    options.OnPublishDiagnostics(x => listeners.Diagnostics.AddMessage(x));
-                    options.OnShowMessage(x => listeners.ShowMessage.AddMessage(x));
-                    options.OnApplyWorkspaceEdit(async p =>
+                options => options
+                    .OnPublishDiagnostics(listeners.Diagnostics.AddMessage)
+                    .OnShowMessage(listeners.ShowMessage.AddMessage)
+                    .OnApplyWorkspaceEdit(async p =>
                     {
                         listeners.ApplyWorkspaceEdit.AddMessage(p);
 
                         await Task.Yield();
                         return new();
-                    });
-                    options.OnTelemetryEvent(x => listeners.Telemetry.AddMessage(x));
-                },
+                    })
+                    .OnTelemetryEvent(listeners.Telemetry.AddMessage),
                 new LanguageServer.Server.CreationOptions(
-                    onRegisterServices: services =>
-                    {
-                        services.AddSingleton<IAzResourceProvider>(azResourceProvider);
-                        services.AddSingleton<IAzResourceTypeLoader>(azResourceTypeLoader);
-                    }));
+                    onRegisterServices: services => services
+                        .AddSingleton<IAzResourceProvider>(azResourceProvider)
+                        .AddSingleton<IAzResourceTypeLoader>(azResourceTypeLoader)));
         }
 
         [TestMethod]
@@ -117,7 +113,7 @@ resource myRes 'myRp/provider@2019-01-01' = {
   name: 'te|st'
 }
 module myMod './module.bicep' = {
-  name: 'test' 
+  name: 'test'
 }
 output myOutput string = 'myOutput'
 ");
@@ -159,17 +155,17 @@ resource myName 'My.Rp/myTypes@2020-01-01' = {
   }
 }
 module myMod './module.bicep' = {
-  name: 'test' 
+  name: 'test'
 }
 output myOutput string = 'myOutput'
 ");
 
-            var telemetry = await listeners.Telemetry.WaitNext();
-            telemetry.Should().HaveEventNameAndProperties("InsertResource/success", new JObject
-            {
-                ["resourceType"] = "My.Rp/myTypes",
-                ["apiVersion"] = "2020-01-01",
-            });
+            var telemetry = await listeners.Telemetry.WaitForAll();
+            telemetry.Should().ContainEvent("InsertResource/success", new JObject
+                {
+                    ["resourceType"] = "My.Rp/myTypes",
+                    ["apiVersion"] = "2020-01-01",
+                });
         }
 
         [TestMethod]
@@ -216,7 +212,7 @@ resource myRes 'myRp/provider@2019-01-01' = {
   name: 'te|st'
 }
 module myMod './module.bicep' = {
-  name: 'test' 
+  name: 'test'
 }
 output myOutput string = 'myOutput'
 ");
@@ -258,17 +254,17 @@ resource myRg 'Microsoft.Resources/resourceGroups@2020-01-01' = {
   }
 }
 module myMod './module.bicep' = {
-  name: 'test' 
+  name: 'test'
 }
 output myOutput string = 'myOutput'
 ");
 
-            var telemetry = await listeners.Telemetry.WaitNext();
-            telemetry.Should().HaveEventNameAndProperties("InsertResource/success", new JObject
-            {
-                ["resourceType"] = "Microsoft.Resources/resourceGroups",
-                ["apiVersion"] = "2020-01-01",
-            });
+            var telemetry = await listeners.Telemetry.WaitForAll();
+            telemetry.Should().ContainEvent("InsertResource/success", new JObject
+                {
+                    ["resourceType"] = "Microsoft.Resources/resourceGroups",
+                    ["apiVersion"] = "2020-01-01",
+                });
         }
 
         [TestMethod]
@@ -310,7 +306,7 @@ resource myRes 'myRp/provider@2019-01-01' = {
   name: 'te|st'
 }
 module myMod './module.bicep' = {
-  name: 'test' 
+  name: 'test'
 }
 output myOutput string = 'myOutput'
 ");
@@ -352,17 +348,17 @@ resource childName 'My.Rp/myTypes/childType@2020-01-01' = {
   }
 }
 module myMod './module.bicep' = {
-  name: 'test' 
+  name: 'test'
 }
 output myOutput string = 'myOutput'
 ");
 
-            var telemetry = await listeners.Telemetry.WaitNext();
-            telemetry.Should().HaveEventNameAndProperties("InsertResource/success", new JObject
-            {
-                ["resourceType"] = "My.Rp/myTypes/childType",
-                ["apiVersion"] = "2020-01-01",
-            });
+            var telemetry = await listeners.Telemetry.WaitForAll();
+            telemetry.Should().ContainEvent("InsertResource/success", new JObject
+                {
+                    ["resourceType"] = "My.Rp/myTypes/childType",
+                    ["apiVersion"] = "2020-01-01",
+                });
         }
 
         [TestMethod]
@@ -387,7 +383,7 @@ resource myRes 'myRp/provider@2019-01-01' = {
   name: 'te|st'
 }
 module myMod './module.bicep' = {
-  name: 'test' 
+  name: 'test'
 }
 output myOutput string = 'myOutput'
 ");
@@ -409,11 +405,11 @@ output myOutput string = 'myOutput'
                 "Failed to parse supplied resourceId \"this isn't a resource id!\".",
                 MessageType.Error);
 
-            var telemetry = await listeners.Telemetry.WaitNext();
-            telemetry.Should().HaveEventNameAndProperties("InsertResource/failure", new JObject
-            {
-                ["failureType"] = "ParseResourceIdFailed",
-            });
+            var telemetry = await listeners.Telemetry.WaitForAll();
+            telemetry.Should().ContainEvent("InsertResource/failure", new JObject
+                {
+                    ["failureType"] = "ParseResourceIdFailed"
+                });
         }
 
         [TestMethod]
@@ -436,7 +432,7 @@ resource myRes 'myRp/provider@2019-01-01' = {
   name: 'te|st'
 }
 module myMod './module.bicep' = {
-  name: 'test' 
+  name: 'test'
 }
 output myOutput string = 'myOutput'
 ");
@@ -458,15 +454,15 @@ output myOutput string = 'myOutput'
                 "Failed to find a Bicep type definition for resource of type \"MadeUp.Rp/madeUpTypes\".",
                 MessageType.Error);
 
-            var telemetry = await listeners.Telemetry.WaitNext();
-            telemetry.Should().HaveEventNameAndProperties("InsertResource/failure", new JObject
-            {
-                ["failureType"] = "MissingType(MadeUp.Rp/madeUpTypes)",
-            });
+            var telemetry = await listeners.Telemetry.WaitForAll();
+            telemetry.Should().ContainEvent("InsertResource/failure", new JObject
+                {
+                    ["failureType"] = "MissingType(MadeUp.Rp/madeUpTypes)",
+                });
         }
 
         [TestMethod]
-        public async Task Insert_resource_command_should_return_exception_info()
+        public async Task Insert_resource_command_should_try_to_fetch_without_apiVersion_if_apiVersion_lookup_fails()
         {
             var documentUri = DocumentUri.From("/template.bicep");
             var listeners = CreateListeners();
@@ -486,13 +482,114 @@ output myOutput string = 'myOutput'
             mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
                 .Throws(new InvalidOperationException("Something went wrong!"));
 
+            var mockResource = new JObject
+            {
+                ["id"] = resourceId.FullyQualifiedId,
+                ["name"] = resourceId.NameHierarchy.Last(),
+                ["type"] = resourceId.FormatFullyQualifiedType(),
+                ["properties"] = new JObject
+                {
+                    ["readOnlyProp"] = "abc",
+                    ["readWriteProp"] = "def",
+                    ["writeOnlyProp"] = "ghi",
+                },
+            };
+
+            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), null, It.IsAny<CancellationToken>()))
+                .Returns(async () => await JsonSerializer.DeserializeAsync<JsonElement>(mockResource.ToJsonStream()));
+
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
   name: 'te|st'
 }
 module myMod './module.bicep' = {
-  name: 'test' 
+  name: 'test'
+}
+output myOutput string = 'myOutput'
+");
+            var lineStarts = TextCoordinateConverter.GetLineStarts(file);
+
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, file, 0));
+            await listeners.Diagnostics.WaitNext();
+
+            var cursor = cursors.Single();
+            var result = await client.SendRequest(new InsertResourceParams
+            {
+                TextDocument = documentUri,
+                Position = PositionHelper.GetPosition(lineStarts, cursor),
+                ResourceId = resourceId.FullyQualifiedId,
+            }, default);
+
+            var edit = await listeners.ApplyWorkspaceEdit.WaitNext();
+
+            var changes = edit.Edit.Changes![documentUri];
+            changes.Should().HaveCount(1);
+            var test = changes.First();
+
+            var startOffset = PositionHelper.GetOffset(lineStarts, test.Range.Start);
+            var endOffset = PositionHelper.GetOffset(lineStarts, test.Range.End);
+
+            var replacedFile = file.Substring(0, startOffset) + test.NewText + file.Substring(endOffset);
+
+            replacedFile.Should().Be(@"
+param myParam string = 'test'
+resource myRes 'myRp/provider@2019-01-01' = {
+  name: 'test'
+}
+@description('Generated from /subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg/providers/My.Rp/myTypes/myName')
+resource myName 'My.Rp/myTypes@2020-01-01' = {
+  name: 'myName'
+  properties: {
+    readWriteProp: 'def'
+    writeOnlyProp: 'ghi'
+  }
+}
+module myMod './module.bicep' = {
+  name: 'test'
+}
+output myOutput string = 'myOutput'
+");
+
+            var telemetry = await listeners.Telemetry.WaitForAll();
+            telemetry.Should().ContainEvent("InsertResource/success", new JObject
+                {
+                    ["resourceType"] = "My.Rp/myTypes",
+                    ["apiVersion"] = "2020-01-01",
+                });
+        }
+
+        [TestMethod]
+        public async Task Insert_resource_command_should_return_exception_info_if_both_GETs_fail()
+        {
+            var documentUri = DocumentUri.From("/template.bicep");
+            var listeners = CreateListeners();
+            var mockAzResourceProvider = new Mock<IAzResourceProvider>(MockBehavior.Strict);
+
+            var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/myTypes", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                new TypeProperty("readWriteProp", LanguageConstants.String, TypePropertyFlags.None),
+                new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
+            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
+
+            using var helper = await StartLanguageServer(listeners, mockAzResourceProvider.Object, typeLoader);
+            var client = helper.Client;
+
+            var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "My.Rp", new[] { "myTypes" }, new[] { "myName" });
+
+            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), "2020-01-01", It.IsAny<CancellationToken>()))
+                .Throws(new InvalidOperationException("Something went wrong!"));
+
+            mockAzResourceProvider.Setup(x => x.GetGenericResource(It.IsAny<RootConfiguration>(), It.Is<IAzResourceProvider.AzResourceIdentifier>(x => x.FullyQualifiedId == resourceId.FullyQualifiedId), null, It.IsAny<CancellationToken>()))
+                .Throws(new InvalidOperationException("And something went wrong again!"));
+
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+param myParam string = 'test'
+resource myRes 'myRp/provider@2019-01-01' = {
+  name: 'te|st'
+}
+module myMod './module.bicep' = {
+  name: 'test'
 }
 output myOutput string = 'myOutput'
 ");
@@ -511,14 +608,14 @@ output myOutput string = 'myOutput'
 
             var message = await listeners.ShowMessage.WaitNext();
             message.Should().HaveMessageAndType(
-                "Caught exception fetching resource: Something went wrong!.",
+                "Caught exception fetching resource: And something went wrong again!.",
                 MessageType.Error);
 
-            var telemetry = await listeners.Telemetry.WaitNext();
-            telemetry.Should().HaveEventNameAndProperties("InsertResource/failure", new JObject
-            {
-                ["failureType"] = "FetchResourceFailure",
-            });
+            var telemetry = await listeners.Telemetry.WaitForAll();
+            telemetry.Should().ContainEvent("InsertResource/failure", new JObject
+                {
+                    ["failureType"] = "FetchResourceFailure",
+                });
         }
     }
 }

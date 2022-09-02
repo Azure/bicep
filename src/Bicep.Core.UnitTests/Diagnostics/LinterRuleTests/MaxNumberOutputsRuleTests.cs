@@ -13,29 +13,31 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     public class MaxNumberOutputsRuleTests : LinterRuleTestsBase
     {
         [TestMethod]
-        public void ParameterNameInFormattedMessage()
+        public void MaxNumberOfParamsInFormattedMessage()
         {
             var ruleToTest = new MaxNumberOutputsRule();
-            ruleToTest.GetMessage(1).Should().Be("Too many outputs. Number of outputs is limited to 1.");
+            ruleToTest.GetMessage(123).Should().Be("Too many outputs. Number of outputs is limited to 123.");
         }
 
         private void CompileAndTest(string text, params string[] unusedParams)
         {
-            AssertLinterRuleDiagnostics(MaxNumberOutputsRule.Code, text, onCompileErrors: OnCompileErrors.Ignore,  diags =>
-            {
-                if (unusedParams.Any())
+            AssertLinterRuleDiagnostics(
+                MaxNumberOutputsRule.Code, text, diags =>
                 {
-                    diags.Should().HaveCount(unusedParams.Count());
+                    if (unusedParams.Any())
+                    {
+                        diags.Should().HaveCount(unusedParams.Count());
 
-                    var rule = new MaxNumberOutputsRule();
-                    string[] expectedMessages = unusedParams.Select(p => rule.GetMessage(MaxNumberOutputsRule.MaxNumber)).ToArray();
-                    diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
-                }
-                else
-                {
-                    diags.Should().BeEmpty();
-                }
-            });
+                        var rule = new MaxNumberOutputsRule();
+                        string[] expectedMessages = unusedParams.Select(p => rule.GetMessage(MaxNumberOutputsRule.MaxNumber)).ToArray();
+                        diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
+                    }
+                    else
+                    {
+                        diags.Should().BeEmpty();
+                    }
+                },
+                new Options(OnCompileErrors: OnCompileErrors.Ignore));
         }
 
         [DataRow(@"

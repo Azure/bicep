@@ -7,6 +7,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Workspaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -159,6 +160,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             public List<IDiagnostic> diagnostics = new();
             private readonly HashSet<VariableSymbol> variablesToChangeToParam = new();
 
+            private readonly Dictionary<ISourceFile, ImmutableArray<ParameterSymbol>> cachedParamsUsedInLocationPropsForFile = new();
             private readonly NoHardcodedLocationRule parent;
             private readonly SemanticModel model;
 
@@ -185,7 +187,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 // Check the values passed in to any location-related parameters in a consumed module
                 ImmutableArray<(string parameterName, SyntaxBase? actualValue)> locationParametersActualValues =
-                    parent.GetParameterValuesForModuleLocationParameters(moduleDeclarationSyntax, model, onlyParamsWithDefaultValues: true);
+                    parent.GetParameterValuesForModuleLocationParameters(cachedParamsUsedInLocationPropsForFile, moduleDeclarationSyntax, model, onlyParamsWithDefaultValues: true);
 
                 foreach (var (parameterName, actualValue) in locationParametersActualValues)
                 {

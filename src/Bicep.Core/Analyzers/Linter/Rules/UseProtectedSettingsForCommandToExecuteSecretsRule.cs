@@ -81,7 +81,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                 if (matches)
                                 {
                                     // Does it contain any possible secrets?
-                                    var secrets = FindPossibleSecretsVisitor.FindPossibleSecrets(semanticModel, commandToExecuteSyntax.Value);
+                                    var secrets = FindPossibleSecretsVisitor.FindPossibleSecretsInExpression(semanticModel, commandToExecuteSyntax.Value);
                                     if (secrets.Any())
                                     {
                                         diagnostics.Add(CreateDiagnosticForSpan(commandToExecuteSyntax.Key.Span, secrets[0].FoundMessage));

@@ -4,13 +4,16 @@
     <OutputType>Exe</OutputType>
     <AssemblyName>bicep</AssemblyName>
     <StartupObject>Bicep.Cli.Program</StartupObject>
-    <!-- .net 5 by default does not package up the native dependencies -->
+    <!-- .net by default does not package up the native dependencies -->
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <!-- enable custom targets to generate a NOTICE file and embed it as a resource -->
+    <AddNoticeAsEmbeddedResource>true</AddNoticeAsEmbeddedResource>
+    <AddLicenseAsEmbeddedResource>true</AddLicenseAsEmbeddedResource>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.1" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,6 +45,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.4.255" />
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.5.109" />
   </ItemGroup>
 </Project>

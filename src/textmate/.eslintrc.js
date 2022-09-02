@@ -6,6 +6,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: "module",
+    project: './tsconfig.json',
   },
   plugins: ["header"],
   extends: ["eslint:recommended"],
@@ -28,6 +29,7 @@ module.exports = {
         "plugin:jest/all",
       ],
       rules: {
+        "jest/require-hook": "off",
         "jest/no-hooks": "off",
         "jest/prefer-expect-assertions": "off",
         "jest/expect-expect": [

@@ -4,7 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using Azure;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
@@ -89,12 +91,30 @@ namespace Bicep.Core.Registry
             return statuses;
         }
 
+        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(RootConfiguration configuration, IEnumerable<OciArtifactModuleReference> references)
+        {
+            return await base.InvalidateModulesCacheInternal(configuration, references);
+        }
+
         public override async Task PublishModule(RootConfiguration configuration, OciArtifactModuleReference moduleReference, Stream compiled)
         {
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
             var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
 
-            await this.client.PushArtifactAsync(configuration, moduleReference, config, layer);
+            try
+            {
+                await this.client.PushArtifactAsync(configuration, moduleReference, config, layer);
+            }
+            catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
+            {
+                // will include several retry messages, but likely the best we can do
+                throw new ExternalModuleException(exception.Message, exception);
+            }
+            catch (RequestFailedException exception)
+            {
+                // can only happen if client retries are disabled
+                throw new ExternalModuleException(exception.Message, exception);
+            }
         }
 
         protected override void WriteModuleContent(OciArtifactModuleReference reference, OciArtifactResult result)
@@ -177,11 +197,25 @@ namespace Bicep.Core.Registry
                 // we can trust the message in this exception
                 return (null, exception.Message);
             }
+            catch (AggregateException exception) when (CheckAllInnerExceptionsAreRequestFailures(exception))
+            {
+                // the message on this one is not great because it includes all the retry attempts
+                // however, we don't really have a good way to classify them in a cross-platform way
+                return (null, exception.Message);
+            }
+            catch (RequestFailedException exception)
+            {
+                // this can only happen if we disable retry on the client and a registry request failed
+                return (null, exception.Message);
+            }
             catch (Exception exception)
             {
                 return (null, $"Unhandled exception: {exception}");
             }
         }
+
+        private static bool CheckAllInnerExceptionsAreRequestFailures(AggregateException exception) =>
+            exception.InnerExceptions.All(inner => inner is RequestFailedException);
 
         private Uri GetModuleFileUri(OciArtifactModuleReference reference, ModuleFileType fileType)
         {

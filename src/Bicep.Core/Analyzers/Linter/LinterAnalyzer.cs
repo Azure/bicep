@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Analyzers.Linter
 {
@@ -29,9 +29,6 @@ namespace Bicep.Core.Analyzers.Linter
         private readonly ImmutableArray<IBicepAnalyzerRule> ruleSet;
 
         private readonly ImmutableArray<IDiagnostic> ruleCreationErrors;
-
-        // TODO: This should be controlled by a core component, not an analyzer
-        public const string LinterRuleInternalError = "linter-internal-error";
 
         public LinterAnalyzer(RootConfiguration configuration)
         {
@@ -53,18 +50,7 @@ namespace Bicep.Core.Analyzers.Linter
 
             foreach (var ruleType in ruleTypes)
             {
-                try
-                {
-                    rules.Add(Activator.CreateInstance(ruleType) as IBicepAnalyzerRule ?? throw new InvalidOperationException($"Failed to create an instance of \"{ruleType.Name}\"."));
-                }
-                catch (Exception ex)
-                {
-                    string message = string.Format("Analyzer '{0}' could not instantiate rule '{1}'. {2}",
-                        AnalyzerName,
-                        ruleType.Name,
-                        ex.InnerException?.Message ?? ex.Message);
-                    errors.Add(CreateInternalErrorDiagnostic(AnalyzerName, message));
-                }
+                rules.Add(Activator.CreateInstance(ruleType) as IBicepAnalyzerRule ?? throw new InvalidOperationException($"Failed to create an instance of \"{ruleType.Name}\"."));
             }
 
             return (rules.ToImmutableArray(), errors.ToImmutableArray());
@@ -122,12 +108,5 @@ namespace Bicep.Core.Analyzers.Linter
                 "Bicep Linter Configuration",
                 configMessage);
         }
-
-        private static IDiagnostic CreateInternalErrorDiagnostic(string analyzerName, string message) => new AnalyzerDiagnostic(
-            analyzerName,
-            new TextSpan(0, 0),
-            DiagnosticLevel.Warning,
-            LinterAnalyzer.LinterRuleInternalError,
-            message);
     }
 }

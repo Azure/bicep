@@ -54,8 +54,8 @@ namespace Bicep.Cli.Commands
             {
                 // Publishing an ARM template file.
                 using var armTemplateStream = this.fileSystem.FileStream.Create(inputPath, FileMode.Open, FileAccess.Read);
-                await this.moduleDispatcher.PublishModule(configuration, moduleReference, armTemplateStream);
-                
+                await this.PublishModuleAsync(configuration, moduleReference, armTemplateStream);
+
                 return 0;
             }
 
@@ -71,9 +71,21 @@ namespace Bicep.Cli.Commands
             compilationWriter.ToStream(compilation, stream);
 
             stream.Position = 0;
-            await this.moduleDispatcher.PublishModule(compilation.Configuration, moduleReference, stream);
+            await this.PublishModuleAsync(compilation.Configuration, moduleReference, stream);
 
             return 0;
+        }
+
+        private async Task PublishModuleAsync(RootConfiguration configuration, ModuleReference target, Stream stream)
+        {
+            try
+            {
+                await this.moduleDispatcher.PublishModule(configuration, target, stream);
+            }
+            catch (ExternalModuleException exception)
+            {
+                throw new BicepException($"Unable to publish module \"{target.FullyQualifiedReference}\": {exception.Message}");
+            }
         }
 
         private ModuleReference ValidateReference(string targetModuleReference, RootConfiguration configuration)

@@ -1,0 +1,23 @@
+<Project>
+  <PropertyGroup>
+    <NoticeFilePath>$(IntermediateOutputPath)ThirdPartyNotices.txt</NoticeFilePath>
+    <GenerateNoticeBeforeTargets>GenerateNuspec</GenerateNoticeBeforeTargets>
+  </PropertyGroup>
+
+  <Target Name="PrepareForNoticeGeneration" BeforeTargets="GenerateNotice">
+    <ItemGroup>
+      <GenerateNoticeAssetFile Include="$(ProjectAssetsFile)" />
+    </ItemGroup>
+    <PropertyGroup>
+      <GenerateNoticeOutputPath>$(NoticeFilePath)</GenerateNoticeOutputPath>
+    </PropertyGroup>
+  </Target>
+
+  <ItemGroup>
+    <!-- 
+      Ensure the notice file is included in the package at the root.
+      This must be outside the generate notice target because the target can be skipped if notice file is up to date
+    -->
+    <Content Include="$(NoticeFilePath)" PackagePath="" />
+  </ItemGroup>
+</Project>

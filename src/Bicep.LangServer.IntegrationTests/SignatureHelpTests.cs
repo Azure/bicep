@@ -14,6 +14,7 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Extensions;
+using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -26,11 +27,24 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
-    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class SignatureHelpTests
     {
+        private static readonly SharedLanguageHelperManager DefaultServer = new();
+
         [NotNull]
         public TestContext? TestContext { get; set; }
+
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
+        {
+            DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
+        }
+
+        [ClassCleanup]
+        public static async Task ClassCleanup()
+        {
+            await DefaultServer.DisposeAsync();
+        }
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
@@ -38,8 +52,10 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var client = helper.Client;
+
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
+
             var symbolTable = compilation.ReconstructSymbolTable();
             var tree = compilation.SourceFileGrouping.EntryPoint;
 
@@ -66,22 +82,22 @@ namespace Bicep.LangServer.IntegrationTests
                 // if the cursor is present immediate after the function argument opening paren,
                 // the signature help can only show the signature of the enclosing function
                 var startOffset = functionCall.OpenParen.GetEndPosition();
-                await ValidateOffset(client, uri, tree, startOffset, symbol as FunctionSymbol, expectDecorator);
+                await ValidateOffset(helper.Client, uri, tree, startOffset, symbol as FunctionSymbol, expectDecorator);
 
                 // if the cursor is present immediately before the function argument closing paren,
                 // the signature help can only show the signature of the enclosing function
                 var endOffset = functionCall.CloseParen.Span.Position;
-                await ValidateOffset(client, uri, tree, endOffset, symbol as FunctionSymbol, expectDecorator);
+                await ValidateOffset(helper.Client, uri, tree, endOffset, symbol as FunctionSymbol, expectDecorator);
             }
         }
 
         [TestMethod]
         public async Task NonExistentUriShouldProvideNoSignatureHelp()
         {
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, string.Empty, DocumentUri.From("/fake.bicep"));
-            var client = helper.Client;
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, string.Empty, DocumentUri.From("/fake.bicep"));
 
-            var signatureHelp = await RequestSignatureHelp(client, new Position(0, 0), DocumentUri.From("/fake2.bicep"));
+            var signatureHelp = await RequestSignatureHelp(helper.Client, new Position(0, 0), DocumentUri.From("/fake2.bicep"));
             signatureHelp.Should().BeNull();
         }
 
@@ -91,8 +107,10 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var client = helper.Client;
+
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
+
             var bicepFile = compilation.SourceFileGrouping.EntryPoint;
 
             var nonFunctions = SyntaxAggregator.Aggregate(
@@ -117,7 +135,7 @@ namespace Bicep.LangServer.IntegrationTests
                 using (new AssertionScope().WithVisualCursor(bicepFile, nonFunction.Span.ToZeroLengthSpan()))
                 {
                     var position = PositionHelper.GetPosition(bicepFile.LineStarts, nonFunction.Span.Position);
-                    var signatureHelp = await RequestSignatureHelp(client, position, uri);
+                    var signatureHelp = await RequestSignatureHelp(helper.Client, position, uri);
                     signatureHelp.Should().BeNull();
                 }
             }
@@ -166,14 +184,23 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        private static void AssertValidSignatureHelp(SignatureHelp? signatureHelp, Symbol symbol, bool expectDecorator)
+        private static void AssertValidSignatureHelp(SignatureHelp? signatureHelp, FunctionSymbol symbol, bool expectDecorator)
         {
             signatureHelp.Should().NotBeNull();
 
             signatureHelp!.Signatures.Should().NotBeNull();
             foreach (var signature in signatureHelp.Signatures)
             {
-                signature.Label.Should().StartWith(symbol.Name.StartsWith("list") ? "list*(" : $"{symbol.Name}(");
+                var isWildcardListFunction = signature.Label.StartsWith("list*");
+                var isWellKnownListFunction = signature.Label.StartsWith("list") && !isWildcardListFunction;
+                if (isWildcardListFunction)
+                {
+                    symbol.Overloads.Should().Contain(x => x is FunctionWildcardOverload && x.Name == "list*");
+                }
+                else
+                {
+                    signature.Label.Should().StartWith($"{symbol.Name}(");
+                }
 
                 if (expectDecorator)
                 {
@@ -199,7 +226,12 @@ namespace Bicep.LangServer.IntegrationTests
                 signature.Documentation.Should().NotBeNull();
                 signature.Documentation!.MarkupContent.Should().NotBeNull();
                 signature.Documentation.MarkupContent!.Kind.Should().Be(MarkupKind.Markdown);
-                signature.Documentation.MarkupContent.Value.Should().NotBeEmpty();
+
+                // List functions provided by the bicep-types-az library do not contain documentation: https://github.com/Azure/bicep/issues/7611
+                if (!isWellKnownListFunction)
+                {
+                    signature.Documentation.MarkupContent.Value.Should().NotBeEmpty();
+                }
             }
         }
 

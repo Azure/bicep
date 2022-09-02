@@ -16,6 +16,7 @@
       "newText": "allowed($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -36,6 +37,7 @@
       "newText": "description($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -56,6 +58,7 @@
       "newText": "maxLength($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -76,6 +79,7 @@
       "newText": "metadata($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -96,6 +100,7 @@
       "newText": "minLength($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },

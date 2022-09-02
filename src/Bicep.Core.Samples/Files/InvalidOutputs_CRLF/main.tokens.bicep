@@ -1,699 +1,699 @@
 
-//@[0:2) NewLine |\r\n|
+//@[000:002) NewLine |\r\n|
 // wrong declaration
-//@[20:22) NewLine |\r\n|
+//@[020:022) NewLine |\r\n|
 bad
-//@[0:3) Identifier |bad|
-//@[3:7) NewLine |\r\n\r\n|
+//@[000:003) Identifier |bad|
+//@[003:007) NewLine |\r\n\r\n|
 
 // incomplete #completionTest(7) -> empty
-//@[41:43) NewLine |\r\n|
+//@[041:043) NewLine |\r\n|
 output 
-//@[0:6) Identifier |output|
-//@[7:11) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:011) NewLine |\r\n\r\n|
 
 var testSymbol = 42
-//@[0:3) Identifier |var|
-//@[4:14) Identifier |testSymbol|
-//@[15:16) Assignment |=|
-//@[17:19) Integer |42|
-//@[19:23) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:014) Identifier |testSymbol|
+//@[015:016) Assignment |=|
+//@[017:019) Integer |42|
+//@[019:023) NewLine |\r\n\r\n|
 
 // #completionTest(28,29) -> symbols
-//@[36:38) NewLine |\r\n|
+//@[036:038) NewLine |\r\n|
 output missingValueAndType = 
-//@[0:6) Identifier |output|
-//@[7:26) Identifier |missingValueAndType|
-//@[27:28) Assignment |=|
-//@[29:33) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:026) Identifier |missingValueAndType|
+//@[027:028) Assignment |=|
+//@[029:033) NewLine |\r\n\r\n|
 
 // #completionTest(28,29) -> symbols
-//@[36:38) NewLine |\r\n|
+//@[036:038) NewLine |\r\n|
 output missingValue string = 
-//@[0:6) Identifier |output|
-//@[7:19) Identifier |missingValue|
-//@[20:26) Identifier |string|
-//@[27:28) Assignment |=|
-//@[29:33) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:019) Identifier |missingValue|
+//@[020:026) Identifier |string|
+//@[027:028) Assignment |=|
+//@[029:033) NewLine |\r\n\r\n|
 
 // #completionTest(31,32) -> arrayPlusSymbols
-//@[45:47) NewLine |\r\n|
+//@[045:047) NewLine |\r\n|
 output arrayCompletions array = 
-//@[0:6) Identifier |output|
-//@[7:23) Identifier |arrayCompletions|
-//@[24:29) Identifier |array|
-//@[30:31) Assignment |=|
-//@[32:36) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:023) Identifier |arrayCompletions|
+//@[024:029) Identifier |array|
+//@[030:031) Assignment |=|
+//@[032:036) NewLine |\r\n\r\n|
 
 // #completionTest(33,34) -> objectPlusSymbols
-//@[46:48) NewLine |\r\n|
+//@[046:048) NewLine |\r\n|
 output objectCompletions object = 
-//@[0:6) Identifier |output|
-//@[7:24) Identifier |objectCompletions|
-//@[25:31) Identifier |object|
-//@[32:33) Assignment |=|
-//@[34:38) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:024) Identifier |objectCompletions|
+//@[025:031) Identifier |object|
+//@[032:033) Assignment |=|
+//@[034:038) NewLine |\r\n\r\n|
 
 // #completionTest(29,30) -> boolPlusSymbols
-//@[44:46) NewLine |\r\n|
+//@[044:046) NewLine |\r\n|
 output boolCompletions bool = 
-//@[0:6) Identifier |output|
-//@[7:22) Identifier |boolCompletions|
-//@[23:27) Identifier |bool|
-//@[28:29) Assignment |=|
-//@[30:34) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:022) Identifier |boolCompletions|
+//@[023:027) Identifier |bool|
+//@[028:029) Assignment |=|
+//@[030:034) NewLine |\r\n\r\n|
 
 output foo
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |foo|
-//@[10:14) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |foo|
+//@[010:014) NewLine |\r\n\r\n|
 
 // space after identifier #completionTest(20) -> outputTypes
-//@[60:62) NewLine |\r\n|
+//@[060:062) NewLine |\r\n|
 output spaceAfterId 
-//@[0:6) Identifier |output|
-//@[7:19) Identifier |spaceAfterId|
-//@[20:24) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:019) Identifier |spaceAfterId|
+//@[020:024) NewLine |\r\n\r\n|
 
 // #completionTest(25) -> outputTypes
-//@[37:39) NewLine |\r\n|
+//@[037:039) NewLine |\r\n|
 output spacesAfterCursor  
-//@[0:6) Identifier |output|
-//@[7:24) Identifier |spacesAfterCursor|
-//@[26:30) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:024) Identifier |spacesAfterCursor|
+//@[026:030) NewLine |\r\n\r\n|
 
 // partial type #completionTest(19, 20, 21, 22) -> outputTypes
-//@[62:64) NewLine |\r\n|
+//@[062:064) NewLine |\r\n|
 output partialType obj
-//@[0:6) Identifier |output|
-//@[7:18) Identifier |partialType|
-//@[19:22) Identifier |obj|
-//@[22:26) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:018) Identifier |partialType|
+//@[019:022) Identifier |obj|
+//@[022:026) NewLine |\r\n\r\n|
 
 // malformed identifier
-//@[23:25) NewLine |\r\n|
+//@[023:025) NewLine |\r\n|
 output 2
-//@[0:6) Identifier |output|
-//@[7:8) Integer |2|
-//@[8:12) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:008) Integer |2|
+//@[008:012) NewLine |\r\n\r\n|
 
 // malformed type
-//@[17:19) NewLine |\r\n|
+//@[017:019) NewLine |\r\n|
 output malformedType 3
-//@[0:6) Identifier |output|
-//@[7:20) Identifier |malformedType|
-//@[21:22) Integer |3|
-//@[22:26) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:020) Identifier |malformedType|
+//@[021:022) Integer |3|
+//@[022:026) NewLine |\r\n\r\n|
 
 // malformed type but type check should still happen
-//@[52:54) NewLine |\r\n|
+//@[052:054) NewLine |\r\n|
 output malformedType2 3 = 2 + null
-//@[0:6) Identifier |output|
-//@[7:21) Identifier |malformedType2|
-//@[22:23) Integer |3|
-//@[24:25) Assignment |=|
-//@[26:27) Integer |2|
-//@[28:29) Plus |+|
-//@[30:34) NullKeyword |null|
-//@[34:38) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:021) Identifier |malformedType2|
+//@[022:023) Integer |3|
+//@[024:025) Assignment |=|
+//@[026:027) Integer |2|
+//@[028:029) Plus |+|
+//@[030:034) NullKeyword |null|
+//@[034:038) NewLine |\r\n\r\n|
 
 // malformed type assignment
-//@[28:30) NewLine |\r\n|
+//@[028:030) NewLine |\r\n|
 output malformedAssignment 2 = 2
-//@[0:6) Identifier |output|
-//@[7:26) Identifier |malformedAssignment|
-//@[27:28) Integer |2|
-//@[29:30) Assignment |=|
-//@[31:32) Integer |2|
-//@[32:36) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:026) Identifier |malformedAssignment|
+//@[027:028) Integer |2|
+//@[029:030) Assignment |=|
+//@[031:032) Integer |2|
+//@[032:036) NewLine |\r\n\r\n|
 
 // malformed type before assignment
-//@[35:37) NewLine |\r\n|
+//@[035:037) NewLine |\r\n|
 output lol 2 = true
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |lol|
-//@[11:12) Integer |2|
-//@[13:14) Assignment |=|
-//@[15:19) TrueKeyword |true|
-//@[19:23) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |lol|
+//@[011:012) Integer |2|
+//@[013:014) Assignment |=|
+//@[015:019) TrueKeyword |true|
+//@[019:023) NewLine |\r\n\r\n|
 
 // wrong type + missing value
-//@[29:31) NewLine |\r\n|
+//@[029:031) NewLine |\r\n|
 output foo fluffy
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |foo|
-//@[11:17) Identifier |fluffy|
-//@[17:21) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |foo|
+//@[011:017) Identifier |fluffy|
+//@[017:021) NewLine |\r\n\r\n|
 
 // missing value
-//@[16:18) NewLine |\r\n|
+//@[016:018) NewLine |\r\n|
 output foo string
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |foo|
-//@[11:17) Identifier |string|
-//@[17:21) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |foo|
+//@[011:017) Identifier |string|
+//@[017:021) NewLine |\r\n\r\n|
 
 // missing value
-//@[16:18) NewLine |\r\n|
+//@[016:018) NewLine |\r\n|
 output foo string =
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |foo|
-//@[11:17) Identifier |string|
-//@[18:19) Assignment |=|
-//@[19:23) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |foo|
+//@[011:017) Identifier |string|
+//@[018:019) Assignment |=|
+//@[019:023) NewLine |\r\n\r\n|
 
 // wrong string output values
-//@[29:31) NewLine |\r\n|
+//@[029:031) NewLine |\r\n|
 output str string = true
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |str|
-//@[11:17) Identifier |string|
-//@[18:19) Assignment |=|
-//@[20:24) TrueKeyword |true|
-//@[24:26) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |str|
+//@[011:017) Identifier |string|
+//@[018:019) Assignment |=|
+//@[020:024) TrueKeyword |true|
+//@[024:026) NewLine |\r\n|
 output str string = false
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |str|
-//@[11:17) Identifier |string|
-//@[18:19) Assignment |=|
-//@[20:25) FalseKeyword |false|
-//@[25:27) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |str|
+//@[011:017) Identifier |string|
+//@[018:019) Assignment |=|
+//@[020:025) FalseKeyword |false|
+//@[025:027) NewLine |\r\n|
 output str string = [
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |str|
-//@[11:17) Identifier |string|
-//@[18:19) Assignment |=|
-//@[20:21) LeftSquare |[|
-//@[21:23) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |str|
+//@[011:017) Identifier |string|
+//@[018:019) Assignment |=|
+//@[020:021) LeftSquare |[|
+//@[021:023) NewLine |\r\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightSquare |]|
+//@[001:003) NewLine |\r\n|
 output str string = {
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |str|
-//@[11:17) Identifier |string|
-//@[18:19) Assignment |=|
-//@[20:21) LeftBrace |{|
-//@[21:23) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |str|
+//@[011:017) Identifier |string|
+//@[018:019) Assignment |=|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 output str string = 52
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |str|
-//@[11:17) Identifier |string|
-//@[18:19) Assignment |=|
-//@[20:22) Integer |52|
-//@[22:26) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |str|
+//@[011:017) Identifier |string|
+//@[018:019) Assignment |=|
+//@[020:022) Integer |52|
+//@[022:026) NewLine |\r\n\r\n|
 
 // wrong int output values
-//@[26:28) NewLine |\r\n|
+//@[026:028) NewLine |\r\n|
 output i int = true
-//@[0:6) Identifier |output|
-//@[7:8) Identifier |i|
-//@[9:12) Identifier |int|
-//@[13:14) Assignment |=|
-//@[15:19) TrueKeyword |true|
-//@[19:21) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:008) Identifier |i|
+//@[009:012) Identifier |int|
+//@[013:014) Assignment |=|
+//@[015:019) TrueKeyword |true|
+//@[019:021) NewLine |\r\n|
 output i int = false
-//@[0:6) Identifier |output|
-//@[7:8) Identifier |i|
-//@[9:12) Identifier |int|
-//@[13:14) Assignment |=|
-//@[15:20) FalseKeyword |false|
-//@[20:22) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:008) Identifier |i|
+//@[009:012) Identifier |int|
+//@[013:014) Assignment |=|
+//@[015:020) FalseKeyword |false|
+//@[020:022) NewLine |\r\n|
 output i int = [
-//@[0:6) Identifier |output|
-//@[7:8) Identifier |i|
-//@[9:12) Identifier |int|
-//@[13:14) Assignment |=|
-//@[15:16) LeftSquare |[|
-//@[16:18) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:008) Identifier |i|
+//@[009:012) Identifier |int|
+//@[013:014) Assignment |=|
+//@[015:016) LeftSquare |[|
+//@[016:018) NewLine |\r\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightSquare |]|
+//@[001:003) NewLine |\r\n|
 output i int = }
-//@[0:6) Identifier |output|
-//@[7:8) Identifier |i|
-//@[9:12) Identifier |int|
-//@[13:14) Assignment |=|
-//@[15:16) RightBrace |}|
-//@[16:18) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:008) Identifier |i|
+//@[009:012) Identifier |int|
+//@[013:014) Assignment |=|
+//@[015:016) RightBrace |}|
+//@[016:018) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 output i int = 'test'
-//@[0:6) Identifier |output|
-//@[7:8) Identifier |i|
-//@[9:12) Identifier |int|
-//@[13:14) Assignment |=|
-//@[15:21) StringComplete |'test'|
-//@[21:25) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:008) Identifier |i|
+//@[009:012) Identifier |int|
+//@[013:014) Assignment |=|
+//@[015:021) StringComplete |'test'|
+//@[021:025) NewLine |\r\n\r\n|
 
 // wrong bool output values
-//@[27:29) NewLine |\r\n|
+//@[027:029) NewLine |\r\n|
 output b bool = [
-//@[0:6) Identifier |output|
-//@[7:8) Identifier |b|
-//@[9:13) Identifier |bool|
-//@[14:15) Assignment |=|
-//@[16:17) LeftSquare |[|
-//@[17:19) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:008) Identifier |b|
+//@[009:013) Identifier |bool|
+//@[014:015) Assignment |=|
+//@[016:017) LeftSquare |[|
+//@[017:019) NewLine |\r\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightSquare |]|
+//@[001:003) NewLine |\r\n|
 output b bool = {
-//@[0:6) Identifier |output|
-//@[7:8) Identifier |b|
-//@[9:13) Identifier |bool|
-//@[14:15) Assignment |=|
-//@[16:17) LeftBrace |{|
-//@[17:19) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:008) Identifier |b|
+//@[009:013) Identifier |bool|
+//@[014:015) Assignment |=|
+//@[016:017) LeftBrace |{|
+//@[017:019) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 output b bool = 32
-//@[0:6) Identifier |output|
-//@[7:8) Identifier |b|
-//@[9:13) Identifier |bool|
-//@[14:15) Assignment |=|
-//@[16:18) Integer |32|
-//@[18:20) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:008) Identifier |b|
+//@[009:013) Identifier |bool|
+//@[014:015) Assignment |=|
+//@[016:018) Integer |32|
+//@[018:020) NewLine |\r\n|
 output b bool = 'str'
-//@[0:6) Identifier |output|
-//@[7:8) Identifier |b|
-//@[9:13) Identifier |bool|
-//@[14:15) Assignment |=|
-//@[16:21) StringComplete |'str'|
-//@[21:25) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:008) Identifier |b|
+//@[009:013) Identifier |bool|
+//@[014:015) Assignment |=|
+//@[016:021) StringComplete |'str'|
+//@[021:025) NewLine |\r\n\r\n|
 
 // wrong array output values
-//@[28:30) NewLine |\r\n|
+//@[028:030) NewLine |\r\n|
 output arr array = 32
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |arr|
-//@[11:16) Identifier |array|
-//@[17:18) Assignment |=|
-//@[19:21) Integer |32|
-//@[21:23) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |arr|
+//@[011:016) Identifier |array|
+//@[017:018) Assignment |=|
+//@[019:021) Integer |32|
+//@[021:023) NewLine |\r\n|
 output arr array = true
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |arr|
-//@[11:16) Identifier |array|
-//@[17:18) Assignment |=|
-//@[19:23) TrueKeyword |true|
-//@[23:25) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |arr|
+//@[011:016) Identifier |array|
+//@[017:018) Assignment |=|
+//@[019:023) TrueKeyword |true|
+//@[023:025) NewLine |\r\n|
 output arr array = false
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |arr|
-//@[11:16) Identifier |array|
-//@[17:18) Assignment |=|
-//@[19:24) FalseKeyword |false|
-//@[24:26) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |arr|
+//@[011:016) Identifier |array|
+//@[017:018) Assignment |=|
+//@[019:024) FalseKeyword |false|
+//@[024:026) NewLine |\r\n|
 output arr array = {
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |arr|
-//@[11:16) Identifier |array|
-//@[17:18) Assignment |=|
-//@[19:20) LeftBrace |{|
-//@[20:22) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |arr|
+//@[011:016) Identifier |array|
+//@[017:018) Assignment |=|
+//@[019:020) LeftBrace |{|
+//@[020:022) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 output arr array = 'str'
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |arr|
-//@[11:16) Identifier |array|
-//@[17:18) Assignment |=|
-//@[19:24) StringComplete |'str'|
-//@[24:28) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |arr|
+//@[011:016) Identifier |array|
+//@[017:018) Assignment |=|
+//@[019:024) StringComplete |'str'|
+//@[024:028) NewLine |\r\n\r\n|
 
 // wrong object output values
-//@[29:31) NewLine |\r\n|
+//@[029:031) NewLine |\r\n|
 output o object = 32
-//@[0:6) Identifier |output|
-//@[7:8) Identifier |o|
-//@[9:15) Identifier |object|
-//@[16:17) Assignment |=|
-//@[18:20) Integer |32|
-//@[20:22) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:008) Identifier |o|
+//@[009:015) Identifier |object|
+//@[016:017) Assignment |=|
+//@[018:020) Integer |32|
+//@[020:022) NewLine |\r\n|
 output o object = true
-//@[0:6) Identifier |output|
-//@[7:8) Identifier |o|
-//@[9:15) Identifier |object|
-//@[16:17) Assignment |=|
-//@[18:22) TrueKeyword |true|
-//@[22:24) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:008) Identifier |o|
+//@[009:015) Identifier |object|
+//@[016:017) Assignment |=|
+//@[018:022) TrueKeyword |true|
+//@[022:024) NewLine |\r\n|
 output o object = false
-//@[0:6) Identifier |output|
-//@[7:8) Identifier |o|
-//@[9:15) Identifier |object|
-//@[16:17) Assignment |=|
-//@[18:23) FalseKeyword |false|
-//@[23:25) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:008) Identifier |o|
+//@[009:015) Identifier |object|
+//@[016:017) Assignment |=|
+//@[018:023) FalseKeyword |false|
+//@[023:025) NewLine |\r\n|
 output o object = [
-//@[0:6) Identifier |output|
-//@[7:8) Identifier |o|
-//@[9:15) Identifier |object|
-//@[16:17) Assignment |=|
-//@[18:19) LeftSquare |[|
-//@[19:21) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:008) Identifier |o|
+//@[009:015) Identifier |object|
+//@[016:017) Assignment |=|
+//@[018:019) LeftSquare |[|
+//@[019:021) NewLine |\r\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightSquare |]|
+//@[001:003) NewLine |\r\n|
 output o object = 'str'
-//@[0:6) Identifier |output|
-//@[7:8) Identifier |o|
-//@[9:15) Identifier |object|
-//@[16:17) Assignment |=|
-//@[18:23) StringComplete |'str'|
-//@[23:27) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:008) Identifier |o|
+//@[009:015) Identifier |object|
+//@[016:017) Assignment |=|
+//@[018:023) StringComplete |'str'|
+//@[023:027) NewLine |\r\n\r\n|
 
 // a few expression cases
-//@[25:27) NewLine |\r\n|
+//@[025:027) NewLine |\r\n|
 output exp string = 2 + 3
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |exp|
-//@[11:17) Identifier |string|
-//@[18:19) Assignment |=|
-//@[20:21) Integer |2|
-//@[22:23) Plus |+|
-//@[24:25) Integer |3|
-//@[25:27) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |exp|
+//@[011:017) Identifier |string|
+//@[018:019) Assignment |=|
+//@[020:021) Integer |2|
+//@[022:023) Plus |+|
+//@[024:025) Integer |3|
+//@[025:027) NewLine |\r\n|
 output union string = true ? 's' : 1
-//@[0:6) Identifier |output|
-//@[7:12) Identifier |union|
-//@[13:19) Identifier |string|
-//@[20:21) Assignment |=|
-//@[22:26) TrueKeyword |true|
-//@[27:28) Question |?|
-//@[29:32) StringComplete |'s'|
-//@[33:34) Colon |:|
-//@[35:36) Integer |1|
-//@[36:38) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:012) Identifier |union|
+//@[013:019) Identifier |string|
+//@[020:021) Assignment |=|
+//@[022:026) TrueKeyword |true|
+//@[027:028) Question |?|
+//@[029:032) StringComplete |'s'|
+//@[033:034) Colon |:|
+//@[035:036) Integer |1|
+//@[036:038) NewLine |\r\n|
 output bad int = true && !4
-//@[0:6) Identifier |output|
-//@[7:10) Identifier |bad|
-//@[11:14) Identifier |int|
-//@[15:16) Assignment |=|
-//@[17:21) TrueKeyword |true|
-//@[22:24) LogicalAnd |&&|
-//@[25:26) Exclamation |!|
-//@[26:27) Integer |4|
-//@[27:29) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:010) Identifier |bad|
+//@[011:014) Identifier |int|
+//@[015:016) Assignment |=|
+//@[017:021) TrueKeyword |true|
+//@[022:024) LogicalAnd |&&|
+//@[025:026) Exclamation |!|
+//@[026:027) Integer |4|
+//@[027:029) NewLine |\r\n|
 output deeper bool = true ? -true : (14 && 's') + 10
-//@[0:6) Identifier |output|
-//@[7:13) Identifier |deeper|
-//@[14:18) Identifier |bool|
-//@[19:20) Assignment |=|
-//@[21:25) TrueKeyword |true|
-//@[26:27) Question |?|
-//@[28:29) Minus |-|
-//@[29:33) TrueKeyword |true|
-//@[34:35) Colon |:|
-//@[36:37) LeftParen |(|
-//@[37:39) Integer |14|
-//@[40:42) LogicalAnd |&&|
-//@[43:46) StringComplete |'s'|
-//@[46:47) RightParen |)|
-//@[48:49) Plus |+|
-//@[50:52) Integer |10|
-//@[52:56) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:013) Identifier |deeper|
+//@[014:018) Identifier |bool|
+//@[019:020) Assignment |=|
+//@[021:025) TrueKeyword |true|
+//@[026:027) Question |?|
+//@[028:029) Minus |-|
+//@[029:033) TrueKeyword |true|
+//@[034:035) Colon |:|
+//@[036:037) LeftParen |(|
+//@[037:039) Integer |14|
+//@[040:042) LogicalAnd |&&|
+//@[043:046) StringComplete |'s'|
+//@[046:047) RightParen |)|
+//@[048:049) Plus |+|
+//@[050:052) Integer |10|
+//@[052:056) NewLine |\r\n\r\n|
 
 output myOutput string = 'hello'
-//@[0:6) Identifier |output|
-//@[7:15) Identifier |myOutput|
-//@[16:22) Identifier |string|
-//@[23:24) Assignment |=|
-//@[25:32) StringComplete |'hello'|
-//@[32:34) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:015) Identifier |myOutput|
+//@[016:022) Identifier |string|
+//@[023:024) Assignment |=|
+//@[025:032) StringComplete |'hello'|
+//@[032:034) NewLine |\r\n|
 var attemptToReferenceAnOutput = myOutput
-//@[0:3) Identifier |var|
-//@[4:30) Identifier |attemptToReferenceAnOutput|
-//@[31:32) Assignment |=|
-//@[33:41) Identifier |myOutput|
-//@[41:45) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:030) Identifier |attemptToReferenceAnOutput|
+//@[031:032) Assignment |=|
+//@[033:041) Identifier |myOutput|
+//@[041:045) NewLine |\r\n\r\n|
 
 @sys.maxValue(20)
-//@[0:1) At |@|
-//@[1:4) Identifier |sys|
-//@[4:5) Dot |.|
-//@[5:13) Identifier |maxValue|
-//@[13:14) LeftParen |(|
-//@[14:16) Integer |20|
-//@[16:17) RightParen |)|
-//@[17:19) NewLine |\r\n|
+//@[000:001) At |@|
+//@[001:004) Identifier |sys|
+//@[004:005) Dot |.|
+//@[005:013) Identifier |maxValue|
+//@[013:014) LeftParen |(|
+//@[014:016) Integer |20|
+//@[016:017) RightParen |)|
+//@[017:019) NewLine |\r\n|
 @minValue(10)
-//@[0:1) At |@|
-//@[1:9) Identifier |minValue|
-//@[9:10) LeftParen |(|
-//@[10:12) Integer |10|
-//@[12:13) RightParen |)|
-//@[13:15) NewLine |\r\n|
+//@[000:001) At |@|
+//@[001:009) Identifier |minValue|
+//@[009:010) LeftParen |(|
+//@[010:012) Integer |10|
+//@[012:013) RightParen |)|
+//@[013:015) NewLine |\r\n|
 output notAttachableDecorators int = 32
-//@[0:6) Identifier |output|
-//@[7:30) Identifier |notAttachableDecorators|
-//@[31:34) Identifier |int|
-//@[35:36) Assignment |=|
-//@[37:39) Integer |32|
-//@[39:43) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:030) Identifier |notAttachableDecorators|
+//@[031:034) Identifier |int|
+//@[035:036) Assignment |=|
+//@[037:039) Integer |32|
+//@[039:043) NewLine |\r\n\r\n|
 
 // nested loops inside output loops are not supported
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 output noNestedLoops array = [for thing in things: {
-//@[0:6) Identifier |output|
-//@[7:20) Identifier |noNestedLoops|
-//@[21:26) Identifier |array|
-//@[27:28) Assignment |=|
-//@[29:30) LeftSquare |[|
-//@[30:33) Identifier |for|
-//@[34:39) Identifier |thing|
-//@[40:42) Identifier |in|
-//@[43:49) Identifier |things|
-//@[49:50) Colon |:|
-//@[51:52) LeftBrace |{|
-//@[52:54) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:020) Identifier |noNestedLoops|
+//@[021:026) Identifier |array|
+//@[027:028) Assignment |=|
+//@[029:030) LeftSquare |[|
+//@[030:033) Identifier |for|
+//@[034:039) Identifier |thing|
+//@[040:042) Identifier |in|
+//@[043:049) Identifier |things|
+//@[049:050) Colon |:|
+//@[051:052) LeftBrace |{|
+//@[052:054) NewLine |\r\n|
   something: [
-//@[2:11) Identifier |something|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:16) NewLine |\r\n|
+//@[002:011) Identifier |something|
+//@[011:012) Colon |:|
+//@[013:014) LeftSquare |[|
+//@[014:016) NewLine |\r\n|
     [for thing in things: true]
-//@[4:5) LeftSquare |[|
-//@[5:8) Identifier |for|
-//@[9:14) Identifier |thing|
-//@[15:17) Identifier |in|
-//@[18:24) Identifier |things|
-//@[24:25) Colon |:|
-//@[26:30) TrueKeyword |true|
-//@[30:31) RightSquare |]|
-//@[31:33) NewLine |\r\n|
+//@[004:005) LeftSquare |[|
+//@[005:008) Identifier |for|
+//@[009:014) Identifier |thing|
+//@[015:017) Identifier |in|
+//@[018:024) Identifier |things|
+//@[024:025) Colon |:|
+//@[026:030) TrueKeyword |true|
+//@[030:031) RightSquare |]|
+//@[031:033) NewLine |\r\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightSquare |]|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 // loops in inner properties inside outputs are not supported
-//@[61:63) NewLine |\r\n|
+//@[061:063) NewLine |\r\n|
 output noInnerLoopsInOutputs object = {
-//@[0:6) Identifier |output|
-//@[7:28) Identifier |noInnerLoopsInOutputs|
-//@[29:35) Identifier |object|
-//@[36:37) Assignment |=|
-//@[38:39) LeftBrace |{|
-//@[39:41) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:028) Identifier |noInnerLoopsInOutputs|
+//@[029:035) Identifier |object|
+//@[036:037) Assignment |=|
+//@[038:039) LeftBrace |{|
+//@[039:041) NewLine |\r\n|
   a: [for i in range(0,10): i]
-//@[2:3) Identifier |a|
-//@[3:4) Colon |:|
-//@[5:6) LeftSquare |[|
-//@[6:9) Identifier |for|
-//@[10:11) Identifier |i|
-//@[12:14) Identifier |in|
-//@[15:20) Identifier |range|
-//@[20:21) LeftParen |(|
-//@[21:22) Integer |0|
-//@[22:23) Comma |,|
-//@[23:25) Integer |10|
-//@[25:26) RightParen |)|
-//@[26:27) Colon |:|
-//@[28:29) Identifier |i|
-//@[29:30) RightSquare |]|
-//@[30:32) NewLine |\r\n|
+//@[002:003) Identifier |a|
+//@[003:004) Colon |:|
+//@[005:006) LeftSquare |[|
+//@[006:009) Identifier |for|
+//@[010:011) Identifier |i|
+//@[012:014) Identifier |in|
+//@[015:020) Identifier |range|
+//@[020:021) LeftParen |(|
+//@[021:022) Integer |0|
+//@[022:023) Comma |,|
+//@[023:025) Integer |10|
+//@[025:026) RightParen |)|
+//@[026:027) Colon |:|
+//@[028:029) Identifier |i|
+//@[029:030) RightSquare |]|
+//@[030:032) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 output noInnerLoopsInOutputs2 object = {
-//@[0:6) Identifier |output|
-//@[7:29) Identifier |noInnerLoopsInOutputs2|
-//@[30:36) Identifier |object|
-//@[37:38) Assignment |=|
-//@[39:40) LeftBrace |{|
-//@[40:42) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:029) Identifier |noInnerLoopsInOutputs2|
+//@[030:036) Identifier |object|
+//@[037:038) Assignment |=|
+//@[039:040) LeftBrace |{|
+//@[040:042) NewLine |\r\n|
   a: [for i in range(0,10): {
-//@[2:3) Identifier |a|
-//@[3:4) Colon |:|
-//@[5:6) LeftSquare |[|
-//@[6:9) Identifier |for|
-//@[10:11) Identifier |i|
-//@[12:14) Identifier |in|
-//@[15:20) Identifier |range|
-//@[20:21) LeftParen |(|
-//@[21:22) Integer |0|
-//@[22:23) Comma |,|
-//@[23:25) Integer |10|
-//@[25:26) RightParen |)|
-//@[26:27) Colon |:|
-//@[28:29) LeftBrace |{|
-//@[29:31) NewLine |\r\n|
+//@[002:003) Identifier |a|
+//@[003:004) Colon |:|
+//@[005:006) LeftSquare |[|
+//@[006:009) Identifier |for|
+//@[010:011) Identifier |i|
+//@[012:014) Identifier |in|
+//@[015:020) Identifier |range|
+//@[020:021) LeftParen |(|
+//@[021:022) Integer |0|
+//@[022:023) Comma |,|
+//@[023:025) Integer |10|
+//@[025:026) RightParen |)|
+//@[026:027) Colon |:|
+//@[028:029) LeftBrace |{|
+//@[029:031) NewLine |\r\n|
     b: [for j in range(0,10): i+j]
-//@[4:5) Identifier |b|
-//@[5:6) Colon |:|
-//@[7:8) LeftSquare |[|
-//@[8:11) Identifier |for|
-//@[12:13) Identifier |j|
-//@[14:16) Identifier |in|
-//@[17:22) Identifier |range|
-//@[22:23) LeftParen |(|
-//@[23:24) Integer |0|
-//@[24:25) Comma |,|
-//@[25:27) Integer |10|
-//@[27:28) RightParen |)|
-//@[28:29) Colon |:|
-//@[30:31) Identifier |i|
-//@[31:32) Plus |+|
-//@[32:33) Identifier |j|
-//@[33:34) RightSquare |]|
-//@[34:36) NewLine |\r\n|
+//@[004:005) Identifier |b|
+//@[005:006) Colon |:|
+//@[007:008) LeftSquare |[|
+//@[008:011) Identifier |for|
+//@[012:013) Identifier |j|
+//@[014:016) Identifier |in|
+//@[017:022) Identifier |range|
+//@[022:023) LeftParen |(|
+//@[023:024) Integer |0|
+//@[024:025) Comma |,|
+//@[025:027) Integer |10|
+//@[027:028) RightParen |)|
+//@[028:029) Colon |:|
+//@[030:031) Identifier |i|
+//@[031:032) Plus |+|
+//@[032:033) Identifier |j|
+//@[033:034) RightSquare |]|
+//@[034:036) NewLine |\r\n|
   }]
-//@[2:3) RightBrace |}|
-//@[3:4) RightSquare |]|
-//@[4:6) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:004) RightSquare |]|
+//@[004:006) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 //KeyVault Secret Reference
-//@[27:29) NewLine |\r\n|
+//@[027:029) NewLine |\r\n|
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-//@[0:8) Identifier |resource|
-//@[9:11) Identifier |kv|
-//@[12:50) StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
-//@[51:59) Identifier |existing|
-//@[60:61) Assignment |=|
-//@[62:63) LeftBrace |{|
-//@[63:65) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:011) Identifier |kv|
+//@[012:050) StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[051:059) Identifier |existing|
+//@[060:061) Assignment |=|
+//@[062:063) LeftBrace |{|
+//@[063:065) NewLine |\r\n|
   name: 'testkeyvault'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:22) StringComplete |'testkeyvault'|
-//@[22:24) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:022) StringComplete |'testkeyvault'|
+//@[022:024) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 output keyVaultSecretOutput string = kv.getSecret('mySecret')
-//@[0:6) Identifier |output|
-//@[7:27) Identifier |keyVaultSecretOutput|
-//@[28:34) Identifier |string|
-//@[35:36) Assignment |=|
-//@[37:39) Identifier |kv|
-//@[39:40) Dot |.|
-//@[40:49) Identifier |getSecret|
-//@[49:50) LeftParen |(|
-//@[50:60) StringComplete |'mySecret'|
-//@[60:61) RightParen |)|
-//@[61:63) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:027) Identifier |keyVaultSecretOutput|
+//@[028:034) Identifier |string|
+//@[035:036) Assignment |=|
+//@[037:039) Identifier |kv|
+//@[039:040) Dot |.|
+//@[040:049) Identifier |getSecret|
+//@[049:050) LeftParen |(|
+//@[050:060) StringComplete |'mySecret'|
+//@[060:061) RightParen |)|
+//@[061:063) NewLine |\r\n|
 output keyVaultSecretInterpolatedOutput string = '${kv.getSecret('mySecret')}'
-//@[0:6) Identifier |output|
-//@[7:39) Identifier |keyVaultSecretInterpolatedOutput|
-//@[40:46) Identifier |string|
-//@[47:48) Assignment |=|
-//@[49:52) StringLeftPiece |'${|
-//@[52:54) Identifier |kv|
-//@[54:55) Dot |.|
-//@[55:64) Identifier |getSecret|
-//@[64:65) LeftParen |(|
-//@[65:75) StringComplete |'mySecret'|
-//@[75:76) RightParen |)|
-//@[76:78) StringRightPiece |}'|
-//@[78:80) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:039) Identifier |keyVaultSecretInterpolatedOutput|
+//@[040:046) Identifier |string|
+//@[047:048) Assignment |=|
+//@[049:052) StringLeftPiece |'${|
+//@[052:054) Identifier |kv|
+//@[054:055) Dot |.|
+//@[055:064) Identifier |getSecret|
+//@[064:065) LeftParen |(|
+//@[065:075) StringComplete |'mySecret'|
+//@[075:076) RightParen |)|
+//@[076:078) StringRightPiece |}'|
+//@[078:080) NewLine |\r\n|
 output keyVaultSecretObjectOutput object = {
-//@[0:6) Identifier |output|
-//@[7:33) Identifier |keyVaultSecretObjectOutput|
-//@[34:40) Identifier |object|
-//@[41:42) Assignment |=|
-//@[43:44) LeftBrace |{|
-//@[44:46) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:033) Identifier |keyVaultSecretObjectOutput|
+//@[034:040) Identifier |object|
+//@[041:042) Assignment |=|
+//@[043:044) LeftBrace |{|
+//@[044:046) NewLine |\r\n|
   secret: kv.getSecret('mySecret')
-//@[2:8) Identifier |secret|
-//@[8:9) Colon |:|
-//@[10:12) Identifier |kv|
-//@[12:13) Dot |.|
-//@[13:22) Identifier |getSecret|
-//@[22:23) LeftParen |(|
-//@[23:33) StringComplete |'mySecret'|
-//@[33:34) RightParen |)|
-//@[34:36) NewLine |\r\n|
+//@[002:008) Identifier |secret|
+//@[008:009) Colon |:|
+//@[010:012) Identifier |kv|
+//@[012:013) Dot |.|
+//@[013:022) Identifier |getSecret|
+//@[022:023) LeftParen |(|
+//@[023:033) StringComplete |'mySecret'|
+//@[033:034) RightParen |)|
+//@[034:036) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 output keyVaultSecretArrayOutput array = [
-//@[0:6) Identifier |output|
-//@[7:32) Identifier |keyVaultSecretArrayOutput|
-//@[33:38) Identifier |array|
-//@[39:40) Assignment |=|
-//@[41:42) LeftSquare |[|
-//@[42:44) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:032) Identifier |keyVaultSecretArrayOutput|
+//@[033:038) Identifier |array|
+//@[039:040) Assignment |=|
+//@[041:042) LeftSquare |[|
+//@[042:044) NewLine |\r\n|
   kv.getSecret('mySecret')
-//@[2:4) Identifier |kv|
-//@[4:5) Dot |.|
-//@[5:14) Identifier |getSecret|
-//@[14:15) LeftParen |(|
-//@[15:25) StringComplete |'mySecret'|
-//@[25:26) RightParen |)|
-//@[26:28) NewLine |\r\n|
+//@[002:004) Identifier |kv|
+//@[004:005) Dot |.|
+//@[005:014) Identifier |getSecret|
+//@[014:015) LeftParen |(|
+//@[015:025) StringComplete |'mySecret'|
+//@[025:026) RightParen |)|
+//@[026:028) NewLine |\r\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightSquare |]|
+//@[001:003) NewLine |\r\n|
 output keyVaultSecretArrayInterpolatedOutput array = [
-//@[0:6) Identifier |output|
-//@[7:44) Identifier |keyVaultSecretArrayInterpolatedOutput|
-//@[45:50) Identifier |array|
-//@[51:52) Assignment |=|
-//@[53:54) LeftSquare |[|
-//@[54:56) NewLine |\r\n|
+//@[000:006) Identifier |output|
+//@[007:044) Identifier |keyVaultSecretArrayInterpolatedOutput|
+//@[045:050) Identifier |array|
+//@[051:052) Assignment |=|
+//@[053:054) LeftSquare |[|
+//@[054:056) NewLine |\r\n|
   '${kv.getSecret('mySecret')}'
-//@[2:5) StringLeftPiece |'${|
-//@[5:7) Identifier |kv|
-//@[7:8) Dot |.|
-//@[8:17) Identifier |getSecret|
-//@[17:18) LeftParen |(|
-//@[18:28) StringComplete |'mySecret'|
-//@[28:29) RightParen |)|
-//@[29:31) StringRightPiece |}'|
-//@[31:33) NewLine |\r\n|
+//@[002:005) StringLeftPiece |'${|
+//@[005:007) Identifier |kv|
+//@[007:008) Dot |.|
+//@[008:017) Identifier |getSecret|
+//@[017:018) LeftParen |(|
+//@[018:028) StringComplete |'mySecret'|
+//@[028:029) RightParen |)|
+//@[029:031) StringRightPiece |}'|
+//@[031:033) NewLine |\r\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightSquare |]|
+//@[001:005) NewLine |\r\n\r\n|
 
 // WARNING!!!!! dangling decorators
-//@[35:39) NewLine |\r\n\r\n|
+//@[035:039) NewLine |\r\n\r\n|
 
 // #completionTest(1) -> decoratorsPlusNamespace
-//@[48:50) NewLine |\r\n|
+//@[048:050) NewLine |\r\n|
 @
-//@[0:1) At |@|
-//@[1:3) NewLine |\r\n|
+//@[000:001) At |@|
+//@[001:003) NewLine |\r\n|
 // #completionTest(5) -> decorators
-//@[35:37) NewLine |\r\n|
+//@[035:037) NewLine |\r\n|
 @sys.
-//@[0:1) At |@|
-//@[1:4) Identifier |sys|
-//@[4:5) Dot |.|
-//@[5:9) NewLine |\r\n\r\n|
+//@[000:001) At |@|
+//@[001:004) Identifier |sys|
+//@[004:005) Dot |.|
+//@[005:009) NewLine |\r\n\r\n|
 
 // WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line 
 //@[110:110) EndOfFile ||

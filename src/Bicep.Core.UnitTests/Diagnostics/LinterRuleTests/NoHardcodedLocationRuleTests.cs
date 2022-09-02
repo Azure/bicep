@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Linq;
-using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
@@ -281,7 +280,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
-        public void If_ResLocationIs_VariableDefinedAsLiteral_UsedInResourcesAndModules_ShouldFailJustOnVariableDef__WithFixToChangeToParam()
+        public void If_ResLocationIs_VariableDefinedAsLiteral_UsedInResourcesAndModules_ShouldFailJustOnVariableDef_WithFixToChangeToParam()
         {
             var result = CompilationHelper.Compile(
                 ("main.bicep", @"

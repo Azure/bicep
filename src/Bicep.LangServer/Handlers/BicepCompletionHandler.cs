@@ -33,15 +33,17 @@ namespace Bicep.LanguageServer.Handlers
 
         public override Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
         {
+            var completions = Enumerable.Empty<CompletionItem>();
+
             var compilationContext = this.compilationManager.GetCompilation(request.TextDocument.Uri);
-            if (compilationContext == null)
+            if (compilationContext is null)
             {
                 return Task.FromResult(new CompletionList());
             }
 
             int offset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Position);
             var completionContext = BicepCompletionContext.Create(featureProvider, compilationContext.Compilation, offset);
-            var completions = Enumerable.Empty<CompletionItem>();
+
             try
             {
                 completions = this.completionProvider.GetFilteredCompletions(compilationContext.Compilation, completionContext);

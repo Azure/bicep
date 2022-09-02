@@ -51,7 +51,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         protected override string Identifier => "Diagnostic";
 
-        public static void DoWithDiagnosticAnnotations(BicepFile bicepFile, IEnumerable<IDiagnostic> diagnostics, Action<IEnumerable<IDiagnostic>> action)
+        public static void DoWithDiagnosticAnnotations(IBicepSourceFile bicepFile, IEnumerable<IDiagnostic> diagnostics, Action<IEnumerable<IDiagnostic>> action)
         {
             using (new AssertionScope().WithVisualDiagnostics(bicepFile, diagnostics))
             {

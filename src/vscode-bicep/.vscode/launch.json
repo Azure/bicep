@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Extension",
+      "name": "Launch Extension (dev)",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
@@ -18,9 +18,10 @@
       "env": {
         "BICEP_TRACING_ENABLED": "true",
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll",
+        //"BICEP_SYMBOLIC_NAME_CODEGEN_EXPERIMENTAL": "true",
 
         // Defaulting to "verbose" when debugging so that new telemetry IDs during development aren't accidentally sent and created before they're finalized
-        "DEBUGTELEMETRY": "v", // "" or "0" or "false": send telemetry as normal; "1": debug mode (no telemetry sent); "verbose": telemetry in console, don't send (from vscode-azureextensionui)
+        "DEBUGTELEMETRY": "v", // "" or "0" or "false": send telemetry as normal; "1": debug mode (no telemetry sent); "verbose": telemetry in console, don't send (from microsoft/vscode-azext-utils)
       }
     },
     {
@@ -58,7 +59,7 @@
       }
     },
     {
-      "name": "Launch Tests: E2E",
+      "name": "Launch Tests: E2E (prod)",
       "type": "extensionHost",
       "request": "launch",
       "args": [
@@ -71,6 +72,68 @@
       "env": {
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll",
         "TEST_MODE": "e2e"
+      }
+    },
+    {
+      "name": "Launch Tests: E2E (dev)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--enable-proposed-api",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/e2e/index"
+      ],
+      "outFiles": ["${workspaceRoot}/out/test/e2e/**/*.js"],
+      "preLaunchTask": "build:e2e:dev",
+      "env": {
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll",
+        "TEST_MODE": "e2e"
+      }
+    },
+    {
+      "name": "Launch Tests: Unit Tests (dev)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--enable-proposed-api",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/unit/index"
+      ],
+      "outFiles": [
+        "${workspaceRoot}/out/test/unit/**/*.js"
+      ],
+      "preLaunchTask": "build:unit:dev",
+      "env": {}
+    },
+    {
+      "name": "Launch Tests: Unit Tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "--config",
+        "jest.config.unit.js",
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+      }
+    },
+    {
+      "name": "Launch Tests: Unit Tests: Current File",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "${fileBasenameNoExtension}",
+        "--config",
+        "jest.config.unit.js",
+        "--coverage=false"
+      ],
+      "console": "integratedTerminal",
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
       }
     }
   ]

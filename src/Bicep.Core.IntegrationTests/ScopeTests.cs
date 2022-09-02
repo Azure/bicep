@@ -183,7 +183,7 @@ output resourceARef string = resourceA.properties.myProp
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                     new TypeProperty("kind", LanguageConstants.String, TypePropertyFlags.ReadOnly, "kind property"),
                 }, null))
@@ -226,7 +226,7 @@ output resourceARef string = resourceA.kind
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                 }, null))
             });
@@ -240,6 +240,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
 "));
 
             diags.Should().HaveDiagnostics(new[] {
+                ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"resourceA\" is declared but never used."),
                 ("BCP135", DiagnosticLevel.Error, "Scope \"subscription\" is not valid for this resource type. Permitted scopes: \"resourceGroup\"."),
             });
 
@@ -253,6 +254,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
 "));
 
             diags.Should().HaveDiagnostics(new[] {
+                ("no-unused-existing-resources", DiagnosticLevel.Warning, "Existing resource \"resourceA\" is declared but never used."),
                 ("BCP135", DiagnosticLevel.Error, "Scope \"subscription\" is not valid for this resource type. Permitted scopes: \"resourceGroup\"."),
             });
         }
@@ -262,7 +264,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                 }, null))
             });
@@ -290,7 +292,7 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                 }, null))
             });
@@ -324,7 +326,7 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
-                new ResourceTypeComponents(typeReference, ResourceScope.Tenant, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.Tenant, ResourceScope.None, ResourceFlags.None, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                 }, null))
             });
