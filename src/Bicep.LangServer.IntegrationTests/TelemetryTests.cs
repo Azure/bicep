@@ -330,7 +330,7 @@ var useDefaultSettings = true";
                     // location: resourceGroup().location
                     //   => Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.
                     "warnings",
-                    "1"
+                    "2"
                 },
                 { "modulesInReferencedFiles", "0" },
                 { "parentResourcesInReferencedFiles", "2" },

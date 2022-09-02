@@ -5,6 +5,7 @@
 param location string
 
 resource availabilitySet 'Microsoft.Compute/availabilitySets@2020-12-01' = {
+//@[25:72) [BCP081 (Warning)] Resource type "Microsoft.Compute/availabilitySets@2020-12-01" does not have types available. (CodeDescription: none) |'Microsoft.Compute/availabilitySets@2020-12-01'|
   name: 'name'
   location: location
 }
