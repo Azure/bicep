@@ -15,7 +15,7 @@ namespace Bicep.Core.Configuration
 
         public T GetValue<T>(string path, T defaultValue)
         {
-            var element = this.Data.GetPropertyByPath(path);
+            var element = this.Data.TryGetPropertyByPath(path);
 
             if (element.HasValue)
             {

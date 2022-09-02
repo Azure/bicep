@@ -1,7 +1,7 @@
 // Policy Assignment
 resource /*${1:policyAssignment}*/policyAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
   name: /*${2:'name'}*/'name'
-  location: /*${3:'location'}*/'location'
+  location: /*${3:location}*/'location'
   identity: {
     type: /*${4|'SystemAssigned','None'|}*/'SystemAssigned'
   }

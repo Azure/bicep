@@ -3,8 +3,6 @@
 
 using System;
 using System.IO;
-using System.Linq;
-using System.Management.Automation;
 using System.Runtime.InteropServices;
 using System.Text;
 using Bicep.Core.FileSystem;
@@ -41,19 +39,20 @@ namespace Bicep.Core.UnitTests.Assertions
 
         private static string GetRepoRoot()
         {
-            // just using PowerShell as an easy way to redirect streams
-            using var ps = PowerShell.Create();
-            ps.AddScript("git rev-parse --show-toplevel");
+            var currentDir = new DirectoryInfo(Environment.CurrentDirectory);
 
-            var output = ps.Invoke();
-            if (!ps.HadErrors && output.Count == 1 && output.Single().BaseObject is string path)
+            while (currentDir.Parent is {} parentDir)
             {
-                // normalize the path for current platform (git really likes using / on windows)
-                return Path.GetFullPath(path);
+                // search upwards for the .git directory. This should only exist at the repository root.
+                if (Directory.Exists(Path.Join(currentDir.FullName, ".git")))
+                {
+                    return currentDir.FullName;
+                }
+
+                currentDir = parentDir;
             }
 
-            string message = ps.Streams.Error.FirstOrDefault()?.Exception?.Message ?? "Unknown error";
-            throw new InvalidOperationException($"Unable to determine the repo root path. {message}");
+            throw new InvalidOperationException($"Unable to determine the repo root path from directory {Environment.CurrentDirectory}");
         }
 
         public static string GetAssertionFormatString(bool isBaselineUpdate)
@@ -87,6 +86,8 @@ Overwrite the single baseline:
 
 Overwrite all baselines:
     dotnet test --filter ""TestCategory=Baseline"" -- 'TestRunParameters.Parameter(name=\""SetBaseLine\"", value=\""true\"")'
+
+See https://github.com/Azure/bicep/blob/main/CONTRIBUTING.md#updating-test-baselines for more information on how to fix this error.
 ");
                 }
                 else
@@ -97,6 +98,8 @@ Overwrite the single baseline:
 
 Overwrite all baselines:
     dotnet test --filter ""TestCategory=Baseline"" -- 'TestRunParameters.Parameter(name=""SetBaseLine"", value=""true"")'
+
+See https://github.com/Azure/bicep/blob/main/CONTRIBUTING.md#updating-test-baselines for more information on how to fix this error.
 ");
                 }
             }

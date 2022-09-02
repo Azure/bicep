@@ -8,11 +8,11 @@ using FluentAssertions.Primitives;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
-    public static class CompilationExtensions 
+    public static class CompilationExtensions
     {
         public static CompilationAssertions Should(this Compilation compilation)
         {
-            return new CompilationAssertions(compilation); 
+            return new CompilationAssertions(compilation);
         }
     }
 

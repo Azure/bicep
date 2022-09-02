@@ -14,6 +14,6 @@ describe('grammar tests', () => {
     const generatedGrammar = await generateGrammar();
     const savedGrammar = await readFile(grammarPath, { encoding: 'utf8' });
 
-    expect(generatedGrammar).toEqual(savedGrammar);
+    expect(generatedGrammar).toStrictEqual(savedGrammar);
   });
 });

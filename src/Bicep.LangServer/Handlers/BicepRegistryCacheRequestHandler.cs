@@ -50,7 +50,7 @@ namespace Bicep.LanguageServer.Handlers
             var configuration = this.configurationManager.GetConfiguration(request.TextDocument.Uri.ToUri());
             var moduleReference = this.moduleDispatcher.TryGetModuleReference(request.Target, configuration, out _) ?? throw new InvalidOperationException($"The client specified an invalid module reference '{request.Target}'.");
 
-            if(!moduleReference.IsExternal)
+            if (!moduleReference.IsExternal)
             {
                 throw new InvalidOperationException($"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepCacheLspMethod} requests.");
             }

@@ -7,11 +7,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LangServer.IntegrationTests.Assertions
 {
-    public static class PositionExtensions 
+    public static class PositionExtensions
     {
         public static PositionAssertions Should(this Position instance)
         {
-            return new PositionAssertions(instance); 
+            return new PositionAssertions(instance);
         }
     }
 
@@ -33,6 +33,6 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
                 .FailWith("Expected position line {0} char {1}, but found line {2}, char {3}", _ => line, _ => character, p => p.Line, p => p.Character);
 
             return new AndConstraint<PositionAssertions>(this);
-        }        
+        }
     }
 }

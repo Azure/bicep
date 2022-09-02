@@ -18,13 +18,15 @@ namespace Bicep.Core.Semantics
         {
             return new FunctionWildcardOverload(
                 Name,
+                GenericDescription,
                 Description,
                 WildcardRegex,
-                ReturnTypeBuilder,
+                ResultBuilder,
                 ReturnType,
                 FixedParameters.ToImmutable(),
                 VariableParameter,
                 Evaluator,
+                VariableGenerator,
                 Flags);
         }
     }

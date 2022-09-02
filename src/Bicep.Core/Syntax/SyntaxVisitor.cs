@@ -126,7 +126,13 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Child);
         }
 
-        public virtual void VisitTypeSyntax(TypeSyntax syntax)
+        public virtual void VisitResourceTypeSyntax(ResourceTypeSyntax syntax)
+        {
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Type);
+        }
+
+        public virtual void VisitSimpleTypeSyntax(SimpleTypeSyntax syntax)
         {
             this.Visit(syntax.Identifier);
         }
@@ -215,12 +221,10 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.CloseSquare);
         }
 
-        public virtual void VisitForVariableBlockSyntax(ForVariableBlockSyntax syntax)
+        public virtual void VisitVariableBlockSyntax(VariableBlockSyntax syntax)
         {
             this.Visit(syntax.OpenParen);
-            this.Visit(syntax.ItemVariable);
-            this.Visit(syntax.Comma);
-            this.Visit(syntax.IndexVariable);
+            this.VisitNodes(syntax.Children);
             this.Visit(syntax.CloseParen);
         }
 
@@ -279,7 +283,7 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.Name);
             this.Visit(syntax.OpenParen);
-            this.VisitNodes(syntax.Arguments);
+            this.VisitNodes(syntax.Children);
             this.Visit(syntax.CloseParen);
         }
 
@@ -289,14 +293,13 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Dot);
             this.Visit(syntax.Name);
             this.Visit(syntax.OpenParen);
-            this.VisitNodes(syntax.Arguments);
+            this.VisitNodes(syntax.Children);
             this.Visit(syntax.CloseParen);
         }
 
         public virtual void VisitFunctionArgumentSyntax(FunctionArgumentSyntax syntax)
         {
             this.Visit(syntax.Expression);
-            this.Visit(syntax.Comma);
         }
 
         public virtual void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
@@ -319,10 +322,33 @@ namespace Bicep.Core.Syntax
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
-            this.Visit(syntax.AliasName);
-            this.Visit(syntax.FromKeyword);
             this.Visit(syntax.ProviderName);
+            this.Visit(syntax.AsKeyword);
+            this.Visit(syntax.AliasName);
             this.Visit(syntax.Config);
+        }
+
+        public virtual void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Assignment);
+            this.Visit(syntax.Value);
+        }
+
+        public virtual void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Path);
+        }
+        
+        public virtual void VisitLambdaSyntax(LambdaSyntax syntax)
+        {
+            this.Visit(syntax.VariableSection);
+            this.Visit(syntax.Arrow);
+            this.Visit(syntax.Body);
         }
 
         protected void VisitTokens(IEnumerable<Token> tokens)

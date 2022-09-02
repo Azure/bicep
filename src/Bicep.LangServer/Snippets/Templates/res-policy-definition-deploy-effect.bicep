@@ -66,7 +66,7 @@ resource /*${1:policyDefinition}*/policyDefinition 'Microsoft.Authorization/poli
                     name: /*${32:'name'}*/'name'
                     type: /*${33:'type'}*/'type'
                     apiVersion: /*${34:'apiVersion'}*/'apiVersion'
-                    location: /*${35:'location'}*/'location'
+                    location: /*${35:location}*/'location'
                     properties: {}
                   }
                 ]

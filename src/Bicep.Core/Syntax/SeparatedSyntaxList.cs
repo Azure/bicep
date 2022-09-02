@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
@@ -36,7 +36,7 @@ namespace Bicep.Core.Syntax
                 {
                     throw new ArgumentException("With zero elements, the number of separators must also be zero.");
                 }
-                
+
                 if (span.Length != 0)
                 {
                     throw new ArgumentException($"The specified span was '{span}' but expected a zero-length span.");

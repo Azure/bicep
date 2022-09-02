@@ -117,7 +117,44 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="DisableLinterRule" xml:space="preserve">
-    <value>Disable linter rule</value>
+  <data name="DeploymentFailedMessage" xml:space="preserve">
+    <value>Deployment failed for {0}.</value>
+  </data>
+  <data name="DeploymentFailedWithExceptionMessage" xml:space="preserve">
+    <value>Deployment failed for {0}. {1}</value>
+  </data>
+  <data name="DeploymentStartedMessage" xml:space="preserve">
+    <value>Deployment started for {0}.</value>
+  </data>
+  <data name="DeploymentSucceededMessage" xml:space="preserve">
+    <value>Deployment succeeded for {0}.</value>
+  </data>
+  <data name="DisableDiagnosticForThisLine" xml:space="preserve">
+    <value>Disable {0} for this line</value>
+  </data>
+  <data name="EditLinterRuleActionTitle" xml:space="preserve">
+    <value>Edit {0} in bicepconfig.json</value>
+    <comment>{0} = programmatic name of a linter rule</comment>
+  </data>
+  <data name="InvalidParameterFile" xml:space="preserve">
+    <value>Encountered error while reading parameters file: {0}. Please fix the following issue: {1}</value>
+  </data>
+  <data name="InvalidParameterFileDeploymentFailedMessage" xml:space="preserve">
+    <value>Deployment failed for {0}. Please fix following issues in the parameter file {1}: {2}</value>
+  </data>
+  <data name="InvalidParameterValueDeploymentFailedMessage" xml:space="preserve">
+    <value>Deployment failed for {0}. Please provide a valid value for parameter: {1}</value>
+  </data>
+  <data name="MissingLocationDeploymentFailedMessage" xml:space="preserve">
+    <value>Deployment failed for {0}. Please provide a valid location.</value>
+  </data>
+  <data name="MissingParamValueForArrayOrObjectType" xml:space="preserve">
+    <value>Parameters of type array or object should either contain a default value or must be specified in parameters.json file. Please update the value for the following parameters: {0}</value>
+  </data>
+  <data name="UnsupportedTargetScopeMessage" xml:space="preserve">
+    <value>Unsupported target scope: {0}.</value>
+  </data>
+  <data name="ViewDeploymentInPortalMessage" xml:space="preserve">
+    <value>View deployment in portal: {0}.</value>
   </data>
 </root>

@@ -1,13 +1,11 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core.Navigation;
-using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.Samples;
@@ -39,10 +37,26 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainFormatted), formattedOutput!);
 
             formattedOutput.Should().EqualWithLineByLineDiffOutput(
-                TestContext, 
+                TestContext,
                 dataSet.Formatted,
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainFormatted),
                 actualLocation: resultsFile);
+        }
+
+        [DataTestMethod]
+        [BaselineData_Bicepparam.TestData()]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void PrintProgram_ParamsFile_ShouldProduceExpectedOutput(BaselineData_Bicepparam baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+            var program = ParamsParserHelper.ParamsParse(data.Parameters.EmbeddedFile.Contents);
+            var options = new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, 2, true);
+
+            var formattedOutput = PrettyPrinter.PrintProgram(program, options);
+            formattedOutput.Should().NotBeNull();
+
+            data.Formatted.WriteToOutputFolder(formattedOutput);
+            data.Formatted.ShouldHaveExpectedValue();
         }
 
         [DataTestMethod]

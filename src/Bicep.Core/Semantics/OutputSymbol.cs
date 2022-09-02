@@ -1,11 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
-using System.Linq;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
@@ -17,7 +13,7 @@ namespace Bicep.Core.Semantics
             this.Value = value;
         }
 
-        public OutputDeclarationSyntax DeclaringOutput => (OutputDeclarationSyntax) this.DeclaringSyntax;
+        public OutputDeclarationSyntax DeclaringOutput => (OutputDeclarationSyntax)this.DeclaringSyntax;
 
         public SyntaxBase Value { get; }
 

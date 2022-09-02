@@ -1,13 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.Deployments.Core.Json;
-using Bicep.Core.Features;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Registry;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 using System.IO;
 using System.Linq;
@@ -30,7 +29,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<MockRegistryAssertions> HaveModule(string tag, Stream expectedModuleContent)
         {
-            using(new AssertionScope())
+            using (new AssertionScope())
             {
                 this.Subject.ManifestTags.Should().ContainKey(tag, $"tag '{tag}' should exist");
 
@@ -71,7 +70,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<MockRegistryAssertions> OnlyHaveModule(string tag, Stream expectedModuleContent)
         {
-            using(new AssertionScope())
+            using (new AssertionScope())
             {
                 this.Subject.Should().HaveModule(tag, expectedModuleContent);
 

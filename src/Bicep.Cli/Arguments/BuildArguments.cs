@@ -94,7 +94,7 @@ namespace Bicep.Cli.Arguments
         }
 
         public bool OutputToStdOut { get; }
-        
+
         public string InputFile { get; }
 
         public string? OutputDir { get; }

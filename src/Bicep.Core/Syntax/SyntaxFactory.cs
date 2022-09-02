@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -23,12 +21,19 @@ namespace Bicep.Core.Syntax
         public static Token CreateToken(TokenType tokenType, string text = "")
             => new Token(tokenType, EmptySpan, string.IsNullOrEmpty(text) ? TryGetTokenText(tokenType) : text, EmptyTrivia, EmptyTrivia);
 
-        public static IdentifierSyntax CreateIdentifier(string text)
-            => new IdentifierSyntax(CreateToken(TokenType.Identifier, text));
+        public static IdentifierSyntax CreateIdentifier(string text) => new(CreateToken(TokenType.Identifier, text));
 
-        public static VariableAccessSyntax CreateVariableAccess(string text)
-            => new VariableAccessSyntax(CreateIdentifier(text));
+        public static VariableAccessSyntax CreateVariableAccess(string text) => new(CreateIdentifier(text));
 
+        public static VariableBlockSyntax CreateVariableBlock(IEnumerable<IdentifierSyntax> variables)
+            => new VariableBlockSyntax(
+                LeftParenToken,
+                Interleave(variables.Select(x => new LocalVariableSyntax(x)), () => CommaToken),
+                SyntaxFactory.RightParenToken);
+
+        public static ExplicitVariableAccessSyntax CreateExplicitVariableAccess(string text) => new(CreateIdentifier(text));
+
+        public static Token DoubleNewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine + Environment.NewLine);
         public static Token NewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine);
         public static Token AtToken => CreateToken(TokenType.At, "@");
         public static Token LeftBraceToken => CreateToken(TokenType.LeftBrace, "{");
@@ -91,11 +96,10 @@ namespace Bicep.Core.Syntax
             var rangeSyntax = new FunctionCallSyntax(
                 CreateIdentifier("range"),
                 LeftParenToken,
-                new FunctionArgumentSyntax[] {
-                    new FunctionArgumentSyntax(
-                        new IntegerLiteralSyntax(CreateToken(TokenType.Integer, "0"), 0),
-                        CommaToken),
-                    new FunctionArgumentSyntax(count, null),
+                new SyntaxBase[] {
+                    new FunctionArgumentSyntax(new IntegerLiteralSyntax(CreateToken(TokenType.Integer, "0"), 0)),
+                    CommaToken,
+                    new FunctionArgumentSyntax(count),
                 },
                 RightParenToken);
 
@@ -118,11 +122,17 @@ namespace Bicep.Core.Syntax
 
         public static ArraySyntax CreateArray(IEnumerable<SyntaxBase> items)
         {
-            var children = new List<SyntaxBase> { NewlineToken };
+            var children = new List<SyntaxBase>();
 
             foreach (var item in items)
             {
+                children.Add(NewlineToken);
                 children.Add(CreateArrayItem(item));
+            }
+
+            if (children.Any())
+            {
+                // only add a newline if we actually have children
                 children.Add(NewlineToken);
             }
 
@@ -131,6 +141,8 @@ namespace Bicep.Core.Syntax
                 children,
                 RightSquareToken);
         }
+
+        public static ArrayAccessSyntax CreateArrayAccess(SyntaxBase baseExpression, SyntaxBase indexExpression) => new(baseExpression, LeftSquareToken, indexExpression, RightSquareToken);
 
         public static SyntaxBase CreateObjectPropertyKey(string text)
         {
@@ -142,7 +154,21 @@ namespace Bicep.Core.Syntax
             return CreateStringLiteral(text);
         }
 
-        public static IntegerLiteralSyntax CreateIntegerLiteral(long value) => new(CreateToken(TokenType.Integer, value.ToString()), value);
+        public static IntegerLiteralSyntax CreateIntegerLiteral(ulong value) => new(CreateToken(TokenType.Integer, value.ToString()), value);
+
+        public static UnaryOperationSyntax CreateNegativeIntegerLiteral(ulong value) => new(MinusToken, CreateIntegerLiteral(value));
+
+        public static ExpressionSyntax CreatePositiveOrNegativeInteger(long intValue)
+        {
+            if (intValue >= 0)
+            {
+                return SyntaxFactory.CreateIntegerLiteral((ulong)intValue);
+            }
+            else
+            {
+                return SyntaxFactory.CreateNegativeIntegerLiteral((ulong)-intValue);
+            }
+        }
 
         public static StringSyntax CreateStringLiteral(string value) => CreateString(value.AsEnumerable(), Enumerable.Empty<SyntaxBase>());
 
@@ -154,7 +180,7 @@ namespace Bicep.Core.Syntax
         {
             var valuesArray = values.ToArray();
             var expressionsArray = expressions.ToArray();
-            
+
             if (valuesArray.Length != expressionsArray.Length + 1)
             {
                 throw new ArgumentException($"The number of values must be 1 greater than the number of expressions");
@@ -198,7 +224,8 @@ namespace Bicep.Core.Syntax
 
         public static Token CreateStringInterpolationToken(bool isStart, bool isEnd, string value)
         {
-            return (isStart, isEnd) switch {
+            return (isStart, isEnd) switch
+            {
                 (true, true) => CreateToken(TokenType.StringComplete, $"'{EscapeBicepString(value)}'"),
                 (true, false) => CreateToken(TokenType.StringLeftPiece, $"'{EscapeBicepString(value)}${{"),
                 (false, false) => CreateToken(TokenType.StringMiddlePiece, $"}}{EscapeBicepString(value)}${{"),
@@ -206,33 +233,18 @@ namespace Bicep.Core.Syntax
             };
         }
 
-        public static FunctionCallSyntax CreateFunctionCall(string functionName)
-            => CreateFunctionCall(functionName, new FunctionArgumentSyntax[0]);
-
         public static FunctionCallSyntax CreateFunctionCall(string functionName, params SyntaxBase[] argumentExpressions)
-        {
-            var arguments = argumentExpressions.Select((expression, i) => new FunctionArgumentSyntax(
-                expression,
-                i < argumentExpressions.Length - 1 ? CommaToken : null));
-
-            return new FunctionCallSyntax(
-                CreateIdentifier(functionName),
-                LeftParenToken,
-                arguments,
-                RightParenToken);
-        }
-
-        public static FunctionCallSyntax CreateFunctionCall(string functionName, params FunctionArgumentSyntax[] argumentSyntaxes)
             => new FunctionCallSyntax(
                 CreateIdentifier(functionName),
                 LeftParenToken,
-                argumentSyntaxes,
+                Interleave(argumentExpressions.Select(x => new FunctionArgumentSyntax(x)), () => CommaToken),
                 RightParenToken);
 
         public static DecoratorSyntax CreateDecorator(string functionName, params SyntaxBase[] argumentExpressions)
-        {
-            return new DecoratorSyntax(AtToken, CreateFunctionCall(functionName, argumentExpressions));
-        }
+            => new DecoratorSyntax(AtToken, CreateFunctionCall(functionName, argumentExpressions));
+
+        private static IEnumerable<SyntaxBase> Interleave(IEnumerable<SyntaxBase> elements, Func<SyntaxBase> getInterleaveSyntax)
+            => elements.SelectMany((x, i) => i > 0 ? getInterleaveSyntax().AsEnumerable().Concat(x) : x.AsEnumerable());
 
         private static string EscapeBicepString(string value)
             => value
@@ -287,13 +299,13 @@ namespace Bicep.Core.Syntax
                 if (functionCallSyntax.NameEquals("concat"))
                 {
                     // just return the inner portion if there's only one concat entry
-                    if (functionCallSyntax.Arguments.Length == 1)
+                    if (functionCallSyntax.Arguments.Count() == 1)
                     {
-                        return functionCallSyntax.Arguments.Select(arg => arg.Expression).First();
+                        return functionCallSyntax.GetArgumentByPosition(0).Expression;
                     }
                     else
                     {
-                        var concatArguments = new List<FunctionArgumentSyntax>();
+                        var concatArguments = new List<SyntaxBase>();
                         foreach (var arg in functionCallSyntax.Arguments)
                         {
                             // recurse
@@ -302,11 +314,11 @@ namespace Bicep.Core.Syntax
                             if (flattenedExpression is FunctionCallSyntax childFunction && childFunction.NameEquals("concat"))
                             {
                                 // concat directly inside a concat - break it out
-                                concatArguments.AddRange(childFunction.Arguments);
+                                concatArguments.AddRange(childFunction.Arguments.Select(x => x.Expression));
                                 continue;
                             }
 
-                            concatArguments.Add(new FunctionArgumentSyntax(flattenedExpression, arg.Comma));
+                            concatArguments.Add(flattenedExpression);
                         }
 
                         // overwrite the original expression
@@ -320,13 +332,13 @@ namespace Bicep.Core.Syntax
             return original;
         }
 
-        private static IEnumerable<FunctionArgumentSyntax> CombineConcatArguments(IEnumerable<FunctionArgumentSyntax> arguments)
+        private static IEnumerable<SyntaxBase> CombineConcatArguments(IEnumerable<SyntaxBase> argumentExpressions)
         {
             var stringList = new List<string>();
-            foreach (var argument in arguments)
+            foreach (var argument in argumentExpressions)
             {
                 // accumulate string literals if possible
-                if (argument.Expression is StringSyntax stringSyntax)
+                if (argument is StringSyntax stringSyntax)
                 {
                     if (!stringSyntax.Expressions.Any())
                     {
@@ -343,7 +355,7 @@ namespace Bicep.Core.Syntax
                 // check to see if a previous string needs to be yielded back
                 if (stringList.Any())
                 {
-                    yield return new FunctionArgumentSyntax(CreateStringLiteral(string.Join("", stringList)), null);
+                    yield return CreateStringLiteral(string.Join("", stringList));
                     stringList.Clear();
                 }
 
@@ -354,7 +366,7 @@ namespace Bicep.Core.Syntax
             // yield final string if there is one
             if (stringList.Any())
             {
-                yield return new FunctionArgumentSyntax(CreateStringLiteral(string.Join("", stringList)), null);
+                yield return CreateStringLiteral(string.Join("", stringList));
             }
         }
 

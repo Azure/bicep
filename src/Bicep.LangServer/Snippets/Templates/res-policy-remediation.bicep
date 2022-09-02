@@ -1,4 +1,4 @@
-//Policy Remediation
+// Policy Remediation
 resource /*${1:policyRemediation}*/policyRemediation 'Microsoft.PolicyInsights/remediations@2019-07-01' = {
   name: /*${2:'name'}*/'name'
   properties: {
@@ -7,7 +7,7 @@ resource /*${1:policyRemediation}*/policyRemediation 'Microsoft.PolicyInsights/r
     resourceDiscoveryMode: /*${5|'ExistingNonCompliant','ReEvaluateCompliance'|}*/'ExistingNonCompliant'
     filters: {
       locations: [
-        /*${6:'location'}*/'location'
+        /*${6:location}*/'location'
       ]
     }
   }

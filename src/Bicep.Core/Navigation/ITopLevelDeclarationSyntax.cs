@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Parsing;
-using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Navigation
 {

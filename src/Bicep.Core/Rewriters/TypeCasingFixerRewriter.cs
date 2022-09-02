@@ -31,7 +31,7 @@ namespace Bicep.Core.Rewriters
             {
                 return base.ReplaceObjectSyntax(syntax);
             }
-            
+
             var newChildren = new List<SyntaxBase>();
             foreach (var child in syntax.Children)
             {

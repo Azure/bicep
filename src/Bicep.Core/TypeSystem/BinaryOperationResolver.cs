@@ -45,23 +45,13 @@ namespace Bicep.Core.TypeSystem
             new BinaryOperatorInfo(BinaryOperator.Modulo, LanguageConstants.Int, LanguageConstants.Int),
 
             //coalesce
-            new BinaryOperatorInfo(BinaryOperator.Coalesce, LanguageConstants.Any, LanguageConstants.Any)            
+            new BinaryOperatorInfo(BinaryOperator.Coalesce, LanguageConstants.Any, LanguageConstants.Any)
         }.ToLookup(info => info.Operator);
 
-        public static BinaryOperatorInfo? TryMatchExact(BinaryOperator @operator, TypeSymbol operandType1, TypeSymbol operandType2)
-        {
-            return OperatorLookup[@operator]
-                .SingleOrDefault(info => TypeValidator.AreTypesAssignable(operandType1, info.OperandType) == true &&
-                                         TypeValidator.AreTypesAssignable(operandType2, info.OperandType) == true);
-        }
-
-        public static IEnumerable<BinaryOperatorInfo> GetMatches(BinaryOperator @operator, TypeSymbol operandType1, TypeSymbol operandType2)
-        {
-            // error types will cause this to return multiple operator matches in some cases
-            return OperatorLookup[@operator]
-                .Where(info => TypeValidator.AreTypesAssignable(operandType1, info.OperandType) != false &&
-                               TypeValidator.AreTypesAssignable(operandType2, info.OperandType) != false);
-        }
+        public static IEnumerable<BinaryOperatorInfo> GetMatches(BinaryOperator @operator, TypeSymbol operandType1, TypeSymbol operandType2) =>
+            OperatorLookup[@operator]
+                .Where(info => TypeValidator.AreTypesAssignable(operandType1, info.OperandType) &&
+                               TypeValidator.AreTypesAssignable(operandType2, info.OperandType));
 
         public static IEnumerable<BinaryOperatorInfo> GetMatches(BinaryOperator @operator) => OperatorLookup[@operator];
     }

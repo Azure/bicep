@@ -28,7 +28,7 @@ namespace Bicep.Core.TypeSystem.Az
                 bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, objectType.Properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, resourceFunctions);
             }
 
-            return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), bodyType);
+            return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), ToResourceScope(resourceType.ReadOnlyScopes), ToResourceFlags(resourceType.Flags), bodyType);
         }
 
         public IEnumerable<FunctionOverload> GetResourceFunctionOverloads(Azure.Bicep.Types.Concrete.ResourceFunctionType resourceFunctionType)
@@ -80,7 +80,7 @@ namespace Bicep.Core.TypeSystem.Az
             {
                 flags |= TypePropertyFlags.DeployTimeConstant;
             }
-            if(!input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required) && !input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly))
+            if (!input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectPropertyFlags.Required) && !input.Flags.HasFlag(Azure.Bicep.Types.Concrete.ObjectPropertyFlags.ReadOnly))
             {
                 // for non-required and non-readonly resource properties, we allow null assignment
                 flags |= TypePropertyFlags.AllowImplicitNull;
@@ -94,7 +94,8 @@ namespace Bicep.Core.TypeSystem.Az
             switch (typeBase)
             {
                 case Azure.Bicep.Types.Concrete.BuiltInType builtInType:
-                    return builtInType.Kind switch {
+                    return builtInType.Kind switch
+                    {
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Any => LanguageConstants.Any,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Null => LanguageConstants.Null,
                         Azure.Bicep.Types.Concrete.BuiltInTypeKind.Bool => LanguageConstants.Bool,
@@ -106,28 +107,28 @@ namespace Bicep.Core.TypeSystem.Az
                         _ => throw new ArgumentException(),
                     };
                 case Azure.Bicep.Types.Concrete.ObjectType objectType:
-                {
-                    var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
-                    var properties = objectType.Properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value));
+                    {
+                        var additionalProperties = objectType.AdditionalProperties != null ? GetTypeReference(objectType.AdditionalProperties) : null;
+                        var properties = objectType.Properties.Select(kvp => GetTypeProperty(kvp.Key, kvp.Value));
 
-                    return new ObjectType(objectType.Name, GetValidationFlags(isResourceBodyType), properties, additionalProperties, TypePropertyFlags.None);
-                }
+                        return new ObjectType(objectType.Name, GetValidationFlags(isResourceBodyType), properties, additionalProperties, TypePropertyFlags.None);
+                    }
                 case Azure.Bicep.Types.Concrete.ArrayType arrayType:
-                {
-                    return new TypedArrayType(GetTypeReference(arrayType.ItemType), GetValidationFlags(isResourceBodyType));
-                }
+                    {
+                        return new TypedArrayType(GetTypeReference(arrayType.ItemType), GetValidationFlags(isResourceBodyType));
+                    }
                 case Azure.Bicep.Types.Concrete.UnionType unionType:
-                {
-                    return TypeHelper.CreateTypeUnion(unionType.Elements.Select(x => GetTypeReference(x)));
-                }
+                    {
+                        return TypeHelper.CreateTypeUnion(unionType.Elements.Select(x => GetTypeReference(x)));
+                    }
                 case Azure.Bicep.Types.Concrete.StringLiteralType stringLiteralType:
                     return new StringLiteralType(stringLiteralType.Value);
                 case Azure.Bicep.Types.Concrete.DiscriminatedObjectType discriminatedObjectType:
-                {
-                    var elementReferences = discriminatedObjectType.Elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(discriminatedObjectType.BaseProperties, kvp.Key, kvp.Value, isResourceBodyType)));
+                    {
+                        var elementReferences = discriminatedObjectType.Elements.Select(kvp => new DeferredTypeReference(() => ToCombinedType(discriminatedObjectType.BaseProperties, kvp.Key, kvp.Value, isResourceBodyType)));
 
-                    return new DiscriminatedObjectType(discriminatedObjectType.Name, GetValidationFlags(isResourceBodyType), discriminatedObjectType.Discriminator, elementReferences);
-                }
+                        return new DiscriminatedObjectType(discriminatedObjectType.Name, GetValidationFlags(isResourceBodyType), discriminatedObjectType.Discriminator, elementReferences);
+                    }
                 default:
                     throw new ArgumentException();
             }
@@ -163,6 +164,16 @@ namespace Bicep.Core.TypeSystem.Az
             return TypeSymbolValidationFlags.WarnOnTypeMismatch;
         }
 
+        private static ResourceFlags ToResourceFlags(Azure.Bicep.Types.Concrete.ResourceFlags input)
+        {
+            var output = ResourceFlags.None;
+            if (input.HasFlag(Azure.Bicep.Types.Concrete.ResourceFlags.ReadOnly)) {
+                output |= ResourceFlags.ReadOnly;
+            }
+
+            return output;
+        }
+
         private static ResourceScope ToResourceScope(Azure.Bicep.Types.Concrete.ScopeType input)
         {
             if (input == Azure.Bicep.Types.Concrete.ScopeType.Unknown)
@@ -179,5 +190,8 @@ namespace Bicep.Core.TypeSystem.Az
 
             return output;
         }
+
+        private static ResourceScope ToResourceScope(Azure.Bicep.Types.Concrete.ScopeType? input)
+            => input.HasValue ? ToResourceScope(input.Value) : ResourceScope.None;
     }
 }

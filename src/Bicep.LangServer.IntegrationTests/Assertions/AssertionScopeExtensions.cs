@@ -25,7 +25,7 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
         private static TextSpan FromRange(BicepFile bicepFile, Range range)
         {
             var position = TextCoordinateConverter.GetOffset(bicepFile.LineStarts, range.Start.Line, range.Start.Character);
-            var length  = TextCoordinateConverter.GetOffset(bicepFile.LineStarts, range.End.Line, range.End.Character) - position;
+            var length = TextCoordinateConverter.GetOffset(bicepFile.LineStarts, range.End.Line, range.End.Character) - position;
 
             return new TextSpan(position, length);
         }

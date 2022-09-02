@@ -71,12 +71,15 @@ namespace Bicep.Decompiler.BicepHelpers
             "or",
             "if",
             "dateTimeAdd",
+            "dateTimeToEpoch",
+            "dateTimeFromEpoch",
             "utcNow",
             "newGuid",
             "subscription",
             "resourceGroup",
             "deployment",
             "environment",
+            "managementGroupResourceId",
             "resourceId",
             "subscriptionResourceId",
             "tenantResourceId",
@@ -84,9 +87,10 @@ namespace Bicep.Decompiler.BicepHelpers
             "providers",
             "pickZones",
             "reference",
+            "items",
         }.ToDictionary(x => x, StringComparer.OrdinalIgnoreCase);
 
-        private static IReadOnlyDictionary<string, TokenType> BinaryOperatorReplacements = new Dictionary<string, TokenType>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, TokenType> BinaryOperatorReplacements = new Dictionary<string, TokenType>(StringComparer.OrdinalIgnoreCase)
         {
             ["add"] = TokenType.Plus,
             ["sub"] = TokenType.Minus,
@@ -105,7 +109,7 @@ namespace Bicep.Decompiler.BicepHelpers
             ["notEquals"] = TokenType.NotEquals,
         };
 
-        private static IReadOnlyDictionary<string, TokenType> EmptyFunctionKeywordReplacements = new Dictionary<string, TokenType>(StringComparer.OrdinalIgnoreCase)
+        private static readonly IReadOnlyDictionary<string, TokenType> EmptyFunctionKeywordReplacements = new Dictionary<string, TokenType>(StringComparer.OrdinalIgnoreCase)
         {
             ["null"] = TokenType.NullKeyword,
             ["true"] = TokenType.TrueKeyword,

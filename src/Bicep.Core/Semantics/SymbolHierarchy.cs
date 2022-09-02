@@ -1,10 +1,9 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.Core.TypeSystem;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Bicep.Core.Semantics
 {
@@ -52,7 +51,7 @@ namespace Bicep.Core.Semantics
 
             protected override void VisitInternal(Symbol node)
             {
-                if(node is TypeSymbol)
+                if (node is TypeSymbol)
                 {
                     // the same type may be returned as a child of multiple symbols
                     // we can skip them for now

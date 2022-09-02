@@ -16,7 +16,7 @@ namespace Bicep.Core.Diagnostics
         }
 
         public static void WriteMultiple(this IDiagnosticWriter diagnosticWriter, params IDiagnostic[] diagnostics)
-            => WriteMultiple(diagnosticWriter, (IEnumerable<IDiagnostic>) diagnostics);
+            => WriteMultiple(diagnosticWriter, (IEnumerable<IDiagnostic>)diagnostics);
 
         public static void Write(this IDiagnosticWriter diagnosticWriter, IPositionable positionable, DiagnosticBuilder.DiagnosticBuilderDelegate buildDiagnosticFunc)
             => diagnosticWriter.Write(buildDiagnosticFunc(DiagnosticBuilder.ForPosition(positionable)));

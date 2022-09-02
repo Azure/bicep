@@ -3,6 +3,8 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>Bicep.LanguageServer</RootNamespace>
+    <!-- generates a NOTICE file in the publish output using our custom targets -->
+    <EnableNoticeInPublishOutput>true</EnableNoticeInPublishOutput>
   </PropertyGroup>
 
   <ItemGroup>
@@ -10,7 +12,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.2" />
+    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.5" />
+    <PackageReference Include="CommandLineParser" Version="2.9.1" />
+    <PackageReference Include="SharpYaml" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,7 +32,11 @@
   <ItemGroup>
     <EmbeddedResource Update="LangServerResources.resx">
       <LastGenOutput>LangServerResources.Designer.cs</LastGenOutput>
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.5.109" />
   </ItemGroup>
 </Project>

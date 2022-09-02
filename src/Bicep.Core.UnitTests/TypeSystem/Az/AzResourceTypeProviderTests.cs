@@ -15,8 +15,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.Extensions;
 using Moq;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Configuration;
 using Bicep.Core.Semantics.Namespaces;
+using System.Reflection;
+using Bicep.Core.Resources;
 
 namespace Bicep.Core.UnitTests.TypeSystem.Az
 {
@@ -30,28 +31,54 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
             LanguageConstants.ResourceParentPropertyName
         }.ToImmutableHashSet(LanguageConstants.IdentifierComparer);
 
-        [DataTestMethod]
-        [DataRow(ResourceTypeGenerationFlags.None)]
-        [DataRow(ResourceTypeGenerationFlags.ExistingResource)]
-        [DataRow(ResourceTypeGenerationFlags.HasParentDefined)]
-        [DataRow(ResourceTypeGenerationFlags.NestedResource)]
-        [DataRow(ResourceTypeGenerationFlags.ExistingResource | ResourceTypeGenerationFlags.HasParentDefined)]
-        public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(ResourceTypeGenerationFlags flags)
+        private static NamespaceType GetAzNamespaceType()
         {
-            var typeProvider = TestTypeHelper.CreateWithAzTypes();
-            var namespaceType = typeProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!;
+            var nsProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), BicepTestConstants.Features);
 
-            var resourceTypeProvider = namespaceType.ResourceTypeProvider;
-            var availableTypes = resourceTypeProvider.GetAvailableTypes();
+            return nsProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!;
+        }
 
-            // sanity check - we know there should be a lot of types available
-            var expectedTypeCount = 3000;
-            availableTypes.Should().HaveCountGreaterThan(expectedTypeCount);
+        private static IEnumerable<object[]> GetDeserializeTestData()
+        {
+            var flagPermutationsToTest = new [] {
+                ResourceTypeGenerationFlags.None,
+                ResourceTypeGenerationFlags.ExistingResource,
+                ResourceTypeGenerationFlags.HasParentDefined,
+                ResourceTypeGenerationFlags.NestedResource,
+                ResourceTypeGenerationFlags.ExistingResource | ResourceTypeGenerationFlags.HasParentDefined,
+            };
 
-            foreach (var availableType in availableTypes)
+            foreach (var providerGrouping in GetAzNamespaceType().ResourceTypeProvider.GetAvailableTypes().GroupBy(x => x.TypeSegments[0])) {
+                foreach (var apiVersionGrouping in providerGrouping.GroupBy(x => x.ApiVersion)) {
+                    foreach (var flags in flagPermutationsToTest) {
+                        var providerName = providerGrouping.Key;
+                        var apiVersion = apiVersionGrouping.Key!;
+                        var resourceTypes = apiVersionGrouping.Select(x => x.FormatName()).ToList();
+
+                        yield return new object[] { providerName, apiVersion, flags, resourceTypes };
+                    }
+                }
+            }
+        }
+
+        public static string GetDeserializeTestDisplayName(MethodInfo info, object[] values)
+            => $"{info.Name} ({string.Join(',', new[] { values[0], values[1], values[2] }.Select(x => x.ToString()))})";
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetDeserializeTestData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDeserializeTestDisplayName))]
+        public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(string providerName, string apiVersion, ResourceTypeGenerationFlags flags, IReadOnlyList<string> resourceTypes)
+        {
+            // We deliberately load a new instance here for each test iteration rather than re-using an instance.
+            // This is becase there are various internal caches which will consume too much memory and crash in CI if allowed to grow unrestricted.
+            var azNamespaceType = GetAzNamespaceType();
+            var resourceTypeProvider = azNamespaceType.ResourceTypeProvider;
+
+            foreach (var availableType in resourceTypes)
             {
-                resourceTypeProvider.HasDefinedType(availableType).Should().BeTrue();
-                var resourceType = resourceTypeProvider.TryGetDefinedType(namespaceType, availableType, flags)!;
+                var typeReference = ResourceTypeReference.Parse(availableType);
+
+                resourceTypeProvider.HasDefinedType(typeReference).Should().BeTrue();
+                var resourceType = resourceTypeProvider.TryGetDefinedType(azNamespaceType, typeReference, flags)!;
 
                 try
                 {
@@ -98,22 +125,21 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
 
         [TestMethod]
         public void AzResourceTypeProvider_can_list_all_types_without_throwing()
-
         {
-            var resourceTypeProvider = new AzResourceTypeProvider(new AzResourceTypeLoader());
+            var resourceTypeProvider = GetAzNamespaceType().ResourceTypeProvider;
             var availableTypes = resourceTypeProvider.GetAvailableTypes();
 
             // sanity check - we know there should be a lot of types available
-            var expectedTypeCount = 3000;
-            availableTypes.Should().HaveCountGreaterThan(expectedTypeCount);
+            var minExpectedTypes = 3000;
+            availableTypes.Should().HaveCountGreaterThan(minExpectedTypes);
         }
 
         [TestMethod]
         public void AzResourceTypeProvider_should_warn_for_missing_resource_types()
         {
-            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             Compilation createCompilation(string program)
-                    => new Compilation(new DefaultNamespaceProvider(new AzResourceTypeLoader(), BicepTestConstants.Features), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), configuration);
+                    => new Compilation(BicepTestConstants.Features, new DefaultNamespaceProvider(new AzResourceTypeLoader(), BicepTestConstants.Features), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), configuration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"
@@ -127,19 +153,30 @@ resource missingResource 'Mock.Rp/madeUpResourceType@2020-01-01' = {
         }
 
         [TestMethod]
-        public void AzResourceTypeProvider_should_error_for_top_level_and_warn_for_nested_properties()
+        public void AzResourceTypeProvider_should_error_for_top_level_system_properties_and_warn_for_rest()
         {
             Compilation createCompilation(string program)
-                => new Compilation(BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), BicepTestConstants.BuiltInConfiguration);
+                => new Compilation(BicepTestConstants.Features, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"
+resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {
+  properties: {
+    required: 'hello!'
+  }
+}
+");
+            compilation.Should().HaveDiagnostics(new[] {
+                ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"name\".")
+            });
+
+            compilation = createCompilation(@"
 resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {
   name: 'missingRequired'
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"properties\".")
+                ("BCP035", DiagnosticLevel.Warning, "The specified \"resource\" declaration is missing the following required properties: \"properties\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
             });
 
             // Top-level properties that aren't part of the type definition - should be an error
@@ -160,12 +197,12 @@ resource unexpectedTopLevel 'Test.Rp/readWriteTests@2020-01-01' = {
             compilation = createCompilation(@"
 resource missingRequiredProperty 'Test.Rp/readWriteTests@2020-01-01' = {
   name: 'missingRequiredProperty'
-  properties: {    
+  properties: {
   }
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP035", DiagnosticLevel.Warning, "The specified \"object\" declaration is missing the following required properties: \"required\"."),
+                ("BCP035", DiagnosticLevel.Warning, "The specified \"object\" declaration is missing the following required properties: \"required\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
             });
 
             // Non top-level properties that aren't part of the type definition - should be a warning

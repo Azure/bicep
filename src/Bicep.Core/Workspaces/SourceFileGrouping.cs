@@ -1,59 +1,72 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Syntax;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.Workspaces
 {
-    public class SourceFileGrouping
+    public record FileResolutionResult(
+        Uri FileUri,
+        ErrorBuilderDelegate? ErrorBuilder,
+        ISourceFile? File);
+
+    public record UriResolutionResult(
+        StatementSyntax Statement,
+        Uri? FileUri,
+        bool RequiresRestore,
+        ErrorBuilderDelegate? ErrorBuilder);
+
+    public record SourceFileGrouping(
+        IFileResolver FileResolver,
+        Uri EntryFileUri,
+        ImmutableDictionary<Uri, FileResolutionResult> FileResultByUri,
+        ImmutableDictionary<StatementSyntax, UriResolutionResult> UriResultByModule,
+        ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup)
     {
-        public SourceFileGrouping(
-            IFileResolver fileResolver,
-            BicepFile entryPoint,
-            ImmutableHashSet<ISourceFile> sourceFiles,
-            ImmutableDictionary<ModuleDeclarationSyntax, ISourceFile> sourceFilesByModuleDeclaration,
-            ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> sourceFileParentLookup,
-            ImmutableDictionary<ModuleDeclarationSyntax, ErrorBuilderDelegate> errorBuildersByModuleDeclaration,
-            ImmutableHashSet<ModuleDeclarationSyntax> modulesToRestore)
+        public IEnumerable<ModuleDeclarationSyntax> GetModulesToRestore()
         {
-            this.FileResolver = fileResolver;
-            this.EntryPoint = entryPoint;
-            this.SourceFiles = sourceFiles;
-            this.SourceFilesByModuleDeclaration = sourceFilesByModuleDeclaration;
-            this.SourceFileParentLookup = sourceFileParentLookup;
-            this.ErrorBuildersByModuleDeclaration = errorBuildersByModuleDeclaration;
-            this.ModulesToRestore = modulesToRestore;
+            var allModules = UriResultByModule.Keys.OfType<ModuleDeclarationSyntax>();
+
+            return allModules.Where(x => UriResultByModule[x].RequiresRestore);
         }
 
-        public ImmutableDictionary<ModuleDeclarationSyntax, ISourceFile> SourceFilesByModuleDeclaration { get; }
+        public BicepFile EntryPoint => (FileResultByUri[EntryFileUri].File as BicepFile)!;
 
-        public ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup { get; }
+        public IEnumerable<ISourceFile> SourceFiles => FileResultByUri.Values.Select(x => x.File).WhereNotNull();
 
-        public ImmutableDictionary<ModuleDeclarationSyntax, ErrorBuilderDelegate> ErrorBuildersByModuleDeclaration { get; }
+        public ErrorBuilderDelegate? TryGetErrorDiagnostic(StatementSyntax statement)
+        {
+            var uriResult = UriResultByModule[statement];
+            if (uriResult.ErrorBuilder is not null)
+            {
+                return uriResult.ErrorBuilder;
+            }
 
-        public ImmutableHashSet<ModuleDeclarationSyntax> ModulesToRestore { get; }
+            var fileResult = FileResultByUri[uriResult.FileUri!];
+            return fileResult.ErrorBuilder;
+        }
 
-        public IFileResolver FileResolver { get; }
+        public ISourceFile? TryGetSourceFile(StatementSyntax statement)
+        {
+            var uriResult = UriResultByModule[statement];
+            if (uriResult.FileUri is null)
+            {
+                return null;
+            }
 
-        public BicepFile EntryPoint { get; }
-
-        public ImmutableHashSet<ISourceFile> SourceFiles { get; }
-
-        public ISourceFile LookUpModuleSourceFile(ModuleDeclarationSyntax moduleDeclaration) =>
-            this.SourceFilesByModuleDeclaration[moduleDeclaration];
-
-        public ISourceFile? TryLookupModuleSourceFile(ModuleDeclarationSyntax moduleDeclaration) =>
-            this.SourceFilesByModuleDeclaration.TryGetValue(moduleDeclaration, out var sourceFile) ? sourceFile : null;
+            var fileResult = FileResultByUri.TryGetValue(uriResult.FileUri);
+            return fileResult?.File;
+        }
 
         public ImmutableHashSet<ISourceFile> GetFilesDependingOn(ISourceFile sourceFile)
         {
-            var filesToCheck = new Queue<ISourceFile>(new [] { sourceFile });
+            var filesToCheck = new Queue<ISourceFile>(new[] { sourceFile });
             var knownFiles = new HashSet<ISourceFile>();
 
             while (filesToCheck.TryDequeue(out var current))
@@ -71,18 +84,6 @@ namespace Bicep.Core.Workspaces
             }
 
             return knownFiles.ToImmutableHashSet();
-        }
-
-        public bool TryLookUpModuleErrorDiagnostic(ModuleDeclarationSyntax moduleDeclaration, [NotNullWhen(true)] out ErrorDiagnostic? errorDiagnostic)
-        {
-            if (this.ErrorBuildersByModuleDeclaration.TryGetValue(moduleDeclaration, out var errorBuilder))
-            {
-                errorDiagnostic = errorBuilder(ForPosition(moduleDeclaration.Path));
-                return true;
-            }
-
-            errorDiagnostic = null;
-            return false;
         }
     }
 }

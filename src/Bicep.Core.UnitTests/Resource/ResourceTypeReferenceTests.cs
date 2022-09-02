@@ -65,11 +65,11 @@ namespace Bicep.Core.UnitTests.Resource
         }
 
         [DataTestMethod]
-        [DataRow("My.RP/someType@2020-01-01", "childType",  "My.RP/someType/childType@2020-01-01")]
+        [DataRow("My.RP/someType@2020-01-01", "childType", "My.RP/someType/childType@2020-01-01")]
         [DataRow("My.RP/someType@2020-01-01", "childType/grandchildType", "My.RP/someType/childType/grandchildType@2020-01-01")]
         [DataRow("My.RP/someType@2020-01-01", "childType/grandchildType/greatGrandchildType", "My.RP/someType/childType/grandchildType/greatGrandchildType@2020-01-01")]
-        [DataRow("My.RP/someType@2020-01-01", "childType@2020-01-02",  "My.RP/someType/childType@2020-01-02")]
-        [DataRow("My.RP/someType@2020-01-01", "childType/grandchildType@2020-01-03",  "My.RP/someType/childType/grandchildType@2020-01-03")]
+        [DataRow("My.RP/someType@2020-01-01", "childType@2020-01-02", "My.RP/someType/childType@2020-01-02")]
+        [DataRow("My.RP/someType@2020-01-01", "childType/grandchildType@2020-01-03", "My.RP/someType/childType/grandchildType@2020-01-03")]
         public void Combine_CombinesValidTypeSegments(string baseTypeText, string childTypeText, string expected)
         {
             var baseType = ResourceTypeReference.Parse(baseTypeText);

@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -14,7 +13,7 @@ namespace Bicep.Core.Parsing
     public class ParseDiagnosticsVisitor : SyntaxVisitor
     {
         private readonly IDiagnosticWriter diagnosticWriter;
-        
+
         public ParseDiagnosticsVisitor(IDiagnosticWriter diagnosticWriter)
         {
             this.diagnosticWriter = diagnosticWriter;
@@ -23,7 +22,7 @@ namespace Bicep.Core.Parsing
         public override void VisitProgramSyntax(ProgramSyntax syntax)
         {
             base.VisitProgramSyntax(syntax);
-            
+
             this.diagnosticWriter.WriteMultiple(syntax.LexerDiagnostics);
 
             var targetScopeSyntaxes = syntax.Children.OfType<TargetScopeSyntax>().ToList();

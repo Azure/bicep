@@ -9,6 +9,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 
@@ -92,6 +93,9 @@ namespace Bicep.Core.TypeSystem
                     // values of all types can be assigned to the "any" type
                     return true;
 
+                case (LambdaType sourceLambda, LambdaType targetLambda):
+                    return AreLambdaTypesAssignable(sourceLambda, targetLambda);
+
                 case (IScopeReference, IScopeReference):
                     // checking for valid combinations of scopes happens after type checking. this allows us to provide a richer & more intuitive error message.
                     return true;
@@ -102,6 +106,10 @@ namespace Bicep.Core.TypeSystem
                 case (ResourceType sourceResourceType, ResourceParentType targetResourceParentType):
                     // Assigning a resource to a parent property.
                     return sourceResourceType.TypeReference.IsParentOf(targetResourceParentType.ChildTypeReference);
+
+                case (ResourceType sourceResourceType, ResourceParameterType resourceParameterType):
+                    // Assigning a resource to a parameter ignores the API Version
+                    return sourceResourceType.TypeReference.FormatType().Equals(resourceParameterType.TypeReference.FormatType(), StringComparison.OrdinalIgnoreCase);
 
                 case (ResourceType sourceResourceType, _):
                     // When assigning a resource, we're really assigning the value of the resource body.
@@ -214,7 +222,14 @@ namespace Bicep.Core.TypeSystem
                     {
                         var narrowedBody = NarrowType(config, expression, targetResourceType.Body.Type);
 
-                        return new ResourceType(targetResourceType.DeclaringNamespace, targetResourceType.TypeReference, targetResourceType.ValidParentScopes, narrowedBody);
+                        return new ResourceType(
+                            targetResourceType.DeclaringNamespace,
+                            targetResourceType.TypeReference,
+                            targetResourceType.ValidParentScopes,
+                            targetResourceType.ReadOnlyScopes,
+                            targetResourceType.Flags,
+                            narrowedBody,
+                            targetResourceType.UniqueIdentifierProperties);
                     }
                 case ModuleType targetModuleType:
                     {
@@ -293,7 +308,33 @@ namespace Bicep.Core.TypeSystem
                     .Select(x => NarrowType(config, expression, x.Type)));
             }
 
-            return targetType;
+            if (expression is LambdaSyntax sourceLambda && targetType is LambdaType targetLambdaType)
+            {
+                return NarrowLambdaType(config, sourceLambda, targetLambdaType);
+            }
+
+            return expressionType;
+        }
+
+        private static bool AreLambdaTypesAssignable(LambdaType source, LambdaType target)
+        {
+            if (source.ArgumentTypes.Length != target.ArgumentTypes.Length)
+            {
+                return false;
+            }
+
+            if (!AreTypesAssignable(source.ReturnType.Type, target.ReturnType.Type))
+            {
+                return false;
+            }
+
+            var pairs = source.ArgumentTypes.Select((x, i) => (source: x, target: target.ArgumentTypes[i]));
+            if (pairs.Any(x => !AreTypesAssignable(x.source.Type, x.target.Type)))
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private TypeSymbol NarrowArrayAssignmentType(TypeValidatorConfig config, ArraySyntax expression, ArrayType targetType)
@@ -324,6 +365,26 @@ namespace Bicep.Core.TypeSystem
             return new TypedArrayType(TypeHelper.CreateTypeUnion(arrayProperties), targetType.ValidationFlags);
         }
 
+        private TypeSymbol NarrowLambdaType(TypeValidatorConfig config, LambdaSyntax lambdaSyntax, LambdaType targetType)
+        {
+            var returnType = NarrowType(config, lambdaSyntax.Body, targetType.ReturnType.Type);
+
+            var variables = lambdaSyntax.GetLocalVariables().ToImmutableArray();
+            if (variables.Length != targetType.ArgumentTypes.Length)
+            {
+                diagnosticWriter.Write(lambdaSyntax.VariableSection, x => x.LambdaExpectedArgCountMismatch(targetType, targetType.ArgumentTypes.Length, variables.Length));
+                return targetType;
+            }
+
+            var narrowedVariables = new ITypeReference[variables.Length];
+            for (var i = 0; i < variables.Length; i++)
+            {
+                narrowedVariables[i] = NarrowType(config, variables[i], targetType.ArgumentTypes[i].Type);
+            }
+
+            return new LambdaType(narrowedVariables.ToImmutableArray(), returnType);
+        }
+
         private TypeSymbol NarrowVariableAccessType(TypeValidatorConfig config, VariableAccessSyntax variableAccess, TypeSymbol targetType)
         {
             var newConfig = new TypeValidatorConfig(
@@ -339,6 +400,8 @@ namespace Bicep.Core.TypeSystem
             {
                 case VariableSymbol variableSymbol:
                     return NarrowType(newConfig, variableSymbol.DeclaringVariable.Value, targetType);
+                case LocalVariableSymbol localVariableSymbol:
+                    return NarrowType(newConfig, localVariableSymbol.DeclaringLocalVariable, targetType);
             }
 
             return targetType;
@@ -381,6 +444,7 @@ namespace Bicep.Core.TypeSystem
             // Let's not do this just yet, and see if a use-case arises.
 
             var discriminatorType = typeManager.GetTypeInfo(discriminatorProperty.Value);
+            var shouldWarn = (config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(targetType);
             switch (discriminatorType)
             {
                 case AnyType:
@@ -391,7 +455,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         // no matches
                         var discriminatorCandidates = targetType.UnionMembersByKey.Keys.OrderBy(x => x);
-                        bool shouldWarn = ShouldWarn(targetType);
+
 
                         diagnosticWriter.Write(
                             config.OriginSyntax ?? discriminatorProperty.Value,
@@ -405,7 +469,7 @@ namespace Bicep.Core.TypeSystem
                                     return x.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, stringLiteralDiscriminator.Name, suggestion);
                                 }
 
-                                return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType);
+                                return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType, config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty));
                             });
 
                         return LanguageConstants.Any;
@@ -430,7 +494,7 @@ namespace Bicep.Core.TypeSystem
                 default:
                     diagnosticWriter.Write(
                         config.OriginSyntax ?? discriminatorProperty.Value,
-                        x => x.PropertyTypeMismatch(ShouldWarn(targetType), TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
+                        x => x.PropertyTypeMismatch(shouldWarn, TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType, config.IsResourceDeclaration && !targetType.DiscriminatorProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)));
                     return LanguageConstants.Any;
             }
         }
@@ -463,16 +527,22 @@ namespace Bicep.Core.TypeSystem
 
             var missingRequiredProperties = targetType.Properties.Values
                 .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) && !namedPropertyMap.ContainsKey(p.Name))
-                .Select(p => p.Name)
-                .OrderBy(p => p);
+                .ToList();
 
-            if (missingRequiredProperties.Any())
+
+            if (missingRequiredProperties.Count > 0)
             {
                 var (positionable, blockName) = GetMissingPropertyContext(expression);
 
+                var shouldWarn = (config.IsResourceDeclaration && missingRequiredProperties.All(p => !p.Flags.HasFlag(TypePropertyFlags.SystemProperty)))
+                                 || ShouldWarn(targetType);
+
+                var missingRequiredPropertiesNames = missingRequiredProperties.Select(p => p.Name).OrderBy(p => p).ToList();
+                var showTypeInaccuracy = config.IsResourceDeclaration && missingRequiredProperties.Any(p => !p.Flags.HasFlag(TypePropertyFlags.SystemProperty));
+
                 diagnosticWriter.Write(
                     config.OriginSyntax ?? positionable,
-                    x => x.MissingRequiredProperties(ShouldWarn(targetType), TryGetSourceDeclaration(config), expression, missingRequiredProperties, blockName));
+                    x => x.MissingRequiredProperties(shouldWarn, TryGetSourceDeclaration(config), expression, missingRequiredPropertiesNames, blockName, showTypeInaccuracy));
             }
 
             var narrowedProperties = new List<TypeProperty>();
@@ -503,7 +573,8 @@ namespace Bicep.Core.TypeSystem
                         }
                         else
                         {
-                            diagnosticWriter.Write(config.OriginSyntax ?? declaredPropertySyntax.Key, x => x.CannotAssignToReadOnlyProperty(ShouldWarn(targetType), declaredProperty.Name));
+                            var resourceTypeInaccuracy = !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty) && config.IsResourceDeclaration;
+                            diagnosticWriter.Write(config.OriginSyntax ?? declaredPropertySyntax.Key, x => x.CannotAssignToReadOnlyProperty(resourceTypeInaccuracy || ShouldWarn(targetType), declaredProperty.Name, resourceTypeInaccuracy));
                         }
 
                         narrowedProperties.Add(new TypeProperty(declaredProperty.Name, declaredProperty.TypeReference.Type, declaredProperty.Flags));
@@ -520,7 +591,7 @@ namespace Bicep.Core.TypeSystem
                         skipTypeErrors: true,
                         disallowAny: declaredProperty.Flags.HasFlag(TypePropertyFlags.DisallowAny),
                         originSyntax: config.OriginSyntax,
-                        onTypeMismatch: GetPropertyMismatchDiagnosticWriter(config, ShouldWarn(targetType), declaredProperty.Name),
+                        onTypeMismatch: GetPropertyMismatchDiagnosticWriter(config, (config.IsResourceDeclaration && !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty)) || ShouldWarn(targetType), declaredProperty.Name, (config.IsResourceDeclaration && !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty))),
                         isResourceDeclaration: config.IsResourceDeclaration);
 
                     // append "| null" to the property type for non-required properties
@@ -549,7 +620,8 @@ namespace Bicep.Core.TypeSystem
                 var validUnspecifiedProperties = targetType.Properties.Values
                     .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty) && !namedPropertyMap.ContainsKey(p.Name))
                     .Select(p => p.Name)
-                    .OrderBy(x => x);
+                    .OrderBy(x => x)
+                    .ToList();
 
                 foreach (var extraProperty in extraProperties)
                 {
@@ -558,7 +630,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         var sourceDeclaration = TryGetSourceDeclaration(config);
 
-                        if (extraProperty.TryGetKeyText() is not string keyName)
+                        if (extraProperty.TryGetKeyText() is not { } keyName)
                         {
                             return x.DisallowedInterpolatedKeyProperty(shouldWarn, sourceDeclaration, targetType, validUnspecifiedProperties);
                         }
@@ -591,9 +663,9 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     TypeMismatchDiagnosticWriter? onTypeMismatch = null;
-                    if (extraProperty.TryGetKeyText() is string keyName)
+                    if (extraProperty.TryGetKeyText() is { } keyName)
                     {
-                        onTypeMismatch = GetPropertyMismatchDiagnosticWriter(config, ShouldWarn(targetType), keyName);
+                        onTypeMismatch = GetPropertyMismatchDiagnosticWriter(config, ShouldWarn(targetType), keyName, false);
                     }
 
                     var newConfig = new TypeValidatorConfig(
@@ -656,7 +728,7 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private TypeMismatchDiagnosticWriter GetPropertyMismatchDiagnosticWriter(TypeValidatorConfig config, bool shouldWarn, string propertyName)
+        private TypeMismatchDiagnosticWriter GetPropertyMismatchDiagnosticWriter(TypeValidatorConfig config, bool shouldWarn, string propertyName, bool showTypeInaccuracyClause)
         {
             return (expectedType, actualType, errorExpression) =>
             {
@@ -669,7 +741,7 @@ namespace Bicep.Core.TypeSystem
                         if (sourceDeclaration is not null)
                         {
                             // only look up suggestions if we're not sourcing this type from another declaration.
-                            return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, propertyName, expectedType, actualType);
+                            return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, propertyName, expectedType, actualType, showTypeInaccuracyClause);
                         }
 
                         if (actualType is StringLiteralType actualStringLiteral && TryGetStringLiteralSuggestion(actualStringLiteral, expectedType) is { } suggestion)
@@ -677,7 +749,7 @@ namespace Bicep.Core.TypeSystem
                             return x.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, propertyName, expectedType, actualType.Name, suggestion);
                         }
 
-                        return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, propertyName, expectedType, actualType);
+                        return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, propertyName, expectedType, actualType, showTypeInaccuracyClause);
                     });
             };
         }

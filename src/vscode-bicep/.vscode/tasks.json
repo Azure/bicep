@@ -102,6 +102,18 @@
       "dependsOrder": "sequence"
     },
     {
+      "label": "build:e2e:dev",
+      "type": "typescript",
+      "tsconfig": "tsconfig.e2e.dev.json",
+      "problemMatcher": "$tsc",
+      "group": "build",
+      "presentation": {
+        "reveal": "silent"
+      },
+      "dependsOn": ["build"],
+      "dependsOrder": "sequence"
+    },
+    {
       "label": "watch",
       "type": "npm",
       "script": "watch",

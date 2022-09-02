@@ -1,12 +1,12 @@
 targetScope='managementGroup'
-//@[0:11) Identifier |targetScope|
+//@[00:11) Identifier |targetScope|
 //@[11:12) Assignment |=|
 //@[12:29) StringComplete |'managementGroup'|
 //@[29:31) NewLine |\n\n|
 
 var deploymentLocation = deployment().location
-//@[0:3) Identifier |var|
-//@[4:22) Identifier |deploymentLocation|
+//@[00:03) Identifier |var|
+//@[04:22) Identifier |deploymentLocation|
 //@[23:24) Assignment |=|
 //@[25:35) Identifier |deployment|
 //@[35:36) LeftParen |(|
@@ -16,27 +16,27 @@ var deploymentLocation = deployment().location
 //@[46:48) NewLine |\n\n|
 
 var scopesWithArmRepresentation = {
-//@[0:3) Identifier |var|
-//@[4:31) Identifier |scopesWithArmRepresentation|
+//@[00:03) Identifier |var|
+//@[04:31) Identifier |scopesWithArmRepresentation|
 //@[32:33) Assignment |=|
 //@[34:35) LeftBrace |{|
 //@[35:36) NewLine |\n|
   tenant: tenant()
-//@[2:8) Identifier |tenant|
-//@[8:9) Colon |:|
+//@[02:08) Identifier |tenant|
+//@[08:09) Colon |:|
 //@[10:16) Identifier |tenant|
 //@[16:17) LeftParen |(|
 //@[17:18) RightParen |)|
 //@[18:19) NewLine |\n|
   managementGroup: managementGroup()
-//@[2:17) Identifier |managementGroup|
+//@[02:17) Identifier |managementGroup|
 //@[17:18) Colon |:|
 //@[19:34) Identifier |managementGroup|
 //@[34:35) LeftParen |(|
 //@[35:36) RightParen |)|
 //@[36:37) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[00:01) RightBrace |}|
+//@[01:02) NewLine |\n|
 
-//@[0:0) EndOfFile ||
+//@[00:00) EndOfFile ||

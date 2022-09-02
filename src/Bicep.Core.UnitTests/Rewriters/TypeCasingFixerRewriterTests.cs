@@ -15,7 +15,7 @@ namespace Bicep.Core.UnitTests.Rewriters
         [TestMethod]
         public void ProgramSyntax_is_not_modified_if_no_changes_are_applied()
         {
-          var bicepFile = @"
+            var bicepFile = @"
 resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'
 }";
@@ -108,7 +108,7 @@ output myObj object = {
 ";
 
             var typeDefinition = TestTypeHelper.CreateCustomResourceType("My.Rp/resA", "2020-01-01", TypeSymbolValidationFlags.WarnOnTypeMismatch,
-                new TypeProperty("lowercaseobj", new ObjectType("lowercaseobj", TypeSymbolValidationFlags.Default, new [] {
+                new TypeProperty("lowercaseobj", new ObjectType("lowercaseobj", TypeSymbolValidationFlags.Default, new[] {
                   new TypeProperty("lowercasestr", LanguageConstants.String)
                 }, null)));
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());

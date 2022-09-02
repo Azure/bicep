@@ -167,7 +167,7 @@ namespace Bicep.Core.UnitTests.FileSystem
 #endif
         }
 
-        private static object[] CreateRow(string input, string expectedOutput) => new object[] {input, expectedOutput};
+        private static object[] CreateRow(string input, string expectedOutput) => new object[] { input, expectedOutput };
     }
 }
 

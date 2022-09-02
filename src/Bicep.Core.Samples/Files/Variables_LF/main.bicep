@@ -91,6 +91,7 @@ var expressionIndexOnAny = any({
 var anyIndexOnAny = any(true)[any(false)]
 
 var deploymentName = deployment().name
+var templateContentVersion = deployment().properties.template.contentVersion
 var templateLinkUri = deployment().properties.templateLink.uri
 var templateLinkId = deployment().properties.templateLink.id
 
@@ -322,3 +323,18 @@ module.exports = function (context) {
     context.done();
 }
 '''
+
+var providersTest = providers('Microsoft.Resources').namespace
+var providersTest2 = providers('Microsoft.Resources', 'deployments').locations
+
+var copyBlockInObject = {
+  copy: [
+    {
+      name: 'blah'
+      count: '[notAFunction()]'
+      input: {}
+    }
+  ]
+}
+
+var joinedString = join(['I', 'love', 'Bicep!'], ' ')

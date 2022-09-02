@@ -8,11 +8,11 @@ this is my multi line
 description for my myString
 ''')
 param myString string
-//@[6:14) [no-unused-params (Warning)] Parameter "myString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myString|
+//@[06:014) [no-unused-params (Warning)] Parameter "myString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myString|
 param myInt int
-//@[6:11) [no-unused-params (Warning)] Parameter "myInt" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myInt|
+//@[06:011) [no-unused-params (Warning)] Parameter "myInt" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myInt|
 param myBool bool
-//@[6:12) [no-unused-params (Warning)] Parameter "myBool" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myBool|
+//@[06:012) [no-unused-params (Warning)] Parameter "myBool" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myBool|
 
 // parameters with default value
 @sys.description('this is myString2')
@@ -20,15 +20,15 @@ param myBool bool
   description: 'overwrite but still valid'
 })
 param myString2 string = 'string value'
-//@[6:15) [no-unused-params (Warning)] Parameter "myString2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myString2|
+//@[06:015) [no-unused-params (Warning)] Parameter "myString2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myString2|
 param myInt2 int = 42
-//@[6:12) [no-unused-params (Warning)] Parameter "myInt2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myInt2|
+//@[06:012) [no-unused-params (Warning)] Parameter "myInt2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myInt2|
 param myTruth bool = true
-//@[6:13) [no-unused-params (Warning)] Parameter "myTruth" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myTruth|
+//@[06:013) [no-unused-params (Warning)] Parameter "myTruth" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myTruth|
 param myFalsehood bool = false
-//@[6:17) [no-unused-params (Warning)] Parameter "myFalsehood" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myFalsehood|
+//@[06:017) [no-unused-params (Warning)] Parameter "myFalsehood" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myFalsehood|
 param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
-//@[6:21) [no-unused-params (Warning)] Parameter "myEscapedString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myEscapedString|
+//@[06:021) [no-unused-params (Warning)] Parameter "myEscapedString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myEscapedString|
 
 // object default value
 @sys.description('this is foo')
@@ -37,7 +37,7 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
   another: 'just for fun'
 })
 param foo object = {
-//@[6:9) [no-unused-params (Warning)] Parameter "foo" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |foo|
+//@[06:009) [no-unused-params (Warning)] Parameter "foo" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |foo|
   enabled: true
   name: 'this is my object'
   priority: 3
@@ -62,7 +62,7 @@ param foo object = {
 
 // array default value
 param myArrayParam array = [
-//@[6:18) [no-unused-params (Warning)] Parameter "myArrayParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myArrayParam|
+//@[06:018) [no-unused-params (Warning)] Parameter "myArrayParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myArrayParam|
   'a'
   'b'
   'c'
@@ -71,12 +71,12 @@ param myArrayParam array = [
 // secure string
 @secure()
 param password string
-//@[6:14) [no-unused-params (Warning)] Parameter "password" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |password|
+//@[06:014) [no-unused-params (Warning)] Parameter "password" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |password|
 
 // secure object
 @secure()
 param secretObject object
-//@[6:18) [no-unused-params (Warning)] Parameter "secretObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |secretObject|
+//@[06:018) [no-unused-params (Warning)] Parameter "secretObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |secretObject|
 
 // enum parameter
 @allowed([
@@ -84,35 +84,35 @@ param secretObject object
   'Standard_GRS'
 ])
 param storageSku string
-//@[6:16) [no-unused-params (Warning)] Parameter "storageSku" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |storageSku|
+//@[06:016) [no-unused-params (Warning)] Parameter "storageSku" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |storageSku|
 
 // length constraint on a string
 @minLength(3)
 @maxLength(24)
 param storageName string
-//@[6:17) [no-unused-params (Warning)] Parameter "storageName" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |storageName|
+//@[06:017) [no-unused-params (Warning)] Parameter "storageName" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |storageName|
 
 // length constraint on an array
 @minLength(3)
 @maxLength(24)
 param someArray array
-//@[6:15) [no-unused-params (Warning)] Parameter "someArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |someArray|
+//@[06:015) [no-unused-params (Warning)] Parameter "someArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |someArray|
 
 // empty metadata
 @metadata({})
 param emptyMetadata string
-//@[6:19) [no-unused-params (Warning)] Parameter "emptyMetadata" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |emptyMetadata|
+//@[06:019) [no-unused-params (Warning)] Parameter "emptyMetadata" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |emptyMetadata|
 
 // description
 @metadata({
   description: 'my description'
 })
 param description string
-//@[6:17) [no-unused-params (Warning)] Parameter "description" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |description|
+//@[06:017) [no-unused-params (Warning)] Parameter "description" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |description|
 
 @sys.description('my description')
 param description2 string
-//@[6:18) [no-unused-params (Warning)] Parameter "description2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |description2|
+//@[06:018) [no-unused-params (Warning)] Parameter "description2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |description2|
 
 // random extra metadata
 @metadata({
@@ -126,7 +126,7 @@ param description2 string
   }
 })
 param additionalMetadata string
-//@[6:24) [no-unused-params (Warning)] Parameter "additionalMetadata" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |additionalMetadata|
+//@[06:024) [no-unused-params (Warning)] Parameter "additionalMetadata" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |additionalMetadata|
 
 // all modifiers together
 @secure()
@@ -141,10 +141,10 @@ param additionalMetadata string
   description: 'Name of the storage account'
 })
 param someParameter string
-//@[6:19) [no-unused-params (Warning)] Parameter "someParameter" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |someParameter|
+//@[06:019) [no-unused-params (Warning)] Parameter "someParameter" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |someParameter|
 
 param defaultExpression bool = 18 != (true || false)
-//@[6:23) [no-unused-params (Warning)] Parameter "defaultExpression" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |defaultExpression|
+//@[06:023) [no-unused-params (Warning)] Parameter "defaultExpression" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |defaultExpression|
 
 @allowed([
   'abc'
@@ -158,7 +158,7 @@ param stringLiteral string
   'ghi'
 ])
 param stringLiteralWithAllowedValuesSuperset string = stringLiteral
-//@[6:44) [no-unused-params (Warning)] Parameter "stringLiteralWithAllowedValuesSuperset" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |stringLiteralWithAllowedValuesSuperset|
+//@[06:044) [no-unused-params (Warning)] Parameter "stringLiteralWithAllowedValuesSuperset" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |stringLiteralWithAllowedValuesSuperset|
 
 @secure()
 @minLength(2)
@@ -168,17 +168,17 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
   'Banana'
 ])
 param decoratedString string
-//@[6:21) [no-unused-params (Warning)] Parameter "decoratedString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedString|
+//@[06:021) [no-unused-params (Warning)] Parameter "decoratedString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedString|
 
 @minValue(200)
 param decoratedInt int = 123
-//@[6:18) [no-unused-params (Warning)] Parameter "decoratedInt" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedInt|
+//@[06:018) [no-unused-params (Warning)] Parameter "decoratedInt" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedInt|
 
 // negative integer literals are allowed as decorator values
 @minValue(-10)
 @maxValue(-3)
 param negativeValues int
-//@[6:20) [no-unused-params (Warning)] Parameter "negativeValues" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |negativeValues|
+//@[06:020) [no-unused-params (Warning)] Parameter "negativeValues" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |negativeValues|
 
 @sys.description('A boolean.')
 @metadata({
@@ -191,11 +191,11 @@ param negativeValues int
     ]
 })
 param decoratedBool bool = (true && false) != true
-//@[6:19) [no-unused-params (Warning)] Parameter "decoratedBool" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedBool|
+//@[06:019) [no-unused-params (Warning)] Parameter "decoratedBool" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedBool|
 
 @secure()
 param decoratedObject object = {
-//@[6:21) [no-unused-params (Warning)] Parameter "decoratedObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedObject|
+//@[06:021) [no-unused-params (Warning)] Parameter "decoratedObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedObject|
 //@[29:244) [secure-parameter-default (Warning)] Secure parameters should not have hardcoded defaults (except for empty or newGuid()). (CodeDescription: bicep core(https://aka.ms/bicep/linter/secure-parameter-default)) |= {\n  enabled: true\n  name: 'this is my object'\n  priority: 3\n  info: {\n    a: 'b'\n  }\n  empty: {\n  }\n  array: [\n    'string item'\n    12\n    true\n    [\n      'inner'\n      false\n    ]\n    {\n      a: 'b'\n    }\n  ]\n}|
   enabled: true
   name: 'this is my object'
@@ -225,7 +225,7 @@ param decoratedObject object = {
 @sys.maxLength(20)
 @sys.description('I will be overrode.')
 param decoratedArray array = [
-//@[6:20) [no-unused-params (Warning)] Parameter "decoratedArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedArray|
+//@[06:020) [no-unused-params (Warning)] Parameter "decoratedArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |decoratedArray|
     utcNow()
     newGuid()
 ]

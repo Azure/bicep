@@ -35,18 +35,19 @@ namespace Bicep.Core.Utils
                 FindCyclesDfs(graph, visitStack, visitState, shortestCycleByNode);
             }
 
-			return shortestCycleByNode.ToImmutableDictionary(
-				x => x.Key,
-				x => {
+            return shortestCycleByNode.ToImmutableDictionary(
+                x => x.Key,
+                x =>
+                {
                     // cycles are returned by FindCycleDfs in reverse order
                     var cycle = x.Value.Reverse();
 
-					// return the cycle as originating from the current key (e.g. a cycle 5 -> 6 -> 7 for key 6 should be displayed as 6 -> 7 -> 5)
-					var cycleSuffix = cycle.TakeWhile(y => y != x.Key);
-					var cyclePrefix = cycle.Skip(cycleSuffix.Count());
+                    // return the cycle as originating from the current key (e.g. a cycle 5 -> 6 -> 7 for key 6 should be displayed as 6 -> 7 -> 5)
+                    var cycleSuffix = cycle.TakeWhile(y => y != x.Key);
+                    var cyclePrefix = cycle.Skip(cycleSuffix.Count());
 
-					return cyclePrefix.Concat(cycleSuffix).ToImmutableArray();
-				});
+                    return cyclePrefix.Concat(cycleSuffix).ToImmutableArray();
+                });
         }
 
         private static void FindCyclesDfs(ILookup<TNode, TNode> graph, Stack<TNode> visitStack, Dictionary<TNode, VisitorState> visitState, IDictionary<TNode, ImmutableArray<TNode>> shortestCycleByNode)
@@ -77,7 +78,7 @@ namespace Bicep.Core.Utils
         {
             var cycle = visitStack
                 .TakeWhile(x => x != currentNode)
-                .Concat(new [] { currentNode })
+                .Concat(new[] { currentNode })
                 .ToImmutableArray();
 
             foreach (var element in cycle)

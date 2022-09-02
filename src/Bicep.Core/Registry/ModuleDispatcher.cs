@@ -22,7 +22,7 @@ namespace Bicep.Core.Registry
         private readonly ImmutableDictionary<string, IModuleRegistry> registries;
 
         private readonly ConcurrentDictionary<RestoreFailureKey, RestoreFailureInfo> restoreFailures = new();
-        
+
         public ModuleDispatcher(IModuleRegistryProvider registryProvider)
         {
             this.registries = registryProvider.Registries.ToImmutableDictionary(registry => registry.Scheme);
@@ -50,7 +50,7 @@ namespace Bicep.Core.Registry
                     string scheme = parts[0];
                     string? aliasName = null;
 
-                    if (parts[0].Contains("/"))
+                    if (parts[0].Contains('/'))
                     {
                         // The sheme contains an alias.
                         var schemeParts = parts[0].Split('/', 2, StringSplitOptions.None);
@@ -98,7 +98,7 @@ namespace Bicep.Core.Registry
         public ModuleRestoreStatus GetModuleRestoreStatus(ModuleReference moduleReference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var registry = this.GetRegistry(moduleReference);
-            
+
             // have we already failed to restore this module?
             if (this.HasRestoreFailed(moduleReference, configuration, out var restoreFailureBuilder))
             {
@@ -120,7 +120,7 @@ namespace Bicep.Core.Registry
         public Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference moduleReference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             // has restore already failed for this module?
-            if(this.HasRestoreFailed(moduleReference, configuration, out var restoreFailureBuilder))
+            if (this.HasRestoreFailed(moduleReference, configuration, out var restoreFailureBuilder))
             {
                 failureBuilder = restoreFailureBuilder;
                 return null;
@@ -130,11 +130,11 @@ namespace Bicep.Core.Registry
             return registry.TryGetLocalModuleEntryPointUri(parentModuleUri, moduleReference, out failureBuilder);
         }
 
-        public async Task<bool> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> moduleReferences)
+        public async Task<bool> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> moduleReferences, bool forceModulesRestore = false)
         {
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 
-            if (moduleReferences.All(module => this.GetModuleRestoreStatus(module, configuration, out _) == ModuleRestoreStatus.Succeeded))
+            if (!forceModulesRestore && moduleReferences.All(module => this.GetModuleRestoreStatus(module, configuration, out _) == ModuleRestoreStatus.Succeeded))
             {
                 // all the modules have already been restored - no need to do anything
                 return false;
@@ -149,10 +149,21 @@ namespace Bicep.Core.Registry
             // send each set of refs to its own registry
             foreach (var scheme in this.registries.Keys.Where(refType => referencesByScheme.Contains(refType)))
             {
+                // if we're asked to purge modules cache
+                if (forceModulesRestore) {
+                    var forceModulesRestoreStatuses = await this.registries[scheme].InvalidateModulesCache(configuration, referencesByScheme[scheme]);
+
+                    // update cache invalidation status for each failed modules
+                    foreach (var (failedReference, failureBuilder) in forceModulesRestoreStatuses)
+                    {
+                        this.SetRestoreFailure(failedReference, configuration, failureBuilder);
+                    }
+                }
+
                 var restoreStatuses = await this.registries[scheme].RestoreModules(configuration, referencesByScheme[scheme]);
 
                 // update restore status for each failed module restore
-                foreach(var (failedReference, failureBuilder) in restoreStatuses)
+                foreach (var (failedReference, failureBuilder) in restoreStatuses)
                 {
                     this.SetRestoreFailure(failedReference, configuration, failureBuilder);
                 }
@@ -174,7 +185,7 @@ namespace Bicep.Core.Registry
             var dateTime = DateTime.UtcNow;
             foreach (var (key, value) in this.restoreFailures)
             {
-                if(IsFailureInfoExpired(value, dateTime))
+                if (IsFailureInfoExpired(value, dateTime))
                 {
                     // value is expired - remove it
                     this.restoreFailures.TryRemove(key, out _);

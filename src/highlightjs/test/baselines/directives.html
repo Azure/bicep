@@ -1,0 +1,39 @@
+
+<!--
+  Preview this file by prepending http://htmlpreview.github.io/? to its URL
+  e.g. http://htmlpreview.github.io/?https://raw.githubusercontent.com/Azure/bicep/main/src/highlightjs/test/baselines/directives.html
+-->
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+  </head>
+  <body>
+    <pre class="hljs">
+<span class="hljs-variable"><span class="hljs-keyword">var</span></span> <span class="hljs-variable">vmProperties</span> = {
+  <span class="hljs-property">diagnosticsProfile</span>: {
+    <span class="hljs-property">bootDiagnostics</span>: {
+      <span class="hljs-property">enabled</span>: <span class="hljs-number">123</span>
+      <span class="hljs-property">storageUri</span>: <span class="hljs-literal">true</span>
+      <span class="hljs-property">unknownProp</span>: <span class="hljs-string">&#x27;asdf&#x27;</span>
+    }
+  }
+  <span class="hljs-property">evictionPolicy</span>: <span class="hljs-string">&#x27;Deallocate&#x27;</span>
+}
+<span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">vm</span> <span class="hljs-string">&#x27;Microsoft.Compute/virtualMachines@2020-12-01&#x27;</span> = {
+  <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;vm&#x27;</span>
+  <span class="hljs-property">location</span>: <span class="hljs-string">&#x27;West US&#x27;</span>
+<span class="hljs-meta">#disable-next-line <span class="hljs-variable">BCP036</span> <span class="hljs-variable">BCP037</span></span>
+  <span class="hljs-property">properties</span>: <span class="hljs-variable">vmProperties</span>
+}
+<span class="hljs-meta">#disable-next-line <span class="hljs-variable">no-unused-params</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">storageAccount1</span> <span class="hljs-variable">string</span> = <span class="hljs-string">&#x27;testStorageAccount&#x27;</span>
+<span class="hljs-meta">#disable-next-line          <span class="hljs-variable">no-unused-params</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">storageAccount2</span> <span class="hljs-variable">string</span> = <span class="hljs-string">&#x27;testStorageAccount&#x27;</span>
+<span class="hljs-meta">#disable-next-line   <span class="hljs-variable">no-unused-params</span>                <span class="hljs-comment">/* Test comment 1 */</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">storageAccount3</span> <span class="hljs-variable">string</span> = <span class="hljs-string">&#x27;testStorageAccount&#x27;</span>
+         <span class="hljs-meta">#disable-next-line   <span class="hljs-variable">no-unused-params</span>                <span class="hljs-comment">// Test comment 2</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">storageAccount5</span> <span class="hljs-variable">string</span> = <span class="hljs-string">&#x27;testStorageAccount&#x27;</span>
+
+    </pre>
+  </body>
+</html>

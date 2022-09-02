@@ -1,454 +1,455 @@
 param deployTimeParam string = 'steve'
-//@[0:38) ParameterDeclarationSyntax
-//@[0:5)  Identifier |param|
-//@[6:21)  IdentifierSyntax
-//@[6:21)   Identifier |deployTimeParam|
-//@[22:28)  TypeSyntax
-//@[22:28)   Identifier |string|
-//@[29:38)  ParameterDefaultValueSyntax
-//@[29:30)   Assignment |=|
-//@[31:38)   StringSyntax
-//@[31:38)    StringComplete |'steve'|
-//@[38:39) NewLine |\n|
+//@[00:1098) ProgramSyntax
+//@[00:0038) ├─ParameterDeclarationSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0021) | ├─IdentifierSyntax
+//@[06:0021) | | └─Token(Identifier) |deployTimeParam|
+//@[22:0028) | ├─SimpleTypeSyntax
+//@[22:0028) | | └─Token(Identifier) |string|
+//@[29:0038) | └─ParameterDefaultValueSyntax
+//@[29:0030) |   ├─Token(Assignment) |=|
+//@[31:0038) |   └─StringSyntax
+//@[31:0038) |     └─Token(StringComplete) |'steve'|
+//@[38:0039) ├─Token(NewLine) |\n|
 var deployTimeVar = 'nigel'
-//@[0:27) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:17)  IdentifierSyntax
-//@[4:17)   Identifier |deployTimeVar|
-//@[18:19)  Assignment |=|
-//@[20:27)  StringSyntax
-//@[20:27)   StringComplete |'nigel'|
-//@[27:28) NewLine |\n|
+//@[00:0027) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0017) | ├─IdentifierSyntax
+//@[04:0017) | | └─Token(Identifier) |deployTimeVar|
+//@[18:0019) | ├─Token(Assignment) |=|
+//@[20:0027) | └─StringSyntax
+//@[20:0027) |   └─Token(StringComplete) |'nigel'|
+//@[27:0028) ├─Token(NewLine) |\n|
 var dependentVar = {
-//@[0:82) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:16)  IdentifierSyntax
-//@[4:16)   Identifier |dependentVar|
-//@[17:18)  Assignment |=|
-//@[19:82)  ObjectSyntax
-//@[19:20)   LeftBrace |{|
-//@[20:21)   NewLine |\n|
+//@[00:0082) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0016) | ├─IdentifierSyntax
+//@[04:0016) | | └─Token(Identifier) |dependentVar|
+//@[17:0018) | ├─Token(Assignment) |=|
+//@[19:0082) | └─ObjectSyntax
+//@[19:0020) |   ├─Token(LeftBrace) |{|
+//@[20:0021) |   ├─Token(NewLine) |\n|
   dependencies: [
-//@[2:59)   ObjectPropertySyntax
-//@[2:14)    IdentifierSyntax
-//@[2:14)     Identifier |dependencies|
-//@[14:15)    Colon |:|
-//@[16:59)    ArraySyntax
-//@[16:17)     LeftSquare |[|
-//@[17:18)     NewLine |\n|
+//@[02:0059) |   ├─ObjectPropertySyntax
+//@[02:0014) |   | ├─IdentifierSyntax
+//@[02:0014) |   | | └─Token(Identifier) |dependencies|
+//@[14:0015) |   | ├─Token(Colon) |:|
+//@[16:0059) |   | └─ArraySyntax
+//@[16:0017) |   |   ├─Token(LeftSquare) |[|
+//@[17:0018) |   |   ├─Token(NewLine) |\n|
     deployTimeVar
-//@[4:17)     ArrayItemSyntax
-//@[4:17)      VariableAccessSyntax
-//@[4:17)       IdentifierSyntax
-//@[4:17)        Identifier |deployTimeVar|
-//@[17:18)     NewLine |\n|
+//@[04:0017) |   |   ├─ArrayItemSyntax
+//@[04:0017) |   |   | └─VariableAccessSyntax
+//@[04:0017) |   |   |   └─IdentifierSyntax
+//@[04:0017) |   |   |     └─Token(Identifier) |deployTimeVar|
+//@[17:0018) |   |   ├─Token(NewLine) |\n|
     deployTimeParam
-//@[4:19)     ArrayItemSyntax
-//@[4:19)      VariableAccessSyntax
-//@[4:19)       IdentifierSyntax
-//@[4:19)        Identifier |deployTimeParam|
-//@[19:20)     NewLine |\n|
+//@[04:0019) |   |   ├─ArrayItemSyntax
+//@[04:0019) |   |   | └─VariableAccessSyntax
+//@[04:0019) |   |   |   └─IdentifierSyntax
+//@[04:0019) |   |   |     └─Token(Identifier) |deployTimeParam|
+//@[19:0020) |   |   ├─Token(NewLine) |\n|
   ]
-//@[2:3)     RightSquare |]|
-//@[3:4)   NewLine |\n|
+//@[02:0003) |   |   └─Token(RightSquare) |]|
+//@[03:0004) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 var resourceDependency = {
-//@[0:147) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:22)  IdentifierSyntax
-//@[4:22)   Identifier |resourceDependency|
-//@[23:24)  Assignment |=|
-//@[25:147)  ObjectSyntax
-//@[25:26)   LeftBrace |{|
-//@[26:27)   NewLine |\n|
+//@[00:0147) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0022) | ├─IdentifierSyntax
+//@[04:0022) | | └─Token(Identifier) |resourceDependency|
+//@[23:0024) | ├─Token(Assignment) |=|
+//@[25:0147) | └─ObjectSyntax
+//@[25:0026) |   ├─Token(LeftBrace) |{|
+//@[26:0027) |   ├─Token(NewLine) |\n|
   dependenciesA: [
-//@[2:118)   ObjectPropertySyntax
-//@[2:15)    IdentifierSyntax
-//@[2:15)     Identifier |dependenciesA|
-//@[15:16)    Colon |:|
-//@[17:118)    ArraySyntax
-//@[17:18)     LeftSquare |[|
-//@[18:19)     NewLine |\n|
+//@[02:0118) |   ├─ObjectPropertySyntax
+//@[02:0015) |   | ├─IdentifierSyntax
+//@[02:0015) |   | | └─Token(Identifier) |dependenciesA|
+//@[15:0016) |   | ├─Token(Colon) |:|
+//@[17:0118) |   | └─ArraySyntax
+//@[17:0018) |   |   ├─Token(LeftSquare) |[|
+//@[18:0019) |   |   ├─Token(NewLine) |\n|
     resA.id
-//@[4:11)     ArrayItemSyntax
-//@[4:11)      PropertyAccessSyntax
-//@[4:8)       VariableAccessSyntax
-//@[4:8)        IdentifierSyntax
-//@[4:8)         Identifier |resA|
-//@[8:9)       Dot |.|
-//@[9:11)       IdentifierSyntax
-//@[9:11)        Identifier |id|
-//@[11:12)     NewLine |\n|
+//@[04:0011) |   |   ├─ArrayItemSyntax
+//@[04:0011) |   |   | └─PropertyAccessSyntax
+//@[04:0008) |   |   |   ├─VariableAccessSyntax
+//@[04:0008) |   |   |   | └─IdentifierSyntax
+//@[04:0008) |   |   |   |   └─Token(Identifier) |resA|
+//@[08:0009) |   |   |   ├─Token(Dot) |.|
+//@[09:0011) |   |   |   └─IdentifierSyntax
+//@[09:0011) |   |   |     └─Token(Identifier) |id|
+//@[11:0012) |   |   ├─Token(NewLine) |\n|
     resA.name
-//@[4:13)     ArrayItemSyntax
-//@[4:13)      PropertyAccessSyntax
-//@[4:8)       VariableAccessSyntax
-//@[4:8)        IdentifierSyntax
-//@[4:8)         Identifier |resA|
-//@[8:9)       Dot |.|
-//@[9:13)       IdentifierSyntax
-//@[9:13)        Identifier |name|
-//@[13:14)     NewLine |\n|
+//@[04:0013) |   |   ├─ArrayItemSyntax
+//@[04:0013) |   |   | └─PropertyAccessSyntax
+//@[04:0008) |   |   |   ├─VariableAccessSyntax
+//@[04:0008) |   |   |   | └─IdentifierSyntax
+//@[04:0008) |   |   |   |   └─Token(Identifier) |resA|
+//@[08:0009) |   |   |   ├─Token(Dot) |.|
+//@[09:0013) |   |   |   └─IdentifierSyntax
+//@[09:0013) |   |   |     └─Token(Identifier) |name|
+//@[13:0014) |   |   ├─Token(NewLine) |\n|
     resA.type
-//@[4:13)     ArrayItemSyntax
-//@[4:13)      PropertyAccessSyntax
-//@[4:8)       VariableAccessSyntax
-//@[4:8)        IdentifierSyntax
-//@[4:8)         Identifier |resA|
-//@[8:9)       Dot |.|
-//@[9:13)       IdentifierSyntax
-//@[9:13)        Identifier |type|
-//@[13:14)     NewLine |\n|
+//@[04:0013) |   |   ├─ArrayItemSyntax
+//@[04:0013) |   |   | └─PropertyAccessSyntax
+//@[04:0008) |   |   |   ├─VariableAccessSyntax
+//@[04:0008) |   |   |   | └─IdentifierSyntax
+//@[04:0008) |   |   |   |   └─Token(Identifier) |resA|
+//@[08:0009) |   |   |   ├─Token(Dot) |.|
+//@[09:0013) |   |   |   └─IdentifierSyntax
+//@[09:0013) |   |   |     └─Token(Identifier) |type|
+//@[13:0014) |   |   ├─Token(NewLine) |\n|
     resA.properties.deployTime
-//@[4:30)     ArrayItemSyntax
-//@[4:30)      PropertyAccessSyntax
-//@[4:19)       PropertyAccessSyntax
-//@[4:8)        VariableAccessSyntax
-//@[4:8)         IdentifierSyntax
-//@[4:8)          Identifier |resA|
-//@[8:9)        Dot |.|
-//@[9:19)        IdentifierSyntax
-//@[9:19)         Identifier |properties|
-//@[19:20)       Dot |.|
-//@[20:30)       IdentifierSyntax
-//@[20:30)        Identifier |deployTime|
-//@[30:31)     NewLine |\n|
+//@[04:0030) |   |   ├─ArrayItemSyntax
+//@[04:0030) |   |   | └─PropertyAccessSyntax
+//@[04:0019) |   |   |   ├─PropertyAccessSyntax
+//@[04:0008) |   |   |   | ├─VariableAccessSyntax
+//@[04:0008) |   |   |   | | └─IdentifierSyntax
+//@[04:0008) |   |   |   | |   └─Token(Identifier) |resA|
+//@[08:0009) |   |   |   | ├─Token(Dot) |.|
+//@[09:0019) |   |   |   | └─IdentifierSyntax
+//@[09:0019) |   |   |   |   └─Token(Identifier) |properties|
+//@[19:0020) |   |   |   ├─Token(Dot) |.|
+//@[20:0030) |   |   |   └─IdentifierSyntax
+//@[20:0030) |   |   |     └─Token(Identifier) |deployTime|
+//@[30:0031) |   |   ├─Token(NewLine) |\n|
     resA.properties.eTag
-//@[4:24)     ArrayItemSyntax
-//@[4:24)      PropertyAccessSyntax
-//@[4:19)       PropertyAccessSyntax
-//@[4:8)        VariableAccessSyntax
-//@[4:8)         IdentifierSyntax
-//@[4:8)          Identifier |resA|
-//@[8:9)        Dot |.|
-//@[9:19)        IdentifierSyntax
-//@[9:19)         Identifier |properties|
-//@[19:20)       Dot |.|
-//@[20:24)       IdentifierSyntax
-//@[20:24)        Identifier |eTag|
-//@[24:25)     NewLine |\n|
+//@[04:0024) |   |   ├─ArrayItemSyntax
+//@[04:0024) |   |   | └─PropertyAccessSyntax
+//@[04:0019) |   |   |   ├─PropertyAccessSyntax
+//@[04:0008) |   |   |   | ├─VariableAccessSyntax
+//@[04:0008) |   |   |   | | └─IdentifierSyntax
+//@[04:0008) |   |   |   | |   └─Token(Identifier) |resA|
+//@[08:0009) |   |   |   | ├─Token(Dot) |.|
+//@[09:0019) |   |   |   | └─IdentifierSyntax
+//@[09:0019) |   |   |   |   └─Token(Identifier) |properties|
+//@[19:0020) |   |   |   ├─Token(Dot) |.|
+//@[20:0024) |   |   |   └─IdentifierSyntax
+//@[20:0024) |   |   |     └─Token(Identifier) |eTag|
+//@[24:0025) |   |   ├─Token(NewLine) |\n|
   ]
-//@[2:3)     RightSquare |]|
-//@[3:4)   NewLine |\n|
+//@[02:0003) |   |   └─Token(RightSquare) |]|
+//@[03:0004) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 output resourceAType string = resA.type
-//@[0:39) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:20)  IdentifierSyntax
-//@[7:20)   Identifier |resourceAType|
-//@[21:27)  TypeSyntax
-//@[21:27)   Identifier |string|
-//@[28:29)  Assignment |=|
-//@[30:39)  PropertyAccessSyntax
-//@[30:34)   VariableAccessSyntax
-//@[30:34)    IdentifierSyntax
-//@[30:34)     Identifier |resA|
-//@[34:35)   Dot |.|
-//@[35:39)   IdentifierSyntax
-//@[35:39)    Identifier |type|
-//@[39:40) NewLine |\n|
+//@[00:0039) ├─OutputDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |output|
+//@[07:0020) | ├─IdentifierSyntax
+//@[07:0020) | | └─Token(Identifier) |resourceAType|
+//@[21:0027) | ├─SimpleTypeSyntax
+//@[21:0027) | | └─Token(Identifier) |string|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0039) | └─PropertyAccessSyntax
+//@[30:0034) |   ├─VariableAccessSyntax
+//@[30:0034) |   | └─IdentifierSyntax
+//@[30:0034) |   |   └─Token(Identifier) |resA|
+//@[34:0035) |   ├─Token(Dot) |.|
+//@[35:0039) |   └─IdentifierSyntax
+//@[35:0039) |     └─Token(Identifier) |type|
+//@[39:0040) ├─Token(NewLine) |\n|
 resource resA 'My.Rp/myResourceType@2020-01-01' = {
-//@[0:134) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:13)  IdentifierSyntax
-//@[9:13)   Identifier |resA|
-//@[14:47)  StringSyntax
-//@[14:47)   StringComplete |'My.Rp/myResourceType@2020-01-01'|
-//@[48:49)  Assignment |=|
-//@[50:134)  ObjectSyntax
-//@[50:51)   LeftBrace |{|
-//@[51:52)   NewLine |\n|
+//@[00:0134) ├─ResourceDeclarationSyntax
+//@[00:0008) | ├─Token(Identifier) |resource|
+//@[09:0013) | ├─IdentifierSyntax
+//@[09:0013) | | └─Token(Identifier) |resA|
+//@[14:0047) | ├─StringSyntax
+//@[14:0047) | | └─Token(StringComplete) |'My.Rp/myResourceType@2020-01-01'|
+//@[48:0049) | ├─Token(Assignment) |=|
+//@[50:0134) | └─ObjectSyntax
+//@[50:0051) |   ├─Token(LeftBrace) |{|
+//@[51:0052) |   ├─Token(NewLine) |\n|
   name: 'resA'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'resA'|
-//@[14:15)   NewLine |\n|
+//@[02:0014) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0014) |   | └─StringSyntax
+//@[08:0014) |   |   └─Token(StringComplete) |'resA'|
+//@[14:0015) |   ├─Token(NewLine) |\n|
   properties: {
-//@[2:65)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:65)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:16)     NewLine |\n|
+//@[02:0065) |   ├─ObjectPropertySyntax
+//@[02:0012) |   | ├─IdentifierSyntax
+//@[02:0012) |   | | └─Token(Identifier) |properties|
+//@[12:0013) |   | ├─Token(Colon) |:|
+//@[14:0065) |   | └─ObjectSyntax
+//@[14:0015) |   |   ├─Token(LeftBrace) |{|
+//@[15:0016) |   |   ├─Token(NewLine) |\n|
     deployTime: dependentVar
-//@[4:28)     ObjectPropertySyntax
-//@[4:14)      IdentifierSyntax
-//@[4:14)       Identifier |deployTime|
-//@[14:15)      Colon |:|
-//@[16:28)      VariableAccessSyntax
-//@[16:28)       IdentifierSyntax
-//@[16:28)        Identifier |dependentVar|
-//@[28:29)     NewLine |\n|
+//@[04:0028) |   |   ├─ObjectPropertySyntax
+//@[04:0014) |   |   | ├─IdentifierSyntax
+//@[04:0014) |   |   | | └─Token(Identifier) |deployTime|
+//@[14:0015) |   |   | ├─Token(Colon) |:|
+//@[16:0028) |   |   | └─VariableAccessSyntax
+//@[16:0028) |   |   |   └─IdentifierSyntax
+//@[16:0028) |   |   |     └─Token(Identifier) |dependentVar|
+//@[28:0029) |   |   ├─Token(NewLine) |\n|
     eTag: '1234'
-//@[4:16)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |eTag|
-//@[8:9)      Colon |:|
-//@[10:16)      StringSyntax
-//@[10:16)       StringComplete |'1234'|
-//@[16:17)     NewLine |\n|
+//@[04:0016) |   |   ├─ObjectPropertySyntax
+//@[04:0008) |   |   | ├─IdentifierSyntax
+//@[04:0008) |   |   | | └─Token(Identifier) |eTag|
+//@[08:0009) |   |   | ├─Token(Colon) |:|
+//@[10:0016) |   |   | └─StringSyntax
+//@[10:0016) |   |   |   └─Token(StringComplete) |'1234'|
+//@[16:0017) |   |   ├─Token(NewLine) |\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:4)   NewLine |\n|
+//@[02:0003) |   |   └─Token(RightBrace) |}|
+//@[03:0004) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 output resourceBId string = resB.id
-//@[0:35) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:18)  IdentifierSyntax
-//@[7:18)   Identifier |resourceBId|
-//@[19:25)  TypeSyntax
-//@[19:25)   Identifier |string|
-//@[26:27)  Assignment |=|
-//@[28:35)  PropertyAccessSyntax
-//@[28:32)   VariableAccessSyntax
-//@[28:32)    IdentifierSyntax
-//@[28:32)     Identifier |resB|
-//@[32:33)   Dot |.|
-//@[33:35)   IdentifierSyntax
-//@[33:35)    Identifier |id|
-//@[35:36) NewLine |\n|
+//@[00:0035) ├─OutputDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |output|
+//@[07:0018) | ├─IdentifierSyntax
+//@[07:0018) | | └─Token(Identifier) |resourceBId|
+//@[19:0025) | ├─SimpleTypeSyntax
+//@[19:0025) | | └─Token(Identifier) |string|
+//@[26:0027) | ├─Token(Assignment) |=|
+//@[28:0035) | └─PropertyAccessSyntax
+//@[28:0032) |   ├─VariableAccessSyntax
+//@[28:0032) |   | └─IdentifierSyntax
+//@[28:0032) |   |   └─Token(Identifier) |resB|
+//@[32:0033) |   ├─Token(Dot) |.|
+//@[33:0035) |   └─IdentifierSyntax
+//@[33:0035) |     └─Token(Identifier) |id|
+//@[35:0036) ├─Token(NewLine) |\n|
 resource resB 'My.Rp/myResourceType@2020-01-01' = {
-//@[0:125) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:13)  IdentifierSyntax
-//@[9:13)   Identifier |resB|
-//@[14:47)  StringSyntax
-//@[14:47)   StringComplete |'My.Rp/myResourceType@2020-01-01'|
-//@[48:49)  Assignment |=|
-//@[50:125)  ObjectSyntax
-//@[50:51)   LeftBrace |{|
-//@[51:52)   NewLine |\n|
+//@[00:0125) ├─ResourceDeclarationSyntax
+//@[00:0008) | ├─Token(Identifier) |resource|
+//@[09:0013) | ├─IdentifierSyntax
+//@[09:0013) | | └─Token(Identifier) |resB|
+//@[14:0047) | ├─StringSyntax
+//@[14:0047) | | └─Token(StringComplete) |'My.Rp/myResourceType@2020-01-01'|
+//@[48:0049) | ├─Token(Assignment) |=|
+//@[50:0125) | └─ObjectSyntax
+//@[50:0051) |   ├─Token(LeftBrace) |{|
+//@[51:0052) |   ├─Token(NewLine) |\n|
   name: 'resB'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'resB'|
-//@[14:15)   NewLine |\n|
+//@[02:0014) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0014) |   | └─StringSyntax
+//@[08:0014) |   |   └─Token(StringComplete) |'resB'|
+//@[14:0015) |   ├─Token(NewLine) |\n|
   properties: {
-//@[2:56)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:56)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:16)     NewLine |\n|
+//@[02:0056) |   ├─ObjectPropertySyntax
+//@[02:0012) |   | ├─IdentifierSyntax
+//@[02:0012) |   | | └─Token(Identifier) |properties|
+//@[12:0013) |   | ├─Token(Colon) |:|
+//@[14:0056) |   | └─ObjectSyntax
+//@[14:0015) |   |   ├─Token(LeftBrace) |{|
+//@[15:0016) |   |   ├─Token(NewLine) |\n|
     dependencies: resourceDependency
-//@[4:36)     ObjectPropertySyntax
-//@[4:16)      IdentifierSyntax
-//@[4:16)       Identifier |dependencies|
-//@[16:17)      Colon |:|
-//@[18:36)      VariableAccessSyntax
-//@[18:36)       IdentifierSyntax
-//@[18:36)        Identifier |resourceDependency|
-//@[36:37)     NewLine |\n|
+//@[04:0036) |   |   ├─ObjectPropertySyntax
+//@[04:0016) |   |   | ├─IdentifierSyntax
+//@[04:0016) |   |   | | └─Token(Identifier) |dependencies|
+//@[16:0017) |   |   | ├─Token(Colon) |:|
+//@[18:0036) |   |   | └─VariableAccessSyntax
+//@[18:0036) |   |   |   └─IdentifierSyntax
+//@[18:0036) |   |   |     └─Token(Identifier) |resourceDependency|
+//@[36:0037) |   |   ├─Token(NewLine) |\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:4)   NewLine |\n|
+//@[02:0003) |   |   └─Token(RightBrace) |}|
+//@[03:0004) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 var resourceIds = {
-//@[0:47) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:15)  IdentifierSyntax
-//@[4:15)   Identifier |resourceIds|
-//@[16:17)  Assignment |=|
-//@[18:47)  ObjectSyntax
-//@[18:19)   LeftBrace |{|
-//@[19:20)   NewLine |\n|
+//@[00:0047) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |resourceIds|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0047) | └─ObjectSyntax
+//@[18:0019) |   ├─Token(LeftBrace) |{|
+//@[19:0020) |   ├─Token(NewLine) |\n|
   a: resA.id
-//@[2:12)   ObjectPropertySyntax
-//@[2:3)    IdentifierSyntax
-//@[2:3)     Identifier |a|
-//@[3:4)    Colon |:|
-//@[5:12)    PropertyAccessSyntax
-//@[5:9)     VariableAccessSyntax
-//@[5:9)      IdentifierSyntax
-//@[5:9)       Identifier |resA|
-//@[9:10)     Dot |.|
-//@[10:12)     IdentifierSyntax
-//@[10:12)      Identifier |id|
-//@[12:13)   NewLine |\n|
+//@[02:0012) |   ├─ObjectPropertySyntax
+//@[02:0003) |   | ├─IdentifierSyntax
+//@[02:0003) |   | | └─Token(Identifier) |a|
+//@[03:0004) |   | ├─Token(Colon) |:|
+//@[05:0012) |   | └─PropertyAccessSyntax
+//@[05:0009) |   |   ├─VariableAccessSyntax
+//@[05:0009) |   |   | └─IdentifierSyntax
+//@[05:0009) |   |   |   └─Token(Identifier) |resA|
+//@[09:0010) |   |   ├─Token(Dot) |.|
+//@[10:0012) |   |   └─IdentifierSyntax
+//@[10:0012) |   |     └─Token(Identifier) |id|
+//@[12:0013) |   ├─Token(NewLine) |\n|
   b: resB.id
-//@[2:12)   ObjectPropertySyntax
-//@[2:3)    IdentifierSyntax
-//@[2:3)     Identifier |b|
-//@[3:4)    Colon |:|
-//@[5:12)    PropertyAccessSyntax
-//@[5:9)     VariableAccessSyntax
-//@[5:9)      IdentifierSyntax
-//@[5:9)       Identifier |resB|
-//@[9:10)     Dot |.|
-//@[10:12)     IdentifierSyntax
-//@[10:12)      Identifier |id|
-//@[12:13)   NewLine |\n|
+//@[02:0012) |   ├─ObjectPropertySyntax
+//@[02:0003) |   | ├─IdentifierSyntax
+//@[02:0003) |   | | └─Token(Identifier) |b|
+//@[03:0004) |   | ├─Token(Colon) |:|
+//@[05:0012) |   | └─PropertyAccessSyntax
+//@[05:0009) |   |   ├─VariableAccessSyntax
+//@[05:0009) |   |   | └─IdentifierSyntax
+//@[05:0009) |   |   |   └─Token(Identifier) |resB|
+//@[09:0010) |   |   ├─Token(Dot) |.|
+//@[10:0012) |   |   └─IdentifierSyntax
+//@[10:0012) |   |     └─Token(Identifier) |id|
+//@[12:0013) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 resource resC 'My.Rp/myResourceType@2020-01-01' = {
-//@[0:117) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:13)  IdentifierSyntax
-//@[9:13)   Identifier |resC|
-//@[14:47)  StringSyntax
-//@[14:47)   StringComplete |'My.Rp/myResourceType@2020-01-01'|
-//@[48:49)  Assignment |=|
-//@[50:117)  ObjectSyntax
-//@[50:51)   LeftBrace |{|
-//@[51:52)   NewLine |\n|
+//@[00:0117) ├─ResourceDeclarationSyntax
+//@[00:0008) | ├─Token(Identifier) |resource|
+//@[09:0013) | ├─IdentifierSyntax
+//@[09:0013) | | └─Token(Identifier) |resC|
+//@[14:0047) | ├─StringSyntax
+//@[14:0047) | | └─Token(StringComplete) |'My.Rp/myResourceType@2020-01-01'|
+//@[48:0049) | ├─Token(Assignment) |=|
+//@[50:0117) | └─ObjectSyntax
+//@[50:0051) |   ├─Token(LeftBrace) |{|
+//@[51:0052) |   ├─Token(NewLine) |\n|
   name: 'resC'
-//@[2:14)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:14)    StringSyntax
-//@[8:14)     StringComplete |'resC'|
-//@[14:15)   NewLine |\n|
+//@[02:0014) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0014) |   | └─StringSyntax
+//@[08:0014) |   |   └─Token(StringComplete) |'resC'|
+//@[14:0015) |   ├─Token(NewLine) |\n|
   properties: {
-//@[2:48)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:48)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:16)     NewLine |\n|
+//@[02:0048) |   ├─ObjectPropertySyntax
+//@[02:0012) |   | ├─IdentifierSyntax
+//@[02:0012) |   | | └─Token(Identifier) |properties|
+//@[12:0013) |   | ├─Token(Colon) |:|
+//@[14:0048) |   | └─ObjectSyntax
+//@[14:0015) |   |   ├─Token(LeftBrace) |{|
+//@[15:0016) |   |   ├─Token(NewLine) |\n|
     resourceIds: resourceIds
-//@[4:28)     ObjectPropertySyntax
-//@[4:15)      IdentifierSyntax
-//@[4:15)       Identifier |resourceIds|
-//@[15:16)      Colon |:|
-//@[17:28)      VariableAccessSyntax
-//@[17:28)       IdentifierSyntax
-//@[17:28)        Identifier |resourceIds|
-//@[28:29)     NewLine |\n|
+//@[04:0028) |   |   ├─ObjectPropertySyntax
+//@[04:0015) |   |   | ├─IdentifierSyntax
+//@[04:0015) |   |   | | └─Token(Identifier) |resourceIds|
+//@[15:0016) |   |   | ├─Token(Colon) |:|
+//@[17:0028) |   |   | └─VariableAccessSyntax
+//@[17:0028) |   |   |   └─IdentifierSyntax
+//@[17:0028) |   |   |     └─Token(Identifier) |resourceIds|
+//@[28:0029) |   |   ├─Token(NewLine) |\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:4)   NewLine |\n|
+//@[02:0003) |   |   └─Token(RightBrace) |}|
+//@[03:0004) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 resource resD 'My.Rp/myResourceType/childType@2020-01-01' = {
-//@[0:111) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:13)  IdentifierSyntax
-//@[9:13)   Identifier |resD|
-//@[14:57)  StringSyntax
-//@[14:57)   StringComplete |'My.Rp/myResourceType/childType@2020-01-01'|
-//@[58:59)  Assignment |=|
-//@[60:111)  ObjectSyntax
-//@[60:61)   LeftBrace |{|
-//@[61:62)   NewLine |\n|
+//@[00:0111) ├─ResourceDeclarationSyntax
+//@[00:0008) | ├─Token(Identifier) |resource|
+//@[09:0013) | ├─IdentifierSyntax
+//@[09:0013) | | └─Token(Identifier) |resD|
+//@[14:0057) | ├─StringSyntax
+//@[14:0057) | | └─Token(StringComplete) |'My.Rp/myResourceType/childType@2020-01-01'|
+//@[58:0059) | ├─Token(Assignment) |=|
+//@[60:0111) | └─ObjectSyntax
+//@[60:0061) |   ├─Token(LeftBrace) |{|
+//@[61:0062) |   ├─Token(NewLine) |\n|
   name: '${resC.name}/resD'
-//@[2:27)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:27)    StringSyntax
-//@[8:11)     StringLeftPiece |'${|
-//@[11:20)     PropertyAccessSyntax
-//@[11:15)      VariableAccessSyntax
-//@[11:15)       IdentifierSyntax
-//@[11:15)        Identifier |resC|
-//@[15:16)      Dot |.|
-//@[16:20)      IdentifierSyntax
-//@[16:20)       Identifier |name|
-//@[20:27)     StringRightPiece |}/resD'|
-//@[27:28)   NewLine |\n|
+//@[02:0027) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0027) |   | └─StringSyntax
+//@[08:0011) |   |   ├─Token(StringLeftPiece) |'${|
+//@[11:0020) |   |   ├─PropertyAccessSyntax
+//@[11:0015) |   |   | ├─VariableAccessSyntax
+//@[11:0015) |   |   | | └─IdentifierSyntax
+//@[11:0015) |   |   | |   └─Token(Identifier) |resC|
+//@[15:0016) |   |   | ├─Token(Dot) |.|
+//@[16:0020) |   |   | └─IdentifierSyntax
+//@[16:0020) |   |   |   └─Token(Identifier) |name|
+//@[20:0027) |   |   └─Token(StringRightPiece) |}/resD'|
+//@[27:0028) |   ├─Token(NewLine) |\n|
   properties: {
-//@[2:19)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:19)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:16)     NewLine |\n|
+//@[02:0019) |   ├─ObjectPropertySyntax
+//@[02:0012) |   | ├─IdentifierSyntax
+//@[02:0012) |   | | └─Token(Identifier) |properties|
+//@[12:0013) |   | ├─Token(Colon) |:|
+//@[14:0019) |   | └─ObjectSyntax
+//@[14:0015) |   |   ├─Token(LeftBrace) |{|
+//@[15:0016) |   |   ├─Token(NewLine) |\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:4)   NewLine |\n|
+//@[02:0003) |   |   └─Token(RightBrace) |}|
+//@[03:0004) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
-//@[0:124) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:13)  IdentifierSyntax
-//@[9:13)   Identifier |resE|
-//@[14:57)  StringSyntax
-//@[14:57)   StringComplete |'My.Rp/myResourceType/childType@2020-01-01'|
-//@[58:59)  Assignment |=|
-//@[60:124)  ObjectSyntax
-//@[60:61)   LeftBrace |{|
-//@[61:62)   NewLine |\n|
+//@[00:0124) ├─ResourceDeclarationSyntax
+//@[00:0008) | ├─Token(Identifier) |resource|
+//@[09:0013) | ├─IdentifierSyntax
+//@[09:0013) | | └─Token(Identifier) |resE|
+//@[14:0057) | ├─StringSyntax
+//@[14:0057) | | └─Token(StringComplete) |'My.Rp/myResourceType/childType@2020-01-01'|
+//@[58:0059) | ├─Token(Assignment) |=|
+//@[60:0124) | └─ObjectSyntax
+//@[60:0061) |   ├─Token(LeftBrace) |{|
+//@[61:0062) |   ├─Token(NewLine) |\n|
   name: 'resC/resD'
-//@[2:19)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:19)    StringSyntax
-//@[8:19)     StringComplete |'resC/resD'|
-//@[19:20)   NewLine |\n|
+//@[02:0019) |   ├─ObjectPropertySyntax
+//@[02:0006) |   | ├─IdentifierSyntax
+//@[02:0006) |   | | └─Token(Identifier) |name|
+//@[06:0007) |   | ├─Token(Colon) |:|
+//@[08:0019) |   | └─StringSyntax
+//@[08:0019) |   |   └─Token(StringComplete) |'resC/resD'|
+//@[19:0020) |   ├─Token(NewLine) |\n|
   properties: {
-//@[2:40)   ObjectPropertySyntax
-//@[2:12)    IdentifierSyntax
-//@[2:12)     Identifier |properties|
-//@[12:13)    Colon |:|
-//@[14:40)    ObjectSyntax
-//@[14:15)     LeftBrace |{|
-//@[15:16)     NewLine |\n|
+//@[02:0040) |   ├─ObjectPropertySyntax
+//@[02:0012) |   | ├─IdentifierSyntax
+//@[02:0012) |   | | └─Token(Identifier) |properties|
+//@[12:0013) |   | ├─Token(Colon) |:|
+//@[14:0040) |   | └─ObjectSyntax
+//@[14:0015) |   |   ├─Token(LeftBrace) |{|
+//@[15:0016) |   |   ├─Token(NewLine) |\n|
     resDRef: resD.id
-//@[4:20)     ObjectPropertySyntax
-//@[4:11)      IdentifierSyntax
-//@[4:11)       Identifier |resDRef|
-//@[11:12)      Colon |:|
-//@[13:20)      PropertyAccessSyntax
-//@[13:17)       VariableAccessSyntax
-//@[13:17)        IdentifierSyntax
-//@[13:17)         Identifier |resD|
-//@[17:18)       Dot |.|
-//@[18:20)       IdentifierSyntax
-//@[18:20)        Identifier |id|
-//@[20:21)     NewLine |\n|
+//@[04:0020) |   |   ├─ObjectPropertySyntax
+//@[04:0011) |   |   | ├─IdentifierSyntax
+//@[04:0011) |   |   | | └─Token(Identifier) |resDRef|
+//@[11:0012) |   |   | ├─Token(Colon) |:|
+//@[13:0020) |   |   | └─PropertyAccessSyntax
+//@[13:0017) |   |   |   ├─VariableAccessSyntax
+//@[13:0017) |   |   |   | └─IdentifierSyntax
+//@[13:0017) |   |   |   |   └─Token(Identifier) |resD|
+//@[17:0018) |   |   |   ├─Token(Dot) |.|
+//@[18:0020) |   |   |   └─IdentifierSyntax
+//@[18:0020) |   |   |     └─Token(Identifier) |id|
+//@[20:0021) |   |   ├─Token(NewLine) |\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:4)   NewLine |\n|
+//@[02:0003) |   |   └─Token(RightBrace) |}|
+//@[03:0004) |   ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:0001) |   └─Token(RightBrace) |}|
+//@[01:0003) ├─Token(NewLine) |\n\n|
 
 output resourceCProperties object = resC.properties
-//@[0:51) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:26)  IdentifierSyntax
-//@[7:26)   Identifier |resourceCProperties|
-//@[27:33)  TypeSyntax
-//@[27:33)   Identifier |object|
-//@[34:35)  Assignment |=|
-//@[36:51)  PropertyAccessSyntax
-//@[36:40)   VariableAccessSyntax
-//@[36:40)    IdentifierSyntax
-//@[36:40)     Identifier |resC|
-//@[40:41)   Dot |.|
-//@[41:51)   IdentifierSyntax
-//@[41:51)    Identifier |properties|
-//@[51:52) NewLine |\n|
+//@[00:0051) ├─OutputDeclarationSyntax
+//@[00:0006) | ├─Token(Identifier) |output|
+//@[07:0026) | ├─IdentifierSyntax
+//@[07:0026) | | └─Token(Identifier) |resourceCProperties|
+//@[27:0033) | ├─SimpleTypeSyntax
+//@[27:0033) | | └─Token(Identifier) |object|
+//@[34:0035) | ├─Token(Assignment) |=|
+//@[36:0051) | └─PropertyAccessSyntax
+//@[36:0040) |   ├─VariableAccessSyntax
+//@[36:0040) |   | └─IdentifierSyntax
+//@[36:0040) |   |   └─Token(Identifier) |resC|
+//@[40:0041) |   ├─Token(Dot) |.|
+//@[41:0051) |   └─IdentifierSyntax
+//@[41:0051) |     └─Token(Identifier) |properties|
+//@[51:0052) ├─Token(NewLine) |\n|
 
-//@[0:0) EndOfFile ||
+//@[00:0000) └─Token(EndOfFile) ||

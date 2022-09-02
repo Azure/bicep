@@ -40,7 +40,7 @@ namespace Bicep.Core.UnitTests.Assertions
             ErrorDiagnostic error = GetErrorFromSubject();
 
             using (new AssertionScope())
-{
+            {
                 error.Should().HaveMessage(message, because, becauseArgs);
             }
 

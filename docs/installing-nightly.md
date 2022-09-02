@@ -12,6 +12,8 @@ The easiest way to get these artifacts is through the GitHub site. Follow [this 
 
 On the details page, select the artifact you would like to download.
 
+![](./images/bicep-select-artifact.png)
+
 The VSCode extension (`vscode-bicep.vsix`) must be unzipped and then can be installed inside of VS Code or with the `code` CLI. To install the extension, execute the following steps:
 - Open VSCode.
 - In the Extensions tab, select the options (...) menu in the top right corner and select 'Install from VSIX'. Provide the path to the VSIX file you downloaded.

@@ -40,7 +40,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
             var actualLocation = FileHelper.SaveResultFile(this.TestContext, $"{this.TestContext.TestName}_{@namespace.Name}.json", actual.ToString(Formatting.Indented));
 
             var fileName = $"{@namespace.Name}.json";
-            
+
             var expectedStr = DataSets.Functions.TryGetValue(fileName);
             if (expectedStr == null)
             {
@@ -55,7 +55,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         private static IEnumerable<object[]> GetNamespaces()
         {
             // local function
-            static object[] CreateRow(INamespaceSymbol @namespace) => new object[] {@namespace};
+            static object[] CreateRow(INamespaceSymbol @namespace) => new object[] { @namespace };
 
             var (_, _, compilation) = CompilationHelper.Compile(TestTypeHelper.CreateEmptyAzResourceTypeLoader(), ("main.bicep", string.Empty));
 
@@ -68,14 +68,14 @@ namespace Bicep.Core.IntegrationTests.Semantics
             var candiddate = data.Single();
             candiddate.Should().BeAssignableTo<INamespaceSymbol>();
 
-            return $"{info.Name}_{((INamespaceSymbol) candiddate).Name}";
+            return $"{info.Name}_{((INamespaceSymbol)candiddate).Name}";
         }
 
         private OverloadRecord Convert(FunctionOverload overload) =>
             new OverloadRecord(
                 overload.Name,
                 overload.Description,
-                overload.FixedParameters.Select(fixedParam=>new FixedParameterRecord(fixedParam.Name, fixedParam.Description, fixedParam.Type.Name, fixedParam.Required)).ToImmutableArray(),
+                overload.FixedParameters.Select(fixedParam => new FixedParameterRecord(fixedParam.Name, fixedParam.Description, fixedParam.Type.Name, fixedParam.Required)).ToImmutableArray(),
                 overload.MinimumArgumentCount,
                 overload.MaximumArgumentCount,
                 overload.VariableParameter == null ? null : new VariableParameterRecord(overload.VariableParameter.NamePrefix, overload.VariableParameter.Description, overload.VariableParameter.Type.Name, overload.VariableParameter.MinimumCount),

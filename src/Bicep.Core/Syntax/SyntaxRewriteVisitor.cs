@@ -73,29 +73,6 @@ namespace Bicep.Core.Syntax
             return hasChanges;
         }
 
-        private bool TryRewriteStrict<TSyntax, TOut>(TSyntax? syntax, [NotNullIfNotNull("syntax")] out TOut? newSyntax)
-            where TSyntax : SyntaxBase
-            where TOut: SyntaxBase
-        {
-            if (syntax is null)
-            {
-                newSyntax = null;
-                return false;
-            }
-
-            var newSyntaxUntyped = RewriteInternal(syntax);
-            var hasChanges = !object.ReferenceEquals(syntax, newSyntaxUntyped);
-
-            if (newSyntaxUntyped is not TOut newSyntaxTyped)
-            {
-                throw new InvalidOperationException($"Expected {nameof(currentSyntax)} to be of type {typeof(TSyntax)}");
-            }
-
-            newSyntax = newSyntaxTyped;
-            return hasChanges;
-        }
-
-
         private bool TryRewrite(IEnumerable<SyntaxBase> syntaxes, out IEnumerable<SyntaxBase> newSyntaxes)
             => TryRewriteStrict<SyntaxBase>(syntaxes, out newSyntaxes);
 
@@ -173,6 +150,36 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax) => ReplaceCurrent(syntax, ReplaceParameterDefaultValueSyntax);
 
+        protected virtual SyntaxBase VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewriteStrict(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewriteStrict(syntax.Value, out var value);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ParameterAssignmentSyntax(keyword, name, assignment, value);
+        }
+        void ISyntaxVisitor.VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax) => ReplaceCurrent(syntax, VisitParameterAssignmentSyntax);
+
+        protected virtual SyntaxBase VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Path, out var path);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new UsingDeclarationSyntax(keyword, path);
+        }
+        void ISyntaxVisitor.VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax) => ReplaceCurrent(syntax, VisitUsingDeclarationSyntax);
+        
         protected virtual SyntaxBase ReplaceVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
@@ -277,9 +284,9 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
             hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
-            hasChanges |= TryRewriteStrict(syntax.AliasName, out var aliasName);
-            hasChanges |= TryRewriteStrict(syntax.FromKeyword, out var fromKeyword);
             hasChanges |= TryRewriteStrict(syntax.ProviderName, out var providerName);
+            hasChanges |= TryRewriteStrict(syntax.AsKeyword, out var asKeyword);
+            hasChanges |= TryRewriteStrict(syntax.AliasName, out var aliasName);
             hasChanges |= TryRewrite(syntax.Config, out var config);
 
             if (!hasChanges)
@@ -287,7 +294,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ImportDeclarationSyntax(leadingNodes, keyword, aliasName, fromKeyword, providerName, config);
+            return new ImportDeclarationSyntax(leadingNodes, keyword, aliasName, asKeyword, providerName, config);
         }
         void ISyntaxVisitor.VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceImportDeclarationSyntax);
 
@@ -304,7 +311,21 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitIdentifierSyntax(IdentifierSyntax syntax) => ReplaceCurrent(syntax, ReplaceIdentifierSyntax);
 
-        protected virtual SyntaxBase ReplaceTypeSyntax(TypeSyntax syntax)
+        protected virtual SyntaxBase ReplaceResourceTypeSyntax(ResourceTypeSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Type, out var type);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ResourceTypeSyntax(keyword, type);
+        }
+        void ISyntaxVisitor.VisitResourceTypeSyntax(ResourceTypeSyntax syntax) => ReplaceCurrent(syntax, ReplaceResourceTypeSyntax);
+
+        protected virtual SyntaxBase ReplaceSimpleTypeSyntax(SimpleTypeSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.Identifier, out var identifier);
 
@@ -313,9 +334,9 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new TypeSyntax(identifier);
+            return new SimpleTypeSyntax(identifier);
         }
-        void ISyntaxVisitor.VisitTypeSyntax(TypeSyntax syntax) => ReplaceCurrent(syntax, ReplaceTypeSyntax);
+        void ISyntaxVisitor.VisitSimpleTypeSyntax(SimpleTypeSyntax syntax) => ReplaceCurrent(syntax, ReplaceSimpleTypeSyntax);
 
         protected virtual SyntaxBase ReplaceBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
         {
@@ -373,7 +394,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new IntegerLiteralSyntax(literal, long.Parse(literal.Text));
+            return new IntegerLiteralSyntax(literal, ulong.Parse(literal.Text));
         }
         void ISyntaxVisitor.VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax) => ReplaceCurrent(syntax, ReplaceIntegerLiteralSyntax);
 
@@ -572,7 +593,7 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = TryRewriteStrict(syntax.Name, out var name);
             hasChanges |= TryRewriteStrict(syntax.OpenParen, out var openParen);
-            hasChanges |= TryRewriteStrict(syntax.Arguments, out var arguments);
+            hasChanges |= TryRewriteStrict(syntax.Children, out var children);
             hasChanges |= TryRewriteStrict(syntax.CloseParen, out var closeParen);
 
             if (!hasChanges)
@@ -580,7 +601,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new FunctionCallSyntax(name, openParen, arguments, closeParen);
+            return new FunctionCallSyntax(name, openParen, children, closeParen);
         }
         void ISyntaxVisitor.VisitFunctionCallSyntax(FunctionCallSyntax syntax) => ReplaceCurrent(syntax, ReplaceFunctionCallSyntax);
 
@@ -590,7 +611,7 @@ namespace Bicep.Core.Syntax
             hasChanges |= TryRewriteStrict(syntax.Dot, out var dot);
             hasChanges |= TryRewriteStrict(syntax.Name, out var name);
             hasChanges |= TryRewriteStrict(syntax.OpenParen, out var openParen);
-            hasChanges |= TryRewriteStrict(syntax.Arguments, out var arguments);
+            hasChanges |= TryRewriteStrict(syntax.Children, out var children);
             hasChanges |= TryRewriteStrict(syntax.CloseParen, out var closeParen);
 
             if (!hasChanges)
@@ -598,7 +619,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new InstanceFunctionCallSyntax(baseExpression, dot, name, openParen, arguments, closeParen);
+            return new InstanceFunctionCallSyntax(baseExpression, dot, name, openParen, children, closeParen);
         }
 
         void ISyntaxVisitor.VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax) => ReplaceCurrent(syntax, ReplaceInstanceFunctionCallSyntax);
@@ -606,14 +627,13 @@ namespace Bicep.Core.Syntax
         protected virtual SyntaxBase ReplaceFunctionArgumentSyntax(FunctionArgumentSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.Expression, out var expression);
-            hasChanges |= TryRewriteStrict(syntax.Comma, out var comma);
 
             if (!hasChanges)
             {
                 return syntax;
             }
 
-            return new FunctionArgumentSyntax(expression, comma);
+            return new FunctionArgumentSyntax(expression);
         }
         void ISyntaxVisitor.VisitFunctionArgumentSyntax(FunctionArgumentSyntax syntax) => ReplaceCurrent(syntax, ReplaceFunctionArgumentSyntax);
 
@@ -666,12 +686,10 @@ namespace Bicep.Core.Syntax
 
         void ISyntaxVisitor.VisitForSyntax(ForSyntax syntax) => ReplaceCurrent(syntax, ReplaceForSyntax);
 
-        protected virtual SyntaxBase ReplaceForVariableBlockSyntax(ForVariableBlockSyntax syntax)
+        protected virtual SyntaxBase ReplaceVariableBlockSyntax(VariableBlockSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.OpenParen, out var openParen);
-            hasChanges |= TryRewriteStrict(syntax.ItemVariable, out var itemVariable);
-            hasChanges |= TryRewrite(syntax.Comma, out var comma);
-            hasChanges |= TryRewriteStrict(syntax.IndexVariable, out var indexVariable);
+            hasChanges |= TryRewriteStrict(syntax.Children, out var children);
             hasChanges |= TryRewrite(syntax.CloseParen, out var closeParen);
 
             if (!hasChanges)
@@ -679,10 +697,10 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ForVariableBlockSyntax(openParen, itemVariable, comma, indexVariable, closeParen);
+            return new VariableBlockSyntax(openParen, children, closeParen);
         }
 
-        void ISyntaxVisitor.VisitForVariableBlockSyntax(ForVariableBlockSyntax syntax) => ReplaceCurrent(syntax, ReplaceForVariableBlockSyntax);
+        void ISyntaxVisitor.VisitVariableBlockSyntax(VariableBlockSyntax syntax) => ReplaceCurrent(syntax, ReplaceVariableBlockSyntax);
 
         protected virtual SyntaxBase ReplaceDecoratorSyntax(DecoratorSyntax syntax)
         {
@@ -710,5 +728,20 @@ namespace Bicep.Core.Syntax
             return new MissingDeclarationSyntax(leadingNodes);
         }
         void ISyntaxVisitor.VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceMissingDeclarationSyntax);
+
+        protected virtual SyntaxBase ReplaceLambdaSyntax(LambdaSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.VariableSection, out var variableSection);
+            hasChanges |= TryRewriteStrict(syntax.Arrow, out var arrow);
+            hasChanges |= TryRewrite(syntax.Body, out var body);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new LambdaSyntax(variableSection, arrow, body);
+        }
+        void ISyntaxVisitor.VisitLambdaSyntax(LambdaSyntax syntax) => ReplaceCurrent(syntax, ReplaceLambdaSyntax);
     }
 }

@@ -2,7 +2,10 @@
   {
     "label": "any",
     "kind": "function",
-    "detail": "any()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nany(value: any): any\n\n```\nConverts the specified value to the `any` type.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_any",
@@ -13,6 +16,7 @@
       "newText": "any($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -138,7 +142,10 @@
   {
     "label": "array",
     "kind": "function",
-    "detail": "array()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\narray(valueToConvert: any): array\n\n```\nConverts the value to an array.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_array",
@@ -149,6 +156,7 @@
       "newText": "array($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -200,6 +208,7 @@
       "newText": "az."
     },
     "command": {
+      "title": "symbol completion",
       "command": "editor.action.triggerSuggest"
     }
   },
@@ -325,7 +334,10 @@
   {
     "label": "base64",
     "kind": "function",
-    "detail": "base64()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbase64(inputString: string): string\n\n```\nReturns the base64 representation of the input string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_base64",
@@ -336,13 +348,17 @@
       "newText": "base64($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "base64ToJson",
     "kind": "function",
-    "detail": "base64ToJson()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbase64ToJson(base64Value: string): any\n\n```\nConverts a base64 representation to a JSON object.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_base64ToJson",
@@ -353,13 +369,17 @@
       "newText": "base64ToJson($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "base64ToString",
     "kind": "function",
-    "detail": "base64ToString()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbase64ToString(base64Value: string): string\n\n```\nConverts a base64 representation to a string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_base64ToString",
@@ -370,6 +390,7 @@
       "newText": "base64ToString($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -393,7 +414,10 @@
   {
     "label": "bool",
     "kind": "function",
-    "detail": "bool()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbool(value: any): bool\n\n```\nConverts the parameter to a boolean.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_bool",
@@ -404,6 +428,7 @@
       "newText": "bool($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -427,7 +452,10 @@
   {
     "label": "coalesce",
     "kind": "function",
-    "detail": "coalesce()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ncoalesce(... : any): any\n\n```\nReturns first non-null value from the parameters. Empty strings, empty arrays, and empty objects are not null.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_coalesce",
@@ -438,6 +466,7 @@
       "newText": "coalesce($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -580,7 +609,10 @@
   {
     "label": "concat",
     "kind": "function",
-    "detail": "concat()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nconcat(... : array): array\nconcat(... : bool | int | string): string\n\n```\nCombines multiple arrays and returns the concatenated array, or combines multiple string values and returns the concatenated string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_concat",
@@ -591,13 +623,17 @@
       "newText": "concat($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "contains",
     "kind": "function",
-    "detail": "contains()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ncontains(object: object, propertyName: string): bool\ncontains(array: array, itemToFind: any): bool\ncontains(string: string, itemToFind: string): bool\n\n```\nChecks whether an array contains a value, an object contains a key, or a string contains a substring. The string comparison is case-sensitive. However, when testing if an object contains a key, the comparison is case-insensitive.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_contains",
@@ -608,6 +644,7 @@
       "newText": "contains($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -713,7 +750,10 @@
   {
     "label": "dataUri",
     "kind": "function",
-    "detail": "dataUri()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndataUri(valueToConvert: any): string\n\n```\nConverts a value to a data URI.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_dataUri",
@@ -724,13 +764,17 @@
       "newText": "dataUri($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "dataUriToString",
     "kind": "function",
-    "detail": "dataUriToString()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndataUriToString(dataUriToConvert: string): string\n\n```\nConverts a data URI formatted value to a string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_dataUriToString",
@@ -741,13 +785,17 @@
       "newText": "dataUriToString($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "dateTimeAdd",
     "kind": "function",
-    "detail": "dateTimeAdd()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndateTimeAdd(base: string, duration: string, [format: string]): string\n\n```\nAdds a time duration to a base value. ISO 8601 format is expected.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_dateTimeAdd",
@@ -758,6 +806,49 @@
       "newText": "dateTimeAdd($0)"
     },
     "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "dateTimeFromEpoch",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndateTimeFromEpoch([epochTime: int]): string\n\n```\nConverts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dateTimeFromEpoch",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "dateTimeFromEpoch($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "dateTimeToEpoch",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndateTimeToEpoch([dateTime: string]): int\n\n```\nConverts an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string to an epoch time integer value.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dateTimeToEpoch",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "dateTimeToEpoch($0)"
+    },
+    "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -778,7 +869,10 @@
   {
     "label": "deployment",
     "kind": "function",
-    "detail": "deployment()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndeployment(): deployment\n\n```\nReturns information about the current deployment operation.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_deployment",
@@ -1706,7 +1800,10 @@
   {
     "label": "empty",
     "kind": "function",
-    "detail": "empty()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nempty(itemToTest: array | null | object | string): bool\n\n```\nDetermines if an array, object, or string is empty.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_empty",
@@ -1717,6 +1814,7 @@
       "newText": "empty($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -1737,7 +1835,10 @@
   {
     "label": "endsWith",
     "kind": "function",
-    "detail": "endsWith()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nendsWith(stringToSearch: string, stringToFind: string): bool\n\n```\nDetermines whether a string ends with a value. The comparison is case-insensitive.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_endsWith",
@@ -1748,13 +1849,17 @@
       "newText": "endsWith($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "environment",
     "kind": "function",
-    "detail": "environment()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nenvironment(): environment\n\n```\nReturns information about the Azure environment used for deployment.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_environment",
@@ -2173,7 +2278,10 @@
   {
     "label": "extensionResourceId",
     "kind": "function",
-    "detail": "extensionResourceId()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nextensionResourceId(resourceId: string, resourceType: string, ... : string): string\n\n```\nReturns the resource ID for an [extension](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/extension-resource-types) resource, which is a resource type that is applied to another resource to add to its capabilities.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_extensionResourceId",
@@ -2184,13 +2292,38 @@
       "newText": "extensionResourceId($0)"
     },
     "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "filter",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nfilter(array: array, predicate: any => bool): array\n\n```\nFilters an array with a custom filtering function.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_filter",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "filter($0)"
+    },
+    "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "first",
     "kind": "function",
-    "detail": "first()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nfirst(array: array): any\nfirst(string: string): string\n\n```\nReturns the first element of the array, or first character of the string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_first",
@@ -2201,7 +2334,25 @@
       "newText": "first($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "flatten",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nflatten(... : array[]): array\n\n```\nTakes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_flatten",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "flatten()$0"
     }
   },
   {
@@ -2241,7 +2392,10 @@
   {
     "label": "format",
     "kind": "function",
-    "detail": "format()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nformat(formatString: string, ... : any): string\n\n```\nCreates a formatted string from input values.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_format",
@@ -2252,13 +2406,17 @@
       "newText": "format($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "guid",
     "kind": "function",
-    "detail": "guid()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nguid(... : string): string\n\n```\nCreates a value in the format of a globally unique identifier based on the values provided as parameters.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_guid",
@@ -2269,7 +2427,22 @@
       "newText": "guid($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "if-else",
+    "kind": "snippet",
+    "detail": "if-else",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_if-else",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "${1:condition} ? ${2:TrueValue} : ${3:FalseValue}"
     }
   },
   {
@@ -2292,7 +2465,10 @@
   {
     "label": "indexOf",
     "kind": "function",
-    "detail": "indexOf()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nindexOf(stringToSearch: string, stringToFind: string): int\nindexOf(array: array, itemToFind: any): int\n\n```\nReturns the first position of a value within a string. The comparison is case-insensitive.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_indexOf",
@@ -2303,13 +2479,17 @@
       "newText": "indexOf($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "int",
     "kind": "function",
-    "detail": "int()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nint(valueToConvert: int | string): int\n\n```\nConverts the specified value to an integer.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_int",
@@ -2320,6 +2500,7 @@
       "newText": "int($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2340,7 +2521,10 @@
   {
     "label": "intersection",
     "kind": "function",
-    "detail": "intersection()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nintersection(... : object): object\nintersection(... : array): array\n\n```\nReturns a single array or object with the common elements from the parameters.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_intersection",
@@ -2351,6 +2535,7 @@
       "newText": "intersection($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2696,7 +2881,10 @@
   {
     "label": "items",
     "kind": "function",
-    "detail": "items()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nitems(object: object): object[]\n\n```\nReturns an array of keys and values for an object. Elements are consistently ordered alphabetically by key.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_items",
@@ -2707,13 +2895,38 @@
       "newText": "items($0)"
     },
     "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "join",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\njoin(inputArray: string[], delimiter: string): string\n\n```\nJoins multiple strings into a single string, separated using a delimiter.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_join",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "join($0)"
+    },
+    "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "json",
     "kind": "function",
-    "detail": "json()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\njson(json: string): any\n\n```\nConverts a valid JSON string into a JSON data type.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_json",
@@ -2724,13 +2937,17 @@
       "newText": "json($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "last",
     "kind": "function",
-    "detail": "last()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nlast(array: array): any\nlast(string: string): string\n\n```\nReturns the last element of the array, or last character of the string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_last",
@@ -2741,13 +2958,17 @@
       "newText": "last($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "lastIndexOf",
     "kind": "function",
-    "detail": "lastIndexOf()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nlastIndexOf(stringToSearch: string, stringToFind: string): int\nlastIndexOf(array: array, itemToFind: any): int\n\n```\nReturns the last position of a value within a string. The comparison is case-insensitive.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_lastIndexOf",
@@ -2758,13 +2979,17 @@
       "newText": "lastIndexOf($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "length",
     "kind": "function",
-    "detail": "length()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nlength(arg: array | object | string): int\n\n```\nReturns the number of characters in a string, elements in an array, or root-level properties in an object.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_length",
@@ -2775,6 +3000,7 @@
       "newText": "length($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2809,7 +3035,10 @@
   {
     "label": "loadFileAsBase64",
     "kind": "function",
-    "detail": "loadFileAsBase64()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nloadFileAsBase64(filePath: string): string\n\n```\nLoads the specified file as base64 string. File loading occurs during compilation, not at runtime. The maximum allowed size is 96 Kb.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_loadFileAsBase64",
@@ -2820,13 +3049,38 @@
       "newText": "loadFileAsBase64($0)"
     },
     "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "loadJsonContent",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nloadJsonContent(filePath: string, [jsonPath: string], [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): any\n\n```\nLoads the specified JSON file as bicep object. File loading occurs during compilation, not at runtime.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_loadJsonContent",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loadJsonContent($0)"
+    },
+    "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "loadTextContent",
     "kind": "function",
-    "detail": "loadTextContent()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nloadTextContent(filePath: string, [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): string\n\n```\nLoads the content of the specified file into a string. Content loading occurs during compilation, not at runtime. The maximum allowed content size is 131072 characters (including line endings).\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_loadTextContent",
@@ -2837,6 +3091,7 @@
       "newText": "loadTextContent($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2956,7 +3211,10 @@
   {
     "label": "managementGroup",
     "kind": "function",
-    "detail": "managementGroup()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmanagementGroup(name: string): managementGroup\n\n```\nReturns a management group scope.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_managementGroup",
@@ -2967,13 +3225,59 @@
       "newText": "managementGroup($0)"
     },
     "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "managementGroupResourceId",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmanagementGroupResourceId(resourceType: string, ... : string): string\nmanagementGroupResourceId(managementGroupId: string, resourceType: string, ... : string): string\n\n```\nReturns the unique identifier for a resource deployed at the management group level.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_managementGroupResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "managementGroupResourceId($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "map",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmap(array: array, predicate: any => any): array\n\n```\nApplies a custom mapping function to each element of an array and returns the result array.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_map",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "map($0)"
+    },
+    "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "max",
     "kind": "function",
-    "detail": "max()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmax(... : int): int\nmax(intArray: array): int\n\n```\nReturns the maximum value from an array of integers or a comma-separated list of integers.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_max",
@@ -2984,13 +3288,17 @@
       "newText": "max($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "min",
     "kind": "function",
-    "detail": "min()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmin(... : int): int\nmin(intArray: array): int\n\n```\nReturns the minimum value from an array of integers or a comma-separated list of integers.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_min",
@@ -3001,6 +3309,7 @@
       "newText": "min($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -4143,7 +4452,10 @@
   {
     "label": "padLeft",
     "kind": "function",
-    "detail": "padLeft()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\npadLeft(valueToPad: int | string, totalLength: int, [paddingCharacter: string]): string\n\n```\nReturns a right-aligned string by adding characters to the left until reaching the total specified length.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_padLeft",
@@ -4154,13 +4466,17 @@
       "newText": "padLeft($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "pickZones",
     "kind": "function",
-    "detail": "pickZones()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\npickZones(providerNamespace: string, resourceType: string, location: string, [numberOfZones: int], [offset: int]): array\n\n```\nDetermines whether a resource type supports zones for a region.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_pickZones",
@@ -4171,6 +4487,7 @@
       "newText": "pickZones($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -4228,7 +4545,10 @@
   {
     "label": "providers",
     "kind": "function",
-    "detail": "providers()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nproviders(providerNamespace: string): Provider\nproviders(providerNamespace: string, resourceType: string): ProviderResource\n\n```\nReturns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_providers",
@@ -4239,13 +4559,17 @@
       "newText": "providers($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "range",
     "kind": "function",
-    "detail": "range()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nrange(startIndex: int, count: int): int[]\n\n```\nCreates an array of integers from a starting integer and containing a number of items.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_range",
@@ -4256,13 +4580,55 @@
       "newText": "range($0)"
     },
     "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "readOnlyPropertyAssignment",
+    "kind": "interface",
+    "detail": "readOnlyPropertyAssignment",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_readOnlyPropertyAssignment",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "readOnlyPropertyAssignment"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "reduce",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nreduce(array: array, initialValue: any, predicate: (any, any) => any): array\n\n```\nReduces an array with a custom reduce function.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_reduce",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "reduce($0)"
+    },
+    "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "reference",
     "kind": "function",
-    "detail": "reference()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nreference(resourceNameOrIdentifier: string, [apiVersion: string], [full: string]): object\n\n```\nReturns an object representing a resource's runtime state.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_reference",
@@ -4273,13 +4639,17 @@
       "newText": "reference($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "replace",
     "kind": "function",
-    "detail": "replace()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nreplace(originalString: string, oldString: string, newString: string): string\n\n```\nReturns a new string with all instances of one string replaced by another string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_replace",
@@ -4290,13 +4660,17 @@
       "newText": "replace($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "resourceGroup",
     "kind": "function",
-    "detail": "resourceGroup()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresourceGroup(): resourceGroup\nresourceGroup(resourceGroupName: string): resourceGroup\nresourceGroup(subscriptionId: string, resourceGroupName: string): resourceGroup\n\n```\nReturns a resource group scope.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_resourceGroup",
@@ -4307,13 +4681,17 @@
       "newText": "resourceGroup($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "resourceId",
     "kind": "function",
-    "detail": "resourceId()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresourceId(resourceType: string, ... : string): string\nresourceId(subscriptionId: string, resourceType: string, ... : string): string\nresourceId(resourceGroupName: string, resourceType: string, ... : string): string\nresourceId(subscriptionId: string, resourceGroupName: string, resourceType: string, ... : string): string\n\n```\nReturns the unique identifier of a resource. You use this function when the resource name is ambiguous or not provisioned within the same template. The format of the returned identifier varies based on whether the deployment happens at the scope of a resource group, subscription, management group, or tenant.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_resourceId",
@@ -4324,6 +4702,7 @@
       "newText": "resourceId($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5005,7 +5384,10 @@
   {
     "label": "skip",
     "kind": "function",
-    "detail": "skip()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nskip(originalValue: array, numberToSkip: int): array\nskip(originalValue: string, numberToSkip: int): string\n\n```\nReturns a string with all the characters after the specified number of characters, or an array with all the elements after the specified number of elements.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_skip",
@@ -5016,13 +5398,38 @@
       "newText": "skip($0)"
     },
     "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "sort",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsort(array: array, predicate: (any, any) => bool): array\n\n```\nSorts an array with a custom sort function.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_sort",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "sort($0)"
+    },
+    "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "split",
     "kind": "function",
-    "detail": "split()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsplit(inputString: string, delimiter: array | string): array\n\n```\nReturns an array of strings that contains the substrings of the input string that are delimited by the specified delimiters.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_split",
@@ -5033,6 +5440,7 @@
       "newText": "split($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5073,7 +5481,10 @@
   {
     "label": "startsWith",
     "kind": "function",
-    "detail": "startsWith()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nstartsWith(stringToSearch: string, stringToFind: string): bool\n\n```\nDetermines whether a string starts with a value. The comparison is case-insensitive.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_startsWith",
@@ -5084,13 +5495,17 @@
       "newText": "startsWith($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "string",
     "kind": "function",
-    "detail": "string()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nstring(valueToConvert: any): string\n\n```\nConverts the specified value to a string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_string",
@@ -5101,6 +5516,7 @@
       "newText": "string($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5124,7 +5540,10 @@
   {
     "label": "subscription",
     "kind": "function",
-    "detail": "subscription()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsubscription(): subscription\nsubscription(subscriptionId: string): subscription\n\n```\nReturns a subscription scope.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_subscription",
@@ -5135,13 +5554,17 @@
       "newText": "subscription($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "subscriptionResourceId",
     "kind": "function",
-    "detail": "subscriptionResourceId()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsubscriptionResourceId(resourceType: string, ... : string): string\nsubscriptionResourceId(subscriptionId: string, resourceType: string, ... : string): string\n\n```\nReturns the unique identifier for a resource deployed at the subscription level.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_subscriptionResourceId",
@@ -5152,13 +5575,17 @@
       "newText": "subscriptionResourceId($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "substring",
     "kind": "function",
-    "detail": "substring()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsubstring(stringToParse: string, startIndex: int, [length: int]): string\n\n```\nReturns a substring that starts at the specified character position and contains the specified number of characters.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_substring",
@@ -5169,6 +5596,7 @@
       "newText": "substring($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5186,6 +5614,7 @@
       "newText": "sys."
     },
     "command": {
+      "title": "symbol completion",
       "command": "editor.action.triggerSuggest"
     }
   },
@@ -5206,7 +5635,10 @@
   {
     "label": "take",
     "kind": "function",
-    "detail": "take()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntake(originalValue: array, numberToTake: int): array\ntake(originalValue: string, numberToTake: int): string\n\n```\nReturns an array or string. An array has the specified number of elements from the start of the array. A string has the specified number of characters from the start of the string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_take",
@@ -5217,13 +5649,17 @@
       "newText": "take($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "tenant",
     "kind": "function",
-    "detail": "tenant()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntenant(): tenant\n\n```\nReturns the current tenant scope.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_tenant",
@@ -5254,7 +5690,10 @@
   {
     "label": "tenantResourceId",
     "kind": "function",
-    "detail": "tenantResourceId()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntenantResourceId(resourceType: string, ... : string): string\n\n```\nReturns the unique identifier for a resource deployed at the tenant level.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_tenantResourceId",
@@ -5265,13 +5704,17 @@
       "newText": "tenantResourceId($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "toLower",
     "kind": "function",
-    "detail": "toLower()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoLower(stringToChange: string): string\n\n```\nConverts the specified string to lower case.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_toLower",
@@ -5282,13 +5725,17 @@
       "newText": "toLower($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "toUpper",
     "kind": "function",
-    "detail": "toUpper()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoUpper(stringToChange: string): string\n\n```\nConverts the specified string to upper case.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_toUpper",
@@ -5299,6 +5746,7 @@
       "newText": "toUpper($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5322,7 +5770,10 @@
   {
     "label": "trim",
     "kind": "function",
-    "detail": "trim()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntrim(stringToTrim: string): string\n\n```\nRemoves all leading and trailing white-space characters from the specified string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_trim",
@@ -5333,6 +5784,7 @@
       "newText": "trim($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5356,7 +5808,10 @@
   {
     "label": "union",
     "kind": "function",
-    "detail": "union()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nunion(... : object): object\nunion(... : array): array\n\n```\nReturns a single array or object with all elements from the parameters. Duplicate values or keys are only included once.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_union",
@@ -5367,13 +5822,17 @@
       "newText": "union($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "uniqueString",
     "kind": "function",
-    "detail": "uniqueString()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nuniqueString(... : string): string\n\n```\nCreates a deterministic hash string based on the values provided as parameters. The returned value is 13 characters long.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uniqueString",
@@ -5384,13 +5843,17 @@
       "newText": "uniqueString($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "uri",
     "kind": "function",
-    "detail": "uri()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nuri(baseUri: string, relativeUri: string): string\n\n```\nCreates an absolute URI by combining the baseUri and the relativeUri string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uri",
@@ -5401,13 +5864,17 @@
       "newText": "uri($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "uriComponent",
     "kind": "function",
-    "detail": "uriComponent()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nuriComponent(stringToEncode: string): string\n\n```\nEncodes a URI.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uriComponent",
@@ -5418,13 +5885,17 @@
       "newText": "uriComponent($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
   {
     "label": "uriComponentToString",
     "kind": "function",
-    "detail": "uriComponentToString()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nuriComponentToString(uriEncodedString: string): string\n\n```\nReturns a string of a URI encoded value.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uriComponentToString",
@@ -5435,6 +5906,7 @@
       "newText": "uriComponentToString($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5668,10 +6140,11 @@
       "newText": "{\n\t$0\n}"
     },
     "command": {
+      "title": "object body completion snippet",
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "ObjectBodySnippetInsertion",
+          "EventName": "snippet/object",
           "Properties": {
             "name": "{}"
           }

@@ -19,7 +19,7 @@ namespace Bicep.Core.Syntax
         }
 
         public ImmutableArray<SyntaxBase> Children { get; }
-        
+
         public Token EndOfFile { get; }
 
         public ImmutableArray<IDiagnostic> LexerDiagnostics { get; }

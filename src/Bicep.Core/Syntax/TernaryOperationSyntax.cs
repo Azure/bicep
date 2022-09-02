@@ -8,7 +8,7 @@ namespace Bicep.Core.Syntax
     {
         public TernaryOperationSyntax(SyntaxBase conditionExpression, Token question, SyntaxBase trueExpression, SyntaxBase colon, SyntaxBase falseExpression)
         {
-            AssertTokenType(question,nameof(question), TokenType.Question);
+            AssertTokenType(question, nameof(question), TokenType.Question);
             AssertSyntaxType(colon, nameof(colon), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(colon as Token, nameof(colon), TokenType.Colon);
 

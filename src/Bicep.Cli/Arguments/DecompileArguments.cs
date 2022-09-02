@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.FileSystem;
+using LanguageConstants = Bicep.Core.LanguageConstants;
+
+
 using System.IO;
 
 namespace Bicep.Cli.Arguments
@@ -12,9 +15,13 @@ namespace Bicep.Cli.Arguments
         {
             for (var i = 0; i < args.Length; i++)
             {
-                switch (args[i].ToLowerInvariant()) {
+                switch (args[i].ToLowerInvariant())
+                {
                     case "--stdout":
                         OutputToStdOut = true;
+                        break;
+                    case "--force":
+                        AllowOverwrite = true;
                         break;
                     case "--outdir":
                         if (args.Length == i + 1)
@@ -63,7 +70,6 @@ namespace Bicep.Cli.Arguments
             {
                 throw new CommandLineException($"The --outdir and --stdout parameters cannot both be used");
             }
-
             if (OutputToStdOut && OutputFile is not null)
             {
                 throw new CommandLineException($"The --outfile and --stdout parameters cannot both be used");
@@ -83,14 +89,26 @@ namespace Bicep.Cli.Arguments
                     throw new CommandLineException(string.Format(CliResources.DirectoryDoesNotExistFormat, outputDir));
                 }
             }
+
+            if (!OutputToStdOut && !AllowOverwrite)
+            {
+                string outputFilePath = Path.ChangeExtension(PathHelper.ResolvePath(InputFile), LanguageConstants.LanguageFileExtension);
+                if (File.Exists(outputFilePath))
+                {
+                    throw new CommandLineException($"The output path \"{outputFilePath}\" already exists. Use --force to overwrite the existing file.");
+                }
+
+            }
         }
 
         public bool OutputToStdOut { get; }
-        
+
         public string InputFile { get; }
 
         public string? OutputDir { get; }
 
         public string? OutputFile { get; }
+
+        public bool AllowOverwrite { get; }
     }
 }

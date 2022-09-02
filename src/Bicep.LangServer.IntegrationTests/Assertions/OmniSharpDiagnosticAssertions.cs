@@ -7,11 +7,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LangServer.IntegrationTests.Assertions
 {
-    public static class OmniSharpDiagnosticExtensions 
+    public static class OmniSharpDiagnosticExtensions
     {
         public static OmniSharpDiagnosticAssertions Should(this Diagnostic instance)
         {
-            return new OmniSharpDiagnosticAssertions(instance); 
+            return new OmniSharpDiagnosticAssertions(instance);
         }
     }
 

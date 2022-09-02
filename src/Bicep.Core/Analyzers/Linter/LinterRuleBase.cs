@@ -11,7 +11,6 @@ using Bicep.Core.Semantics;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter
@@ -25,14 +24,14 @@ namespace Bicep.Core.Analyzers.Linter
             string description,
             Uri? docUri = null,
             DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning,
-            DiagnosticLabel? diagnosticLabel = null)
+            DiagnosticStyling diagnosticStyling = DiagnosticStyling.Default)
         {
             this.AnalyzerName = LinterAnalyzer.AnalyzerName;
             this.Code = code;
             this.Description = description;
             this.Uri = docUri;
             this.DiagnosticLevel = diagnosticLevel;
-            this.DiagnosticLabel = diagnosticLabel;
+            this.DiagnosticStyling = diagnosticStyling;
         }
 
         public string AnalyzerName { get; }
@@ -48,8 +47,8 @@ namespace Bicep.Core.Analyzers.Linter
         public Uri? Uri { get; }
 
         // If specified, adds the given diagnostic label to every diagnostic created for this rule (such as for unnecessary or obsolete code).
-        // Should be left null for most rules.
-        public DiagnosticLabel? DiagnosticLabel { get; }
+        // Should be left as None/null for most rules.
+        public DiagnosticStyling DiagnosticStyling { get; }
 
 
         /// <summary>
@@ -82,21 +81,7 @@ namespace Bicep.Core.Analyzers.Linter
 
         public IEnumerable<IDiagnostic> Analyze(SemanticModel model)
         {
-            try
-            {
-                // Expand the iteration immediately or the try/catch won't catch exceptions occuring during the rule analysis
-                // TODO: We need exception handling further up the tree in order to handle external linters.
-                return AnalyzeInternal(model).ToArray();
-            }
-            catch (Exception ex)
-            {
-                return new AnalyzerDiagnostic(
-                    this.AnalyzerName,
-                    new TextSpan(0, 0),
-                    DiagnosticLevel.Warning,
-                    LinterAnalyzer.FailedRuleCode,
-                    string.Format(CoreResources.LinterRuleExceptionMessageFormat,this.AnalyzerName, ex.Message)).AsEnumerable();
-            }
+            return AnalyzeInternal(model);
         }
 
         /// <summary>
@@ -131,7 +116,7 @@ namespace Bicep.Core.Analyzers.Linter
                 code: this.Code,
                 message: this.GetMessage(),
                 documentationUri: this.Uri,
-                label: this.DiagnosticLabel);
+                styling: this.DiagnosticStyling);
 
         /// <summary>
         /// Create a diagnostic message for a span that has a customized string
@@ -147,16 +132,19 @@ namespace Bicep.Core.Analyzers.Linter
                 code: this.Code,
                 message: this.GetMessage(values),
                 documentationUri: this.Uri,
-                label: this.DiagnosticLabel);
+                styling: this.DiagnosticStyling);
 
-        protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix fix) =>
+        protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix fix, params object[] values) =>
+            CreateFixableDiagnosticForSpan(span, new[] { fix }, values);
+
+        protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix[] fixes, params object[] values) =>
             new(analyzerName: this.AnalyzerName,
                 span: span,
                 level: this.DiagnosticLevel,
                 code: this.Code,
-                message: this.GetMessage(),
+                message: this.GetMessage(values),
                 documentationUri: this.Uri,
-                codeFixes: new[] { fix },
-                label: this.DiagnosticLabel);
+                codeFixes: fixes,
+                styling: this.DiagnosticStyling);
     }
 }

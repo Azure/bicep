@@ -3,15 +3,11 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
-using Bicep.Core.Visitors;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
@@ -34,7 +30,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
             Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap =
-                new Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>>(
+                new(
                     () => ResourceDependencyVisitor.GetResourceDependencies(
                         model,
                         new ResourceDependencyVisitor.Options { IgnoreExplicitDependsOn = true }));
@@ -45,10 +41,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private class ResourceVisitor : SyntaxVisitor
         {
-            public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            public List<IDiagnostic> diagnostics = new();
 
             private readonly NoUnnecessaryDependsOnRule parent;
-            Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap;
+            private readonly Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap;
             private readonly SemanticModel model;
 
             public ResourceVisitor(NoUnnecessaryDependsOnRule parent, Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap, SemanticModel model)

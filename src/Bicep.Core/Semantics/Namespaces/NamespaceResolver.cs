@@ -7,7 +7,6 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -103,7 +102,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Select(type => type.ResourceTypeProvider.TryGetDefinedType(type, typeReference, flags))
                 .WhereNotNull();
 
-            if (definedTypes.FirstOrDefault() is {} definedType)
+            if (definedTypes.FirstOrDefault() is { } definedType)
             {
                 return definedType;
             }

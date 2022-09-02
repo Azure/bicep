@@ -4,15 +4,20 @@
     <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- NU5104: A stable release of a package should not have a prerelease dependency -->
+    <NoWarn>$(NoWarn);NU5104</NoWarn>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <!-- Bubble up all unused usings https://github.com/dotnet/roslyn/issues/41640#issuecomment-985780130 -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <RestoreLockedMode Condition="'$(CI)' == 'true'">true</RestoreLockedMode>
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
     <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
     <!-- disable nuget packing on all projects by default -->
     <IsPackable>false</IsPackable>
-    <RuntimeIdentifiers>win-x64;linux-x64;linux-musl-x64;osx-x64</RuntimeIdentifiers>
+    <!-- WASM projects don't need runtime identifiers and the mono runtime package is missing for win-arm64 -->
+    <RuntimeIdentifiers Condition=" $(UsingMicrosoftNETSdkBlazorWebAssembly) != 'true' ">win-x64;linux-x64;linux-musl-x64;osx-x64;win-arm64;linux-arm64;osx-arm64</RuntimeIdentifiers>
   </PropertyGroup>
 
   <!-- set default framework - each project can still override -->
@@ -20,8 +25,18 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- different projects include the GenerateNotice package via different targets - this allows us to centrally manage the upgrades -->
+    <GenerateNoticePackageVersion>0.1.11</GenerateNoticePackageVersion>
+    
+    <!-- settings of the GenerateNotice tool -->
+    <GenerateNoticeRetryCount>9</GenerateNoticeRetryCount>
+    <GenerateNoticeBatchSize>100</GenerateNoticeBatchSize>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.231" PrivateAssets="All" />
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.5.107" PrivateAssets="All" />
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.3"  PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
   </ItemGroup>
 </Project>

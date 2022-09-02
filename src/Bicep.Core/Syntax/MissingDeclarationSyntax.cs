@@ -1,9 +1,7 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax

@@ -19,7 +19,7 @@ namespace Bicep.Cli {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class CliResources {
@@ -61,6 +61,15 @@ namespace Bicep.Cli {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0}: Decompilation failed with fatal error &quot;{1}&quot;.
+        /// </summary>
+        internal static string DecompilationFailedFormat {
+            get {
+                return ResourceManager.GetString("DecompilationFailedFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.
         ///You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.
         ///If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues..
@@ -68,15 +77,6 @@ namespace Bicep.Cli {
         internal static string DecompilerDisclaimerMessage {
             get {
                 return ResourceManager.GetString("DecompilerDisclaimerMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0}: Decompilation failed with fatal error &quot;{1}&quot;.
-        /// </summary>
-        internal static string DecompilationFailedFormat {
-            get {
-                return ResourceManager.GetString("DecompilationFailedFormat", resourceCulture);
             }
         }
         
@@ -90,7 +90,16 @@ namespace Bicep.Cli {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to WARNING: Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!
+        ///   Looks up a localized string similar to WARNING: Resource-typed parameters and outputs in ARM are experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!.
+        /// </summary>
+        internal static string ResourceTypesDisclaimerMessage {
+            get {
+                return ResourceManager.GetString("ResourceTypesDisclaimerMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WARNING: Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!.
         /// </summary>
         internal static string SymbolicNamesDisclaimerMessage {
             get {
@@ -104,6 +113,15 @@ namespace Bicep.Cli {
         internal static string UnrecognizedArgumentsFormat {
             get {
                 return ResourceManager.GetString("UnrecognizedArgumentsFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The specified input &quot;{0}&quot; was not recognized as a bicep file. Bicep files must use the .bicep extension..
+        /// </summary>
+        internal static string UnrecognizedFileExtensionMessage {
+            get {
+                return ResourceManager.GetString("UnrecognizedFileExtensionMessage", resourceCulture);
             }
         }
     }

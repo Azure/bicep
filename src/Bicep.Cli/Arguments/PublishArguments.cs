@@ -17,12 +17,12 @@ namespace Bicep.Cli.Arguments
                         break;
 
                     case "--target":
-                        if(isLast)
+                        if (isLast)
                         {
                             throw new CommandLineException("The --target parameter expects an argument.");
                         }
 
-                        if(this.TargetModuleReference is not null)
+                        if (this.TargetModuleReference is not null)
                         {
                             throw new CommandLineException("The --target parameter cannot be specified twice.");
                         }
@@ -32,7 +32,7 @@ namespace Bicep.Cli.Arguments
                         break;
 
                     default:
-                        if(args[i].StartsWith("--"))
+                        if (args[i].StartsWith("--"))
                         {
                             throw new CommandLineException($"Unrecognized parameter \"{args[i]}\"");
                         }
@@ -52,7 +52,7 @@ namespace Bicep.Cli.Arguments
                 throw new CommandLineException($"The input file path was not specified.");
             }
 
-            if(TargetModuleReference is null)
+            if (TargetModuleReference is null)
             {
                 throw new CommandLineException("The target module was not specified.");
             }

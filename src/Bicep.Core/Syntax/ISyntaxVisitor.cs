@@ -38,6 +38,8 @@ namespace Bicep.Core.Syntax
 
         void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax);
 
+        void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax);
+
         void VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax);
 
         void VisitParenthesizedExpressionSyntax(ParenthesizedExpressionSyntax syntax);
@@ -62,7 +64,9 @@ namespace Bicep.Core.Syntax
 
         void VisitToken(Token token);
 
-        void VisitTypeSyntax(TypeSyntax syntax);
+        void VisitSimpleTypeSyntax(SimpleTypeSyntax syntax);
+
+        void VisitResourceTypeSyntax(ResourceTypeSyntax syntax);
 
         void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax);
 
@@ -76,12 +80,16 @@ namespace Bicep.Core.Syntax
 
         void VisitForSyntax(ForSyntax syntax);
 
-        void VisitForVariableBlockSyntax(ForVariableBlockSyntax syntax);
+        void VisitVariableBlockSyntax(VariableBlockSyntax syntax);
 
         void VisitDecoratorSyntax(DecoratorSyntax syntax);
 
         void VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax);
 
         void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax);
+
+        void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax);
+        
+        void VisitLambdaSyntax(LambdaSyntax syntax);
     }
 }

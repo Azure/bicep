@@ -1,89 +1,89 @@
 
-//@[0:1) NewLine |\n|
+//@[00:01) NewLine |\n|
 // unknown declaration
 //@[22:23) NewLine |\n|
 bad
-//@[0:3) Identifier |bad|
-//@[3:5) NewLine |\n\n|
+//@[00:03) Identifier |bad|
+//@[03:05) NewLine |\n\n|
 
 // incomplete variable declaration #completionTest(0,1,2) -> declarations
 //@[73:74) NewLine |\n|
 var
-//@[0:3) Identifier |var|
-//@[3:5) NewLine |\n\n|
+//@[00:03) Identifier |var|
+//@[03:05) NewLine |\n\n|
 
 // missing identifier #completionTest(4) -> empty
 //@[49:50) NewLine |\n|
 var 
-//@[0:3) Identifier |var|
-//@[4:6) NewLine |\n\n|
+//@[00:03) Identifier |var|
+//@[04:06) NewLine |\n\n|
 
 // incomplete keyword
 //@[21:22) NewLine |\n|
 // #completionTest(0,1) -> declarations
 //@[39:40) NewLine |\n|
 v
-//@[0:1) Identifier |v|
-//@[1:2) NewLine |\n|
+//@[00:01) Identifier |v|
+//@[01:02) NewLine |\n|
 // #completionTest(0,1,2) -> declarations
 //@[41:42) NewLine |\n|
 va
-//@[0:2) Identifier |va|
-//@[2:4) NewLine |\n\n|
+//@[00:02) Identifier |va|
+//@[02:04) NewLine |\n\n|
 
 // unassigned variable
 //@[22:23) NewLine |\n|
 var foo
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |foo|
-//@[7:9) NewLine |\n\n|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |foo|
+//@[07:09) NewLine |\n\n|
 
 // #completionTest(18,19) -> symbols
 //@[36:37) NewLine |\n|
 var missingValue = 
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |missingValue|
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |missingValue|
 //@[17:18) Assignment |=|
 //@[19:21) NewLine |\n\n|
 
 // malformed identifier
 //@[23:24) NewLine |\n|
 var 2 
-//@[0:3) Identifier |var|
-//@[4:5) Integer |2|
-//@[6:7) NewLine |\n|
+//@[00:03) Identifier |var|
+//@[04:05) Integer |2|
+//@[06:07) NewLine |\n|
 var $ = 23
-//@[0:3) Identifier |var|
-//@[4:5) Unrecognized |$|
-//@[6:7) Assignment |=|
-//@[8:10) Integer |23|
+//@[00:03) Identifier |var|
+//@[04:05) Unrecognized |$|
+//@[06:07) Assignment |=|
+//@[08:10) Integer |23|
 //@[10:11) NewLine |\n|
 var # 33 = 43
-//@[0:3) Identifier |var|
-//@[4:5) Unrecognized |#|
-//@[6:8) Integer |33|
-//@[9:10) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:05) Unrecognized |#|
+//@[06:08) Integer |33|
+//@[09:10) Assignment |=|
 //@[11:13) Integer |43|
 //@[13:15) NewLine |\n\n|
 
 // no value assigned
 //@[20:21) NewLine |\n|
 var foo =
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |foo|
-//@[8:9) Assignment |=|
-//@[9:11) NewLine |\n\n|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |foo|
+//@[08:09) Assignment |=|
+//@[09:11) NewLine |\n\n|
 
 // bad =
-//@[8:9) NewLine |\n|
+//@[08:09) NewLine |\n|
 var badEquals 2
-//@[0:3) Identifier |var|
-//@[4:13) Identifier |badEquals|
+//@[00:03) Identifier |var|
+//@[04:13) Identifier |badEquals|
 //@[14:15) Integer |2|
 //@[15:16) NewLine |\n|
 var badEquals2 3 true
-//@[0:3) Identifier |var|
-//@[4:14) Identifier |badEquals2|
+//@[00:03) Identifier |var|
+//@[04:14) Identifier |badEquals2|
 //@[15:16) Integer |3|
 //@[17:21) TrueKeyword |true|
 //@[21:23) NewLine |\n\n|
@@ -91,60 +91,60 @@ var badEquals2 3 true
 // malformed identifier but type check should happen regardless
 //@[63:64) NewLine |\n|
 var 2 = x
-//@[0:3) Identifier |var|
-//@[4:5) Integer |2|
-//@[6:7) Assignment |=|
-//@[8:9) Identifier |x|
-//@[9:11) NewLine |\n\n|
+//@[00:03) Identifier |var|
+//@[04:05) Integer |2|
+//@[06:07) Assignment |=|
+//@[08:09) Identifier |x|
+//@[09:11) NewLine |\n\n|
 
 // bad token value
 //@[18:19) NewLine |\n|
 var foo = &
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |foo|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |foo|
+//@[08:09) Assignment |=|
 //@[10:11) Unrecognized |&|
 //@[11:13) NewLine |\n\n|
 
 // bad value
 //@[12:13) NewLine |\n|
 var foo = *
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |foo|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |foo|
+//@[08:09) Assignment |=|
 //@[10:11) Asterisk |*|
 //@[11:13) NewLine |\n\n|
 
 // expressions
 //@[14:15) NewLine |\n|
 var bar = x
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bar|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bar|
+//@[08:09) Assignment |=|
 //@[10:11) Identifier |x|
 //@[11:12) NewLine |\n|
 var bar = foo()
-//@[0:3) Identifier |var|
-//@[4:7) Identifier |bar|
-//@[8:9) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:07) Identifier |bar|
+//@[08:09) Assignment |=|
 //@[10:13) Identifier |foo|
 //@[13:14) LeftParen |(|
 //@[14:15) RightParen |)|
 //@[15:16) NewLine |\n|
 var x = 2 + !3
-//@[0:3) Identifier |var|
-//@[4:5) Identifier |x|
-//@[6:7) Assignment |=|
-//@[8:9) Integer |2|
+//@[00:03) Identifier |var|
+//@[04:05) Identifier |x|
+//@[06:07) Assignment |=|
+//@[08:09) Integer |2|
 //@[10:11) Plus |+|
 //@[12:13) Exclamation |!|
 //@[13:14) Integer |3|
 //@[14:15) NewLine |\n|
 var y = false ? true + 1 : !4
-//@[0:3) Identifier |var|
-//@[4:5) Identifier |y|
-//@[6:7) Assignment |=|
-//@[8:13) FalseKeyword |false|
+//@[00:03) Identifier |var|
+//@[04:05) Identifier |y|
+//@[06:07) Assignment |=|
+//@[08:13) FalseKeyword |false|
 //@[14:15) Question |?|
 //@[16:20) TrueKeyword |true|
 //@[21:22) Plus |+|
@@ -157,62 +157,62 @@ var y = false ? true + 1 : !4
 // test for array item recovery
 //@[31:32) NewLine |\n|
 var x = [
-//@[0:3) Identifier |var|
-//@[4:5) Identifier |x|
-//@[6:7) Assignment |=|
-//@[8:9) LeftSquare |[|
-//@[9:10) NewLine |\n|
+//@[00:03) Identifier |var|
+//@[04:05) Identifier |x|
+//@[06:07) Assignment |=|
+//@[08:09) LeftSquare |[|
+//@[09:10) NewLine |\n|
   3 + 4
-//@[2:3) Integer |3|
-//@[4:5) Plus |+|
-//@[6:7) Integer |4|
-//@[7:8) NewLine |\n|
+//@[02:03) Integer |3|
+//@[04:05) Plus |+|
+//@[06:07) Integer |4|
+//@[07:08) NewLine |\n|
   =
-//@[2:3) Assignment |=|
-//@[3:4) NewLine |\n|
+//@[02:03) Assignment |=|
+//@[03:04) NewLine |\n|
   !null
-//@[2:3) Exclamation |!|
-//@[3:7) NullKeyword |null|
-//@[7:8) NewLine |\n|
+//@[02:03) Exclamation |!|
+//@[03:07) NullKeyword |null|
+//@[07:08) NewLine |\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightSquare |]|
+//@[01:03) NewLine |\n\n|
 
 // test for object property recovery
 //@[36:37) NewLine |\n|
 var y = {
-//@[0:3) Identifier |var|
-//@[4:5) Identifier |y|
-//@[6:7) Assignment |=|
-//@[8:9) LeftBrace |{|
-//@[9:10) NewLine |\n|
+//@[00:03) Identifier |var|
+//@[04:05) Identifier |y|
+//@[06:07) Assignment |=|
+//@[08:09) LeftBrace |{|
+//@[09:10) NewLine |\n|
   =
-//@[2:3) Assignment |=|
-//@[3:4) NewLine |\n|
+//@[02:03) Assignment |=|
+//@[03:04) NewLine |\n|
   foo: !2
-//@[2:5) Identifier |foo|
-//@[5:6) Colon |:|
-//@[7:8) Exclamation |!|
-//@[8:9) Integer |2|
-//@[9:10) NewLine |\n|
+//@[02:05) Identifier |foo|
+//@[05:06) Colon |:|
+//@[07:08) Exclamation |!|
+//@[08:09) Integer |2|
+//@[09:10) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
 
 // utcNow and newGuid used outside a param default value
 //@[56:57) NewLine |\n|
 var test = utcNow('u')
-//@[0:3) Identifier |var|
-//@[4:8) Identifier |test|
-//@[9:10) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:08) Identifier |test|
+//@[09:10) Assignment |=|
 //@[11:17) Identifier |utcNow|
 //@[17:18) LeftParen |(|
 //@[18:21) StringComplete |'u'|
 //@[21:22) RightParen |)|
 //@[22:23) NewLine |\n|
 var test2 = newGuid()
-//@[0:3) Identifier |var|
-//@[4:9) Identifier |test2|
+//@[00:03) Identifier |var|
+//@[04:09) Identifier |test2|
 //@[10:11) Assignment |=|
 //@[12:19) Identifier |newGuid|
 //@[19:20) LeftParen |(|
@@ -222,66 +222,66 @@ var test2 = newGuid()
 // bad string escape sequence in object key
 //@[43:44) NewLine |\n|
 var test3 = {
-//@[0:3) Identifier |var|
-//@[4:9) Identifier |test3|
+//@[00:03) Identifier |var|
+//@[04:09) Identifier |test3|
 //@[10:11) Assignment |=|
 //@[12:13) LeftBrace |{|
 //@[13:14) NewLine |\n|
   'bad\escape': true
-//@[2:14) StringComplete |'bad\escape'|
+//@[02:14) StringComplete |'bad\escape'|
 //@[14:15) Colon |:|
 //@[16:20) TrueKeyword |true|
 //@[20:21) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
 
 // duplicate properties
 //@[23:24) NewLine |\n|
 var testDupe = {
-//@[0:3) Identifier |var|
-//@[4:12) Identifier |testDupe|
+//@[00:03) Identifier |var|
+//@[04:12) Identifier |testDupe|
 //@[13:14) Assignment |=|
 //@[15:16) LeftBrace |{|
 //@[16:17) NewLine |\n|
   'duplicate': true
-//@[2:13) StringComplete |'duplicate'|
+//@[02:13) StringComplete |'duplicate'|
 //@[13:14) Colon |:|
 //@[15:19) TrueKeyword |true|
 //@[19:20) NewLine |\n|
   duplicate: true
-//@[2:11) Identifier |duplicate|
+//@[02:11) Identifier |duplicate|
 //@[11:12) Colon |:|
 //@[13:17) TrueKeyword |true|
 //@[17:18) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
 
 // interpolation with type errors in key
 //@[40:41) NewLine |\n|
 var objWithInterp = {
-//@[0:3) Identifier |var|
-//@[4:17) Identifier |objWithInterp|
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |objWithInterp|
 //@[18:19) Assignment |=|
 //@[20:21) LeftBrace |{|
 //@[21:22) NewLine |\n|
   'ab${nonExistentIdentifier}cd': true
-//@[2:7) StringLeftPiece |'ab${|
-//@[7:28) Identifier |nonExistentIdentifier|
+//@[02:07) StringLeftPiece |'ab${|
+//@[07:28) Identifier |nonExistentIdentifier|
 //@[28:32) StringRightPiece |}cd'|
 //@[32:33) Colon |:|
 //@[34:38) TrueKeyword |true|
 //@[38:39) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
 
 // invalid fully qualified function access
 //@[42:43) NewLine |\n|
 var mySum = az.add(1,2)
-//@[0:3) Identifier |var|
-//@[4:9) Identifier |mySum|
+//@[00:03) Identifier |var|
+//@[04:09) Identifier |mySum|
 //@[10:11) Assignment |=|
 //@[12:14) Identifier |az|
 //@[14:15) Dot |.|
@@ -293,8 +293,8 @@ var mySum = az.add(1,2)
 //@[22:23) RightParen |)|
 //@[23:24) NewLine |\n|
 var myConcat = sys.concat('a', az.concat('b', 'c'))
-//@[0:3) Identifier |var|
-//@[4:12) Identifier |myConcat|
+//@[00:03) Identifier |var|
+//@[04:12) Identifier |myConcat|
 //@[13:14) Assignment |=|
 //@[15:18) Identifier |sys|
 //@[18:19) Dot |.|
@@ -316,8 +316,8 @@ var myConcat = sys.concat('a', az.concat('b', 'c'))
 // invalid string using double quotes
 //@[37:38) NewLine |\n|
 var doubleString = "bad string"
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |doubleString|
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |doubleString|
 //@[17:18) Assignment |=|
 //@[19:20) Unrecognized |"|
 //@[20:23) Identifier |bad|
@@ -326,14 +326,14 @@ var doubleString = "bad string"
 //@[31:33) NewLine |\n\n|
 
 var resourceGroup = ''
-//@[0:3) Identifier |var|
-//@[4:17) Identifier |resourceGroup|
+//@[00:03) Identifier |var|
+//@[04:17) Identifier |resourceGroup|
 //@[18:19) Assignment |=|
 //@[20:22) StringComplete |''|
 //@[22:23) NewLine |\n|
 var rgName = resourceGroup().name
-//@[0:3) Identifier |var|
-//@[4:10) Identifier |rgName|
+//@[00:03) Identifier |var|
+//@[04:10) Identifier |rgName|
 //@[11:12) Assignment |=|
 //@[13:26) Identifier |resourceGroup|
 //@[26:27) LeftParen |(|
@@ -345,8 +345,8 @@ var rgName = resourceGroup().name
 // this does not work at the resource group scope
 //@[49:50) NewLine |\n|
 var invalidLocationVar = deployment().location
-//@[0:3) Identifier |var|
-//@[4:22) Identifier |invalidLocationVar|
+//@[00:03) Identifier |var|
+//@[04:22) Identifier |invalidLocationVar|
 //@[23:24) Assignment |=|
 //@[25:35) Identifier |deployment|
 //@[35:36) LeftParen |(|
@@ -356,8 +356,8 @@ var invalidLocationVar = deployment().location
 //@[46:48) NewLine |\n\n|
 
 var invalidEnvironmentVar = environment().aosdufhsad
-//@[0:3) Identifier |var|
-//@[4:25) Identifier |invalidEnvironmentVar|
+//@[00:03) Identifier |var|
+//@[04:25) Identifier |invalidEnvironmentVar|
 //@[26:27) Assignment |=|
 //@[28:39) Identifier |environment|
 //@[39:40) LeftParen |(|
@@ -366,8 +366,8 @@ var invalidEnvironmentVar = environment().aosdufhsad
 //@[42:52) Identifier |aosdufhsad|
 //@[52:53) NewLine |\n|
 var invalidEnvAuthVar = environment().authentication.asdgdsag
-//@[0:3) Identifier |var|
-//@[4:21) Identifier |invalidEnvAuthVar|
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |invalidEnvAuthVar|
 //@[22:23) Assignment |=|
 //@[24:35) Identifier |environment|
 //@[35:36) LeftParen |(|
@@ -381,105 +381,105 @@ var invalidEnvAuthVar = environment().authentication.asdgdsag
 // invalid use of reserved namespace
 //@[36:37) NewLine |\n|
 var az = 1
-//@[0:3) Identifier |var|
-//@[4:6) Identifier |az|
-//@[7:8) Assignment |=|
-//@[9:10) Integer |1|
+//@[00:03) Identifier |var|
+//@[04:06) Identifier |az|
+//@[07:08) Assignment |=|
+//@[09:10) Integer |1|
 //@[10:12) NewLine |\n\n|
 
 // cannot assign a variable to a namespace
 //@[42:43) NewLine |\n|
 var invalidNamespaceAssignment = az
-//@[0:3) Identifier |var|
-//@[4:30) Identifier |invalidNamespaceAssignment|
+//@[00:03) Identifier |var|
+//@[04:30) Identifier |invalidNamespaceAssignment|
 //@[31:32) Assignment |=|
 //@[33:35) Identifier |az|
 //@[35:37) NewLine |\n\n|
 
 var objectLiteralType = {
-//@[0:3) Identifier |var|
-//@[4:21) Identifier |objectLiteralType|
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |objectLiteralType|
 //@[22:23) Assignment |=|
 //@[24:25) LeftBrace |{|
 //@[25:26) NewLine |\n|
   first: true
-//@[2:7) Identifier |first|
-//@[7:8) Colon |:|
-//@[9:13) TrueKeyword |true|
+//@[02:07) Identifier |first|
+//@[07:08) Colon |:|
+//@[09:13) TrueKeyword |true|
 //@[13:14) NewLine |\n|
   second: false
-//@[2:8) Identifier |second|
-//@[8:9) Colon |:|
+//@[02:08) Identifier |second|
+//@[08:09) Colon |:|
 //@[10:15) FalseKeyword |false|
 //@[15:16) NewLine |\n|
   third: 42
-//@[2:7) Identifier |third|
-//@[7:8) Colon |:|
-//@[9:11) Integer |42|
+//@[02:07) Identifier |third|
+//@[07:08) Colon |:|
+//@[09:11) Integer |42|
 //@[11:12) NewLine |\n|
   fourth: 'test'
-//@[2:8) Identifier |fourth|
-//@[8:9) Colon |:|
+//@[02:08) Identifier |fourth|
+//@[08:09) Colon |:|
 //@[10:16) StringComplete |'test'|
 //@[16:17) NewLine |\n|
   fifth: [
-//@[2:7) Identifier |fifth|
-//@[7:8) Colon |:|
-//@[9:10) LeftSquare |[|
+//@[02:07) Identifier |fifth|
+//@[07:08) Colon |:|
+//@[09:10) LeftSquare |[|
 //@[10:11) NewLine |\n|
     {
-//@[4:5) LeftBrace |{|
-//@[5:6) NewLine |\n|
+//@[04:05) LeftBrace |{|
+//@[05:06) NewLine |\n|
       one: true
-//@[6:9) Identifier |one|
-//@[9:10) Colon |:|
+//@[06:09) Identifier |one|
+//@[09:10) Colon |:|
 //@[11:15) TrueKeyword |true|
 //@[15:16) NewLine |\n|
     }
-//@[4:5) RightBrace |}|
-//@[5:6) NewLine |\n|
+//@[04:05) RightBrace |}|
+//@[05:06) NewLine |\n|
     {
-//@[4:5) LeftBrace |{|
-//@[5:6) NewLine |\n|
+//@[04:05) LeftBrace |{|
+//@[05:06) NewLine |\n|
       one: false
-//@[6:9) Identifier |one|
-//@[9:10) Colon |:|
+//@[06:09) Identifier |one|
+//@[09:10) Colon |:|
 //@[11:16) FalseKeyword |false|
 //@[16:17) NewLine |\n|
     }
-//@[4:5) RightBrace |}|
-//@[5:6) NewLine |\n|
+//@[04:05) RightBrace |}|
+//@[05:06) NewLine |\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:4) NewLine |\n|
+//@[02:03) RightSquare |]|
+//@[03:04) NewLine |\n|
   sixth: [
-//@[2:7) Identifier |sixth|
-//@[7:8) Colon |:|
-//@[9:10) LeftSquare |[|
+//@[02:07) Identifier |sixth|
+//@[07:08) Colon |:|
+//@[09:10) LeftSquare |[|
 //@[10:11) NewLine |\n|
     {
-//@[4:5) LeftBrace |{|
-//@[5:6) NewLine |\n|
+//@[04:05) LeftBrace |{|
+//@[05:06) NewLine |\n|
       two: 44
-//@[6:9) Identifier |two|
-//@[9:10) Colon |:|
+//@[06:09) Identifier |two|
+//@[09:10) Colon |:|
 //@[11:13) Integer |44|
 //@[13:14) NewLine |\n|
     }
-//@[4:5) RightBrace |}|
-//@[5:6) NewLine |\n|
+//@[04:05) RightBrace |}|
+//@[05:06) NewLine |\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:4) NewLine |\n|
+//@[02:03) RightSquare |]|
+//@[03:04) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
 
 // #completionTest(54) -> objectVarTopLevel
 //@[43:44) NewLine |\n|
 var objectVarTopLevelCompletions = objectLiteralType.f
-//@[0:3) Identifier |var|
-//@[4:32) Identifier |objectVarTopLevelCompletions|
+//@[00:03) Identifier |var|
+//@[04:32) Identifier |objectVarTopLevelCompletions|
 //@[33:34) Assignment |=|
 //@[35:52) Identifier |objectLiteralType|
 //@[52:53) Dot |.|
@@ -488,8 +488,8 @@ var objectVarTopLevelCompletions = objectLiteralType.f
 // #completionTest(54) -> objectVarTopLevel
 //@[43:44) NewLine |\n|
 var objectVarTopLevelCompletions2 = objectLiteralType.
-//@[0:3) Identifier |var|
-//@[4:33) Identifier |objectVarTopLevelCompletions2|
+//@[00:03) Identifier |var|
+//@[04:33) Identifier |objectVarTopLevelCompletions2|
 //@[34:35) Assignment |=|
 //@[36:53) Identifier |objectLiteralType|
 //@[53:54) Dot |.|
@@ -500,8 +500,8 @@ var objectVarTopLevelCompletions2 = objectLiteralType.
 // #completionTest(60) -> mixedArrayProperties
 //@[46:47) NewLine |\n|
 var mixedArrayTypeCompletions = objectLiteralType.fifth[0].o
-//@[0:3) Identifier |var|
-//@[4:29) Identifier |mixedArrayTypeCompletions|
+//@[00:03) Identifier |var|
+//@[04:29) Identifier |mixedArrayTypeCompletions|
 //@[30:31) Assignment |=|
 //@[32:49) Identifier |objectLiteralType|
 //@[49:50) Dot |.|
@@ -515,8 +515,8 @@ var mixedArrayTypeCompletions = objectLiteralType.fifth[0].o
 // #completionTest(60) -> mixedArrayProperties
 //@[46:47) NewLine |\n|
 var mixedArrayTypeCompletions2 = objectLiteralType.fifth[0].
-//@[0:3) Identifier |var|
-//@[4:30) Identifier |mixedArrayTypeCompletions2|
+//@[00:03) Identifier |var|
+//@[04:30) Identifier |mixedArrayTypeCompletions2|
 //@[31:32) Assignment |=|
 //@[33:50) Identifier |objectLiteralType|
 //@[50:51) Dot |.|
@@ -530,8 +530,8 @@ var mixedArrayTypeCompletions2 = objectLiteralType.fifth[0].
 // #completionTest(58) -> oneArrayItemProperties
 //@[48:49) NewLine |\n|
 var oneArrayItemCompletions = objectLiteralType.sixth[0].t
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |oneArrayItemCompletions|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |oneArrayItemCompletions|
 //@[28:29) Assignment |=|
 //@[30:47) Identifier |objectLiteralType|
 //@[47:48) Dot |.|
@@ -545,8 +545,8 @@ var oneArrayItemCompletions = objectLiteralType.sixth[0].t
 // #completionTest(58) -> oneArrayItemProperties
 //@[48:49) NewLine |\n|
 var oneArrayItemCompletions2 = objectLiteralType.sixth[0].
-//@[0:3) Identifier |var|
-//@[4:28) Identifier |oneArrayItemCompletions2|
+//@[00:03) Identifier |var|
+//@[04:28) Identifier |oneArrayItemCompletions2|
 //@[29:30) Assignment |=|
 //@[31:48) Identifier |objectLiteralType|
 //@[48:49) Dot |.|
@@ -560,8 +560,8 @@ var oneArrayItemCompletions2 = objectLiteralType.sixth[0].
 // #completionTest(65) -> objectVarTopLevelIndexes
 //@[50:51) NewLine |\n|
 var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
-//@[0:3) Identifier |var|
-//@[4:42) Identifier |objectVarTopLevelArrayIndexCompletions|
+//@[00:03) Identifier |var|
+//@[04:42) Identifier |objectVarTopLevelArrayIndexCompletions|
 //@[43:44) Assignment |=|
 //@[45:62) Identifier |objectLiteralType|
 //@[62:63) LeftSquare |[|
@@ -572,8 +572,8 @@ var objectVarTopLevelArrayIndexCompletions = objectLiteralType[f]
 // #completionTest(58) -> twoIndexPlusSymbols
 //@[45:46) NewLine |\n|
 var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
-//@[0:3) Identifier |var|
-//@[4:28) Identifier |oneArrayIndexCompletions|
+//@[00:03) Identifier |var|
+//@[04:28) Identifier |oneArrayIndexCompletions|
 //@[29:30) Assignment |=|
 //@[31:48) Identifier |objectLiteralType|
 //@[48:49) Dot |.|
@@ -588,8 +588,8 @@ var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 // Issue 486
 //@[12:13) NewLine |\n|
 var myFloat = 3.14
-//@[0:3) Identifier |var|
-//@[4:11) Identifier |myFloat|
+//@[00:03) Identifier |var|
+//@[04:11) Identifier |myFloat|
 //@[12:13) Assignment |=|
 //@[14:15) Integer |3|
 //@[15:16) Dot |.|
@@ -599,16 +599,16 @@ var myFloat = 3.14
 // secure cannot be used as a variable decorator
 //@[48:49) NewLine |\n|
 @sys.secure()
-//@[0:1) At |@|
-//@[1:4) Identifier |sys|
-//@[4:5) Dot |.|
-//@[5:11) Identifier |secure|
+//@[00:01) At |@|
+//@[01:04) Identifier |sys|
+//@[04:05) Dot |.|
+//@[05:11) Identifier |secure|
 //@[11:12) LeftParen |(|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
 var something = 1
-//@[0:3) Identifier |var|
-//@[4:13) Identifier |something|
+//@[00:03) Identifier |var|
+//@[04:13) Identifier |something|
 //@[14:15) Assignment |=|
 //@[16:17) Integer |1|
 //@[17:19) NewLine |\n\n|
@@ -616,18 +616,18 @@ var something = 1
 // #completionTest(1) -> sysAndDescription
 //@[42:43) NewLine |\n|
 @
-//@[0:1) At |@|
-//@[1:2) NewLine |\n|
+//@[00:01) At |@|
+//@[01:02) NewLine |\n|
 // #completionTest(5) -> description
 //@[36:37) NewLine |\n|
 @sys.
-//@[0:1) At |@|
-//@[1:4) Identifier |sys|
-//@[4:5) Dot |.|
-//@[5:6) NewLine |\n|
+//@[00:01) At |@|
+//@[01:04) Identifier |sys|
+//@[04:05) Dot |.|
+//@[05:06) NewLine |\n|
 var anotherThing = true
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |anotherThing|
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |anotherThing|
 //@[17:18) Assignment |=|
 //@[19:23) TrueKeyword |true|
 //@[23:25) NewLine |\n\n|
@@ -635,22 +635,22 @@ var anotherThing = true
 // invalid identifier character classes
 //@[39:40) NewLine |\n|
 var ☕ = true
-//@[0:3) Identifier |var|
-//@[4:5) Unrecognized |☕|
-//@[6:7) Assignment |=|
-//@[8:12) TrueKeyword |true|
+//@[00:03) Identifier |var|
+//@[04:05) Unrecognized |☕|
+//@[06:07) Assignment |=|
+//@[08:12) TrueKeyword |true|
 //@[12:13) NewLine |\n|
 var a☕ = true
-//@[0:3) Identifier |var|
-//@[4:5) Identifier |a|
-//@[5:6) Unrecognized |☕|
-//@[7:8) Assignment |=|
-//@[9:13) TrueKeyword |true|
+//@[00:03) Identifier |var|
+//@[04:05) Identifier |a|
+//@[05:06) Unrecognized |☕|
+//@[07:08) Assignment |=|
+//@[09:13) TrueKeyword |true|
 //@[13:15) NewLine |\n\n|
 
 var missingArrayVariable = [for thing in stuff: 4]
-//@[0:3) Identifier |var|
-//@[4:24) Identifier |missingArrayVariable|
+//@[00:03) Identifier |var|
+//@[04:24) Identifier |missingArrayVariable|
 //@[25:26) Assignment |=|
 //@[27:28) LeftSquare |[|
 //@[28:31) Identifier |for|
@@ -665,13 +665,13 @@ var missingArrayVariable = [for thing in stuff: 4]
 // loops are only allowed at the top level
 //@[42:43) NewLine |\n|
 var nonTopLevelLoop = {
-//@[0:3) Identifier |var|
-//@[4:19) Identifier |nonTopLevelLoop|
+//@[00:03) Identifier |var|
+//@[04:19) Identifier |nonTopLevelLoop|
 //@[20:21) Assignment |=|
 //@[22:23) LeftBrace |{|
 //@[23:24) NewLine |\n|
   notOkHere: [for thing in stuff: 4]
-//@[2:11) Identifier |notOkHere|
+//@[02:11) Identifier |notOkHere|
 //@[11:12) Colon |:|
 //@[13:14) LeftSquare |[|
 //@[14:17) Identifier |for|
@@ -683,14 +683,14 @@ var nonTopLevelLoop = {
 //@[35:36) RightSquare |]|
 //@[36:37) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
 
 // loops with conditions won't even parse
 //@[41:42) NewLine |\n|
 var noFilteredLoopsInVariables = [for thing in stuff: if]
-//@[0:3) Identifier |var|
-//@[4:30) Identifier |noFilteredLoopsInVariables|
+//@[00:03) Identifier |var|
+//@[04:30) Identifier |noFilteredLoopsInVariables|
 //@[31:32) Assignment |=|
 //@[33:34) LeftSquare |[|
 //@[34:37) Identifier |for|
@@ -705,8 +705,8 @@ var noFilteredLoopsInVariables = [for thing in stuff: if]
 // nested loops are also not allowed
 //@[36:37) NewLine |\n|
 var noNestedVariableLoopsEither = [for thing in stuff: {
-//@[0:3) Identifier |var|
-//@[4:31) Identifier |noNestedVariableLoopsEither|
+//@[00:03) Identifier |var|
+//@[04:31) Identifier |noNestedVariableLoopsEither|
 //@[32:33) Assignment |=|
 //@[34:35) LeftSquare |[|
 //@[35:38) Identifier |for|
@@ -717,9 +717,9 @@ var noNestedVariableLoopsEither = [for thing in stuff: {
 //@[55:56) LeftBrace |{|
 //@[56:57) NewLine |\n|
   hello: [for thing in []: 4]
-//@[2:7) Identifier |hello|
-//@[7:8) Colon |:|
-//@[9:10) LeftSquare |[|
+//@[02:07) Identifier |hello|
+//@[07:08) Colon |:|
+//@[09:10) LeftSquare |[|
 //@[10:13) Identifier |for|
 //@[14:19) Identifier |thing|
 //@[20:22) Identifier |in|
@@ -730,23 +730,23 @@ var noNestedVariableLoopsEither = [for thing in stuff: {
 //@[28:29) RightSquare |]|
 //@[29:30) NewLine |\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:02) RightSquare |]|
+//@[02:04) NewLine |\n\n|
 
 // loops in inner properties of a variable are also not supported
 //@[65:66) NewLine |\n|
 var innerPropertyLoop = {
-//@[0:3) Identifier |var|
-//@[4:21) Identifier |innerPropertyLoop|
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |innerPropertyLoop|
 //@[22:23) Assignment |=|
 //@[24:25) LeftBrace |{|
 //@[25:26) NewLine |\n|
   a: [for i in range(0,10): i]
-//@[2:3) Identifier |a|
-//@[3:4) Colon |:|
-//@[5:6) LeftSquare |[|
-//@[6:9) Identifier |for|
+//@[02:03) Identifier |a|
+//@[03:04) Colon |:|
+//@[05:06) LeftSquare |[|
+//@[06:09) Identifier |for|
 //@[10:11) Identifier |i|
 //@[12:14) Identifier |in|
 //@[15:20) Identifier |range|
@@ -760,24 +760,24 @@ var innerPropertyLoop = {
 //@[29:30) RightSquare |]|
 //@[30:31) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[00:01) RightBrace |}|
+//@[01:02) NewLine |\n|
 var innerPropertyLoop2 = {
-//@[0:3) Identifier |var|
-//@[4:22) Identifier |innerPropertyLoop2|
+//@[00:03) Identifier |var|
+//@[04:22) Identifier |innerPropertyLoop2|
 //@[23:24) Assignment |=|
 //@[25:26) LeftBrace |{|
 //@[26:27) NewLine |\n|
   b: {
-//@[2:3) Identifier |b|
-//@[3:4) Colon |:|
-//@[5:6) LeftBrace |{|
-//@[6:7) NewLine |\n|
+//@[02:03) Identifier |b|
+//@[03:04) Colon |:|
+//@[05:06) LeftBrace |{|
+//@[06:07) NewLine |\n|
     a: [for i in range(0,10): i]
-//@[4:5) Identifier |a|
-//@[5:6) Colon |:|
-//@[7:8) LeftSquare |[|
-//@[8:11) Identifier |for|
+//@[04:05) Identifier |a|
+//@[05:06) Colon |:|
+//@[07:08) LeftSquare |[|
+//@[08:11) Identifier |for|
 //@[12:13) Identifier |i|
 //@[14:16) Identifier |in|
 //@[17:22) Identifier |range|
@@ -791,18 +791,18 @@ var innerPropertyLoop2 = {
 //@[31:32) RightSquare |]|
 //@[32:33) NewLine |\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:4) NewLine |\n|
+//@[02:03) RightBrace |}|
+//@[03:04) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
 
 // loops using expressions with a runtime dependency are also not allowed
 //@[73:74) NewLine |\n|
 var keys = listKeys('fake','fake')
-//@[0:3) Identifier |var|
-//@[4:8) Identifier |keys|
-//@[9:10) Assignment |=|
+//@[00:03) Identifier |var|
+//@[04:08) Identifier |keys|
+//@[09:10) Assignment |=|
 //@[11:19) Identifier |listKeys|
 //@[19:20) LeftParen |(|
 //@[20:26) StringComplete |'fake'|
@@ -811,15 +811,15 @@ var keys = listKeys('fake','fake')
 //@[33:34) RightParen |)|
 //@[34:35) NewLine |\n|
 var indirection = keys
-//@[0:3) Identifier |var|
-//@[4:15) Identifier |indirection|
+//@[00:03) Identifier |var|
+//@[04:15) Identifier |indirection|
 //@[16:17) Assignment |=|
 //@[18:22) Identifier |keys|
 //@[22:24) NewLine |\n\n|
 
 var runtimeLoop = [for (item, index) in []: indirection]
-//@[0:3) Identifier |var|
-//@[4:15) Identifier |runtimeLoop|
+//@[00:03) Identifier |var|
+//@[04:15) Identifier |runtimeLoop|
 //@[16:17) Assignment |=|
 //@[18:19) LeftSquare |[|
 //@[19:22) Identifier |for|
@@ -836,8 +836,8 @@ var runtimeLoop = [for (item, index) in []: indirection]
 //@[55:56) RightSquare |]|
 //@[56:57) NewLine |\n|
 var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |runtimeLoop2|
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |runtimeLoop2|
 //@[17:18) Assignment |=|
 //@[19:20) LeftSquare |[|
 //@[20:23) Identifier |for|
@@ -856,15 +856,15 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
 //@[63:65) NewLine |\n\n|
 
 var zoneInput = []
-//@[0:3) Identifier |var|
-//@[4:13) Identifier |zoneInput|
+//@[00:03) Identifier |var|
+//@[04:13) Identifier |zoneInput|
 //@[14:15) Assignment |=|
 //@[16:17) LeftSquare |[|
 //@[17:18) RightSquare |]|
 //@[18:19) NewLine |\n|
 resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneInput: {
-//@[0:8) Identifier |resource|
-//@[9:14) Identifier |zones|
+//@[00:08) Identifier |resource|
+//@[09:14) Identifier |zones|
 //@[15:54) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
 //@[55:56) Assignment |=|
 //@[57:58) LeftSquare |[|
@@ -880,12 +880,12 @@ resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneI
 //@[86:87) LeftBrace |{|
 //@[87:88) NewLine |\n|
   name: zone
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:12) Identifier |zone|
+//@[02:06) Identifier |name|
+//@[06:07) Colon |:|
+//@[08:12) Identifier |zone|
 //@[12:13) NewLine |\n|
   location: az.resourceGroup().location
-//@[2:10) Identifier |location|
+//@[02:10) Identifier |location|
 //@[10:11) Colon |:|
 //@[12:14) Identifier |az|
 //@[14:15) Dot |.|
@@ -896,12 +896,12 @@ resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneI
 //@[31:39) Identifier |location|
 //@[39:40) NewLine |\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:3) NewLine |\n|
+//@[00:01) RightBrace |}|
+//@[01:02) RightSquare |]|
+//@[02:03) NewLine |\n|
 var inlinedVariable = zones[0].properties.zoneType
-//@[0:3) Identifier |var|
-//@[4:19) Identifier |inlinedVariable|
+//@[00:03) Identifier |var|
+//@[04:19) Identifier |inlinedVariable|
 //@[20:21) Assignment |=|
 //@[22:27) Identifier |zones|
 //@[27:28) LeftSquare |[|
@@ -914,8 +914,8 @@ var inlinedVariable = zones[0].properties.zoneType
 //@[50:52) NewLine |\n\n|
 
 var runtimeLoop3 = [for (zone, i) in zoneInput: {
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |runtimeLoop3|
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |runtimeLoop3|
 //@[17:18) Assignment |=|
 //@[19:20) LeftSquare |[|
 //@[20:23) Identifier |for|
@@ -930,18 +930,18 @@ var runtimeLoop3 = [for (zone, i) in zoneInput: {
 //@[48:49) LeftBrace |{|
 //@[49:50) NewLine |\n|
   a: inlinedVariable
-//@[2:3) Identifier |a|
-//@[3:4) Colon |:|
-//@[5:20) Identifier |inlinedVariable|
+//@[02:03) Identifier |a|
+//@[03:04) Colon |:|
+//@[05:20) Identifier |inlinedVariable|
 //@[20:21) NewLine |\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:02) RightSquare |]|
+//@[02:04) NewLine |\n\n|
 
 var runtimeLoop4 = [for (zone, i) in zones[0].properties.registrationVirtualNetworks: {
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |runtimeLoop4|
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |runtimeLoop4|
 //@[17:18) Assignment |=|
 //@[19:20) LeftSquare |[|
 //@[20:23) Identifier |for|
@@ -963,18 +963,18 @@ var runtimeLoop4 = [for (zone, i) in zones[0].properties.registrationVirtualNetw
 //@[86:87) LeftBrace |{|
 //@[87:88) NewLine |\n|
   a: 0
-//@[2:3) Identifier |a|
-//@[3:4) Colon |:|
-//@[5:6) Integer |0|
-//@[6:7) NewLine |\n|
+//@[02:03) Identifier |a|
+//@[03:04) Colon |:|
+//@[05:06) Integer |0|
+//@[06:07) NewLine |\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:02) RightSquare |]|
+//@[02:04) NewLine |\n\n|
 
 var notRuntime = concat('a','b')
-//@[0:3) Identifier |var|
-//@[4:14) Identifier |notRuntime|
+//@[00:03) Identifier |var|
+//@[04:14) Identifier |notRuntime|
 //@[15:16) Assignment |=|
 //@[17:23) Identifier |concat|
 //@[23:24) LeftParen |(|
@@ -984,8 +984,8 @@ var notRuntime = concat('a','b')
 //@[31:32) RightParen |)|
 //@[32:33) NewLine |\n|
 var evenMoreIndirection = concat(notRuntime, string(moreIndirection))
-//@[0:3) Identifier |var|
-//@[4:23) Identifier |evenMoreIndirection|
+//@[00:03) Identifier |var|
+//@[04:23) Identifier |evenMoreIndirection|
 //@[24:25) Assignment |=|
 //@[26:32) Identifier |concat|
 //@[32:33) LeftParen |(|
@@ -998,8 +998,8 @@ var evenMoreIndirection = concat(notRuntime, string(moreIndirection))
 //@[68:69) RightParen |)|
 //@[69:70) NewLine |\n|
 var moreIndirection = reference('s','s', 'Full')
-//@[0:3) Identifier |var|
-//@[4:19) Identifier |moreIndirection|
+//@[00:03) Identifier |var|
+//@[04:19) Identifier |moreIndirection|
 //@[20:21) Assignment |=|
 //@[22:31) Identifier |reference|
 //@[31:32) LeftParen |(|
@@ -1012,20 +1012,20 @@ var moreIndirection = reference('s','s', 'Full')
 //@[48:50) NewLine |\n\n|
 
 var myRef = [
-//@[0:3) Identifier |var|
-//@[4:9) Identifier |myRef|
+//@[00:03) Identifier |var|
+//@[04:09) Identifier |myRef|
 //@[10:11) Assignment |=|
 //@[12:13) LeftSquare |[|
 //@[13:14) NewLine |\n|
   evenMoreIndirection
-//@[2:21) Identifier |evenMoreIndirection|
+//@[02:21) Identifier |evenMoreIndirection|
 //@[21:22) NewLine |\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:2) NewLine |\n|
+//@[00:01) RightSquare |]|
+//@[01:02) NewLine |\n|
 var runtimeLoop5 = [for (item, index) in myRef: 's']
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |runtimeLoop5|
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |runtimeLoop5|
 //@[17:18) Assignment |=|
 //@[19:20) LeftSquare |[|
 //@[20:23) Identifier |for|
@@ -1044,8 +1044,8 @@ var runtimeLoop5 = [for (item, index) in myRef: 's']
 // cannot use loops in expressions
 //@[34:35) NewLine |\n|
 var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
-//@[0:3) Identifier |var|
-//@[4:18) Identifier |loopExpression|
+//@[00:03) Identifier |var|
+//@[04:18) Identifier |loopExpression|
 //@[19:20) Assignment |=|
 //@[21:26) Identifier |union|
 //@[26:27) LeftParen |(|
@@ -1070,15 +1070,15 @@ var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 //@[79:81) NewLine |\n\n|
 
 @batchSize(1)
-//@[0:1) At |@|
-//@[1:10) Identifier |batchSize|
+//@[00:01) At |@|
+//@[01:10) Identifier |batchSize|
 //@[10:11) LeftParen |(|
 //@[11:12) Integer |1|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
 var batchSizeMakesNoSenseHere = false
-//@[0:3) Identifier |var|
-//@[4:29) Identifier |batchSizeMakesNoSenseHere|
+//@[00:03) Identifier |var|
+//@[04:29) Identifier |batchSizeMakesNoSenseHere|
 //@[30:31) Assignment |=|
 //@[32:37) FalseKeyword |false|
 //@[37:40) NewLine |\n\n\n|
@@ -1087,25 +1087,25 @@ var batchSizeMakesNoSenseHere = false
 //KeyVault Secret Reference
 //@[27:28) NewLine |\n|
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-//@[0:8) Identifier |resource|
-//@[9:11) Identifier |kv|
+//@[00:08) Identifier |resource|
+//@[09:11) Identifier |kv|
 //@[12:50) StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
 //@[51:59) Identifier |existing|
 //@[60:61) Assignment |=|
 //@[62:63) LeftBrace |{|
 //@[63:64) NewLine |\n|
   name: 'testkeyvault'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:22) StringComplete |'testkeyvault'|
+//@[02:06) Identifier |name|
+//@[06:07) Colon |:|
+//@[08:22) StringComplete |'testkeyvault'|
 //@[22:23) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
 
 var keyVaultSecretVar = kv.getSecret('mySecret')
-//@[0:3) Identifier |var|
-//@[4:21) Identifier |keyVaultSecretVar|
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |keyVaultSecretVar|
 //@[22:23) Assignment |=|
 //@[24:26) Identifier |kv|
 //@[26:27) Dot |.|
@@ -1115,8 +1115,8 @@ var keyVaultSecretVar = kv.getSecret('mySecret')
 //@[47:48) RightParen |)|
 //@[48:49) NewLine |\n|
 var keyVaultSecretInterpolatedVar = '${kv.getSecret('mySecret')}'
-//@[0:3) Identifier |var|
-//@[4:33) Identifier |keyVaultSecretInterpolatedVar|
+//@[00:03) Identifier |var|
+//@[04:33) Identifier |keyVaultSecretInterpolatedVar|
 //@[34:35) Assignment |=|
 //@[36:39) StringLeftPiece |'${|
 //@[39:41) Identifier |kv|
@@ -1128,14 +1128,14 @@ var keyVaultSecretInterpolatedVar = '${kv.getSecret('mySecret')}'
 //@[63:65) StringRightPiece |}'|
 //@[65:66) NewLine |\n|
 var keyVaultSecretObjectVar = {
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |keyVaultSecretObjectVar|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |keyVaultSecretObjectVar|
 //@[28:29) Assignment |=|
 //@[30:31) LeftBrace |{|
 //@[31:32) NewLine |\n|
   secret: kv.getSecret('mySecret')
-//@[2:8) Identifier |secret|
-//@[8:9) Colon |:|
+//@[02:08) Identifier |secret|
+//@[08:09) Colon |:|
 //@[10:12) Identifier |kv|
 //@[12:13) Dot |.|
 //@[13:22) Identifier |getSecret|
@@ -1144,43 +1144,73 @@ var keyVaultSecretObjectVar = {
 //@[33:34) RightParen |)|
 //@[34:35) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[00:01) RightBrace |}|
+//@[01:02) NewLine |\n|
 var keyVaultSecretArrayVar = [
-//@[0:3) Identifier |var|
-//@[4:26) Identifier |keyVaultSecretArrayVar|
+//@[00:03) Identifier |var|
+//@[04:26) Identifier |keyVaultSecretArrayVar|
 //@[27:28) Assignment |=|
 //@[29:30) LeftSquare |[|
 //@[30:31) NewLine |\n|
   kv.getSecret('mySecret')
-//@[2:4) Identifier |kv|
-//@[4:5) Dot |.|
-//@[5:14) Identifier |getSecret|
+//@[02:04) Identifier |kv|
+//@[04:05) Dot |.|
+//@[05:14) Identifier |getSecret|
 //@[14:15) LeftParen |(|
 //@[15:25) StringComplete |'mySecret'|
 //@[25:26) RightParen |)|
 //@[26:27) NewLine |\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:2) NewLine |\n|
+//@[00:01) RightSquare |]|
+//@[01:02) NewLine |\n|
 var keyVaultSecretArrayInterpolatedVar = [
-//@[0:3) Identifier |var|
-//@[4:38) Identifier |keyVaultSecretArrayInterpolatedVar|
+//@[00:03) Identifier |var|
+//@[04:38) Identifier |keyVaultSecretArrayInterpolatedVar|
 //@[39:40) Assignment |=|
 //@[41:42) LeftSquare |[|
 //@[42:43) NewLine |\n|
   '${kv.getSecret('mySecret')}'
-//@[2:5) StringLeftPiece |'${|
-//@[5:7) Identifier |kv|
-//@[7:8) Dot |.|
-//@[8:17) Identifier |getSecret|
+//@[02:05) StringLeftPiece |'${|
+//@[05:07) Identifier |kv|
+//@[07:08) Dot |.|
+//@[08:17) Identifier |getSecret|
 //@[17:18) LeftParen |(|
 //@[18:28) StringComplete |'mySecret'|
 //@[28:29) RightParen |)|
 //@[29:31) StringRightPiece |}'|
 //@[31:32) NewLine |\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:2) NewLine |\n|
+//@[00:01) RightSquare |]|
+//@[01:03) NewLine |\n\n|
 
-//@[0:0) EndOfFile ||
+var copy = [
+//@[00:03) Identifier |var|
+//@[04:08) Identifier |copy|
+//@[09:10) Assignment |=|
+//@[11:12) LeftSquare |[|
+//@[12:13) NewLine |\n|
+  {
+//@[02:03) LeftBrace |{|
+//@[03:04) NewLine |\n|
+    name: 'one'
+//@[04:08) Identifier |name|
+//@[08:09) Colon |:|
+//@[10:15) StringComplete |'one'|
+//@[15:16) NewLine |\n|
+    count: '[notAFunction()]'
+//@[04:09) Identifier |count|
+//@[09:10) Colon |:|
+//@[11:29) StringComplete |'[notAFunction()]'|
+//@[29:30) NewLine |\n|
+    input: {}
+//@[04:09) Identifier |input|
+//@[09:10) Colon |:|
+//@[11:12) LeftBrace |{|
+//@[12:13) RightBrace |}|
+//@[13:14) NewLine |\n|
+  }
+//@[02:03) RightBrace |}|
+//@[03:04) NewLine |\n|
+]
+//@[00:01) RightSquare |]|
+//@[01:01) EndOfFile ||

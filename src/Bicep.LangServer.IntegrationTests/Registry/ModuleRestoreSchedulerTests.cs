@@ -19,7 +19,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -58,7 +57,7 @@ namespace Bicep.LangServer.UnitTests.Registry
                 await scheduler.DisposeAsync();
             }
 
-            await using(var scheduler = new ModuleRestoreScheduler(moduleDispatcher.Object))
+            await using (var scheduler = new ModuleRestoreScheduler(moduleDispatcher.Object))
             {
                 await Task.Yield();
                 await Task.Delay(TimeSpan.FromSeconds(1));
@@ -129,7 +128,7 @@ namespace Bicep.LangServer.UnitTests.Registry
                     throw new AssertFailedException("Scheduler did not perform the expected restores.");
                 }
 
-                if(mockRegistry.ModuleRestores.TryPop(out var secondRefs))
+                if (mockRegistry.ModuleRestores.TryPop(out var secondRefs))
                 {
                     mockRegistry.ModuleRestores.Should().BeEmpty();
                     secondRefs.Select(mr => mr.FullyQualifiedReference).Should().BeEquivalentTo("mock:one", "mock:two");
@@ -146,7 +145,7 @@ namespace Bicep.LangServer.UnitTests.Registry
                 // wait for completion
                 await IntegrationTestHelper.WithTimeoutAsync(thirdSource.Task);
 
-                if(mockRegistry.ModuleRestores.TryPop(out var followingRefs))
+                if (mockRegistry.ModuleRestores.TryPop(out var followingRefs))
                 {
                     mockRegistry.ModuleRestores.Should().BeEmpty();
                     followingRefs.Select(mr => mr.FullyQualifiedReference).Should().BeEquivalentTo("mock:five", "mock:six");
@@ -161,7 +160,7 @@ namespace Bicep.LangServer.UnitTests.Registry
         private static ImmutableArray<ModuleDeclarationSyntax> CreateModules(params string[] references)
         {
             var buffer = new StringBuilder();
-            foreach(var reference in references)
+            foreach (var reference in references)
             {
                 buffer.AppendLine($"module foo '{reference}' = {{}}");
             }
@@ -181,6 +180,11 @@ namespace Bicep.LangServer.UnitTests.Registry
             public bool IsModuleRestoreRequired(ModuleReference reference) => true;
 
             public Task PublishModule(RootConfiguration configuration, ModuleReference moduleReference, Stream compiled)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(RootConfiguration configuration, IEnumerable<ModuleReference> references)
             {
                 throw new NotImplementedException();
             }

@@ -1,7 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -54,7 +52,7 @@ namespace Bicep.Core.Parsing
         public static int CountNewlines(string value) => NewLineRegex.Matches(value).Count;
 
         public static string MatchNewline(string value) => NewLineRegex.Match(value).Value;
-        
+
         public static string ReplaceNewlines(string value, string newlineReplacement) =>
             NewLineRegex.Replace(value, newlineReplacement);
     }

@@ -8,8 +8,8 @@ import { minVersion } from "semver";
 import {
   runTests,
   downloadAndUnzipVSCode,
-  resolveCliPathFromVSCodeExecutablePath,
-} from "vscode-test";
+  resolveCliArgsFromVSCodeExecutablePath,
+} from "@vscode/test-electron";
 
 async function go() {
   try {
@@ -33,8 +33,8 @@ async function go() {
       console.log(`Running tests against VSCode-${vscodeVersion}`);
 
       const vscodeExecutablePath = await downloadAndUnzipVSCode(vscodeVersion);
-      const cliPath =
-        resolveCliPathFromVSCodeExecutablePath(vscodeExecutablePath);
+      const [cliPath, ...cliArguments] =
+        resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
 
       const isRoot = os.userInfo().username === "root";
 
@@ -44,6 +44,7 @@ async function go() {
       const userDataArguments = isRoot ? ["--user-data-dir", userDataDir] : [];
 
       const extensionInstallArguments = [
+        ...cliArguments,
         "--install-extension",
         "ms-dotnettools.vscode-dotnet-runtime",
         ...userDataArguments,
@@ -60,7 +61,11 @@ async function go() {
         extensionDevelopmentPath: path.resolve(__dirname, "../../.."),
         extensionTestsPath: path.resolve(__dirname, "index"),
         extensionTestsEnv: { TEST_MODE: "e2e" },
-        launchArgs: ["--enable-proposed-api", ...userDataArguments],
+        launchArgs: [
+          "--enable-proposed-api",
+          "ms-azuretools.vscode-bicep",
+          ...userDataArguments,
+        ],
       });
     }
 
@@ -71,4 +76,5 @@ async function go() {
   }
 }
 
+// eslint-disable-next-line jest/require-hook
 go();

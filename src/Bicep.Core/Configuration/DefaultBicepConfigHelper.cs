@@ -1,27 +1,23 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
-using System;
-using System.IO;
-using System.Reflection;
-using System.Text;
 
 namespace Bicep.Core.Configuration
 {
-    public class DefaultBicepConfigHelper
+    public static class DefaultBicepConfigHelper
     {
-        private const string bicepConfigResourceName = "Bicep.Core.Configuration.bicepconfig.json";
-
-        public static Stream? GetManifestResourceStream()
-        {
-            return Assembly.GetExecutingAssembly().GetManifestResourceStream(bicepConfigResourceName);
-        }
-
+        public const string DefaultRuleCode = "no-unused-params"; // Default rule that's added when creating an empty configuration file (as an example)
         public static string GetDefaultBicepConfig()
         {
-            var streamReader = new StreamReader(GetManifestResourceStream() ?? throw new ArgumentNullException("Stream is null"), Encoding.Default);
-
-            return streamReader.ReadToEnd();
+            return @"{
+  // See https://aka.ms/bicep/config for more information on Bicep configuration options
+  // Press CTRL+SPACE/CMD+SPACE at any location to see Intellisense suggestions
+  ""analyzers"": {
+    ""core"": {
+      ""rules"": {
+      }
+    }
+  }
+}";
         }
     }
 }

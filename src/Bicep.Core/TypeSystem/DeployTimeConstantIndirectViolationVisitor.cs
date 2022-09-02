@@ -17,8 +17,8 @@ namespace Bicep.Core.TypeSystem
 
         private bool hasError = false;
 
-        public DeployTimeConstantIndirectViolationVisitor(SyntaxBase deployTimeConstantContainer, VariableAccessSyntax variableDependency, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
-            : base(deployTimeConstantContainer, semanticModel, diagnosticWriter)
+        public DeployTimeConstantIndirectViolationVisitor(SyntaxBase deployTimeConstantContainer, VariableAccessSyntax variableDependency, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, Dictionary<DeclaredSymbol, ObjectType> existingResourceBodyObjectTypeOverrides)
+            : base(deployTimeConstantContainer, semanticModel, diagnosticWriter, existingResourceBodyObjectTypeOverrides)
         {
             this.variableDependency = variableDependency;
         }

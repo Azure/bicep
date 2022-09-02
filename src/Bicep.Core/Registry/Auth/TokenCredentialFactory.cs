@@ -14,7 +14,7 @@ namespace Bicep.Core.Registry.Auth
     {
         public TokenCredential CreateChain(IEnumerable<CredentialType> credentialPrecedence, Uri authorityUri)
         {
-            if(!credentialPrecedence.Any())
+            if (!credentialPrecedence.Any())
             {
                 throw new ArgumentException("At least one credential type must be provided.");
             }

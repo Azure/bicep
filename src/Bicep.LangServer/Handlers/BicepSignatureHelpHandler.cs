@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Deployments.Core.Extensions;
 using Bicep.Core;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -20,10 +19,11 @@ using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepSignatureHelpHandler: SignatureHelpHandlerBase
+    public class BicepSignatureHelpHandler : SignatureHelpHandlerBase
     {
         private const string FunctionArgumentStart = "(";
         private const string FunctionArgumentEnd = ")";
@@ -47,7 +47,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             int offset = PositionHelper.GetOffset(context.LineStarts, request.Position);
-            
+
             var functionCall = GetActiveFunctionCall(context.ProgramSyntax, offset);
             if (functionCall == null)
             {
@@ -64,7 +64,8 @@ namespace Bicep.LanguageServer.Handlers
 
             // suppress ErrorType in arguments because the code is being written
             // this prevents function signature mismatches due to errors
-            var normalizedArgumentTypes = NormalizeArgumentTypes(functionCall.Arguments, semanticModel);
+            var arguments = functionCall.Arguments.ToImmutableArray();
+            var normalizedArgumentTypes = NormalizeArgumentTypes(arguments, semanticModel);
 
             // do not include return type in signatures for decorator functions
             // because the return type on decorators is currently an internal implementation detail
@@ -72,7 +73,7 @@ namespace Bicep.LanguageServer.Handlers
             // (can revisit if we add decorator extensibility in the future)
             var includeReturnType = semanticModel.Binder.GetParent(functionCall) is not DecoratorSyntax;
 
-            var signatureHelp = CreateSignatureHelp(functionCall.Arguments, normalizedArgumentTypes, functionSymbol, offset, includeReturnType);
+            var signatureHelp = CreateSignatureHelp(arguments, normalizedArgumentTypes, functionSymbol, offset, includeReturnType);
             signatureHelp = TryReuseActiveSignature(request.Context, signatureHelp);
 
             return Task.FromResult<SignatureHelp?>(signatureHelp);
@@ -167,7 +168,7 @@ namespace Bicep.LanguageServer.Handlers
             return new SignatureHelp
             {
                 Signatures = new Container<SignatureInformation>(matchingOverloads.Select(tuple => CreateSignature(tuple.overload, arguments, includeReturnType))),
-                ActiveSignature = activeSignatureIndex < 0 ? (int?) null : activeSignatureIndex,
+                ActiveSignature = activeSignatureIndex < 0 ? (int?)null : activeSignatureIndex,
                 ActiveParameter = GetActiveParameterIndex(arguments, offset)
             };
         }
@@ -242,7 +243,7 @@ namespace Bicep.LanguageServer.Handlers
             return new SignatureInformation
             {
                 Label = typeSignature.ToString(),
-                Documentation = new MarkupContent {Kind = MarkupKind.Markdown, Value = overload.Description},
+                Documentation = new MarkupContent { Kind = MarkupKind.Markdown, Value = overload.Description },
                 Parameters = new Container<ParameterInformation>(parameters)
             };
         }
@@ -256,7 +257,7 @@ namespace Bicep.LanguageServer.Handlers
             parameterInfos.Add(new ParameterInformation
             {
                 Label = new ParameterInformationLabel((start, end)),
-                Documentation = new MarkupContent {Kind = MarkupKind.Markdown, Value = documentation}
+                Documentation = new MarkupContent { Kind = MarkupKind.Markdown, Value = documentation }
             });
         }
 

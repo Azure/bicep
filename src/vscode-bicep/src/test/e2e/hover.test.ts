@@ -4,7 +4,7 @@ import * as vscode from "vscode";
 
 import { expectDefined, expectRange } from "../utils/assert";
 import { retryWhile, sleep } from "../utils/time";
-import { executeHoverProviderCommand } from "./commands";
+import { executeCloseAllEditors, executeHoverProvider } from "./commands";
 import { readExampleFile } from "./examples";
 
 describe("hover", (): void => {
@@ -25,7 +25,7 @@ describe("hover", (): void => {
   });
 
   afterAll(async () => {
-    await vscode.commands.executeCommand("workbench.action.closeAllEditors");
+    await executeCloseAllEditors();
   });
 
   it("should reveal type signature when hovering over a parameter name", async () => {
@@ -70,8 +70,9 @@ describe("hover", (): void => {
       endLine: 108,
       endCharacter: 13,
       contents: [
-        codeblock(
-          "resource vnet\nMicrosoft.Network/virtualNetworks@2020-06-01"
+        codeblockWithDescription(
+          "resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01'",
+          "[View Type Documentation](https://docs.microsoft.com/azure/templates/microsoft.network/virtualnetworks?tabs=bicep)"
         ),
       ],
     });
@@ -105,8 +106,8 @@ describe("hover", (): void => {
       endCharacter: 67,
       contents: [
         codeblockWithDescription(
-          "function uniqueString(string): string",
-          "Creates a deterministic hash string based on the values provided as parameters."
+          "function uniqueString(... : string): string",
+          "Creates a deterministic hash string based on the values provided as parameters. The returned value is 13 characters long."
         ),
       ],
     });
@@ -117,7 +118,7 @@ describe("hover", (): void => {
     position: vscode.Position
   ) {
     return retryWhile(
-      async () => await executeHoverProviderCommand(documentUri, position),
+      async () => await executeHoverProvider(documentUri, position),
       (hovers) => hovers === undefined || hovers.length === 0
     );
   }
@@ -153,8 +154,10 @@ describe("hover", (): void => {
     });
   }
 
-  function normalizeMarkedString(markedString: vscode.MarkedString): string {
-    return typeof markedString === "string" ? markedString : markedString.value;
+  function normalizeMarkedString(
+    content: vscode.MarkedString | vscode.MarkdownString
+  ): string {
+    return typeof content === "string" ? content : content.value;
   }
 
   function codeblock(rawString: string): string {

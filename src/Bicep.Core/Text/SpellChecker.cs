@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
@@ -137,9 +137,7 @@ namespace Bicep.Core.Text
                     return -1;
                 }
 
-                var temp = current;
-                current = previous;
-                previous = temp;
+                (previous, current) = (current, previous);
             }
 
             /*

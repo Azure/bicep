@@ -11,11 +11,15 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core;
+using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
+using Bicep.Core.Registry;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
@@ -46,13 +50,9 @@ namespace Bicep.LanguageServer.Snippets
         // The common properties should be authored consistently to provide for understandability and consumption of the code.
         // See https://github.com/Azure/azure-quickstart-templates/blob/master/1-CONTRIBUTION-GUIDE/best-practices.md#resources
         // for more information
-        private readonly List<string> propertiesSortPreferenceList = new()
-        {
-            "comments",
-            "condition",
+        private readonly ImmutableArray<string> propertiesSortPreferenceList = ImmutableArray.Create(
             "scope",
-            "type",
-            "apiVersion",
+            "parent",
             "name",
             "location",
             "zones",
@@ -61,20 +61,32 @@ namespace Bicep.LanguageServer.Snippets
             "scale",
             "plan",
             "identity",
-            "copy",
-            "dependsOn",
             "tags",
-            "properties"
-        };
+            "properties",
+            "dependsOn");
+
+        private readonly IFeatureProvider features;
+        private readonly ApiVersionProvider apiVersionProvider;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
+        private readonly RootConfiguration configuration;
+        private readonly LinterAnalyzer linterAnalyzer;
         private readonly IConfigurationManager configurationManager;
+        private readonly IModuleDispatcher moduleDispatcher;
 
-        public SnippetsProvider(INamespaceProvider namespaceProvider, IFileResolver fileResolver, IConfigurationManager configurationManager)
+        public SnippetsProvider(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IConfigurationManager configurationManager, ApiVersionProvider apiVersionProvider, IModuleDispatcher moduleDispatcher)
         {
+            this.features = features;
+            this.apiVersionProvider = apiVersionProvider;
+            this.moduleDispatcher = moduleDispatcher;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.configurationManager = configurationManager;
+
+            // We'll use default bicepconfig.json settings during SnippetsProvider creation to avoid errors during language service initialization.
+            // We don't do any validation in SnippetsProvider. So using default settings shouldn't be a problem.
+            configuration = configurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
+            linterAnalyzer = new LinterAnalyzer(configuration);
 
             Initialize();
         }
@@ -90,7 +102,7 @@ namespace Bicep.LanguageServer.Snippets
                 Stream? stream = assembly.GetManifestResourceStream(manifestResourceName);
                 var streamReader = new StreamReader(stream ?? throw new ArgumentNullException("Stream is null"), Encoding.Default);
 
-                (string description, string snippetText) = GetDescriptionAndText(streamReader.ReadToEnd(), manifestResourceName);
+                var (description, snippetText) = GetDescriptionAndSnippetText(streamReader.ReadToEnd(), manifestResourceName);
                 string prefix = Path.GetFileNameWithoutExtension(manifestResourceName);
                 CompletionPriority completionPriority = CompletionPriority.Medium;
 
@@ -105,73 +117,71 @@ namespace Bicep.LanguageServer.Snippets
             }
         }
 
-        public (string, string) GetDescriptionAndText(string? template, string manifestResourceName)
+        public (string description, string snippet) GetDescriptionAndSnippetText(string template, string manifestResourceName)
         {
-            string description = string.Empty;
-            string text = string.Empty;
+            var description = string.Empty;
+            var parser = new Parser(template);
+            var programSyntax = parser.Program();
+            var declarations = programSyntax.Declarations;
 
-            if (!string.IsNullOrWhiteSpace(template))
+            if (declarations.Any() && declarations.First() is StatementSyntax statementSyntax)
             {
-                // Remove snippet placeholder comments
-                template = RemoveSnippetPlaceholderComments(template);
+                template = template.Substring(statementSyntax.Span.Position);
 
-                Parser parser = new Parser(template);
-                ProgramSyntax programSyntax = parser.Program();
-                IEnumerable<SyntaxBase> declarations = programSyntax.Declarations;
+                var children = programSyntax.Children;
 
-                if (declarations.Any() && declarations.First() is StatementSyntax statementSyntax)
+                if (children.Length > 0 &&
+                    children[0] is Token firstToken &&
+                    firstToken.LeadingTrivia[0] is SyntaxTrivia syntaxTrivia &&
+                    syntaxTrivia.Type is SyntaxTriviaType.SingleLineComment)
                 {
-                    text = template.Substring(statementSyntax.Span.Position);
-
-                    ImmutableArray<SyntaxBase> children = programSyntax.Children;
-
-                    if (children.Length > 0 &&
-                        children[0] is Token firstToken &&
-                        firstToken is not null &&
-                        firstToken.LeadingTrivia[0] is SyntaxTrivia syntaxTrivia &&
-                        syntaxTrivia.Type is SyntaxTriviaType.SingleLineComment)
-                    {
-                        description = syntaxTrivia.Text.Substring("// ".Length);
-                    }
-
-                    CacheResourceDeclarationAndDependencies(template, manifestResourceName, description);
+                    description = syntaxTrivia.Text.Substring("// ".Length);
                 }
+
+                CacheResourceDeclarationAndDependencies(template, manifestResourceName, description);
+
+                return (description, RemoveSnippetPlaceholderComments(template));
             }
 
-            return (description, text);
+            return (string.Empty, string.Empty);
         }
 
         public IEnumerable<Snippet> GetTopLevelNamedDeclarationSnippets() => topLevelNamedDeclarationSnippets;
 
         private void CacheResourceDeclarationAndDependencies(string template, string manifestResourceName, string description)
         {
-            ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> dependencies = GetResourceDependencies(template, manifestResourceName);
+            var dependencies = GetResourceDependencies(template, manifestResourceName);
 
-            foreach (KeyValuePair<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> kvp in dependencies)
+            foreach (var (declaredSymbol, syntax) in dependencies)
             {
-                DeclaredSymbol declaredSymbol = kvp.Key;
-
                 if (declaredSymbol.DeclaringSyntax is ResourceDeclarationSyntax resourceDeclarationSyntax)
                 {
                     if (declaredSymbol.Type is ResourceType resourceType && resourceType.TypeKind != TypeKind.Error)
                     {
-                        ResourceTypeReference resourceTypeReference = resourceType.TypeReference;
+                        var resourceTypeReference = resourceType.TypeReference;
                         CacheResourceDeclaration(resourceDeclarationSyntax, resourceTypeReference, template, description, manifestResourceName);
-                        CacheResourceDependencies(resourceTypeReference, kvp.Value, template);
+                        CacheResourceDependencies(resourceTypeReference, syntax, template);
                     }
                 }
             }
         }
 
-        private void CacheResourceDeclaration(ResourceDeclarationSyntax resourceDeclarationSyntax, ResourceTypeReference resourceTypeReference, string template, string description, string manifestResourceName)
+        private void CacheResourceDeclaration(ResourceDeclarationSyntax resourceDeclaration, ResourceTypeReference resourceTypeReference, string template, string description, string manifestResourceName)
         {
             if (!resourceTypeReferenceInfoMap.ContainsKey(resourceTypeReference))
             {
-                TextSpan bodySpan = resourceDeclarationSyntax.Value.Span;
-                string bodyText = template.Substring(bodySpan.Position, bodySpan.Length);
-                string prefix = Path.GetFileNameWithoutExtension(manifestResourceName);
-                TextSpan resourceDeclarationSyntaxNameSpan = resourceDeclarationSyntax.Name.Span;
-                string identifier = template.Substring(resourceDeclarationSyntaxNameSpan.Position, resourceDeclarationSyntaxNameSpan.Length);
+                var bodySpan = resourceDeclaration.Value.Span;
+                var bodyText = template.Substring(bodySpan.Position, bodySpan.Length);
+                bodyText = RemoveSnippetPlaceholderComments(bodyText);
+
+                // snippet placeholders are authored using a multi-line comment syntax. To include this when fetching the identifier,
+                // we have to fetch everything from the end of the preceeding syntax (as multi-line comments are stored in trailing trivia on the previous token).
+                var nameStart = resourceDeclaration.Keyword.Span.Position + resourceDeclaration.Keyword.Span.Length;
+                var nameEnd = resourceDeclaration.Name.Span.Position + resourceDeclaration.Name.Span.Length;
+                var identifier = template.Substring(nameStart, nameEnd - nameStart).Trim();
+                identifier = RemoveSnippetPlaceholderComments(identifier);
+
+                var prefix = Path.GetFileNameWithoutExtension(manifestResourceName);
 
                 resourceTypeReferenceInfoMap.TryAdd(resourceTypeReference, (prefix, identifier, bodyText, description));
             }
@@ -181,9 +191,9 @@ namespace Bicep.LanguageServer.Snippets
         {
             if (resourceDependencies.Any())
             {
-                StringBuilder sb = new StringBuilder();
+                var sb = new StringBuilder();
 
-                foreach (ResourceDependency resourceDependency in resourceDependencies)
+                foreach (var resourceDependency in resourceDependencies)
                 {
                     if (resourceDependency.Resource is ResourceSymbol resourceSymbol &&
                         resourceSymbol.TryGetResourceTypeReference() is ResourceTypeReference resourceTypeReference)
@@ -194,8 +204,10 @@ namespace Bicep.LanguageServer.Snippets
                             (_, children) => children.Add(childResourceTypeReference));
                     }
 
-                    TextSpan span = resourceDependency.Resource.DeclaringSyntax.Span;
-                    sb.AppendLine(template.Substring(span.Position, span.Length));
+                    var span = resourceDependency.Resource.DeclaringSyntax.Span;
+                    var dependentTemplate = template.Substring(span.Position, span.Length);
+
+                    sb.AppendLine(RemoveSnippetPlaceholderComments(dependentTemplate));
                 }
 
                 resourceTypeReferenceToDependentsMap.TryAdd(childResourceTypeReference, sb.ToString());
@@ -210,21 +222,18 @@ namespace Bicep.LanguageServer.Snippets
                 return ImmutableDictionary.Create<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>();
             }
 
-            // We need to provide uri for syntax tree creation, but it's not used anywhere. In order to avoid 
+            // We need to provide uri for syntax tree creation, but it's not used anywhere. In order to avoid
             // cross platform issues, we'll provide a placeholder uri.
-            BicepFile bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"inmemory://{manifestResourceName}.bicep"), template);
-            SourceFileGrouping sourceFileGrouping = new SourceFileGrouping(
-                fileResolver,
-                bicepFile,
-                ImmutableHashSet.Create<ISourceFile>(bicepFile),
-                ImmutableDictionary.Create<ModuleDeclarationSyntax, ISourceFile>(),
-                ImmutableDictionary.Create<ISourceFile, ImmutableHashSet<ISourceFile>>(),
-                ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>(),
-                ImmutableHashSet<ModuleDeclarationSyntax>.Empty);
+            var snippetConfiguration = this.configurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"inmemory://{manifestResourceName}.bicep"), template);
+            var workspace = new Workspace();
+            workspace.UpsertSourceFiles(bicepFile.AsEnumerable());
+
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, bicepFile.FileUri, snippetConfiguration, false);
 
             // We'll use default bicepconfig.json settings during SnippetsProvider creation to avoid errors during language service initialization.
             // We don't do any validation in SnippetsProvider. So using default settings shouldn't be a problem.
-            Compilation compilation = new Compilation(namespaceProvider, sourceFileGrouping, configurationManager.GetBuiltInConfiguration(disableAnalyzers: true));
+            Compilation compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, snippetConfiguration, apiVersionProvider, linterAnalyzer);
 
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
 
@@ -247,12 +256,12 @@ namespace Bicep.LanguageServer.Snippets
             if (!isExistingResource)
             {
                 // If the resource is nested, we will only return it's body text from cache. Otherwise, we will return information
-                // from the template, which could include parent resource 
+                // from the template, which could include parent resource
                 if (isResourceNested)
                 {
                     if (resourceTypeReferenceInfoMap.TryGetValue(resourceTypeReference, out (string prefix, string identifier, string bodyText, string description) resourceTypeInfo))
                     {
-                        // The property "parent" is not allowed in nested resource. We'll remove the property before creating the snippet 
+                        // The property "parent" is not allowed in nested resource. We'll remove the property before creating the snippet
                         string text = ParentPropertyPattern.Replace(resourceTypeInfo.bodyText, string.Empty);
                         Snippet snippet = new Snippet(text, prefix: "snippet", detail: resourceTypeInfo.description);
                         snippets.Add(snippet);
@@ -325,13 +334,15 @@ namespace Bicep.LanguageServer.Snippets
             int index = 1;
             StringBuilder sb = new StringBuilder();
 
-            IOrderedEnumerable<KeyValuePair<string, TypeProperty>> sortedProperties = objectType.Properties.OrderBy(x => propertiesSortPreferenceList.Exists(y => y == x.Key) ?
-                                                                                                 propertiesSortPreferenceList.FindIndex(y => y == x.Key) :
-                                                                                                 propertiesSortPreferenceList.Count - 1);
+            var sortedProperties = objectType.Properties.OrderBy(x => {
+                var index = propertiesSortPreferenceList.IndexOf(x.Key);
 
-            foreach (KeyValuePair<string, TypeProperty> kvp in sortedProperties)
+                return (index > -1) ? index : (propertiesSortPreferenceList.Length - 1);
+            });
+
+            foreach (var (key, value) in sortedProperties)
             {
-                string? snippetText = GetSnippetText(kvp.Value, indentLevel: 1, ref index, discriminatedObjectKey);
+                string? snippetText = GetSnippetText(value, indentLevel: 1, ref index, discriminatedObjectKey);
 
                 if (snippetText is not null)
                 {
@@ -483,7 +494,7 @@ namespace Bicep.LanguageServer.Snippets
                     var nestedTypeReference = new ResourceTypeReference(ImmutableArray.Create<string>(nestedResourceTypeReference.TypeSegments.Last()), nestedResourceTypeReference.ApiVersion);
 
                     resourceTypeReferenceInfoMap.TryGetValue(nestedResourceTypeReference, out (string prefix, string identifier, string bodyText, string description) resourceInfo);
-                    // The property "parent" is not allowed in nested resource. We'll remove the property before creating the snippet 
+                    // The property "parent" is not allowed in nested resource. We'll remove the property before creating the snippet
                     var bodyText = ParentPropertyPattern.Replace(resourceInfo.bodyText, string.Empty);
                     var text = LanguageConstants.ResourceKeyword + " " + resourceInfo.identifier + " '" + nestedTypeReference.FormatName() + "' = " + bodyText;
 
@@ -494,25 +505,20 @@ namespace Bicep.LanguageServer.Snippets
 
         public string RemoveSnippetPlaceholderComments(string text)
         {
-            if (!string.IsNullOrEmpty(text))
+            var matches = SnippetPlaceholderCommentPattern.Matches(text);
+            // We will be performing multiple string replacements, better to do it in-place
+            var buffer = new StringBuilder(text);
+
+            // To avoid recomputing spans, we will perform the replacements in reverse order
+            foreach (var match in matches.OrderByDescending(x => x.Index))
             {
-                MatchCollection matches = SnippetPlaceholderCommentPattern.Matches(text);
-
-                // We will be performing multiple string replacements, better to do it in-place
-                StringBuilder buffer = new StringBuilder(text);
-
-                // To avoid recomputing spans, we will perform the replacements in reverse order
-                foreach (Match match in matches.OrderByDescending(x => x.Index))
-                {
-                    buffer.Replace(oldValue: match.Value,
-                                   newValue: match.Groups["snippetPlaceholder"].Value,
-                                   startIndex: match.Index,
-                                   count: match.Length);
-                }
-                return buffer.ToString();
+                buffer.Replace(oldValue: match.Value,
+                                newValue: match.Groups["snippetPlaceholder"].Value,
+                                startIndex: match.Index,
+                                count: match.Length);
             }
 
-            return text;
+            return buffer.ToString();
         }
     }
 }

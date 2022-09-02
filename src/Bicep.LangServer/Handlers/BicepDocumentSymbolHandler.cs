@@ -17,7 +17,7 @@ using SymbolKind = OmniSharp.Extensions.LanguageServer.Protocol.Models.SymbolKin
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDocumentSymbolHandler: DocumentSymbolHandlerBase
+    public class BicepDocumentSymbolHandler : DocumentSymbolHandlerBase
     {
         private readonly ILogger<BicepDocumentSymbolHandler> logger;
         private readonly ICompilationManager compilationManager;
@@ -45,7 +45,7 @@ namespace Bicep.LanguageServer.Handlers
         private IEnumerable<SymbolInformationOrDocumentSymbol> GetSymbols(CompilationContext context)
         {
             return context.Compilation.GetEntrypointSemanticModel().Root.Declarations
-                .OrderBy(symbol=>symbol.DeclaringSyntax.Span.Position)
+                .OrderBy(symbol => symbol.DeclaringSyntax.Span.Position)
                 .Select(symbol => new SymbolInformationOrDocumentSymbol(CreateDocumentSymbol(symbol, context.LineStarts)));
         }
 
@@ -81,7 +81,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 case OutputSymbol output:
                     return SymbolKind.Interface;
-                
+
                 default:
                     return SymbolKind.Key;
             }

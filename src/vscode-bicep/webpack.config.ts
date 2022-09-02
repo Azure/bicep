@@ -4,6 +4,7 @@ import path from "path";
 import webpack from "webpack";
 import CopyPlugin from "copy-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
+import TerserPlugin from "terser-webpack-plugin";
 
 const extensionConfig: webpack.Configuration = {
   target: "node",
@@ -18,10 +19,20 @@ const extensionConfig: webpack.Configuration = {
   externals: {
     // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
     vscode: "commonjs vscode",
-    // The following are optional dependencies of vscode-azureextensionui that cannot be resolved.
+    // The following are optional dependencies of microsoft/vscode-azext-utils that cannot be resolved.
     "applicationinsights-native-metrics":
       "commonjs applicationinsights-native-metrics",
     "@opentelemetry/tracing": "commonjs @opentelemetry/tracing",
+  },
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          keep_classnames: true,
+          keep_fnames: true,
+        },
+      }),
+    ],
   },
   module: {
     rules: [

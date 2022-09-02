@@ -50,6 +50,13 @@ namespace Bicep.Core.Registry
             return Task.FromResult<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>>(ImmutableDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>.Empty);
         }
 
+        public override Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(RootConfiguration configuration, IEnumerable<LocalModuleReference> references)
+        {
+            // local modules are already present on the file system, there's no cache concept for this one
+            // we do nothing
+            return Task.FromResult<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>>(ImmutableDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>.Empty);
+        }
+
         public override bool IsModuleRestoreRequired(LocalModuleReference reference) => false;
 
         public override Task PublishModule(RootConfiguration configuration, LocalModuleReference moduleReference, Stream compiled) => throw new NotSupportedException("Local modules cannot be published.");
