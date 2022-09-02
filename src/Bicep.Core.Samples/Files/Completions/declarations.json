@@ -1302,6 +1302,36 @@
     }
   },
   {
+    "label": "res-firewall-standard",
+    "kind": "snippet",
+    "detail": "Azure Firewall Standard SKU",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource firewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      name: 'AZFW_VNet'\n      tier: 'Standard'\n    }    \n    firewallPolicy: {\n      id: 'firewallPolicy.id'\n    }\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          subnet: {\n            id: 'subnet.id'\n          }\n          publicIPAddress: {\n            id: 'publicIPAddress.id'\n          }\n        }\n      }\n    ]\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-firewall-standard",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:firewall} 'Microsoft.Network/azureFirewalls@2021-05-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    sku: {\n      name: 'AZFW_VNet'\n      tier: 'Standard'\n    }    \n    firewallPolicy: {\n      id: ${4:'firewallPolicy.id'}\n    }\n    ipConfigurations: [\n      {\n        name: ${5:'name'}\n        properties: {\n          subnet: {\n            id: ${6:'subnet.id'}\n          }\n          publicIPAddress: {\n            id: ${7:'publicIPAddress.id'}\n          }\n        }\n      }\n    ]\n  }\n}\n"
+    },
+    "command": {
+      "title": "top level snippet completion",
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "snippet/toplevel",
+          "Properties": {
+            "name": "res-firewall-standard"
+          }
+        }
+      ]
+    }
+  },
+  {
     "label": "res-firewall-standard-vwan",
     "kind": "snippet",
     "detail": "Azure Firewall Standard SKU for Virtual WAN Hub",
