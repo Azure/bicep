@@ -41,7 +41,7 @@ const extensionConfig: webpack.Configuration = {
         loader: "esbuild-loader",
         options: {
           loader: "ts",
-          target: "es2016",
+          target: "es2019",
         },
         exclude: [/node_modules/, /visualizer\/app/, /test/],
       },
@@ -82,7 +82,7 @@ const visualizerConfig: webpack.Configuration = {
         loader: "esbuild-loader",
         options: {
           loader: "tsx",
-          target: "es2016",
+          target: "es2019",
         },
         exclude: /node_modules/,
       },
