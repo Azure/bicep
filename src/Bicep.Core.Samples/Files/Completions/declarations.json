@@ -1319,6 +1319,7 @@
       "newText": "resource ${1:firewall} 'Microsoft.Network/azureFirewalls@2021-05-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    sku: {\n      name: 'AZFW_Hub'\n      tier: 'Standard'\n    }    \n    firewallPolicy: {\n      id: ${4:'firewallPolicy.id'}\n    }\n    virtualHub: {\n      id: ${5:'virtualHub.id'}\n    }\n    hubIPAddresses: {\n       publicIPs: {\n         count: ${6:2}\n       }\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
