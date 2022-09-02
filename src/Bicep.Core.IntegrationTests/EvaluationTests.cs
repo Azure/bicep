@@ -85,6 +85,11 @@ output multiline string = multiline
         [TestMethod]
         public void ResourceId_expressions_are_evaluated_successfully()
         {
+            var (parameters, _, _) = CompilationHelper.CompileParams(@"
+param parentName = 'myParent'
+param childName = 'myChild'
+");
+
             var (template, _, _) = CompilationHelper.Compile(@"
 param parentName string
 param childName string
@@ -146,15 +151,10 @@ output resource1Type string = existing1.type
             {
                 var testSubscriptionId = "87d64d6d-6d17-4ad7-b507-16d9bc498781";
                 var testRgName = "testRg";
-                var evaluated = TemplateEvaluator.Evaluate(template, config => config with
+                var evaluated = TemplateEvaluator.Evaluate(template, parameters, config => config with
                 {
                     SubscriptionId = testSubscriptionId,
                     ResourceGroup = testRgName,
-                    Parameters = new()
-                    {
-                        ["parentName"] = "myParent",
-                        ["childName"] = "myChild",
-                    }
                 });
 
                 evaluated.Should().HaveValueAtPath("$.outputs['resource1Id'].value", $"/subscriptions/{testSubscriptionId}/resourceGroups/{testRgName}/providers/My.Rp/parent/myParent/child/myChild");
@@ -206,6 +206,10 @@ output coalesce int = null ?? 123
         [TestMethod]
         public void Resource_property_access_works()
         {
+            var (parameters, _, _) = CompilationHelper.CompileParams(@"
+param abcVal = 'test!!!'
+");
+
             var (template, _, _) = CompilationHelper.Compile(@"
 param abcVal string
 
@@ -221,13 +225,7 @@ output abcVal string = testRes.properties.abc
 
             using (new AssertionScope())
             {
-                var evaluated = TemplateEvaluator.Evaluate(template, config => config with
-                {
-                    Parameters = new()
-                    {
-                        ["abcVal"] = "test!!!",
-                    },
-                });
+                var evaluated = TemplateEvaluator.Evaluate(template, parameters);
 
                 evaluated.Should().HaveValueAtPath("$.outputs['abcVal'].value", "test!!!");
             }
@@ -246,7 +244,7 @@ output abcVal string = testRes.properties.abc
 
             using (new AssertionScope())
             {
-                var evaluated = TemplateEvaluator.Evaluate(template, config => config with
+                var evaluated = TemplateEvaluator.Evaluate(template, configBuilder: config => config with
                 {
                     OnReferenceFunc = (resourceId, apiVersion, fullBody) =>
                     {
@@ -269,6 +267,18 @@ output abcVal string = testRes.properties.abc
         [TestMethod]
         public void Items_function_evaluation_works()
         {
+            var (parameters, _, _) = CompilationHelper.CompileParams(@"
+param inputObj = {
+  'ghiKey': 'ghiValue'
+  'defKey': 'defValue'
+  'abcKey': 'abcValue'
+  '123Key': '123Value'
+  'GHIKey': 'GHIValue'
+  'DEFKey': 'DEFValue'
+  'ABCKey': 'ABCValue'
+  '456Key': '456Value'
+}
+");
             var result = CompilationHelper.Compile(@"
 param inputObj object
 
@@ -276,23 +286,7 @@ output inputObjKeys array = [for item in items(inputObj): item.key]
 output inputObjValues array = [for item in items(inputObj): item.value]
 ");
 
-            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with
-            {
-                Parameters = new()
-                {
-                    ["inputObj"] = new JObject
-                    {
-                        ["ghiKey"] = "ghiValue",
-                        ["defKey"] = "defValue",
-                        ["abcKey"] = "abcValue",
-                        ["123Key"] = "123Value",
-                        ["GHIKey"] = "GHIValue",
-                        ["DEFKey"] = "DEFValue",
-                        ["ABCKey"] = "ABCValue",
-                        ["456Key"] = "456Value",
-                    }
-                }
-            });
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters);
 
             evaluated.Should().HaveValueAtPath("$.outputs['inputObjKeys'].value", new JArray
             {
@@ -349,6 +343,14 @@ output joined3 string = join([
         [TestMethod]
         public void indexof_contains_function_evaluation_works()
         {
+            var (parameters, _, _) = CompilationHelper.CompileParams(@"
+param inputString = 'FOOBAR'
+param inputArray = [
+  'FOO'
+  'BAR'
+]
+");
+
             var (template, _, _) = CompilationHelper.Compile(@"
 param inputString string
 param inputArray array
@@ -378,18 +380,7 @@ output containsArr123 bool = contains(inputArray, 123)
 
             using (new AssertionScope())
             {
-                var evaluated = TemplateEvaluator.Evaluate(template, config => config with
-                {
-                    Parameters = new()
-                    {
-                        ["inputString"] = "FOOBAR",
-                        ["inputArray"] = new JArray
-                        {
-                            "FOO",
-                            "BAR"
-                        }
-                    }
-                });
+                var evaluated = TemplateEvaluator.Evaluate(template, parameters);
 
                 evaluated.Should().HaveValueAtPath("$.outputs['strIdxFooLC'].value", new JValue(0));
                 evaluated.Should().HaveValueAtPath("$.outputs['strIdxFooUC'].value", new JValue(0));
@@ -420,15 +411,19 @@ output containsArr123 bool = contains(inputArray, 123)
         [TestMethod]
         public void List_comprehension_function_evaluation_works()
         {
-            var (template, _, _) = CompilationHelper.Compile(@"
-var doggos = [
+            var (parameters, _, _) = CompilationHelper.CompileParams(@"
+param doggos = [
   'Evie'
   'Casper'
   'Indy'
   'Kira'
 ]
+param numbers = [0, 1, 2, 3]
+");
 
-var numbers = range(0, 4)
+            var (template, _, _) = CompilationHelper.Compile(@"
+param doggos array
+param numbers array
 
 var sayHello = map(doggos, i => 'Hello ${i}!')
 
@@ -479,7 +474,7 @@ var reduceEmpty = reduce([], 0, (cur, next) => cur)
 
             using (new AssertionScope())
             {
-                var evaluated = TemplateEvaluator.Evaluate(template);
+                var evaluated = TemplateEvaluator.Evaluate(template, parameters);
 
                 evaluated.Should().HaveValueAtPath("$.variables['sayHello']", new JArray
                 {

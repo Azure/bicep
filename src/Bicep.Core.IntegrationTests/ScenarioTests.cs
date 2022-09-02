@@ -1337,7 +1337,7 @@ output providerOutput object = {
                 }
             };
 
-            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, configBuilder: config => config with
             {
                 Metadata = new()
                 {
@@ -1404,7 +1404,7 @@ output providersLocationFirst string = providers('Test.Rp', 'fakeResource').loca
                 }
             };
 
-            var evaluated = TemplateEvaluator.Evaluate(result.Template, config => config with
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, configBuilder: config => config with
             {
                 Metadata = new()
                 {
