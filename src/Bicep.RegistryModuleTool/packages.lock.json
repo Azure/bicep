@@ -34,13 +34,13 @@
       },
       "JsonSchema.Net": {
         "type": "Direct",
-        "requested": "[2.3.0, )",
-        "resolved": "2.3.0",
-        "contentHash": "Dpo9qyCavaSf4APYWSbpz1SHzU0th4lXz+AC3ToDODbRbHSwMNByTlQMR3FAvLr6R3krf7inC0sLGstW1bXkIQ==",
+        "requested": "[3.2.0, )",
+        "resolved": "3.2.0",
+        "contentHash": "82ElDl2FSDfajbeYW/QvNML+Mu0BRPIormljOConuyWOkea67L3NJbXP8u8ORQS+OyuvA/xL2ypO+HDTdUpOoQ==",
         "dependencies": {
           "JetBrains.Annotations": "2021.2.0",
-          "Json.More.Net": "1.5.0",
-          "JsonPointer.Net": "2.2.0"
+          "Json.More.Net": "1.6.0",
+          "JsonPointer.Net": "2.2.1"
         }
       },
       "Markdig": {

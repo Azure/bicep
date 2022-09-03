@@ -157,7 +157,7 @@ namespace Bicep.Decompiler.ArmHelpers
                     Array.Empty<LanguageExpression>());
 
                 var paramNameSerialized = ExpressionsEngine.SerializeExpression(paramNameExpression);
-                var paramName = UniqueNamingResolver.EscapeIdentifier(paramNameSerialized);
+                var paramName = UniqueNamingResolver.EscapeIdentifier(paramNameSerialized, isGenerated: true);
 
                 if (paramsAccessed.Contains(paramName))
                 {

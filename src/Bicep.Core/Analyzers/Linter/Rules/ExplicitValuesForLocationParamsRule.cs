@@ -4,6 +4,7 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Workspaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -36,6 +37,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             public List<IDiagnostic> diagnostics = new();
 
+            private readonly Dictionary<ISourceFile, ImmutableArray<ParameterSymbol>> _cachedParamsUsedInLocationPropsForFile = new();
             private readonly ExplicitValuesForLocationParamsRule parent;
             private readonly SemanticModel model;
 
@@ -49,7 +51,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 // Check that explicit values are passed in to any location-related parameters in a consumed module
                 ImmutableArray<(string parameterName, SyntaxBase? actualValue)> locationParametersActualValues =
-                    parent.GetParameterValuesForModuleLocationParameters(moduleDeclarationSyntax, model, onlyParamsWithDefaultValues: true);
+                    parent.GetParameterValuesForModuleLocationParameters(_cachedParamsUsedInLocationPropsForFile, moduleDeclarationSyntax, model, onlyParamsWithDefaultValues: true);
 
                 // Show the error on the params key if it exists, otherwise on the module name
                 var moduleParamsPropertyObject = moduleDeclarationSyntax.TryGetBody()?

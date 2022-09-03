@@ -10,9 +10,8 @@ namespace Bicep.Core.UnitTests.Assertions
 {
     public static class IDiagnosticExtensions
     {
-        public static IEnumerable<IDiagnostic> ExcludingLinterDiagnostics(this IEnumerable<IDiagnostic> diagnostics, params string[] codes)
+        public static IEnumerable<IDiagnostic> ExcludingLinterDiagnostics(this IEnumerable<IDiagnostic> diagnostics)
         {
-            diagnostics.Should().NotContainDiagnostic(LinterAnalyzer.LinterRuleInternalError, "Should never get LinterAnalyzer.LinterRuleInternalError");
             return diagnostics.Where(d => d is not AnalyzerDiagnostic);
         }
 

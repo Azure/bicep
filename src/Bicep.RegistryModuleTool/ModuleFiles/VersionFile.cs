@@ -4,7 +4,7 @@
 using Bicep.Core.Exceptions;
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
-using Bicep.RegistryModuleTool.ModuleFileValidators;
+using Bicep.RegistryModuleTool.ModuleValidators;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
