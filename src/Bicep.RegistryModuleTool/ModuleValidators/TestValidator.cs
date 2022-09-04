@@ -13,7 +13,7 @@ using System;
 using System.IO.Abstractions;
 using System.Linq;
 
-namespace Bicep.RegistryModuleTool.ModuleFileValidators
+namespace Bicep.RegistryModuleTool.ModuleValidators
 {
     public class TestValidator : IModuleFileValidator
     {
@@ -59,7 +59,7 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
             using var tempFileStream = fileSystem.FileStream.CreateDeleteOnCloseStream(tempFilePath);
             var testTemplateElement = JsonElementFactory.CreateElement(tempFileStream);
-            var testDeployments = testTemplateElement.Select($@"$.resources[?(@.type == ""Microsoft.Resources/deployments"" && @.properties.template.metadata._generator.templateHash == ""{this.latestMainArmTemplateFile.TemplateHash}"")]");
+            var testDeployments = testTemplateElement.Select($@"$..resources[?(@.type == ""Microsoft.Resources/deployments"" && @.properties.template.metadata._generator.templateHash == ""{this.latestMainArmTemplateFile.TemplateHash}"")]");
 
             if (testDeployments.IsEmpty())
             {

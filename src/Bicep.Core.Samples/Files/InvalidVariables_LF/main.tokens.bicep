@@ -342,6 +342,23 @@ var rgName = resourceGroup().name
 //@[29:33) Identifier |name|
 //@[33:35) NewLine |\n\n|
 
+var subscription = ''
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |subscription|
+//@[17:18) Assignment |=|
+//@[19:21) StringComplete |''|
+//@[21:22) NewLine |\n|
+var subName = subscription().name
+//@[00:03) Identifier |var|
+//@[04:11) Identifier |subName|
+//@[12:13) Assignment |=|
+//@[14:26) Identifier |subscription|
+//@[26:27) LeftParen |(|
+//@[27:28) RightParen |)|
+//@[28:29) Dot |.|
+//@[29:33) Identifier |name|
+//@[33:35) NewLine |\n\n|
+
 // this does not work at the resource group scope
 //@[49:50) NewLine |\n|
 var invalidLocationVar = deployment().location
@@ -1183,6 +1200,21 @@ var keyVaultSecretArrayInterpolatedVar = [
 //@[00:01) RightSquare |]|
 //@[01:03) NewLine |\n\n|
 
+var listSecrets= ''
+//@[00:03) Identifier |var|
+//@[04:15) Identifier |listSecrets|
+//@[15:16) Assignment |=|
+//@[17:19) StringComplete |''|
+//@[19:20) NewLine |\n|
+var listSecretsVar = listSecrets()
+//@[00:03) Identifier |var|
+//@[04:18) Identifier |listSecretsVar|
+//@[19:20) Assignment |=|
+//@[21:32) Identifier |listSecrets|
+//@[32:33) LeftParen |(|
+//@[33:34) RightParen |)|
+//@[34:36) NewLine |\n\n|
+
 var copy = [
 //@[00:03) Identifier |var|
 //@[04:08) Identifier |copy|
@@ -1213,4 +1245,6 @@ var copy = [
 //@[03:04) NewLine |\n|
 ]
 //@[00:01) RightSquare |]|
-//@[01:01) EndOfFile ||
+//@[01:02) NewLine |\n|
+
+//@[00:00) EndOfFile ||

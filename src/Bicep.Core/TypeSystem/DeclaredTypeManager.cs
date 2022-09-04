@@ -917,12 +917,12 @@ namespace Bicep.Core.TypeSystem
                     throw new InvalidOperationException($"qualifiedTypeReference is null");
                 }
 
-                if (binder.NamespaceResolver.TryGetResourceType(typeReference, typeGenerationFlags) is { } resourceType)
-                {
-                    return resourceType;
-                }
-
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(span).InvalidResourceType());
+                var resourceTypes = binder.NamespaceResolver.GetMatchingResourceTypes(typeReference, typeGenerationFlags);
+                return resourceTypes.Length switch {
+                    0 => ErrorType.Create( DiagnosticBuilder.ForPosition(span).InvalidResourceType()),
+                    1 => resourceTypes[0],
+                    _ => ErrorType.Create(DiagnosticBuilder.ForPosition(span).AmbiguousResourceTypeBetweenImports(typeReference.FormatName(), resourceTypes.Select(x => x.DeclaringNamespace.Name))),
+                };
             }
         }
 

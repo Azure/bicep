@@ -132,6 +132,9 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
             // sanity check - we know there should be a lot of types available
             var minExpectedTypes = 3000;
             availableTypes.Should().HaveCountGreaterThan(minExpectedTypes);
+
+            // verify there aren't any duplicates
+            availableTypes.Select(x => x.FormatName().ToLowerInvariant()).Should().OnlyHaveUniqueItems();
         }
 
         [TestMethod]

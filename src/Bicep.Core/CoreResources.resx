@@ -364,8 +364,8 @@
     <value>Use recent API versions</value>
   </data>
   <data name="UseRecentApiVersionRule_ErrorMessageFormat" xml:space="preserve">
-    <value>Use more recent API version for '{0}'.</value>
-    <comment>{0} = fully-qualified resource type name (programmatic).</comment>
+    <value>Use more recent API version for '{0}'. {1}</value>
+    <comment>{0} = fully-qualified resource type name (programmatic), {1} = reason for the failure (sentence with period)</comment>
   </data>
   <data name="UseRecentApiVersionRule_AcceptableVersions" xml:space="preserve">
     <value>Acceptable versions: {0}</value>
@@ -374,5 +374,23 @@
   <data name="UseRecentApiVersionRule_Fix_ReplaceApiVersion" xml:space="preserve">
     <value>Replace with {0}</value>
     <comment>{0} a programmatic apiVersion, format=yyyy-mm-dd-suffix</comment>
+  </data>
+  <data name="UseRecentApiVersionRule_MoreRecentStable" xml:space="preserve">
+    <value>'{0}' is a preview version and there is a more recent non-preview version available.</value>
+  </data>
+  <data name="UseRecentApiVersionRule_StableWithSameDate" xml:space="preserve">
+    <value>'{0}' is a preview version and there is a non-preview version available with the same date.</value>
+  </data>
+  <data name="UseRecentApiVersionRule_TooOld" xml:space="preserve">
+    <value>'{0}' is {1} days old, should be no more than {2} days old, or the most recent.</value>
+  </data>
+  <data name="UseRecentApiVersionRule_UnknownType" xml:space="preserve">
+    <value>Could not find resource type "{0}".</value>
+  </data>
+  <data name="UseRecentApiVersionRule_UnknownTypeSuggestion" xml:space="preserve">
+    <value>Did you mean "{0}"?</value>
+  </data>
+  <data name="UseRecentApiVersionRule_UnknownVersion" xml:space="preserve">
+    <value>Could not find apiVersion {0} for {1}.</value>
   </data>
 </root>

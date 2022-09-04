@@ -1,20 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Exceptions;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.ModuleFileValidators;
+using Bicep.RegistryModuleTool.ModuleValidators;
 using Bicep.RegistryModuleTool.Proxies;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
-using System.Linq;
-using System.Security;
 
 namespace Bicep.RegistryModuleTool.Commands
 {
@@ -38,12 +34,12 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.processProxy = processProxy;
             }
 
-            protected override int Invoke(InvocationContext context)
+            protected override int InvokeInternal(InvocationContext context)
             {
                 var valid = true;
 
                 this.Logger.LogInformation("Validating module path...");
-                valid &= Validate(context.Console, () => ValidateModulePath(this.FileSystem));
+                valid &= Validate(context.Console, () => ModulePathValidator.ValidateModulePath(this.FileSystem));
 
                 this.Logger.LogInformation("Validating main Bicep file...");
 
@@ -78,54 +74,6 @@ namespace Bicep.RegistryModuleTool.Commands
                 return valid ? 0 : 1;
             }
 
-            private static void ValidateModulePath(IFileSystem fileSystem)
-            {
-                var directoryPath = fileSystem.Directory.GetCurrentDirectory();
-                var modulePath = GetModulePath(fileSystem, directoryPath);
-
-                if (modulePath.Count(x => x == fileSystem.Path.DirectorySeparatorChar) != 1)
-                {
-                    string modulePathFormat = $"<module-folder>{fileSystem.Path.DirectorySeparatorChar}<module-name>";
-
-                    throw new InvalidModuleException($"The module path \"{modulePath}\" in the path \"{directoryPath}\" is invalid. The module path must be in the format of \"{modulePathFormat}\".");
-                }
-
-                if (modulePath.Any(char.IsUpper))
-                {
-                    throw new InvalidModuleException($"The module path \"{modulePath}\" in the path \"{directoryPath}\" is invalid. All characters in the module path must be in lowercase.");
-                }
-            }
-
-            private static string GetModulePath(IFileSystem fileSystem, string directoryPath)
-            {
-                var directoryInfo = fileSystem.DirectoryInfo.FromDirectoryName(directoryPath);
-                var directoryStack = new Stack<string>();
-
-                try
-                {
-
-                    while (directoryInfo is not null && !directoryInfo.Name.Equals("modules", StringComparison.OrdinalIgnoreCase))
-                    {
-                        directoryStack.Push(directoryInfo.Name);
-
-                        directoryInfo = directoryInfo.Parent;
-                    }
-
-                    if (directoryInfo is null)
-                    {
-                        throw new InvalidModuleException($"Could not find the \"modules\" folder in the path \"{directoryPath}\".");
-                    }
-                }
-                catch (SecurityException exception)
-                {
-                    throw new BicepException(exception.Message, exception);
-                }
-
-                var modulePath = string.Join(fileSystem.Path.DirectorySeparatorChar, directoryStack.ToArray());
-
-                return modulePath;
-            }
-
             private static bool Validate(IConsole console, Action validateAction)
             {
                 try
@@ -134,15 +82,7 @@ namespace Bicep.RegistryModuleTool.Commands
                 }
                 catch (InvalidModuleException exception)
                 {
-                    // Normalize the error message to make it always end with a new line.
-                    var normalizedErrorMessage = exception.Message.ReplaceLineEndings();
-
-                    if (!normalizedErrorMessage.EndsWith(Environment.NewLine))
-                    {
-                        normalizedErrorMessage = $"{normalizedErrorMessage}{Environment.NewLine}";
-                    }
-
-                    console.WriteError(normalizedErrorMessage);
+                    console.WriteError(exception.Message);
 
                     return false;
                 }

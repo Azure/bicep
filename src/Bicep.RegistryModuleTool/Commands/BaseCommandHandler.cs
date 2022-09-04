@@ -28,7 +28,7 @@ namespace Bicep.RegistryModuleTool.Commands
         {
             try
             {
-                var exitCode = this.Invoke(context);
+                var exitCode = this.InvokeInternal(context);
 
                 return Task.FromResult(exitCode);
             }
@@ -53,6 +53,33 @@ namespace Bicep.RegistryModuleTool.Commands
             }
         }
 
-        protected abstract int Invoke(InvocationContext context);
+        protected abstract int InvokeInternal(InvocationContext context);
+
+        public int Invoke(InvocationContext context)
+        {
+            try
+            {
+                return this.InvokeInternal(context);
+            }
+            catch (Exception exception)
+            {
+                switch (exception)
+                {
+                    case BicepException:
+                    case IOException:
+                    case UnauthorizedAccessException:
+                        this.Logger.LogDebug(exception, "Command failure.");
+                        context.Console.WriteError(exception.Message);
+
+                        break;
+
+                    default:
+                        this.Logger.LogCritical(exception, "Unexpected exception.");
+                        break;
+                }
+
+                return 1;
+            }
+        }
     }
 }

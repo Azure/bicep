@@ -1,0 +1,112 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "_": {
+      "type": "string",
+      "defaultValue": "_"
+    },
+    "_1": {
+      "type": "string",
+      "defaultValue": "_1"
+    },
+    "123": {
+      "type": "string",
+      "defaultValue": "123"
+    },
+    "my bad": {
+      "type": "string",
+      "defaultValue": "my bad"
+    },
+    "_doNotStripUnderscoresFromUserNames": {
+      "type": "string",
+      "defaultValue": "_doNotStripUnderscoresFromUserNames"
+    },
+    "doNotStripUnderscoresFromUserNames_": {
+      "type": "string",
+      "defaultValue": "doNotStripUnderscoresFromUserNames_"
+    },
+    "_doNotStripUnderscoresFromUserNames_": {
+      "type": "string",
+      "defaultValue": "_doNotStripUnderscoresFromUserNames_"
+    }
+  },
+  "variables": {
+    "_doNotStripUnderscoresFromUserNames_": "_doNotStripUnderscoresFromUserNames_"
+  },
+  "outputs": {
+    "output1": {
+      "type": "string",
+      "value": "[parameters('_')]"
+    },
+    "output2": {
+      "type": "string",
+      "value": "[parameters('_1')]"
+    },
+    "output3": {
+      "type": "string",
+      "value": "[parameters('123')]"
+    },
+    "output4": {
+      "type": "string",
+      "value": "[parameters('my bad')]"
+    },
+    "output5": {
+      "type": "string",
+      "value": "[parameters('_doNotStripUnderscoresFromUserNames')]"
+    },
+    "output6": {
+      "type": "string",
+      "value": "[parameters('doNotStripUnderscoresFromUserNames_')]"
+    },
+    "output7": {
+      "type": "string",
+      "value": "[parameters('_doNotStripUnderscoresFromUserNames_')]"
+    },
+    "output8": {
+      "type": "string",
+      "value": "[concat(variables('_doNotStripUnderscoresFromUserNames_'))]"
+    },
+    "_doNotStripUnderscoresFromUserNames_": {
+      "type": "string",
+      "value": "_doNotStripUnderscoresFromUserNames_"
+    }
+  },
+  "resources": [
+    {
+      "name": "nestedInnerDeployment",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2021-04-01",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "_doNotStripUnderscoresFromUserNames_": {
+            "value": "[parameters('_doNotStripUnderscoresFromUserNames_')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "_doNotStripUnderscoresFromUserNames_": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "_doNotStripUnderscoresFromUserNames_": "_doNotStripUnderscoresFromUserNames_"
+          },
+          "resources": [],
+          "outputs": {
+            "_doNotStripUnderscoresFromUserNames_": {
+              "type": "string",
+              "value": "[concat(parameters('_doNotStripUnderscoresFromUserNames_'), variables('_doNotStripUnderscoresFromUserNames_'))]"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

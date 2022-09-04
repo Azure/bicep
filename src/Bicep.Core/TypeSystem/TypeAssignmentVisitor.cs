@@ -1089,6 +1089,13 @@ namespace Bicep.Core.TypeSystem
                     case FunctionSymbol function:
                         return GetFunctionSymbolType(function, syntax, errors, diagnostics);
 
+                    case Symbol symbolInfo when binder.NamespaceResolver.GetKnownFunctions(symbolInfo.Name).FirstOrDefault() is {} knownFunction:
+                        // A function exists, but it's being shadowed by another symbol in the file
+                        return ErrorType.Create(
+                            errors.Append(
+                                DiagnosticBuilder.ForPosition(syntax.Name.Span)
+                                .SymbolicNameShadowsAKnownFunction(syntax.Name.IdentifierName, knownFunction.DeclaringObject.Name, knownFunction.Name)));
+
                     default:
                         return ErrorType.Create(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
                 }

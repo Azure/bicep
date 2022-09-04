@@ -4,7 +4,7 @@
 using Bicep.RegistryModuleTool.ModuleFiles;
 using System;
 
-namespace Bicep.RegistryModuleTool.ModuleFileValidators
+namespace Bicep.RegistryModuleTool.ModuleValidators
 {
     public interface IModuleFileValidator
     {

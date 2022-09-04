@@ -21,7 +21,7 @@ export class BuildCommand implements Command {
     documentUri = await findOrCreateActiveBicepFile(
       context,
       documentUri,
-      "Choose which Bicep file to build"
+      "Choose which Bicep file to build into an ARM template"
     );
 
     try {
@@ -34,7 +34,7 @@ export class BuildCommand implements Command {
       );
       this.outputChannelManager.appendToOutputChannel(buildOutput);
     } catch (err) {
-      this.client.error("Build failed", parseError(err).message, true);
+      this.client.error("Bicep build failed", parseError(err).message, true);
     }
   }
 }

@@ -227,9 +227,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             private static Failure? AnalyzeIdPropertyValue(SemanticModel model, ObjectPropertySyntax propertySyntax, SyntaxBase expression, DeclaredSymbol[] currentPaths)
             {
-                // Does it contain any reference to a resource symbolic name anywhere in the expression?
+                // Does it contain any reference to a resource or module symbolic name anywhere in the expression?  If so, we assume it's being done correctly
                 if (expression.Any(syntax =>
-                    syntax is VariableAccessSyntax variableAccessSyntax && model.GetSymbolInfo(variableAccessSyntax) is ResourceSymbol))
+                    syntax is VariableAccessSyntax variableAccessSyntax && model.GetSymbolInfo(variableAccessSyntax) is DeclaredSymbol symbol
+                    && (symbol is ResourceSymbol || symbol is ModuleSymbol)))
                 {
                     return null;
                 }

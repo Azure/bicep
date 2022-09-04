@@ -10,6 +10,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -41,7 +42,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             OnCompileErrors OnCompileErrors = OnCompileErrors.Default,
             IncludePosition IncludePosition = IncludePosition.Default,
             RootConfiguration? Configuration = null,
-            ApiVersionProvider? ApiVersionProvider = null
+            ApiVersionProvider? ApiVersionProvider = null,
+            (string path, string contents)[]? AdditionalFiles = null
         );
 
         private static string FormatDiagnostic(IDiagnostic diagnostic, ImmutableArray<int> lineStarts, IncludePosition includePosition)
@@ -79,8 +81,17 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         protected static void AssertLinterRuleDiagnostics(string ruleCode, string bicepText, Action<IEnumerable<IDiagnostic>> assertAction, Options? options = null)
         {
             options ??= new Options();
+            var files = new List<(string path, string content)>
+            {
+                ("main.bicep", bicepText)
+            };
+            if (options.AdditionalFiles is not null)
+            {
+                files.AddRange(options.AdditionalFiles);
+            }
+
             RunWithDiagnosticAnnotations(
-                bicepText,
+                files.ToArray(),
                 diag =>
                     diag.Code == ruleCode
                     || (IsCompilerDiagnostic(diag) && options.OnCompileErrors == OnCompileErrors.IncludeErrors && diag.Level == DiagnosticLevel.Error)
@@ -90,18 +101,16 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         private static void RunWithDiagnosticAnnotations(
-            string bicepText,
+            (string path, string contents)[] files,
             Func<IDiagnostic, bool> filterFunc,
             Action<IEnumerable<IDiagnostic>> assertAction,
             Options? options)
         {
             options ??= new Options();
             var context = new CompilationHelper.CompilationHelperContext(Configuration: options.Configuration, ApiVersionProvider: options.ApiVersionProvider);
-            var result = CompilationHelper.Compile(context, bicepText);
+            var result = CompilationHelper.Compile(context, files);
             using (new AssertionScope().WithFullSource(result.BicepFile))
             {
-                result.Should().NotHaveDiagnosticsWithCodes(new[] { LinterAnalyzer.LinterRuleInternalError }, "There should never be linter LinterRuleInternalError errors");
-
                 IDiagnostic[] diagnosticsMatchingCode = result.Diagnostics.Where(filterFunc).ToArray();
                 DiagnosticAssertions.DoWithDiagnosticAnnotations(
                     result.Compilation.SourceFileGrouping.EntryPoint,

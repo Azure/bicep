@@ -109,6 +109,27 @@
     }
   },
   {
+    "label": "az.subscription",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsubscription(): subscription\nsubscription(subscriptionId: string): subscription\n\n```\nReturns a subscription scope.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_az.subscription",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "az.subscription($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "badEquals",
     "kind": "variable",
     "detail": "badEquals",
@@ -1123,6 +1144,34 @@
     }
   },
   {
+    "label": "listSecrets",
+    "kind": "variable",
+    "detail": "listSecrets",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_listSecrets",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "listSecrets"
+    }
+  },
+  {
+    "label": "listSecretsVar",
+    "kind": "variable",
+    "detail": "listSecretsVar",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_listSecretsVar",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "listSecretsVar"
+    }
+  },
+  {
     "label": "loadFileAsBase64",
     "kind": "function",
     "documentation": {
@@ -1970,24 +2019,31 @@
     }
   },
   {
-    "label": "subscription",
-    "kind": "function",
-    "documentation": {
-      "kind": "markdown",
-      "value": "```bicep\nsubscription(): subscription\nsubscription(subscriptionId: string): subscription\n\n```\nReturns a subscription scope.\n"
-    },
+    "label": "subName",
+    "kind": "variable",
+    "detail": "subName",
     "deprecated": false,
     "preselect": false,
-    "sortText": "3_subscription",
-    "insertTextFormat": "snippet",
+    "sortText": "2_subName",
+    "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "subscription($0)"
-    },
-    "command": {
-      "title": "signature help",
-      "command": "editor.action.triggerParameterHints"
+      "newText": "subName"
+    }
+  },
+  {
+    "label": "subscription",
+    "kind": "variable",
+    "detail": "subscription",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_subscription",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "subscription"
     }
   },
   {

@@ -1,5 +1,5 @@
 
-//@[00:5424) ProgramSyntax
+//@[00:5538) ProgramSyntax
 //@[00:0001) ├─Token(NewLine) |\n|
 // unknown declaration
 //@[22:0023) ├─Token(NewLine) |\n|
@@ -508,6 +508,32 @@ var rgName = resourceGroup().name
 //@[13:0028) |   ├─FunctionCallSyntax
 //@[13:0026) |   | ├─IdentifierSyntax
 //@[13:0026) |   | | └─Token(Identifier) |resourceGroup|
+//@[26:0027) |   | ├─Token(LeftParen) |(|
+//@[27:0028) |   | └─Token(RightParen) |)|
+//@[28:0029) |   ├─Token(Dot) |.|
+//@[29:0033) |   └─IdentifierSyntax
+//@[29:0033) |     └─Token(Identifier) |name|
+//@[33:0035) ├─Token(NewLine) |\n\n|
+
+var subscription = ''
+//@[00:0021) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0016) | ├─IdentifierSyntax
+//@[04:0016) | | └─Token(Identifier) |subscription|
+//@[17:0018) | ├─Token(Assignment) |=|
+//@[19:0021) | └─StringSyntax
+//@[19:0021) |   └─Token(StringComplete) |''|
+//@[21:0022) ├─Token(NewLine) |\n|
+var subName = subscription().name
+//@[00:0033) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0011) | ├─IdentifierSyntax
+//@[04:0011) | | └─Token(Identifier) |subName|
+//@[12:0013) | ├─Token(Assignment) |=|
+//@[14:0033) | └─PropertyAccessSyntax
+//@[14:0028) |   ├─FunctionCallSyntax
+//@[14:0026) |   | ├─IdentifierSyntax
+//@[14:0026) |   | | └─Token(Identifier) |subscription|
 //@[26:0027) |   | ├─Token(LeftParen) |(|
 //@[27:0028) |   | └─Token(RightParen) |)|
 //@[28:0029) |   ├─Token(Dot) |.|
@@ -1841,6 +1867,28 @@ var keyVaultSecretArrayInterpolatedVar = [
 //@[00:0001) |   └─Token(RightSquare) |]|
 //@[01:0003) ├─Token(NewLine) |\n\n|
 
+var listSecrets= ''
+//@[00:0019) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |listSecrets|
+//@[15:0016) | ├─Token(Assignment) |=|
+//@[17:0019) | └─StringSyntax
+//@[17:0019) |   └─Token(StringComplete) |''|
+//@[19:0020) ├─Token(NewLine) |\n|
+var listSecretsVar = listSecrets()
+//@[00:0034) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0018) | ├─IdentifierSyntax
+//@[04:0018) | | └─Token(Identifier) |listSecretsVar|
+//@[19:0020) | ├─Token(Assignment) |=|
+//@[21:0034) | └─FunctionCallSyntax
+//@[21:0032) |   ├─IdentifierSyntax
+//@[21:0032) |   | └─Token(Identifier) |listSecrets|
+//@[32:0033) |   ├─Token(LeftParen) |(|
+//@[33:0034) |   └─Token(RightParen) |)|
+//@[34:0036) ├─Token(NewLine) |\n\n|
+
 var copy = [
 //@[00:0082) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
@@ -1885,4 +1933,6 @@ var copy = [
 //@[03:0004) |   ├─Token(NewLine) |\n|
 ]
 //@[00:0001) |   └─Token(RightSquare) |]|
-//@[01:0001) └─Token(EndOfFile) ||
+//@[01:0002) ├─Token(NewLine) |\n|
+
+//@[00:0000) └─Token(EndOfFile) ||

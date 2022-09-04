@@ -86,14 +86,9 @@ namespace Bicep.Core.Extensions
         public static JsonElement Patch(this JsonElement element, params PatchOperation[] operations)
         {
             var patch = new JsonPatch(operations);
-            var patchResult = patch.Apply(element);
+            var patched = patch.Apply(element);
 
-            if (patchResult.IsSuccess)
-            {
-                return patchResult.Result;
-            }
-
-            throw new InvalidOperationException(patchResult.Error);
+            return patched;
         }
 
         public static IEnumerable<JsonElement> Select(this JsonElement element, string jsonPathQuery)

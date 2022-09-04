@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using System.IO.Abstractions;
 
-namespace Bicep.RegistryModuleTool.ModuleFileValidators
+namespace Bicep.RegistryModuleTool.ModuleValidators
 {
     public sealed class DiffValidator : IModuleFileValidator
     {
