@@ -131,11 +131,11 @@ namespace Bicep.Core.Semantics
                 var outputDeclarations = scope.Declarations.Where(decl => decl is OutputSymbol);
                 var metadataDeclarations = scope.Declarations.Where(decl => decl is MetadataSymbol);
                 var namespaceDeclarations = scope.Declarations.OfType<ImportedNamespaceSymbol>();
-                var referenceabelDeclarations = scope.Declarations.Where(decl => decl is not OutputSymbol && decl is not MetadataSymbol);
+                var referenceableDeclarations = scope.Declarations.Where(decl => decl is not OutputSymbol && decl is not MetadataSymbol);
 
                 // all symbols apart from outputs are in the same namespace, so check for uniqueness.
                 this.Diagnostics.AddRange(
-                    FindDuplicateNamedSymbols(referenceabelDeclarations)
+                    FindDuplicateNamedSymbols(referenceableDeclarations)
                     .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSyntax).IdentifierMultipleDeclarations(decl.Name)));
 
                 // output symbols cannot be referenced, so the names declared by them do not need to be unique in the scope.
@@ -153,7 +153,7 @@ namespace Bicep.Core.Semantics
                 // imported namespaces are reserved in all the scopes
                 // otherwise the user could accidentally hide a namespace which would remove the ability
                 // to fully qualify a function
-                this.Diagnostics.AddRange(referenceabelDeclarations
+                this.Diagnostics.AddRange(referenceableDeclarations
                     .Where(decl => decl.NameSyntax.IsValid && this.builtInNamespaces.ContainsKey(decl.Name))
                     .Select(reservedSymbol => DiagnosticBuilder.ForPosition(reservedSymbol.NameSyntax).SymbolicNameCannotUseReservedNamespaceName(reservedSymbol.Name, this.builtInNamespaces.Keys)));
 
