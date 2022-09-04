@@ -1,17 +1,17 @@
 // wrong declaration
 metadata
-//@[08:08) [BCP264 (Error)] Expected a metadata identifier at this location. (CodeDescription: none) ||
+//@[08:08) [BCP266 (Error)] Expected a metadata identifier at this location. (CodeDescription: none) ||
 
 // blank identifier name
 metadata 
-//@[09:09) [BCP264 (Error)] Expected a metadata identifier at this location. (CodeDescription: none) ||
+//@[09:09) [BCP266 (Error)] Expected a metadata identifier at this location. (CodeDescription: none) ||
 
 // invalid identifier name
 metadata 2
-//@[09:10) [BCP264 (Error)] Expected a metadata identifier at this location. (CodeDescription: none) |2|
+//@[09:10) [BCP266 (Error)] Expected a metadata identifier at this location. (CodeDescription: none) |2|
 //@[10:10) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 metadata _2
-//@[09:11) [BCP265 (Error)] Invalid identifier: "_2". Metadata identifiers starting with '_' are reserved. Please use a different identifier. (CodeDescription: none) |_2|
+//@[09:11) [BCP267 (Error)] Invalid identifier: "_2". Metadata identifiers starting with '_' are reserved. Please use a different identifier. (CodeDescription: none) |_2|
 //@[11:11) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // missing value
@@ -49,7 +49,7 @@ metadata selfRef = selfRef
 metadata decoratedDescription = 'hasDescription'
 
 @secure()
-//@[01:07) [BCP266 (Error)] Function "secure" cannot be used as a metadata decorator. (CodeDescription: none) |secure|
+//@[01:07) [BCP268 (Error)] Function "secure" cannot be used as a metadata decorator. (CodeDescription: none) |secure|
 metadata secureMetadata = 'notSupported'
 
 
