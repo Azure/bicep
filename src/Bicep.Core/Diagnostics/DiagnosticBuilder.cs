@@ -1545,6 +1545,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP265",
                 $"Invalid identifier: \"{name}\". Metadata identifiers starting with '_' are reserved. Please use a different identifier.");
 
+            public ErrorDiagnostic CannotUseFunctionAsMetadataDecorator(string functionName) => new(
+                TextSpan,
+                "BCP266",
+                $"Function \"{functionName}\" cannot be used as a metadata decorator.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

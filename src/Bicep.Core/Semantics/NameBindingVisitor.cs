@@ -181,11 +181,13 @@ namespace Bicep.Core.Semantics
 
         public override void VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax)
         {
+            allowedFlags = FunctionFlags.MetadataDecorator;
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
             this.Visit(syntax.Assignment);
             this.Visit(syntax.Value);
+            allowedFlags = FunctionFlags.Default;
         }
 
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
