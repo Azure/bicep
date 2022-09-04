@@ -46,11 +46,10 @@ metadata selfRef = selfRef
 
 // metadata with decorators
 @description('this is a description')
-//@[01:37) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |description('this is a description')|
 metadata decoratedDescription = 'hasDescription'
 
 @secure()
-//@[01:09) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |secure()|
+//@[01:07) [BCP266 (Error)] Function "secure" cannot be used as a metadata decorator. (CodeDescription: none) |secure|
 metadata secureMetadata = 'notSupported'
 
 
