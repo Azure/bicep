@@ -67,18 +67,18 @@
       },
       "Azure.Bicep.Types": {
         "type": "Transitive",
-        "resolved": "0.2.34",
-        "contentHash": "svHEVSQ/SwV9aK5w/z4LhR31GKvl3WFh8PDDq8Cq+UeVTjsO2tg07SomvDkgK6PUX7e2Ftm8AQfkGv+c5khrUw==",
+        "resolved": "0.2.107",
+        "contentHash": "hE3DjCaQ/wm3OKi1AffydJQV1QarP3/3WdJ+t2mafk+MMllgzcwtfKWzsVy/gbx+G8mFIDotr/L5yo4ftvI+gw==",
         "dependencies": {
           "System.Text.Json": "6.0.5"
         }
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",
-        "resolved": "0.2.34",
-        "contentHash": "qgDLfh6an/RfADAV81t/JS1+WmQSTYr1d+Lr+V7ppP08QTWTxLUCTLIBU+qCKl2VE1bWknWot3csGP3AAsa4qA==",
+        "resolved": "0.2.107",
+        "contentHash": "VN0BrXjvW0zqQL5DqTy0cXf+XkpNH/GwrMCxNOHk1rrUGLRWJc50yqmYojU27OoknJfDweVWxjhHl08+BH3rrg==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.2.34"
+          "Azure.Bicep.Types": "0.2.107"
         }
       },
       "Azure.Bicep.Types.K8s": {
@@ -202,8 +202,8 @@
       },
       "Json.More.Net": {
         "type": "Transitive",
-        "resolved": "1.6.0",
-        "contentHash": "bn/agVu1jQ5V0UyMUYD11ZNMkGry5vmfYBGuRPs9SUkcGWTLf6UiVEEeEm8UQiyMQWdJmTEGBRE4DpqPI+4mzQ==",
+        "resolved": "1.7.0",
+        "contentHash": "+c+VvrowC36hANAihpa9uIQj4+hLmQza37d/+FCjj5Yea7QFp7l3MH7VFvJpXiEiIxWHSL5tNHXRvQu+svVUvg==",
         "dependencies": {
           "System.Text.Json": "6.0.2"
         }
@@ -234,11 +234,11 @@
       },
       "JsonSchema.Net": {
         "type": "Transitive",
-        "resolved": "3.2.0",
-        "contentHash": "82ElDl2FSDfajbeYW/QvNML+Mu0BRPIormljOConuyWOkea67L3NJbXP8u8ORQS+OyuvA/xL2ypO+HDTdUpOoQ==",
+        "resolved": "3.2.1",
+        "contentHash": "qJ5wRhmdD2SPQdZhmhlOsDFptpYf+52LRxLXJzSBT8s1+37SkP0ccJCoZbh50MUYpTthgcsqli2qpiZ451Cj8A==",
         "dependencies": {
           "JetBrains.Annotations": "2021.2.0",
-          "Json.More.Net": "1.6.0",
+          "Json.More.Net": "1.7.0",
           "JsonPointer.Net": "2.2.1"
         }
       },
@@ -935,8 +935,8 @@
       },
       "Serilog.Sinks.Console": {
         "type": "Transitive",
-        "resolved": "4.0.1",
-        "contentHash": "apLOvSJQLlIbKlbx+Y2UDHSP05kJsV7mou+fvJoRGs/iR+jC22r8cuFVMjjfVxz/AD4B2UCltFhE1naRLXwKNw==",
+        "resolved": "4.1.0",
+        "contentHash": "K6N5q+5fetjnJPvCmkWOpJ/V8IEIoMIB1s86OzBrbxwTyHxdx3pmz4H+8+O/Dc/ftUX12DM1aynx/dDowkwzqg==",
         "dependencies": {
           "Serilog": "2.10.0"
         }
@@ -2099,8 +2099,8 @@
       "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Types": "[0.2.34, )",
-          "Azure.Bicep.Types.Az": "[0.2.34, )",
+          "Azure.Bicep.Types": "[0.2.107, )",
+          "Azure.Bicep.Types.Az": "[0.2.107, )",
           "Azure.Bicep.Types.K8s": "[0.1.11, )",
           "Azure.Containers.ContainerRegistry": "[1.1.0-beta.4, )",
           "Azure.Deployments.Core": "[1.0.676, )",
@@ -2125,12 +2125,12 @@
           "DiffPlex": "[1.7.1, )",
           "FluentAssertions": "[6.7.0, )",
           "JsonPath.Net": "[0.2.1, )",
-          "JsonSchema.Net": "[3.2.0, )",
+          "JsonSchema.Net": "[3.2.1, )",
           "Markdig": "[0.30.3, )",
           "Microsoft.Extensions.Logging": "[6.0.0, )",
           "Microsoft.Extensions.Logging.Console": "[6.0.0, )",
           "Serilog.Extensions.Hosting": "[5.0.1, )",
-          "Serilog.Sinks.Console": "[4.0.1, )",
+          "Serilog.Sinks.Console": "[4.1.0, )",
           "Serilog.Sinks.TextWriter": "[2.1.0, )",
           "System.CommandLine": "[2.0.0-beta4.22272.1, )",
           "System.CommandLine.Hosting": "[0.4.0-alpha.22272.1, )",
