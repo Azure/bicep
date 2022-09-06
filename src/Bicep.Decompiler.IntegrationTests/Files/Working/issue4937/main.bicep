@@ -8,7 +8,6 @@ resource dataFactoryName_Backup_Trigger 'Microsoft.DataFactory/factories/trigger
     runtimeState: 'Started'
 //@[4:16) [BCP073 (Warning)] The property "runtimeState" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |runtimeState|
     pipelines: [
-//@[4:13) [BCP037 (Warning)] The property "pipelines" is not allowed on objects of type "ScheduleTrigger". Permissible properties include "description". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |pipelines|
       {
         pipelineReference: {
           referenceName: 'Backup Database'
