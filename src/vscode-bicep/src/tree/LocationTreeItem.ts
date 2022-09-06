@@ -33,7 +33,9 @@ export class LocationTreeItem extends SubscriptionTreeItemBase {
 
     const subscriptionId = this.subscription.subscriptionId;
     const locations = [];
-    for await (const location of client.subscriptions.listLocations(subscriptionId)) {
+    for await (const location of client.subscriptions.listLocations(
+      subscriptionId
+    )) {
       locations.push(location);
     }
 
