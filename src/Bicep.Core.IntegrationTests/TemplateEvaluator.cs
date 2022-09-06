@@ -13,6 +13,8 @@ using Azure.Deployments.Core.ErrorResponses;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
+using System.Collections.Immutable;
+using Bicep.Core.UnitTests.Assertions;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -34,7 +36,6 @@ namespace Bicep.Core.IntegrationTests
             string SubscriptionId,
             string ResourceGroup,
             string RgLocation,
-            Dictionary<string, JToken> Parameters,
             Dictionary<string, JToken> Metadata,
             OnListDelegate? OnListFunc,
             OnReferenceDelegate? OnReferenceFunc)
@@ -45,7 +46,6 @@ namespace Bicep.Core.IntegrationTests
                 TestSubscriptionId,
                 TestResourceGroupName,
                 TestLocation,
-                new(),
                 new(),
                 null,
                 null
@@ -134,19 +134,19 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
-        public static JToken Evaluate(JToken? templateJtoken, Func<EvaluationConfiguration, EvaluationConfiguration>? configurationBuilder = null)
+        public static JToken Evaluate(JToken? templateJtoken, JToken? parametersJToken = null, Func<EvaluationConfiguration, EvaluationConfiguration>? configBuilder = null)
         {
             var configuration = EvaluationConfiguration.Default;
 
-            if (configurationBuilder is not null)
+            if (configBuilder is not null)
             {
-                configuration = configurationBuilder(configuration);
+                configuration = configBuilder(configuration);
             }
 
-            return EvaluateTemplate(templateJtoken, configuration);
+            return EvaluateTemplate(templateJtoken, parametersJToken, configuration);
         }
 
-        private static JToken EvaluateTemplate(JToken? templateJtoken, EvaluationConfiguration config)
+        private static JToken EvaluateTemplate(JToken? templateJtoken, JToken? parametersJToken, EvaluationConfiguration config)
         {
             templateJtoken = templateJtoken ?? throw new ArgumentNullException(nameof(templateJtoken));
 
@@ -188,9 +188,10 @@ namespace Bicep.Core.IntegrationTests
             try
             {
                 var template = TemplateEngine.ParseTemplate(templateJtoken.ToString());
+                var parameters = ParseParametersFile(parametersJToken);
 
                 TemplateEngine.ValidateTemplate(template, "2020-10-01", deploymentScope);
-                TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(config.Parameters), metadata, new InsensitiveDictionary<JToken>());
+                TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(parameters), metadata, new InsensitiveDictionary<JToken>());
 
                 TemplateEngine.ProcessTemplateLanguageExpressions(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, "2020-10-01");
 
@@ -202,8 +203,27 @@ namespace Bicep.Core.IntegrationTests
             }
             catch (Exception exception)
             {
-                throw new InvalidOperationException($"Evaluating template failed: {exception.Message}.\nOriginal template: {templateJtoken}", exception);
+                throw new InvalidOperationException(
+                    $"Evaluating template failed: {exception.Message}." +
+                    $"\nTemplate file: {templateJtoken}" +
+                    (parametersJToken is null ? "" : $"\nParameters file: {parametersJToken}"),
+                    exception);
             }
+        }
+
+        private static ImmutableDictionary<string, JToken> ParseParametersFile(JToken? parametersJToken)
+        {
+            if (parametersJToken is null)
+            {
+                return ImmutableDictionary<string, JToken>.Empty;
+            }
+
+            parametersJToken.Should().HaveValueAtPath("$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#");
+            parametersJToken.Should().HaveValueAtPath("contentVersion", "1.0.0.0");
+            var parametersObject = parametersJToken["parameters"] as JObject;
+            parametersObject.Should().NotBeNull();
+
+            return parametersObject!.Properties().ToImmutableDictionary(x => x.Name, x => x.Value["value"]!);
         }
     }
 }
