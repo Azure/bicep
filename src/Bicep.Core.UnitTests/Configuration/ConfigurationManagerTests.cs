@@ -252,7 +252,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
 
             // Act & Assert.
-            var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForPosition(new Core.Parsing.TextSpan(0, 1)))).ToList();
+            var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
             diagnostics.Count.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
             diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurataionPath}\" as valid JSON: \"The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.\".");
@@ -279,7 +279,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
 
             // Act & Assert.
-            var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForPosition(new Core.Parsing.TextSpan(0, 1)))).ToList();
+            var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
             diagnostics.Count.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
             diagnostics[0].Message.Should().Be($"Could not load the Bicep configuration file \"{configurataionPath}\": \"Not allowed.\".");
@@ -301,7 +301,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var configuration = sut.GetConfiguration(sourceFileUri);
 
             // Act & Assert.
-            var diagnostics = configuration.DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForPosition(new Core.Parsing.TextSpan(0, 1)))).ToList();
+            var diagnostics = configuration.DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
             diagnostics.Count.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Info);
             diagnostics[0].Message.Should().Be("Error scanning \"foo\" for bicep configuration: \"Oops.\".");
@@ -368,7 +368,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
 
             // Act & Assert.
-            var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForPosition(new Core.Parsing.TextSpan(0, 1)))).ToList();
+            var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
             diagnostics.Count.Should().Be(1);
             diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
             diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": \"{expectedExceptionMessage.Replace("__CONFIGURATION_PATH__", configurationPath)}\".");

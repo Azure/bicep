@@ -204,7 +204,7 @@ namespace Bicep.Core.Semantics
                 }
 
                 // Return true here because it *was* a resource type, just a wrong one.
-                type = ErrorType.Create(DiagnosticBuilder.ForPosition(new TextSpan(0, 0)).InvalidResourceType());
+                type = ErrorType.Create(DiagnosticBuilder.ForDocumentStart().InvalidResourceType());
                 return true;
             }
 

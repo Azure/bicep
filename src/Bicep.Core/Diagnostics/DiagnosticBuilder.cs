@@ -1591,6 +1591,11 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Info, // should this be a warning instead?
                 "BCP273",
                 $"Error scanning \"{directoryPath}\" for bicep configuration: \"{scanErrorMessage}\".");
+
+            public ErrorDiagnostic RuleFailedToLoad(string ruleTypeName) => new(
+                TextSpan,
+                "BCP270",
+                $"Failed to create an instance of \"{ruleTypeName}\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
@@ -1598,5 +1603,8 @@ namespace Bicep.Core.Diagnostics
 
         public static DiagnosticBuilderInternal ForPosition(IPositionable positionable)
             => new(positionable.Span);
+
+        public static DiagnosticBuilderInternal ForDocumentStart()
+            => new(TextSpan.TextDocumentStart);
     }
 }

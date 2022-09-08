@@ -127,11 +127,10 @@ namespace Bicep.Core.Semantics
         /// </summary>
         private IEnumerable<IDiagnostic> GetConfigDiagnostics()
         {
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
             foreach (var builderFunc in Configuration.DiagnosticBuilders)
             {
                 // This diagnostic does not correspond to any specific location in the template, so just use the first character span.
-                yield return builderFunc(DiagnosticBuilder.ForPosition(new Parsing.TextSpan(0, 1)));
+                yield return builderFunc(DiagnosticBuilder.ForDocumentStart());
             }
         }
 
@@ -227,7 +226,7 @@ namespace Bicep.Core.Semantics
 
             if (usingDeclarations.FirstOrDefault() is not { } usingDeclaration)
             {
-                diagnostics.Write(new TextSpan(0, 0), x => x.UsingDeclarationNotSpecified());
+                diagnostics.Write(TextSpan.TextDocumentStart, x => x.UsingDeclarationNotSpecified());
                 return null;
             }
 

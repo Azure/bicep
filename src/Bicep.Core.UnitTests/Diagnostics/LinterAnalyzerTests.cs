@@ -77,7 +77,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             {
                 // Have a yield return to force this method to return an iterator like the real rules
                 yield return new AnalyzerDiagnostic(this.AnalyzerName,
-                                                    new TextSpan(0, 0),
+                                                    TextSpan.TextDocumentStart,
                                                     DiagnosticLevel.Warning,
                                                     "fakeRule",
                                                     "Fake Rule",

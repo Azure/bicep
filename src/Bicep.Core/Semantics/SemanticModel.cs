@@ -178,7 +178,7 @@ namespace Bicep.Core.Semantics
             foreach (var builderFunc in Configuration.DiagnosticBuilders)
             {
                 // This diagnostic does not correspond to any specific location in the template, so just use the first character span.
-                yield return builderFunc(DiagnosticBuilder.ForPosition(new Parsing.TextSpan(0, 1)));
+                yield return builderFunc(DiagnosticBuilder.ForDocumentStart());
             }
         }
 

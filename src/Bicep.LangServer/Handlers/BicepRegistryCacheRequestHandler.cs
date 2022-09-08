@@ -65,7 +65,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (!this.fileResolver.TryRead(uri, out var contents, out var failureBuilder))
             {
-                var message = failureBuilder(DiagnosticBuilder.ForPosition(new TextSpan(0, 0))).Message;
+                var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
                 throw new InvalidOperationException($"Unable to read file '{uri}'. {message}");
             }
 

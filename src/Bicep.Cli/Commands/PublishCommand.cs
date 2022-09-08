@@ -93,7 +93,7 @@ namespace Bicep.Cli.Commands
             if (!this.moduleDispatcher.TryGetModuleReference(targetModuleReference, targetModuleUri, out var moduleReference, out var failureBuilder))
             {
                 // TODO: We should probably clean up the dispatcher contract so this sort of thing isn't necessary (unless we change how target module is set in this command)
-                var message = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(new TextSpan(0, 0))).Message;
+                var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
 
                 throw new BicepException(message);
             }

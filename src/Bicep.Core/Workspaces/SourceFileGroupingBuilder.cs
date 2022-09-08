@@ -83,7 +83,7 @@ namespace Bicep.Core.Workspaces
                 // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:
                 // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/nullable-analysis
                 var failureBuilder = fileResult.ErrorBuilder ?? throw new InvalidOperationException($"Expected {nameof(PopulateRecursive)} to provide failure diagnostics");
-                var diagnostic = failureBuilder(ForPosition(new TextSpan(0, 0)));
+                var diagnostic = failureBuilder(ForDocumentStart());
 
                 throw new ErrorDiagnosticException(diagnostic);
             }

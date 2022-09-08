@@ -47,7 +47,13 @@ namespace Bicep.Core.Analyzers.Linter
 
             foreach (var ruleType in ruleTypes)
             {
-                rules.Add(Activator.CreateInstance(ruleType) as IBicepAnalyzerRule ?? throw new InvalidOperationException($"Failed to create an instance of \"{ruleType.Name}\"."));
+                if (Activator.CreateInstance(ruleType) is IBicepAnalyzerRule rule)
+                {
+                    rules.Add(rule);
+                } else 
+                {
+                    errors.Add(DiagnosticBuilder.ForDocumentStart().RuleFailedToLoad(ruleType.Name));
+                }
             }
 
             return (rules.ToImmutableArray(), errors.ToImmutableArray());
@@ -82,7 +88,7 @@ namespace Bicep.Core.Analyzers.Linter
                 {
                     diagnostics.Add(new AnalyzerDiagnostic(
                         AnalyzerName,
-                        new TextSpan(0, 0),
+                        TextSpan.TextDocumentStart,
                         DiagnosticLevel.Info,
                         "Linter Disabled",
                         string.Format(CoreResources.LinterDisabledFormatMessage, semanticModel.Configuration.ConfigurationPath ?? IConfigurationManager.BuiltInConfigurationResourceName)));
@@ -100,7 +106,7 @@ namespace Bicep.Core.Analyzers.Linter
 
             return new AnalyzerDiagnostic(
                 AnalyzerName,
-                new TextSpan(0, 0),
+                TextSpan.TextDocumentStart,
                 DiagnosticLevel.Info,
                 "Bicep Linter Configuration",
                 configMessage);
