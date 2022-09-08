@@ -3467,6 +3467,81 @@ var " + copy + @" = {}
         }
 
         /// <summary>
+        /// https://github.com/Azure/bicep/issues/7367
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_7367()
+        {
+            var result = CompilationHelper.Compile(@"
+@description('App service plan resource group name. Can be empty if app service plan is in the same resource group as the service itself.')
+param appServicePlanResourceGroupName string = ''
+
+var appServicePlanName = 'test-svcplan'
+
+// This is not working.
+resource servicePlanWithCondition 'Microsoft.Web/serverfarms@2021-03-01' existing = {
+  name: appServicePlanName
+  scope: empty(appServicePlanResourceGroupName) ? resourceGroup() : resourceGroup(appServicePlanResourceGroupName)
+}
+
+// Using local variable works.
+var _appServicePlanResourceGroupName = empty(appServicePlanResourceGroupName) ? resourceGroup().name : appServicePlanResourceGroupName
+
+resource servicePlanWithoutCondition 'Microsoft.Web/serverfarms@2021-03-01' existing = {
+  name: appServicePlanName
+  scope: resourceGroup(_appServicePlanResourceGroupName)
+}
+
+output idScopeWithCondition string = servicePlanWithCondition.id
+output idScopeWithoutCondition string = servicePlanWithoutCondition.id
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP266", DiagnosticLevel.Error, "The scope used for this declaration is ambiguous. A resource or module must only reference a single scope.")
+            });
+        }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/7367
+        public void Test_Issue7367_2()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+param keyVaultName string
+param principalId string
+param roleDefinitionId string
+param secretName string = ''
+
+var hasSecret = secretName != null && secretName != ''
+
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
+  name: keyVaultName
+  resource secret 'secrets' existing = if (hasSecret) {
+    name: secretName
+  }
+}
+
+resource roleDefinition 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
+  scope: subscription()
+  name: roleDefinitionId
+}
+
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  scope: hasSecret ? keyVault::secret : keyVault
+  name: hasSecret ? guid(resourceGroup().id, keyVaultName, secretName, principalId, roleDefinition.id) : guid(resourceGroup().id, keyVaultName, principalId, roleDefinition.id)
+  properties: {
+    roleDefinitionId: roleDefinition.id
+    principalId: principalId
+    principalType: 'ServicePrincipal'
+  }
+}
+"));
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP266", DiagnosticLevel.Error, "The scope used for this declaration is ambiguous. A resource or module must only reference a single scope.")
+            });
+        }
+
+        /// <summary>
         /// https://github.com/Azure/bicep/issues/7154
         /// </summary>
         [TestMethod]

@@ -1550,6 +1550,12 @@ namespace Bicep.Core.Diagnostics
                 null,
                 DiagnosticStyling.Default,
                 new CodeFix($"Change \"{name}\" to \"{knownFunctionNamespace}.{knownFunctionName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, $"{knownFunctionNamespace}.{knownFunctionName}")));
+
+            public Diagnostic UnpermittedTypeForScope() => new(
+                TextSpan,
+                DiagnosticLevel.Error,
+                "BCP266",
+                $"The scope used for this declaration is ambiguous. A resource or module must only reference a single scope.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
