@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
@@ -33,12 +34,12 @@ namespace Bicep.Core.IntegrationTests
 
             public IEnumerable<string> AvailableNamespaces => builderDict.Keys.Concat(new [] { SystemNamespaceType.BuiltInName });
 
-            public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope)
+            public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features)
             {
                 switch (providerName)
                 {
                     case SystemNamespaceType.BuiltInName:
-                        return SystemNamespaceType.Create(aliasName, BicepTestConstants.Features);
+                        return SystemNamespaceType.Create(aliasName, features);
                     case { } _ when builderDict.TryGetValue(providerName) is { } builderFunc:
                         return builderFunc(aliasName);
                 }
