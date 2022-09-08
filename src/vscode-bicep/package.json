@@ -239,20 +239,20 @@
     "menus": {
       "editor/title": [
         {
-          "command": "bicep.insertResource",
-          "when": "editorLangId == bicep",
-          "group": "2_bicep_1_edit"
-        },
-        {
           "command": "bicep.showVisualizerToSide",
           "when": "editorLangId == bicep",
           "alt": "bicep.showVisualizer",
-          "group": "2_bicep_3_visualize"
+          "group": "navigation"
         },
         {
           "command": "bicep.showSource",
           "when": "bicepVisualizerFocus",
-          "group": "2_bicep_3_visualize"
+          "group": "navigation"
+        },
+        {
+          "command": "bicep.insertResource",
+          "when": "editorLangId == bicep",
+          "group": "1_bicep"
         }
       ],
       "explorer/context": [
