@@ -7,8 +7,6 @@ namespace Bicep.LanguageServer.Configuration
 {
     public interface IBicepConfigChangeHandler
     {
-        void RefreshCompilationOfSourceFilesInWorkspace();
-
         void HandleBicepConfigOpenEvent(DocumentUri documentUri);
 
         void HandleBicepConfigChangeEvent(DocumentUri documentUri);

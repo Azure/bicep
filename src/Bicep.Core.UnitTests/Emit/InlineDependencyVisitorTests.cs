@@ -26,7 +26,13 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
         [TestMethod]
         public void VisitorShouldCalculateInliningInBulk()
         {
-            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateFromText(Text, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(
+                BicepTestConstants.FeatureProviderManager,
+                BicepTestConstants.NamespaceProviderManager,
+                SourceFileGroupingFactory.CreateFromText(Text, BicepTestConstants.FileResolver),
+                BicepTestConstants.BuiltInOnlyConfigurationManager,
+                BicepTestConstants.ApiVersionProviderManager,
+                BicepTestConstants.LinterAnalyzer);
 
             var inlineVariables = InlineDependencyVisitor.GetVariablesToInline(compilation.GetEntrypointSemanticModel());
 
@@ -43,7 +49,13 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
         [DataTestMethod]
         public void VisitorShouldProduceNoChainForNonInlinedVariables(string variableName)
         {
-            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateFromText(Text, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(
+                BicepTestConstants.FeatureProviderManager,
+                BicepTestConstants.NamespaceProviderManager,
+                SourceFileGroupingFactory.CreateFromText(Text, BicepTestConstants.FileResolver),
+                BicepTestConstants.BuiltInOnlyConfigurationManager,
+                BicepTestConstants.ApiVersionProviderManager,
+                BicepTestConstants.LinterAnalyzer);
             VariableDeclarationSyntax variable = GetVariableByName(compilation, variableName);
 
             InlineDependencyVisitor.ShouldInlineVariable(compilation.GetEntrypointSemanticModel(), variable, out var chain).Should().BeFalse();
@@ -57,7 +69,13 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
         [DataTestMethod]
         public void VisitorShouldProduceCorrectChainForInlinedVariables(string variableName, string expectedChain)
         {
-            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateFromText(Text, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(
+                BicepTestConstants.FeatureProviderManager,
+                BicepTestConstants.NamespaceProviderManager,
+                SourceFileGroupingFactory.CreateFromText(Text, BicepTestConstants.FileResolver),
+                BicepTestConstants.BuiltInOnlyConfigurationManager,
+                BicepTestConstants.ApiVersionProviderManager,
+                BicepTestConstants.LinterAnalyzer);
             VariableDeclarationSyntax variable = GetVariableByName(compilation, variableName);
 
             InlineDependencyVisitor.ShouldInlineVariable(compilation.GetEntrypointSemanticModel(), variable, out var chain).Should().BeTrue();

@@ -20,24 +20,25 @@ namespace Bicep.LanguageServer.ParamsHandlers
     {
         private readonly ILogger<BicepParamsCompletionHandler> logger;
         private readonly ICompletionProvider completionProvider;
-        private readonly IFeatureProvider featureProvider;
+        private readonly IFeatureProviderManager featureProviderManager;
         private readonly IParamsCompilationManager paramsCompilationManager;
 
-        public BicepParamsCompletionHandler(ILogger<BicepParamsCompletionHandler> logger, ICompletionProvider completionProvider, IFeatureProvider featureProvider, IParamsCompilationManager paramsCompilationManager)
+        public BicepParamsCompletionHandler(ILogger<BicepParamsCompletionHandler> logger, ICompletionProvider completionProvider, IFeatureProviderManager featureProviderManager, IParamsCompilationManager paramsCompilationManager)
         {
             this.logger = logger;
             this.completionProvider = completionProvider;
-            this.featureProvider = featureProvider;
+            this.featureProviderManager = featureProviderManager;
             this.paramsCompilationManager = paramsCompilationManager;
         }
 
         public override Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
         {
             var completions = Enumerable.Empty<CompletionItem>();
+            var documentUri = request.TextDocument.Uri;
 
-            if (featureProvider.ParamsFilesEnabled)
+            if (featureProviderManager.GetFeatureProvider(documentUri.ToUri()).ParamsFilesEnabled)
             {
-                var paramsCompilationContext = this.paramsCompilationManager.GetCompilation(request.TextDocument.Uri);
+                var paramsCompilationContext = this.paramsCompilationManager.GetCompilation(documentUri);
                 if (paramsCompilationContext is null)
                 {
                     return Task.FromResult(new CompletionList());
@@ -51,7 +52,7 @@ namespace Bicep.LanguageServer.ParamsHandlers
                 }
                 catch (Exception e)
                 {
-                    this.logger.LogError("Error with Completion in file {Uri}. Underlying exception is: {Exception}", request.TextDocument.Uri, e.ToString());
+                    this.logger.LogError("Error with Completion in file {Uri}. Underlying exception is: {Exception}", documentUri, e.ToString());
                 }
             }
 

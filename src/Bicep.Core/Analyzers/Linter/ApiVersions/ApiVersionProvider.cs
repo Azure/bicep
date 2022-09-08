@@ -5,11 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem.Az;
 using ResourceScope = Bicep.Core.TypeSystem.ResourceScope;
 
 namespace Bicep.Core.Analyzers.Linter.ApiVersions
@@ -19,7 +17,13 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
         private static StringComparer Comparer = LanguageConstants.ResourceTypeComparer;
 
         // One cache per target scope type
-        private Dictionary<ResourceScope, ApiVersionCache> _caches = new();
+        private readonly Dictionary<ResourceScope, ApiVersionCache> _caches = new();
+        private readonly INamespaceProvider namespaceProvider;
+
+        public ApiVersionProvider(INamespaceProvider namespaceProvider)
+        {
+            this.namespaceProvider = namespaceProvider;
+        }
 
         // for unit testing
         public void InjectTypeReferences(ResourceScope scope, IEnumerable<ResourceTypeReference> resourceTypeReferences)
@@ -66,8 +70,7 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
             IEnumerable<ResourceTypeReference> resourceTypeReferences;
             if (cache.injectedTypes is null)
             {
-                DefaultNamespaceProvider defaultNamespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), new FeatureProvider());
-                NamespaceResolver namespaceResolver = NamespaceResolver.Create(defaultNamespaceProvider, scope, Enumerable.Empty<ImportedNamespaceSymbol>());
+                NamespaceResolver namespaceResolver = NamespaceResolver.Create(this.namespaceProvider, scope, Enumerable.Empty<ImportedNamespaceSymbol>());
                 resourceTypeReferences = namespaceResolver.GetAvailableResourceTypes();
             }
             else
@@ -115,7 +118,7 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
 
                 foreach (var resourceTypeReference in resourceTypeReferences)
                 {
-                    var (apiVersion, suffix) = 
+                    var (apiVersion, suffix) =
                         resourceTypeReference.ApiVersion != null ?
                         ApiVersionHelper.TryParse(resourceTypeReference.ApiVersion) :
                         (null, null);

@@ -33,7 +33,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
             // Note: The compiler does not know about these fake types, only the linter.
-            var apiProvider = new ApiVersionProvider();
+            var apiProvider = new ApiVersionProvider(BicepTestConstants.NamespaceProvider);
             apiProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
 
             AssertLinterRuleDiagnostics(UseRecentApiVersionRule.Code,
@@ -50,7 +50,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             // Test with the linter thinking today's date is fakeToday and also fake resource types from FakeResourceTypes
             // Note: The compiler does not know about these fake types, only the linter.
-            var apiProvider = new ApiVersionProvider();
+            var apiProvider = new ApiVersionProvider(BicepTestConstants.NamespaceProvider);
             apiProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
 
             AssertLinterRuleDiagnostics(
@@ -108,6 +108,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                 }
                               }
                             }".Replace("<TESTING_TODAY_DATE>", today))),
+                null,
                 null);
         }
 
@@ -116,7 +117,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             private static void TestGetAcceptableApiVersions(string fullyQualifiedResourceType, ResourceScope scope, string resourceTypes, string today, string[] expectedApiVersions, int maxAllowedAgeInDays = UseRecentApiVersionRule.MaxAllowedAgeInDays)
             {
-                var apiVersionProvider = new ApiVersionProvider();
+                var apiVersionProvider = new ApiVersionProvider(BicepTestConstants.NamespaceProvider);
                 apiVersionProvider.InjectTypeReferences(scope, FakeResourceTypes.GetFakeResourceTypeReferences(resourceTypes));
                 var (_, allowedVersions) = UseRecentApiVersionRule.GetAcceptableApiVersions(apiVersionProvider, ApiVersionHelper.ParseDateFromApiVersion(today), maxAllowedAgeInDays, scope, fullyQualifiedResourceType);
                 var allowedVersionsStrings = allowedVersions.Select(v => v.Formatted).ToArray();
@@ -716,7 +717,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [TestClass]
         public class GetAcceptableApiVersionsInvariantsTests
         {
-            private static readonly ApiVersionProvider RealApiVersionProvider = new();
+            private static readonly ApiVersionProvider RealApiVersionProvider = new(BicepTestConstants.NamespaceProvider);
             private static readonly bool Exhaustive = false;
 
             public class TestData
@@ -914,7 +915,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 string currentVersion = ApiVersionHelper.Format(currentVersionDate) + currentVersionSuffix;
                 string[] gaVersions = gaVersionDates.Select(d => "Whoever.whatever/whichever@" + ApiVersionHelper.Format(d)).ToArray();
                 string[] previewVersions = previewVersionDates.Select(d => "Whoever.whatever/whichever@" + ApiVersionHelper.Format(d) + "-preview").ToArray();
-                var apiVersionProvider = new ApiVersionProvider();
+                var apiVersionProvider = new ApiVersionProvider(BicepTestConstants.NamespaceProvider);
                 apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(gaVersions.Concat(previewVersions)));
                 var result = UseRecentApiVersionRule.AnalyzeApiVersion(
                     apiVersionProvider,
@@ -1426,14 +1427,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             {
                 // https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/scope-extension-resources#apply-to-resource
                 /*
-                    [-] apiVersions Should Be Recent (15 ms)                                                                            
+                    [-] apiVersions Should Be Recent (15 ms)
                     Api versions must be the latest or under 2 years old (730 days) - API version 2020-04-01-preview of Microsoft.Authorization/roleAssignments is 830 days old Line: 40, Column: 8
-                    Valid Api Versions:                                                                                             
-                    2018-07-01                                                                                                      
-                    2022-01-01-preview                                                                                              
-                    2021-04-01-preview                                                                                              
-                    2020-10-01-preview                                                                                              
-                    2020-08-01-preview  
+                    Valid Api Versions:
+                    2018-07-01
+                    2022-01-01-preview
+                    2021-04-01-preview
+                    2020-10-01-preview
+                    2020-08-01-preview
                 */
                 CompileAndTestWithFakeDateAndTypes(@"
                         targetScope = 'subscription'

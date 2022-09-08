@@ -42,9 +42,9 @@ namespace Bicep.LanguageServer
     {
         public record CreationOptions(
             ISnippetsProvider? SnippetsProvider = null,
-            INamespaceProvider? NamespaceProvider = null,
+            INamespaceProviderManager? NamespaceProviderManager = null,
             IFileResolver? FileResolver = null,
-            IFeatureProvider? Features = null,
+            IFeatureProviderManager? FeatureProviderManager = null,
             IModuleRestoreScheduler? ModuleRestoreScheduler = null,
             Action<IServiceCollection>? onRegisterServices = null);
 
@@ -124,17 +124,15 @@ namespace Bicep.LanguageServer
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
             services.AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>();
-            services.AddSingletonOrInstance<INamespaceProvider, DefaultNamespaceProvider>(creationOptions.NamespaceProvider);
+            services.AddSingletonOrInstance<INamespaceProviderManager, DefaultNamespaceProviderManager>(creationOptions.NamespaceProviderManager);
             services.AddSingletonOrInstance<ISnippetsProvider, SnippetsProvider>(creationOptions.SnippetsProvider);
             services.AddSingletonOrInstance<IFileResolver, FileResolver>(creationOptions.FileResolver);
-            services.AddSingletonOrInstance<IFeatureProvider, FeatureProvider>(creationOptions.Features);
-            services.AddSingleton<EmitterSettings>();
+            services.AddSingletonOrInstance<IFeatureProviderManager, FeatureProviderManager>(creationOptions.FeatureProviderManager);
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
             services.AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
             services.AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
             services.AddSingleton<IModuleDispatcher, ModuleDispatcher>();
             services.AddSingleton<IFileSystem, FileSystem>();
-            services.AddSingleton<IConfigurationManager, ConfigurationManager>();
             services.AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
             services.AddSingleton<ITelemetryProvider, TelemetryProvider>();
             services.AddSingleton<IWorkspace, Workspace>();
@@ -145,12 +143,14 @@ namespace Bicep.LanguageServer
             services.AddSingletonOrInstance<IModuleRestoreScheduler, ModuleRestoreScheduler>(creationOptions.ModuleRestoreScheduler);
             services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
             services.AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
-            services.AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>();
+            services.AddSingleton<BicepConfigChangeHandlingConfigurationManager>();
+            services.AddSingleton<IBicepConfigChangeHandler>(s => s.GetRequiredService<BicepConfigChangeHandlingConfigurationManager>());
+            services.AddSingleton<IConfigurationManager>(s => s.GetRequiredService<BicepConfigChangeHandlingConfigurationManager>());
             services.AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>();
             services.AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>();
             services.AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>();
             services.AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>();
-            services.AddSingleton<IApiVersionProvider, ApiVersionProvider>();
+            services.AddSingleton<IApiVersionProviderManager, ApiVersionProviderManager>();
             services.AddSingleton<IParamsCompilationManager, BicepParamsCompilationManager>();
         }
 

@@ -7,9 +7,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Configuration;
 using MediatR;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -21,25 +23,35 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly ICompilationManager compilationManager;
         private readonly IBicepConfigChangeHandler bicepConfigChangeHandler;
+        private readonly IWorkspace workspace;
 
-        public BicepDidChangeWatchedFilesHandler(ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler)
+        public BicepDidChangeWatchedFilesHandler(ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler, IWorkspace workspace)
         {
             this.bicepConfigChangeHandler = bicepConfigChangeHandler;
             this.compilationManager = compilationManager;
+            this.workspace = workspace;
         }
 
         public override Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken)
         {
             Container<FileEvent> fileEvents = request.Changes;
-            IEnumerable<FileEvent> bicepConfigFileChangeEvents = fileEvents.Where(x => string.Equals(Path.GetFileName(x.Uri.Path),
-                                                                                       LanguageConstants.BicepConfigurationFileName,
-                                                                                       StringComparison.OrdinalIgnoreCase));
 
-            // Refresh compilation of source files in workspace when local bicepconfig.json file is created, deleted or changed 
+            List<FileEvent> bicepConfigFileChangeEvents = fileEvents
+                .Where(x => string.Equals(Path.GetFileName(x.Uri.Path), LanguageConstants.BicepConfigurationFileName, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+
+            foreach (var configFileChangeEvent in bicepConfigFileChangeEvents)
+            {
+                bicepConfigChangeHandler.HandleBicepConfigChangeEvent(configFileChangeEvent.Uri);
+            }
+
+            // Refresh compilation of source files in workspace when local bicepconfig.json file is created, deleted or changed
             if (bicepConfigFileChangeEvents.Any())
             {
-                Uri uri = bicepConfigFileChangeEvents.First().Uri.ToUri();
-                bicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace();
+                foreach (var uri in workspace.GetActiveSourceFilesByUri().Keys.Select(DocumentUri.From))
+                {
+                    compilationManager.RefreshCompilation(uri);
+                }
             }
 
             compilationManager.HandleFileChanges(fileEvents);

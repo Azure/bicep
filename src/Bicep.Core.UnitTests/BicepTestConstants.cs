@@ -44,19 +44,19 @@ namespace Bicep.Core.UnitTests
 
         public static readonly TestFeatureProvider Features = CreateFeatureProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, sourceMappingEnabled: false, paramsFilesEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
 
+        public static readonly IFeatureProviderManager FeatureProviderManager = IFeatureProviderManager.ForFeatureProvider(Features);
+
         public static readonly EmitterSettings EmitterSettings = new EmitterSettings(Features);
 
         public static readonly IAzResourceTypeLoader AzResourceTypeLoader = new AzResourceTypeLoader();
 
         public static readonly INamespaceProvider NamespaceProvider = TestTypeHelper.CreateWithAzTypes();
 
+        public static readonly INamespaceProviderManager NamespaceProviderManager = TestTypeHelper.CreateManagerWithAzTypes();
+
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
-
-        public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, TemplateSpecRepositoryFactory, Features);
-
-        public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
 
         public static readonly IConfigurationManager ConfigurationManager = new ConfigurationManager(new IOFileSystem());
 
@@ -65,18 +65,26 @@ namespace Bicep.Core.UnitTests
             // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here
         };
 
-        public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersEnabled = ConfigurationManager.GetBuiltInConfiguration();
-        public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
-        public static readonly RootConfiguration BuiltInConfigurationWithProblematicAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration().WithAnalyzersDisabled(AnalyzerRulesToDisableInTests);
+        public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersEnabled = IConfigurationManager.GetBuiltInConfiguration();
+        public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
+        public static readonly RootConfiguration BuiltInConfigurationWithProblematicAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAnalyzersDisabled(AnalyzerRulesToDisableInTests);
 
         // By default turns off only problematic analyzers
         public static readonly RootConfiguration BuiltInConfiguration = BuiltInConfigurationWithProblematicAnalyzersDisabled;
 
+        public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.ForConfiguration(BuiltInConfiguration);
+
+        public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderManager, BuiltInOnlyConfigurationManager);
+
+        public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, IConfigurationManager.ForConfiguration(BuiltInConfiguration));
+
         // By default turns off only problematic analyzers
-        public static readonly LinterAnalyzer LinterAnalyzer = new LinterAnalyzer(BuiltInConfiguration);
+        public static readonly LinterAnalyzer LinterAnalyzer = new LinterAnalyzer();
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
-        public static readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider();
+        public static readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider(new DefaultNamespaceProvider(new AzResourceTypeLoader(), new FeatureProvider()));
+
+        public static readonly IApiVersionProviderManager ApiVersionProviderManager = IApiVersionProviderManager.ForApiVersionProvider(ApiVersionProvider);
 
         public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)
         {

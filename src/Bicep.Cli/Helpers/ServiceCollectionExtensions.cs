@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Commands;
+using Bicep.Core.Features;
+using Bicep.Core.Semantics.Namespaces;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -51,8 +53,20 @@ namespace Bicep.Cli.Helpers
             services.AddSingleton(context);
 
             // add contents of the context
-            services.AddSingleton(context.NamespaceProvider);
-            services.AddSingleton(context.Features);
+            if (context.FeatureProviderManager is {} fpm)
+            {
+                services.AddSingleton(fpm);
+            } else {
+                services.AddSingleton<IFeatureProviderManager, FeatureProviderManager>();
+            }
+
+            if (context.NamespaceProviderManager is {} nspm)
+            {
+                services.AddSingleton(nspm);
+            } else {
+                services.AddSingleton<INamespaceProviderManager, DefaultNamespaceProviderManager>();
+            }
+
             services.AddSingleton(context.ClientFactory);
             services.AddSingleton(context.TemplateSpecRepositoryFactory);
 

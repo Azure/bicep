@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
@@ -39,10 +40,16 @@ namespace Bicep.Core.IntegrationTests
             var bicepFile = baselineFolder.EntryFile;
             var jsonFile = baselineFolder.GetFileOrEnsureCheckedIn(Path.ChangeExtension(embeddedBicep.FileName, jsonFileExtension));
 
-            var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
-            var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFile.OutputFilePath), configuration);
-            var compilation = new Compilation(features, new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoader, features), sourceFileGrouping, configuration,BicepTestConstants.ApiVersionProvider, new LinterAnalyzer(configuration));
+            var configManager = IConfigurationManager.ForConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
+            var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, configManager);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFile.OutputFilePath));
+            var compilation = new Compilation(
+                IFeatureProviderManager.ForFeatureProvider(features),
+                INamespaceProviderManager.ForNamespaceProvider(new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoader, features)),
+                sourceFileGrouping,
+                configManager,
+                BicepTestConstants.ApiVersionProviderManager,
+                new LinterAnalyzer());
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new EmitterSettings(features));
 
             foreach (var (file, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())

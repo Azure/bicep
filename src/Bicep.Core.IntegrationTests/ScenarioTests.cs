@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Cryptography;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
@@ -3013,12 +3014,17 @@ module test './con.txt'
 
 ");
             var fileResolver = new FileResolver();
-            var configuration = BicepTestConstants.BuiltInConfiguration;
             var features = BicepTestConstants.Features;
-            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(ImmutableDictionary.Create<Uri, string>(), new Uri(inputFile), fileResolver, configuration, features);
+            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(ImmutableDictionary.Create<Uri, string>(), new Uri(inputFile), fileResolver, BicepTestConstants.BuiltInOnlyConfigurationManager, features);
 
             // the bug was that the compilation would not complete
-            var compilation = new Compilation(features, BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration,BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(
+                IFeatureProviderManager.ForFeatureProvider(features),
+                BicepTestConstants.NamespaceProviderManager,
+                sourceFileGrouping,
+                BicepTestConstants.BuiltInOnlyConfigurationManager,
+                BicepTestConstants.ApiVersionProviderManager,
+                BicepTestConstants.LinterAnalyzer);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().NotBeEmpty();
         }
 

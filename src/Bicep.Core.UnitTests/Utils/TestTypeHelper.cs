@@ -43,11 +43,20 @@ namespace Bicep.Core.UnitTests.Utils
         public static INamespaceProvider CreateProviderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes, IFeatureProvider? features = null)
             => new DefaultNamespaceProvider(CreateAzResourceTypeLoaderWithTypes(resourceTypes), features ?? BicepTestConstants.Features);
 
+        public static INamespaceProviderManager CreateProviderManagerWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes, IFeatureProvider? features = null)
+            => new DefaultNamespaceProviderManager(CreateAzResourceTypeLoaderWithTypes(resourceTypes), IFeatureProviderManager.ForFeatureProvider(features ?? BicepTestConstants.Features));
+
         public static INamespaceProvider CreateEmptyProvider(IFeatureProvider? features = null)
             => CreateProviderWithTypes(Enumerable.Empty<ResourceTypeComponents>(), features);
 
+        public static INamespaceProviderManager CreateEmptyProviderManager(IFeatureProvider? features = null)
+            => CreateProviderManagerWithTypes(Enumerable.Empty<ResourceTypeComponents>(), features);
+
         public static INamespaceProvider CreateWithAzTypes(IFeatureProvider? features = null)
             => new DefaultNamespaceProvider(new AzResourceTypeLoader(), features ?? BicepTestConstants.Features);
+
+        public static INamespaceProviderManager CreateManagerWithAzTypes(IFeatureProvider? features = null)
+            => INamespaceProviderManager.ForNamespaceProvider(CreateWithAzTypes());
 
         public static ResourceTypeComponents CreateCustomResourceType(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, params TypeProperty[] customProperties)
             => CreateCustomResourceTypeWithTopLevelProperties(fullyQualifiedType, apiVersion, validationFlags, null, customProperties);

@@ -55,10 +55,8 @@ namespace Bicep.Cli
             using (FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
             {
                 var program = new Program(new InvocationContext(
-                    new AzResourceTypeLoader(),
                     Console.Out,
                     Console.Error,
-                    features: null,
                     clientFactory: null));
 
                 // this must be awaited so dispose of the listener occurs in the continuation
@@ -128,6 +126,8 @@ namespace Bicep.Cli
                 .AddSingleton<IConfigurationManager, ConfigurationManager>()
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
                 .AddSingleton<IApiVersionProvider, ApiVersionProvider>()
+                .AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>()
+                .AddSingleton<IApiVersionProviderManager, ApiVersionProviderManager>()
                 .AddSingleton<TemplateDecompiler>()
                 .AddSingleton<DecompilationWriter>()
                 .AddSingleton<CompilationWriter>()

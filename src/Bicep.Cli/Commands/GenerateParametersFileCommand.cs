@@ -4,6 +4,8 @@
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core.Emit;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
@@ -17,31 +19,36 @@ namespace Bicep.Cli.Commands
         private readonly InvocationContext invocationContext;
         private readonly CompilationService compilationService;
         private readonly PlaceholderParametersWriter writer;
+        private readonly IFeatureProviderManager featureProviderManager;
 
         public GenerateParametersFileCommand(
             ILogger logger,
             IDiagnosticLogger diagnosticLogger,
             InvocationContext invocationContext,
             CompilationService compilationService,
-            PlaceholderParametersWriter writer)
+            PlaceholderParametersWriter writer,
+            IFeatureProviderManager featureProviderManager)
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
             this.invocationContext = invocationContext;
             this.compilationService = compilationService;
             this.writer = writer;
+            this.featureProviderManager = featureProviderManager;
         }
 
         public async Task<int> RunAsync(GenerateParametersFileArguments args)
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
+            var features = featureProviderManager.GetFeatureProvider(PathHelper.FilePathToFileUrl(inputPath));
+            var emitterSettings = new EmitterSettings(features);
 
-            if (invocationContext.EmitterSettings.EnableSymbolicNames)
+            if (emitterSettings.EnableSymbolicNames)
             {
                 logger.LogWarning(CliResources.SymbolicNamesDisclaimerMessage);
             }
 
-            if (invocationContext.Features.ResourceTypedParamsAndOutputsEnabled)
+            if (features.ResourceTypedParamsAndOutputsEnabled)
             {
                 logger.LogWarning(CliResources.ResourceTypesDisclaimerMessage);
             }

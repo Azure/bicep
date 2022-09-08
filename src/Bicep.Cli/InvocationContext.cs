@@ -1,12 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem.Az;
 using System.IO;
 
 namespace Bicep.Cli
@@ -14,31 +12,29 @@ namespace Bicep.Cli
     public class InvocationContext
     {
         public InvocationContext(
-            IAzResourceTypeLoader azResourceTypeLoader,
             TextWriter outputWriter,
             TextWriter errorWriter,
-            IFeatureProvider? features = null,
+            INamespaceProviderManager? namespaceProviderManager = null,
+            IFeatureProviderManager? featureProviderManager = null,
             IContainerRegistryClientFactory? clientFactory = null,
             ITemplateSpecRepositoryFactory? templateSpecRepositoryFactory = null)
         {
             // keep the list of services in this class in sync with the logic in the AddInvocationContext() extension method
             OutputWriter = outputWriter;
             ErrorWriter = errorWriter;
-            Features = features ?? new FeatureProvider();
             ClientFactory = clientFactory ?? new ContainerRegistryClientFactory(new TokenCredentialFactory());
             TemplateSpecRepositoryFactory = templateSpecRepositoryFactory ?? new TemplateSpecRepositoryFactory(new TokenCredentialFactory());
-            NamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoader, Features);
+            FeatureProviderManager = featureProviderManager;
+            NamespaceProviderManager = namespaceProviderManager;
         }
 
-        public INamespaceProvider NamespaceProvider { get; }
+        public INamespaceProviderManager? NamespaceProviderManager { get; }
 
         public TextWriter OutputWriter { get; }
 
         public TextWriter ErrorWriter { get; }
 
-        public EmitterSettings EmitterSettings => new EmitterSettings(Features);
-
-        public IFeatureProvider Features { get; }
+        public IFeatureProviderManager? FeatureProviderManager { get; }
 
         public IContainerRegistryClientFactory ClientFactory { get; }
 

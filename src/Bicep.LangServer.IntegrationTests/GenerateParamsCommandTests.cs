@@ -14,6 +14,7 @@ using Bicep.Core.UnitTests;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using FluentAssertions;
 using Bicep.Core.Samples;
+using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Assertions;
 
 namespace Bicep.LangServer.IntegrationTests
@@ -36,8 +37,8 @@ namespace Bicep.LangServer.IntegrationTests
                 this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
                 new LanguageServer.Server.CreationOptions(
-                    NamespaceProvider: BuiltInTestTypes.Create(),
-                    Features: features));
+                    NamespaceProviderManager: BuiltInTestTypes.CreateManager(),
+                    FeatureProviderManager: IFeatureProviderManager.ForFeatureProvider(features)));
             var client = helper.Client;
 
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(

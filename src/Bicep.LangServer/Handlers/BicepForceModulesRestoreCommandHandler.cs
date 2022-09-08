@@ -5,18 +5,12 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Core.Configuration;
-using Bicep.Core.Emit;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Workspaces;
-using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
-using System.Collections.Immutable;
 using System.Text;
 using Bicep.Core.Syntax;
 
@@ -26,24 +20,14 @@ namespace Bicep.LanguageServer.Handlers
     // It returns Restore (force) succeeded/failed message, which can be displayed approriately in IDE output window
     public class BicepForceModulesRestoreCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
-        private readonly ICompilationManager compilationManager;
-        private readonly EmitterSettings emitterSettings;
-        private readonly IFeatureProvider features;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
-        private readonly INamespaceProvider namespaceProvider;
-        private readonly IConfigurationManager configurationManager;
 
-        public BicepForceModulesRestoreCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProvider features, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager)
+        public BicepForceModulesRestoreCommandHandler(ISerializer serializer, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher)
             : base(LangServerConstants.ForceModulesRestoreCommand, serializer)
         {
-            this.compilationManager = compilationManager;
-            this.emitterSettings = emitterSettings;
-            this.features = features;
-            this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
-            this.configurationManager = configurationManager;
         }
 
         public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
@@ -62,27 +46,16 @@ namespace Bicep.LanguageServer.Handlers
         private async Task<string> GenerateForceModulesRestoreOutputMessage(string bicepFilePath, DocumentUri documentUri)
         {
             var fileUri = documentUri.ToUri();
-            RootConfiguration? configuration = null;
 
-            try
-            {
-                configuration = this.configurationManager.GetConfiguration(fileUri);
-            }
-            catch (ConfigurationException exception)
-            {
-                // Fail the restore if there's configuration errors.
-                return exception.Message;
-            }
             Workspace workspace = new Workspace();
-            SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, workspace, fileUri, configuration);
+            SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, workspace, fileUri);
 
             // Ignore modules to restore logic, include all modules to be restored
-            var modulesToRestore = sourceFileGrouping.UriResultByModule.Keys
-                .OfType<ModuleDeclarationSyntax>()
-                .ToImmutableHashSet();
+            var modulesToRestore = sourceFileGrouping.UriResultByModule
+                .SelectMany(kvp => kvp.Value.Keys.OfType<ModuleDeclarationSyntax>().Select(mds => (kvp.Key, mds)));
 
             // RestoreModules() does a distinct but we'll do it also to prevent deuplicates in outputs and logging
-            var modulesToRestoreReferences = this.moduleDispatcher.GetValidModuleReferences(modulesToRestore, configuration)
+            var modulesToRestoreReferences = this.moduleDispatcher.GetValidModuleReferences(modulesToRestore)
                 .Distinct()
                 .OrderBy(key => key.FullyQualifiedReference);
 
@@ -91,12 +64,12 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // restore is supposed to only restore the module references that are syntactically valid
-            await this.moduleDispatcher.RestoreModules(configuration, modulesToRestoreReferences, forceModulesRestore: true);
+            await this.moduleDispatcher.RestoreModules(modulesToRestoreReferences, forceModulesRestore: true);
 
             // if all are marked as success
             var sbRestoreSummary = new StringBuilder();
             foreach(var module in modulesToRestoreReferences) {
-                var restoreStatus = this.moduleDispatcher.GetModuleRestoreStatus(module, configuration, out _);
+                var restoreStatus = this.moduleDispatcher.GetModuleRestoreStatus(module, out _);
                 sbRestoreSummary.Append($"{Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");
             }
 

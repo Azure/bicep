@@ -77,7 +77,13 @@ param inputb string
 ",
             };
 
-            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(
+                BicepTestConstants.FeatureProviderManager,
+                TestTypeHelper.CreateEmptyProviderManager(),
+                SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInOnlyConfigurationManager),
+                BicepTestConstants.BuiltInOnlyConfigurationManager,
+                BicepTestConstants.ApiVersionProviderManager,
+                BicepTestConstants.LinterAnalyzer);
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
             var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => d.Level != DiagnosticLevel.Error);
 
@@ -157,7 +163,13 @@ param inputb string
 ",
             };
 
-            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration,  BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(
+                BicepTestConstants.FeatureProviderManager,
+                TestTypeHelper.CreateEmptyProviderManager(),
+                SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInOnlyConfigurationManager),
+                BicepTestConstants.BuiltInOnlyConfigurationManager,
+                BicepTestConstants.ApiVersionProviderManager,
+                BicepTestConstants.LinterAnalyzer);
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
             var success = diagnosticsByFile.Values.SelectMany(x => x).All(d => d.Level != DiagnosticLevel.Error);
 
@@ -175,4 +187,3 @@ param inputb string
         }
     }
 }
-

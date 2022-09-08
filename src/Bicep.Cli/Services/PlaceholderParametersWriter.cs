@@ -30,7 +30,8 @@ namespace Bicep.Cli.Services
                 existingContent = File.ReadAllText(outputPath);
             }
             using var fileStream = CreateFileStream(outputPath);
-            return new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.EmitterSettings).EmitParametersFile(fileStream, existingContent);
+            var model = compilation.GetEntrypointSemanticModel();
+            return new TemplateEmitter(model, new EmitterSettings(model.Features)).EmitParametersFile(fileStream, existingContent);
         }
 
         public EmitResult ToStdout(Compilation compilation)
@@ -40,7 +41,8 @@ namespace Bicep.Cli.Services
                 Formatting = Formatting.Indented
             };
 
-            return new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.EmitterSettings).EmitParametersFile(writer, string.Empty);
+            var model = compilation.GetEntrypointSemanticModel();
+            return new TemplateEmitter(model, new EmitterSettings(model.Features)).EmitParametersFile(writer, string.Empty);
         }
 
         private static FileStream CreateFileStream(string path)

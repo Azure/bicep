@@ -11,7 +11,7 @@ namespace Bicep.LanguageServer.CompilationManager
     {
         void HandleFileChanges(IEnumerable<FileEvent> fileEvents);
 
-        void RefreshCompilation(DocumentUri uri, bool reloadBicepConfig = false);
+        void RefreshCompilation(DocumentUri uri);
 
         void UpsertCompilation(DocumentUri uri, int? version, string text, string? languageId = null, bool triggeredByFileOpenEvent = false);
 
@@ -21,7 +21,7 @@ namespace Bicep.LanguageServer.CompilationManager
     }
     public interface ICompilationManager : ICompilationManager<CompilationContext>
     {
-        
+
     }
 
     public interface IParamsCompilationManager : ICompilationManager<ParamsCompilationContext>
@@ -29,4 +29,3 @@ namespace Bicep.LanguageServer.CompilationManager
 
     }
 }
-

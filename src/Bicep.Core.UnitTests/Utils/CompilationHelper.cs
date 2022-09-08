@@ -83,7 +83,13 @@ namespace Bicep.Core.UnitTests.Utils
             var configuration = BicepTestConstants.BuiltInConfiguration;
             var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(bicepFiles, entryUri, fileResolver, configuration, context.GetFeatures());
 
-            return Compile(context, new Compilation(context.Features ?? BicepTestConstants.Features, context.GetNamespaceProvider(), sourceFileGrouping, configuration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer));
+            return Compile(context, new Compilation(
+                IFeatureProviderManager.ForFeatureProvider(context.Features ?? BicepTestConstants.Features),
+                INamespaceProviderManager.ForNamespaceProvider(context.GetNamespaceProvider()),
+                sourceFileGrouping,
+                IConfigurationManager.ForConfiguration(configuration),
+                BicepTestConstants.ApiVersionProviderManager,
+                BicepTestConstants.LinterAnalyzer));
         }
 
         public static CompilationResult Compile(CompilationHelperContext context, params (string fileName, string fileContents)[] files)
@@ -101,7 +107,13 @@ namespace Bicep.Core.UnitTests.Utils
 
             var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(uriDictionary, entryUri, fileResolver, configuration, context.GetFeatures());
 
-            return Compile(context, new Compilation(context.Features ?? BicepTestConstants.Features, context.GetNamespaceProvider(), sourceFileGrouping, configuration, apiVersionProvider, new LinterAnalyzer(configuration)));
+            return Compile(context, new Compilation(
+                IFeatureProviderManager.ForFeatureProvider(context.Features ?? BicepTestConstants.Features),
+                INamespaceProviderManager.ForNamespaceProvider(context.GetNamespaceProvider()),
+                sourceFileGrouping,
+                IConfigurationManager.ForConfiguration(configuration),
+                IApiVersionProviderManager.ForApiVersionProvider(apiVersionProvider),
+                BicepTestConstants.LinterAnalyzer));
         }
 
         public static CompilationResult Compile(IAzResourceTypeLoader resourceTypeLoader, params (string fileName, string fileContents)[] files)
@@ -125,11 +137,10 @@ namespace Bicep.Core.UnitTests.Utils
             var apiVersionProvider = context.GetApiVersionProvider();
             var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(bicepFiles, entryUri, fileResolver, configuration, context.GetFeatures());
 
-            var model = new ParamsSemanticModel(sourceFileGrouping, file => {
+            var model = new ParamsSemanticModel(sourceFileGrouping, configuration, context.GetFeatures(), file => {
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
-
-                return new Compilation(context.GetFeatures(), context.GetNamespaceProvider(), compilationGrouping, configuration, apiVersionProvider, new LinterAnalyzer(configuration));
+                return new Compilation(IFeatureProviderManager.ForFeatureProvider(context.GetFeatures()), INamespaceProviderManager.ForNamespaceProvider(context.GetNamespaceProvider()), compilationGrouping, IConfigurationManager.ForConfiguration(configuration), IApiVersionProviderManager.ForApiVersionProvider(apiVersionProvider), new LinterAnalyzer());
             });
 
             return CompileParams(context, model);
@@ -151,11 +162,10 @@ namespace Bicep.Core.UnitTests.Utils
             var apiVersionProvider = context.GetApiVersionProvider();
             var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(uriDictionary, entryUri, fileResolver, configuration, context.GetFeatures());
 
-            var model = new ParamsSemanticModel(sourceFileGrouping, file => {
+            var model = new ParamsSemanticModel(sourceFileGrouping, configuration, context.GetFeatures(), file => {
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
-
-                return new Compilation(context.GetFeatures(), context.GetNamespaceProvider(), compilationGrouping, configuration, apiVersionProvider, new LinterAnalyzer(configuration));
+                return new Compilation(IFeatureProviderManager.ForFeatureProvider(context.GetFeatures()), INamespaceProviderManager.ForNamespaceProvider(context.GetNamespaceProvider()), compilationGrouping, IConfigurationManager.ForConfiguration(configuration), IApiVersionProviderManager.ForApiVersionProvider(apiVersionProvider), new LinterAnalyzer());
             });
 
             return CompileParams(context, model);

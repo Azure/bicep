@@ -253,5 +253,7 @@ namespace Bicep.Core.UnitTests.Utils
                 FallbackPropertyTestsType(),
                 ListFunctionsType(),
             });
+
+        public static INamespaceProviderManager CreateManager() => INamespaceProviderManager.ForNamespaceProvider(Create());
     }
 }

@@ -27,20 +27,21 @@ namespace Bicep.Decompiler
 {
     public class TemplateDecompiler
     {
-        private readonly INamespaceProvider namespaceProvider;
-        private readonly IFeatureProvider features;
+        private readonly INamespaceProviderManager namespaceProviderManager;
+        private readonly IFeatureProviderManager featureProviderManager;
         private readonly IFileResolver fileResolver;
         private readonly IModuleRegistryProvider registryProvider;
         private readonly IConfigurationManager configurationManager;
-        private readonly ApiVersionProvider apiVersionProvider = new ApiVersionProvider();
+        private readonly IApiVersionProviderManager apiVersionProviderManager;
 
-        public TemplateDecompiler(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider, IConfigurationManager configurationManager)
+        public TemplateDecompiler(IFeatureProviderManager featureProviderManager, INamespaceProviderManager namespaceProviderManager, IFileResolver fileResolver, IModuleRegistryProvider registryProvider)
         {
-            this.features = features;
-            this.namespaceProvider = namespaceProvider;
+            this.featureProviderManager = featureProviderManager;
+            this.namespaceProviderManager = namespaceProviderManager;
             this.fileResolver = fileResolver;
             this.registryProvider = registryProvider;
-            this.configurationManager = configurationManager;
+            this.configurationManager = IConfigurationManager.ForConfiguration(IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled());
+            this.apiVersionProviderManager = new ApiVersionProviderManager(namespaceProviderManager);
         }
 
         public (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(Uri entryJsonUri, Uri entryBicepUri)
@@ -127,11 +128,10 @@ namespace Bicep.Decompiler
         private bool RewriteSyntax(Workspace workspace, Uri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
         {
             var hasChanges = false;
-            var dispatcher = new ModuleDispatcher(this.registryProvider);
-            var configuration = configurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
-            var linterAnalyzer = new LinterAnalyzer(configuration);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri, configuration);
-            var compilation = new Compilation(this.features, namespaceProvider, sourceFileGrouping, configuration, apiVersionProvider, linterAnalyzer);
+            var dispatcher = new ModuleDispatcher(this.registryProvider, configurationManager);
+            var linterAnalyzer = new LinterAnalyzer();
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
+            var compilation = new Compilation(featureProviderManager, namespaceProviderManager, sourceFileGrouping, configurationManager, apiVersionProviderManager, linterAnalyzer);
 
             // force enumeration here with .ToImmutableArray() as we're going to be modifying the sourceFileGrouping collection as we iterate
             var fileUris = sourceFileGrouping.SourceFiles.Select(x => x.FileUri).ToImmutableArray();
@@ -150,8 +150,8 @@ namespace Bicep.Decompiler
                     var newFile = SourceFileFactory.CreateBicepFile(fileUri, newProgramSyntax.ToText());
                     workspace.UpsertSourceFile(newFile);
 
-                    sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri, configuration);
-                    compilation = new Compilation(this.features, namespaceProvider, sourceFileGrouping, configuration, apiVersionProvider, linterAnalyzer);
+                    sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
+                    compilation = new Compilation(featureProviderManager, namespaceProviderManager, sourceFileGrouping, configurationManager, apiVersionProviderManager, linterAnalyzer);
                 }
             }
 

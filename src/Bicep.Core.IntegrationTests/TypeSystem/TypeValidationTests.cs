@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
@@ -21,7 +22,13 @@ namespace Bicep.Core.IntegrationTests
         private static SemanticModel GetSemanticModelForTest(string programText, INamespaceProvider nsProvider)
         {
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
-            var compilation = new Compilation(BicepTestConstants.Features, nsProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configuration, BicepTestConstants.ApiVersionProvider, new LinterAnalyzer(configuration));
+            var compilation = new Compilation(
+                BicepTestConstants.FeatureProviderManager,
+                INamespaceProviderManager.ForNamespaceProvider(nsProvider),
+                SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver),
+                IConfigurationManager.ForConfiguration(configuration),
+                BicepTestConstants.ApiVersionProviderManager,
+                new LinterAnalyzer());
 
             return compilation.GetEntrypointSemanticModel();
         }

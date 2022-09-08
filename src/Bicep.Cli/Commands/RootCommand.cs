@@ -52,29 +52,6 @@ namespace Bicep.Cli.Commands
             var exeName = ThisAssembly.AssemblyName;
             var versionString = GetVersionString();
 
-            var registryText =
-$@"
-  {exeName} publish <file> --target <ref>
-    Publishes the .bicep file to the module registry.
-
-    Arguments:
-      <file>        The input file (can be a Bicep file or an ARM template file)
-      <ref>         The module reference
-
-    Examples:
-      bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1
-      bicep publish file.json --target br:example.azurecr.io/hello/world:v1
-
-  {exeName} restore <file>
-    Restores external modules from the specified Bicep file to the local module cache.
-
-    Arguments:
-      <file>        The input file
-
-";
-
-            var registryPlaceholder = this.invocationContext.Features.RegistryEnabled ? registryText : Environment.NewLine;
-
             var output =
 $@"Bicep CLI version {versionString}
 
@@ -136,13 +113,30 @@ Usage:
       bicep generate-params file.bicep --outdir dir1
       bicep generate-params file.bicep --outfile file.parameters.json
 
-{registryPlaceholder}  {exeName} [options]
+  {exeName} publish <file> --target <ref>
+    Publishes the .bicep file to the module registry.
+
+    Arguments:
+      <file>        The input file (can be a Bicep file or an ARM template file)
+      <ref>         The module reference
+
+    Examples:
+      bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1
+      bicep publish file.json --target br:example.azurecr.io/hello/world:v1
+
+  {exeName} restore <file>
+    Restores external modules from the specified Bicep file to the local module cache.
+
+    Arguments:
+      <file>        The input file
+
+  {exeName} [options]
     Options:
       --version              -v   Shows bicep version information
       --help                 -h   Shows this usage information
       --license                   Prints license information
       --third-party-notices       Prints third-party notices
-      
+
 "; // this newline is intentional
 
             invocationContext.OutputWriter.Write(output);

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Immutable;
 
 namespace Bicep.Core.Registry
@@ -10,6 +11,6 @@ namespace Bicep.Core.Registry
     /// </summary>
     public interface IModuleRegistryProvider
     {
-        ImmutableArray<IModuleRegistry> Registries { get; }
+        ImmutableArray<IModuleRegistry> Registries(Uri templateUri);
     }
 }

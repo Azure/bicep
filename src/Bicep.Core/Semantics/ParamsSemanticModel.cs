@@ -4,7 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -21,16 +24,20 @@ namespace Bicep.Core.Semantics
         public Compilation? BicepCompilation { get; }
         public ParamsTypeManager ParamsTypeManager { get; }
         public ParamsSymbolContext ParamsSymbolContext { get; }
+        public RootConfiguration Configuration { get; }
+        public IFeatureProvider Features { get; }
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnosticsLazy;
         private readonly ImmutableArray<IDiagnostic> compilationLoadDiagnostics;
 
         private readonly SourceFileGrouping sourceFileGrouping;
 
-        public ParamsSemanticModel(SourceFileGrouping sourceFileGrouping, Func<ISourceFile, Compilation> compilationLoader)
+        public ParamsSemanticModel(SourceFileGrouping sourceFileGrouping, RootConfiguration configuration, IFeatureProvider features, Func<ISourceFile, Compilation> compilationLoader)
         {
             this.BicepParamFile = sourceFileGrouping.FileResultByUri[sourceFileGrouping.EntryFileUri].File as BicepParamFile
                 ?? throw new ArgumentException($"Entry file {sourceFileGrouping.EntryFileUri} was not of expected type {typeof(BicepParamFile)}");
             this.sourceFileGrouping = sourceFileGrouping;
+            Configuration = configuration;
+            Features = features;
 
             var diagnostics = ToListDiagnosticWriter.Create();
             BicepCompilation = this.GetBicepCompilation(diagnostics, compilationLoader, BicepParamFile);
@@ -54,7 +61,8 @@ namespace Bicep.Core.Semantics
             => allDiagnosticsLazy.Value;
 
         public ImmutableArray<IDiagnostic> AssembleDiagnostics()
-            => BicepParamFile.ProgramSyntax.GetParseDiagnostics()
+            => GetConfigDiagnostics()
+                .Concat(BicepParamFile.ProgramSyntax.GetParseDiagnostics())
                 .Concat(ParamsTypeManager.GetAllDiagnostics())
                 .Concat(compilationLoadDiagnostics)
                 .Concat(GetAdditionalSemanticDiagnostics()).ToImmutableArray();
@@ -113,6 +121,18 @@ namespace Bicep.Core.Semantics
                 }
             }
             return declarationsByAssignment.ToImmutableDictionary();
+        }
+        /// <summary>
+        /// Gets all diagnostics raised by loading Bicep config for this template.
+        /// </summary>
+        private IEnumerable<IDiagnostic> GetConfigDiagnostics()
+        {
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            foreach (var builderFunc in Configuration.DiagnosticBuilders)
+            {
+                // This diagnostic does not correspond to any specific location in the template, so just use the first character span.
+                yield return builderFunc(DiagnosticBuilder.ForPosition(new Parsing.TextSpan(0, 1)));
+            }
         }
 
         /// <summary>
@@ -211,7 +231,7 @@ namespace Bicep.Core.Semantics
                 return null;
             }
 
-            var urlResult = sourceFileGrouping.UriResultByModule[usingDeclaration];
+            var urlResult = sourceFileGrouping.UriResultByModule.Values.Select(d => d.TryGetValue(usingDeclaration, out var result) ? result : null).WhereNotNull().First();
             if (urlResult.ErrorBuilder is not null)
             {
                 diagnostics.Write(urlResult.ErrorBuilder(DiagnosticBuilder.ForPosition(usingDeclaration.Path)));

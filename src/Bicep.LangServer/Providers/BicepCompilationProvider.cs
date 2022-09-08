@@ -21,36 +21,38 @@ namespace Bicep.LanguageServer.Providers
     /// <remarks>This class exists only so we can mock fatal exceptions in tests.</remarks>
     public class BicepCompilationProvider : ICompilationProvider
     {
-        private readonly IFeatureProvider features;
-        private readonly ApiVersionProvider apiVersionProvider;
-        private readonly INamespaceProvider namespaceProvider;
+        private readonly IConfigurationManager configurationManager;
+        private readonly IFeatureProviderManager featureProviderManager;
+        private readonly IApiVersionProviderManager apiVersionProviderManager;
+        private readonly INamespaceProviderManager namespaceProviderManager;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
 
-        public BicepCompilationProvider(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, ApiVersionProvider apiVersionProvider)
+        public BicepCompilationProvider(IFeatureProviderManager featureProviderManager, INamespaceProviderManager namespaceProviderManager, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IApiVersionProviderManager apiVersionProviderManager, IConfigurationManager configurationManager)
         {
-            this.features = features;
-            this.apiVersionProvider = apiVersionProvider;
-            this.namespaceProvider = namespaceProvider;
+            this.featureProviderManager = featureProviderManager;
+            this.apiVersionProviderManager = apiVersionProviderManager;
+            this.namespaceProviderManager = namespaceProviderManager;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
+            this.configurationManager = configurationManager;
         }
 
-        public CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, RootConfiguration configuration, LinterAnalyzer linterAnalyzer)
+        public CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, LinterAnalyzer linterAnalyzer)
         {
-            var syntaxTreeGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, documentUri.ToUri(), configuration);
-            return this.CreateContext(syntaxTreeGrouping, modelLookup, configuration, linterAnalyzer);
+            var syntaxTreeGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, documentUri.ToUri());
+            return this.CreateContext(syntaxTreeGrouping, modelLookup, linterAnalyzer);
         }
 
-        public CompilationContext Update(IReadOnlyWorkspace workspace, CompilationContext current, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, RootConfiguration configuration, LinterAnalyzer linterAnalyzer)
+        public CompilationContext Update(IReadOnlyWorkspace workspace, CompilationContext current, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, LinterAnalyzer linterAnalyzer)
         {
-            var syntaxTreeGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, workspace, current.Compilation.SourceFileGrouping, configuration);
-            return this.CreateContext(syntaxTreeGrouping, modelLookup, configuration, linterAnalyzer);
+            var syntaxTreeGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, workspace, current.Compilation.SourceFileGrouping);
+            return this.CreateContext(syntaxTreeGrouping, modelLookup, linterAnalyzer);
         }
 
-        private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, RootConfiguration configuration, LinterAnalyzer linterAnalyzer)
+        private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, LinterAnalyzer linterAnalyzer)
         {
-            var compilation = new Compilation(this.features, namespaceProvider, syntaxTreeGrouping, configuration, apiVersionProvider, linterAnalyzer, modelLookup);
+            var compilation = new Compilation(featureProviderManager, namespaceProviderManager, syntaxTreeGrouping, configurationManager, apiVersionProviderManager, linterAnalyzer, modelLookup);
             return new CompilationContext(compilation);
         }
     }

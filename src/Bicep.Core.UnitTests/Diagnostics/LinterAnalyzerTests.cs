@@ -7,11 +7,9 @@ using System.Linq;
 using Bicep.Core.Analyzers;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -21,12 +19,10 @@ namespace Bicep.Core.UnitTests.Diagnostics
     [TestClass]
     public class LinterAnalyzerTests
     {
-        private readonly RootConfiguration configuration = BicepTestConstants.BuiltInConfiguration;
-
         [TestMethod]
         public void HasBuiltInRules()
         {
-            var linter = new LinterAnalyzer(configuration);
+            var linter = new LinterAnalyzer();
             linter.GetRuleSet().Should().NotBeEmpty();
         }
 
@@ -39,14 +35,14 @@ namespace Bicep.Core.UnitTests.Diagnostics
         public void BuiltInRulesExistSanityCheck(string ruleCode)
 
         {
-            var linter = new LinterAnalyzer(configuration);
+            var linter = new LinterAnalyzer();
             linter.GetRuleSet().Should().Contain(r => r.Code == ruleCode);
         }
 
         [TestMethod]
         public void AllRulesHaveUniqueDetails()
         {
-            var analyzer = new LinterAnalyzer(configuration);
+            var analyzer = new LinterAnalyzer();
             var ruleSet = analyzer.GetRuleSet();
 
             var codeSet = ruleSet.Select(r => r.Code).ToHashSet();
@@ -59,7 +55,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void MostRulesEnabledByDefault()
         {
-            var analyzer = new LinterAnalyzer(configuration);
+            var analyzer = new LinterAnalyzer();
             var ruleSet = analyzer.GetRuleSet();
             var numberEnabled = ruleSet.Where(r => r.IsEnabled()).Count();
             numberEnabled.Should().BeGreaterThan(ruleSet.Count() / 2, "most rules should probably be enabled by default");
@@ -68,7 +64,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void AllRulesHaveDescription()
         {
-            var analyzer = new LinterAnalyzer(configuration);
+            var analyzer = new LinterAnalyzer();
             var ruleSet = analyzer.GetRuleSet();
             ruleSet.Should().OnlyContain(r => r.Description.Length > 0);
         }

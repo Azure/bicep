@@ -42,38 +42,35 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDeploymentScopeRequestHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentScopeParams, BicepDeploymentScopeResponse>
     {
-        private readonly EmitterSettings emitterSettings;
         private readonly ICompilationManager compilationManager;
         private readonly IConfigurationManager configurationManager;
         private readonly IDeploymentFileCompilationCache deploymentFileCompilationCache;
-        private readonly IFeatureProvider features;
+        private readonly IFeatureProviderManager featureProviderManager;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
-        private readonly INamespaceProvider namespaceProvider;
-        private readonly ApiVersionProvider apiVersionProvider;
+        private readonly INamespaceProviderManager namespaceProviderManager;
+        private readonly IApiVersionProviderManager apiVersionProviderManager;
 
         public BicepDeploymentScopeRequestHandler(
-            EmitterSettings emitterSettings,
             ICompilationManager compilationManager,
             IConfigurationManager configurationManager,
             IDeploymentFileCompilationCache deploymentFileCompilationCache,
-            IFeatureProvider features,
+            IFeatureProviderManager featureProviderManager,
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
-            INamespaceProvider namespaceProvider,
+            INamespaceProviderManager namespaceProviderManager,
             ISerializer serializer,
-            ApiVersionProvider apiVersionProvider)
+            IApiVersionProviderManager apiVersionProviderManager)
             : base(LangServerConstants.GetDeploymentScopeCommand, serializer)
         {
             this.compilationManager = compilationManager;
             this.configurationManager = configurationManager;
             this.deploymentFileCompilationCache = deploymentFileCompilationCache;
-            this.emitterSettings = emitterSettings;
-            this.features = features;
+            this.featureProviderManager = featureProviderManager;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
-            this.namespaceProvider = namespaceProvider;
-            this.apiVersionProvider = apiVersionProvider;
+            this.namespaceProviderManager = namespaceProviderManager;
+            this.apiVersionProviderManager = apiVersionProviderManager;
         }
 
         public override Task<BicepDeploymentScopeResponse> Handle(BicepDeploymentScopeParams request, CancellationToken cancellationToken)
@@ -123,7 +120,9 @@ namespace Bicep.LanguageServer.Handlers
             var stringBuilder = new StringBuilder();
             var stringWriter = new StringWriter(stringBuilder);
 
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
+            var model = compilation.GetEntrypointSemanticModel();
+
+            var emitter = new TemplateEmitter(model, new EmitterSettings(model.Features));
             emitter.Emit(stringWriter);
 
             return stringBuilder.ToString();
@@ -132,22 +131,12 @@ namespace Bicep.LanguageServer.Handlers
         private Compilation GetCompilation(DocumentUri documentUri)
         {
             var fileUri = documentUri.ToUri();
-            RootConfiguration? configuration;
-
-            try
-            {
-                configuration = this.configurationManager.GetConfiguration(fileUri);
-            }
-            catch (ConfigurationException)
-            {
-                throw;
-            }
 
             CompilationContext? context = compilationManager.GetCompilation(documentUri);
             if (context is null)
             {
-                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri, configuration);
-                return new Compilation(features, namespaceProvider, sourceFileGrouping, configuration, this.apiVersionProvider, new LinterAnalyzer(configuration));
+                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
+                return new Compilation(featureProviderManager, namespaceProviderManager, sourceFileGrouping, configurationManager, apiVersionProviderManager, new LinterAnalyzer());
             }
             else
             {

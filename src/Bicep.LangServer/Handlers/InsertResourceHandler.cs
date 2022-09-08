@@ -94,7 +94,7 @@ namespace Bicep.LanguageServer.Handlers
                 {
                     // First attempt a direct GET on the resource using the Bicep type API version.
                     resource = await azResourceProvider.GetGenericResource(
-                        context.Compilation.Configuration,
+                        context.Compilation.GetEntrypointSemanticModel().Configuration,
                         resourceId,
                         apiVersion: matchedType.ApiVersion,
                         cancellationToken);
@@ -112,7 +112,7 @@ namespace Bicep.LanguageServer.Handlers
                     if (resource is null)
                     {
                         resource = await azResourceProvider.GetGenericResource(
-                            context.Compilation.Configuration,
+                            context.Compilation.GetEntrypointSemanticModel().Configuration,
                             resourceId,
                             apiVersion: null,
                             cancellationToken);

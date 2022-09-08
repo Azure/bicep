@@ -17,14 +17,27 @@ namespace Bicep.Core.Semantics
     public class Compilation
     {
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
+        private readonly IConfigurationManager configurationManager;
+        private readonly INamespaceProviderManager namespaceProviderManager;
+        private readonly IApiVersionProviderManager apiVersionProviderManager;
+        private readonly IFeatureProviderManager featureProviderManager;
+        private readonly IBicepAnalyzer linterAnalyzer;
 
-        public Compilation(IFeatureProvider features, INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, RootConfiguration configuration, IApiVersionProvider apiVersionProvider, IBicepAnalyzer linterAnalyzer, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+        public Compilation(
+            IFeatureProviderManager featureProviderManager,
+            INamespaceProviderManager namespaceProviderManager,
+            SourceFileGrouping sourceFileGrouping,
+            IConfigurationManager configurationManager,
+            IApiVersionProviderManager apiVersionProviderManager,
+            IBicepAnalyzer linterAnalyzer,
+            ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         {
-            this.Features = features;
+            this.featureProviderManager = featureProviderManager;
             this.SourceFileGrouping = sourceFileGrouping;
-            this.NamespaceProvider = namespaceProvider;
-            this.Configuration = configuration;
-            this.ApiVersionProvider = apiVersionProvider;
+            this.namespaceProviderManager = namespaceProviderManager;
+            this.configurationManager = configurationManager;
+            this.apiVersionProviderManager = apiVersionProviderManager;
+            this.linterAnalyzer = linterAnalyzer;
 
             var fileResolver = SourceFileGrouping.FileResolver;
 
@@ -34,22 +47,14 @@ namespace Bicep.Core.Semantics
                     new(existingModel) :
                     new Lazy<ISemanticModel>(() => sourceFile switch
                     {
-                        BicepFile bicepFile => new SemanticModel(this, bicepFile, fileResolver, linterAnalyzer),
+                        BicepFile bicepFile => CreateSemanticModel(bicepFile),
                         ArmTemplateFile armTemplateFile => new ArmTemplateSemanticModel(armTemplateFile),
                         TemplateSpecFile templateSpecFile => new TemplateSpecSemanticModel(templateSpecFile),
                         _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
                     }));
         }
 
-        public IApiVersionProvider ApiVersionProvider { get; }
-
-        public RootConfiguration Configuration { get; }
-
-        public IFeatureProvider Features { get; }
-
         public SourceFileGrouping SourceFileGrouping { get; }
-
-        public INamespaceProvider NamespaceProvider { get; }
 
         public SemanticModel GetEntrypointSemanticModel()
             => GetSemanticModel(SourceFileGrouping.EntryPoint);
@@ -71,5 +76,14 @@ namespace Bicep.Core.Semantics
         private T GetSemanticModel<T>(ISourceFile sourceFile) where T : class, ISemanticModel =>
             this.GetSemanticModel(sourceFile) as T ??
             throw new ArgumentException($"Expected the semantic model type to be \"{typeof(T).Name}\".");
+
+        private SemanticModel CreateSemanticModel(BicepFile bicepFile) => new SemanticModel(this,
+            bicepFile,
+            SourceFileGrouping.FileResolver,
+            linterAnalyzer,
+            configurationManager.GetConfiguration(bicepFile.FileUri),
+            featureProviderManager.GetFeatureProvider(bicepFile.FileUri),
+            namespaceProviderManager.GetNamespaceProvider(bicepFile.FileUri),
+            apiVersionProviderManager.GetApiVersionProvider(bicepFile.FileUri));
     }
 }

@@ -33,25 +33,23 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepGenerateParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
         private readonly ICompilationManager compilationManager;
-        private readonly EmitterSettings emitterSettings;
-        private readonly IFeatureProvider features;
+        private readonly IFeatureProviderManager featureProviderManager;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
-        private readonly INamespaceProvider namespaceProvider;
+        private readonly INamespaceProviderManager namespaceProviderManager;
         private readonly IConfigurationManager configurationManager;
-        private readonly ApiVersionProvider apiVersionProvider;
+        private readonly IApiVersionProviderManager apiVersionProviderManager;
 
-        public BicepGenerateParamsCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProvider features, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, ApiVersionProvider apiVersionProvider)
+        public BicepGenerateParamsCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProviderManager featureProviderManager, INamespaceProviderManager namespaceProviderManager, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, IApiVersionProviderManager apiVersionProviderManager)
             : base(LangServerConstants.GenerateParamsCommand, serializer)
         {
             this.compilationManager = compilationManager;
-            this.emitterSettings = emitterSettings;
-            this.features = features;
-            this.namespaceProvider = namespaceProvider;
+            this.featureProviderManager = featureProviderManager;
+            this.namespaceProviderManager = namespaceProviderManager;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.configurationManager = configurationManager;
-            this.apiVersionProvider = apiVersionProvider;
+            this.apiVersionProviderManager = apiVersionProviderManager;
         }
 
         public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
@@ -80,25 +78,14 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             var fileUri = documentUri.ToUri();
-            RootConfiguration? configuration = null;
-
-            try
-            {
-                configuration = this.configurationManager.GetConfiguration(fileUri);
-            }
-            catch (ConfigurationException exception)
-            {
-                // Fail the generate params if there's configuration errors.
-                return exception.Message;
-            }
 
             CompilationContext? context = compilationManager.GetCompilation(fileUri);
             Compilation compilation;
 
             if (context is null)
             {
-                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri, configuration);
-                compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, configuration, apiVersionProvider, new LinterAnalyzer(configuration));
+                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
+                compilation = new Compilation(featureProviderManager, namespaceProviderManager, sourceFileGrouping, configurationManager, apiVersionProviderManager, new LinterAnalyzer());
             }
             else
             {
@@ -115,7 +102,8 @@ namespace Bicep.LanguageServer.Handlers
 
             var existingContent = File.Exists(compiledFilePath) ? File.ReadAllText(compiledFilePath) : string.Empty;
 
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
+            var model = compilation.GetEntrypointSemanticModel();
+            var emitter = new TemplateEmitter(model, new EmitterSettings(model.Features));
             using var fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.Write);
             var result = emitter.EmitParametersFile(fileStream, existingContent);
 

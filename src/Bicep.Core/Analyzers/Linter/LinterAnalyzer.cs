@@ -22,24 +22,21 @@ namespace Bicep.Core.Analyzers.Linter
 
         public static string LinterVerboseSetting => $"{AnalyzerName}.verbose";
 
-        private readonly RootConfiguration configuration;
-
         private readonly LinterRulesProvider linterRulesProvider;
 
         private readonly ImmutableArray<IBicepAnalyzerRule> ruleSet;
 
         private readonly ImmutableArray<IDiagnostic> ruleCreationErrors;
 
-        public LinterAnalyzer(RootConfiguration configuration)
+        public LinterAnalyzer()
         {
-            this.configuration = configuration;
             this.linterRulesProvider = new LinterRulesProvider();
             (this.ruleSet, this.ruleCreationErrors) = CreateLinterRules();
         }
 
-        private bool LinterEnabled => this.configuration.Analyzers.GetValue(LinterEnabledSetting, false); // defaults to true in base bicepconfig.json file
+        private bool LinterEnabled(SemanticModel model) => model.Configuration.Analyzers.GetValue(LinterEnabledSetting, false); // defaults to true in base bicepconfig.json file
 
-        private bool LinterVerbose => this.configuration.Analyzers.GetValue(LinterVerboseSetting, false);
+        private bool LinterVerbose(SemanticModel model) => model.Configuration.Analyzers.GetValue(LinterVerboseSetting, false);
 
         private (ImmutableArray<IBicepAnalyzerRule> rules, ImmutableArray<IDiagnostic> errors) CreateLinterRules()
         {
@@ -62,17 +59,17 @@ namespace Bicep.Core.Analyzers.Linter
         {
             var diagnostics = new List<IDiagnostic>();
 
-            this.ruleSet.ForEach(r => r.Configure(this.configuration.Analyzers));
+            this.ruleSet.ForEach(r => r.Configure(semanticModel.Configuration.Analyzers));
 
-            if (this.LinterEnabled)
+            if (this.LinterEnabled(semanticModel))
             {
-                // Add diaagnostics for rules that failed to load
+                // Add diagnostics for rules that failed to load
                 diagnostics.AddRange(ruleCreationErrors);
 
                 // add an info diagnostic for local configuration reporting
-                if (this.LinterVerbose)
+                if (this.LinterVerbose(semanticModel))
                 {
-                    diagnostics.Add(GetConfigurationDiagnostic());
+                    diagnostics.Add(GetConfigurationDiagnostic(semanticModel));
                 }
 
                 diagnostics.AddRange(ruleSet
@@ -81,25 +78,25 @@ namespace Bicep.Core.Analyzers.Linter
             }
             else
             {
-                if (this.LinterVerbose)
+                if (this.LinterVerbose(semanticModel))
                 {
                     diagnostics.Add(new AnalyzerDiagnostic(
                         AnalyzerName,
                         new TextSpan(0, 0),
                         DiagnosticLevel.Info,
                         "Linter Disabled",
-                        string.Format(CoreResources.LinterDisabledFormatMessage, this.configuration.ConfigurationPath ?? ConfigurationManager.BuiltInConfigurationResourceName)));
+                        string.Format(CoreResources.LinterDisabledFormatMessage, semanticModel.Configuration.ConfigurationPath ?? IConfigurationManager.BuiltInConfigurationResourceName)));
                 }
             }
 
             return diagnostics;
         }
 
-        private IDiagnostic GetConfigurationDiagnostic()
+        private IDiagnostic GetConfigurationDiagnostic(SemanticModel model)
         {
-            var configMessage = this.configuration.IsBuiltIn
+            var configMessage = model.Configuration.IsBuiltIn
                 ? CoreResources.BicepConfigNoCustomSettingsMessage
-                : string.Format(CoreResources.BicepConfigCustomSettingsFoundFormatMessage, this.configuration.ConfigurationPath);
+                : string.Format(CoreResources.BicepConfigCustomSettingsFoundFormatMessage, model.Configuration.ConfigurationPath);
 
             return new AnalyzerDiagnostic(
                 AnalyzerName,

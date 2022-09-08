@@ -447,8 +447,8 @@ namespace Bicep.LangServer.IntegrationTests
                     mainUri,
                     DiagnosticSeverity.Error,
                     new Position(0, 0),
-                    new Position(1, 0),
-                    "Invalid Bicep Configuration");
+                    new Position(0, 1),
+                    "BCP270");
             }
 
             // update bicepconfig.json and verify diagnostics

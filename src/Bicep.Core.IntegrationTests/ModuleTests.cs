@@ -32,7 +32,7 @@ namespace Bicep.Core.IntegrationTests
     {
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
         private static readonly LinterAnalyzer LinterAnalyzer = BicepTestConstants.LinterAnalyzer;
-        private static readonly RootConfiguration Configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
+        private static readonly IConfigurationManager ConfigurationManager = IConfigurationManager.ForConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
 
         private IFeatureProvider ResourceTypedFeatures => BicepTestConstants.CreateFeaturesProvider(TestContext, resourceTypedParamsAndOutputsEnabled: true);
 
@@ -87,8 +87,13 @@ output outputb string = '${inputa}-${inputb}'
 ",
             };
 
-
-            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer);
+            var compilation = new Compilation(
+                BicepTestConstants.FeatureProviderManager,
+                TestTypeHelper.CreateEmptyProviderManager(),
+                SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, ConfigurationManager),
+                ConfigurationManager,
+                BicepTestConstants.ApiVersionProviderManager,
+                LinterAnalyzer);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
@@ -117,8 +122,13 @@ module mainRecursive 'main.bicep' = {
 ",
             };
 
-
-            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer);
+            var compilation = new Compilation(
+                BicepTestConstants.FeatureProviderManager,
+                TestTypeHelper.CreateEmptyProviderManager(),
+                SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, ConfigurationManager),
+                ConfigurationManager,
+                BicepTestConstants.ApiVersionProviderManager,
+                LinterAnalyzer);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
@@ -172,8 +182,13 @@ module main 'main.bicep' = {
 ",
             };
 
-
-            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer);
+            var compilation = new Compilation(
+                BicepTestConstants.FeatureProviderManager,
+                TestTypeHelper.CreateEmptyProviderManager(),
+                SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, ConfigurationManager),
+                ConfigurationManager,
+                BicepTestConstants.ApiVersionProviderManager,
+                LinterAnalyzer);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
@@ -212,7 +227,7 @@ module main 'main.bicep' = {
             var mockDispatcher = Repository.Create<IModuleDispatcher>();
             SetupFileReaderMock(mockFileResolver, fileUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
 
-            Action buildAction = () => SourceFileGroupingBuilder.Build(mockFileResolver.Object, mockDispatcher.Object, new Workspace(), fileUri, Configuration);
+            Action buildAction = () => SourceFileGroupingBuilder.Build(mockFileResolver.Object, mockDispatcher.Object, new Workspace(), fileUri);
             buildAction.Should().Throw<ErrorDiagnosticException>()
                 .And.Diagnostic.Should().HaveCodeAndSeverity("BCP091", DiagnosticLevel.Error).And.HaveMessage("An error occurred reading file. Mock read failure!");
         }
@@ -238,9 +253,16 @@ module modulea 'modulea.bicep' = {
             SetupFileReaderMock(mockFileResolver, mainFileUri, mainFileContents, null);
             mockFileResolver.Setup(x => x.TryResolveFilePath(mainFileUri, "modulea.bicep")).Returns((Uri?)null);
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(mockFileResolver.Object, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
+            var featureManager = BicepTestConstants.FeatureProviderManager;
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(mockFileResolver.Object, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, featureManager, ConfigurationManager), ConfigurationManager);
 
-            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainFileUri, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer);
+            var compilation = new Compilation(
+                featureManager,
+                TestTypeHelper.CreateEmptyProviderManager(),
+                SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainFileUri),
+                ConfigurationManager,
+                BicepTestConstants.ApiVersionProviderManager,
+                LinterAnalyzer);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainFileUri].Should().HaveDiagnostics(new[] {
@@ -312,8 +334,13 @@ output outputc2 int = inputb + 1
 "
             };
 
-
-            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer);
+            var compilation = new Compilation(
+                BicepTestConstants.FeatureProviderManager,
+                TestTypeHelper.CreateEmptyProviderManager(),
+                SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, ConfigurationManager),
+                ConfigurationManager,
+                BicepTestConstants.ApiVersionProviderManager,
+                LinterAnalyzer);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
@@ -337,26 +364,26 @@ output outputc2 int = inputb + 1
 
             // Confirming hashes equal individual template hashes
             ModuleTemplateHashValidator(
-              new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
+              new Compilation(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateEmptyProviderManager(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
               {
                   [moduleAUri] = files[moduleAUri]
               },
-              moduleAUri, BicepTestConstants.FileResolver, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer), moduleATemplateHash);
+              moduleAUri, BicepTestConstants.FileResolver, ConfigurationManager), ConfigurationManager, BicepTestConstants.ApiVersionProviderManager, LinterAnalyzer), moduleATemplateHash);
 
             ModuleTemplateHashValidator(
-              new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
+              new Compilation(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateEmptyProviderManager(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
               {
                   [moduleBUri] = files[moduleBUri],
                   [moduleCUri] = files[moduleCUri]
               },
-              moduleBUri, BicepTestConstants.FileResolver, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer), moduleBTemplateHash);
+              moduleBUri, BicepTestConstants.FileResolver, ConfigurationManager), ConfigurationManager, BicepTestConstants.ApiVersionProviderManager, LinterAnalyzer), moduleBTemplateHash);
 
             ModuleTemplateHashValidator(
-              new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
+              new Compilation(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateEmptyProviderManager(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
               {
                   [moduleCUri] = files[moduleCUri]
               },
-              moduleCUri, BicepTestConstants.FileResolver, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer), moduleCTemplateHash);
+              moduleCUri, BicepTestConstants.FileResolver, ConfigurationManager), ConfigurationManager, BicepTestConstants.ApiVersionProviderManager, LinterAnalyzer), moduleCTemplateHash);
         }
 
         [TestMethod]
@@ -382,9 +409,16 @@ module modulea 'modulea.bicep' = {
             SetupFileReaderMock(mockFileResolver, moduleAUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
             mockFileResolver.Setup(x => x.TryResolveFilePath(mainUri, "modulea.bicep")).Returns(moduleAUri);
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(mockFileResolver.Object, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
+            var featureManager = BicepTestConstants.FeatureProviderManager;
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(mockFileResolver.Object, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, featureManager, ConfigurationManager), ConfigurationManager);
 
-            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainUri, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer);
+            var compilation = new Compilation(
+                featureManager,
+                TestTypeHelper.CreateEmptyProviderManager(),
+                SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainUri),
+                ConfigurationManager,
+                BicepTestConstants.ApiVersionProviderManager,
+                LinterAnalyzer);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {

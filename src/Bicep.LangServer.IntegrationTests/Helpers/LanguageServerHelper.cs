@@ -24,7 +24,7 @@ namespace Bicep.LangServer.IntegrationTests
 {
     public sealed class LanguageServerHelper : IDisposable
     {
-        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.ModuleDispatcher);
+        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateEmptyProviderManager(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProviderManager, BicepTestConstants.ModuleDispatcher);
 
         public Server Server { get; }
         public ILanguageClient Client { get; }
@@ -49,7 +49,7 @@ namespace Bicep.LangServer.IntegrationTests
             creationOptions ??= new Server.CreationOptions();
             creationOptions = creationOptions with
             {
-                Features = creationOptions.Features ?? BicepTestConstants.Features,
+                FeatureProviderManager = creationOptions.FeatureProviderManager ?? BicepTestConstants.FeatureProviderManager,
                 SnippetsProvider = creationOptions.SnippetsProvider ?? SnippetsProvider,
                 FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string>()),
                 ModuleRestoreScheduler = creationOptions.ModuleRestoreScheduler ?? BicepTestConstants.ModuleRestoreScheduler

@@ -23,14 +23,14 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     public class TopLevelResourcePropertiesTests
     {
         private static readonly RootConfiguration Configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
-        private static readonly LinterAnalyzer LinterAnalyzer = new(Configuration);
+        private static readonly LinterAnalyzer LinterAnalyzer = new();
 
         private static Compilation CreateCompilation(string program) => new(
-            BicepTestConstants.Features,
-            BuiltInTestTypes.Create(),
+            BicepTestConstants.FeatureProviderManager,
+            BuiltInTestTypes.CreateManager(),
             SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object),
-            Configuration,
-            BicepTestConstants.ApiVersionProvider,
+            IConfigurationManager.ForConfiguration(Configuration),
+            BicepTestConstants.ApiVersionProviderManager,
             LinterAnalyzer);
 
         /// <summary>
@@ -187,7 +187,13 @@ output outputa string = '${inputa}-${inputb}'
 ",
             };
 
-            var compilation = new Compilation(BicepTestConstants.Features, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer);
+            var compilation = new Compilation(
+                BicepTestConstants.FeatureProviderManager,
+                BuiltInTestTypes.CreateManager(),
+                SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
+                IConfigurationManager.ForConfiguration(Configuration),
+                BicepTestConstants.ApiVersionProviderManager,
+                LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {
                 ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" is not allowed on objects of type \"module\". Permissible properties include \"dependsOn\", \"scope\".")
@@ -228,7 +234,13 @@ output outputa string = '${inputa}-${inputb}'
 ",
             };
 
-            var compilation = new Compilation(BicepTestConstants.Features, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer);
+            var compilation = new Compilation(
+                BicepTestConstants.FeatureProviderManager,
+                BuiltInTestTypes.CreateManager(),
+                SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
+                IConfigurationManager.ForConfiguration(Configuration),
+                BicepTestConstants.ApiVersionProviderManager,
+                LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {
                 ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" is not allowed on objects of type \"params\". Permissible properties include \"inputc\".")
@@ -271,7 +283,13 @@ output outputa string = '${inputa}-${inputb}'
 ",
             };
 
-            var compilation = new Compilation(BicepTestConstants.Features, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer);
+            var compilation = new Compilation(
+                BicepTestConstants.FeatureProviderManager,
+                BuiltInTestTypes.CreateManager(),
+                SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
+                IConfigurationManager.ForConfiguration(Configuration),
+                BicepTestConstants.ApiVersionProviderManager,
+                LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {
                 ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" from source declaration \"inputs\" is not allowed on objects of type \"params\". Permissible properties include \"inputc\"."),
@@ -310,7 +328,13 @@ output outputa string = '${inputa}-${inputb}'
 ",
             };
 
-            var compilation = new Compilation(BicepTestConstants.Features, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration, BicepTestConstants.ApiVersionProvider, LinterAnalyzer);
+            var compilation = new Compilation(
+                BicepTestConstants.FeatureProviderManager,
+                BuiltInTestTypes.CreateManager(),
+                SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
+                IConfigurationManager.ForConfiguration(Configuration),
+                BicepTestConstants.ApiVersionProviderManager,
+                LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {
                 ("BCP053", DiagnosticLevel.Error, $"The type \"module\" does not contain property \"{property}\". Available properties include \"name\", \"outputs\".")
