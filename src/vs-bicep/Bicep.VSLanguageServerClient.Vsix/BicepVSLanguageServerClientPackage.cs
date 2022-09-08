@@ -7,7 +7,9 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Bicep.VSLanguageServerClient.Settings;
 using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Package;
 using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Shell.Interop;
 using Task = System.Threading.Tasks.Task;
 
 namespace Bicep.VSLanguageServerClient.Vsix
@@ -36,6 +38,7 @@ namespace Bicep.VSLanguageServerClient.Vsix
         DefaultToInsertSpaces = true,
         EnableLineNumbers = true,
         RequestStockColors = false)]
+    [ProvideEditorFactory(typeof(BicepEditorFactory), 200, TrustLevel = __VSEDITORTRUSTLEVEL.ETL_AlwaysTrusted)]
     [ProvideBindingPath()]
     public sealed class BicepVSLanguageServerClientPackage : AsyncPackage
     {

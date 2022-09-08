@@ -11,6 +11,7 @@ namespace Bicep.VSLanguageServerClient.Settings
 {
     public class BicepGuids
     {
+        public const string EditorFactoryGuidString = "cca9bf83-1a17-4c2b-946f-e01a4c020b6a";
         public const string LanguageServiceGuidString = "17c12a04-877c-4781-8948-99610a774160";
         public const string PackageGuidString = "7bbebedb-0520-44f3-a5e0-e3d8855f1944";
     }
