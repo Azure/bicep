@@ -42,7 +42,7 @@ namespace Bicep.LanguageServer
     {
         public record CreationOptions(
             ISnippetsProvider? SnippetsProvider = null,
-            INamespaceProviderManager? NamespaceProviderManager = null,
+            INamespaceProvider? NamespaceProvider = null,
             IFileResolver? FileResolver = null,
             IFeatureProviderManager? FeatureProviderManager = null,
             IModuleRestoreScheduler? ModuleRestoreScheduler = null,
@@ -124,7 +124,7 @@ namespace Bicep.LanguageServer
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
             services.AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>();
-            services.AddSingletonOrInstance<INamespaceProviderManager, DefaultNamespaceProviderManager>(creationOptions.NamespaceProviderManager);
+            services.AddSingletonOrInstance<INamespaceProvider, DefaultNamespaceProvider>(creationOptions.NamespaceProvider);
             services.AddSingletonOrInstance<ISnippetsProvider, SnippetsProvider>(creationOptions.SnippetsProvider);
             services.AddSingletonOrInstance<IFileResolver, FileResolver>(creationOptions.FileResolver);
             services.AddSingletonOrInstance<IFeatureProviderManager, FeatureProviderManager>(creationOptions.FeatureProviderManager);
@@ -150,7 +150,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>();
             services.AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>();
             services.AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>();
-            services.AddSingleton<IApiVersionProviderManager, ApiVersionProviderManager>();
+            services.AddSingleton<IApiVersionProvider, ApiVersionProvider>();
             services.AddSingleton<IParamsCompilationManager, BicepParamsCompilationManager>();
         }
 

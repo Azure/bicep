@@ -36,20 +36,20 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IFeatureProviderManager featureProviderManager;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
-        private readonly INamespaceProviderManager namespaceProviderManager;
+        private readonly INamespaceProvider namespaceProvider;
         private readonly IConfigurationManager configurationManager;
-        private readonly IApiVersionProviderManager apiVersionProviderManager;
+        private readonly IApiVersionProvider apiVersionProvider;
 
-        public BicepGenerateParamsCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProviderManager featureProviderManager, INamespaceProviderManager namespaceProviderManager, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, IApiVersionProviderManager apiVersionProviderManager)
+        public BicepGenerateParamsCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProviderManager featureProviderManager, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, IApiVersionProvider apiVersionProvider)
             : base(LangServerConstants.GenerateParamsCommand, serializer)
         {
             this.compilationManager = compilationManager;
             this.featureProviderManager = featureProviderManager;
-            this.namespaceProviderManager = namespaceProviderManager;
+            this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.configurationManager = configurationManager;
-            this.apiVersionProviderManager = apiVersionProviderManager;
+            this.apiVersionProvider = apiVersionProvider;
         }
 
         public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
@@ -85,7 +85,7 @@ namespace Bicep.LanguageServer.Handlers
             if (context is null)
             {
                 SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
-                compilation = new Compilation(featureProviderManager, namespaceProviderManager, sourceFileGrouping, configurationManager, apiVersionProviderManager, new LinterAnalyzer());
+                compilation = new Compilation(featureProviderManager, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
             }
             else
             {

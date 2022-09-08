@@ -5,6 +5,7 @@ using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem.Az;
 using System.IO;
 
 namespace Bicep.Cli
@@ -12,9 +13,9 @@ namespace Bicep.Cli
     public class InvocationContext
     {
         public InvocationContext(
+            IAzResourceTypeLoader azResourceTypeLoader,
             TextWriter outputWriter,
             TextWriter errorWriter,
-            INamespaceProviderManager? namespaceProviderManager = null,
             IFeatureProviderManager? featureProviderManager = null,
             IContainerRegistryClientFactory? clientFactory = null,
             ITemplateSpecRepositoryFactory? templateSpecRepositoryFactory = null)
@@ -24,11 +25,11 @@ namespace Bicep.Cli
             ErrorWriter = errorWriter;
             ClientFactory = clientFactory ?? new ContainerRegistryClientFactory(new TokenCredentialFactory());
             TemplateSpecRepositoryFactory = templateSpecRepositoryFactory ?? new TemplateSpecRepositoryFactory(new TokenCredentialFactory());
+            NamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoader);
             FeatureProviderManager = featureProviderManager;
-            NamespaceProviderManager = namespaceProviderManager;
         }
 
-        public INamespaceProviderManager? NamespaceProviderManager { get; }
+        public INamespaceProvider NamespaceProvider { get; }
 
         public TextWriter OutputWriter { get; }
 

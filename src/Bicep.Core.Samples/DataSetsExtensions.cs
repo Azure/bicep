@@ -52,14 +52,14 @@ namespace Bicep.Core.Samples
             var configManager = IConfigurationManager.ForConfiguration(configuration);
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, featureManager, configManager), configManager);
             var workspace = new Workspace();
-            var namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), features);
+            var namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri);
             if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.GetModulesToRestore())))
             {
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
             }
 
-            return (new Compilation(IFeatureProviderManager.ForFeatureProvider(features), INamespaceProviderManager.ForNamespaceProvider(namespaceProvider), sourceFileGrouping, IConfigurationManager.ForConfiguration(configuration), BicepTestConstants.ApiVersionProviderManager, new LinterAnalyzer()), outputDirectory, fileUri);
+            return (new Compilation(IFeatureProviderManager.ForFeatureProvider(features), namespaceProvider, sourceFileGrouping, IConfigurationManager.ForConfiguration(configuration), BicepTestConstants.ApiVersionProvider, new LinterAnalyzer()), outputDirectory, fileUri);
         }
 
         public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, TestContext testContext, params (Uri registryUri, string repository)[] additionalClients)

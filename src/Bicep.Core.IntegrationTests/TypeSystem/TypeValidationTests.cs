@@ -24,10 +24,10 @@ namespace Bicep.Core.IntegrationTests
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var compilation = new Compilation(
                 BicepTestConstants.FeatureProviderManager,
-                INamespaceProviderManager.ForNamespaceProvider(nsProvider),
+                nsProvider,
                 SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver),
                 IConfigurationManager.ForConfiguration(configuration),
-                BicepTestConstants.ApiVersionProviderManager,
+                BicepTestConstants.ApiVersionProvider,
                 new LinterAnalyzer());
 
             return compilation.GetEntrypointSemanticModel();

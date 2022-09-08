@@ -52,8 +52,6 @@ namespace Bicep.Core.UnitTests
 
         public static readonly INamespaceProvider NamespaceProvider = TestTypeHelper.CreateWithAzTypes();
 
-        public static readonly INamespaceProviderManager NamespaceProviderManager = TestTypeHelper.CreateManagerWithAzTypes();
-
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
@@ -82,9 +80,7 @@ namespace Bicep.Core.UnitTests
         public static readonly LinterAnalyzer LinterAnalyzer = new LinterAnalyzer();
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
-        public static readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider(new DefaultNamespaceProvider(new AzResourceTypeLoader(), new FeatureProvider()));
-
-        public static readonly IApiVersionProviderManager ApiVersionProviderManager = IApiVersionProviderManager.ForApiVersionProvider(ApiVersionProvider);
+        public static readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider(new DefaultNamespaceProvider(new AzResourceTypeLoader()));
 
         public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)
         {

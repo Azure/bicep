@@ -269,10 +269,10 @@ this
         {
             var compilation = new Compilation(
                 IFeatureProviderManager.ForFeatureProvider(features),
-                INamespaceProviderManager.ForNamespaceProvider(TestTypeHelper.CreateEmptyProvider(features)),
+                TestTypeHelper.CreateEmptyProvider(),
                 sourceFileGrouping,
                 BicepTestConstants.BuiltInOnlyConfigurationManager,
-                BicepTestConstants.ApiVersionProviderManager,
+                BicepTestConstants.ApiVersionProvider,
                 BicepTestConstants.LinterAnalyzer);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new(features));
 
@@ -284,10 +284,10 @@ this
         {
             var compilation = new Compilation(
                 IFeatureProviderManager.ForFeatureProvider(features),
-                INamespaceProviderManager.ForNamespaceProvider(TestTypeHelper.CreateEmptyProvider(features)),
+                TestTypeHelper.CreateEmptyProvider(),
                 sourceFileGrouping,
                 BicepTestConstants.BuiltInOnlyConfigurationManager,
-                BicepTestConstants.ApiVersionProviderManager,
+                BicepTestConstants.ApiVersionProvider,
                 BicepTestConstants.LinterAnalyzer);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new(features));
 
@@ -301,7 +301,7 @@ this
                 var compilationGrouping = new SourceFileGrouping(BicepTestConstants.FileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
 
-                return new Compilation(IFeatureProviderManager.ForFeatureProvider(features), INamespaceProviderManager.ForNamespaceProvider(TestTypeHelper.CreateEmptyProvider(features)), compilationGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderManager, BicepTestConstants.LinterAnalyzer);
+                return new Compilation(IFeatureProviderManager.ForFeatureProvider(features), TestTypeHelper.CreateEmptyProvider(), compilationGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             });
 
             var emitter = new ParametersEmitter(model, new(features));

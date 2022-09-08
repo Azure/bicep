@@ -48,8 +48,8 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IFeatureProviderManager featureProviderManager;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
-        private readonly INamespaceProviderManager namespaceProviderManager;
-        private readonly IApiVersionProviderManager apiVersionProviderManager;
+        private readonly INamespaceProvider namespaceProvider;
+        private readonly IApiVersionProvider apiVersionProvider;
 
         public BicepDeploymentScopeRequestHandler(
             ICompilationManager compilationManager,
@@ -58,9 +58,9 @@ namespace Bicep.LanguageServer.Handlers
             IFeatureProviderManager featureProviderManager,
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
-            INamespaceProviderManager namespaceProviderManager,
+            INamespaceProvider namespaceProvider,
             ISerializer serializer,
-            IApiVersionProviderManager apiVersionProviderManager)
+            IApiVersionProvider apiVersionProvider)
             : base(LangServerConstants.GetDeploymentScopeCommand, serializer)
         {
             this.compilationManager = compilationManager;
@@ -69,8 +69,8 @@ namespace Bicep.LanguageServer.Handlers
             this.featureProviderManager = featureProviderManager;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
-            this.namespaceProviderManager = namespaceProviderManager;
-            this.apiVersionProviderManager = apiVersionProviderManager;
+            this.namespaceProvider = namespaceProvider;
+            this.apiVersionProvider = apiVersionProvider;
         }
 
         public override Task<BicepDeploymentScopeResponse> Handle(BicepDeploymentScopeParams request, CancellationToken cancellationToken)
@@ -136,7 +136,7 @@ namespace Bicep.LanguageServer.Handlers
             if (context is null)
             {
                 SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
-                return new Compilation(featureProviderManager, namespaceProviderManager, sourceFileGrouping, configurationManager, apiVersionProviderManager, new LinterAnalyzer());
+                return new Compilation(featureProviderManager, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
             }
             else
             {

@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -16,6 +17,7 @@ namespace Bicep.Core.Semantics
     public sealed class DeclarationVisitor : SyntaxVisitor
     {
         private readonly INamespaceProvider namespaceProvider;
+        private readonly IFeatureProvider features;
         private readonly ResourceScope targetScope;
         private readonly ISymbolContext context;
 
@@ -25,9 +27,10 @@ namespace Bicep.Core.Semantics
 
         private readonly Stack<ScopeInfo> activeScopes = new();
 
-        private DeclarationVisitor(INamespaceProvider namespaceProvider, ResourceScope targetScope, ISymbolContext context, IList<DeclaredSymbol> declarations, IList<ScopeInfo> childScopes)
+        private DeclarationVisitor(INamespaceProvider namespaceProvider, IFeatureProvider features, ResourceScope targetScope, ISymbolContext context, IList<DeclaredSymbol> declarations, IList<ScopeInfo> childScopes)
         {
             this.namespaceProvider = namespaceProvider;
+            this.features = features;
             this.targetScope = targetScope;
             this.context = context;
             this.declarations = declarations;
@@ -35,12 +38,12 @@ namespace Bicep.Core.Semantics
         }
 
         // Returns the list of top level declarations as well as top level scopes.
-        public static (ImmutableArray<DeclaredSymbol>, ImmutableArray<LocalScope>) GetDeclarations(INamespaceProvider namespaceProvider, ResourceScope targetScope, BicepFile bicepFile, ISymbolContext symbolContext)
+        public static (ImmutableArray<DeclaredSymbol>, ImmutableArray<LocalScope>) GetDeclarations(INamespaceProvider namespaceProvider, IFeatureProvider features, ResourceScope targetScope, BicepFile bicepFile, ISymbolContext symbolContext)
         {
             // collect declarations
             var declarations = new List<DeclaredSymbol>();
             var childScopes = new List<ScopeInfo>();
-            var declarationVisitor = new DeclarationVisitor(namespaceProvider, targetScope, symbolContext, declarations, childScopes);
+            var declarationVisitor = new DeclarationVisitor(namespaceProvider, features, targetScope, symbolContext, declarations, childScopes);
             declarationVisitor.Visit(bicepFile.ProgramSyntax);
 
             return (declarations.ToImmutableArray(), childScopes.Select(MakeImmutable).ToImmutableArray());
@@ -114,7 +117,7 @@ namespace Bicep.Core.Semantics
 
             var alias = syntax.Name.IdentifierName;
             TypeSymbol declaredType;
-            if (!namespaceProvider.AllowImportStatements)
+            if (!features.ImportsEnabled)
             {
                 declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ImportsAreDisabled());
             }
@@ -123,7 +126,7 @@ namespace Bicep.Core.Semantics
                 // There should be a parse error if the import statement is incomplete
                 declaredType = ErrorType.Empty();
             }
-            else if (namespaceProvider.TryGetNamespace(syntax.ProviderName.IdentifierName, alias, targetScope) is not { } namespaceType)
+            else if (namespaceProvider.TryGetNamespace(syntax.ProviderName.IdentifierName, alias, targetScope, features) is not { } namespaceType)
             {
                 declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.ProviderName.IdentifierName));
             }
@@ -253,4 +256,3 @@ namespace Bicep.Core.Semantics
         }
     }
 }
-

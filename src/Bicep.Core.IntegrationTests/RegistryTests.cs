@@ -68,13 +68,7 @@ namespace Bicep.Core.IntegrationTests
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
             }
 
-            var compilation = new Compilation(
-                featureManager,
-                BicepTestConstants.NamespaceProviderManager,
-                sourceFileGrouping,
-                BicepTestConstants.ConfigurationManager,
-                BicepTestConstants.ApiVersionProviderManager,
-                BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(featureManager, BicepTestConstants.NamespaceProvider, sourceFileGrouping, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
             diagnostics.Should().HaveCount(1);
 

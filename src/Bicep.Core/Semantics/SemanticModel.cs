@@ -34,7 +34,7 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<ImmutableArray<IDiagnostic>> allDiagnostics;
 
-        public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer, RootConfiguration configuration, IFeatureProvider features, INamespaceProvider namespaceProvider, IApiVersionProvider apiVersionProvider)
+        public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer, RootConfiguration configuration, IFeatureProvider features)
         {
             Trace.WriteLine($"Building semantic model for {sourceFile.FileUri}");
 
@@ -42,8 +42,6 @@ namespace Bicep.Core.Semantics
             SourceFile = sourceFile;
             Configuration = configuration;
             Features = features;
-            NamespaceProvider = namespaceProvider;
-            ApiVersionProvider = apiVersionProvider;
             FileResolver = fileResolver;
 
             // create this in locked mode by default
@@ -52,7 +50,7 @@ namespace Bicep.Core.Semantics
             var symbolContext = new SymbolContext(compilation, this);
             SymbolContext = symbolContext;
 
-            Binder = new Binder(namespaceProvider, sourceFile, symbolContext);
+            Binder = new Binder(compilation.NamespaceProvider, features, sourceFile, symbolContext);
             TypeManager = new TypeManager(features, Binder, fileResolver);
 
             // name binding is done
@@ -131,10 +129,6 @@ namespace Bicep.Core.Semantics
         public RootConfiguration Configuration { get; }
 
         public IFeatureProvider Features { get; }
-
-        public INamespaceProvider NamespaceProvider { get; }
-
-        public IApiVersionProvider ApiVersionProvider { get; }
 
         public IBinder Binder { get; }
 

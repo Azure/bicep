@@ -24,7 +24,7 @@ namespace Bicep.LangServer.IntegrationTests
 {
     public sealed class LanguageServerHelper : IDisposable
     {
-        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateEmptyProviderManager(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProviderManager, BicepTestConstants.ModuleDispatcher);
+        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.ModuleDispatcher);
 
         public Server Server { get; }
         public ILanguageClient Client { get; }

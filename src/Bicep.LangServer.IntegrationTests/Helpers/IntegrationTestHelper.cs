@@ -35,7 +35,7 @@ namespace Bicep.LangServer.IntegrationTests
             creationOptions = creationOptions with
             {
                 SnippetsProvider = creationOptions.SnippetsProvider ??
-                    new SnippetsProvider(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateEmptyProviderManager(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProviderManager, BicepTestConstants.ModuleDispatcher),
+                    new SnippetsProvider(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.ModuleDispatcher),
                 FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string>())
             };
 

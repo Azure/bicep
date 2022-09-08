@@ -447,7 +447,7 @@ namespace Bicep.LangServer.IntegrationTests
                     mainUri,
                     DiagnosticSeverity.Error,
                     new Position(0, 0),
-                    new Position(0, 1),
+                    new Position(0, 0),
                     "BCP270");
             }
 

@@ -45,10 +45,10 @@ namespace Bicep.Core.IntegrationTests
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFile.OutputFilePath));
             var compilation = new Compilation(
                 IFeatureProviderManager.ForFeatureProvider(features),
-                INamespaceProviderManager.ForNamespaceProvider(new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoader, features)),
+                new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoader),
                 sourceFileGrouping,
                 configManager,
-                BicepTestConstants.ApiVersionProviderManager,
+                BicepTestConstants.ApiVersionProvider,
                 new LinterAnalyzer());
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new EmitterSettings(features));
 

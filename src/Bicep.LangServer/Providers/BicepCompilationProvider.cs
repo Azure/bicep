@@ -23,16 +23,16 @@ namespace Bicep.LanguageServer.Providers
     {
         private readonly IConfigurationManager configurationManager;
         private readonly IFeatureProviderManager featureProviderManager;
-        private readonly IApiVersionProviderManager apiVersionProviderManager;
-        private readonly INamespaceProviderManager namespaceProviderManager;
+        private readonly IApiVersionProvider apiVersionProvider;
+        private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
 
-        public BicepCompilationProvider(IFeatureProviderManager featureProviderManager, INamespaceProviderManager namespaceProviderManager, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IApiVersionProviderManager apiVersionProviderManager, IConfigurationManager configurationManager)
+        public BicepCompilationProvider(IFeatureProviderManager featureProviderManager, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IApiVersionProvider apiVersionProvider, IConfigurationManager configurationManager)
         {
             this.featureProviderManager = featureProviderManager;
-            this.apiVersionProviderManager = apiVersionProviderManager;
-            this.namespaceProviderManager = namespaceProviderManager;
+            this.apiVersionProvider = apiVersionProvider;
+            this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.configurationManager = configurationManager;
@@ -52,7 +52,7 @@ namespace Bicep.LanguageServer.Providers
 
         private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, LinterAnalyzer linterAnalyzer)
         {
-            var compilation = new Compilation(featureProviderManager, namespaceProviderManager, syntaxTreeGrouping, configurationManager, apiVersionProviderManager, linterAnalyzer, modelLookup);
+            var compilation = new Compilation(featureProviderManager, namespaceProvider, syntaxTreeGrouping, configurationManager, apiVersionProvider, linterAnalyzer, modelLookup);
             return new CompilationContext(compilation);
         }
     }

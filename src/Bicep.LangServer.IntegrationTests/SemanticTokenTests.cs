@@ -105,7 +105,7 @@ namespace Bicep.LangServer.IntegrationTests
                 paramFileText,
                 paramFileUri,
                 creationOptions: new LanguageServer.Server.CreationOptions(
-                    NamespaceProviderManager: BuiltInTestTypes.CreateManager(),
+                    NamespaceProvider: BuiltInTestTypes.Create(),
                     FileResolver: fileResolver,
                     FeatureProviderManager: IFeatureProviderManager.ForFeatureProvider(BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true))));
 

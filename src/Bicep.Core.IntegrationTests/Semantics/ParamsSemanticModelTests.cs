@@ -27,12 +27,12 @@ namespace Bicep.Core.IntegrationTests.Semantics
             var dispatcher = BicepTestConstants.ModuleDispatcher;
             var configuration = BicepTestConstants.BuiltInConfiguration;
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(paramsFilePath));
-            var compilation = new Compilation(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateEmptyProviderManager(), sourceFileGrouping, IConfigurationManager.ForConfiguration(configuration), BicepTestConstants.ApiVersionProviderManager, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, IConfigurationManager.ForConfiguration(configuration), BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
 
             return new ParamsSemanticModel(sourceFileGrouping, configuration, BicepTestConstants.Features, file => {
                 var compilationGrouping = new SourceFileGrouping(BicepTestConstants.FileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
-                return new Compilation(BicepTestConstants.FeatureProviderManager, BicepTestConstants.NamespaceProviderManager, compilationGrouping, IConfigurationManager.ForConfiguration(configuration), BicepTestConstants.ApiVersionProviderManager, BicepTestConstants.LinterAnalyzer);
+                return new Compilation(BicepTestConstants.FeatureProviderManager, BicepTestConstants.NamespaceProvider, compilationGrouping, IConfigurationManager.ForConfiguration(configuration), BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             });
         }
 

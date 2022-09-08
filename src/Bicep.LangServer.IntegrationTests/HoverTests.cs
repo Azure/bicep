@@ -48,8 +48,8 @@ namespace Bicep.LangServer.IntegrationTests
         public static void ClassInitialize(TestContext testContext)
         {
             DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
-            ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new LanguageServer.Server.CreationOptions(NamespaceProviderManager: BuiltInTestTypes.CreateManager())));
-            ServerWithTestNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new LanguageServer.Server.CreationOptions(NamespaceProviderManager: BicepTestConstants.NamespaceProviderManager, FileResolver: BicepTestConstants.FileResolver)));
+            ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create())));
+            ServerWithTestNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new LanguageServer.Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider, FileResolver: BicepTestConstants.FileResolver)));
         }
 
         [ClassCleanup]
@@ -369,7 +369,7 @@ output moduleOutput string = '${var|1}-${mod1.outputs.o|ut2}'
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
 
             var creationOptions = new LanguageServer.Server.CreationOptions(
-                NamespaceProviderManager: BuiltInTestTypes.CreateManager(),
+                NamespaceProvider: BuiltInTestTypes.Create(),
                 FileResolver: new InMemoryFileResolver(new Dictionary<Uri, string>
                 {
                     [bicepFile.FileUri] = file,
@@ -501,7 +501,7 @@ output moduleOutput string = '${va|r1}-${mod1.outputs.ou|t2}'
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
 
             var creationOptions = new LanguageServer.Server.CreationOptions(
-                NamespaceProviderManager: BuiltInTestTypes.CreateManager(),
+                NamespaceProvider: BuiltInTestTypes.Create(),
                 FileResolver: new InMemoryFileResolver(new Dictionary<Uri, string>
                 {
                     [bicepFile.FileUri] = file,

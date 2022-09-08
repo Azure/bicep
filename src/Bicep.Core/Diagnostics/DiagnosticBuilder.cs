@@ -1594,7 +1594,7 @@ namespace Bicep.Core.Diagnostics
 
             public ErrorDiagnostic RuleFailedToLoad(string ruleTypeName) => new(
                 TextSpan,
-                "BCP270",
+                "BCP274",
                 $"Failed to create an instance of \"{ruleTypeName}\".");
         }
 

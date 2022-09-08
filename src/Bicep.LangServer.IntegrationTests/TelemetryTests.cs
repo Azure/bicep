@@ -160,7 +160,7 @@ namespace Bicep.LangServer.IntegrationTests
                 [uri] = bicepFileContents,
             };
 
-            var compilation = new Compilation(BicepTestConstants.FeatureProviderManager, BicepTestConstants.NamespaceProviderManager, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderManager, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.FeatureProviderManager, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
             var telemetryEventsListener = new MultipleMessageListener<BicepTelemetryEvent>();
@@ -171,7 +171,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     options.OnTelemetryEvent<BicepTelemetryEvent>(telemetry => telemetryEventsListener.AddMessage(telemetry));
                 },
-                new Server.CreationOptions(NamespaceProviderManager: BicepTestConstants.NamespaceProviderManager, FileResolver: new InMemoryFileResolver(files)));
+                new Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider, FileResolver: new InMemoryFileResolver(files)));
             var client = helper.Client;
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, files[uri], 1));
@@ -559,7 +559,7 @@ resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' =
                 {
                     options.OnTelemetryEvent<BicepTelemetryEvent>(telemetry => telemetryEventsListener.AddMessage(telemetry));
                 },
-                new Server.CreationOptions(NamespaceProviderManager: BicepTestConstants.NamespaceProviderManager, FileResolver: new InMemoryFileResolver(fileSystemDict)));
+                new Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider, FileResolver: new InMemoryFileResolver(fileSystemDict)));
             var client = helper.Client;
 
             var mainUri = DocumentUri.FromFileSystemPath("/main.bicep");

@@ -69,12 +69,12 @@ namespace Bicep.LangServer.IntegrationTests
             ServerWithNamespaceProvider.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
-                    creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProviderManager: BicepTestConstants.NamespaceProviderManager)));
+                    creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider)));
 
             ServerWithNamespaceAndTestResolver.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
-                    creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProviderManager: BicepTestConstants.NamespaceProviderManager, FileResolver: BicepTestConstants.FileResolver)));
+                    creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider, FileResolver: BicepTestConstants.FileResolver)));
 
             DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
@@ -86,7 +86,7 @@ namespace Bicep.LangServer.IntegrationTests
             ServerWithBuiltInTypes.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
-                    new LanguageServer.Server.CreationOptions(NamespaceProviderManager: BuiltInTestTypes.CreateManager())));
+                    new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create())));
         }
 
         [ClassCleanup]
@@ -160,7 +160,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     [combinedFileUri] = bicepContentsReplaced,
                 }, combinedFileUri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration);
-                var compilation = new Compilation(BicepTestConstants.FeatureProviderManager, BicepTestConstants.NamespaceProviderManager, sourceFileGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderManager, BicepTestConstants.LinterAnalyzer);
+                var compilation = new Compilation(BicepTestConstants.FeatureProviderManager, BicepTestConstants.NamespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
                 var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
                 var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContentsReplaced, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepContentsReplaced, outputDirectory, diag));
@@ -946,7 +946,7 @@ module bar2 'test.bicep' = [for item in list: |  ]
             });
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProviderManager: BuiltInTestTypes.CreateManager(), FileResolver: fileResolver);
+            var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
             using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, creationOptions: creationOptions);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
@@ -1011,7 +1011,7 @@ module mod2 './|' = {}
                 TestContext,
                 mainFileText,
                 mainUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProviderManager: BuiltInTestTypes.CreateManager(), FileResolver: fileResolver));
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
 
             var file = new FileRequestHelper(helper.Client, mainFile);
 
@@ -1266,7 +1266,7 @@ module a '|' = {
             });
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProviderManager: BuiltInTestTypes.CreateManager(), FileResolver: fileResolver);
+            var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
             using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, creationOptions: creationOptions);
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
@@ -1310,7 +1310,7 @@ var modOut = m.outputs.inputTi|
             });
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProviderManager: BuiltInTestTypes.CreateManager(), FileResolver: fileResolver);
+            var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
             using var helper = await LanguageServerHelper.StartServerWithTextAsync(
                 this.TestContext,
                 text,
@@ -2352,7 +2352,7 @@ var file = " + functionName + @"('|')
                 TestContext,
                 mainFileText,
                 mainUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProviderManager: BuiltInTestTypes.CreateManager(), FileResolver: fileResolver));
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
 
             var file = new FileRequestHelper(helper.Client, mainFile);
 
@@ -2437,7 +2437,7 @@ var file = " + functionName + @"(templ|)
                 TestContext,
                 mainFileText,
                 mainUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProviderManager: BuiltInTestTypes.CreateManager(), FileResolver: fileResolver));
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
             var file = new FileRequestHelper(helper.Client, mainFile);
 
             var completions = await file.RequestCompletion(cursor);

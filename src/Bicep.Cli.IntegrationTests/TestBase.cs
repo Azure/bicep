@@ -38,9 +38,9 @@ namespace Bicep.Cli.IntegrationTests
         protected static Task<(string output, string error, int result)> Bicep(InvocationSettings settings, params string[] args) =>
             TextWriterHelper.InvokeWriterAction((@out, err) =>
                 new Program(new InvocationContext(
+                    TestTypeHelper.CreateEmptyAzResourceTypeLoader(),
                     @out,
                     err,
-                    namespaceProviderManager: new DefaultNamespaceProviderManager(TestTypeHelper.CreateEmptyAzResourceTypeLoader(), IFeatureProviderManager.ForFeatureProvider(settings.Features)),
                     featureProviderManager: IFeatureProviderManager.ForFeatureProvider(settings.Features),
                     clientFactory: settings.ClientFactory,
                     templateSpecRepositoryFactory: settings.TemplateSpecRepositoryFactory)).RunAsync(args));
@@ -57,13 +57,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.FeatureProviderManager, BicepTestConstants.BuiltInOnlyConfigurationManager), BicepTestConstants.BuiltInOnlyConfigurationManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
-            var compilation = new Compilation(
-                BicepTestConstants.FeatureProviderManager,
-                TestTypeHelper.CreateEmptyProviderManager(),
-                sourceFileGrouping,
-                BicepTestConstants.BuiltInOnlyConfigurationManager,
-                BicepTestConstants.ApiVersionProviderManager,
-                BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
 
             var output = new List<string>();
             foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
@@ -86,13 +80,13 @@ namespace Bicep.Cli.IntegrationTests
             var featureManager = BicepTestConstants.FeatureProviderManager;
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, featureManager, BicepTestConstants.BuiltInOnlyConfigurationManager), BicepTestConstants.BuiltInOnlyConfigurationManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(paramFilePath));
-            var compilation = new Compilation(featureManager, TestTypeHelper.CreateEmptyProviderManager(), sourceFileGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderManager, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(featureManager, TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
 
             var semanticModel = new ParamsSemanticModel(sourceFileGrouping, configuration, features, file => {
                 var compilationGrouping = new SourceFileGrouping(BicepTestConstants.FileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
 
-                return new Compilation(featureManager, BicepTestConstants.NamespaceProviderManager, compilationGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderManager, BicepTestConstants.LinterAnalyzer);
+                return new Compilation(featureManager, BicepTestConstants.NamespaceProvider, compilationGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             });
 
             var output = new List<string>();

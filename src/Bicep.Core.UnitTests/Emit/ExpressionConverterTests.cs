@@ -60,13 +60,7 @@ namespace Bicep.Core.UnitTests.Emit
         public void ShouldConvertExpressionsCorrectly(string text, string expected)
         {
             var programText = $"var test = {text}";
-            var compilation = new Compilation(
-                        BicepTestConstants.FeatureProviderManager,
-                        TestTypeHelper.CreateEmptyProviderManager(),
-                        SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver),
-                        BicepTestConstants.BuiltInOnlyConfigurationManager,
-                        BicepTestConstants.ApiVersionProviderManager,
-                        BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
 
             var programSyntax = compilation.SourceFileGrouping.EntryPoint.ProgramSyntax;
             var variableDeclarationSyntax = programSyntax.Children.OfType<VariableDeclarationSyntax>().First();

@@ -19,8 +19,8 @@ namespace Bicep.LangServer.UnitTests.Snippets
     [TestClass]
     public class SnippetsProviderTests
     {
-        private readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.FeatureProviderManager, BicepTestConstants.NamespaceProviderManager, BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProviderManager, BicepTestConstants.ModuleDispatcher);
-        private readonly NamespaceType azNamespaceType = BicepTestConstants.NamespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!;
+        private readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.FeatureProviderManager, BicepTestConstants.NamespaceProvider, BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.ModuleDispatcher);
+        private readonly NamespaceType azNamespaceType = BicepTestConstants.NamespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features)!;
 
         [TestMethod]
         public void GetDescriptionAndSnippetText_WithEmptyInput_ReturnsEmptyDescriptionAndText()

@@ -28,7 +28,7 @@ namespace Bicep.Wasm
     {
         private static readonly IFeatureProviderManager featureProviderManager = IFeatureProviderManager.ForFeatureProvider(new FeatureProvider());
 
-        private static readonly INamespaceProviderManager namespaceProviderManager = new DefaultNamespaceProviderManager(new AzResourceTypeLoader(), featureProviderManager);
+        private static readonly INamespaceProvider namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
 
         private readonly IJSRuntime jsRuntime;
 
@@ -64,7 +64,7 @@ namespace Bicep.Wasm
             try
             {
                 var bicepUri = PathHelper.ChangeToBicepExtension(jsonUri);
-                var decompiler = new TemplateDecompiler(featureProviderManager, namespaceProviderManager, fileResolver, new EmptyModuleRegistryProvider());
+                var decompiler = new TemplateDecompiler(featureProviderManager, namespaceProvider, fileResolver, new EmptyModuleRegistryProvider());
                 var (entrypointUri, filesToSave) = decompiler.DecompileFileWithModules(jsonUri, bicepUri);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
@@ -170,7 +170,7 @@ namespace Bicep.Wasm
             var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider(), configurationManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri);
 
-            return new Compilation(featureProviderManager, namespaceProviderManager, sourceFileGrouping, configurationManager, new ApiVersionProviderManager(namespaceProviderManager), new LinterAnalyzer());
+            return new Compilation(featureProviderManager, namespaceProvider, sourceFileGrouping, configurationManager, new ApiVersionProvider(namespaceProvider), new LinterAnalyzer());
         }
 
         private static string ReadStreamToEnd(Stream stream)

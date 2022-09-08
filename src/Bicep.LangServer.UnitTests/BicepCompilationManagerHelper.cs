@@ -53,9 +53,9 @@ namespace Bicep.LangServer.UnitTests
             var server = CreateMockServer(document);
             var configManager = new ConfigurationManager(new IOFileSystem());
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.FeatureProviderManager, configManager), configManager);
-            var provider = new BicepCompilationProvider(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateManagerWithAzTypes(), FileResolver, dispatcher, BicepTestConstants.ApiVersionProviderManager, configManager);
+            var provider = new BicepCompilationProvider(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateWithAzTypes(), FileResolver, dispatcher, BicepTestConstants.ApiVersionProvider, configManager);
 
-            return new BicepParamsCompilationManager(server.Object, provider, configManager, BicepTestConstants.FileResolver, dispatcher, new Workspace(), BicepTestConstants.FeatureProviderManager, BicepTestConstants.ApiVersionProviderManager, BicepTestConstants.NamespaceProviderManager);
+            return new BicepParamsCompilationManager(server.Object, provider, configManager, BicepTestConstants.FileResolver, dispatcher, new Workspace(), BicepTestConstants.FeatureProviderManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.NamespaceProvider);
         }
 
         public static Mock<ITextDocumentLanguageServer> CreateMockDocument(Action<PublishDiagnosticsParams> callback)
@@ -89,7 +89,7 @@ namespace Bicep.LangServer.UnitTests
 
         public static ICompilationProvider CreateEmptyCompilationProvider(IConfigurationManager configurationManager)
         {
-            return new BicepCompilationProvider(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateEmptyProviderManager(), FileResolver, new ModuleDispatcher(BicepTestConstants.RegistryProvider, configurationManager), BicepTestConstants.ApiVersionProviderManager, configurationManager);
+            return new BicepCompilationProvider(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateEmptyProvider(), FileResolver, new ModuleDispatcher(BicepTestConstants.RegistryProvider, configurationManager), BicepTestConstants.ApiVersionProvider, configurationManager);
         }
 
         public static Mock<IModuleRestoreScheduler> CreateMockScheduler()

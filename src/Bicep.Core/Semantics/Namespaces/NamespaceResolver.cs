@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -37,7 +38,8 @@ namespace Bicep.Core.Semantics.Namespaces
                     return;
                 }
 
-                if (namespaceProvider.TryGetNamespace(@namespace, @namespace, targetScope) is not { } namespaceType)
+                // This check is only validating that the namespace exists (and not which aspects of it are enabled), so it's OK to use a bogus FeatureProvider
+                if (namespaceProvider.TryGetNamespace(@namespace, @namespace, targetScope, new FeatureProvider()) is not { } namespaceType)
                 {
                     // this namespace doesn't match a known built-in namespace
                     return;

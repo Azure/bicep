@@ -27,10 +27,10 @@ namespace Bicep.Core.IntegrationTests.Scenarios
 
         private static Compilation CreateCompilation(string program) => new(
             BicepTestConstants.FeatureProviderManager,
-            BuiltInTestTypes.CreateManager(),
+            BuiltInTestTypes.Create(),
             SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object),
             IConfigurationManager.ForConfiguration(Configuration),
-            BicepTestConstants.ApiVersionProviderManager,
+            BicepTestConstants.ApiVersionProvider,
             LinterAnalyzer);
 
         /// <summary>
@@ -189,10 +189,10 @@ output outputa string = '${inputa}-${inputb}'
 
             var compilation = new Compilation(
                 BicepTestConstants.FeatureProviderManager,
-                BuiltInTestTypes.CreateManager(),
+                BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
                 IConfigurationManager.ForConfiguration(Configuration),
-                BicepTestConstants.ApiVersionProviderManager,
+                BicepTestConstants.ApiVersionProvider,
                 LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {
@@ -236,10 +236,10 @@ output outputa string = '${inputa}-${inputb}'
 
             var compilation = new Compilation(
                 BicepTestConstants.FeatureProviderManager,
-                BuiltInTestTypes.CreateManager(),
+                BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
                 IConfigurationManager.ForConfiguration(Configuration),
-                BicepTestConstants.ApiVersionProviderManager,
+                BicepTestConstants.ApiVersionProvider,
                 LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {
@@ -285,10 +285,10 @@ output outputa string = '${inputa}-${inputb}'
 
             var compilation = new Compilation(
                 BicepTestConstants.FeatureProviderManager,
-                BuiltInTestTypes.CreateManager(),
+                BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
                 IConfigurationManager.ForConfiguration(Configuration),
-                BicepTestConstants.ApiVersionProviderManager,
+                BicepTestConstants.ApiVersionProvider,
                 LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {
@@ -330,10 +330,10 @@ output outputa string = '${inputa}-${inputb}'
 
             var compilation = new Compilation(
                 BicepTestConstants.FeatureProviderManager,
-                BuiltInTestTypes.CreateManager(),
+                BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
                 IConfigurationManager.ForConfiguration(Configuration),
-                BicepTestConstants.ApiVersionProviderManager,
+                BicepTestConstants.ApiVersionProvider,
                 LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {

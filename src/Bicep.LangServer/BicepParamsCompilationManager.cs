@@ -32,10 +32,10 @@ namespace Bicep.LanguageServer
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IWorkspace workspace;
         private readonly IFeatureProviderManager featureProviderManager;
-        private readonly IApiVersionProviderManager apiVersionProviderManager;
-        private readonly INamespaceProviderManager namespaceProviderManager;
+        private readonly IApiVersionProvider apiVersionProvider;
+        private readonly INamespaceProvider namespaceProvider;
         private readonly ConcurrentDictionary<DocumentUri, ParamsCompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, ParamsCompilationContext>();
-        public BicepParamsCompilationManager(ILanguageServerFacade server, ICompilationProvider bicepCompilationContextProvider, IConfigurationManager bicepConfigurationManager, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IWorkspace workspace, IFeatureProviderManager featureProviderManager, IApiVersionProviderManager apiVersionProviderManager, INamespaceProviderManager namespaceProviderManager)
+        public BicepParamsCompilationManager(ILanguageServerFacade server, ICompilationProvider bicepCompilationContextProvider, IConfigurationManager bicepConfigurationManager, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IWorkspace workspace, IFeatureProviderManager featureProviderManager, IApiVersionProvider apiVersionProvider, INamespaceProvider namespaceProvider)
         {
             this.server = server;
             this.bicepCompilationContextProvider = bicepCompilationContextProvider;
@@ -44,8 +44,8 @@ namespace Bicep.LanguageServer
             this.moduleDispatcher = moduleDispatcher;
             this.workspace = workspace;
             this.featureProviderManager = featureProviderManager;
-            this.apiVersionProviderManager = apiVersionProviderManager;
-            this.namespaceProviderManager = namespaceProviderManager;
+            this.apiVersionProvider = apiVersionProvider;
+            this.namespaceProvider = namespaceProvider;
         }
 
         public void HandleFileChanges(IEnumerable<FileEvent> fileEvents)
@@ -68,7 +68,7 @@ namespace Bicep.LanguageServer
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
 
-                return new Compilation(featureProviderManager, namespaceProviderManager, compilationGrouping, bicepConfigurationManager, apiVersionProviderManager, new LinterAnalyzer());
+                return new Compilation(featureProviderManager, namespaceProvider, compilationGrouping, bicepConfigurationManager, apiVersionProvider, new LinterAnalyzer());
             });
 
             var context = this.activeContexts.AddOrUpdate(

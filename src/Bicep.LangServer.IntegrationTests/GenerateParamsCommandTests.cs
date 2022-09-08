@@ -37,7 +37,7 @@ namespace Bicep.LangServer.IntegrationTests
                 this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
                 new LanguageServer.Server.CreationOptions(
-                    NamespaceProviderManager: BuiltInTestTypes.CreateManager(),
+                    NamespaceProvider: BuiltInTestTypes.Create(),
                     FeatureProviderManager: IFeatureProviderManager.ForFeatureProvider(features)));
             var client = helper.Client;
 

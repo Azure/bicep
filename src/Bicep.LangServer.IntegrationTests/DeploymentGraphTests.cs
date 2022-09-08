@@ -34,7 +34,7 @@ namespace Bicep.LangServer.IntegrationTests
             using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
-                new LanguageServer.Server.CreationOptions(NamespaceProviderManager: BuiltInTestTypes.CreateManager(), FileResolver: new InMemoryFileResolver(fileSystemDict)));
+                new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: new InMemoryFileResolver(fileSystemDict)));
             var client = helper.Client;
 
             var mainUri = DocumentUri.FromFileSystemPath("/main.bicep");

@@ -66,19 +66,19 @@ namespace Bicep.LanguageServer.Snippets
             "dependsOn");
 
         private readonly IFeatureProviderManager featureProviderManager;
-        private readonly IApiVersionProviderManager apiVersionProviderManager;
-        private readonly INamespaceProviderManager namespaceProviderManager;
+        private readonly IApiVersionProvider apiVersionProvider;
+        private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
         private readonly LinterAnalyzer linterAnalyzer;
         private readonly IConfigurationManager configurationManager;
         private readonly IModuleDispatcher moduleDispatcher;
 
-        public SnippetsProvider(IFeatureProviderManager featureProviderManager, INamespaceProviderManager namespaceProviderManager, IFileResolver fileResolver, IConfigurationManager configurationManager, IApiVersionProviderManager apiVersionProviderManager, IModuleDispatcher moduleDispatcher)
+        public SnippetsProvider(IFeatureProviderManager featureProviderManager, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IConfigurationManager configurationManager, IApiVersionProvider apiVersionProvider, IModuleDispatcher moduleDispatcher)
         {
             this.featureProviderManager = featureProviderManager;
-            this.apiVersionProviderManager = apiVersionProviderManager;
+            this.apiVersionProvider = apiVersionProvider;
             this.moduleDispatcher = moduleDispatcher;
-            this.namespaceProviderManager = namespaceProviderManager;
+            this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.configurationManager = configurationManager;
             linterAnalyzer = new LinterAnalyzer();
@@ -225,7 +225,7 @@ namespace Bicep.LanguageServer.Snippets
 
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, bicepFile.FileUri, false);
 
-            Compilation compilation = new Compilation(featureProviderManager, namespaceProviderManager, sourceFileGrouping, configurationManager, apiVersionProviderManager, linterAnalyzer);
+            Compilation compilation = new Compilation(featureProviderManager, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, linterAnalyzer);
 
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
 

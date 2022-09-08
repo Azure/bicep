@@ -12,7 +12,6 @@ using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
@@ -44,12 +43,14 @@ namespace Bicep.LanguageServer.Completions
         private readonly IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
         private readonly ITelemetryProvider TelemetryProvider;
+        private readonly INamespaceProvider namespaceProvider;
 
-        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, ITelemetryProvider telemetryProvider)
+        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, ITelemetryProvider telemetryProvider, INamespaceProvider namespaceProvider)
         {
             this.FileResolver = fileResolver;
             this.SnippetsProvider = snippetsProvider;
             this.TelemetryProvider = telemetryProvider;
+            this.namespaceProvider = namespaceProvider;
         }
 
         public IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
@@ -1504,7 +1505,7 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ImportFollower))
             {
-                foreach (var builtInNamespace in model.NamespaceProvider.AvailableNamespaces.OrderBy(x => x, LanguageConstants.IdentifierComparer))
+                foreach (var builtInNamespace in namespaceProvider.AvailableNamespaces.OrderBy(x => x, LanguageConstants.IdentifierComparer))
                 {
                     yield return CompletionItemBuilder.Create(CompletionItemKind.Folder, builtInNamespace)
                         .WithSortText(GetSortText(builtInNamespace, CompletionPriority.High))
