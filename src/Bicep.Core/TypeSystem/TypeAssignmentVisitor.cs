@@ -1133,6 +1133,7 @@ namespace Bicep.Core.TypeSystem
 
             var functionFlags = binder.GetParent(decorator) switch
             {
+                MetadataDeclarationSyntax _ => FunctionFlags.MetadataDecorator,
                 ResourceDeclarationSyntax _ => FunctionFlags.ResourceDecorator,
                 ModuleDeclarationSyntax _ => FunctionFlags.ModuleDecorator,
                 ParameterDeclarationSyntax _ => FunctionFlags.ParameterDecorator,
@@ -1255,6 +1256,7 @@ namespace Bicep.Core.TypeSystem
 
                 return functionSymbol?.FunctionFlags switch
                 {
+                    FunctionFlags.MetadataDecorator => builder.ExpectedMetadataDeclarationAfterDecorator(),
                     FunctionFlags.ParameterDecorator => builder.ExpectedParameterDeclarationAfterDecorator(),
                     FunctionFlags.VariableDecorator => builder.ExpectedVariableDeclarationAfterDecorator(),
                     FunctionFlags.ResourceDecorator => builder.ExpectedResourceDeclarationAfterDecorator(),
