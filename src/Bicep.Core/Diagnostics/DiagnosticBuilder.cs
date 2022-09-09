@@ -98,7 +98,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic UnrecognizedDeclaration() => new(
                 TextSpan,
                 "BCP007",
-                "This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration.");
+                "This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration.");
 
             public ErrorDiagnostic ExpectedParameterContinuation() => new(
                 TextSpan,
@@ -1550,6 +1550,26 @@ namespace Bicep.Core.Diagnostics
                 null,
                 DiagnosticStyling.Default,
                 new CodeFix($"Change \"{name}\" to \"{knownFunctionNamespace}.{knownFunctionName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, $"{knownFunctionNamespace}.{knownFunctionName}")));
+
+            public ErrorDiagnostic ExpectedMetadataIdentifier() => new(
+                TextSpan,
+                "BCP266",
+                "Expected a metadata identifier at this location.");
+
+            public ErrorDiagnostic ExpectedMetadataDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP267",
+                "Expected an metadata declaration after the decorator.");
+
+            public ErrorDiagnostic ReservedMetadataIdentifier(string name) => new(
+                TextSpan,
+                "BCP268",
+                $"Invalid identifier: \"{name}\". Metadata identifiers starting with '_' are reserved. Please use a different identifier.");
+
+            public ErrorDiagnostic CannotUseFunctionAsMetadataDecorator(string functionName) => new(
+                TextSpan,
+                "BCP269",
+                $"Function \"{functionName}\" cannot be used as a metadata decorator.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

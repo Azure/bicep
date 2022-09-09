@@ -1,5 +1,19 @@
 [
   {
+    "label": "metadata",
+    "kind": "keyword",
+    "detail": "Metadata keyword",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_metadata",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "metadata"
+    }
+  },
+  {
     "label": "module",
     "kind": "keyword",
     "detail": "Module keyword",

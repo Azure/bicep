@@ -20,6 +20,12 @@ namespace Bicep.Core.Semantics
             this.CollectDiagnostics(symbol);
         }
 
+        public override void VisitMetadataSymbol(MetadataSymbol symbol)
+        {
+            base.VisitMetadataSymbol(symbol);
+            this.CollectDiagnostics(symbol);
+        }
+
         public override void VisitParameterSymbol(ParameterSymbol symbol)
         {
             base.VisitParameterSymbol(symbol);

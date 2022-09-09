@@ -41,6 +41,7 @@ namespace Bicep.Core
         public const string MissingName = "<missing>";
 
         public const string TargetScopeKeyword = "targetScope";
+        public const string MetadataKeyword = "metadata";
         public const string ParameterKeyword = "param";
         public const string UsingKeyword = "using";
         public const string OutputKeyword = "output";
@@ -71,7 +72,7 @@ namespace Bicep.Core
 
         public static readonly Regex ArmTemplateSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[a-zA-Z]*[dD]eploymentTemplate\.json)#?");
 
-        public static readonly ImmutableSortedSet<string> DeclarationKeywords = new[] { ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword }.ToImmutableSortedSet(StringComparer.Ordinal);
+        public static readonly ImmutableSortedSet<string> DeclarationKeywords = new[] { MetadataKeyword, ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword }.ToImmutableSortedSet(StringComparer.Ordinal);
 
         public static readonly ImmutableSortedSet<string> ContextualKeywords = DeclarationKeywords
             .Add(TargetScopeKeyword)

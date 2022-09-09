@@ -31,6 +31,7 @@ namespace Bicep.Core.Semantics
 
             // TODO: Avoid looping 6 times?
             this.ImportDeclarations = declarations.OfType<ImportedNamespaceSymbol>().ToImmutableArray();
+            this.MetadataDeclarations = declarations.OfType<MetadataSymbol>().ToImmutableArray();
             this.ParameterDeclarations = declarations.OfType<ParameterSymbol>().ToImmutableArray();
             this.VariableDeclarations = declarations.OfType<VariableSymbol>().ToImmutableArray();
             this.ResourceDeclarations = declarations.OfType<ResourceSymbol>().ToImmutableArray();
@@ -44,6 +45,7 @@ namespace Bicep.Core.Semantics
             this.NamespaceResolver.BuiltIns.Values
             .Concat<Symbol>(this.ImportDeclarations)
             .Concat(this.LocalScopes)
+            .Concat(this.MetadataDeclarations)
             .Concat(this.ParameterDeclarations)
             .Concat(this.VariableDeclarations)
             .Concat(this.ResourceDeclarations)
@@ -63,6 +65,8 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<LocalScope> LocalScopes { get; }
 
         public ImmutableArray<ImportedNamespaceSymbol> ImportDeclarations { get; }
+
+        public ImmutableArray<MetadataSymbol> MetadataDeclarations { get; }
 
         public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
 
@@ -125,12 +129,13 @@ namespace Bicep.Core.Semantics
                 // declaring a variable in a local scope hides the parent scope variables,
                 // so we don't need to look at other levels
                 var outputDeclarations = scope.Declarations.Where(decl => decl is OutputSymbol);
+                var metadataDeclarations = scope.Declarations.Where(decl => decl is MetadataSymbol);
                 var namespaceDeclarations = scope.Declarations.OfType<ImportedNamespaceSymbol>();
-                var nonOutputDeclarations = scope.Declarations.Where(decl => decl is not OutputSymbol);
+                var referenceableDeclarations = scope.Declarations.Where(decl => decl is not OutputSymbol && decl is not MetadataSymbol);
 
                 // all symbols apart from outputs are in the same namespace, so check for uniqueness.
                 this.Diagnostics.AddRange(
-                    FindDuplicateNamedSymbols(nonOutputDeclarations)
+                    FindDuplicateNamedSymbols(referenceableDeclarations)
                     .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSyntax).IdentifierMultipleDeclarations(decl.Name)));
 
                 // output symbols cannot be referenced, so the names declared by them do not need to be unique in the scope.
@@ -139,10 +144,16 @@ namespace Bicep.Core.Semantics
                     FindDuplicateNamedSymbols(outputDeclarations)
                     .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSyntax).OutputMultipleDeclarations(decl.Name)));
 
+                // metadata symbols cannot be referenced, so the names declared by them do not need to be unique in the scope.
+                // we still need to ensure that they unique among other metadata.
+                this.Diagnostics.AddRange(
+                    FindDuplicateNamedSymbols(metadataDeclarations)
+                    .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSyntax).OutputMultipleDeclarations(decl.Name)));
+
                 // imported namespaces are reserved in all the scopes
                 // otherwise the user could accidentally hide a namespace which would remove the ability
                 // to fully qualify a function
-                this.Diagnostics.AddRange(nonOutputDeclarations
+                this.Diagnostics.AddRange(referenceableDeclarations
                     .Where(decl => decl.NameSyntax.IsValid && this.builtInNamespaces.ContainsKey(decl.Name))
                     .Select(reservedSymbol => DiagnosticBuilder.ForPosition(reservedSymbol.NameSyntax).SymbolicNameCannotUseReservedNamespaceName(reservedSymbol.Name, this.builtInNamespaces.Keys)));
 

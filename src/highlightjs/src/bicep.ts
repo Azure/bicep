@@ -20,6 +20,7 @@ const ws = `(?:[ \\t\\r\\n]|\\/\\*(?:\\*(?!\\/)|[^*])*\\*\\/)*`;
 const KEYWORDS = {
   $pattern: '[A-Za-z$_][0-9A-Za-z$_]*',
   keyword: [
+    'metadata',
     'targetScope',
     'resource',
     'module',

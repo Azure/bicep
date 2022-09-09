@@ -44,6 +44,9 @@ namespace Bicep.Core.TypeSystem
             {
                 case ImportDeclarationSyntax import:
                     return GetImportType(import);
+                
+                case MetadataDeclarationSyntax metadata:
+                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(metadata.Value), metadata);
 
                 case ParameterDeclarationSyntax parameter:
                     return GetParameterType(parameter);

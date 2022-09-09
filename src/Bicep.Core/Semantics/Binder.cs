@@ -62,8 +62,9 @@ namespace Bicep.Core.Semantics
             // for simplicitly we will bind to the first one
             // it may cause follow-on type errors, but there will also be errors about duplicate identifiers as well
             return outermostDeclarations
+                .OrderBy(x => x is not OutputSymbol && x is not MetadataSymbol ? 0 : 1)
                 .ToLookup(x => x.Name, LanguageConstants.IdentifierComparer)
-                .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
+                .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);;
         }
 
         private static NamespaceResolver GetNamespaceResolver(INamespaceProvider namespaceProvider, ResourceScope targetScope, ImmutableDictionary<string, DeclaredSymbol> uniqueDeclarations)

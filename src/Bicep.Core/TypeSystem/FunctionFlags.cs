@@ -61,6 +61,11 @@ namespace Bicep.Core.TypeSystem
         ModuleSecureParameterOnly = 1 << 8,
 
         /// <summary>
+        /// The function can be used as a metadata decorator.
+        /// </summary>
+        MetadataDecorator = 1 << 9,
+
+        /// <summary>
         /// The function can be used a resource or module decorator.
         /// </summary>
         ResourceOrModuleDecorator = ResourceDecorator | ModuleDecorator,
@@ -68,6 +73,6 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// The function can be used as a decorator anywhere.
         /// </summary>
-        AnyDecorator = ParameterDecorator | VariableDecorator | ResourceDecorator | ModuleDecorator | OutputDecorator | ImportDecorator,
+        AnyDecorator = ParameterDecorator | VariableDecorator | ResourceDecorator | ModuleDecorator | OutputDecorator | ImportDecorator | MetadataDecorator,
     }
 }

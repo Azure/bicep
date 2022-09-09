@@ -536,6 +536,30 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
+        public override void VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var errors = new List<ErrorDiagnostic>();
+
+                var valueType = typeManager.GetTypeInfo(syntax.Value);
+                CollectErrors(errors, valueType);
+
+                if (PropagateErrorType(errors, valueType))
+                {
+                    return ErrorType.Create(errors);
+                }
+
+                if (TypeValidator.AreTypesAssignable(valueType, LanguageConstants.Any) != true)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Value).VariableTypeAssignmentDisallowed(valueType));
+                }
+
+                ValidateDecorators(syntax.Decorators, valueType, diagnostics);
+                TypeValidator.GetCompileTimeConstantViolation(syntax.Value, diagnostics);
+
+                return valueType;
+            });
+
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
@@ -1109,6 +1133,7 @@ namespace Bicep.Core.TypeSystem
 
             var functionFlags = binder.GetParent(decorator) switch
             {
+                MetadataDeclarationSyntax _ => FunctionFlags.MetadataDecorator,
                 ResourceDeclarationSyntax _ => FunctionFlags.ResourceDecorator,
                 ModuleDeclarationSyntax _ => FunctionFlags.ModuleDecorator,
                 ParameterDeclarationSyntax _ => FunctionFlags.ParameterDecorator,
@@ -1231,6 +1256,7 @@ namespace Bicep.Core.TypeSystem
 
                 return functionSymbol?.FunctionFlags switch
                 {
+                    FunctionFlags.MetadataDecorator => builder.ExpectedMetadataDeclarationAfterDecorator(),
                     FunctionFlags.ParameterDecorator => builder.ExpectedParameterDeclarationAfterDecorator(),
                     FunctionFlags.VariableDecorator => builder.ExpectedVariableDeclarationAfterDecorator(),
                     FunctionFlags.ResourceDecorator => builder.ExpectedResourceDeclarationAfterDecorator(),
