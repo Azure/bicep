@@ -40,9 +40,13 @@ namespace Bicep.LangServer.IntegrationTests
 param myParam string = 'test'
 resource myRes 'myRp/provider@2019-01-01' = {
   name: 'test'
+
+  resource myChild 'child' = {
+    name: 'test'
+  }
 }
 module myMod './module.bicep' = {
-  name: 'test' 
+  name: 'test'
 }
 output myOutput string = 'myOutput'
 ", 0));
@@ -61,21 +65,28 @@ output myOutput string = 'myOutput'
                 {
                     x.DocumentSymbol!.Name.Should().Be("myParam");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Field);
+                    x.DocumentSymbol.Children.Should().BeEmpty();
                 },
                 x =>
                 {
                     x.DocumentSymbol!.Name.Should().Be("myRes");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Object);
+
+                    var child = x.DocumentSymbol.Children.Should().ContainSingle().Subject;
+                    child.Name.Should().Be("myChild");
+                    child.Kind.Should().Be(SymbolKind.Object);
                 },
                 x =>
                 {
                     x.DocumentSymbol!.Name.Should().Be("myMod");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Module);
+                    x.DocumentSymbol.Children.Should().BeEmpty();
                 },
                 x =>
                 {
                     x.DocumentSymbol!.Name.Should().Be("myOutput");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Interface);
+                    x.DocumentSymbol.Children.Should().BeEmpty();
                 }
             );
 
