@@ -46,6 +46,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // Refresh compilation of source files in workspace when local bicepconfig.json file is created, deleted or changed
+            // TODO only a subset of files may require recompilation, but it's difficult to tell which without some representation of file dependencies in the workspace
             if (bicepConfigFileChangeEvents.Any())
             {
                 foreach (var uri in workspace.GetActiveSourceFilesByUri().Keys.Select(DocumentUri.From))
