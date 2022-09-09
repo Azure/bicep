@@ -109,7 +109,7 @@ jobs:
         run: dotnet publish --configuration ${{ matrix.configuration }} ./src/Bicep.LangServer/Bicep.LangServer.csproj
 
       - name: Publish Bicep
-        run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
+        run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishSingleFile=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
       - name: Run Bicep E2E Tests
         if: matrix.rid != 'linux-musl-x64' && matrix.runTests
