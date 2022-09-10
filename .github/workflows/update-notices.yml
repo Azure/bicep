@@ -83,7 +83,7 @@ jobs:
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
           signoff: false
-          add-paths: local-tpn.txt
+          add-paths: '**/local-tpn.txt'
           branch: update-local-tpn-files
           delete-branch: true
           title: |
