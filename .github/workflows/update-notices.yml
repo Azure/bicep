@@ -4,6 +4,7 @@ name: Update Local Notice Files
 
 on:
   workflow_dispatch:
+  push:
   # todo
   # schedule:
   #  - 
