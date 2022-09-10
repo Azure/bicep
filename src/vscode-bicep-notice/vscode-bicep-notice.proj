@@ -12,6 +12,7 @@
     <Language>C#</Language>
 
     <NoticeFileName>ThirdPartyNotices.txt</NoticeFileName>
+    <GenerateNoticeLocalFilePath>$(MSBuildProjectDirectory)\local-tpn.txt</GenerateNoticeLocalFilePath>
   </PropertyGroup>
 
   <ItemGroup>
