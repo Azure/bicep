@@ -4,6 +4,7 @@ name: Update Dependencies
 
 on:
   workflow_dispatch:
+  push:
   # todo
   # schedule:
   #  - 
