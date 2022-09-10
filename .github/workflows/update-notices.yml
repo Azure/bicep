@@ -4,7 +4,6 @@ name: Update Local Notice Files
 
 on:
   workflow_dispatch:
-  push:
   # todo
   # schedule:
   #  - 
@@ -32,6 +31,8 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
+        with:
+          node-version: 16
 
       - name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
@@ -51,6 +52,26 @@ jobs:
 
       - name: Build Windows Installer
         run: dotnet build --configuration Release ./src/installer-win/installer.proj
+      
+      - name: CLI Package prerequisites
+        run:  mkdir ./src/Bicep.Cli.Nuget/tools && copy ./src/Bicep.Cli/obj/project.assets.json ./src/Bicep.Cli.Nuget/tools/ && copy ./src/Bicep.Cli/bin/Release/net6.0/bicep.* ./src/Bicep.Cli.Nuget/tools/
+
+      - name: Build CLI Package
+        run: dotnet build --configuration Release /p:RuntimeSuffix=win-x64 ./src/Bicep.Cli.Nuget/nuget.proj
+
+      - name: VSIX Notice prerequisites
+        run:  mkdir ./src/vscode-bicep-notice/inputs && copy ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/
+
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/vscode-bicep
+
+      - name: npm list -a -json
+        run: npm list -a --json > ../vscode-bicep-notice/inputs/npm-list.json
+        working-directory: ./src/vscode-bicep
+
+      - name: Generate VSIX notice
+        run: dotnet build --configuration Release ./src/vscode-bicep-notice/vscode-bicep-notice.proj
 
       - name: Build BicepInVisualStudio.sln
         run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore -property:Configuration=Release /v:m
@@ -61,6 +82,7 @@ jobs:
           committer: GitHub <noreply@github.com>
           author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
           signoff: false
+          add-paths: local-tpn.txt
           branch: update-local-tpn-files
           delete-branch: true
           title: |
