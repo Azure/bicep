@@ -22,6 +22,7 @@
 
     <BicepCliAssetsFile>$(MSBuildProjectDirectory)\tools\project.assets.json</BicepCliAssetsFile>
     <NoticeFileName>ThirdPartyNotices.txt</NoticeFileName>
+    <GenerateNoticeLocalFilePath>$(MSBuildProjectDirectory)\local-tpn.txt</GenerateNoticeLocalFilePath>
 
     <GenerateNoticeBeforeTargets>RunTool</GenerateNoticeBeforeTargets>
   </PropertyGroup>

@@ -2,6 +2,7 @@
   <PropertyGroup>
     <NoticeFileName>ThirdPartyNotices.txt</NoticeFileName>
     <GenerateNoticeAfterTargets>Publish</GenerateNoticeAfterTargets>
+    <GenerateNoticeLocalFilePath>$(MSBuildProjectDirectory)\local-tpn.txt</GenerateNoticeLocalFilePath>
   </PropertyGroup>
 
   <Target Name="PrepareForNoticeGeneration" BeforeTargets="GenerateNotice">
