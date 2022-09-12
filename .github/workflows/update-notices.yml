@@ -1,0 +1,92 @@
+name: Update Local Notice Files
+# This action can be run on-demand against a branch or scheduled every day.
+# It updates the checked-in TPN files and creates a PR with the changes.
+
+on:
+  workflow_dispatch:
+  schedule:
+   - 0 9 * * *
+
+jobs:
+  main:
+    name: Update Local Notice Files
+
+    # has to be windows because of the windows installer project
+    runs-on: windows-latest
+
+    env:
+      DOTNET_NOLOGO: true
+      DOTNET_CLI_TELEMETRY_OPTOUT: true
+      GenerateNoticeUseLocalFile: false
+      GenerateNoticeUpdateLocalFile: true
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Build Bicep.sln
+        run: dotnet build --configuration Release
+
+      - name: Pack
+        run: dotnet pack --configuration Release
+
+      - name: Publish Language Server
+        run: dotnet publish --configuration Release ./src/Bicep.LangServer/Bicep.LangServer.csproj
+      
+      # this command is not correct for releasing the binaries but is sufficient for the purposes of this job
+      - name: Windows Installer prerequisites
+        run: mkdir ./src/installer-win/bicep && copy ./src/Bicep.Cli/obj/project.assets.json ./src/installer-win/bicep/ && copy ./src/Bicep.Cli/bin/Release/net6.0/bicep.* ./src/installer-win/bicep/
+
+      - name: Build Windows Installer
+        run: dotnet build --configuration Release ./src/installer-win/installer.proj
+      
+      - name: CLI Package prerequisites
+        run:  mkdir ./src/Bicep.Cli.Nuget/tools && copy ./src/Bicep.Cli/obj/project.assets.json ./src/Bicep.Cli.Nuget/tools/ && copy ./src/Bicep.Cli/bin/Release/net6.0/bicep.* ./src/Bicep.Cli.Nuget/tools/
+
+      - name: Build CLI Package
+        run: dotnet build --configuration Release /p:RuntimeSuffix=win-x64 ./src/Bicep.Cli.Nuget/nuget.proj
+
+      - name: VSIX Notice prerequisites
+        run:  mkdir ./src/vscode-bicep-notice/inputs && copy ./src/Bicep.LangServer/obj/project.assets.json ./src/vscode-bicep-notice/inputs/
+
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/vscode-bicep
+
+      - name: npm list -a -json
+        run: npm list -a --json > ../vscode-bicep-notice/inputs/npm-list.json
+        working-directory: ./src/vscode-bicep
+
+      - name: Generate VSIX notice
+        run: dotnet build --configuration Release ./src/vscode-bicep-notice/vscode-bicep-notice.proj
+
+      - name: Build BicepInVisualStudio.sln
+        run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore -property:Configuration=Release /v:m
+      
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v4
+        with:
+          committer: GitHub <noreply@github.com>
+          author: ${{ github.actor }} <${{ github.actor }}@users.noreply.github.com>
+          signoff: false
+          add-paths: '**/local-tpn.txt'
+          branch: update-local-tpn-files
+          delete-branch: true
+          title: |
+            Update Local TPN Files
+          commit-message: |
+            Update Local TPN Files
+          labels: dependencies
+          draft: false

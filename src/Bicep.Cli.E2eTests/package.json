@@ -14,14 +14,14 @@
     "eslint": "^8.23.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-header": "^3.1.1",
-    "eslint-plugin-jest": "^27.0.1",
+    "eslint-plugin-jest": "^27.0.2",
     "eslint-plugin-prettier": "^4.2.1",
     "jest": "^27.5.1",
     "jest-runner-groups": "^2.2.0",
     "prettier": "^2.7.1",
     "rimraf": "^3.0.2",
     "ts-jest": "^27.1.4",
-    "typescript": "^4.8.2",
+    "typescript": "^4.8.3",
     "uuid": "^9.0.0"
   },
   "scripts": {

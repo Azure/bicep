@@ -1,0 +1,110 @@
+{
+  "Entrypoint": "main.bicep",
+  "Entries": [
+    {
+      "FilePath": "main.bicep",
+      "SourceMap": [
+        {
+          "SourceLine": 19,
+          "TargetLine": 16
+        },
+        {
+          "SourceLine": 20,
+          "TargetLine": 17
+        },
+        {
+          "SourceLine": 21,
+          "TargetLine": 18
+        },
+        {
+          "SourceLine": 23,
+          "TargetLine": 20
+        },
+        {
+          "SourceLine": 22,
+          "TargetLine": 19
+        },
+        {
+          "SourceLine": 22,
+          "TargetLine": 21
+        },
+        {
+          "SourceLine": 25,
+          "TargetLine": 22
+        },
+        {
+          "SourceLine": 28,
+          "TargetLine": 24
+        },
+        {
+          "SourceLine": 29,
+          "TargetLine": 25
+        },
+        {
+          "SourceLine": 30,
+          "TargetLine": 26
+        },
+        {
+          "SourceLine": 32,
+          "TargetLine": 28
+        },
+        {
+          "SourceLine": 33,
+          "TargetLine": 29
+        },
+        {
+          "SourceLine": 31,
+          "TargetLine": 27
+        },
+        {
+          "SourceLine": 31,
+          "TargetLine": 30
+        },
+        {
+          "SourceLine": 36,
+          "TargetLine": 32
+        },
+        {
+          "SourceLine": 35,
+          "TargetLine": 31
+        },
+        {
+          "SourceLine": 35,
+          "TargetLine": 33
+        },
+        {
+          "SourceLine": 27,
+          "TargetLine": 23
+        },
+        {
+          "SourceLine": 27,
+          "TargetLine": 34
+        },
+        {
+          "SourceLine": 43,
+          "TargetLine": 37
+        },
+        {
+          "SourceLine": 44,
+          "TargetLine": 38
+        },
+        {
+          "SourceLine": 45,
+          "TargetLine": 39
+        },
+        {
+          "SourceLine": 53,
+          "TargetLine": 45
+        },
+        {
+          "SourceLine": 53,
+          "TargetLine": 46
+        },
+        {
+          "SourceLine": 53,
+          "TargetLine": 47
+        }
+      ]
+    }
+  ]
+}

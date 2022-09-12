@@ -29,8 +29,7 @@
     <StartProgram Condition="'$(DevEnvDir)' != ''">$(DevEnvDir)devenv.exe</StartProgram>
     <StartArguments>/rootsuffix Exp</StartArguments>
     <!-- generate the notice file using our custom targets -->
-    <!-- works locally but throws nullref in CI - disabled for now -->
-    <EnableNoticeInVisualStudioVsix>false</EnableNoticeInVisualStudioVsix>
+    <EnableNoticeInVisualStudioVsix>true</EnableNoticeInVisualStudioVsix>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>

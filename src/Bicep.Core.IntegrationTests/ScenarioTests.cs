@@ -3496,7 +3496,7 @@ output idScopeWithCondition string = servicePlanWithCondition.id
 output idScopeWithoutCondition string = servicePlanWithoutCondition.id
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP266", DiagnosticLevel.Error, "The scope used for this declaration is ambiguous. A resource or module must only reference a single scope.")
+                ("BCP270", DiagnosticLevel.Error, "The scope used for this declaration is ambiguous. A resource or module must only reference a single scope.")
             });
         }
 
@@ -3537,7 +3537,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
 "));
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP266", DiagnosticLevel.Error, "The scope used for this declaration is ambiguous. A resource or module must only reference a single scope.")
+                ("BCP270", DiagnosticLevel.Error, "The scope used for this declaration is ambiguous. A resource or module must only reference a single scope.")
             });
         }
 

@@ -565,6 +565,11 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
 
                 switch (symbol)
                 {
+                    
+                    case MetadataSymbol metadata:
+                        tooltip.Should().Contain($"metadata {metadata.Name}: {metadata.Type}");
+                        break;
+
                     case ParameterSymbol parameter:
                         tooltip.Should().Contain($"param {parameter.Name}: {parameter.Type}");
                         break;

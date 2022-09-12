@@ -119,6 +119,23 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitSeparatedSyntaxList(SeparatedSyntaxList syntax) => ReplaceCurrent(syntax, ReplaceSeparatedSyntaxList);
 
+        protected virtual SyntaxBase ReplaceMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewrite(syntax.Value, out var value);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new MetadataDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
+        }
+        void ISyntaxVisitor.VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceMetadataDeclarationSyntax);
+
         protected virtual SyntaxBase ReplaceParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);

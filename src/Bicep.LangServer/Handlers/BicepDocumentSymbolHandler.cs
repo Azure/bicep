@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
@@ -44,21 +45,36 @@ namespace Bicep.LanguageServer.Handlers
 
         private IEnumerable<SymbolInformationOrDocumentSymbol> GetSymbols(CompilationContext context)
         {
-            return context.Compilation.GetEntrypointSemanticModel().Root.Declarations
+            var model = context.Compilation.GetEntrypointSemanticModel();
+            return model.Root.Declarations
                 .OrderBy(symbol => symbol.DeclaringSyntax.Span.Position)
-                .Select(symbol => new SymbolInformationOrDocumentSymbol(CreateDocumentSymbol(symbol, context.LineStarts)));
+                .Select(symbol => new SymbolInformationOrDocumentSymbol(CreateDocumentSymbol(model, symbol, context.LineStarts)));
         }
 
-        private DocumentSymbol CreateDocumentSymbol(DeclaredSymbol symbol, ImmutableArray<int> lineStarts) =>
-            new DocumentSymbol
+        private DocumentSymbol CreateDocumentSymbol(SemanticModel model, DeclaredSymbol symbol, ImmutableArray<int> lineStarts)
+        {
+            var children = Enumerable.Empty<DocumentSymbol>();
+            if (symbol is ResourceSymbol resourceSymbol &&
+                resourceSymbol.DeclaringResource.TryGetBody() is ObjectSyntax body)
+            {
+                children = body.Resources
+                    .Select(r => model.GetSymbolInfo(r) as ResourceSymbol)
+                    .Where(s => s is ResourceSymbol)
+                    .Select(s => CreateDocumentSymbol(model, s!, lineStarts));
+            }
+
+            return new DocumentSymbol
             {
                 Name = symbol.Name,
                 Kind = SelectSymbolKind(symbol),
                 Detail = FormatDetail(symbol),
+                Children = new Container<DocumentSymbol>(children),
                 Range = symbol.DeclaringSyntax.ToRange(lineStarts),
                 // use the name node span with fallback to entire declaration span
                 SelectionRange = symbol.NameSyntax.ToRange(lineStarts)
             };
+        }
+
 
         private SymbolKind SelectSymbolKind(DeclaredSymbol symbol)
         {

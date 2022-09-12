@@ -5,6 +5,7 @@ program -> statement* EOF
 statement -> 
   targetScopeDecl | 
   importDecl | 
+  metadataDecl |
   parameterDecl | 
   variableDecl |
   resourceDecl |
@@ -15,6 +16,8 @@ statement ->
 targetScopeDecl -> "targetScope" "=" expression
 
 importDecl -> decorator* "import" IDENTIFIER(providerName) "as" IDENTIFIER(aliasName) object? NL
+
+metadataDecl -> "metadata" IDENTIFIER(name) "=" expression NL
 
 parameterDecl -> 
   decorator* "parameter" IDENTIFIER(name) IDENTIFIER(type) parameterDefaultValue? NL |
