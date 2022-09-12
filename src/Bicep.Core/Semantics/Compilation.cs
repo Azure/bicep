@@ -21,14 +21,7 @@ namespace Bicep.Core.Semantics
         private readonly IFeatureProviderManager featureProviderManager;
         private readonly IBicepAnalyzer linterAnalyzer;
 
-        public Compilation(
-            IFeatureProviderManager featureProviderManager,
-            INamespaceProvider namespaceProvider,
-            SourceFileGrouping sourceFileGrouping,
-            IConfigurationManager configurationManager,
-            IApiVersionProvider apiVersionProvider,
-            IBicepAnalyzer linterAnalyzer,
-            ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+        public Compilation(IFeatureProviderManager featureProviderManager, INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, IConfigurationManager configurationManager, IApiVersionProvider apiVersionProvider, IBicepAnalyzer linterAnalyzer, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         {
             this.featureProviderManager = featureProviderManager;
             this.SourceFileGrouping = sourceFileGrouping;
@@ -36,8 +29,6 @@ namespace Bicep.Core.Semantics
             this.configurationManager = configurationManager;
             this.ApiVersionProvider = apiVersionProvider;
             this.linterAnalyzer = linterAnalyzer;
-
-            var fileResolver = SourceFileGrouping.FileResolver;
 
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile,

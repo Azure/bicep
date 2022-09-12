@@ -98,6 +98,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             await sut.Handle(new DidChangeWatchedFilesParams { Changes = fileEvents }, new System.Threading.CancellationToken());
 
+            changeHandler.Verify(c => c.HandleBicepConfigChangeEvent(It.IsAny<DocumentUri>()), Times.Never);
             foreach (var workspaceFileUri in workspaceFiles)
             {
                 compilationManager.Verify(c => c.RefreshCompilation(workspaceFileUri), Times.Never);

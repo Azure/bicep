@@ -43,7 +43,6 @@ namespace Bicep.Core.Registry
 
         public override bool TryGetLocalModuleEntryPointUri(LocalModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            var parentModuleUri = reference.ParentModuleUri;
             localUri = fileResolver.TryResolveFilePath(reference.ParentModuleUri, reference.Path);
             if (localUri is not null)
             {

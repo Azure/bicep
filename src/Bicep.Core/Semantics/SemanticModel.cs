@@ -168,7 +168,6 @@ namespace Bicep.Core.Semantics
         /// </summary>
         private IEnumerable<IDiagnostic> GetConfigDiagnostics()
         {
-            var diagnosticWriter = ToListDiagnosticWriter.Create();
             foreach (var builderFunc in Configuration.DiagnosticBuilders)
             {
                 // This diagnostic does not correspond to any specific location in the template, so just use the first character span.

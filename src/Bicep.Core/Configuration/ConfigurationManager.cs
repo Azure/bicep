@@ -38,7 +38,7 @@ namespace Bicep.Core.Configuration
         {
             List<DiagnosticBuilder.DiagnosticBuilderDelegate> diagnostics = new();
             var loadErrorEncountered = false;
-            
+
             var (configFileUri, lookupDiagnostic) = configLookupCache.GetOrAdd(sourceFileUri, LookupConfiguration);
             if (lookupDiagnostic is not null)
             {
@@ -54,7 +54,7 @@ namespace Bicep.Core.Configuration
                     diagnostics.Add(loadError);
                 }
 
-                if (config is not null) 
+                if (config is not null)
                 {
                     return (config, diagnostics);
                 }
@@ -62,7 +62,7 @@ namespace Bicep.Core.Configuration
 
             return (GetDefaultConfiguration(loadErrorEncountered), diagnostics);
         }
-        
+
         protected virtual RootConfiguration GetDefaultConfiguration(bool loadErrorEncountered) => IConfigurationManager.GetBuiltInConfiguration();
 
         protected void PurgeLookupCache() => configLookupCache.Clear();
@@ -137,7 +137,6 @@ namespace Bicep.Core.Configuration
                     }
                     catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or SecurityException)
                     {
-                        // TODO: add telemetry here so that users can understand if there's an issue finding Bicep config.
                         // The exception could happen in senarios where users may not have read permission on the parent folder.
                         // We should not throw ConfigurationException in such cases since it will block compilation.
                         lookupDiagnostic = x => x.PotentialConfigDirectoryCouldNotBeScanned(currentDirectory, exception.Message);

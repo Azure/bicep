@@ -45,7 +45,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void AllDefinedRulesAreListInLinterRulesProvider()
         {
-            var linter = new LinterAnalyzer(configuration);
+            var linter = new LinterAnalyzer();
             var ruleTypes = linter.GetRuleSet().Select(r => r.GetType()).ToArray();
 
             var expectedRuleTypes = typeof(LinterAnalyzer).Assembly
