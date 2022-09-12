@@ -108,7 +108,7 @@
         "extensions": [
           ".bicep"
         ],
-        "configuration": "../textmate/language-configuration.json"
+        "configuration": "./syntaxes/language-configuration.json"
       },
       {
         "id": "jsonc",
@@ -557,7 +557,7 @@
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^27.0.2",
     "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-react": "^7.31.7",
+    "eslint-plugin-react": "^7.31.8",
     "fork-ts-checker-webpack-plugin": "^7.2.13",
     "jest": "^27.5.1",
     "jest-styled-components": "^7.1.1",

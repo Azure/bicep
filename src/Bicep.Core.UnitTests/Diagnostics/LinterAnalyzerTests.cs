@@ -3,8 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using Bicep.Core.Analyzers;
+using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
@@ -26,7 +29,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             linter.GetRuleSet().Should().NotBeEmpty();
         }
 
-        // No need to add new rules here
+        // No need to add new rules here, just checking a few known ones
         [DataTestMethod]
         [DataRow(AdminUsernameShouldNotBeLiteralRule.Code)]
         [DataRow(ExplicitValuesForLocationParamsRule.Code)]
@@ -37,6 +40,25 @@ namespace Bicep.Core.UnitTests.Diagnostics
         {
             var linter = new LinterAnalyzer();
             linter.GetRuleSet().Should().Contain(r => r.Code == ruleCode);
+        }
+
+        [TestMethod]
+        public void AllDefinedRulesAreListInLinterRulesProvider()
+        {
+            var linter = new LinterAnalyzer(configuration);
+            var ruleTypes = linter.GetRuleSet().Select(r => r.GetType()).ToArray();
+
+            var expectedRuleTypes = typeof(LinterAnalyzer).Assembly
+                .GetTypes()
+                .Where(t => typeof(IBicepAnalyzerRule).IsAssignableFrom(t)
+                            && t.IsClass
+                            && t.IsPublic
+                            && t.GetConstructor(Type.EmptyTypes) != null);
+
+            var actualTypeNames = ruleTypes.Select(t => t.FullName ?? throw new ArgumentNullException("bad type"));
+            var expectedTypeNames = expectedRuleTypes.Select(t => t.FullName ?? throw new ArgumentNullException("bad type"));
+
+            actualTypeNames.Should().BeEquivalentTo(expectedTypeNames, "LinterRuleProvider.GetRuleTypes() needs to be updated to list all defined rules in the core assembly");
         }
 
         [TestMethod]

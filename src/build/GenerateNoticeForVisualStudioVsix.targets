@@ -2,6 +2,7 @@
   <PropertyGroup>
     <GenerateNoticeAfterTargets>GetVsixSourceItems</GenerateNoticeAfterTargets>
     <NoticeFileName>ThirdPartyNotices.txt</NoticeFileName>
+    <GenerateNoticeLocalFilePath>$(MSBuildProjectDirectory)\local-tpn.txt</GenerateNoticeLocalFilePath>
   </PropertyGroup>
   <Target Name="PrepareForNoticeGeneration" BeforeTargets="GenerateNotice">
     <PropertyGroup>

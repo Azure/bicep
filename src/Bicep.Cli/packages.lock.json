@@ -4,9 +4,9 @@
     "net6.0": {
       "Azure.Deployments.Internal.GenerateNotice": {
         "type": "Direct",
-        "requested": "[0.1.11, )",
-        "resolved": "0.1.11",
-        "contentHash": "yivndYKRuYWcWQP5dz/Y2RbgLVkXNo+/PXMzpxaElKnK0d6Dzf4dPX/vBYN8Q14MJoimuFDy/6RqVQP6NZBaog=="
+        "requested": "[0.1.13, )",
+        "resolved": "0.1.13",
+        "contentHash": "l9bZLZxtzNF33jexI8o9IKUoxenIh9rqO96ApaZ0AoXhPe0OL7tJ+fwsNHIOk4f1Ysyq85+A0kbzef2wQLd9Cw=="
       },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",

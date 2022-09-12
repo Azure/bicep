@@ -172,7 +172,7 @@ Usage:
         private static void WriteEmbeddedResource(TextWriter writer, string streamName)
         {
             using var stream = typeof(RootCommand).Assembly.GetManifestResourceStream(streamName)
-                ?? throw new BicepException($"The resource stream '{streamName}' is missing from this executable. Please use an official build of this executable to access the requested information.");
+                ?? throw new BicepException($"The resource stream '{streamName}' is missing from this executable.");
 
             using var decompressor = new DeflateStream(stream, CompressionMode.Decompress);
 

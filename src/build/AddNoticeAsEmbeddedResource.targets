@@ -1,7 +1,8 @@
 <Project>
   <PropertyGroup>
     <NoticeFilePath>$(IntermediateOutputPath)ThirdPartyNotices.txt</NoticeFilePath>
-    <DeflatedNoticeFilePath>$(IntermediateOutputPath)ThirdPartyNotices.txt.deflated</DeflatedNoticeFilePath>    
+    <DeflatedNoticeFilePath>$(IntermediateOutputPath)ThirdPartyNotices.txt.deflated</DeflatedNoticeFilePath>
+    <GenerateNoticeLocalFilePath>$(MSBuildProjectDirectory)\local-tpn.txt</GenerateNoticeLocalFilePath>
   </PropertyGroup>
 
   <Import Project="CompressFileTask.targets" Condition="'$(CompressFileTaskImported)' != 'true'" />

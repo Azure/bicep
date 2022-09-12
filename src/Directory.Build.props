@@ -27,11 +27,23 @@
 
   <PropertyGroup>
     <!-- different projects include the GenerateNotice package via different targets - this allows us to centrally manage the upgrades -->
-    <GenerateNoticePackageVersion>0.1.11</GenerateNoticePackageVersion>
+    <GenerateNoticePackageVersion>0.1.13</GenerateNoticePackageVersion>
     
     <!-- settings of the GenerateNotice tool -->
     <GenerateNoticeRetryCount>9</GenerateNoticeRetryCount>
     <GenerateNoticeBatchSize>100</GenerateNoticeBatchSize>
+
+    <!-- 
+      use local file for local and GH builds
+      the ADO builds will set this to false via the environment variables to generate TPN files using the API
+     -->
+    <GenerateNoticeUseLocalFile Condition="'$(GenerateNoticeUseLocalFile)'==''">true</GenerateNoticeUseLocalFile>
+
+    <!--
+      do not update the checked-in tpn file by default
+      we will run a scheduled GH build that will set this to true via environment variables to create PRs with TPN file updates
+    -->
+    <GenerateNoticeUpdateLocalFile Condition="'$(GenerateNoticeUpdateLocalFile)'==''">false</GenerateNoticeUpdateLocalFile>
   </PropertyGroup>
 
   <ItemGroup>
