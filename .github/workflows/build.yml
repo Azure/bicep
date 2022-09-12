@@ -13,18 +13,15 @@ permissions:
 
 env:
   CI: true
+  # don't print dotnet logo
+  DOTNET_NOLOGO: true
+  # disable telemetry (reduces dotnet tool output in logs)
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
 
 jobs:
-  build-bicep:
+  build-cli:
     name: Build CLI (${{ matrix.rid }})
-    runs-on: ${{ matrix.os }}
-
-    env:
-      # don't print dotnet logo
-      DOTNET_NOLOGO: true
-
-      # disable telemetry (reduces dotnet tool output in logs)
-      DOTNET_CLI_TELEMETRY_OPTOUT: true
+    runs-on: ubuntu-latest
 
     strategy:
       # let us get failures from other jobs even if one fails
@@ -33,48 +30,13 @@ jobs:
       # should be the full list of supported RIDs with customizations expressed via the parameters under each item
       matrix:
         include:
-          - os: windows-latest
-            rid: win-x64
-            configuration: release
-            publishLanguageServer: false
-            publishPackages: false
-            runTests: true
-          - os: ubuntu-latest
-            rid: linux-x64
-            configuration: release
-            publishLanguageServer: true
-            publishPackages: true
-            runTests: true
-          - os: ubuntu-latest
-            rid: linux-musl-x64
-            configuration: release
-            publishLanguageServer: false
-            publishPackages: false
-            runTests: true
-          - os: macos-latest
-            rid: osx-x64
-            configuration: release
-            publishLanguageServer: false
-            publishPackages: false
-            runTests: true
-          - os: ubuntu-latest
-            rid: linux-arm64
-            configuration: release
-            publishLanguageServer: false
-            publishPackages: false
-            runTests: false
-          - os: ubuntu-latest
-            rid: win-arm64
-            configuration: release
-            publishLanguageServer: false
-            publishPackages: false
-            runTests: false
-          - os: ubuntu-latest
-            rid: osx-arm64
-            configuration: release
-            publishLanguageServer: false
-            publishPackages: false
-            runTests: false
+          - rid: win-x64
+          - rid: linux-x64
+          - rid: linux-musl-x64
+          - rid: osx-x64
+          - rid: linux-arm64
+          - rid: win-arm64
+          - rid: osx-arm64
 
     steps:
       - uses: actions/checkout@v3
@@ -86,68 +48,16 @@ jobs:
         uses: actions/setup-dotnet@v2
 
       - name: Build Bicep.sln
-        run: dotnet build --configuration ${{ matrix.configuration }}
-
-      - name: Pack
-        if: matrix.publishPackages
-        run: dotnet pack --configuration ${{ matrix.configuration }}
-
-      - name: Test
-        if: matrix.runTests
-        run: dotnet test --configuration ${{ matrix.configuration }} --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
-
-      - name: Upload Test Results
-        uses: actions/upload-artifact@v3
-        if: always() && matrix.runTests
-        with:
-          name: Bicep.TestResults.${{ matrix.rid }}
-          path: ./TestResults/**/*.trx
-          if-no-files-found: error
-
-      - name: Publish Language Server
-        if: matrix.publishLanguageServer
-        run: dotnet publish --configuration ${{ matrix.configuration }} ./src/Bicep.LangServer/Bicep.LangServer.csproj
+        run: dotnet build --configuration release
 
       - name: Publish Bicep
-        run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
-
-      - name: Run Bicep E2E Tests
-        if: matrix.rid != 'linux-musl-x64' && matrix.runTests
-        run: npm ci && npm test
-        env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
-        working-directory: ./src/Bicep.Cli.E2eTests
-
-      - name: Run Bicep E2E Tests (linux-musl-x64)
-        if: matrix.rid == 'linux-musl-x64' && matrix.runTests
-        uses: docker://mcr.microsoft.com/azure-cli:latest
-        with:
-          entrypoint: sh
-          args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
-        env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
-
-      - name: Upload Language Server
-        uses: actions/upload-artifact@v3
-        if: matrix.publishLanguageServer
-        with:
-          name: Bicep.LangServer
-          path: ./src/Bicep.LangServer/bin/${{ matrix.configuration }}/net6.0/publish/*
-          if-no-files-found: error
-      
-      # needed to generate notice file
-      - name: Upload Language Server project assets file
-        uses: actions/upload-artifact@v3
-        if: matrix.publishLanguageServer
-        with:
-          name: Bicep.LangServer.ProjAssets
-          path: ./src/Bicep.LangServer/obj/project.assets.json
+        run: dotnet publish --configuration release --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
       - name: Upload Bicep
         uses: actions/upload-artifact@v3
         with:
-          name: bicep-${{ matrix.configuration }}-${{ matrix.rid }}
-          path: ./src/Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/*
+          name: bicep-release-${{ matrix.rid }}
+          path: ./src/Bicep.Cli/bin/release/net6.0/${{ matrix.rid }}/publish/*
           if-no-files-found: error
       
       - name: Upload Bicep project assets file
@@ -157,197 +67,32 @@ jobs:
           path: ./src/Bicep.Cli/obj/project.assets.json
           if-no-files-found: error
 
+  build-nugets:
+    name: Build NuGet Packages
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+
+      - name: Pack
+        run: dotnet pack --configuration release
+
       - name: Upload Packages
         uses: actions/upload-artifact@v3
-        if: matrix.publishPackages
         with:
           name: bicep-nupkg-any
           path: out/*
           if-no-files-found: error
 
-      - name: Upload Code Coverage
-        if: matrix.runTests
-        uses: codecov/codecov-action@v3
-        with:
-          flags: dotnet
-
-  build-bicep-in-visual-studio:
-    name: Build Bicep In Visual Studio
-    runs-on: windows-latest
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
-          submodules: true
-
-      # needed by the GenerateNotice package
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v2
-
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
-
-      - name: Build Bicep.sln
-        run: msbuild Bicep.sln /restore -property:Configuration=Release /v:m /bl:./src/binlog/bicep_build.binlog
-
-      - name: Upload Bicep.sln build binlog
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-binlog-files
-          path: ./src/binlog/bicep_build.binlog
-          if-no-files-found: error
-
-      - name: Build BicepInVisualStudio.sln
-        run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore -property:Configuration=Release /v:m /bl:./src/binlog/bicep_in_visual_studio_build.binlog
-
-      - name: Upload Bicep.sln build binlog
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-binlog-files
-          path: ./src/binlog/bicep_in_visual_studio_build.binlog
-          if-no-files-found: error
-
-      - name: Run bicep in visual studio unit tests
-        uses: microsoft/vstest-action@v1.0.0
-        with:
-          testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/Bicep.VSLanguageServerClient.UnitTests.dll
-          runInParallel: true
-
-      - name: Install bicep in Visual Studio
-        run: ./src/vs-bicep/Install.cmd
-
-      - name: Run bicep in visual studio integration tests
-        uses: microsoft/vstest-action@v1.0.0
-        with:
-          testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/Bicep.VSLanguageServerClient.IntegrationTests.dll
-          runInParallel: false
-
-      - name: Upload BicepLanguageServerClient VSIX
-        uses: actions/upload-artifact@v3
-        with:
-          name: Bicep.VSLanguageServerClient.Vsix.vsix
-          path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/vs-bicep.vsix
-          if-no-files-found: error
-
-  can-run-live-tests:
-    name: Check secret access
+  build-langserver:
+    name: Build Language Server
     runs-on: ubuntu-latest
-    outputs:
-      access_verified: ${{ steps.check-access.outputs.verified }}
-    steps:
-      - id: check-access
-        env:
-          SECRET_TO_CHECK: ${{ secrets.SECRET_TO_CHECK }}
-        if: env.SECRET_TO_CHECK != ''
-        run: echo '::set-output name=verified::true'
-
-  test-cli-live:
-    name: Test CLI (live) (${{ matrix.runtime.rid }}) (${{ matrix.environment }})
-    strategy:
-      fail-fast: false
-      matrix:
-        environment: [prod, ff]
-        runtime:
-          # should be the list of RIDs that correspond to OSs supported by GitHub hosted runners
-          - os: windows-latest
-            rid: win-x64
-          - os: ubuntu-latest
-            rid: linux-x64
-          - os: macos-latest
-            rid: osx-x64
-    runs-on: ${{ matrix.runtime.os }}
-    needs:
-      - build-bicep
-      - can-run-live-tests
-    if: needs.can-run-live-tests.outputs.access_verified == 'true'
-    env:
-      BICEP_SPN_PASSWORD_FF: ${{ secrets.BICEP_SPN_PASSWORD_FF }}
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
-      - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
-        with:
-          name: bicep-release-${{ matrix.runtime.rid }}
-          path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
-
-      - name: Make Bicep CLI executable
-        if: matrix.runtime.rid != 'win-x64'
-        run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
-
-      - name: Az CLI login
-        uses: azure/login@v1
-        if: matrix.environment == 'prod'
-        with:
-          client-id: ${{ secrets.LIVE_TEST_CLIENT_ID_PROD }}
-          tenant-id: ${{ secrets.LIVE_TEST_TENANT_ID_PROD }}
-          subscription-id: ${{ secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD }}
-
-      - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
-        run: npm ci && npm run test:live:${{ matrix.environment }}
-        env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
-        working-directory: ./src/Bicep.Cli.E2eTests
-
-  test-cli-live-linux-musl-x64:
-    name: Test CLI (live) (linux-musl-x64) (${{ matrix.environment }})
-    strategy:
-      matrix:
-        environment:
-          - prod
-          - ff
-    runs-on: ubuntu-latest
-    container:
-      # The azure-cli image is based on Alpine linux which uses musl libc.
-      image: mcr.microsoft.com/azure-cli:latest
-    needs:
-      - build-bicep
-      - can-run-live-tests
-    if: needs.can-run-live-tests.outputs.access_verified == 'true'
-    env:
-      BICEP_SPN_PASSWORD_FF: ${{ secrets.BICEP_SPN_PASSWORD_FF }}
-
-    steps:
-      - uses: actions/checkout@v3
-
-      # Cannot use actions/setup-node@v3 for linux-musl-x64
-      - name: Setup Node.js
-        run: apk add --update nodejs npm
-
-      - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
-        with:
-          name: bicep-release-linux-musl-x64
-          path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
-
-      - name: Make Bicep CLI executable
-        run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
-
-      - name: Az CLI login
-        uses: azure/login@v1
-        if: matrix.environment == 'prod'
-        with:
-          client-id: ${{ secrets.LIVE_TEST_CLIENT_ID_PROD }}
-          tenant-id: ${{ secrets.LIVE_TEST_TENANT_ID_PROD }}
-          subscription-id: ${{ secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD }}
-
-      - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
-        run: npm ci && npm run test:live:${{ matrix.environment }}
-        env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
-        working-directory: ./src/Bicep.Cli.E2eTests
-
-  build-windows-setup:
-    name: Build Windows Setup
-    runs-on: windows-latest
-    needs: build-bicep
 
     steps:
       - uses: actions/checkout@v3
@@ -358,134 +103,27 @@ jobs:
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v2
 
-      - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
-        with:
-          name: bicep-release-win-x64
-          path: ./src/installer-win/bicep
-      
-      - name: Download Bicep CLI project assets file
-        uses: actions/download-artifact@v3
-        with:
-          name: bicep-project-assets-win-x64
-          path: ./src/installer-win/bicep
+      - name: Publish Language Server
+        run: dotnet publish --configuration release ./src/Bicep.LangServer/Bicep.LangServer.csproj
 
-      - name: Build Windows Installer
-        run: dotnet build --configuration release ./src/installer-win/installer.proj
-
-      - name: Upload Windows Installer
+      - name: Upload Language Server
         uses: actions/upload-artifact@v3
         with:
-          name: bicep-setup-win-x64
-          path: ./src/installer-win/bin/release/net6.0/bicep-setup-win-x64.exe
+          name: Bicep.LangServer
+          path: ./src/Bicep.LangServer/bin/release/net6.0/publish/*
           if-no-files-found: error
-
-  build-packages:
-    name: Build Packages (${{ matrix.rid }})
-    runs-on: ${{ matrix.os }}
-    needs: build-bicep
-
-    env:
-      RuntimeSuffix: ${{ matrix.rid }}
-
-    strategy:
-      fail-fast: false
-
-      # should be the full list of RIDs that we support in the CLI
-      matrix:
-        include:
-          - os: windows-latest
-            rid: win-x64
-            runTests: true
-          - os: ubuntu-latest
-            rid: linux-x64
-            runTests: true
-          - os: macos-latest
-            rid: osx-x64
-            runTests: true
-          - os: ubuntu-latest
-            rid: win-arm64
-            runTests: false
-          - os: ubuntu-latest
-            rid: linux-arm64
-            runTests: false
-          - os: ubuntu-latest
-            rid: osx-arm64
-            runTests: false
-
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
-          submodules: true
-
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v2
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
-
-      - name: npm ci
-        if: matrix.runTests
-        run: npm ci
-        working-directory: ./src/Bicep.MSBuild.E2eTests
-
-      - name: Compile
-        if: matrix.runTests
-        run: npm run compile
-        working-directory: ./src/Bicep.MSBuild.E2eTests
-
-      - name: Run lint
-        if: matrix.runTests
-        run: npm run lint
-        working-directory: ./src/Bicep.MSBuild.E2eTests
-
-      - name: Download Bicep CLI
-        uses: actions/download-artifact@v3
-        with:
-          name: bicep-release-${{ matrix.rid }}
-          path: ./src/Bicep.Cli.Nuget/tools
       
-      - name: Download Bicep CLI project assets file
-        uses: actions/download-artifact@v3
-        with:
-          name: bicep-project-assets-${{ matrix.rid }}
-          path: ./src/Bicep.Cli.Nuget/tools
-
-      - name: Download .Net Packages
-        uses: actions/download-artifact@v3
-        with:
-          name: bicep-nupkg-any
-          path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
-
-      - name: Build CLI Package
-        run: dotnet build --configuration release /p:RuntimeSuffix=${{ matrix.rid }} ./src/Bicep.Cli.Nuget/nuget.proj
-
-      - name: Upload CLI Package
+      # needed to generate notice file
+      - name: Upload Language Server project assets file
         uses: actions/upload-artifact@v3
         with:
-          name: bicep-nupkg-${{ matrix.rid }}
-          path: ./src/Bicep.Cli.Nuget/*.nupkg
-          if-no-files-found: error
+          name: Bicep.LangServer.ProjAssets
+          path: ./src/Bicep.LangServer/obj/project.assets.json
 
-      - name: Download CLI Package
-        if: matrix.runTests
-        uses: actions/download-artifact@v3
-        with:
-          name: bicep-nupkg-${{ matrix.rid }}
-          path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
-
-      - name: Run E2E tests
-        if: matrix.runTests
-        run: npm run test
-        working-directory: ./src/Bicep.MSBuild.E2eTests
-
-  build-vsix:
-    name: Build VSIX
+  build-vscode-ext:
+    name: Build VSCode Extension
     runs-on: ${{ matrix.os }}
-    needs: build-bicep
+    needs: build-langserver
 
     strategy:
       fail-fast: false
@@ -591,6 +229,202 @@ jobs:
           path: ./src/vscode-bicep/vscode-bicep.vsix
           if-no-files-found: error
 
+  build-vs-ext:
+    name: Build Visual Studio Extension
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      # needed by the GenerateNotice package
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+
+      - name: Build Bicep.sln
+        run: msbuild Bicep.sln /restore -property:Configuration=Release /v:m /bl:./src/binlog/bicep_build.binlog
+
+      - name: Upload Bicep.sln build binlog
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-binlog-files
+          path: ./src/binlog/bicep_build.binlog
+          if-no-files-found: error
+
+      - name: Build BicepInVisualStudio.sln
+        run: msbuild src/vs-bicep/BicepInVisualStudio.sln /restore -property:Configuration=Release /v:m /bl:./src/binlog/bicep_in_visual_studio_build.binlog
+
+      - name: Upload Bicep.sln build binlog
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-binlog-files
+          path: ./src/binlog/bicep_in_visual_studio_build.binlog
+          if-no-files-found: error
+
+      - name: Run bicep in visual studio unit tests
+        uses: microsoft/vstest-action@v1.0.0
+        with:
+          testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/Bicep.VSLanguageServerClient.UnitTests.dll
+          runInParallel: true
+
+      - name: Install bicep in Visual Studio
+        run: ./src/vs-bicep/Install.cmd
+
+      - name: Run bicep in visual studio integration tests
+        uses: microsoft/vstest-action@v1.0.0
+        with:
+          testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/Bicep.VSLanguageServerClient.IntegrationTests.dll
+          runInParallel: false
+
+      - name: Upload BicepLanguageServerClient VSIX
+        uses: actions/upload-artifact@v3
+        with:
+          name: Bicep.VSLanguageServerClient.Vsix.vsix
+          path: ./src/vs-bicep/Bicep.VSLanguageServerClient.Vsix/bin/Release/vs-bicep.vsix
+          if-no-files-found: error
+
+  build-windows-setup:
+    name: Build Windows Setup
+    runs-on: windows-latest
+    needs: build-cli
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+
+      - name: Download Bicep CLI
+        uses: actions/download-artifact@v3
+        with:
+          name: bicep-release-win-x64
+          path: ./src/installer-win/bicep
+      
+      - name: Download Bicep CLI project assets file
+        uses: actions/download-artifact@v3
+        with:
+          name: bicep-project-assets-win-x64
+          path: ./src/installer-win/bicep
+
+      - name: Build Windows Installer
+        run: dotnet build --configuration release ./src/installer-win/installer.proj
+
+      - name: Upload Windows Installer
+        uses: actions/upload-artifact@v3
+        with:
+          name: bicep-setup-win-x64
+          path: ./src/installer-win/bin/release/net6.0/bicep-setup-win-x64.exe
+          if-no-files-found: error
+
+  build-cli-nugets:
+    name: Build CLI NuGet Packages (${{ matrix.rid }})
+    runs-on: ${{ matrix.os }}
+    needs:
+      - build-cli
+      - build-nugets
+
+    env:
+      RuntimeSuffix: ${{ matrix.rid }}
+
+    strategy:
+      fail-fast: false
+
+      # should be the full list of RIDs that we support in the CLI
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: macos-latest
+            rid: osx-x64
+          - os: ubuntu-latest
+            rid: win-arm64
+            runTests: false
+          - os: ubuntu-latest
+            rid: linux-arm64
+            runTests: false
+          - os: ubuntu-latest
+            rid: osx-arm64
+            runTests: false
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: npm ci
+        if: matrix.runTests
+        run: npm ci
+        working-directory: ./src/Bicep.MSBuild.E2eTests
+
+      - name: Compile
+        if: matrix.runTests
+        run: npm run compile
+        working-directory: ./src/Bicep.MSBuild.E2eTests
+
+      - name: Run lint
+        if: matrix.runTests
+        run: npm run lint
+        working-directory: ./src/Bicep.MSBuild.E2eTests
+
+      - name: Download Bicep CLI
+        uses: actions/download-artifact@v3
+        with:
+          name: bicep-release-${{ matrix.rid }}
+          path: ./src/Bicep.Cli.Nuget/tools
+      
+      - name: Download Bicep CLI project assets file
+        uses: actions/download-artifact@v3
+        with:
+          name: bicep-project-assets-${{ matrix.rid }}
+          path: ./src/Bicep.Cli.Nuget/tools
+
+      - name: Download .Net Packages
+        uses: actions/download-artifact@v3
+        with:
+          name: bicep-nupkg-any
+          path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
+
+      - name: Build CLI Package
+        run: dotnet build --configuration release /p:RuntimeSuffix=${{ matrix.rid }} ./src/Bicep.Cli.Nuget/nuget.proj
+
+      - name: Upload CLI Package
+        uses: actions/upload-artifact@v3
+        with:
+          name: bicep-nupkg-${{ matrix.rid }}
+          path: ./src/Bicep.Cli.Nuget/*.nupkg
+          if-no-files-found: error
+
+      - name: Download CLI Package
+        if: matrix.runTests
+        uses: actions/download-artifact@v3
+        with:
+          name: bicep-nupkg-${{ matrix.rid }}
+          path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
+
+      - name: Run E2E tests
+        if: matrix.runTests
+        run: npm run test
+        working-directory: ./src/Bicep.MSBuild.E2eTests
+
   build-playground:
     name: Build Playground
     runs-on: ubuntu-latest
@@ -628,8 +462,8 @@ jobs:
           path: ./src/playground/dist/*
           if-no-files-found: error
 
-  build-grammars:
-    name: Build Grammars
+  build-highlight-libs:
+    name: Build Highlight Libraries
     runs-on: ubuntu-latest
 
     steps:
@@ -666,3 +500,189 @@ jobs:
           npm run lint
           npm test
         working-directory: ./src/monarch
+
+  test-bicep:
+    name: Test Bicep (${{ matrix.rid }})
+    runs-on: ${{ matrix.os }}
+    needs: build-cli
+
+    strategy:
+      # let us get failures from other jobs even if one fails
+      fail-fast: false
+
+      # should be the full list of supported RIDs with customizations expressed via the parameters under each item
+      matrix:
+        include:
+          - os: windows-latest
+            rid: win-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: ubuntu-latest
+            rid: linux-musl-x64
+          - os: macos-latest
+            rid: osx-x64
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup .NET Core
+        uses: actions/setup-dotnet@v2
+
+      - name: Test
+        run: dotnet test --configuration release --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: Bicep.TestResults.${{ matrix.rid }}
+          path: ./TestResults/**/*.trx
+          if-no-files-found: error
+
+      - name: Download Bicep CLI
+        uses: actions/download-artifact@v3
+        with:
+          name: bicep-release-${{ matrix.rid }}
+          path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
+
+      - name: Make Bicep CLI executable
+        if: runner.os != 'Windows'
+        run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+
+      - name: Run Bicep E2E Tests
+        if: matrix.rid != 'linux-musl-x64'
+        run: npm ci && npm test
+        env:
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+        working-directory: ./src/Bicep.Cli.E2eTests
+
+      - name: Run Bicep E2E Tests (linux-musl-x64)
+        if: matrix.rid == 'linux-musl-x64'
+        uses: docker://mcr.microsoft.com/azure-cli:latest
+        with:
+          entrypoint: sh
+          args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
+        env:
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+
+      - name: Upload Code Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          flags: dotnet
+
+  can-run-live-tests:
+    name: Check secret access
+    runs-on: ubuntu-latest
+    outputs:
+      access_verified: ${{ steps.check-access.outputs.verified }}
+    steps:
+      - id: check-access
+        env:
+          SECRET_TO_CHECK: ${{ secrets.SECRET_TO_CHECK }}
+        if: env.SECRET_TO_CHECK != ''
+        run: echo '::set-output name=verified::true'
+
+  test-cli-live:
+    name: Test CLI (live) (${{ matrix.runtime.rid }}) (${{ matrix.environment }})
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [prod, ff]
+        runtime:
+          # should be the list of RIDs that correspond to OSs supported by GitHub hosted runners
+          - os: windows-latest
+            rid: win-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: macos-latest
+            rid: osx-x64
+    runs-on: ${{ matrix.runtime.os }}
+    needs:
+      - build-cli
+      - can-run-live-tests
+    if: needs.can-run-live-tests.outputs.access_verified == 'true'
+    env:
+      BICEP_SPN_PASSWORD_FF: ${{ secrets.BICEP_SPN_PASSWORD_FF }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+      - name: Download Bicep CLI
+        uses: actions/download-artifact@v3
+        with:
+          name: bicep-release-${{ matrix.runtime.rid }}
+          path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
+
+      - name: Make Bicep CLI executable
+        if: runner.os != 'Windows'
+        run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+
+      - name: Az CLI login
+        uses: azure/login@v1
+        if: matrix.environment == 'prod'
+        with:
+          client-id: ${{ secrets.LIVE_TEST_CLIENT_ID_PROD }}
+          tenant-id: ${{ secrets.LIVE_TEST_TENANT_ID_PROD }}
+          subscription-id: ${{ secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD }}
+
+      - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
+        run: npm ci && npm run test:live:${{ matrix.environment }}
+        env:
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+        working-directory: ./src/Bicep.Cli.E2eTests
+
+  test-cli-live-linux-musl-x64:
+    name: Test CLI (live) (linux-musl-x64) (${{ matrix.environment }})
+    strategy:
+      matrix:
+        environment:
+          - prod
+          - ff
+    runs-on: ubuntu-latest
+    container:
+      # The azure-cli image is based on Alpine linux which uses musl libc.
+      image: mcr.microsoft.com/azure-cli:latest
+    needs:
+      - build-cli
+      - can-run-live-tests
+    if: needs.can-run-live-tests.outputs.access_verified == 'true'
+    env:
+      BICEP_SPN_PASSWORD_FF: ${{ secrets.BICEP_SPN_PASSWORD_FF }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Cannot use actions/setup-node@v3 for linux-musl-x64
+      - name: Setup Node.js
+        run: apk add --update nodejs npm
+
+      - name: Download Bicep CLI
+        uses: actions/download-artifact@v3
+        with:
+          name: bicep-release-linux-musl-x64
+          path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
+
+      - name: Make Bicep CLI executable
+        run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+
+      - name: Az CLI login
+        uses: azure/login@v1
+        if: matrix.environment == 'prod'
+        with:
+          client-id: ${{ secrets.LIVE_TEST_CLIENT_ID_PROD }}
+          tenant-id: ${{ secrets.LIVE_TEST_TENANT_ID_PROD }}
+          subscription-id: ${{ secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD }}
+
+      - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
+        run: npm ci && npm run test:live:${{ matrix.environment }}
+        env:
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+        working-directory: ./src/Bicep.Cli.E2eTests
