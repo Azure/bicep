@@ -56,6 +56,14 @@ const extensionConfig: webpack.Configuration = {
         },
       ],
     }) as { apply(...args: unknown[]): void },
+    new CopyPlugin({
+      patterns: [
+        {
+          from: "../textmate/language-configuration.json",
+          to: path.join(__dirname, "syntaxes/language-configuration.json"),
+        },
+      ],
+    }) as { apply(...args: unknown[]): void },
     new ForkTsCheckerWebpackPlugin(),
   ],
   resolve: {
