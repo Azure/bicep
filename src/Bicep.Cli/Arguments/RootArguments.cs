@@ -7,7 +7,7 @@ namespace Bicep.Cli.Arguments
 {
     public class RootArguments : ArgumentsBase
     {
-        public RootArguments(string arg, string commandName) : base(commandName)
+        public RootArguments(string arg, string commandName, string[] additionalArgs) : base(commandName)
         {
             switch (arg)
             {
@@ -27,6 +27,23 @@ namespace Bicep.Cli.Arguments
                     PrintThirdPartyNotices = true;
                     break;
             };
+
+            for (var i = 0; i < additionalArgs.Length; i++)
+            {
+                switch (additionalArgs[i].ToLowerInvariant())
+                {
+                    case string maybeFeatureArg when IsFeatureArg(maybeFeatureArg):
+                        i += HandleFeatureArg(additionalArgs, i);
+                        break;
+
+                    default:
+                        if (additionalArgs[i].StartsWith("--"))
+                        {
+                            throw new CommandLineException($"Unrecognized parameter \"{additionalArgs[i]}\"");
+                        }
+                        break;
+                }
+            }
         }
 
         public bool PrintHelp { get; }

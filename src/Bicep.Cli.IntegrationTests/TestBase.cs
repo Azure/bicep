@@ -6,7 +6,6 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
@@ -14,6 +13,7 @@ using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Moq;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -41,9 +41,8 @@ namespace Bicep.Cli.IntegrationTests
                     TestTypeHelper.CreateEmptyAzResourceTypeLoader(),
                     @out,
                     err,
-                    featureProviderManager: IFeatureProviderManager.ForFeatureProvider(settings.Features),
                     clientFactory: settings.ClientFactory,
-                    templateSpecRepositoryFactory: settings.TemplateSpecRepositoryFactory)).RunAsync(args));
+                    templateSpecRepositoryFactory: settings.TemplateSpecRepositoryFactory)).RunAsync(args.Concat(ToFeatureArgs(settings.Features)).ToArray()));
 
         protected static void AssertNoErrors(string error)
         {
@@ -99,5 +98,17 @@ namespace Bicep.Cli.IntegrationTests
 
             return output;
         }
+
+        private static string[] ToFeatureArgs(IFeatureProvider features) => new[]
+        {
+            "--cache-root-directory", features.CacheRootDirectory,
+            "--enable-registry", features.RegistryEnabled.ToString(),
+            "--enable-symbolic-name-codegen", features.SymbolicNameCodegenEnabled.ToString(),
+            "--enable-imports", features.ImportsEnabled.ToString(),
+            "--enable-resource-typed-params-and-outputs", features.ResourceTypedParamsAndOutputsEnabled.ToString(),
+            "--enable-source-mapping", features.SourceMappingEnabled.ToString(),
+            "--enable-params-files", features.ParamsFilesEnabled.ToString(),
+            "--assembly-version-override", features.AssemblyVersion,
+        };
     }
 }

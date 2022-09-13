@@ -47,6 +47,9 @@ namespace Bicep.Cli.Arguments
                         OutputFile = args[i + 1];
                         i++;
                         break;
+                    case string maybeFeatureArg when IsFeatureArg(maybeFeatureArg):
+                        i += HandleFeatureArg(args, i);
+                        break;
                     default:
                         if (args[i].StartsWith("--"))
                         {

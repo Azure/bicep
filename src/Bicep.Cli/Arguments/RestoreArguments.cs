@@ -7,18 +7,22 @@ namespace Bicep.Cli.Arguments
     {
         public RestoreArguments(string[] args) : base(Constants.Command.Restore)
         {
-            foreach (var argument in args)
+            for (int i = 0; i < args.Length; i++)
             {
-                switch (argument.ToLowerInvariant())
+                switch (args[i].ToLowerInvariant())
                 {
                     case "--force":
                         ForceModulesRestore = true;
                         break;
 
+                    case string maybeFeatureArg when IsFeatureArg(maybeFeatureArg):
+                        i += HandleFeatureArg(args, i);
+                        break;
+
                     default:
-                        if (argument.StartsWith("--"))
+                        if (args[i].StartsWith("--"))
                         {
-                            throw new CommandLineException($"Unrecognized parameter \"{argument}\"");
+                            throw new CommandLineException($"Unrecognized parameter \"{args[i]}\"");
                         }
 
                         if (InputFile is not null)
@@ -26,7 +30,7 @@ namespace Bicep.Cli.Arguments
                             throw new CommandLineException($"The input file path cannot be specified multiple times.");
                         }
 
-                        InputFile = argument;
+                        InputFile = args[i];
                         break;
                 }
             }

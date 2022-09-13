@@ -92,6 +92,7 @@ namespace Bicep.Core.UnitTests
                 ["cloud.credentialPrecedence"] = new[] { "AzureCLI", "AzurePowerShell" },
                 ["moduleAliases"] = new Dictionary<string, object>(),
                 ["analyzers"] = new Dictionary<string, object>(),
+                ["experimentalFeaturesEnabled"] = new Dictionary<string, bool>(),
             };
 
             if (customConfigurationData is not null)

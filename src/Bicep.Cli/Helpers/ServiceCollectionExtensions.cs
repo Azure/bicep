@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Commands;
-using Bicep.Core.Features;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -53,13 +52,6 @@ namespace Bicep.Cli.Helpers
 
             // add contents of the context
             services.AddSingleton(context.NamespaceProvider);
-            if (context.FeatureProviderManager is {} fpm)
-            {
-                services.AddSingleton(fpm);
-            } else {
-                services.AddSingleton<IFeatureProviderManager, FeatureProviderManager>();
-            }
-
             services.AddSingleton(context.ClientFactory);
             services.AddSingleton(context.TemplateSpecRepositoryFactory);
 

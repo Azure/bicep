@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
@@ -14,6 +15,9 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public class RootCommandTests : TestBase
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [TestMethod]
         public async Task Build_WithWrongArgs_ShouldFail_WithExpectedErrorMessage()
         {
@@ -25,7 +29,7 @@ namespace Bicep.Cli.IntegrationTests
                 output.Should().BeEmpty();
 
                 error.Should().NotBeEmpty();
-                error.Should().Contain($"Unrecognized arguments \"wrong fake broken\" specified. Use \"bicep --help\" to view available options.");
+                error.Should().Contain("Unrecognized arguments \"wrong fake broken");
             }
         }
 
@@ -47,10 +51,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task BicepHelpShouldPrintHelp()
         {
-            var featuresMock = Repository.Create<IFeatureProvider>();
-            featuresMock.Setup(m => m.RegistryEnabled).Returns(true);
-
-            var settings = CreateDefaultSettings() with { Features = featuresMock.Object };
+            var settings = CreateDefaultSettings() with { Features = BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true) };
 
             var (output, error, result) = await Bicep(settings, "--help");
 
@@ -125,6 +126,48 @@ namespace Bicep.Cli.IntegrationTests
                 // the notice file should be long
                 output.Length.Should().BeGreaterThan(100000);
             }
+        }
+
+        [TestMethod]
+        public async Task BicepHelpShouldIncludePublishWhenRegistryEnabled()
+        {
+            var settings = CreateDefaultSettings() with { Features = BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true) };
+
+            var (output, error, result) = await Bicep(settings, "--help");
+
+            result.Should().Be(0);
+            error.Should().BeEmpty();
+
+            output.Should().NotBeEmpty();
+            output.Should().ContainAll(
+                "publish",
+                "Publishes",
+                "registry",
+                "reference",
+                "azurecr.io",
+                "br",
+                "--target");
+        }
+
+        [TestMethod]
+        public async Task BicepHelpShouldNotIncludePublishWhenRegistryDisabled()
+        {
+            var settings = CreateDefaultSettings() with { Features = BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: false) };
+
+            var (output, error, result) = await Bicep(settings, "--help");
+
+            result.Should().Be(0);
+            error.Should().BeEmpty();
+
+            output.Should().NotBeEmpty();
+            output.Should().NotContainAny(
+                "publish",
+                "Publishes",
+                "registry",
+                "reference",
+                "azurecr.io",
+                "br",
+                "--target");
         }
     }
 }

@@ -105,12 +105,12 @@ namespace Bicep.LanguageServer
 
             server.LogInfo($"Running on processId {Environment.ProcessId}");
 
-            if (FeatureProvider.TracingEnabled)
+            if (IFeatureProvider.TracingEnabled)
             {
                 Trace.Listeners.Add(new ServerLogTraceListener(server));
             }
 
-            using (FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
+            using (IFeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(IFeatureProvider.TracingVerbosity) : null)
             {
                 var scheduler = server.GetRequiredService<IModuleRestoreScheduler>();
                 scheduler.Start();

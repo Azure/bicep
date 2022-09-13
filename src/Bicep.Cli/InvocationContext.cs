@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
@@ -16,7 +15,6 @@ namespace Bicep.Cli
             IAzResourceTypeLoader azResourceTypeLoader,
             TextWriter outputWriter,
             TextWriter errorWriter,
-            IFeatureProviderManager? featureProviderManager = null,
             IContainerRegistryClientFactory? clientFactory = null,
             ITemplateSpecRepositoryFactory? templateSpecRepositoryFactory = null)
         {
@@ -26,7 +24,6 @@ namespace Bicep.Cli
             ClientFactory = clientFactory ?? new ContainerRegistryClientFactory(new TokenCredentialFactory());
             TemplateSpecRepositoryFactory = templateSpecRepositoryFactory ?? new TemplateSpecRepositoryFactory(new TokenCredentialFactory());
             NamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoader);
-            FeatureProviderManager = featureProviderManager;
         }
 
         public INamespaceProvider NamespaceProvider { get; }
@@ -34,8 +31,6 @@ namespace Bicep.Cli
         public TextWriter OutputWriter { get; }
 
         public TextWriter ErrorWriter { get; }
-
-        public IFeatureProviderManager? FeatureProviderManager { get; }
 
         public IContainerRegistryClientFactory ClientFactory { get; }
 

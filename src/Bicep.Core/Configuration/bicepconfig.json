@@ -61,5 +61,6 @@
         }
       }
     }
-  }
+  },
+  "experimentalFeaturesEnabled": {}
 }
