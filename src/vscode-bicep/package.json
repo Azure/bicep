@@ -583,7 +583,7 @@
     "@azure/identity": "^2.1.0",
     "@microsoft/vscode-azext-azureutils": "^0.3.4",
     "@microsoft/vscode-azext-utils": "^0.3.15",
-    "cytoscape": "^3.22.1",
+    "cytoscape": "^3.23.0",
     "cytoscape-elk": "^2.0.2",
     "fs-extra": "^10.1.0",
     "react": "^18.2.0",
