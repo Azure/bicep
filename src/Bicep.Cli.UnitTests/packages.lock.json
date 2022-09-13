@@ -1019,8 +1019,8 @@
       },
       "System.IO.Abstractions": {
         "type": "Transitive",
-        "resolved": "17.1.1",
-        "contentHash": "LWOM12Bd0kp/gaH4g1o/O2/6JDcHF/fuctF1IqDZt0aAqU2BwGiMihi9Cdcm5jJz8La1wFWbRPuRui8WeX6m8w=="
+        "resolved": "17.2.1",
+        "contentHash": "QiPMiZa6SP9FxvM4k2Tso4j7DHbdpZo5dcGnVD38XjXnm2fOsYg4BkHmADTa5Tq7Fc0OzUGvHhV5KePPCwxB8Q=="
       },
       "System.IO.Compression": {
         "type": "Transitive",
@@ -1848,7 +1848,7 @@
           "Microsoft.Extensions.Configuration.Json": "[6.0.0, )",
           "Newtonsoft.Json": "[13.0.1, )",
           "System.Collections.Immutable": "[6.0.0, )",
-          "System.IO.Abstractions": "[17.1.1, )"
+          "System.IO.Abstractions": "[17.2.1, )"
         }
       },
       "Azure.Bicep.Decompiler": {
