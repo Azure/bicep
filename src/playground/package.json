@@ -20,7 +20,7 @@
     "@types/react-dom": "^18.0.6",
     "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^5.37.0",
-    "@typescript-eslint/parser": "^5.36.2",
+    "@typescript-eslint/parser": "^5.37.0",
     "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.1",
     "eslint": "^8.23.1",
@@ -41,11 +41,11 @@
   "dependencies": {
     "@microsoft/applicationinsights-web": "^2.8.7",
     "bootstrap": "^5.2.1",
-    "monaco-editor": "^0.33.0",
+    "monaco-editor": "^0.34.0",
     "pako": "^2.0.4",
     "react": "^18.2.0",
     "react-bootstrap": "^2.5.0",
     "react-dom": "^18.2.0",
-    "react-monaco-editor": "^0.49.0"
+    "react-monaco-editor": "^0.50.1"
   }
 }
