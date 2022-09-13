@@ -52,8 +52,13 @@ namespace Bicep.Core.Emit
 
         public delegate void LogInvalidScopeDiagnostic(IPositionable positionable, ResourceScope suppliedScope, ResourceScope supportedScopes);
 
-        private static ScopeData? ValidateScope(SemanticModel semanticModel, LogInvalidScopeDiagnostic logInvalidScopeFunc, ResourceScope supportedScopes, SyntaxBase bodySyntax, SyntaxBase? scopeValue)
+        private static ScopeData? ValidateScope(SemanticModel semanticModel, IDiagnosticWriter diagnostics, ResourceScope supportedScopes, SyntaxBase bodySyntax, SyntaxBase? scopeValue, bool isResourceDeclaration)
         {
+            void logInvalidScopeFunc(IPositionable positionable, ResourceScope suppliedScope, ResourceScope supportedScopes)
+                => diagnostics.Write(positionable, x => isResourceDeclaration ?
+                    x.UnsupportedResourceScope(suppliedScope, supportedScopes) :
+                    x.UnsupportedModuleScope(suppliedScope, supportedScopes));
+
             if (scopeValue is null)
             {
                 // no scope provided - use the target scope for the file
@@ -145,9 +150,9 @@ namespace Bicep.Core.Emit
                     {
                         // special-case 'Microsoft.Resources/resourceGroups' in order to allow it to create a resourceGroup-scope resource
                         // ignore diagnostics - these will be collected separately in the pass over resources
-                        var hasErrors = false;
-                        var rgScopeData = ScopeHelper.ValidateScope(semanticModel, (_, _, _) => { hasErrors = true; }, targetResource.Type.ValidParentScopes, targetResource.Symbol.DeclaringResource.Value, targetResource.TryGetScopeSyntax());
-                        if (!hasErrors)
+                        var rgDiagnostics = SimpleDiagnosticWriter.Create();
+                        var rgScopeData = ScopeHelper.ValidateScope(semanticModel, rgDiagnostics, targetResource.Type.ValidParentScopes, targetResource.Symbol.DeclaringResource.Value, targetResource.TryGetScopeSyntax(), isResourceDeclaration);
+                        if (!rgDiagnostics.HasDiagnostics())
                         {
                             if (!supportedScopes.HasFlag(ResourceScope.ResourceGroup))
                             {
@@ -163,9 +168,9 @@ namespace Bicep.Core.Emit
                     {
                         // special-case 'Microsoft.Management/managementGroups' in order to allow it to create a managementGroup-scope resource
                         // ignore diagnostics - these will be collected separately in the pass over resources
-                        var hasErrors = false;
-                        var mgScopeData = ScopeHelper.ValidateScope(semanticModel, (_, _, _) => { hasErrors = true; }, targetResource.Type.ValidParentScopes, targetResource.Symbol.DeclaringResource.Value, targetResource.TryGetScopeSyntax());
-                        if (!hasErrors)
+                        var mgDiagnostics = SimpleDiagnosticWriter.Create();
+                        var mgScopeData = ScopeHelper.ValidateScope(semanticModel, mgDiagnostics, targetResource.Type.ValidParentScopes, targetResource.Symbol.DeclaringResource.Value, targetResource.TryGetScopeSyntax(), isResourceDeclaration);
+                        if (!mgDiagnostics.HasDiagnostics())
                         {
                             if (!supportedScopes.HasFlag(ResourceScope.ManagementGroup))
                             {
@@ -195,6 +200,10 @@ namespace Bicep.Core.Emit
                         logInvalidScopeFunc(scopeValue, ResourceScope.Module, supportedScopes);
                     }
 
+                    return null;
+
+                case {} when scopeType is UnionType:
+                    diagnostics.Write(scopeValue, x => x.UnpermittedTypeForScope());
                     return null;
             }
 
@@ -466,9 +475,6 @@ namespace Bicep.Core.Emit
 
         public static ImmutableDictionary<DeclaredResourceMetadata, ScopeData> GetResourceScopeInfo(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
-            void logInvalidScopeDiagnostic(IPositionable positionable, ResourceScope suppliedScope, ResourceScope supportedScopes)
-                => diagnosticWriter.Write(positionable, x => x.UnsupportedResourceScope(suppliedScope, supportedScopes));
-
             var scopeInfo = new Dictionary<DeclaredResourceMetadata, ScopeData>();
             var ancestorsLookup = semanticModel.DeclaredResources
                 .ToDictionary(
@@ -534,7 +540,7 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                var validatedScopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, resource.Type.ValidParentScopes, resource.Symbol.DeclaringResource.Value, resource.TryGetScopeSyntax());
+                var validatedScopeData = ScopeHelper.ValidateScope(semanticModel, diagnosticWriter, resource.Type.ValidParentScopes, resource.Symbol.DeclaringResource.Value, resource.TryGetScopeSyntax(), isResourceDeclaration: true);
                 scopeInfo[resource] = validatedScopeData ?? defaultScopeData;
             }
 
@@ -602,9 +608,6 @@ namespace Bicep.Core.Emit
 
         public static ImmutableDictionary<ModuleSymbol, ScopeData> GetModuleScopeInfo(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
-            void LogInvalidScopeDiagnostic(IPositionable positionable, ResourceScope suppliedScope, ResourceScope supportedScopes)
-                => diagnosticWriter.Write(positionable, x => x.UnsupportedModuleScope(suppliedScope, supportedScopes));
-
             var scopeInfo = new Dictionary<ModuleSymbol, ScopeData>();
 
             foreach (var moduleSymbol in semanticModel.Root.ModuleDeclarations)
@@ -616,7 +619,7 @@ namespace Bicep.Core.Emit
                 }
 
                 var scopeValue = moduleSymbol.TryGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName);
-                var scopeData = ScopeHelper.ValidateScope(semanticModel, LogInvalidScopeDiagnostic, moduleType.ValidParentScopes, moduleSymbol.DeclaringModule.Value, scopeValue);
+                var scopeData = ScopeHelper.ValidateScope(semanticModel, diagnosticWriter, moduleType.ValidParentScopes, moduleSymbol.DeclaringModule.Value, scopeValue, isResourceDeclaration: false);
 
                 if (scopeData is null)
                 {
