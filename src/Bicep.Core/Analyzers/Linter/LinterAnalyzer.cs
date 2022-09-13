@@ -26,8 +26,6 @@ namespace Bicep.Core.Analyzers.Linter
 
         private readonly ImmutableArray<IBicepAnalyzerRule> ruleSet;
 
-        private readonly ImmutableArray<IDiagnostic> ruleCreationErrors;
-
         public LinterAnalyzer()
         {
             this.linterRulesProvider = new LinterRulesProvider();
@@ -62,9 +60,6 @@ namespace Bicep.Core.Analyzers.Linter
 
             if (this.LinterEnabled(semanticModel))
             {
-                // Add diagnostics for rules that failed to load
-                diagnostics.AddRange(ruleCreationErrors);
-
                 // add an info diagnostic for local configuration reporting
                 if (this.LinterVerbose(semanticModel))
                 {
