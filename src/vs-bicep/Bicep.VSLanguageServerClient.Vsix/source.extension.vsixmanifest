@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="ms-azuretools.vs-bicep" Version="|%CurrentProject%;GetBuildVersion|" Language="en-US" Publisher="Microsoft" />
+    <Identity Id="ms-azuretools.visualstudio-bicep" Version="|%CurrentProject%;GetBuildVersion|" Language="en-US" Publisher="Microsoft" />
     <DisplayName>Bicep for Visual Studio</DisplayName>
     <Description xml:space="preserve">Bicep language support for Visual Studio.</Description>
     <License>License.txt</License>
