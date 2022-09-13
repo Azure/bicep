@@ -31,32 +31,25 @@ namespace Bicep.Core.Analyzers.Linter
         public LinterAnalyzer()
         {
             this.linterRulesProvider = new LinterRulesProvider();
-            (this.ruleSet, this.ruleCreationErrors) = CreateLinterRules();
+            this.ruleSet = CreateLinterRules();
         }
 
         private bool LinterEnabled(SemanticModel model) => model.Configuration.Analyzers.GetValue(LinterEnabledSetting, false); // defaults to true in base bicepconfig.json file
 
         private bool LinterVerbose(SemanticModel model) => model.Configuration.Analyzers.GetValue(LinterVerboseSetting, false);
 
-        private (ImmutableArray<IBicepAnalyzerRule> rules, ImmutableArray<IDiagnostic> errors) CreateLinterRules()
+        private ImmutableArray<IBicepAnalyzerRule> CreateLinterRules()
         {
-            var errors = new List<IDiagnostic>();
             var rules = new List<IBicepAnalyzerRule>();
 
             var ruleTypes = linterRulesProvider.GetRuleTypes();
 
             foreach (var ruleType in ruleTypes)
             {
-                if (Activator.CreateInstance(ruleType) is IBicepAnalyzerRule rule)
-                {
-                    rules.Add(rule);
-                } else 
-                {
-                    errors.Add(DiagnosticBuilder.ForDocumentStart().RuleFailedToLoad(ruleType.Name));
-                }
+                rules.Add(Activator.CreateInstance(ruleType) as IBicepAnalyzerRule ?? throw new InvalidOperationException($"Failed to create an instance of \"{ruleType.Name}\"."));
             }
 
-            return (rules.ToImmutableArray(), errors.ToImmutableArray());
+            return rules.ToImmutableArray();
         }
 
         public IEnumerable<IBicepAnalyzerRule> GetRuleSet() => ruleSet;
