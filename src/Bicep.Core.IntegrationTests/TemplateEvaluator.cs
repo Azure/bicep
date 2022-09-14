@@ -76,7 +76,7 @@ namespace Bicep.Core.IntegrationTests
 
             var resourceLookup = template.Resources.ToOrdinalInsensitiveDictionary(x => GetResourceId(scopeString, x));
 
-            var evaluationContext = TemplateEngine.GetExpressionEvaluationContext(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template);
+            var evaluationContext = TemplateEngine.GetExpressionEvaluationContext(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, null);
             var defaultEvaluateFunction = evaluationContext.EvaluateFunction;
             evaluationContext.EvaluateFunction = (FunctionExpression functionExpression, FunctionArgument[] parameters, TemplateErrorAdditionalInfo additionalInfo) =>
             {
@@ -191,9 +191,9 @@ namespace Bicep.Core.IntegrationTests
                 var parameters = ParseParametersFile(parametersJToken);
 
                 TemplateEngine.ValidateTemplate(template, "2020-10-01", deploymentScope);
-                TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(parameters), metadata, new InsensitiveDictionary<JToken>());
+                TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(parameters), metadata, null, new InsensitiveDictionary<JToken>());
 
-                TemplateEngine.ProcessTemplateLanguageExpressions(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, "2020-10-01");
+                TemplateEngine.ProcessTemplateLanguageExpressions(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, "2020-10-01", null);
 
                 ProcessTemplateLanguageExpressions(template, config, deploymentScope);
 
