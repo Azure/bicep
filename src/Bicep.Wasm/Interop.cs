@@ -26,7 +26,7 @@ namespace Bicep.Wasm
 {
     public class Interop
     {
-        private static readonly IFeatureProviderManager featureProviderManager = IFeatureProviderManager.ForFeatureProvider(IFeatureProviderManager.FeatureDefaults);
+        private static readonly IFeatureProviderManager featureProviderManager = IFeatureProviderManager.ForFeatureProvider(new FeatureProvider());
 
         private static readonly INamespaceProvider namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
 

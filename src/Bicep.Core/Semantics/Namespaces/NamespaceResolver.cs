@@ -38,8 +38,8 @@ namespace Bicep.Core.Semantics.Namespaces
                     return;
                 }
 
-                // This check is only validating that the namespace exists (and not which aspects of it are enabled), so it's OK to use an unconfigured FeatureProvider
-                if (namespaceProvider.TryGetNamespace(@namespace, @namespace, targetScope, IFeatureProviderManager.FeatureDefaults) is not { } namespaceType)
+                // This check is only validating that the namespace exists (and not which aspects of it are enabled), so it's OK to use a bogus FeatureProvider
+                if (namespaceProvider.TryGetNamespace(@namespace, @namespace, targetScope, new FeatureProvider()) is not { } namespaceType)
                 {
                     // this namespace doesn't match a known built-in namespace
                     return;

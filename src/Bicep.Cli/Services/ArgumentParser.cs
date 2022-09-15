@@ -21,7 +21,7 @@ namespace Bicep.Cli.Services
                 new Regex(Constants.Argument.LicenseRegex).IsMatch(args[0]) ||
                 new Regex(Constants.Argument.ThirdPartyNoticesRegex).IsMatch(args[0]))
             {
-                return new RootArguments(args[0], Constants.Command.Root, args[1..]);
+                return new RootArguments(args[0], Constants.Command.Root);
             }
 
             // parse verb

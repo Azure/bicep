@@ -2,80 +2,63 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Threading;
 
 namespace Bicep.Core.Features
 {
     public class FeatureProvider : IFeatureProvider
     {
-        private readonly IEnumerable<IFeatureProviderSource> providerChain;
-        private readonly IFeatureProvider defaultsProvider;
-        private readonly Lazy<string> cacheRootDirectoryLazy;
-        private readonly Lazy<string> assemblyVersionLazy;
-        private readonly Lazy<bool> registryEnabledLazy;
-        private readonly Lazy<bool> symbolicNameCodegenEnabledLazy;
-        private readonly Lazy<bool> importsEnabledLazy;
-        private readonly Lazy<bool> resourceTypedParamsAndOutputsEnabledLazy;
-        private readonly Lazy<bool> sourceMappingEnabledLazy;
-        private readonly Lazy<bool> paramsFilesEnabledLazy;
-
-        public FeatureProvider(IFeatureProvider defaultsProvider, IEnumerable<IFeatureProviderSource> sources)
-        {
-            this.defaultsProvider = defaultsProvider;
-            providerChain = sources.OrderBy(s => s.Priority).ToList();
-
-            cacheRootDirectoryLazy = new(() => LookupFeature(s => s.CacheRootDirectory, d => d.CacheRootDirectory), LazyThreadSafetyMode.PublicationOnly);
-            assemblyVersionLazy = new(() => LookupFeature(s => s.AssemblyVersion, d => d.AssemblyVersion), LazyThreadSafetyMode.PublicationOnly);
-            registryEnabledLazy = new(() => LookupFeature(s => s.RegistryEnabled, d => d.RegistryEnabled), LazyThreadSafetyMode.PublicationOnly);
-            symbolicNameCodegenEnabledLazy = new(() => LookupFeature(s => s.SymbolicNameCodegenEnabled, d => d.SymbolicNameCodegenEnabled), LazyThreadSafetyMode.PublicationOnly);
-            importsEnabledLazy = new(() => LookupFeature(s => s.ImportsEnabled, d => d.ImportsEnabled), LazyThreadSafetyMode.PublicationOnly);
-            resourceTypedParamsAndOutputsEnabledLazy = new(() => LookupFeature(s => s.ResourceTypedParamsAndOutputsEnabled, d => d.ResourceTypedParamsAndOutputsEnabled), LazyThreadSafetyMode.PublicationOnly);
-            sourceMappingEnabledLazy = new(() => LookupFeature(s => s.SourceMappingEnabled, d => d.SourceMappingEnabled), LazyThreadSafetyMode.PublicationOnly);
-            paramsFilesEnabledLazy = new(() => LookupFeature(s => s.ParamsFilesEnabled, d => d.ParamsFilesEnabled), LazyThreadSafetyMode.PublicationOnly);
-        }
-
+        private Lazy<string> cacheRootDirectoryLazy = new(() => GetCacheRootDirectory(Environment.GetEnvironmentVariable("BICEP_CACHE_DIRECTORY")), LazyThreadSafetyMode.PublicationOnly);
         public string CacheRootDirectory => cacheRootDirectoryLazy.Value;
 
-        public bool RegistryEnabled => registryEnabledLazy.Value;
+        public bool RegistryEnabled => true;
 
+        private Lazy<bool> symbolicNameCodegenEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_SYMBOLIC_NAME_CODEGEN_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
         public bool SymbolicNameCodegenEnabled => symbolicNameCodegenEnabledLazy.Value;
 
+        private Lazy<bool> importsEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_IMPORTS_ENABLED_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
         public bool ImportsEnabled => importsEnabledLazy.Value;
+
+        private Lazy<bool> resourceTypedParamsAndOutputsEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_RESOURCE_TYPED_PARAMS_AND_OUTPUTS_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
 
         public bool ResourceTypedParamsAndOutputsEnabled => resourceTypedParamsAndOutputsEnabledLazy.Value;
 
-        public string AssemblyVersion => assemblyVersionLazy.Value;
+        public string AssemblyVersion => ThisAssembly.AssemblyFileVersion;
 
-        public bool SourceMappingEnabled => sourceMappingEnabledLazy.Value;
+        public bool SourceMappingEnabled => ReadBooleanEnvVar("BICEP_SOURCEMAPPING_ENABLED", defaultValue: false);
 
+        private Lazy<bool> paramsFilesEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_PARAMS_FILES_ENABLED", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
         public bool ParamsFilesEnabled => paramsFilesEnabledLazy.Value;
+        
+        public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 
-        private T LookupFeature<T>(Func<IFeatureProviderSource, T?> sourceLookup, Func<IFeatureProvider, T> defaultLookup)
+        public static TraceVerbosity TracingVerbosity => ReadEnumEnvvar<TraceVerbosity>("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
+
+        private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
+            => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
+
+        private static T ReadEnumEnvvar<T>(string envVar, T defaultValue) where T : struct
         {
-            foreach (var link in providerChain)
-            {
-                if (sourceLookup.Invoke(link) is T resolved)
-                {
-                    return resolved;
-                }
-            }
-
-            return defaultLookup.Invoke(defaultsProvider);
+            var str = Environment.GetEnvironmentVariable(envVar);
+            return Enum.TryParse<T>(str, true, out var value) ? value : defaultValue;
         }
 
-        private T LookupFeature<T>(Func<IFeatureProviderSource, Nullable<T>> sourceLookup, Func<IFeatureProvider, T> defaultLookup) where T : struct
+        private static string GetDefaultCachePath()
         {
-            foreach (var link in providerChain)
+            string basePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+            return Path.Combine(basePath, ".bicep");
+        }
+
+        private static string GetCacheRootDirectory(string? customPath)
+        {
+            if (string.IsNullOrWhiteSpace(customPath))
             {
-                if (sourceLookup.Invoke(link) is T resolved)
-                {
-                    return resolved;
-                }
+                return GetDefaultCachePath();
             }
 
-            return defaultLookup.Invoke(defaultsProvider);
+            return customPath;
         }
     }
 }

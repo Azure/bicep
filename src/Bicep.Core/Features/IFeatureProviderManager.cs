@@ -8,9 +8,7 @@ public interface IFeatureProviderManager
 {
     IFeatureProvider GetFeatureProvider(Uri templateUri);
 
-    static IFeatureProvider FeatureDefaults = new DefaultsFeatureProvider();
-
-    static IFeatureProviderManager ForFeatureProvider(IFeatureProvider featureProvider)
+    static IFeatureProviderManager ForFeatureProvider(IFeatureProvider featureProvider) 
         => new ConstantFeatureProviderManager(featureProvider);
 
     private class ConstantFeatureProviderManager : IFeatureProviderManager

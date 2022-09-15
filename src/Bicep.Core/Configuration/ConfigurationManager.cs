@@ -30,7 +30,7 @@ namespace Bicep.Core.Configuration
         {
             var (config, diagnosticBuilders) = GetConfigurationFromCache(sourceFileUri);
             return diagnosticBuilders.Count > 0
-                ? new(config.Cloud, config.ModuleAliases, config.Analyzers, config.CacheRootDirectory, config.ExperimentalFeaturesEnabled, config.ConfigurationPath, diagnosticBuilders)
+                ? new(config.Cloud, config.ModuleAliases, config.Analyzers, config.ConfigurationPath, diagnosticBuilders)
                 : config;
         }
 

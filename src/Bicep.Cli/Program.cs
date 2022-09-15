@@ -46,13 +46,13 @@ namespace Bicep.Cli
 
             BicepDeploymentsInterop.Initialize();
 
-            if (IFeatureProvider.TracingEnabled)
+            if (FeatureProvider.TracingEnabled)
             {
                 Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             }
 
             // this event listener picks up SDK events and writes them to Trace.WriteLine()
-            using (IFeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(IFeatureProvider.TracingVerbosity) : null)
+            using (FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
             {
                 var program = new Program(new InvocationContext(
                     new AzResourceTypeLoader(),
@@ -68,27 +68,29 @@ namespace Bicep.Cli
 
         public async Task<int> RunAsync(string[] args)
         {
+            var serviceProvider = ConfigureServices();
+
             try
             {
                 switch (ArgumentParser.TryParse(args))
                 {
                     case BuildArguments buildArguments when buildArguments.CommandName == Constants.Command.Build: // bicep build [options]
-                        return await ConfigureServices(buildArguments).GetRequiredService<BuildCommand>().RunAsync(buildArguments);
+                        return await serviceProvider.GetRequiredService<BuildCommand>().RunAsync(buildArguments);
 
                     case GenerateParametersFileArguments generateParametersFileArguments when generateParametersFileArguments.CommandName == Constants.Command.GenerateParamsFile: // bicep generate-params [options]
-                        return await ConfigureServices(generateParametersFileArguments).GetRequiredService<GenerateParametersFileCommand>().RunAsync(generateParametersFileArguments);
+                        return await serviceProvider.GetRequiredService<GenerateParametersFileCommand>().RunAsync(generateParametersFileArguments);
 
                     case DecompileArguments decompileArguments when decompileArguments.CommandName == Constants.Command.Decompile: // bicep decompile [options]
-                        return await ConfigureServices(decompileArguments).GetRequiredService<DecompileCommand>().RunAsync(decompileArguments);
+                        return await serviceProvider.GetRequiredService<DecompileCommand>().RunAsync(decompileArguments);
 
                     case PublishArguments publishArguments when publishArguments.CommandName == Constants.Command.Publish: // bicep publish [options]
-                        return await ConfigureServices(publishArguments).GetRequiredService<PublishCommand>().RunAsync(publishArguments);
+                        return await serviceProvider.GetRequiredService<PublishCommand>().RunAsync(publishArguments);
 
                     case RestoreArguments restoreArguments when restoreArguments.CommandName == Constants.Command.Restore: // bicep restore
-                        return await ConfigureServices(restoreArguments).GetRequiredService<RestoreCommand>().RunAsync(restoreArguments);
+                        return await serviceProvider.GetRequiredService<RestoreCommand>().RunAsync(restoreArguments);
 
                     case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
-                        return ConfigureServices(rootArguments).GetRequiredService<RootCommand>().Run(rootArguments);
+                        return serviceProvider.GetRequiredService<RootCommand>().Run(rootArguments);
 
                     default:
                         invocationContext.ErrorWriter.WriteLine(string.Format(CliResources.UnrecognizedArgumentsFormat, string.Join(' ', args), ThisAssembly.AssemblyName)); // should probably print help here??
@@ -111,20 +113,18 @@ namespace Bicep.Cli
             });
         }
 
-        private ServiceProvider ConfigureServices(ArgumentsBase parsedArguments)
+        private ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
                 .AddCommands()
                 .AddInvocationContext(invocationContext)
                 .AddSingleton(CreateLoggerFactory().CreateLogger("bicep"))
-                .AddSingleton<IFeatureProviderSource>(parsedArguments)
                 .AddSingleton<IDiagnosticLogger, BicepDiagnosticLogger>()
                 .AddSingleton<IFileResolver, FileResolver>()
                 .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
                 .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
                 .AddSingleton<IFileSystem, FileSystem>()
                 .AddSingleton<IConfigurationManager, ConfigurationManager>()
-                .AddSingleton<IFeatureProviderManager, FeatureProviderManager>()
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
                 .AddSingleton<IApiVersionProvider, ApiVersionProvider>()
                 .AddSingleton<TemplateDecompiler>()

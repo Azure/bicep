@@ -94,22 +94,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             return new RootConfiguration(
                 BicepTestConstants.BuiltInConfiguration.Cloud,
                 BicepTestConstants.BuiltInConfiguration.ModuleAliases,
-                new AnalyzersConfiguration(
-                        JsonElementFactory.CreateElement(@"
-                        {
-                            ""core"": {
-                            ""enabled"": true,
-                            ""rules"": {
-                                ""use-recent-api-versions"": {
-                                    ""level"": ""warning"",
-                                    ""test-today"": ""<TESTING_TODAY_DATE>"",
-                                    ""test-warn-not-found"": true
+                    new AnalyzersConfiguration(
+                         JsonElementFactory.CreateElement(@"
+                            {
+                              ""core"": {
+                                ""enabled"": true,
+                                ""rules"": {
+                                  ""use-recent-api-versions"": {
+                                      ""level"": ""warning"",
+                                      ""test-today"": ""<TESTING_TODAY_DATE>"",
+                                      ""test-warn-not-found"": true
+                                  }
                                 }
-                            }
-                            }
-                        }".Replace("<TESTING_TODAY_DATE>", today))),
-                BicepTestConstants.BuiltInConfiguration.CacheRootDirectory,
-                BicepTestConstants.BuiltInConfiguration.ExperimentalFeaturesEnabled,
+                              }
+                            }".Replace("<TESTING_TODAY_DATE>", today))),
                 null,
                 null);
         }
