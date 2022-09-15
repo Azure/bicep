@@ -28,15 +28,15 @@ namespace Bicep.Decompiler
     public class TemplateDecompiler
     {
         private readonly INamespaceProvider namespaceProvider;
-        private readonly IFeatureProviderManager featureProviderManager;
+        private readonly IFeatureProvider features;
         private readonly IFileResolver fileResolver;
         private readonly IModuleRegistryProvider registryProvider;
         private readonly IConfigurationManager configurationManager;
         private readonly IApiVersionProvider apiVersionProvider;
 
-        public TemplateDecompiler(IFeatureProviderManager featureProviderManager, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider)
+        public TemplateDecompiler(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider)
         {
-            this.featureProviderManager = featureProviderManager;
+            this.features = features;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.registryProvider = registryProvider;
@@ -131,7 +131,7 @@ namespace Bicep.Decompiler
             var dispatcher = new ModuleDispatcher(this.registryProvider, configurationManager);
             var linterAnalyzer = new LinterAnalyzer();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
-            var compilation = new Compilation(featureProviderManager, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, linterAnalyzer);
+            var compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, linterAnalyzer);
 
             // force enumeration here with .ToImmutableArray() as we're going to be modifying the sourceFileGrouping collection as we iterate
             var fileUris = sourceFileGrouping.SourceFiles.Select(x => x.FileUri).ToImmutableArray();
@@ -151,7 +151,7 @@ namespace Bicep.Decompiler
                     workspace.UpsertSourceFile(newFile);
 
                     sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
-                    compilation = new Compilation(featureProviderManager, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, linterAnalyzer);
+                    compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, linterAnalyzer);
                 }
             }
 

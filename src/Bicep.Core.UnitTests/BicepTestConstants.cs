@@ -44,8 +44,6 @@ namespace Bicep.Core.UnitTests
 
         public static readonly TestFeatureProvider Features = CreateFeatureProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, sourceMappingEnabled: false, paramsFilesEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
 
-        public static readonly IFeatureProviderManager FeatureProviderManager = IFeatureProviderManager.ForFeatureProvider(Features);
-
         public static readonly EmitterSettings EmitterSettings = new EmitterSettings(Features);
 
         public static readonly IAzResourceTypeLoader AzResourceTypeLoader = new AzResourceTypeLoader();
@@ -72,7 +70,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.ForConfiguration(BuiltInConfiguration);
 
-        public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderManager, BuiltInOnlyConfigurationManager);
+        public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, TemplateSpecRepositoryFactory, Features, BuiltInOnlyConfigurationManager);
 
         public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, IConfigurationManager.ForConfiguration(BuiltInConfiguration));
 

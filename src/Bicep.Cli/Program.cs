@@ -58,6 +58,7 @@ namespace Bicep.Cli
                     new AzResourceTypeLoader(),
                     Console.Out,
                     Console.Error,
+                    features: null,
                     clientFactory: null));
 
                 // this must be awaited so dispose of the listener occurs in the continuation

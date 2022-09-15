@@ -23,7 +23,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var compilation = new Compilation(
-                BicepTestConstants.FeatureProviderManager,
+                BicepTestConstants.Features,
                 nsProvider,
                 SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver),
                 IConfigurationManager.ForConfiguration(configuration),

@@ -26,7 +26,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
         private static readonly LinterAnalyzer LinterAnalyzer = new();
 
         private static Compilation CreateCompilation(string program) => new(
-            BicepTestConstants.FeatureProviderManager,
+            BicepTestConstants.Features,
             BuiltInTestTypes.Create(),
             SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object),
             IConfigurationManager.ForConfiguration(Configuration),
@@ -188,7 +188,7 @@ output outputa string = '${inputa}-${inputb}'
             };
 
             var compilation = new Compilation(
-                BicepTestConstants.FeatureProviderManager,
+                BicepTestConstants.Features,
                 BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
                 IConfigurationManager.ForConfiguration(Configuration),
@@ -235,7 +235,7 @@ output outputa string = '${inputa}-${inputb}'
             };
 
             var compilation = new Compilation(
-                BicepTestConstants.FeatureProviderManager,
+                BicepTestConstants.Features,
                 BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
                 IConfigurationManager.ForConfiguration(Configuration),
@@ -284,7 +284,7 @@ output outputa string = '${inputa}-${inputb}'
             };
 
             var compilation = new Compilation(
-                BicepTestConstants.FeatureProviderManager,
+                BicepTestConstants.Features,
                 BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
                 IConfigurationManager.ForConfiguration(Configuration),
@@ -329,7 +329,7 @@ output outputa string = '${inputa}-${inputb}'
             };
 
             var compilation = new Compilation(
-                BicepTestConstants.FeatureProviderManager,
+                BicepTestConstants.Features,
                 BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
                 IConfigurationManager.ForConfiguration(Configuration),

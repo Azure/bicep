@@ -143,7 +143,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         {
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             Compilation createCompilation(string program)
-                    => new Compilation(BicepTestConstants.FeatureProviderManager, new DefaultNamespaceProvider(new AzResourceTypeLoader()), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), IConfigurationManager.ForConfiguration(configuration), BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+                    => new Compilation(BicepTestConstants.Features, new DefaultNamespaceProvider(new AzResourceTypeLoader()), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), IConfigurationManager.ForConfiguration(configuration), BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"
@@ -160,7 +160,7 @@ resource missingResource 'Mock.Rp/madeUpResourceType@2020-01-01' = {
         public void AzResourceTypeProvider_should_error_for_top_level_system_properties_and_warn_for_rest()
         {
             Compilation createCompilation(string program)
-                => new Compilation(BicepTestConstants.FeatureProviderManager, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+                => new Compilation(BicepTestConstants.Features, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"

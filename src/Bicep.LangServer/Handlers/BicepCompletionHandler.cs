@@ -21,14 +21,14 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ILogger<BicepCompletionHandler> logger;
         private readonly ICompilationManager compilationManager;
         private readonly ICompletionProvider completionProvider;
-        private readonly IFeatureProviderManager featureProviderManager;
+        private readonly IFeatureProvider featureProvider;
 
-        public BicepCompletionHandler(ILogger<BicepCompletionHandler> logger, ICompilationManager compilationManager, ICompletionProvider completionProvider, IFeatureProviderManager featureProviderManager)
+        public BicepCompletionHandler(ILogger<BicepCompletionHandler> logger, ICompilationManager compilationManager, ICompletionProvider completionProvider, IFeatureProvider featureProvider)
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
             this.completionProvider = completionProvider;
-            this.featureProviderManager = featureProviderManager;
+            this.featureProvider = featureProvider;
         }
 
         public override Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
@@ -42,7 +42,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             int offset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Position);
-            var completionContext = BicepCompletionContext.Create(featureProviderManager.GetFeatureProvider(request.TextDocument.Uri.ToUri()), compilationContext.Compilation, offset);
+            var completionContext = BicepCompletionContext.Create(featureProvider, compilationContext.Compilation, offset);
 
             try
             {

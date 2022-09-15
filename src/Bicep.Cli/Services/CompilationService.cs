@@ -32,7 +32,6 @@ namespace Bicep.Cli.Services
         private readonly Workspace workspace;
         private readonly TemplateDecompiler decompiler;
         private readonly IApiVersionProvider apiVersionProvider;
-        private readonly IFeatureProviderManager featureProviderManager;
 
         public CompilationService(
             IDiagnosticLogger diagnosticLogger,
@@ -41,8 +40,7 @@ namespace Bicep.Cli.Services
             IModuleDispatcher moduleDispatcher,
             IConfigurationManager configurationManager,
             TemplateDecompiler decompiler,
-            IApiVersionProvider apiVersionProvider,
-            IFeatureProviderManager featureProviderManager)
+            IApiVersionProvider apiVersionProvider)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.fileResolver = fileResolver;
@@ -52,7 +50,6 @@ namespace Bicep.Cli.Services
             this.workspace = new Workspace();
             this.decompiler = decompiler;
             this.apiVersionProvider = apiVersionProvider;
-            this.featureProviderManager = featureProviderManager;
         }
 
         public async Task RestoreAsync(string inputPath, bool forceModulesRestore)
@@ -100,7 +97,7 @@ namespace Bicep.Cli.Services
                 }
             }
 
-            var compilation = new Compilation(featureProviderManager, this.invocationContext.NamespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
+            var compilation = new Compilation(this.invocationContext.Features, this.invocationContext.NamespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
             LogDiagnostics(compilation);
 
             return compilation;
@@ -124,11 +121,11 @@ namespace Bicep.Cli.Services
                 }
             }
 
-            var model = new ParamsSemanticModel(sourceFileGrouping, configurationManager.GetConfiguration(inputUri), featureProviderManager.GetFeatureProvider(inputUri), file => {
+            var model = new ParamsSemanticModel(sourceFileGrouping, configurationManager.GetConfiguration(inputUri), invocationContext.Features, file => {
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
 
-                return new Compilation(featureProviderManager, this.invocationContext.NamespaceProvider, compilationGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
+                return new Compilation(invocationContext.Features, this.invocationContext.NamespaceProvider, compilationGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
             });
             LogParamDiagnostics(model);
 

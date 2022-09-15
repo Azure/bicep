@@ -143,7 +143,7 @@ new CompletionItemKind[] { CompletionItemKind.Field, CompletionItemKind.Field }
                 creationOptions: new LanguageServer.Server.CreationOptions(
                     NamespaceProvider: BuiltInTestTypes.Create(),
                     FileResolver: fileResolver,
-                    FeatureProviderManager: IFeatureProviderManager.ForFeatureProvider(BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true))));
+                    Features: BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 
@@ -243,7 +243,7 @@ new CompletionItemKind[] { CompletionItemKind.EnumMember, CompletionItemKind.Enu
                 paramFileTextNoCursor,
                 paramUri,
                 creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver,
-                FeatureProviderManager: IFeatureProviderManager.ForFeatureProvider(BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true))));
+                Features: BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 
@@ -291,7 +291,7 @@ using |
                 paramFileTextNoCursor,
                 paramUri,
                 creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver,
-                    FeatureProviderManager: IFeatureProviderManager.ForFeatureProvider(BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true))));
+                    Features: BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 
@@ -341,7 +341,7 @@ using './nested1/|'
                 paramFileTextNoCursor,
                 paramUri,
                 creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver,
-                    FeatureProviderManager: IFeatureProviderManager.ForFeatureProvider(BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true))));
+                    Features: BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 

@@ -18,14 +18,14 @@ using System.Threading.Tasks;
 namespace Bicep.LanguageServer.ParamsHandlers
 {
     internal class BicepParamsTextDocumentSyncHandler : TextDocumentSyncHandlerBase
-    {        
+    {
         private readonly IParamsCompilationManager paramsCompilationManager;
-        private readonly IFeatureProviderManager featureProviderManager;
+        private readonly IFeatureProvider features;
 
-        public BicepParamsTextDocumentSyncHandler(IParamsCompilationManager paramsCompilationManager, IFeatureProviderManager featureProviderManager)
+        public BicepParamsTextDocumentSyncHandler(IParamsCompilationManager paramsCompilationManager, IFeatureProvider features)
         {
             this.paramsCompilationManager = paramsCompilationManager;
-            this.featureProviderManager = featureProviderManager;
+            this.features = features;
         }
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
@@ -40,7 +40,7 @@ namespace Bicep.LanguageServer.ParamsHandlers
 
             var documentUri = request.TextDocument.Uri;
 
-            if (featureProviderManager.GetFeatureProvider(documentUri.ToUri()).ParamsFilesEnabled)
+            if (features.ParamsFilesEnabled)
             {
                 this.paramsCompilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, contents);
             }
@@ -50,10 +50,9 @@ namespace Bicep.LanguageServer.ParamsHandlers
 
         public override Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
-            var documentUri = request.TextDocument.Uri;
-            if (featureProviderManager.GetFeatureProvider(documentUri.ToUri()).ParamsFilesEnabled)
+            if (features.ParamsFilesEnabled)
             {
-                this.paramsCompilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
+                this.paramsCompilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
             }
 
             return Unit.Task;
@@ -63,10 +62,9 @@ namespace Bicep.LanguageServer.ParamsHandlers
 
         public override Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken)
         {
-            var documentUri = request.TextDocument.Uri;
-            if (featureProviderManager.GetFeatureProvider(documentUri.ToUri()).ParamsFilesEnabled)
+            if (features.ParamsFilesEnabled)
             {
-                this.paramsCompilationManager.CloseCompilation(documentUri);
+                this.paramsCompilationManager.CloseCompilation(request.TextDocument.Uri);
             }
 
             return Unit.Task;

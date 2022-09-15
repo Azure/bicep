@@ -18,12 +18,12 @@ namespace Bicep.Core.Semantics
     {
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
         private readonly IConfigurationManager configurationManager;
-        private readonly IFeatureProviderManager featureProviderManager;
+        private readonly IFeatureProvider features;
         private readonly IBicepAnalyzer linterAnalyzer;
 
-        public Compilation(IFeatureProviderManager featureProviderManager, INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, IConfigurationManager configurationManager, IApiVersionProvider apiVersionProvider, IBicepAnalyzer linterAnalyzer, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+        public Compilation(IFeatureProvider features, INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, IConfigurationManager configurationManager, IApiVersionProvider apiVersionProvider, IBicepAnalyzer linterAnalyzer, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         {
-            this.featureProviderManager = featureProviderManager;
+            this.features = features;
             this.SourceFileGrouping = sourceFileGrouping;
             this.NamespaceProvider = namespaceProvider;
             this.configurationManager = configurationManager;
@@ -75,6 +75,6 @@ namespace Bicep.Core.Semantics
             SourceFileGrouping.FileResolver,
             linterAnalyzer,
             configurationManager.GetConfiguration(bicepFile.FileUri),
-            featureProviderManager.GetFeatureProvider(bicepFile.FileUri));
+            features);
     }
 }

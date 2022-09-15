@@ -41,7 +41,7 @@ namespace Bicep.Cli.IntegrationTests
                     TestTypeHelper.CreateEmptyAzResourceTypeLoader(),
                     @out,
                     err,
-                    featureProviderManager: IFeatureProviderManager.ForFeatureProvider(settings.Features),
+                    features: settings.Features,
                     clientFactory: settings.ClientFactory,
                     templateSpecRepositoryFactory: settings.TemplateSpecRepositoryFactory)).RunAsync(args));
 
@@ -55,9 +55,9 @@ namespace Bicep.Cli.IntegrationTests
 
         protected static IEnumerable<string> GetAllDiagnostics(string bicepFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
         {
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.FeatureProviderManager, BicepTestConstants.BuiltInOnlyConfigurationManager), BicepTestConstants.BuiltInOnlyConfigurationManager);
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.Features, BicepTestConstants.BuiltInOnlyConfigurationManager), BicepTestConstants.BuiltInOnlyConfigurationManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
-            var compilation = new Compilation(BicepTestConstants.FeatureProviderManager, TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
 
             var output = new List<string>();
             foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
@@ -76,17 +76,15 @@ namespace Bicep.Cli.IntegrationTests
         protected static IEnumerable<string> GetAllParamDiagnostics(string paramFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
         {
             var configuration = BicepTestConstants.BuiltInConfiguration;
-            var features = BicepTestConstants.Features;
-            var featureManager = BicepTestConstants.FeatureProviderManager;
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, featureManager, BicepTestConstants.BuiltInOnlyConfigurationManager), BicepTestConstants.BuiltInOnlyConfigurationManager);
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.Features, BicepTestConstants.BuiltInOnlyConfigurationManager), BicepTestConstants.BuiltInOnlyConfigurationManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(paramFilePath));
-            var compilation = new Compilation(featureManager, TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
 
-            var semanticModel = new ParamsSemanticModel(sourceFileGrouping, configuration, features, file => {
+            var semanticModel = new ParamsSemanticModel(sourceFileGrouping, configuration, BicepTestConstants.Features, file => {
                 var compilationGrouping = new SourceFileGrouping(BicepTestConstants.FileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
 
-                return new Compilation(featureManager, BicepTestConstants.NamespaceProvider, compilationGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+                return new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, compilationGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             });
 
             var output = new List<string>();

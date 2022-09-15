@@ -33,18 +33,20 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepGenerateParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
         private readonly ICompilationManager compilationManager;
-        private readonly IFeatureProviderManager featureProviderManager;
+        private readonly EmitterSettings emitterSettings;
+        private readonly IFeatureProvider features;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IConfigurationManager configurationManager;
         private readonly IApiVersionProvider apiVersionProvider;
 
-        public BicepGenerateParamsCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProviderManager featureProviderManager, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, IApiVersionProvider apiVersionProvider)
+        public BicepGenerateParamsCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProvider features, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, IApiVersionProvider apiVersionProvider)
             : base(LangServerConstants.GenerateParamsCommand, serializer)
         {
             this.compilationManager = compilationManager;
-            this.featureProviderManager = featureProviderManager;
+            this.emitterSettings = emitterSettings;
+            this.features = features;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
@@ -85,7 +87,7 @@ namespace Bicep.LanguageServer.Handlers
             if (context is null)
             {
                 SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
-                compilation = new Compilation(featureProviderManager, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
+                compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
             }
             else
             {
@@ -102,8 +104,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var existingContent = File.Exists(compiledFilePath) ? File.ReadAllText(compiledFilePath) : string.Empty;
 
-            var model = compilation.GetEntrypointSemanticModel();
-            var emitter = new TemplateEmitter(model, new EmitterSettings(model.Features));
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
             using var fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.Write);
             var result = emitter.EmitParametersFile(fileStream, existingContent);
 

@@ -22,15 +22,15 @@ namespace Bicep.LanguageServer.Providers
     public class BicepCompilationProvider : ICompilationProvider
     {
         private readonly IConfigurationManager configurationManager;
-        private readonly IFeatureProviderManager featureProviderManager;
+        private readonly IFeatureProvider features;
         private readonly IApiVersionProvider apiVersionProvider;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
 
-        public BicepCompilationProvider(IFeatureProviderManager featureProviderManager, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IApiVersionProvider apiVersionProvider, IConfigurationManager configurationManager)
+        public BicepCompilationProvider(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IApiVersionProvider apiVersionProvider, IConfigurationManager configurationManager)
         {
-            this.featureProviderManager = featureProviderManager;
+            this.features = features;
             this.apiVersionProvider = apiVersionProvider;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
@@ -52,7 +52,7 @@ namespace Bicep.LanguageServer.Providers
 
         private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, LinterAnalyzer linterAnalyzer)
         {
-            var compilation = new Compilation(featureProviderManager, namespaceProvider, syntaxTreeGrouping, configurationManager, apiVersionProvider, linterAnalyzer, modelLookup);
+            var compilation = new Compilation(features, namespaceProvider, syntaxTreeGrouping, configurationManager, apiVersionProvider, linterAnalyzer, modelLookup);
             return new CompilationContext(compilation);
         }
     }

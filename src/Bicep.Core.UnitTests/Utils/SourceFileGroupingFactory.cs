@@ -37,7 +37,7 @@ namespace Bicep.Core.UnitTests.Utils
                         fileResolver,
                         BicepTestConstants.ClientFactory,
                         BicepTestConstants.TemplateSpecRepositoryFactory,
-                        IFeatureProviderManager.ForFeatureProvider(features),
+                        features,
                         configurationManager),
                     configurationManager),
                 workspace,

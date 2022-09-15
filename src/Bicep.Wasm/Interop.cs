@@ -26,7 +26,7 @@ namespace Bicep.Wasm
 {
     public class Interop
     {
-        private static readonly IFeatureProviderManager featureProviderManager = IFeatureProviderManager.ForFeatureProvider(new FeatureProvider());
+        private static readonly IFeatureProvider features = new FeatureProvider();
 
         private static readonly INamespaceProvider namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
 
@@ -64,7 +64,7 @@ namespace Bicep.Wasm
             try
             {
                 var bicepUri = PathHelper.ChangeToBicepExtension(jsonUri);
-                var decompiler = new TemplateDecompiler(featureProviderManager, namespaceProvider, fileResolver, new EmptyModuleRegistryProvider());
+                var decompiler = new TemplateDecompiler(features, namespaceProvider, fileResolver, new EmptyModuleRegistryProvider());
                 var (entrypointUri, filesToSave) = decompiler.DecompileFileWithModules(jsonUri, bicepUri);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
@@ -135,7 +135,7 @@ namespace Bicep.Wasm
             {
                 var compilation = GetCompilation(content);
                 var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
-                var emitterSettings = new EmitterSettings(featureProviderManager.GetFeatureProvider(new Uri("inmemory:///main.bicep")));
+                var emitterSettings = new EmitterSettings(features);
                 var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
 
                 // memory stream is not ideal for frequent large allocations
@@ -170,7 +170,7 @@ namespace Bicep.Wasm
             var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider(), configurationManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri);
 
-            return new Compilation(featureProviderManager, namespaceProvider, sourceFileGrouping, configurationManager, new ApiVersionProvider(namespaceProvider), new LinterAnalyzer());
+            return new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, new ApiVersionProvider(namespaceProvider), new LinterAnalyzer());
         }
 
         private static string ReadStreamToEnd(Stream stream)

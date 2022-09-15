@@ -38,7 +38,7 @@ namespace Bicep.LangServer.IntegrationTests
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
                 new LanguageServer.Server.CreationOptions(
                     NamespaceProvider: BuiltInTestTypes.Create(),
-                    FeatureProviderManager: IFeatureProviderManager.ForFeatureProvider(features)));
+                    Features: features));
             var client = helper.Client;
 
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(

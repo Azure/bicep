@@ -20,20 +20,20 @@ namespace Bicep.LanguageServer.ParamsHandlers
     {
         private readonly ISymbolResolver symbolResolver;
         private readonly IParamsCompilationManager paramsCompilationManager;
-        private readonly IFeatureProviderManager featureProviderManager;
+        private readonly IFeatureProvider featureProvider;
 
         public BicepParamsDefinitionHandler(
             ISymbolResolver symbolResolver,
             IParamsCompilationManager paramsCompilationManager,
-            IFeatureProviderManager featureProviderManager) : base()
+            IFeatureProvider featureProvider) : base()
         {
             this.symbolResolver = symbolResolver;
             this.paramsCompilationManager = paramsCompilationManager;
-            this.featureProviderManager = featureProviderManager;
+            this.featureProvider = featureProvider;
         }
         public override Task<LocationOrLocationLinks> Handle(DefinitionParams request, CancellationToken cancellationToken)
         {
-            if (featureProviderManager.GetFeatureProvider(request.TextDocument.Uri.ToUri()).ParamsFilesEnabled)
+            if (featureProvider.ParamsFilesEnabled)
             {
                 var paramsContext = this.paramsCompilationManager.GetCompilation(request.TextDocument.Uri);
                 if (paramsContext is null)

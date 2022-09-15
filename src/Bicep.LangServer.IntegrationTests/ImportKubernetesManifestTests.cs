@@ -52,7 +52,7 @@ namespace Bicep.LangServer.IntegrationTests
                 this.TestContext,
                 options => options
                     .OnTelemetryEvent(telemetryEventsListener.AddMessage),
-                new LanguageServer.Server.CreationOptions(FeatureProviderManager: IFeatureProviderManager.ForFeatureProvider(features)));
+                new LanguageServer.Server.CreationOptions(Features: features));
             var client = helper.Client;
 
             var response = await client.SendRequest(new ImportKubernetesManifestRequest(yamlFile.OutputFilePath), default);

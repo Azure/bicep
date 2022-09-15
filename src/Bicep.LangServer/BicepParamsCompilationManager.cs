@@ -31,11 +31,11 @@ namespace Bicep.LanguageServer
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IWorkspace workspace;
-        private readonly IFeatureProviderManager featureProviderManager;
+        private readonly IFeatureProvider features;
         private readonly IApiVersionProvider apiVersionProvider;
         private readonly INamespaceProvider namespaceProvider;
         private readonly ConcurrentDictionary<DocumentUri, ParamsCompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, ParamsCompilationContext>();
-        public BicepParamsCompilationManager(ILanguageServerFacade server, ICompilationProvider bicepCompilationContextProvider, IConfigurationManager bicepConfigurationManager, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IWorkspace workspace, IFeatureProviderManager featureProviderManager, IApiVersionProvider apiVersionProvider, INamespaceProvider namespaceProvider)
+        public BicepParamsCompilationManager(ILanguageServerFacade server, ICompilationProvider bicepCompilationContextProvider, IConfigurationManager bicepConfigurationManager, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IWorkspace workspace, IFeatureProvider features, IApiVersionProvider apiVersionProvider, INamespaceProvider namespaceProvider)
         {
             this.server = server;
             this.bicepCompilationContextProvider = bicepCompilationContextProvider;
@@ -43,7 +43,7 @@ namespace Bicep.LanguageServer
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.workspace = workspace;
-            this.featureProviderManager = featureProviderManager;
+            this.features = features;
             this.apiVersionProvider = apiVersionProvider;
             this.namespaceProvider = namespaceProvider;
         }
@@ -64,11 +64,11 @@ namespace Bicep.LanguageServer
 
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri);
 
-            var semanticModel = new ParamsSemanticModel(sourceFileGrouping, bicepConfigurationManager.GetConfiguration(inputUri), featureProviderManager.GetFeatureProvider(inputUri), file => {
+            var semanticModel = new ParamsSemanticModel(sourceFileGrouping, bicepConfigurationManager.GetConfiguration(inputUri), features, file => {
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
 
-                return new Compilation(featureProviderManager, namespaceProvider, compilationGrouping, bicepConfigurationManager, apiVersionProvider, new LinterAnalyzer());
+                return new Compilation(features, namespaceProvider, compilationGrouping, bicepConfigurationManager, apiVersionProvider, new LinterAnalyzer());
             });
 
             var context = this.activeContexts.AddOrUpdate(

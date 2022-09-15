@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
-using Bicep.Core.Emit;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Logging;
 
@@ -20,7 +18,6 @@ namespace Bicep.Cli.Commands
         private readonly CompilationService compilationService;
         private readonly CompilationWriter writer;
         private readonly ParametersWriter paramsWriter;
-        private readonly IFeatureProviderManager featureProviderManager;
 
         public BuildCommand(
             ILogger logger,
@@ -28,8 +25,7 @@ namespace Bicep.Cli.Commands
             InvocationContext invocationContext,
             CompilationService compilationService,
             CompilationWriter writer,
-            ParametersWriter paramsWriter,
-            IFeatureProviderManager featureProviderManager)
+            ParametersWriter paramsWriter)
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
@@ -37,21 +33,18 @@ namespace Bicep.Cli.Commands
             this.compilationService = compilationService;
             this.writer = writer;
             this.paramsWriter = paramsWriter;
-            this.featureProviderManager = featureProviderManager;
         }
 
         public async Task<int> RunAsync(BuildArguments args)
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
-            var features = featureProviderManager.GetFeatureProvider(PathHelper.FilePathToFileUrl(inputPath));
-            var emitterSettings = new EmitterSettings(features);
 
-            if (emitterSettings.EnableSymbolicNames)
+            if (invocationContext.EmitterSettings.EnableSymbolicNames)
             {
                 logger.LogWarning(CliResources.SymbolicNamesDisclaimerMessage);
             }
 
-            if (features.ResourceTypedParamsAndOutputsEnabled)
+            if (invocationContext.Features.ResourceTypedParamsAndOutputsEnabled)
             {
                 logger.LogWarning(CliResources.ResourceTypesDisclaimerMessage);
             }
@@ -79,7 +72,7 @@ namespace Bicep.Cli.Commands
                 // return non-zero exit code on errors
                 return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
             }
-            else if (features.ParamsFilesEnabled && IsBicepparamsFile(inputPath))
+            else if (invocationContext.Features.ParamsFilesEnabled && IsBicepparamsFile(inputPath))
             {
                 var model = await compilationService.CompileParams(inputPath, args.NoRestore);
 

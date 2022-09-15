@@ -57,9 +57,8 @@ namespace Bicep.Core.IntegrationTests
                 RegistryEnabled = true,
                 CacheRootDirectory = badCachePath
             };
-            var featureManager = IFeatureProviderManager.ForFeatureProvider(features);
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, featureManager, BicepTestConstants.ConfigurationManager), BicepTestConstants.ConfigurationManager);
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, features, BicepTestConstants.ConfigurationManager), BicepTestConstants.ConfigurationManager);
 
             var workspace = new Workspace();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri);
@@ -68,7 +67,7 @@ namespace Bicep.Core.IntegrationTests
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
             }
 
-            var compilation = new Compilation(featureManager, BicepTestConstants.NamespaceProvider, sourceFileGrouping, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(features, BicepTestConstants.NamespaceProvider, sourceFileGrouping, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
             diagnostics.Should().HaveCount(1);
 
@@ -171,7 +170,7 @@ namespace Bicep.Core.IntegrationTests
             features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
 
             var configManager = IConfigurationManager.ForConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(new FileResolver(), clientFactory, templateSpecRepositoryFactory, IFeatureProviderManager.ForFeatureProvider(features.Object), configManager), configManager);
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(new FileResolver(), clientFactory, templateSpecRepositoryFactory, features.Object, configManager), configManager);
 
             var moduleReferences = dataSet.RegistryModules.Values
                 .OrderBy(m => m.Metadata.Target)
@@ -223,7 +222,7 @@ namespace Bicep.Core.IntegrationTests
 
             FileResolver fileResolver = new FileResolver();
             var configManager = IConfigurationManager.ForConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderManager.ForFeatureProvider(features.Object), configManager), configManager);
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object, configManager), configManager);
 
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var moduleReferences = moduleInfos
@@ -293,7 +292,7 @@ namespace Bicep.Core.IntegrationTests
 
             FileResolver fileResolver = new FileResolver();
             var configManager = IConfigurationManager.ForConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderManager.ForFeatureProvider(features.Object), configManager), configManager);
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object, configManager), configManager);
 
             var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
@@ -369,7 +368,7 @@ namespace Bicep.Core.IntegrationTests
 
             FileResolver fileResolver = new FileResolver();
             var configManager = IConfigurationManager.ForConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderManager.ForFeatureProvider(features.Object), configManager), configManager);
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object, configManager), configManager);
 
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var moduleReferences = moduleInfos

@@ -44,7 +44,7 @@ namespace Bicep.LanguageServer
             ISnippetsProvider? SnippetsProvider = null,
             INamespaceProvider? NamespaceProvider = null,
             IFileResolver? FileResolver = null,
-            IFeatureProviderManager? FeatureProviderManager = null,
+            IFeatureProvider? Features = null,
             IModuleRestoreScheduler? ModuleRestoreScheduler = null,
             Action<IServiceCollection>? onRegisterServices = null);
 
@@ -127,7 +127,8 @@ namespace Bicep.LanguageServer
             services.AddSingletonOrInstance<INamespaceProvider, DefaultNamespaceProvider>(creationOptions.NamespaceProvider);
             services.AddSingletonOrInstance<ISnippetsProvider, SnippetsProvider>(creationOptions.SnippetsProvider);
             services.AddSingletonOrInstance<IFileResolver, FileResolver>(creationOptions.FileResolver);
-            services.AddSingletonOrInstance<IFeatureProviderManager, FeatureProviderManager>(creationOptions.FeatureProviderManager);
+            services.AddSingletonOrInstance<IFeatureProvider, FeatureProvider>(creationOptions.Features);
+            services.AddSingleton<EmitterSettings>();
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
             services.AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
             services.AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();

@@ -42,20 +42,22 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDeploymentScopeRequestHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentScopeParams, BicepDeploymentScopeResponse>
     {
+        private readonly EmitterSettings emitterSettings;
         private readonly ICompilationManager compilationManager;
         private readonly IConfigurationManager configurationManager;
         private readonly IDeploymentFileCompilationCache deploymentFileCompilationCache;
-        private readonly IFeatureProviderManager featureProviderManager;
+        private readonly IFeatureProvider features;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IApiVersionProvider apiVersionProvider;
 
         public BicepDeploymentScopeRequestHandler(
+            EmitterSettings emitterSettings,
             ICompilationManager compilationManager,
             IConfigurationManager configurationManager,
             IDeploymentFileCompilationCache deploymentFileCompilationCache,
-            IFeatureProviderManager featureProviderManager,
+            IFeatureProvider features,
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
             INamespaceProvider namespaceProvider,
@@ -66,7 +68,8 @@ namespace Bicep.LanguageServer.Handlers
             this.compilationManager = compilationManager;
             this.configurationManager = configurationManager;
             this.deploymentFileCompilationCache = deploymentFileCompilationCache;
-            this.featureProviderManager = featureProviderManager;
+            this.emitterSettings = emitterSettings;
+            this.features = features;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.namespaceProvider = namespaceProvider;
@@ -136,7 +139,7 @@ namespace Bicep.LanguageServer.Handlers
             if (context is null)
             {
                 SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
-                return new Compilation(featureProviderManager, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
+                return new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
             }
             else
             {

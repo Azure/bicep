@@ -44,7 +44,7 @@ namespace Bicep.Core.IntegrationTests
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, configManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFile.OutputFilePath));
             var compilation = new Compilation(
-                IFeatureProviderManager.ForFeatureProvider(features),
+                features,
                 new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoader),
                 sourceFileGrouping,
                 configManager,

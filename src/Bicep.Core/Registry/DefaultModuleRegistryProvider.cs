@@ -14,22 +14,21 @@ namespace Bicep.Core.Registry
         private readonly IFileResolver fileResolver;
         private readonly IContainerRegistryClientFactory clientFactory;
         private readonly ITemplateSpecRepositoryFactory templateSpecRepositoryFactory;
-        private readonly IFeatureProviderManager featureProviderManager;
+        private readonly IFeatureProvider features;
         private readonly IConfigurationManager configurationManager;
 
-        public DefaultModuleRegistryProvider(IFileResolver fileResolver, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IFeatureProviderManager featureProviderManager, IConfigurationManager configurationManager)
+        public DefaultModuleRegistryProvider(IFileResolver fileResolver, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IFeatureProvider features, IConfigurationManager configurationManager)
         {
             this.fileResolver = fileResolver;
             this.clientFactory = clientFactory;
             this.templateSpecRepositoryFactory = templateSpecRepositoryFactory;
-            this.featureProviderManager = featureProviderManager;
+            this.features = features;
             this.configurationManager = configurationManager;
         }
 
         public ImmutableArray<IModuleRegistry> Registries(Uri templateUri)
         {
             var configuration = configurationManager.GetConfiguration(templateUri);
-            var features = featureProviderManager.GetFeatureProvider(templateUri);
             var builder = ImmutableArray.CreateBuilder<IModuleRegistry>();
             builder.Add(new LocalModuleRegistry(this.fileResolver, templateUri));
             if (features.RegistryEnabled)

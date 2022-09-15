@@ -65,7 +65,7 @@ namespace Bicep.LanguageServer.Snippets
             "properties",
             "dependsOn");
 
-        private readonly IFeatureProviderManager featureProviderManager;
+        private readonly IFeatureProvider features;
         private readonly IApiVersionProvider apiVersionProvider;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
@@ -73,9 +73,9 @@ namespace Bicep.LanguageServer.Snippets
         private readonly IConfigurationManager configurationManager;
         private readonly IModuleDispatcher moduleDispatcher;
 
-        public SnippetsProvider(IFeatureProviderManager featureProviderManager, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IConfigurationManager configurationManager, IApiVersionProvider apiVersionProvider, IModuleDispatcher moduleDispatcher)
+        public SnippetsProvider(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IConfigurationManager configurationManager, IApiVersionProvider apiVersionProvider, IModuleDispatcher moduleDispatcher)
         {
-            this.featureProviderManager = featureProviderManager;
+            this.features = features;
             this.apiVersionProvider = apiVersionProvider;
             this.moduleDispatcher = moduleDispatcher;
             this.namespaceProvider = namespaceProvider;
@@ -225,7 +225,7 @@ namespace Bicep.LanguageServer.Snippets
 
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, bicepFile.FileUri, false);
 
-            Compilation compilation = new Compilation(featureProviderManager, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, linterAnalyzer);
+            Compilation compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, linterAnalyzer);
 
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
 
