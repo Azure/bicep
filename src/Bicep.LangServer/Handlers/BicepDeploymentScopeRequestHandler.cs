@@ -123,9 +123,7 @@ namespace Bicep.LanguageServer.Handlers
             var stringBuilder = new StringBuilder();
             var stringWriter = new StringWriter(stringBuilder);
 
-            var model = compilation.GetEntrypointSemanticModel();
-
-            var emitter = new TemplateEmitter(model, new EmitterSettings(model.Features));
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
             emitter.Emit(stringWriter);
 
             return stringBuilder.ToString();

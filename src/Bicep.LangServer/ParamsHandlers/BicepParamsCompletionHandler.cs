@@ -34,11 +34,10 @@ namespace Bicep.LanguageServer.ParamsHandlers
         public override Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
         {
             var completions = Enumerable.Empty<CompletionItem>();
-            var documentUri = request.TextDocument.Uri;
 
             if (featureProvider.ParamsFilesEnabled)
             {
-                var paramsCompilationContext = this.paramsCompilationManager.GetCompilation(documentUri);
+                var paramsCompilationContext = this.paramsCompilationManager.GetCompilation(request.TextDocument.Uri);
                 if (paramsCompilationContext is null)
                 {
                     return Task.FromResult(new CompletionList());
@@ -52,7 +51,7 @@ namespace Bicep.LanguageServer.ParamsHandlers
                 }
                 catch (Exception e)
                 {
-                    this.logger.LogError("Error with Completion in file {Uri}. Underlying exception is: {Exception}", documentUri, e.ToString());
+                    this.logger.LogError("Error with Completion in file {Uri}. Underlying exception is: {Exception}", request.TextDocument.Uri, e.ToString());
                 }
             }
 

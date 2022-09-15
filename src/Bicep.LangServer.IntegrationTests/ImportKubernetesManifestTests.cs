@@ -14,7 +14,6 @@ using Bicep.Core.UnitTests;
 using System.Linq;
 using FluentAssertions;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Baselines;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using Bicep.LangServer.IntegrationTests.Assertions;

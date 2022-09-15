@@ -20,12 +20,12 @@ namespace Bicep.LanguageServer.ParamsHandlers
     internal class BicepParamsTextDocumentSyncHandler : TextDocumentSyncHandlerBase
     {
         private readonly IParamsCompilationManager paramsCompilationManager;
-        private readonly IFeatureProvider features;
+        private readonly IFeatureProvider featureProvider;
 
-        public BicepParamsTextDocumentSyncHandler(IParamsCompilationManager paramsCompilationManager, IFeatureProvider features)
+        public BicepParamsTextDocumentSyncHandler(IParamsCompilationManager paramsCompilationManager, IFeatureProvider featureProvider)
         {
             this.paramsCompilationManager = paramsCompilationManager;
-            this.features = features;
+            this.featureProvider = featureProvider;
         }
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
@@ -40,7 +40,7 @@ namespace Bicep.LanguageServer.ParamsHandlers
 
             var documentUri = request.TextDocument.Uri;
 
-            if (features.ParamsFilesEnabled)
+            if (featureProvider.ParamsFilesEnabled)
             {
                 this.paramsCompilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, contents);
             }
@@ -50,7 +50,7 @@ namespace Bicep.LanguageServer.ParamsHandlers
 
         public override Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
-            if (features.ParamsFilesEnabled)
+            if (featureProvider.ParamsFilesEnabled)
             {
                 this.paramsCompilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
             }
@@ -62,7 +62,7 @@ namespace Bicep.LanguageServer.ParamsHandlers
 
         public override Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken)
         {
-            if (features.ParamsFilesEnabled)
+            if (featureProvider.ParamsFilesEnabled)
             {
                 this.paramsCompilationManager.CloseCompilation(request.TextDocument.Uri);
             }

@@ -14,7 +14,6 @@ using Bicep.Core.UnitTests;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using FluentAssertions;
 using Bicep.Core.Samples;
-using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Assertions;
 
 namespace Bicep.LangServer.IntegrationTests

@@ -126,5 +126,53 @@ namespace Bicep.Cli.IntegrationTests
                 output.Length.Should().BeGreaterThan(100000);
             }
         }
+
+        [TestMethod]
+        public async Task BicepHelpShouldIncludePublishWhenRegistryEnabled()
+        {
+            var featuresMock = Repository.Create<IFeatureProvider>();
+            featuresMock.Setup(m => m.RegistryEnabled).Returns(true);
+
+            var settings = CreateDefaultSettings() with { Features = featuresMock.Object };
+
+            var (output, error, result) = await Bicep(settings, "--help");
+
+            result.Should().Be(0);
+            error.Should().BeEmpty();
+
+            output.Should().NotBeEmpty();
+            output.Should().ContainAll(
+                "publish",
+                "Publishes",
+                "registry",
+                "reference",
+                "azurecr.io",
+                "br",
+                "--target");
+        }
+
+        [TestMethod]
+        public async Task BicepHelpShouldNotIncludePublishWhenRegistryDisabled()
+        {
+            var featuresMock = Repository.Create<IFeatureProvider>();
+            featuresMock.Setup(m => m.RegistryEnabled).Returns(false);
+
+            var settings = CreateDefaultSettings() with { Features = featuresMock.Object };
+
+            var (output, error, result) = await Bicep(settings, "--help");
+
+            result.Should().Be(0);
+            error.Should().BeEmpty();
+
+            output.Should().NotBeEmpty();
+            output.Should().NotContainAny(
+                "publish",
+                "Publishes",
+                "registry",
+                "reference",
+                "azurecr.io",
+                "br",
+                "--target");
+        }
     }
 }
