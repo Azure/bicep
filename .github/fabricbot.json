@@ -428,7 +428,7 @@
             {
               "name": "isActivitySender",
               "parameters": {
-                "user": "dependabot"
+                "user": "dependabot[bot]"
               }
             }
           ]
@@ -439,7 +439,7 @@
           "issues",
           "project_card"
         ],
-        "taskName": "Reply to dependabot PRs with automation command to squash and merge",
+        "taskName": "Approve dependabot PRs with automation command to squash and merge",
         "actions": [
           {
             "name": "approvePullRequest",
