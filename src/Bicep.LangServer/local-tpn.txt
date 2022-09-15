@@ -2355,9 +2355,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Azure.Deployments.Core 1.0.676 - MIT
+Azure.Deployments.Core 1.0.694 - MIT
 
 
+(c) Microsoft Corporation
 
 MIT License
 
@@ -2373,7 +2374,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Azure.Deployments.Expression 1.0.676 - MIT
+Azure.Deployments.Expression 1.0.694 - MIT
 
 
 
@@ -2463,9 +2464,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Azure.Deployments.Templates 1.0.676 - MIT
+Azure.Deployments.Templates 1.0.694 - MIT
 
 
+(c) Microsoft Corporation
 
 MIT License
 
@@ -5301,9 +5303,11 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-System.IO.Abstractions 17.1.1 - MIT
+System.IO.Abstractions 17.2.1 - MIT
 
 
+Copyright Tatham Oddie
+Copyright (c) Tatham Oddie
 
 MIT License
 
