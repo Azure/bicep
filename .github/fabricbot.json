@@ -409,6 +409,46 @@
       "config": {
         "taskName": "Adds a link to a pull request body that allows Microsoft reviewers to open the pull request in CodeFlow"
       }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "IssueResponder",
+      "subCapability": "PullRequestResponder",
+      "version": "1.0",
+      "config": {
+        "conditions": {
+          "operator": "and",
+          "operands": [
+            {
+              "name": "hasLabel",
+              "parameters": {
+                "label": "dependencies"
+              }
+            },
+            {
+              "name": "isActivitySender",
+              "parameters": {
+                "user": "dependabot[bot]"
+              }
+            }
+          ]
+        },
+        "eventType": "pull_request",
+        "eventNames": [
+          "pull_request",
+          "issues",
+          "project_card"
+        ],
+        "taskName": "Approve dependabot PRs with automation command to squash and merge",
+        "actions": [
+          {
+            "name": "approvePullRequest",
+            "parameters": {
+              "comment": "@dependabot squash and merge"
+            }
+          }
+        ]
+      }
     }
   ],
   "userGroups": []
