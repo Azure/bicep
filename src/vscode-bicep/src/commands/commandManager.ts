@@ -31,7 +31,7 @@ export class CommandManager extends Disposable {
     // when the extension is disposed.
     azureextensionui.registerCommand(
       command.id,
-      async (context: azureextensionui.IActionContext, ...args: unknown[]) => {
+      async (context: azureextensionui.IActionContext, ...args: any[]) => {
         let documentUri: Uri | undefined = undefined;
         let isFromWalkthrough = false;
 
