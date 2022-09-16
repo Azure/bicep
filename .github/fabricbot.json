@@ -419,6 +419,17 @@
               }
             },
             {
+              "operator": "not",
+              "operands": [
+                {
+                  "name": "hasLabel",
+                  "parameters": {
+                    "label": "auto-merge"
+                  }
+                }
+              ]
+            },
+            {
               "name": "isActivitySender",
               "parameters": {
                 "user": "dependabot[bot]"
