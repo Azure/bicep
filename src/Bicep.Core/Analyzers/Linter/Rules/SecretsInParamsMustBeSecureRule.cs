@@ -20,7 +20,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static readonly Regex HasSecretRegex = new("password|pwd|secret|accountkey|acctkey", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
-        private static readonly Regex IsType = new("string|object", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        private static readonly Regex IsType = new("string|object", RegexOptions.Compiled);
 
         // Allow certain patterns we know about in ARM
         private static readonly Regex AllowedRegex = new(
