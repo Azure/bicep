@@ -20,6 +20,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private static readonly Regex HasSecretRegex = new("password|pwd|secret|accountkey|acctkey", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+        private static readonly Regex IsType = new("string|object", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         // Allow certain patterns we know about in ARM
         private static readonly Regex AllowedRegex = new(
             // secret + Permissions (keyVault secret perms is an accessPolicy property)
@@ -62,20 +64,24 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private IDiagnostic? AnalyzeUnsecuredParameter(ParameterSymbol parameterSymbol)
         {
             string name = parameterSymbol.Name;
-            if (HasSecretRegex.IsMatch(name))
+            string type = parameterSymbol.Type;
+            if (IsType.isMatch(type))
             {
-                if (!AllowedRegex.IsMatch(name))
+                if (HasSecretRegex.IsMatch(name))
                 {
-                    // Create fix
-                    var decorator = SyntaxFactory.CreateDecorator("secure");
-                    var decoratorText = $"{decorator.ToText()}\n";
-                    var fixSpan = new TextSpan(parameterSymbol.DeclaringSyntax.Span.Position, 0);
-                    var codeReplacement = new CodeReplacement(fixSpan, decoratorText);
+                    if (!AllowedRegex.IsMatch(name))
+                    {
+                        // Create fix
+                        var decorator = SyntaxFactory.CreateDecorator("secure");
+                        var decoratorText = $"{decorator.ToText()}\n";
+                        var fixSpan = new TextSpan(parameterSymbol.DeclaringSyntax.Span.Position, 0);
+                        var codeReplacement = new CodeReplacement(fixSpan, decoratorText);
 
-                    return CreateFixableDiagnosticForSpan(
-                        parameterSymbol.NameSyntax.Span,
-                        new CodeFix("Mark parameter as secure", isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
-                        name);
+                        return CreateFixableDiagnosticForSpan(
+                            parameterSymbol.NameSyntax.Span,
+                            new CodeFix("Mark parameter as secure", isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
+                            name);
+                    }
                 }
             }
 
