@@ -65,7 +65,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             string name = parameterSymbol.Name;
             string type = parameterSymbol.Type;
-            if (IsType.isMatch(type))
+            if (IsType.IsMatch(type))
             {
                 if (HasSecretRegex.IsMatch(name))
                 {
