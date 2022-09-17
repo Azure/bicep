@@ -64,7 +64,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private IDiagnostic? AnalyzeUnsecuredParameter(ParameterSymbol parameterSymbol)
         {
             string name = parameterSymbol.Name;
-            string type = parameterSymbol.Type;
+            string type = parameterSymbol.Type.ToString();
             if (IsType.IsMatch(type))
             {
                 if (HasSecretRegex.IsMatch(name))
