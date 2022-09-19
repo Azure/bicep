@@ -308,7 +308,7 @@ namespace Bicep.LanguageServer
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitVariableDeclarationSyntax(syntax);
         }
-        
+
         public override void VisitTargetScopeSyntax(TargetScopeSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
@@ -318,7 +318,14 @@ namespace Bicep.LanguageServer
         public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
-            AddTokenType(syntax.ProviderName, SemanticTokenType.Variable);
+            if (syntax.ProviderName is StringSyntax @string)
+            {
+                Visit(@string);
+            }
+            else
+            {
+                AddTokenType(syntax.ProviderName, SemanticTokenType.Variable);
+            }
             AddContextualKeyword(syntax.AsKeyword, LanguageConstants.AsKeyword);
             AddTokenType(syntax.AliasName, SemanticTokenType.Variable);
             base.VisitImportDeclarationSyntax(syntax);

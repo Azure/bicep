@@ -286,7 +286,16 @@ namespace Bicep.Core.Parsing
         private ImportDeclarationSyntax ImportDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ImportKeyword);
-            var providerName = this.IdentifierWithRecovery(b => b.ExpectedImportProviderName(), RecoveryFlags.None, TokenType.NewLine);
+            var current = reader.Peek();
+            var providerName = this.WithRecovery(
+                () => current.Type switch {
+                    TokenType.Identifier => this.Identifier(b => b.ExpectedImportProviderName()),
+                    TokenType.StringComplete => this.InterpolableString(),
+                    TokenType.StringLeftPiece => this.InterpolableString(),
+                    _ => throw new ExpectedTokenException(current, x => x.ExpectedImportProviderName()),
+                },
+                RecoveryFlags.None,
+                TokenType.NewLine);
             var asKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.AsKeyword), GetSuppressionFlag(providerName), TokenType.NewLine);
             var aliasName = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), GetSuppressionFlag(asKeyword), TokenType.NewLine);
             var config = this.WithRecovery<SyntaxBase>(

@@ -10,11 +10,11 @@ namespace Bicep.Core.Syntax
 {
     public class ImportDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
-        public ImportDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax providerName, SyntaxBase asKeyword, IdentifierSyntax aliasName, SyntaxBase config)
+        public ImportDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase providerName, SyntaxBase asKeyword, IdentifierSyntax aliasName, SyntaxBase config)
             : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ImportKeyword);
-            AssertSyntaxType(providerName, nameof(providerName), typeof(IdentifierSyntax));
+            AssertSyntaxType(providerName, nameof(providerName), typeof(IdentifierSyntax), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
             AssertSyntaxType(asKeyword, nameof(asKeyword), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertSyntaxType(aliasName, nameof(aliasName), typeof(IdentifierSyntax));
             AssertSyntaxType(config, nameof(config), typeof(ObjectSyntax), typeof(SkippedTriviaSyntax));
@@ -28,7 +28,7 @@ namespace Bicep.Core.Syntax
 
         public Token Keyword { get; }
 
-        public IdentifierSyntax ProviderName { get; }
+        public SyntaxBase ProviderName { get; }
 
         public SyntaxBase AsKeyword { get; }
 
@@ -41,5 +41,24 @@ namespace Bicep.Core.Syntax
         public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, TextSpan.LastNonNull(AliasName, Config));
 
         public IdentifierSyntax Name => AliasName;
+
+        public string? TryGetProviderName()
+            => ProviderName switch {
+                IdentifierSyntax identifier when identifier.IsValid => identifier.IdentifierName,
+                StringSyntax stringSyntax when stringSyntax.TryGetLiteralValue() is {} stringValue => stringValue.Split('@').First(),
+                _ => null,
+            };
+
+        public string? TryGetProviderVersion()
+        {
+            if (ProviderName is StringSyntax stringSyntax &&
+                stringSyntax.TryGetLiteralValue() is {} stringValue &&
+                stringValue.IndexOf('@') > -1)
+            {
+                return stringValue.Substring(stringValue.IndexOf('@'));
+            }
+
+            return null;
+        }
     }
 }

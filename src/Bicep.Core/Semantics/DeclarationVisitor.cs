@@ -118,14 +118,14 @@ namespace Bicep.Core.Semantics
             {
                 declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ImportsAreDisabled());
             }
-            else if (!syntax.ProviderName.IsValid)
+            else if (syntax.TryGetProviderName() is not {} providerName)
             {
                 // There should be a parse error if the import statement is incomplete
                 declaredType = ErrorType.Empty();
             }
-            else if (namespaceProvider.TryGetNamespace(syntax.ProviderName.IdentifierName, alias, targetScope) is not { } namespaceType)
+            else if (namespaceProvider.TryGetNamespace(providerName, alias, targetScope) is not { } namespaceType)
             {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.ProviderName.IdentifierName));
+                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(providerName));
             }
             else
             {

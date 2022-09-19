@@ -1033,7 +1033,7 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private SkippedTriviaSyntax Skip(IEnumerable<SyntaxBase> syntax, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        protected SkippedTriviaSyntax Skip(IEnumerable<SyntaxBase> syntax, DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
         {
             var syntaxArray = syntax.ToImmutableArray();
             var span = TextSpan.Between(syntaxArray.First(), syntaxArray.Last());

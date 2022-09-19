@@ -17,8 +17,7 @@ namespace Bicep.Core.Features
         private Lazy<bool> symbolicNameCodegenEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_SYMBOLIC_NAME_CODEGEN_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
         public bool SymbolicNameCodegenEnabled => symbolicNameCodegenEnabledLazy.Value;
 
-        private Lazy<bool> importsEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_IMPORTS_ENABLED_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
-        public bool ImportsEnabled => importsEnabledLazy.Value;
+        public bool ImportsEnabled => true;
 
         private Lazy<bool> resourceTypedParamsAndOutputsEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_RESOURCE_TYPED_PARAMS_AND_OUTPUTS_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
 
@@ -30,7 +29,7 @@ namespace Bicep.Core.Features
 
         private Lazy<bool> paramsFilesEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_PARAMS_FILES_ENABLED", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
         public bool ParamsFilesEnabled => paramsFilesEnabledLazy.Value;
-        
+
         public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 
         public static TraceVerbosity TracingVerbosity => ReadEnumEnvvar<TraceVerbosity>("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
