@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using Azure;
@@ -45,10 +46,10 @@ namespace Bicep.Core.Registry
         {
             /*
              * this should be kept in sync with the WriteModuleContent() implementation
-             * 
+             *
              * when we write content to the module cache, we attempt to get a lock so that no other writes happen in the directory
              * the code here appears to implement a lock-free read by checking existence of several files that are expected in a fully restored module
-             * 
+             *
              * this relies on the assumption that modules are never updated in-place in the cache
              * when we need to invalidate the cache, the module directory (or even a single file) should be deleted from the cache
              */
@@ -56,6 +57,43 @@ namespace Bicep.Core.Registry
                 !this.FileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.ModuleMain)) ||
                 !this.FileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.Manifest)) ||
                 !this.FileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.Metadata));
+        }
+
+        public override bool IsTypesRestoreRequired(OciArtifactModuleReference reference)
+        {
+            return !this.FileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.TypesIndex));
+        }
+
+        public async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreTypes(RootConfiguration configuration, IEnumerable<OciArtifactModuleReference> references)
+        {
+            var statuses = new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>();
+
+            foreach (var reference in references)
+            {
+                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}");
+                var (result, errorMessage) = await this.TryPullArtifactAsync(configuration, reference, BicepMediaTypes.BicepTypesLayerV1Zip, anonymousOnly: true);
+
+                if (result is not null)
+                {
+                    await this.TryWriteTypesContentAsync(reference, result);
+                }
+
+                if (result is null)
+                {
+                    if (errorMessage is not null)
+                    {
+                        statuses.Add(reference, x => x.ModuleRestoreFailedWithMessage(reference.FullyQualifiedReference, errorMessage));
+                        timer.OnFail(errorMessage);
+                    }
+                    else
+                    {
+                        statuses.Add(reference, x => x.ModuleRestoreFailed(reference.FullyQualifiedReference));
+                        timer.OnFail();
+                    }
+                }
+            }
+
+            return statuses;
         }
 
         public override Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, OciArtifactModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
@@ -71,7 +109,12 @@ namespace Bicep.Core.Registry
             foreach (var reference in references)
             {
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}");
-                var (result, errorMessage) = await this.TryPullArtifactAsync(configuration, reference);
+                var (result, errorMessage) = await this.TryPullArtifactAsync(configuration, reference, BicepMediaTypes.BicepModuleLayerV1Json);
+
+                if (result is not null)
+                {
+                    await this.TryWriteModuleContentAsync(reference, result);
+                }
 
                 if (result is null)
                 {
@@ -139,6 +182,33 @@ namespace Bicep.Core.Registry
             this.FileResolver.Write(this.GetModuleFileUri(reference, ModuleFileType.Metadata), metadataStream);
         }
 
+        protected override void WriteTypesContent(OciArtifactModuleReference reference, OciArtifactResult result)
+        {
+            using var typesArchive = new ZipArchive(result.ModuleStream);
+            var typesPath = GetTypesPath(reference);
+
+            foreach (var entry in typesArchive.Entries.Where(x => !x.FullName.EndsWith("/")))
+            {
+                var outputPath = Path.GetFullPath(Path.Combine(typesPath, entry.FullName));
+
+                // replicate directory structure if necessary
+                if (Path.GetDirectoryName(outputPath) is {} parentDir &&
+                    !Directory.Exists(parentDir))
+                {
+                    Directory.CreateDirectory(parentDir);
+                }
+
+                // ensure the Zip file can't escape the current directory
+                if (outputPath.StartsWith(typesPath, StringComparison.Ordinal))
+                {
+                    entry.ExtractToFile(outputPath, true);
+                }
+            }
+        }
+
+        public string GetTypesPath(OciArtifactModuleReference reference)
+            => Path.Combine(this.GetModuleDirectoryPath(reference), "types");
+
         protected override string GetModuleDirectoryPath(OciArtifactModuleReference reference)
         {
             // cachePath is already set to %userprofile%\.bicep\br or ~/.bicep/br by default depending on OS
@@ -182,13 +252,11 @@ namespace Bicep.Core.Registry
 
         protected override Uri GetModuleLockFileUri(OciArtifactModuleReference reference) => this.GetModuleFileUri(reference, ModuleFileType.Lock);
 
-        private async Task<(OciArtifactResult?, string? errorMessage)> TryPullArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference reference)
+        private async Task<(OciArtifactResult?, string? errorMessage)> TryPullArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference reference, string expectedLayerMediaType, bool anonymousOnly = false)
         {
             try
             {
-                var result = await this.client.PullArtifactAsync(configuration, reference);
-
-                await this.TryWriteModuleContentAsync(reference, result);
+                var result = await this.client.PullArtifactAsync(configuration, reference, expectedLayerMediaType, anonymousOnly);
 
                 return (result, null);
             }
@@ -236,6 +304,7 @@ namespace Bicep.Core.Registry
                 ModuleFileType.Lock => "lock",
                 ModuleFileType.Manifest => "manifest",
                 ModuleFileType.Metadata => "metadata",
+                ModuleFileType.TypesIndex => "types/index.json",
                 _ => throw new NotImplementedException($"Unexpected module file type '{fileType}'.")
             };
 
@@ -247,7 +316,8 @@ namespace Bicep.Core.Registry
             ModuleMain,
             Manifest,
             Lock,
-            Metadata
+            Metadata,
+            TypesIndex,
         };
     }
 }

@@ -87,6 +87,9 @@ namespace Bicep.Core.Registry
         protected override void WriteModuleContent(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
             File.WriteAllText(this.GetModuleEntryPointPath(reference), entity.Content);
 
+        protected override void WriteTypesContent(TemplateSpecModuleReference reference, TemplateSpecEntity entity)
+            => throw new NotImplementedException();
+
         protected override string GetModuleDirectoryPath(TemplateSpecModuleReference reference) => Path.Combine(
             this.featureProvider.CacheRootDirectory,
             this.Scheme,

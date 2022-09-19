@@ -29,31 +29,39 @@ namespace Bicep.Core.Registry
             this.clientFactory = clientFactory;
         }
 
-        public async Task<OciArtifactResult> PullArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference moduleReference)
+        public async Task<OciArtifactResult> PullArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference moduleReference, string expectedLayerMediaType, bool anonymousOnly)
         {
-            var client = this.CreateBlobClient(configuration, moduleReference);
-
-            OciManifest manifest;
-            Stream manifestStream;
-            string manifestDigest;
-
-            try
+            if (!anonymousOnly)
             {
-                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference}.");
-                // Try authenticated client first.
-                (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
+                try
+                {
+                    Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference}.");
+
+                    // Try authenticated client first.
+                    var client = this.CreateBlobClient(configuration, moduleReference);
+                    var (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
+
+                    var moduleStream = await ProcessManifest(client, manifest, expectedLayerMediaType);
+
+                    return new OciArtifactResult(manifestDigest, manifest, manifestStream, moduleStream);
+                }
+                catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
+                {
+                    Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference} failed, received code {exception.Status}. Fallback to anonymous pull.");
+                    // Fall back to anonymous client.
+                }
             }
-            catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
+
             {
-                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference} failed, received code {exception.Status}. Fallback to anonymous pull.");
-                // Fall back to anonymous client.
-                client = this.CreateBlobClient(configuration, moduleReference, anonymousAccess: true);
-                (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
+                Trace.WriteLine($"Unauthenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference}.");
+
+                var client = this.CreateBlobClient(configuration, moduleReference, anonymousAccess: true);
+                var (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
+
+                var moduleStream = await ProcessManifest(client, manifest, expectedLayerMediaType);
+
+                return new OciArtifactResult(manifestDigest, manifest, manifestStream, moduleStream);
             }
-
-            var moduleStream = await ProcessManifest(client, manifest);
-
-            return new OciArtifactResult(manifestDigest, manifest, manifestStream, moduleStream);
         }
 
         public async Task PushArtifactAsync(Configuration.RootConfiguration configuration, OciArtifactModuleReference moduleReference, StreamDescriptor config, params StreamDescriptor[] layers)
@@ -139,7 +147,7 @@ namespace Bicep.Core.Registry
             }
         }
 
-        private static async Task<Stream> ProcessManifest(ContainerRegistryBlobClient client, OciManifest manifest)
+        private static async Task<Stream> ProcessManifest(ContainerRegistryBlobClient client, OciManifest manifest, string expectedLayerMediaType)
         {
             ProcessConfig(manifest.Config);
             if (manifest.Layers.Length != 1)
@@ -149,7 +157,7 @@ namespace Bicep.Core.Registry
 
             var layer = manifest.Layers.Single();
 
-            return await ProcessLayer(client, layer);
+            return await ProcessLayer(client, layer, expectedLayerMediaType);
         }
 
         private static void ValidateBlobResponse(Response<DownloadBlobResult> blobResponse, OciDescriptor descriptor)
@@ -171,9 +179,9 @@ namespace Bicep.Core.Registry
             }
         }
 
-        private static async Task<Stream> ProcessLayer(ContainerRegistryBlobClient client, OciDescriptor layer)
+        private static async Task<Stream> ProcessLayer(ContainerRegistryBlobClient client, OciDescriptor layer, string expectedLayerMediaType)
         {
-            if (!string.Equals(layer.MediaType, BicepMediaTypes.BicepModuleLayerV1Json, MediaTypeComparison))
+            if (!string.Equals(layer.MediaType, expectedLayerMediaType, MediaTypeComparison))
             {
                 throw new InvalidModuleException($"Did not expect layer media type \"{layer.MediaType}\".");
             }
@@ -196,7 +204,8 @@ namespace Bicep.Core.Registry
         private static void ProcessConfig(OciDescriptor config)
         {
             // media types are case insensitive
-            if (!string.Equals(config.MediaType, BicepMediaTypes.BicepModuleConfigV1, MediaTypeComparison))
+            if (!string.Equals(config.MediaType, BicepMediaTypes.BicepModuleConfigV1, MediaTypeComparison) &&
+                !string.Equals(config.MediaType, BicepMediaTypes.BicepTypesConfigV1, MediaTypeComparison))
             {
                 throw new InvalidModuleException($"Did not expect config media type \"{config.MediaType}\".");
             }

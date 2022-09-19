@@ -20,6 +20,8 @@ namespace Bicep.Core.Registry
 
         public abstract bool IsModuleRestoreRequired(T reference);
 
+        public virtual bool IsTypesRestoreRequired(T reference) => false;
+
         public abstract Task PublishModule(RootConfiguration configuration, T reference, Stream compiled);
 
         public abstract Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(RootConfiguration configuration, IEnumerable<T> references);

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Threading.Tasks;
 
 namespace Bicep.Core.Registry
@@ -32,6 +33,8 @@ namespace Bicep.Core.Registry
 
         protected abstract void WriteModuleContent(TModuleReference reference, TModuleEntity entity);
 
+        protected abstract void WriteTypesContent(TModuleReference reference, TModuleEntity entity);
+
         protected abstract string GetModuleDirectoryPath(TModuleReference reference);
 
         protected abstract Uri GetModuleLockFileUri(TModuleReference reference);
@@ -48,7 +51,7 @@ namespace Bicep.Core.Registry
              * We have already downloaded the module content from the registry.
              * The following sections will attempt to synchronize the module write with other
              * instances of the language server running on the same machine.
-             * 
+             *
              * We are not trying to prevent tampering with the module cache by the user.
              */
 
@@ -85,6 +88,55 @@ namespace Bicep.Core.Registry
             throw new ExternalModuleException($"Exceeded the timeout of \"{ModuleDirectoryContentionTimeout}\" to acquire the lock on file \"{lockFileUri}\".");
         }
 
+        protected async Task TryWriteTypesContentAsync(TModuleReference reference, TModuleEntity entity)
+        {
+            // this has to be after downloading the module content so we don't create directories for non-existent modules
+            var moduleDirectoryPath = this.GetModuleDirectoryPath(reference);
+
+            // creating the directory doesn't require locking
+            CreateModuleDirectory(moduleDirectoryPath);
+
+            /*
+             * We have already downloaded the module content from the registry.
+             * The following sections will attempt to synchronize the module write with other
+             * instances of the language server running on the same machine.
+             *
+             * We are not trying to prevent tampering with the module cache by the user.
+             */
+
+            var lockFileUri = this.GetModuleLockFileUri(reference);
+            var stopwatch = Stopwatch.StartNew();
+
+            while (stopwatch.Elapsed < ModuleDirectoryContentionTimeout)
+            {
+                using (var @lock = this.FileResolver.TryAcquireFileLock(lockFileUri))
+                {
+                    // the placement of "if" inside "using" guarantees that even an exception thrown by the condition results in the lock being released
+                    // (current condition can't throw, but this potentially avoids future regression)
+                    if (@lock is not null)
+                    {
+                        // we have acquired the lock
+                        if (!this.IsTypesRestoreRequired(reference))
+                        {
+                            // the other instance has already written out the content to disk - we can discard the content we downloaded
+                            return;
+                        }
+
+                        // write the contents to disk
+                        this.WriteTypesContent(reference, entity);
+                        return;
+                    }
+                }
+
+                // we have not acquired the lock - let's give the instance that has the lock some time to finish writing the content to the directory
+                // (the operation involves only writing the already downloaded content to disk, so it "should" complete fairly quickly)
+                await Task.Delay(ModuleDirectoryContentionRetryInterval);
+            }
+
+            // we have exceeded the timeout
+            throw new ExternalModuleException($"Exceeded the timeout of \"{ModuleDirectoryContentionTimeout}\" to acquire the lock on file \"{lockFileUri}\".");
+        }
+
         private static void CreateModuleDirectory(string moduleDirectoryPath)
         {
             try
@@ -102,21 +154,21 @@ namespace Bicep.Core.Registry
         {
             try
             {
-                // recursively delete the directory 
+                // recursively delete the directory
                 Directory.Delete(moduleDirectoryPath, true);
             }
             catch (Exception exception)
             {
                 throw new ExternalModuleException($"Unable to delete the local module directory \"{moduleDirectoryPath}\". {exception.Message}", exception);
             }
-        }        
+        }
 
         private async Task TryDeleteModuleDirectoryAsync(TModuleReference reference)
         {
             /*
              * The following sections will attempt to synchronize the module directory delete with other
              * instances of the language server running on the same machine.
-             * 
+             *
              * We are not trying to prevent tampering with the module cache by the user.
              */
 
@@ -138,7 +190,7 @@ namespace Bicep.Core.Registry
                     try {
                         // Even if the FileLock is disposed, the file remain there. See comments in FileLock.cs
                         // saying there's a race condition on Linux with the DeleteOnClose flag on the FileStream.
-                        // We will attempt the delete the file. If it throws, the lock is still open and will continue 
+                        // We will attempt the delete the file. If it throws, the lock is still open and will continue
                         // to wait until retry interval expires
                         File.Delete(lockFileUri.LocalPath);
                     }

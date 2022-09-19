@@ -55,7 +55,7 @@ namespace Bicep.Core.Syntax
                 stringSyntax.TryGetLiteralValue() is {} stringValue &&
                 stringValue.IndexOf('@') > -1)
             {
-                return stringValue.Substring(stringValue.IndexOf('@'));
+                return stringValue.Substring(stringValue.IndexOf('@') + 1);
             }
 
             return null;
