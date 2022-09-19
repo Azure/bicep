@@ -37,7 +37,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     return;
                 }
 
-                if (namespaceProvider.TryGetNamespace(@namespace, @namespace, targetScope) is not { } namespaceType)
+                if (namespaceProvider.TryGetNamespace(@namespace, null, @namespace, targetScope) is not { } namespaceType)
                 {
                     // this namespace doesn't match a known built-in namespace
                     return;

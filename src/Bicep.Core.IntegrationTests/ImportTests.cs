@@ -33,7 +33,7 @@ namespace Bicep.Core.IntegrationTests
 
             public IEnumerable<string> AvailableNamespaces => builderDict.Keys.Concat(new [] { SystemNamespaceType.BuiltInName });
 
-            public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope)
+            public NamespaceType? TryGetNamespace(string providerName, string? providerVersion, string aliasName, ResourceScope resourceScope)
             {
                 switch (providerName)
                 {

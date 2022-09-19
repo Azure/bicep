@@ -25,9 +25,9 @@ namespace Bicep.Core.IntegrationTests.Extensibility
             AadNamespaceType.BuiltInName,
         });
 
-        public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope)
+        public NamespaceType? TryGetNamespace(string providerName, string? providerVersion, string aliasName, ResourceScope resourceScope)
         {
-            if (defaultNamespaceProvider.TryGetNamespace(providerName, aliasName, resourceScope) is { } namespaceType)
+            if (defaultNamespaceProvider.TryGetNamespace(providerName, providerVersion, aliasName, resourceScope) is { } namespaceType)
             {
                 return namespaceType;
             }

@@ -8,7 +8,7 @@ namespace Bicep.Core.Semantics.Namespaces;
 
 public interface INamespaceProvider
 {
-    NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope);
+    NamespaceType? TryGetNamespace(string providerName, string? providerVersion, string aliasName, ResourceScope resourceScope);
 
     IEnumerable<string> AvailableNamespaces { get; }
 

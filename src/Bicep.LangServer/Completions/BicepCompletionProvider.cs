@@ -1510,10 +1510,11 @@ namespace Bicep.LanguageServer.Completions
             {
                 foreach (var builtInNamespace in namespaceProvider.AvailableNamespaces.OrderBy(x => x, LanguageConstants.IdentifierComparer))
                 {
+                    var replacement = builtInNamespace.Contains('@') ? StringUtils.EscapeBicepString(builtInNamespace) : builtInNamespace;
                     yield return CompletionItemBuilder.Create(CompletionItemKind.Folder, builtInNamespace)
-                        .WithSortText(GetSortText(builtInNamespace, CompletionPriority.High))
-                        .WithDetail(builtInNamespace)
-                        .WithPlainTextEdit(context.ReplacementRange, builtInNamespace)
+                        .WithSortText(GetSortText(replacement, CompletionPriority.High))
+                        .WithDetail(replacement)
+                        .WithPlainTextEdit(context.ReplacementRange, replacement)
                         .Build();
                 }
             }

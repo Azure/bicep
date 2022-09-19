@@ -3,6 +3,7 @@
 
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
@@ -19,7 +20,8 @@ namespace Bicep.Cli
             TextWriter errorWriter,
             IFeatureProvider? features = null,
             IContainerRegistryClientFactory? clientFactory = null,
-            ITemplateSpecRepositoryFactory? templateSpecRepositoryFactory = null)
+            ITemplateSpecRepositoryFactory? templateSpecRepositoryFactory = null,
+            IFileResolver? fileResolver = null)
         {
             // keep the list of services in this class in sync with the logic in the AddInvocationContext() extension method
             OutputWriter = outputWriter;
@@ -27,7 +29,8 @@ namespace Bicep.Cli
             Features = features ?? new FeatureProvider();
             ClientFactory = clientFactory ?? new ContainerRegistryClientFactory(new TokenCredentialFactory());
             TemplateSpecRepositoryFactory = templateSpecRepositoryFactory ?? new TemplateSpecRepositoryFactory(new TokenCredentialFactory());
-            NamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoader, Features);
+            FileResolver = fileResolver ?? new FileResolver();
+            NamespaceProvider = new RegistryAwareNamespaceProvider(new DefaultNamespaceProvider(azResourceTypeLoader, Features), FileResolver, ClientFactory, Features);
         }
 
         public INamespaceProvider NamespaceProvider { get; }
@@ -43,5 +46,7 @@ namespace Bicep.Cli
         public IContainerRegistryClientFactory ClientFactory { get; }
 
         public ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory { get; }
+
+        public IFileResolver FileResolver { get; }
     }
 }

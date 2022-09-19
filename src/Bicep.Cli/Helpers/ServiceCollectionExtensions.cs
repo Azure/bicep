@@ -55,6 +55,7 @@ namespace Bicep.Cli.Helpers
             services.AddSingleton(context.Features);
             services.AddSingleton(context.ClientFactory);
             services.AddSingleton(context.TemplateSpecRepositoryFactory);
+            services.AddSingleton(context.FileResolver);
 
             return services;
         }

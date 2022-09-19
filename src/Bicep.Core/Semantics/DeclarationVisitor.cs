@@ -123,7 +123,7 @@ namespace Bicep.Core.Semantics
                 // There should be a parse error if the import statement is incomplete
                 declaredType = ErrorType.Empty();
             }
-            else if (namespaceProvider.TryGetNamespace(providerName, alias, targetScope) is not { } namespaceType)
+            else if (namespaceProvider.TryGetNamespace(providerName, syntax.TryGetProviderVersion(), alias, targetScope) is not { } namespaceType)
             {
                 declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(providerName));
             }

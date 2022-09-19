@@ -29,7 +29,7 @@ public class DefaultNamespaceProvider : INamespaceProvider
         }.ToImmutableDictionary();
     }
 
-    public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope)
+    public NamespaceType? TryGetNamespace(string providerName, string? version, string aliasName, ResourceScope resourceScope)
         => providerLookup.TryGetValue(providerName)?.Invoke(aliasName, resourceScope);
 
     public IEnumerable<string> AvailableNamespaces

@@ -429,8 +429,8 @@ output length int =
 
             var namespaceProvider = BicepTestConstants.NamespaceProvider;
             var namespaces = new[] {
-                namespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!,
-                namespaceProvider.TryGetNamespace("sys", "sys", ResourceScope.ResourceGroup)!,
+                namespaceProvider.TryGetNamespace("az", null, "az", ResourceScope.ResourceGroup)!,
+                namespaceProvider.TryGetNamespace("sys", null, "sys", ResourceScope.ResourceGroup)!,
             };
 
             var availableFunctionNames = namespaces
