@@ -104,23 +104,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 new Exclusion(@"^Microsoft\.DocumentDb/databaseAccounts/\w{0,}/collections$", null),
 
                 // Specific properties of specific resource types
+                new Exclusion("^Microsoft.ApiManagement/service/subscriptions$", "ownerId"), // #8382
             };
-
-        //asdfg private readonly HashSet<string> excludedPropertyNames = new(allowedResourcesAndProperties.Select(a => a.propertyName));
-
-        //asdfg
-        //private static readonly Regex[] excludedResourceTypesRegex =
-        //    (new string[]
-        //    {
-        //        // These are regex's (case-insensitive)
-        //        "^microsoft.portal/dashboards$",
-        //        "^microsoft.logic/workflows$",
-        //        "^microsoft.ApiManagement/service/backends$",
-        //        "^Microsoft.Web/sites/config",
-        //        // Skip for Microsoft.DocumentDb/databaseAccounts/mongodbDatabases/collections
-        //        // and for "other collections" on docDB
-        //        @"^Microsoft\.DocumentDb/databaseAccounts/\w{0,}/collections$",
-        //    }).Select(s => new Regex(s, RegexOptions.Compiled | RegexOptions.IgnoreCase)).ToArray();
 
         internal record Failure(
             ObjectPropertySyntax Property,
