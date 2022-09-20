@@ -53,5 +53,8 @@
   <ItemGroup>
     <PackageReference Update="Nerdbank.GitVersioning" Version="3.5.109" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bicep.RoslynAnalyzers\Bicep.RoslynAnalyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+  </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties configuration_4bicepconfig_1json__JsonSchema="https://appsemble.app/api.json" /></VisualStudio></ProjectExtensions>
 </Project>

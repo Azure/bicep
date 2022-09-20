@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <!-- do not include the build output in the NuGet lib folder -->
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.0.1" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.2" PrivateAssets="all" />
+    <!--<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>-->
+    <!--<PackageReference Include="System.Collections.Immutable" Version="6.0.0" GeneratePathProperty="true" PrivateAssets="all" />-->
+  </ItemGroup>
+
+  <!-- See https://github.com/dotnet/roslyn-sdk/blob/0313c80ed950ac4f4eef11bb2e1c6d1009b328c4/samples/CSharp/SourceGenerators/SourceGeneratorSamples/SourceGeneratorSamples.csproj#L13-L30
+       and https://github.com/dotnet/roslyn/discussions/47517#discussioncomment-64145 -->
+  <!--<PropertyGroup>
+    <GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
+  </PropertyGroup>-->
+
+  <!--<Target Name="GetDependencyTargetPaths">
+    --><!-- Manually include the DLL of each NuGet package that this analyzer uses. --><!--
+    <ItemGroup>
+        <TargetPathWithTargetPlatformMoniker Include="$(PkgSystem_Collections_Immutable)\lib\netstandard2.0\System.Collections.Immutable.dll" IncludeRuntimeDependency="false" />
+    </ItemGroup>
+  </Target>-->
+  <ItemGroup>
+    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+  </ItemGroup>
+</Project>
