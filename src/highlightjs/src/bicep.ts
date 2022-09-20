@@ -32,7 +32,7 @@ const KEYWORDS = {
     'if',
     'existing',
     'import',
-    'from',
+    'as',
   ],
   literal: [
     "true",
