@@ -839,7 +839,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 url: 'https://${reference(resourceId('Microsoft.Web/sites', 'web'), '2020-09-01').defaultHostName}'
                 protocol: 'http'
               }
-            }",
+            }
+
+            // https://github.com/Azure/bicep/issues/8382
+            resource keys 'Microsoft.ApiManagement/service/subscriptions@2021-08-01' = {
+              name: 'apimName/testSubscription'
+              properties: {
+                ownerId: '/users/1' // in form /users/{userId}, so this property should be ignored
+                scope: '/products/testProduct'
+                displayName: 'Test Name'
+                state: 'active'
+                allowTracing: true
+              }
+            }
+",
             new object[]
             {
                 // pass
