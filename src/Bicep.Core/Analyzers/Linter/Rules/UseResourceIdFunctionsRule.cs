@@ -6,6 +6,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Microsoft.Extensions.FileSystemGlobbing.Internal;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using System;
 using System.Collections.Generic;
@@ -35,66 +36,91 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 "guid"
                 };
 
-        private static readonly HashSet<string> excludedProperties = new(
-            new[] {
-                // These properties are ignored, since they are not actually resourceIds
-                // (the names are unique enough that we won't worry about matching against
-                //   an exact resource type, plus some of them occur in multiple resource types)
-                //
-                // (case insensitive)
-                "appId",                       // Microsoft.Insights
-                "clientId",                    // Microsoft.BotService - common var name
-                "contentId",                   // Microsoft.Sentinel/Solutions/Metadata
-                "connectorId",                 // Microsoft.Sentinel/Solutions/Analytical Rule/Metadata
-                "DataTypeId",                  // Microsoft.OperationalInsights/workspaces/dataSources
-                "defaultMenuItemId",           // Microsoft.Portal/dashboards - it's a messy resource
-                "deploymentSpecId",            // Microsoft.NetApp/netAppAccounts/volumeGroups
-                "detector",                    // microsoft.alertsmanagement/smartdetectoralertrules (detector.id is the one we want to skip)
-                "groupId",                     // Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints
-                "IllusiveIncidentId",          // Microsoft.Sentinel/Solutions/Analytical Rule/Metadata
-                "keyId",                       // Microsoft.Cdn/profiles urlSigningKeys
-                "keyVaultId",                  // KeyVaultIDs
-                "keyVaultSecretId",            // Microsoft.Network/applicationGateways sslCertificates - this is actually a uri created with reference() and concat /secrets/secretname
-                "locations",                   // Microsoft.Insights/webtests
-                "menuId",                      // Microsoft.Portal/dashboards
-                "metadata",                    // Multiple resources
-                "metricId",                    // Microsoft.ServiceBus/namespaces
-                "nodeAgentSkuId",              // Microsoft.Batch/batchAccounts/pools
-                "objectId",                    // Common Property name
-                "parentId",                    // Microsoft.Sentinel/Solutions/Metadata
-                "policyDefinitionReferenceId", // Microsft.Authorization/policySetDefinition unique Id used when setting up a PolicyDefinitionReference
-                "requestedServiceObjectiveId", // Microsoft.Sql/servers/databases
-                "resource",                    // Microsoft.DocumentDB/databaseAccounts/sqlDatabase and child resources
-                "ruleId",                      // Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies
-                "schemaId",                    // Microsoft.ApiManagement/service/apis/operations
-                "servicePrincipalClientId",    // common var name
-                "sid",                         // Microsoft.Sql/servers/administrators/activeDirectory
-                "StartingDeviceID",            // SQLIaasVMExtension > settings/ServerConfigurationsManagementSettings/SQLStorageUpdateSettings
-                "subscriptionId",              // Microsoft.Cdn/profiles urlSigningKeys
-                "SyntheticMonitorId",          // Microsoft.Insights/webtests
-                "tags",                        // Multiple resources
-                "targetProtectionContainerId", // Microsoft.RecoveryServices/vaults/replicationFabrics/replicationProtectionContainers/replicationProtectionContainerMappings (yes really)
-                "targetWorkerSizeId",          // Microsoft.Web/serverFarms (later apiVersions)
-                "tenantId",                    // Common Property name
-                "timezoneId",                  // Microsoft.SQL/managedInstances
-                "vlanId",                      // Unique Id to establish peering when setting up an ExpressRoute circuit
-                "workerSizeId",                // Microsoft.Web/serverFarms (older apiVersions)
-                "UniqueFindingId",             // Microsoft.Sentinel/Solutions/Metadata
-            },
-            StringComparer.OrdinalIgnoreCase);
+        private class Exclusion
+        {
+            public Regex? ResourceType { get; init; }
+            public string? propertyName { get; init; }
 
-        private static readonly Regex[] excludedResourceTypesRegex =
-            (new string[]
+            public Exclusion(string? regexResourceType, string? propertyName)
             {
-                // These are regex's (case-insensitive)
-                "^microsoft.portal/dashboards$",
-                "^microsoft.logic/workflows$",
-                "^microsoft.ApiManagement/service/backends$",
-                "^Microsoft.Web/sites/config",
+                this.ResourceType = regexResourceType is null ? null : new Regex(regexResourceType, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.CultureInvariant);
+                this.propertyName = propertyName;
+            }
+        }
+
+        // These properties are ignored, since they are not actually resourceIds.
+        // Some of the names are unique enough (and for backwards compat with the ARM TTK) that we won't worry about matching against
+        //   an exact resource type, plus some of them occur in multiple resource types.
+
+        // Both resource type and property name are case-insensitive
+        private static readonly Exclusion[] allowedResourcesAndProperties = new[] {
+            new Exclusion(null, "appId"),                       // Example: Microsoft.Insights
+                new Exclusion(null, "appId"),                       // Example: Microsoft.Insights
+                new Exclusion(null, "clientId"),                    // Example: Microsoft.BotService - common var name
+                new Exclusion(null, "contentId"),                   // Example: Microsoft.Sentinel/Solutions/Metadata
+                new Exclusion(null, "connectorId"),                 // Example: Microsoft.Sentinel/Solutions/Analytical Rule/Metadata
+                new Exclusion(null, "DataTypeId"),                  // Example: Microsoft.OperationalInsights/workspaces/dataSources
+                new Exclusion(null, "defaultMenuItemId"),           // Example: Microsoft.Portal/dashboards - it's a messy resource
+                new Exclusion(null, "deploymentSpecId"),            // Example: Microsoft.NetApp/netAppAccounts/volumeGroups
+                new Exclusion(null, "detector"),                    // Example: microsoft.alertsmanagement/smartdetectoralertrules (detector.id is the one we want to skip)
+                new Exclusion(null, "groupId"),                     // Example: Microsoft.DataFactory/factories/managedVirtualNetworks/managedPrivateEndpoints
+                new Exclusion(null, "IllusiveIncidentId"),          // Example: Microsoft.Sentinel/Solutions/Analytical Rule/Metadata
+                new Exclusion(null, "keyId"),                       // Example: Microsoft.Cdn/profiles urlSigningKeys
+                new Exclusion(null, "keyVaultId"),                  // Example: KeyVaultIDs
+                new Exclusion(null, "keyVaultSecretId"),            // Example: Microsoft.Network/applicationGateways sslCertificates - this is actually a uri created with reference() and concat /secrets/secretname
+                new Exclusion(null, "locations"),                   // Example: Microsoft.Insights/webtests
+                new Exclusion(null, "menuId"),                      // Example: Microsoft.Portal/dashboards
+                new Exclusion(null, "metadata"),                    // Multiple resources
+                new Exclusion(null, "metricId"),                    // Example: Microsoft.ServiceBus/namespaces
+                new Exclusion(null, "nodeAgentSkuId"),              // Example: Microsoft.Batch/batchAccounts/pools
+                new Exclusion(null, "objectId"),                    // Common Property name
+                new Exclusion(null, "parentId"),                    // Example: Microsoft.Sentinel/Solutions/Metadata
+                new Exclusion(null, "policyDefinitionReferenceId"), // Example: Microsft.Authorization/policySetDefinition unique Id used when setting up a PolicyDefinitionReference
+                new Exclusion(null, "requestedServiceObjectiveId"), // Example: Microsoft.Sql/servers/databases
+                new Exclusion(null, "resource"),                    // Example: Microsoft.DocumentDB/databaseAccounts/sqlDatabase and child resources
+                new Exclusion(null, "ruleId"),                      // Example: Microsoft.Network/applicationGatewayWebApplicationFirewallPolicies
+                new Exclusion(null, "schemaId"),                    // Example: Microsoft.ApiManagement/service/apis/operations
+                new Exclusion(null, "servicePrincipalClientId"),    // Common var name
+                new Exclusion(null, "sid"),                         // Example: Microsoft.Sql/servers/administrators/activeDirectory
+                new Exclusion(null, "StartingDeviceID"),            // Example: SQLIaasVMExtension > settings/ServerConfigurationsManagementSettings/SQLStorageUpdateSettings
+                new Exclusion(null, "subscriptionId"),              // Example: Microsoft.Cdn/profiles urlSigningKeys
+                new Exclusion(null, "SyntheticMonitorId"),          // Example: Microsoft.Insights/webtests
+                new Exclusion(null, "tags"),                        // Multiple resources
+                new Exclusion(null, "targetProtectionContainerId"), // Example: Microsoft.RecoveryServices/vaults/replicationFabrics/replicationProtectionContainers/replicationProtectionContainerMappings (yes really)
+                new Exclusion(null, "targetWorkerSizeId"),          // Example: Microsoft.Web/serverFarms (later apiVersions)
+                new Exclusion(null, "tenantId"),                    // Common Property name
+                new Exclusion(null, "timezoneId"),                  // Example: Microsoft.SQL/managedInstances
+                new Exclusion(null, "vlanId"),                      // Example: Unique Id to establish peering when setting up an ExpressRoute circuit
+                new Exclusion(null, "workerSizeId"),                // Example: Microsoft.Web/serverFarms (older apiVersions)
+                new Exclusion(null, "UniqueFindingId"),             // Example: Microsoft.Sentinel/Solutions/Metadata
+
+                // These resource types are completely excluded from the rule
+                new Exclusion("^microsoft.portal/dashboards$", null),
+                new Exclusion("^microsoft.logic/workflows$", null),
+                new Exclusion("^microsoft.ApiManagement/service/backends$", null),
+                new Exclusion("^Microsoft.Web/sites/config", null),
                 // Skip for Microsoft.DocumentDb/databaseAccounts/mongodbDatabases/collections
                 // and for "other collections" on docDB
-                @"^Microsoft\.DocumentDb/databaseAccounts/\w{0,}/collections$",
-            }).Select(s => new Regex(s, RegexOptions.Compiled | RegexOptions.IgnoreCase)).ToArray();
+                new Exclusion(@"^Microsoft\.DocumentDb/databaseAccounts/\w{0,}/collections$", null),
+
+                // Specific properties of specific resource types
+            };
+
+        //asdfg private readonly HashSet<string> excludedPropertyNames = new(allowedResourcesAndProperties.Select(a => a.propertyName));
+
+        //asdfg
+        //private static readonly Regex[] excludedResourceTypesRegex =
+        //    (new string[]
+        //    {
+        //        // These are regex's (case-insensitive)
+        //        "^microsoft.portal/dashboards$",
+        //        "^microsoft.logic/workflows$",
+        //        "^microsoft.ApiManagement/service/backends$",
+        //        "^Microsoft.Web/sites/config",
+        //        // Skip for Microsoft.DocumentDb/databaseAccounts/mongodbDatabases/collections
+        //        // and for "other collections" on docDB
+        //        @"^Microsoft\.DocumentDb/databaseAccounts/\w{0,}/collections$",
+        //    }).Select(s => new Regex(s, RegexOptions.Compiled | RegexOptions.IgnoreCase)).ToArray();
 
         internal record Failure(
             ObjectPropertySyntax Property,
@@ -108,14 +134,19 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 if (resource.IsAzResource
                     && resource.Symbol.TryGetBodyPropertyValue(LanguageConstants.ResourcePropertiesPropertyName) is ObjectSyntax properties)
                 {
-                    // On excluded resources list?
-                    if (resource.TypeReference.FormatType() is not String resourceType
-                    || excludedResourceTypesRegex.Any(regex => regex.IsMatch(resourceType)))
+                    if (resource.TypeReference.FormatType() is not String resourceType)
                     {
                         continue;
                     }
 
-                    var visitor = new IdPropertyVisitor(model);
+                    Exclusion[] exclusionsMatchingResourceType = allowedResourcesAndProperties.Where(allowed => allowed.ResourceType is null || allowed.ResourceType.IsMatch(resourceType)).ToArray();
+                    if (exclusionsMatchingResourceType.Any(excl => excl.propertyName is null)) {
+                        // All properties on this resource type are excluded
+                        continue;
+                    }
+
+                    string[] excludedPropertiesForThisResource = exclusionsMatchingResourceType.Select(excl => excl.propertyName!).ToArray(); // propertyName can't be null in this list
+                    var visitor = new IdPropertyVisitor(model, excludedPropertiesForThisResource.ToArray());
                     properties.Accept(visitor);
 
                     foreach (Failure failure in visitor.Failures)
@@ -127,8 +158,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         var path = string.Join(" -> ", paths);
                         yield return CreateDiagnosticForSpan(
                             failure.Property.Key.Span,
-                            failure.Property.Key.ToText(),
-                            path);
+                            failure.Property.Key.ToText(),                            path);
                     }
                 }
             }
@@ -150,10 +180,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             public IEnumerable<Failure> Failures => failures;
 
             private readonly SemanticModel model;
+            private readonly string[] allowedPropertyNames;
 
-            internal IdPropertyVisitor(SemanticModel model)
+            internal IdPropertyVisitor(SemanticModel model, string[] allowedPropertyNames)
             {
                 this.model = model;
+                this.allowedPropertyNames = allowedPropertyNames;
             }
 
             private enum ResourceIdStatus
@@ -165,7 +197,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitObjectPropertySyntax(ObjectPropertySyntax propertySyntax)
             {
-                var status = IsResourceIdProperty(propertySyntax);
+                var status = IsResourceIdProperty(propertySyntax, allowedPropertyNames);
                 switch (status)
                 {
                     case ResourceIdStatus.NotResourceId:
@@ -186,15 +218,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 base.VisitObjectPropertySyntax(propertySyntax);
             }
 
-            private static ResourceIdStatus IsResourceIdProperty(ObjectPropertySyntax PropertySyntax)
+            private static ResourceIdStatus IsResourceIdProperty(ObjectPropertySyntax PropertySyntax, string[] allowedPropertyNames)
             {
                 if (PropertySyntax.TryGetKeyText() is not string propertyName)
                 {
                     return ResourceIdStatus.NotResourceId;
                 }
 
-                // In our exception list?
-                if (excludedProperties.Contains(propertyName))
+                // In our always-allowed list?
+                if (allowedPropertyNames.Any(prop => propertyName.EqualsOrdinalInsensitively(prop)))
                 {
                     return ResourceIdStatus.SkipChildren;
                 }
