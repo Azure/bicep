@@ -44,6 +44,7 @@
     "onCommand:bicep.insertResource",
     "onCommand:bicep.importKubernetesManifest",
     "onCommand:bicep.showSource",
+    "onCommand:bicep.showVisualEditor",
     "onCommand:bicep.showVisualizer",
     "onCommand:bicep.showVisualizerToSide",
     "onCommand:bicep.gettingStarted.copyToClipboard",
@@ -135,6 +136,12 @@
       }
     ],
     "commands": [
+      {
+        "command": "bicep.showVisualEditor",
+        "title": "Open Bicep Visual Editor",
+        "category": "Bicep",
+        "icon": "$(type-hierarchy-sub)"
+      },
       {
         "command": "bicep.showVisualizer",
         "title": "Open Bicep Visualizer",

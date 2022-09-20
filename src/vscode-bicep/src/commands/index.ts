@@ -10,4 +10,5 @@ export * from "./gettingStarted/WalkthroughOpenBicepFileCommand";
 export * from "./gettingStarted/WalkthroughCreateBicepFileCommand";
 export * from "./gettingStarted/WalkthroughCopyToClipboardCommand";
 export * from "./showSource";
+export * from "./showVisualEditor";
 export * from "./showVisualizer";

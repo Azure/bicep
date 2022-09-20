@@ -17,6 +17,7 @@ import {
   GenerateParamsCommand,
   InsertResourceCommand,
   ShowSourceCommand,
+  ShowVisualEditorCommand,
   ShowVisualizerCommand,
   ShowVisualizerToSideCommand,
   WalkthroughCopyToClipboardCommand,
@@ -125,6 +126,7 @@ export async function activate(
               outputChannelManager
             ),
             new InsertResourceCommand(languageClient),
+            new ShowVisualEditorCommand(viewManager),
             new ShowVisualizerCommand(viewManager),
             new ShowVisualizerToSideCommand(viewManager),
             new ShowSourceCommand(viewManager),
