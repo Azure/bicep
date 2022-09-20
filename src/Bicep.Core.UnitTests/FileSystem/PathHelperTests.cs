@@ -76,6 +76,13 @@ namespace Bicep.Core.UnitTests.FileSystem
         }
 
         [DataTestMethod]
+        [DynamicData(nameof(GetFilePathToFileUrlData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        public void FilePathToFileUrl_ShouldResolveCorrectly(string path, string expectedPath)
+        {
+            PathHelper.FilePathToFileUrl(path).LocalPath.Should().Be(expectedPath);
+        }
+
+        [DataTestMethod]
         [DynamicData(nameof(GetBuildOutputPathData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void GetDefaultBuildOutputPath_ShouldChangeExtensionCorrectly(string path, string expectedPath)
         {
@@ -111,6 +118,12 @@ namespace Bicep.Core.UnitTests.FileSystem
             yield return CreateFullPathRow(@"C:\test\foo.bicep");
             yield return CreateFullPathRow(@"\\reddog\Builds\branches\git_mgmt_governance_blueprint_master\test.bicep");
             yield return CreateFullPathRow(@"C:\test");
+            yield return CreateFullPathRow(@"C:\te st");
+            yield return CreateFullPathRow(@"C:\te%20st");
+            yield return CreateFullPathRow(@"C:\test\te%20st");
+            yield return CreateFullPathRow(@"C:\test\te st");
+            yield return CreateFullPathRow(@"C:\test\te%20st\foo.bicep");
+            yield return CreateFullPathRow(@"C:\test\te st\foo.bicep");
 
             yield return CreateRelativePathRow(@"test");
             yield return CreateRelativePathRow(@"test.bicep");
@@ -128,6 +141,26 @@ namespace Bicep.Core.UnitTests.FileSystem
             yield return CreateRelativePathRow(@"folder/test.bicep");
             yield return CreateRelativePathRow(@"deeper/folder/test.bicep");
             yield return CreateRelativePathRow(@"/deeper/folder/test.bicep");
+#endif
+        }
+
+        private static IEnumerable<object[]> GetFilePathToFileUrlData()
+        {
+            // local function
+            object[] CreateFullPathRow(string path) => CreateRow(path, path);
+
+#if WINDOWS_BUILD
+            yield return CreateFullPathRow(@"C:\test");
+            yield return CreateFullPathRow(@"C:\te st");
+            yield return CreateFullPathRow(@"C:\te%20st");
+            yield return CreateFullPathRow(@"C:\test\te%20st");
+            yield return CreateFullPathRow(@"C:\test\te st");
+            yield return CreateFullPathRow(@"C:\test\te%20st\foo.bicep");
+            yield return CreateFullPathRow(@"C:\test\te st\foo.bicep");
+            yield return CreateFullPathRow(@"C:\test\te%20st\foo.bicep");
+            yield return CreateFullPathRow(@"C:\test\te%2Ast\foo.bicep");
+            yield return CreateFullPathRow(@"C:\test\te%00st\foo.bicep");
+            yield return CreateFullPathRow(@"C:\test\te%ZZst\foo.bicep");
 #endif
         }
 
