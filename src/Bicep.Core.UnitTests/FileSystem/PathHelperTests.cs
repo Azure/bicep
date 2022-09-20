@@ -161,6 +161,18 @@ namespace Bicep.Core.UnitTests.FileSystem
             yield return CreateFullPathRow(@"C:\test\te%2Ast\foo.bicep");
             yield return CreateFullPathRow(@"C:\test\te%00st\foo.bicep");
             yield return CreateFullPathRow(@"C:\test\te%ZZst\foo.bicep");
+#else
+            yield return CreateFullPathRow(@"/lib/var/test");
+            yield return CreateFullPathRow(@"/lib/var/te st");
+            yield return CreateFullPathRow(@"/lib/var/te%20st");
+            yield return CreateFullPathRow(@"/lib/var/test/te%20st");
+            yield return CreateFullPathRow(@"/lib/var/test/te st");
+            yield return CreateFullPathRow(@"/lib/var/test/te%20st/foo.bicep");
+            yield return CreateFullPathRow(@"/lib/var/test/te st/foo.bicep");
+            yield return CreateFullPathRow(@"/lib/var/test/te%20st/foo.bicep");
+            yield return CreateFullPathRow(@"/lib/var/test/te%2Ast/foo.bicep");
+            yield return CreateFullPathRow(@"/lib/var/test/te%00st/foo.bicep");
+            yield return CreateFullPathRow(@"/lib/var/test/te%ZZst/foo.bicep");
 #endif
         }
 
