@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -19,8 +21,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public const int MaxNumber = 256;
 
         private static readonly Regex HasSecretRegex = new("password|pwd|secret|accountkey|acctkey", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-        private static readonly Regex IsType = new("string|object", RegexOptions.Compiled);
 
         // Allow certain patterns we know about in ARM
         private static readonly Regex AllowedRegex = new(
@@ -64,8 +64,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private IDiagnostic? AnalyzeUnsecuredParameter(ParameterSymbol parameterSymbol)
         {
             string name = parameterSymbol.Name;
-            string type = parameterSymbol.Type.ToString();
-            if (IsType.IsMatch(type))
+            TypeSymbol type = parameterSymbol.Type;
+            if (type.IsObject() || type.IsString())
             {
                 if (HasSecretRegex.IsMatch(name))
                 {

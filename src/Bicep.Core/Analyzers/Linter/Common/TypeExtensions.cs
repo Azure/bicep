@@ -10,10 +10,19 @@ namespace Bicep.Core.Analyzers.Linter.Common
         /// <summary>
         /// True if the given type symbol is a string type (and not "any")
         /// </summary>
-        public static bool IsStrictlyAssignableToString(this TypeSymbol typeSymbol)
+        public static bool IsString(this TypeSymbol typeSymbol)
         {
             return typeSymbol is not AnyType
                 && TypeValidator.AreTypesAssignable(typeSymbol, LanguageConstants.String);
+        }
+
+        /// <summary>
+        /// True if the given type symbol is an object type (and not "any")
+        /// </summary>
+        public static bool IsObject(this TypeSymbol typeSymbol)
+        {
+            return typeSymbol is not AnyType
+                && TypeValidator.AreTypesAssignable(typeSymbol, LanguageConstants.Object);
         }
     }
 }
