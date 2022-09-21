@@ -48,6 +48,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
+            //asdfg
             var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
             var model = compilation.GetEntrypointSemanticModel();
 
