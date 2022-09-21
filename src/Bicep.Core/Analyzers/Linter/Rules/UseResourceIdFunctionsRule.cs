@@ -143,7 +143,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         var path = string.Join(" -> ", paths);
                         yield return CreateDiagnosticForSpan(
                             failure.Property.Key.Span,
-                            failure.Property.Key.ToText(),                            path);
+                            failure.Property.Key.ToText(),
+                            path);
                     }
                 }
             }
