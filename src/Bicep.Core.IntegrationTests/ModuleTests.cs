@@ -36,7 +36,7 @@ namespace Bicep.Core.IntegrationTests
 
         private IFeatureProvider ResourceTypedFeatures => BicepTestConstants.CreateFeaturesProvider(TestContext, resourceTypedParamsAndOutputsEnabled: true);
 
-        private CompilationHelper.CompilationHelperContext ResourceTypedFeatureContext => new CompilationHelper.CompilationHelperContext(Features: ResourceTypedFeatures);
+        private CompilationHelper.Options ResourceTypedFeatureContext => new CompilationHelper.Options(Features: ResourceTypedFeatures);
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -395,7 +395,7 @@ module modulea 'modulea.bicep' = {
         [TestMethod]
         public void External_module_reference_with_unknown_scheme_should_be_rejected()
         {
-            var context = new CompilationHelper.CompilationHelperContext(Features: BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true));
+            var context = new CompilationHelper.Options(Features: BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true));
             var result = CompilationHelper.Compile(context, @"module test 'fake:totally-fake' = {}");
 
             result.Should().HaveDiagnostics(new[]
@@ -407,7 +407,7 @@ module modulea 'modulea.bicep' = {
         [TestMethod]
         public void External_module_reference_with_oci_scheme_should_be_rejected_if_registry_disabled()
         {
-            var context = new CompilationHelper.CompilationHelperContext(Features: BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: false));
+            var context = new CompilationHelper.Options(Features: BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: false));
             var result = CompilationHelper.Compile(context, @"module test 'br:totally-fake' = {}");
 
             result.Should().HaveDiagnostics(new[]
@@ -535,7 +535,7 @@ output out string = p.properties.accessTier
         [DataRow(false)]
         public void Module_can_pass_resource_body_as_object_typed_parameter(bool enableResourceTypeParameters)
         {
-            var context = enableResourceTypeParameters ? ResourceTypedFeatureContext : new CompilationHelper.CompilationHelperContext();
+            var context = enableResourceTypeParameters ? ResourceTypedFeatureContext : new CompilationHelper.Options();
             var result = CompilationHelper.Compile(
                 context,
 ("main.bicep", @"

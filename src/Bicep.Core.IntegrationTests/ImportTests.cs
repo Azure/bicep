@@ -50,8 +50,8 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private CompilationHelper.CompilationHelperContext EnabledImportsContext
-            => new CompilationHelper.CompilationHelperContext(Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true));
+        private CompilationHelper.Options EnabledImportsContext
+            => new CompilationHelper.Options(Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true));
 
         [TestMethod]
         public void Imports_are_disabled_unless_feature_is_enabled()
@@ -218,7 +218,7 @@ import sys as sys2
                     new EmptyResourceTypeProvider()),
             });
 
-            var context = new CompilationHelper.CompilationHelperContext(
+            var context = new CompilationHelper.Options(
                 Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true),
                 NamespaceProvider: nsProvider);
 
@@ -275,7 +275,7 @@ output ns2Result string = ns2Func()
                     new EmptyResourceTypeProvider()),
             });
 
-            var context = new CompilationHelper.CompilationHelperContext(
+            var context = new CompilationHelper.Options(
                 Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true),
                 NamespaceProvider: nsProvider);
 

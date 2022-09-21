@@ -2862,7 +2862,7 @@ output contentVersion string = deployment().properties.template.contentVersion
         [TestMethod]
         public void Test_Issue6044()
         {
-            var context = new CompilationHelper.CompilationHelperContext(
+            var context = new CompilationHelper.Options(
                 Features: BicepTestConstants.CreateFeaturesProvider(TestContext, symbolicNameCodegenEnabled: true));
 
             var result = CompilationHelper.Compile(context, @"

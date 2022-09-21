@@ -107,7 +107,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             Options? options)
         {
             options ??= new Options();
-            var context = new CompilationHelper.CompilationHelperContext(Configuration: options.Configuration, ApiVersionProvider: options.ApiVersionProvider);
+            var context = new CompilationHelper.Options(Configuration: options.Configuration, ApiVersionProvider: options.ApiVersionProvider);
             var result = CompilationHelper.Compile(context, files);
             using (new AssertionScope().WithFullSource(result.BicepFile))
             {

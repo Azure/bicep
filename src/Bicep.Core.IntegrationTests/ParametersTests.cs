@@ -21,12 +21,12 @@ namespace Bicep.Core.IntegrationTests
     {
         private IFeatureProvider ResourceTypedFeatures => BicepTestConstants.CreateFeaturesProvider(TestContext, resourceTypedParamsAndOutputsEnabled: true);
 
-        private CompilationHelper.CompilationHelperContext ResourceTypedFeatureContext => new CompilationHelper.CompilationHelperContext(Features: ResourceTypedFeatures);
+        private CompilationHelper.Options ResourceTypedFeatureContext => new CompilationHelper.Options(Features: ResourceTypedFeatures);
 
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private CompilationHelper.CompilationHelperContext GetExtensibilityCompilationContext()
+        private CompilationHelper.Options GetExtensibilityCompilationContext()
         {
             var features = BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true, resourceTypedParamsAndOutputsEnabled: true);
             var resourceTypeLoader = BicepTestConstants.AzResourceTypeLoader;

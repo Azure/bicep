@@ -19,13 +19,13 @@ namespace Bicep.Core.IntegrationTests
     {
         private IFeatureProvider ResourceTypedFeatures => BicepTestConstants.CreateFeaturesProvider(TestContext, resourceTypedParamsAndOutputsEnabled: true);
 
-        private CompilationHelper.CompilationHelperContext ResourceTypedFeatureContext => new CompilationHelper.CompilationHelperContext(Features: ResourceTypedFeatures);
+        private CompilationHelper.Options ResourceTypedFeatureContext => new CompilationHelper.Options(Features: ResourceTypedFeatures);
 
 
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private CompilationHelper.CompilationHelperContext GetExtensibilityCompilationContext()
+        private CompilationHelper.Options GetExtensibilityCompilationContext()
         {
             var features = BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true, resourceTypedParamsAndOutputsEnabled: true);
             var resourceTypeLoader = BicepTestConstants.AzResourceTypeLoader;
@@ -119,7 +119,7 @@ output out resource 'Microsoft.Storage/storageAccounts@2019-06-01' = resource
         [DataRow(false)]
         public void Output_can_have_object_type(bool enableResourceTypeParameters)
         {
-            var context = enableResourceTypeParameters ? ResourceTypedFeatureContext :  new CompilationHelper.CompilationHelperContext();
+            var context = enableResourceTypeParameters ? ResourceTypedFeatureContext :  new CompilationHelper.Options();
             var result = CompilationHelper.Compile(context, @"
 resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: 'test'

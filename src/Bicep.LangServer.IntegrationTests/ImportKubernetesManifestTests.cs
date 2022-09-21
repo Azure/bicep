@@ -64,7 +64,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             bicepFile.ShouldHaveExpectedValue();
 
-            var context = new CompilationHelper.CompilationHelperContext(Features: features);
+            var context = new CompilationHelper.Options(Features: features);
             CompilationHelper.Compile(context, bicepFile.ReadFromOutputFolder()).Should().GenerateATemplate();
         }
 
