@@ -75,17 +75,32 @@ namespace Bicep.Core.UnitTests.Utils
             }
         }
 
-        public static CompilationResult Compile(Uri entryUri, IReadOnlyDictionary<Uri, string> bicepFiles, CompilationHelperContext? context = null)
+        public static Compilation CreateCompilation(SourceFileGrouping sourceFileGrouping, CompilationHelperContext? context = null)
         {
-            var a = new CompilationHelperContext();
-
             context ??= new();
-            var fileResolver = new InMemoryFileResolver(bicepFiles);
-
-            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(bicepFiles, entryUri, fileResolver, context.Configuration, context.Features);
-
-            return Compile(context, new Compilation(context.Features ?? BicepTestConstants.Features, context.NamespaceProvider, sourceFileGrouping, context.Configuration, context.ApiVersionProvider, context.LinterAnalyzer));
+            return new Compilation(
+                context.Features,
+                context.NamespaceProvider,
+                sourceFileGrouping,
+                context.Configuration,
+                context.ApiVersionProvider,
+                context.LinterAnalyzer);
         }
+
+        public static CompilationResult Compile(CompilationHelperContext context, string fileContents)
+            => Compile(fileContents, context);
+
+        public static CompilationResult Compile(string fileContents, CompilationHelperContext? context = null)
+            => Compile(context ?? new(), ("main.bicep", fileContents));
+
+        public static CompilationResult Compile(SourceFileGrouping sourceFileGrouping, CompilationHelperContext? context = null)
+        {
+            context ??= new();
+            return Compile(CreateCompilation(sourceFileGrouping, context), context);
+        }
+
+        public static CompilationResult Compile(params (string fileName, string fileContents)[] files)
+            => Compile(new CompilationHelperContext(), files);
 
         public static CompilationResult Compile(CompilationHelperContext context, params (string fileName, string fileContents)[] files)
         {
@@ -99,20 +114,21 @@ namespace Bicep.Core.UnitTests.Utils
 
             var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(uriDictionary, entryUri, fileResolver, context.Configuration, context.Features);
 
-            return Compile(context, new Compilation(context.Features ?? BicepTestConstants.Features, context.NamespaceProvider, sourceFileGrouping, context.Configuration, context.ApiVersionProvider, context.LinterAnalyzer));
+            return Compile(sourceFileGrouping, context);
+        }
+
+        public static CompilationResult Compile(Uri entryUri, IReadOnlyDictionary<Uri, string> bicepFiles, CompilationHelperContext? context = null)
+        {
+            context ??= new();
+            var fileResolver = new InMemoryFileResolver(bicepFiles);
+
+            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(bicepFiles, entryUri, fileResolver, context.Configuration, context.Features);
+
+            return Compile(sourceFileGrouping, context);
         }
 
         public static CompilationResult Compile(IAzResourceTypeLoader resourceTypeLoader, params (string fileName, string fileContents)[] files)
             => Compile(new CompilationHelperContext(AzResourceTypeLoader: resourceTypeLoader), files);
-
-        public static CompilationResult Compile(params (string fileName, string fileContents)[] files)
-            => Compile(new CompilationHelperContext(), files);
-
-        public static CompilationResult Compile(string fileContents)
-            => Compile(("main.bicep", fileContents));
-
-        public static CompilationResult Compile(CompilationHelperContext context, string fileContents)
-            => Compile(context, ("main.bicep", fileContents));
 
         public static ParamsCompilationResult CompileParams(Uri entryUri, IReadOnlyDictionary<Uri, string> bicepFiles, CompilationHelperContext? context = null)
         {
@@ -125,10 +141,10 @@ namespace Bicep.Core.UnitTests.Utils
             {
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
-                return new Compilation(context.Features, context.NamespaceProvider, compilationGrouping, context.Configuration, context.ApiVersionProvider, context.LinterAnalyzer);
+                return CreateCompilation(compilationGrouping, context);
             });
 
-            return CompileParams(context, model);
+            return CompileParams(model, context);
         }
 
         public static ParamsCompilationResult CompileParams(CompilationHelperContext context, params (string fileName, string fileContents)[] files)
@@ -149,10 +165,10 @@ namespace Bicep.Core.UnitTests.Utils
             {
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
-                return new Compilation(context.Features, context.NamespaceProvider, compilationGrouping, context.Configuration, context.ApiVersionProvider, context.LinterAnalyzer);
+                return CreateCompilation(compilationGrouping, context);
             });
 
-            return CompileParams(context, model);
+            return CompileParams(model, context);
         }
 
         public static ParamsCompilationResult CompileParams(params (string fileName, string fileContents)[] files)
@@ -173,7 +189,7 @@ namespace Bicep.Core.UnitTests.Utils
             return (uriDictionary, entryUri);
         }
 
-        private static CompilationResult Compile(CompilationHelperContext context, Compilation compilation)
+        private static CompilationResult Compile(Compilation compilation, CompilationHelperContext context)
         {
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), context.EmitterSettings);
 
@@ -197,7 +213,7 @@ namespace Bicep.Core.UnitTests.Utils
             return new(template, diagnostics, compilation);
         }
 
-        private static ParamsCompilationResult CompileParams(CompilationHelperContext context, ParamsSemanticModel semanticModel)
+        private static ParamsCompilationResult CompileParams(ParamsSemanticModel semanticModel, CompilationHelperContext context)
         {
             var emitter = new ParametersEmitter(semanticModel, context.EmitterSettings);
 
@@ -220,5 +236,6 @@ namespace Bicep.Core.UnitTests.Utils
 
             return new(template, diagnostics, semanticModel);
         }
+
     }
 }
