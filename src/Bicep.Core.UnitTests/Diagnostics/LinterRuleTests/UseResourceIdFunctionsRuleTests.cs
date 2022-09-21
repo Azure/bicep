@@ -1886,5 +1886,38 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     // pass
                 });
         }
+
+        [TestMethod]
+        public void Regress8410()
+        {
+            CompileAndTest(
+                @"
+                    targetScope = 'tenant'
+
+                    param parTopLevelManagementGroupPrefix string
+                    param parTopLevelManagementGroupDisplayName string
+                    param parTopLevelManagementGroupParentId string
+
+                    resource resTopLevelMg 'Microsoft.Management/managementGroups@2021-04-01' = {
+                      name: parTopLevelManagementGroupPrefix
+                      properties: {
+                        displayName: parTopLevelManagementGroupDisplayName
+                        details: {
+                          parent: {
+                    #disable-next-line BCP037
+                            oneId: (empty(parTopLevelManagementGroupParentId) ? '/providers/Microsoft.Management/managementGroups/${tenant().tenantId}' : parTopLevelManagementGroupParentId)
+
+                    #disable-next-line BCP037
+                            twoId: empty(parTopLevelManagementGroupParentId) ? '/providers/Microsoft.Management/managementGroups/${tenant().tenantId}' : parTopLevelManagementGroupParentId
+                          }
+                        }
+                      }
+                    }
+",
+                expectedMessages: new string[]
+                {
+                    // asdfg
+                });
+        }
     }
 }
