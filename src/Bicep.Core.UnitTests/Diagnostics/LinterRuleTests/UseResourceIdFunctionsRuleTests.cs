@@ -1618,6 +1618,27 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 // pass
             },
             DisplayName = "subnets")]
+        [DataRow(@"
+                param cosmosName string
+                param cosmosAccountDatabaseScope string
+
+                var devAadGroupIds = [
+                  '25f41063-9986-4445-b0d5-e24b1a370d5e'
+                  '621dc9d5-008d-4b72-bfdb-bed87e2a039a'
+                ]
+
+                @batchSize(1)
+                resource developerRoleAssignments 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2022-05-15' = [for devId in devAadGroupIds: {
+                  name: '${cosmosName}/${devId}'
+                  properties: {
+                    roleDefinitionId: '00000000-0000-0000-0000-000000000001' // Read Access
+                    principalId: devId
+                    scope: cosmosAccountDatabaseScope
+                  }
+                }]
+            ",
+            DisplayName = "Regress #8424"
+        )]
         [DataTestMethod]
         public void Test(string text, params string[] expectedMessages)
         {
