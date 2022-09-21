@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -63,6 +64,9 @@ namespace Bicep.Core.Registry
         {
             return !this.FileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.TypesIndex));
         }
+
+        public async Task<ImmutableArray<AzureContainerRegistryManager.TypeProvider>> GetAvailableTypeProviders(RootConfiguration configuration, Uri registryUri)
+            => await this.client.GetAvailableTypeProviders(configuration, registryUri);
 
         public async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreTypes(RootConfiguration configuration, IEnumerable<OciArtifactModuleReference> references)
         {

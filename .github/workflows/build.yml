@@ -232,6 +232,7 @@ jobs:
   build-vs-ext:
     name: Build Visual Studio Extension
     runs-on: windows-latest
+    if: false # commented out to get fast builds for hackathon
 
     steps:
       - uses: actions/checkout@v3
@@ -505,6 +506,7 @@ jobs:
     name: Test Bicep (${{ matrix.rid }})
     runs-on: ${{ matrix.os }}
     needs: build-cli
+    if: false # commented out to get fast builds for hackathon
 
     strategy:
       # let us get failures from other jobs even if one fails

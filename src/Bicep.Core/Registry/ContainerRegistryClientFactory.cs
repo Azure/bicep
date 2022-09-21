@@ -38,5 +38,14 @@ namespace Bicep.Core.Registry
 
             return new(registryUri, repository, options);
         }
+
+        public ContainerRegistryClient CreateAnonymousRegistryClient(RootConfiguration configuration, Uri registryUri)
+        {
+            var options = new ContainerRegistryClientOptions();
+            options.Diagnostics.ApplySharedContainerRegistrySettings();
+            options.Audience = new ContainerRegistryAudience(configuration.Cloud.ResourceManagerAudience);
+
+            return new(registryUri, options);
+        }
     }
 }

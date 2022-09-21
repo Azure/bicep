@@ -8,6 +8,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -27,6 +28,32 @@ namespace Bicep.Core.Registry
         public AzureContainerRegistryManager(IContainerRegistryClientFactory clientFactory)
         {
             this.clientFactory = clientFactory;
+        }
+
+        public record TypeProvider(string Name, string Version);
+
+        public async Task<ImmutableArray<TypeProvider>> GetAvailableTypeProviders(RootConfiguration configuration, Uri registryUri)
+        {
+            var client = this.clientFactory.CreateAnonymousRegistryClient(configuration, registryUri);
+            var definitions = new List<TypeProvider>();
+            await foreach (var repositoryName in client.GetRepositoryNamesAsync())
+            {
+                if (!repositoryName.EndsWith("/types"))
+                {
+                    continue;
+                }
+
+                var providerName = repositoryName.Substring(0, repositoryName.LastIndexOf("/types"));
+                await foreach (var manifestProperties in client.GetRepository(repositoryName).GetAllManifestPropertiesAsync())
+                {
+                    foreach (var tag in manifestProperties.Tags)
+                    {
+                        definitions.Add(new(providerName, tag));
+                    }
+                }
+            }
+
+            return definitions.ToImmutableArray();
         }
 
         public async Task<OciArtifactResult> PullArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference moduleReference, string expectedLayerMediaType, bool anonymousOnly)
