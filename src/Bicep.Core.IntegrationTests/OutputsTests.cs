@@ -119,7 +119,7 @@ output out resource 'Microsoft.Storage/storageAccounts@2019-06-01' = resource
         [DataRow(false)]
         public void Output_can_have_object_type(bool enableResourceTypeParameters)
         {
-            var context = enableResourceTypeParameters ? ResourceTypedFeatureContext :  new CompilationHelper.Options();
+            var context = enableResourceTypeParameters ? ResourceTypedFeatureContext : new CompilationHelper.Options();
             var result = CompilationHelper.Compile(context, @"
 resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: 'test'
@@ -191,7 +191,7 @@ resource resource 'Some.Fake/Type@2019-06-01' = {
 }
 output out resource 'Some.Fake/Type@2019-06-01' = resource
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 // There are two warnings because there are two places in code to correct the missing type.
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available."),
@@ -210,7 +210,7 @@ resource resource 'Some.Fake/Type@2019-06-01' = {
 }
 output out resource = resource
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Some.Fake/Type@2019-06-01\" does not have types available."),
             });
@@ -229,7 +229,7 @@ resource container 'stg:container' = {
 }
 output out resource = container
 ");
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP228", DiagnosticLevel.Error, "The type \"container\" cannot be used as an output type. Extensibility types are currently not supported as parameters or outputs."),
             });

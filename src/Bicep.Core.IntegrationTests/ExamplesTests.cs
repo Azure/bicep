@@ -42,7 +42,7 @@ namespace Bicep.Core.IntegrationTests
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFile.OutputFilePath), configuration);
-            var compilation = new Compilation(features, new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoader, features), sourceFileGrouping, configuration,BicepTestConstants.ApiVersionProvider, new LinterAnalyzer(configuration));
+            var compilation = CompilationHelper.CreateCompilation(sourceFileGrouping, new(Features: features, Configuration: configuration));
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new EmitterSettings(features));
 
             foreach (var (file, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())

@@ -218,11 +218,11 @@ import sys as sys2
                     new EmptyResourceTypeProvider()),
             });
 
-            var context = new CompilationHelper.Options(
+            var options = new CompilationHelper.Options(
                 Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true),
                 NamespaceProvider: nsProvider);
 
-            var result = CompilationHelper.Compile(context, @"
+            var result = CompilationHelper.Compile(options, @"
 import ns1 as ns1
 import ns2 as ns2
 
@@ -236,7 +236,7 @@ output ns2Result string = ns2Func()
             });
 
             // fix by fully-qualifying
-            result = CompilationHelper.Compile(context, @"
+            result = CompilationHelper.Compile(options, @"
 import ns1 as ns1
 import ns2 as ns2
 
@@ -275,11 +275,11 @@ output ns2Result string = ns2Func()
                     new EmptyResourceTypeProvider()),
             });
 
-            var context = new CompilationHelper.Options(
+            var options = new CompilationHelper.Options(
                 Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true),
                 NamespaceProvider: nsProvider);
 
-            var result = CompilationHelper.Compile(context, @"
+            var result = CompilationHelper.Compile(options, @"
 import mockNs as ns1 {
   optionalConfig: 'blah blah'
 }
