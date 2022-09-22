@@ -147,7 +147,6 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
             id: (((i % 2) == 0) ? subnet1Ref : subnet2Ref)
-//@[12:14) [use-resource-id-functions (Warning)] If property "id" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-resource-id-functions)) |id|
           }
         }
       }
@@ -190,7 +189,7 @@ resource myvm 'Microsoft.Compute/virtualMachines@2020-06-01' = [for i in range(0
   }
   dependsOn: [
     resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')
-//@[04:64) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (CodeDescription: none) |resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')|
+//@[4:64) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (CodeDescription: none) |resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')|
     availabilitySetName
   ]
 }]
