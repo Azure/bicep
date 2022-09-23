@@ -21,7 +21,7 @@ namespace Bicep.Core.IntegrationTests
     {
         private IFeatureProvider ResourceTypedFeatures => BicepTestConstants.CreateFeaturesProvider(TestContext, resourceTypedParamsAndOutputsEnabled: true);
 
-        private CompilationHelper.Options ResourceTypedFeatureContext => new CompilationHelper.Options(Features: ResourceTypedFeatures);
+        private CompilationHelper.Options ResourceTypedFeatureContext => new CompilationHelper.Options(features: ResourceTypedFeatures);
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -33,9 +33,9 @@ namespace Bicep.Core.IntegrationTests
             var namespaceProvider = new TestExtensibilityNamespaceProvider(resourceTypeLoader, features);
 
             return new(
-                AzResourceTypeLoader: resourceTypeLoader,
-                Features: features,
-                NamespaceProvider: namespaceProvider);
+                azResourceTypeLoader: resourceTypeLoader,
+                features: features,
+                namespaceProvider: namespaceProvider);
         }
 
         [TestMethod]

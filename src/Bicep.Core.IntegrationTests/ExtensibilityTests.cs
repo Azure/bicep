@@ -25,13 +25,13 @@ namespace Bicep.Core.IntegrationTests
             var namespaceProvider = new TestExtensibilityNamespaceProvider(resourceTypeLoader, features);
 
             return new(
-                AzResourceTypeLoader: resourceTypeLoader,
-                Features: features,
-                NamespaceProvider: namespaceProvider);
+                azResourceTypeLoader: resourceTypeLoader,
+                features: features,
+                namespaceProvider: namespaceProvider);
         }
 
         private CompilationHelper.Options GetCompilationContext() =>
-            new(Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true));
+            new(features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true));
 
         [TestMethod]
         public void Storage_import_bad_config_is_blocked()

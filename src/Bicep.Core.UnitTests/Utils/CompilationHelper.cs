@@ -58,21 +58,21 @@ namespace Bicep.Core.UnitTests.Utils
             public LinterAnalyzer LinterAnalyzer { get; init; }
 
             public Options(
-                        IAzResourceTypeLoader? AzResourceTypeLoader = null,
-                        IFeatureProvider? Features = null,
-                        EmitterSettings? EmitterSettings = null,
-                        INamespaceProvider? NamespaceProvider = null,
-                        RootConfiguration? Configuration = null,
-                        ApiVersionProvider? ApiVersionProvider = null,
-                        LinterAnalyzer? LinterAnalyzer = null)
+                        IAzResourceTypeLoader? azResourceTypeLoader = null,
+                        IFeatureProvider? features = null,
+                        EmitterSettings? emitterSettings = null,
+                        INamespaceProvider? namespaceProvider = null,
+                        RootConfiguration? configuration = null,
+                        ApiVersionProvider? apiVersionProvider = null,
+                        LinterAnalyzer? linterAnalyzer = null)
             {
-                this.AzResourceTypeLoader = AzResourceTypeLoader ?? BicepTestConstants.AzResourceTypeLoader;
-                this.Features = Features ?? BicepTestConstants.Features;
-                this.NamespaceProvider = NamespaceProvider ?? new DefaultNamespaceProvider(this.AzResourceTypeLoader, this.Features);
-                this.EmitterSettings = EmitterSettings ?? new EmitterSettings(this.Features);
-                this.Configuration = Configuration ?? BicepTestConstants.BuiltInConfiguration;
-                this.ApiVersionProvider = ApiVersionProvider ?? BicepTestConstants.ApiVersionProvider;
-                this.LinterAnalyzer = LinterAnalyzer ?? new LinterAnalyzer(this.Configuration);
+                this.AzResourceTypeLoader = azResourceTypeLoader ?? BicepTestConstants.AzResourceTypeLoader;
+                this.Features = features ?? BicepTestConstants.Features;
+                this.NamespaceProvider = namespaceProvider ?? new DefaultNamespaceProvider(this.AzResourceTypeLoader, this.Features);
+                this.EmitterSettings = emitterSettings ?? new EmitterSettings(this.Features);
+                this.Configuration = configuration ?? BicepTestConstants.BuiltInConfiguration;
+                this.ApiVersionProvider = apiVersionProvider ?? BicepTestConstants.ApiVersionProvider;
+                this.LinterAnalyzer = linterAnalyzer ?? new LinterAnalyzer(this.Configuration);
             }
         }
 
@@ -129,7 +129,7 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         public static CompilationResult Compile(IAzResourceTypeLoader resourceTypeLoader, params (string fileName, string fileContents)[] files)
-            => Compile(new Options(AzResourceTypeLoader: resourceTypeLoader), files);
+            => Compile(new Options(azResourceTypeLoader: resourceTypeLoader), files);
 
         public static ParamsCompilationResult CompileParams(Uri entryUri, IReadOnlyDictionary<Uri, string> bicepFiles, Options? context = null)
         {

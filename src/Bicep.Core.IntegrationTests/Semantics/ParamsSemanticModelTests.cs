@@ -26,13 +26,13 @@ namespace Bicep.Core.IntegrationTests.Semantics
             var dispatcher = BicepTestConstants.ModuleDispatcher;
             var configuration = BicepTestConstants.BuiltInConfiguration;
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(paramsFilePath), configuration);
-            var compilation = CompilationHelper.CreateCompilation(sourceFileGrouping, new(Configuration: configuration));
+            var compilation = CompilationHelper.CreateCompilation(sourceFileGrouping, new(configuration: configuration)); // okay
 
             return new ParamsSemanticModel(sourceFileGrouping, file => {
                 var compilationGrouping = new SourceFileGrouping(BicepTestConstants.FileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
 
-                return CompilationHelper.CreateCompilation(sourceFileGrouping, new(Configuration: configuration));
+                return CompilationHelper.CreateCompilation(compilationGrouping, new(configuration: configuration));
             });
         }
 

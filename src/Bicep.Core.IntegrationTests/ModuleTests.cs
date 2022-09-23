@@ -36,7 +36,7 @@ namespace Bicep.Core.IntegrationTests
 
         private IFeatureProvider ResourceTypedFeatures => BicepTestConstants.CreateFeaturesProvider(TestContext, resourceTypedParamsAndOutputsEnabled: true);
 
-        private CompilationHelper.Options ResourceTypedFeatureOptions => new CompilationHelper.Options(Features: ResourceTypedFeatures);
+        private CompilationHelper.Options ResourceTypedFeatureOptions => new CompilationHelper.Options(features: ResourceTypedFeatures);
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -88,7 +88,7 @@ output outputb string = '${inputa}-${inputb}'
             };
 
 
-            var compilationResult = CompilationHelper.Compile(mainUri, files, new(Configuration: Configuration));
+            var compilationResult = CompilationHelper.Compile(mainUri, files, new(configuration: Configuration));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilationResult.Compilation);
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
@@ -118,7 +118,7 @@ module mainRecursive 'main.bicep' = {
             };
 
 
-            var compilationResult = CompilationHelper.Compile(mainUri, files, new(Configuration: Configuration));
+            var compilationResult = CompilationHelper.Compile(mainUri, files, new(configuration: Configuration));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilationResult.Compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
@@ -173,7 +173,7 @@ module main 'main.bicep' = {
             };
 
 
-            var compilationResult = CompilationHelper.Compile(mainUri, files, new(Configuration: Configuration));
+            var compilationResult = CompilationHelper.Compile(mainUri, files, new(configuration: Configuration));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilationResult.Compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
@@ -242,7 +242,7 @@ module modulea 'modulea.bicep' = {
 
             var compilationResult = CompilationHelper.Compile(
                 SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainFileUri, Configuration),
-                new(Configuration: Configuration));
+                new(configuration: Configuration));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilationResult.Compilation);
             diagnosticsByFile[mainFileUri].Should().HaveDiagnostics(new[] {
@@ -315,7 +315,7 @@ output outputc2 int = inputb + 1
             };
 
 
-            var compilationResult = CompilationHelper.Compile(mainUri, files, new(Configuration: Configuration));
+            var compilationResult = CompilationHelper.Compile(mainUri, files, new(configuration: Configuration));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilationResult.Compilation);
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
@@ -347,7 +347,7 @@ output outputc2 int = inputb + 1
                         moduleAUri,
                         BicepTestConstants.FileResolver,
                         Configuration),
-                    new(Configuration: Configuration)),
+                    new(configuration: Configuration)),
                 moduleATemplateHash);
 
             ModuleTemplateHashValidator(
@@ -360,7 +360,7 @@ output outputc2 int = inputb + 1
                         moduleBUri,
                         BicepTestConstants.FileResolver,
                         Configuration),
-                    new(Configuration: Configuration)),
+                    new(configuration: Configuration)),
                 moduleBTemplateHash);
 
             ModuleTemplateHashValidator(
@@ -372,7 +372,7 @@ output outputc2 int = inputb + 1
                         moduleCUri,
                         BicepTestConstants.FileResolver,
                         Configuration),
-                    new (Configuration:Configuration)),
+                    new (configuration:Configuration)),
                 moduleCTemplateHash);
         }
 
@@ -403,7 +403,7 @@ module modulea 'modulea.bicep' = {
 
             var compilationResult = CompilationHelper.Compile(
                 SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainUri, Configuration),
-                new(Configuration: Configuration));
+                new(configuration: Configuration));
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilationResult.Compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
@@ -414,7 +414,7 @@ module modulea 'modulea.bicep' = {
         [TestMethod]
         public void External_module_reference_with_unknown_scheme_should_be_rejected()
         {
-            var options = new CompilationHelper.Options(Features: BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true));
+            var options = new CompilationHelper.Options(features: BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true));
             var result = CompilationHelper.Compile(options, @"module test 'fake:totally-fake' = {}");
 
             result.Should().HaveDiagnostics(new[]
@@ -426,7 +426,7 @@ module modulea 'modulea.bicep' = {
         [TestMethod]
         public void External_module_reference_with_oci_scheme_should_be_rejected_if_registry_disabled()
         {
-            var options = new CompilationHelper.Options(Features: BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: false));
+            var options = new CompilationHelper.Options(features: BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: false));
             var result = CompilationHelper.Compile(options, @"module test 'br:totally-fake' = {}");
 
             result.Should().HaveDiagnostics(new[]

@@ -64,7 +64,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             bicepFile.ShouldHaveExpectedValue();
 
-            var options = new CompilationHelper.Options(Features: features);
+            var options = new CompilationHelper.Options(features: features);
             CompilationHelper.Compile(options, bicepFile.ReadFromOutputFolder()).Should().GenerateATemplate();
         }
 

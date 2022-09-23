@@ -269,7 +269,7 @@ this
 
         private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, IFeatureProvider features, string filePath)
         {
-            var compilation = CompilationHelper.CreateCompilation(sourceFileGrouping, new(Features: features));
+            var compilation = CompilationHelper.CreateCompilation(sourceFileGrouping, new(features: features, namespaceProvider: TestTypeHelper.CreateEmptyProvider(features)));
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new(features));
 
             using var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
@@ -278,7 +278,7 @@ this
 
         private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, IFeatureProvider features, MemoryStream memoryStream)
         {
-            var compilation = CompilationHelper.CreateCompilation(sourceFileGrouping, new(Features: features));
+            var compilation = CompilationHelper.CreateCompilation(sourceFileGrouping, new(features: features, namespaceProvider: TestTypeHelper.CreateEmptyProvider(features)));
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new(features));
 
             TextWriter tw = new StreamWriter(memoryStream);
@@ -290,7 +290,7 @@ this
             var model = new ParamsSemanticModel(sourceFileGrouping, file => {
                 var compilationGrouping = new SourceFileGrouping(BicepTestConstants.FileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
-                return CompilationHelper.CreateCompilation(sourceFileGrouping, new(Features: features));
+                return CompilationHelper.CreateCompilation(compilationGrouping, new(features: features, namespaceProvider: TestTypeHelper.CreateEmptyProvider(features)));
             });
 
             var emitter = new ParametersEmitter(model, new(features));

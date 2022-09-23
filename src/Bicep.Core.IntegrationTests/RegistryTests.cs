@@ -67,7 +67,7 @@ namespace Bicep.Core.IntegrationTests
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
-            var compilation = CompilationHelper.CreateCompilation(sourceFileGrouping, new(Configuration: configuration));
+            var compilation = CompilationHelper.CreateCompilation(sourceFileGrouping, new(configuration: configuration));
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
             diagnostics.Should().HaveCount(1);
 

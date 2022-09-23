@@ -2863,7 +2863,7 @@ output contentVersion string = deployment().properties.template.contentVersion
         public void Test_Issue6044()
         {
             var options = new CompilationHelper.Options(
-                Features: BicepTestConstants.CreateFeaturesProvider(TestContext, symbolicNameCodegenEnabled: true));
+                features: BicepTestConstants.CreateFeaturesProvider(TestContext, symbolicNameCodegenEnabled: true));
 
             var result = CompilationHelper.Compile(options, @"
 var adminUsername = 'cooluser'
