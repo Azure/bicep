@@ -31,8 +31,8 @@ namespace Bicep.LanguageServer.Handlers
 
         public override Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request, CancellationToken cancellationToken)
         {
-            CompilationContext? context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
-            if (context == null)
+            var context = this.compilationManager.GetCompilation(request.TextDocument.Uri);
+            if (context is null)
             {
                 // we have not yet compiled this document, which shouldn't really happen
                 this.logger.LogError("Document symbol request arrived before file {Uri} could be compiled.", request.TextDocument.Uri);
@@ -76,60 +76,32 @@ namespace Bicep.LanguageServer.Handlers
         }
 
 
-        private SymbolKind SelectSymbolKind(DeclaredSymbol symbol)
+        private static SymbolKind SelectSymbolKind(DeclaredSymbol symbol) => symbol switch
         {
-            switch (symbol)
-            {
-                case ImportedNamespaceSymbol _:
-                    return SymbolKind.Namespace;
+            ImportedNamespaceSymbol => SymbolKind.Namespace,
+            ParameterSymbol => SymbolKind.Field,
+            VariableSymbol => SymbolKind.Variable,
+            ResourceSymbol => SymbolKind.Object,
+            ModuleSymbol => SymbolKind.Module,
+            OutputSymbol => SymbolKind.Interface,
+            ParameterAssignmentSymbol => SymbolKind.Constant,
+            _ => SymbolKind.Key,
+        };
 
-                case ParameterSymbol _:
-                    return SymbolKind.Field;
-
-                case VariableSymbol _:
-                    return SymbolKind.Variable;
-
-                case ResourceSymbol resource:
-                    return SymbolKind.Object;
-
-                case ModuleSymbol module:
-                    return SymbolKind.Module;
-
-                case OutputSymbol output:
-                    return SymbolKind.Interface;
-
-                default:
-                    return SymbolKind.Key;
-            }
-        }
-
-        private string FormatDetail(DeclaredSymbol symbol)
+        private static string FormatDetail(DeclaredSymbol symbol) => symbol switch
         {
-            switch (symbol)
-            {
-                case ParameterSymbol parameter:
-                    return parameter.Type.Name;
-
-                case VariableSymbol variable:
-                    return variable.Type.Name;
-
-                case ResourceSymbol resource:
-                    return resource.Type.Name;
-
-                case ModuleSymbol module:
-                    return module.Type.Name;
-
-                case OutputSymbol output:
-                    return output.Type.Name;
-
-                default:
-                    return string.Empty;
-            }
-        }
+            ParameterSymbol parameter => parameter.Type.Name,
+            VariableSymbol variable => variable.Type.Name,
+            ResourceSymbol resource => resource.Type.Name,
+            ModuleSymbol module => module.Type.Name,
+            OutputSymbol output => output.Type.Name,
+            ParameterAssignmentSymbol paramAssignment => paramAssignment.Type.Name,
+            _ => string.Empty,
+        };
 
         protected override DocumentSymbolRegistrationOptions CreateRegistrationOptions(DocumentSymbolCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.Create()
+            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams()
         };
     }
 }
