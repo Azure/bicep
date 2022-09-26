@@ -106,7 +106,7 @@ namespace Bicep.LangServer.IntegrationTests
                 creationOptions: new LanguageServer.Server.CreationOptions(
                     NamespaceProvider: BuiltInTestTypes.Create(),
                     FileResolver: fileResolver,
-                    Features: BicepTestConstants.CreateFeaturesProvider(TestContext, paramsFilesEnabled: true)));
+                    Features: BicepTestConstants.CreateFeatureProvider(TestContext, paramsFilesEnabled: true)));
 
             var semanticTokens = await helper.Client.TextDocument.RequestSemanticTokens(new SemanticTokensParams
             {

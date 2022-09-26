@@ -50,8 +50,7 @@
           "issues",
           "project_card"
         ]
-      },
-      "id": "AJ3udnuJO"
+      }
     },
     {
       "taskType": "trigger",
@@ -107,8 +106,7 @@
         "eventNames": [
           "issue_comment"
         ]
-      },
-      "id": "fHNFps6U3k"
+      }
     },
     {
       "taskType": "trigger",
@@ -152,8 +150,7 @@
           "issues",
           "project_card"
         ]
-      },
-      "id": "THYn9exjPt"
+      }
     },
     {
       "taskType": "trigger",
@@ -185,8 +182,7 @@
         "eventNames": [
           "issue_comment"
         ]
-      },
-      "id": "CL_Uln2JH3"
+      }
     },
     {
       "taskType": "scheduled",
@@ -287,8 +283,7 @@
             "parameters": {}
           }
         ]
-      },
-      "id": "Zx31A6BXsh"
+      }
     },
     {
       "taskType": "scheduled",
@@ -397,17 +392,86 @@
             }
           }
         ]
-      },
-      "id": "AQ5Neu8huT"
+      }
     },
     {
       "taskType": "trigger",
       "capabilityId": "CodeFlowLink",
       "subCapability": "CodeFlowLink",
       "version": "1.0",
-      "id": "OOSgPb5Ot1eCZV8joG88U",
       "config": {
         "taskName": "Adds a link to a pull request body that allows Microsoft reviewers to open the pull request in CodeFlow"
+      }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "IssueResponder",
+      "subCapability": "PullRequestResponder",
+      "version": "1.0",
+      "config": {
+        "conditions": {
+          "operator": "and",
+          "operands": [
+            {
+              "name": "hasLabel",
+              "parameters": {
+                "label": "dependencies"
+              }
+            },
+            {
+              "operator": "not",
+              "operands": [
+                {
+                  "name": "hasLabel",
+                  "parameters": {
+                    "label": "auto-merge"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "isActivitySender",
+              "parameters": {
+                "user": "dependabot[bot]"
+              }
+            }
+          ]
+        },
+        "eventType": "pull_request",
+        "eventNames": [
+          "pull_request",
+          "issues",
+          "project_card"
+        ],
+        "taskName": "Approve and apply \"auto-merge\" label to dependabot PRs",
+        "actions": [
+          {
+            "name": "approvePullRequest",
+            "parameters": {
+              "comment": ":shipit:"
+            }
+          },
+          {
+            "name": "addLabel",
+            "parameters": {
+              "label": "auto-merge"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "taskType": "trigger",
+      "capabilityId": "AutoMerge",
+      "subCapability": "AutoMerge",
+      "version": "1.0",
+      "config": {
+        "taskName": "Auto merge PRs",
+        "label": "auto-merge",
+        "minMinutesOpen": "5",
+        "mergeType": "squash",
+        "deleteBranches": true,
+        "allowAutoMergeInstructionsWithoutLabel": false
       }
     }
   ],

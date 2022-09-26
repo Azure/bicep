@@ -2864,7 +2864,7 @@ output contentVersion string = deployment().properties.template.contentVersion
         public void Test_Issue6044()
         {
             var context = new CompilationHelper.CompilationHelperContext(
-                Features: BicepTestConstants.CreateFeaturesProvider(TestContext, symbolicNameCodegenEnabled: true));
+                Features: BicepTestConstants.CreateFeatureProvider(TestContext, symbolicNameCodegenEnabled: true));
 
             var result = CompilationHelper.Compile(context, @"
 var adminUsername = 'cooluser'

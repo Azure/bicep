@@ -8,11 +8,13 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
   - package-ecosystem: "npm"
     directory: "/src/vscode-bicep"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
     ignore:
       # we're deliberately taking a dependency on an older version of vscode for back-compatibility
       - dependency-name: "@types/vscode"
@@ -21,28 +23,35 @@ updates:
   - package-ecosystem: "npm"
     directory: "/src/playground"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
   - package-ecosystem: "npm"
     directory: "/src/Bicep.Cli.E2eTests"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
   - package-ecosystem: "npm"
     directory: "/src/Bicep.MSBuild.E2eTests"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
   - package-ecosystem: "npm"
     directory: "/src/textmate"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
   - package-ecosystem: "npm"
     directory: "/src/highlightjs"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
   - package-ecosystem: "npm"
     directory: "/src/monarch"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"

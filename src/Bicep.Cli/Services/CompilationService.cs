@@ -147,7 +147,7 @@ namespace Bicep.Cli.Services
             }
 
             // to verify success we recompile and check for syntax errors.
-            await CompileAsync(decompilation.entrypointUri.AbsolutePath, skipRestore: true);
+            await CompileAsync(decompilation.entrypointUri.LocalPath, skipRestore: true);
 
             return decompilation;
         }

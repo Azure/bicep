@@ -41,9 +41,9 @@
       },
       "Azure.Deployments.Core": {
         "type": "Direct",
-        "requested": "[1.0.676, )",
-        "resolved": "1.0.676",
-        "contentHash": "QLzJX2p+ZcZ6Dc7NDVld5/YLQsZcFTkOOgBuxVMq7dukqeo8va+z/+f1hYPuP8nbc9RLNWOsYYzvjqyOeIgo7g==",
+        "requested": "[1.0.694, )",
+        "resolved": "1.0.694",
+        "contentHash": "kt0lN9Qp5y5yAyjNup3v+EK8b/csLD6PwDctn3PM3AFIPbLZqfrKVUjjCAHvvK7TKBLynRgTFIVYNrJD6AMvcw==",
         "dependencies": {
           "Microsoft.PowerPlatform.ResourceStack": "6.0.0.1323",
           "Newtonsoft.Json": "13.0.1",
@@ -52,11 +52,11 @@
       },
       "Azure.Deployments.Expression": {
         "type": "Direct",
-        "requested": "[1.0.676, )",
-        "resolved": "1.0.676",
-        "contentHash": "wjPRAFa3facZ9kJqsczBOabiSDKA45NJXhIBQEza4crNa9drOsJkHMy7uLlRW8Q63oaLBUGf411BF4jmrOSUXA==",
+        "requested": "[1.0.694, )",
+        "resolved": "1.0.694",
+        "contentHash": "iFawKKAMEG9GrpSwf/lG54r9IyxRY0S1gSHvAUQcNaSuGtIXIALN9nZzNCFNZQs+IeA5r4nLji8+91uQPJYO1A==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.0.676",
+          "Azure.Deployments.Core": "1.0.694",
           "Newtonsoft.Json": "13.0.1"
         }
       },
@@ -68,12 +68,12 @@
       },
       "Azure.Deployments.Templates": {
         "type": "Direct",
-        "requested": "[1.0.676, )",
-        "resolved": "1.0.676",
-        "contentHash": "a+5RyjYq/iMFCC+KvZUX3INoGCqLdE9HSVyUJCVJucDdP5iQCqIBbxXdVDBX1q4StV7Lacw3DRd5bXhLGz5liw==",
+        "requested": "[1.0.694, )",
+        "resolved": "1.0.694",
+        "contentHash": "pQz5ZfaZ9FZjWUm2g68OFgwGE8ErZvBROPxC4FwCQZIgk1Ma+CUL/SGJjZxxCHLqvx6PPYGLFBIYZSCqijqoyA==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.0.676",
-          "Azure.Deployments.Expression": "1.0.676",
+          "Azure.Deployments.Core": "1.0.694",
+          "Azure.Deployments.Expression": "1.0.694",
           "Newtonsoft.Json": "13.0.1"
         }
       },
@@ -198,9 +198,9 @@
       },
       "System.IO.Abstractions": {
         "type": "Direct",
-        "requested": "[17.1.1, )",
-        "resolved": "17.1.1",
-        "contentHash": "LWOM12Bd0kp/gaH4g1o/O2/6JDcHF/fuctF1IqDZt0aAqU2BwGiMihi9Cdcm5jJz8La1wFWbRPuRui8WeX6m8w=="
+        "requested": "[17.2.3, )",
+        "resolved": "17.2.3",
+        "contentHash": "VcozGeE4SxIo0cnXrDHhbrh/Gb8KQnZ3BvMelvh+iw0PrIKtuuA46U2Xm4e4pgnaWFgT4RdZfTpWl/WPRdw0WQ=="
       },
       "Azure.Core": {
         "type": "Transitive",

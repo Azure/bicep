@@ -20,7 +20,7 @@ namespace Bicep.Core.IntegrationTests
 
         private CompilationHelper.CompilationHelperContext GetCompilationContextWithTestExtensibilityProvider()
         {
-            var features = BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true);
+            var features = BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true);
             var resourceTypeLoader = BicepTestConstants.AzResourceTypeLoader;
             var namespaceProvider = new TestExtensibilityNamespaceProvider(resourceTypeLoader);
 
@@ -31,7 +31,7 @@ namespace Bicep.Core.IntegrationTests
         }
 
         private CompilationHelper.CompilationHelperContext GetCompilationContext() =>
-            new(Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true));
+            new(Features: BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true));
 
         [TestMethod]
         public void Storage_import_bad_config_is_blocked()
