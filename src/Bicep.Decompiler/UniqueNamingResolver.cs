@@ -4,11 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.AccessControl;
+using System.Text;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core;
 using Bicep.Decompiler.ArmHelpers;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Decompiler
 {
@@ -45,6 +49,10 @@ namespace Bicep.Decompiler
                 value = "_" + value;
             }
 
+            if (!identifier.EqualsOrdinally(value))
+            {
+                Trace.WriteLine($"EscapeIdentifier: \"{identifier}\" -> \"{value}\"");
+            }
             return value;
         }
 
@@ -88,12 +96,14 @@ namespace Bicep.Decompiler
                 {
                     [nameType] = desiredName,
                 };
+                Trace.WriteLine($"TryRequestName: Using desired name \"{desiredName}\"");
                 assignedNames[desiredName] = nameByType;
             }
             else
             {
                 if (nameByType.ContainsKey(nameType))
                 {
+                    Trace.WriteLine($"TryRequestName: \"{desiredName}\" -> NULL");
                     return null;
                 }
 
@@ -101,6 +111,7 @@ namespace Bicep.Decompiler
                 {
                     // output names can't clash with param/var/resource names
                     nameByType[nameType] = desiredName;
+                    Trace.WriteLine($"TryRequestName: Using desired name \"{desiredName}\"");
                 }
                 else if (!nameByType.ContainsKey(NameType.Parameter) && !nameByType.ContainsKey(NameType.Variable) && !nameByType.ContainsKey(NameType.Resource))
                 {
@@ -111,6 +122,7 @@ namespace Bicep.Decompiler
                 {
                     // TODO technically a naming clash is still possible here but unlikely
                     nameByType[nameType] = $"{desiredName}_{GetNamingSuffix(nameType)}";
+                    Trace.WriteLine($"TryRequestName: \"{desiredName}\" -> \"{nameByType[nameType]}\"");
                 }
             }
 
@@ -150,6 +162,8 @@ namespace Bicep.Decompiler
             return name;
         }
 
+        private Regex ResourceNameConverterRegex = new Regex("Name$");
+
         public string? TryRequestResourceName(string typeString, LanguageExpression nameExpression)
         {
             // normalize strings - this flattens nested format() and concat() expressions, and outputs via concat()
@@ -161,12 +175,15 @@ namespace Bicep.Decompiler
             var assignedResourceKey = GetResourceNameKey(typeString, nameExpression);
             var nameString = GetNameRecursive(nameExpression);
 
+            nameString = ResourceNameConverterRegex.Replace(nameString, "");
+
             // try to get a shorter name first if possible
             // if we've got two resources of different types with the same name, we may be forced to qualify it
             var unqualifiedName = TryRequestNameCore(NameType.Resource, nameString, isGenerated: true);
             if (unqualifiedName != null)
             {
                 assignedResourceNames[assignedResourceKey] = unqualifiedName;
+                Trace.WriteLine($"TryRequestResourceName: Using unqualified name \"{unqualifiedName}\"");
                 return unqualifiedName;
             }
 
@@ -174,9 +191,11 @@ namespace Bicep.Decompiler
             if (qualifiedName != null)
             {
                 assignedResourceNames[assignedResourceKey] = qualifiedName;
+                Trace.WriteLine($"TryRequestResourceName: Using qualified name \"{qualifiedName}\"");
                 return qualifiedName;
             }
 
+            Trace.WriteLine($"TryRequestResourceName: \"{unqualifiedName}\" -> NULL");
             return null;
         }
 
