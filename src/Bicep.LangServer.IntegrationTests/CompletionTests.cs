@@ -83,7 +83,7 @@ namespace Bicep.LangServer.IntegrationTests
             ServerWithImportsEnabled.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
-                    new LanguageServer.Server.CreationOptions(Features: BicepTestConstants.CreateFeaturesProvider(testContext, importsEnabled: true))));
+                    new LanguageServer.Server.CreationOptions(Features: BicepTestConstants.CreateFeatureProvider(testContext, importsEnabled: true))));
 
             ServerWithBuiltInTypes.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(

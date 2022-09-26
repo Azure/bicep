@@ -298,6 +298,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             }
                         }
                         break;
+                    case ParenthesizedExpressionSyntax parenthesizedExpressionSyntax:
+                        // Analyze inside parentheses
+                        return AnalyzeIdPropertyValue(model, propertySyntax, parenthesizedExpressionSyntax.Expression, currentPaths);
                 }
 
                 return new Failure(propertySyntax, currentPaths);

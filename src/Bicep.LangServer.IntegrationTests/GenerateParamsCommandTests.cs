@@ -28,7 +28,7 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task GenerateParams_command_should_generate_paramsfile()
         {
             var diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var features = BicepTestConstants.CreateFeaturesProvider(
+            var features = BicepTestConstants.CreateFeatureProvider(
                 TestContext,
                 assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
 
