@@ -22,6 +22,9 @@ namespace Bicep.Decompiler
 
         private readonly Dictionary<string, string> assignedResourceNames = new(StringComparer.OrdinalIgnoreCase);
 
+        private readonly Regex ResourceNameRemoveTrailingNameRegex = new Regex("([a-zA-Z][a-zA-Z0-9_]*)Name([0-9]*)$");
+        private const string ResourceNameRemoveTrailingNameReplacement = "$1$2";
+
         private static string GetNamingSuffix(NameType nameType)
             => nameType switch
             {
@@ -162,8 +165,6 @@ namespace Bicep.Decompiler
             return name;
         }
 
-        private Regex ResourceNameConverterRegex = new Regex("Name$");
-
         public string? TryRequestResourceName(string typeString, LanguageExpression nameExpression)
         {
             // normalize strings - this flattens nested format() and concat() expressions, and outputs via concat()
@@ -175,7 +176,7 @@ namespace Bicep.Decompiler
             var assignedResourceKey = GetResourceNameKey(typeString, nameExpression);
             var nameString = GetNameRecursive(nameExpression);
 
-            nameString = ResourceNameConverterRegex.Replace(nameString, "");
+            nameString = ResourceNameRemoveTrailingNameRegex.Replace(nameString, ResourceNameRemoveTrailingNameReplacement);
 
             // try to get a shorter name first if possible
             // if we've got two resources of different types with the same name, we may be forced to qualify it
