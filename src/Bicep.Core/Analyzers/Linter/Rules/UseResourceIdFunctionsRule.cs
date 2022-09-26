@@ -93,6 +93,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 new Exclusion(null, "vlanId"),                      // Example: Unique Id to establish peering when setting up an ExpressRoute circuit
                 new Exclusion(null, "workerSizeId"),                // Example: Microsoft.Web/serverFarms (older apiVersions)
                 new Exclusion(null, "UniqueFindingId"),             // Example: Microsoft.Sentinel/Solutions/Metadata
+                new Exclusion(null, "principalId"),                 // Example: Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments
 
                 // These resource types are completely excluded from the rule
                 new Exclusion("^microsoft.portal/dashboards$", null),
