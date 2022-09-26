@@ -108,7 +108,7 @@ namespace Bicep.Core.UnitTests
             return RootConfiguration.Bind(element, configurationPath);
         }
 
-        public static TestFeatureProvider CreateFeaturesProvider(
+        public static TestFeatureProvider CreateFeatureProvider(
             TestContext testContext,
             bool registryEnabled = false,
             bool symbolicNameCodegenEnabled = false,
