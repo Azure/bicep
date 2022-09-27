@@ -7019,7 +7019,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-System.IO.Abstractions 17.2.1 - MIT
+System.IO.Abstractions 17.2.3 - MIT
 
 
 Copyright Tatham Oddie
