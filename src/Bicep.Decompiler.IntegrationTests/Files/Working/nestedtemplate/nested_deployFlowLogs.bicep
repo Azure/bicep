@@ -6,7 +6,7 @@ param RetentionDays int
 param FlowLogsversion string
 param storageAccountResourceId string
 
-resource NetworkWatcherName_FlowLogName 'Microsoft.Network/networkWatchers/flowLogs@2020-06-01' = {
+resource NetworkWatcherName_FlowLog 'Microsoft.Network/networkWatchers/flowLogs@2020-06-01' = {
   name: '${NetworkWatcherName}/${FlowLogName}'
   location: location
   properties: {

@@ -30,14 +30,14 @@ param adminPasswordOrKey string
 @description('description')
 param vmSize string = 'Standard_A1_v2'
 
-var virtualNetworkName_var = 'VNET'
+var virtualNetworkName = 'VNET'
 var addressPrefix = '10.0.0.0/16'
 var subnet1Name = 'Subnet-1'
 var subnet2Name = 'Subnet-2'
 var subnet1Prefix = '10.0.0.0/24'
 var subnet2Prefix = '10.0.1.0/24'
-var subnet1Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName_var, subnet1Name)
-var subnet2Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName_var, subnet2Name)
+var subnet1Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet1Name)
+var subnet2Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet2Name)
 var availabilitySetName_var = 'AvSet'
 var imageReference = {
   Ubuntu: {
@@ -53,7 +53,7 @@ var imageReference = {
     version: 'latest'
   }
 }
-var networkSecurityGroupName_var = 'default-NSG'
+var networkSecurityGroupName = 'default-NSG'
 var nsgOsPort = {
   Ubuntu: '22'
   Windows: '3389'
@@ -82,8 +82,8 @@ resource availabilitySetName 'Microsoft.Compute/availabilitySets@2020-06-01' = [
   }
 }]
 
-resource networkSecurityGroupName 'Microsoft.Network/networkSecurityGroups@2020-05-01' = {
-  name: networkSecurityGroupName_var
+resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2020-05-01' = {
+  name: networkSecurityGroupName
   location: location
   properties: {
     securityRules: [
@@ -104,8 +104,8 @@ resource networkSecurityGroupName 'Microsoft.Network/networkSecurityGroups@2020-
   }
 }
 
-resource virtualNetworkName 'Microsoft.Network/virtualNetworks@2020-05-01' = {
-  name: virtualNetworkName_var
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' = {
+  name: virtualNetworkName
   location: location
   properties: {
     addressSpace: {
@@ -119,7 +119,7 @@ resource virtualNetworkName 'Microsoft.Network/virtualNetworks@2020-05-01' = {
         properties: {
           addressPrefix: subnet1Prefix
           networkSecurityGroup: {
-            id: networkSecurityGroupName.id
+            id: networkSecurityGroup.id
           }
         }
       }
@@ -128,7 +128,7 @@ resource virtualNetworkName 'Microsoft.Network/virtualNetworks@2020-05-01' = {
         properties: {
           addressPrefix: subnet2Prefix
           networkSecurityGroup: {
-            id: networkSecurityGroupName.id
+            id: networkSecurityGroup.id
           }
         }
       }
@@ -153,7 +153,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(
     ]
   }
   dependsOn: [
-    virtualNetworkName
+    virtualNetwork
   ]
 }]
 
