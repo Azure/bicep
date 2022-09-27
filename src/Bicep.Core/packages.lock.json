@@ -2,6 +2,12 @@
   "version": 1,
   "dependencies": {
     "net6.0": {
+      "Azure.Bicep.Internal.RoslynAnalyzers": {
+        "type": "Direct",
+        "requested": "[0.1.17, )",
+        "resolved": "0.1.17",
+        "contentHash": "ItQGvv0R1znYHxbYx6VQTQdqqhLG+OsE5XtI6gGmPDiKXcSUpJD4UJNB3kOWAxbZDnB1HwEAJFegbjvv6YlcbA=="
+      },
       "Azure.Bicep.Types": {
         "type": "Direct",
         "requested": "[0.2.115, )",
