@@ -36,6 +36,7 @@
     <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.115" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.11" />
     <PackageReference Include="System.IO.Abstractions" Version="17.2.3" />
+    <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.17" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="CoreResources.Designer.cs">

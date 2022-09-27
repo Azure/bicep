@@ -62,7 +62,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             var actualTypeNames = ruleTypes.Select(t => t.FullName ?? throw new ArgumentNullException("bad type"));
             var expectedTypeNames = expectedRuleTypes.Select(t => t.FullName ?? throw new ArgumentNullException("bad type"));
 
-            actualTypeNames.Should().BeEquivalentTo(expectedTypeNames, "LinterRuleProvider.GetRuleTypes() needs to be updated to list all defined rules in the core assembly");
+            actualTypeNames.Should().BeEquivalentTo(expectedTypeNames, "Please verify that the {nameof(LinterRuleTypeGenerator)} source generator is working correctly");
         }
 
         [TestMethod]
