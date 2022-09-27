@@ -176,7 +176,7 @@ namespace Bicep.Decompiler
             var assignedResourceKey = GetResourceNameKey(typeString, nameExpression);
             var nameString = GetNameRecursive(nameExpression);
 
-            nameString = ResourceNameRemoveTrailingNameRegex.Replace(nameString, ResourceNameRemoveTrailingNameReplacement);
+            nameString = RemoveTrailingNameFromResourceName(nameString);
 
             // try to get a shorter name first if possible
             // if we've got two resources of different types with the same name, we may be forced to qualify it
@@ -198,6 +198,24 @@ namespace Bicep.Decompiler
 
             Trace.WriteLine($"TryRequestResourceName: \"{unqualifiedName}\" -> NULL");
             return null;
+        }
+
+        private string RemoveTrailingNameFromResourceName(string resourceName)
+        {
+            // A common pattern is:
+            //
+            // "variables": {
+            //   "stgAccountName": "myStorage"
+            // },
+            // "resources": [{
+            //   "name": "[variables('stgAccountName')]",
+            //    ...
+            //
+            // If we choose the name 'stgAccountName' for the resource, it will conflict with the variable name.
+            // So, remove a trailing "Name"
+
+            var escapedName = EscapeIdentifier(resourceName, isGenerated: true);
+            return ResourceNameRemoveTrailingNameRegex.Replace(escapedName, ResourceNameRemoveTrailingNameReplacement);
         }
 
         private string GetResourceNameKey(string typeString, LanguageExpression nameExpression)
