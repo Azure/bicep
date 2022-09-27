@@ -38,7 +38,7 @@ var subnet1Prefix = '10.0.0.0/24'
 var subnet2Prefix = '10.0.1.0/24'
 var subnet1Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet1Name)
 var subnet2Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet2Name)
-var availabilitySetName_var = 'AvSet'
+var availabilitySetName = 'AvSet'
 var imageReference = {
   Ubuntu: {
     publisher: 'Canonical'
@@ -70,8 +70,8 @@ var linuxConfiguration = {
   }
 }
 
-resource availabilitySetName 'Microsoft.Compute/availabilitySets@2020-06-01' = [for i in range(0, 2): {
-  name: '${availabilitySetName_var}-${i}'
+resource availabilitySet 'Microsoft.Compute/availabilitySets@2020-06-01' = [for i in range(0, 2): {
+  name: '${availabilitySetName}-${i}'
   location: location
   properties: {
     platformFaultDomainCount: 2
@@ -162,7 +162,7 @@ resource myvm 'Microsoft.Compute/virtualMachines@2020-06-01' = [for i in range(0
   location: location
   properties: {
     availabilitySet: {
-      id: resourceId('Microsoft.Compute/availabilitySets', '${availabilitySetName_var}-${(i % 2)}')
+      id: resourceId('Microsoft.Compute/availabilitySets', '${availabilitySetName}-${(i % 2)}')
     }
     hardwareProfile: {
       vmSize: vmSize
@@ -190,6 +190,6 @@ resource myvm 'Microsoft.Compute/virtualMachines@2020-06-01' = [for i in range(0
   dependsOn: [
     resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')
 //@[4:64) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (CodeDescription: none) |resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')|
-    availabilitySetName
+    availabilitySet
   ]
 }]
