@@ -5373,7 +5373,7 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
-System.IO.Abstractions 17.2.1 - MIT
+System.IO.Abstractions 17.2.3 - MIT
 
 
 Copyright Tatham Oddie
