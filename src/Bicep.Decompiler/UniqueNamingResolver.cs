@@ -22,6 +22,7 @@ namespace Bicep.Decompiler
 
         private readonly Dictionary<string, string> assignedResourceNames = new(StringComparer.OrdinalIgnoreCase);
 
+        // This regex/replacements allows us to change vmName -> vm and vmName2 -> vm2
         private readonly Regex ResourceNameRemoveTrailingNameRegex = new Regex("([a-zA-Z][a-zA-Z0-9_]*)Name([0-9]*)$");
         private const string ResourceNameRemoveTrailingNameReplacement = "$1$2";
 
