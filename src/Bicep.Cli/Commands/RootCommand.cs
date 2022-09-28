@@ -136,7 +136,7 @@ Usage:
       bicep generate-params file.bicep --outdir dir1
       bicep generate-params file.bicep --outfile file.parameters.json
 
-  {registryPlaceholder}  {exeName} [options]
+{registryPlaceholder}  {exeName} [options]
     Options:
       --version              -v   Shows bicep version information
       --help                 -h   Shows this usage information
