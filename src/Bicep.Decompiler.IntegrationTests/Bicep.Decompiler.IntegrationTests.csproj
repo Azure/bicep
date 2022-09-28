@@ -10,17 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Remove="Files\Working\naming001.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Files\Working\naming001-simple\main.bicep">
-      <LogicalName>$([System.String]::new('Files/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Files\Working\naming001-simple\main.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.7.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.3.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.10" />
