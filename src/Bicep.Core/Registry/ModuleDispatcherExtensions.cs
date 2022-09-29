@@ -12,9 +12,9 @@ namespace Bicep.Core.Registry
 {
     public static class ModuleDispatcherExtensions
     {
-        public static IEnumerable<ModuleReference> GetValidModuleReferences(this IModuleDispatcher moduleDispatcher, IEnumerable<(ISourceFile parentModule, ModuleDeclarationSyntax declarationSyntax)> modules) =>
+        public static IEnumerable<ModuleReference> GetValidModuleReferences(this IModuleDispatcher moduleDispatcher, IEnumerable<ModuleSourceResolutionInfo> modules) =>
             modules
-                .Select(t => moduleDispatcher.TryGetModuleReference(t.declarationSyntax, t.parentModule.FileUri, out var moduleRef, out _) ? moduleRef : null)
+                .Select(t => moduleDispatcher.TryGetModuleReference(t.ModuleDeclaration, t.ParentTemplateFile.FileUri, out var moduleRef, out _) ? moduleRef : null)
                 .WhereNotNull();
     }
 }

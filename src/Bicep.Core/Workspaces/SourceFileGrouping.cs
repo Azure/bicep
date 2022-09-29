@@ -22,6 +22,10 @@ namespace Bicep.Core.Workspaces
         bool RequiresRestore,
         ErrorBuilderDelegate? ErrorBuilder);
 
+    public record ModuleSourceResolutionInfo(
+        ModuleDeclarationSyntax ModuleDeclaration,
+        ISourceFile ParentTemplateFile);
+
     public record SourceFileGrouping(
         IFileResolver FileResolver,
         Uri EntryFileUri,
@@ -29,8 +33,11 @@ namespace Bicep.Core.Workspaces
         ImmutableDictionary<ISourceFile, ImmutableDictionary<StatementSyntax, UriResolutionResult>> UriResultByModule,
         ImmutableDictionary<ISourceFile, ImmutableHashSet<ISourceFile>> SourceFileParentLookup)
     {
-        public IEnumerable<(ISourceFile, ModuleDeclarationSyntax)> GetModulesToRestore()
-            => UriResultByModule.SelectMany(kvp => kvp.Value.Keys.OfType<ModuleDeclarationSyntax>().Where(x => kvp.Value[x].RequiresRestore).Select(mds => (kvp.Key, mds)));
+        public IEnumerable<ModuleSourceResolutionInfo> GetModulesToRestore()
+            => UriResultByModule.SelectMany(
+                kvp => kvp.Value.Keys.OfType<ModuleDeclarationSyntax>()
+                    .Where(x => kvp.Value[x].RequiresRestore)
+                    .Select(mds => new ModuleSourceResolutionInfo(mds, kvp.Key)));
 
         public BicepFile EntryPoint => (FileResultByUri[EntryFileUri].File as BicepFile)!;
 

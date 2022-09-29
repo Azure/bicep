@@ -152,7 +152,7 @@ namespace Bicep.Cli.Services
             return decompilation;
         }
 
-        private static ImmutableDictionary<BicepFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<(ISourceFile, ModuleDeclarationSyntax)> originalModulesToRestore, bool forceModulesRestore)
+        private static ImmutableDictionary<BicepFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ModuleSourceResolutionInfo> originalModulesToRestore, bool forceModulesRestore)
         {
             static IEnumerable<IDiagnostic> GetModuleDiagnosticsPerFile(SourceFileGrouping grouping, BicepFile bicepFile)
             {
@@ -172,7 +172,7 @@ namespace Bicep.Cli.Services
                     .ToImmutableDictionary(bicepFile => bicepFile, bicepFile => GetModuleDiagnosticsPerFile(sourceFileGrouping, bicepFile).ToImmutableArray());
             }
 
-            return originalModulesToRestore.SelectMany(t => t.Item1 is BicepFile bicepFile ? new [] { (bicepFile, t.Item2) } : Enumerable.Empty<(BicepFile, ModuleDeclarationSyntax)>())
+            return originalModulesToRestore.SelectMany(t => t.ParentTemplateFile is BicepFile bicepFile ? new [] { (bicepFile, t.ModuleDeclaration) } : Enumerable.Empty<(BicepFile, ModuleDeclarationSyntax)>())
                 .SelectMany(t => sourceFileGrouping.TryGetErrorDiagnostic(t.Item2)?.Invoke(DiagnosticBuilder.ForPosition(t.Item2.Path)) is IDiagnostic diagnostic ? new [] { (t.Item1, diagnostic) } : Enumerable.Empty<(BicepFile, IDiagnostic)>())
                 .ToLookup(t => t.Item1, t => t.Item2)
                 .ToImmutableDictionary(g => g.Key, g => g.ToImmutableArray());

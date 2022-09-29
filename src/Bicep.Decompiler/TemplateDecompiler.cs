@@ -31,7 +31,6 @@ namespace Bicep.Decompiler
         private readonly IFeatureProvider features;
         private readonly IFileResolver fileResolver;
         private readonly IModuleRegistryProvider registryProvider;
-        private readonly IConfigurationManager configurationManager;
         private readonly IApiVersionProvider apiVersionProvider;
 
         public TemplateDecompiler(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider)
@@ -40,7 +39,6 @@ namespace Bicep.Decompiler
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.registryProvider = registryProvider;
-            this.configurationManager = IConfigurationManager.ForConfiguration(IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled());
             this.apiVersionProvider = new ApiVersionProvider(features, namespaceProvider);
         }
 
@@ -128,6 +126,8 @@ namespace Bicep.Decompiler
         private bool RewriteSyntax(Workspace workspace, Uri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
         {
             var hasChanges = false;
+            var configuration = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
+            var configurationManager = IConfigurationManager.ForConfiguration(configuration);
             var dispatcher = new ModuleDispatcher(this.registryProvider, configurationManager);
             var linterAnalyzer = new LinterAnalyzer();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);

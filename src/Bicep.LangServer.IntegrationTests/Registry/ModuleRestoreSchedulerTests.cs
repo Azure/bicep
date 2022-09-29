@@ -77,7 +77,7 @@ namespace Bicep.LangServer.UnitTests.Registry
             Action startFail = () => scheduler.Start();
             startFail.Should().Throw<ObjectDisposedException>();
 
-            Action requestFail = () => scheduler.RequestModuleRestore(Repository.Create<ICompilationManager>().Object, DocumentUri.From("untitled://one"), Enumerable.Empty<(ISourceFile, ModuleDeclarationSyntax)>());
+            Action requestFail = () => scheduler.RequestModuleRestore(Repository.Create<ICompilationManager>().Object, DocumentUri.From("untitled://one"), Enumerable.Empty<ModuleSourceResolutionInfo>());
             requestFail.Should().Throw<ObjectDisposedException>();
         }
 
@@ -158,7 +158,7 @@ namespace Bicep.LangServer.UnitTests.Registry
             }
         }
 
-        private static ImmutableArray<(ISourceFile, ModuleDeclarationSyntax)> CreateModules(params string[] references)
+        private static ImmutableArray<ModuleSourceResolutionInfo> CreateModules(params string[] references)
         {
             var buffer = new StringBuilder();
             foreach (var reference in references)
@@ -167,7 +167,7 @@ namespace Bicep.LangServer.UnitTests.Registry
             }
 
             var file = SourceFileFactory.CreateBicepFile(new System.Uri("untitled://hello"), buffer.ToString());
-            return file.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Select(mds => (file as ISourceFile, mds)).ToImmutableArray();
+            return file.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Select(mds => new ModuleSourceResolutionInfo(mds, file as ISourceFile)).ToImmutableArray();
         }
 
         private class MockRegistry : IModuleRegistry

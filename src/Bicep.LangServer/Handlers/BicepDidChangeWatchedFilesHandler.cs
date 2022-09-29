@@ -49,9 +49,9 @@ namespace Bicep.LanguageServer.Handlers
             // TODO only a subset of files may require recompilation, but it's difficult to tell which without some representation of file dependencies in the workspace
             if (bicepConfigFileChangeEvents.Any())
             {
-                foreach (var uri in workspace.GetActiveSourceFilesByUri().Keys.Select(DocumentUri.From))
+                foreach (var uri in workspace.GetActiveSourceFilesByUri().Keys)
                 {
-                    compilationManager.RefreshCompilation(uri);
+                    compilationManager.RefreshCompilation(DocumentUri.From(uri));
                 }
             }
 

@@ -52,7 +52,7 @@ namespace Bicep.LanguageServer.Handlers
 
             // Ignore modules to restore logic, include all modules to be restored
             var modulesToRestore = sourceFileGrouping.UriResultByModule
-                .SelectMany(kvp => kvp.Value.Keys.OfType<ModuleDeclarationSyntax>().Select(mds => (kvp.Key, mds)));
+                .SelectMany(kvp => kvp.Value.Keys.OfType<ModuleDeclarationSyntax>().Select(mds => new ModuleSourceResolutionInfo(mds, kvp.Key)));
 
             // RestoreModules() does a distinct but we'll do it also to prevent deuplicates in outputs and logging
             var modulesToRestoreReferences = this.moduleDispatcher.GetValidModuleReferences(modulesToRestore)

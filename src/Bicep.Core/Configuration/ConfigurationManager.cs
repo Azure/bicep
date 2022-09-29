@@ -34,35 +34,6 @@ namespace Bicep.Core.Configuration
                 : config;
         }
 
-        public (RootConfiguration, List<DiagnosticBuilder.DiagnosticBuilderDelegate>) GetConfigurationFromCache(Uri sourceFileUri)
-        {
-            List<DiagnosticBuilder.DiagnosticBuilderDelegate> diagnostics = new();
-            var loadErrorEncountered = false;
-
-            var (configFileUri, lookupDiagnostic) = configLookupCache.GetOrAdd(sourceFileUri, LookupConfiguration);
-            if (lookupDiagnostic is not null)
-            {
-                diagnostics.Add(lookupDiagnostic);
-            }
-
-            if (configFileUri is not null)
-            {
-                var (config, loadError) = configCache.GetOrAdd(configFileUri, LoadConfiguration);
-                if (loadError is not null)
-                {
-                    loadErrorEncountered = true;
-                    diagnostics.Add(loadError);
-                }
-
-                if (config is not null)
-                {
-                    return (config, diagnostics);
-                }
-            }
-
-            return (GetDefaultConfiguration(loadErrorEncountered), diagnostics);
-        }
-
         protected virtual RootConfiguration GetDefaultConfiguration(bool loadErrorEncountered) => IConfigurationManager.GetBuiltInConfiguration();
 
         protected void PurgeLookupCache() => configLookupCache.Clear();
@@ -89,6 +60,35 @@ namespace Bicep.Core.Configuration
                 // If a config file has been removed from a workspace, the lookup cache is no longer valid.
                 PurgeLookupCache();
             }
+        }
+
+        private (RootConfiguration, List<DiagnosticBuilder.DiagnosticBuilderDelegate>) GetConfigurationFromCache(Uri sourceFileUri)
+        {
+            List<DiagnosticBuilder.DiagnosticBuilderDelegate> diagnostics = new();
+            var loadErrorEncountered = false;
+
+            var (configFileUri, lookupDiagnostic) = configLookupCache.GetOrAdd(sourceFileUri, LookupConfiguration);
+            if (lookupDiagnostic is not null)
+            {
+                diagnostics.Add(lookupDiagnostic);
+            }
+
+            if (configFileUri is not null)
+            {
+                var (config, loadError) = configCache.GetOrAdd(configFileUri, LoadConfiguration);
+                if (loadError is not null)
+                {
+                    loadErrorEncountered = true;
+                    diagnostics.Add(loadError);
+                }
+
+                if (config is not null)
+                {
+                    return (config, diagnostics);
+                }
+            }
+
+            return (GetDefaultConfiguration(loadErrorEncountered), diagnostics);
         }
 
         private (RootConfiguration?, DiagnosticBuilder.DiagnosticBuilderDelegate?) LoadConfiguration(Uri configurationUri)

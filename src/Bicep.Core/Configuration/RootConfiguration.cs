@@ -38,7 +38,7 @@ namespace Bicep.Core.Configuration
 
         public string? ConfigurationPath { get; }
 
-        public IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate> DiagnosticBuilders { get; }
+        public ImmutableArray<DiagnosticBuilder.DiagnosticBuilderDelegate> DiagnosticBuilders { get; }
 
         public bool IsBuiltIn => ConfigurationPath is null;
 

@@ -61,14 +61,14 @@ namespace Bicep.Core.Workspaces
             var isParamsFile = current.FileResultByUri[current.EntryFileUri].File is BicepParamFile;
             var modulesToRestore = current.GetModulesToRestore().ToHashSet();
 
-            foreach (var (sourceFile, module) in modulesToRestore)
+            foreach (var (module, sourceFile) in modulesToRestore)
             {
                 builder.uriResultByModule[sourceFile].Remove(module);
             }
 
             // Rebuild source files that contains external module references restored during the inital build.
             var sourceFilesToRebuild = current.SourceFiles
-                .Where(sourceFile => GetModuleDeclarations(sourceFile).Any(moduleDeclaration => modulesToRestore.Contains((sourceFile, moduleDeclaration))))
+                .Where(sourceFile => GetModuleDeclarations(sourceFile).Any(moduleDeclaration => modulesToRestore.Contains(new(moduleDeclaration, sourceFile))))
                 .ToImmutableHashSet();
 
             return builder.Build(current.EntryPoint.FileUri, sourceFilesToRebuild);
