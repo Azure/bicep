@@ -52,7 +52,7 @@ namespace Bicep.Core.Registry
                     }
 
                     failureBuilder = x => x.UnknownModuleReferenceScheme(ModuleReferenceSchemes.Local, this.AvailableSchemes(parentModuleUri));
-                    moduleReference = default;
+                    moduleReference = null;
                     return false;
 
                 case 2:
@@ -77,13 +77,13 @@ namespace Bicep.Core.Registry
 
                     // unknown scheme
                     failureBuilder = x => x.UnknownModuleReferenceScheme(scheme, this.AvailableSchemes(parentModuleUri));
-                    moduleReference = default;
+                    moduleReference = null;
                     return false;
 
                 default:
                     // empty string
                     failureBuilder = x => x.ModulePathHasNotBeenSpecified();
-                    moduleReference = default;
+                    moduleReference = null;
                     return false;
             }
         }
@@ -94,7 +94,7 @@ namespace Bicep.Core.Registry
             if (moduleReferenceString is null)
             {
                 failureBuilder = getModulePathFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(SyntaxHelper.TryGetModulePath)} to provide failure diagnostics.");
-                moduleReference = default;
+                moduleReference = null;
                 return false;
             }
 
@@ -137,7 +137,7 @@ namespace Bicep.Core.Registry
             if (this.HasRestoreFailed(moduleReference, configuration, out var restoreFailureBuilder))
             {
                 failureBuilder = restoreFailureBuilder;
-                localUri = default;
+                localUri = null;
                 return false;
             }
 

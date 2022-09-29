@@ -21,7 +21,7 @@ namespace Bicep.Core.Configuration
             this.DiagnosticBuilders = diagnosticBuilders?.ToImmutableArray() ?? ImmutableArray<DiagnosticBuilder.DiagnosticBuilderDelegate>.Empty;
         }
 
-        public static RootConfiguration Bind(JsonElement element, string? configurationPath = null, IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders = default)
+        public static RootConfiguration Bind(JsonElement element, string? configurationPath = null, IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders = null)
         {
             var cloud = CloudConfiguration.Bind(element.GetProperty("cloud"), configurationPath);
             var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty("moduleAliases"), configurationPath);

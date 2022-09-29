@@ -70,7 +70,7 @@ namespace Bicep.Core.Modules
             {
                 if (!configuration.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName, out var alias, out errorBuilder))
                 {
-                    parsed = default;
+                    parsed = null;
                     return false;
                 }
 
@@ -80,7 +80,7 @@ namespace Bicep.Core.Modules
             if (TemplateSpecUriTemplate.GetTemplateMatch(referenceValue) is not { } match)
             {
                 errorBuilder = x => x.InvalidTemplateSpecReference(aliasName, FullyQualify(referenceValue));
-                parsed = default;
+                parsed = null;
                 return false;
             }
 
@@ -93,7 +93,7 @@ namespace Bicep.Core.Modules
             if (!Guid.TryParse(subscriptionId, out _))
             {
                 errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidSubscirptionId(aliasName, subscriptionId, FullyQualify(referenceValue));
-                parsed = default;
+                parsed = null;
                 return false;
             }
 
@@ -101,7 +101,7 @@ namespace Bicep.Core.Modules
             if (resourceGroupName.Length > ResourceNameMaximumLength)
             {
                 errorBuilder = x => x.InvalidTemplateSpecReferenceResourceGroupNameTooLong(aliasName, resourceGroupName, FullyQualify(referenceValue), ResourceNameMaximumLength);
-                parsed = default;
+                parsed = null;
                 return false;
             }
 
@@ -110,7 +110,7 @@ namespace Bicep.Core.Modules
                 resourceGroupName.Where(c => !char.IsLetterOrDigit(c) && !ResourceGroupNameAllowedCharacterSet.Contains(c)).Any())
             {
                 errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidResourceGroupName(aliasName, resourceGroupName, FullyQualify(referenceValue));
-                parsed = default;
+                parsed = null;
                 return false;
             }
 
@@ -118,14 +118,14 @@ namespace Bicep.Core.Modules
             if (templateSpecName.Length > ResourceNameMaximumLength)
             {
                 errorBuilder = x => x.InvalidTemplateSpecReferenceTemplateSpecNameTooLong(aliasName, templateSpecName, FullyQualify(referenceValue), ResourceNameMaximumLength);
-                parsed = default;
+                parsed = null;
                 return false;
             }
 
             if (!ResourceNameRegex.IsMatch(templateSpecName))
             {
                 errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecName(aliasName, templateSpecName, FullyQualify(referenceValue));
-                parsed = default;
+                parsed = null;
                 return false;
             }
 
@@ -133,14 +133,14 @@ namespace Bicep.Core.Modules
             if (version.Length > ResourceNameMaximumLength)
             {
                 errorBuilder = x => x.InvalidTemplateSpecReferenceTemplateSpecVersionTooLong(aliasName, version, FullyQualify(referenceValue), ResourceNameMaximumLength);
-                parsed = default;
+                parsed = null;
                 return false;
             }
 
             if (!ResourceNameRegex.IsMatch(version))
             {
                 errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(aliasName, version, FullyQualify(referenceValue));
-                parsed = default;
+                parsed = null;
                 return false;
             }
 

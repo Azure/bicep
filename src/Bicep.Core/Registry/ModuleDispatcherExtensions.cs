@@ -14,7 +14,7 @@ namespace Bicep.Core.Registry
     {
         public static IEnumerable<ModuleReference> GetValidModuleReferences(this IModuleDispatcher moduleDispatcher, IEnumerable<(ISourceFile parentModule, ModuleDeclarationSyntax declarationSyntax)> modules) =>
             modules
-                .Select(t => moduleDispatcher.TryGetModuleReference(t.declarationSyntax, t.parentModule.FileUri, out var moduleRef, out _) ? moduleRef : default)
+                .Select(t => moduleDispatcher.TryGetModuleReference(t.declarationSyntax, t.parentModule.FileUri, out var moduleRef, out _) ? moduleRef : null)
                 .WhereNotNull();
     }
 }

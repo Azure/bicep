@@ -128,7 +128,7 @@ namespace Bicep.Core.Modules
             {
                 if (!configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName, out var alias, out failureBuilder))
                 {
-                    moduleReference = default;
+                    moduleReference = null;
                     return false;
                 }
 
@@ -143,7 +143,7 @@ namespace Bicep.Core.Modules
                 !string.Equals(artifactUri.Segments[0], "/", StringComparison.Ordinal))
             {
                 failureBuilder = x => x.InvalidOciArtifactReference(aliasName, GetBadReference(rawValue));
-                moduleReference = default;
+                moduleReference = null;
                 return false;
             }
 
@@ -151,7 +151,7 @@ namespace Bicep.Core.Modules
             if (registry.Length > MaxRegistryLength)
             {
                 failureBuilder = x => x.InvalidOciArtifactReferenceRegistryTooLong(aliasName, GetBadReference(rawValue), registry, MaxRegistryLength);
-                moduleReference = default;
+                moduleReference = null;
                 return false;
             }
 
@@ -167,7 +167,7 @@ namespace Bicep.Core.Modules
                 {
                     var invalidSegment = UnescapeSegment(current[0..^1]);
                     failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), invalidSegment);
-                    moduleReference = default;
+                    moduleReference = null;
                     return false;
                 }
 
@@ -201,7 +201,7 @@ namespace Bicep.Core.Modules
             if (!ModulePathSegmentRegex.IsMatch(name))
             {
                 failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), name);
-                moduleReference = default;
+                moduleReference = null;
                 return false;
             }
 
@@ -211,7 +211,7 @@ namespace Bicep.Core.Modules
             if (repository.Length > MaxRepositoryLength)
             {
                 failureBuilder = x => x.InvalidOciArtifactReferenceRepositoryTooLong(aliasName, GetBadReference(rawValue), repository, MaxRepositoryLength);
-                moduleReference = default;
+                moduleReference = null;
                 return false;
             }
 
@@ -219,7 +219,7 @@ namespace Bicep.Core.Modules
             if (!delimiter.HasValue)
             {
                 failureBuilder = x => x.InvalidOciArtifactReferenceMissingTagOrDigest(aliasName, GetBadReference(rawValue));
-                moduleReference = default;
+                moduleReference = null;
                 return false;
             }
 
@@ -227,7 +227,7 @@ namespace Bicep.Core.Modules
             if (string.IsNullOrEmpty(tagOrDigest))
             {
                 failureBuilder = x => x.InvalidOciArtifactReferenceMissingTagOrDigest(aliasName, GetBadReference(rawValue));
-                moduleReference = default;
+                moduleReference = null;
                 return false;
             }
 
@@ -238,14 +238,14 @@ namespace Bicep.Core.Modules
                     if (tag.Length > MaxTagLength)
                     {
                         failureBuilder = x => x.InvalidOciArtifactReferenceTagTooLong(aliasName, GetBadReference(rawValue), tag, MaxTagLength);
-                        moduleReference = default;
+                        moduleReference = null;
                         return false;
                     }
 
                     if (!TagRegex.IsMatch(tag))
                     {
                         failureBuilder = x => x.InvalidOciArtifactReferenceInvalidTag(aliasName, GetBadReference(rawValue), tag);
-                        moduleReference = default;
+                        moduleReference = null;
                         return false;
                     }
 
@@ -258,7 +258,7 @@ namespace Bicep.Core.Modules
                     if (!DigestRegex.IsMatch(digest))
                     {
                         failureBuilder = x => x.InvalidOciArtifactReferenceInvalidDigest(aliasName, GetBadReference(rawValue), digest);
-                        moduleReference = default;
+                        moduleReference = null;
                         return false;
                     }
 

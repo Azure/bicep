@@ -50,7 +50,7 @@ namespace Bicep.Core.Modules
         {
             if (!Validate(unqualifiedReference, out failureBuilder))
             {
-                parsed = default;
+                parsed = null;
                 return false;
             }
 

@@ -58,7 +58,7 @@ namespace Bicep.Core.Configuration
         {
             if (!ValidateAliasName(aliasName, out errorBuilder))
             {
-                alias = default;
+                alias = null;
                 return false;
             }
 
@@ -88,7 +88,7 @@ namespace Bicep.Core.Configuration
         {
             if (!ValidateAliasName(aliasName, out errorBuilder))
             {
-                alias = default;
+                alias = null;
                 return false;
             }
 

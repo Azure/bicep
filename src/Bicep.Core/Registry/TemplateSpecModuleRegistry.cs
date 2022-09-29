@@ -48,7 +48,7 @@ namespace Bicep.Core.Registry
                 return true;
             }
 
-            moduleReference = default;
+            moduleReference = null;
             return false;
         }
 

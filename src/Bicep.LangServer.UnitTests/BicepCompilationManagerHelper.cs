@@ -30,7 +30,7 @@ namespace Bicep.LangServer.UnitTests
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
         private static readonly LinterRulesProvider linterRulesProvider = new();
 
-        public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false, IConfigurationManager? configurationManager = default)
+        public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false, IConfigurationManager? configurationManager = null)
         {
             IConfigurationManager configManager = configurationManager ?? new ConfigurationManager(new IOFileSystem());
             PublishDiagnosticsParams? receivedParams = null;

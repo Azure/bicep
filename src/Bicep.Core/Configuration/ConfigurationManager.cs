@@ -69,7 +69,7 @@ namespace Bicep.Core.Configuration
 
         protected (RootConfiguration prevConfiguration, RootConfiguration newConfiguration)? RefreshConfigCacheEntry(Uri configUri)
         {
-            (RootConfiguration, RootConfiguration)? returnVal = default;
+            (RootConfiguration, RootConfiguration)? returnVal = null;
             configCache.AddOrUpdate(configUri, LoadConfiguration, (uri, prev) => {
                 var reloaded = LoadConfiguration(uri);
                 if (prev.config is {} prevConfig && reloaded.Item1 is {} newConfig)
@@ -98,24 +98,24 @@ namespace Bicep.Core.Configuration
                 using var stream = fileSystem.FileStream.Create(configurationUri.LocalPath, FileMode.Open, FileAccess.Read);
                 var element = IConfigurationManager.BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElement(stream));
 
-                return (RootConfiguration.Bind(element, configurationUri.LocalPath), default);
+                return (RootConfiguration.Bind(element, configurationUri.LocalPath), null);
             } catch (ConfigurationException exception)
             {
-                return (default, x => x.InvalidBicepConfigFile(configurationUri.LocalPath, exception.Message));
+                return (null, x => x.InvalidBicepConfigFile(configurationUri.LocalPath, exception.Message));
             }
             catch (JsonException exception)
             {
-                return (default, x => x.UnparsableBicepConfigFile(configurationUri.LocalPath, exception.Message));
+                return (null, x => x.UnparsableBicepConfigFile(configurationUri.LocalPath, exception.Message));
             }
             catch (Exception exception)
             {
-                return (default, x => x.UnloadableBicepConfigFile(configurationUri.LocalPath, exception.Message));
+                return (null, x => x.UnloadableBicepConfigFile(configurationUri.LocalPath, exception.Message));
             }
         }
 
         private ConfigLookupResult LookupConfiguration(Uri sourceFileUri)
         {
-            DiagnosticBuilder.DiagnosticBuilderDelegate? lookupDiagnostic = default;
+            DiagnosticBuilder.DiagnosticBuilderDelegate? lookupDiagnostic = null;
             if (sourceFileUri.Scheme == Uri.UriSchemeFile)
             {
                 string? currentDirectory = fileSystem.Path.GetDirectoryName(sourceFileUri.LocalPath);
@@ -145,9 +145,9 @@ namespace Bicep.Core.Configuration
                 }
             }
 
-            return new(default, lookupDiagnostic);
+            return new(null, lookupDiagnostic);
         }
 
-        private record ConfigLookupResult(Uri? configFileUri = default, DiagnosticBuilder.DiagnosticBuilderDelegate? lookupDiagnostic = default);
+        private record ConfigLookupResult(Uri? configFileUri = null, DiagnosticBuilder.DiagnosticBuilderDelegate? lookupDiagnostic = null);
     }
 }
