@@ -9,8 +9,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Configuration;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Configuration;
 using Bicep.LanguageServer.Handlers;
@@ -203,7 +205,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
 
             var compilationManager = BicepCompilationManagerHelper.CreateCompilationManager(bicepConfigUri, prevBicepConfigFileContents);
-            var bicepConfigChangeHandler = new BicepConfigChangeHandlingConfigurationManager(linterRulesProvider, telemetryProvider.Object, new IOFileSystem());
+            var bicepConfigChangeHandler = new BicepConfigChangeHandler(compilationManager,
+                                                                        new ConfigurationManager(new IOFileSystem()),
+                                                                        linterRulesProvider,
+                                                                        telemetryProvider.Object,
+                                                                        new Workspace());
 
             var bicepTextDocumentSyncHandler = new BicepTextDocumentSyncHandler(compilationManager, bicepConfigChangeHandler);
 

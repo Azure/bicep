@@ -34,11 +34,15 @@ namespace Bicep.Core.Configuration
                 : config;
         }
 
-        protected virtual RootConfiguration GetDefaultConfiguration(bool loadErrorEncountered) => IConfigurationManager.GetBuiltInConfiguration();
+        public void PurgeCache()
+        {
+            PurgeLookupCache();
+            configCache.Clear();
+        }
 
-        protected void PurgeLookupCache() => configLookupCache.Clear();
+        public void PurgeLookupCache() => configLookupCache.Clear();
 
-        protected (RootConfiguration prevConfiguration, RootConfiguration newConfiguration)? RefreshConfigCacheEntry(Uri configUri)
+        public (RootConfiguration prevConfiguration, RootConfiguration newConfiguration)? RefreshConfigCacheEntry(Uri configUri)
         {
             (RootConfiguration, RootConfiguration)? returnVal = null;
             configCache.AddOrUpdate(configUri, LoadConfiguration, (uri, prev) => {
@@ -53,7 +57,7 @@ namespace Bicep.Core.Configuration
             return returnVal;
         }
 
-        protected void RemoveConfigCacheEntry(Uri configUri)
+        public void RemoveConfigCacheEntry(Uri configUri)
         {
             if (configCache.TryRemove(configUri, out _))
             {
@@ -65,7 +69,6 @@ namespace Bicep.Core.Configuration
         private (RootConfiguration, List<DiagnosticBuilder.DiagnosticBuilderDelegate>) GetConfigurationFromCache(Uri sourceFileUri)
         {
             List<DiagnosticBuilder.DiagnosticBuilderDelegate> diagnostics = new();
-            var loadErrorEncountered = false;
 
             var (configFileUri, lookupDiagnostic) = configLookupCache.GetOrAdd(sourceFileUri, LookupConfiguration);
             if (lookupDiagnostic is not null)
@@ -78,7 +81,6 @@ namespace Bicep.Core.Configuration
                 var (config, loadError) = configCache.GetOrAdd(configFileUri, LoadConfiguration);
                 if (loadError is not null)
                 {
-                    loadErrorEncountered = true;
                     diagnostics.Add(loadError);
                 }
 
@@ -88,8 +90,10 @@ namespace Bicep.Core.Configuration
                 }
             }
 
-            return (GetDefaultConfiguration(loadErrorEncountered), diagnostics);
+            return (GetDefaultConfiguration(), diagnostics);
         }
+
+        private RootConfiguration GetDefaultConfiguration() => IConfigurationManager.GetBuiltInConfiguration();
 
         private (RootConfiguration?, DiagnosticBuilder.DiagnosticBuilderDelegate?) LoadConfiguration(Uri configurationUri)
         {

@@ -144,9 +144,8 @@ namespace Bicep.LanguageServer
             services.AddSingletonOrInstance<IModuleRestoreScheduler, ModuleRestoreScheduler>(creationOptions.ModuleRestoreScheduler);
             services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
             services.AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
-            services.AddSingleton<BicepConfigChangeHandlingConfigurationManager>();
-            services.AddSingleton<IBicepConfigChangeHandler>(s => s.GetRequiredService<BicepConfigChangeHandlingConfigurationManager>());
-            services.AddSingleton<IConfigurationManager>(s => s.GetRequiredService<BicepConfigChangeHandlingConfigurationManager>());
+            services.AddSingleton<IConfigurationManager, ConfigurationManager>();
+            services.AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>();
             services.AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>();
             services.AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>();
             services.AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>();
