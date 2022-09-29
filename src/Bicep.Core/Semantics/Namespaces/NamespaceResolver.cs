@@ -22,7 +22,7 @@ namespace Bicep.Core.Semantics.Namespaces
             this.BuiltIns = builtIns;
         }
 
-        public static NamespaceResolver Create(INamespaceProvider namespaceProvider, ResourceScope targetScope, IEnumerable<ImportedNamespaceSymbol> importedNamespaces)
+        public static NamespaceResolver Create(IFeatureProvider features, INamespaceProvider namespaceProvider, ResourceScope targetScope, IEnumerable<ImportedNamespaceSymbol> importedNamespaces)
         {
             var builtInNamespaceSymbols = new Dictionary<string, BuiltInNamespaceSymbol>(LanguageConstants.IdentifierComparer);
             var namespaceTypes = importedNamespaces
@@ -38,8 +38,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     return;
                 }
 
-                // This check is only validating that the namespace exists (and not which aspects of it are enabled), so it's OK to use a bogus FeatureProvider
-                if (namespaceProvider.TryGetNamespace(@namespace, @namespace, targetScope, new FeatureProvider()) is not { } namespaceType)
+                if (namespaceProvider.TryGetNamespace(@namespace, @namespace, targetScope, features) is not { } namespaceType)
                 {
                     // this namespace doesn't match a known built-in namespace
                     return;

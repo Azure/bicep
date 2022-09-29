@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
@@ -18,10 +19,12 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
 
         // One cache per target scope type
         private readonly Dictionary<ResourceScope, ApiVersionCache> _caches = new();
+        private readonly IFeatureProvider features;
         private readonly INamespaceProvider namespaceProvider;
 
-        public ApiVersionProvider(INamespaceProvider namespaceProvider)
+        public ApiVersionProvider(IFeatureProvider features, INamespaceProvider namespaceProvider)
         {
+            this.features = features;
             this.namespaceProvider = namespaceProvider;
         }
 
@@ -70,7 +73,7 @@ namespace Bicep.Core.Analyzers.Linter.ApiVersions
             IEnumerable<ResourceTypeReference> resourceTypeReferences;
             if (cache.injectedTypes is null)
             {
-                NamespaceResolver namespaceResolver = NamespaceResolver.Create(this.namespaceProvider, scope, Enumerable.Empty<ImportedNamespaceSymbol>());
+                NamespaceResolver namespaceResolver = NamespaceResolver.Create(features, namespaceProvider, scope, Enumerable.Empty<ImportedNamespaceSymbol>());
                 resourceTypeReferences = namespaceResolver.GetAvailableResourceTypes();
             }
             else

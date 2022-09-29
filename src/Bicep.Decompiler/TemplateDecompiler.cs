@@ -41,7 +41,7 @@ namespace Bicep.Decompiler
             this.fileResolver = fileResolver;
             this.registryProvider = registryProvider;
             this.configurationManager = IConfigurationManager.ForConfiguration(IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled());
-            this.apiVersionProvider = new ApiVersionProvider(namespaceProvider);
+            this.apiVersionProvider = new ApiVersionProvider(features, namespaceProvider);
         }
 
         public (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(Uri entryJsonUri, Uri entryBicepUri)

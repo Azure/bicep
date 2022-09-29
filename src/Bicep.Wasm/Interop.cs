@@ -170,7 +170,7 @@ namespace Bicep.Wasm
             var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider(), configurationManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri);
 
-            return new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, new ApiVersionProvider(namespaceProvider), new LinterAnalyzer());
+            return new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, new ApiVersionProvider(features, namespaceProvider), new LinterAnalyzer());
         }
 
         private static string ReadStreamToEnd(Stream stream)
