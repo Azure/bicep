@@ -1,0 +1,59 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "vmName": [
+      "adPDC",
+      "adBDC"
+    ],
+    "nicName": [
+      "adPDCNic",
+      "adBDCNic"
+    ]
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-11-01",
+      "name": "[variables('nicName')[copyIndex()]]",
+      "location": "[parameters('location')]",
+      "copy": {
+        "name": "nicLoop",
+        "count": 2
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-12-01",
+      "name": "[variables('vmName')[copyIndex()]]",
+      "location": "[parameters('location')]",
+      "zones": [
+        "[copyIndex(1)]"
+      ],
+      "dependsOn": [
+        "nicLoop"
+      ],
+      "copy": {
+        "name": "vmLoop",
+        "count": 2
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2020-12-01",
+      "name": "[concat(variables('vmName')[0], '/CreateAdForest')]",
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2020-12-01",
+      "name": "[concat(variables('vmName')[1], '/PepareBDC')]",
+      "location": "[parameters('location')]"
+    }
+  ]
+}

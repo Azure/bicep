@@ -147,7 +147,7 @@ param principalId string
 param roleDefinitionId string = 'b24988ac-6180-42a0-ab88-20f7382dd24c'
 param roleAssignmentName string = guid(principalId, roleDefinitionId, rgName)
 
-resource rgName_resource 'Microsoft.Resources/resourceGroups@2019-10-01' = {
+resource rg 'Microsoft.Resources/resourceGroups@2019-10-01' = {
   name: rgName
   location: rgLocation
   properties: {
@@ -180,7 +180,7 @@ resource DontDelete 'Microsoft.Authorization/locks@2016-09-01' = {
   }
 }
 
-resource roleAssignmentName_resource 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
   name: guid(roleAssignmentName)
   properties: {
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleDefinitionId)

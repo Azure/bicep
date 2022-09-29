@@ -11,7 +11,7 @@ var automationModules = {
   ]
 }
 
-resource automationAccountName_automationModules_modules_Name 'Microsoft.Automation/automationAccounts/modules@2015-10-31' = [for i in range(0, length(automationModules.modules)): if (deployAutomationModules == 'true') {
+resource automationAccountName_automationModules_modules 'Microsoft.Automation/automationAccounts/modules@2015-10-31' = [for i in range(0, length(automationModules.modules)): if (deployAutomationModules == 'true') {
   name: '${automationAccountName}/${automationModules.modules[i].Name}'
   location: location
   properties: {
