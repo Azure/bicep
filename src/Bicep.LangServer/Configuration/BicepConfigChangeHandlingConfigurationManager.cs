@@ -50,9 +50,5 @@ namespace Bicep.LanguageServer.Configuration
 
         public void HandleBicepConfigCloseEvent(DocumentUri documentUri) 
             => RemoveConfigCacheEntry(documentUri.ToUri());
-
-        protected override RootConfiguration GetDefaultConfiguration(bool loadErrorEncountered) => loadErrorEncountered
-            ? base.GetDefaultConfiguration(loadErrorEncountered).WithAllAnalyzersDisabled()
-            : base.GetDefaultConfiguration(loadErrorEncountered);
     }
 }
