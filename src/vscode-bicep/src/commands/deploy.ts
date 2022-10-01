@@ -6,7 +6,7 @@ import {
   IActionContext,
   IAzureQuickPickItem,
   ISubscriptionContext,
-  parseError
+  parseError,
 } from "@microsoft/vscode-azext-utils";
 import assert from "assert";
 import * as fse from "fs-extra";
@@ -14,7 +14,7 @@ import * as path from "path";
 import vscode, { commands, Uri } from "vscode";
 import {
   LanguageClient,
-  TextDocumentIdentifier
+  TextDocumentIdentifier,
 } from "vscode-languageclient/node";
 import {
   BicepDeploymentParametersResponse,
@@ -24,7 +24,7 @@ import {
   BicepDeploymentStartResponse,
   BicepDeploymentWaitForCompletionParams,
   BicepUpdatedDeploymentParameter,
-  ParametersFileUpdateOption
+  ParametersFileUpdateOption,
 } from "../language";
 import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
 import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
@@ -444,29 +444,29 @@ export class DeployCommand implements Command {
     context: IActionContext,
     sourceUri: Uri
   ): Promise<string | undefined> {
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       let parameterFilePath: string;
 
       const quickPickItems: IAzureQuickPickItem<string>[] =
-        await this.createParameterFileQuickPickList();
-      const result: IAzureQuickPickItem<string> = await context.ui.showQuickPick(
-        quickPickItems,
-        {
+        await this.createParameterFileQuickPickList(
+          path.dirname(sourceUri.fsPath)
+        );
+      const result: IAzureQuickPickItem<string> =
+        await context.ui.showQuickPick(quickPickItems, {
           canPickMany: false,
           placeHolder: `Select a parameter file`,
           id: sourceUri.toString(),
-        }
-      );
+        });
 
       if (result.label === this._browse) {
-        const paramsPaths: Uri[] | undefined = await vscode.window.showOpenDialog(
-          {
+        const paramsPaths: Uri[] | undefined =
+          await vscode.window.showOpenDialog({
             canSelectMany: false,
             defaultUri: sourceUri,
             openLabel: "Select Parameter File",
             filters: { "JSON Files": ["json", "jsonc"] },
-          }
-        );
+          });
         if (paramsPaths) {
           assert(paramsPaths.length === 1, "Expected paramsPaths.length === 1");
           parameterFilePath = paramsPaths[0].fsPath;
@@ -489,31 +489,38 @@ export class DeployCommand implements Command {
     }
   }
 
-  private async validateIsValidParameterFile(path: string, showErrorMessage: boolean): Promise<boolean> {
-    const expectedSchema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#";
+  private async validateIsValidParameterFile(
+    path: string,
+    showErrorMessage: boolean
+  ): Promise<boolean> {
+    const expectedSchema =
+      "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#";
 
     let message: string | undefined;
     let json: { $schema?: unknown } | undefined;
     try {
-       json = fse.readJsonSync(path);
-    } catch(err) {
+      json = fse.readJsonSync(path);
+    } catch (err) {
       message = parseError(err).message;
     }
 
     if (json) {
-      let schema = json.$schema as string;
+      const schema = json.$schema as string;
       if (!schema) {
         message = `The file has no $schema property. Expected $schema "${expectedSchema}"`;
       } else if (!/deploymentparameters\.json/i.test(schema)) {
         message = `Unexpected $schema found: ${schema}.  Expected $schema "${expectedSchema}"`;
       }
     }
-    
+
     if (message) {
       if (showErrorMessage) {
-        await vscode.window.showErrorMessage(`The selected file is not a valid parameters file. ${message}`, { modal: true });
+        await vscode.window.showErrorMessage(
+          `The selected file is not a valid parameters file. ${message}`,
+          { modal: true }
+        );
       }
-      
+
       return false;
     }
 
@@ -671,9 +678,9 @@ export class DeployCommand implements Command {
     return undefined;
   }
 
-  private async createParameterFileQuickPickList(): Promise<
-    IAzureQuickPickItem<string>[]
-  > {
+  private async createParameterFileQuickPickList(
+    bicepFolder: string
+  ): Promise<IAzureQuickPickItem<string>[]> {
     const noneQuickPickItem: IAzureQuickPickItem<string> = {
       label: this._none,
       data: "",
@@ -685,23 +692,37 @@ export class DeployCommand implements Command {
     let parameterFilesQuickPickList = [noneQuickPickItem].concat([
       browseQuickPickItem,
     ]);
-    const jsonFilesInFolder = await this.getParameterFilesInFolder();
 
-    if (jsonFilesInFolder) {
-      parameterFilesQuickPickList =
-        parameterFilesQuickPickList.concat(jsonFilesInFolder);
-    }
+    const jsonFilesInWorkspace = await this.getParameterFilesInWorkspace(
+      bicepFolder
+    );
+    parameterFilesQuickPickList =
+      parameterFilesQuickPickList.concat(jsonFilesInWorkspace);
 
     return parameterFilesQuickPickList;
   }
 
-  private async getParameterFilesInFolder(): Promise<IAzureQuickPickItem<string>[]> {
+  private async getParameterFilesInWorkspace(
+    bicepFolder: string
+  ): Promise<IAzureQuickPickItem<string>[]> {
     const quickPickItems: IAzureQuickPickItem<string>[] = [];
     const workspaceJsonFiles = (
       await vscode.workspace.findFiles("**/*.{json,jsonc}", undefined)
     ).filter((f) => !!f.fsPath);
 
-    workspaceJsonFiles.sort((a, b) => compareStringsOrdinal(a.path, b.path));
+    workspaceJsonFiles.sort((a, b) => {
+      const aIsInBicepFolder = path.dirname(a.fsPath) === bicepFolder;
+      const bIsInBicepFolder = path.dirname(b.fsPath) === bicepFolder;
+
+      // Put those in the bicep file's folder first in the list
+      if (aIsInBicepFolder && !bIsInBicepFolder) {
+        return -1;
+      } else if (bIsInBicepFolder && !aIsInBicepFolder) {
+        return 1;
+      }
+
+      return compareStringsOrdinal(a.path, b.path);
+    });
 
     for (const uri of workspaceJsonFiles) {
       if (!(await this.validateIsValidParameterFile(uri.fsPath, false))) {
