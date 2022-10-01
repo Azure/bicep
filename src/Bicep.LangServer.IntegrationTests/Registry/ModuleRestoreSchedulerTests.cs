@@ -88,7 +88,7 @@ namespace Bicep.LangServer.UnitTests.Registry
             var mockRegistry = new MockRegistry();
             provider.Setup(m => m.Registries(It.IsAny<Uri>())).Returns(((IModuleRegistry)mockRegistry).AsEnumerable().ToImmutableArray());
 
-            var dispatcher = new ModuleDispatcher(provider.Object, IConfigurationManager.ForConfiguration(Configuration));
+            var dispatcher = new ModuleDispatcher(provider.Object, IConfigurationManager.WithStaticConfiguration(Configuration));
 
             var firstUri = DocumentUri.From("foo://one");
             var firstSource = new TaskCompletionSource<bool>();

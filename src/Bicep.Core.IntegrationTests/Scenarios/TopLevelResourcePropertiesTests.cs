@@ -29,7 +29,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
             BicepTestConstants.Features,
             BuiltInTestTypes.Create(),
             SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object),
-            IConfigurationManager.ForConfiguration(Configuration),
+            IConfigurationManager.WithStaticConfiguration(Configuration),
             BicepTestConstants.ApiVersionProvider,
             LinterAnalyzer);
 
@@ -191,7 +191,7 @@ output outputa string = '${inputa}-${inputb}'
                 BicepTestConstants.Features,
                 BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
-                IConfigurationManager.ForConfiguration(Configuration),
+                IConfigurationManager.WithStaticConfiguration(Configuration),
                 BicepTestConstants.ApiVersionProvider,
                 LinterAnalyzer);
 
@@ -238,7 +238,7 @@ output outputa string = '${inputa}-${inputb}'
                 BicepTestConstants.Features,
                 BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
-                IConfigurationManager.ForConfiguration(Configuration),
+                IConfigurationManager.WithStaticConfiguration(Configuration),
                 BicepTestConstants.ApiVersionProvider,
                 LinterAnalyzer);
 
@@ -287,7 +287,7 @@ output outputa string = '${inputa}-${inputb}'
                 BicepTestConstants.Features,
                 BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
-                IConfigurationManager.ForConfiguration(Configuration),
+                IConfigurationManager.WithStaticConfiguration(Configuration),
                 BicepTestConstants.ApiVersionProvider,
                 LinterAnalyzer);
 
@@ -332,7 +332,7 @@ output outputa string = '${inputa}-${inputb}'
                 BicepTestConstants.Features,
                 BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
-                IConfigurationManager.ForConfiguration(Configuration),
+                IConfigurationManager.WithStaticConfiguration(Configuration),
                 BicepTestConstants.ApiVersionProvider,
                 LinterAnalyzer);
 

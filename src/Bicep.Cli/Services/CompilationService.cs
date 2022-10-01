@@ -154,26 +154,37 @@ namespace Bicep.Cli.Services
 
         private static ImmutableDictionary<BicepFile, ImmutableArray<IDiagnostic>> GetModuleRestoreDiagnosticsByBicepFile(SourceFileGrouping sourceFileGrouping, ImmutableHashSet<ModuleSourceResolutionInfo> originalModulesToRestore, bool forceModulesRestore)
         {
-            static IEnumerable<IDiagnostic> GetModuleDiagnosticsPerFile(SourceFileGrouping grouping, BicepFile bicepFile)
+            static IDiagnostic? DiagnosticForModule(SourceFileGrouping grouping, ModuleDeclarationSyntax module)
+                => grouping.TryGetErrorDiagnostic(module) is {} errorBuilder ? errorBuilder(DiagnosticBuilder.ForPosition(module.Path)) : null;
+
+            static IEnumerable<(BicepFile, IDiagnostic)> GetDiagnosticsForModulesToRestore(SourceFileGrouping grouping, ImmutableHashSet<ModuleSourceResolutionInfo> originalModulesToRestore)
             {
-                foreach (var module in bicepFile.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>())
+                foreach (var (module, sourceFile) in originalModulesToRestore)
                 {
-                    if (grouping.TryGetErrorDiagnostic(module) is {} errorBuilder)
+                    if (sourceFile is BicepFile bicepFile && DiagnosticForModule(grouping, module) is {} diagnostic)
                     {
-                        yield return errorBuilder(DiagnosticBuilder.ForPosition(module.Path));
+                        yield return (bicepFile, diagnostic);
                     }
                 }
             }
 
-            if (forceModulesRestore)
+            static IEnumerable<(BicepFile, IDiagnostic)> GetDiagnosticsForAllModules(SourceFileGrouping grouping)
             {
-                return sourceFileGrouping.SourceFiles
-                    .OfType<BicepFile>()
-                    .ToImmutableDictionary(bicepFile => bicepFile, bicepFile => GetModuleDiagnosticsPerFile(sourceFileGrouping, bicepFile).ToImmutableArray());
+                foreach (var bicepFile in grouping.SourceFiles.OfType<BicepFile>())
+                {
+                    foreach (var module in bicepFile.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>())
+                    {
+                        if (DiagnosticForModule(grouping, module) is {} diagnostic)
+                        {
+                            yield return (bicepFile, diagnostic);
+                        }
+                    }
+                }
             }
 
-            return originalModulesToRestore.SelectMany(t => t.ParentTemplateFile is BicepFile bicepFile ? new [] { (bicepFile, t.ModuleDeclaration) } : Enumerable.Empty<(BicepFile, ModuleDeclarationSyntax)>())
-                .SelectMany(t => sourceFileGrouping.TryGetErrorDiagnostic(t.Item2)?.Invoke(DiagnosticBuilder.ForPosition(t.Item2.Path)) is IDiagnostic diagnostic ? new [] { (t.Item1, diagnostic) } : Enumerable.Empty<(BicepFile, IDiagnostic)>())
+            var diagnosticsByFile = forceModulesRestore ? GetDiagnosticsForAllModules(sourceFileGrouping) : GetDiagnosticsForModulesToRestore(sourceFileGrouping, originalModulesToRestore);
+
+            return diagnosticsByFile
                 .ToLookup(t => t.Item1, t => t.Item2)
                 .ToImmutableDictionary(g => g.Key, g => g.ToImmutableArray());
         }

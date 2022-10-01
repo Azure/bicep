@@ -40,7 +40,7 @@ namespace Bicep.Core.IntegrationTests
             var bicepFile = baselineFolder.EntryFile;
             var jsonFile = baselineFolder.GetFileOrEnsureCheckedIn(Path.ChangeExtension(embeddedBicep.FileName, jsonFileExtension));
 
-            var configManager = IConfigurationManager.ForConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
+            var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, configManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFile.OutputFilePath));
             var compilation = new Compilation(

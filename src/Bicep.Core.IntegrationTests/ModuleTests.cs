@@ -32,7 +32,7 @@ namespace Bicep.Core.IntegrationTests
     {
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
         private static readonly LinterAnalyzer LinterAnalyzer = BicepTestConstants.LinterAnalyzer;
-        private static readonly IConfigurationManager ConfigurationManager = IConfigurationManager.ForConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
+        private static readonly IConfigurationManager ConfigurationManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
 
         private IFeatureProvider ResourceTypedFeatures => BicepTestConstants.CreateFeatureProvider(TestContext, resourceTypedParamsAndOutputsEnabled: true);
 

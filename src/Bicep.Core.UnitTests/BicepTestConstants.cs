@@ -68,11 +68,11 @@ namespace Bicep.Core.UnitTests
         // By default turns off only problematic analyzers
         public static readonly RootConfiguration BuiltInConfiguration = BuiltInConfigurationWithProblematicAnalyzersDisabled;
 
-        public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.ForConfiguration(BuiltInConfiguration);
+        public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration);
 
         public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, TemplateSpecRepositoryFactory, Features, BuiltInOnlyConfigurationManager);
 
-        public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, IConfigurationManager.ForConfiguration(BuiltInConfiguration));
+        public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
 
         // By default turns off only problematic analyzers
         public static readonly LinterAnalyzer LinterAnalyzer = new LinterAnalyzer();

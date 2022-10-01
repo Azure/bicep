@@ -127,7 +127,7 @@ namespace Bicep.Decompiler
         {
             var hasChanges = false;
             var configuration = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
-            var configurationManager = IConfigurationManager.ForConfiguration(configuration);
+            var configurationManager = IConfigurationManager.WithStaticConfiguration(configuration);
             var dispatcher = new ModuleDispatcher(this.registryProvider, configurationManager);
             var linterAnalyzer = new LinterAnalyzer();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);

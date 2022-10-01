@@ -143,7 +143,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         {
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             Compilation createCompilation(string program)
-                    => new Compilation(BicepTestConstants.Features, new DefaultNamespaceProvider(new AzResourceTypeLoader()), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), IConfigurationManager.ForConfiguration(configuration), BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+                    => new Compilation(BicepTestConstants.Features, new DefaultNamespaceProvider(new AzResourceTypeLoader()), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), IConfigurationManager.WithStaticConfiguration(configuration), BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"

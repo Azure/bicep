@@ -166,7 +166,7 @@ namespace Bicep.Wasm
             workspace.UpsertSourceFile(sourceFile);
 
             var fileResolver = new FileResolver();
-            var configurationManager = IConfigurationManager.ForConfiguration(IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled());
+            var configurationManager = IConfigurationManager.WithStaticConfiguration(IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled());
             var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider(), configurationManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri);
 

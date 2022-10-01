@@ -48,7 +48,7 @@ namespace Bicep.Core.Samples
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(testContext);
             var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMain));
             var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(fileUri).WithAnalyzersDisabled(BicepTestConstants.AnalyzerRulesToDisableInTests);
-            var configManager = IConfigurationManager.ForConfiguration(configuration);
+            var configManager = IConfigurationManager.WithStaticConfiguration(configuration);
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, features, configManager), configManager);
             var workspace = new Workspace();
             var namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
@@ -58,13 +58,13 @@ namespace Bicep.Core.Samples
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
             }
 
-            return (new Compilation(features, namespaceProvider, sourceFileGrouping, IConfigurationManager.ForConfiguration(configuration), BicepTestConstants.ApiVersionProvider, new LinterAnalyzer()), outputDirectory, fileUri);
+            return (new Compilation(features, namespaceProvider, sourceFileGrouping, IConfigurationManager.WithStaticConfiguration(configuration), BicepTestConstants.ApiVersionProvider, new LinterAnalyzer()), outputDirectory, fileUri);
         }
 
         public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, TestContext testContext, params (Uri registryUri, string repository)[] additionalClients)
         {
             var clientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
-            var configManager = IConfigurationManager.ForConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
+            var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
 
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeatureProvider(testContext, registryEnabled: dataSet.HasRegistryModules), configManager), configManager);
 
@@ -104,7 +104,7 @@ namespace Bicep.Core.Samples
 
         public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(this DataSet dataSet, TestContext testContext)
         {
-            var configManager = IConfigurationManager.ForConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
+            var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeatureProvider(testContext, registryEnabled: dataSet.HasRegistryModules), configManager), configManager);
             var repositoryMocksBySubscription = new Dictionary<string, Mock<ITemplateSpecRepository>>();
 
@@ -134,7 +134,7 @@ namespace Bicep.Core.Samples
 
         public static async Task PublishModulesToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory, TestContext testContext)
         {
-            var configManager = IConfigurationManager.ForConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
+            var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeatureProvider(testContext, registryEnabled: dataSet.HasRegistryModules), configManager), configManager);
 
             foreach (var (moduleName, publishInfo) in dataSet.RegistryModules)

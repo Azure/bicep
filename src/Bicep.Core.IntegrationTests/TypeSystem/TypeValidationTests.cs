@@ -26,7 +26,7 @@ namespace Bicep.Core.IntegrationTests
                 BicepTestConstants.Features,
                 nsProvider,
                 SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver),
-                IConfigurationManager.ForConfiguration(configuration),
+                IConfigurationManager.WithStaticConfiguration(configuration),
                 BicepTestConstants.ApiVersionProvider,
                 new LinterAnalyzer());
 

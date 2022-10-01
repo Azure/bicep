@@ -17,8 +17,8 @@ namespace Bicep.Core.Configuration
 {
     public class ConfigurationManager : IConfigurationManager
     {
-        private readonly ConcurrentDictionary<Uri, (RootConfiguration? config, DiagnosticBuilder.DiagnosticBuilderDelegate? loadError)> configCache = new();
-        private readonly ConcurrentDictionary<Uri, ConfigLookupResult> configLookupCache = new();
+        private readonly ConcurrentDictionary<Uri, (RootConfiguration? config, DiagnosticBuilder.DiagnosticBuilderDelegate? loadError)> configFileUriToLoadedConfigCache = new();
+        private readonly ConcurrentDictionary<Uri, ConfigLookupResult> templateUriToConfigUriCache = new();
         private readonly IFileSystem fileSystem;
 
         public ConfigurationManager(IFileSystem fileSystem)
@@ -29,23 +29,21 @@ namespace Bicep.Core.Configuration
         public RootConfiguration GetConfiguration(Uri sourceFileUri)
         {
             var (config, diagnosticBuilders) = GetConfigurationFromCache(sourceFileUri);
-            return diagnosticBuilders.Count > 0
-                ? new(config.Cloud, config.ModuleAliases, config.Analyzers, config.ConfigurationPath, diagnosticBuilders)
-                : config;
+            return WithLoadDiagnostics(config, diagnosticBuilders);
         }
 
         public void PurgeCache()
         {
             PurgeLookupCache();
-            configCache.Clear();
+            configFileUriToLoadedConfigCache.Clear();
         }
 
-        public void PurgeLookupCache() => configLookupCache.Clear();
+        public void PurgeLookupCache() => templateUriToConfigUriCache.Clear();
 
         public (RootConfiguration prevConfiguration, RootConfiguration newConfiguration)? RefreshConfigCacheEntry(Uri configUri)
         {
             (RootConfiguration, RootConfiguration)? returnVal = null;
-            configCache.AddOrUpdate(configUri, LoadConfiguration, (uri, prev) => {
+            configFileUriToLoadedConfigCache.AddOrUpdate(configUri, LoadConfiguration, (uri, prev) => {
                 var reloaded = LoadConfiguration(uri);
                 if (prev.config is {} prevConfig && reloaded.Item1 is {} newConfig)
                 {
@@ -59,7 +57,7 @@ namespace Bicep.Core.Configuration
 
         public void RemoveConfigCacheEntry(Uri configUri)
         {
-            if (configCache.TryRemove(configUri, out _))
+            if (configFileUriToLoadedConfigCache.TryRemove(configUri, out _))
             {
                 // If a config file has been removed from a workspace, the lookup cache is no longer valid.
                 PurgeLookupCache();
@@ -70,7 +68,7 @@ namespace Bicep.Core.Configuration
         {
             List<DiagnosticBuilder.DiagnosticBuilderDelegate> diagnostics = new();
 
-            var (configFileUri, lookupDiagnostic) = configLookupCache.GetOrAdd(sourceFileUri, LookupConfiguration);
+            var (configFileUri, lookupDiagnostic) = templateUriToConfigUriCache.GetOrAdd(sourceFileUri, LookupConfiguration);
             if (lookupDiagnostic is not null)
             {
                 diagnostics.Add(lookupDiagnostic);
@@ -78,7 +76,7 @@ namespace Bicep.Core.Configuration
 
             if (configFileUri is not null)
             {
-                var (config, loadError) = configCache.GetOrAdd(configFileUri, LoadConfiguration);
+                var (config, loadError) = configFileUriToLoadedConfigCache.GetOrAdd(configFileUri, LoadConfiguration);
                 if (loadError is not null)
                 {
                     diagnostics.Add(loadError);
@@ -91,6 +89,16 @@ namespace Bicep.Core.Configuration
             }
 
             return (GetDefaultConfiguration(), diagnostics);
+        }
+
+        private static RootConfiguration WithLoadDiagnostics(RootConfiguration configuration, List<DiagnosticBuilder.DiagnosticBuilderDelegate> diagnostics)
+        {
+            if (diagnostics.Count > 0)
+            {
+                return new(configuration.Cloud, configuration.ModuleAliases, configuration.Analyzers, configuration.ConfigurationPath, diagnostics);
+            }
+
+            return configuration;
         }
 
         private RootConfiguration GetDefaultConfiguration() => IConfigurationManager.GetBuiltInConfiguration();

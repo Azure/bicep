@@ -21,7 +21,7 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         public static SourceFileGrouping CreateForFiles(IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri, IFileResolver fileResolver, RootConfiguration configuration, IFeatureProvider? features = null)
-            => CreateForFiles(fileContentsByUri, entryFileUri, fileResolver, IConfigurationManager.ForConfiguration(configuration), features);
+            => CreateForFiles(fileContentsByUri, entryFileUri, fileResolver, IConfigurationManager.WithStaticConfiguration(configuration), features);
 
         public static SourceFileGrouping CreateForFiles(IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri, IFileResolver fileResolver, IConfigurationManager configurationManager, IFeatureProvider? features = null)
         {
