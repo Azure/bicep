@@ -470,7 +470,7 @@ export class DeployCommand implements Command {
         if (paramsPaths) {
           assert(paramsPaths.length === 1, "Expected paramsPaths.length === 1");
           parameterFilePath = paramsPaths[0].fsPath;
-        }else {
+        } else {
           return undefined;
         }
       } else if (result.label === this._none) {
@@ -479,7 +479,7 @@ export class DeployCommand implements Command {
         parameterFilePath = result.data;
       }
 
-      if (await this.validateIsValidParameterFile(parameterFilePath)) {
+      if (await this.validateIsValidParameterFile(parameterFilePath, true)) {
         this.outputChannelManager.appendToOutputChannel(
           `Parameter file used in deployment -> ${parameterFilePath}`
         );
@@ -489,7 +489,7 @@ export class DeployCommand implements Command {
     }
   }
 
-  private async validateIsValidParameterFile(path: string):Promise<boolean> {
+  private async validateIsValidParameterFile(path: string, showErrorMessage: boolean): Promise<boolean> {
     const expectedSchema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#";
 
     let message: string | undefined;
@@ -510,7 +510,10 @@ export class DeployCommand implements Command {
     }
     
     if (message) {
-      await vscode.window.showErrorMessage(`The selected file is not a valid parameters file. ${message}`, { modal: true });
+      if (showErrorMessage) {
+        await vscode.window.showErrorMessage(`The selected file is not a valid parameters file. ${message}`, { modal: true });
+      }
+      
       return false;
     }
 
@@ -682,7 +685,7 @@ export class DeployCommand implements Command {
     let parameterFilesQuickPickList = [noneQuickPickItem].concat([
       browseQuickPickItem,
     ]);
-    const jsonFilesInFolder = await this.getJsonFilesInFolder();
+    const jsonFilesInFolder = await this.getParameterFilesInFolder();
 
     if (jsonFilesInFolder) {
       parameterFilesQuickPickList =
@@ -692,7 +695,7 @@ export class DeployCommand implements Command {
     return parameterFilesQuickPickList;
   }
 
-  private async getJsonFilesInFolder(): Promise<IAzureQuickPickItem<string>[]> {
+  private async getParameterFilesInFolder(): Promise<IAzureQuickPickItem<string>[]> {
     const quickPickItems: IAzureQuickPickItem<string>[] = [];
     const workspaceJsonFiles = (
       await vscode.workspace.findFiles("**/*.{json,jsonc}", undefined)
@@ -701,6 +704,10 @@ export class DeployCommand implements Command {
     workspaceJsonFiles.sort((a, b) => compareStringsOrdinal(a.path, b.path));
 
     for (const uri of workspaceJsonFiles) {
+      if (!(await this.validateIsValidParameterFile(uri.fsPath, false))) {
+        continue;
+      }
+
       const workspaceRoot: string | undefined =
         vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath;
       const relativePath = workspaceRoot
