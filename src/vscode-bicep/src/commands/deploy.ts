@@ -1,24 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import * as fse from "fs-extra";
-import * as path from "path";
-import vscode, { commands, Uri } from "vscode";
 import { AccessToken } from "@azure/identity";
-import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
-import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
-import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
-import { Command } from "./types";
-import { localize } from "../utils/localize";
-import { LocationTreeItem } from "../tree/LocationTreeItem";
-import { OutputChannelManager } from "../utils/OutputChannelManager";
-import { TreeManager } from "../tree/TreeManager";
 import {
   AzExtTreeDataProvider,
   IActionContext,
   IAzureQuickPickItem,
   ISubscriptionContext,
-  parseError,
+  parseError
 } from "@microsoft/vscode-azext-utils";
+import assert from "assert";
+import * as fse from "fs-extra";
+import * as path from "path";
+import vscode, { commands, Uri } from "vscode";
+import {
+  LanguageClient,
+  TextDocumentIdentifier
+} from "vscode-languageclient/node";
 import {
   BicepDeploymentParametersResponse,
   BicepDeploymentScopeParams,
@@ -27,15 +24,19 @@ import {
   BicepDeploymentStartResponse,
   BicepDeploymentWaitForCompletionParams,
   BicepUpdatedDeploymentParameter,
-  ParametersFileUpdateOption,
+  ParametersFileUpdateOption
 } from "../language";
-import {
-  LanguageClient,
-  TextDocumentIdentifier,
-} from "vscode-languageclient/node";
-import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
-import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
+import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
+import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
+import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
+import { LocationTreeItem } from "../tree/LocationTreeItem";
+import { TreeManager } from "../tree/TreeManager";
 import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
+import { localize } from "../utils/localize";
+import { OutputChannelManager } from "../utils/OutputChannelManager";
+import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
+import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
+import { Command } from "./types";
 
 export class DeployCommand implements Command {
   private _none = localize("none", "$(circle-slash) None");
@@ -440,46 +441,80 @@ export class DeployCommand implements Command {
   }
 
   private async selectParameterFile(
-    _context: IActionContext,
+    context: IActionContext,
     sourceUri: Uri
   ): Promise<string | undefined> {
-    const quickPickItems: IAzureQuickPickItem<string>[] =
-      await this.createParameterFileQuickPickList();
-    const result: IAzureQuickPickItem<string> = await _context.ui.showQuickPick(
-      quickPickItems,
-      {
-        canPickMany: false,
-        placeHolder: `Select a parameter file`,
-        id: sourceUri.toString(),
-      }
-    );
+    while (true) {
+      let parameterFilePath: string;
 
-    if (result.label === this._browse) {
-      const paramsPaths: Uri[] | undefined = await vscode.window.showOpenDialog(
+      const quickPickItems: IAzureQuickPickItem<string>[] =
+        await this.createParameterFileQuickPickList();
+      const result: IAzureQuickPickItem<string> = await context.ui.showQuickPick(
+        quickPickItems,
         {
-          canSelectMany: false,
-          defaultUri: sourceUri,
-          openLabel: "Select Parameter File",
-          filters: { "JSON Files": ["json", "jsonc"] },
+          canPickMany: false,
+          placeHolder: `Select a parameter file`,
+          id: sourceUri.toString(),
         }
       );
-      if (paramsPaths && paramsPaths.length === 1) {
-        const parameterFilePath = paramsPaths[0].fsPath;
+
+      if (result.label === this._browse) {
+        const paramsPaths: Uri[] | undefined = await vscode.window.showOpenDialog(
+          {
+            canSelectMany: false,
+            defaultUri: sourceUri,
+            openLabel: "Select Parameter File",
+            filters: { "JSON Files": ["json", "jsonc"] },
+          }
+        );
+        if (paramsPaths) {
+          assert(paramsPaths.length === 1, "Expected paramsPaths.length === 1");
+          parameterFilePath = paramsPaths[0].fsPath;
+        }else {
+          return undefined;
+        }
+      } else if (result.label === this._none) {
+        return undefined;
+      } else {
+        parameterFilePath = result.data;
+      }
+
+      if (await this.validateIsValidParameterFile(parameterFilePath)) {
         this.outputChannelManager.appendToOutputChannel(
           `Parameter file used in deployment -> ${parameterFilePath}`
         );
+
         return parameterFilePath;
       }
-    } else if (result.label === this._none) {
-      return undefined;
-    } else {
-      this.outputChannelManager.appendToOutputChannel(
-        `Parameter file used in deployment -> ${result.data}`
-      );
-      return result.data;
+    }
+  }
+
+  private async validateIsValidParameterFile(path: string):Promise<boolean> {
+    const expectedSchema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#";
+
+    let message: string | undefined;
+    let json: { $schema?: unknown } | undefined;
+    try {
+       json = fse.readJsonSync(path);
+    } catch(err) {
+      message = parseError(err).message;
     }
 
-    return undefined;
+    if (json) {
+      let schema = json.$schema as string;
+      if (!schema) {
+        message = `The file has no $schema property. Expected $schema "${expectedSchema}"`;
+      } else if (!/deploymentparameters\.json/i.test(schema)) {
+        message = `Unexpected $schema found: ${schema}.  Expected $schema "${expectedSchema}"`;
+      }
+    }
+    
+    if (message) {
+      await vscode.window.showErrorMessage(`The selected file is not a valid parameters file. ${message}`, { modal: true });
+      return false;
+    }
+
+    return true;
   }
 
   private async handleMissingAndDefaultParams(
