@@ -58,6 +58,21 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             CompileAndTest(bicep, 0);
         }
 
+        [DataRow(@"param password string", false)]
+        [DataRow(@"param password object", false)]
+        [DataRow(@"param password array", true)]
+        [DataRow(@"param password bool", true)]
+        [DataRow(@"param password int", true)]
+        [DataRow(@"@secure()
+                   param password string", true)]
+        [DataRow(@"@secure()
+                   param password object", true)]
+        [DataTestMethod]
+        public void ShouldOnlyFailForStringAndObject(string bicep, bool shouldPass)
+        {
+            CompileAndTest(bicep, shouldPass ? 0 : 1);
+        }
+
         // password
         [DataRow(@"param fail_adminPasswordInt int")]
         [DataRow(@"param fail_adminPassword string")]
