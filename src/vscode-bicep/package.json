@@ -534,7 +534,7 @@
   },
   "devDependencies": {
     "@types/copy-webpack-plugin": "^10.1.0",
-    "@types/cytoscape": "^3.19.8",
+    "@types/cytoscape": "^3.19.9",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
     "@types/mocha": "^9.1.1",
