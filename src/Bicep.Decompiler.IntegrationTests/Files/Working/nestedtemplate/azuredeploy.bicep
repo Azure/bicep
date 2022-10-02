@@ -30,10 +30,10 @@ param FlowLogsversion string = '2'
 ])
 param storageAccountType string = 'Standard_LRS'
 
-var storageAccountName_var = 'flowlogs${uniqueString(resourceGroup().id)}'
+var storageAccountName = 'flowlogs${uniqueString(resourceGroup().id)}'
 
-resource storageAccountName 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-  name: storageAccountName_var
+resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: storageAccountName
   location: location
   sku: {
     name: storageAccountType
@@ -53,6 +53,6 @@ module deployFlowLogs './nested_deployFlowLogs.bicep' = {
     existingNSG: existingNSG
     RetentionDays: RetentionDays
     FlowLogsversion: FlowLogsversion
-    storageAccountResourceId: storageAccountName.id
+    storageAccountResourceId: storageAccount.id
   }
 }

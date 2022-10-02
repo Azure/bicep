@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 namespace Bicep.LanguageServer.ParamsHandlers
 {
     internal class BicepParamsTextDocumentSyncHandler : TextDocumentSyncHandlerBase
-    {        
+    {
         private readonly IParamsCompilationManager paramsCompilationManager;
         private readonly IFeatureProvider featureProvider;
 

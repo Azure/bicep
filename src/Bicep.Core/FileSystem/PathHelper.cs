@@ -126,6 +126,7 @@ namespace Bicep.Core.FileSystem
             {
                 filePath = "/" + filePath;
             }
+            filePath = filePath.Replace("%", "%25");
 
             var uriBuilder = new UriBuilder
             {

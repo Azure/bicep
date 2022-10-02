@@ -30,13 +30,14 @@ namespace Bicep.LangServer.UnitTests
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
         private static readonly LinterRulesProvider linterRulesProvider = new();
 
-        public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false)
+        public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false, IConfigurationManager? configurationManager = null)
         {
+            IConfigurationManager configManager = configurationManager ?? new ConfigurationManager(new IOFileSystem());
             PublishDiagnosticsParams? receivedParams = null;
 
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
-            BicepCompilationManager bicepCompilationManager = new(server.Object, CreateEmptyCompilationProvider(), new Workspace(), FileResolver, CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()), BicepTestConstants.CreateMockTelemetryProvider().Object, linterRulesProvider);
+            BicepCompilationManager bicepCompilationManager = new(server.Object, CreateEmptyCompilationProvider(configManager), new Workspace(), FileResolver, CreateMockScheduler().Object, configManager, BicepTestConstants.CreateMockTelemetryProvider().Object, linterRulesProvider);
 
             if (upsertCompilation)
             {
@@ -50,9 +51,9 @@ namespace Bicep.LangServer.UnitTests
             PublishDiagnosticsParams? receivedParams = null;
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
-            var provider = new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateWithAzTypes(), FileResolver, dispatcher, BicepTestConstants.ApiVersionProvider);
             var configManager = new ConfigurationManager(new IOFileSystem());
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features, configManager), configManager);
+            var provider = new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateWithAzTypes(), FileResolver, dispatcher, BicepTestConstants.ApiVersionProvider, configManager);
 
             return new BicepParamsCompilationManager(server.Object, provider, configManager, BicepTestConstants.FileResolver, dispatcher, new Workspace(), BicepTestConstants.Features, BicepTestConstants.ApiVersionProvider, BicepTestConstants.NamespaceProvider);
         }
@@ -86,15 +87,15 @@ namespace Bicep.LangServer.UnitTests
             return server;
         }
 
-        public static ICompilationProvider CreateEmptyCompilationProvider()
+        public static ICompilationProvider CreateEmptyCompilationProvider(IConfigurationManager configurationManager)
         {
-            return new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), FileResolver, new ModuleDispatcher(BicepTestConstants.RegistryProvider), BicepTestConstants.ApiVersionProvider);
+            return new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), FileResolver, new ModuleDispatcher(BicepTestConstants.RegistryProvider, configurationManager), BicepTestConstants.ApiVersionProvider, configurationManager);
         }
 
         public static Mock<IModuleRestoreScheduler> CreateMockScheduler()
         {
             var scheduler = Repository.Create<IModuleRestoreScheduler>();
-            scheduler.Setup(m => m.RequestModuleRestore(It.IsAny<ICompilationManager>(), It.IsAny<DocumentUri>(), It.IsAny<IEnumerable<ModuleDeclarationSyntax>>(), It.IsAny<RootConfiguration>()));
+            scheduler.Setup(m => m.RequestModuleRestore(It.IsAny<ICompilationManager>(), It.IsAny<DocumentUri>(), It.IsAny<IEnumerable<ModuleSourceResolutionInfo>>()));
 
             return scheduler;
         }

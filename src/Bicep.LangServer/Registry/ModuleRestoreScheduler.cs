@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Configuration;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using System;
@@ -18,7 +18,7 @@ namespace Bicep.LanguageServer.Registry
 {
     public sealed class ModuleRestoreScheduler : IModuleRestoreScheduler, IAsyncDisposable
     {
-        private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<ModuleReference> ModuleReferences, RootConfiguration Configuration);
+        private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<ModuleReference> ModuleReferences);
 
         private record CompletionNotification(ICompilationManager CompilationManager, DocumentUri Uri);
 
@@ -47,13 +47,12 @@ namespace Bicep.LanguageServer.Registry
         /// <param name="compilationManager"></param>
         /// <param name="modules">The module references</param>
         /// <param name="documentUri">The document URI that needs to be recompiled once restore completes asynchronously</param>
-        /// <param name="configuration">The configuration associated with the list of modules.</param>
-        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ModuleDeclarationSyntax> modules, RootConfiguration configuration)
+        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ModuleSourceResolutionInfo> modules)
         {
             this.CheckDisposed();
 
-            var moduleReferences = this.moduleDispatcher.GetValidModuleReferences(modules, configuration).ToImmutableArray();
-            var item = new QueueItem(compilationManager, documentUri, moduleReferences, configuration);
+            var moduleReferences = this.moduleDispatcher.GetValidModuleReferences(modules).ToImmutableArray();
+            var item = new QueueItem(compilationManager, documentUri, moduleReferences);
             lock (this.queue)
             {
                 this.queue.Enqueue(item);
@@ -127,7 +126,7 @@ namespace Bicep.LanguageServer.Registry
                 foreach (var item in items)
                 {
                     token.ThrowIfCancellationRequested();
-                    if (!await this.moduleDispatcher.RestoreModules(item.Configuration, item.ModuleReferences))
+                    if (!await this.moduleDispatcher.RestoreModules(item.ModuleReferences))
                     {
                         // nothing needed to be restored
                         // no need to notify about completion

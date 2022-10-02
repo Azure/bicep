@@ -649,7 +649,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
-            
+
             var helper = await ServerWithBuiltInTypes.GetAsync();
             await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
 

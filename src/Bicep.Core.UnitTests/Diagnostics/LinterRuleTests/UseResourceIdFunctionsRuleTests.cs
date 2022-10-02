@@ -839,7 +839,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 url: 'https://${reference(resourceId('Microsoft.Web/sites', 'web'), '2020-09-01').defaultHostName}'
                 protocol: 'http'
               }
-            }",
+            }
+
+            // https://github.com/Azure/bicep/issues/8382
+            resource keys 'Microsoft.ApiManagement/service/subscriptions@2021-08-01' = {
+              name: 'apimName/testSubscription'
+              properties: {
+                ownerId: '/users/1' // in form /users/{userId}, so this property should be ignored
+                scope: '/products/testProduct'
+                displayName: 'Test Name'
+                state: 'active'
+                allowTracing: true
+              }
+            }
+",
             new object[]
             {
                 // pass
@@ -1605,6 +1618,27 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 // pass
             },
             DisplayName = "subnets")]
+        [DataRow(@"
+                param cosmosName string
+                param cosmosAccountDatabaseScope string
+
+                var devAadGroupIds = [
+                  '25f41063-9986-4445-b0d5-e24b1a370d5e'
+                  '621dc9d5-008d-4b72-bfdb-bed87e2a039a'
+                ]
+
+                @batchSize(1)
+                resource developerRoleAssignments 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2022-05-15' = [for devId in devAadGroupIds: {
+                  name: '${cosmosName}/${devId}'
+                  properties: {
+                    roleDefinitionId: '00000000-0000-0000-0000-000000000001' // Read Access
+                    principalId: devId
+                    scope: cosmosAccountDatabaseScope
+                  }
+                }]
+            ",
+            DisplayName = "Regress #8424"
+        )]
         [DataTestMethod]
         public void Test(string text, params string[] expectedMessages)
         {
@@ -1884,6 +1918,39 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 expectedMessages: new string[]
                 {
                     // pass
+                });
+        }
+
+        [TestMethod]
+        public void Regress8410()
+        {
+            CompileAndTest(
+                @"
+                    targetScope = 'tenant'
+
+                    param parTopLevelManagementGroupPrefix string
+                    param parTopLevelManagementGroupDisplayName string
+                    param parTopLevelManagementGroupParentId string
+
+                    resource resTopLevelMg 'Microsoft.Management/managementGroups@2021-04-01' = {
+                      name: parTopLevelManagementGroupPrefix
+                      properties: {
+                        displayName: parTopLevelManagementGroupDisplayName
+                        details: {
+                          parent: {
+                    #disable-next-line BCP037
+                            oneId: (empty(parTopLevelManagementGroupParentId) ? '/providers/Microsoft.Management/managementGroups/${tenant().tenantId}' : parTopLevelManagementGroupParentId)
+
+                    #disable-next-line BCP037
+                            twoId: empty(parTopLevelManagementGroupParentId) ? '/providers/Microsoft.Management/managementGroups/${tenant().tenantId}' : parTopLevelManagementGroupParentId
+                          }
+                        }
+                      }
+                    }
+",
+                expectedMessages: new string[]
+                {
+                    // asdfg
                 });
         }
     }

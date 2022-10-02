@@ -4,11 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.AccessControl;
+using System.Text;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core;
 using Bicep.Decompiler.ArmHelpers;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Decompiler
 {
@@ -17,6 +21,10 @@ namespace Bicep.Decompiler
         private readonly Dictionary<string, Dictionary<NameType, string>> assignedNames = new(StringComparer.OrdinalIgnoreCase);
 
         private readonly Dictionary<string, string> assignedResourceNames = new(StringComparer.OrdinalIgnoreCase);
+
+        // This regex/replacements allows us to change vmName -> vm and vmName2 -> vm2
+        private readonly Regex ResourceNameRemoveTrailingNameRegex = new Regex("([a-zA-Z][a-zA-Z0-9_]*)Name([0-9]*)$");
+        private const string ResourceNameRemoveTrailingNameReplacement = "$1$2";
 
         private static string GetNamingSuffix(NameType nameType)
             => nameType switch
@@ -45,6 +53,10 @@ namespace Bicep.Decompiler
                 value = "_" + value;
             }
 
+            if (!identifier.EqualsOrdinally(value))
+            {
+                Trace.WriteLine($"EscapeIdentifier: \"{identifier}\" -> \"{value}\"");
+            }
             return value;
         }
 
@@ -88,12 +100,14 @@ namespace Bicep.Decompiler
                 {
                     [nameType] = desiredName,
                 };
+                Trace.WriteLine($"TryRequestName: Using desired name \"{desiredName}\"");
                 assignedNames[desiredName] = nameByType;
             }
             else
             {
                 if (nameByType.ContainsKey(nameType))
                 {
+                    Trace.WriteLine($"TryRequestName: \"{desiredName}\" -> NULL");
                     return null;
                 }
 
@@ -101,6 +115,7 @@ namespace Bicep.Decompiler
                 {
                     // output names can't clash with param/var/resource names
                     nameByType[nameType] = desiredName;
+                    Trace.WriteLine($"TryRequestName: Using desired name \"{desiredName}\"");
                 }
                 else if (!nameByType.ContainsKey(NameType.Parameter) && !nameByType.ContainsKey(NameType.Variable) && !nameByType.ContainsKey(NameType.Resource))
                 {
@@ -111,6 +126,7 @@ namespace Bicep.Decompiler
                 {
                     // TODO technically a naming clash is still possible here but unlikely
                     nameByType[nameType] = $"{desiredName}_{GetNamingSuffix(nameType)}";
+                    Trace.WriteLine($"TryRequestName: \"{desiredName}\" -> \"{nameByType[nameType]}\"");
                 }
             }
 
@@ -161,12 +177,15 @@ namespace Bicep.Decompiler
             var assignedResourceKey = GetResourceNameKey(typeString, nameExpression);
             var nameString = GetNameRecursive(nameExpression);
 
+            nameString = RemoveTrailingNameFromResourceName(nameString);
+
             // try to get a shorter name first if possible
             // if we've got two resources of different types with the same name, we may be forced to qualify it
             var unqualifiedName = TryRequestNameCore(NameType.Resource, nameString, isGenerated: true);
             if (unqualifiedName != null)
             {
                 assignedResourceNames[assignedResourceKey] = unqualifiedName;
+                Trace.WriteLine($"TryRequestResourceName: Using unqualified name \"{unqualifiedName}\"");
                 return unqualifiedName;
             }
 
@@ -174,10 +193,30 @@ namespace Bicep.Decompiler
             if (qualifiedName != null)
             {
                 assignedResourceNames[assignedResourceKey] = qualifiedName;
+                Trace.WriteLine($"TryRequestResourceName: Using qualified name \"{qualifiedName}\"");
                 return qualifiedName;
             }
 
+            Trace.WriteLine($"TryRequestResourceName: \"{unqualifiedName}\" -> NULL");
             return null;
+        }
+
+        private string RemoveTrailingNameFromResourceName(string resourceName)
+        {
+            // A common pattern is:
+            //
+            // "variables": {
+            //   "stgAccountName": "myStorage"
+            // },
+            // "resources": [{
+            //   "name": "[variables('stgAccountName')]",
+            //    ...
+            //
+            // If we choose the name 'stgAccountName' for the resource, it will conflict with the variable name.
+            // So, remove a trailing "Name"
+
+            var escapedName = EscapeIdentifier(resourceName, isGenerated: true);
+            return ResourceNameRemoveTrailingNameRegex.Replace(escapedName, ResourceNameRemoveTrailingNameReplacement);
         }
 
         private string GetResourceNameKey(string typeString, LanguageExpression nameExpression)

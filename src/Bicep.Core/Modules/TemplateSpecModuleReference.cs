@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Uri;
@@ -21,8 +22,8 @@ namespace Bicep.Core.Modules
 
         private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        private TemplateSpecModuleReference(string subscriptionId, string resourceGroupName, string templateSpecName, string version)
-            : base(ModuleReferenceSchemes.TemplateSpecs)
+        private TemplateSpecModuleReference(string subscriptionId, string resourceGroupName, string templateSpecName, string version, Uri parentModuleUri)
+            : base(ModuleReferenceSchemes.TemplateSpecs, parentModuleUri)
         {
             this.SubscriptionId = subscriptionId;
             this.ResourceGroupName = resourceGroupName;
@@ -63,13 +64,14 @@ namespace Bicep.Core.Modules
             return hash.ToHashCode();
         }
 
-        public static TemplateSpecModuleReference? TryParse(string? aliasName, string referenceValue, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? errorBuilder)
+        public static bool TryParse(string? aliasName, string referenceValue, RootConfiguration configuration, Uri parentModuleUri, [NotNullWhen(true)] out TemplateSpecModuleReference? parsed, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? errorBuilder)
         {
             if (aliasName is not null)
             {
-                if (configuration.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName, out errorBuilder) is not { } alias)
+                if (!configuration.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName, out var alias, out errorBuilder))
                 {
-                    return null;
+                    parsed = null;
+                    return false;
                 }
 
                 referenceValue = $"{alias}/{referenceValue}";
@@ -78,7 +80,8 @@ namespace Bicep.Core.Modules
             if (TemplateSpecUriTemplate.GetTemplateMatch(referenceValue) is not { } match)
             {
                 errorBuilder = x => x.InvalidTemplateSpecReference(aliasName, FullyQualify(referenceValue));
-                return null;
+                parsed = null;
+                return false;
             }
 
             string subscriptionId = GetBoundVariable(match, nameof(subscriptionId));
@@ -90,14 +93,16 @@ namespace Bicep.Core.Modules
             if (!Guid.TryParse(subscriptionId, out _))
             {
                 errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidSubscirptionId(aliasName, subscriptionId, FullyQualify(referenceValue));
-                return null;
+                parsed = null;
+                return false;
             }
 
             // Validate resource group name.
             if (resourceGroupName.Length > ResourceNameMaximumLength)
             {
                 errorBuilder = x => x.InvalidTemplateSpecReferenceResourceGroupNameTooLong(aliasName, resourceGroupName, FullyQualify(referenceValue), ResourceNameMaximumLength);
-                return null;
+                parsed = null;
+                return false;
             }
 
             if (resourceGroupName.Length == 0 ||
@@ -105,37 +110,43 @@ namespace Bicep.Core.Modules
                 resourceGroupName.Where(c => !char.IsLetterOrDigit(c) && !ResourceGroupNameAllowedCharacterSet.Contains(c)).Any())
             {
                 errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidResourceGroupName(aliasName, resourceGroupName, FullyQualify(referenceValue));
-                return null;
+                parsed = null;
+                return false;
             }
 
             // Validate template spec name.
             if (templateSpecName.Length > ResourceNameMaximumLength)
             {
                 errorBuilder = x => x.InvalidTemplateSpecReferenceTemplateSpecNameTooLong(aliasName, templateSpecName, FullyQualify(referenceValue), ResourceNameMaximumLength);
-                return null;
+                parsed = null;
+                return false;
             }
 
             if (!ResourceNameRegex.IsMatch(templateSpecName))
             {
                 errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecName(aliasName, templateSpecName, FullyQualify(referenceValue));
-                return null;
+                parsed = null;
+                return false;
             }
 
             // Validate template spec version.
             if (version.Length > ResourceNameMaximumLength)
             {
                 errorBuilder = x => x.InvalidTemplateSpecReferenceTemplateSpecVersionTooLong(aliasName, version, FullyQualify(referenceValue), ResourceNameMaximumLength);
-                return null;
+                parsed = null;
+                return false;
             }
 
             if (!ResourceNameRegex.IsMatch(version))
             {
                 errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(aliasName, version, FullyQualify(referenceValue));
-                return null;
+                parsed = null;
+                return false;
             }
 
             errorBuilder = null;
-            return new(subscriptionId, resourceGroupName, templateSpecName, version);
+            parsed = new(subscriptionId, resourceGroupName, templateSpecName, version, parentModuleUri);
+            return true;
         }
         private static string FullyQualify(string referenceValue) => $"{ModuleReferenceSchemes.TemplateSpecs}:{referenceValue}";
 

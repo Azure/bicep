@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -24,55 +24,51 @@ namespace Bicep.Core.Workspaces
         private readonly IReadOnlyWorkspace workspace;
 
         private readonly Dictionary<Uri, FileResolutionResult> fileResultByUri;
-        private readonly Dictionary<StatementSyntax, UriResolutionResult> uriResultByModule;
-
-        private readonly RootConfiguration configuration;
+        private readonly ConcurrentDictionary<ISourceFile, Dictionary<StatementSyntax, UriResolutionResult>> uriResultByModule;
 
         private readonly bool forceModulesRestore;
 
-        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, RootConfiguration configuration, bool forceforceModulesRestore = false)
+        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, bool forceforceModulesRestore = false)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.workspace = workspace;
-            this.configuration = configuration;
             this.uriResultByModule = new();
             this.fileResultByUri = new();
             this.forceModulesRestore = forceforceModulesRestore;
         }
 
-        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current, RootConfiguration configuration, bool forceforceModulesRestore = false)
+        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current, bool forceforceModulesRestore = false)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.workspace = workspace;
-            this.configuration = configuration;
-            this.uriResultByModule = new(current.UriResultByModule);
+            this.uriResultByModule = new(current.UriResultByModule.Select(kvp => KeyValuePair.Create(kvp.Key, kvp.Value.ToDictionary(p => p.Key, p => p.Value))));
             this.fileResultByUri = current.FileResultByUri.Where(x => x.Value.File is not null).ToDictionary(x => x.Key, x => x.Value);
             this.forceModulesRestore = forceforceModulesRestore;
         }
 
-        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, RootConfiguration configuration, bool forceModulesRestore = false)
+        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, bool forceModulesRestore = false)
         {
-            var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, configuration, forceModulesRestore);
+            var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, forceModulesRestore);
 
             return builder.Build(entryFileUri);
         }
 
-        public static SourceFileGrouping Rebuild(IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current, RootConfiguration configuration)
+        public static SourceFileGrouping Rebuild(IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current)
         {
-            var builder = new SourceFileGroupingBuilder(current.FileResolver, moduleDispatcher, workspace, current, configuration);
+            var builder = new SourceFileGroupingBuilder(current.FileResolver, moduleDispatcher, workspace, current);
             var isParamsFile = current.FileResultByUri[current.EntryFileUri].File is BicepParamFile;
             var modulesToRestore = current.GetModulesToRestore().ToHashSet();
 
-            foreach (var module in modulesToRestore)
+            foreach (var (module, sourceFile) in modulesToRestore)
             {
-                builder.uriResultByModule.Remove(module);
+                builder.uriResultByModule[sourceFile].Remove(module);
             }
 
             // Rebuild source files that contains external module references restored during the inital build.
             var sourceFilesToRebuild = current.SourceFiles
-                .Where(sourceFile => GetModuleDeclarations(sourceFile).Any(moduleDeclaration => modulesToRestore.Contains(moduleDeclaration)))
+                .Where(sourceFile => GetModuleDeclarations(sourceFile).Any(moduleDeclaration => modulesToRestore.Contains(new(moduleDeclaration, sourceFile))))
                 .ToImmutableHashSet();
 
             return builder.Build(current.EntryPoint.FileUri, sourceFilesToRebuild);
@@ -87,7 +83,7 @@ namespace Bicep.Core.Workspaces
                 // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:
                 // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/nullable-analysis
                 var failureBuilder = fileResult.ErrorBuilder ?? throw new InvalidOperationException($"Expected {nameof(PopulateRecursive)} to provide failure diagnostics");
-                var diagnostic = failureBuilder(ForPosition(new TextSpan(0, 0)));
+                var diagnostic = failureBuilder(ForDocumentStart());
 
                 throw new ErrorDiagnosticException(diagnostic);
             }
@@ -98,7 +94,7 @@ namespace Bicep.Core.Workspaces
                 fileResolver,
                 entryFileUri,
                 fileResultByUri.ToImmutableDictionary(),
-                uriResultByModule.ToImmutableDictionary(),
+                uriResultByModule.ToImmutableDictionary(kvp => kvp.Key, kvp => kvp.Value.ToImmutableDictionary()),
                 sourceFileDependencies.InvertLookup().ToImmutableDictionary());
         }
 
@@ -142,7 +138,7 @@ namespace Bicep.Core.Workspaces
                     {
                         var (childModuleReference, uriResult) = GetModuleRestoreResult(fileUri, childModule);
 
-                        uriResultByModule[childModule] = uriResult;
+                        uriResultByModule.GetOrAdd(bicepFile, f => new())[childModule] = uriResult;
                         if (uriResult.FileUri is null)
                         {
                             continue;
@@ -165,17 +161,17 @@ namespace Bicep.Core.Workspaces
                     {
                         if (SyntaxHelper.TryGetUsingPath(usingDeclaration, out var errorBuilder) is not {} usingFilePath)
                         {
-                            uriResultByModule[usingDeclaration] = new(usingDeclaration, null, false, errorBuilder);
+                            uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(usingDeclaration, null, false, errorBuilder);
                             continue;
                         }
 
                         if (fileResolver.TryResolveFilePath(fileUri, usingFilePath) is not {} usingFileUri)
                         {
-                            uriResultByModule[usingDeclaration] = new(usingDeclaration, null, false, x => x.FilePathCouldNotBeResolved(usingFilePath, fileUri.LocalPath));
+                            uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(usingDeclaration, null, false, x => x.FilePathCouldNotBeResolved(usingFilePath, fileUri.LocalPath));
                             continue;
                         }
 
-                        uriResultByModule[usingDeclaration] = new(usingDeclaration, usingFileUri, false, null);
+                        uriResultByModule.GetOrAdd(paramsFile, f => new())[usingDeclaration] = new(usingDeclaration, usingFileUri, false, null);
 
                         if (!fileResultByUri.TryGetValue(usingFileUri, out var childResult))
                         {
@@ -194,14 +190,13 @@ namespace Bicep.Core.Workspaces
 
         private (ModuleReference? reference, UriResolutionResult result) GetModuleRestoreResult(Uri parentFileUri, ModuleDeclarationSyntax module)
         {
-            if (moduleDispatcher.TryGetModuleReference(module, configuration, out var referenceResolutionError) is not {} moduleReference)
+            if (!moduleDispatcher.TryGetModuleReference(module, parentFileUri, out var moduleReference, out var referenceResolutionError))
             {
                 // module reference is not valid
                 return (null, new(module, null, false, referenceResolutionError));
             }
 
-            var moduleFileUri = moduleDispatcher.TryGetLocalModuleEntryPointUri(parentFileUri, moduleReference, configuration, out var moduleGetPathFailureBuilder);
-            if (moduleFileUri is null)
+            if (!moduleDispatcher.TryGetLocalModuleEntryPointUri(moduleReference, out var moduleFileUri, out var moduleGetPathFailureBuilder))
             {
                 return (moduleReference, new(module, null, false, moduleGetPathFailureBuilder));
             }
@@ -212,7 +207,7 @@ namespace Bicep.Core.Workspaces
                 return (moduleReference, new(module, moduleFileUri, true, x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference)));
             }
 
-            var restoreStatus = moduleDispatcher.GetModuleRestoreStatus(moduleReference, configuration, out var restoreErrorBuilder);
+            var restoreStatus = moduleDispatcher.GetModuleRestoreStatus(moduleReference, out var restoreErrorBuilder);
             switch (restoreStatus)
             {
                 case ModuleRestoreStatus.Unknown:
@@ -235,7 +230,7 @@ namespace Bicep.Core.Workspaces
                 .Select(x => x.File)
                 .WhereNotNull()
                 .SelectMany(sourceFile => GetModuleDeclarations(sourceFile)
-                    .Select(moduleDeclaration => this.uriResultByModule.TryGetValue(moduleDeclaration)?.FileUri)
+                    .SelectMany(moduleDeclaration => this.uriResultByModule.Values.Select(f => f.TryGetValue(moduleDeclaration)?.FileUri))
                     .Select(fileUri => fileUri != null ? this.fileResultByUri[fileUri].File : null)
                     .WhereNotNull()
                     .Distinct()
@@ -243,19 +238,22 @@ namespace Bicep.Core.Workspaces
                 .ToLookup(x => x.sourceFile, x => x.referencedFile);
 
             var cycles = CycleDetector<ISourceFile>.FindCycles(sourceFileGraph);
-            foreach (var (statement, urlResult) in uriResultByModule)
+            foreach (var (file, uriResultByModuleForFile) in uriResultByModule)
             {
-                if (urlResult.FileUri is not null &&
-                    fileResultByUri[urlResult.FileUri].File is {} sourceFile &&
-                    cycles.TryGetValue(sourceFile, out var cycle))
+                foreach (var (statement, urlResult) in uriResultByModuleForFile)
                 {
-                    if (cycle.Length == 1)
+                    if (urlResult.FileUri is not null &&
+                        fileResultByUri[urlResult.FileUri].File is {} sourceFile &&
+                        cycles.TryGetValue(sourceFile, out var cycle))
                     {
-                        uriResultByModule[statement] = new(statement, null, false, x => x.CyclicModuleSelfReference());
-                    }
-                    else
-                    {
-                        uriResultByModule[statement] = new(statement, null, false, x => x.CyclicModule(cycle.Select(u => u.FileUri.LocalPath)));
+                        if (cycle.Length == 1)
+                        {
+                            uriResultByModuleForFile[statement] = new(statement, null, false, x => x.CyclicModuleSelfReference());
+                        }
+                        else
+                        {
+                            uriResultByModuleForFile[statement] = new(statement, null, false, x => x.CyclicModule(cycle.Select(u => u.FileUri.LocalPath)));
+                        }
                     }
                 }
             }

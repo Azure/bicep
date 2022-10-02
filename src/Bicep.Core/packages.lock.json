@@ -2,6 +2,12 @@
   "version": 1,
   "dependencies": {
     "net6.0": {
+      "Azure.Bicep.Internal.RoslynAnalyzers": {
+        "type": "Direct",
+        "requested": "[0.1.17, )",
+        "resolved": "0.1.17",
+        "contentHash": "ItQGvv0R1znYHxbYx6VQTQdqqhLG+OsE5XtI6gGmPDiKXcSUpJD4UJNB3kOWAxbZDnB1HwEAJFegbjvv6YlcbA=="
+      },
       "Azure.Bicep.Types": {
         "type": "Direct",
         "requested": "[0.2.115, )",
@@ -79,9 +85,9 @@
       },
       "Azure.Identity": {
         "type": "Direct",
-        "requested": "[1.6.1, )",
-        "resolved": "1.6.1",
-        "contentHash": "jgN1EHSa/qDkIIM4fxc+2+1/cpNAE65JFGk2g6mXZgXpgLqvVA9kz31aa5bY0oqPrtUp+ZfaMieF2v7rs+WRBg==",
+        "requested": "[1.7.0, )",
+        "resolved": "1.7.0",
+        "contentHash": "eHEiCO/8+MfNc9nH5dVew/+FvxdaGrkRL4OMNwIz0W79+wtJyEoeRlXJ3SrXhoy9XR58geBYKmzMR83VO7bcAw==",
         "dependencies": {
           "Azure.Core": "1.25.0",
           "Microsoft.Identity.Client": "4.39.0",
@@ -198,9 +204,9 @@
       },
       "System.IO.Abstractions": {
         "type": "Direct",
-        "requested": "[17.2.1, )",
-        "resolved": "17.2.1",
-        "contentHash": "QiPMiZa6SP9FxvM4k2Tso4j7DHbdpZo5dcGnVD38XjXnm2fOsYg4BkHmADTa5Tq7Fc0OzUGvHhV5KePPCwxB8Q=="
+        "requested": "[17.2.3, )",
+        "resolved": "17.2.3",
+        "contentHash": "VcozGeE4SxIo0cnXrDHhbrh/Gb8KQnZ3BvMelvh+iw0PrIKtuuA46U2Xm4e4pgnaWFgT4RdZfTpWl/WPRdw0WQ=="
       },
       "Azure.Core": {
         "type": "Transitive",

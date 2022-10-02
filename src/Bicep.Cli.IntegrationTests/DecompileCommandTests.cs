@@ -53,7 +53,7 @@ namespace Bicep.Cli.IntegrationTests
             ""outputs"": {}
         }";
 
-        private const string ValidTemplateExpectedDecompilation = @"resource resName 'My.Rp/testType@2020-01-01' = {
+        private const string ValidTemplateExpectedDecompilation = @"resource res 'My.Rp/testType@2020-01-01' = {
   name: 'resName'
   location: resourceGroup().location
   properties: {
@@ -61,10 +61,10 @@ namespace Bicep.Cli.IntegrationTests
   }
 }";
 
-        private const string InvalidTemplateExpectedDecompilation = @"resource resName 'My.Rp/testType@2020-01-01' = {
+        private const string InvalidTemplateExpectedDecompilation = @"resource res 'My.Rp/testType@2020-01-01' = {
   name: 'resName'
   properties: {
-    cyclicDependency: resName.properties
+    cyclicDependency: res.properties
   }
 }";
 
@@ -184,10 +184,10 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 output.AsLines().Should().BeEquivalentTo(
-                    "resource resName 'My.Rp/testType@2020-01-01' = {",
+                    "resource res 'My.Rp/testType@2020-01-01' = {",
                     "  name: 'resName'",
                     "  properties: {",
-                    "    cyclicDependency: resName.properties",
+                    "    cyclicDependency: res.properties",
                     "  }",
                     "}");
                 error.AsLines().Should().Contain(DecompilationDisclaimer);
@@ -206,7 +206,7 @@ namespace Bicep.Cli.IntegrationTests
             using (new AssertionScope())
             {
                 output.AsLines().Should().BeEquivalentTo(
-                    "resource resName 'My.Rp/testType@2020-01-01' = {",
+                    "resource res 'My.Rp/testType@2020-01-01' = {",
                     "  name: 'resName'",
                     "  location: resourceGroup().location",
                     "  properties: {",

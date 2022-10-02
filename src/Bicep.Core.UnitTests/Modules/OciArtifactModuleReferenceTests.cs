@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Configuration;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
@@ -10,6 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Reflection;
 
 namespace Bicep.Core.UnitTests.Modules
@@ -100,7 +102,8 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void InvalidReferencesShouldProduceExpectedError(string value, string expectedCode, string expectedError)
         {
-            OciArtifactModuleReference.TryParse(null, value, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, out var failureBuilder).Should().BeNull();
+            OciArtifactModuleReference.TryParse(null, value, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri(), out var @ref, out var failureBuilder).Should().BeFalse();
+            @ref.Should().BeNull();
             failureBuilder!.Should().NotBeNull();
 
             using (new AssertionScope())
@@ -139,9 +142,9 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("/")]
         [DataRow(":")]
         [DataRow("foo bar ÄÄÄ")]
-        public void TryParse_InvalidAliasName_ReturnsNullAndSetsErrorDiagnostic(string aliasName)
+        public void TryParse_InvalidAliasName_ReturnsFalseAndSetsErrorDiagnostic(string aliasName)
         {
-            var reference = OciArtifactModuleReference.TryParse(aliasName, "", BicepTestConstants.BuiltInConfiguration, out var errorBuilder);
+            OciArtifactModuleReference.TryParse(aliasName, "", BicepTestConstants.BuiltInConfiguration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().HaveCode("BCP211");
@@ -151,26 +154,26 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         [DataRow("myRegistry", "path/to/module:v1", null, "BCP213", "The OCI artifact module alias name \"myRegistry\" does not exist in the built-in Bicep configuration.")]
         [DataRow("myModulePath", "myModule:v2", "bicepconfig.json", "BCP213", "The OCI artifact module alias name \"myModulePath\" does not exist in the Bicep configuration \"bicepconfig.json\".")]
-        public void TryParse_AliasNotInConfiguration_ReturnsNullAndSetsError(string aliasName, string referenceValue, string? configurationPath, string expectedCode, string expectedMessage)
+        public void TryParse_AliasNotInConfiguration_ReturnsFalseAndSetsErrorDiagnostic(string aliasName, string referenceValue, string? configurationPath, string expectedCode, string expectedMessage)
         {
             var configuration = BicepTestConstants.CreateMockConfiguration(configurationPath: configurationPath);
 
-            var reference = OciArtifactModuleReference.TryParse(aliasName, referenceValue, configuration, out var errorBuilder);
+            OciArtifactModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
-            ((object?)errorBuilder).Should().NotBeNull();
+            errorBuilder!.Should().NotBeNull();
             errorBuilder!.Should().HaveCode(expectedCode);
             errorBuilder!.Should().HaveMessage(expectedMessage);
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetInvalidAliasData), DynamicDataSourceType.Method)]
-        public void TryParse_InvalidAlias_ReturnsNullAndSetsError(string aliasName, string referenceValue, RootConfiguration configuration, string expectedCode, string expectedMessage)
+        public void TryParse_InvalidAlias_ReturnsFalseAndSetsErrorDiagnostic(string aliasName, string referenceValue, RootConfiguration configuration, string expectedCode, string expectedMessage)
         {
-            var reference = OciArtifactModuleReference.TryParse(aliasName, referenceValue, configuration, out var errorBuilder);
+            OciArtifactModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
-            ((object?)errorBuilder).Should().NotBeNull();
+            errorBuilder!.Should().NotBeNull();
             errorBuilder!.Should().HaveCode(expectedCode);
             errorBuilder!.Should().HaveMessage(expectedMessage);
         }
@@ -179,7 +182,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DynamicData(nameof(GetValidAliasData), DynamicDataSourceType.Method)]
         public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
         {
-            var reference = OciArtifactModuleReference.TryParse(aliasName, referenceValue, configuration, out var errorBuilder);
+            OciArtifactModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeTrue();
 
             reference.Should().NotBeNull();
             reference!.FullyQualifiedReference.Should().Be(fullyQualifiedReferenceValue);
@@ -188,7 +191,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static OciArtifactModuleReference Parse(string package)
         {
-            var parsed = OciArtifactModuleReference.TryParse(null, package, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, out var failureBuilder);
+            OciArtifactModuleReference.TryParse(null, package, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri(), out var parsed, out var failureBuilder).Should().BeTrue();
             failureBuilder!.Should().BeNull();
             parsed.Should().NotBeNull();
             return parsed!;
@@ -271,6 +274,7 @@ namespace Bicep.Core.UnitTests.Modules
             };
         }
 
+        private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
 
         public static string GetDisplayName(MethodInfo info, object[] data) => $"{info.Name}_{((ValidCase)data[0]).Value}";
     }

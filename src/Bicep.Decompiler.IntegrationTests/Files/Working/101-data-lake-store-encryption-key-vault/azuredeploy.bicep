@@ -16,7 +16,7 @@ param keyName string
 @description('The Azure Key Vault encryption key version.')
 param keyVersion string
 
-resource dataLakeStoreName_resource 'Microsoft.DataLakeStore/accounts@2016-11-01' = {
+resource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {
   name: dataLakeStoreName
   location: location
   properties: {
@@ -39,7 +39,7 @@ module addAccessPolicy './nested_addAccessPolicy.bicep' = {
   name: 'addAccessPolicy'
   scope: resourceGroup(keyVaultResourceGroupName)
   params: {
-    resourceId_Microsoft_DataLakeStore_accounts_parameters_dataLakeStoreName: reference(dataLakeStoreName_resource.id, '2016-11-01', 'Full')
+    resourceId_Microsoft_DataLakeStore_accounts_parameters_dataLakeStoreName: reference(dataLakeStore.id, '2016-11-01', 'Full')
     keyVaultName: keyVaultName
   }
 }

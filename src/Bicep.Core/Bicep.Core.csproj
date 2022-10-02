@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Containers.ContainerRegistry" Version="1.1.0-beta.4" />
-    <PackageReference Include="Azure.Identity" Version="1.6.1" />
+    <PackageReference Include="Azure.Identity" Version="1.7.0" />
     <PackageReference Include="Azure.ResourceManager.Resources" Version="1.3.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2022.1.0">
       <PrivateAssets>all</PrivateAssets>
@@ -35,7 +35,8 @@
     <PackageReference Include="Azure.Bicep.Types" Version="0.2.115" />
     <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.115" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.11" />
-    <PackageReference Include="System.IO.Abstractions" Version="17.2.1" />
+    <PackageReference Include="System.IO.Abstractions" Version="17.2.3" />
+    <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.17" PrivateAssets="all" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="CoreResources.Designer.cs">

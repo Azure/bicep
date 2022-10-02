@@ -83,7 +83,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     }
                 }
 
-                validToken = default;
+                validToken = null;
                 return false;
             }
         }

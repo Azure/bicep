@@ -18,25 +18,25 @@ param storageAccountType string = 'Standard_LRS'
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
-var virtualMachineName_var = 'VM-MultiNic'
+var virtualMachineName = 'VM-MultiNic'
 var nic1_var = 'nic-1'
 var nic2_var = 'nic-2'
-var virtualNetworkName_var = 'virtualNetwork'
+var virtualNetworkName = 'virtualNetwork'
 var subnet1Name = 'subnet-1'
 var subnet2Name = 'subnet-2'
-var publicIPAddressName_var = 'publicIp'
-var subnet1Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName_var, subnet1Name)
-var subnet2Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName_var, subnet2Name)
-var diagStorageAccountName_var = 'diags${uniqueString(resourceGroup().id)}'
-var networkSecurityGroupName_var = 'NSG'
-var networkSecurityGroupName2_var = '${subnet2Name}-nsg'
+var publicIPAddressName = 'publicIp'
+var subnet1Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet1Name)
+var subnet2Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet2Name)
+var diagStorageAccountName = 'diags${uniqueString(resourceGroup().id)}'
+var networkSecurityGroupName = 'NSG'
+var networkSecurityGroupName2 = '${subnet2Name}-nsg'
 
-resource virtualMachineName 'Microsoft.Compute/virtualMachines@2019-12-01' = {
-  name: virtualMachineName_var
+resource virtualMachine 'Microsoft.Compute/virtualMachines@2019-12-01' = {
+  name: virtualMachineName
   location: location
   properties: {
     osProfile: {
-      computerName: virtualMachineName_var
+      computerName: virtualMachineName
       adminUsername: adminUsername
       adminPassword: adminPassword
       windowsConfiguration: {
@@ -77,14 +77,14 @@ resource virtualMachineName 'Microsoft.Compute/virtualMachines@2019-12-01' = {
     diagnosticsProfile: {
       bootDiagnostics: {
         enabled: true
-        storageUri: reference(diagStorageAccountName.id, '2019-06-01').primaryEndpoints.blob
+        storageUri: reference(diagStorageAccount.id, '2019-06-01').primaryEndpoints.blob
       }
     }
   }
 }
 
-resource diagStorageAccountName 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-  name: diagStorageAccountName_var
+resource diagStorageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: diagStorageAccountName
   location: location
   sku: {
     name: storageAccountType
@@ -92,13 +92,13 @@ resource diagStorageAccountName 'Microsoft.Storage/storageAccounts@2019-06-01' =
   kind: 'StorageV2'
 }
 
-resource networkSecurityGroupName2 'Microsoft.Network/networkSecurityGroups@2020-05-01' = {
-  name: networkSecurityGroupName2_var
+resource networkSecurityGroup2 'Microsoft.Network/networkSecurityGroups@2020-05-01' = {
+  name: networkSecurityGroupName2
   location: location
 }
 
-resource virtualNetworkName 'Microsoft.Network/virtualNetworks@2020-05-01' = {
-  name: virtualNetworkName_var
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' = {
+  name: virtualNetworkName
   location: location
   properties: {
     addressSpace: {
@@ -138,7 +138,7 @@ resource virtualNetworkName 'Microsoft.Network/virtualNetworks@2020-05-01' = {
         properties: {
           addressPrefix: '10.0.1.0/24'
           networkSecurityGroup: {
-            id: networkSecurityGroupName2.id
+            id: networkSecurityGroup2.id
           }
         }
       }
@@ -159,18 +159,18 @@ resource nic1 'Microsoft.Network/networkInterfaces@2020-05-01' = {
           }
           privateIPAllocationMethod: 'Dynamic'
           publicIPAddress: {
-            id: publicIpAddressName.id
+            id: publicIpAddress.id
           }
         }
       }
     ]
     networkSecurityGroup: {
-      id: networkSecurityGroupName.id
+      id: networkSecurityGroup.id
     }
   }
   dependsOn: [
 
-    virtualNetworkName
+    virtualNetwork
   ]
 }
 
@@ -191,20 +191,20 @@ resource nic2 'Microsoft.Network/networkInterfaces@2020-05-01' = {
     ]
   }
   dependsOn: [
-    virtualNetworkName
+    virtualNetwork
   ]
 }
 
-resource publicIpAddressName 'Microsoft.Network/publicIPAddresses@2020-05-01' = {
-  name: publicIPAddressName_var
+resource publicIpAddress 'Microsoft.Network/publicIPAddresses@2020-05-01' = {
+  name: publicIPAddressName
   location: location
   properties: {
     publicIPAllocationMethod: 'Dynamic'
   }
 }
 
-resource networkSecurityGroupName 'Microsoft.Network/networkSecurityGroups@2020-05-01' = {
-  name: networkSecurityGroupName_var
+resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2020-05-01' = {
+  name: networkSecurityGroupName
   location: location
   properties: {
     securityRules: [

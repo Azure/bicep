@@ -19,7 +19,6 @@ using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Features;
 using Bicep.Core.Configuration;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 
@@ -29,7 +28,7 @@ namespace Bicep.Wasm
     {
         private static readonly IFeatureProvider features = new FeatureProvider();
 
-        private static readonly INamespaceProvider namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), features);
+        private static readonly INamespaceProvider namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
 
         private readonly IJSRuntime jsRuntime;
 
@@ -65,7 +64,7 @@ namespace Bicep.Wasm
             try
             {
                 var bicepUri = PathHelper.ChangeToBicepExtension(jsonUri);
-                var decompiler = new TemplateDecompiler(features, namespaceProvider, fileResolver, new EmptyModuleRegistryProvider(), new ConfigurationManager(new IOFileSystem()));
+                var decompiler = new TemplateDecompiler(features, namespaceProvider, fileResolver, new EmptyModuleRegistryProvider());
                 var (entrypointUri, filesToSave) = decompiler.DecompileFileWithModules(jsonUri, bicepUri);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
@@ -167,12 +166,11 @@ namespace Bicep.Wasm
             workspace.UpsertSourceFile(sourceFile);
 
             var fileResolver = new FileResolver();
-            var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider());
-            var configurationManager = new ConfigurationManager(new IOFileSystem());
-            var configuration = configurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri, configuration);
+            var configurationManager = IConfigurationManager.WithStaticConfiguration(IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled());
+            var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider(), configurationManager);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri);
 
-            return new Compilation(features, namespaceProvider, sourceFileGrouping, configuration, new ApiVersionProvider(), new LinterAnalyzer(configuration));
+            return new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, new ApiVersionProvider(features, namespaceProvider), new LinterAnalyzer());
         }
 
         private static string ReadStreamToEnd(Stream stream)

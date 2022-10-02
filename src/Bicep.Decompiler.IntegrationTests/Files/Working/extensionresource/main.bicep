@@ -1,9 +1,9 @@
 param hostingPlanName string
 param location string = resourceGroup().location
 
-var siteName_var = 'ExampleSite${uniqueString(resourceGroup().id)}'
+var siteName = 'ExampleSite${uniqueString(resourceGroup().id)}'
 
-resource hostingPlanName_resource 'Microsoft.Web/serverfarms@2020-06-01' = {
+resource hostingPlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   name: hostingPlanName
   location: location
   sku: {
@@ -16,19 +16,19 @@ resource hostingPlanName_resource 'Microsoft.Web/serverfarms@2020-06-01' = {
   }
 }
 
-resource siteName 'Microsoft.Web/sites@2020-06-01' = {
-  name: siteName_var
+resource site 'Microsoft.Web/sites@2020-06-01' = {
+  name: siteName
   location: location
   properties: {
     serverFarmId: hostingPlanName
   }
   dependsOn: [
-    hostingPlanName_resource
+    hostingPlan
   ]
 }
 
 resource siteLock 'Microsoft.Authorization/locks@2016-09-01' = {
-  scope: siteName
+  scope: site
   name: 'siteLock'
   properties: {
     level: 'CanNotDelete'

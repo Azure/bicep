@@ -4,7 +4,10 @@
 using System;
 using System.Linq;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
+using Bicep.Core.Features;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,7 +25,7 @@ namespace Bicep.Core.UnitTests.ApiVersions
         [DataTestMethod]
         public void GetApiVersions(string fullyQualifiedName, params string[] expected)
         {
-            var apiVersionProvider = new ApiVersionProvider();
+            var apiVersionProvider = CreateDefaultApiVersionProvider();
             apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
 
             string[] actual = apiVersionProvider.GetApiVersions(ResourceScope.ResourceGroup, fullyQualifiedName).Select(v => v.Formatted).ToArray();
@@ -33,7 +36,7 @@ namespace Bicep.Core.UnitTests.ApiVersions
         [TestMethod]
         public void GetResourceTypeNames_BadScope()
         {
-            var apiVersionProvider = new ApiVersionProvider();
+            var apiVersionProvider = CreateDefaultApiVersionProvider();
             apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
 
             var lambda =
@@ -48,7 +51,7 @@ namespace Bicep.Core.UnitTests.ApiVersions
         [DataTestMethod]
         public void GetResourceTypeNames_ResourceGroup()
         {
-            var apiVersionProvider = new ApiVersionProvider();
+            var apiVersionProvider = CreateDefaultApiVersionProvider();
             apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
 
             var types = apiVersionProvider.GetResourceTypeNames(ResourceScope.ResourceGroup);
@@ -59,7 +62,7 @@ namespace Bicep.Core.UnitTests.ApiVersions
         [DataTestMethod]
         public void GetResourceTypeNames_SeparateScopes()
         {
-            var apiVersionProvider = new ApiVersionProvider();
+            var apiVersionProvider = CreateDefaultApiVersionProvider();
             apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
             apiVersionProvider.InjectTypeReferences(ResourceScope.Subscription, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.SubscriptionScopeTypes));
             apiVersionProvider.InjectTypeReferences(ResourceScope.ManagementGroup, FakeResourceTypes.GetFakeResourceTypeReferences("fake.mg/whatever@2001-01-01"));
@@ -77,5 +80,8 @@ namespace Bicep.Core.UnitTests.ApiVersions
             var tenantTypes = apiVersionProvider.GetResourceTypeNames(ResourceScope.Tenant);
             tenantTypes.Should().Contain("fake.tenant/whatever");
         }
+
+        private ApiVersionProvider CreateDefaultApiVersionProvider()
+            => new ApiVersionProvider(new FeatureProvider(), new DefaultNamespaceProvider(new AzResourceTypeLoader()));
     }
 }

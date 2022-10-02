@@ -45,7 +45,7 @@ namespace Bicep.Core.Rewriters
                         SyntaxBase newKeySyntax;
                         if (Regex.IsMatch(insensitivePropertyKey, "^[a-zA-Z][a-zA-Z0-9_]*$"))
                         {
-                            newKeySyntax = new IdentifierSyntax(new Token(TokenType.Identifier, new TextSpan(0, 0), insensitivePropertyKey, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>()));
+                            newKeySyntax = new IdentifierSyntax(new Token(TokenType.Identifier, TextSpan.TextDocumentStart, insensitivePropertyKey, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>()));
                         }
                         else
                         {
@@ -94,7 +94,7 @@ namespace Bicep.Core.Rewriters
                 return base.ReplacePropertyAccessSyntax(syntax);
             }
 
-            var propertySyntax = new IdentifierSyntax(new Token(TokenType.Identifier, new TextSpan(0, 0), insensitivePropertyName, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>()));
+            var propertySyntax = new IdentifierSyntax(new Token(TokenType.Identifier, TextSpan.TextDocumentStart, insensitivePropertyName, Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>()));
             return new PropertyAccessSyntax(
                 syntax.BaseExpression,
                 syntax.Dot,

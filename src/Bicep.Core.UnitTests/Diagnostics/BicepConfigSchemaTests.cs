@@ -28,7 +28,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
 
         private (IBicepAnalyzerRule[] rules, JObject configSchema) GetRulesAndSchema()
         {
-            var linter = new LinterAnalyzer(BicepTestConstants.BuiltInConfiguration);
+            var linter = new LinterAnalyzer();
             var ruleSet = linter.GetRuleSet();
             ruleSet.Should().NotBeEmpty();
 
@@ -138,8 +138,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             string[] excludedHostsInSchema = ruleConfigs["no-hardcoded-env-urls"].SelectToken("allOf[0].properties.excludedhosts.default")!.Values().Select(v => v.ToString()).ToArray();
 
             // From config
-            ConfigurationManager sut = new ConfigurationManager(new IOFileSystem());
-            RootConfiguration builtinConfig = sut.GetBuiltInConfiguration();
+            RootConfiguration builtinConfig = IConfigurationManager.GetBuiltInConfiguration();
             string[]? disallowedHostsInConfig = builtinConfig.Analyzers.GetValue<string[]?>("core.rules.no-hardcoded-env-urls.disallowedhosts", null);
             disallowedHostsInConfig.Should().NotBeNull();
             string[]? excludedHostsInConfig = builtinConfig.Analyzers.GetValue<string[]?>("core.rules.no-hardcoded-env-urls.excludedhosts", null);
