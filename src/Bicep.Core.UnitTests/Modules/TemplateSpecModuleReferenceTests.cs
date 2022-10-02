@@ -1,8 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
+using System.IO;
 using Bicep.Core.Configuration;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -56,25 +59,25 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("Test-RG/.:v2")]
         [DataRow(":v100")]
         [DataTestMethod]
-        public void TryParse_InvalidReference_ReturnsNullAndSetsFailureBuilder(string rawValue)
+        public void TryParse_InvalidReference_ReturnsFalseAndSetsFailureBuilder(string rawValue)
         {
-            var parsed = TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, out var failureBuilder);
+            TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri(), out var parsed, out var failureBuilder).Should().BeFalse();
 
             parsed.Should().BeNull();
-            ((object?)failureBuilder).Should().NotBeNull();
+            failureBuilder!.Should().NotBeNull();
         }
 
         [DataTestMethod]
         [DataRow("prodRG", "mySpec:v1", null, "BCP212", "The Template Spec module alias name \"prodRG\" does not exist in the built-in Bicep configuration.")]
         [DataRow("testRG", "myModule:v2", "bicepconfig.json", "BCP212", "The Template Spec module alias name \"testRG\" does not exist in the Bicep configuration \"bicepconfig.json\".")]
-        public void TryParse_AliasNotInConfiguration_ReturnsNullAndSetsError(string aliasName, string referenceValue, string? configurationPath, string expectedCode, string expectedMessage)
+        public void TryParse_AliasNotInConfiguration_ReturnsFalseAndSetsError(string aliasName, string referenceValue, string? configurationPath, string expectedCode, string expectedMessage)
         {
             var configuration = BicepTestConstants.CreateMockConfiguration(configurationPath: configurationPath);
 
-            var reference = TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, out var errorBuilder);
+            TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
-            ((object?)errorBuilder).Should().NotBeNull();
+            errorBuilder!.Should().NotBeNull();
             errorBuilder!.Should().HaveCode(expectedCode);
             errorBuilder!.Should().HaveMessage(expectedMessage);
         }
@@ -86,9 +89,9 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("/")]
         [DataRow(":")]
         [DataRow("foo bar ÄÄÄ")]
-        public void TryParse_InvalidAliasName_ReturnsNullAndSetsErrorDiagnostic(string aliasName)
+        public void TryParse_InvalidAliasName_ReturnsFalseAndSetsErrorDiagnostic(string aliasName)
         {
-            var reference = TemplateSpecModuleReference.TryParse(aliasName, "", BicepTestConstants.BuiltInConfiguration, out var errorBuilder);
+            TemplateSpecModuleReference.TryParse(aliasName, "", BicepTestConstants.BuiltInConfiguration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
             errorBuilder!.Should().HaveCode("BCP211");
@@ -97,12 +100,12 @@ namespace Bicep.Core.UnitTests.Modules
 
         [DataTestMethod]
         [DynamicData(nameof(GetInvalidData), DynamicDataSourceType.Method)]
-        public void TryParse_InvalidAlias_ReturnsNullAndSetsError(string aliasName, string referenceValue, RootConfiguration configuration, string expectedCode, string expectedMessage)
+        public void TryParse_InvalidAlias_ReturnsFalseAndSetsError(string aliasName, string referenceValue, RootConfiguration configuration, string expectedCode, string expectedMessage)
         {
-            var reference = TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, out var errorBuilder);
+            TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeFalse();
 
             reference.Should().BeNull();
-            ((object?)errorBuilder).Should().NotBeNull();
+            errorBuilder!.Should().NotBeNull();
             errorBuilder!.Should().HaveCode(expectedCode);
             errorBuilder!.Should().HaveMessage(expectedMessage);
         }
@@ -111,7 +114,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method)]
         public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
         {
-            var reference = TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, out var errorBuilder);
+            TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, RandomFileUri(), out var reference, out var errorBuilder).Should().BeTrue();
 
             reference.Should().NotBeNull();
             reference!.FullyQualifiedReference.Should().Be(fullyQualifiedReferenceValue);
@@ -215,12 +218,14 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static TemplateSpecModuleReference Parse(string rawValue)
         {
-            var parsed = TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, out var failureBuilder);
+            TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled, RandomFileUri(), out var parsed, out var failureBuilder).Should().BeTrue();
 
             parsed.Should().NotBeNull();
-            ((object?)failureBuilder).Should().BeNull();
+            failureBuilder!.Should().BeNull();
 
             return parsed!;
         }
+
+        private static Uri RandomFileUri() => PathHelper.FilePathToFileUrl(Path.GetTempFileName());
     }
 }

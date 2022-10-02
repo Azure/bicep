@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using System;
 using System.Collections.Immutable;
 
 namespace Bicep.Core.Registry
@@ -13,29 +15,29 @@ namespace Bicep.Core.Registry
         private readonly IContainerRegistryClientFactory clientFactory;
         private readonly ITemplateSpecRepositoryFactory templateSpecRepositoryFactory;
         private readonly IFeatureProvider features;
+        private readonly IConfigurationManager configurationManager;
 
-        public DefaultModuleRegistryProvider(IFileResolver fileResolver, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IFeatureProvider features)
+        public DefaultModuleRegistryProvider(IFileResolver fileResolver, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory, IFeatureProvider features, IConfigurationManager configurationManager)
         {
             this.fileResolver = fileResolver;
             this.clientFactory = clientFactory;
             this.templateSpecRepositoryFactory = templateSpecRepositoryFactory;
             this.features = features;
+            this.configurationManager = configurationManager;
         }
 
-        public ImmutableArray<IModuleRegistry> Registries
+        public ImmutableArray<IModuleRegistry> Registries(Uri templateUri)
         {
-            get
+            var configuration = configurationManager.GetConfiguration(templateUri);
+            var builder = ImmutableArray.CreateBuilder<IModuleRegistry>();
+            builder.Add(new LocalModuleRegistry(this.fileResolver, templateUri));
+            if (features.RegistryEnabled)
             {
-                var builder = ImmutableArray.CreateBuilder<IModuleRegistry>();
-                builder.Add(new LocalModuleRegistry(this.fileResolver));
-                if (features.RegistryEnabled)
-                {
-                    builder.Add(new OciModuleRegistry(this.fileResolver, this.clientFactory, this.features));
-                    builder.Add(new TemplateSpecModuleRegistry(this.fileResolver, this.templateSpecRepositoryFactory, this.features));
-                }
-
-                return builder.ToImmutableArray();
+                builder.Add(new OciModuleRegistry(this.fileResolver, this.clientFactory, features, configuration, templateUri));
+                builder.Add(new TemplateSpecModuleRegistry(this.fileResolver, this.templateSpecRepositoryFactory, features, configuration, templateUri));
             }
+
+            return builder.ToImmutableArray();
         }
     }
 }

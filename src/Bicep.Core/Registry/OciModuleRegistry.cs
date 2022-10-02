@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,11 +24,17 @@ namespace Bicep.Core.Registry
 
         private readonly string cachePath;
 
-        public OciModuleRegistry(IFileResolver FileResolver, IContainerRegistryClientFactory clientFactory, IFeatureProvider features)
+        private readonly RootConfiguration configuration;
+
+        private readonly Uri parentModuleUri;
+
+        public OciModuleRegistry(IFileResolver FileResolver, IContainerRegistryClientFactory clientFactory, IFeatureProvider features, RootConfiguration configuration, Uri parentModuleUri)
             : base(FileResolver)
         {
             this.cachePath = Path.Combine(features.CacheRootDirectory, ModuleReferenceSchemes.Oci);
             this.client = new AzureContainerRegistryManager(clientFactory);
+            this.configuration = configuration;
+            this.parentModuleUri = parentModuleUri;
         }
 
         public override string Scheme => ModuleReferenceSchemes.Oci;
@@ -38,17 +45,26 @@ namespace Bicep.Core.Registry
             return reference.Tag is null ? RegistryCapabilities.Default : RegistryCapabilities.Publish;
         }
 
-        public override ModuleReference? TryParseModuleReference(string? aliasName, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
-            OciArtifactModuleReference.TryParse(aliasName, reference, configuration, out failureBuilder);
+        public override bool TryParseModuleReference(string? aliasName, string reference, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        {
+            if (OciArtifactModuleReference.TryParse(aliasName, reference, configuration, parentModuleUri, out var @ref, out failureBuilder))
+            {
+                moduleReference = @ref;
+                return true;
+            }
+
+            moduleReference = null;
+            return false;
+        }
 
         public override bool IsModuleRestoreRequired(OciArtifactModuleReference reference)
         {
             /*
              * this should be kept in sync with the WriteModuleContent() implementation
-             * 
+             *
              * when we write content to the module cache, we attempt to get a lock so that no other writes happen in the directory
              * the code here appears to implement a lock-free read by checking existence of several files that are expected in a fully restored module
-             * 
+             *
              * this relies on the assumption that modules are never updated in-place in the cache
              * when we need to invalidate the cache, the module directory (or even a single file) should be deleted from the cache
              */
@@ -58,13 +74,14 @@ namespace Bicep.Core.Registry
                 !this.FileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.Metadata));
         }
 
-        public override Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, OciArtifactModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override bool TryGetLocalModuleEntryPointUri(OciArtifactModuleReference reference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             failureBuilder = null;
-            return this.GetModuleFileUri(reference, ModuleFileType.ModuleMain);
+            localUri = this.GetModuleFileUri(reference, ModuleFileType.ModuleMain);
+            return true;
         }
 
-        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(RootConfiguration configuration, IEnumerable<OciArtifactModuleReference> references)
+        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<OciArtifactModuleReference> references)
         {
             var statuses = new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>();
 
@@ -91,12 +108,12 @@ namespace Bicep.Core.Registry
             return statuses;
         }
 
-        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(RootConfiguration configuration, IEnumerable<OciArtifactModuleReference> references)
+        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(IEnumerable<OciArtifactModuleReference> references)
         {
             return await base.InvalidateModulesCacheInternal(configuration, references);
         }
 
-        public override async Task PublishModule(RootConfiguration configuration, OciArtifactModuleReference moduleReference, Stream compiled)
+        public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiled)
         {
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
             var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);

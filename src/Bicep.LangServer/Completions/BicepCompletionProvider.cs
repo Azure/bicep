@@ -12,7 +12,6 @@ using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
@@ -44,15 +43,13 @@ namespace Bicep.LanguageServer.Completions
         private readonly IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
         private readonly ITelemetryProvider TelemetryProvider;
-        private readonly IFeatureProvider featureProvider;
         private readonly INamespaceProvider namespaceProvider;
 
-        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, ITelemetryProvider telemetryProvider, IFeatureProvider featureProvider, INamespaceProvider namespaceProvider)
+        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, ITelemetryProvider telemetryProvider, INamespaceProvider namespaceProvider)
         {
             this.FileResolver = fileResolver;
             this.SnippetsProvider = snippetsProvider;
             this.TelemetryProvider = telemetryProvider;
-            this.featureProvider = featureProvider;
             this.namespaceProvider = namespaceProvider;
         }
 
@@ -62,7 +59,7 @@ namespace Bicep.LanguageServer.Completions
 
             return GetDeclarationCompletions(model, context)
                 .Concat(GetSymbolCompletions(model, context))
-                .Concat(GetDeclarationTypeCompletions(compilation, context))
+                .Concat(GetDeclarationTypeCompletions(model, context))
                 .Concat(GetObjectPropertyNameCompletions(model, context))
                 .Concat(GetMemberAccessCompletions(compilation, context))
                 .Concat(GetResourceAccessCompletions(compilation, context))
@@ -186,7 +183,7 @@ namespace Bicep.LanguageServer.Completions
 
                 yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
 
-                if (featureProvider.ImportsEnabled)
+                if (model.Features.ImportsEnabled)
                 {
                     yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
                 }
@@ -274,7 +271,7 @@ namespace Bicep.LanguageServer.Completions
             return GetAccessibleSymbolCompletions(model, context);
         }
 
-        private IEnumerable<CompletionItem> GetDeclarationTypeCompletions(Compilation compilation, BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetDeclarationTypeCompletions(SemanticModel model, BicepCompletionContext context)
         {
             // local function
             IEnumerable<CompletionItem> GetPrimitiveTypeCompletions() =>
@@ -283,8 +280,8 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.ParameterType))
             {
                 // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
-                var completions = GetPrimitiveTypeCompletions().Concat(GetParameterTypeSnippets(compilation, context));
-                if (this.featureProvider.ResourceTypedParamsAndOutputsEnabled)
+                var completions = GetPrimitiveTypeCompletions().Concat(GetParameterTypeSnippets(model.Compilation, context));
+                if (model.Features.ResourceTypedParamsAndOutputsEnabled)
                 {
                     completions = completions.Concat(CreateResourceTypeKeywordCompletion(context.ReplacementRange));
                 }
@@ -296,7 +293,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
                 var completions = GetPrimitiveTypeCompletions();
-                if (this.featureProvider.ResourceTypedParamsAndOutputsEnabled)
+                if (model.Features.ResourceTypedParamsAndOutputsEnabled)
                 {
                     completions = completions.Concat(CreateResourceTypeKeywordCompletion(context.ReplacementRange));
                 }

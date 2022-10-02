@@ -5,10 +5,8 @@ using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +16,7 @@ namespace Bicep.Core.Analyzers.Linter
     public abstract class LinterRuleBase : IBicepAnalyzerRule
     {
         private AnalyzersConfiguration configuration = AnalyzersConfiguration.Empty;
+        private readonly DiagnosticLevel defaultDiagnosticLevel;
 
         public LinterRuleBase(
             string code,
@@ -30,6 +29,7 @@ namespace Bicep.Core.Analyzers.Linter
             this.Code = code;
             this.Description = description;
             this.Uri = docUri;
+            this.defaultDiagnosticLevel = diagnosticLevel;
             this.DiagnosticLevel = diagnosticLevel;
             this.DiagnosticStyling = diagnosticStyling;
         }
@@ -62,9 +62,7 @@ namespace Bicep.Core.Analyzers.Linter
         {
             this.configuration = configuration;
 
-            var levelValue = this.GetConfigurationValue("level", this.DiagnosticLevel.ToString());
-
-            if (Enum.TryParse<DiagnosticLevel>(levelValue, true, out var level))
+            if (this.GetConfigurationValue("level", defaultDiagnosticLevel.ToString()) is string levelValue && Enum.TryParse<DiagnosticLevel>(levelValue, true, out var level))
             {
                 this.DiagnosticLevel = level;
             }

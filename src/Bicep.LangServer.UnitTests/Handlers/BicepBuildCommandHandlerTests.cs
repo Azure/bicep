@@ -35,7 +35,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
         private static readonly ISerializer Serializer = Repository.Create<ISerializer>().Object;
         private static readonly IConfigurationManager configurationManager = new ConfigurationManager(new IOFileSystem());
-        private readonly ModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
+        private readonly ModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, configurationManager);
 
         [DataRow(null)]
         [DataRow("")]

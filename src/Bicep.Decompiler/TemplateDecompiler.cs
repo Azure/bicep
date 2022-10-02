@@ -31,16 +31,15 @@ namespace Bicep.Decompiler
         private readonly IFeatureProvider features;
         private readonly IFileResolver fileResolver;
         private readonly IModuleRegistryProvider registryProvider;
-        private readonly IConfigurationManager configurationManager;
-        private readonly ApiVersionProvider apiVersionProvider = new ApiVersionProvider();
+        private readonly IApiVersionProvider apiVersionProvider;
 
-        public TemplateDecompiler(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider, IConfigurationManager configurationManager)
+        public TemplateDecompiler(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider)
         {
             this.features = features;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.registryProvider = registryProvider;
-            this.configurationManager = configurationManager;
+            this.apiVersionProvider = new ApiVersionProvider(features, namespaceProvider);
         }
 
         public (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(Uri entryJsonUri, Uri entryBicepUri)
@@ -127,11 +126,12 @@ namespace Bicep.Decompiler
         private bool RewriteSyntax(Workspace workspace, Uri entryUri, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
         {
             var hasChanges = false;
-            var dispatcher = new ModuleDispatcher(this.registryProvider);
-            var configuration = configurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
-            var linterAnalyzer = new LinterAnalyzer(configuration);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri, configuration);
-            var compilation = new Compilation(this.features, namespaceProvider, sourceFileGrouping, configuration, apiVersionProvider, linterAnalyzer);
+            var configuration = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
+            var configurationManager = IConfigurationManager.WithStaticConfiguration(configuration);
+            var dispatcher = new ModuleDispatcher(this.registryProvider, configurationManager);
+            var linterAnalyzer = new LinterAnalyzer();
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
+            var compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, linterAnalyzer);
 
             // force enumeration here with .ToImmutableArray() as we're going to be modifying the sourceFileGrouping collection as we iterate
             var fileUris = sourceFileGrouping.SourceFiles.Select(x => x.FileUri).ToImmutableArray();
@@ -150,8 +150,8 @@ namespace Bicep.Decompiler
                     var newFile = SourceFileFactory.CreateBicepFile(fileUri, newProgramSyntax.ToText());
                     workspace.UpsertSourceFile(newFile);
 
-                    sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri, configuration);
-                    compilation = new Compilation(this.features, namespaceProvider, sourceFileGrouping, configuration, apiVersionProvider, linterAnalyzer);
+                    sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
+                    compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, linterAnalyzer);
                 }
             }
 

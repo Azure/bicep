@@ -35,7 +35,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
         private static readonly ISerializer Serializer = Repository.Create<ISerializer>().Object;
         private static readonly IConfigurationManager configurationManager = new ConfigurationManager(new IOFileSystem());
-        private readonly ModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
+        private readonly ModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, configurationManager);
 
         [DataRow(null)]
         [DataRow("")]
@@ -44,7 +44,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public void Handle_WithInvalidPath_ShouldThrowArgumentException(string path)
         {
             ICompilationManager bicepCompilationManager = Repository.Create<ICompilationManager>().Object;
-            BicepForceModulesRestoreCommandHandler bicepforceModulesRestoreCommandHandler = new BicepForceModulesRestoreCommandHandler(bicepCompilationManager, Serializer, BicepTestConstants.Features,  BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
+            BicepForceModulesRestoreCommandHandler bicepforceModulesRestoreCommandHandler = new BicepForceModulesRestoreCommandHandler(Serializer, FileResolver, ModuleDispatcher);
 
             Action sut = () => bicepforceModulesRestoreCommandHandler.Handle(path, CancellationToken.None);
 
@@ -66,7 +66,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             DocumentUri documentUri = DocumentUri.From(bicepFileUri);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            BicepForceModulesRestoreCommandHandler bicepForceModulesRestoreCommandHandler = new BicepForceModulesRestoreCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
+            BicepForceModulesRestoreCommandHandler bicepForceModulesRestoreCommandHandler = new BicepForceModulesRestoreCommandHandler(Repository.Create<ISerializer>().Object, FileResolver, ModuleDispatcher);
             string expected = await bicepForceModulesRestoreCommandHandler.Handle(bicepFilePath, CancellationToken.None);
 
             expected.Should().Be(@"Restore (force) skipped. No modules references in input file.");
@@ -108,7 +108,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             DocumentUri documentUri = DocumentUri.From(bicepFileUri);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            BicepForceModulesRestoreCommandHandler bicepForceModulesRestoreCommandHandler = new BicepForceModulesRestoreCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
+            BicepForceModulesRestoreCommandHandler bicepForceModulesRestoreCommandHandler = new BicepForceModulesRestoreCommandHandler(Repository.Create<ISerializer>().Object, FileResolver, ModuleDispatcher);
 
             string expected = StringUtils.ReplaceNewlines(await bicepForceModulesRestoreCommandHandler.Handle(bicepFilePath, CancellationToken.None), "|");
 
@@ -145,7 +145,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             DocumentUri documentUri = DocumentUri.From(bicepFileUri);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
 
-            BicepForceModulesRestoreCommandHandler bicepForceModulesRestoreCommandHandler = new BicepForceModulesRestoreCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
+            BicepForceModulesRestoreCommandHandler bicepForceModulesRestoreCommandHandler = new BicepForceModulesRestoreCommandHandler(Repository.Create<ISerializer>().Object, FileResolver, ModuleDispatcher);
 
             string expected = StringUtils.ReplaceNewlines(await bicepForceModulesRestoreCommandHandler.Handle(bicepFilePath, CancellationToken.None), "|");
 

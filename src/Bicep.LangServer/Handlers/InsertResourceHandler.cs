@@ -70,6 +70,8 @@ namespace Bicep.LanguageServer.Handlers
                     return (Unit.Value, null);
                 }
 
+                var model = context.Compilation.GetEntrypointSemanticModel();
+
                 if (TryParseResourceId(request.ResourceId) is not { } resourceId)
                 {
                     throw new TelemetryAndErrorHandlingException(
@@ -94,7 +96,7 @@ namespace Bicep.LanguageServer.Handlers
                 {
                     // First attempt a direct GET on the resource using the Bicep type API version.
                     resource = await azResourceProvider.GetGenericResource(
-                        context.Compilation.Configuration,
+                        model.Configuration,
                         resourceId,
                         apiVersion: matchedType.ApiVersion,
                         cancellationToken);
@@ -112,7 +114,7 @@ namespace Bicep.LanguageServer.Handlers
                     if (resource is null)
                     {
                         resource = await azResourceProvider.GetGenericResource(
-                            context.Compilation.Configuration,
+                            model.Configuration,
                             resourceId,
                             apiVersion: null,
                             cancellationToken);

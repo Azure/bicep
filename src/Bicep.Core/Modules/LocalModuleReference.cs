@@ -17,8 +17,8 @@ namespace Bicep.Core.Modules
     {
         private static readonly IEqualityComparer<string> PathComparer = StringComparer.Ordinal;
 
-        private LocalModuleReference(string path)
-            : base(ModuleReferenceSchemes.Local)
+        private LocalModuleReference(string path, Uri parentModuleUri)
+            : base(ModuleReferenceSchemes.Local, parentModuleUri)
         {
             this.Path = path;
         }
@@ -46,14 +46,16 @@ namespace Bicep.Core.Modules
 
         public override bool IsExternal => false;
 
-        public static LocalModuleReference? TryParse(string unqualifiedReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static bool TryParse(string unqualifiedReference, Uri parentModuleUri, [NotNullWhen(true)] out LocalModuleReference? parsed, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             if (!Validate(unqualifiedReference, out failureBuilder))
             {
-                return null;
+                parsed = null;
+                return false;
             }
 
-            return new(unqualifiedReference);
+            parsed = new(unqualifiedReference, parentModuleUri);
+            return true;
         }
 
         public static bool Validate(string pathName, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)

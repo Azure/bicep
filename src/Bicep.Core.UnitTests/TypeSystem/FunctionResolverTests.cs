@@ -273,11 +273,11 @@ namespace Bicep.Core.UnitTests.TypeSystem
             out List<ArgumentCountMismatch> argumentCountMismatches,
             out List<ArgumentTypeMismatch> argumentTypeMismatches)
         {
-            var namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), BicepTestConstants.Features);
+            var namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
 
             var namespaces = new[] {
-                namespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!,
-                namespaceProvider.TryGetNamespace("sys", "sys", ResourceScope.ResourceGroup)!,
+                namespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup, BicepTestConstants.Features)!,
+                namespaceProvider.TryGetNamespace("sys", "sys", ResourceScope.ResourceGroup, BicepTestConstants.Features)!,
             };
 
             var matches = new List<FunctionOverload>();

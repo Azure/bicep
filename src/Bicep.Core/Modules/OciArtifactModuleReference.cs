@@ -5,6 +5,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -43,8 +44,8 @@ namespace Bicep.Core.Modules
         // digests are case sensitive
         public static readonly IEqualityComparer<string?> DigestComparer = StringComparer.Ordinal;
 
-        public OciArtifactModuleReference(string registry, string repository, string? tag, string? digest)
-             : base(ModuleReferenceSchemes.Oci)
+        public OciArtifactModuleReference(string registry, string repository, string? tag, string? digest, Uri parentModuleUri)
+             : base(ModuleReferenceSchemes.Oci, parentModuleUri)
         {
             switch (tag, digest)
             {
@@ -117,7 +118,7 @@ namespace Bicep.Core.Modules
             return hash.ToHashCode();
         }
 
-        public static OciArtifactModuleReference? TryParse(string? aliasName, string rawValue, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static bool TryParse(string? aliasName, string rawValue, RootConfiguration configuration, Uri parentModuleUri, [NotNullWhen(true)] out OciArtifactModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             static string GetBadReference(string referenceValue) => $"{ModuleReferenceSchemes.Oci}:{referenceValue}";
 
@@ -125,9 +126,10 @@ namespace Bicep.Core.Modules
 
             if (aliasName is not null)
             {
-                if (configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName, out failureBuilder) is not { } alias)
+                if (!configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName, out var alias, out failureBuilder))
                 {
-                    return null;
+                    moduleReference = null;
+                    return false;
                 }
 
                 rawValue = $"{alias}/{rawValue}";
@@ -141,14 +143,16 @@ namespace Bicep.Core.Modules
                 !string.Equals(artifactUri.Segments[0], "/", StringComparison.Ordinal))
             {
                 failureBuilder = x => x.InvalidOciArtifactReference(aliasName, GetBadReference(rawValue));
-                return null;
+                moduleReference = null;
+                return false;
             }
 
             string registry = artifactUri.Authority;
             if (registry.Length > MaxRegistryLength)
             {
                 failureBuilder = x => x.InvalidOciArtifactReferenceRegistryTooLong(aliasName, GetBadReference(rawValue), registry, MaxRegistryLength);
-                return null;
+                moduleReference = null;
+                return false;
             }
 
             // for "br://example.azurecr.io/foo/bar:v1", the segments are "/", "foo/", and "bar:v1"
@@ -163,7 +167,8 @@ namespace Bicep.Core.Modules
                 {
                     var invalidSegment = UnescapeSegment(current[0..^1]);
                     failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), invalidSegment);
-                    return null;
+                    moduleReference = null;
+                    return false;
                 }
 
                 // even though chars that require URL-escaping are not part of the allowed regexes
@@ -196,7 +201,8 @@ namespace Bicep.Core.Modules
             if (!ModulePathSegmentRegex.IsMatch(name))
             {
                 failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), name);
-                return null;
+                moduleReference = null;
+                return false;
             }
 
             repoBuilder.Append(name);
@@ -205,21 +211,24 @@ namespace Bicep.Core.Modules
             if (repository.Length > MaxRepositoryLength)
             {
                 failureBuilder = x => x.InvalidOciArtifactReferenceRepositoryTooLong(aliasName, GetBadReference(rawValue), repository, MaxRepositoryLength);
-                return null;
+                moduleReference = null;
+                return false;
             }
 
             // now we can complain about the missing tag or digest
             if (!delimiter.HasValue)
             {
                 failureBuilder = x => x.InvalidOciArtifactReferenceMissingTagOrDigest(aliasName, GetBadReference(rawValue));
-                return null;
+                moduleReference = null;
+                return false;
             }
 
             var tagOrDigest = UnescapeSegment(lastSegment[(indexOfLastSegmentDelimiter + 1)..]);
             if (string.IsNullOrEmpty(tagOrDigest))
             {
                 failureBuilder = x => x.InvalidOciArtifactReferenceMissingTagOrDigest(aliasName, GetBadReference(rawValue));
-                return null;
+                moduleReference = null;
+                return false;
             }
 
             switch (delimiter.Value)
@@ -229,28 +238,33 @@ namespace Bicep.Core.Modules
                     if (tag.Length > MaxTagLength)
                     {
                         failureBuilder = x => x.InvalidOciArtifactReferenceTagTooLong(aliasName, GetBadReference(rawValue), tag, MaxTagLength);
-                        return null;
+                        moduleReference = null;
+                        return false;
                     }
 
                     if (!TagRegex.IsMatch(tag))
                     {
                         failureBuilder = x => x.InvalidOciArtifactReferenceInvalidTag(aliasName, GetBadReference(rawValue), tag);
-                        return null;
+                        moduleReference = null;
+                        return false;
                     }
 
                     failureBuilder = null;
-                    return new OciArtifactModuleReference(registry, repository, tag: tag, digest: null);
+                    moduleReference = new OciArtifactModuleReference(registry, repository, tag: tag, digest: null, parentModuleUri);
+                    return true;
 
                 case '@':
                     var digest = tagOrDigest;
                     if (!DigestRegex.IsMatch(digest))
                     {
                         failureBuilder = x => x.InvalidOciArtifactReferenceInvalidDigest(aliasName, GetBadReference(rawValue), digest);
-                        return null;
+                        moduleReference = null;
+                        return false;
                     }
 
                     failureBuilder = null;
-                    return new OciArtifactModuleReference(registry, repository, tag: null, digest: digest);
+                    moduleReference = new OciArtifactModuleReference(registry, repository, tag: null, digest: digest, parentModuleUri);
+                    return true;
 
                 default:
                     throw new NotImplementedException($"Unexpected last segment delimiter character '{delimiter.Value}'.");

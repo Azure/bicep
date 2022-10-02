@@ -67,7 +67,7 @@ namespace Bicep.LanguageServer
             this.LinterRulesProvider = LinterRulesProvider;
         }
 
-        public void RefreshCompilation(DocumentUri documentUri, bool reloadBicepConfig = false)
+        public void RefreshCompilation(DocumentUri documentUri)
         {
             var compilationContext = this.GetCompilation(documentUri);
 
@@ -81,11 +81,9 @@ namespace Bicep.LanguageServer
                 // When errors are fixed in bicepconfig.json and file is saved, we'll get called into this
                 // method again. CompilationContext will be null. We'll get the souceFile from workspace and
                 // upsert compulation.
-                if (reloadBicepConfig &&
-                    workspace.TryGetSourceFile(documentUri.ToUri(), out ISourceFile? sourceFile) &&
-                    sourceFile is BicepFile)
+                if (workspace.TryGetSourceFile(documentUri.ToUri(), out ISourceFile? sourceFile) && sourceFile is BicepFile)
                 {
-                    UpsertCompilationInternal(documentUri, null, sourceFile, reloadBicepConfig);
+                    UpsertCompilationInternal(documentUri, null, sourceFile);
                 }
                 return;
             }
@@ -94,7 +92,7 @@ namespace Bicep.LanguageServer
             // need to make a shallow copy so it counts as a different file even though all the content is identical
             // this was the easiest way to force the compilation to be regenerated
             var shallowCopy = new BicepFile(compilationContext.Compilation.SourceFileGrouping.EntryPoint);
-            UpsertCompilationInternal(documentUri, null, shallowCopy, reloadBicepConfig);
+            UpsertCompilationInternal(documentUri, null, shallowCopy);
         }
 
         public void UpsertCompilation(DocumentUri documentUri, int? version, string fileContents, string? languageId = null, bool triggeredByFileOpenEvent = false)
@@ -106,7 +104,7 @@ namespace Bicep.LanguageServer
             }
         }
 
-        private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool reloadBicepConfig = false, bool triggeredByFileOpenEvent = false)
+        private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool triggeredByFileOpenEvent = false)
         {
             var (_, removedFiles) = workspace.UpsertSourceFile(newFile);
 
@@ -114,14 +112,14 @@ namespace Bicep.LanguageServer
             if (newFile is BicepFile)
             {
                 // Do not update compilation if it is an ARM template file, since it cannot be an entrypoint.
-                UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles, reloadBicepConfig, triggeredByFileOpenEvent);
+                UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles, triggeredByFileOpenEvent);
             }
 
             foreach (var (entrypointUri, context) in activeContexts)
             {
                 if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
                 {
-                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles, reloadBicepConfig, triggeredByFileOpenEvent);
+                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles, triggeredByFileOpenEvent);
                 }
             }
         }
@@ -209,25 +207,17 @@ namespace Bicep.LanguageServer
             return closedFiles.ToImmutableArray();
         }
 
-        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles, bool reloadBicepConfig = false, bool triggeredByFileOpenEvent = false)
+        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles, bool triggeredByFileOpenEvent = false)
         {
-            var configuration = this.GetConfigurationSafely(documentUri, out var configurationDiagnostic);
-
             try
             {
-                var linterAnalyzer = reloadBicepConfig
-                    ? new LinterAnalyzer(configuration)
-                    : activeLinterAnalyzers.TryGetValue(documentUri) ?? new LinterAnalyzer(configuration);
-
-                activeLinterAnalyzers.AddOrUpdate(documentUri, documentUri => linterAnalyzer, (documentUri, prevAnalyzer) => linterAnalyzer);
+                var linterAnalyzer = activeLinterAnalyzers.GetOrAdd(documentUri, uri => new());
 
                 var context = this.activeContexts.AddOrUpdate(
                     documentUri,
-                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration, linterAnalyzer),
+                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), linterAnalyzer),
                     (documentUri, prevContext) =>
                     {
-                        var prevConfiguration = prevContext.Compilation.Configuration;
-
                         var sourceDependencies = removedFiles
                             .SelectMany(x => prevContext.Compilation.SourceFileGrouping.GetFilesDependingOn(x))
                             .ToImmutableHashSet();
@@ -242,11 +232,7 @@ namespace Bicep.LanguageServer
                             }
                         }
 
-                        var configuration = reloadBicepConfig
-                            ? this.GetConfigurationSafely(documentUri.ToUri(), out configurationDiagnostic)
-                            : prevContext.Compilation.Configuration;
-
-                        return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration, linterAnalyzer);
+                        return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), linterAnalyzer);
                     });
 
                 foreach (var sourceFile in context.Compilation.SourceFileGrouping.SourceFiles)
@@ -256,7 +242,7 @@ namespace Bicep.LanguageServer
                 }
 
                 // this completes immediately
-                this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.GetModulesToRestore(), configuration);
+                this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.GetModulesToRestore());
 
                 var sourceFiles = context.Compilation.SourceFileGrouping.SourceFiles;
                 var output = workspace.UpsertSourceFiles(sourceFiles);
@@ -264,14 +250,10 @@ namespace Bicep.LanguageServer
                 // convert all the diagnostics to LSP diagnostics
                 var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
 
-                if (configurationDiagnostic is not null)
-                {
-                    diagnostics = diagnostics.Append(configurationDiagnostic);
-                }
-
                 if (triggeredByFileOpenEvent)
                 {
-                    SendTelemetryOnBicepFileOpen(context.Compilation.GetEntrypointSemanticModel(), documentUri.ToUri(), configuration, sourceFiles, diagnostics);
+                    var model = context.Compilation.GetEntrypointSemanticModel();
+                    SendTelemetryOnBicepFileOpen(model, documentUri.ToUri(), model.Configuration, sourceFiles, diagnostics);
                 }
 
                 // publish all the diagnostics
@@ -455,32 +437,6 @@ namespace Bicep.LanguageServer
             }
 
             return BicepTelemetryEvent.CreateLinterStateOnBicepFileOpen(properties);
-        }
-
-        private RootConfiguration GetConfigurationSafely(DocumentUri documentUri, out Diagnostic? diagnostic)
-        {
-            try
-            {
-                diagnostic = null;
-                return this.configurationManager.GetConfiguration(documentUri.ToUri());
-            }
-            catch (ConfigurationException exception)
-            {
-                diagnostic = new Diagnostic
-                {
-                    Range = new Range
-                    {
-                        Start = new Position(0, 0),
-                        End = new Position(1, 0),
-                    },
-                    Severity = DiagnosticSeverity.Error,
-                    Message = exception.Message,
-                    Code = new DiagnosticCode("Invalid Bicep Configuration"),
-                };
-            }
-
-            // Fallback to the default configuration with analyzers disabled.
-            return this.configurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
         }
 
         private static IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context) =>

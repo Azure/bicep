@@ -50,7 +50,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly INamespaceProvider namespaceProvider;
-        private readonly ApiVersionProvider apiVersionProvider;
+        private readonly IApiVersionProvider apiVersionProvider;
 
         public BicepDeploymentScopeRequestHandler(
             EmitterSettings emitterSettings,
@@ -62,7 +62,7 @@ namespace Bicep.LanguageServer.Handlers
             IModuleDispatcher moduleDispatcher,
             INamespaceProvider namespaceProvider,
             ISerializer serializer,
-            ApiVersionProvider apiVersionProvider)
+            IApiVersionProvider apiVersionProvider)
             : base(LangServerConstants.GetDeploymentScopeCommand, serializer)
         {
             this.compilationManager = compilationManager;
@@ -132,22 +132,12 @@ namespace Bicep.LanguageServer.Handlers
         private Compilation GetCompilation(DocumentUri documentUri)
         {
             var fileUri = documentUri.ToUri();
-            RootConfiguration? configuration;
-
-            try
-            {
-                configuration = this.configurationManager.GetConfiguration(fileUri);
-            }
-            catch (ConfigurationException)
-            {
-                throw;
-            }
 
             CompilationContext? context = compilationManager.GetCompilation(documentUri);
             if (context is null)
             {
-                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri, configuration);
-                return new Compilation(features, namespaceProvider, sourceFileGrouping, configuration, this.apiVersionProvider, new LinterAnalyzer(configuration));
+                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
+                return new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
             }
             else
             {

@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Concurrent;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Workspaces;
@@ -15,15 +14,13 @@ namespace Bicep.LanguageServer.Configuration
     public class BicepConfigChangeHandler : IBicepConfigChangeHandler
     {
         private readonly ICompilationManager compilationManager;
-        private readonly IConfigurationManager configurationManager;
+        private readonly ConfigurationManager configurationManager;
         private readonly ILinterRulesProvider linterRulesProvider;
         private readonly ITelemetryProvider telemetryProvider;
         private readonly IWorkspace workspace;
 
-        private readonly ConcurrentDictionary<DocumentUri, RootConfiguration> activeBicepConfigCache = new ConcurrentDictionary<DocumentUri, RootConfiguration>();
-
         public BicepConfigChangeHandler(ICompilationManager compilationManager,
-                                        IConfigurationManager configurationManager,
+                                        ConfigurationManager configurationManager,
                                         ILinterRulesProvider linterRulesProvider,
                                         ITelemetryProvider telemetryProvider,
                                         IWorkspace workspace)
@@ -37,9 +34,11 @@ namespace Bicep.LanguageServer.Configuration
 
         public void RefreshCompilationOfSourceFilesInWorkspace()
         {
+            configurationManager.PurgeCache();
+
             foreach (Uri sourceFileUri in workspace.GetActiveSourceFilesByUri().Keys)
             {
-                compilationManager.RefreshCompilation(DocumentUri.From(sourceFileUri), reloadBicepConfig: true);
+                compilationManager.RefreshCompilation(DocumentUri.From(sourceFileUri));
             }
         }
 
@@ -51,30 +50,23 @@ namespace Bicep.LanguageServer.Configuration
         public void HandleBicepConfigChangeEvent(DocumentUri documentUri)
         {
             HandleBicepConfigOpenOrChangeEvent(documentUri);
+            // The change may have rendered a config file invalid, or the event itself may have represented a file creation or deletion.
+            // In either case, the lookup cache would be stale.
+            configurationManager.PurgeLookupCache();
         }
 
-        private void HandleBicepConfigOpenOrChangeEvent(DocumentUri documentUri)
-        {
-            if (ConfigurationHelper.TryGetConfiguration(configurationManager, documentUri, out RootConfiguration? configuration))
-            {
-                activeBicepConfigCache.AddOrUpdate(documentUri, (documentUri) => configuration, (documentUri, prevConfiguration) => configuration);
-            }
-        }
+        private void HandleBicepConfigOpenOrChangeEvent(DocumentUri documentUri) 
+            => configurationManager.RefreshConfigCacheEntry(documentUri.ToUri());
 
         public void HandleBicepConfigSaveEvent(DocumentUri documentUri)
         {
-            if (activeBicepConfigCache.TryGetValue(documentUri, out RootConfiguration? prevBicepConfiguration) &&
-                prevBicepConfiguration != null &&
-                ConfigurationHelper.TryGetConfiguration(configurationManager, documentUri, out RootConfiguration? curConfiguration))
+            if (configurationManager.RefreshConfigCacheEntry(documentUri.ToUri()) is {} update)
             {
-                TelemetryHelper.SendTelemetryOnBicepConfigChange(prevBicepConfiguration, curConfiguration, linterRulesProvider, telemetryProvider);
-                activeBicepConfigCache.AddOrUpdate(documentUri, (documentUri) => curConfiguration, (documentUri, prevConfiguration) => curConfiguration);
+                TelemetryHelper.SendTelemetryOnBicepConfigChange(update.prevConfiguration, update.newConfiguration, linterRulesProvider, telemetryProvider);
             }
         }
 
         public void HandleBicepConfigCloseEvent(DocumentUri documentUri)
-        {
-            activeBicepConfigCache.TryRemove(documentUri, out _);
-        }
+            => configurationManager.RemoveConfigCacheEntry(documentUri.ToUri());
     }
 }

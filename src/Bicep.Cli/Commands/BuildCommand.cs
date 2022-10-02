@@ -70,7 +70,7 @@ namespace Bicep.Cli.Commands
                 }
 
                 // return non-zero exit code on errors
-                return diagnosticLogger.ErrorCount > 0 ? 1 : 0;       
+                return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
             }
             else if (invocationContext.Features.ParamsFilesEnabled && IsBicepparamsFile(inputPath))
             {
@@ -83,7 +83,7 @@ namespace Bicep.Cli.Commands
 
                 return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
             }
-            
+
             logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
             return 1;
         }

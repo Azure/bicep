@@ -56,6 +56,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                                                        bicepConfigFileContents,
                                                        saveBicepConfigFile: true,
                                                        out Mock<ITextDocumentLanguageServer> document,
+                                                       out _,
                                                        out Container<Diagnostic>? diagnostics);
 
             diagnostics.Should().NotBeNullOrEmpty();
@@ -94,20 +95,31 @@ namespace Bicep.LangServer.UnitTests.Configuration
                                                        bicepConfigFileContents,
                                                        saveBicepConfigFile: true,
                                                        out Mock<ITextDocumentLanguageServer> document,
+                                                       out var configFilePath,
                                                        out Container<Diagnostic>? diagnostics);
 
             diagnostics.Should().NotBeNullOrEmpty();
-            diagnostics!.Count().Should().Be(1);
             diagnostics.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Message.Should().MatchRegex(@"Failed to parse the contents of the Bicep configuration file "".+bicepconfig.json"" as valid JSON: ""Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 13."".");
+                    x.Message.Should().Be(@$"Failed to parse the contents of the Bicep configuration file ""{configFilePath}"" as valid JSON: ""Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 13."".");
                     x.Severity.Should().Be(DiagnosticSeverity.Error);
-                    x.Code?.String.Should().Be("Invalid Bicep Configuration");
+                    x.Code?.String.Should().Be("BCP271");
                     x.Range.Should().Be(new Range
                     {
                         Start = new Position(0, 0),
-                        End = new Position(1, 0)
+                        End = new Position(0, 0)
+                    });
+                },
+                x =>
+                {
+                    x.Message.Should().Be(@"Parameter ""storageAccountName"" is declared but never used.");
+                    x.Severity.Should().Be(DiagnosticSeverity.Warning);
+                    x.Code?.String.Should().Be("https://aka.ms/bicep/linter/no-unused-params");
+                    x.Range.Should().Be(new Range
+                    {
+                        Start = new Position(0, 6),
+                        End = new Position(0, 24)
                     });
                 });
         }
@@ -135,6 +147,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                                                        bicepConfigFileContents,
                                                        saveBicepConfigFile: true,
                                                        out Mock<ITextDocumentLanguageServer> document,
+                                                       out _,
                                                        out Container<Diagnostic>? diagnostics);
 
             diagnostics.Should().NotBeNullOrEmpty();
@@ -175,6 +188,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                                                        bicepConfigFileContents,
                                                        saveBicepConfigFile: true,
                                                        out _,
+                                                       out _,
                                                        out Container<Diagnostic>? diagnostics);
 
             diagnostics.Should().BeNullOrEmpty();
@@ -189,6 +203,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                                                        string.Empty,
                                                        saveBicepConfigFile: false,
                                                        out Mock<ITextDocumentLanguageServer> document,
+                                                       out _,
                                                        out Container<Diagnostic>? diagnostics);
 
             diagnostics.Should().NotBeNullOrEmpty();
@@ -208,7 +223,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 });
         }
 
-        private void RefreshCompilationOfSourceFilesInWorkspace(string bicepFileContents, string bicepConfigFileContents, bool saveBicepConfigFile, out Mock<ITextDocumentLanguageServer> document, out Container<Diagnostic>? diagnostics)
+        private void RefreshCompilationOfSourceFilesInWorkspace(string bicepFileContents, string bicepConfigFileContents, bool saveBicepConfigFile, out Mock<ITextDocumentLanguageServer> document, out string? bicepConfigFilePath, out Container<Diagnostic>? diagnostics)
         {
             PublishDiagnosticsParams? receivedParams = null;
             document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
@@ -219,19 +234,25 @@ namespace Bicep.LangServer.UnitTests.Configuration
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
             var workspace = new Workspace();
 
-            var bicepCompilationManager = new BicepCompilationManager(server, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()), BicepTestConstants.CreateMockTelemetryProvider().Object, new LinterRulesProvider());
+            var configurationManager = new ConfigurationManager(new IOFileSystem());
+            var bicepCompilationManager = new BicepCompilationManager(server, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(configurationManager), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()), BicepTestConstants.CreateMockTelemetryProvider().Object, new LinterRulesProvider());
             bicepCompilationManager.UpsertCompilation(DocumentUri.From(bicepFilePath), null, bicepFileContents, LanguageConstants.LanguageId);
 
             var bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
 
             if (saveBicepConfigFile)
             {
-                string bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
+                bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
+                configurationManager.PurgeLookupCache();
                 bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
+            }
+            else
+            {
+              bicepConfigFilePath = null;
             }
 
             var bicepConfigChangeHandler = new BicepConfigChangeHandler(bicepCompilationManager,
-                                                                        BicepTestConstants.ConfigurationManager,
+                                                                        configurationManager,
                                                                         LinterRulesProvider,
                                                                         BicepTestConstants.CreateMockTelemetryProvider().Object,
                                                                         workspace);

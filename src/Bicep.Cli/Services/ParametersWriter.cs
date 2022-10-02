@@ -34,7 +34,6 @@ namespace Bicep.Cli.Services
             {
                 Formatting = Formatting.Indented
             };
-            new ParametersEmitter(paramSemanticModel, invocationContext.EmitterSettings).EmitParamsFile(writer);
 
             return new ParametersEmitter(paramSemanticModel, invocationContext.EmitterSettings).EmitParamsFile(writer);
         }

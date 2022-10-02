@@ -9,6 +9,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,20 +20,27 @@ namespace Bicep.Core.Registry
     {
         private static readonly TimeSpan FailureExpirationInterval = TimeSpan.FromMinutes(30);
 
-        private readonly ImmutableDictionary<string, IModuleRegistry> registries;
-
         private readonly ConcurrentDictionary<RestoreFailureKey, RestoreFailureInfo> restoreFailures = new();
 
-        public ModuleDispatcher(IModuleRegistryProvider registryProvider)
+        private readonly IModuleRegistryProvider registryProvider;
+
+        private readonly IConfigurationManager configurationManager;
+
+        public ModuleDispatcher(IModuleRegistryProvider registryProvider, IConfigurationManager configurationManager)
         {
-            this.registries = registryProvider.Registries.ToImmutableDictionary(registry => registry.Scheme);
-            this.AvailableSchemes = this.registries.Keys.OrderBy(s => s).ToImmutableArray();
+            this.registryProvider = registryProvider;
+            this.configurationManager = configurationManager;
         }
 
-        public ImmutableArray<string> AvailableSchemes { get; }
+        private ImmutableDictionary<string, IModuleRegistry> Registries(Uri parentModuleUri)
+            => registryProvider.Registries(parentModuleUri).ToImmutableDictionary(r => r.Scheme);
 
-        public ModuleReference? TryGetModuleReference(string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public ImmutableArray<string> AvailableSchemes(Uri parentModuleUri)
+            => Registries(parentModuleUri).Keys.OrderBy(s => s).ToImmutableArray();
+
+        public bool TryGetModuleReference(string reference, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
+            var registries = Registries(parentModuleUri);
             var parts = reference.Split(':', 2, StringSplitOptions.None);
             switch (parts.Length)
             {
@@ -40,11 +48,12 @@ namespace Bicep.Core.Registry
                     // local path reference
                     if (registries.TryGetValue(ModuleReferenceSchemes.Local, out var localRegistry))
                     {
-                        return localRegistry.TryParseModuleReference(null, parts[0], configuration, out failureBuilder);
+                        return localRegistry.TryParseModuleReference(null, parts[0], out moduleReference, out failureBuilder);
                     }
 
-                    failureBuilder = x => x.UnknownModuleReferenceScheme(ModuleReferenceSchemes.Local, this.AvailableSchemes);
-                    return null;
+                    failureBuilder = x => x.UnknownModuleReferenceScheme(ModuleReferenceSchemes.Local, this.AvailableSchemes(parentModuleUri));
+                    moduleReference = null;
+                    return false;
 
                 case 2:
                     string scheme = parts[0];
@@ -63,30 +72,33 @@ namespace Bicep.Core.Registry
                         // the scheme is recognized
                         var rawValue = parts[1];
 
-                        return registry.TryParseModuleReference(aliasName, rawValue, configuration, out failureBuilder);
+                        return registry.TryParseModuleReference(aliasName, rawValue, out moduleReference, out failureBuilder);
                     }
 
                     // unknown scheme
-                    failureBuilder = x => x.UnknownModuleReferenceScheme(scheme, this.AvailableSchemes);
-                    return null;
+                    failureBuilder = x => x.UnknownModuleReferenceScheme(scheme, this.AvailableSchemes(parentModuleUri));
+                    moduleReference = null;
+                    return false;
 
                 default:
                     // empty string
                     failureBuilder = x => x.ModulePathHasNotBeenSpecified();
-                    return null;
+                    moduleReference = null;
+                    return false;
             }
         }
 
-        public ModuleReference? TryGetModuleReference(ModuleDeclarationSyntax module, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public bool TryGetModuleReference(ModuleDeclarationSyntax module, Uri parentModuleUri, [NotNullWhen(true)] out ModuleReference? moduleReference, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var moduleReferenceString = SyntaxHelper.TryGetModulePath(module, out var getModulePathFailureBuilder);
             if (moduleReferenceString is null)
             {
                 failureBuilder = getModulePathFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(SyntaxHelper.TryGetModulePath)} to provide failure diagnostics.");
-                return null;
+                moduleReference = null;
+                return false;
             }
 
-            return this.TryGetModuleReference(moduleReferenceString, configuration, out failureBuilder);
+            return this.TryGetModuleReference(moduleReferenceString, parentModuleUri, out moduleReference, out failureBuilder);
         }
 
         public RegistryCapabilities GetRegistryCapabilities(ModuleReference moduleReference)
@@ -95,9 +107,10 @@ namespace Bicep.Core.Registry
             return registry.GetCapabilities(moduleReference);
         }
 
-        public ModuleRestoreStatus GetModuleRestoreStatus(ModuleReference moduleReference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public ModuleRestoreStatus GetModuleRestoreStatus(ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var registry = this.GetRegistry(moduleReference);
+            var configuration = configurationManager.GetConfiguration(moduleReference.ParentModuleUri);
 
             // have we already failed to restore this module?
             if (this.HasRestoreFailed(moduleReference, configuration, out var restoreFailureBuilder))
@@ -117,24 +130,26 @@ namespace Bicep.Core.Registry
             return ModuleRestoreStatus.Succeeded;
         }
 
-        public Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference moduleReference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public bool TryGetLocalModuleEntryPointUri(ModuleReference moduleReference, [NotNullWhen(true)] out Uri? localUri, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
+            var configuration = configurationManager.GetConfiguration(moduleReference.ParentModuleUri);
             // has restore already failed for this module?
             if (this.HasRestoreFailed(moduleReference, configuration, out var restoreFailureBuilder))
             {
                 failureBuilder = restoreFailureBuilder;
-                return null;
+                localUri = null;
+                return false;
             }
 
             var registry = this.GetRegistry(moduleReference);
-            return registry.TryGetLocalModuleEntryPointUri(parentModuleUri, moduleReference, out failureBuilder);
+            return registry.TryGetLocalModuleEntryPointUri(moduleReference, out localUri, out failureBuilder);
         }
 
-        public async Task<bool> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> moduleReferences, bool forceModulesRestore = false)
+        public async Task<bool> RestoreModules(IEnumerable<ModuleReference> moduleReferences, bool forceModulesRestore = false)
         {
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 
-            if (!forceModulesRestore && moduleReferences.All(module => this.GetModuleRestoreStatus(module, configuration, out _) == ModuleRestoreStatus.Succeeded))
+            if (!forceModulesRestore && moduleReferences.All(module => this.GetModuleRestoreStatus(module, out _) == ModuleRestoreStatus.Succeeded))
             {
                 // all the modules have already been restored - no need to do anything
                 return false;
@@ -143,39 +158,39 @@ namespace Bicep.Core.Registry
             // many module declarations can point to the same module
             var uniqueReferences = moduleReferences.Distinct();
 
-            // split module refs by scheme
-            var referencesByScheme = uniqueReferences.ToLookup(@ref => @ref.Scheme);
+            // split modules refs by registry
+            var referencesByRegistry = uniqueReferences.ToLookup(@ref => Registries(@ref.ParentModuleUri)[@ref.Scheme]);
 
             // send each set of refs to its own registry
-            foreach (var scheme in this.registries.Keys.Where(refType => referencesByScheme.Contains(refType)))
+            foreach (var registry in referencesByRegistry.Select(byRegistry => byRegistry.Key))
             {
                 // if we're asked to purge modules cache
                 if (forceModulesRestore) {
-                    var forceModulesRestoreStatuses = await this.registries[scheme].InvalidateModulesCache(configuration, referencesByScheme[scheme]);
+                    var forceModulesRestoreStatuses = await registry.InvalidateModulesCache(referencesByRegistry[registry]);
 
                     // update cache invalidation status for each failed modules
                     foreach (var (failedReference, failureBuilder) in forceModulesRestoreStatuses)
                     {
-                        this.SetRestoreFailure(failedReference, configuration, failureBuilder);
+                        this.SetRestoreFailure(failedReference, configurationManager.GetConfiguration(failedReference.ParentModuleUri), failureBuilder);
                     }
                 }
 
-                var restoreStatuses = await this.registries[scheme].RestoreModules(configuration, referencesByScheme[scheme]);
+                var restoreStatuses = await registry.RestoreModules(referencesByRegistry[registry]);
 
                 // update restore status for each failed module restore
                 foreach (var (failedReference, failureBuilder) in restoreStatuses)
                 {
-                    this.SetRestoreFailure(failedReference, configuration, failureBuilder);
+                    this.SetRestoreFailure(failedReference, configurationManager.GetConfiguration(failedReference.ParentModuleUri), failureBuilder);
                 }
             }
 
             return true;
         }
 
-        public async Task PublishModule(RootConfiguration configuration, ModuleReference moduleReference, Stream compiled)
+        public async Task PublishModule(ModuleReference moduleReference, Stream compiled)
         {
             var registry = this.GetRegistry(moduleReference);
-            await registry.PublishModule(configuration, moduleReference, compiled);
+            await registry.PublishModule(moduleReference, compiled);
         }
 
         public void PruneRestoreStatuses()
@@ -194,9 +209,9 @@ namespace Bicep.Core.Registry
         }
 
         private IModuleRegistry GetRegistry(ModuleReference moduleReference) =>
-            this.registries.TryGetValue(moduleReference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected module reference scheme '{moduleReference.Scheme}'.");
+            Registries(moduleReference.ParentModuleUri).TryGetValue(moduleReference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected module reference scheme '{moduleReference.Scheme}'.");
 
-        private bool HasRestoreFailed(ModuleReference moduleReference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private bool HasRestoreFailed(ModuleReference moduleReference, RootConfiguration configuration, [NotNullWhen(true)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             if (this.restoreFailures.TryGetValue(new(configuration.Cloud, moduleReference), out var failureInfo) && !IsFailureInfoExpired(failureInfo, DateTime.UtcNow))
             {

@@ -27,7 +27,7 @@ namespace Bicep.Cli
             Features = features ?? new FeatureProvider();
             ClientFactory = clientFactory ?? new ContainerRegistryClientFactory(new TokenCredentialFactory());
             TemplateSpecRepositoryFactory = templateSpecRepositoryFactory ?? new TemplateSpecRepositoryFactory(new TokenCredentialFactory());
-            NamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoader, Features);
+            NamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoader);
         }
 
         public INamespaceProvider NamespaceProvider { get; }

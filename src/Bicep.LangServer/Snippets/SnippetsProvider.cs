@@ -66,15 +66,14 @@ namespace Bicep.LanguageServer.Snippets
             "dependsOn");
 
         private readonly IFeatureProvider features;
-        private readonly ApiVersionProvider apiVersionProvider;
+        private readonly IApiVersionProvider apiVersionProvider;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
-        private readonly RootConfiguration configuration;
         private readonly LinterAnalyzer linterAnalyzer;
         private readonly IConfigurationManager configurationManager;
         private readonly IModuleDispatcher moduleDispatcher;
 
-        public SnippetsProvider(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IConfigurationManager configurationManager, ApiVersionProvider apiVersionProvider, IModuleDispatcher moduleDispatcher)
+        public SnippetsProvider(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IConfigurationManager configurationManager, IApiVersionProvider apiVersionProvider, IModuleDispatcher moduleDispatcher)
         {
             this.features = features;
             this.apiVersionProvider = apiVersionProvider;
@@ -82,11 +81,7 @@ namespace Bicep.LanguageServer.Snippets
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.configurationManager = configurationManager;
-
-            // We'll use default bicepconfig.json settings during SnippetsProvider creation to avoid errors during language service initialization.
-            // We don't do any validation in SnippetsProvider. So using default settings shouldn't be a problem.
-            configuration = configurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
-            linterAnalyzer = new LinterAnalyzer(configuration);
+            linterAnalyzer = new LinterAnalyzer();
 
             Initialize();
         }
@@ -224,16 +219,13 @@ namespace Bicep.LanguageServer.Snippets
 
             // We need to provide uri for syntax tree creation, but it's not used anywhere. In order to avoid
             // cross platform issues, we'll provide a placeholder uri.
-            var snippetConfiguration = this.configurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"inmemory://{manifestResourceName}.bicep"), template);
             var workspace = new Workspace();
             workspace.UpsertSourceFiles(bicepFile.AsEnumerable());
 
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, bicepFile.FileUri, snippetConfiguration, false);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, bicepFile.FileUri, false);
 
-            // We'll use default bicepconfig.json settings during SnippetsProvider creation to avoid errors during language service initialization.
-            // We don't do any validation in SnippetsProvider. So using default settings shouldn't be a problem.
-            Compilation compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, snippetConfiguration, apiVersionProvider, linterAnalyzer);
+            Compilation compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, linterAnalyzer);
 
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
 

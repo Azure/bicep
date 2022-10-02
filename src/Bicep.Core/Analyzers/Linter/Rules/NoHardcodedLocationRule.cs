@@ -121,7 +121,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 string newParamName = GetUnusedTopLevelName("location", model);
                 string newDefaultValue = locationValueSyntax.ToTextPreserveFormatting();
                 CodeReplacement insertNewParamDefinition = new(
-                        new TextSpan(0, 0),
+                        TextSpan.TextDocumentStart,
                         $"@description('Specifies the location for resources.')\n"
                         + $"param {newParamName} string = {newDefaultValue}\n\n");
                 CodeReplacement replacementWithNewParam = new(

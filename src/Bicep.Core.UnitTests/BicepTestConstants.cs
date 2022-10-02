@@ -54,10 +54,6 @@ namespace Bicep.Core.UnitTests
 
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
-        public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, TemplateSpecRepositoryFactory, Features);
-
-        public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
-
         public static readonly IConfigurationManager ConfigurationManager = new ConfigurationManager(new IOFileSystem());
 
         // Linter rules added to this list will be automtically disabled for most tests.
@@ -65,18 +61,24 @@ namespace Bicep.Core.UnitTests
             // use-recent-api-versions is problematic for tests but it's off by default so doesn't need to appear here
         };
 
-        public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersEnabled = ConfigurationManager.GetBuiltInConfiguration();
-        public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
-        public static readonly RootConfiguration BuiltInConfigurationWithProblematicAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration().WithAnalyzersDisabled(AnalyzerRulesToDisableInTests);
+        public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersEnabled = IConfigurationManager.GetBuiltInConfiguration();
+        public static readonly RootConfiguration BuiltInConfigurationWithAllAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
+        public static readonly RootConfiguration BuiltInConfigurationWithProblematicAnalyzersDisabled = IConfigurationManager.GetBuiltInConfiguration().WithAnalyzersDisabled(AnalyzerRulesToDisableInTests);
 
         // By default turns off only problematic analyzers
         public static readonly RootConfiguration BuiltInConfiguration = BuiltInConfigurationWithProblematicAnalyzersDisabled;
 
+        public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration);
+
+        public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, TemplateSpecRepositoryFactory, Features, BuiltInOnlyConfigurationManager);
+
+        public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
+
         // By default turns off only problematic analyzers
-        public static readonly LinterAnalyzer LinterAnalyzer = new LinterAnalyzer(BuiltInConfiguration);
+        public static readonly LinterAnalyzer LinterAnalyzer = new LinterAnalyzer();
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
-        public static readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider();
+        public static readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider(Features, new DefaultNamespaceProvider(new AzResourceTypeLoader()));
 
         public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)
         {
