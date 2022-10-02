@@ -74,7 +74,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         // password
-        [DataRow(@"param fail_adminPasswordInt int")]
         [DataRow(@"param fail_adminPassword string")]
         [DataRow(@"param fail_ADMINpassword2 string")]
         [DataRow(@"param fail_adminPasswords string")]
