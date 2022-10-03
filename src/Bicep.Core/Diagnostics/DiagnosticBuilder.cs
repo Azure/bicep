@@ -1571,12 +1571,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP269",
                 $"Function \"{functionName}\" cannot be used as a metadata decorator.");
 
-            public Diagnostic UnpermittedTypeForScope() => new(
-                TextSpan,
-                DiagnosticLevel.Error,
-                "BCP270",
-                $"The scope used for this declaration is ambiguous. A resource or module must only reference a single scope.");
-
             public ErrorDiagnostic UnparsableBicepConfigFile(string configurationPath, string parsingErrorMessage) => new(
                 TextSpan,
                 "BCP271",
