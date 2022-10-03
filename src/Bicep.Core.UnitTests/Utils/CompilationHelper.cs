@@ -128,7 +128,7 @@ namespace Bicep.Core.UnitTests.Utils
             var model = new ParamsSemanticModel(sourceFileGrouping, configuration, context.GetFeatures(), file => {
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
-                return new Compilation(context.GetFeatures(), context.GetNamespaceProvider(), compilationGrouping, IConfigurationManager.WithStaticConfiguration(configuration), apiVersionProvider, new LinterAnalyzer());
+                return new Compilation(context.GetFeatures(), context.GetNamespaceProvider(), compilationGrouping, IConfigurationManager.WithStaticConfiguration(configuration), apiVersionProvider, BicepTestConstants.LinterAnalyzer);
             });
 
             return CompileParams(context, model);
@@ -153,7 +153,7 @@ namespace Bicep.Core.UnitTests.Utils
             var model = new ParamsSemanticModel(sourceFileGrouping, configuration, context.GetFeatures(), file => {
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
-                return new Compilation(context.GetFeatures(), context.GetNamespaceProvider(), compilationGrouping, IConfigurationManager.WithStaticConfiguration(configuration), apiVersionProvider, new LinterAnalyzer());
+                return new Compilation(context.GetFeatures(), context.GetNamespaceProvider(), compilationGrouping, IConfigurationManager.WithStaticConfiguration(configuration), apiVersionProvider, BicepTestConstants.LinterAnalyzer);
             });
 
             return CompileParams(context, model);

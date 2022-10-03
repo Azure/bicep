@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
@@ -152,6 +153,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>();
             services.AddSingleton<IApiVersionProvider, ApiVersionProvider>();
             services.AddSingleton<IParamsCompilationManager, BicepParamsCompilationManager>();
+            services.AddSingleton<IBicepAnalyzer, LinterAnalyzer>();
         }
 
         public void Dispose()

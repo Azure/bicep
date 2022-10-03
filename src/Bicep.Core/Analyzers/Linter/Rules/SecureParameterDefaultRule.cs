@@ -23,6 +23,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
+            var diagnosticLevel = GetDiagnosticLevel(model);
             var defaultValueSyntaxes = model.Root.ParameterDeclarations.Where(p => p.IsSecure())
                 .Select(p => p.DeclaringParameter.Modifier as ParameterDefaultValueSyntax)
                 .OfType<ParameterDefaultValueSyntax>(); // this eliminates nulls (when there's no default value)
@@ -48,7 +49,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     continue;
                 }
 
-                yield return CreateFixableDiagnosticForSpan(defaultValueSyntax.Span,
+                yield return CreateFixableDiagnosticForSpan(diagnosticLevel,
+                    defaultValueSyntax.Span,
                     new CodeFix(CoreResources.SecureParameterDefaultFixTitle, true, CodeFixKind.QuickFix,
                             new CodeReplacement(defaultValueSyntax.Span, string.Empty)));
             }

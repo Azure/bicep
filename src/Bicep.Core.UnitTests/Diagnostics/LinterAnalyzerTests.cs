@@ -3,9 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using Bicep.Core.Analyzers;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
@@ -79,7 +77,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         {
             var analyzer = new LinterAnalyzer();
             var ruleSet = analyzer.GetRuleSet();
-            var numberEnabled = ruleSet.Where(r => r.IsEnabled()).Count();
+            var numberEnabled = ruleSet.Where(r => r.DiagnosticLevel != DiagnosticLevel.Off).Count();
             numberEnabled.Should().BeGreaterThan(ruleSet.Count() / 2, "most rules should probably be enabled by default");
         }
 

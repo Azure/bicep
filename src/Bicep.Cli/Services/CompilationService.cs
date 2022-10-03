@@ -2,12 +2,11 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Logging;
-using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
@@ -32,6 +31,7 @@ namespace Bicep.Cli.Services
         private readonly Workspace workspace;
         private readonly TemplateDecompiler decompiler;
         private readonly IApiVersionProvider apiVersionProvider;
+        private readonly IBicepAnalyzer bicepAnalyzer;
 
         public CompilationService(
             IDiagnosticLogger diagnosticLogger,
@@ -40,7 +40,8 @@ namespace Bicep.Cli.Services
             IModuleDispatcher moduleDispatcher,
             IConfigurationManager configurationManager,
             TemplateDecompiler decompiler,
-            IApiVersionProvider apiVersionProvider)
+            IApiVersionProvider apiVersionProvider,
+            IBicepAnalyzer bicepAnalyzer)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.fileResolver = fileResolver;
@@ -50,6 +51,7 @@ namespace Bicep.Cli.Services
             this.workspace = new Workspace();
             this.decompiler = decompiler;
             this.apiVersionProvider = apiVersionProvider;
+            this.bicepAnalyzer = bicepAnalyzer;
         }
 
         public async Task RestoreAsync(string inputPath, bool forceModulesRestore)
@@ -97,7 +99,7 @@ namespace Bicep.Cli.Services
                 }
             }
 
-            var compilation = new Compilation(this.invocationContext.Features, this.invocationContext.NamespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
+            var compilation = new Compilation(this.invocationContext.Features, this.invocationContext.NamespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, bicepAnalyzer);
             LogDiagnostics(compilation);
 
             return compilation;
@@ -125,7 +127,7 @@ namespace Bicep.Cli.Services
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
 
-                return new Compilation(invocationContext.Features, this.invocationContext.NamespaceProvider, compilationGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
+                return new Compilation(invocationContext.Features, this.invocationContext.NamespaceProvider, compilationGrouping, configurationManager, apiVersionProvider, bicepAnalyzer);
             });
             LogParamDiagnostics(model);
 

@@ -28,7 +28,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            Visitor visitor = new(this, model);
+            Visitor visitor = new(this, model, GetDiagnosticLevel(model));
             visitor.Visit(model.SourceFile.ProgramSyntax);
             return visitor.diagnostics;
         }
@@ -40,11 +40,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private readonly Dictionary<ISourceFile, ImmutableArray<ParameterSymbol>> _cachedParamsUsedInLocationPropsForFile = new();
             private readonly ExplicitValuesForLocationParamsRule parent;
             private readonly SemanticModel model;
+            private readonly DiagnosticLevel diagnosticLevel;
 
-            public Visitor(ExplicitValuesForLocationParamsRule parent, SemanticModel model)
+            public Visitor(ExplicitValuesForLocationParamsRule parent, SemanticModel model, DiagnosticLevel diagnosticLevel)
             {
                 this.parent = parent;
                 this.model = model;
+                this.diagnosticLevel = diagnosticLevel;
             }
 
             public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax moduleDeclarationSyntax)
@@ -65,7 +67,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         // No value being passed in - this is a failure
                         string moduleName = moduleDeclarationSyntax.Name.IdentifierName;
                         diagnostics.Add(
-                            parent.CreateDiagnosticForSpan(errorSpan,
+                            parent.CreateDiagnosticForSpan(diagnosticLevel,
+                                errorSpan,
                                 String.Format(
                                     CoreResources.NoHardcodedLocation_ModuleLocationNeedsExplicitValue,
                                     parameterName,

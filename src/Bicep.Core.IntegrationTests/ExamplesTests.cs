@@ -49,7 +49,7 @@ namespace Bicep.Core.IntegrationTests
                 sourceFileGrouping,
                 configManager,
                 BicepTestConstants.ApiVersionProvider,
-                new LinterAnalyzer());
+                BicepTestConstants.LinterAnalyzer);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new EmitterSettings(features));
 
             foreach (var (file, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())

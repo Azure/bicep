@@ -28,12 +28,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
+            var diagnosticLevel = GetDiagnosticLevel(model);
             // VariableAccessSyntax indicates a reference to the parameter
             var unreferencedParams = model.Root.ParameterDeclarations
                 .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any())
                 .Where(sym => sym.NameSyntax.IsValid);
 
-            return unreferencedParams.Select(param => CreateRemoveUnusedDiagnosticForSpan(param.Name, param.NameSyntax, param.DeclaringSyntax, model.SourceFile.ProgramSyntax));
+            return unreferencedParams.Select(param => CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, param.Name, param.NameSyntax, param.DeclaringSyntax, model.SourceFile.ProgramSyntax));
         }
 
         override protected string GetCodeFixDescription(string name)
