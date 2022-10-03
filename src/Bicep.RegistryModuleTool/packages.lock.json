@@ -45,9 +45,9 @@
       },
       "Markdig": {
         "type": "Direct",
-        "requested": "[0.30.3, )",
-        "resolved": "0.30.3",
-        "contentHash": "IEw1su75GpAfYMeweYtVNfPlaSbCstqegFlz6QEVZ9MKPZWufke7BOBJWeVoOTF3875ozNE+xx3EN6N+8tVZgA=="
+        "requested": "[0.30.4, )",
+        "resolved": "0.30.4",
+        "contentHash": "9LL7Mzubwf6QmOTZIqf+vERiinqPA1H+irBA38POhr93W/it00AvFWaCtF80+8VJTooFmcAJyZT2f60t1f88eQ=="
       },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",
