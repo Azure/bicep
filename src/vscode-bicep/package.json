@@ -537,7 +537,7 @@
     "@types/cytoscape": "^3.19.9",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
-    "@types/mocha": "^9.1.1",
+    "@types/mocha": "^10.0.0",
     "@types/node": "^18.8.0",
     "@types/react": "^18.0.21",
     "@types/react-dom": "^18.0.6",
