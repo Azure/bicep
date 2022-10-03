@@ -974,39 +974,28 @@ module bar2 'test.bicep' = [for item in list: |  ]
         [TestMethod]
         public async Task RequestModulePathCompletions_ArmTemplateFilesInDir_ReturnsCompletionsIncludingArmTemplatePaths()
         {
-            var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
-            var armTemplateUri1 = DocumentUri.FromFileSystemPath("/path/to/template1.arm");
-            var armTemplateUri2 = DocumentUri.FromFileSystemPath("/path/to/template2.json");
-            var armTemplateUri3 = DocumentUri.FromFileSystemPath("/path/to/template3.jsonc");
-            var armTemplateUri4 = DocumentUri.FromFileSystemPath("/path/to/template4.json");
-            var armTemplateUri5 = DocumentUri.FromFileSystemPath("/path/to/template5.json");
-            var jsonUri1 = DocumentUri.FromFileSystemPath("/path/to/json1.json");
-            var jsonUri2 = DocumentUri.FromFileSystemPath("/path/to/json2.json");
-            var bicepModuleUri1 = DocumentUri.FromFileSystemPath("/path/to/module1.txt");
-            var bicepModuleUri2 = DocumentUri.FromFileSystemPath("/path/to/module2.bicep");
-            var bicepModuleUri3 = DocumentUri.FromFileSystemPath("/path/to/module3.bicep");
-
+            var mainUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
             var (mainFileText, cursor) = ParserHelper.GetFileWithSingleCursor(@"
 module mod1 './module1.txt' = {}
 module mod2 './template3.jsonc' = {}
 module mod2 './|' = {}
 ");
-            var mainFile = SourceFileFactory.CreateBicepFile(mainUri.ToUri(), mainFileText);
+            var mainFile = SourceFileFactory.CreateBicepFile(mainUri, mainFileText);
             var schema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
 
             var fileTextsByUri = new Dictionary<Uri, string>
             {
-                [mainUri.ToUri()] = mainFileText,
-                [armTemplateUri1.ToUri()] = "",
-                [armTemplateUri2.ToUri()] = @$"{{ ""schema"": ""{schema}"" }}",
-                [armTemplateUri3.ToUri()] = @"{}",
-                [armTemplateUri4.ToUri()] = new string('x', 2000 - schema.Length) + schema,
-                [armTemplateUri5.ToUri()] = new string('x', 2002 - schema.Length) + schema,
-                [jsonUri1.ToUri()] = "{}",
-                [jsonUri2.ToUri()] = @"[{ ""name"": ""value"" }]",
-                [bicepModuleUri1.ToUri()] = "param foo string",
-                [bicepModuleUri2.ToUri()] = "param bar bool",
-                [bicepModuleUri3.ToUri()] = "",
+                [mainUri] = mainFileText,
+                [InMemoryFileResolver.GetFileUri("/path/to/template1.arm")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/template2.json")] = @$"{{ ""schema"": ""{schema}"" }}",
+                [InMemoryFileResolver.GetFileUri("/path/to/template3.jsonc")] = @"{}",
+                [InMemoryFileResolver.GetFileUri("/path/to/template4.json")] = new string('x', 2000 - schema.Length) + schema,
+                [InMemoryFileResolver.GetFileUri("/path/to/template5.json")] = new string('x', 2002 - schema.Length) + schema,
+                [InMemoryFileResolver.GetFileUri("/path/to/json1.json")] = "{}",
+                [InMemoryFileResolver.GetFileUri("/path/to/json2.json")] = @"[{ ""name"": ""value"" }]",
+                [InMemoryFileResolver.GetFileUri("/path/to/module1.txt")] = "param foo string",
+                [InMemoryFileResolver.GetFileUri("/path/to/module2.bicep")] = "param bar bool",
+                [InMemoryFileResolver.GetFileUri("/path/to/module3.bicep")] = "",
             };
 
             var fileResolver = new InMemoryFileResolver(fileTextsByUri);
@@ -1266,12 +1255,12 @@ module a '|' = {
 ";
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
-            Uri mainUri = new Uri("file:///dir/main.bicep");
+            Uri mainUri = InMemoryFileResolver.GetFileUri("/dir/main.bicep");
             var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
             {
-                [new Uri("file:///dir/folder with space/mod with space.bicep")] = @"param foo string",
-                [new Uri("file:///dir/percentage%file.bicep")] = @"param foo string",
-                [new Uri("file:///dir/already%20escaped.bicep")] = @"param foo string",
+                [InMemoryFileResolver.GetFileUri("/dir/folder with space/mod with space.bicep")] = @"param foo string",
+                [InMemoryFileResolver.GetFileUri("/dir/percentage%file.bicep")] = @"param foo string",
+                [InMemoryFileResolver.GetFileUri("/dir/already%20escaped.bicep")] = @"param foo string",
                 [mainUri] = text
             });
 
@@ -1284,7 +1273,7 @@ module a '|' = {
 
             completions.Should().SatisfyRespectively(
                 x => x.Label.Should().Be("percentage%file.bicep"),
-                x => x.Label.Should().Be("already escaped.bicep"),
+                x => x.Label.Should().Be("already%20escaped.bicep"),
                 x => x.Label.Should().Be("folder with space/"),
                 x => x.Label.Should().Be("../"));
         }
@@ -2324,37 +2313,27 @@ Returns the unique identifier of a resource. You use this function when the reso
         [DataRow("loadJsonContent", true)]
         public async Task LoadFunctionsPathArgument_returnsFilesInCompletions(string functionName, bool jsonOnTop = false)
         {
-            var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
-            var armTemplateUri1 = DocumentUri.FromFileSystemPath("/path/to/template1.arm");
-            var armTemplateUri2 = DocumentUri.FromFileSystemPath("/path/to/template2.json");
-            var armTemplateUri3 = DocumentUri.FromFileSystemPath("/path/to/template3.jsonc");
-            var armTemplateUri4 = DocumentUri.FromFileSystemPath("/path/to/template4.json");
-            var armTemplateUri5 = DocumentUri.FromFileSystemPath("/path/to/template5.json");
-            var jsonUri1 = DocumentUri.FromFileSystemPath("/path/to/json1.json");
-            var jsonUri2 = DocumentUri.FromFileSystemPath("/path/to/json2.json");
-            var bicepModuleUri1 = DocumentUri.FromFileSystemPath("/path/to/module1.txt");
-            var bicepModuleUri2 = DocumentUri.FromFileSystemPath("/path/to/module2.bicep");
-            var bicepModuleUri3 = DocumentUri.FromFileSystemPath("/path/to/module3.bicep");
+            var mainUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
 
             var (mainFileText, cursor) = ParserHelper.GetFileWithSingleCursor(@"
 var file = " + functionName + @"('|')
 ");
-            var mainFile = SourceFileFactory.CreateBicepFile(mainUri.ToUri(), mainFileText);
+            var mainFile = SourceFileFactory.CreateBicepFile(mainUri, mainFileText);
             var schema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
 
             var fileTextsByUri = new Dictionary<Uri, string>
             {
-                [mainUri.ToUri()] = mainFileText,
-                [armTemplateUri1.ToUri()] = "",
-                [armTemplateUri2.ToUri()] = @$"{{ ""schema"": ""{schema}"" }}",
-                [armTemplateUri3.ToUri()] = @"{}",
-                [armTemplateUri4.ToUri()] = new string('x', 2000 - schema.Length) + schema,
-                [armTemplateUri5.ToUri()] = new string('x', 2002 - schema.Length) + schema,
-                [jsonUri1.ToUri()] = "{}",
-                [jsonUri2.ToUri()] = @"[{ ""name"": ""value"" }]",
-                [bicepModuleUri1.ToUri()] = "param foo string",
-                [bicepModuleUri2.ToUri()] = "param bar bool",
-                [bicepModuleUri3.ToUri()] = "",
+                [mainUri] = mainFileText,
+                [InMemoryFileResolver.GetFileUri("/path/to/template1.arm")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/template2.json")] = @$"{{ ""schema"": ""{schema}"" }}",
+                [InMemoryFileResolver.GetFileUri("/path/to/template3.jsonc")] = @"{}",
+                [InMemoryFileResolver.GetFileUri("/path/to/template4.json")] = new string('x', 2000 - schema.Length) + schema,
+                [InMemoryFileResolver.GetFileUri("/path/to/template5.json")] = new string('x', 2002 - schema.Length) + schema,
+                [InMemoryFileResolver.GetFileUri("/path/to/json1.json")] = "{}",
+                [InMemoryFileResolver.GetFileUri("/path/to/json2.json")] = @"[{ ""name"": ""value"" }]",
+                [InMemoryFileResolver.GetFileUri("/path/to/module1.txt")] = "param foo string",
+                [InMemoryFileResolver.GetFileUri("/path/to/module2.bicep")] = "param bar bool",
+                [InMemoryFileResolver.GetFileUri("/path/to/module3.bicep")] = "",
             };
 
             var fileResolver = new InMemoryFileResolver(fileTextsByUri);
@@ -2408,38 +2387,28 @@ var file = " + functionName + @"('|')
         [DataRow("loadJsonContent", true)]
         public async Task LoadFunctionsPathArgument_returnsSymbolsAndFilePathsInCompletions(string functionName, bool jsonOnTop = false)
         {
-            var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
-            var armTemplateUri1 = DocumentUri.FromFileSystemPath("/path/to/template1.arm");
-            var armTemplateUri2 = DocumentUri.FromFileSystemPath("/path/to/template2.json");
-            var armTemplateUri3 = DocumentUri.FromFileSystemPath("/path/to/template3.jsonc");
-            var armTemplateUri4 = DocumentUri.FromFileSystemPath("/path/to/template4.json");
-            var armTemplateUri5 = DocumentUri.FromFileSystemPath("/path/to/template5.json");
-            var jsonUri1 = DocumentUri.FromFileSystemPath("/path/to/json1.json");
-            var jsonUri2 = DocumentUri.FromFileSystemPath("/path/to/json2.json");
-            var bicepModuleUri1 = DocumentUri.FromFileSystemPath("/path/to/module1.txt");
-            var bicepModuleUri2 = DocumentUri.FromFileSystemPath("/path/to/module2.bicep");
-            var bicepModuleUri3 = DocumentUri.FromFileSystemPath("/path/to/module3.bicep");
+            var mainUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
 
             var (mainFileText, cursor) = ParserHelper.GetFileWithSingleCursor(@"
 var template = 'template1.json'
 var file = " + functionName + @"(templ|)
 ");
-            var mainFile = SourceFileFactory.CreateBicepFile(mainUri.ToUri(), mainFileText);
+            var mainFile = SourceFileFactory.CreateBicepFile(mainUri, mainFileText);
             var schema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
 
             var fileTextsByUri = new Dictionary<Uri, string>
             {
-                [mainUri.ToUri()] = mainFileText,
-                [armTemplateUri1.ToUri()] = "",
-                [armTemplateUri2.ToUri()] = @$"{{ ""schema"": ""{schema}"" }}",
-                [armTemplateUri3.ToUri()] = @"{}",
-                [armTemplateUri4.ToUri()] = new string('x', 2000 - schema.Length) + schema,
-                [armTemplateUri5.ToUri()] = new string('x', 2002 - schema.Length) + schema,
-                [jsonUri1.ToUri()] = "{}",
-                [jsonUri2.ToUri()] = @"[{ ""name"": ""value"" }]",
-                [bicepModuleUri1.ToUri()] = "param foo string",
-                [bicepModuleUri2.ToUri()] = "param bar bool",
-                [bicepModuleUri3.ToUri()] = "",
+                [mainUri] = mainFileText,
+                [InMemoryFileResolver.GetFileUri("/path/to/template1.arm")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/template2.json")] = @$"{{ ""schema"": ""{schema}"" }}",
+                [InMemoryFileResolver.GetFileUri("/path/to/template3.jsonc")] = @"{}",
+                [InMemoryFileResolver.GetFileUri("/path/to/template4.json")] = new string('x', 2000 - schema.Length) + schema,
+                [InMemoryFileResolver.GetFileUri("/path/to/template5.json")] = new string('x', 2002 - schema.Length) + schema,
+                [InMemoryFileResolver.GetFileUri("/path/to/json1.json")] = "{}",
+                [InMemoryFileResolver.GetFileUri("/path/to/json2.json")] = @"[{ ""name"": ""value"" }]",
+                [InMemoryFileResolver.GetFileUri("/path/to/module1.txt")] = "param foo string",
+                [InMemoryFileResolver.GetFileUri("/path/to/module2.bicep")] = "param bar bool",
+                [InMemoryFileResolver.GetFileUri("/path/to/module3.bicep")] = "",
             };
 
             var fileResolver = new InMemoryFileResolver(fileTextsByUri);
@@ -2497,11 +2466,11 @@ var file = " + functionName + @"(templ|)
         [DataRow("module foo '../to2/|'", "main.bicep", "module foo '../to2/main.bicep'|")]
         public async Task Module_path_completions_are_offered(string fileWithCursors, string expectedLabel, string expectedResult)
         {
-            var fileUri = new Uri("file:///path/to/main.bicep");
+            var fileUri = InMemoryFileResolver.GetFileUri("/path/to/main.bicep");
             var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string> {
-                [new Uri("file:///path/to/other.bicep")] = "",
-                [new Uri("file:///path/to2/main.bicep")] = "",
-                [new Uri("file:///path2/to/main.bicep")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to/other.bicep")] = "",
+                [InMemoryFileResolver.GetFileUri("/path/to2/main.bicep")] = "",
+                [InMemoryFileResolver.GetFileUri("/path2/to/main.bicep")] = "",
             });
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, new LanguageServer.Server.CreationOptions {

@@ -170,7 +170,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             DisplayName = "'id' should not be analyzed in vars"
         )]
         [DataRow(@"
-                module m1 'module.bicep' = {
+                module m1 'main.bicep' = {
                   name: 'm1'
                   params: {
                     id: '/subscriptions/${subscription().subscriptionId}/resourceGroups/${resourceGroup().name}/providers/Microsoft.Network/networkSecurityGroups/${'NSGName'}'
@@ -179,7 +179,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             new object[]
             {
                  // pass
-                 "[2:27] An error occurred reading file. Could not find file '/path/to/module.bicep'."
+                 "[2:27] This module references itself, which is not allowed."
             },
             DisplayName = "'id' should not be analyzed in modules"
         )]

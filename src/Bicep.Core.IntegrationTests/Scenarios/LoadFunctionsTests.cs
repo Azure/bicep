@@ -463,7 +463,8 @@ output out string = script
     ("script.sh", TEXT_CONTENT));
 
             template!.Should().BeNull();
-            diags.Should().ContainDiagnostic("BCP091", Diagnostics.DiagnosticLevel.Error, "An error occurred reading file. Could not find file '/path/to/script.cmd'.");
+            var scriptFilePath = InMemoryFileResolver.GetFileUri("/path/to/script.cmd").LocalPath;
+            diags.Should().ContainDiagnostic("BCP091", Diagnostics.DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{scriptFilePath}'.");
         }
 
         /**** loadJsonContent ****/

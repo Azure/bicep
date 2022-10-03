@@ -149,9 +149,9 @@ namespace Bicep.Core.UnitTests.Utils
         private static (IReadOnlyDictionary<Uri, string> files, Uri entryFileUri) CreateFileDictionary(IEnumerable<(string fileName, string fileContents)> files, string entryFileName)
         {
             var uriDictionary = files.ToDictionary(
-                x => new Uri($"file:///path/to/{x.fileName}"),
+                x => InMemoryFileResolver.GetFileUri($"/path/to/{x.fileName}"),
                 x => x.fileContents);
-            var entryUri = new Uri($"file:///path/to/{entryFileName}");
+            var entryUri = InMemoryFileResolver.GetFileUri($"/path/to/{entryFileName}");
             return (uriDictionary, entryUri);
         }
 
