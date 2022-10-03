@@ -46,19 +46,18 @@ namespace Bicep.Cli
 
             BicepDeploymentsInterop.Initialize();
 
-            if (FeatureProvider.TracingEnabled)
+            if (IFeatureProvider.TracingEnabled)
             {
                 Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             }
 
             // this event listener picks up SDK events and writes them to Trace.WriteLine()
-            using (FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
+            using (IFeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(IFeatureProvider.TracingVerbosity) : null)
             {
                 var program = new Program(new InvocationContext(
                     new AzResourceTypeLoader(),
                     Console.Out,
                     Console.Error,
-                    features: null,
                     clientFactory: null));
 
                 // this must be awaited so dispose of the listener occurs in the continuation
@@ -127,7 +126,7 @@ namespace Bicep.Cli
                 .AddSingleton<IFileSystem, FileSystem>()
                 .AddSingleton<IConfigurationManager, ConfigurationManager>()
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-                .AddSingleton<IApiVersionProvider, ApiVersionProvider>()
+                .AddSingleton<IApiVersionProviderFactory, ApiVersionProviderFactory>()
                 .AddSingleton<TemplateDecompiler>()
                 .AddSingleton<DecompilationWriter>()
                 .AddSingleton<CompilationWriter>()

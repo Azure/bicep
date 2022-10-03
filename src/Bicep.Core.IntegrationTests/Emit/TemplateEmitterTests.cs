@@ -43,7 +43,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var bicepFileUri = PathHelper.FilePathToFileUrl(bicepFilePath);
 
             // emitting the template should be successful
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.CreateFeatureProvider(TestContext, registryEnabled: dataSet.HasExternalModules), BicepTestConstants.ConfigurationManager), BicepTestConstants.ConfigurationManager);
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, IFeatureProviderFactory.WithStaticFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, registryEnabled: dataSet.HasExternalModules)), BicepTestConstants.ConfigurationManager), BicepTestConstants.ConfigurationManager);
             Workspace workspace = new();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath));
             if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.GetModulesToRestore())))
@@ -268,11 +268,11 @@ this
         private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, IFeatureProvider features, string filePath)
         {
             var compilation = new Compilation(
-                features,
+                IFeatureProviderFactory.WithStaticFeatureProvider(features),
                 TestTypeHelper.CreateEmptyProvider(),
                 sourceFileGrouping,
                 BicepTestConstants.BuiltInOnlyConfigurationManager,
-                BicepTestConstants.ApiVersionProvider,
+                BicepTestConstants.ApiVersionProviderFactory,
                 BicepTestConstants.LinterAnalyzer);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new(features));
 
@@ -283,11 +283,11 @@ this
         private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, IFeatureProvider features, MemoryStream memoryStream)
         {
             var compilation = new Compilation(
-                features,
+                IFeatureProviderFactory.WithStaticFeatureProvider(features),
                 TestTypeHelper.CreateEmptyProvider(),
                 sourceFileGrouping,
                 BicepTestConstants.BuiltInOnlyConfigurationManager,
-                BicepTestConstants.ApiVersionProvider,
+                BicepTestConstants.ApiVersionProviderFactory,
                 BicepTestConstants.LinterAnalyzer);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new(features));
 
@@ -301,7 +301,7 @@ this
                 var compilationGrouping = new SourceFileGrouping(BicepTestConstants.FileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
 
-                return new Compilation(features, TestTypeHelper.CreateEmptyProvider(), compilationGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+                return new Compilation(IFeatureProviderFactory.WithStaticFeatureProvider(features), TestTypeHelper.CreateEmptyProvider(), compilationGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
             });
 
             var emitter = new ParametersEmitter(model, new(features));

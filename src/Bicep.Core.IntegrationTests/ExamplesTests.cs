@@ -44,11 +44,11 @@ namespace Bicep.Core.IntegrationTests
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, configManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFile.OutputFilePath));
             var compilation = new Compilation(
-                features,
+                IFeatureProviderFactory.WithStaticFeatureProvider(features),
                 new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeLoader),
                 sourceFileGrouping,
                 configManager,
-                BicepTestConstants.ApiVersionProvider,
+                BicepTestConstants.ApiVersionProviderFactory,
                 new LinterAnalyzer());
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), new EmitterSettings(features));
 

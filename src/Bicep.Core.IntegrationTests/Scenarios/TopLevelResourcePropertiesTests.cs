@@ -26,11 +26,11 @@ namespace Bicep.Core.IntegrationTests.Scenarios
         private static readonly LinterAnalyzer LinterAnalyzer = new();
 
         private static Compilation CreateCompilation(string program) => new(
-            BicepTestConstants.Features,
+            BicepTestConstants.FeatureProviderFactory,
             BuiltInTestTypes.Create(),
             SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object),
             IConfigurationManager.WithStaticConfiguration(Configuration),
-            BicepTestConstants.ApiVersionProvider,
+            BicepTestConstants.ApiVersionProviderFactory,
             LinterAnalyzer);
 
         /// <summary>
@@ -188,11 +188,11 @@ output outputa string = '${inputa}-${inputb}'
             };
 
             var compilation = new Compilation(
-                BicepTestConstants.Features,
+                BicepTestConstants.FeatureProviderFactory,
                 BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
                 IConfigurationManager.WithStaticConfiguration(Configuration),
-                BicepTestConstants.ApiVersionProvider,
+                BicepTestConstants.ApiVersionProviderFactory,
                 LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {
@@ -235,11 +235,11 @@ output outputa string = '${inputa}-${inputb}'
             };
 
             var compilation = new Compilation(
-                BicepTestConstants.Features,
+                BicepTestConstants.FeatureProviderFactory,
                 BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
                 IConfigurationManager.WithStaticConfiguration(Configuration),
-                BicepTestConstants.ApiVersionProvider,
+                BicepTestConstants.ApiVersionProviderFactory,
                 LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {
@@ -284,11 +284,11 @@ output outputa string = '${inputa}-${inputb}'
             };
 
             var compilation = new Compilation(
-                BicepTestConstants.Features,
+                BicepTestConstants.FeatureProviderFactory,
                 BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
                 IConfigurationManager.WithStaticConfiguration(Configuration),
-                BicepTestConstants.ApiVersionProvider,
+                BicepTestConstants.ApiVersionProviderFactory,
                 LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {
@@ -329,11 +329,11 @@ output outputa string = '${inputa}-${inputb}'
             };
 
             var compilation = new Compilation(
-                BicepTestConstants.Features,
+                BicepTestConstants.FeatureProviderFactory,
                 BuiltInTestTypes.Create(),
                 SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration),
                 IConfigurationManager.WithStaticConfiguration(Configuration),
-                BicepTestConstants.ApiVersionProvider,
+                BicepTestConstants.ApiVersionProviderFactory,
                 LinterAnalyzer);
 
             compilation.Should().HaveDiagnostics(new[] {

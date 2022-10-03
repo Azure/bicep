@@ -31,7 +31,8 @@ namespace Bicep.Cli.Services
         private readonly InvocationContext invocationContext;
         private readonly Workspace workspace;
         private readonly TemplateDecompiler decompiler;
-        private readonly IApiVersionProvider apiVersionProvider;
+        private readonly IApiVersionProviderFactory apiVersionProviderFactory;
+        private readonly IFeatureProviderFactory featureProviderFactory;
 
         public CompilationService(
             IDiagnosticLogger diagnosticLogger,
@@ -40,7 +41,8 @@ namespace Bicep.Cli.Services
             IModuleDispatcher moduleDispatcher,
             IConfigurationManager configurationManager,
             TemplateDecompiler decompiler,
-            IApiVersionProvider apiVersionProvider)
+            IApiVersionProviderFactory apiVersionProviderFactory,
+            IFeatureProviderFactory featureProviderFactory)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.fileResolver = fileResolver;
@@ -49,7 +51,8 @@ namespace Bicep.Cli.Services
             this.invocationContext = invocationContext;
             this.workspace = new Workspace();
             this.decompiler = decompiler;
-            this.apiVersionProvider = apiVersionProvider;
+            this.apiVersionProviderFactory = apiVersionProviderFactory;
+            this.featureProviderFactory = featureProviderFactory;
         }
 
         public async Task RestoreAsync(string inputPath, bool forceModulesRestore)
@@ -97,7 +100,7 @@ namespace Bicep.Cli.Services
                 }
             }
 
-            var compilation = new Compilation(this.invocationContext.Features, this.invocationContext.NamespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
+            var compilation = new Compilation(featureProviderFactory, this.invocationContext.NamespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, new LinterAnalyzer());
             LogDiagnostics(compilation);
 
             return compilation;
@@ -121,11 +124,11 @@ namespace Bicep.Cli.Services
                 }
             }
 
-            var model = new ParamsSemanticModel(sourceFileGrouping, configurationManager.GetConfiguration(inputUri), invocationContext.Features, file => {
+            var model = new ParamsSemanticModel(sourceFileGrouping, configurationManager.GetConfiguration(inputUri), featureProviderFactory.GetFeatureProvider(inputUri), file => {
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
 
-                return new Compilation(invocationContext.Features, this.invocationContext.NamespaceProvider, compilationGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
+                return new Compilation(featureProviderFactory, this.invocationContext.NamespaceProvider, compilationGrouping, configurationManager, apiVersionProviderFactory, new LinterAnalyzer());
             });
             LogParamDiagnostics(model);
 

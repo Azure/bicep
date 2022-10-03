@@ -34,25 +34,23 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepBuildCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
         private readonly ICompilationManager compilationManager;
-        private readonly EmitterSettings emitterSettings;
-        private readonly IFeatureProvider features;
+        private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IConfigurationManager configurationManager;
-        private readonly IApiVersionProvider apiVersionProvider;
+        private readonly IApiVersionProviderFactory apiVersionProviderFactory;
 
-        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProvider features, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IApiVersionProvider apiVersionProvider, IConfigurationManager configurationManager)
+        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProviderFactory featureProviderFactory, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IApiVersionProviderFactory apiVersionProviderFactory, IConfigurationManager configurationManager)
             : base(LangServerConstants.BuildCommand, serializer)
         {
             this.compilationManager = compilationManager;
-            this.emitterSettings = emitterSettings;
-            this.features = features;
+            this.featureProviderFactory = featureProviderFactory;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.configurationManager = configurationManager;
-            this.apiVersionProvider = apiVersionProvider;
+            this.apiVersionProviderFactory = apiVersionProviderFactory;
         }
 
         public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
@@ -88,7 +86,7 @@ namespace Bicep.LanguageServer.Handlers
             if (context is null)
             {
                 SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
-                compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
+                compilation = new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, new LinterAnalyzer());
             }
             else
             {
@@ -104,7 +102,8 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             using var fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.ReadWrite);
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
+            var model = compilation.GetEntrypointSemanticModel();
+            var emitter = new TemplateEmitter(model, new EmitterSettings(model.Features));
             EmitResult result = emitter.Emit(fileStream);
 
             return "Bicep build succeeded. Created ARM template file: " + compiledFile;

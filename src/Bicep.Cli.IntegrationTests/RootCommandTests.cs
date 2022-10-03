@@ -1,12 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
@@ -14,6 +15,9 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public class RootCommandTests : TestBase
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [TestMethod]
         public async Task Build_WithWrongArgs_ShouldFail_WithExpectedErrorMessage()
         {
@@ -47,10 +51,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task BicepHelpShouldPrintHelp()
         {
-            var featuresMock = Repository.Create<IFeatureProvider>();
-            featuresMock.Setup(m => m.RegistryEnabled).Returns(true);
-
-            var settings = CreateDefaultSettings() with { Features = featuresMock.Object };
+            var settings = CreateDefaultSettings() with { Features = BicepTestConstants.CreateFeatureProvider(TestContext, registryEnabled: true) };
 
             var (output, error, result) = await Bicep(settings, "--help");
 
@@ -130,10 +131,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task BicepHelpShouldIncludePublishWhenRegistryEnabled()
         {
-            var featuresMock = Repository.Create<IFeatureProvider>();
-            featuresMock.Setup(m => m.RegistryEnabled).Returns(true);
-
-            var settings = CreateDefaultSettings() with { Features = featuresMock.Object };
+            var settings = CreateDefaultSettings() with { Features = BicepTestConstants.CreateFeatureProvider(TestContext, registryEnabled: true) };
 
             var (output, error, result) = await Bicep(settings, "--help");
 
@@ -154,10 +152,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task BicepHelpShouldNotIncludePublishWhenRegistryDisabled()
         {
-            var featuresMock = Repository.Create<IFeatureProvider>();
-            featuresMock.Setup(m => m.RegistryEnabled).Returns(false);
-
-            var settings = CreateDefaultSettings() with { Features = featuresMock.Object };
+            var settings = CreateDefaultSettings() with { Features = BicepTestConstants.CreateFeatureProvider(TestContext, registryEnabled: false) };
 
             var (output, error, result) = await Bicep(settings, "--help");
 

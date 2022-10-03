@@ -18,16 +18,17 @@ namespace Bicep.Core.Semantics
     {
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
         private readonly IConfigurationManager configurationManager;
-        private readonly IFeatureProvider features;
+        private readonly IFeatureProviderFactory featureProviderFactory;
+        private readonly IApiVersionProviderFactory apiVersionProviderFactory;
         private readonly IBicepAnalyzer linterAnalyzer;
 
-        public Compilation(IFeatureProvider features, INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, IConfigurationManager configurationManager, IApiVersionProvider apiVersionProvider, IBicepAnalyzer linterAnalyzer, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+        public Compilation(IFeatureProviderFactory featureProviderFactory, INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, IConfigurationManager configurationManager, IApiVersionProviderFactory apiVersionProviderFactory, IBicepAnalyzer linterAnalyzer, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         {
-            this.features = features;
+            this.featureProviderFactory = featureProviderFactory;
             this.SourceFileGrouping = sourceFileGrouping;
             this.NamespaceProvider = namespaceProvider;
             this.configurationManager = configurationManager;
-            this.ApiVersionProvider = apiVersionProvider;
+            this.apiVersionProviderFactory = apiVersionProviderFactory;
             this.linterAnalyzer = linterAnalyzer;
 
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
@@ -42,8 +43,6 @@ namespace Bicep.Core.Semantics
                         _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
                     }));
         }
-
-        public IApiVersionProvider ApiVersionProvider { get; }
 
         public SourceFileGrouping SourceFileGrouping { get; }
 
@@ -75,6 +74,7 @@ namespace Bicep.Core.Semantics
             SourceFileGrouping.FileResolver,
             linterAnalyzer,
             configurationManager.GetConfiguration(bicepFile.FileUri),
-            features);
+            featureProviderFactory.GetFeatureProvider(bicepFile.FileUri),
+            apiVersionProviderFactory.GetApiVersionProvider(bicepFile.FileUri));
     }
 }

@@ -94,7 +94,8 @@ namespace Bicep.Core.UnitTests.Configuration
         }
       }
     }
-  }
+  },
+  ""experimentalFeaturesEnabled"": {}
 }");
         }
 
@@ -144,7 +145,8 @@ namespace Bicep.Core.UnitTests.Configuration
       }
     }
   },
-  ""analyzers"": {}
+  ""analyzers"": {},
+  ""experimentalFeaturesEnabled"": {}
 }");
         }
 
@@ -220,7 +222,8 @@ namespace Bicep.Core.UnitTests.Configuration
         }
       }
     }
-  }
+  },
+  ""experimentalFeaturesEnabled"": {}
 }");
         }
 
@@ -431,6 +434,10 @@ namespace Bicep.Core.UnitTests.Configuration
         }
       }
     }
+  },
+  ""cacheRootDirectory"": ""/home/username/.bicep/cache"",
+  ""experimentalFeaturesEnabled"": {
+    ""registry"": false
   }
 }"
             });
@@ -512,6 +519,10 @@ namespace Bicep.Core.UnitTests.Configuration
         }
       }
     }
+  },
+  ""cacheRootDirectory"": ""/home/username/.bicep/cache"",
+  ""experimentalFeaturesEnabled"": {
+    ""registry"": false
   }
 }");
         }
