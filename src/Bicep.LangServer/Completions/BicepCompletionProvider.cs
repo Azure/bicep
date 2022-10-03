@@ -428,20 +428,19 @@ namespace Bicep.LanguageServer.Completions
 
             // technically bicep files do not have to follow the bicep extension, so
             // we are not enforcing *.bicep get files command
-            if (FileResolver.DirExists(query))
-            {
-                files = FileResolver.GetFiles(query, string.Empty).ToList();
-                dirs = FileResolver.GetDirectories(query, string.Empty).ToList();
-            }
-            else if (FileResolver.TryResolveFilePath(query, ".") is { } queryParent)
-            {
-                files = FileResolver.GetFiles(queryParent, "").ToList();
-                dirs = FileResolver.GetDirectories(queryParent, "").ToList();
-            }
+            var queryParent = (FileResolver.DirExists(query) ? query : FileResolver.TryResolveFilePath(query, "."));
 
-            if (FileResolver.TryResolveFilePath(query, "..") is {} parentDir)
+            if (queryParent is not null)
             {
-                dirs.Add(parentDir);
+                files = FileResolver.GetFiles(queryParent, string.Empty).ToList();
+                dirs = FileResolver.GetDirectories(queryParent, string.Empty).ToList();
+
+                // include the parent folder as a completion if we're not at the file system root
+                if (FileResolver.TryResolveFilePath(queryParent, "..") is {} parentDir &&
+                    parentDir != queryParent)
+                {
+                    dirs.Add(parentDir);
+                }
             }
 
             return new(
@@ -463,11 +462,15 @@ namespace Bicep.LanguageServer.Completions
 
                 var completionName = info.EnteredParentUri.MakeRelativeUri(fileUri).ToString();
                 var completionValue = info.BicepFileParentUri.MakeRelativeUri(fileUri).ToString();
+                if (info.ShowCwdPrefix && !completionValue.StartsWith("../", StringComparison.Ordinal))
+                {
+                    // "./" will not be preserved when making relative Uris. We have to go and manually add it.
+                    completionValue = "./" + completionValue;
+                }
 
                 yield return CreateFilePathCompletionBuilder(
-                    // "./" will not be preserved when making relative Uris. We have to go and manually add it.
-                    (info.ShowCwdPrefix ? "./" : "") + completionName,
-                    (info.ShowCwdPrefix ? "./" : "") + completionValue,
+                    completionName,
+                    completionValue,
                     replacementRange,
                     CompletionItemKind.File,
                     priority)
@@ -481,11 +484,15 @@ namespace Bicep.LanguageServer.Completions
             {
                 var completionName = info.EnteredParentUri.MakeRelativeUri(dirUri).ToString();
                 var completionValue = info.BicepFileParentUri.MakeRelativeUri(dirUri).ToString();
+                if (info.ShowCwdPrefix && !completionValue.StartsWith("../", StringComparison.Ordinal))
+                {
+                    // "./" will not be preserved when making relative Uris. We have to go and manually add it.
+                    completionValue = "./" + completionValue;
+                }
 
                 yield return CreateFilePathCompletionBuilder(
-                    // "./" will not be preserved when making relative Uris. We have to go and manually add it.
-                    (info.ShowCwdPrefix ? "./" : "") + completionName,
-                    (info.ShowCwdPrefix ? "./" : "") + completionValue,
+                    completionName,
+                    completionValue,
                     replacementRange,
                     CompletionItemKind.Folder,
                     priority)

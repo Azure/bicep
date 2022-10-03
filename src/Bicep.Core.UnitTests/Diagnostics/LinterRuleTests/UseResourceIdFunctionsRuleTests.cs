@@ -68,8 +68,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }",
             new object[]
             {
-                // TTK result:      
-                // Property: "id" must use one of the following expressions for an resourceId property:                            
+                // TTK result:
+                // Property: "id" must use one of the following expressions for an resourceId property:
                 //  extensionResourceId,resourceId,subscriptionResourceId,tenantResourceId.,if,parameters,reference,variables,subscription,guid
                 "[39:25] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
             },
@@ -179,7 +179,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             new object[]
             {
                  // pass
-                 "[2:27] An error occurred reading file. Could not find file \"/path/to/module.bicep\""
+                 "[2:27] An error occurred reading file. Could not find file '/path/to/module.bicep'."
             },
             DisplayName = "'id' should not be analyzed in modules"
         )]
@@ -284,7 +284,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             new object[]
             {
                 // TTK result:
-                // Property: "resourceId" must use one of the following expressions for an resourceId property:                    
+                // Property: "resourceId" must use one of the following expressions for an resourceId property:
                 // extensionResourceId,resourceId,subscriptionResourceId,tenantResourceId.,if,parameters,reference,variables,subscription,guid
                 "[8:23] If property \"resourceId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId."
             },
@@ -307,7 +307,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             new object[]
             {
                 // TTK result:
-                // Property: "id" must use one of the following expressions for an resourceId property:                            
+                // Property: "id" must use one of the following expressions for an resourceId property:
                 //   extensionResourceId,resourceId,subscriptionResourceId,tenantResourceId.,if,parameters,reference,variables,subscription,guid
                 "[11:21] If property \"failId\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId.",
             },
@@ -330,7 +330,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 //    [-] IDs Should Be Derived From ResourceIDs(52 ms)
                 //        Blank ID Property found:
                 //id ParentObject       PropertyName JSONPath
-                //----------------------------------                                                                             
+                //----------------------------------
                 //   {@{fail0 =}, $null}
                 //id fail0.id
 
@@ -1087,7 +1087,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   properties: {
                       id: whatever ? concat('', '') : concat('', '')
                   }
-                }     
+                }
                ",
             new object[]
             {
@@ -1268,8 +1268,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             new object[]
             {
                 // TTK results:
-                // [-] IDs Should Be Derived From ResourceIDs                                                                 
-                // Property: "id" must use one of the following expressions for an resourceId property:                            
+                // [-] IDs Should Be Derived From ResourceIDs
+                // Property: "id" must use one of the following expressions for an resourceId property:
                 //   extensionResourceId,resourceId,subscriptionResourceId,tenantResourceId,if,parameters,reference,variables,subscription,guid
                 "[86:23] If property \"id\" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId.",
             },
@@ -1832,7 +1832,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     name:      vmssImgSku
                     publisher: vmssImgPublisher
                     product:   vmssImgProduct
-                  }  
+                  }
                   properties: {
                     singlePlacementGroup: false
                     upgradePolicy: {
@@ -1884,7 +1884,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 	                customData:         base64(customData)
 	                windowsConfiguration: {
                           provisionVMAgent: true
-                        }	
+                        }
                       }
                       priority: 'Regular'
                     }

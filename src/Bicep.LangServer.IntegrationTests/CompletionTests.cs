@@ -19,6 +19,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Completions;
@@ -1024,7 +1025,14 @@ module mod2 './|' = {}
                 x => x.Label.Should().Be("template1.arm"),
                 x => x.Label.Should().Be("template2.json"),
                 x => x.Label.Should().Be("template3.jsonc"),
-                x => x.Label.Should().Be("template4.json"));
+                x => x.Label.Should().Be("template4.json"),
+                x => x.Label.Should().Be("../"));
+
+            file.ApplyCompletion(completions, "module2.bicep").Should().HaveSourceText(@"
+module mod1 './module1.txt' = {}
+module mod2 './template3.jsonc' = {}
+module mod2 './module2.bicep'| = {}
+");
         }
 
         [TestMethod]
@@ -1258,12 +1266,12 @@ module a '|' = {
 ";
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
-            Uri mainUri = new Uri("file:///main.bicep");
+            Uri mainUri = new Uri("file:///dir/main.bicep");
             var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
             {
-                [new Uri("file:///folder with space/mod with space.bicep")] = @"param foo string",
-                [new Uri("file:///percentage%file.bicep")] = @"param foo string",
-                [new Uri("file:///already%20escaped.bicep")] = @"param foo string",
+                [new Uri("file:///dir/folder with space/mod with space.bicep")] = @"param foo string",
+                [new Uri("file:///dir/percentage%file.bicep")] = @"param foo string",
+                [new Uri("file:///dir/already%20escaped.bicep")] = @"param foo string",
                 [mainUri] = text
             });
 
@@ -1277,7 +1285,8 @@ module a '|' = {
             completions.Should().SatisfyRespectively(
                 x => x.Label.Should().Be("percentage%file.bicep"),
                 x => x.Label.Should().Be("already escaped.bicep"),
-                x => x.Label.Should().Be("folder with space"));
+                x => x.Label.Should().Be("folder with space/"),
+                x => x.Label.Should().Be("../"));
         }
 
         [TestMethod]
@@ -2476,11 +2485,16 @@ var file = " + functionName + @"(templ|)
         [DataRow("module foo '.'|", "../", "module foo '../|'")]
         [DataRow("module foo ./|", "../", "module foo '../|'")]
         [DataRow("module foo ./|", "other.bicep", "module foo 'other.bicep'|")]
-        [DataRow("module foo './|'", "./other.bicep", "module foo './other.bicep'|")]
+        [DataRow("module foo './|'", "other.bicep", "module foo './other.bicep'|")]
         [DataRow("module foo ../|", "../", "module foo '../|'")]
         [DataRow("module foo '../'|", "../", "module foo '../../|'")]
-        [DataRow("module foo '../../|'", "path", "module foo '../../path|'")]
-        [DataRow("module foo '../../../|'", "path", "module foo '../../path|'")]
+        [DataRow("module foo '../../|'", "path2/", "module foo '../../path2/|'")]
+        [DataRow("module foo '../../../|'", "path2/", "module foo '../../path2/|'")]
+        [DataRow("module foo ot|h", "other.bicep", "module foo 'other.bicep'|")]
+        [DataRow("module foo |oth", "other.bicep", "module foo 'other.bicep'|")]
+        [DataRow("module foo oth|", "other.bicep", "module foo 'other.bicep'|")]
+        [DataRow("module foo 'ot|h'", "other.bicep", "module foo 'other.bicep'|")]
+        [DataRow("module foo '../to2/|'", "main.bicep", "module foo '../to2/main.bicep'|")]
         public async Task Module_path_completions_are_offered(string fileWithCursors, string expectedLabel, string expectedResult)
         {
             var fileUri = new Uri("file:///path/to/main.bicep");
@@ -2499,7 +2513,7 @@ var file = " + functionName + @"(templ|)
 
             var completions = await file.RequestCompletion(cursor);
 
-            completions.Should().Contain(x => x.Label == expectedLabel);
+            completions.Should().Contain(x => x.Label == expectedLabel, $"\"{fileWithCursors}\" should have completion");
             var updatedFile = file.ApplyCompletion(completions, expectedLabel);
             updatedFile.Should().HaveSourceText(expectedResult);
         }

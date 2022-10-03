@@ -28,6 +28,7 @@ using Bicep.Core.Navigation;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.Core.FileSystem;
 using Bicep.LanguageServer;
+using Bicep.Core.UnitTests.FileSystem;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -243,7 +244,7 @@ module appPlanDeploy2 'wrong|.bicep' = {
 
             assertAction(results);
         }
-        
+
         private static async Task RunDefinitionScenarioTestWithFiles(
             TestContext testContext,
             string fileWithCursors,

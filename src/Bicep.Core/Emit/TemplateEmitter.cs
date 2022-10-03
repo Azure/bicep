@@ -59,7 +59,7 @@ namespace Bicep.Core.Emit
         public EmitResult Emit(Stream stream) => EmitOrFail(() =>
         {
             var sourceFileToTrack = this.settings.EnableSourceMapping ? this.model.SourceFile : default;
-            using var writer = new SourceAwareJsonTextWriter(new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true), sourceFileToTrack)
+            using var writer = new SourceAwareJsonTextWriter(this.model.FileResolver, new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true), sourceFileToTrack)
             {
                 Formatting = Formatting.Indented
             };
@@ -76,7 +76,7 @@ namespace Bicep.Core.Emit
         public EmitResult Emit(TextWriter textWriter) => EmitOrFail(() =>
         {
             var sourceFileToTrack = this.settings.EnableSourceMapping ? this.model.SourceFile : default;
-            using var writer = new SourceAwareJsonTextWriter(textWriter, sourceFileToTrack)
+            using var writer = new SourceAwareJsonTextWriter(this.model.FileResolver, textWriter, sourceFileToTrack)
             {
                 // don't close the textWriter when writer is disposed
                 CloseOutput = false,

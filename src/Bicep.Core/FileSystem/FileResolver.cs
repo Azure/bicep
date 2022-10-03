@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -13,6 +14,13 @@ namespace Bicep.Core.FileSystem
 {
     public class FileResolver : IFileResolver
     {
+        private readonly IFileSystem fileSystem;
+
+        public FileResolver(IFileSystem fileSystem)
+        {
+            this.fileSystem = fileSystem;
+        }
+
         public IDisposable? TryAcquireFileLock(Uri fileUri)
         {
             RequireFileUri(fileUri);
@@ -39,7 +47,7 @@ namespace Bicep.Core.FileSystem
                 }
 
                 ApplyWindowsConFileWorkaround(fileUri.LocalPath);
-                fileContents = File.ReadAllText(fileUri.LocalPath);
+                fileContents = fileSystem.File.ReadAllText(fileUri.LocalPath);
                 return true;
             }
             catch (Exception exception)
@@ -74,7 +82,7 @@ namespace Bicep.Core.FileSystem
                 }
 
                 ApplyWindowsConFileWorkaround(fileUri.LocalPath);
-                using var fileStream = File.OpenRead(fileUri.LocalPath);
+                using var fileStream = fileSystem.File.OpenRead(fileUri.LocalPath);
                 using var sr = new StreamReader(fileStream, fileEncoding, true);
 
                 Span<char> buffer = stackalloc char[LanguageConstants.MaxLiteralCharacterLimit + 1];
@@ -127,7 +135,7 @@ namespace Bicep.Core.FileSystem
                 if (maxCharacters > 0)
                 {
                     var maxFileSize = maxCharacters / 4 * 3; //each base64 character represents 6 bits
-                    var fileInfo = new FileInfo(fileUri.LocalPath);
+                    var fileInfo = fileSystem.FileInfo.FromFileName(fileUri.LocalPath);
                     fileInfo.Refresh();
                     if (fileInfo.Length > maxFileSize)
                     {
@@ -138,7 +146,7 @@ namespace Bicep.Core.FileSystem
                 }
 
                 ApplyWindowsConFileWorkaround(fileUri.LocalPath);
-                using var fileStream = File.OpenRead(fileUri.LocalPath);
+                using var fileStream = fileSystem.File.OpenRead(fileUri.LocalPath);
 
                 Span<byte> buffer = stackalloc byte[102400];
                 var sb = new StringBuilder();
@@ -180,7 +188,7 @@ namespace Bicep.Core.FileSystem
                 }
 
                 ApplyWindowsConFileWorkaround(fileUri.LocalPath);
-                using var fileStream = File.OpenRead(fileUri.LocalPath);
+                using var fileStream = fileSystem.File.OpenRead(fileUri.LocalPath);
                 using var sr = new StreamReader(fileStream, fileEncoding, true);
 
                 var buffer = new char[n];
@@ -200,7 +208,7 @@ namespace Bicep.Core.FileSystem
         {
             RequireFileUri(fileUri);
 
-            using var fileStream = new FileStream(fileUri.LocalPath, FileMode.Create);
+            using var fileStream = fileSystem.File.Open(fileUri.LocalPath, FileMode.Create);
             contents.CopyTo(fileStream);
         }
 
@@ -216,30 +224,30 @@ namespace Bicep.Core.FileSystem
 
         public string GetRelativePath(string relativeTo, string path)
         {
-            return Path.GetRelativePath(relativeTo, path).Replace('\\', '/');
+            return fileSystem.Path.GetRelativePath(relativeTo, path).Replace('\\', '/');
         }
 
-        public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern = "")
+        public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern)
         {
             if (!fileUri.IsFile)
             {
                 return Enumerable.Empty<Uri>();
             }
-            return Directory.GetDirectories(fileUri.LocalPath, pattern).Select(s => new Uri(s + "/"));
+            return fileSystem.Directory.GetDirectories(fileUri.LocalPath, pattern).Select(s => new Uri(s + "/"));
         }
 
-        public IEnumerable<Uri> GetFiles(Uri fileUri, string pattern = "")
+        public IEnumerable<Uri> GetFiles(Uri fileUri, string pattern)
         {
             if (!fileUri.IsFile)
             {
                 return Enumerable.Empty<Uri>();
             }
-            return Directory.GetFiles(fileUri.LocalPath, pattern).Select(s => new Uri(s));
+            return fileSystem.Directory.GetFiles(fileUri.LocalPath, pattern).Select(s => new Uri(s));
         }
 
-        public bool DirExists(Uri fileUri) => fileUri.IsFile && Directory.Exists(fileUri.LocalPath);
+        public bool DirExists(Uri fileUri) => fileUri.IsFile && fileSystem.Directory.Exists(fileUri.LocalPath);
 
-        public bool FileExists(Uri uri) => uri.IsFile && File.Exists(uri.LocalPath);
+        public bool FileExists(Uri uri) => uri.IsFile && fileSystem.File.Exists(uri.LocalPath);
 
         private static void RequireFileUri(Uri uri)
         {

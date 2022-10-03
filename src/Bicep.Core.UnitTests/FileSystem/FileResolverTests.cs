@@ -11,6 +11,7 @@ using System.Text;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
+using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests.FileSystem
 {
@@ -20,11 +21,14 @@ namespace Bicep.Core.UnitTests.FileSystem
         [NotNull]
         public TestContext? TestContext { get; set; }
 
+        private static IFileResolver GetFileResolver()
+            => new FileResolver(new IOFileSystem());
+
         [DataTestMethod]
         [DynamicData(nameof(TryResolveModulePathData), DynamicDataSourceType.Method)]
         public void TryResolveModulePath_should_return_expected_results(string parentFilePath, string childFilePath, string? expectedResult)
         {
-            var fileResolver = new FileResolver();
+            var fileResolver = GetFileResolver();
             fileResolver.TryResolveFilePath(new Uri(parentFilePath), childFilePath).Should().Be(expectedResult != null ? new Uri(expectedResult) : null, $"{nameof(fileResolver.TryResolveFilePath)}(\"{parentFilePath}\", \"{childFilePath}\") should produce expected result");
         }
 
@@ -53,7 +57,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         [TestMethod]
         public void TryRead_should_return_expected_results()
         {
-            var fileResolver = new FileResolver();
+            var fileResolver = GetFileResolver();
             var tempFile = Path.Combine(Path.GetTempPath(), $"BICEP_TEST_{Guid.NewGuid()}");
             var tempFileUri = PathHelper.FilePathToFileUrl(tempFile);
 
@@ -72,7 +76,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         [TestMethod]
         public void TryReadWithLimit_should_return_expected_results()
         {
-            var fileResolver = new FileResolver();
+            var fileResolver = GetFileResolver();
             var tempFile = Path.Combine(Path.GetTempPath(), $"BICEP_TEST_{Guid.NewGuid()}");
             var tempFileUri = PathHelper.FilePathToFileUrl(tempFile);
 
@@ -95,7 +99,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         [TestMethod]
         public void TryReadAsBase64_should_return_expected_results()
         {
-            var fileResolver = new FileResolver();
+            var fileResolver = GetFileResolver();
             var tempFile = Path.Combine(Path.GetTempPath(), $"BICEP_TEST_{Guid.NewGuid()}");
             var tempFileUri = PathHelper.FilePathToFileUrl(tempFile);
 
@@ -122,7 +126,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         [ExpectedException(typeof(IOException), AllowDerivedTypes = true)]
         public void GetDirectories_should_return_expected_results()
         {
-            var fileResolver = new FileResolver();
+            var fileResolver = GetFileResolver();
             var tempDir = Path.Combine(Path.GetTempPath(), $"BICEP_TESTDIR_{Guid.NewGuid()}");
             var tempFile = Path.Combine(tempDir, $"BICEP_TEST_{Guid.NewGuid()}");
             var tempChildDir = Path.Combine(tempDir, $"BICEP_TESTCHILDDIR_{Guid.NewGuid()}");
@@ -146,7 +150,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         [ExpectedException(typeof(IOException), AllowDerivedTypes = true)]
         public void GetFiles_should_return_expected_results()
         {
-            var fileResolver = new FileResolver();
+            var fileResolver = GetFileResolver();
             var tempDir = Path.Combine(Path.GetTempPath(), $"BICEP_TESTDIR_{Guid.NewGuid()}");
             var tempFile = Path.Combine(tempDir, $"BICEP_TEST_{Guid.NewGuid()}");
             var tempChildDir = Path.Combine(tempDir, $"BICEP_TESTCHILDDIR_{Guid.NewGuid()}");
@@ -169,7 +173,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         [TestMethod]
         public void DirExists_should_return_expected_results()
         {
-            var fileResolver = new FileResolver();
+            var fileResolver = GetFileResolver();
             var tempDir = Path.Combine(Path.GetTempPath(), $"BICEP_TESTDIR_{Guid.NewGuid()}");
             var tempFile = Path.Combine(tempDir, $"BICEP_TEST_{Guid.NewGuid()}");
             var tempChildDir = Path.Combine(tempDir, $"BICEP_TESTCHILDDIR_{Guid.NewGuid()}");
@@ -194,7 +198,7 @@ namespace Bicep.Core.UnitTests.FileSystem
         [DataRow("aaaa\nbbbbb", 2, true, "aa")]
         public void TryReadAtMostNCharacters_RegardlessFileContentLength_ReturnsAtMostNCharaters(string fileContents, int n, bool expectedResult, string expectedContents)
         {
-            var fileResolver = new FileResolver();
+            var fileResolver = GetFileResolver();
             var tempFile = Path.Combine(Path.GetTempPath(), $"BICEP_TEST_{Guid.NewGuid()}");
             var tempFileUri = PathHelper.FilePathToFileUrl(tempFile);
 
@@ -209,23 +213,23 @@ namespace Bicep.Core.UnitTests.FileSystem
 
         [TestMethod]
         public void In_memory_file_resolver_should_simulate_directory_paths_correctly()
-        {   //file://path
+        {
             var fileTextsByUri = new Dictionary<Uri, string>
             {
-                [new Uri("file://path/to/file.bicep")] = "param foo int",
-                [new Uri("file://path/to/nested/file.bicep")] = "param bar int",
-                [new Uri("file://path/toOther/file.bicep")] = "param foo string"
+                [new Uri("file:///path/to/file.bicep")] = "param foo int",
+                [new Uri("file:///path/to/nested/file.bicep")] = "param bar int",
+                [new Uri("file:///path/toOther/file.bicep")] = "param foo string"
             };
 
             var fileResolver = new InMemoryFileResolver(fileTextsByUri);
 
-            fileResolver.GetDirectories(new Uri("file://path"), "").Should().SatisfyRespectively(
-                x => x.AbsoluteUri.Should().Be("file://path/to"),
-                x => x.AbsoluteUri.Should().Be("file://path/toOther")
+            fileResolver.GetDirectories(new Uri("file:///path"), "").Should().SatisfyRespectively(
+                x => x.AbsoluteUri.Should().Be("file:///path/to/"),
+                x => x.AbsoluteUri.Should().Be("file:///path/toOther/")
             );
 
-            fileResolver.GetDirectories(new Uri("file://path/to"), "").Should().SatisfyRespectively(
-                x => x.AbsoluteUri.Should().Be("file://path/to/nested")
+            fileResolver.GetDirectories(new Uri("file:///path/to"), "").Should().SatisfyRespectively(
+                x => x.AbsoluteUri.Should().Be("file:///path/to/nested/")
             );
         }
 
@@ -236,7 +240,7 @@ namespace Bicep.Core.UnitTests.FileSystem
             Directory.CreateDirectory(outputDir);
 
             var outputUri = PathHelper.FilePathToFileUrl(outputDir);
-            var fileResolver = new FileResolver();
+            var fileResolver = GetFileResolver();
 
             fileResolver.TryRead(outputUri, out var fileContents, out var failureBuilder).Should().BeFalse();
             fileContents.Should().BeNull();

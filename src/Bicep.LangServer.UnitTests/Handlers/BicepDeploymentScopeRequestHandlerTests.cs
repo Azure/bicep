@@ -33,7 +33,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static readonly FileResolver FileResolver = new();
+        private static readonly FileResolver FileResolver = BicepTestConstants.FileResolver;
         private static readonly IConfigurationManager configurationManager = new ConfigurationManager(new IOFileSystem());
         private readonly ModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, configurationManager);
         private readonly ISerializer Serializer = StrictMock.Of<ISerializer>().Object;

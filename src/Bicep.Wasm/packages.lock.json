@@ -37,6 +37,15 @@
         "resolved": "3.5.109",
         "contentHash": "tKA1XJ5U2Ytk+u2/5sGNa04Pw6z9noYmqbpmHpjvbwJTtIalqsQjnwT4RQKSDTTIznHBbKxzv3HVh8QD28Qk+g=="
       },
+      "System.IO.Abstractions.TestingHelpers": {
+        "type": "Direct",
+        "requested": "[17.2.3, )",
+        "resolved": "17.2.3",
+        "contentHash": "tkXvQbsfOIfeoGso+WptCuouFLiWt3EU8s0D8poqIVz1BJOOszkPuFbFgP2HUTJ9bp5n1HH89eFHILo6Oz5XUw==",
+        "dependencies": {
+          "System.IO.Abstractions": "17.2.3"
+        }
+      },
       "System.Net.Http.Json": {
         "type": "Direct",
         "requested": "[6.0.0, )",

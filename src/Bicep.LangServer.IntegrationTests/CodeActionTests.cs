@@ -65,7 +65,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
-            ServerWithFileResolver.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new Server.CreationOptions(FileResolver: new FileResolver())));
+            ServerWithFileResolver.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new Server.CreationOptions(FileResolver: BicepTestConstants.FileResolver)));
 
             ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create())));
 

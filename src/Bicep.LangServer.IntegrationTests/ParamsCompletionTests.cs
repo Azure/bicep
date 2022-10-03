@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
@@ -298,11 +299,13 @@ using |
             completions.Should().SatisfyRespectively(
                 x => x.Label.Should().Be("main1.bicep"),
                 x => x.Label.Should().Be("module1.bicep"),
-                x => x.Label.Should().Be("nested1"),
-                x => x.Label.Should().Be("nested2"));
+                x => x.Label.Should().Be("nested1/"),
+                x => x.Label.Should().Be("nested2/"),
+                x => x.Label.Should().Be("../"));
             completions.Should().SatisfyRespectively(
                 x => x.Kind.Should().Be(CompletionItemKind.File),
                 x => x.Kind.Should().Be(CompletionItemKind.File),
+                x => x.Kind.Should().Be(CompletionItemKind.Folder),
                 x => x.Kind.Should().Be(CompletionItemKind.Folder),
                 x => x.Kind.Should().Be(CompletionItemKind.Folder));
         }
@@ -347,10 +350,12 @@ using './nested1/|'
             var completions = await file.RequestCompletion(cursor);
             completions.Should().SatisfyRespectively(
                 x => x.Label.Should().Be("main3.bicep"),
-                x => x.Label.Should().Be("module2.bicep"));
+                x => x.Label.Should().Be("module2.bicep"),
+                x => x.Label.Should().Be("../"));
             completions.Should().SatisfyRespectively(
                 x => x.Kind.Should().Be(CompletionItemKind.File),
-                x => x.Kind.Should().Be(CompletionItemKind.File));
+                x => x.Kind.Should().Be(CompletionItemKind.File),
+                x => x.Kind.Should().Be(CompletionItemKind.Folder));
         }
     }
 }
