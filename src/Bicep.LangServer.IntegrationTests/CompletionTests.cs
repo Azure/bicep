@@ -2468,5 +2468,40 @@ var file = " + functionName + @"(templ|)
                 );
             }
         }
+
+        [DataTestMethod]
+        [DataRow("module foo |", "../", "module foo '../|'")]
+        [DataRow("module foo |", "other.bicep", "module foo 'other.bicep'|")]
+        [DataRow("module foo .|", "../", "module foo '../|'")]
+        [DataRow("module foo '.'|", "../", "module foo '../|'")]
+        [DataRow("module foo ./|", "../", "module foo '../|'")]
+        [DataRow("module foo ./|", "other.bicep", "module foo 'other.bicep'|")]
+        [DataRow("module foo './|'", "./other.bicep", "module foo './other.bicep'|")]
+        [DataRow("module foo ../|", "../", "module foo '../|'")]
+        [DataRow("module foo '../'|", "../", "module foo '../../|'")]
+        [DataRow("module foo '../../|'", "path", "module foo '../../path|'")]
+        [DataRow("module foo '../../../|'", "path", "module foo '../../path|'")]
+        public async Task Module_path_completions_are_offered(string fileWithCursors, string expectedLabel, string expectedResult)
+        {
+            var fileUri = new Uri("file:///path/to/main.bicep");
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string> {
+                [new Uri("file:///path/to/other.bicep")] = "",
+                [new Uri("file:///path/to2/main.bicep")] = "",
+                [new Uri("file:///path2/to/main.bicep")] = "",
+            });
+
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, new LanguageServer.Server.CreationOptions {
+                FileResolver = fileResolver,
+            });
+
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, text);
+
+            var completions = await file.RequestCompletion(cursor);
+
+            completions.Should().Contain(x => x.Label == expectedLabel);
+            var updatedFile = file.ApplyCompletion(completions, expectedLabel);
+            updatedFile.Should().HaveSourceText(expectedResult);
+        }
     }
 }

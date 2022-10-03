@@ -8,12 +8,18 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Text;
+using System.Diagnostics.CodeAnalysis;
+using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.UnitTests.FileSystem
 {
     [TestClass]
     public class FileResolverTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [DataTestMethod]
         [DynamicData(nameof(TryResolveModulePathData), DynamicDataSourceType.Method)]
         public void TryResolveModulePath_should_return_expected_results(string parentFilePath, string childFilePath, string? expectedResult)
@@ -221,6 +227,22 @@ namespace Bicep.Core.UnitTests.FileSystem
             fileResolver.GetDirectories(new Uri("file://path/to"), "").Should().SatisfyRespectively(
                 x => x.AbsoluteUri.Should().Be("file://path/to/nested")
             );
+        }
+
+        [TestMethod]
+        public void Diagnostic_should_be_raised_for_folder_instead_of_file()
+        {
+            var outputDir = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(outputDir);
+
+            var outputUri = PathHelper.FilePathToFileUrl(outputDir);
+            var fileResolver = new FileResolver();
+
+            fileResolver.TryRead(outputUri, out var fileContents, out var failureBuilder).Should().BeFalse();
+            fileContents.Should().BeNull();
+            var err = failureBuilder!.Invoke(new DiagnosticBuilder.DiagnosticBuilderInternal(TextSpan.TextDocumentStart));
+            err.Message.Should().Match("Unable to open file at path \"*\". Found a directory instead.");
+            err.Code.Should().Be("BCP275");
         }
     }
 }

@@ -1597,6 +1597,11 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Info, // should this be a warning instead?
                 "BCP274",
                 $"Error scanning \"{directoryPath}\" for bicep configuration: \"{scanErrorMessage}\".");
+
+            public ErrorDiagnostic FoundDirectoryInsteadOfFile(string directoryPath) => new(
+                TextSpan,
+                "BCP275",
+                $"Unable to open file at path \"{directoryPath}\". Found a directory instead.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

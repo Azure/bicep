@@ -31,12 +31,13 @@ namespace Bicep.Core.FileSystem
             try
             {
                 failureBuilder = null;
-                if (Directory.Exists(fileUri.LocalPath))
+                if (DirExists(fileUri))
                 {
-                    // Docs suggest this is the error to throw when we give a directory.
-                    // A trailing backslash causes windows not to throw this exception.
-                    throw new UnauthorizedAccessException($"Access to the path '{fileUri.LocalPath}' is denied.");
+                    failureBuilder = x => x.FoundDirectoryInsteadOfFile(fileUri.LocalPath);
+                    fileContents = null;
+                    return false;
                 }
+
                 ApplyWindowsConFileWorkaround(fileUri.LocalPath);
                 fileContents = File.ReadAllText(fileUri.LocalPath);
                 return true;
@@ -64,12 +65,14 @@ namespace Bicep.Core.FileSystem
             try
             {
                 failureBuilder = null;
-                if (Directory.Exists(fileUri.LocalPath))
+                if (DirExists(fileUri))
                 {
-                    // Docs suggest this is the error to throw when we give a directory.
-                    // A trailing backslash causes windows not to throw this exception.
-                    throw new UnauthorizedAccessException($"Access to the path '{fileUri.LocalPath}' is denied.");
+                    failureBuilder = x => x.FoundDirectoryInsteadOfFile(fileUri.LocalPath);
+                    fileContents = null;
+                    detectedEncoding = null;
+                    return false;
                 }
+
                 ApplyWindowsConFileWorkaround(fileUri.LocalPath);
                 using var fileStream = File.OpenRead(fileUri.LocalPath);
                 using var sr = new StreamReader(fileStream, fileEncoding, true);
@@ -114,11 +117,11 @@ namespace Bicep.Core.FileSystem
             try
             {
                 failureBuilder = null;
-                if (Directory.Exists(fileUri.LocalPath))
+                if (DirExists(fileUri))
                 {
-                    // Docs suggest this is the error to throw when we give a directory.
-                    // A trailing backslash causes windows not to throw this exception.
-                    throw new UnauthorizedAccessException($"Access to the path '{fileUri.LocalPath}' is denied.");
+                    failureBuilder = x => x.FoundDirectoryInsteadOfFile(fileUri.LocalPath);
+                    fileBase64 = null;
+                    return false;
                 }
 
                 if (maxCharacters > 0)
@@ -170,11 +173,10 @@ namespace Bicep.Core.FileSystem
 
             try
             {
-                if (Directory.Exists(fileUri.LocalPath))
+                if (DirExists(fileUri))
                 {
-                    // Docs suggest this is the error to throw when we give a directory.
-                    // A trailing backslash causes windows not to throw this exception.
-                    throw new UnauthorizedAccessException($"Access to the path '{fileUri.LocalPath}' is denied.");
+                    fileContents = null;
+                    return false;
                 }
 
                 ApplyWindowsConFileWorkaround(fileUri.LocalPath);
@@ -252,10 +254,10 @@ namespace Bicep.Core.FileSystem
             /*
              * Win10 (and possibly older versions) will block without returning when
              * reading a file whose name is CON or CON.<any extension> which breaks the language server
-             * 
+             *
              * as a workaround, we will simulate Win11+ behavior that throws a
              * FileNotFoundException
-             * 
+             *
              * https://github.com/Azure/bicep/issues/6224
              */
 
