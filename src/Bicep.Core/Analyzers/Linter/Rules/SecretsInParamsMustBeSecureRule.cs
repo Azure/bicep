@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -62,20 +64,24 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private IDiagnostic? AnalyzeUnsecuredParameter(ParameterSymbol parameterSymbol)
         {
             string name = parameterSymbol.Name;
-            if (HasSecretRegex.IsMatch(name))
+            TypeSymbol type = parameterSymbol.Type;
+            if (type.IsObject() || type.IsString())
             {
-                if (!AllowedRegex.IsMatch(name))
+                if (HasSecretRegex.IsMatch(name))
                 {
-                    // Create fix
-                    var decorator = SyntaxFactory.CreateDecorator("secure");
-                    var decoratorText = $"{decorator.ToText()}\n";
-                    var fixSpan = new TextSpan(parameterSymbol.DeclaringSyntax.Span.Position, 0);
-                    var codeReplacement = new CodeReplacement(fixSpan, decoratorText);
+                    if (!AllowedRegex.IsMatch(name))
+                    {
+                        // Create fix
+                        var decorator = SyntaxFactory.CreateDecorator("secure");
+                        var decoratorText = $"{decorator.ToText()}\n";
+                        var fixSpan = new TextSpan(parameterSymbol.DeclaringSyntax.Span.Position, 0);
+                        var codeReplacement = new CodeReplacement(fixSpan, decoratorText);
 
-                    return CreateFixableDiagnosticForSpan(
-                        parameterSymbol.NameSyntax.Span,
-                        new CodeFix("Mark parameter as secure", isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
-                        name);
+                        return CreateFixableDiagnosticForSpan(
+                            parameterSymbol.NameSyntax.Span,
+                            new CodeFix("Mark parameter as secure", isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
+                            name);
+                    }
                 }
             }
 

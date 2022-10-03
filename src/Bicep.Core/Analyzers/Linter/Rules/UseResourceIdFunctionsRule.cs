@@ -236,7 +236,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private static Failure? AnalyzeIdProperty(SemanticModel model, ObjectPropertySyntax propertySyntax)
             {
                 var type = model.GetTypeInfo(propertySyntax.Value);
-                if (type.IsStrictlyAssignableToString())
+                if (type.IsString())
                 {
                     return AnalyzeIdPropertyValue(model, propertySyntax, propertySyntax.Value, Array.Empty<DeclaredSymbol>());
                 }
