@@ -40,9 +40,9 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IConfigurationManager configurationManager;
-        private readonly ApiVersionProvider apiVersionProvider;
+        private readonly IApiVersionProvider apiVersionProvider;
 
-        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProvider features, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, ApiVersionProvider apiVersionProvider, IConfigurationManager configurationManager)
+        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProvider features, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IApiVersionProvider apiVersionProvider, IConfigurationManager configurationManager)
             : base(LangServerConstants.BuildCommand, serializer)
         {
             this.compilationManager = compilationManager;
@@ -81,25 +81,14 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             var fileUri = documentUri.ToUri();
-            RootConfiguration? configuration = null;
-
-            try
-            {
-                configuration = this.configurationManager.GetConfiguration(fileUri);
-            }
-            catch (ConfigurationException exception)
-            {
-                // Fail the build if there's configuration errors.
-                return exception.Message;
-            }
 
             CompilationContext? context = compilationManager.GetCompilation(fileUri);
             Compilation compilation;
 
             if (context is null)
             {
-                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri, configuration);
-                compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, configuration, apiVersionProvider, new LinterAnalyzer(configuration));
+                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
+                compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
             }
             else
             {

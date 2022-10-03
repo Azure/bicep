@@ -2,28 +2,32 @@
 // Licensed under the MIT License.
 
 using System.Buffers;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
 using System.Text.Json;
+using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Configuration
 {
     public class RootConfiguration
     {
-        public RootConfiguration(CloudConfiguration cloud, ModuleAliasesConfiguration moduleAliases, AnalyzersConfiguration analyzers, string? configurationPath)
+        public RootConfiguration(CloudConfiguration cloud, ModuleAliasesConfiguration moduleAliases, AnalyzersConfiguration analyzers, string? configurationPath, IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders)
         {
             this.Cloud = cloud;
             this.ModuleAliases = moduleAliases;
             this.Analyzers = analyzers;
             this.ConfigurationPath = configurationPath;
+            this.DiagnosticBuilders = diagnosticBuilders?.ToImmutableArray() ?? ImmutableArray<DiagnosticBuilder.DiagnosticBuilderDelegate>.Empty;
         }
 
-        public static RootConfiguration Bind(JsonElement element, string? configurationPath = null)
+        public static RootConfiguration Bind(JsonElement element, string? configurationPath = null, IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders = null)
         {
             var cloud = CloudConfiguration.Bind(element.GetProperty("cloud"), configurationPath);
             var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty("moduleAliases"), configurationPath);
             var analyzers = new AnalyzersConfiguration(element.GetProperty("analyzers"));
 
-            return new(cloud, moduleAliases, analyzers, configurationPath);
+            return new(cloud, moduleAliases, analyzers, configurationPath, diagnosticBuilders);
         }
 
         public CloudConfiguration Cloud { get; }
@@ -33,6 +37,8 @@ namespace Bicep.Core.Configuration
         public AnalyzersConfiguration Analyzers { get; }
 
         public string? ConfigurationPath { get; }
+
+        public ImmutableArray<DiagnosticBuilder.DiagnosticBuilderDelegate> DiagnosticBuilders { get; }
 
         public bool IsBuiltIn => ConfigurationPath is null;
 

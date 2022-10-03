@@ -142,7 +142,7 @@ Usage:
       --help                 -h   Shows this usage information
       --license                   Prints license information
       --third-party-notices       Prints third-party notices
-      
+
 "; // this newline is intentional
 
             invocationContext.OutputWriter.Write(output);

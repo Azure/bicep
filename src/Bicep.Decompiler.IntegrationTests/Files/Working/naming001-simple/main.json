@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "virtualMachine2Name": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "virtualMachineName": "VM-MultiNic",
+    "virtualMachineRename": "VM-MultiNic",
+    "virtualMachineName3": "VM-MultiNic"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('virtualMachineName')]", // -> virtualMachine
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('virtualMachine2Name')]", // -> virtualMachine2
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "Name", // Shouldn't end up with empty resource name -> "Name"
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('virtualMachineRename')]", // Should not remove -> "virtualMachineRename"
+      "location": "[parameters('location')]"
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('virtualMachineName3')]", // -> virtualMachine3
+      "location": "[parameters('location')]"
+    }
+  ]
+}

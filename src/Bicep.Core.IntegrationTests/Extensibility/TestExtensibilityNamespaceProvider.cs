@@ -13,21 +13,19 @@ namespace Bicep.Core.IntegrationTests.Extensibility
     {
         private readonly INamespaceProvider defaultNamespaceProvider;
 
-        public TestExtensibilityNamespaceProvider(IAzResourceTypeLoader azResourceTypeLoader, IFeatureProvider featureProvider)
+        public TestExtensibilityNamespaceProvider(IAzResourceTypeLoader azResourceTypeLoader)
         {
-            defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoader, featureProvider);
+            defaultNamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoader);
         }
-
-        public bool AllowImportStatements => defaultNamespaceProvider.AllowImportStatements;
 
         public IEnumerable<string> AvailableNamespaces => defaultNamespaceProvider.AvailableNamespaces.Concat(new [] {
             StorageNamespaceType.BuiltInName,
             AadNamespaceType.BuiltInName,
         });
 
-        public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope)
+        public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider featureProvider)
         {
-            if (defaultNamespaceProvider.TryGetNamespace(providerName, aliasName, resourceScope) is { } namespaceType)
+            if (defaultNamespaceProvider.TryGetNamespace(providerName, aliasName, resourceScope, featureProvider) is { } namespaceType)
             {
                 return namespaceType;
             }

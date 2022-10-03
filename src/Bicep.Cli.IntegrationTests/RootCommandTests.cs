@@ -176,4 +176,3 @@ namespace Bicep.Cli.IntegrationTests
         }
     }
 }
-

@@ -32,10 +32,10 @@ namespace Bicep.LanguageServer
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IWorkspace workspace;
         private readonly IFeatureProvider features;
-        private readonly ApiVersionProvider apiVersionProvider;
+        private readonly IApiVersionProvider apiVersionProvider;
         private readonly INamespaceProvider namespaceProvider;
         private readonly ConcurrentDictionary<DocumentUri, ParamsCompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, ParamsCompilationContext>();
-        public BicepParamsCompilationManager(ILanguageServerFacade server, ICompilationProvider bicepCompilationContextProvider, IConfigurationManager bicepConfigurationManager, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IWorkspace workspace, IFeatureProvider features, ApiVersionProvider apiVersionProvider, INamespaceProvider namespaceProvider)
+        public BicepParamsCompilationManager(ILanguageServerFacade server, ICompilationProvider bicepCompilationContextProvider, IConfigurationManager bicepConfigurationManager, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IWorkspace workspace, IFeatureProvider features, IApiVersionProvider apiVersionProvider, INamespaceProvider namespaceProvider)
         {
             this.server = server;
             this.bicepCompilationContextProvider = bicepCompilationContextProvider;
@@ -53,7 +53,7 @@ namespace Bicep.LanguageServer
             //TODO: complete later, not required for basic file interaction
         }
 
-        public void RefreshCompilation(DocumentUri uri, bool reloadBicepConfig = false)
+        public void RefreshCompilation(DocumentUri uri)
         {
             //TODO: complete later, not required for basic file interaction
         }
@@ -61,15 +61,14 @@ namespace Bicep.LanguageServer
         public void UpsertCompilation(DocumentUri uri, int? version, string text, string? languageId = null, bool triggeredByFileOpenEvent = false)
         {
             var inputUri = uri.ToUri();
-            var configuration = bicepConfigurationManager.GetConfiguration(inputUri);
 
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri, configuration);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri);
 
-            var semanticModel = new ParamsSemanticModel(sourceFileGrouping, file => {
+            var semanticModel = new ParamsSemanticModel(sourceFileGrouping, bicepConfigurationManager.GetConfiguration(inputUri), features, file => {
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
 
-                return new Compilation(features, namespaceProvider, compilationGrouping, configuration, apiVersionProvider, new LinterAnalyzer(configuration));
+                return new Compilation(features, namespaceProvider, compilationGrouping, bicepConfigurationManager, apiVersionProvider, new LinterAnalyzer());
             });
 
             var context = this.activeContexts.AddOrUpdate(

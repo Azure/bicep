@@ -36,7 +36,7 @@ namespace Bicep.Cli.Services
         public EmitResult ToStdout(Compilation compilation)
         {
             var semanticModel = compilation.GetEntrypointSemanticModel();
-            var sourceFileToTrack = this.invocationContext.Features.SourceMappingEnabled ? semanticModel.SourceFile : default;
+            var sourceFileToTrack = this.invocationContext.Features.SourceMappingEnabled ? semanticModel.SourceFile : null;
             using var writer = new SourceAwareJsonTextWriter(invocationContext.OutputWriter, sourceFileToTrack)
             {
                 Formatting = Formatting.Indented

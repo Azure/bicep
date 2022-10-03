@@ -48,13 +48,13 @@ namespace Bicep.Cli.Commands
             var inputPath = PathHelper.ResolvePath(args.InputFile);
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
             var configuration = this.configurationManager.GetConfiguration(inputUri);
-            var moduleReference = ValidateReference(args.TargetModuleReference, configuration);
+            var moduleReference = ValidateReference(args.TargetModuleReference, inputUri);
 
             if (PathHelper.HasArmTemplateLikeExtension(inputUri))
             {
                 // Publishing an ARM template file.
                 using var armTemplateStream = this.fileSystem.FileStream.Create(inputPath, FileMode.Open, FileAccess.Read);
-                await this.PublishModuleAsync(configuration, moduleReference, armTemplateStream);
+                await this.PublishModuleAsync(moduleReference, armTemplateStream);
 
                 return 0;
             }
@@ -71,16 +71,16 @@ namespace Bicep.Cli.Commands
             compilationWriter.ToStream(compilation, stream);
 
             stream.Position = 0;
-            await this.PublishModuleAsync(compilation.Configuration, moduleReference, stream);
+            await this.PublishModuleAsync(moduleReference, stream);
 
             return 0;
         }
 
-        private async Task PublishModuleAsync(RootConfiguration configuration, ModuleReference target, Stream stream)
+        private async Task PublishModuleAsync(ModuleReference target, Stream stream)
         {
             try
             {
-                await this.moduleDispatcher.PublishModule(configuration, target, stream);
+                await this.moduleDispatcher.PublishModule(target, stream);
             }
             catch (ExternalModuleException exception)
             {
@@ -88,15 +88,12 @@ namespace Bicep.Cli.Commands
             }
         }
 
-        private ModuleReference ValidateReference(string targetModuleReference, RootConfiguration configuration)
+        private ModuleReference ValidateReference(string targetModuleReference, Uri targetModuleUri)
         {
-            var moduleReference = this.moduleDispatcher.TryGetModuleReference(targetModuleReference, configuration, out var failureBuilder);
-            if (moduleReference is null)
+            if (!this.moduleDispatcher.TryGetModuleReference(targetModuleReference, targetModuleUri, out var moduleReference, out var failureBuilder))
             {
-                failureBuilder = failureBuilder ?? throw new InvalidOperationException($"{nameof(moduleDispatcher.TryGetModuleReference)} did not provide an error.");
-
                 // TODO: We should probably clean up the dispatcher contract so this sort of thing isn't necessary (unless we change how target module is set in this command)
-                var message = failureBuilder(new DiagnosticBuilder.DiagnosticBuilderInternal(new TextSpan(0, 0))).Message;
+                var message = failureBuilder(DiagnosticBuilder.ForDocumentStart()).Message;
 
                 throw new BicepException(message);
             }

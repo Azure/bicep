@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
@@ -33,12 +34,12 @@ namespace Bicep.Core.IntegrationTests
 
             public IEnumerable<string> AvailableNamespaces => builderDict.Keys.Concat(new [] { SystemNamespaceType.BuiltInName });
 
-            public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope)
+            public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features)
             {
                 switch (providerName)
                 {
                     case SystemNamespaceType.BuiltInName:
-                        return SystemNamespaceType.Create(aliasName, BicepTestConstants.Features);
+                        return SystemNamespaceType.Create(aliasName, features);
                     case { } _ when builderDict.TryGetValue(providerName) is { } builderFunc:
                         return builderFunc(aliasName);
                 }
@@ -51,7 +52,7 @@ namespace Bicep.Core.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         private CompilationHelper.CompilationHelperContext EnabledImportsContext
-            => new CompilationHelper.CompilationHelperContext(Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true));
+            => new CompilationHelper.CompilationHelperContext(Features: BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true));
 
         [TestMethod]
         public void Imports_are_disabled_unless_feature_is_enabled()
@@ -219,7 +220,7 @@ import sys as sys2
             });
 
             var context = new CompilationHelper.CompilationHelperContext(
-                Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true),
+                Features: BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true),
                 NamespaceProvider: nsProvider);
 
             var result = CompilationHelper.Compile(context, @"
@@ -276,7 +277,7 @@ output ns2Result string = ns2Func()
             });
 
             var context = new CompilationHelper.CompilationHelperContext(
-                Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true),
+                Features: BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true),
                 NamespaceProvider: nsProvider);
 
             var result = CompilationHelper.Compile(context, @"

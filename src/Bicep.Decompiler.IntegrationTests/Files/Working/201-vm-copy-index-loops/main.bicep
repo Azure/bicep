@@ -30,15 +30,15 @@ param adminPasswordOrKey string
 @description('description')
 param vmSize string = 'Standard_A1_v2'
 
-var virtualNetworkName_var = 'VNET'
+var virtualNetworkName = 'VNET'
 var addressPrefix = '10.0.0.0/16'
 var subnet1Name = 'Subnet-1'
 var subnet2Name = 'Subnet-2'
 var subnet1Prefix = '10.0.0.0/24'
 var subnet2Prefix = '10.0.1.0/24'
-var subnet1Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName_var, subnet1Name)
-var subnet2Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName_var, subnet2Name)
-var availabilitySetName_var = 'AvSet'
+var subnet1Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet1Name)
+var subnet2Ref = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetworkName, subnet2Name)
+var availabilitySetName = 'AvSet'
 var imageReference = {
   Ubuntu: {
     publisher: 'Canonical'
@@ -53,7 +53,7 @@ var imageReference = {
     version: 'latest'
   }
 }
-var networkSecurityGroupName_var = 'default-NSG'
+var networkSecurityGroupName = 'default-NSG'
 var nsgOsPort = {
   Ubuntu: '22'
   Windows: '3389'
@@ -70,8 +70,8 @@ var linuxConfiguration = {
   }
 }
 
-resource availabilitySetName 'Microsoft.Compute/availabilitySets@2020-06-01' = [for i in range(0, 2): {
-  name: '${availabilitySetName_var}-${i}'
+resource availabilitySet 'Microsoft.Compute/availabilitySets@2020-06-01' = [for i in range(0, 2): {
+  name: '${availabilitySetName}-${i}'
   location: location
   properties: {
     platformFaultDomainCount: 2
@@ -82,8 +82,8 @@ resource availabilitySetName 'Microsoft.Compute/availabilitySets@2020-06-01' = [
   }
 }]
 
-resource networkSecurityGroupName 'Microsoft.Network/networkSecurityGroups@2020-05-01' = {
-  name: networkSecurityGroupName_var
+resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2020-05-01' = {
+  name: networkSecurityGroupName
   location: location
   properties: {
     securityRules: [
@@ -104,8 +104,8 @@ resource networkSecurityGroupName 'Microsoft.Network/networkSecurityGroups@2020-
   }
 }
 
-resource virtualNetworkName 'Microsoft.Network/virtualNetworks@2020-05-01' = {
-  name: virtualNetworkName_var
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' = {
+  name: virtualNetworkName
   location: location
   properties: {
     addressSpace: {
@@ -119,7 +119,7 @@ resource virtualNetworkName 'Microsoft.Network/virtualNetworks@2020-05-01' = {
         properties: {
           addressPrefix: subnet1Prefix
           networkSecurityGroup: {
-            id: networkSecurityGroupName.id
+            id: networkSecurityGroup.id
           }
         }
       }
@@ -128,7 +128,7 @@ resource virtualNetworkName 'Microsoft.Network/virtualNetworks@2020-05-01' = {
         properties: {
           addressPrefix: subnet2Prefix
           networkSecurityGroup: {
-            id: networkSecurityGroupName.id
+            id: networkSecurityGroup.id
           }
         }
       }
@@ -147,14 +147,13 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-05-01' = [for i in range(
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
             id: (((i % 2) == 0) ? subnet1Ref : subnet2Ref)
-//@[12:14) [use-resource-id-functions (Warning)] If property "id" represents a resource ID, it must use a symbolic resource reference, be a parameter or start with one of these functions: extensionResourceId, guid, if, reference, resourceId, subscription, subscriptionResourceId, tenantResourceId. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-resource-id-functions)) |id|
           }
         }
       }
     ]
   }
   dependsOn: [
-    virtualNetworkName
+    virtualNetwork
   ]
 }]
 
@@ -163,7 +162,7 @@ resource myvm 'Microsoft.Compute/virtualMachines@2020-06-01' = [for i in range(0
   location: location
   properties: {
     availabilitySet: {
-      id: resourceId('Microsoft.Compute/availabilitySets', '${availabilitySetName_var}-${(i % 2)}')
+      id: resourceId('Microsoft.Compute/availabilitySets', '${availabilitySetName}-${(i % 2)}')
     }
     hardwareProfile: {
       vmSize: vmSize
@@ -190,7 +189,7 @@ resource myvm 'Microsoft.Compute/virtualMachines@2020-06-01' = [for i in range(0
   }
   dependsOn: [
     resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')
-//@[04:64) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (CodeDescription: none) |resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')|
-    availabilitySetName
+//@[4:64) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "string". (CodeDescription: none) |resourceId('Microsoft.Network/networkInterfaces', 'nic${i}')|
+    availabilitySet
   ]
 }]

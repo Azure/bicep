@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             {
                 // Test with the linter using the fake resource types from FakeResourceTypes (to guard against failures due to Azure changes)
                 // Note: The compiler does not know about these fake types, only the linter.
-                apiVersionProvider = new ApiVersionProvider();
+                apiVersionProvider = new ApiVersionProvider(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider);
                 apiVersionProvider.InjectTypeReferences(ResourceScope.ResourceGroup, FakeResourceTypes.GetFakeResourceTypeReferences(FakeResourceTypes.ResourceScopeTypes));
             }
 
@@ -857,7 +857,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             // https://github.com/Azure/arm-ttk/blob/master/unit-tests/apiVersions-Should-Be-Recent-In-Reference-Functions/Pass/latestStableApiOlderThan2Years.json
             public void ArmTtk_LatestStableApiOlderThan2Years_Pass()
             {
-                string bicep = @"                    
+                string bicep = @"
                     output pass object = reference(resourceId('Fake.Web/connections', 'test'), '2416-06-01')
                     output fail object = reference(resourceId('Fake.Web/connections', 'test'), '2406-06-01')
                 ";
@@ -1148,7 +1148,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     //    2021-05-01
                     //    2021-04-01
                     //    2021-02-01
-                    //    2021-01-01                    
+                    //    2021-01-01
                     "[14] Could not find apiVersion 2420-12-01 for Fake.Storage/storageAccounts. Acceptable versions: 2421-06-01, 2421-04-01, 2421-02-01, 2421-01-01",
                     });
             }
@@ -1169,7 +1169,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                           domainNameLabel: 'dnsName'
                         }
                       }
-                    }                   
+                    }
                 ";
                 CompileAndTestWithFakeDateAndTypes(bicep,
                     ResourceScope.ResourceGroup,
@@ -1204,4 +1204,3 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
     }
 }
-

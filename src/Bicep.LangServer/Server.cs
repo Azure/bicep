@@ -134,7 +134,6 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
             services.AddSingleton<IModuleDispatcher, ModuleDispatcher>();
             services.AddSingleton<IFileSystem, FileSystem>();
-            services.AddSingleton<IConfigurationManager, ConfigurationManager>();
             services.AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
             services.AddSingleton<ITelemetryProvider, TelemetryProvider>();
             services.AddSingleton<IWorkspace, Workspace>();
@@ -145,6 +144,7 @@ namespace Bicep.LanguageServer
             services.AddSingletonOrInstance<IModuleRestoreScheduler, ModuleRestoreScheduler>(creationOptions.ModuleRestoreScheduler);
             services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
             services.AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
+            services.AddSingleton<IConfigurationManager, ConfigurationManager>();
             services.AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>();
             services.AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>();
             services.AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>();

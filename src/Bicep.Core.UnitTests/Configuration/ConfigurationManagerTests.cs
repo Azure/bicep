@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using FluentAssertions;
@@ -13,6 +14,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests.Configuration
@@ -27,10 +29,7 @@ namespace Bicep.Core.UnitTests.Configuration
         public void GetBuiltInConfiguration_NoParameter_ReturnsBuiltInConfigurationWithAnalyzerSettings()
         {
             // Arrange.
-            var sut = new ConfigurationManager(new IOFileSystem());
-
-            // Act.
-            var configuration = sut.GetBuiltInConfiguration();
+            var configuration = IConfigurationManager.GetBuiltInConfiguration();
 
             // Assert.
             configuration.Should().HaveContents(@"{
@@ -102,8 +101,7 @@ namespace Bicep.Core.UnitTests.Configuration
         [TestMethod]
         public void GetBuiltInConfiguration_CoreLinterShouldDefaultToEnabled()
         {
-            var sut = new ConfigurationManager(new IOFileSystem());
-            var configuration = sut.GetBuiltInConfiguration();
+            var configuration = IConfigurationManager.GetBuiltInConfiguration();
 
             configuration.Analyzers.GetValue<bool>("core.enabled", false).Should().Be(true, "Core linters should default to enabled");
         }
@@ -112,10 +110,7 @@ namespace Bicep.Core.UnitTests.Configuration
         public void GetBuiltInConfiguration_DisableAllAnalyzers_ReturnsBuiltInConfigurationWithoutAnalyzerSettings()
         {
             // Arrange.
-            var sut = new ConfigurationManager(new IOFileSystem());
-
-            // Act.
-            var configuration = sut.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
+            var configuration = IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled();
 
             // Assert.
             configuration.Should().HaveContents(@"{
@@ -157,10 +152,7 @@ namespace Bicep.Core.UnitTests.Configuration
         public void GetBuiltInConfiguration_DisableAnalyzers_ReturnsBuiltInConfiguration_WithSomeAnalyzersSetToLevelOff()
         {
             // Arrange.
-            var sut = new ConfigurationManager(new IOFileSystem());
-
-            // Act.
-            var configuration = sut.GetBuiltInConfiguration().WithAnalyzersDisabled("no-hardcoded-env-urls", "no-unused-vars");
+            var configuration = IConfigurationManager.GetBuiltInConfiguration().WithAnalyzersDisabled("no-hardcoded-env-urls", "no-unused-vars");
 
             // Assert.
             configuration.Should().HaveContents(@"{
@@ -243,11 +235,11 @@ namespace Bicep.Core.UnitTests.Configuration
             var configuration = sut.GetConfiguration(sourceFileUri);
 
             // Assert.
-            configuration.Should().BeSameAs(sut.GetBuiltInConfiguration());
+            configuration.Should().BeSameAs(IConfigurationManager.GetBuiltInConfiguration());
         }
 
         [TestMethod]
-        public void GetConfiguration_InvalidCustomConfiguration_ThrowsFailedToParseConfigurationException()
+        public void GetConfiguration_InvalidCustomConfiguration_PropagatesFailedToParseConfigurationDiagnostic()
         {
             // Arrange.
             var configurataionPath = CreatePath("path/to/bicepconfig.json");
@@ -260,13 +252,14 @@ namespace Bicep.Core.UnitTests.Configuration
             var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
 
             // Act & Assert.
-            FluentActions.Invoking(() => sut.GetConfiguration(sourceFileUri)).Should()
-                .Throw<ConfigurationException>()
-                .WithMessage($"Failed to parse the contents of the Bicep configuration file \"{configurataionPath}\" as valid JSON: \"The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.\".");
+            var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
+            diagnostics.Count.Should().Be(1);
+            diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
+            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurataionPath}\" as valid JSON: \"The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.\".");
         }
 
         [TestMethod]
-        public void GetConfiguration_ConfigurationFileNotReadable_ThrowsCouldNotLoadConfigurationException()
+        public void GetConfiguration_ConfigurationFileNotReadable_PropagatesCouldNotLoadConfigurationDiagnostic()
         {
             // Arrange.
             var configurataionPath = CreatePath("path/to/bicepconfig.json");
@@ -286,13 +279,14 @@ namespace Bicep.Core.UnitTests.Configuration
             var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
 
             // Act & Assert.
-            FluentActions.Invoking(() => sut.GetConfiguration(sourceFileUri)).Should()
-                .Throw<ConfigurationException>()
-                .WithMessage($"Could not load the Bicep configuration file \"{configurataionPath}\": \"Not allowed.\".");
+            var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
+            diagnostics.Count.Should().Be(1);
+            diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
+            diagnostics[0].Message.Should().Be($"Could not load the Bicep configuration file \"{configurataionPath}\": \"Not allowed.\".");
         }
 
         [TestMethod]
-        public void GetConfiguration_IOExceptionWhenDiscovringConfiguration_ReturnsDefaultConfiguration()
+        public void GetConfiguration_IOExceptionWhenDiscovringConfiguration_ReturnsDefaultConfigurationWithInfoDiagnostic()
         {
             // Arrange.
             var fileSystemMock = StrictMock.Of<IFileSystem>();
@@ -302,11 +296,16 @@ namespace Bicep.Core.UnitTests.Configuration
             fileSystemMock.Setup(x => x.Directory.GetParent(It.IsAny<string>())).Throws(new IOException("Oops."));
 
             var sut = new ConfigurationManager(fileSystemMock.Object);
-            var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
+            var configurataionPath = CreatePath("path/to/main.bicep");
+            var sourceFileUri = new Uri(configurataionPath);
             var configuration = sut.GetConfiguration(sourceFileUri);
 
             // Act & Assert.
-            configuration.Should().BeSameAs(sut.GetBuiltInConfiguration());
+            var diagnostics = configuration.DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
+            diagnostics.Count.Should().Be(1);
+            diagnostics[0].Level.Should().Be(DiagnosticLevel.Info);
+            diagnostics[0].Message.Should().Be("Error scanning \"foo\" for bicep configuration: \"Oops.\".");
+            configuration.ToUtf8Json().Should().Be(IConfigurationManager.GetBuiltInConfiguration().ToUtf8Json());
         }
 
         [DataTestMethod]
@@ -314,7 +313,7 @@ namespace Bicep.Core.UnitTests.Configuration
   ""cloud"": {
     ""currentProfile"": ""MyCloud""
   }
-}", "The cloud profile \"MyCloud\" does not exist in the Bicep configuration \"*\". Available profiles include \"AzureChinaCloud\", \"AzureCloud\", \"AzureUSGovernment\".")]
+}", "The cloud profile \"MyCloud\" does not exist in the Bicep configuration \"__CONFIGURATION_PATH__\". Available profiles include \"AzureChinaCloud\", \"AzureCloud\", \"AzureUSGovernment\".")]
         [DataRow(@"{
   ""cloud"": {
     ""currentProfile"": ""MyCloud"",
@@ -323,7 +322,7 @@ namespace Bicep.Core.UnitTests.Configuration
       }
     }
   }
-}", "The cloud profile \"MyCloud\" in the Bicep configuration \"*\". The \"resourceManagerEndpoint\" property cannot be null or undefined.")]
+}", "The cloud profile \"MyCloud\" in the Bicep configuration \"__CONFIGURATION_PATH__\". The \"resourceManagerEndpoint\" property cannot be null or undefined.")]
         [DataRow(@"{
   ""cloud"": {
     ""currentProfile"": ""MyCloud"",
@@ -333,7 +332,7 @@ namespace Bicep.Core.UnitTests.Configuration
       }
     }
   }
-}", "The cloud profile \"MyCloud\" in the Bicep configuration \"*\" is invalid. The value of the \"resourceManagerEndpoint\" property \"Not and URL\" is not a valid URL.")]
+}", "The cloud profile \"MyCloud\" in the Bicep configuration \"__CONFIGURATION_PATH__\" is invalid. The value of the \"resourceManagerEndpoint\" property \"Not and URL\" is not a valid URL.")]
         [DataRow(@"{
   ""cloud"": {
     ""currentProfile"": ""MyCloud"",
@@ -344,7 +343,7 @@ namespace Bicep.Core.UnitTests.Configuration
     }
   }
 }",
-            "The cloud profile \"MyCloud\" in the Bicep configuration \"*\". The \"activeDirectoryAuthority\" property cannot be null or undefined.")]
+            "The cloud profile \"MyCloud\" in the Bicep configuration \"__CONFIGURATION_PATH__\". The \"activeDirectoryAuthority\" property cannot be null or undefined.")]
         [DataRow(@"{
   ""cloud"": {
     ""currentProfile"": ""MyCloud"",
@@ -355,23 +354,24 @@ namespace Bicep.Core.UnitTests.Configuration
       }
     }
   }
-}", "The cloud profile \"MyCloud\" in the Bicep configuration \"*\" is invalid. The value of the \"activeDirectoryAuthority\" property \"Not an URL\" is not a valid URL.")]
-        public void GetConfiguration_InvalidCurrentCloudProfile_ThrowsConfigurationException(string configurationContents, string expectedExceptionMessage)
+}", "The cloud profile \"MyCloud\" in the Bicep configuration \"__CONFIGURATION_PATH__\" is invalid. The value of the \"activeDirectoryAuthority\" property \"Not an URL\" is not a valid URL.")]
+        public void GetConfiguration_InvalidCurrentCloudProfile_PropagatesConfigurationDiagnostic(string configurationContents, string expectedExceptionMessage)
         {
             // Arrange.
-            var configurataionPath = CreatePath("path/to/bicepconfig.json");
+            var configurationPath = CreatePath("path/to/bicepconfig.json");
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                [configurataionPath] = configurationContents,
+                [configurationPath] = configurationContents,
             });
 
             var sut = new ConfigurationManager(fileSystem);
             var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
 
             // Act & Assert.
-            FluentActions.Invoking(() => sut.GetConfiguration(sourceFileUri)).Should()
-                .Throw<ConfigurationException>()
-                .WithMessage(expectedExceptionMessage);
+            var diagnostics = sut.GetConfiguration(sourceFileUri).DiagnosticBuilders.Select(b => b(DiagnosticBuilder.ForDocumentStart())).ToList();
+            diagnostics.Count.Should().Be(1);
+            diagnostics[0].Level.Should().Be(DiagnosticLevel.Error);
+            diagnostics[0].Message.Should().Be($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\": \"{expectedExceptionMessage.Replace("__CONFIGURATION_PATH__", configurationPath)}\".");
         }
 
         [TestMethod]

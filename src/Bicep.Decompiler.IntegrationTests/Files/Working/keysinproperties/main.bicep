@@ -18,34 +18,34 @@ param sftpPassword string
 @description('Primary location for resources')
 param location string = resourceGroup().location
 
-var scriptName_var = 'createFileShare'
-var identityName_var = 'scratch'
+var scriptName = 'createFileShare'
+var identityName = 'scratch'
 var roleDefinitionId = resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')
-var roleDefinitionName_var = guid(identityName_var, roleDefinitionId)
+var roleDefinitionName = guid(identityName, roleDefinitionId)
 var sftpContainerName = 'sftp'
-var sftpContainerGroupName_var = 'sftp-group'
+var sftpContainerGroupName = 'sftp-group'
 var sftpContainerImage = 'atmoz/sftp:latest'
 var sftpEnvVariable = '${sftpUser}:${sftpPassword}:1001'
-var storageAccountName_var = 'sftpstg${uniqueString(resourceGroup().id)}'
+var storageAccountName = 'sftpstg${uniqueString(resourceGroup().id)}'
 
-resource identityName 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
-  name: identityName_var
+resource identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+  name: identityName
   location: location
 }
 
-resource roleDefinitionName 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: roleDefinitionName_var
+resource roleDefinition 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+  name: roleDefinitionName
   properties: {
     roleDefinitionId: roleDefinitionId
-    principalId: identityName.properties.principalId
+    principalId: identity.properties.principalId
     scope: resourceGroup().id
 //@[4:9) [BCP073 (Warning)] The property "scope" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |scope|
     principalType: 'ServicePrincipal'
   }
 }
 
-resource storageAccountName 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-  name: storageAccountName_var
+resource storageAccount 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: storageAccountName
   location: location
   sku: {
     name: storageAccountType
@@ -54,37 +54,37 @@ resource storageAccountName 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   properties: {
   }
   dependsOn: [
-    roleDefinitionName
+    roleDefinition
   ]
 }
 
-resource scriptName 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
-  name: scriptName_var
+resource script 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
+  name: scriptName
   location: location
   kind: 'AzurePowerShell'
   identity: {
     type: 'userAssigned'
     userAssignedIdentities: {
-      '${identityName.id}': {
+      '${identity.id}': {
       }
     }
   }
   properties: {
     forceUpdateTag: '1'
     azPowerShellVersion: '3.0'
-    arguments: ' -storageAccountName ${storageAccountName_var} -fileShareName ${fileShareName} -resourceGroupName ${resourceGroup().name}'
+    arguments: ' -storageAccountName ${storageAccountName} -fileShareName ${fileShareName} -resourceGroupName ${resourceGroup().name}'
     scriptContent: '\n                param(\n                    [string] $storageAccountName,\n                    [string] $fileShareName,\n                    [string] $resourceGroupName\n                )\n                Get-AzStorageAccount -StorageAccountName $storageAccountName -ResourceGroupName $resourceGroupName | New-AzStorageShare -Name $fileShareName\n                '
     timeout: 'PT5M'
     cleanupPreference: 'OnSuccess'
     retentionInterval: 'P1D'
   }
   dependsOn: [
-    storageAccountName
+    storageAccount
   ]
 }
 
-resource sftpContainerGroupName 'Microsoft.ContainerInstance/containerGroups@2019-12-01' = {
-  name: sftpContainerGroupName_var
+resource sftpContainerGroup 'Microsoft.ContainerInstance/containerGroups@2019-12-01' = {
+  name: sftpContainerGroupName
   location: location
   properties: {
     containers: [
@@ -136,15 +136,15 @@ resource sftpContainerGroupName 'Microsoft.ContainerInstance/containerGroups@201
         azureFile: {
           readOnly: false
           shareName: fileShareName
-          storageAccountName: storageAccountName_var
-          storageAccountKey: listKeys(storageAccountName_var, '2018-02-01').keys[0].value
+          storageAccountName: storageAccountName
+          storageAccountKey: listKeys(storageAccountName, '2018-02-01').keys[0].value
         }
       }
     ]
   }
   dependsOn: [
-    scriptName
+    script
   ]
 }
 
-output containerIPv4Address string = sftpContainerGroupName.properties.ipAddress.ip
+output containerIPv4Address string = sftpContainerGroup.properties.ipAddress.ip

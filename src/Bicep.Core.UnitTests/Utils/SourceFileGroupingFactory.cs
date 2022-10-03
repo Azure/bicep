@@ -21,6 +21,9 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         public static SourceFileGrouping CreateForFiles(IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri, IFileResolver fileResolver, RootConfiguration configuration, IFeatureProvider? features = null)
+            => CreateForFiles(fileContentsByUri, entryFileUri, fileResolver, IConfigurationManager.WithStaticConfiguration(configuration), features);
+
+        public static SourceFileGrouping CreateForFiles(IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri, IFileResolver fileResolver, IConfigurationManager configurationManager, IFeatureProvider? features = null)
         {
             features ??= BicepTestConstants.Features;
             var workspace = new Workspace();
@@ -34,10 +37,11 @@ namespace Bicep.Core.UnitTests.Utils
                         fileResolver,
                         BicepTestConstants.ClientFactory,
                         BicepTestConstants.TemplateSpecRepositoryFactory,
-                        features)),
+                        features,
+                        configurationManager),
+                    configurationManager),
                 workspace,
-                entryFileUri,
-                configuration);
+                entryFileUri);
         }
     }
 }

@@ -47,6 +47,6 @@ namespace Bicep.Core.UnitTests.Assertions
             return new(this);
         }
 
-        private Diagnostic GetDiagnosticFromSubject() => this.Subject(DiagnosticBuilder.ForPosition(new TextSpan(0, 0)));
+        private Diagnostic GetDiagnosticFromSubject() => this.Subject(DiagnosticBuilder.ForDocumentStart());
     }
 }

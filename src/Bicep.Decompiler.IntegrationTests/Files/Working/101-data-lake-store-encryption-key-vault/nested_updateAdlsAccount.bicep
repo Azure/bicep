@@ -12,7 +12,7 @@ param keyName string
 @description('The Azure Key Vault encryption key version.')
 param keyVersion string
 
-resource dataLakeStoreName_resource 'Microsoft.DataLakeStore/accounts@2016-11-01' = {
+resource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {
   name: dataLakeStoreName
   location: location
   properties: {

@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.IO;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -46,7 +48,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static LocalModuleReference Parse(string package)
         {
-            var parsed = LocalModuleReference.TryParse(package, out var failureBuilder);
+            LocalModuleReference.TryParse(package, PathHelper.FilePathToFileUrl(Path.GetTempFileName()), out var parsed, out var failureBuilder);
             parsed.Should().NotBeNull();
             failureBuilder.Should().BeNull();
             return parsed!;

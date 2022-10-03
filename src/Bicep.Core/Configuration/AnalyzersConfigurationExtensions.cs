@@ -27,16 +27,18 @@ namespace Bicep.Core.Configuration
                 analyzersConfiguration.Cloud,
                 analyzersConfiguration.ModuleAliases,
                 analyzersConfiguration.Analyzers.WithAllAnalyzersDisabled(),
-                analyzersConfiguration.ConfigurationPath);
+                analyzersConfiguration.ConfigurationPath,
+                analyzersConfiguration.DiagnosticBuilders);
         }
 
         public static RootConfiguration  WithAnalyzersDisabled(this RootConfiguration analyzersConfiguration, params string[] analyzerCodesToDisable)
         {
             return new RootConfiguration(
-                           analyzersConfiguration.Cloud,
-                           analyzersConfiguration.ModuleAliases,
-                           analyzersConfiguration.Analyzers.WithAnalyzersDisabled(analyzerCodesToDisable),
-                           analyzersConfiguration.ConfigurationPath);
+                analyzersConfiguration.Cloud,
+                analyzersConfiguration.ModuleAliases,
+                analyzersConfiguration.Analyzers.WithAnalyzersDisabled(analyzerCodesToDisable),
+                analyzersConfiguration.ConfigurationPath,
+                analyzersConfiguration.DiagnosticBuilders);
         }
     }
 }

@@ -11,6 +11,8 @@ namespace Bicep.Core.Parsing
     {
         private static readonly Regex TextSpanPattern = new Regex(@"^\[(?<startInclusive>\d+)\:(?<endExclusive>\d+)\]$", RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+        public static readonly TextSpan TextDocumentStart = new(0, 0);
+
         public TextSpan(int position, int length)
         {
             if (position < 0)
