@@ -6,13 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 
 namespace Bicep.Core.UnitTests.Features;
 
@@ -21,49 +19,6 @@ public class FeatureProviderTests
 {
     [NotNull]
     public TestContext? TestContext { get; set; }
-
-    [TestMethod]
-    public void PropertyLookup_FallsBackToDefaultIfNoSourcesSupplyIt()
-    {
-        var sources = Enumerable.Range(0, 3).Select(i => {
-            var mock = new Mock<IFeatureProviderSource>(MockBehavior.Strict);
-            mock.Setup(s => s.Priority).Returns((sbyte) i);
-            mock.Setup(s => s.ImportsEnabled).Returns(new Nullable<bool>());
-            return mock;
-        }).ToArray();
-        var defaults = new Mock<IFeatureProvider>(MockBehavior.Strict);
-        defaults.Setup(d => d.ImportsEnabled).Returns(true);
-
-        var sut = new FeatureProvider(defaults.Object, sources.Select(s => s.Object));
-        sut.ImportsEnabled.Should().BeTrue();
-
-        foreach (var source in sources)
-        {
-            source.Verify(s => s.ImportsEnabled, Times.Once);
-        }
-    }
-
-    [TestMethod]
-    public void PropertyLookup_PollsSourcesInPriorityOrder()
-    {
-        var sources = Enumerable.Range(1, 3).Select(i => {
-            var mock = new Mock<IFeatureProviderSource>(MockBehavior.Strict);
-            mock.Setup(s => s.Priority).Returns((sbyte) -i);
-            mock.Setup(s => s.ImportsEnabled).Returns(i == 3 ? new Nullable<bool>(true) : new Nullable<bool>(false));
-            return mock;
-        }).ToArray();
-        var defaults = new Mock<IFeatureProvider>(MockBehavior.Strict);
-
-        var sut = new FeatureProvider(defaults.Object, sources.Select(s => s.Object));
-        sut.ImportsEnabled.Should().BeTrue();
-
-        defaults.Verify(d => d.ImportsEnabled, Times.Never);
-        sources[^1].Verify(s => s.ImportsEnabled, Times.Once);
-        foreach(var source in sources[..^1])
-        {
-            source.Verify(s => s.ImportsEnabled, Times.Never);
-        }
-    }
 
     [TestMethod]
     public void PropertyLookup_WithNothingConfigured_ReturnsDefault()

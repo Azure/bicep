@@ -46,13 +46,13 @@ namespace Bicep.Cli
 
             BicepDeploymentsInterop.Initialize();
 
-            if (IFeatureProvider.TracingEnabled)
+            if (FeatureProvider.TracingEnabled)
             {
                 Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             }
 
             // this event listener picks up SDK events and writes them to Trace.WriteLine()
-            using (IFeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(IFeatureProvider.TracingVerbosity) : null)
+            using (FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
             {
                 var program = new Program(new InvocationContext(
                     new AzResourceTypeLoader(),

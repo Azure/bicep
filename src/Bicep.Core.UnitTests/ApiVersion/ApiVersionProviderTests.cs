@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
+using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
@@ -82,6 +83,6 @@ namespace Bicep.Core.UnitTests.ApiVersions
         }
 
         private ApiVersionProvider CreateDefaultApiVersionProvider()
-            => new ApiVersionProvider(IFeatureProviderFactory.FeatureDefaults, new DefaultNamespaceProvider(new AzResourceTypeLoader()));
+            => new ApiVersionProvider(new FeatureProvider(IConfigurationManager.GetBuiltInConfiguration()), new DefaultNamespaceProvider(new AzResourceTypeLoader()));
     }
 }

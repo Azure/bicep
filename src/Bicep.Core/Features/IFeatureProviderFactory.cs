@@ -8,8 +8,6 @@ public interface IFeatureProviderFactory
 {
     IFeatureProvider GetFeatureProvider(Uri templateUri);
 
-    static IFeatureProvider FeatureDefaults = new DefaultsFeatureProvider();
-
     static IFeatureProviderFactory WithStaticFeatureProvider(IFeatureProvider featureProvider)
         => new ConstantFeatureProviderFactory(featureProvider);
 

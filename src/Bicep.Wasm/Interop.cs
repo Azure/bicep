@@ -26,7 +26,9 @@ namespace Bicep.Wasm
 {
     public class Interop
     {
-        private static readonly IFeatureProviderFactory featureProviderFactory = IFeatureProviderFactory.WithStaticFeatureProvider(IFeatureProviderFactory.FeatureDefaults);
+        private static readonly IConfigurationManager configurationManager = IConfigurationManager.WithStaticConfiguration(IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled());
+
+        private static readonly IFeatureProviderFactory featureProviderFactory = new FeatureProviderFactory(configurationManager);
 
         private static readonly INamespaceProvider namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
 
@@ -168,7 +170,6 @@ namespace Bicep.Wasm
             workspace.UpsertSourceFile(sourceFile);
 
             var fileResolver = new FileResolver();
-            var configurationManager = IConfigurationManager.WithStaticConfiguration(IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled());
             var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider(), configurationManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri);
 
