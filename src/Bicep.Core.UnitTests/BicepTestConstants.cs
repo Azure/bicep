@@ -48,7 +48,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IAzResourceTypeLoader AzResourceTypeLoader = new AzResourceTypeLoader();
 
-        public static readonly INamespaceProvider NamespaceProvider = TestTypeHelper.CreateWithAzTypes();
+        public static readonly INamespaceProvider NamespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
 
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 

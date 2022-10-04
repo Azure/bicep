@@ -13,6 +13,8 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class SourceFileGroupingFactory
     {
+        private static ServiceBuilder Services => new ServiceBuilder().WithTestDefaults();
+
         public static SourceFileGrouping CreateFromText(string text, IFileResolver fileResolver)
         {
             var entryFileUri = new Uri("file:///main.bicep");
@@ -25,23 +27,12 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static SourceFileGrouping CreateForFiles(IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri, IFileResolver fileResolver, IConfigurationManager configurationManager, IFeatureProvider? features = null)
         {
-            features ??= BicepTestConstants.Features;
-            var workspace = new Workspace();
-            var sourceFiles = fileContentsByUri.Select(kvp => SourceFileFactory.CreateSourceFile(kvp.Key, kvp.Value));
-            workspace.UpsertSourceFiles(sourceFiles);
-
-            return SourceFileGroupingBuilder.Build(
-                fileResolver,
-                new ModuleDispatcher(
-                    new DefaultModuleRegistryProvider(
-                        fileResolver,
-                        BicepTestConstants.ClientFactory,
-                        BicepTestConstants.TemplateSpecRepositoryFactory,
-                        features,
-                        configurationManager),
-                    configurationManager),
-                workspace,
-                entryFileUri);
+            return Services
+                .WithWorkspaceFiles(fileContentsByUri)
+                .WithFileResolver(fileResolver)
+                .WithConfigurationManager(configurationManager)
+                .WithFeatureProvider(features ?? BicepTestConstants.Features)
+                .SourceFileGrouping.Build(entryFileUri);
         }
     }
 }

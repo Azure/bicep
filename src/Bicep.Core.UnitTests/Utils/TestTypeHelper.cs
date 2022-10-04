@@ -40,14 +40,8 @@ namespace Bicep.Core.UnitTests.Utils
         public static IAzResourceTypeLoader CreateAzResourceTypeLoaderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
             => new TestResourceTypeLoader(resourceTypes);
 
-        public static INamespaceProvider CreateProviderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
-            => new DefaultNamespaceProvider(CreateAzResourceTypeLoaderWithTypes(resourceTypes));
-
         public static INamespaceProvider CreateEmptyProvider()
-            => CreateProviderWithTypes(Enumerable.Empty<ResourceTypeComponents>());
-
-        public static INamespaceProvider CreateWithAzTypes()
-            => new DefaultNamespaceProvider(new AzResourceTypeLoader());
+            => new DefaultNamespaceProvider(CreateAzResourceTypeLoaderWithTypes(Enumerable.Empty<ResourceTypeComponents>()));
 
         public static ResourceTypeComponents CreateCustomResourceType(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, params TypeProperty[] customProperties)
             => CreateCustomResourceTypeWithTopLevelProperties(fullyQualifiedType, apiVersion, validationFlags, null, customProperties);

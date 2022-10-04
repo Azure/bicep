@@ -38,6 +38,8 @@ namespace Bicep.LangServer.IntegrationTests
     [TestClass]
     public class CodeActionTests
     {
+        private static ServiceBuilder Services => new ServiceBuilder().WithTestDefaults();
+
         private const string SecureTitle = "Add @secure";
         private const string DescriptionTitle = "Add @description";
         private const string AllowedTitle = "Add @allowed";
@@ -236,7 +238,7 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
             fileSystemDict[bicepConfigUri.ToUri()] = bicepConfigFileContents;
 
-            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(fileSystemDict, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+            var compilation = Services.Compilation.Build(SourceFileGroupingFactory.CreateForFiles(fileSystemDict, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration));
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
             diagnostics.Should().HaveCount(1);
@@ -275,7 +277,7 @@ resource test";
                 [uri] = bicepFileContents,
             };
 
-            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+            var compilation = Services.Compilation.Build(SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration));
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
             diagnostics.Should().HaveCount(2);
@@ -337,7 +339,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
                 [uri] = bicepFileContents,
             };
 
-            var compilation = new Compilation(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+            var compilation = Services.Compilation.Build(SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration));
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
             diagnostics.Should().HaveCount(3);

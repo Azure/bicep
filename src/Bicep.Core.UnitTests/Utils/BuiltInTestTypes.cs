@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
@@ -242,16 +243,18 @@ namespace Bicep.Core.UnitTests.Utils
                     overloads));
         }
 
+        public static ImmutableArray<ResourceTypeComponents> Types { get; } = new [] {
+            BasicTestsType(),
+            ReadWriteTestsType(),
+            ReadOnlyTestsType(),
+            DiscriminatorTestsType(),
+            DiscriminatedPropertiesTestsType(),
+            DiscriminatedPropertiesTestsType2(),
+            FallbackPropertyTestsType(),
+            ListFunctionsType(),
+        }.ToImmutableArray();
+
         public static INamespaceProvider Create()
-            => TestTypeHelper.CreateProviderWithTypes(new[] {
-                BasicTestsType(),
-                ReadWriteTestsType(),
-                ReadOnlyTestsType(),
-                DiscriminatorTestsType(),
-                DiscriminatedPropertiesTestsType(),
-                DiscriminatedPropertiesTestsType2(),
-                FallbackPropertyTestsType(),
-                ListFunctionsType(),
-            });
+            => new DefaultNamespaceProvider(TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(Types));
     }
 }

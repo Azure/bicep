@@ -38,7 +38,7 @@ namespace Bicep.LangServer.UnitTests
             var configurationManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features, configurationManager), configurationManager);
 
-            var provider = new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateWithAzTypes(), fileResolver, dispatcher, BicepTestConstants.ApiVersionProvider, configurationManager);
+            var provider = new BicepCompilationProvider(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, fileResolver, dispatcher, BicepTestConstants.ApiVersionProvider, configurationManager);
 
             var sourceFile = SourceFileFactory.CreateSourceFile(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
             var workspace = new Workspace();

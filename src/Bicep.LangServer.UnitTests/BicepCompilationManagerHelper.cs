@@ -53,7 +53,7 @@ namespace Bicep.LangServer.UnitTests
             var server = CreateMockServer(document);
             var configManager = new ConfigurationManager(new IOFileSystem());
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features, configManager), configManager);
-            var provider = new BicepCompilationProvider(BicepTestConstants.Features, TestTypeHelper.CreateWithAzTypes(), FileResolver, dispatcher, BicepTestConstants.ApiVersionProvider, configManager);
+            var provider = new BicepCompilationProvider(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, FileResolver, dispatcher, BicepTestConstants.ApiVersionProvider, configManager);
 
             return new BicepParamsCompilationManager(server.Object, provider, configManager, BicepTestConstants.FileResolver, dispatcher, new Workspace(), BicepTestConstants.Features, BicepTestConstants.ApiVersionProvider, BicepTestConstants.NamespaceProvider);
         }
