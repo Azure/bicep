@@ -10,6 +10,9 @@ using System.Collections.Generic;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Newtonsoft.Json.Linq;
+using Bicep.Core.UnitTests.FileSystem;
+using System.IO.Abstractions.TestingHelpers;
+using System.Linq;
 
 namespace Bicep.Core.IntegrationTests.Scenarios
 {
@@ -105,6 +108,22 @@ output out string = message
             }
         }
 
+        private static CompilationHelper.CompilationResult CreateLoadTextContentTestCompilation(string encodingName)
+        {
+            var encoding = LanguageConstants.SupportedEncodings.TryGetValue(encodingName, out var val) ? val : Encoding.UTF8;
+
+            var files = new Dictionary<Uri, MockFileData>
+            {
+                [new Uri("file:///main.bicep")] = new(@"
+var message = loadTextContent('message.txt', '" + encodingName + @"')
+
+output out string = message
+"),
+                [new Uri("file:///message.txt")] = new(TEXT_CONTENT, encoding),
+            };
+
+            return CompilationHelper.Compile(new(), new InMemoryFileResolver(files), files.Keys, new Uri("file:///main.bicep"));
+        }
 
         [DataTestMethod]
         [DataRow("utf-8")]
@@ -114,13 +133,7 @@ output out string = message
         [DataRow("iso-8859-1")]
         public void LoadTextContent_AcceptsAvailableEncoding(string encoding)
         {
-            var (template, diags, _) = CompilationHelper.Compile(
-    ("main.bicep", @"
-var message = loadTextContent('message.txt', '" + encoding + @"')
-
-output out string = message
-"),
-    ("message.txt", TEXT_CONTENT));
+            var (template, diags, _) = CreateLoadTextContentTestCompilation(encoding);
 
             diags.ExcludingLinterDiagnostics().Should().BeEmpty();
             template!.Should().NotBeNull();
@@ -142,11 +155,7 @@ output out string = message
         public void LoadTextContent_DisallowsUnknownEncoding(string encoding)
         {
             //notice - here we will not test actual loading file with given encoding - just the fact that bicep function accepts all .NET available encodings
-            var (template, diags, _) = CompilationHelper.Compile(
-    ("main.bicep", @"
-var message = 'Body: ${loadTextContent('message.txt', '" + encoding + @"')}'
-"),
-    ("message.txt", TEXT_CONTENT));
+            var (template, diags, _) = CreateLoadTextContentTestCompilation(encoding);
 
             template!.Should().BeNull();
             diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
@@ -160,12 +169,7 @@ var message = 'Body: ${loadTextContent('message.txt', '" + encoding + @"')}'
         public void LoadTextContent_DisallowsUnknownEncoding_passedFromVariable(string encoding)
         {
             //notice - here we will not test actual loading file with given encoding - just the fact that bicep function accepts all .NET available encodings
-            var (template, diags, _) = CompilationHelper.Compile(
-    ("main.bicep", @"
-var encoding = '" + encoding + @"'
-var message = 'Body: ${loadTextContent('message.txt', encoding)}'
-"),
-    ("message.txt", TEXT_CONTENT));
+            var (template, diags, _) = CreateLoadTextContentTestCompilation(encoding);
 
             template!.Should().BeNull();
             diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
@@ -459,7 +463,8 @@ output out string = script
     ("script.sh", TEXT_CONTENT));
 
             template!.Should().BeNull();
-            diags.Should().ContainDiagnostic("BCP091", Diagnostics.DiagnosticLevel.Error, "An error occurred reading file. Could not find file \"/path/to/script.cmd\"");
+            var scriptFilePath = InMemoryFileResolver.GetFileUri("/path/to/script.cmd").LocalPath;
+            diags.Should().ContainDiagnostic("BCP091", Diagnostics.DiagnosticLevel.Error, $"An error occurred reading file. Could not find file '{scriptFilePath}'.");
         }
 
         /**** loadJsonContent ****/
@@ -639,6 +644,21 @@ var fileObj = loadJsonContent('file.json', '" + path + @"')
             }
         }
 
+        private static CompilationHelper.CompilationResult CreateLoadJsonContentTestCompilation(string encodingName)
+        {
+            var encoding = LanguageConstants.SupportedEncodings.TryGetValue(encodingName, out var val) ? val : Encoding.UTF8;
+
+            var files = new Dictionary<Uri, MockFileData>
+            {
+                [new Uri("file:///main.bicep")] = new(@"
+var fileObj = loadJsonContent('file.json', '$', '" + encodingName + @"')
+"),
+                [new Uri("file:///file.json")] = new(TEST_JSON, encoding),
+            };
+
+            return CompilationHelper.Compile(new(), new InMemoryFileResolver(files), files.Keys, new Uri("file:///main.bicep"));
+        }
+
         [DataTestMethod]
         [DataRow("utf-8")]
         [DataRow("utf-16BE")]
@@ -647,11 +667,7 @@ var fileObj = loadJsonContent('file.json', '" + path + @"')
         [DataRow("iso-8859-1")]
         public void LoadJsonContent_AcceptsAvailableEncoding(string encoding)
         {
-            var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", @"
-var fileObj = loadJsonContent('file.json', '$', '" + encoding + @"')
-"),
-                ("file.json", TEST_JSON));
+            var (template, diags, _) = CreateLoadJsonContentTestCompilation(encoding);
 
             using (new AssertionScope())
             {
@@ -676,11 +692,8 @@ var fileObj = loadJsonContent('file.json', '$', '" + encoding + @"')
         public void LoadJsonContent_DisallowsUnknownEncoding(string encoding)
         {
             //notice - here we will not test actual loading file with given encoding - just the fact that bicep function accepts all .NET available encodings
-            var (template, diags, _) = CompilationHelper.Compile(
-                ("main.bicep", @"
-var fileObj = loadJsonContent('message.txt', '$', '" + encoding + @"')'
-"),
-                ("file.json", TEST_JSON));
+            var (template, diags, _) = CreateLoadJsonContentTestCompilation(encoding);
+
             using (new AssertionScope())
             {
                 template!.Should().BeNull();

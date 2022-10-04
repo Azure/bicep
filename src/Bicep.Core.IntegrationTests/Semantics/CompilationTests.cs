@@ -16,7 +16,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [TestMethod]
         public void EmptyProgram_SourceFileGrouping_should_be_persisted()
         {
-            var fileResolver = new FileResolver();
+            var fileResolver = BicepTestConstants.FileResolver;
             var program = SourceFileGroupingFactory.CreateFromText(DataSets.Empty.Bicep, fileResolver);
             var compilation = new Compilation(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), program, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
 

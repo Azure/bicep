@@ -12,6 +12,7 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Assertions;
@@ -428,7 +429,7 @@ resource foo 'Test.Rp/basicTests@2020-01-01'
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
 resource bar 'Test.Rp/basicTests@2020-01-01'
 ```
-This resource also has a description!  
+This resource also has a description!  " + @"
 [View Type Documentation](https://docs.microsoft.com/azure/templates/test.rp/basictests?tabs=bicep)
 "),
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
@@ -565,7 +566,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
 
                 switch (symbol)
                 {
-                    
+
                     case MetadataSymbol metadata:
                         tooltip.Should().Contain($"metadata {metadata.Name}: {metadata.Type}");
                         break;

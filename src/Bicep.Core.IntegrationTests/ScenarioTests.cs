@@ -3013,7 +3013,7 @@ module test './con'
 module test './con.txt'
 
 ");
-            var fileResolver = new FileResolver();
+            var fileResolver = BicepTestConstants.FileResolver;
             var features = BicepTestConstants.Features;
             var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(ImmutableDictionary.Create<Uri, string>(), new Uri(inputFile), fileResolver, BicepTestConstants.BuiltInOnlyConfigurationManager, features);
 

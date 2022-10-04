@@ -63,18 +63,20 @@ namespace Bicep.Core.Emit
 
         private static readonly Regex JsonWhitespaceStrippingRegex = new(@"(""(?:[^""\\]|\\.)*"")|\s+", RegexOptions.Compiled);
 
+        private readonly IFileResolver fileResolver;
         private readonly RawSourceMap rawSourceMap;
         private readonly BicepFile? sourceFile;
         private readonly PositionTrackingTextWriter trackingWriter;
 
-        public static PositionTrackingJsonTextWriter Create(TextWriter textWriter, BicepFile? sourceFile = null)
+        public PositionTrackingJsonTextWriter(IFileResolver fileResolver, TextWriter textWriter, BicepFile? sourceFile = null)
+            : this(fileResolver, new(textWriter), sourceFile)
         {
-            var trackingWriter = new PositionTrackingTextWriter(textWriter);
-            return new PositionTrackingJsonTextWriter(trackingWriter, sourceFile);
         }
 
-        private PositionTrackingJsonTextWriter(PositionTrackingTextWriter trackingWriter, BicepFile? sourceFile) : base(trackingWriter)
+        private PositionTrackingJsonTextWriter(IFileResolver fileResolver, PositionTrackingTextWriter trackingWriter, BicepFile? sourceFile)
+            : base(trackingWriter)
         {
+            this.fileResolver = fileResolver;
             this.sourceFile = sourceFile;
             this.rawSourceMap = new RawSourceMap(new List<RawSourceMapFileEntry>());
             this.trackingWriter = trackingWriter;
@@ -225,7 +227,6 @@ namespace Bicep.Core.Emit
             var sourceMapFileEntries = new List<SourceMapFileEntry>();
             var entrypointFileName = System.IO.Path.GetFileName(sourceFile.FileUri.AbsolutePath);
             var entrypointAbsolutePath = System.IO.Path.GetDirectoryName(sourceFile.FileUri.AbsolutePath)!;
-            var fileResolver = new FileResolver();
 
             foreach (var bicepFileEntry in this.rawSourceMap.Entries)
             {

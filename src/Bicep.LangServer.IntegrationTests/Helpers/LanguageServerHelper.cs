@@ -19,6 +19,7 @@ using Bicep.LanguageServer.Snippets;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using System.Linq;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.FileSystem;
 
 namespace Bicep.LangServer.IntegrationTests
 {

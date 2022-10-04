@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.IO;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Workspaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -31,12 +32,13 @@ namespace Bicep.Core.Emit
         /// <summary>
         /// Creates a JsonTextWriter that is capable of generated a source map for the compiled JSON
         /// </summary>
+        /// <param name="fileResolver"></param>
         /// <param name="textWriter"></param>
         /// <param name="sourceFileToTrack">If set to default, source mapping is disabled</param>
-        public SourceAwareJsonTextWriter(TextWriter textWriter, BicepFile? sourceFileToTrack = default) : base(textWriter)
+        public SourceAwareJsonTextWriter(IFileResolver fileResolver, TextWriter textWriter, BicepFile? sourceFileToTrack = default) : base(textWriter)
         {
             this.sourceFile = sourceFileToTrack;
-            this.TrackingJsonWriter = PositionTrackingJsonTextWriter.Create(new StringWriter(), this.sourceFile);
+            this.TrackingJsonWriter = new PositionTrackingJsonTextWriter(fileResolver, new StringWriter(), this.sourceFile);
         }
 
         public void ProcessSourceMap(JToken templateWithHash)

@@ -1,9 +1,9 @@
 var textLoadDirectory = loadTextContent('Assets/path/to/nothing')
 //@[04:21) [no-unused-vars (Warning)] Variable "textLoadDirectory" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |textLoadDirectory|
-//@[40:64) [BCP091 (Error)] An error occurred reading file. Access to the path '${TEST_OUTPUT_DIR}/Assets/path/to/nothing' is denied. (CodeDescription: none) |'Assets/path/to/nothing'|
+//@[40:64) [BCP275 (Error)] Unable to open file at path "${TEST_OUTPUT_DIR}/Assets/path/to/nothing". Found a directory instead. (CodeDescription: none) |'Assets/path/to/nothing'|
 var binaryLoadDirectory = loadFileAsBase64('Assets/path/to/nothing')
 //@[04:23) [no-unused-vars (Warning)] Variable "binaryLoadDirectory" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |binaryLoadDirectory|
-//@[43:67) [BCP091 (Error)] An error occurred reading file. Access to the path '${TEST_OUTPUT_DIR}/Assets/path/to/nothing' is denied. (CodeDescription: none) |'Assets/path/to/nothing'|
+//@[43:67) [BCP275 (Error)] Unable to open file at path "${TEST_OUTPUT_DIR}/Assets/path/to/nothing". Found a directory instead. (CodeDescription: none) |'Assets/path/to/nothing'|
 
 var textLoadFileMissing = loadTextContent('Assets/nothing.file')
 //@[04:23) [no-unused-vars (Warning)] Variable "textLoadFileMissing" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |textLoadFileMissing|

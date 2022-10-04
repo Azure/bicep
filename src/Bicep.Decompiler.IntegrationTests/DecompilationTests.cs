@@ -19,6 +19,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Baselines;
 using System.Threading;
 using System.Globalization;
+using Bicep.Core.UnitTests.FileSystem;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -50,10 +51,10 @@ namespace Bicep.Core.IntegrationTests
             var jsonFile = baselineFolder.EntryFile;
 
             var jsonUri = PathHelper.FilePathToFileUrl(jsonFile.OutputFilePath);
-            var decompiler = new TemplateDecompiler(BicepTestConstants.FeatureProviderFactory, BicepTestConstants.NamespaceProvider, new FileResolver(), BicepTestConstants.RegistryProvider, BicepTestConstants.ApiVersionProviderFactory);
+            var decompiler = new TemplateDecompiler(BicepTestConstants.FeatureProviderFactory, BicepTestConstants.NamespaceProvider, BicepTestConstants.FileResolver, BicepTestConstants.RegistryProvider, BicepTestConstants.ApiVersionProviderFactory);
             var (bicepUri, filesToSave) = decompiler.DecompileFileWithModules(jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
 
-            var result = CompilationHelper.Compile(bicepUri, filesToSave);
+            var result = CompilationHelper.Compile(new(), new InMemoryFileResolver(filesToSave), filesToSave.Keys, bicepUri);
             var diagnosticsByBicepFile = result.Compilation.GetAllDiagnosticsByBicepFile();
 
             using (new AssertionScope())

@@ -403,12 +403,12 @@ module cwdFileCompletionC 'm'
 
 // #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childFileCompletions
 module childCompletionA 'ChildModules/'
-//@[024:039) [BCP091 (Error)] An error occurred reading file. Access to the path '${TEST_OUTPUT_DIR}/ChildModules/' is denied. (CodeDescription: none) |'ChildModules/'|
+//@[024:039) [BCP275 (Error)] Unable to open file at path "${TEST_OUTPUT_DIR}/ChildModules/". Found a directory instead. (CodeDescription: none) |'ChildModules/'|
 //@[039:039) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotFileCompletions
 module childCompletionB './ChildModules/'
-//@[024:041) [BCP091 (Error)] An error occurred reading file. Access to the path '${TEST_OUTPUT_DIR}/ChildModules/' is denied. (CodeDescription: none) |'./ChildModules/'|
+//@[024:041) [BCP275 (Error)] Unable to open file at path "${TEST_OUTPUT_DIR}/ChildModules/". Found a directory instead. (CodeDescription: none) |'./ChildModules/'|
 //@[041:041) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childDotFileCompletions

@@ -26,7 +26,7 @@ namespace Bicep.LangServer.UnitTests
 {
     public class BicepCompilationManagerHelper
     {
-        private static readonly FileResolver FileResolver = new();
+        private static readonly FileResolver FileResolver = BicepTestConstants.FileResolver;
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
         private static readonly LinterRulesProvider linterRulesProvider = new();
 

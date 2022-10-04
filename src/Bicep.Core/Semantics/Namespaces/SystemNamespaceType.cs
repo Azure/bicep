@@ -732,7 +732,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     errorDiagnostic = DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).CompileTimeConstantRequired();
                     return false;
                 }
-                fileEncoding = LanguageConstants.SupportedEncodings.First(x => string.Equals(x.name, encodingType.RawStringValue, LanguageConstants.IdentifierComparison)).encoding;
+                fileEncoding = LanguageConstants.SupportedEncodings[encodingType.RawStringValue];
             }
 
             if (!fileResolver.TryRead(fileUri, out fileContent, out var fileReadFailureBuilder, fileEncoding, maxCharacters, out var detectedEncoding))

@@ -163,22 +163,23 @@ namespace Bicep.Core
 
         //Type for available loadTextContent encoding
 
-        public static readonly ImmutableArray<(string name, Encoding encoding)> SupportedEncodings = new[]{
-            ("us-ascii", Encoding.ASCII),
-            ("iso-8859-1", Encoding.GetEncoding("iso-8859-1")),
-            ("utf-8", Encoding.UTF8),
-            ("utf-16BE", Encoding.BigEndianUnicode),
-            ("utf-16", Encoding.Unicode)
-        }.ToImmutableArray();
+        public static readonly ImmutableSortedDictionary<string, Encoding> SupportedEncodings = new SortedDictionary<string, Encoding>(IdentifierComparer)
+        {
+            ["us-ascii"] = Encoding.ASCII,
+            ["iso-8859-1"] = Encoding.GetEncoding("iso-8859-1"),
+            ["utf-8"] = Encoding.UTF8,
+            ["utf-16BE"] = Encoding.BigEndianUnicode,
+            ["utf-16"] = Encoding.Unicode,
+        }.ToImmutableSortedDictionary(IdentifierComparer);
 
-        public static readonly TypeSymbol LoadTextContentEncodings = TypeHelper.CreateTypeUnion(SupportedEncodings.Select(s => new StringLiteralType(s.name)));
+        public static readonly TypeSymbol LoadTextContentEncodings = TypeHelper.CreateTypeUnion(SupportedEncodings.Keys.Select(s => new StringLiteralType(s)));
 
         // declares the description property but also allows any other property of any type
         public static readonly TypeSymbol ParameterModifierMetadata = new ObjectType(nameof(ParameterModifierMetadata), TypeSymbolValidationFlags.Default, CreateParameterModifierMetadataProperties(), Any, TypePropertyFlags.Constant);
 
         // types allowed to use in output and parameter declarations
         public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] { String, Object, Int, Bool, Array }.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
-        
+
         public static TypeSymbol? TryGetDeclarationType(string? typeName)
         {
             if (typeName != null && DeclarationTypes.TryGetValue(typeName, out var primitiveType))
