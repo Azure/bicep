@@ -25,6 +25,8 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
     [TestClass]
     public class AzResourceTypeProviderTests
     {
+        private static ServiceBuilder Services => new ServiceBuilder().WithTestDefaults();
+
         private static readonly ImmutableHashSet<string> ExpectedLoopVariantProperties = new[]
         {
             AzResourceTypeProvider.ResourceNamePropertyName,
@@ -162,7 +164,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         {
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             Compilation createCompilation(string program)
-                    => new Compilation(BicepTestConstants.FeatureProviderFactory, new DefaultNamespaceProvider(new AzResourceTypeLoader()), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), IConfigurationManager.WithStaticConfiguration(configuration), BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+                => Services.Compilation.Build(SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"
@@ -178,8 +180,9 @@ resource missingResource 'Mock.Rp/madeUpResourceType@2020-01-01' = {
         [TestMethod]
         public void AzResourceTypeProvider_should_error_for_top_level_system_properties_and_warn_for_rest()
         {
-            Compilation createCompilation(string program)
-                => new Compilation(BicepTestConstants.FeatureProviderFactory, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+            Compilation createCompilation(string program) => Services
+                .WithAzResources(BuiltInTestTypes.Types)
+                .Compilation.Build(SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"

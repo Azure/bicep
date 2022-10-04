@@ -15,6 +15,8 @@ namespace Bicep.Core.UnitTests.Emit
     [TestClass]
     public class ExpressionConverterTests
     {
+        private static ServiceBuilder Services => new ServiceBuilder().WithTestDefaults().WithEmptyAzResources();
+
         [DataTestMethod]
         [DataRow("null", "[null()]")]
         [DataRow("true", "[true()]")]
@@ -60,7 +62,7 @@ namespace Bicep.Core.UnitTests.Emit
         public void ShouldConvertExpressionsCorrectly(string text, string expected)
         {
             var programText = $"var test = {text}";
-            var compilation = new Compilation(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+            var compilation = Services.Compilation.Build(SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver));
 
             var programSyntax = compilation.SourceFileGrouping.EntryPoint.ProgramSyntax;
             var variableDeclarationSyntax = programSyntax.Children.OfType<VariableDeclarationSyntax>().First();
