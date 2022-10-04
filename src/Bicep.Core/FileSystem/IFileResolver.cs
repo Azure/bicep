@@ -59,14 +59,14 @@ namespace Bicep.Core.FileSystem
         /// </summary>
         /// <param name="fileUri">The base fileUri</param>
         /// <param name="pattern">optional pattern to filter the dirs</param>
-        IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern);
+        IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern = "");
 
         /// <summary>
         /// Tries to get Files given a uri and pattern. fileUri MUST have a trailing '/'
         /// </summary>
         /// <param name="fileUri">The base fileUri</param>
         /// <param name="pattern">optional pattern to filter the resulting files</param>
-        IEnumerable<Uri> GetFiles(Uri fileUri, string pattern);
+        IEnumerable<Uri> GetFiles(Uri fileUri, string pattern = "");
 
         /// <summary>
         /// Check whether specified URI's directory exists if specified URI is a file:// URI. fileUri MUST have a trailing '/'

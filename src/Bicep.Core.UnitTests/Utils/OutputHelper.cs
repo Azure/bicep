@@ -170,7 +170,7 @@ namespace Bicep.Core.UnitTests.Utils
             // Normalize file path seperators across OS
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                message = Regex.Replace(message, @"'\${TEST_OUTPUT_DIR}.*?'", new MatchEvaluator((match) => match.Value.Replace('\\', '/')));
+                message = Regex.Replace(message, @"(""|')\${TEST_OUTPUT_DIR}.*?(""|')", new MatchEvaluator((match) => match.Value.Replace('\\', '/')));
             }
 
             var docLink = diagnostic.Uri == null

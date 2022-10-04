@@ -40,7 +40,7 @@ namespace Bicep.Core.UnitTests
 
         public const string GeneratorTemplateHashPath = "metadata._generator.templateHash";
 
-        public static readonly FileResolver FileResolver = new();
+        public static readonly FileResolver FileResolver = new(new IOFileSystem());
 
         public static readonly TestFeatureProvider Features = CreateFeatureProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, sourceMappingEnabled: false, paramsFilesEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
 

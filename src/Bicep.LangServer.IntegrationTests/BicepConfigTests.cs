@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
@@ -421,8 +422,8 @@ namespace Bicep.LangServer.IntegrationTests
             {
                 client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, bicepFileContents, 1));
 
-                await VerifyDiagnosticsAsync(diagsListener, 
-                    mainUri, 
+                await VerifyDiagnosticsAsync(diagsListener,
+                    mainUri,
                     ($"Failed to parse the contents of the Bicep configuration file \"{bicepConfigUri.GetFileSystemPath()}\" as valid JSON",
                         DiagnosticSeverity.Error,
                         new Position(0, 0),
