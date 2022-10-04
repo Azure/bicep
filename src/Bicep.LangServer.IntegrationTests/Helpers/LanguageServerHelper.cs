@@ -14,7 +14,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Bicep.Core.UnitTests.Utils;
 using System.Collections.Generic;
-using Bicep.Core.FileSystem;
 using Bicep.LanguageServer.Snippets;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using System.Linq;
@@ -25,7 +24,7 @@ namespace Bicep.LangServer.IntegrationTests
 {
     public sealed class LanguageServerHelper : IDisposable
     {
-        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.ModuleDispatcher, BicepTestConstants.LinterAnalyzer);
+        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.ModuleDispatcher, BicepTestConstants.LinterAnalyzer);
 
         public Server Server { get; }
         public ILanguageClient Client { get; }
@@ -50,7 +49,7 @@ namespace Bicep.LangServer.IntegrationTests
             creationOptions ??= new Server.CreationOptions();
             creationOptions = creationOptions with
             {
-                Features = creationOptions.Features ?? BicepTestConstants.Features,
+                FeatureProviderFactory = creationOptions.FeatureProviderFactory ?? BicepTestConstants.FeatureProviderFactory,
                 SnippetsProvider = creationOptions.SnippetsProvider ?? SnippetsProvider,
                 FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string>()),
                 ModuleRestoreScheduler = creationOptions.ModuleRestoreScheduler ?? BicepTestConstants.ModuleRestoreScheduler

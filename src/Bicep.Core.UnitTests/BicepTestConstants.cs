@@ -44,6 +44,8 @@ namespace Bicep.Core.UnitTests
 
         public static readonly TestFeatureProvider Features = CreateFeatureProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, sourceMappingEnabled: false, paramsFilesEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
 
+        public static readonly IFeatureProviderFactory FeatureProviderFactory = IFeatureProviderFactory.WithStaticFeatureProvider(Features);
+
         public static readonly EmitterSettings EmitterSettings = new EmitterSettings(Features);
 
         public static readonly IAzResourceTypeLoader AzResourceTypeLoader = new AzResourceTypeLoader();
@@ -70,7 +72,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration);
 
-        public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, TemplateSpecRepositoryFactory, Features, BuiltInOnlyConfigurationManager);
+        public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
 
         public static readonly IModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration));
 
@@ -79,6 +81,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
         public static readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider(Features, new DefaultNamespaceProvider(new AzResourceTypeLoader()));
+        public static readonly IApiVersionProviderFactory ApiVersionProviderFactory = IApiVersionProviderFactory.WithStaticApiVersionProvider(ApiVersionProvider);
 
         public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)
         {
@@ -90,6 +93,7 @@ namespace Bicep.Core.UnitTests
                 ["cloud.credentialPrecedence"] = new[] { "AzureCLI", "AzurePowerShell" },
                 ["moduleAliases"] = new Dictionary<string, object>(),
                 ["analyzers"] = new Dictionary<string, object>(),
+                ["experimentalFeaturesEnabled"] = new Dictionary<string, bool>(),
             };
 
             if (customConfigurationData is not null)

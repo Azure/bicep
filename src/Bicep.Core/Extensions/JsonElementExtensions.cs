@@ -29,13 +29,7 @@ namespace Bicep.Core.Extensions
         {
             options ??= DefaultDeserializeOptions;
 
-            var bufferWriter = new ArrayBufferWriter<byte>();
-            using (var writer = new Utf8JsonWriter(bufferWriter))
-            {
-                element.WriteTo(writer);
-            }
-
-            return JsonSerializer.Deserialize<T>(bufferWriter.WrittenSpan, options) ??
+            return JsonSerializer.Deserialize<T>(element, options) ??
                 throw new JsonException($"Expected deserialized value of \"{element}\" to be non-null.");
         }
 

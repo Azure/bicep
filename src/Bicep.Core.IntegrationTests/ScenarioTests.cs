@@ -3018,7 +3018,7 @@ module test './con.txt'
             var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(ImmutableDictionary.Create<Uri, string>(), new Uri(inputFile), fileResolver, BicepTestConstants.BuiltInOnlyConfigurationManager, features);
 
             // the bug was that the compilation would not complete
-            var compilation = new Compilation(features, BicepTestConstants.NamespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(IFeatureProviderFactory.WithStaticFeatureProvider(features), BicepTestConstants.NamespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().NotBeEmpty();
         }
 

@@ -29,19 +29,19 @@ namespace Bicep.Decompiler
     public class TemplateDecompiler
     {
         private readonly INamespaceProvider namespaceProvider;
-        private readonly IFeatureProvider features;
+        private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly IFileResolver fileResolver;
         private readonly IModuleRegistryProvider registryProvider;
-        private readonly IApiVersionProvider apiVersionProvider;
+        private readonly IApiVersionProviderFactory apiVersionProviderFactory;
         private readonly IBicepAnalyzer bicepAnalyzer;
 
-        public TemplateDecompiler(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider, IBicepAnalyzer bicepAnalyzer)
+        public TemplateDecompiler(IFeatureProviderFactory featureProviderFactory, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider, IApiVersionProviderFactory apiVersionProviderFactory, IBicepAnalyzer bicepAnalyzer)
         {
-            this.features = features;
+            this.featureProviderFactory = featureProviderFactory;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.registryProvider = registryProvider;
-            this.apiVersionProvider = new ApiVersionProvider(features, namespaceProvider);
+            this.apiVersionProviderFactory = apiVersionProviderFactory;
             this.bicepAnalyzer = bicepAnalyzer;
         }
 
@@ -133,7 +133,7 @@ namespace Bicep.Decompiler
             var configurationManager = IConfigurationManager.WithStaticConfiguration(configuration);
             var dispatcher = new ModuleDispatcher(this.registryProvider, configurationManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
-            var compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, bicepAnalyzer);
+            var compilation = new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
 
             // force enumeration here with .ToImmutableArray() as we're going to be modifying the sourceFileGrouping collection as we iterate
             var fileUris = sourceFileGrouping.SourceFiles.Select(x => x.FileUri).ToImmutableArray();
@@ -153,7 +153,7 @@ namespace Bicep.Decompiler
                     workspace.UpsertSourceFile(newFile);
 
                     sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
-                    compilation = new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, bicepAnalyzer);
+                    compilation = new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
                 }
             }
 

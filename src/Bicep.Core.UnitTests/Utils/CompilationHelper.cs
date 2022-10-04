@@ -97,7 +97,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(sourceFileDict, entryUri, fileResolver, configuration, context.GetFeatures());
 
-            return Compile(context, new Compilation(context.Features ?? BicepTestConstants.Features, context.GetNamespaceProvider(), sourceFileGrouping, IConfigurationManager.WithStaticConfiguration(configuration), apiVersionProvider, BicepTestConstants.LinterAnalyzer));
+            return Compile(context, new Compilation(IFeatureProviderFactory.WithStaticFeatureProvider(context.Features ?? BicepTestConstants.Features), context.GetNamespaceProvider(), sourceFileGrouping, IConfigurationManager.WithStaticConfiguration(configuration), IApiVersionProviderFactory.WithStaticApiVersionProvider(apiVersionProvider), BicepTestConstants.LinterAnalyzer));
         }
 
         public static CompilationResult Compile(IAzResourceTypeLoader resourceTypeLoader, params (string fileName, string fileContents)[] files)
@@ -131,7 +131,7 @@ namespace Bicep.Core.UnitTests.Utils
             var model = new ParamsSemanticModel(sourceFileGrouping, configuration, context.GetFeatures(), file => {
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
-                return new Compilation(context.GetFeatures(), context.GetNamespaceProvider(), compilationGrouping, IConfigurationManager.WithStaticConfiguration(configuration), apiVersionProvider, BicepTestConstants.LinterAnalyzer);
+                return new Compilation(IFeatureProviderFactory.WithStaticFeatureProvider(context.GetFeatures()), context.GetNamespaceProvider(), compilationGrouping, IConfigurationManager.WithStaticConfiguration(configuration), IApiVersionProviderFactory.WithStaticApiVersionProvider(apiVersionProvider), BicepTestConstants.LinterAnalyzer);
             });
 
             return CompileParams(context, model);

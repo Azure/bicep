@@ -3,34 +3,35 @@
 
 using System;
 using System.IO;
-using System.Threading;
+using Bicep.Core.Configuration;
 
 namespace Bicep.Core.Features
 {
     public class FeatureProvider : IFeatureProvider
     {
-        private Lazy<string> cacheRootDirectoryLazy = new(() => GetCacheRootDirectory(Environment.GetEnvironmentVariable("BICEP_CACHE_DIRECTORY")), LazyThreadSafetyMode.PublicationOnly);
-        public string CacheRootDirectory => cacheRootDirectoryLazy.Value;
+        private readonly RootConfiguration configuration;
+
+        public FeatureProvider(RootConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
+
+        public string CacheRootDirectory => GetCacheRootDirectory(configuration.CacheRootDirectory);
 
         public bool RegistryEnabled => true;
 
-        private Lazy<bool> symbolicNameCodegenEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_SYMBOLIC_NAME_CODEGEN_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
-        public bool SymbolicNameCodegenEnabled => symbolicNameCodegenEnabledLazy.Value;
+        public bool SymbolicNameCodegenEnabled => configuration.ExperimentalFeaturesEnabled.SymbolicNameCodegen ?? false;
 
-        private Lazy<bool> importsEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_IMPORTS_ENABLED_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
-        public bool ImportsEnabled => importsEnabledLazy.Value;
+        public bool ImportsEnabled => configuration.ExperimentalFeaturesEnabled.Imports ?? false;
 
-        private Lazy<bool> resourceTypedParamsAndOutputsEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_RESOURCE_TYPED_PARAMS_AND_OUTPUTS_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
-
-        public bool ResourceTypedParamsAndOutputsEnabled => resourceTypedParamsAndOutputsEnabledLazy.Value;
+        public bool ResourceTypedParamsAndOutputsEnabled => configuration.ExperimentalFeaturesEnabled.ResourceTypedParamsAndOutputs ?? false;
 
         public string AssemblyVersion => ThisAssembly.AssemblyFileVersion;
 
-        public bool SourceMappingEnabled => ReadBooleanEnvVar("BICEP_SOURCEMAPPING_ENABLED", defaultValue: false);
+        public bool SourceMappingEnabled => configuration.ExperimentalFeaturesEnabled.SourceMapping ?? false;
 
-        private Lazy<bool> paramsFilesEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_PARAMS_FILES_ENABLED", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
-        public bool ParamsFilesEnabled => paramsFilesEnabledLazy.Value;
-        
+        public bool ParamsFilesEnabled => configuration.ExperimentalFeaturesEnabled.ParamsFiles ?? false;
+
         public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 
         public static TraceVerbosity TracingVerbosity => ReadEnumEnvvar<TraceVerbosity>("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);

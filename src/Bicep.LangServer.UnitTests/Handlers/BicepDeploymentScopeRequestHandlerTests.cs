@@ -50,16 +50,15 @@ namespace Bicep.LangServer.UnitTests.Handlers
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
 
             BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
-                BicepTestConstants.EmitterSettings,
                 bicepCompilationManager,
                 configurationManager,
                 new DeploymentFileCompilationCache(),
-                BicepTestConstants.Features,
+                BicepTestConstants.FeatureProviderFactory,
                 FileResolver,
                 ModuleDispatcher,
                 BicepTestConstants.NamespaceProvider,
                 Serializer,
-                BicepTestConstants.ApiVersionProvider,
+                BicepTestConstants.ApiVersionProviderFactory,
                 BicepTestConstants.LinterAnalyzer);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
@@ -86,16 +85,15 @@ namespace Bicep.LangServer.UnitTests.Handlers
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
 
             BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
-                BicepTestConstants.EmitterSettings,
                 bicepCompilationManager,
                 configurationManager,
                 new DeploymentFileCompilationCache(),
-                BicepTestConstants.Features,
+                BicepTestConstants.FeatureProviderFactory,
                 FileResolver,
                 ModuleDispatcher,
                 BicepTestConstants.NamespaceProvider,
                 Serializer,
-                BicepTestConstants.ApiVersionProvider,
+                BicepTestConstants.ApiVersionProviderFactory,
                 BicepTestConstants.LinterAnalyzer);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
@@ -120,16 +118,15 @@ namespace Bicep.LangServer.UnitTests.Handlers
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
 
             BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
-                BicepTestConstants.EmitterSettings,
                 bicepCompilationManager,
                 configurationManager,
                 new DeploymentFileCompilationCache(),
-                BicepTestConstants.Features,
+                BicepTestConstants.FeatureProviderFactory,
                 FileResolver,
                 ModuleDispatcher,
                 BicepTestConstants.NamespaceProvider,
                 Serializer,
-                BicepTestConstants.ApiVersionProvider,
+                BicepTestConstants.ApiVersionProviderFactory,
                 BicepTestConstants.LinterAnalyzer);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
@@ -178,16 +175,15 @@ namespace Bicep.LangServer.UnitTests.Handlers
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
 
             BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
-                BicepTestConstants.EmitterSettings,
                 bicepCompilationManager,
                 configurationManager,
                 new DeploymentFileCompilationCache(),
-                BicepTestConstants.Features,
+                BicepTestConstants.FeatureProviderFactory,
                 FileResolver,
                 ModuleDispatcher,
                 BicepTestConstants.NamespaceProvider,
                 Serializer,
-                BicepTestConstants.ApiVersionProvider,
+                BicepTestConstants.ApiVersionProviderFactory,
                 BicepTestConstants.LinterAnalyzer);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
@@ -211,16 +207,15 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var deploymentFileCompilationCache = new DeploymentFileCompilationCache();
 
             BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
-                BicepTestConstants.EmitterSettings,
                 bicepCompilationManager,
                 configurationManager,
                 deploymentFileCompilationCache,
-                BicepTestConstants.Features,
+                BicepTestConstants.FeatureProviderFactory,
                 FileResolver,
                 ModuleDispatcher,
                 BicepTestConstants.NamespaceProvider,
                 Serializer,
-                BicepTestConstants.ApiVersionProvider,
+                BicepTestConstants.ApiVersionProviderFactory,
                 BicepTestConstants.LinterAnalyzer);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);

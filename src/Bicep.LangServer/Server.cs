@@ -45,7 +45,7 @@ namespace Bicep.LanguageServer
             ISnippetsProvider? SnippetsProvider = null,
             INamespaceProvider? NamespaceProvider = null,
             IFileResolver? FileResolver = null,
-            IFeatureProvider? Features = null,
+            IFeatureProviderFactory? FeatureProviderFactory = null,
             IModuleRestoreScheduler? ModuleRestoreScheduler = null,
             Action<IServiceCollection>? onRegisterServices = null);
 
@@ -128,8 +128,7 @@ namespace Bicep.LanguageServer
             services.AddSingletonOrInstance<INamespaceProvider, DefaultNamespaceProvider>(creationOptions.NamespaceProvider);
             services.AddSingletonOrInstance<ISnippetsProvider, SnippetsProvider>(creationOptions.SnippetsProvider);
             services.AddSingletonOrInstance<IFileResolver, FileResolver>(creationOptions.FileResolver);
-            services.AddSingletonOrInstance<IFeatureProvider, FeatureProvider>(creationOptions.Features);
-            services.AddSingleton<EmitterSettings>();
+            services.AddSingletonOrInstance<IFeatureProviderFactory, FeatureProviderFactory>(creationOptions.FeatureProviderFactory);
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
             services.AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
             services.AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
@@ -151,7 +150,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>();
             services.AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>();
             services.AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>();
-            services.AddSingleton<IApiVersionProvider, ApiVersionProvider>();
+            services.AddSingleton<IApiVersionProviderFactory, ApiVersionProviderFactory>();
             services.AddSingleton<IParamsCompilationManager, BicepParamsCompilationManager>();
             services.AddSingleton<IBicepAnalyzer, LinterAnalyzer>();
         }

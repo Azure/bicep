@@ -108,7 +108,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             if (functionCallInfo.ApiVersion.HasValue && functionCallInfo.ResourceType is not null)
             {
                 return AnalyzeApiVersion(
-                    model.Compilation.ApiVersionProvider,
+                    model.ApiVersionProvider,
                     today,
                     errorSpan: functionCallInfo.FunctionCallSyntax.Span,
                     replacementSpan: null,
@@ -286,7 +286,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var mostRecentValid = resourceId;
             while (resourceTypeRegex.IsMatch(resourceType))
             {
-                if (model.Compilation.ApiVersionProvider.GetApiVersions(model.TargetScope, resourceType).Any())
+                if (model.ApiVersionProvider.GetApiVersions(model.TargetScope, resourceType).Any())
                 {
                     // The resource type exists
                     return resourceType;
@@ -312,7 +312,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     string fullyQualifiedResourceType = resourceTypeReference.FormatType();
                     return AnalyzeApiVersion(
-                        model.Compilation.ApiVersionProvider,
+                        model.ApiVersionProvider,
                         today,
                         replacementSpan,
                         replacementSpan,

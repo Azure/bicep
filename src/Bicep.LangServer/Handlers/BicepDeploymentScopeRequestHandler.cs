@@ -42,40 +42,37 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDeploymentScopeRequestHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentScopeParams, BicepDeploymentScopeResponse>
     {
-        private readonly EmitterSettings emitterSettings;
         private readonly ICompilationManager compilationManager;
         private readonly IConfigurationManager configurationManager;
         private readonly IDeploymentFileCompilationCache deploymentFileCompilationCache;
-        private readonly IFeatureProvider features;
+        private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly INamespaceProvider namespaceProvider;
-        private readonly IApiVersionProvider apiVersionProvider;
+        private readonly IApiVersionProviderFactory apiVersionProviderFactory;
         private readonly IBicepAnalyzer bicepAnalyzer;
 
         public BicepDeploymentScopeRequestHandler(
-            EmitterSettings emitterSettings,
             ICompilationManager compilationManager,
             IConfigurationManager configurationManager,
             IDeploymentFileCompilationCache deploymentFileCompilationCache,
-            IFeatureProvider features,
+            IFeatureProviderFactory featureProviderFactory,
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
             INamespaceProvider namespaceProvider,
             ISerializer serializer,
-            IApiVersionProvider apiVersionProvider,
+            IApiVersionProviderFactory apiVersionProviderFactory,
             IBicepAnalyzer bicepAnalyzer)
             : base(LangServerConstants.GetDeploymentScopeCommand, serializer)
         {
             this.compilationManager = compilationManager;
             this.configurationManager = configurationManager;
             this.deploymentFileCompilationCache = deploymentFileCompilationCache;
-            this.emitterSettings = emitterSettings;
-            this.features = features;
+            this.featureProviderFactory = featureProviderFactory;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.namespaceProvider = namespaceProvider;
-            this.apiVersionProvider = apiVersionProvider;
+            this.apiVersionProviderFactory = apiVersionProviderFactory;
             this.bicepAnalyzer = bicepAnalyzer;
         }
 
@@ -126,7 +123,8 @@ namespace Bicep.LanguageServer.Handlers
             var stringBuilder = new StringBuilder();
             var stringWriter = new StringWriter(stringBuilder);
 
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
+            var model = compilation.GetEntrypointSemanticModel();
+            var emitter = new TemplateEmitter(model, new EmitterSettings(model.Features));
             emitter.Emit(stringWriter);
 
             return stringBuilder.ToString();
@@ -140,7 +138,7 @@ namespace Bicep.LanguageServer.Handlers
             if (context is null)
             {
                 SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
-                return new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, bicepAnalyzer);
+                return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
             }
             else
             {

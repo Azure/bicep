@@ -23,11 +23,11 @@ namespace Bicep.Core.IntegrationTests
         {
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
             var compilation = new Compilation(
-                BicepTestConstants.Features,
+                BicepTestConstants.FeatureProviderFactory,
                 nsProvider,
                 SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver),
                 IConfigurationManager.WithStaticConfiguration(configuration),
-                BicepTestConstants.ApiVersionProvider,
+                BicepTestConstants.ApiVersionProviderFactory,
                 BicepTestConstants.LinterAnalyzer);
 
             return compilation.GetEntrypointSemanticModel();
