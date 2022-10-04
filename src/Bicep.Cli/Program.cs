@@ -78,6 +78,9 @@ namespace Bicep.Cli
                     case BuildArguments buildArguments when buildArguments.CommandName == Constants.Command.Build: // bicep build [options]
                         return await serviceProvider.GetRequiredService<BuildCommand>().RunAsync(buildArguments);
 
+                    case FormatArguments formatArguments when formatArguments.CommandName == Constants.Command.Format: // bicep format [options]
+                        return serviceProvider.GetRequiredService<FormatCommand>().Run(formatArguments);
+
                     case GenerateParametersFileArguments generateParametersFileArguments when generateParametersFileArguments.CommandName == Constants.Command.GenerateParamsFile: // bicep generate-params [options]
                         return await serviceProvider.GetRequiredService<GenerateParametersFileCommand>().RunAsync(generateParametersFileArguments);
 

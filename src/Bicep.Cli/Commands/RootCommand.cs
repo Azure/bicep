@@ -98,6 +98,28 @@ Usage:
       bicep build file.bicep --outfile file.json
       bicep build file.bicep --no-restore
 
+    {exeName} format [options] <file>
+    Formats a .bicep file.
+
+    Arguments:
+      <file>        The input file
+
+    Options:
+      --outdir <dir>        Saves the output at the specified directory.
+      --outfile <file>      Saves the output as the specified file path.
+      --stdout              Prints the output to stdout.
+      --newline             Set newline char. Valid values are ( Auto | LF | CRLF | CR ).
+      --indentKind          Set indentation kind. Valid values are ( Space | Tab ).
+      --indentSize          Number of spaces to indent with.
+      --insertFinalNewline  Insert a final newline.
+
+    Examples:
+      bicep format file.bicep
+      bicep format file.bicep --stdout
+      bicep format file.bicep --outdir dir1
+      bicep format file.bicep --outfile file.json
+      bicep format file.bicep --indentKind Tab
+
   {exeName} decompile [options] <file>
     Attempts to decompile a template .json file to .bicep.
 
