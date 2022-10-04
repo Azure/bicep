@@ -3,19 +3,23 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO.Abstractions;
 using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 using Microsoft.Extensions.DependencyInjection;
+using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -27,9 +31,6 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static ServiceBuilder WithFileResolver(this ServiceBuilder serviceBuilder, IFileResolver fileResolver)
             => Register(serviceBuilder, fileResolver);
-
-        public static ServiceBuilder WithModuleDispatcher(this ServiceBuilder serviceBuilder, IModuleDispatcher moduleDispatcher)
-            => Register(serviceBuilder, moduleDispatcher);
 
         public static ServiceBuilder WithWorkspace(this ServiceBuilder serviceBuilder, IWorkspace workspace)
             => Register(serviceBuilder, workspace);
@@ -51,15 +52,21 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static ServiceBuilder WithTestDefaults(this ServiceBuilder serviceBuilder)
             => serviceBuilder
-                .WithFileResolver(BicepTestConstants.FileResolver)
-                .WithModuleDispatcher(BicepTestConstants.ModuleDispatcher)
-                .WithWorkspace(new Workspace())
-                .WithFeatureProvider(BicepTestConstants.Features)
-                .WithRegistration(x => x.AddSingleton<INamespaceProvider, DefaultNamespaceProvider>())
-                .WithRegistration(x => x.AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>())
-                .WithConfigurationManager(BicepTestConstants.ConfigurationManager)
-                .WithApiVersionProvider(BicepTestConstants.ApiVersionProvider)
-                .WithBicepAnalyzer(BicepTestConstants.LinterAnalyzer);
+                .WithRegistration(service => service
+                    .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
+                    .AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>()
+                    .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
+                    .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
+                    .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
+                    .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
+                    .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
+                    .AddSingleton<IFileResolver, FileResolver>()
+                    .AddSingleton<IConfigurationManager, ConfigurationManager>()
+                    .AddSingleton<IApiVersionProvider, ApiVersionProvider>()
+                    .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
+                    .AddSingleton<IFileSystem, IOFileSystem>()
+                    .AddSingleton<IWorkspace, Workspace>())
+                .WithFeatureProvider(BicepTestConstants.Features);
 
         public static ServiceBuilder WithAzResources(this ServiceBuilder serviceBuilder, IEnumerable<ResourceTypeComponents> resourceTypes)
             => serviceBuilder.WithRegistration(x => x.AddSingleton<IAzResourceTypeLoader>(TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(resourceTypes)));

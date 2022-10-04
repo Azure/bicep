@@ -3,6 +3,7 @@
 
 using System.Linq;
 using Bicep.Core.Analyzers.Linter.Rules;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 // TODO: Test with different configs
@@ -133,7 +134,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         [DataTestMethod]
         // valid matches
-        [DataRow("azure.schema.management.azure.com", true)]
         [DataRow("aschema.management.azure.com", true)]
         [DataRow("azure.aschema.management.azure.com", true)]
         [DataRow("management.azure.com", true)]
@@ -143,6 +143,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow("http://subdomain1.management.azure.com", true)]
         [DataRow("https://subdomain1.management.azure.com", true)]
         // should not match
+        [DataRow("azure.schema.management.azure.com", false)]
         [DataRow("othermanagement.azure.com", false)]
         [DataRow("azure.schema.mannnnagement.azure.com", false)]
         [DataRow("management.azzzzure.com", false)]
@@ -153,11 +154,17 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow("https://subdomain1.managemeeeent.azure.com", false)]
         public void DisallowedHostsMatchingTest(string testString, bool isMatch)
         {
-            var rule = new NoHardcodedEnvironmentUrlsRule();
-            var configuration = BicepTestConstants.BuiltInConfiguration;
-            rule.Configure(configuration.Analyzers);
-
-            Assert.AreEqual(isMatch, actual: rule.DisallowedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.FindHostnameMatches(host, testString).Any()));
+            AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, @$"output str string = '{testString}'", diags => 
+            {
+                if (isMatch)
+                {
+                    diags.Should().HaveCount(1);
+                    diags.Select(d => d.Code).Should().AllBe(NoHardcodedEnvironmentUrlsRule.Code);
+                } else
+                {
+                    diags.Should().BeEmpty();
+                }
+            });
         }
 
         [DataTestMethod]
@@ -182,12 +189,17 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow("all the world is a stage, but subdomain1.schema.management.azure.com should not be hardcoded", true)]
         public void ExcludedHostsMatchingTest(string testString, bool isMatch)
         {
-            var rule = new NoHardcodedEnvironmentUrlsRule();
-            var configuration = BicepTestConstants.BuiltInConfiguration;
-            rule.Configure(configuration.Analyzers);
-
-            Assert.AreEqual(isMatch, rule.ExcludedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.FindHostnameMatches(host, testString).Any()));
+            AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, @$"output str string = '{testString}'", diags => 
+            {
+                if (isMatch)
+                {
+                    diags.Should().BeEmpty();
+                } else
+                {
+                    diags.Should().HaveCount(1);
+                    diags.Select(d => d.Code).Should().AllBe(NoHardcodedEnvironmentUrlsRule.Code);
+                }
+            });
         }
     }
 }
-

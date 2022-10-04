@@ -23,6 +23,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
+            var diagnosticLevel = GetDiagnosticLevel(model);
             foreach (var resource in model.DeclaredResources)
             {
                 foreach (var identifier in resource.Type.UniqueIdentifierProperties)
@@ -33,7 +34,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         identifierSyntax.Accept(visitor);
                         foreach (var (path, functionName) in visitor.PathsToNonDeterministicFunctionsUsed)
                         {
-                            yield return CreateDiagnosticForSpan(identifierSyntax.Span, resource.Symbol.Name, identifier, functionName, $"{resource.Symbol.Name}.{identifier} -> {path}");
+                            yield return CreateDiagnosticForSpan(diagnosticLevel, identifierSyntax.Span, resource.Symbol.Name, identifier, functionName, $"{resource.Symbol.Name}.{identifier} -> {path}");
                         }
                     }
                 }

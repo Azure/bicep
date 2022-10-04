@@ -49,11 +49,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
+            var diagnosticLevel = GetDiagnosticLevel(model);
             foreach (var param in model.Root.ParameterDeclarations)
             {
                 if (!param.IsSecure())
                 {
-                    if (AnalyzeUnsecuredParameter(param) is IDiagnostic diag)
+                    if (AnalyzeUnsecuredParameter(diagnosticLevel, param) is IDiagnostic diag)
                     {
                         yield return diag;
                     }
@@ -61,7 +62,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private IDiagnostic? AnalyzeUnsecuredParameter(ParameterSymbol parameterSymbol)
+        private IDiagnostic? AnalyzeUnsecuredParameter(DiagnosticLevel diagnosticLevel, ParameterSymbol parameterSymbol)
         {
             string name = parameterSymbol.Name;
             TypeSymbol type = parameterSymbol.Type;
@@ -78,6 +79,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         var codeReplacement = new CodeReplacement(fixSpan, decoratorText);
 
                         return CreateFixableDiagnosticForSpan(
+                            diagnosticLevel,
                             parameterSymbol.NameSyntax.Span,
                             new CodeFix("Mark parameter as secure", isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
                             name);

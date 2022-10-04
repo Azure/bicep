@@ -51,7 +51,7 @@ namespace Bicep.Core.IntegrationTests
             var jsonFile = baselineFolder.EntryFile;
 
             var jsonUri = PathHelper.FilePathToFileUrl(jsonFile.OutputFilePath);
-            var decompiler = new TemplateDecompiler(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, BicepTestConstants.FileResolver, BicepTestConstants.RegistryProvider);
+            var decompiler = new TemplateDecompiler(BicepTestConstants.Features, BicepTestConstants.NamespaceProvider, BicepTestConstants.FileResolver, BicepTestConstants.RegistryProvider, BicepTestConstants.LinterAnalyzer);
             var (bicepUri, filesToSave) = decompiler.DecompileFileWithModules(jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
 
             var result = CompilationHelper.Compile(new(), new InMemoryFileResolver(filesToSave), filesToSave.Keys, bicepUri);
@@ -95,7 +95,7 @@ namespace Bicep.Core.IntegrationTests
             Action onDecompile = () =>
             {
                 var fileResolver = ReadResourceFile(resourcePath);
-                var decompiler = new TemplateDecompiler(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features, BicepTestConstants.ConfigurationManager));
+                var decompiler = new TemplateDecompiler(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features, BicepTestConstants.ConfigurationManager), BicepTestConstants.LinterAnalyzer);
                 decompiler.DecompileFileWithModules(new Uri($"file:///{resourcePath}"), new Uri("file:///unused.bicep"));
             };
 
@@ -129,7 +129,7 @@ namespace Bicep.Core.IntegrationTests
                 [fileUri] = template,
             }); ;
 
-            var decompiler = new TemplateDecompiler(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features, BicepTestConstants.ConfigurationManager));
+            var decompiler = new TemplateDecompiler(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features, BicepTestConstants.ConfigurationManager), BicepTestConstants.LinterAnalyzer);
             var (entryPointUri, filesToSave) = decompiler.DecompileFileWithModules(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
 
             // this behavior is actually controlled by newtonsoft's deserializer, but we should assert it anyway to avoid regressions.
@@ -180,7 +180,7 @@ namespace Bicep.Core.IntegrationTests
                 [fileUri] = template,
             });
 
-            var decompiler = new TemplateDecompiler(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features, BicepTestConstants.ConfigurationManager));
+            var decompiler = new TemplateDecompiler(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features, BicepTestConstants.ConfigurationManager), BicepTestConstants.LinterAnalyzer);
             var (entryPointUri, filesToSave) = decompiler.DecompileFileWithModules(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
 
             filesToSave[entryPointUri].Should().Contain($"output calculated {type} = ({expectedValue})");
@@ -206,7 +206,7 @@ namespace Bicep.Core.IntegrationTests
 
             Action sut = () =>
             {
-                var decompiler = new TemplateDecompiler(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features, BicepTestConstants.ConfigurationManager));
+                var decompiler = new TemplateDecompiler(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features, BicepTestConstants.ConfigurationManager), BicepTestConstants.LinterAnalyzer);
                 decompiler.DecompileFileWithModules(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
             };
 
@@ -268,7 +268,7 @@ namespace Bicep.Core.IntegrationTests
                 [fileUri] = template,
             });
 
-            var decompiler = new TemplateDecompiler(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features, BicepTestConstants.ConfigurationManager));
+            var decompiler = new TemplateDecompiler(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features, BicepTestConstants.ConfigurationManager), BicepTestConstants.LinterAnalyzer);
             var (entryPointUri, filesToSave) = decompiler.DecompileFileWithModules(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
 
             filesToSave[entryPointUri].Should().Contain($"? /* TODO: User defined functions are not supported and have not been decompiled */");
@@ -299,7 +299,7 @@ namespace Bicep.Core.IntegrationTests
             try {
                 Thread.CurrentThread.CurrentCulture = new CultureInfo("fi-FI");
 
-                var decompiler = new TemplateDecompiler(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features, BicepTestConstants.ConfigurationManager));
+                var decompiler = new TemplateDecompiler(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features, BicepTestConstants.ConfigurationManager), BicepTestConstants.LinterAnalyzer);
                 var (entryPointUri, filesToSave) = decompiler.DecompileFileWithModules(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
 
                 filesToSave[entryPointUri].Should().Contain($"var cpu = '0.25'");

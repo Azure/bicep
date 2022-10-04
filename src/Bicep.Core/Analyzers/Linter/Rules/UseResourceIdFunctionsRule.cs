@@ -115,6 +115,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
+            var diagnosticLevel = GetDiagnosticLevel(model);
             foreach (var resource in model.DeclaredResources)
             {
                 if (resource.IsAzResource
@@ -143,6 +144,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             Enumerable.Empty<string>();
                         var path = string.Join(" -> ", paths);
                         yield return CreateDiagnosticForSpan(
+                            diagnosticLevel,
                             failure.Property.Key.Span,
                             failure.Property.Key.ToText(),
                             path);

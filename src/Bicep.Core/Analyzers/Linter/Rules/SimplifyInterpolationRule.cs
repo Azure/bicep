@@ -30,7 +30,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var visitor = new Visitor(spanFixes, model);
             visitor.Visit(model.SourceFile.ProgramSyntax);
 
-            return spanFixes.Select(kvp => CreateFixableDiagnosticForSpan(kvp.Key, kvp.Value));
+            var diagnosticLevel = GetDiagnosticLevel(model);
+            return spanFixes.Select(kvp => CreateFixableDiagnosticForSpan(diagnosticLevel, kvp.Key, kvp.Value));
         }
 
         private sealed class Visitor : SyntaxVisitor

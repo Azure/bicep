@@ -35,7 +35,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            RuleVisitor visitor = new(this, model);
+            RuleVisitor visitor = new(this, model, GetDiagnosticLevel(model));
             visitor.Visit(model.SourceFile.ProgramSyntax);
             return visitor.diagnostics;
         }
@@ -58,7 +58,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private void ValidateResourceLocationValue(List<IDiagnostic> diagnostics, HashSet<VariableSymbol> variablesToChangeToParam, SyntaxBase locationValueSyntax, SemanticModel model, string? moduleParameterName)
+        private void ValidateResourceLocationValue(List<IDiagnostic> diagnostics, HashSet<VariableSymbol> variablesToChangeToParam, SyntaxBase locationValueSyntax, SemanticModel model, string? moduleParameterName, DiagnosticLevel diagnosticLevel)
         {
             // Is the value a string literal (or a variable defined as a string literal)?
             (string? literalValue, VariableSymbol? definingVariable) = TryGetLiteralTextValueAndDefiningVariable(locationValueSyntax, model);
@@ -108,7 +108,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     new CodeReplacement(
                         definingVariable.DeclaringSyntax.Span,
                         $"param {definingVariable.Name} string = {definingVariable.Value.ToTextPreserveFormatting()}"));
-                diagnostics.Add(this.CreateFixableDiagnosticForSpan(errorSpan, fix, msg));
+                diagnostics.Add(this.CreateFixableDiagnosticForSpan(diagnosticLevel, errorSpan, fix, msg));
             }
             else
             {
@@ -149,6 +149,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         literalValue);
                 var fullMessage = $"{errorMessage} {solutionMessage}";
                 diagnostics.Add(CreateFixableDiagnosticForSpan(
+                    diagnosticLevel,
                     locationValueSyntax.Span,
                     fixWithNewParam,
                     fullMessage));
@@ -163,11 +164,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private readonly Dictionary<ISourceFile, ImmutableArray<ParameterSymbol>> cachedParamsUsedInLocationPropsForFile = new();
             private readonly NoHardcodedLocationRule parent;
             private readonly SemanticModel model;
+            private readonly DiagnosticLevel diagnosticLevel;
 
-            public RuleVisitor(NoHardcodedLocationRule parent, SemanticModel model)
+            public RuleVisitor(NoHardcodedLocationRule parent, SemanticModel model, DiagnosticLevel diagnosticLevel)
             {
                 this.parent = parent;
                 this.model = model;
+                this.diagnosticLevel = diagnosticLevel;
             }
 
             public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
@@ -177,7 +180,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                    ?.TryGetPropertyByName(LanguageConstants.ResourceLocationPropertyName)?.Value;
                 if (locationValue != null)
                 {
-                    parent.ValidateResourceLocationValue(diagnostics, variablesToChangeToParam, locationValue, model, null);
+                    parent.ValidateResourceLocationValue(diagnostics, variablesToChangeToParam, locationValue, model, null, diagnosticLevel);
                 }
 
                 base.VisitResourceDeclarationSyntax(syntax);
@@ -193,7 +196,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     if (actualValue != null)
                     {
-                        parent.ValidateResourceLocationValue(diagnostics, variablesToChangeToParam, actualValue, model, parameterName);
+                        parent.ValidateResourceLocationValue(diagnostics, variablesToChangeToParam, actualValue, model, parameterName, diagnosticLevel);
                     }
                 }
 
