@@ -6,6 +6,8 @@ using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
@@ -127,6 +129,7 @@ namespace Bicep.Cli
                 .AddSingleton<IConfigurationManager, ConfigurationManager>()
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
                 .AddSingleton<IApiVersionProviderFactory, ApiVersionProviderFactory>()
+                .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
                 .AddSingleton<TemplateDecompiler>()
                 .AddSingleton<DecompilationWriter>()
                 .AddSingleton<CompilationWriter>()

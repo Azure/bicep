@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Bicep.Core;
+using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
@@ -41,10 +42,10 @@ namespace Bicep.LanguageServer
         private readonly IConfigurationManager configurationManager;
         private readonly ITelemetryProvider TelemetryProvider;
         private readonly ILinterRulesProvider LinterRulesProvider;
+        private readonly IBicepAnalyzer bicepAnalyzer;
 
         // represents compilations of open bicep files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, CompilationContext>();
-        private readonly ConcurrentDictionary<DocumentUri, LinterAnalyzer> activeLinterAnalyzers = new ConcurrentDictionary<DocumentUri, LinterAnalyzer>();
 
         public BicepCompilationManager(
             ILanguageServerFacade server,
@@ -54,7 +55,8 @@ namespace Bicep.LanguageServer
             IModuleRestoreScheduler scheduler,
             IConfigurationManager configurationManager,
             ITelemetryProvider telemetryProvider,
-            ILinterRulesProvider LinterRulesProvider)
+            ILinterRulesProvider LinterRulesProvider,
+            IBicepAnalyzer bicepAnalyzer)
         {
             this.server = server;
             this.provider = provider;
@@ -63,8 +65,8 @@ namespace Bicep.LanguageServer
             this.scheduler = scheduler;
             this.configurationManager = configurationManager;
             this.TelemetryProvider = telemetryProvider;
-
             this.LinterRulesProvider = LinterRulesProvider;
+            this.bicepAnalyzer = bicepAnalyzer;
         }
 
         public void RefreshCompilation(DocumentUri documentUri)
@@ -187,7 +189,6 @@ namespace Bicep.LanguageServer
         private ImmutableArray<ISourceFile> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<Diagnostic> closingDiagnostics)
         {
             this.activeContexts.TryRemove(documentUri, out var removedContext);
-            this.activeLinterAnalyzers.TryRemove(documentUri, out _);
 
             this.PublishDocumentDiagnostics(documentUri, version, closingDiagnostics);
 
@@ -211,11 +212,9 @@ namespace Bicep.LanguageServer
         {
             try
             {
-                var linterAnalyzer = activeLinterAnalyzers.GetOrAdd(documentUri, uri => new());
-
                 var context = this.activeContexts.AddOrUpdate(
                     documentUri,
-                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), linterAnalyzer),
+                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), bicepAnalyzer),
                     (documentUri, prevContext) =>
                     {
                         var sourceDependencies = removedFiles
@@ -232,7 +231,7 @@ namespace Bicep.LanguageServer
                             }
                         }
 
-                        return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), linterAnalyzer);
+                        return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), bicepAnalyzer);
                     });
 
                 foreach (var sourceFile in context.Compilation.SourceFileGrouping.SourceFiles)

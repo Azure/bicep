@@ -29,7 +29,7 @@ namespace Bicep.LangServer.UnitTests
     {
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
         private static readonly ILanguageServerFacade Server = Repository.Create<ILanguageServerFacade>().Object;
-        private static readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.ModuleDispatcher);
+        private static readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.ModuleDispatcher, BicepTestConstants.LinterAnalyzer);
 
         [TestMethod]
         public void DeclarationContextShouldReturnKeywordCompletions()

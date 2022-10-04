@@ -14,7 +14,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Bicep.Core.UnitTests.Utils;
 using System.Collections.Generic;
-using Bicep.Core.FileSystem;
 using Bicep.LanguageServer.Snippets;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using System.Linq;
@@ -25,7 +24,7 @@ namespace Bicep.LangServer.IntegrationTests
 {
     public sealed class LanguageServerHelper : IDisposable
     {
-        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.ModuleDispatcher);
+        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.ModuleDispatcher, BicepTestConstants.LinterAnalyzer);
 
         public Server Server { get; }
         public ILanguageClient Client { get; }

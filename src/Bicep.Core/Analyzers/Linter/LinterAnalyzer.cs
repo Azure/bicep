@@ -10,7 +10,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Analyzers.Linter
 {
@@ -56,8 +55,6 @@ namespace Bicep.Core.Analyzers.Linter
         {
             var diagnostics = new List<IDiagnostic>();
 
-            this.ruleSet.ForEach(r => r.Configure(semanticModel.Configuration.Analyzers));
-
             if (this.LinterEnabled(semanticModel))
             {
                 // add an info diagnostic for local configuration reporting
@@ -66,9 +63,7 @@ namespace Bicep.Core.Analyzers.Linter
                     diagnostics.Add(GetConfigurationDiagnostic(semanticModel));
                 }
 
-                diagnostics.AddRange(ruleSet
-                    .Where(rule => rule.IsEnabled())
-                    .SelectMany(r => r.Analyze(semanticModel)));
+                diagnostics.AddRange(ruleSet.SelectMany(r => r.Analyze(semanticModel)));
             }
             else
             {

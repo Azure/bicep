@@ -10,7 +10,6 @@ using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Analyzers.Linter.Common;
 using Bicep.Core.CodeAction;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
@@ -28,13 +27,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public new const string Code = "use-recent-api-versions";
         public const int MaxAllowedAgeInDays = 365 * 2;
-
-        // Debug/test switch: Pretend today is a different date
-        private DateTime today = DateTime.Today;
-
-        // Debug/test switch: Warn if the resource type or API version are not found (normally we don't
-        // give errors for these because Bicep always provides a warning about types not being available)
-        private bool warnIfNotFound = false;
 
         private static readonly Regex resourceTypeRegex = new(
             "^ [a-z]+\\.[a-z]+ (\\/ [a-z]+)+ $",
@@ -62,23 +54,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         )
         { }
 
-        public override void Configure(AnalyzersConfiguration config)
-        {
-            base.Configure(config);
-
-            // Today's date can be changed to enable testing/debug scenarios
-            string? testToday = this.GetConfigurationValue<string?>("test-today", null);
-            if (testToday is not null)
-            {
-                this.today = ApiVersionHelper.ParseDateFromApiVersion(testToday);
-            }
-
-            // Testing/debug: Warn if the resource type and/or API version are not found
-            bool debugWarnNotFound = this.GetConfigurationValue<bool>("test-warn-not-found", false);
-            this.warnIfNotFound = debugWarnNotFound == true;
-
-        }
-
         public override string FormatMessage(params object[] values)
         {
             var message = (string)values[0];
@@ -91,11 +66,22 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
+            var diagnosticLevel = GetDiagnosticLevel(model);
+            var today = DateTime.Today;
+            // Today's date can be changed to enable testing/debug scenarios
+            if (GetConfigurationValue<string?>(model.Configuration.Analyzers, "test-today", null) is string testToday)
+            {
+                today = ApiVersionHelper.ParseDateFromApiVersion(testToday);
+            }
+            // Testing/debug: Warn if the resource type and/or API version are not found
+            var warnIfNotFound = GetConfigurationValue(model.Configuration.Analyzers, "test-warn-not-found", false);
+
             foreach (var resource in model.DeclaredResources.Where(r => r.IsAzResource))
             {
                 if (AnalyzeResource(model, today, resource.Symbol, warnIfNotFound: warnIfNotFound) is Failure failure)
                 {
                     yield return CreateFixableDiagnosticForSpan(
+                        diagnosticLevel,
                         failure.Span,
                         failure.Fixes,
                         failure.Message,
@@ -108,6 +94,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 if (AnalyzeFunctionCall(model, today, callInfo) is Failure failure)
                 {
                     yield return CreateFixableDiagnosticForSpan(
+                        diagnosticLevel,
                         failure.Span,
                         failure.Fixes,
                         failure.Message,

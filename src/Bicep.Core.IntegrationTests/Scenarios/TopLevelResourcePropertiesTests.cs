@@ -23,7 +23,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     public class TopLevelResourcePropertiesTests
     {
         private static readonly RootConfiguration Configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
-        private static readonly LinterAnalyzer LinterAnalyzer = new();
+        private static readonly LinterAnalyzer LinterAnalyzer = BicepTestConstants.LinterAnalyzer;
 
         private static Compilation CreateCompilation(string program) => new(
             BicepTestConstants.FeatureProviderFactory,

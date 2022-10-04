@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
@@ -16,17 +15,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     public sealed class NoHardcodedEnvironmentUrlsRule : LinterRuleBase
     {
         public new const string Code = "no-hardcoded-env-urls";
-        public readonly string DisallowedHostsKey = nameof(DisallowedHosts).ToLowerInvariant();
-        public readonly string ExcludedHostsKey = nameof(ExcludedHosts);
-
-        private ImmutableArray<string> disallowedHosts;
-        public ImmutableArray<string> DisallowedHosts => disallowedHosts;
-
-        private ImmutableArray<string> excludedHosts;
-        public ImmutableArray<string> ExcludedHosts => excludedHosts;
-
-        private int minimumHostLength;
-        private bool HasHosts;
+        public readonly string DisallowedHostsKey = "disallowedHosts";
+        public readonly string ExcludedHostsKey = "excludedHosts";
 
         public NoHardcodedEnvironmentUrlsRule() : base(
             code: Code,
@@ -35,28 +25,21 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
         }
 
-        public override void Configure(AnalyzersConfiguration config)
-        {
-            base.Configure(config);
-
-            this.disallowedHosts = this.GetConfigurationValue(DisallowedHostsKey.ToLowerInvariant(), Array.Empty<string>()).ToImmutableArray();
-            this.excludedHosts = this.GetConfigurationValue(ExcludedHostsKey.ToLowerInvariant(), Array.Empty<string>()).ToImmutableArray();
-
-            this.minimumHostLength = this.disallowedHosts.Any() ? this.disallowedHosts.Min(h => h.Length) : 0;
-            this.HasHosts = this.disallowedHosts.Any();
-        }
-
         public override string FormatMessage(params object[] values)
             => string.Format("{0} Found this disallowed host: \"{1}\"", this.Description, values.First());
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            if (HasHosts)
+            var disallowedHosts = GetConfigurationValue(model.Configuration.Analyzers, DisallowedHostsKey.ToLowerInvariant(), Array.Empty<string>()).ToImmutableArray();
+            var excludedHosts = GetConfigurationValue(model.Configuration.Analyzers, ExcludedHostsKey.ToLowerInvariant(), Array.Empty<string>()).ToImmutableArray();
+
+            if (disallowedHosts.Any())
             {
-                var visitor = new Visitor(this.DisallowedHosts, this.minimumHostLength, this.ExcludedHosts);
+                var visitor = new Visitor(disallowedHosts, disallowedHosts.Min(h => h.Length), excludedHosts);
                 visitor.Visit(model.SourceFile.ProgramSyntax);
 
-                return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(entry.Key, entry.Value));
+                var diagnosticLevel = GetDiagnosticLevel(model);
+                return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(diagnosticLevel, entry.Key, entry.Value));
             }
 
             return Enumerable.Empty<IDiagnostic>();

@@ -28,7 +28,7 @@ namespace Bicep.Core.IntegrationTests
                 SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver),
                 IConfigurationManager.WithStaticConfiguration(configuration),
                 BicepTestConstants.ApiVersionProviderFactory,
-                new LinterAnalyzer());
+                BicepTestConstants.LinterAnalyzer);
 
             return compilation.GetEntrypointSemanticModel();
         }

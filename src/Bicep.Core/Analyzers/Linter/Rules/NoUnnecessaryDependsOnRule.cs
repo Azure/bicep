@@ -34,7 +34,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     () => ResourceDependencyVisitor.GetResourceDependencies(
                         model,
                         new ResourceDependencyVisitor.Options { IgnoreExplicitDependsOn = true }));
-            var visitor = new ResourceVisitor(this, inferredDependenciesMap, model);
+            var visitor = new ResourceVisitor(this, inferredDependenciesMap, model, GetDiagnosticLevel(model));
             visitor.Visit(model.SourceFile.ProgramSyntax);
             return visitor.diagnostics;
         }
@@ -46,12 +46,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private readonly NoUnnecessaryDependsOnRule parent;
             private readonly Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap;
             private readonly SemanticModel model;
+            private readonly DiagnosticLevel diagnosticLevel;
 
-            public ResourceVisitor(NoUnnecessaryDependsOnRule parent, Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap, SemanticModel model)
+            public ResourceVisitor(NoUnnecessaryDependsOnRule parent, Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap, SemanticModel model, DiagnosticLevel diagnosticLevel)
             {
                 this.parent = parent;
                 this.inferredDependenciesMap = inferredDependenciesMap;
                 this.model = model;
+                this.diagnosticLevel = diagnosticLevel;
             }
 
             public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
@@ -100,6 +102,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                     {
                                         this.diagnostics.Add(
                                             parent.CreateDiagnosticForSpan(
+                                                diagnosticLevel,
                                                 declaredDependency.Span,
                                                 referencedResource.Name));
                                     }

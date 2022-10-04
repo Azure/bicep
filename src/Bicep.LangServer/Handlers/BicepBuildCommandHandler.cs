@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Core.Helpers;
+using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
@@ -40,8 +41,9 @@ namespace Bicep.LanguageServer.Handlers
         private readonly INamespaceProvider namespaceProvider;
         private readonly IConfigurationManager configurationManager;
         private readonly IApiVersionProviderFactory apiVersionProviderFactory;
+        private readonly IBicepAnalyzer bicepAnalyzer;
 
-        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProviderFactory featureProviderFactory, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IApiVersionProviderFactory apiVersionProviderFactory, IConfigurationManager configurationManager)
+        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProviderFactory featureProviderFactory, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IApiVersionProviderFactory apiVersionProviderFactory, IConfigurationManager configurationManager, IBicepAnalyzer bicepAnalyzer)
             : base(LangServerConstants.BuildCommand, serializer)
         {
             this.compilationManager = compilationManager;
@@ -51,6 +53,7 @@ namespace Bicep.LanguageServer.Handlers
             this.moduleDispatcher = moduleDispatcher;
             this.configurationManager = configurationManager;
             this.apiVersionProviderFactory = apiVersionProviderFactory;
+            this.bicepAnalyzer = bicepAnalyzer;
         }
 
         public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
@@ -86,7 +89,7 @@ namespace Bicep.LanguageServer.Handlers
             if (context is null)
             {
                 SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
-                compilation = new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, new LinterAnalyzer());
+                compilation = new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
             }
             else
             {

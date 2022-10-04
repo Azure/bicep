@@ -131,7 +131,7 @@ namespace Bicep.Core.UnitTests.Utils
             var model = new ParamsSemanticModel(sourceFileGrouping, configuration, context.GetFeatures(), file => {
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
-                return new Compilation(IFeatureProviderFactory.WithStaticFeatureProvider(context.GetFeatures()), context.GetNamespaceProvider(), compilationGrouping, IConfigurationManager.WithStaticConfiguration(configuration), IApiVersionProviderFactory.WithStaticApiVersionProvider(apiVersionProvider), new LinterAnalyzer());
+                return new Compilation(IFeatureProviderFactory.WithStaticFeatureProvider(context.GetFeatures()), context.GetNamespaceProvider(), compilationGrouping, IConfigurationManager.WithStaticConfiguration(configuration), IApiVersionProviderFactory.WithStaticApiVersionProvider(apiVersionProvider), BicepTestConstants.LinterAnalyzer);
             });
 
             return CompileParams(context, model);

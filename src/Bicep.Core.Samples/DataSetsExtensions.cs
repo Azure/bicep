@@ -59,7 +59,7 @@ namespace Bicep.Core.Samples
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
             }
 
-            return (new Compilation(featuresFactory, namespaceProvider, sourceFileGrouping, IConfigurationManager.WithStaticConfiguration(configuration), BicepTestConstants.ApiVersionProviderFactory, new LinterAnalyzer()), outputDirectory, fileUri);
+            return (new Compilation(featuresFactory, namespaceProvider, sourceFileGrouping, IConfigurationManager.WithStaticConfiguration(configuration), BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer), outputDirectory, fileUri);
         }
 
         public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, TestContext testContext, params (Uri registryUri, string repository)[] additionalClients)

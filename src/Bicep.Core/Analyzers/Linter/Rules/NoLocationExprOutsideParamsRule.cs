@@ -27,7 +27,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            RuleVisitor visitor = new(this);
+            RuleVisitor visitor = new(this, GetDiagnosticLevel(model));
             visitor.Visit(model.SourceFile.ProgramSyntax);
             return visitor.diagnostics;
         }
@@ -37,10 +37,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             public List<IDiagnostic> diagnostics = new();
 
             private readonly NoLocationExprOutsideParamsRule parent;
+            private readonly DiagnosticLevel diagnosticLevel;
 
-            public RuleVisitor(NoLocationExprOutsideParamsRule parent)
+            public RuleVisitor(NoLocationExprOutsideParamsRule parent, DiagnosticLevel diagnosticLevel)
             {
                 this.parent = parent;
+                this.diagnosticLevel = diagnosticLevel;
             }
 
             public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
@@ -58,7 +60,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     string msg = String.Format(
                         CoreResources.NoLocExprOutsideParamsRuleError,
                         actualExpression);
-                    this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, msg));
+                    this.diagnostics.Add(parent.CreateDiagnosticForSpan(diagnosticLevel, syntax.Span, msg));
                 }
 
                 base.VisitPropertyAccessSyntax(syntax);

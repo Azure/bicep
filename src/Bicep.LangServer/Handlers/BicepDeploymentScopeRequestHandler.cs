@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
-using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -50,6 +50,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IApiVersionProviderFactory apiVersionProviderFactory;
+        private readonly IBicepAnalyzer bicepAnalyzer;
 
         public BicepDeploymentScopeRequestHandler(
             ICompilationManager compilationManager,
@@ -60,7 +61,8 @@ namespace Bicep.LanguageServer.Handlers
             IModuleDispatcher moduleDispatcher,
             INamespaceProvider namespaceProvider,
             ISerializer serializer,
-            IApiVersionProviderFactory apiVersionProviderFactory)
+            IApiVersionProviderFactory apiVersionProviderFactory,
+            IBicepAnalyzer bicepAnalyzer)
             : base(LangServerConstants.GetDeploymentScopeCommand, serializer)
         {
             this.compilationManager = compilationManager;
@@ -71,6 +73,7 @@ namespace Bicep.LanguageServer.Handlers
             this.moduleDispatcher = moduleDispatcher;
             this.namespaceProvider = namespaceProvider;
             this.apiVersionProviderFactory = apiVersionProviderFactory;
+            this.bicepAnalyzer = bicepAnalyzer;
         }
 
         public override Task<BicepDeploymentScopeResponse> Handle(BicepDeploymentScopeParams request, CancellationToken cancellationToken)
@@ -135,7 +138,7 @@ namespace Bicep.LanguageServer.Handlers
             if (context is null)
             {
                 SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
-                return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, new LinterAnalyzer());
+                return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
             }
             else
             {

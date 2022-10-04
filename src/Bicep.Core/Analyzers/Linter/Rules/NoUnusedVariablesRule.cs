@@ -29,6 +29,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
+            var diagnosticLevel = GetDiagnosticLevel(model);
             // TODO: Performance: Use a visitor to visit VariableAccesssyntax and collects the non-error symbols into a list.
             // Then do a symbol visitor to go through all the symbols that exist and compare.
             // Same issue for unused-params rule.
@@ -39,7 +40,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 .Where(sym => sym.NameSyntax.IsValid);
             foreach (var sym in unreferencedVariables)
             {
-                yield return CreateRemoveUnusedDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.ProgramSyntax);
+                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.ProgramSyntax);
             }
 
             // TODO: This will not find local variables because they are not in the top-level scope.
@@ -52,7 +53,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var sym in unreferencedLocalVariables)
             {
-                yield return CreateRemoveUnusedDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.ProgramSyntax);
+                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.ProgramSyntax);
             }
         }
 

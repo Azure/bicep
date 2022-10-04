@@ -44,7 +44,7 @@ namespace Bicep.LangServer.UnitTests
             var workspace = new Workspace();
             workspace.UpsertSourceFile(sourceFile);
             var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
-            var context = provider.Create(workspace, fileUri, ImmutableDictionary<ISourceFile, ISemanticModel>.Empty, new LinterAnalyzer());
+            var context = provider.Create(workspace, fileUri, ImmutableDictionary<ISourceFile, ISemanticModel>.Empty, BicepTestConstants.LinterAnalyzer);
 
             context.Compilation.Should().NotBeNull();
             // TODO: remove Where when the support of modifiers is dropped.
