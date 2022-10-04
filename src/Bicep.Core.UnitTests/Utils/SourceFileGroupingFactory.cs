@@ -31,7 +31,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .WithWorkspaceFiles(fileContentsByUri)
                 .WithFileResolver(fileResolver)
                 .WithConfigurationManager(configurationManager)
-                .WithFeatureProvider(features ?? BicepTestConstants.Features)
+                .WithFeatureProviderFactory(IFeatureProviderFactory.WithStaticFeatureProvider(features ?? BicepTestConstants.Features))
                 .SourceFileGrouping.Build(entryFileUri);
         }
     }

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Commands;
+using Bicep.Core.Features;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -52,7 +53,13 @@ namespace Bicep.Cli.Helpers
 
             // add contents of the context
             services.AddSingleton(context.NamespaceProvider);
-            services.AddSingleton(context.Features);
+            if (context.FeatureProviderFactory is {} factory)
+            {
+                services.AddSingleton(factory);
+            } else
+            {
+                services.AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>();
+            }
             services.AddSingleton(context.ClientFactory);
             services.AddSingleton(context.TemplateSpecRepositoryFactory);
 

@@ -35,8 +35,8 @@ namespace Bicep.Core.UnitTests.Utils
         public static ServiceBuilder WithWorkspace(this ServiceBuilder serviceBuilder, IWorkspace workspace)
             => Register(serviceBuilder, workspace);
 
-        public static ServiceBuilder WithFeatureProvider(this ServiceBuilder serviceBuilder, IFeatureProvider featureProvider)
-            => Register(serviceBuilder, featureProvider);
+        public static ServiceBuilder WithFeatureProviderFactory(this ServiceBuilder serviceBuilder, IFeatureProviderFactory featureProviderFactory)
+            => Register(serviceBuilder, featureProviderFactory);
 
         public static ServiceBuilder WithNamespaceProvider(this ServiceBuilder serviceBuilder, INamespaceProvider namespaceProvider)
             => Register(serviceBuilder, namespaceProvider);
@@ -44,8 +44,8 @@ namespace Bicep.Core.UnitTests.Utils
         public static ServiceBuilder WithConfigurationManager(this ServiceBuilder serviceBuilder, IConfigurationManager configurationManager)
             => Register(serviceBuilder, configurationManager);
 
-        public static ServiceBuilder WithApiVersionProvider(this ServiceBuilder serviceBuilder, IApiVersionProvider apiVersionProvider)
-            => Register(serviceBuilder, apiVersionProvider);
+        public static ServiceBuilder WithApiVersionProviderFactory(this ServiceBuilder serviceBuilder, IApiVersionProviderFactory apiVersionProviderFactory)
+            => Register(serviceBuilder, apiVersionProviderFactory);
 
         public static ServiceBuilder WithBicepAnalyzer(this ServiceBuilder serviceBuilder, IBicepAnalyzer bicepAnalyzer)
             => Register(serviceBuilder, bicepAnalyzer);
@@ -62,11 +62,11 @@ namespace Bicep.Core.UnitTests.Utils
                     .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
                     .AddSingleton<IFileResolver, FileResolver>()
                     .AddSingleton<IConfigurationManager, ConfigurationManager>()
-                    .AddSingleton<IApiVersionProvider, ApiVersionProvider>()
+                    .AddSingleton<IApiVersionProviderFactory, ApiVersionProviderFactory>()
                     .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
                     .AddSingleton<IFileSystem, IOFileSystem>()
                     .AddSingleton<IWorkspace, Workspace>())
-                .WithFeatureProvider(BicepTestConstants.Features);
+                .WithFeatureProviderFactory(BicepTestConstants.FeatureProviderFactory);
 
         public static ServiceBuilder WithAzResources(this ServiceBuilder serviceBuilder, IEnumerable<ResourceTypeComponents> resourceTypes)
             => serviceBuilder.WithRegistration(x => x.AddSingleton<IAzResourceTypeLoader>(TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(resourceTypes)));
@@ -116,11 +116,11 @@ namespace Bicep.Core.UnitTests.Utils
             public Compilation Build(SourceFileGrouping sourceFileGrouping, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
             {
                 return new(
-                    provider.GetRequiredService<IFeatureProvider>(),
+                    provider.GetRequiredService<IFeatureProviderFactory>(),
                     provider.GetRequiredService<INamespaceProvider>(),
                     sourceFileGrouping,
                     provider.GetRequiredService<IConfigurationManager>(),
-                    provider.GetRequiredService<IApiVersionProvider>(),
+                    provider.GetRequiredService<IApiVersionProviderFactory>(),
                     provider.GetRequiredService<IBicepAnalyzer>(),
                     modelLookup);
             }

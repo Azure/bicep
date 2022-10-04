@@ -20,14 +20,14 @@ namespace Bicep.LanguageServer.ParamsHandlers
     {
         private readonly ILogger<BicepParamsCompletionHandler> logger;
         private readonly ICompletionProvider completionProvider;
-        private readonly IFeatureProvider featureProvider;
+        private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly IParamsCompilationManager paramsCompilationManager;
 
-        public BicepParamsCompletionHandler(ILogger<BicepParamsCompletionHandler> logger, ICompletionProvider completionProvider, IFeatureProvider featureProvider, IParamsCompilationManager paramsCompilationManager)
+        public BicepParamsCompletionHandler(ILogger<BicepParamsCompletionHandler> logger, ICompletionProvider completionProvider, IFeatureProviderFactory featureProviderFactory, IParamsCompilationManager paramsCompilationManager)
         {
             this.logger = logger;
             this.completionProvider = completionProvider;
-            this.featureProvider = featureProvider;
+            this.featureProviderFactory = featureProviderFactory;
             this.paramsCompilationManager = paramsCompilationManager;
         }
 
@@ -35,7 +35,7 @@ namespace Bicep.LanguageServer.ParamsHandlers
         {
             var completions = Enumerable.Empty<CompletionItem>();
 
-            if (featureProvider.ParamsFilesEnabled)
+            if (featureProviderFactory.GetFeatureProvider(request.TextDocument.Uri.ToUri()).ParamsFilesEnabled)
             {
                 var paramsCompilationContext = this.paramsCompilationManager.GetCompilation(request.TextDocument.Uri);
                 if (paramsCompilationContext is null)

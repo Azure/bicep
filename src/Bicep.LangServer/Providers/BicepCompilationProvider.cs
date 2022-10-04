@@ -22,16 +22,16 @@ namespace Bicep.LanguageServer.Providers
     public class BicepCompilationProvider : ICompilationProvider
     {
         private readonly IConfigurationManager configurationManager;
-        private readonly IFeatureProvider features;
-        private readonly IApiVersionProvider apiVersionProvider;
+        private readonly IFeatureProviderFactory featureProviderFactory;
+        private readonly IApiVersionProviderFactory apiVersionProviderFactory;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
 
-        public BicepCompilationProvider(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IApiVersionProvider apiVersionProvider, IConfigurationManager configurationManager)
+        public BicepCompilationProvider(IFeatureProviderFactory featureProviderFactory, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IApiVersionProviderFactory apiVersionProviderFactory, IConfigurationManager configurationManager)
         {
-            this.features = features;
-            this.apiVersionProvider = apiVersionProvider;
+            this.featureProviderFactory = featureProviderFactory;
+            this.apiVersionProviderFactory = apiVersionProviderFactory;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
@@ -52,7 +52,7 @@ namespace Bicep.LanguageServer.Providers
 
         private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, IBicepAnalyzer bicepAnalyzer)
         {
-            var compilation = new Compilation(features, namespaceProvider, syntaxTreeGrouping, configurationManager, apiVersionProvider, bicepAnalyzer, modelLookup);
+            var compilation = new Compilation(featureProviderFactory, namespaceProvider, syntaxTreeGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer, modelLookup);
             return new CompilationContext(compilation);
         }
     }

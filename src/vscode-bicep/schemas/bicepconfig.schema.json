@@ -551,6 +551,31 @@
           }
         }
       }
+    },
+    "cacheRootDirectory": {
+      "type": "string",
+      "description": "The directory in which Bicep may cache templates downloaded from remote registries"
+    },
+    "experimentalFeaturesEnabled": {
+      "type": "object",
+      "description": "The experimental Bicep features that should be enabled or disabled for templates using this configuration file",
+      "properties": {
+        "symbolicNameCodegen": {
+          "type": "boolean"
+        },
+        "imports": {
+          "type": "boolean"
+        },
+        "resourceTypedParamsAndOutputs": {
+          "type": "boolean"
+        },
+        "sourceMapping": {
+          "type": "boolean"
+        },
+        "paramsFiles": {
+          "type": "boolean"
+        }
+      }
     }
   }
 }

@@ -128,32 +128,10 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public async Task BicepHelpShouldIncludePublishWhenRegistryEnabled()
+        public async Task BicepHelpShouldAlwaysIncludePublish()
         {
-            var featuresMock = Repository.Create<IFeatureProvider>();
-            featuresMock.Setup(m => m.RegistryEnabled).Returns(true);
-
-            var settings = CreateDefaultSettings() with { Features = featuresMock.Object };
-
-            var (output, error, result) = await Bicep(settings, "--help");
-
-            result.Should().Be(0);
-            error.Should().BeEmpty();
-
-            output.Should().NotBeEmpty();
-            output.Should().ContainAll(
-                "publish",
-                "Publishes",
-                "registry",
-                "reference",
-                "azurecr.io",
-                "br",
-                "--target");
-        }
-
-        [TestMethod]
-        public async Task BicepHelpShouldNotIncludePublishWhenRegistryDisabled()
-        {
+            // disable registry to ensure `bicep --help` is not consulting the feature provider before
+            // preparing the help text (as features can only be determined when an input file is specified)
             var featuresMock = Repository.Create<IFeatureProvider>();
             featuresMock.Setup(m => m.RegistryEnabled).Returns(false);
 
@@ -165,7 +143,7 @@ namespace Bicep.Cli.IntegrationTests
             error.Should().BeEmpty();
 
             output.Should().NotBeEmpty();
-            output.Should().NotContainAny(
+            output.Should().ContainAll(
                 "publish",
                 "Publishes",
                 "registry",

@@ -267,7 +267,6 @@ jobs:
           if-no-files-found: error
 
       - name: Upload BicepLanguageServerClient VSIX
-        id: upload-vs-vsix
         uses: actions/upload-artifact@v3
         with:
           name: Bicep.VSLanguageServerClient.Vsix.vsix
@@ -279,6 +278,9 @@ jobs:
         with:
           testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.UnitTests/bin/Release/net472/Bicep.VSLanguageServerClient.UnitTests.dll
           runInParallel: true
+        # Temporary workaround to force a green build - VS tests are flaky
+        # Proper fix tracked under https://github.com/Azure/bicep/issues/8078
+        continue-on-error: true
 
       - name: Install bicep in Visual Studio
         run: ./src/vs-bicep/Install.cmd
@@ -288,11 +290,9 @@ jobs:
         with:
           testAssembly: src/vs-bicep/Bicep.VSLanguageServerClient.IntegrationTests/bin/Release/net472/Bicep.VSLanguageServerClient.IntegrationTests.dll
           runInParallel: false
-
-      # Temporary workaround to force a green build - VS tests are flaky
-      - name: Ignore flaky tests
-        if: failure() && steps.upload-vs-vsix.outcome == 'success'
-        run: exit 0
+        # Temporary workaround to force a green build - VS tests are flaky
+        # Proper fix tracked under https://github.com/Azure/bicep/issues/8078
+        continue-on-error: true
 
   build-windows-setup:
     name: Build Windows Setup

@@ -108,6 +108,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                 }
                               }
                             }".Replace("<TESTING_TODAY_DATE>", today))),
+                BicepTestConstants.BuiltInConfiguration.CacheRootDirectory,
+                BicepTestConstants.BuiltInConfiguration.ExperimentalFeaturesEnabled,
                 null,
                 null);
         }

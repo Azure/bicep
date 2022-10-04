@@ -43,6 +43,17 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
 
         private static IEnumerable<object[]> GetDeserializeTestData()
         {
+            var typesToTest = new[]
+            {
+                // it's too expensive to test all permutations.
+                // keep this list short, but updated with a set of important providers.
+                "microsoft.network/2022-05-01",
+                "microsoft.compute/2022-08-01",
+                "microsoft.documentdb/2022-08-15",
+                "microsoft.storage/2022-05-01",
+                "microsoft.web/2022-03-01",
+            }.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
             var flagPermutationsToTest = new [] {
                 ResourceTypeGenerationFlags.None,
                 ResourceTypeGenerationFlags.ExistingResource,
@@ -53,15 +64,23 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
 
             foreach (var providerGrouping in GetAzNamespaceType().ResourceTypeProvider.GetAvailableTypes().GroupBy(x => x.TypeSegments[0])) {
                 foreach (var apiVersionGrouping in providerGrouping.GroupBy(x => x.ApiVersion)) {
+                    var providerName = providerGrouping.Key;
+                    var apiVersion = apiVersionGrouping.Key!;
+
+                    if (!typesToTest.Remove($"{providerName}/{apiVersion}"))
+                    {
+                        continue;
+                    }
+
                     foreach (var flags in flagPermutationsToTest) {
-                        var providerName = providerGrouping.Key;
-                        var apiVersion = apiVersionGrouping.Key!;
                         var resourceTypes = apiVersionGrouping.Select(x => x.FormatName()).ToList();
 
                         yield return new object[] { providerName, apiVersion, flags, resourceTypes };
                     }
                 }
             }
+
+            typesToTest.Should().BeEmpty();
         }
 
         public static string GetDeserializeTestDisplayName(MethodInfo info, object[] values)

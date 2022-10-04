@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.Registry.Auth;
@@ -17,14 +16,14 @@ namespace Bicep.Cli
             IAzResourceTypeLoader azResourceTypeLoader,
             TextWriter outputWriter,
             TextWriter errorWriter,
-            IFeatureProvider? features = null,
+            IFeatureProviderFactory? featureProviderFactory = null,
             IContainerRegistryClientFactory? clientFactory = null,
             ITemplateSpecRepositoryFactory? templateSpecRepositoryFactory = null)
         {
             // keep the list of services in this class in sync with the logic in the AddInvocationContext() extension method
             OutputWriter = outputWriter;
             ErrorWriter = errorWriter;
-            Features = features ?? new FeatureProvider();
+            FeatureProviderFactory = featureProviderFactory;
             ClientFactory = clientFactory ?? new ContainerRegistryClientFactory(new TokenCredentialFactory());
             TemplateSpecRepositoryFactory = templateSpecRepositoryFactory ?? new TemplateSpecRepositoryFactory(new TokenCredentialFactory());
             NamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoader);
@@ -36,9 +35,7 @@ namespace Bicep.Cli
 
         public TextWriter ErrorWriter { get; }
 
-        public EmitterSettings EmitterSettings => new EmitterSettings(Features);
-
-        public IFeatureProvider Features { get; }
+        public IFeatureProviderFactory? FeatureProviderFactory { get; }
 
         public IContainerRegistryClientFactory ClientFactory { get; }
 

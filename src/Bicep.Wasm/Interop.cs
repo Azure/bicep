@@ -26,9 +26,13 @@ namespace Bicep.Wasm
 {
     public class Interop
     {
-        private static readonly IFeatureProvider features = new FeatureProvider();
+        private static readonly IConfigurationManager configurationManager = IConfigurationManager.WithStaticConfiguration(IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled());
+
+        private static readonly IFeatureProviderFactory featureProviderFactory = new FeatureProviderFactory(configurationManager);
 
         private static readonly INamespaceProvider namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
+
+        private static readonly IApiVersionProviderFactory apiVersionProviderFactory = new ApiVersionProviderFactory(featureProviderFactory, namespaceProvider);
 
         private static readonly LinterAnalyzer linterAnalyzer = new LinterAnalyzer();
 
@@ -66,7 +70,7 @@ namespace Bicep.Wasm
             try
             {
                 var bicepUri = PathHelper.ChangeToBicepExtension(jsonUri);
-                var decompiler = new TemplateDecompiler(features, namespaceProvider, fileResolver, new EmptyModuleRegistryProvider(), linterAnalyzer);
+                var decompiler = new TemplateDecompiler(featureProviderFactory, namespaceProvider, fileResolver, new EmptyModuleRegistryProvider(), apiVersionProviderFactory, linterAnalyzer);
                 var (entrypointUri, filesToSave) = decompiler.DecompileFileWithModules(jsonUri, bicepUri);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
@@ -137,7 +141,7 @@ namespace Bicep.Wasm
             {
                 var compilation = GetCompilation(content);
                 var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
-                var emitterSettings = new EmitterSettings(features);
+                var emitterSettings = new EmitterSettings(featureProviderFactory.GetFeatureProvider(new Uri("inmemory:///main.bicep")));
                 var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
 
                 // memory stream is not ideal for frequent large allocations
@@ -168,11 +172,10 @@ namespace Bicep.Wasm
             workspace.UpsertSourceFile(sourceFile);
 
             var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>());
-            var configurationManager = IConfigurationManager.WithStaticConfiguration(IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled());
             var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider(), configurationManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri);
 
-            return new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, new ApiVersionProvider(features, namespaceProvider), linterAnalyzer);
+            return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, linterAnalyzer);
         }
 
         private static string ReadStreamToEnd(Stream stream)
