@@ -96,7 +96,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             var message = await messageListener.WaitNext();
             message.Should().HaveMessageAndType(
-                "Failed to deserialize kubernetes manifest YAML.",
+                "Failed to deserialize kubernetes manifest YAML: (Lin: 1, Col: 4, Chr: 5) - (Lin: 1, Col: 25, Chr: 26): Expected dictionary node.",
                 MessageType.Error);
         }
     }

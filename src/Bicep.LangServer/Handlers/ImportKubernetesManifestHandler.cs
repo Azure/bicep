@@ -18,6 +18,7 @@ using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using SharpYaml;
 using SharpYaml.Serialization;
 
 namespace Bicep.LanguageServer.Handlers
@@ -94,7 +95,7 @@ namespace Bicep.LanguageServer.Handlers
                 Trace.TraceError("Exception deserializing manifest: {0}", ex);
 
                 throw new TelemetryAndErrorHandlingException(
-                    $"Failed to deserialize kubernetes manifest YAML.",
+                    $"Failed to deserialize kubernetes manifest YAML: {ex.Message}",
                     BicepTelemetryEvent.ImportKubernetesManifestFailure("DeserializeYamlFailed"));
             }
 
@@ -110,18 +111,25 @@ namespace Bicep.LanguageServer.Handlers
         {
             if (yamlDocument.RootNode is not YamlMappingNode rootNode)
             {
-                throw new InvalidOperationException($"Unsupported type {yamlDocument.RootNode.GetType()}");
+                throw new YamlException(yamlDocument.RootNode.Start, yamlDocument.RootNode.End, $"Expected dictionary node.");
             }
 
-            var kindNodeKvp = rootNode.Children.FirstOrDefault(x => (x.Key as YamlScalarNode)?.Value == "kind");
-            var apiVersionNodeKvp = rootNode.Children.FirstOrDefault(x => (x.Key as YamlScalarNode)?.Value == "apiVersion");
+            var kindKey = rootNode.Children.Keys.FirstOrDefault(x => x is YamlScalarNode scalar && scalar.Value == "kind");
+            var apiVersionKey = rootNode.Children.Keys.FirstOrDefault(x => x is YamlScalarNode scalar && scalar.Value == "apiVersion");
 
-            if (kindNodeKvp.Value is not YamlScalarNode kindNode ||
-                apiVersionNodeKvp.Value is not YamlScalarNode apiVersionNode)
+            if (kindKey is null || apiVersionKey is null)
             {
-                throw new TelemetryAndErrorHandlingException(
-                    "Failed to process kubernetes manifest. Unable to find 'kind' or 'apiVersion' for resource declaration.",
-                    BicepTelemetryEvent.ImportKubernetesManifestFailure("FindKindAndApiVersionFailed"));
+                throw new YamlException(rootNode.Start, rootNode.End, $"Failed to find 'kind' and 'apiVersion' keys for resource declaration.");
+            }
+
+            if (rootNode.Children[kindKey] is not YamlScalarNode kindNode)
+            {
+                throw new YamlException(kindKey.Start, kindKey.End, "Unable to process 'kind' for resource declaration.");
+            }
+
+            if (rootNode.Children[apiVersionKey] is not YamlScalarNode apiVersionNode)
+            {
+                throw new YamlException(apiVersionKey.Start, apiVersionKey.End, "Unable to process 'apiVersion' for resource declaration.");
             }
 
             var (type, apiVersion) = apiVersionNode.Value.LastIndexOf('/') switch {
@@ -129,7 +137,7 @@ namespace Bicep.LanguageServer.Handlers
                 int x => ($"{apiVersionNode.Value.Substring(0, x)}/{kindNode.Value}", apiVersionNode.Value.Substring(x + 1)),
             };
 
-            var filteredChildren = rootNode.Children.Where(x => x.Key != kindNodeKvp.Key && x.Key != apiVersionNodeKvp.Key);
+            var filteredChildren = rootNode.Children.Where(x => x.Key != kindKey && x.Key != apiVersionKey);
 
             var resourceBody = ConvertObjectChildren(filteredChildren);
             var symbolName = GetResourceSymbolName(type, resourceBody);
