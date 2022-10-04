@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
-using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -51,6 +51,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IApiVersionProvider apiVersionProvider;
+        private readonly IBicepAnalyzer bicepAnalyzer;
 
         public BicepDeploymentScopeRequestHandler(
             EmitterSettings emitterSettings,
@@ -62,7 +63,8 @@ namespace Bicep.LanguageServer.Handlers
             IModuleDispatcher moduleDispatcher,
             INamespaceProvider namespaceProvider,
             ISerializer serializer,
-            IApiVersionProvider apiVersionProvider)
+            IApiVersionProvider apiVersionProvider,
+            IBicepAnalyzer bicepAnalyzer)
             : base(LangServerConstants.GetDeploymentScopeCommand, serializer)
         {
             this.compilationManager = compilationManager;
@@ -74,6 +76,7 @@ namespace Bicep.LanguageServer.Handlers
             this.moduleDispatcher = moduleDispatcher;
             this.namespaceProvider = namespaceProvider;
             this.apiVersionProvider = apiVersionProvider;
+            this.bicepAnalyzer = bicepAnalyzer;
         }
 
         public override Task<BicepDeploymentScopeResponse> Handle(BicepDeploymentScopeParams request, CancellationToken cancellationToken)
@@ -137,7 +140,7 @@ namespace Bicep.LanguageServer.Handlers
             if (context is null)
             {
                 SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
-                return new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, new LinterAnalyzer());
+                return new Compilation(features, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProvider, bicepAnalyzer);
             }
             else
             {

@@ -31,8 +31,6 @@ namespace Bicep.Core.Analyzers.Interfaces
 
         Uri? Uri { get; }
 
-        void Configure(AnalyzersConfiguration configuration);
-
         IEnumerable<IDiagnostic> Analyze(SemanticModel model);
     }
 }
