@@ -95,7 +95,13 @@ namespace Bicep.Core.UnitTests.Configuration
       }
     }
   },
-  ""experimentalFeaturesEnabled"": {}
+  ""experimentalFeaturesEnabled"": {
+    ""symbolicNameCodegen"": null,
+    ""imports"": null,
+    ""resourceTypedParamsAndOutputs"": null,
+    ""sourceMapping"": null,
+    ""paramsFiles"": null
+  }
 }");
         }
 
@@ -146,7 +152,13 @@ namespace Bicep.Core.UnitTests.Configuration
     }
   },
   ""analyzers"": {},
-  ""experimentalFeaturesEnabled"": {}
+  ""experimentalFeaturesEnabled"": {
+    ""symbolicNameCodegen"": null,
+    ""imports"": null,
+    ""resourceTypedParamsAndOutputs"": null,
+    ""sourceMapping"": null,
+    ""paramsFiles"": null
+  }
 }");
         }
 
@@ -223,7 +235,13 @@ namespace Bicep.Core.UnitTests.Configuration
       }
     }
   },
-  ""experimentalFeaturesEnabled"": {}
+  ""experimentalFeaturesEnabled"": {
+    ""symbolicNameCodegen"": null,
+    ""imports"": null,
+    ""resourceTypedParamsAndOutputs"": null,
+    ""sourceMapping"": null,
+    ""paramsFiles"": null
+  }
 }");
         }
 
@@ -437,7 +455,7 @@ namespace Bicep.Core.UnitTests.Configuration
   },
   ""cacheRootDirectory"": ""/home/username/.bicep/cache"",
   ""experimentalFeaturesEnabled"": {
-    ""registry"": false
+    ""imports"": true
   }
 }"
             });
@@ -522,7 +540,11 @@ namespace Bicep.Core.UnitTests.Configuration
   },
   ""cacheRootDirectory"": ""/home/username/.bicep/cache"",
   ""experimentalFeaturesEnabled"": {
-    ""registry"": false
+    ""symbolicNameCodegen"": null,
+    ""imports"": true,
+    ""resourceTypedParamsAndOutputs"": null,
+    ""sourceMapping"": null,
+    ""paramsFiles"": null
   }
 }");
         }
