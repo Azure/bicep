@@ -20,20 +20,17 @@ namespace Bicep.Core.Features
 
         public bool RegistryEnabled => true;
 
-        public bool SymbolicNameCodegenEnabled => LookupFeatureFlag("symbolicNameCodegen", false);
+        public bool SymbolicNameCodegenEnabled => configuration.ExperimentalFeaturesEnabled.SymbolicNameCodegen ?? false;
 
-        public bool ImportsEnabled => LookupFeatureFlag("imports", false);
+        public bool ImportsEnabled => configuration.ExperimentalFeaturesEnabled.Imports ?? false;
 
-        public bool ResourceTypedParamsAndOutputsEnabled => LookupFeatureFlag("resourceTypedParamsAndOutputs", false);
+        public bool ResourceTypedParamsAndOutputsEnabled => configuration.ExperimentalFeaturesEnabled.ResourceTypedParamsAndOutputs ?? false;
 
         public string AssemblyVersion => ThisAssembly.AssemblyFileVersion;
 
-        public bool SourceMappingEnabled => LookupFeatureFlag("sourceMapping", false);
+        public bool SourceMappingEnabled => configuration.ExperimentalFeaturesEnabled.SourceMapping ?? false;
 
-        public bool ParamsFilesEnabled => LookupFeatureFlag("paramsFiles", false);
-
-        private bool LookupFeatureFlag(string featureName, bool defaultValue)
-            => configuration.ExperimentalFeaturesEnabled.IsEnabled(featureName) is bool enabled ? enabled : defaultValue;
+        public bool ParamsFilesEnabled => configuration.ExperimentalFeaturesEnabled.ParamsFiles ?? false;
 
         public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 

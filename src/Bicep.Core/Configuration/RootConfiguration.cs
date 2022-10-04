@@ -23,7 +23,7 @@ namespace Bicep.Core.Configuration
             ModuleAliasesConfiguration moduleAliases,
             AnalyzersConfiguration analyzers,
             string? cacheRootDirectory,
-            ExperimentalFeaturesEnabledConfiguration experimentalFeaturesEnabled,
+            ExperimentalFeaturesEnabled experimentalFeaturesEnabled,
             string? configurationPath,
             IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate>? diagnosticBuilders)
         {
@@ -42,7 +42,7 @@ namespace Bicep.Core.Configuration
             var moduleAliases = ModuleAliasesConfiguration.Bind(element.GetProperty(ModuleAliasesKey), configurationPath);
             var analyzers = new AnalyzersConfiguration(element.GetProperty(AnalyzersKey));
             var cacheRootDirectory = element.TryGetProperty(CacheRootDirectoryKey, out var e) ? e.GetString() : default;
-            var experimentalFeaturesEnabled = new ExperimentalFeaturesEnabledConfiguration(element.GetProperty(ExperimentalFeaturesEnabledKey));
+            var experimentalFeaturesEnabled = ExperimentalFeaturesEnabled.Bind(element.GetProperty(ExperimentalFeaturesEnabledKey), configurationPath);
 
             return new(cloud, moduleAliases, analyzers, cacheRootDirectory, experimentalFeaturesEnabled, configurationPath, diagnosticBuilders);
         }
@@ -55,7 +55,7 @@ namespace Bicep.Core.Configuration
 
         public string? CacheRootDirectory { get; }
 
-        public ExperimentalFeaturesEnabledConfiguration ExperimentalFeaturesEnabled { get; }
+        public ExperimentalFeaturesEnabled ExperimentalFeaturesEnabled { get; }
 
         public string? ConfigurationPath { get; }
 
