@@ -1,5 +1,23 @@
 [
   {
+    "label": "../",
+    "kind": "folder",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_../",
+    "filterText": "'../'",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'../$0'"
+    },
+    "command": {
+      "title": "file path completion",
+      "command": "editor.action.triggerSuggest"
+    }
+  },
+  {
     "label": "ChildModules/",
     "kind": "folder",
     "deprecated": false,

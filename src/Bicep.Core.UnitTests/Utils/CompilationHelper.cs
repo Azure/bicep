@@ -17,6 +17,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
@@ -75,31 +76,26 @@ namespace Bicep.Core.UnitTests.Utils
                 => ApiVersionProvider ?? BicepTestConstants.ApiVersionProvider;
         }
 
-        public static CompilationResult Compile(Uri entryUri, IReadOnlyDictionary<Uri, string> bicepFiles, CompilationHelperContext? context = null)
-        {
-            context ??= new();
-            var fileResolver = new InMemoryFileResolver(bicepFiles);
-
-            var configuration = BicepTestConstants.BuiltInConfiguration;
-            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(bicepFiles, entryUri, fileResolver, configuration, context.GetFeatures());
-
-            return Compile(context, new Compilation(context.Features ?? BicepTestConstants.Features, context.GetNamespaceProvider(), sourceFileGrouping, IConfigurationManager.WithStaticConfiguration(configuration), BicepTestConstants.ApiVersionProvider, BicepTestConstants.LinterAnalyzer));
-        }
-
         public static CompilationResult Compile(CompilationHelperContext context, params (string fileName, string fileContents)[] files)
         {
-            var bicepFiles = files.Where(x => x.fileName.EndsWith(".bicep", StringComparison.InvariantCultureIgnoreCase));
-            bicepFiles.Select(x => x.fileName).Should().Contain("main.bicep");
+            files.Select(x => x.fileName).Should().Contain("main.bicep");
 
-            var systemFiles = files.Where(x => !x.fileName.EndsWith(".bicep", StringComparison.InvariantCultureIgnoreCase));
+            var (uriDictionary, entryUri) = CreateFileDictionary(files, "main.bicep");
+            var fileResolver = new InMemoryFileResolver(uriDictionary);
 
-            var (uriDictionary, entryUri) = CreateFileDictionary(bicepFiles, "main.bicep");
-            var fileResolver = new InMemoryFileResolver(CreateFileDictionary(systemFiles, "main.bicep").files);
+            return Compile(context, fileResolver, uriDictionary.Keys, entryUri);
+        }
 
+        public static CompilationResult Compile(CompilationHelperContext context, IFileResolver fileResolver, IEnumerable<Uri> sourceFiles, Uri entryUri)
+        {
             var configuration = context.GetConfiguration();
             var apiVersionProvider = context.GetApiVersionProvider();
 
-            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(uriDictionary, entryUri, fileResolver, configuration, context.GetFeatures());
+            var sourceFileDict = sourceFiles
+                .Where(x => PathHelper.HasBicepExtension(x) || PathHelper.HasArmTemplateLikeExtension(x))
+                .ToDictionary(x => x, x => fileResolver.TryRead(x, out var fileContents, out _) ? fileContents : throw new InvalidOperationException($"Failed to find file {x}"));
+
+            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(sourceFileDict, entryUri, fileResolver, configuration, context.GetFeatures());
 
             return Compile(context, new Compilation(context.Features ?? BicepTestConstants.Features, context.GetNamespaceProvider(), sourceFileGrouping, IConfigurationManager.WithStaticConfiguration(configuration), apiVersionProvider, BicepTestConstants.LinterAnalyzer));
         }
@@ -116,39 +112,21 @@ namespace Bicep.Core.UnitTests.Utils
         public static CompilationResult Compile(CompilationHelperContext context, string fileContents)
             => Compile(context, ("main.bicep", fileContents));
 
-        public static ParamsCompilationResult CompileParams(Uri entryUri, IReadOnlyDictionary<Uri, string> bicepFiles, CompilationHelperContext? context = null)
-        {
-            context ??= new();
-            var fileResolver = new InMemoryFileResolver(bicepFiles);
-
-            var configuration = context.GetConfiguration();
-            var apiVersionProvider = context.GetApiVersionProvider();
-            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(bicepFiles, entryUri, fileResolver, configuration, context.GetFeatures());
-
-            var model = new ParamsSemanticModel(sourceFileGrouping, configuration, context.GetFeatures(), file => {
-                var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
-
-                return new Compilation(context.GetFeatures(), context.GetNamespaceProvider(), compilationGrouping, IConfigurationManager.WithStaticConfiguration(configuration), apiVersionProvider, BicepTestConstants.LinterAnalyzer);
-            });
-
-            return CompileParams(context, model);
-        }
-
         public static ParamsCompilationResult CompileParams(CompilationHelperContext context, params (string fileName, string fileContents)[] files)
         {
-            var paramsFiles = files.Where(x => x.fileName.EndsWith(".bicepparam", StringComparison.InvariantCultureIgnoreCase));
-            paramsFiles.Select(x => x.fileName).Should().Contain("parameters.bicepparam");
+            files.Select(x => x.fileName).Should().Contain("parameters.bicepparam");
 
-            var bicepFiles = files.Where(x => x.fileName.EndsWith(".bicep", StringComparison.InvariantCultureIgnoreCase));
-
-            var systemFiles = files.Where(x => !x.fileName.EndsWith(".bicep", StringComparison.InvariantCultureIgnoreCase) && !x.fileName.EndsWith(".bicepparam", StringComparison.InvariantCultureIgnoreCase));
-
-            var (uriDictionary, entryUri) = CreateFileDictionary(bicepFiles.Concat(paramsFiles), "parameters.bicepparam");
-            var fileResolver = new InMemoryFileResolver(CreateFileDictionary(systemFiles, "parameters.bicepparam").files);
+            var (uriDictionary, entryUri) = CreateFileDictionary(files, "parameters.bicepparam");
+            var fileResolver = new InMemoryFileResolver(uriDictionary);
 
             var configuration = context.GetConfiguration();
             var apiVersionProvider = context.GetApiVersionProvider();
-            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(uriDictionary, entryUri, fileResolver, configuration, context.GetFeatures());
+
+            var sourceFiles = uriDictionary
+                .Where(x => PathHelper.HasBicepparamsExension(x.Key) || PathHelper.HasBicepExtension(x.Key) || PathHelper.HasArmTemplateLikeExtension(x.Key))
+                .ToDictionary(x => x.Key, x => x.Value);
+
+            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(sourceFiles, entryUri, fileResolver, configuration, context.GetFeatures());
 
             var model = new ParamsSemanticModel(sourceFileGrouping, configuration, context.GetFeatures(), file => {
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
@@ -171,9 +149,9 @@ namespace Bicep.Core.UnitTests.Utils
         private static (IReadOnlyDictionary<Uri, string> files, Uri entryFileUri) CreateFileDictionary(IEnumerable<(string fileName, string fileContents)> files, string entryFileName)
         {
             var uriDictionary = files.ToDictionary(
-                x => new Uri($"file:///path/to/{x.fileName}"),
+                x => InMemoryFileResolver.GetFileUri($"/path/to/{x.fileName}"),
                 x => x.fileContents);
-            var entryUri = new Uri($"file:///path/to/{entryFileName}");
+            var entryUri = InMemoryFileResolver.GetFileUri($"/path/to/{entryFileName}");
             return (uriDictionary, entryUri);
         }
 

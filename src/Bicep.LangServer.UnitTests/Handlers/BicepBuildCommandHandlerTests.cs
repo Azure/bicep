@@ -31,7 +31,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static readonly FileResolver FileResolver = new();
+        private static readonly FileResolver FileResolver = BicepTestConstants.FileResolver;
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
         private static readonly ISerializer Serializer = Repository.Create<ISerializer>().Object;
         private static readonly IConfigurationManager configurationManager = new ConfigurationManager(new IOFileSystem());
@@ -98,10 +98,10 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, @"targetScope
 
  #completionTest(12) -> empty
-targetScope 
+targetScope
 
  #completionTest(13,14) -> targetScopes
-targetScope = 
+targetScope =
 
 
 targetScope = 'asdfds'
@@ -121,12 +121,12 @@ param accountName string = 'testAccount'
 /input.bicep(3,2) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration.
 /input.bicep(3,2) : Error BCP001: The following token is not recognized: ""#"".
 /input.bicep(4,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
-/input.bicep(4,13) : Error BCP018: Expected the ""="" character at this location.
-/input.bicep(4,13) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
+/input.bicep(4,12) : Error BCP018: Expected the ""="" character at this location.
+/input.bicep(4,12) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
 /input.bicep(6,2) : Error BCP007: This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration.
 /input.bicep(6,2) : Error BCP001: The following token is not recognized: ""#"".
 /input.bicep(7,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
-/input.bicep(7,15) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
+/input.bicep(7,14) : Error BCP009: Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location.
 /input.bicep(10,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.
 /input.bicep(10,15) : Error BCP033: Expected a value of type ""'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'"" but the provided value is of type ""'asdfds'"".
 /input.bicep(12,1) : Error BCP112: The ""targetScope"" cannot be declared multiple times in one file.

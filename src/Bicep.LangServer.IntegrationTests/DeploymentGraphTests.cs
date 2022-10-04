@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
+using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer.Handlers;
@@ -30,12 +31,6 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var fileSystemDict = new Dictionary<Uri, string>();
-
-            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
-                this.TestContext,
-                options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
-                new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: new InMemoryFileResolver(fileSystemDict)));
-            var client = helper.Client;
 
             var mainUri = DocumentUri.FromFileSystemPath("/main.bicep");
             fileSystemDict[mainUri.ToUri()] = @"
@@ -94,6 +89,12 @@ resource res5 'Test.Rp/basicTests@2020-01-01' = {
   name: 'res5'
 }
 ";
+
+            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
+                this.TestContext,
+                options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
+                new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: new InMemoryFileResolver(fileSystemDict)));
+            var client = helper.Client;
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
             await diagnosticsListener.WaitNext();
