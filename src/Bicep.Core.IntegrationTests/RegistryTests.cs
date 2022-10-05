@@ -70,7 +70,7 @@ namespace Bicep.Core.IntegrationTests
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
             }
 
-            var compilation = Services.WithFeatureProviderFactory(featuresFactory).Compilation.Build(sourceFileGrouping);
+            var compilation = Services.WithFeatureProviderFactory(featuresFactory).Build().BuildCompilation(sourceFileGrouping);
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
             diagnostics.Should().HaveCount(1);
 

@@ -151,7 +151,7 @@ namespace Bicep.Core.IntegrationTests.Emit
         [TestMethod]
         public void TemplateEmitter_output_should_not_include_UTF8_BOM()
         {
-            var sourceFileGrouping = SourceFileGroupingFactory.CreateFromText(new(), "");
+            var sourceFileGrouping = Services.BuildSourceFileGrouping("");
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, "main.json");
 
             // emitting the template should be successful
@@ -274,7 +274,7 @@ this
 
         private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, IFeatureProvider features, string filePath)
         {
-            var compilation = Services.WithFeatureProvider(features).Compilation.Build(sourceFileGrouping);
+            var compilation = Services.WithFeatureProvider(features).Build().BuildCompilation(sourceFileGrouping);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
             using var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
@@ -283,7 +283,7 @@ this
 
         private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, IFeatureProvider features, MemoryStream memoryStream)
         {
-            var compilation = Services.WithFeatureProvider(features).Compilation.Build(sourceFileGrouping);
+            var compilation = Services.WithFeatureProvider(features).Build().BuildCompilation(sourceFileGrouping);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
             TextWriter tw = new StreamWriter(memoryStream);
@@ -295,7 +295,7 @@ this
             var model = new ParamsSemanticModel(sourceFileGrouping, BicepTestConstants.BuiltInConfiguration, features, file => {
                 var compilationGrouping = new SourceFileGrouping(BicepTestConstants.FileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
-                return Services.WithFeatureProviderFactory(IFeatureProviderFactory.WithStaticFeatureProvider(features)).Compilation.Build(compilationGrouping);
+                return Services.WithFeatureProviderFactory(IFeatureProviderFactory.WithStaticFeatureProvider(features)).Build().BuildCompilation(compilationGrouping);
             });
 
             var emitter = new ParametersEmitter(model);

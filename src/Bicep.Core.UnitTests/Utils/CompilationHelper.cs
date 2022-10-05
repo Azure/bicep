@@ -89,12 +89,12 @@ namespace Bicep.Core.UnitTests.Utils
                 .Where(x => PathHelper.HasBicepparamsExension(x.Key) || PathHelper.HasBicepExtension(x.Key) || PathHelper.HasArmTemplateLikeExtension(x.Key))
                 .ToDictionary(x => x.Key, x => x.Value);
 
-            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(services, sourceFiles, entryUri);
+            var sourceFileGrouping = services.BuildSourceFileGrouping(sourceFiles, entryUri);
 
             var model = new ParamsSemanticModel(sourceFileGrouping, configuration, features, file => {
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
-                return services.Compilation.Build(sourceFileGrouping);
+                return services.Build().BuildCompilation(sourceFileGrouping);
             });
 
             return CompileParams(model);
