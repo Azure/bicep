@@ -768,7 +768,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Nerdbank.GitVersioning 3.5.109 - MIT
+Nerdbank.GitVersioning 3.5.113 - MIT
 
 
 Copyright 1995-2017 Mark Adler

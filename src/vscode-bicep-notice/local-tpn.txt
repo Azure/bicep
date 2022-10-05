@@ -2725,7 +2725,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ---------------------------------------------------------
 
-commander 7.2.0 - MIT
+commander 6.2.1 - MIT
 https://github.com/tj/commander.js#readme
 
 Copyright (c) 2011 TJ Holowaychuk <tj@vision-media.ca>
@@ -2758,7 +2758,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ---------------------------------------------------------
 
-commander 6.2.1 - MIT
+commander 7.2.0 - MIT
 https://github.com/tj/commander.js#readme
 
 Copyright (c) 2011 TJ Holowaychuk <tj@vision-media.ca>
@@ -17850,7 +17850,7 @@ THE SOFTWARE.
 
 ---------------------------------------------------------
 
-nerdbank-gitversioning 3.5.109 - MIT
+nerdbank-gitversioning 3.5.113 - MIT
 https://github.com/dotnet/Nerdbank.GitVersioning
 
 Copyright (c) by P.J. Plauger
@@ -26536,7 +26536,7 @@ THE SOFTWARE.
 
 ---------------------------------------------------------
 
-styled-components 5.3.5 - MIT
+styled-components 5.3.6 - MIT
 https://styled-components.com/
 
 Copyright 2015, Yahoo! Inc.
@@ -27613,7 +27613,7 @@ END OF TERMS AND CONDITIONS
 
 ---------------------------------------------------------
 
-typescript 4.8.3 - Apache-2.0
+typescript 4.8.4 - Apache-2.0
 https://www.typescriptlang.org/
 
 (c) by W3C
@@ -29722,7 +29722,7 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 ---------------------------------------------------------
 
-Azure.Bicep.Types 0.2.115 - MIT
+Azure.Bicep.Types 0.3.4 - MIT
 
 
 (c) Microsoft Corporation
@@ -29741,7 +29741,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Azure.Bicep.Types.Az 0.2.115 - MIT
+Azure.Bicep.Types.Az 0.2.148 - MIT
 
 
 (c) Microsoft Corporation
@@ -29944,10 +29944,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Azure.Identity 1.6.1 - MIT
+Azure.Identity 1.7.0 - MIT
 
 
-(c) Microsoft Corporation
 
 MIT License
 
@@ -32955,7 +32954,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Nerdbank.GitVersioning 3.5.109 - MIT
+Nerdbank.GitVersioning 3.5.113 - MIT
 
 
 Copyright 1995-2017 Mark Adler
@@ -35954,7 +35953,7 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
-System.Text.Json 6.0.5 - MIT
+System.Text.Json 6.0.6 - MIT
 
 
 (c) Microsoft Corporation
