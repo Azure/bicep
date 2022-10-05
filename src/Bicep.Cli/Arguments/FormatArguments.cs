@@ -55,14 +55,11 @@ namespace Bicep.Cli.Arguments
                         {
                             throw new CommandLineException($"The --newline parameter cannot be specified twice");
                         }
-                        try
-                        {
-                            Newline = (NewlineOption)Enum.Parse(typeof(NewlineOption), value: args[i + 1], true);
-                        }
-                        catch (Exception)
+                        if (!Enum.TryParse<NewlineOption>(args[i + 1], true, out var newline) || !Enum.IsDefined<NewlineOption>(newline))
                         {
                             throw new CommandLineException($"The --newline parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(NewlineOption)))}");
                         }
+                        Newline = newline;
                         i++;
                         break;
 
@@ -75,14 +72,11 @@ namespace Bicep.Cli.Arguments
                         {
                             throw new CommandLineException($"The --indentKind parameter cannot be specified twice");
                         }
-                        try
-                        {
-                            IndentKind = (IndentKindOption)Enum.Parse(typeof(IndentKindOption), value: args[i + 1], true);
-                        }
-                        catch (Exception)
+                        if (!Enum.TryParse<IndentKindOption>(args[i + 1], true, out var indentKind) || !Enum.IsDefined<IndentKindOption>(indentKind))
                         {
                             throw new CommandLineException($"The --indentKind parameter only accepts values: {string.Join(" | ", Enum.GetNames(typeof(IndentKindOption)))}");
                         }
+                        IndentKind = indentKind;
                         i++;
                         break;
 
@@ -95,14 +89,11 @@ namespace Bicep.Cli.Arguments
                         {
                             throw new CommandLineException($"The --indentSize parameter cannot be specified twice");
                         }
-                        try
-                        {
-                            IndentSize = int.Parse(args[i + 1]);
-                        }
-                        catch (Exception)
+                        if (!int.TryParse(args[i + 1], out var indentSize))
                         {
                             throw new CommandLineException($"The --indentSize parameter only accepts integer values");
                         }
+                        IndentSize = indentSize;
                         i++;
                         break;
 
@@ -179,5 +170,6 @@ namespace Bicep.Cli.Arguments
         public int? IndentSize { get; }
 
         public bool? InsertFinalNewline { get; }
+
     }
 }

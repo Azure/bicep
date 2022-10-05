@@ -432,7 +432,7 @@ output myOutput string = 'hello!'
         }
 
         [TestMethod]
-        public async Task Format_with_indentSize_and_indentKundTab_ShouldFail_WithExpectedErrorMessage()
+        public async Task Format_with_indentSize_and_indentKindTab_ShouldFail_WithExpectedErrorMessage()
         {
             var bicepPath = FileHelper.SaveResultFile(TestContext, "input.bicep", @"
 output myOutput string = 'hello!'
