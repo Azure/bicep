@@ -14,7 +14,7 @@ namespace Bicep.Core.UnitTests.TestTests
         [TestMethod]
         public void PrintHelper_should_add_annotations()
         {
-            var bicepFile = SourceFileGroupingFactory.CreateFromText(new(), @"
+            var bicepFile = new ServiceBuilder().BuildSourceFileGrouping(@"
 resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
   name: 'hello'
   location: location
@@ -48,7 +48,7 @@ resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
         [TestMethod]
         public void PrintHelper_only_includes_nearby_context()
         {
-            var bicepFile = SourceFileGroupingFactory.CreateFromText(new(), @"
+            var bicepFile = new ServiceBuilder().BuildSourceFileGrouping(@"
 var test = '''
 here's
 a

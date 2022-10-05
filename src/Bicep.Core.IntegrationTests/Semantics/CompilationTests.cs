@@ -18,10 +18,10 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [TestMethod]
         public void EmptyProgram_SourceFileGrouping_should_be_persisted()
         {
-            var program = SourceFileGroupingFactory.CreateFromText(new(), DataSets.Empty.Bicep);
-            var compilation = Services.Compilation.Build(program);
+            var sourceFileGrouping = Services.BuildSourceFileGrouping(DataSets.Empty.Bicep);
+            var compilation = Services.Build().BuildCompilation(sourceFileGrouping);
 
-            compilation.SourceFileGrouping.Should().BeSameAs(program);
+            compilation.SourceFileGrouping.Should().BeSameAs(sourceFileGrouping);
             compilation.GetEntrypointSemanticModel().Should().NotBeNull();
         }
     }

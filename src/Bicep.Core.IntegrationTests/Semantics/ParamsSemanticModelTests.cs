@@ -27,12 +27,12 @@ namespace Bicep.Core.IntegrationTests.Semantics
         private ParamsSemanticModel CreateSemanticModel(string paramsFilePath)
         {
             var configuration = BicepTestConstants.BuiltInConfiguration;
-            var sourceFileGrouping = Services.SourceFileGrouping.Build(PathHelper.FilePathToFileUrl(paramsFilePath));
+            var sourceFileGrouping = Services.Build().BuildSourceFileGrouping(PathHelper.FilePathToFileUrl(paramsFilePath));
 
             return new ParamsSemanticModel(sourceFileGrouping, configuration, BicepTestConstants.Features, file => {
                 var compilationGrouping = new SourceFileGrouping(BicepTestConstants.FileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
-                return Services.Compilation.Build(compilationGrouping);
+                return Services.Build().BuildCompilation(compilationGrouping);
             });
         }
 
