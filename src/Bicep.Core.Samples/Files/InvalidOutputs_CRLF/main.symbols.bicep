@@ -7,7 +7,7 @@ output
 //@[07:07) Output <missing>. Type: any. Declaration start char: 0, length: 7
 
 var testSymbol = 42
-//@[04:14) Variable testSymbol. Type: int. Declaration start char: 0, length: 19
+//@[04:14) Variable testSymbol. Type: 42. Declaration start char: 0, length: 19
 
 // #completionTest(28,29) -> symbols
 output missingValueAndType = 

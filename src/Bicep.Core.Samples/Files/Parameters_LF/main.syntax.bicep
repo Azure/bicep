@@ -1,5 +1,5 @@
-/* 
-//@[00:3030) ProgramSyntax
+/*
+//@[00:3073) ProgramSyntax
   This is a block comment.
 */
 //@[02:0004) ├─Token(NewLine) |\n\n|
@@ -7,10 +7,10 @@
 // parameters without default value
 //@[35:0036) ├─Token(NewLine) |\n|
 @sys.description('''
-//@[00:0098) ├─ParameterDeclarationSyntax
-//@[00:0076) | ├─DecoratorSyntax
+//@[00:0097) ├─ParameterDeclarationSyntax
+//@[00:0075) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
-//@[01:0076) | | └─InstanceFunctionCallSyntax
+//@[01:0075) | | └─InstanceFunctionCallSyntax
 //@[01:0004) | |   ├─VariableAccessSyntax
 //@[01:0004) | |   | └─IdentifierSyntax
 //@[01:0004) | |   |   └─Token(Identifier) |sys|
@@ -18,10 +18,10 @@
 //@[05:0016) | |   ├─IdentifierSyntax
 //@[05:0016) | |   | └─Token(Identifier) |description|
 //@[16:0017) | |   ├─Token(LeftParen) |(|
-//@[17:0075) | |   ├─FunctionArgumentSyntax
-//@[17:0075) | |   | └─StringSyntax
-//@[17:0075) | |   |   └─Token(MultilineString) |'''\nthis is my multi line \ndescription for my myString\n'''|
-this is my multi line 
+//@[17:0074) | |   ├─FunctionArgumentSyntax
+//@[17:0074) | |   | └─StringSyntax
+//@[17:0074) | |   |   └─Token(MultilineString) |'''\nthis is my multi line\ndescription for my myString\n'''|
+this is my multi line
 description for my myString
 ''')
 //@[03:0004) | |   └─Token(RightParen) |)|
@@ -439,6 +439,45 @@ param storageSku string
 //@[17:0023) | └─SimpleTypeSyntax
 //@[17:0023) |   └─Token(Identifier) |string|
 //@[23:0025) ├─Token(NewLine) |\n\n|
+
+@allowed([
+//@[00:0043) ├─ParameterDeclarationSyntax
+//@[00:0025) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0025) | | └─FunctionCallSyntax
+//@[01:0008) | |   ├─IdentifierSyntax
+//@[01:0008) | |   | └─Token(Identifier) |allowed|
+//@[08:0009) | |   ├─Token(LeftParen) |(|
+//@[09:0024) | |   ├─FunctionArgumentSyntax
+//@[09:0024) | |   | └─ArraySyntax
+//@[09:0010) | |   |   ├─Token(LeftSquare) |[|
+//@[10:0011) | |   |   ├─Token(NewLine) |\n|
+  1
+//@[02:0003) | |   |   ├─ArrayItemSyntax
+//@[02:0003) | |   |   | └─IntegerLiteralSyntax
+//@[02:0003) | |   |   |   └─Token(Integer) |1|
+//@[03:0004) | |   |   ├─Token(NewLine) |\n|
+  2
+//@[02:0003) | |   |   ├─ArrayItemSyntax
+//@[02:0003) | |   |   | └─IntegerLiteralSyntax
+//@[02:0003) | |   |   |   └─Token(Integer) |2|
+//@[03:0004) | |   |   ├─Token(NewLine) |\n|
+  3
+//@[02:0003) | |   |   ├─ArrayItemSyntax
+//@[02:0003) | |   |   | └─IntegerLiteralSyntax
+//@[02:0003) | |   |   |   └─Token(Integer) |3|
+//@[03:0004) | |   |   ├─Token(NewLine) |\n|
+])
+//@[00:0001) | |   |   └─Token(RightSquare) |]|
+//@[01:0002) | |   └─Token(RightParen) |)|
+//@[02:0003) | ├─Token(NewLine) |\n|
+param intEnum int
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0013) | ├─IdentifierSyntax
+//@[06:0013) | | └─Token(Identifier) |intEnum|
+//@[14:0017) | └─SimpleTypeSyntax
+//@[14:0017) |   └─Token(Identifier) |int|
+//@[17:0019) ├─Token(NewLine) |\n\n|
 
 // length constraint on a string
 //@[32:0033) ├─Token(NewLine) |\n|

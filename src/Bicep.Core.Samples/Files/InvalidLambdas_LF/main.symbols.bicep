@@ -65,7 +65,7 @@ var ternary = map([123], true ? i => '${i}' : i => 'hello!')
 
 var outsideArgs = i => 123
 //@[18:19) Local i. Type: any. Declaration start char: 18, length: 1
-//@[04:15) Variable outsideArgs. Type: any => int. Declaration start char: 0, length: 26
+//@[04:15) Variable outsideArgs. Type: any => 123. Declaration start char: 0, length: 26
 var outsideArgs2 = (x, y, z) => '${x}${y}${z}'
 //@[20:21) Local x. Type: any. Declaration start char: 20, length: 1
 //@[23:24) Local y. Type: any. Declaration start char: 23, length: 1

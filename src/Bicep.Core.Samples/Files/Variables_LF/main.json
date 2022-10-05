@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12464920247071268950"
+      "templateHash": "12517966412979818437"
     }
   },
   "parameters": {
@@ -255,7 +255,9 @@
         }
       ]
     },
-    "joinedString": "[join(createArray('I', 'love', 'Bicep!'), ' ')]"
+    "joinedString": "[join(createArray('I', 'love', 'Bicep!'), ' ')]",
+    "prefix": "[take('food', 3)]",
+    "isPrefixed": "[startsWith('food', 'foo')]"
   },
   "resources": []
 }

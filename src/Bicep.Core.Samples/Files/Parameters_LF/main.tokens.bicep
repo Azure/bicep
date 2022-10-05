@@ -1,4 +1,4 @@
-/* 
+/*
   This is a block comment.
 */
 //@[02:04) NewLine |\n\n|
@@ -11,8 +11,8 @@
 //@[04:05) Dot |.|
 //@[05:16) Identifier |description|
 //@[16:17) LeftParen |(|
-//@[17:75) MultilineString |'''\nthis is my multi line \ndescription for my myString\n'''|
-this is my multi line 
+//@[17:74) MultilineString |'''\nthis is my multi line\ndescription for my myString\n'''|
+this is my multi line
 description for my myString
 ''')
 //@[03:04) RightParen |)|
@@ -286,6 +286,31 @@ param storageSku string
 //@[06:16) Identifier |storageSku|
 //@[17:23) Identifier |string|
 //@[23:25) NewLine |\n\n|
+
+@allowed([
+//@[00:01) At |@|
+//@[01:08) Identifier |allowed|
+//@[08:09) LeftParen |(|
+//@[09:10) LeftSquare |[|
+//@[10:11) NewLine |\n|
+  1
+//@[02:03) Integer |1|
+//@[03:04) NewLine |\n|
+  2
+//@[02:03) Integer |2|
+//@[03:04) NewLine |\n|
+  3
+//@[02:03) Integer |3|
+//@[03:04) NewLine |\n|
+])
+//@[00:01) RightSquare |]|
+//@[01:02) RightParen |)|
+//@[02:03) NewLine |\n|
+param intEnum int
+//@[00:05) Identifier |param|
+//@[06:13) Identifier |intEnum|
+//@[14:17) Identifier |int|
+//@[17:19) NewLine |\n\n|
 
 // length constraint on a string
 //@[32:33) NewLine |\n|

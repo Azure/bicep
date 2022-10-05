@@ -26,7 +26,7 @@
     "detail": "first",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `True`  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -68,7 +68,7 @@
     "detail": "second",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `bool`  \n"
+      "value": "Type: `False`  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -110,7 +110,7 @@
     "detail": "third",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `int`  \n"
+      "value": "Type: `42`  \n"
     },
     "deprecated": false,
     "preselect": false,

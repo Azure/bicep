@@ -6,7 +6,7 @@
 @allowed([
   1
 ])
-param ttl int = 2// Insert snippet here
+param ttl int = 1// Insert snippet here
 
 resource dnsRecord 'Microsoft.Network/dnsZones/A@2018-05-01' = {
   name: 'zone/A'

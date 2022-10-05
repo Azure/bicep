@@ -1,14 +1,14 @@
-/* 
+/*
   This is a block comment.
 */
 
 // parameters without default value
 @sys.description('''
-this is my multi line 
+this is my multi line
 description for my myString
 ''')
 param myString string
-//@[6:14) Parameter myString. Type: string. Declaration start char: 0, length: 98
+//@[6:14) Parameter myString. Type: string. Declaration start char: 0, length: 97
 param myInt int
 //@[6:11) Parameter myInt. Type: int. Declaration start char: 0, length: 15
 param myBool bool
@@ -85,6 +85,14 @@ param secretObject object
 ])
 param storageSku string
 //@[6:16) Parameter storageSku. Type: 'Standard_GRS' | 'Standard_LRS'. Declaration start char: 0, length: 71
+
+@allowed([
+  1
+  2
+  3
+])
+param intEnum int
+//@[6:13) Parameter intEnum. Type: 1 | 2 | 3. Declaration start char: 0, length: 43
 
 // length constraint on a string
 @minLength(3)

@@ -190,7 +190,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "@allowed([\n  $3\n])\nparam ${1:Identifier} ${2:Type} = $4"
+      "newText": "@allowed([\n  $3\n])\nparam ${1:Identifier} ${2:Type} = $3"
     },
     "command": {
       "title": "top level snippet completion",

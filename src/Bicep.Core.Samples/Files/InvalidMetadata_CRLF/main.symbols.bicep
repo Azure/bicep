@@ -33,9 +33,9 @@ metadata same = 'value2'
 
 // metadata referencing vars
 var testSymbol = 42
-//@[4:14) Variable testSymbol. Type: int. Declaration start char: 0, length: 19
+//@[4:14) Variable testSymbol. Type: 42. Declaration start char: 0, length: 19
 metadata test = testSymbol
-//@[9:13) Metadata test. Type: int. Declaration start char: 0, length: 26
+//@[9:13) Metadata test. Type: 42. Declaration start char: 0, length: 26
 
 
 // metadata referencing itself

@@ -28,9 +28,9 @@ var missingValue =
 var 2 
 //@[04:05) Variable <error>. Type: error. Declaration start char: 0, length: 6
 var $ = 23
-//@[04:05) Variable <error>. Type: int. Declaration start char: 0, length: 10
+//@[04:05) Variable <error>. Type: 23. Declaration start char: 0, length: 10
 var # 33 = 43
-//@[04:08) Variable <error>. Type: int. Declaration start char: 0, length: 13
+//@[04:08) Variable <error>. Type: 43. Declaration start char: 0, length: 13
 
 // no value assigned
 var foo =
@@ -135,7 +135,7 @@ var invalidEnvAuthVar = environment().authentication.asdgdsag
 
 // invalid use of reserved namespace
 var az = 1
-//@[04:06) Variable az. Type: int. Declaration start char: 0, length: 10
+//@[04:06) Variable az. Type: 1. Declaration start char: 0, length: 10
 
 // cannot assign a variable to a namespace
 var invalidNamespaceAssignment = az
@@ -199,18 +199,18 @@ var myFloat = 3.14
 // secure cannot be used as a variable decorator
 @sys.secure()
 var something = 1
-//@[04:13) Variable something. Type: int. Declaration start char: 0, length: 31
+//@[04:13) Variable something. Type: 1. Declaration start char: 0, length: 31
 
 // #completionTest(1) -> sysAndDescription
 @
 // #completionTest(5) -> description
 @sys.
 var anotherThing = true
-//@[04:16) Variable anotherThing. Type: bool. Declaration start char: 0, length: 68
+//@[04:16) Variable anotherThing. Type: True. Declaration start char: 0, length: 68
 
 // invalid identifier character classes
 var ☕ = true
-//@[04:05) Variable <error>. Type: bool. Declaration start char: 0, length: 12
+//@[04:05) Variable <error>. Type: True. Declaration start char: 0, length: 12
 var a☕ = true
 //@[04:05) Variable a. Type: error. Declaration start char: 0, length: 13
 
@@ -317,7 +317,7 @@ var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 
 @batchSize(1)
 var batchSizeMakesNoSenseHere = false
-//@[04:29) Variable batchSizeMakesNoSenseHere. Type: bool. Declaration start char: 0, length: 51
+//@[04:29) Variable batchSizeMakesNoSenseHere. Type: False. Declaration start char: 0, length: 51
 
 
 //KeyVault Secret Reference

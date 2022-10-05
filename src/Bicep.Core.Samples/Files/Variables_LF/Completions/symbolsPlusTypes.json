@@ -1260,6 +1260,20 @@
     }
   },
   {
+    "label": "isPrefixed",
+    "kind": "variable",
+    "detail": "isPrefixed",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_isPrefixed",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "isPrefixed"
+    }
+  },
+  {
     "label": "isTrue",
     "kind": "variable",
     "detail": "isTrue",
@@ -2209,6 +2223,20 @@
     "textEdit": {
       "range": {},
       "newText": "portalEndpoint"
+    }
+  },
+  {
+    "label": "prefix",
+    "kind": "variable",
+    "detail": "prefix",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_prefix",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "prefix"
     }
   },
   {

@@ -502,5 +502,10 @@ var copyBlockInObject = {
 }
 
 var joinedString = join(['I', 'love', 'Bicep!'], ' ')
-//@[257:257]     "joinedString": "[join(createArray('I', 'love', 'Bicep!'), ' ')]"
+//@[257:257]     "joinedString": "[join(createArray('I', 'love', 'Bicep!'), ' ')]",
+
+var prefix = take('food', 3)
+//@[258:258]     "prefix": "[take('food', 3)]",
+var isPrefixed = startsWith('food', 'foo')
+//@[259:259]     "isPrefixed": "[startsWith('food', 'foo')]"
 
