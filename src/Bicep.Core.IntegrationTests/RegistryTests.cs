@@ -30,6 +30,8 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class RegistryTests
     {
+        private static ServiceBuilder Services => new ServiceBuilder();
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -68,7 +70,7 @@ namespace Bicep.Core.IntegrationTests
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
             }
 
-            var compilation = new Compilation(featuresFactory, BicepTestConstants.NamespaceProvider, sourceFileGrouping, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+            var compilation = Services.WithFeatureProviderFactory(featuresFactory).Compilation.Build(sourceFileGrouping);
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
             diagnostics.Should().HaveCount(1);
 

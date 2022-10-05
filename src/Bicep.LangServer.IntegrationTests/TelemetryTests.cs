@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
@@ -32,6 +33,8 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class TelemetryTests
     {
+        private static ServiceBuilder Services => new ServiceBuilder();
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -161,7 +164,7 @@ namespace Bicep.LangServer.IntegrationTests
                 [uri] = bicepFileContents,
             };
 
-            var compilation = new Compilation(BicepTestConstants.FeatureProviderFactory, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+            var compilation = Services.BuildCompilation(files, uri);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
             var telemetryEventsListener = new MultipleMessageListener<BicepTelemetryEvent>();

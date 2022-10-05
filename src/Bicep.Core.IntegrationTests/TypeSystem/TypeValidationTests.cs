@@ -19,14 +19,14 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class TypeValidationTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithTestDefaults();
+        private static ServiceBuilder Services => new ServiceBuilder();
 
         private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceTypeComponents> definedTypes)
         {
             var compilation = Services
                 .WithAzResources(definedTypes)
                 .WithConfigurationManager(IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled))
-                .Compilation.Build(SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver));
+                .BuildCompilation(programText);
 
             return compilation.GetEntrypointSemanticModel();
         }

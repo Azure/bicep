@@ -20,6 +20,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Newtonsoft.Json.Linq;
+using Bicep.Core;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -65,8 +66,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             bicepFile.ShouldHaveExpectedValue();
 
-            var context = new CompilationHelper.CompilationHelperContext(Features: features);
-            CompilationHelper.Compile(context, bicepFile.ReadFromOutputFolder()).Should().GenerateATemplate();
+            CompilationHelper.Compile(new ServiceBuilder().WithFeatureProvider(features), bicepFile.ReadFromOutputFolder()).Should().GenerateATemplate();
         }
 
         [TestMethod]

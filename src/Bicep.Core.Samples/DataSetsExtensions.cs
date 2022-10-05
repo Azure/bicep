@@ -39,9 +39,9 @@ namespace Bicep.Core.Samples
         public static string SaveFilesToTestDirectory(this DataSet dataSet, TestContext testContext)
             => FileHelper.SaveEmbeddedResourcesWithPathPrefix(testContext, typeof(DataSet).Assembly, dataSet.GetStreamPrefix());
 
-        public static async Task<(Compilation compilation, string outputDirectory, Uri fileUri)> SetupPrerequisitesAndCreateCompilation(this DataSet dataSet, TestContext testContext)
+        public static async Task<(Compilation compilation, string outputDirectory, Uri fileUri)> SetupPrerequisitesAndCreateCompilation(this DataSet dataSet, TestContext testContext, IFeatureProvider? features = null)
         {
-            var features = BicepTestConstants.CreateFeatureProvider(testContext, registryEnabled: dataSet.HasExternalModules);
+            features ??= BicepTestConstants.CreateFeatureProvider(testContext, registryEnabled: dataSet.HasExternalModules);
             var featuresFactory = IFeatureProviderFactory.WithStaticFeatureProvider(features);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(testContext);
             var clientFactory = dataSet.CreateMockRegistryClients(testContext);

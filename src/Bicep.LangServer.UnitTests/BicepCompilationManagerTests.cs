@@ -35,6 +35,8 @@ namespace Bicep.LangServer.UnitTests
     [TestClass]
     public class BicepCompilationManagerTests
     {
+        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
+
         private const int BaseVersion = 42;
 
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
@@ -753,7 +755,7 @@ param location string = 'testLocation'";
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, bicepFileContents);
 
-            var compilation = new Compilation(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepFileContents, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+            var compilation = Services.BuildCompilation(bicepFileContents);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().ToDiagnostics(bicepFile.LineStarts);
 
             var compilationManager = CreateBicepCompilationManager();

@@ -31,7 +31,7 @@ namespace Bicep.Cli.Services
             }
             using var fileStream = CreateFileStream(outputPath);
             var semanticModel = compilation.GetEntrypointSemanticModel();
-            return new TemplateEmitter(semanticModel, new EmitterSettings(semanticModel.Features)).EmitParametersFile(fileStream, existingContent);
+            return new TemplateEmitter(semanticModel).EmitParametersFile(fileStream, existingContent);
         }
 
         public EmitResult ToStdout(Compilation compilation)
@@ -42,7 +42,7 @@ namespace Bicep.Cli.Services
             };
 
             var semanticModel = compilation.GetEntrypointSemanticModel();
-            return new TemplateEmitter(semanticModel, new EmitterSettings(semanticModel.Features)).EmitParametersFile(writer, string.Empty);
+            return new TemplateEmitter(semanticModel).EmitParametersFile(writer, string.Empty);
         }
 
         private static FileStream CreateFileStream(string path)

@@ -27,7 +27,7 @@ namespace Bicep.LangServer.UnitTests
     [TestClass]
     public class BicepCompletionProviderTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithTestDefaults().WithEmptyAzResources();
+        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
         private static readonly ILanguageServerFacade Server = Repository.Create<ILanguageServerFacade>().Object;
@@ -36,8 +36,7 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void DeclarationContextShouldReturnKeywordCompletions()
         {
-            var grouping = SourceFileGroupingFactory.CreateFromText(string.Empty, BicepTestConstants.FileResolver);
-            var compilation = Services.Compilation.Build(grouping);
+            var compilation = Services.BuildCompilation(string.Empty);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), compilation.NamespaceProvider);
@@ -117,16 +116,15 @@ namespace Bicep.LangServer.UnitTests
         [TestMethod]
         public void NonDeclarationContextShouldIncludeDeclaredSymbols()
         {
-            var grouping = SourceFileGroupingFactory.CreateFromText(@"
+            var compilation = Services.BuildCompilation(@"
 param p string
 var v =
 resource r 'Microsoft.Foo/foos@2020-09-01' = {
   name: 'foo'
 }
 output o int = 42
-", BicepTestConstants.FileResolver);
-            var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<VariableDeclarationSyntax>().Single().Value.Span.Position;
-            var compilation = Services.Compilation.Build(grouping);
+");
+            var offset = compilation.GetEntrypointSemanticModel().Root.VariableDeclarations.Select(x => x.DeclaringVariable).Single().Value.Span.Position;
 
             var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset);
             BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), compilation.NamespaceProvider);
@@ -162,10 +160,9 @@ output o int = 42
         [TestMethod]
         public void CompletionsForOneLinerParameterDefaultValueShouldIncludeFunctionsValidInDefaultValues()
         {
-            var grouping = SourceFileGroupingFactory.CreateFromText(@"param p string = ", BicepTestConstants.FileResolver);
-            var compilation = Services.Compilation.Build(grouping);
+            var compilation = Services.BuildCompilation(@"param p string = ");
 
-            var offset = ((ParameterDefaultValueSyntax)grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Modifier!).DefaultValue.Span.Position;
+            var offset = ((ParameterDefaultValueSyntax)compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.Select(x => x.DeclaringParameter).Single().Modifier!).DefaultValue.Span.Position;
 
             BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), compilation.NamespaceProvider);
             var completions = completionProvider.GetFilteredCompletions(
@@ -189,17 +186,15 @@ output o int = 42
         [TestMethod]
         public void DeclaringSymbolWithFunctionNameShouldHideTheFunctionCompletion()
         {
-            var grouping = SourceFileGroupingFactory.CreateFromText(@"
+            var compilation = Services.BuildCompilation(@"
 param concat string
 var resourceGroup = true
 resource base64 'Microsoft.Foo/foos@2020-09-01' = {
   name: 'foo'
 }
 output length int =
-", BicepTestConstants.FileResolver);
-            var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<OutputDeclarationSyntax>().Single().Value.Span.Position;
-
-            var compilation = Services.Compilation.Build(grouping);
+");
+            var offset = compilation.GetEntrypointSemanticModel().Root.OutputDeclarations.Select(x => x.DeclaringOutput).Single().Value.Span.Position;
 
             var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset);
             BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), compilation.NamespaceProvider);
@@ -241,10 +236,9 @@ output length int =
         [TestMethod]
         public void OutputTypeContextShouldReturnDeclarationTypeCompletions()
         {
-            var grouping = SourceFileGroupingFactory.CreateFromText("output test ", BicepTestConstants.FileResolver);
-            var compilation = Services.Compilation.Build(grouping);
+            var compilation = Services.BuildCompilation("output test ");
 
-            var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<OutputDeclarationSyntax>().Single().Type.Span.Position;
+            var offset = compilation.GetEntrypointSemanticModel().Root.OutputDeclarations.Select(x => x.DeclaringOutput).Single().Type.Span.Position;
 
             BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), compilation.NamespaceProvider);
             var completions = completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
@@ -258,10 +252,9 @@ output length int =
         [TestMethod]
         public void ParameterTypeContextShouldReturnDeclarationTypeCompletions()
         {
-            var grouping = SourceFileGroupingFactory.CreateFromText("param foo ", BicepTestConstants.FileResolver);
-            var compilation = Services.Compilation.Build(grouping);
+            var compilation = Services.BuildCompilation("param foo ");
 
-            var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Type.Span.Position;
+            var offset = compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.Select(x => x.DeclaringParameter).Single().Type.Span.Position;
 
             BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), compilation.NamespaceProvider);
             var completions = completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
@@ -305,10 +298,9 @@ output length int =
         [TestMethod]
         public void VerifyParameterTypeCompletionWithPrecedingComment()
         {
-            var grouping = SourceFileGroupingFactory.CreateFromText("/*test*/param foo ", BicepTestConstants.FileResolver);
-            var compilation = Services.Compilation.Build(grouping);
+            var compilation = Services.BuildCompilation("/*test*/param foo ");
 
-            var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Type.Span.Position;
+            var offset = compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.Select(x => x.DeclaringParameter).Single().Type.Span.Position;
 
             BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), compilation.NamespaceProvider);
             var completions = completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
@@ -363,8 +355,7 @@ output length int =
 */")]
         public void CommentShouldNotGiveAnyCompletions(string codeFragment)
         {
-            var grouping = SourceFileGroupingFactory.CreateFromText(codeFragment, BicepTestConstants.FileResolver);
-            var compilation = Services.Compilation.Build(grouping);
+            var compilation = Services.BuildCompilation(codeFragment);
 
             var offset = codeFragment.IndexOf('|');
 

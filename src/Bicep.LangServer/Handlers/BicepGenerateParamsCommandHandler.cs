@@ -105,7 +105,7 @@ namespace Bicep.LanguageServer.Handlers
             var existingContent = File.Exists(compiledFilePath) ? File.ReadAllText(compiledFilePath) : string.Empty;
 
             var model = compilation.GetEntrypointSemanticModel();
-            var emitter = new TemplateEmitter(model, new EmitterSettings(model.Features));
+            var emitter = new TemplateEmitter(model);
             using var fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.Write);
             var result = emitter.EmitParametersFile(fileStream, existingContent);
 

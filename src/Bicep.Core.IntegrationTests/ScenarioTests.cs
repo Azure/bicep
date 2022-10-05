@@ -24,6 +24,8 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ScenarioTests
     {
+        private static ServiceBuilder Services => new ServiceBuilder();
+
         [NotNull] public TestContext? TestContext { get; set; }
 
         [TestMethod]
@@ -2863,10 +2865,9 @@ output contentVersion string = deployment().properties.template.contentVersion
         [TestMethod]
         public void Test_Issue6044()
         {
-            var context = new CompilationHelper.CompilationHelperContext(
-                Features: BicepTestConstants.CreateFeatureProvider(TestContext, symbolicNameCodegenEnabled: true));
+            var services = new ServiceBuilder().WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, symbolicNameCodegenEnabled: true));
 
-            var result = CompilationHelper.Compile(context, @"
+            var result = CompilationHelper.Compile(services, @"
 var adminUsername = 'cooluser'
 
 resource server 'Microsoft.Sql/servers@2021-02-01-preview' = {
@@ -3013,12 +3014,9 @@ module test './con'
 module test './con.txt'
 
 ");
-            var fileResolver = BicepTestConstants.FileResolver;
-            var features = BicepTestConstants.Features;
-            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(ImmutableDictionary.Create<Uri, string>(), new Uri(inputFile), fileResolver, BicepTestConstants.BuiltInOnlyConfigurationManager, features);
 
             // the bug was that the compilation would not complete
-            var compilation = new Compilation(IFeatureProviderFactory.WithStaticFeatureProvider(features), BicepTestConstants.NamespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+            var compilation = Services.BuildCompilation(ImmutableDictionary.Create<Uri, string>(), new Uri(inputFile));
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().NotBeEmpty();
         }
 

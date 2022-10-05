@@ -13,12 +13,13 @@ namespace Bicep.Core.IntegrationTests.Semantics
     [TestClass]
     public class CompilationTests
     {
+        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
+
         [TestMethod]
         public void EmptyProgram_SourceFileGrouping_should_be_persisted()
         {
-            var fileResolver = BicepTestConstants.FileResolver;
-            var program = SourceFileGroupingFactory.CreateFromText(DataSets.Empty.Bicep, fileResolver);
-            var compilation = new Compilation(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), program, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+            var program = SourceFileGroupingFactory.CreateFromText(new(), DataSets.Empty.Bicep);
+            var compilation = Services.Compilation.Build(program);
 
             compilation.SourceFileGrouping.Should().BeSameAs(program);
             compilation.GetEntrypointSemanticModel().Should().NotBeNull();

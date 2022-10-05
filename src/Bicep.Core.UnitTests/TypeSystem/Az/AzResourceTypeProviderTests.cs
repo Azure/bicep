@@ -25,7 +25,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
     [TestClass]
     public class AzResourceTypeProviderTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithTestDefaults();
+        private static ServiceBuilder Services => new ServiceBuilder();
 
         private static readonly ImmutableHashSet<string> ExpectedLoopVariantProperties = new[]
         {
@@ -162,12 +162,8 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         [TestMethod]
         public void AzResourceTypeProvider_should_warn_for_missing_resource_types()
         {
-            var configuration = BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled;
-            Compilation createCompilation(string program)
-                => Services.Compilation.Build(SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
-
             // Missing top-level properties - should be an error
-            var compilation = createCompilation(@"
+            var compilation = Services.BuildCompilation(@"
 resource missingResource 'Mock.Rp/madeUpResourceType@2020-01-01' = {
   name: 'missingResource'
 }
@@ -182,7 +178,7 @@ resource missingResource 'Mock.Rp/madeUpResourceType@2020-01-01' = {
         {
             Compilation createCompilation(string program) => Services
                 .WithAzResources(BuiltInTestTypes.Types)
-                .Compilation.Build(SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
+                .BuildCompilation(program);
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"

@@ -19,30 +19,20 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ParameterTests
     {
-        private IFeatureProvider ResourceTypedFeatures => BicepTestConstants.CreateFeatureProvider(TestContext, resourceTypedParamsAndOutputsEnabled: true);
-
-        private CompilationHelper.CompilationHelperContext ResourceTypedFeatureContext => new CompilationHelper.CompilationHelperContext(Features: ResourceTypedFeatures);
+        private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, resourceTypedParamsAndOutputsEnabled: true));
 
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private CompilationHelper.CompilationHelperContext GetExtensibilityCompilationContext()
-        {
-            var features = BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true, resourceTypedParamsAndOutputsEnabled: true);
-            var resourceTypeLoader = BicepTestConstants.AzResourceTypeLoader;
-            var namespaceProvider = new TestExtensibilityNamespaceProvider(resourceTypeLoader);
-
-            return new(
-                AzResourceTypeLoader: resourceTypeLoader,
-                Features: features,
-                NamespaceProvider: namespaceProvider);
-        }
+        private ServiceBuilder ServicesWithExtensibility => new ServiceBuilder()
+            .WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true, resourceTypedParamsAndOutputsEnabled: true))
+            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoader));
 
         [TestMethod]
         public void Parameter_can_have_resource_type()
         {
             var result = CompilationHelper.Compile(
-                ResourceTypedFeatureContext, @"
+                ServicesWithResourceTyped, @"
 param p resource 'Microsoft.Storage/storageAccounts@2019-06-01'
 
 resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
@@ -86,7 +76,7 @@ resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
         public void Parameter_with_resource_type_can_have_decorators()
         {
             var result = CompilationHelper.Compile(
-                ResourceTypedFeatureContext, @"
+                ServicesWithResourceTyped, @"
 @description('cool')
 param p resource 'Microsoft.Storage/storageAccounts@2019-06-01'
 
@@ -122,7 +112,7 @@ resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
         public void Parameter_with_resource_type_can_have_properties_evaluated()
         {
             var result = CompilationHelper.Compile(
-                ResourceTypedFeatureContext, @"
+                ServicesWithResourceTyped, @"
 param p resource 'Microsoft.Storage/storageAccounts@2019-06-01'
 
 output id string = p.id
@@ -164,7 +154,7 @@ output accessTier string = p.properties.accessTier
         public void Parameter_can_have_warnings_for_missing_type()
         {
             var result = CompilationHelper.Compile(
-                ResourceTypedFeatureContext, @"
+                ServicesWithResourceTyped, @"
 param p resource 'Some.Fake/Type@2019-06-01'
 
 output id string = p.id
@@ -178,7 +168,7 @@ output id string = p.id
         [TestMethod]
         public void Parameter_cannot_use_extensibility_resource_type()
         {
-            var result = CompilationHelper.Compile(GetExtensibilityCompilationContext(), @"
+            var result = CompilationHelper.Compile(ServicesWithExtensibility, @"
 import storage as stg {
   connectionString: 'asdf'
 }
@@ -196,7 +186,7 @@ output name string = container.name // silence unused params warning
         [TestMethod]
         public void Parameter_with_resource_type_cannot_be_used_as_extension_scope()
         {
-            var result = CompilationHelper.Compile(ResourceTypedFeatureContext, @"
+            var result = CompilationHelper.Compile(ServicesWithResourceTyped, @"
 param p resource 'Microsoft.Storage/storageAccounts@2019-06-01'
 
 resource resource 'My.Rp/myResource@2020-01-01' = {
@@ -214,7 +204,7 @@ resource resource 'My.Rp/myResource@2020-01-01' = {
         [TestMethod]
         public void Parameter_with_resource_type_cannot_be_used_as_parent()
         {
-            var result = CompilationHelper.Compile(ResourceTypedFeatureContext, @"
+            var result = CompilationHelper.Compile(ServicesWithResourceTyped, @"
 param p resource 'Microsoft.Storage/storageAccounts@2019-06-01'
 
 resource resource 'Microsoft.Storage/storageAccounts/tableServices@2020-06-01' = {

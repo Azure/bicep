@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.Core.CodeAction;
 using Bicep.Core.CodeAction.Fixes;
 using Bicep.Core.Diagnostics;
@@ -38,7 +39,7 @@ namespace Bicep.LangServer.IntegrationTests
     [TestClass]
     public class CodeActionTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithTestDefaults();
+        private static ServiceBuilder Services => new ServiceBuilder();
 
         private const string SecureTitle = "Add @secure";
         private const string DescriptionTitle = "Add @description";
@@ -238,7 +239,7 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
             fileSystemDict[bicepConfigUri.ToUri()] = bicepConfigFileContents;
 
-            var compilation = Services.Compilation.Build(SourceFileGroupingFactory.CreateForFiles(fileSystemDict, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration));
+            var compilation = Services.BuildCompilation(fileSystemDict, uri);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
             diagnostics.Should().HaveCount(1);
@@ -277,7 +278,7 @@ resource test";
                 [uri] = bicepFileContents,
             };
 
-            var compilation = Services.Compilation.Build(SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration));
+            var compilation = Services.BuildCompilation(files, uri);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
             diagnostics.Should().HaveCount(2);
@@ -339,7 +340,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
                 [uri] = bicepFileContents,
             };
 
-            var compilation = Services.Compilation.Build(SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration));
+            var compilation = Services.BuildCompilation(files, uri);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
             diagnostics.Should().HaveCount(3);
