@@ -20,4 +20,13 @@ public class BooleanLiteralType : TypeSymbol
     public override TypeKind TypeKind => TypeKind.BooleanLiteral;
 
     public bool Value { get; }
+
+    public override bool Equals(object? other) =>
+        other is BooleanLiteralType otherBoolLiteral ? otherBoolLiteral == this : false;
+
+    public override int GetHashCode() => (GetType(), Value).GetHashCode();
+
+    public static bool operator ==(BooleanLiteralType a, BooleanLiteralType b) => a.Value == b.Value;
+
+    public static bool operator !=(BooleanLiteralType a, BooleanLiteralType b) => a.Value == b.Value;
 }

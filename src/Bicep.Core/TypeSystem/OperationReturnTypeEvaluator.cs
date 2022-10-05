@@ -6,7 +6,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem;
@@ -91,25 +90,11 @@ internal static class OperationReturnTypeEvaluator
 
         internal virtual TypeSymbol Evaluate(SyntaxBase expressionSyntax, out IEnumerable<IDiagnostic> evaluationDiagnostics, params TypeSymbol[] operandTypes)
         {
-            evaluationDiagnostics = Enumerable.Empty<IDiagnostic>();
-            var args = operandTypes.Select(ArmFunctionReturnTypeEvaluator.TryConvertToFunctionArgument).WhereNotNull().ToArray();
-            if (args.Length == operandTypes.Length)
-            {
-                var type = ArmFunctionReturnTypeEvaluator.Evaluate(armFunctionName, nonLiteralReturnType, out var builder, WithPrefixArgs(args));
-                if (builder is not null)
-                {
-                    evaluationDiagnostics = ImmutableArray.Create(builder.Invoke(DiagnosticBuilder.ForPosition(expressionSyntax)));
-                }
+            var type = ArmFunctionReturnTypeEvaluator.Evaluate(armFunctionName, nonLiteralReturnType, out var builders, operandTypes, prefixArgs);
+            evaluationDiagnostics = builders.Select(b => b(DiagnosticBuilder.ForPosition(expressionSyntax)));
 
-                return type;
-            }
-
-            return nonLiteralReturnType;
+            return type;
         }
-
-        private FunctionArgument[] WithPrefixArgs(FunctionArgument[] args) => prefixArgs.HasValue
-            ? prefixArgs.Value.Concat(args).ToArray()
-            : args;
     }
 
     private class UnaryEvaluator : Evaluator
@@ -161,10 +146,8 @@ internal static class OperationReturnTypeEvaluator
 
         internal override TypeSymbol Evaluate(SyntaxBase expressionSyntax, out IEnumerable<IDiagnostic> evaluationDiagnostics, params TypeSymbol[] operandTypes)
         {
-            var returnType = ArmFunctionReturnTypeEvaluator.Evaluate("equals", LanguageConstants.Bool, out var builder, operandTypes);
-            evaluationDiagnostics = builder is not null
-                ? ImmutableArray.Create(builder.Invoke(DiagnosticBuilder.ForPosition(expressionSyntax)))
-                : Enumerable.Empty<IDiagnostic>();
+            var returnType = ArmFunctionReturnTypeEvaluator.Evaluate("equals", LanguageConstants.Bool, out var builders, operandTypes);
+            evaluationDiagnostics = builders.Select(builder => builder(DiagnosticBuilder.ForPosition(expressionSyntax)));
 
             if (returnType is BooleanLiteralType booleanLiteral)
             {
@@ -191,18 +174,12 @@ internal static class OperationReturnTypeEvaluator
             var transformedArgTypes = new TypeSymbol[operandTypes.Length];
             for (int i = 0; i < operandTypes.Length; i++)
             {
-                transformedArgTypes[i] = ArmFunctionReturnTypeEvaluator.Evaluate("toLower", LanguageConstants.String, out var builderDelegate, operandTypes[i]);
-                if (builderDelegate is not null)
-                {
-                    diags.Add(builderDelegate(DiagnosticBuilder.ForPosition(expressionSyntax)));
-                }
+                transformedArgTypes[i] = ArmFunctionReturnTypeEvaluator.Evaluate("toLower", LanguageConstants.String, out var builderDelegates, new [] { operandTypes[i] });
+                diags.AddRange(builderDelegates.Select(b => b(DiagnosticBuilder.ForPosition(expressionSyntax))));
             }
 
-            var result = ArmFunctionReturnTypeEvaluator.Evaluate("equals", LanguageConstants.Bool, out var builderFunc, transformedArgTypes);
-            if (builderFunc is not null)
-            {
-                diags.Add(builderFunc(DiagnosticBuilder.ForPosition(expressionSyntax)));
-            }
+            var result = ArmFunctionReturnTypeEvaluator.Evaluate("equals", LanguageConstants.Bool, out var builders, transformedArgTypes);
+            diags.AddRange(builders.Select(b => b(DiagnosticBuilder.ForPosition(expressionSyntax))));
 
             if (result is BooleanLiteralType booleanLiteral)
             {

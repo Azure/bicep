@@ -117,7 +117,7 @@ var fo|o2 = map(['abc', 'def'], a|bc => length(abc))
             info.Should().SatisfyRespectively(
                 x => x.Type.Name.Should().Be("('abc' | 'def')[]"),
                 x => x.Type.Name.Should().Be("'abc' | 'def'"),
-                x => x.Type.Name.Should().Be("int[]"),
+                x => x.Type.Name.Should().Be("3[]"),
                 x => x.Type.Name.Should().Be("'abc' | 'def'"));
         }
 

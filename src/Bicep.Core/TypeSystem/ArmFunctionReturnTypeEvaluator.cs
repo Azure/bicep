@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
@@ -17,73 +18,136 @@ public static class ArmFunctionReturnTypeEvaluator
     public static TypeSymbol Evaluate(
         string armFunctionName,
         TypeSymbol nonLiteralReturnType,
-        out DiagnosticBuilder.DiagnosticBuilderDelegate? builderFunc,
-        params TypeSymbol[] operandTypes)
+        out IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate> diagnosticBuilders,
+        IEnumerable<TypeSymbol> operandTypes,
+        IEnumerable<FunctionArgument>? prefixArgs = default)
     {
-        var args = new FunctionArgument[operandTypes.Length];
-        for (int i = 0; i < operandTypes.Length; i++)
+        var operandTypesArray = operandTypes.ToImmutableArray();
+        var prefixArgsArray = prefixArgs?.ToImmutableArray() ?? ImmutableArray<FunctionArgument>.Empty;
+
+        List<DiagnosticBuilder.DiagnosticBuilderDelegate> builderDelegates = new();
+        diagnosticBuilders = builderDelegates;
+        List<ITypeReference> possibleReturnTypes = new();
+        var (argumentPermutations, permutationCount) = Permute(
+            Enumerable.Range(0, operandTypesArray.Length).ToDictionary(i => i, i => ToJTokens(operandTypesArray[i]).ToImmutableArray()));
+
+        for (int i = 0; i < permutationCount; i++)
         {
-            if (TryConvertToFunctionArgument(operandTypes[i]) is not {} arg)
+            if (EvaluatePermutation(argumentPermutations, i, armFunctionName, prefixArgsArray, out var builderDelegate) is TypeSymbol converted)
             {
-                // if any of the input types is non-literal, we can't produce a literal return type
-                builderFunc = default;
-                return nonLiteralReturnType;
+                possibleReturnTypes.Add(converted);
+            } else
+            {
+                possibleReturnTypes.Add(nonLiteralReturnType);
             }
 
-            args[i] = arg;
+            if (builderDelegate is not null)
+            {
+                builderDelegates.Add(builderDelegate);
+            }
         }
 
-        return Evaluate(armFunctionName, nonLiteralReturnType, out builderFunc, args);
+        return TypeHelper.TryCollapseTypes(possibleReturnTypes) ?? nonLiteralReturnType;
     }
 
-    public static TypeSymbol Evaluate(
-        string armFunctionName,
-        TypeSymbol nonLiteralReturnType,
-        out DiagnosticBuilder.DiagnosticBuilderDelegate? builderFunc,
-        params FunctionArgument[] arguments)
+    private static (Dictionary<K, ImmutableArray<V>> permutations, int permutationCount) Permute<K, V>(IReadOnlyDictionary<K, ImmutableArray<V>> toPermute) where K : notnull
     {
-        if (EvaluateOperatorAsArmFunction(armFunctionName, out var result, out builderFunc, arguments))
+        Dictionary<K, ImmutableArray<V>> permutations = new();
+        var repeatedSequenceLength = 1;
+        var targetCount = toPermute.Aggregate(1, (acc, x) => acc * x.Value.Length);
+        foreach (var (key, conversions) in toPermute)
+        {
+            if (targetCount > conversions.Length)
+            {
+                var sequenceToRepeat = conversions.SelectMany(e => Enumerable.Repeat(e, repeatedSequenceLength)).ToImmutableArray();
+                repeatedSequenceLength = sequenceToRepeat.Length;
+                var repetitionsRequired = targetCount / sequenceToRepeat.Length;
+                permutations[key] = sequenceToRepeat.SelectMany(e => Enumerable.Repeat(e, repetitionsRequired)).ToImmutableArray();
+            } else
+            {
+                permutations[key] = conversions;
+            }
+        }
+
+        return (permutations, targetCount);
+    }
+
+
+    private static TypeSymbol? EvaluatePermutation(IReadOnlyDictionary<int, ImmutableArray<JToken?>> argumentPermutations,
+        int permutationToConvert,
+        string armFunctionName,
+        ImmutableArray<FunctionArgument> prefixArgs,
+        out DiagnosticBuilder.DiagnosticBuilderDelegate? builderFunc)
+    {
+        var args = new FunctionArgument[prefixArgs.Length + argumentPermutations.Count];
+        for (int j = 0; j < prefixArgs.Length; j++)
+        {
+            args[j] = prefixArgs[j];
+        }
+
+        for (int j = 0; j < argumentPermutations.Count; j++)
+        {
+            var arg = argumentPermutations[j][permutationToConvert];
+            if (arg is null)
+            {
+                // if any of the input types is non-literal, we can't produce a literal return type
+                builderFunc = null;
+                return null;
+            }
+
+            args[j + prefixArgs.Length] = new(arg);
+        }
+
+        if (EvaluateOperatorAsArmFunction(armFunctionName, out var result, out builderFunc, args))
         {
             if (TryCastToLiteral(result) is {} literalType) {
                 return literalType;
             }
-
-            // TODO add a diagnostic for this (highly unexpected!) code path
-            return nonLiteralReturnType;
         }
 
-        return nonLiteralReturnType;
+        return null;
     }
 
-    /// <summary>
-    /// Attempt to convert a Bicep TypeSymbol into an ARM function argument. This operation will only succeed if the
-    /// provided symbol is a literal type.
-    /// </summary>
-    public static FunctionArgument? TryConvertToFunctionArgument(TypeSymbol typeSymbol) => ToJToken(typeSymbol) is {} jtoken ? new(jtoken) : default;
-
-    private static JToken? ToJToken(TypeSymbol typeSymbol) => typeSymbol switch {
-        BooleanLiteralType booleanLiteral => booleanLiteral.Value,
-        IntegerLiteralType integerLiteral => integerLiteral.Value,
-        StringLiteralType stringLiteral => stringLiteral.RawStringValue,
-        ObjectType objectType => ToJToken(objectType),
-        // TODO add conversion for TupleType => JArray
-        _ => default,
+    private static IEnumerable<JToken?> ToJTokens(TypeSymbol typeSymbol) => typeSymbol switch {
+        BooleanLiteralType booleanLiteral => new[] { new JValue(booleanLiteral.Value) },
+        IntegerLiteralType integerLiteral => new [] { new JValue(integerLiteral.Value) },
+        StringLiteralType stringLiteral => new [] { new JValue(stringLiteral.RawStringValue) },
+        ObjectType objectType => ToJTokens(objectType),
+        UnionType unionType => unionType.Members.SelectMany(m => ToJTokens(m.Type)),
+        _ => new JToken?[] { null },
     };
 
-    private static JToken? ToJToken(ObjectType objectType)
+    private static IEnumerable<JToken?> ToJTokens(ObjectType objectType)
+    {
+        var (permutations, permutationCount) = Permute(objectType.Properties.ToDictionary(kvp => kvp.Key, kvp => ToJTokens(kvp.Value.TypeReference.Type).ToImmutableArray()));
+
+        var unsuccessfulConversionYielded = false;
+        for (int i = 0; i < permutationCount; i++)
+        {
+            var convertedPermutation = ConvertObjectPermutation(permutations, i);
+            if (convertedPermutation is JToken successfulConversion)
+            {
+                yield return successfulConversion;
+            } else if (!unsuccessfulConversionYielded)
+            {
+                // Flatten out the resultant union type by yielding a null conversion result at most once
+                yield return convertedPermutation;
+            }
+        }
+    }
+
+    private static JToken? ConvertObjectPermutation(IReadOnlyDictionary<string, ImmutableArray<JToken?>> permutations, int permutationToConvert)
     {
         var target = new JObject();
-
-        foreach (var (name, type) in objectType.Properties)
+        foreach (var (key, propertyVariants) in permutations)
         {
-            if (ToJToken(type.TypeReference.Type) is {} jtoken)
+            // If the property could not be converted to a literal in this permutation, then neither can this permutation of the object
+            if (propertyVariants[permutationToConvert] is not JToken convertedProperty)
             {
-                target[name] = jtoken;
+                return null;
             }
-            else
-            {
-                return default;
-            }
+
+            target[key] = convertedProperty;
         }
 
         return target;
@@ -120,7 +184,7 @@ public static class ArmFunctionReturnTypeEvaluator
         JValue { Value: char charValue } => new StringLiteralType(charValue.ToString()),
         JValue { Value: string stringValue } => new StringLiteralType(stringValue),
         JObject jObject => TryCastToLiteral(jObject),
-        // TODO add conversion for JArray => TupleType
+        // TODO: JArrays cannot be converted to type literals in the absence of a tuple type
         _ => default,
     };
 

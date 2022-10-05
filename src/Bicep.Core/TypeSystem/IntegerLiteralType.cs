@@ -20,4 +20,13 @@ public class IntegerLiteralType : TypeSymbol
     public override TypeKind TypeKind => TypeKind.IntegerLiteral;
 
     public long Value { get; }
+
+    public override bool Equals(object? other) =>
+        other is IntegerLiteralType otherIntLiteral ? otherIntLiteral == this : false;
+
+    public override int GetHashCode() => (GetType(), Value).GetHashCode();
+
+    public static bool operator ==(IntegerLiteralType a, IntegerLiteralType b) => a.Value == b.Value;
+
+    public static bool operator !=(IntegerLiteralType a, IntegerLiteralType b) => a.Value == b.Value;
 }

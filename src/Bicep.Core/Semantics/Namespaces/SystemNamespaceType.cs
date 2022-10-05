@@ -586,14 +586,11 @@ namespace Bicep.Core.Semantics.Namespaces
         private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, TypeSymbol nonLitealReturnType) =>
             (_, _, diagnostics, functionCall, argumentTypes) =>
             {
-                var returnType = ArmFunctionReturnTypeEvaluator.Evaluate(armFunctionName, nonLitealReturnType, out var diagnosticBuilder, argumentTypes.ToArray());
-                if (diagnosticBuilder is not null)
-                {
-                    var diagnositcTarget = functionCall.Arguments.Any()
-                        ? TextSpan.Between(functionCall.Arguments.First(), functionCall.Arguments.Last())
-                        : TextSpan.Between(functionCall.OpenParen, functionCall.CloseParen);
-                    diagnostics.Write(diagnosticBuilder(DiagnosticBuilder.ForPosition(diagnositcTarget)));
-                }
+                var returnType = ArmFunctionReturnTypeEvaluator.Evaluate(armFunctionName, nonLitealReturnType, out var diagnosticBuilders, argumentTypes);
+                var diagnositcTarget = functionCall.Arguments.Any()
+                    ? TextSpan.Between(functionCall.Arguments.First(), functionCall.Arguments.Last())
+                    : TextSpan.Between(functionCall.OpenParen, functionCall.CloseParen);
+                diagnostics.WriteMultiple(diagnosticBuilders.Select(b => b(DiagnosticBuilder.ForPosition(diagnositcTarget))));
 
                 return new(returnType);
             };
