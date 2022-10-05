@@ -110,7 +110,7 @@ Usage:
       --stdout              Prints the output to stdout.
       --newline             Set newline char. Valid values are ( Auto | LF | CRLF | CR ).
       --indentKind          Set indentation kind. Valid values are ( Space | Tab ).
-      --indentSize          Number of spaces to indent with.
+      --indentSize          Number of spaces to indent with (Only valid with --indentKind set to Space).
       --insertFinalNewline  Insert a final newline.
 
     Examples:
