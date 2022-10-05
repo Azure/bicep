@@ -25,14 +25,14 @@ namespace Bicep.Cli.Services
             using (fileStream)
             {
                 var semanticModel = compilation.GetEntrypointSemanticModel();
-                return new TemplateEmitter(semanticModel, new EmitterSettings(semanticModel.Features)).Emit(fileStream);
+                return new TemplateEmitter(semanticModel).Emit(fileStream);
             }
         }
 
         public EmitResult ToStream(Compilation compilation, Stream stream)
         {
             var semanticModel = compilation.GetEntrypointSemanticModel();
-            return new TemplateEmitter(semanticModel, new EmitterSettings(semanticModel.Features)).Emit(stream);
+            return new TemplateEmitter(semanticModel).Emit(stream);
         }
 
         public EmitResult ToStdout(Compilation compilation)
@@ -44,7 +44,7 @@ namespace Bicep.Cli.Services
                 Formatting = Formatting.Indented
             };
 
-            var emitter = new TemplateEmitter(semanticModel, new EmitterSettings(semanticModel.Features));
+            var emitter = new TemplateEmitter(semanticModel);
 
             return emitter.Emit(writer);
         }

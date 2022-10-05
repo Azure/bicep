@@ -21,6 +21,9 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ImportTests
     {
+        private ServiceBuilder ServicesWithImports => new ServiceBuilder()
+            .WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true));
+
         private class TestNamespaceProvider : INamespaceProvider
         {
             private readonly ImmutableDictionary<string, Func<string, NamespaceType>> builderDict;
@@ -51,9 +54,6 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private CompilationHelper.CompilationHelperContext EnabledImportsContext
-            => new CompilationHelper.CompilationHelperContext(Features: BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true));
-
         [TestMethod]
         public void Imports_are_disabled_unless_feature_is_enabled()
         {
@@ -68,21 +68,21 @@ import az as foo
         [TestMethod]
         public void Import_statement_parse_diagnostics_are_guiding()
         {
-            var result = CompilationHelper.Compile(EnabledImportsContext, @"
+            var result = CompilationHelper.Compile(ServicesWithImports, @"
 import
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP201", DiagnosticLevel.Error, "Expected an import provider name at this location."),
             });
 
-            result = CompilationHelper.Compile(EnabledImportsContext, @"
+            result = CompilationHelper.Compile(ServicesWithImports, @"
 import az
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP012", DiagnosticLevel.Error, "Expected the \"as\" keyword at this location."),
             });
 
-            result = CompilationHelper.Compile(EnabledImportsContext, @"
+            result = CompilationHelper.Compile(ServicesWithImports, @"
 import az as
 ");
             result.Should().HaveDiagnostics(new[] {
@@ -93,7 +93,7 @@ import az as
         [TestMethod]
         public void Imports_return_error_with_unrecognized_namespace()
         {
-            var result = CompilationHelper.Compile(EnabledImportsContext, @"
+            var result = CompilationHelper.Compile(ServicesWithImports, @"
 import madeUpNamespace as foo
 ");
             result.Should().HaveDiagnostics(new[] {
@@ -104,7 +104,7 @@ import madeUpNamespace as foo
         [TestMethod]
         public void Import_configuration_is_blocked_by_default()
         {
-            var result = CompilationHelper.Compile(EnabledImportsContext, @"
+            var result = CompilationHelper.Compile(ServicesWithImports, @"
 import az as ns {
   foo: 'bar'
 }
@@ -117,7 +117,7 @@ import az as ns {
         [TestMethod]
         public void Using_import_statements_frees_up_the_namespace_symbol()
         {
-            var result = CompilationHelper.Compile(EnabledImportsContext, @"
+            var result = CompilationHelper.Compile(ServicesWithImports, @"
 import az as newAz
 
 var az = 'Fake AZ!'
@@ -133,7 +133,7 @@ output rgLocation string = myRg.location
         [TestMethod]
         public void You_can_swap_imported_namespaces_if_you_really_really_want_to()
         {
-            var result = CompilationHelper.Compile(EnabledImportsContext, @"
+            var result = CompilationHelper.Compile(ServicesWithImports, @"
 import az as sys
 import sys as az
 
@@ -150,7 +150,7 @@ output rgLocation string = myRg.location
         [TestMethod]
         public void Overwriting_single_built_in_namespace_with_import_is_permitted()
         {
-            var result = CompilationHelper.Compile(EnabledImportsContext, @"
+            var result = CompilationHelper.Compile(ServicesWithImports, @"
 import az as sys
 
 var myRg = sys.resourceGroup()
@@ -164,7 +164,7 @@ output rgLocation string = myRg.location
         [TestMethod]
         public void Singleton_imports_cannot_be_used_multiple_times()
         {
-            var result = CompilationHelper.Compile(EnabledImportsContext, @"
+            var result = CompilationHelper.Compile(ServicesWithImports, @"
 import az as az1
 import az as az2
 
@@ -219,11 +219,9 @@ import sys as sys2
                     new EmptyResourceTypeProvider()),
             });
 
-            var context = new CompilationHelper.CompilationHelperContext(
-                Features: BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true),
-                NamespaceProvider: nsProvider);
+            var services = ServicesWithImports.WithNamespaceProvider(nsProvider);
 
-            var result = CompilationHelper.Compile(context, @"
+            var result = CompilationHelper.Compile(services, @"
 import ns1 as ns1
 import ns2 as ns2
 
@@ -237,7 +235,7 @@ output ns2Result string = ns2Func()
             });
 
             // fix by fully-qualifying
-            result = CompilationHelper.Compile(context, @"
+            result = CompilationHelper.Compile(services, @"
 import ns1 as ns1
 import ns2 as ns2
 
@@ -276,11 +274,9 @@ output ns2Result string = ns2Func()
                     new EmptyResourceTypeProvider()),
             });
 
-            var context = new CompilationHelper.CompilationHelperContext(
-                Features: BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true),
-                NamespaceProvider: nsProvider);
+            var services = ServicesWithImports.WithNamespaceProvider(nsProvider);
 
-            var result = CompilationHelper.Compile(context, @"
+            var result = CompilationHelper.Compile(services, @"
 import mockNs as ns1 {
   optionalConfig: 'blah blah'
 }

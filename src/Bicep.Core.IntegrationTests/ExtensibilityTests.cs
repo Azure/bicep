@@ -18,25 +18,14 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private CompilationHelper.CompilationHelperContext GetCompilationContextWithTestExtensibilityProvider()
-        {
-            var features = BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true);
-            var resourceTypeLoader = BicepTestConstants.AzResourceTypeLoader;
-            var namespaceProvider = new TestExtensibilityNamespaceProvider(resourceTypeLoader);
-
-            return new(
-                AzResourceTypeLoader: resourceTypeLoader,
-                Features: features,
-                NamespaceProvider: namespaceProvider);
-        }
-
-        private CompilationHelper.CompilationHelperContext GetCompilationContext() =>
-            new(Features: BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true));
+        private ServiceBuilder Services => new ServiceBuilder()
+            .WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true))
+            .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoader));
 
         [TestMethod]
         public void Storage_import_bad_config_is_blocked()
         {
-            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import storage as stg {
   madeUpProperty: 'asdf'
 }
@@ -50,7 +39,7 @@ import storage as stg {
         [TestMethod]
         public void Storage_import_can_be_duplicated()
         {
-            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import storage as stg1 {
   connectionString: 'connectionString1'
 }
@@ -65,7 +54,7 @@ import storage as stg2 {
         [TestMethod]
         public void Storage_import_basic_test()
         {
-            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import storage as stg {
   connectionString: 'asdf'
 }
@@ -86,7 +75,7 @@ resource blob 'blob' = {
         [TestMethod]
         public void Ambiguous_type_references_return_errors()
         {
-            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import storage as stg {
   connectionString: 'asdf'
 }
@@ -103,7 +92,7 @@ resource container 'container' = {
                 ("BCP264", DiagnosticLevel.Error, "Resource type \"container\" is declared in multiple imported namespaces (\"stg\", \"stg2\"), and must be fully-qualified."),
             });
 
-            result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
+            result = CompilationHelper.Compile(Services, @"
 import storage as stg {
   connectionString: 'asdf'
 }
@@ -122,7 +111,7 @@ resource container 'stg2:container' = {
         [TestMethod]
         public void Storage_import_basic_test_loops_and_referencing()
         {
-            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import storage as stg {
   connectionString: 'asdf'
 }
@@ -162,7 +151,7 @@ output base64Content string = blobs[3]['base64Content']
         [TestMethod]
         public void Aad_import_basic_test_loops_and_referencing()
         {
-            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import aad as aad
 param numApps int
 
@@ -192,7 +181,7 @@ output myAppsLoopId2 string = myAppsLoop[3]['appId']
         public void Aad_import_existing_requires_uniqueName()
         {
             // we've accidentally used 'name' even though this resource type doesn't support it
-            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import aad as aad
 
 resource myApp 'application' existing = {
@@ -208,7 +197,7 @@ resource myApp 'application' existing = {
             });
 
             // oops! let's change it to 'uniqueName'
-            result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
+            result = CompilationHelper.Compile(Services, @"
 import aad as aad
 
 resource myApp 'application' existing = {
@@ -225,7 +214,7 @@ resource myApp 'application' existing = {
         [TestMethod]
         public void Kubernetes_import_existing_warns_with_readonly_fields()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import kubernetes as kubernetes {
   namespace: 'default'
   kubeConfig: ''
@@ -255,7 +244,7 @@ resource service 'core/Service@v1' existing = {
         [TestMethod]
         public void Kubernetes_competing_imports_are_blocked()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import kubernetes as k8s1 {
   namespace: 'default'
   kubeConfig: ''
@@ -277,7 +266,7 @@ import kubernetes as k8s2 {
         [TestMethod]
         public void Kubernetes_import_existing_resources()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import kubernetes as kubernetes {
   namespace: 'default'
   kubeConfig: ''
@@ -313,7 +302,7 @@ resource configmap 'core/ConfigMap@v1' existing = {
         [TestMethod]
         public void Kubernetes_import_existing_connectionstring_test()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import kubernetes as kubernetes {
   namespace: 'default'
   kubeConfig: ''
@@ -352,7 +341,7 @@ resource secret 'core/Secret@v1' = {
         [TestMethod]
         public void Storage_import_basic_test_with_qualified_type()
         {
-            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import storage as stg {
   connectionString: 'asdf'
 }
@@ -373,7 +362,7 @@ resource blob 'stg:blob' = {
         [TestMethod]
         public void Invalid_namespace_qualifier_returns_error()
         {
-            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import storage as stg {
   connectionString: 'asdf'
 }
@@ -398,7 +387,7 @@ resource blob 'bar:blob' = {
         [TestMethod]
         public void Child_resource_with_parent_namespace_mismatch_returns_error()
         {
-            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import storage as stg {
   connectionString: 'asdf'
 }
@@ -421,7 +410,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         [TestMethod]
         public void Storage_import_end_to_end_test()
         {
-            var result = CompilationHelper.Compile(GetCompilationContextWithTestExtensibilityProvider(),
+            var result = CompilationHelper.Compile(Services,
                 ("main.bicep", @"
 param accountName string
 
@@ -570,7 +559,7 @@ Hello from Bicep!"));
         [TestMethod]
         public void Az_namespace_can_be_used_without_configuration()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import az as az
 ");
 
@@ -581,7 +570,7 @@ import az as az
         [TestMethod]
         public void Az_namespace_errors_with_configuration()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+            var result = CompilationHelper.Compile(Services, @"
 import az as az {}
 ");
 

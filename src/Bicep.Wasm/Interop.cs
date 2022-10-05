@@ -141,8 +141,7 @@ namespace Bicep.Wasm
             {
                 var compilation = GetCompilation(content);
                 var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
-                var emitterSettings = new EmitterSettings(featureProviderFactory.GetFeatureProvider(new Uri("inmemory:///main.bicep")));
-                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
+                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
                 // memory stream is not ideal for frequent large allocations
                 using var stream = new MemoryStream();

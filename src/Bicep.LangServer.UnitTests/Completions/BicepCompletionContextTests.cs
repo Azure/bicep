@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using Bicep.Core.Semantics;
+using Bicep.Core;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Completions;
@@ -13,11 +13,13 @@ namespace Bicep.LangServer.UnitTests.Completions
     [TestClass]
     public class BicepCompletionContextTests
     {
+        private static ServiceBuilder Services => new ServiceBuilder();
+
         [TestMethod]
         public void ZeroMatchingNodes_Create_ShouldThrow()
         {
             const string text = "var foo = 42";
-            var compilation = new Compilation(BicepTestConstants.FeatureProviderFactory, BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateFromText(text, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+            var compilation = Services.BuildCompilation(text);
 
             Action fail = () => BicepCompletionContext.Create(BicepTestConstants.Features, compilation, text.Length + 2);
             fail.Should().Throw<ArgumentException>().WithMessage("The specified offset 14 is outside the span of the specified ProgramSyntax node.");

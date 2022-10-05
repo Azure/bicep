@@ -360,8 +360,8 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         [TestMethod]
         public void Existing_resource_with_symbolic_names_enabled_includes_scope_properties()
         {
-            var context = new CompilationHelper.CompilationHelperContext(Features: BicepTestConstants.CreateFeatureProvider(this.TestContext, symbolicNameCodegenEnabled: true));
-            var (template, diagnostics, _) = CompilationHelper.Compile(context, @"
+            var services = new ServiceBuilder().WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(this.TestContext, symbolicNameCodegenEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
 targetScope = 'subscription'
 
 var accounts = [
