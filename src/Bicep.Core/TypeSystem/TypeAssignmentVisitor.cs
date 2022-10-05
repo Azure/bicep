@@ -599,7 +599,7 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
-            => AssignType(syntax, () => LanguageConstants.Bool);
+            => AssignType(syntax, () => new BooleanLiteralType(syntax.Value));
 
         public override void VisitStringSyntax(StringSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
@@ -631,7 +631,10 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax)
-            => AssignType(syntax, () => LanguageConstants.Int);
+            => AssignType(syntax, () => syntax.Value switch {
+                <= long.MaxValue => new IntegerLiteralType((long)syntax.Value),
+                _ => LanguageConstants.Int,
+            });
 
         public override void VisitNullLiteralSyntax(NullLiteralSyntax syntax)
             => AssignType(syntax, () => LanguageConstants.Null);
@@ -784,7 +787,7 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitBinaryOperationSyntax(BinaryOperationSyntax syntax)
-            => AssignType(syntax, () =>
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var errors = new List<ErrorDiagnostic>();
 
@@ -800,17 +803,12 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 // operands don't appear to have errors
-                // let's match the operator now
-                // we may receive multiple matches when an overloaded operator (such as <, <=, >, or >=) is used with operands of "any" type
-                // however, overloaded operators MUST have the same return type, so we can use the first match
-                // (the return type constraint on overloaded operators has a corresponding test assertion to prevent future regressions)
-                var operatorInfo = BinaryOperationResolver
-                    .GetMatches(syntax.Operator, operandType1, operandType2)
-                    .FirstOrDefault();
-                if (operatorInfo is not null)
+                // let's fold the expression so that an operation with two literal typed operands will have a literal return type
+                if (OperationReturnTypeEvaluator.FoldBinaryExpression(syntax, operandType1, operandType2, out var foldDiags) is {} result)
                 {
-                    // we found a match - use its return type
-                    return operatorInfo.ReturnType;
+                    diagnostics.WriteMultiple(foldDiags);
+
+                    return result;
                 }
 
                 string? additionalInfo = null;
@@ -827,17 +825,9 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
-            => AssignType(syntax, () =>
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var errors = new List<ErrorDiagnostic>();
-
-                // TODO: When we add number type, this will have to be adjusted
-                var expectedOperandType = syntax.Operator switch
-                {
-                    UnaryOperator.Not => LanguageConstants.Bool,
-                    UnaryOperator.Minus => LanguageConstants.Int,
-                    _ => throw new NotImplementedException()
-                };
 
                 var operandType = typeManager.GetTypeInfo(syntax.Expression);
                 CollectErrors(errors, operandType);
@@ -847,12 +837,16 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(errors);
                 }
 
-                if (TypeValidator.AreTypesAssignable(operandType, expectedOperandType) != true)
+                // operand doesn't appear to have errors
+                // let's fold the expression so that an operation with a literal typed operand will have a literal return type
+                if (OperationReturnTypeEvaluator.FoldUnaryExpression(syntax, operandType, out var foldDiags) is {} result)
                 {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnaryOperatorInvalidType(Operators.UnaryOperatorToText[syntax.Operator], operandType));
+                    diagnostics.WriteMultiple(foldDiags);
+
+                    return result;
                 }
 
-                return expectedOperandType;
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnaryOperatorInvalidType(Operators.UnaryOperatorToText[syntax.Operator], operandType));
             });
 
         private static bool PropagateErrorType(IEnumerable<ErrorDiagnostic> errors, params TypeSymbol[] types)
@@ -1566,6 +1560,7 @@ namespace Bicep.Core.TypeSystem
             }
             else if (!TypeValidator.AreTypesAssignable(defaultValueType, assignedType))
             {
+                TypeValidator.AreTypesAssignable(defaultValueType, assignedType);
                 return DiagnosticBuilder.ForPosition(defaultValueSyntax.DefaultValue).ParameterTypeMismatch(assignedType, defaultValueType).AsEnumerable();
             }
 

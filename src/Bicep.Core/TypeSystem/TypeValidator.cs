@@ -123,15 +123,35 @@ namespace Bicep.Core.TypeSystem
                     // The name *is* the escaped string value, so we must have an exact match.
                     return targetType.Name == sourceType.Name;
 
+                case (IntegerLiteralType sourceInt, IntegerLiteralType targetInt):
+                    return targetInt.Value == sourceInt.Value;
+
+                case (BooleanLiteralType sourceBool, BooleanLiteralType targetBool):
+                    return sourceBool.Value == targetBool.Value;
+
                 case (PrimitiveType, StringLiteralType):
-                    // We allow string to string literal assignment only in the case where the "AllowLooseStringAssignment" validation flag has been set.
+                    // We allow primitive to like-typed literal assignment only in the case where the "AllowLooseAssignment" validation flag has been set.
                     // This is to allow parameters without 'allowed' values to be assigned to fields expecting enums.
                     // At some point we may want to consider flowing the enum type backwards to solve this more elegantly.
-                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseStringAssignment) && sourceType.Name == LanguageConstants.String.Name;
+                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment) && sourceType.Name == LanguageConstants.String.Name;
+
+                case (PrimitiveType, IntegerLiteralType):
+                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment) && sourceType.Name == LanguageConstants.Int.Name;
+
+                case (PrimitiveType, BooleanLiteralType):
+                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment) && sourceType.Name == LanguageConstants.Bool.Name;
 
                 case (StringLiteralType, PrimitiveType):
                     // string literals can be assigned to strings
                     return targetType.Name == LanguageConstants.String.Name;
+
+                case (IntegerLiteralType, PrimitiveType):
+                    // integer literals can be assigned to ints
+                    return targetType.Name == LanguageConstants.Int.Name;
+
+                case (BooleanLiteralType, PrimitiveType):
+                    // boolean literals can be assigned to bools
+                    return targetType.Name == LanguageConstants.Bool.Name;
 
                 case (PrimitiveType, PrimitiveType):
                     // both types are primitive

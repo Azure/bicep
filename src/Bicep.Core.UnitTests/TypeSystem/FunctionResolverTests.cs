@@ -33,7 +33,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
             matches.Should().HaveCount(1);
 
             var functionCall = SyntaxFactory.CreateFunctionCall("foo");
-            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, functionCall, Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type.Should().BeSameAs(expectedReturnType);
+
+            // Since we're invoking the function overload with 0 arguments, a function evaluation failure (BCP234) is not unexpected.
+            var mockDiagnosticWriter = Repository.Create<IDiagnosticWriter>();
+            mockDiagnosticWriter.Setup(writer => writer.Write(It.Is<IDiagnostic>(diag => diag.Code == "BCP234")));
+
+            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type.Should().BeSameAs(expectedReturnType);
         }
 
         [DataTestMethod]
@@ -44,7 +49,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
             matches.Should().HaveCount(expectedReturnTypes.Count);
 
             var functionCall = SyntaxFactory.CreateFunctionCall("foo");
-            matches.Select(m => m.ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, functionCall, Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
+
+            // Since we're invoking the function overload with 0 arguments, a function evaluation failure (BCP234) is not unexpected.
+            var mockDiagnosticWriter = Repository.Create<IDiagnosticWriter>();
+            mockDiagnosticWriter.Setup(writer => writer.Write(It.Is<IDiagnostic>(diag => diag.Code == "BCP234")));
+
+            matches.Select(m => m.ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
         }
 
         [DataTestMethod]

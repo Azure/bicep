@@ -285,8 +285,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
             diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics(new[] {
-                ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"string\", but the provided item was of type \"bool\"."),
-                ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"string\", but the provided item was of type \"int\"."),
+                ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"string\", but the provided item was of type \"2\"."),
+                ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"string\", but the provided item was of type \"True\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"managedByExtended\" expected a value of type \"string[]\" but the provided value is of type \"'not an array'\"."),
             });
         }
@@ -341,8 +341,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
             diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics(new[] {
-                ("BCP036", DiagnosticLevel.Error, "The property \"wrongTagType\" expected a value of type \"string\" but the provided value is of type \"bool\"."),
-                ("BCP036", DiagnosticLevel.Error, "The property \"wrongTagType2\" expected a value of type \"string\" but the provided value is of type \"int\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"wrongTagType\" expected a value of type \"string\" but the provided value is of type \"True\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"wrongTagType2\" expected a value of type \"string\" but the provided value is of type \"3\"."),
             });
         }
 
@@ -518,7 +518,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, intSyntax, unionType);
 
                 diagnostics.Should().BeEmpty();
-                narrowedType.Should().Be(LanguageConstants.Int);
+                narrowedType.Should().BeOfType<IntegerLiteralType>();
+                (narrowedType as IntegerLiteralType)!.Value.Should().Be(1234);
             }
 
             {

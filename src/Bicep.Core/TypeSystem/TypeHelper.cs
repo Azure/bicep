@@ -32,6 +32,20 @@ namespace Bicep.Core.TypeSystem
                         unionType;
                 }
 
+                if (unionType.Members.All(x => TypeValidator.AreTypesAssignable(x.Type, LanguageConstants.Bool)))
+                {
+                    return unionType.Members.Any(x => x == LanguageConstants.Bool)
+                        ? LanguageConstants.Bool
+                        : unionType;
+                }
+
+                if (unionType.Members.All(x => TypeValidator.AreTypesAssignable(x.Type, LanguageConstants.Int)))
+                {
+                    return unionType.Members.Any(x => x == LanguageConstants.Int)
+                        ? LanguageConstants.Bool
+                        : unionType;
+                }
+
                 // We have a mix of item types that cannot be collapsed
                 return null;
             }

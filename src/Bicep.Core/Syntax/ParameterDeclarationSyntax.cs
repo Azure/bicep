@@ -66,25 +66,32 @@ namespace Bicep.Core.Syntax
 
             if (ReferenceEquals(assignedType, LanguageConstants.String))
             {
-                if (allowedItemTypes?.All(itemType => itemType is StringLiteralType) == true)
-                {
-                    assignedType = TypeHelper.CreateTypeUnion(allowedItemTypes);
-                }
-                else
-                {
-                    // In order to support assignment for a generic string to enum-typed properties (which generally is forbidden),
-                    // we need to relax the validation for string parameters without 'allowed' values specified.
-                    assignedType = LanguageConstants.LooseString;
-                }
-            }
-
-            if (ReferenceEquals(assignedType, LanguageConstants.Array) &&
+                assignedType = UnionIfLiterals<StringLiteralType>(assignedType, LanguageConstants.LooseString, allowedItemTypes);
+            } else if (ReferenceEquals(assignedType, LanguageConstants.Int))
+            {
+                assignedType = UnionIfLiterals<IntegerLiteralType>(assignedType, LanguageConstants.LooseInt, allowedItemTypes);
+            } else if (ReferenceEquals(assignedType, LanguageConstants.Bool))
+            {
+                assignedType = UnionIfLiterals<BooleanLiteralType>(assignedType, LanguageConstants.LooseBool, allowedItemTypes);
+            } else if (ReferenceEquals(assignedType, LanguageConstants.Array) &&
                 allowedItemTypes?.All(itemType => itemType is StringLiteralType) == true)
             {
                 assignedType = new TypedArrayType(TypeHelper.CreateTypeUnion(allowedItemTypes), TypeSymbolValidationFlags.Default);
             }
 
             return assignedType;
+        }
+
+        private static TypeSymbol UnionIfLiterals<T>(TypeSymbol assignedType, TypeSymbol looseType, IEnumerable<TypeSymbol>? allowedItemTypes)
+        {
+            if (allowedItemTypes?.All(itemType => itemType is T) is true)
+            {
+                return TypeHelper.CreateTypeUnion(allowedItemTypes);
+            }
+
+            // In order to support assignment for a generic string/bool/int to enum-typed properties (which generally is forbidden),
+            // we need to relax the validation for string/bool/int parameters without 'allowed' values specified.
+            return looseType;
         }
     }
 }
