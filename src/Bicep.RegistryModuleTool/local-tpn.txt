@@ -230,7 +230,7 @@ limitations under the License.
 
 ---------------------------------------------------------
 
-Markdig 0.30.3 - BSD-2-Clause
+Markdig 0.30.4 - BSD-2-Clause
 
 
 
@@ -2766,7 +2766,7 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
-Azure.Bicep.Types 0.2.115 - MIT
+Azure.Bicep.Types 0.3.4 - MIT
 
 
 (c) Microsoft Corporation
@@ -2785,7 +2785,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Azure.Bicep.Types.Az 0.2.115 - MIT
+Azure.Bicep.Types.Az 0.2.148 - MIT
 
 
 (c) Microsoft Corporation
@@ -2988,10 +2988,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Azure.Identity 1.6.1 - MIT
+Azure.Identity 1.7.0 - MIT
 
 
-(c) Microsoft Corporation
 
 MIT License
 
@@ -3203,7 +3202,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Nerdbank.GitVersioning 3.5.109 - MIT
+Nerdbank.GitVersioning 3.5.113 - MIT
 
 
 Copyright 1995-2017 Mark Adler
@@ -7618,7 +7617,7 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
-System.Text.Json 6.0.5 - MIT
+System.Text.Json 6.0.6 - MIT
 
 
 (c) Microsoft Corporation
