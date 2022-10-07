@@ -587,10 +587,10 @@ namespace Bicep.Core.Semantics.Namespaces
             (_, _, diagnostics, functionCall, argumentTypes) =>
             {
                 var returnType = ArmFunctionReturnTypeEvaluator.Evaluate(armFunctionName, nonLitealReturnType, out var diagnosticBuilders, argumentTypes);
-                var diagnositcTarget = functionCall.Arguments.Any()
+                var diagnosticTarget = functionCall.Arguments.Any()
                     ? TextSpan.Between(functionCall.Arguments.First(), functionCall.Arguments.Last())
                     : TextSpan.Between(functionCall.OpenParen, functionCall.CloseParen);
-                diagnostics.WriteMultiple(diagnosticBuilders.Select(b => b(DiagnosticBuilder.ForPosition(diagnositcTarget))));
+                diagnostics.WriteMultiple(diagnosticBuilders.Select(b => b(DiagnosticBuilder.ForPosition(diagnosticTarget))));
 
                 return new(returnType);
             };
