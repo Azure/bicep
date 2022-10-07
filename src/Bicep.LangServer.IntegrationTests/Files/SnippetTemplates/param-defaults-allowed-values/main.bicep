@@ -1,7 +1,7 @@
 ﻿// $1 = ttl
 // $2 = int
 // $3 = 1
-// $4 = 2
+// $4 = 1
 
 // Insert snippet here
 
