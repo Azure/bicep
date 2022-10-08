@@ -27,127 +27,62 @@ public static class ArmFunctionReturnTypeEvaluator
 
         List<DiagnosticBuilder.DiagnosticBuilderDelegate> builderDelegates = new();
         diagnosticBuilders = builderDelegates;
-        List<ITypeReference> possibleReturnTypes = new();
-        var (argumentPermutations, permutationCount) = Permute(
-            Enumerable.Range(0, operandTypesArray.Length).ToDictionary(i => i, i => ToJTokens(operandTypesArray[i]).ToImmutableArray()));
 
-        for (int i = 0; i < permutationCount; i++)
+        var args = new FunctionArgument[prefixArgsArray.Length + operandTypesArray.Length];
+        for (int i = 0; i < prefixArgsArray.Length; i++)
         {
-            if (EvaluatePermutation(argumentPermutations, i, armFunctionName, prefixArgsArray, out var builderDelegate) is TypeSymbol converted)
-            {
-                possibleReturnTypes.Add(converted);
-            } else
-            {
-                possibleReturnTypes.Add(nonLiteralReturnType);
-            }
-
-            if (builderDelegate is not null)
-            {
-                builderDelegates.Add(builderDelegate);
-            }
+            args[i] = prefixArgsArray[i];
         }
 
-        return TypeHelper.TryCollapseTypes(possibleReturnTypes) ?? nonLiteralReturnType;
-    }
-
-    private static (Dictionary<K, ImmutableArray<V>> permutations, int permutationCount) Permute<K, V>(IReadOnlyDictionary<K, ImmutableArray<V>> toPermute) where K : notnull
-    {
-        Dictionary<K, ImmutableArray<V>> permutations = new();
-        var repeatedSequenceLength = 1;
-        var targetCount = toPermute.Aggregate(1, (acc, x) => acc * x.Value.Length);
-        foreach (var (key, conversions) in toPermute)
+        for (int i = 0; i < operandTypesArray.Length; i++)
         {
-            if (targetCount > conversions.Length)
-            {
-                var sequenceToRepeat = conversions.SelectMany(e => Enumerable.Repeat(e, repeatedSequenceLength)).ToImmutableArray();
-                repeatedSequenceLength = sequenceToRepeat.Length;
-                var repetitionsRequired = targetCount / sequenceToRepeat.Length;
-                permutations[key] = sequenceToRepeat.SelectMany(e => Enumerable.Repeat(e, repetitionsRequired)).ToImmutableArray();
-            } else
-            {
-                permutations[key] = conversions;
-            }
-        }
-
-        return (permutations, targetCount);
-    }
-
-
-    private static TypeSymbol? EvaluatePermutation(IReadOnlyDictionary<int, ImmutableArray<JToken?>> argumentPermutations,
-        int permutationToConvert,
-        string armFunctionName,
-        ImmutableArray<FunctionArgument> prefixArgs,
-        out DiagnosticBuilder.DiagnosticBuilderDelegate? builderFunc)
-    {
-        var args = new FunctionArgument[prefixArgs.Length + argumentPermutations.Count];
-        for (int j = 0; j < prefixArgs.Length; j++)
-        {
-            args[j] = prefixArgs[j];
-        }
-
-        for (int j = 0; j < argumentPermutations.Count; j++)
-        {
-            var arg = argumentPermutations[j][permutationToConvert];
-            if (arg is null)
+            if (ToJToken(operandTypesArray[i]) is not JToken converted)
             {
                 // if any of the input types is non-literal, we can't produce a literal return type
-                builderFunc = null;
-                return null;
+                return nonLiteralReturnType;
             }
 
-            args[j + prefixArgs.Length] = new(arg);
+            args[i + prefixArgsArray.Length] = new(converted);
         }
 
-        if (EvaluateOperatorAsArmFunction(armFunctionName, out var result, out builderFunc, args))
+        if (EvaluateOperatorAsArmFunction(armFunctionName, out var result, out var builderFunc, args))
         {
             if (TryCastToLiteral(result) is {} literalType) {
                 return literalType;
             }
+        } else
+        {
+            builderDelegates.Add(builderFunc);
         }
 
-        return null;
+        return nonLiteralReturnType;
     }
 
-    private static IEnumerable<JToken?> ToJTokens(TypeSymbol typeSymbol) => typeSymbol switch {
-        BooleanLiteralType booleanLiteral => new[] { new JValue(booleanLiteral.Value) },
-        IntegerLiteralType integerLiteral => new [] { new JValue(integerLiteral.Value) },
-        StringLiteralType stringLiteral => new [] { new JValue(stringLiteral.RawStringValue) },
-        ObjectType objectType => ToJTokens(objectType),
-        UnionType unionType => unionType.Members.SelectMany(m => ToJTokens(m.Type)),
-        _ => new JToken?[] { null },
+    private static JToken? ToJToken(TypeSymbol typeSymbol) => typeSymbol switch {
+        BooleanLiteralType booleanLiteral => booleanLiteral.Value,
+        IntegerLiteralType integerLiteral => integerLiteral.Value,
+        StringLiteralType stringLiteral => stringLiteral.RawStringValue,
+        ObjectType objectType => ToJToken(objectType),
+        // This converter does not handle union types, as a union conversion will take m^n times as many computations,
+        // where m == the average number of union type members defined for each function argument and n == the number of
+        // function arguments. E.g, the return type of concat('foo'|'bar', 'fizz'|'buzz', 'snap'|'crackle') should be a
+        // union type with 8 (2^3) members. Given the size of some enums defined by Azure services (such as the set of
+        // all Azure regions or the set of all compute VM SKUs), the computational complexity of this evaluator could
+        // spiral out of control pretty easily (and the resultant return type wouldn't be very useful).
+        _ => null,
     };
 
-    private static IEnumerable<JToken?> ToJTokens(ObjectType objectType)
-    {
-        var (permutations, permutationCount) = Permute(objectType.Properties.ToDictionary(kvp => kvp.Key, kvp => ToJTokens(kvp.Value.TypeReference.Type).ToImmutableArray()));
-
-        var unsuccessfulConversionYielded = false;
-        for (int i = 0; i < permutationCount; i++)
-        {
-            var convertedPermutation = ConvertObjectPermutation(permutations, i);
-            if (convertedPermutation is JToken successfulConversion)
-            {
-                yield return successfulConversion;
-            } else if (!unsuccessfulConversionYielded)
-            {
-                // Flatten out the resultant union type by yielding a null conversion result at most once
-                yield return convertedPermutation;
-            }
-        }
-    }
-
-    private static JToken? ConvertObjectPermutation(IReadOnlyDictionary<string, ImmutableArray<JToken?>> permutations, int permutationToConvert)
+    private static JToken? ToJToken(ObjectType objectType)
     {
         var target = new JObject();
-        foreach (var (key, propertyVariants) in permutations)
+        foreach (var (key, property) in objectType.Properties)
         {
-            // If the property could not be converted to a literal in this permutation, then neither can this permutation of the object
-            if (propertyVariants[permutationToConvert] is not JToken convertedProperty)
+            if (ToJToken(property.TypeReference.Type) is not JToken converted)
             {
                 return null;
             }
 
-            target[key] = convertedProperty;
+            target[key] = converted;
         }
 
         return target;
