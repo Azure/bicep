@@ -7,7 +7,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
@@ -1990,7 +1989,7 @@ var primaryFoo = foos[0]
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP076", DiagnosticLevel.Error, "Cannot index over expression of type \"True | array\". Arrays or objects are required.")
+                ("BCP076", DiagnosticLevel.Error, "Cannot index over expression of type \"array | true\". Arrays or objects are required.")
             });
         }
 
