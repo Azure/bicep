@@ -514,7 +514,7 @@ module missingLoopBodyProperties2 'modulea.bicep' = [for (x,i) in emptyArray:{
 // wrong array type
 var notAnArray = true
 module wrongArrayType 'modulea.bicep' = [for x in notAnArray:{
-//@[050:060) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "True". (CodeDescription: none) |notAnArray|
+//@[050:060) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "true". (CodeDescription: none) |notAnArray|
 }]
 
 // missing fewer properties

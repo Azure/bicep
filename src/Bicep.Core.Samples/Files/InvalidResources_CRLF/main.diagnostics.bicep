@@ -228,7 +228,7 @@ resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
       !null
 //@[006:011) [BCP044 (Error)] Cannot apply operator "!" to operand of type "null". (CodeDescription: none) |!null|
       true && true || true + -true * 4
-//@[029:034) [BCP044 (Error)] Cannot apply operator "-" to operand of type "True". (CodeDescription: none) |-true|
+//@[029:034) [BCP044 (Error)] Cannot apply operator "-" to operand of type "true". (CodeDescription: none) |-true|
     ]
   }
 }
@@ -307,7 +307,7 @@ resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
     'hello'
 //@[004:011) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "'hello'". (CodeDescription: none) |'hello'|
     true
-//@[004:008) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "True". (CodeDescription: none) |true|
+//@[004:008) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "true". (CodeDescription: none) |true|
   ]
 }
 
@@ -1589,10 +1589,10 @@ resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' =
 // wrong array type
 var notAnArray = true
 resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in notAnArray: {
-//@[089:099) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "True". (CodeDescription: none) |notAnArray|
+//@[089:099) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "true". (CodeDescription: none) |notAnArray|
 }]
 resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in notAnArray: {
-//@[094:104) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "True". (CodeDescription: none) |notAnArray|
+//@[094:104) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "true". (CodeDescription: none) |notAnArray|
 }]
 
 // wrong filter expression type

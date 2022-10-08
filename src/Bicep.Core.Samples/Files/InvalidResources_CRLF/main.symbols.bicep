@@ -1368,7 +1368,7 @@ resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' =
 
 // wrong array type
 var notAnArray = true
-//@[004:014) Variable notAnArray. Type: True. Declaration start char: 0, length: 21
+//@[004:014) Variable notAnArray. Type: true. Declaration start char: 0, length: 21
 resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in notAnArray: {
 //@[078:085) Local account. Type: any. Declaration start char: 78, length: 7
 //@[009:023) Resource wrongArrayType. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 106
@@ -1612,7 +1612,7 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
 }]
 
 var expressionInPropertyLoopVar = true
-//@[004:031) Variable expressionInPropertyLoopVar. Type: True. Declaration start char: 0, length: 38
+//@[004:031) Variable expressionInPropertyLoopVar. Type: true. Declaration start char: 0, length: 38
 resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' = {
 //@[009:038) Resource expressionsInPropertyLoopName. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 232
   name: 'hello'

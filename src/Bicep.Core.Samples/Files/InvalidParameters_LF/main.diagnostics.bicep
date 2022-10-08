@@ -232,7 +232,7 @@ param secureInt int
   'test'
 //@[02:008) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "'test'". (CodeDescription: none) |'test'|
   true
-//@[02:006) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "True". (CodeDescription: none) |true|
+//@[02:006) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "true". (CodeDescription: none) |true|
 ])
 @minValue({
 //@[10:013) [BCP070 (Error)] Argument of type "object" is not assignable to parameter of type "int". (CodeDescription: none) |{\n}|
@@ -244,7 +244,7 @@ param secureInt int
 //@[10:017) [BCP070 (Error)] Argument of type "'wrong'" is not assignable to parameter of type "object". (CodeDescription: none) |'wrong'|
 param wrongIntModifier int = true
 //@[06:022) [no-unused-params (Warning)] Parameter "wrongIntModifier" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongIntModifier|
-//@[29:033) [BCP027 (Error)] The parameter expects a default value of type "int" but provided value is of type "True". (CodeDescription: none) |true|
+//@[29:033) [BCP027 (Error)] The parameter expects a default value of type "int" but provided value is of type "true". (CodeDescription: none) |true|
 
 @metadata(any([]))
 //@[10:017) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |any([])|
@@ -257,7 +257,7 @@ param fatalErrorInIssue1713
 // wrong metadata schema
 @metadata({
   description: true
-//@[15:019) [BCP036 (Error)] The property "description" expected a value of type "string" but the provided value is of type "True". (CodeDescription: none) |true|
+//@[15:019) [BCP036 (Error)] The property "description" expected a value of type "string" but the provided value is of type "true". (CodeDescription: none) |true|
 })
 param wrongMetadataSchema string
 //@[06:025) [no-unused-params (Warning)] Parameter "wrongMetadataSchema" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongMetadataSchema|
@@ -381,7 +381,7 @@ param someString string
 
 @allowed([
     true
-//@[04:008) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "True". (CodeDescription: none) |true|
+//@[04:008) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "true". (CodeDescription: none) |true|
     10
     'foo'
 //@[04:009) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "'foo'". (CodeDescription: none) |'foo'|
@@ -471,7 +471,7 @@ param invalidPermutation array = [
 	'foobar'
 //@[01:009) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "'foobar'". (CodeDescription: none) |'foobar'|
 	true
-//@[01:005) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "True". (CodeDescription: none) |true|
+//@[01:005) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "true". (CodeDescription: none) |true|
     100
 //@[04:007) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "100". (CodeDescription: none) |100|
 ]
@@ -488,7 +488,7 @@ param invalidPermutation array = [
 ])
 param invalidDefaultWithAllowedArrayDecorator array = true
 //@[06:045) [no-unused-params (Warning)] Parameter "invalidDefaultWithAllowedArrayDecorator" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |invalidDefaultWithAllowedArrayDecorator|
-//@[54:058) [BCP027 (Error)] The parameter expects a default value of type "array" but provided value is of type "True". (CodeDescription: none) |true|
+//@[54:058) [BCP027 (Error)] The parameter expects a default value of type "array" but provided value is of type "true". (CodeDescription: none) |true|
 
 // unterminated multi-line comment
 /*    

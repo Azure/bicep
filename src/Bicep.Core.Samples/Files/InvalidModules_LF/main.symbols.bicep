@@ -489,7 +489,7 @@ module missingLoopBodyProperties2 'modulea.bicep' = [for (x,i) in emptyArray:{
 
 // wrong array type
 var notAnArray = true
-//@[04:14) Variable notAnArray. Type: True. Declaration start char: 0, length: 21
+//@[04:14) Variable notAnArray. Type: true. Declaration start char: 0, length: 21
 module wrongArrayType 'modulea.bicep' = [for x in notAnArray:{
 //@[45:46) Local x. Type: any. Declaration start char: 45, length: 1
 //@[07:21) Module wrongArrayType. Type: module[]. Declaration start char: 0, length: 65

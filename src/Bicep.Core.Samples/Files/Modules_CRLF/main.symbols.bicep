@@ -237,9 +237,9 @@ module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes 
 }]
 
 var someDuplicate = true
-//@[04:17) Variable someDuplicate. Type: True. Declaration start char: 0, length: 24
+//@[04:17) Variable someDuplicate. Type: true. Declaration start char: 0, length: 24
 var otherDuplicate = false
-//@[04:18) Variable otherDuplicate. Type: False. Declaration start char: 0, length: 26
+//@[04:18) Variable otherDuplicate. Type: false. Declaration start char: 0, length: 26
 module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
 //@[51:64) Local someDuplicate. Type: any. Declaration start char: 51, length: 13
 //@[07:27) Module duplicatesEverywhere. Type: module[]. Declaration start char: 0, length: 263

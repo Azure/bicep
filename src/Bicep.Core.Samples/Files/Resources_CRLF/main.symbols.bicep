@@ -220,7 +220,7 @@ var resourceCRef = {
   id: resourceC.id
 }
 var setResourceCRef = true
-//@[04:019) Variable setResourceCRef. Type: True. Declaration start char: 0, length: 26
+//@[04:019) Variable setResourceCRef. Type: true. Declaration start char: 0, length: 26
 
 resource resourceD 'My.Rp/typeD@2020-01-01' = {
 //@[09:018) Resource resourceD. Type: My.Rp/typeD@2020-01-01. Declaration start char: 0, length: 231

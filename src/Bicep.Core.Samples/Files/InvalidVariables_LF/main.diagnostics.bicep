@@ -90,7 +90,7 @@ var x = 2 + !3
 var y = false ? true + 1 : !4
 //@[04:05) [BCP028 (Error)] Identifier "y" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |y|
 //@[04:05) [no-unused-vars (Warning)] Variable "y" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |y|
-//@[16:24) [BCP045 (Error)] Cannot apply operator "+" to operands of type "True" and "1". (CodeDescription: none) |true + 1|
+//@[16:24) [BCP045 (Error)] Cannot apply operator "+" to operands of type "true" and "1". (CodeDescription: none) |true + 1|
 //@[27:29) [BCP044 (Error)] Cannot apply operator "!" to operand of type "4". (CodeDescription: none) |!4|
 
 // test for array item recovery

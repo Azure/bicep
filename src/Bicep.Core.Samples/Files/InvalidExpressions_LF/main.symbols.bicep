@@ -343,9 +343,9 @@ var anotherEmptyParens = ()
 var nullness = null()
 //@[4:12) Variable nullness. Type: null. Declaration start char: 0, length: 19
 var truth = true()
-//@[4:09) Variable truth. Type: True. Declaration start char: 0, length: 16
+//@[4:09) Variable truth. Type: true. Declaration start char: 0, length: 16
 var falsehood = false()
-//@[4:13) Variable falsehood. Type: False. Declaration start char: 0, length: 21
+//@[4:13) Variable falsehood. Type: false. Declaration start char: 0, length: 21
 
 var partialObject = {
 //@[4:17) Variable partialObject. Type: error. Declaration start char: 0, length: 126

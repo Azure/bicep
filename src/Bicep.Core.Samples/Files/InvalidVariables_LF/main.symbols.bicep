@@ -206,11 +206,11 @@ var something = 1
 // #completionTest(5) -> description
 @sys.
 var anotherThing = true
-//@[04:16) Variable anotherThing. Type: True. Declaration start char: 0, length: 68
+//@[04:16) Variable anotherThing. Type: true. Declaration start char: 0, length: 68
 
 // invalid identifier character classes
 var ☕ = true
-//@[04:05) Variable <error>. Type: True. Declaration start char: 0, length: 12
+//@[04:05) Variable <error>. Type: true. Declaration start char: 0, length: 12
 var a☕ = true
 //@[04:05) Variable a. Type: error. Declaration start char: 0, length: 13
 
@@ -317,7 +317,7 @@ var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 
 @batchSize(1)
 var batchSizeMakesNoSenseHere = false
-//@[04:29) Variable batchSizeMakesNoSenseHere. Type: False. Declaration start char: 0, length: 51
+//@[04:29) Variable batchSizeMakesNoSenseHere. Type: false. Declaration start char: 0, length: 51
 
 
 //KeyVault Secret Reference
