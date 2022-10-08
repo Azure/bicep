@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Globalization;
+
 namespace Bicep.Core.TypeSystem;
 
 public class IntegerLiteralType : TypeSymbol
 {
     public IntegerLiteralType(long value)
-        : base(value.ToString())
+        : base(value.ToString(CultureInfo.InvariantCulture))
     {
         Value = value;
     }

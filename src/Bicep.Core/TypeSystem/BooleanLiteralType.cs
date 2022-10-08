@@ -6,7 +6,7 @@ namespace Bicep.Core.TypeSystem;
 public class BooleanLiteralType : TypeSymbol
 {
     public BooleanLiteralType(bool value)
-        : base(value.ToString())
+        : base(value ? "true" : "false")
     {
         Value = value;
     }
