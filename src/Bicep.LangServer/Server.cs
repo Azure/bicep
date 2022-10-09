@@ -41,17 +41,9 @@ namespace Bicep.LanguageServer
 {
     public class Server : IDisposable
     {
-        public record CreationOptions(
-            ISnippetsProvider? SnippetsProvider = null,
-            INamespaceProvider? NamespaceProvider = null,
-            IFileResolver? FileResolver = null,
-            IFeatureProviderFactory? FeatureProviderFactory = null,
-            IModuleRestoreScheduler? ModuleRestoreScheduler = null,
-            Action<IServiceCollection>? onRegisterServices = null);
-
         private readonly OmnisharpLanguageServer server;
 
-        public Server(CreationOptions creationOptions, Action<LanguageServerOptions> onOptionsFunc)
+        public Server(Action<LanguageServerOptions> onOptionsFunc)
         {
             BicepDeploymentsInterop.Initialize();
             server = OmnisharpLanguageServer.PreInit(options =>
@@ -92,9 +84,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepForceModulesRestoreCommandHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
                     .WithHandler<InsertResourceHandler>()
-                    .WithServices(services => RegisterServices(creationOptions, services));
-
-                creationOptions.onRegisterServices?.Invoke(options.Services);
+                    .WithServices(RegisterServices);
 
                 onOptionsFunc(options);
             });
@@ -120,15 +110,15 @@ namespace Bicep.LanguageServer
             }
         }
 
-        private static void RegisterServices(CreationOptions creationOptions, IServiceCollection services)
+        private static void RegisterServices(IServiceCollection services)
         {
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
             services.AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>();
-            services.AddSingletonOrInstance<INamespaceProvider, DefaultNamespaceProvider>(creationOptions.NamespaceProvider);
-            services.AddSingletonOrInstance<ISnippetsProvider, SnippetsProvider>(creationOptions.SnippetsProvider);
-            services.AddSingletonOrInstance<IFileResolver, FileResolver>(creationOptions.FileResolver);
-            services.AddSingletonOrInstance<IFeatureProviderFactory, FeatureProviderFactory>(creationOptions.FeatureProviderFactory);
+            services.AddSingleton<INamespaceProvider, DefaultNamespaceProvider>();
+            services.AddSingleton<ISnippetsProvider, SnippetsProvider>();
+            services.AddSingleton<IFileResolver, FileResolver>();
+            services.AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>();
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
             services.AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
             services.AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
@@ -141,7 +131,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
-            services.AddSingletonOrInstance<IModuleRestoreScheduler, ModuleRestoreScheduler>(creationOptions.ModuleRestoreScheduler);
+            services.AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
             services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
             services.AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
             services.AddSingleton<IConfigurationManager, ConfigurationManager>();

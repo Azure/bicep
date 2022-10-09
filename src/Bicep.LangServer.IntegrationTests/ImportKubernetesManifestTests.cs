@@ -49,11 +49,10 @@ namespace Bicep.LangServer.IntegrationTests
 
             var features = BicepTestConstants.Features with { ImportsEnabled = true, };
 
-            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
+            using var helper = await LanguageServerHelper.StartServer(
                 this.TestContext,
-                options => options
-                    .OnTelemetryEvent(telemetryEventsListener.AddMessage),
-                new LanguageServer.Server.CreationOptions(FeatureProviderFactory: IFeatureProviderFactory.WithStaticFeatureProvider(features)));
+                options => options.OnTelemetryEvent(telemetryEventsListener.AddMessage),
+                services => services.WithFeatureProvider(features));
             var client = helper.Client;
 
             var response = await client.SendRequest(new ImportKubernetesManifestRequest(yamlFile.OutputFilePath), default);
@@ -79,7 +78,7 @@ namespace Bicep.LangServer.IntegrationTests
 ");
             var bicepFile = Path.ChangeExtension(manifestFile, ".bicep");
 
-            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
+            using var helper = await LanguageServerHelper.StartServer(
                 this.TestContext,
                 options => options
                     .OnShowMessage(messageListener.AddMessage)

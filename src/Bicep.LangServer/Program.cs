@@ -77,7 +77,6 @@ namespace Bicep.LanguageServer
                 await clientPipe.ConnectAsync(cancellationToken);
 
                 server = new(
-                    new(),
                     options => options
                         .WithInput(clientPipe)
                         .WithOutput(clientPipe));
@@ -90,7 +89,6 @@ namespace Bicep.LanguageServer
                 var tcpStream = tcpClient.GetStream();
 
                 server = new(
-                    new(),
                     options => options
                         .WithInput(tcpStream)
                         .WithOutput(tcpStream)
@@ -99,7 +97,6 @@ namespace Bicep.LanguageServer
             else
             {
                 server = new(
-                    new(),
                     options => options
                         .WithInput(Console.OpenStandardInput())
                         .WithOutput(Console.OpenStandardOutput()));

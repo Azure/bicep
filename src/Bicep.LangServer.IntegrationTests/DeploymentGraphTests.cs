@@ -90,10 +90,10 @@ resource res5 'Test.Rp/basicTests@2020-01-01' = {
 }
 ";
 
-            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
+            using var helper = await LanguageServerHelper.StartServer(
                 this.TestContext,
-                options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
-                new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: new InMemoryFileResolver(fileSystemDict)));
+                options => options.OnPublishDiagnostics(diagnosticsListener.AddMessage),
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()).WithFileResolver(new InMemoryFileResolver(fileSystemDict)));
             var client = helper.Client;
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));

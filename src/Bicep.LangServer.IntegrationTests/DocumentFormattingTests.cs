@@ -22,16 +22,12 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task RequestDocumentFormattingShouldReturnFullRangeTextEdit()
         {
+            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var documentUri = DocumentUri.From("/template.bicep");
-            var diagnosticsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
 
-            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(this.TestContext, options =>
-            {
-                options.OnPublishDiagnostics(diagnostics =>
-                {
-                    diagnosticsReceived.SetResult(diagnostics);
-                });
-            });
+            using var helper = await LanguageServerHelper.StartServer(
+                this.TestContext,
+                options => options.OnPublishDiagnostics(diagsListener.AddMessage));
             var client = helper.Client;
 
             // client opens the document
@@ -50,7 +46,7 @@ resource myResource 'myRP/provider@2020-11-01' = {
 }
 
 module myModule './module.bicep' = {
-  name: 'test' 
+  name: 'test'
 }
 
 output myOutput string = 'value'", 0));

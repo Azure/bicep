@@ -55,7 +55,7 @@ namespace Bicep.LangServer.IntegrationTests
             IAzResourceProvider azResourceProvider,
             IAzResourceTypeLoader azResourceTypeLoader)
         {
-            return await LanguageServerHelper.StartServerWithClientConnectionAsync(
+            return await LanguageServerHelper.StartServer(
                 this.TestContext,
                 options => options
                     .OnPublishDiagnostics(listeners.Diagnostics.AddMessage)
@@ -68,10 +68,7 @@ namespace Bicep.LangServer.IntegrationTests
                         return new();
                     })
                     .OnTelemetryEvent(listeners.Telemetry.AddMessage),
-                new LanguageServer.Server.CreationOptions(
-                    onRegisterServices: services => services
-                        .AddSingleton<IAzResourceProvider>(azResourceProvider)
-                        .AddSingleton<IAzResourceTypeLoader>(azResourceTypeLoader)));
+                services => services.WithAzResourceTypeLoader(azResourceTypeLoader).WithAzResourceProvider(azResourceProvider));
         }
 
         [TestMethod]

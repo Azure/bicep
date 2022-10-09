@@ -68,11 +68,11 @@ namespace Bicep.LangServer.IntegrationTests
         {
             DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
-            ServerWithFileResolver.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new Server.CreationOptions(FileResolver: BicepTestConstants.FileResolver)));
+            ServerWithFileResolver.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
-            ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create())));
+            ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BuiltInTestTypes.Create())));
 
-            ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider)));
+            ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext,services => services.WithNamespaceProvider(BicepTestConstants.NamespaceProvider)));
         }
 
         [ClassCleanup]
@@ -294,11 +294,11 @@ resource test";
                     x.Code.Should().Be("BCP029");
                 });
 
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+            using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
                 bicepFileContents,
                 documentUri,
-                creationOptions: new Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
             ILanguageClient client = helper.Client;
 
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;

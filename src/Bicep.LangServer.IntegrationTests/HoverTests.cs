@@ -49,8 +49,8 @@ namespace Bicep.LangServer.IntegrationTests
         public static void ClassInitialize(TestContext testContext)
         {
             DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
-            ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create())));
-            ServerWithTestNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new LanguageServer.Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider, FileResolver: BicepTestConstants.FileResolver)));
+            ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services => services.WithNamespaceProvider(BuiltInTestTypes.Create())));
+            ServerWithTestNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
         }
 
         [ClassCleanup]
@@ -369,15 +369,13 @@ output moduleOutput string = '${var|1}-${mod1.outputs.o|ut2}'
             var moduleFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/mod.bicep"), modFile);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
 
-            var creationOptions = new LanguageServer.Server.CreationOptions(
-                NamespaceProvider: BuiltInTestTypes.Create(),
-                FileResolver: new InMemoryFileResolver(new Dictionary<Uri, string>
-                {
-                    [bicepFile.FileUri] = file,
-                    [moduleFile.FileUri] = modFile
-                }));
+            var files = new Dictionary<Uri, string>
+            {
+                [bicepFile.FileUri] = file,
+                [moduleFile.FileUri] = modFile
+            };
 
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: creationOptions);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
             var client = helper.Client;
 
             var hovers = await RequestHovers(client, bicepFile, cursors);
@@ -501,15 +499,13 @@ output moduleOutput string = '${va|r1}-${mod1.outputs.ou|t2}'
             var moduleTemplateFile = SourceFileFactory.CreateArmTemplateFile(new Uri("file:///path/to/mod.json"), template!.ToString());
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
 
-            var creationOptions = new LanguageServer.Server.CreationOptions(
-                NamespaceProvider: BuiltInTestTypes.Create(),
-                FileResolver: new InMemoryFileResolver(new Dictionary<Uri, string>
-                {
-                    [bicepFile.FileUri] = file,
-                    [moduleTemplateFile.FileUri] = template!.ToString()
-                }));
+            var files = new Dictionary<Uri, string>
+            {
+                [bicepFile.FileUri] = file,
+                [moduleTemplateFile.FileUri] = template!.ToString()
+            };
 
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: creationOptions);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
             var client = helper.Client;
 
             var hovers = await RequestHovers(client, bicepFile, cursors);

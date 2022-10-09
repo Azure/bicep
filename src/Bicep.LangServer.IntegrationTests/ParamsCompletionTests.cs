@@ -134,15 +134,13 @@ new CompletionItemKind[] { CompletionItemKind.Field, CompletionItemKind.Field }
                 [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText
             };
 
-            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+            using var helper = await LanguageServerHelper.StartServerWithText(
                 TestContext,
-                paramFileTextNoCursor,
+                fileTextsByUri,
                 paramUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(
-                    NamespaceProvider: BuiltInTestTypes.Create(),
-                    FileResolver: fileResolver,
-                    FeatureProviderFactory: IFeatureProviderFactory.WithStaticFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, paramsFilesEnabled: true))));
+                services => services
+                    .WithNamespaceProvider(BuiltInTestTypes.Create())
+                    .WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, paramsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 
@@ -234,13 +232,13 @@ new CompletionItemKind[] { CompletionItemKind.EnumMember, CompletionItemKind.Enu
                 [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText
             };
 
-            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+            using var helper = await LanguageServerHelper.StartServerWithText(
                 TestContext,
-                paramFileTextNoCursor,
+                fileTextsByUri,
                 paramUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver,
-                FeatureProviderFactory: IFeatureProviderFactory.WithStaticFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, paramsFilesEnabled: true))));
+                services => services
+                    .WithNamespaceProvider(BuiltInTestTypes.Create())
+                    .WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, paramsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 
@@ -275,13 +273,13 @@ using |
                 [InMemoryFileResolver.GetFileUri("/path/to/nested2/module3.bicep")] = "param bar string"
             };
 
-            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+            using var helper = await LanguageServerHelper.StartServerWithText(
                 TestContext,
-                paramFileTextNoCursor,
+                fileTextsByUri,
                 paramUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver,
-                    FeatureProviderFactory: IFeatureProviderFactory.WithStaticFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, paramsFilesEnabled: true))));
+                services => services
+                    .WithNamespaceProvider(BuiltInTestTypes.Create())
+                    .WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, paramsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 
@@ -321,13 +319,13 @@ using './nested1/|'
                 [InMemoryFileResolver.GetFileUri("/path/to/nested2/module3.bicep")] = "param bar string"
             };
 
-            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+            using var helper = await LanguageServerHelper.StartServerWithText(
                 TestContext,
-                paramFileTextNoCursor,
+                fileTextsByUri,
                 paramUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver,
-                    FeatureProviderFactory: IFeatureProviderFactory.WithStaticFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, paramsFilesEnabled: true))));
+                services => services
+                    .WithNamespaceProvider(BuiltInTestTypes.Create())
+                    .WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, paramsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 
