@@ -18,7 +18,7 @@ using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests.Diagnostics
 {
-    // Tests the bicepconfig.schema.json file
+    // Tests the src/vscode-bicep/schemas/bicepconfig.schema.json file
 
     [TestClass]
     public class BicepConfigSchemaTests
@@ -122,6 +122,15 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 description.Should().NotContainAny(new[] { "don't", "do not" }, StringComparison.InvariantCultureIgnoreCase, "Use \"Should\" type of language generally (less impolite)");
                 description.Should().NotContain("\"", "use single quotes instead of double quotes in rule descriptions");
             }
+        }
+
+        [TestMethod]
+        public void RuleConfigs_RulesShouldBeAlphabetizedForEasierMaintenace()
+        {
+            var (rules, schema) = GetRulesAndSchema();
+            var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToArray();
+            var ruleNames = ruleConfigs.Select(c => ((JProperty)c).Name);
+            var alphabetizedNames = ruleNames.OrderBy(n => n);
         }
 
         [TestMethod]
