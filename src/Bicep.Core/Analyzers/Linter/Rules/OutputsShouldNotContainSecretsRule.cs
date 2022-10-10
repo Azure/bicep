@@ -32,9 +32,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 values.First());
         }
 
-        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            var visitor = new OutputVisitor(this, model, GetDiagnosticLevel(model));
+            var visitor = new OutputVisitor(this, model, diagnosticLevel);
             visitor.Visit(model.SourceFile.ProgramSyntax);
             return visitor.diagnostics;
         }

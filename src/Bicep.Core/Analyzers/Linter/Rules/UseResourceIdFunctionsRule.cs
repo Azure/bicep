@@ -113,9 +113,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             IEnumerable<DeclaredSymbol> PathToExpression
         );
 
-        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            var diagnosticLevel = GetDiagnosticLevel(model);
             foreach (var resource in model.DeclaredResources)
             {
                 if (resource.IsAzResource

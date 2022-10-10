@@ -64,9 +64,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 + (acceptableVersionsString.Any() ? " " + string.Format(CoreResources.UseRecentApiVersionRule_AcceptableVersions, acceptableVersionsString) : "");
         }
 
-        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            var diagnosticLevel = GetDiagnosticLevel(model);
             var today = DateTime.Today;
             // Today's date can be changed to enable testing/debug scenarios
             if (GetConfigurationValue<string?>(model.Configuration.Analyzers, "test-today", null) is string testToday)

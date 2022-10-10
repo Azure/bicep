@@ -31,9 +31,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return string.Format(CoreResources.UseStableVMImageRuleFixMessageFormat, values);
         }
 
-        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            var diagnosticLevel = GetDiagnosticLevel(model);
             List<IDiagnostic> diagnostics = new();
 
             foreach (DeclaredResourceMetadata resource in model.DeclaredResources)

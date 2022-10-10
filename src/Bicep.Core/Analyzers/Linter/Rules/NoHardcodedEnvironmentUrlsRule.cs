@@ -28,7 +28,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public override string FormatMessage(params object[] values)
             => string.Format("{0} Found this disallowed host: \"{1}\"", this.Description, values.First());
 
-        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
             var disallowedHosts = GetConfigurationValue(model.Configuration.Analyzers, DisallowedHostsKey.ToLowerInvariant(), Array.Empty<string>()).ToImmutableArray();
             var excludedHosts = GetConfigurationValue(model.Configuration.Analyzers, ExcludedHostsKey.ToLowerInvariant(), Array.Empty<string>()).ToImmutableArray();
@@ -38,7 +38,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 var visitor = new Visitor(disallowedHosts, disallowedHosts.Min(h => h.Length), excludedHosts);
                 visitor.Visit(model.SourceFile.ProgramSyntax);
 
-                var diagnosticLevel = GetDiagnosticLevel(model);
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(diagnosticLevel, entry.Key, entry.Value));
             }
 
