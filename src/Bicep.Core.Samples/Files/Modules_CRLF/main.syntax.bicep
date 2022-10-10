@@ -1,5 +1,5 @@
 
-//@[000:8466) ProgramSyntax
+//@[000:8594) ProgramSyntax
 //@[000:0002) ├─Token(NewLine) |\r\n|
 @sys.description('this is deployTimeSuffix param')
 //@[000:0093) ├─ParameterDeclarationSyntax
@@ -1028,8 +1028,8 @@ output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputO
 
 /*
   valid loop cases
-*/ 
-//@[003:0007) ├─Token(NewLine) |\r\n\r\n|
+*/
+//@[002:0006) ├─Token(NewLine) |\r\n\r\n|
 
 @sys.description('this is myModules')
 //@[000:0162) ├─VariableDeclarationSyntax
@@ -3188,6 +3188,29 @@ module folderWithSpace 'child/folder with space/child with space.bicep' = {
 //@[008:0024) |   | └─StringSyntax
 //@[008:0024) |   |   └─Token(StringComplete) |'childWithSpace'|
 //@[024:0026) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:0001) |   └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
+
+module withSeparateConfig './child/folder with separate config/moduleWithAzImport.bicep' = {
+//@[000:0125) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0025) | ├─IdentifierSyntax
+//@[007:0025) | | └─Token(Identifier) |withSeparateConfig|
+//@[026:0088) | ├─StringSyntax
+//@[026:0088) | | └─Token(StringComplete) |'./child/folder with separate config/moduleWithAzImport.bicep'|
+//@[089:0090) | ├─Token(Assignment) |=|
+//@[091:0125) | └─ObjectSyntax
+//@[091:0092) |   ├─Token(LeftBrace) |{|
+//@[092:0094) |   ├─Token(NewLine) |\r\n|
+  name: 'withSeparateConfig'
+//@[002:0028) |   ├─ObjectPropertySyntax
+//@[002:0006) |   | ├─IdentifierSyntax
+//@[002:0006) |   | | └─Token(Identifier) |name|
+//@[006:0007) |   | ├─Token(Colon) |:|
+//@[008:0028) |   | └─StringSyntax
+//@[008:0028) |   |   └─Token(StringComplete) |'withSeparateConfig'|
+//@[028:0030) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:0001) |   └─Token(RightBrace) |}|
 //@[001:0003) ├─Token(NewLine) |\r\n|

@@ -349,3 +349,7 @@ module withSpace 'module with space.bicep' = {
 module folderWithSpace 'child/folder with space/child with space.bicep' = {
   name: 'childWithSpace'
 }
+
+module withSeparateConfig './child/folder with separate config/moduleWithAzImport.bicep' = {
+  name: 'withSeparateConfig'
+}

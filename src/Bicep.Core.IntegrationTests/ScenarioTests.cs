@@ -6,12 +6,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Cryptography;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Resources;
-using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -2865,7 +2861,7 @@ output contentVersion string = deployment().properties.template.contentVersion
         [TestMethod]
         public void Test_Issue6044()
         {
-            var services = new ServiceBuilder().WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, symbolicNameCodegenEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, SymbolicNameCodegenEnabled: true));
 
             var result = CompilationHelper.Compile(services, @"
 var adminUsername = 'cooluser'

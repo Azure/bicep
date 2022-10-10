@@ -14,7 +14,6 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
-using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
@@ -55,11 +54,11 @@ namespace Bicep.Core.IntegrationTests
             File.Exists(badCachePath).Should().BeTrue();
 
             // cache root points to a file
-            var features = BicepTestConstants.Features with {
+            var featureOverrides = BicepTestConstants.FeatureOverrides with {
                 RegistryEnabled = true,
                 CacheRootDirectory = badCachePath
             };
-            var featuresFactory = IFeatureProviderFactory.WithStaticFeatureProvider(features);
+            var featuresFactory = BicepTestConstants.CreateFeatureProviderFactory(featureOverrides);
 
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, featuresFactory, BicepTestConstants.ConfigurationManager), BicepTestConstants.ConfigurationManager);
 
@@ -70,7 +69,7 @@ namespace Bicep.Core.IntegrationTests
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
             }
 
-            var compilation = Services.WithFeatureProviderFactory(featuresFactory).Build().BuildCompilation(sourceFileGrouping);
+            var compilation = Services.WithFeatureOverrides(featureOverrides).Build().BuildCompilation(sourceFileGrouping);
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
             diagnostics.Should().HaveCount(1);
 

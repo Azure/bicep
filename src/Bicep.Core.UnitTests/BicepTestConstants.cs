@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
@@ -13,27 +14,16 @@ using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.UnitTests.Configuration;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests
 {
-    public record TestFeatureProvider(
-        string AssemblyVersion,
-        string CacheRootDirectory,
-        bool RegistryEnabled,
-        bool SymbolicNameCodegenEnabled,
-        bool ImportsEnabled,
-        bool AdvancedListComprehensionEnabled,
-        bool ResourceTypedParamsAndOutputsEnabled,
-        bool ParamsFilesEnabled,
-        bool SourceMappingEnabled) : IFeatureProvider;
-
     public static class BicepTestConstants
     {
         public const string DevAssemblyFileVersion = "dev";
@@ -42,11 +32,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly FileResolver FileResolver = new(new IOFileSystem());
 
-        public static readonly TestFeatureProvider Features = CreateFeatureProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, sourceMappingEnabled: false, paramsFilesEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
-
-        public static readonly IFeatureProviderFactory FeatureProviderFactory = IFeatureProviderFactory.WithStaticFeatureProvider(Features);
-
-        public static readonly EmitterSettings EmitterSettings = new EmitterSettings(Features);
+        public static readonly FeatureProviderOverrides FeatureOverrides = new();
 
         public static readonly IAzResourceTypeLoader AzResourceTypeLoader = new AzResourceTypeLoader();
 
@@ -56,7 +42,9 @@ namespace Bicep.Core.UnitTests
 
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
-        public static readonly IConfigurationManager ConfigurationManager = new ConfigurationManager(new IOFileSystem());
+        public static readonly ConfigurationManager ConfigurationManager = CreateFilesystemConfigurationManager();
+
+        public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager), FeatureOverrides);
 
         // Linter rules added to this list will be automtically disabled for most tests.
         public static readonly string[] AnalyzerRulesToDisableInTests = new string[] {
@@ -71,6 +59,10 @@ namespace Bicep.Core.UnitTests
         public static readonly RootConfiguration BuiltInConfiguration = BuiltInConfigurationWithProblematicAnalyzersDisabled;
 
         public static readonly IConfigurationManager BuiltInOnlyConfigurationManager = IConfigurationManager.WithStaticConfiguration(BuiltInConfiguration);
+
+        public static readonly IFeatureProvider Features = new OverriddenFeatureProvider(new FeatureProvider(BuiltInConfiguration), FeatureOverrides);
+
+        public static readonly EmitterSettings EmitterSettings = new EmitterSettings(Features);
 
         public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, TemplateSpecRepositoryFactory, FeatureProviderFactory, BuiltInOnlyConfigurationManager);
 
@@ -114,51 +106,13 @@ namespace Bicep.Core.UnitTests
             return RootConfiguration.Bind(element, configurationPath);
         }
 
-        public static TestFeatureProvider CreateFeatureProvider(
-            TestContext testContext,
-            bool registryEnabled = false,
-            bool symbolicNameCodegenEnabled = false,
-            bool importsEnabled = false,
-            bool resourceTypedParamsAndOutputsEnabled = false,
-            bool sourceMappingEnabled = false,
-            bool paramsFilesEnabled = false,
-            string assemblyFileVersion = DevAssemblyFileVersion)
-        {
-            var features = CreateFeatureProvider(
-                registryEnabled,
-                symbolicNameCodegenEnabled,
-                importsEnabled,
-                resourceTypedParamsAndOutputsEnabled,
-                sourceMappingEnabled,
-                paramsFilesEnabled,
-                assemblyFileVersion);
+        public static ConfigurationManager CreateFilesystemConfigurationManager() => new ConfigurationManager(new IOFileSystem());
 
-            return features with
-            {
-                CacheRootDirectory = FileHelper.GetCacheRootPath(testContext),
-            };
-        }
+        public static IConfigurationManager CreateConfigurationManager(Func<RootConfiguration, RootConfiguration> patchFunc)
+            => new PatchingConfigurationManager(CreateFilesystemConfigurationManager(), patchFunc);
 
-        private static TestFeatureProvider CreateFeatureProvider(
-            bool registryEnabled,
-            bool symbolicNameCodegenEnabled,
-            bool importsEnabled,
-            bool resourceTypedParamsAndOutputsEnabled,
-            bool sourceMappingEnabled,
-            bool paramsFilesEnabled,
-            string assemblyFileVersion)
-        {
-            return new TestFeatureProvider(
-                assemblyFileVersion,
-                string.Empty,
-                registryEnabled,
-                symbolicNameCodegenEnabled,
-                importsEnabled,
-                true,
-                resourceTypedParamsAndOutputsEnabled,
-                paramsFilesEnabled,
-                sourceMappingEnabled);
-        }
+        public static IFeatureProviderFactory CreateFeatureProviderFactory(FeatureProviderOverrides featureOverrides, IConfigurationManager? configurationManager = null)
+            => new OverriddenFeatureProviderFactory(new FeatureProviderFactory(configurationManager ?? CreateFilesystemConfigurationManager()), featureOverrides);
 
         private static IModuleRestoreScheduler CreateMockModuleRestoreScheduler()
         {
