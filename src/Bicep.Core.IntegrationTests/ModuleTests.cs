@@ -36,7 +36,7 @@ namespace Bicep.Core.IntegrationTests
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
         private static readonly IConfigurationManager ConfigurationManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
 
-        private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, resourceTypedParamsAndOutputsEnabled: true));
+        private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -391,7 +391,7 @@ module modulea 'modulea.bicep' = {
         [TestMethod]
         public void External_module_reference_with_unknown_scheme_should_be_rejected()
         {
-            var services = new ServiceBuilder().WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, registryEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, RegistryEnabled: true));
             var result = CompilationHelper.Compile(services, @"module test 'fake:totally-fake' = {}");
 
             result.Should().HaveDiagnostics(new[]
@@ -403,7 +403,7 @@ module modulea 'modulea.bicep' = {
         [TestMethod]
         public void External_module_reference_with_oci_scheme_should_be_rejected_if_registry_disabled()
         {
-            var services = new ServiceBuilder().WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, registryEnabled: false));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(TestContext, RegistryEnabled: false));
             var result = CompilationHelper.Compile(services, @"module test 'br:totally-fake' = {}");
 
             result.Should().HaveDiagnostics(new[]

@@ -47,10 +47,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task BicepHelpShouldPrintHelp()
         {
-            var featuresMock = Repository.Create<IFeatureProvider>();
-            featuresMock.Setup(m => m.RegistryEnabled).Returns(true);
-
-            var settings = CreateDefaultSettings() with { Features = featuresMock.Object };
+            var settings = CreateDefaultSettings() with { FeatureOverrides = new(RegistryEnabled: true) };
 
             var (output, error, result) = await Bicep(settings, "--help");
 
@@ -132,10 +129,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             // disable registry to ensure `bicep --help` is not consulting the feature provider before
             // preparing the help text (as features can only be determined when an input file is specified)
-            var featuresMock = Repository.Create<IFeatureProvider>();
-            featuresMock.Setup(m => m.RegistryEnabled).Returns(false);
-
-            var settings = CreateDefaultSettings() with { Features = featuresMock.Object };
+            var settings = CreateDefaultSettings() with { FeatureOverrides = new(RegistryEnabled: false) };
 
             var (output, error, result) = await Bicep(settings, "--help");
 

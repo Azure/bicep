@@ -2,13 +2,10 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -25,7 +22,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var compilation = Services
                 .WithAzResources(definedTypes)
-                .WithConfigurationManager(IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled))
+                .WithConfigurationPatch(c => c.WithAllAnalyzersDisabled())
                 .BuildCompilation(programText);
 
             return compilation.GetEntrypointSemanticModel();

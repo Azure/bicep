@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -10,7 +9,6 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -41,7 +39,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public record Options(
             OnCompileErrors OnCompileErrors = OnCompileErrors.Default,
             IncludePosition IncludePosition = IncludePosition.Default,
-            RootConfiguration? Configuration = null,
+            Func<RootConfiguration, RootConfiguration>? ConfigurationPatch = null,
             ApiVersionProvider? ApiVersionProvider = null,
             (string path, string contents)[]? AdditionalFiles = null
         );
@@ -108,7 +106,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             options ??= new Options();
             var services = new ServiceBuilder();
-            services = options.Configuration is {} ? services.WithConfiguration(options.Configuration) : services;
+            services = options.ConfigurationPatch is {} ? services.WithConfigurationPatch(options.ConfigurationPatch) : services;
             services = options.ApiVersionProvider is {} ? services.WithApiVersionProvider(options.ApiVersionProvider) : services;
             var result = CompilationHelper.Compile(services, files);
             using (new AssertionScope().WithFullSource(result.BicepFile))

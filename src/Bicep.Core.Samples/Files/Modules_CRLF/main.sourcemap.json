@@ -7737,84 +7737,224 @@
           "TargetLine": 1947
         },
         {
-          "SourceLine": 122,
-          "TargetLine": 1952
-        },
-        {
-          "SourceLine": 122,
-          "TargetLine": 1950
-        },
-        {
-          "SourceLine": 122,
+          "SourceLine": 357,
           "TargetLine": 1951
         },
         {
-          "SourceLine": 122,
+          "SourceLine": 356,
+          "TargetLine": 1948
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1949
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1950
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1952
+        },
+        {
+          "SourceLine": 356,
           "TargetLine": 1953
         },
         {
-          "SourceLine": 123,
-          "TargetLine": 1956
-        },
-        {
-          "SourceLine": 123,
+          "SourceLine": 356,
           "TargetLine": 1954
         },
         {
-          "SourceLine": 123,
+          "SourceLine": 356,
           "TargetLine": 1955
         },
         {
-          "SourceLine": 123,
+          "SourceLine": 356,
+          "TargetLine": 1956
+        },
+        {
+          "SourceLine": 356,
           "TargetLine": 1957
         },
         {
-          "SourceLine": 124,
-          "TargetLine": 1960
-        },
-        {
-          "SourceLine": 124,
+          "SourceLine": 356,
           "TargetLine": 1958
         },
         {
-          "SourceLine": 124,
+          "SourceLine": 356,
           "TargetLine": 1959
         },
         {
-          "SourceLine": 124,
+          "SourceLine": 356,
+          "TargetLine": 1960
+        },
+        {
+          "SourceLine": 356,
           "TargetLine": 1961
         },
         {
-          "SourceLine": 125,
-          "TargetLine": 1964
-        },
-        {
-          "SourceLine": 125,
+          "SourceLine": 356,
           "TargetLine": 1962
         },
         {
-          "SourceLine": 125,
+          "SourceLine": 356,
           "TargetLine": 1963
         },
         {
-          "SourceLine": 125,
+          "SourceLine": 356,
+          "TargetLine": 1964
+        },
+        {
+          "SourceLine": 356,
           "TargetLine": 1965
         },
         {
-          "SourceLine": 126,
-          "TargetLine": 1968
-        },
-        {
-          "SourceLine": 126,
+          "SourceLine": 356,
           "TargetLine": 1966
         },
         {
-          "SourceLine": 126,
+          "SourceLine": 356,
           "TargetLine": 1967
         },
         {
-          "SourceLine": 126,
+          "SourceLine": 356,
+          "TargetLine": 1968
+        },
+        {
+          "SourceLine": 356,
           "TargetLine": 1969
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1970
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1971
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1972
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1973
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1974
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1975
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1976
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1977
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1978
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1979
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1980
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1981
+        },
+        {
+          "SourceLine": 356,
+          "TargetLine": 1982
+        },
+        {
+          "SourceLine": 122,
+          "TargetLine": 1987
+        },
+        {
+          "SourceLine": 122,
+          "TargetLine": 1985
+        },
+        {
+          "SourceLine": 122,
+          "TargetLine": 1986
+        },
+        {
+          "SourceLine": 122,
+          "TargetLine": 1988
+        },
+        {
+          "SourceLine": 123,
+          "TargetLine": 1991
+        },
+        {
+          "SourceLine": 123,
+          "TargetLine": 1989
+        },
+        {
+          "SourceLine": 123,
+          "TargetLine": 1990
+        },
+        {
+          "SourceLine": 123,
+          "TargetLine": 1992
+        },
+        {
+          "SourceLine": 124,
+          "TargetLine": 1995
+        },
+        {
+          "SourceLine": 124,
+          "TargetLine": 1993
+        },
+        {
+          "SourceLine": 124,
+          "TargetLine": 1994
+        },
+        {
+          "SourceLine": 124,
+          "TargetLine": 1996
+        },
+        {
+          "SourceLine": 125,
+          "TargetLine": 1999
+        },
+        {
+          "SourceLine": 125,
+          "TargetLine": 1997
+        },
+        {
+          "SourceLine": 125,
+          "TargetLine": 1998
+        },
+        {
+          "SourceLine": 125,
+          "TargetLine": 2000
+        },
+        {
+          "SourceLine": 126,
+          "TargetLine": 2003
+        },
+        {
+          "SourceLine": 126,
+          "TargetLine": 2001
+        },
+        {
+          "SourceLine": 126,
+          "TargetLine": 2002
+        },
+        {
+          "SourceLine": 126,
+          "TargetLine": 2004
         }
       ]
     },
@@ -10649,6 +10789,43 @@
         {
           "SourceLine": 1,
           "TargetLine": 1943
+        }
+      ]
+    },
+    {
+      "FilePath": "child/folder%20with%20separate%20config/moduleWithAzImport.bicep",
+      "SourceMap": [
+        {
+          "SourceLine": 0,
+          "TargetLine": 1968
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 1969
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 1970
+        },
+        {
+          "SourceLine": 0,
+          "TargetLine": 1971
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 1977
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 1975
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 1976
+        },
+        {
+          "SourceLine": 2,
+          "TargetLine": 1978
         }
       ]
     }

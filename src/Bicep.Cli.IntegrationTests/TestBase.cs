@@ -9,6 +9,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
@@ -28,12 +29,12 @@ namespace Bicep.Cli.IntegrationTests
 
         protected static readonly MockRepository Repository = new(MockBehavior.Strict);
 
-        protected record InvocationSettings(IFeatureProvider Features, IContainerRegistryClientFactory ClientFactory, ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory);
+        protected record InvocationSettings(FeatureProviderOverrides FeatureOverrides, IContainerRegistryClientFactory ClientFactory, ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory);
 
         protected static Task<(string output, string error, int result)> Bicep(params string[] args) => Bicep(CreateDefaultSettings(), args);
 
         protected static InvocationSettings CreateDefaultSettings() => new(
-            Features: BicepTestConstants.Features,
+            FeatureOverrides: BicepTestConstants.FeatureOverrides,
             ClientFactory: Repository.Create<IContainerRegistryClientFactory>().Object,
             TemplateSpecRepositoryFactory: Repository.Create<ITemplateSpecRepositoryFactory>().Object);
 
@@ -43,7 +44,7 @@ namespace Bicep.Cli.IntegrationTests
                     TestTypeHelper.CreateEmptyAzResourceTypeLoader(),
                     @out,
                     err,
-                    featureProviderFactory: IFeatureProviderFactory.WithStaticFeatureProvider(settings.Features),
+                    featureProviderFactory: BicepTestConstants.CreateFeatureProviderFactory(settings.FeatureOverrides),
                     clientFactory: settings.ClientFactory,
                     templateSpecRepositoryFactory: settings.TemplateSpecRepositoryFactory)).RunAsync(args));
 

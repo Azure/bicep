@@ -12,6 +12,8 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.UnitTests.Configuration;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.Workspaces;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -29,23 +31,25 @@ public static class ServiceBuilderExtensions
     public static ServiceBuilder WithWorkspace(this ServiceBuilder serviceBuilder, IWorkspace workspace)
         => Register(serviceBuilder, workspace);
 
-    public static ServiceBuilder WithFeatureProvider(this ServiceBuilder serviceBuilder, IFeatureProvider featureProvider)
-        => Register(serviceBuilder, IFeatureProviderFactory.WithStaticFeatureProvider(featureProvider));
-
-    public static ServiceBuilder WithFeatureProviderFactory(this ServiceBuilder serviceBuilder, IFeatureProviderFactory featureProviderFactory)
-        => Register(serviceBuilder, featureProviderFactory);
+    public static ServiceBuilder WithFeatureOverrides(this ServiceBuilder serviceBuilder, FeatureProviderOverrides overrides)
+    {
+        Register(serviceBuilder, overrides);
+        serviceBuilder.WithRegistration(x => x.AddSingleton<FeatureProviderFactory>());
+        return serviceBuilder.WithRegistration(x => x.AddSingleton<IFeatureProviderFactory, OverriddenFeatureProviderFactory>());
+    }
 
     public static ServiceBuilder WithNamespaceProvider(this ServiceBuilder serviceBuilder, INamespaceProvider namespaceProvider)
         => Register(serviceBuilder, namespaceProvider);
 
-    public static ServiceBuilder WithConfigurationManager(this ServiceBuilder serviceBuilder, IConfigurationManager configurationManager)
-        => Register(serviceBuilder, configurationManager);
-
-    public static ServiceBuilder WithConfiguration(this ServiceBuilder serviceBuilder, RootConfiguration configuration)
-        => Register(serviceBuilder, IConfigurationManager.WithStaticConfiguration(configuration));
+    public static ServiceBuilder WithConfigurationPatch(this ServiceBuilder serviceBuilder, Func<RootConfiguration, RootConfiguration> patchFunc)
+    {
+        Register(serviceBuilder, patchFunc);
+        serviceBuilder.WithRegistration(x => x.AddSingleton<ConfigurationManager>());
+        return serviceBuilder.WithRegistration(x => x.AddSingleton<IConfigurationManager, PatchingConfigurationManager>());
+    }
 
     public static ServiceBuilder WithDisabledAnalyzersConfiguration(this ServiceBuilder serviceBuilder)
-        => serviceBuilder.WithConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
+        => serviceBuilder.WithConfigurationPatch(c => c.WithAllAnalyzersDisabled());
 
     public static ServiceBuilder WithApiVersionProviderFactory(this ServiceBuilder serviceBuilder, IApiVersionProviderFactory apiVersionProviderFactory)
         => Register(serviceBuilder, apiVersionProviderFactory);
