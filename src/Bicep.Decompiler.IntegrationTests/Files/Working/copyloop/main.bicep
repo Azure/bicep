@@ -33,6 +33,7 @@ resource storagePrefix_id 'Microsoft.Storage/storageAccounts@2019-04-01' = [for 
 
 resource vmPrefix_resource 'Microsoft.Compute/virtualMachines@2020-06-01' = [for i in range(0, vmCount): {
   name: '${vmPrefix}-${i}'
+//@[08:26) [decompiler-cleanup (Warning)] The decompiler was unable to automatically create a unique symbolic name for resource 'vmPrefix_resource' because of a conflict with an existing name. You may want to rename it manually (using the editor's rename symbol functionality). (CodeDescription: bicep core(https://aka.ms/bicep/linter/decompiler-cleanup)) |'${vmPrefix}-${i}'|
   location: resourceGroup().location
 //@[12:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   properties: {

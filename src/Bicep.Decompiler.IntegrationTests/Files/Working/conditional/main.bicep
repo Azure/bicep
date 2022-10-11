@@ -48,6 +48,7 @@ var arrayVar = [
   location
 ]
 var storageAccountName_var = 'flowlogs${uniqueString(resourceGroup().id)}'
+//@[04:26) [decompiler-cleanup (Warning)] The decompiler was unable to automatically create a unique name for variable 'storageAccountName_var' because of a conflict with an existing name. You may want to rename it manually (using the editor's rename symbol functionality). (CodeDescription: bicep core(https://aka.ms/bicep/linter/decompiler-cleanup)) |storageAccountName_var|
 
 resource foo_bar 'Foo.Rp/bar@2019-06-01' = if (false) {
 //@[17:40) [BCP081 (Warning)] Resource type "Foo.Rp/bar@2019-06-01" does not have types available. (CodeDescription: none) |'Foo.Rp/bar@2019-06-01'|
