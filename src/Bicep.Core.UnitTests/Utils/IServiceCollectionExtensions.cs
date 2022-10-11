@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
@@ -10,6 +11,8 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.UnitTests.Configuration;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Providers;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,23 +31,21 @@ public static class IServiceCollectionExtensions
     public static IServiceCollection WithWorkspace(this IServiceCollection services, IWorkspace workspace)
         => Register(services, workspace);
 
-    public static IServiceCollection WithFeatureProvider(this IServiceCollection services, IFeatureProvider featureProvider)
-        => Register(services, IFeatureProviderFactory.WithStaticFeatureProvider(featureProvider));
-
-    public static IServiceCollection WithFeatureProviderFactory(this IServiceCollection services, IFeatureProviderFactory featureProviderFactory)
-        => Register(services, featureProviderFactory);
+    public static IServiceCollection WithFeatureOverrides(this IServiceCollection services, FeatureProviderOverrides overrides)
+        => Register(services, overrides)
+            .AddSingleton<FeatureProviderFactory>()
+            .AddSingleton<IFeatureProviderFactory, OverriddenFeatureProviderFactory>();
 
     public static IServiceCollection WithNamespaceProvider(this IServiceCollection services, INamespaceProvider namespaceProvider)
         => Register(services, namespaceProvider);
 
-    public static IServiceCollection WithConfigurationManager(this IServiceCollection services, IConfigurationManager configurationManager)
-        => Register(services, configurationManager);
-
-    public static IServiceCollection WithConfiguration(this IServiceCollection services, RootConfiguration configuration)
-        => Register(services, IConfigurationManager.WithStaticConfiguration(configuration));
+    public static IServiceCollection WithConfigurationPatch(this IServiceCollection services, Func<RootConfiguration, RootConfiguration> patchFunc)
+        => Register(services, patchFunc)
+            .AddSingleton<ConfigurationManager>()
+            .AddSingleton<IConfigurationManager, PatchingConfigurationManager>();
 
     public static IServiceCollection WithDisabledAnalyzersConfiguration(this IServiceCollection services)
-        => services.WithConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
+        => services.WithConfigurationPatch(c => c.WithAllAnalyzersDisabled());
 
     public static IServiceCollection WithApiVersionProviderFactory(this IServiceCollection services, IApiVersionProviderFactory apiVersionProviderFactory)
         => Register(services, apiVersionProviderFactory);
@@ -66,4 +67,13 @@ public static class IServiceCollectionExtensions
 
     public static IServiceCollection WithEmptyAzResources(this IServiceCollection services)
         => services.WithAzResources(Enumerable.Empty<ResourceTypeComponents>());
+
+    public static IServiceCollection WithWorkspaceFiles(this IServiceCollection services, IReadOnlyDictionary<Uri, string> fileContentsByUri)
+    {
+        var workspace = new Workspace();
+        var sourceFiles = fileContentsByUri.Select(kvp => SourceFileFactory.CreateSourceFile(kvp.Key, kvp.Value));
+        workspace.UpsertSourceFiles(sourceFiles);
+
+        return services.WithWorkspace(workspace);
+    }
 }

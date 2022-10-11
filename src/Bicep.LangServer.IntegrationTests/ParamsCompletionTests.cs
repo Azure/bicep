@@ -5,15 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LangServer.IntegrationTests.Completions
@@ -140,7 +137,7 @@ new CompletionItemKind[] { CompletionItemKind.Field, CompletionItemKind.Field }
                 paramUri,
                 services => services
                     .WithNamespaceProvider(BuiltInTestTypes.Create())
-                    .WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, paramsFilesEnabled: true)));
+                    .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 
@@ -238,7 +235,7 @@ new CompletionItemKind[] { CompletionItemKind.EnumMember, CompletionItemKind.Enu
                 paramUri,
                 services => services
                     .WithNamespaceProvider(BuiltInTestTypes.Create())
-                    .WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, paramsFilesEnabled: true)));
+                    .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 
@@ -279,7 +276,7 @@ using |
                 paramUri,
                 services => services
                     .WithNamespaceProvider(BuiltInTestTypes.Create())
-                    .WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, paramsFilesEnabled: true)));
+                    .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 
@@ -325,7 +322,7 @@ using './nested1/|'
                 paramUri,
                 services => services
                     .WithNamespaceProvider(BuiltInTestTypes.Create())
-                    .WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, paramsFilesEnabled: true)));
+                    .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true)));
 
             var file = new FileRequestHelper(helper.Client, paramFile);
 

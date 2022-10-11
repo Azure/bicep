@@ -13,7 +13,6 @@ using Newtonsoft.Json.Linq;
 using Bicep.Core.UnitTests;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using FluentAssertions;
-using Bicep.Core.Features;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Assertions;
 
@@ -29,14 +28,11 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task GenerateParams_command_should_generate_paramsfile()
         {
             var diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var features = BicepTestConstants.CreateFeatureProvider(
-                TestContext,
-                assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
 
             using var helper = await LanguageServerHelper.StartServer(
                 this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsListener.AddMessage),
-                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()).WithFeatureProvider(features));
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()).WithFeatureOverrides(new(TestContext)));
             var client = helper.Client;
 
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(

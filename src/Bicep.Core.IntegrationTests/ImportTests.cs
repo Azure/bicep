@@ -10,7 +10,6 @@ using Bicep.Core.Features;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -22,7 +21,7 @@ namespace Bicep.Core.IntegrationTests
     public class ImportTests
     {
         private ServiceBuilder ServicesWithImports => new ServiceBuilder()
-            .WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true));
+            .WithFeatureOverrides(new(TestContext, ImportsEnabled: true));
 
         private class TestNamespaceProvider : INamespaceProvider
         {

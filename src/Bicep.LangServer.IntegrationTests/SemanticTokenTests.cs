@@ -20,8 +20,6 @@ using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Helpers;
 using System;
 using System.Collections.Immutable;
-using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
@@ -105,7 +103,7 @@ namespace Bicep.LangServer.IntegrationTests
                 paramFileUri,
                 services => services
                     .WithNamespaceProvider(BuiltInTestTypes.Create())
-                    .WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, paramsFilesEnabled: true)));
+                    .WithFeatureOverrides(new(TestContext, ParamsFilesEnabled: true)));
 
             var semanticTokens = await helper.Client.TextDocument.RequestSemanticTokens(new SemanticTokensParams
             {

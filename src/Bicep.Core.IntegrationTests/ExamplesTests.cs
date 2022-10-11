@@ -9,7 +9,6 @@ using System.Linq;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
@@ -17,6 +16,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Baselines;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
@@ -33,7 +33,7 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private void RunExampleTest(EmbeddedFile embeddedBicep, IFeatureProvider features, string jsonFileExtension)
+        private void RunExampleTest(EmbeddedFile embeddedBicep, FeatureProviderOverrides features, string jsonFileExtension)
         {
             var baselineFolder = BaselineFolder.BuildOutputFolder(TestContext, embeddedBicep);
             var bicepFile = baselineFolder.EntryFile;
@@ -42,7 +42,7 @@ namespace Bicep.Core.IntegrationTests
             var configManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, configManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFile.OutputFilePath));
-            var compilation = Services.WithFeatureProviderFactory(IFeatureProviderFactory.WithStaticFeatureProvider(features)).Build().BuildCompilation(sourceFileGrouping);
+            var compilation = Services.WithFeatureOverrides(features).Build().BuildCompilation(sourceFileGrouping);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
 
             foreach (var (file, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
@@ -79,19 +79,19 @@ namespace Bicep.Core.IntegrationTests
         [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void ExampleIsValid(EmbeddedFile embeddedBicep)
-            => RunExampleTest(embeddedBicep, BicepTestConstants.Features, ".json");
+            => RunExampleTest(embeddedBicep, new(), ".json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void ExampleIsValid_using_experimental_symbolic_names(EmbeddedFile embeddedBicep)
-            => RunExampleTest(embeddedBicep, BicepTestConstants.Features with { SymbolicNameCodegenEnabled = true }, ".symbolicnames.json");
+            => RunExampleTest(embeddedBicep, new(SymbolicNameCodegenEnabled: true), ".symbolicnames.json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetExtensibilityExampleData), DynamicDataSourceType.Method)]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public void ExampleIsValid_extensibility(EmbeddedFile embeddedBicep)
-            => RunExampleTest(embeddedBicep, BicepTestConstants.Features with { ImportsEnabled = true }, ".json");
+            => RunExampleTest(embeddedBicep, new(ImportsEnabled: true), ".json");
 
         [DataTestMethod]
         [DynamicData(nameof(GetAllExampleData), DynamicDataSourceType.Method)]

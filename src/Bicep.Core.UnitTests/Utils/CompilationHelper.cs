@@ -63,10 +63,10 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         public static CompilationResult Compile(IAzResourceTypeLoader resourceTypeLoader, params (string fileName, string fileContents)[] files)
-            => Compile(new ServiceBuilder().WithFeatureProvider(BicepTestConstants.Features).WithAzResourceTypeLoader(resourceTypeLoader), files);
+            => Compile(new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides).WithAzResourceTypeLoader(resourceTypeLoader), files);
 
         public static CompilationResult Compile(params (string fileName, string fileContents)[] files)
-            => Compile(new ServiceBuilder().WithFeatureProvider(BicepTestConstants.Features), files);
+            => Compile(new ServiceBuilder().WithFeatureOverrides(BicepTestConstants.FeatureOverrides), files);
 
         public static CompilationResult Compile(string fileContents)
             => Compile(("main.bicep", fileContents));
@@ -76,9 +76,9 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static ParamsCompilationResult CompileParams(params (string fileName, string fileContents)[] files)
         {
-            var features = BicepTestConstants.Features;
+            var features = BicepTestConstants.FeatureOverrides;
             var configuration = BicepTestConstants.BuiltInConfiguration;
-            var services = new ServiceBuilder().WithFeatureProvider(features).WithConfiguration(configuration);
+            var services = new ServiceBuilder().WithFeatureOverrides(features).WithConfigurationPatch(c => configuration);
 
             files.Select(x => x.fileName).Should().Contain("parameters.bicepparam");
 
@@ -91,7 +91,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             var sourceFileGrouping = services.BuildSourceFileGrouping(sourceFiles, entryUri);
 
-            var model = new ParamsSemanticModel(sourceFileGrouping, configuration, features, file => {
+            var model = new ParamsSemanticModel(sourceFileGrouping, configuration, BicepTestConstants.Features, file => {
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
                 return services.Build().BuildCompilation(sourceFileGrouping);

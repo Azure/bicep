@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
@@ -17,13 +16,13 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class OutputsTests
     {
-        private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, resourceTypedParamsAndOutputsEnabled: true));
+        private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
 
         [NotNull]
         public TestContext? TestContext { get; set; }
 
         private ServiceBuilder ServicesWithExtensibility => new ServiceBuilder()
-            .WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true, resourceTypedParamsAndOutputsEnabled: true))
+            .WithFeatureOverrides(new(TestContext, ImportsEnabled: true, ResourceTypedParamsAndOutputsEnabled: true))
             .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoader));
 
         [TestMethod]

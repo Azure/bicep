@@ -3,7 +3,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Features;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
@@ -19,13 +18,13 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ParameterTests
     {
-        private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, resourceTypedParamsAndOutputsEnabled: true));
+        private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
 
         [NotNull]
         public TestContext? TestContext { get; set; }
 
         private ServiceBuilder ServicesWithExtensibility => new ServiceBuilder()
-            .WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(TestContext, importsEnabled: true, resourceTypedParamsAndOutputsEnabled: true))
+            .WithFeatureOverrides(new(TestContext, ImportsEnabled: true, ResourceTypedParamsAndOutputsEnabled: true))
             .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoader));
 
         [TestMethod]

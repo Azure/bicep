@@ -8,7 +8,6 @@ using FluentAssertions.Execution;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Resources;
-using Bicep.Core.UnitTests;
 using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Core.IntegrationTests
@@ -360,7 +359,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
         [TestMethod]
         public void Existing_resource_with_symbolic_names_enabled_includes_scope_properties()
         {
-            var services = new ServiceBuilder().WithFeatureProvider(BicepTestConstants.CreateFeatureProvider(this.TestContext, symbolicNameCodegenEnabled: true));
+            var services = new ServiceBuilder().WithFeatureOverrides(new(this.TestContext, SymbolicNameCodegenEnabled: true));
             var (template, diagnostics, _) = CompilationHelper.Compile(services, @"
 targetScope = 'subscription'
 
