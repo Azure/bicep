@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10244203654925270193"
+      "templateHash": "9273904353462763328"
     }
   },
   "parameters": {
@@ -1941,6 +1941,41 @@
             "loc": {
               "type": "string",
               "value": "[parameters('location')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "withSeparateConfig",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "11355552435760822103"
+            }
+          },
+          "imports": {
+            "foo": {
+              "provider": "AzureResourceManager",
+              "version": "1.0"
+            }
+          },
+          "resources": [],
+          "outputs": {
+            "str": {
+              "type": "string",
+              "value": "foo"
             }
           }
         }

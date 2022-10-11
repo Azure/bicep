@@ -128,7 +128,7 @@ output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputO
 
 /*
   valid loop cases
-*/ 
+*/
 
 @sys.description('this is myModules')
 var myModules = [
@@ -352,4 +352,8 @@ module withSpace 'module with space.bicep' = {
 
 module folderWithSpace 'child/folder with space/child with space.bicep' = {
   name: 'childWithSpace'
+}
+
+module withSeparateConfig './child/folder with separate config/moduleWithAzImport.bicep' = {
+  name: 'withSeparateConfig'
 }

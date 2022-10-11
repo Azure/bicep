@@ -106,7 +106,7 @@ namespace Bicep.LanguageServer.Handlers
 
             using var fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.ReadWrite);
             var model = compilation.GetEntrypointSemanticModel();
-            var emitter = new TemplateEmitter(model, new EmitterSettings(model.Features));
+            var emitter = new TemplateEmitter(model);
             EmitResult result = emitter.Emit(fileStream);
 
             return "Bicep build succeeded. Created ARM template file: " + compiledFile;

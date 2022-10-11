@@ -14,7 +14,7 @@ namespace Bicep.Core.UnitTests.TestTests
         [TestMethod]
         public void PrintHelper_should_add_annotations()
         {
-            var bicepFile = SourceFileGroupingFactory.CreateFromText(@"
+            var bicepFile = new ServiceBuilder().BuildSourceFileGrouping(@"
 resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
   name: 'hello'
   location: location
@@ -22,7 +22,7 @@ resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
     someMadeUpProp: 'boo'
   }
 }
-", BicepTestConstants.FileResolver).EntryPoint;
+").EntryPoint;
 
             var output = PrintHelper.PrintWithAnnotations(bicepFile, new[] {
                 new PrintHelper.Annotation(new TextSpan(26, 18), "what is this!?"),
@@ -48,7 +48,7 @@ resource domainServices 'Microsoft.MadeUpRp/madeUpType@2017-06-01' = {
         [TestMethod]
         public void PrintHelper_only_includes_nearby_context()
         {
-            var bicepFile = SourceFileGroupingFactory.CreateFromText(@"
+            var bicepFile = new ServiceBuilder().BuildSourceFileGrouping(@"
 var test = '''
 here's
 a
@@ -81,7 +81,7 @@ don't
 care
 about
 '''
-", BicepTestConstants.FileResolver).EntryPoint;
+").EntryPoint;
 
             var output = PrintHelper.PrintWithAnnotations(bicepFile, new[] {
                 new PrintHelper.Annotation(new TextSpan(108, 4), "here's your cursor!"),

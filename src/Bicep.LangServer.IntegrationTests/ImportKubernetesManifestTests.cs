@@ -14,12 +14,12 @@ using Bicep.Core.UnitTests;
 using System.Linq;
 using FluentAssertions;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Baselines;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Newtonsoft.Json.Linq;
+using Bicep.Core;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -46,13 +46,11 @@ namespace Bicep.LangServer.IntegrationTests
             var yamlFile = baselineFolder.EntryFile;
             var bicepFile = baselineFolder.GetFileOrEnsureCheckedIn(Path.ChangeExtension(embeddedYml.FileName, ".bicep"));
 
-            var features = BicepTestConstants.Features with { ImportsEnabled = true, };
-
             using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
                 options => options
                     .OnTelemetryEvent(telemetryEventsListener.AddMessage),
-                new LanguageServer.Server.CreationOptions(FeatureProviderFactory: IFeatureProviderFactory.WithStaticFeatureProvider(features)));
+                new LanguageServer.Server.CreationOptions(FeatureProviderFactory: BicepTestConstants.CreateFeatureProviderFactory(new(TestContext, ImportsEnabled: true))));
             var client = helper.Client;
 
             var response = await client.SendRequest(new ImportKubernetesManifestRequest(yamlFile.OutputFilePath), default);
@@ -65,8 +63,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             bicepFile.ShouldHaveExpectedValue();
 
-            var context = new CompilationHelper.CompilationHelperContext(Features: features);
-            CompilationHelper.Compile(context, bicepFile.ReadFromOutputFolder()).Should().GenerateATemplate();
+            CompilationHelper.Compile(new ServiceBuilder().WithFeatureOverrides(new(ImportsEnabled: true)), bicepFile.ReadFromOutputFolder()).Should().GenerateATemplate();
         }
 
         [TestMethod]

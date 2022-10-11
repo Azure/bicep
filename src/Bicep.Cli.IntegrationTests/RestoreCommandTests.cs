@@ -57,8 +57,8 @@ namespace Bicep.Cli.IntegrationTests
 
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(BicepTestConstants.CreateFeatureProvider(TestContext, registryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
-            TestContext.WriteLine($"Cache root = {settings.Features.CacheRootDirectory}");
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            TestContext.WriteLine($"Cache root = {settings.FeatureOverrides.CacheRootDirectory}");
             var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
 
             using (new AssertionScope())
@@ -71,7 +71,7 @@ namespace Bicep.Cli.IntegrationTests
             if (dataSet.HasExternalModules)
             {
                 // ensure something got restored
-                settings.Features.Should().HaveValidModules();
+                settings.FeatureOverrides.Should().HaveValidModules();
             }
         }
 
@@ -89,7 +89,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
-            var settings = new InvocationSettings(BicepTestConstants.CreateFeatureProvider(TestContext, registryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -141,8 +141,8 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(BicepTestConstants.CreateFeatureProvider(TestContext, registryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
-            TestContext.WriteLine($"Cache root = {settings.Features.CacheRootDirectory}");
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            TestContext.WriteLine($"Cache root = {settings.FeatureOverrides.CacheRootDirectory}");
             var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
 
             using (new AssertionScope())
@@ -175,7 +175,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(BicepTestConstants.CreateFeatureProvider(TestContext, registryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
             var (output, error, result) = await Bicep(settings, "restore", compiledFilePath);
             using(new AssertionScope())
             {
@@ -207,7 +207,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
 
             var templateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>();
 
-            var settings = new InvocationSettings(BicepTestConstants.CreateFeatureProvider(TestContext, registryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
+            var settings = new InvocationSettings(new(TestContext, RegistryEnabled: true), clientFactory.Object, templateSpecRepositoryFactory.Object);
             var (output, error, result) = await Bicep(settings, "restore", compiledFilePath);
             using (new AssertionScope())
             {

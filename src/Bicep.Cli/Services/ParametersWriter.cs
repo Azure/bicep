@@ -25,7 +25,7 @@ namespace Bicep.Cli.Services
         public EmitResult ToFile(ParamsSemanticModel paramSemanticModel, string outputPath)
         {
             using var fileStream = CreateFileStream(outputPath);
-            return new ParametersEmitter(paramSemanticModel, new EmitterSettings(paramSemanticModel.Features)).EmitParamsFile(fileStream);
+            return new ParametersEmitter(paramSemanticModel).EmitParamsFile(fileStream);
         }
 
         public EmitResult ToStdout(ParamsSemanticModel paramSemanticModel)
@@ -35,7 +35,7 @@ namespace Bicep.Cli.Services
                 Formatting = Formatting.Indented
             };
 
-            return new ParametersEmitter(paramSemanticModel, new EmitterSettings(paramSemanticModel.Features)).EmitParamsFile(writer);
+            return new ParametersEmitter(paramSemanticModel).EmitParamsFile(writer);
         }
 
         private static FileStream CreateFileStream(string path)

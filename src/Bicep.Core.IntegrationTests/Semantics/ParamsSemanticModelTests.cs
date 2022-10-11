@@ -19,20 +19,20 @@ namespace Bicep.Core.IntegrationTests.Semantics
     [TestClass]
     public class ParamsSemanticModelTests
     {
+        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
         private ParamsSemanticModel CreateSemanticModel(string paramsFilePath)
         {
-            var dispatcher = BicepTestConstants.ModuleDispatcher;
             var configuration = BicepTestConstants.BuiltInConfiguration;
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(paramsFilePath));
-            var compilation = new Compilation(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, IConfigurationManager.WithStaticConfiguration(configuration), BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+            var sourceFileGrouping = Services.Build().BuildSourceFileGrouping(PathHelper.FilePathToFileUrl(paramsFilePath));
 
             return new ParamsSemanticModel(sourceFileGrouping, configuration, BicepTestConstants.Features, file => {
                 var compilationGrouping = new SourceFileGrouping(BicepTestConstants.FileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
-                return new Compilation(BicepTestConstants.FeatureProviderFactory, BicepTestConstants.NamespaceProvider, compilationGrouping, IConfigurationManager.WithStaticConfiguration(configuration), BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+                return Services.Build().BuildCompilation(compilationGrouping);
             });
         }
 

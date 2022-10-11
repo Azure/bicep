@@ -15,7 +15,7 @@ namespace Bicep.Core.UnitTests.Emit
     [TestClass]
     public class InlineDependencyVisitorTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithTestDefaults().WithEmptyAzResources();
+        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
         private const string Text = @"
 var things = ''
@@ -28,7 +28,7 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
         [TestMethod]
         public void VisitorShouldCalculateInliningInBulk()
         {
-            var compilation = Services.Compilation.Build(SourceFileGroupingFactory.CreateFromText(Text, BicepTestConstants.FileResolver));
+            var compilation = Services.BuildCompilation(Text);
 
             var inlineVariables = InlineDependencyVisitor.GetVariablesToInline(compilation.GetEntrypointSemanticModel());
 
@@ -45,7 +45,7 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
         [DataTestMethod]
         public void VisitorShouldProduceNoChainForNonInlinedVariables(string variableName)
         {
-            var compilation = Services.Compilation.Build(SourceFileGroupingFactory.CreateFromText(Text, BicepTestConstants.FileResolver));
+            var compilation = Services.BuildCompilation(Text);
             VariableDeclarationSyntax variable = GetVariableByName(compilation, variableName);
 
             InlineDependencyVisitor.ShouldInlineVariable(compilation.GetEntrypointSemanticModel(), variable, out var chain).Should().BeFalse();
@@ -59,7 +59,7 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
         [DataTestMethod]
         public void VisitorShouldProduceCorrectChainForInlinedVariables(string variableName, string expectedChain)
         {
-            var compilation = Services.Compilation.Build(SourceFileGroupingFactory.CreateFromText(Text, BicepTestConstants.FileResolver));
+            var compilation = Services.BuildCompilation(Text);
             VariableDeclarationSyntax variable = GetVariableByName(compilation, variableName);
 
             InlineDependencyVisitor.ShouldInlineVariable(compilation.GetEntrypointSemanticModel(), variable, out var chain).Should().BeTrue();

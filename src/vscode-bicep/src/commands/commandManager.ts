@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ExtensionContext, Uri } from "vscode";
-import * as fse from "fs-extra";
-import { Disposable } from "../utils/disposable";
-import { Command } from "./types";
 import * as azureextensionui from "@microsoft/vscode-azext-utils";
 import assert from "assert";
+import * as fse from "fs-extra";
+import { ExtensionContext, Uri } from "vscode";
+import { Disposable } from "../utils/disposable";
+import { Command } from "./types";
 
 export class CommandManager extends Disposable {
   private _packageJson: IPackageJson | undefined;
@@ -31,7 +31,7 @@ export class CommandManager extends Disposable {
     // when the extension is disposed.
     azureextensionui.registerCommand(
       command.id,
-      async (context: azureextensionui.IActionContext, ...args: any[]) => {
+      async (context: azureextensionui.IActionContext, ...args: unknown[]) => {
         let documentUri: Uri | undefined = undefined;
         let isFromWalkthrough = false;
 
@@ -45,10 +45,8 @@ export class CommandManager extends Disposable {
         //   a walkthrough), and the command contains a query string, the query string values
         //   will be in an object in the next argument.
         if (
-          !!args[0] &&
           args[0] instanceof Object &&
-          "walkthrough" in args[0] &&
-          args[0]["walkthrough"] === "true"
+          (<{ walkthrough?: string }>args[0])["walkthrough"] === "true"
         ) {
           // Marked as a walkthrough via query string in markdow
           isFromWalkthrough = true;

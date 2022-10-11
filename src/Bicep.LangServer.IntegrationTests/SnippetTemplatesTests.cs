@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
@@ -23,6 +24,8 @@ namespace Bicep.LangServer.IntegrationTests
     [TestClass]
     public class SnippetTemplatesTests
     {
+        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -59,7 +62,7 @@ namespace Bicep.LangServer.IntegrationTests
                     return;
             }
 
-            var compilation = new Compilation(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+            var compilation = Services.BuildCompilation(files, mainUri);
             var semanticModel = compilation.GetEntrypointSemanticModel();
 
             if (semanticModel.HasErrors())

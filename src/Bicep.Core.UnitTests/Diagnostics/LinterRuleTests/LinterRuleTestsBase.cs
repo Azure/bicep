@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -10,7 +9,6 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Microsoft.Extensions.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -41,7 +39,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public record Options(
             OnCompileErrors OnCompileErrors = OnCompileErrors.Default,
             IncludePosition IncludePosition = IncludePosition.Default,
-            RootConfiguration? Configuration = null,
+            Func<RootConfiguration, RootConfiguration>? ConfigurationPatch = null,
             ApiVersionProvider? ApiVersionProvider = null,
             (string path, string contents)[]? AdditionalFiles = null
         );
@@ -107,8 +105,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             Options? options)
         {
             options ??= new Options();
-            var context = new CompilationHelper.CompilationHelperContext(Configuration: options.Configuration, ApiVersionProvider: options.ApiVersionProvider);
-            var result = CompilationHelper.Compile(context, files);
+            var services = new ServiceBuilder();
+            services = options.ConfigurationPatch is {} ? services.WithConfigurationPatch(options.ConfigurationPatch) : services;
+            services = options.ApiVersionProvider is {} ? services.WithApiVersionProvider(options.ApiVersionProvider) : services;
+            var result = CompilationHelper.Compile(services, files);
             using (new AssertionScope().WithFullSource(result.BicepFile))
             {
                 IDiagnostic[] diagnosticsMatchingCode = result.Diagnostics.Where(filterFunc).ToArray();

@@ -2,13 +2,10 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -19,14 +16,14 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class TypeValidationTests
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithTestDefaults();
+        private static ServiceBuilder Services => new ServiceBuilder();
 
         private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceTypeComponents> definedTypes)
         {
             var compilation = Services
                 .WithAzResources(definedTypes)
-                .WithConfigurationManager(IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled))
-                .Compilation.Build(SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver));
+                .WithConfigurationPatch(c => c.WithAllAnalyzersDisabled())
+                .BuildCompilation(programText);
 
             return compilation.GetEntrypointSemanticModel();
         }

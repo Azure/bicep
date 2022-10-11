@@ -47,7 +47,6 @@ namespace Bicep.Cli.Commands
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
-            var configuration = this.configurationManager.GetConfiguration(inputUri);
             var moduleReference = ValidateReference(args.TargetModuleReference, inputUri);
 
             if (PathHelper.HasArmTemplateLikeExtension(inputUri))

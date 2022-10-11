@@ -11,11 +11,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Extensions;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
-using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
@@ -42,6 +40,8 @@ namespace Bicep.LangServer.IntegrationTests
     [TestClass]
     public class CompletionTests
     {
+        private static ServiceBuilder Services => new ServiceBuilder();
+
         public static readonly INamespaceProvider NamespaceProvider = BicepTestConstants.NamespaceProvider;
 
         private static readonly SharedLanguageHelperManager ServerWithNamespaceProvider = new();
@@ -85,7 +85,7 @@ namespace Bicep.LangServer.IntegrationTests
             ServerWithImportsEnabled.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
-                    new LanguageServer.Server.CreationOptions(FeatureProviderFactory: IFeatureProviderFactory.WithStaticFeatureProvider(BicepTestConstants.CreateFeatureProvider(testContext, importsEnabled: true)))));
+                    new LanguageServer.Server.CreationOptions(FeatureProviderFactory: BicepTestConstants.CreateFeatureProviderFactory(new(testContext, ImportsEnabled: true)))));
 
             ServerWithBuiltInTypes.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
@@ -160,11 +160,10 @@ namespace Bicep.LangServer.IntegrationTests
                 File.Exists(combinedFileName).Should().BeTrue($"Combined snippet file \"{combinedSourceFileName}\" should be checked in");
 
                 var combinedFileUri = PathHelper.FilePathToFileUrl(combinedFileName);
-                var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
+                var compilation = Services.BuildCompilation(new Dictionary<Uri, string>
                 {
                     [combinedFileUri] = bicepContentsReplaced,
-                }, combinedFileUri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration);
-                var compilation = new Compilation(BicepTestConstants.FeatureProviderFactory, BicepTestConstants.NamespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+                }, combinedFileUri);
                 var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
                 var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContentsReplaced, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepContentsReplaced, outputDirectory, diag));

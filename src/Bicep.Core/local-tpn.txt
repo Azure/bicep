@@ -1301,7 +1301,25 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
-Azure.Bicep.Types 0.2.115 - MIT
+Azure.Bicep.Internal.RoslynAnalyzers 0.1.17 - MIT
+
+
+
+MIT License
+
+Copyright (c) <year> <copyright holders>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
+Azure.Bicep.Types 0.3.4 - MIT
 
 
 (c) Microsoft Corporation
@@ -1320,7 +1338,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Azure.Bicep.Types.Az 0.2.115 - MIT
+Azure.Bicep.Types.Az 0.2.148 - MIT
 
 
 (c) Microsoft Corporation
@@ -1523,10 +1541,9 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Azure.Identity 1.6.1 - MIT
+Azure.Identity 1.7.0 - MIT
 
 
-(c) Microsoft Corporation
 
 MIT License
 
@@ -1737,7 +1754,7 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 ---------------------------------------------------------
 
-Nerdbank.GitVersioning 3.5.109 - MIT
+Nerdbank.GitVersioning 3.5.113 - MIT
 
 
 Copyright 1995-2017 Mark Adler
@@ -2463,16 +2480,6 @@ OTHER
 ---------------------------------------------------------
 
 runtime.win.System.Net.Primitives 4.3.0 - OTHER
-
-
-
-OTHER
-
----------------------------------------------------------
-
----------------------------------------------------------
-
-runtime.win.System.Net.Sockets 4.3.0 - OTHER
 
 
 
@@ -4986,7 +4993,7 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
-System.Text.Json 6.0.5 - MIT
+System.Text.Json 6.0.6 - MIT
 
 
 (c) Microsoft Corporation
@@ -5114,53 +5121,6 @@ SOFTWARE.
 
 ---------------------------------------------------------
 
-System.Threading.Tasks.Extensions 4.5.4 - MIT
-
-
-(c) Microsoft Corporation.
-Copyright (c) 2011, Google Inc.
-(c) 1997-2005 Sean Eron Anderson.
-Copyright (c) 1991-2017 Unicode, Inc.
-Portions (c) International Organization
-Copyright (c) 2015 The Chromium Authors.
-Copyright (c) 2004-2006 Intel Corporation
-Copyright (c) .NET Foundation Contributors
-Copyright (c) .NET Foundation and Contributors
-Copyright (c) 2011 Novell, Inc (http://www.novell.com)
-Copyright (c) 1995-2017 Jean-loup Gailly and Mark Adler
-Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
-Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
-Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers THIS WORK IS PROVIDED AS
-
-The MIT License (MIT)
-
-Copyright (c) .NET Foundation and Contributors
-
-All rights reserved.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
----------------------------------------------------------
-
----------------------------------------------------------
-
 System.IO.Abstractions 17.2.3 - MIT
 
 
@@ -5195,6 +5155,16 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
+runtime.win.System.Net.Sockets 4.3.0 - OTHER
+
+
+
+OTHER
 
 ---------------------------------------------------------
 
@@ -5849,6 +5819,53 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 
 limitations under the License.
+
+---------------------------------------------------------
+
+---------------------------------------------------------
+
+System.Threading.Tasks.Extensions 4.5.4 - MIT
+
+
+(c) Microsoft Corporation.
+Copyright (c) 2011, Google Inc.
+(c) 1997-2005 Sean Eron Anderson.
+Copyright (c) 1991-2017 Unicode, Inc.
+Portions (c) International Organization
+Copyright (c) 2015 The Chromium Authors.
+Copyright (c) 2004-2006 Intel Corporation
+Copyright (c) .NET Foundation Contributors
+Copyright (c) .NET Foundation and Contributors
+Copyright (c) 2011 Novell, Inc (http://www.novell.com)
+Copyright (c) 1995-2017 Jean-loup Gailly and Mark Adler
+Copyright (c) 2015 Xamarin, Inc (http://www.xamarin.com)
+Copyright (c) 2009, 2010, 2013-2016 by the Brotli Authors.
+Copyright (c) YEAR W3C(r) (MIT, ERCIM, Keio, Beihang). Disclaimers THIS WORK IS PROVIDED AS
+
+The MIT License (MIT)
+
+Copyright (c) .NET Foundation and Contributors
+
+All rights reserved.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
 
 ---------------------------------------------------------
 

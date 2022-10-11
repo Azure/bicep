@@ -2,12 +2,14 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.UnitTests;
+using Bicep.Core;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
@@ -20,17 +22,19 @@ namespace Bicep.Cli.IntegrationTests
 {
     public abstract class TestBase
     {
+        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
+
         protected const string BuildSummaryFailedRegex = @"Build failed: (\d*) Warning\(s\), ([1-9][0-9]*) Error\(s\)";
         protected const string BuildSummarySucceededRegex = @"Build succeeded: (\d*) Warning\(s\), 0 Error\(s\)";
 
         protected static readonly MockRepository Repository = new(MockBehavior.Strict);
 
-        protected record InvocationSettings(IFeatureProvider Features, IContainerRegistryClientFactory ClientFactory, ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory);
+        protected record InvocationSettings(FeatureProviderOverrides FeatureOverrides, IContainerRegistryClientFactory ClientFactory, ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory);
 
         protected static Task<(string output, string error, int result)> Bicep(params string[] args) => Bicep(CreateDefaultSettings(), args);
 
         protected static InvocationSettings CreateDefaultSettings() => new(
-            Features: BicepTestConstants.Features,
+            FeatureOverrides: BicepTestConstants.FeatureOverrides,
             ClientFactory: Repository.Create<IContainerRegistryClientFactory>().Object,
             TemplateSpecRepositoryFactory: Repository.Create<ITemplateSpecRepositoryFactory>().Object);
 
@@ -40,7 +44,7 @@ namespace Bicep.Cli.IntegrationTests
                     TestTypeHelper.CreateEmptyAzResourceTypeLoader(),
                     @out,
                     err,
-                    featureProviderFactory: IFeatureProviderFactory.WithStaticFeatureProvider(settings.Features),
+                    featureProviderFactory: BicepTestConstants.CreateFeatureProviderFactory(settings.FeatureOverrides),
                     clientFactory: settings.ClientFactory,
                     templateSpecRepositoryFactory: settings.TemplateSpecRepositoryFactory)).RunAsync(args));
 
@@ -56,7 +60,7 @@ namespace Bicep.Cli.IntegrationTests
         {
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.FeatureProviderFactory, BicepTestConstants.BuiltInOnlyConfigurationManager), BicepTestConstants.BuiltInOnlyConfigurationManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
-            var compilation = new Compilation(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+            var compilation = Services.Build().BuildCompilation(sourceFileGrouping);
 
             var output = new List<string>();
             foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
@@ -77,13 +81,13 @@ namespace Bicep.Cli.IntegrationTests
             var configuration = BicepTestConstants.BuiltInConfiguration;
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.FeatureProviderFactory, BicepTestConstants.BuiltInOnlyConfigurationManager), BicepTestConstants.BuiltInOnlyConfigurationManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(paramFilePath));
-            var compilation = new Compilation(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+            var compilation = Services.Build().BuildCompilation(sourceFileGrouping);
 
             var semanticModel = new ParamsSemanticModel(sourceFileGrouping, configuration, BicepTestConstants.Features, file => {
                 var compilationGrouping = new SourceFileGrouping(BicepTestConstants.FileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
 
-                return new Compilation(BicepTestConstants.FeatureProviderFactory, BicepTestConstants.NamespaceProvider, compilationGrouping, BicepTestConstants.BuiltInOnlyConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.LinterAnalyzer);
+                return Services.Build().BuildCompilation(compilationGrouping);
             });
 
             var output = new List<string>();

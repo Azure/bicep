@@ -1,17 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import * as fse from "fs-extra";
-import * as path from "path";
-import vscode, { commands, Uri } from "vscode";
 import { AccessToken } from "@azure/identity";
-import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
-import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
-import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
-import { Command } from "./types";
-import { localize } from "../utils/localize";
-import { LocationTreeItem } from "../tree/LocationTreeItem";
-import { OutputChannelManager } from "../utils/OutputChannelManager";
-import { TreeManager } from "../tree/TreeManager";
 import {
   AzExtTreeDataProvider,
   IActionContext,
@@ -19,6 +8,14 @@ import {
   ISubscriptionContext,
   parseError,
 } from "@microsoft/vscode-azext-utils";
+import assert from "assert";
+import * as fse from "fs-extra";
+import * as path from "path";
+import vscode, { commands, Uri } from "vscode";
+import {
+  LanguageClient,
+  TextDocumentIdentifier,
+} from "vscode-languageclient/node";
 import {
   BicepDeploymentParametersResponse,
   BicepDeploymentScopeParams,
@@ -29,13 +26,17 @@ import {
   BicepUpdatedDeploymentParameter,
   ParametersFileUpdateOption,
 } from "../language";
-import {
-  LanguageClient,
-  TextDocumentIdentifier,
-} from "vscode-languageclient/node";
-import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
-import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
+import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
+import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
+import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
+import { LocationTreeItem } from "../tree/LocationTreeItem";
+import { TreeManager } from "../tree/TreeManager";
 import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
+import { localize } from "../utils/localize";
+import { OutputChannelManager } from "../utils/OutputChannelManager";
+import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
+import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
+import { Command } from "./types";
 
 export class DeployCommand implements Command {
   private _none = localize("none", "$(circle-slash) None");
@@ -440,46 +441,90 @@ export class DeployCommand implements Command {
   }
 
   private async selectParameterFile(
-    _context: IActionContext,
+    context: IActionContext,
     sourceUri: Uri
   ): Promise<string | undefined> {
-    const quickPickItems: IAzureQuickPickItem<string>[] =
-      await this.createParameterFileQuickPickList();
-    const result: IAzureQuickPickItem<string> = await _context.ui.showQuickPick(
-      quickPickItems,
-      {
-        canPickMany: false,
-        placeHolder: `Select a parameter file`,
-        id: sourceUri.toString(),
-      }
-    );
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      let parameterFilePath: string;
 
-    if (result.label === this._browse) {
-      const paramsPaths: Uri[] | undefined = await vscode.window.showOpenDialog(
-        {
-          canSelectMany: false,
-          defaultUri: sourceUri,
-          openLabel: "Select Parameter File",
-          filters: { "JSON Files": ["json", "jsonc"] },
+      const quickPickItems: IAzureQuickPickItem<string>[] =
+        await this.createParameterFileQuickPickList(
+          path.dirname(sourceUri.fsPath)
+        );
+      const result: IAzureQuickPickItem<string> =
+        await context.ui.showQuickPick(quickPickItems, {
+          canPickMany: false,
+          placeHolder: `Select a parameter file`,
+          id: sourceUri.toString(),
+        });
+
+      if (result.label === this._browse) {
+        const paramsPaths: Uri[] | undefined =
+          await vscode.window.showOpenDialog({
+            canSelectMany: false,
+            defaultUri: sourceUri,
+            openLabel: "Select Parameter File",
+            filters: { "JSON Files": ["json", "jsonc"] },
+          });
+        if (paramsPaths) {
+          assert(paramsPaths.length === 1, "Expected paramsPaths.length === 1");
+          parameterFilePath = paramsPaths[0].fsPath;
+        } else {
+          return undefined;
         }
-      );
-      if (paramsPaths && paramsPaths.length === 1) {
-        const parameterFilePath = paramsPaths[0].fsPath;
+      } else if (result.label === this._none) {
+        return undefined;
+      } else {
+        parameterFilePath = result.data;
+      }
+
+      if (await this.validateIsValidParameterFile(parameterFilePath, true)) {
         this.outputChannelManager.appendToOutputChannel(
           `Parameter file used in deployment -> ${parameterFilePath}`
         );
+
         return parameterFilePath;
       }
-    } else if (result.label === this._none) {
-      return undefined;
-    } else {
-      this.outputChannelManager.appendToOutputChannel(
-        `Parameter file used in deployment -> ${result.data}`
-      );
-      return result.data;
+    }
+  }
+
+  private async validateIsValidParameterFile(
+    path: string,
+    showErrorMessage: boolean
+  ): Promise<boolean> {
+    const expectedSchema =
+      "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#";
+
+    let message: string | undefined;
+    let json: { $schema?: unknown } | undefined;
+    try {
+      json = fse.readJsonSync(path);
+    } catch (err) {
+      message = parseError(err).message;
     }
 
-    return undefined;
+    if (json) {
+      const schema = json.$schema as string;
+      if (!schema) {
+        message = `The file has no $schema property. Expected $schema "${expectedSchema}"`;
+      } else if (!/deploymentparameters\.json/i.test(schema)) {
+        message = `Unexpected $schema found: ${schema}.  Expected $schema "${expectedSchema}"`;
+      }
+    }
+
+    if (message) {
+      if (showErrorMessage) {
+        await vscode.window.showErrorMessage(
+          `The selected file is not a valid parameters file. ${message}`,
+          { modal: true }
+        );
+      }
+
+      return false;
+    }
+
+    return true;
   }
 
   private async handleMissingAndDefaultParams(
@@ -633,9 +678,9 @@ export class DeployCommand implements Command {
     return undefined;
   }
 
-  private async createParameterFileQuickPickList(): Promise<
-    IAzureQuickPickItem<string>[]
-  > {
+  private async createParameterFileQuickPickList(
+    bicepFolder: string
+  ): Promise<IAzureQuickPickItem<string>[]> {
     const noneQuickPickItem: IAzureQuickPickItem<string> = {
       label: this._none,
       data: "",
@@ -647,25 +692,43 @@ export class DeployCommand implements Command {
     let parameterFilesQuickPickList = [noneQuickPickItem].concat([
       browseQuickPickItem,
     ]);
-    const jsonFilesInFolder = await this.getJsonFilesInFolder();
 
-    if (jsonFilesInFolder) {
-      parameterFilesQuickPickList =
-        parameterFilesQuickPickList.concat(jsonFilesInFolder);
-    }
+    const jsonFilesInWorkspace = await this.getParameterFilesInWorkspace(
+      bicepFolder
+    );
+    parameterFilesQuickPickList =
+      parameterFilesQuickPickList.concat(jsonFilesInWorkspace);
 
     return parameterFilesQuickPickList;
   }
 
-  private async getJsonFilesInFolder(): Promise<IAzureQuickPickItem<string>[]> {
+  private async getParameterFilesInWorkspace(
+    bicepFolder: string
+  ): Promise<IAzureQuickPickItem<string>[]> {
     const quickPickItems: IAzureQuickPickItem<string>[] = [];
     const workspaceJsonFiles = (
       await vscode.workspace.findFiles("**/*.{json,jsonc}", undefined)
     ).filter((f) => !!f.fsPath);
 
-    workspaceJsonFiles.sort((a, b) => compareStringsOrdinal(a.path, b.path));
+    workspaceJsonFiles.sort((a, b) => {
+      const aIsInBicepFolder = path.dirname(a.fsPath) === bicepFolder;
+      const bIsInBicepFolder = path.dirname(b.fsPath) === bicepFolder;
+
+      // Put those in the bicep file's folder first in the list
+      if (aIsInBicepFolder && !bIsInBicepFolder) {
+        return -1;
+      } else if (bIsInBicepFolder && !aIsInBicepFolder) {
+        return 1;
+      }
+
+      return compareStringsOrdinal(a.path, b.path);
+    });
 
     for (const uri of workspaceJsonFiles) {
+      if (!(await this.validateIsValidParameterFile(uri.fsPath, false))) {
+        continue;
+      }
+
       const workspaceRoot: string | undefined =
         vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath;
       const relativePath = workspaceRoot
