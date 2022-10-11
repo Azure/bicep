@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
@@ -114,35 +115,22 @@ namespace Bicep.LanguageServer
         {
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
-            services.AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>();
-            services.AddSingleton<INamespaceProvider, DefaultNamespaceProvider>();
-            services.AddSingleton<ISnippetsProvider, SnippetsProvider>();
-            services.AddSingleton<IFileResolver, FileResolver>();
-            services.AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>();
-            services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
-            services.AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
-            services.AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
-            services.AddSingleton<IModuleDispatcher, ModuleDispatcher>();
-            services.AddSingleton<IFileSystem, FileSystem>();
-            services.AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
-            services.AddSingleton<ITelemetryProvider, TelemetryProvider>();
-            services.AddSingleton<IWorkspace, Workspace>();
-            services.AddSingleton<ICompilationManager, BicepCompilationManager>();
-            services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();
-            services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
-            services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
-            services.AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
-            services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
-            services.AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
-            services.AddSingleton<IConfigurationManager, ConfigurationManager>();
-            services.AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>();
-            services.AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>();
-            services.AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>();
-            services.AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>();
-            services.AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>();
-            services.AddSingleton<IApiVersionProviderFactory, ApiVersionProviderFactory>();
-            services.AddSingleton<IParamsCompilationManager, BicepParamsCompilationManager>();
-            services.AddSingleton<IBicepAnalyzer, LinterAnalyzer>();
+            services
+                .AddBicepCore()
+                .AddSingleton<ISnippetsProvider, SnippetsProvider>()
+                .AddSingleton<ITelemetryProvider, TelemetryProvider>()
+                .AddSingleton<ICompilationManager, BicepCompilationManager>()
+                .AddSingleton<ICompilationProvider, BicepCompilationProvider>()
+                .AddSingleton<ISymbolResolver, BicepSymbolResolver>()
+                .AddSingleton<ICompletionProvider, BicepCompletionProvider>()
+                .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>()
+                .AddSingleton<IAzResourceProvider, AzResourceProvider>()
+                .AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>()
+                .AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>()
+                .AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>()
+                .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
+                .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>()
+                .AddSingleton<IParamsCompilationManager, BicepParamsCompilationManager>();
         }
 
         public void Dispose()

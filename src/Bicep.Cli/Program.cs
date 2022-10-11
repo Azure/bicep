@@ -6,6 +6,7 @@ using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
@@ -121,18 +122,11 @@ namespace Bicep.Cli
         private ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
+                .AddBicepCore()
                 .AddCommands()
                 .AddInvocationContext(invocationContext)
                 .AddSingleton(CreateLoggerFactory().CreateLogger("bicep"))
                 .AddSingleton<IDiagnosticLogger, BicepDiagnosticLogger>()
-                .AddSingleton<IFileResolver, FileResolver>()
-                .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
-                .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
-                .AddSingleton<IFileSystem, FileSystem>()
-                .AddSingleton<IConfigurationManager, ConfigurationManager>()
-                .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-                .AddSingleton<IApiVersionProviderFactory, ApiVersionProviderFactory>()
-                .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
                 .AddSingleton<TemplateDecompiler>()
                 .AddSingleton<DecompilationWriter>()
                 .AddSingleton<CompilationWriter>()
