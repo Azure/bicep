@@ -11,11 +11,11 @@ namespace Bicep.Cli.Commands
 {
     public class RootCommand : ICommand
     {
-        private readonly InvocationContext invocationContext;
+        private readonly IOContext io;
 
-        public RootCommand(InvocationContext invocationContext)
+        public RootCommand(IOContext io)
         {
-            this.invocationContext = invocationContext;
+            this.io = io;
         }
 
         public int Run(RootArguments args)
@@ -162,26 +162,26 @@ Usage:
 
 "; // this newline is intentional
 
-            invocationContext.OutputWriter.Write(output);
-            invocationContext.OutputWriter.Flush();
+            io.Output.Write(output);
+            io.Output.Flush();
         }
 
         private void PrintVersion()
         {
             var output = $@"Bicep CLI version {GetVersionString()}{Environment.NewLine}";
 
-            invocationContext.OutputWriter.Write(output);
-            invocationContext.OutputWriter.Flush();
+            io.Output.Write(output);
+            io.Output.Flush();
         }
 
         private void PrintLicense()
         {
-            WriteEmbeddedResource(invocationContext.OutputWriter, "LICENSE.deflated");
+            WriteEmbeddedResource(io.Output, "LICENSE.deflated");
         }
 
         private void PrintThirdPartyNotices()
         {
-            WriteEmbeddedResource(invocationContext.OutputWriter, "NOTICE.deflated");
+            WriteEmbeddedResource(io.Output, "NOTICE.deflated");
         }
 
         private static string GetVersionString()

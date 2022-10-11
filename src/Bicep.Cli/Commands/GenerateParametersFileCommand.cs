@@ -16,7 +16,7 @@ namespace Bicep.Cli.Commands
     {
         private readonly ILogger logger;
         private readonly IDiagnosticLogger diagnosticLogger;
-        private readonly InvocationContext invocationContext;
+        private readonly IOContext io;
         private readonly CompilationService compilationService;
         private readonly PlaceholderParametersWriter writer;
         private readonly IFeatureProviderFactory featureProviderFactory;
@@ -24,14 +24,14 @@ namespace Bicep.Cli.Commands
         public GenerateParametersFileCommand(
             ILogger logger,
             IDiagnosticLogger diagnosticLogger,
-            InvocationContext invocationContext,
+            IOContext io,
             CompilationService compilationService,
             PlaceholderParametersWriter writer,
             IFeatureProviderFactory featureProviderFactory)
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
-            this.invocationContext = invocationContext;
+            this.io = io;
             this.compilationService = compilationService;
             this.writer = writer;
             this.featureProviderFactory = featureProviderFactory;

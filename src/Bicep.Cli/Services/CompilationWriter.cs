@@ -12,11 +12,11 @@ namespace Bicep.Cli.Services
 {
     public class CompilationWriter
     {
-        private readonly InvocationContext invocationContext;
+        private readonly IOContext io;
 
-        public CompilationWriter(InvocationContext invocationContext)
+        public CompilationWriter(IOContext io)
         {
-            this.invocationContext = invocationContext;
+            this.io = io;
         }
 
         public EmitResult ToFile(Compilation compilation, string outputPath)
@@ -39,7 +39,7 @@ namespace Bicep.Cli.Services
         {
             var semanticModel = compilation.GetEntrypointSemanticModel();
             var sourceFileToTrack = semanticModel.Features.SourceMappingEnabled ? semanticModel.SourceFile : null;
-            using var writer = new SourceAwareJsonTextWriter(semanticModel.FileResolver, invocationContext.OutputWriter, sourceFileToTrack)
+            using var writer = new SourceAwareJsonTextWriter(semanticModel.FileResolver, io.Output, sourceFileToTrack)
             {
                 Formatting = Formatting.Indented
             };

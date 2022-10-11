@@ -13,6 +13,7 @@ using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -38,15 +39,15 @@ namespace Bicep.Cli.IntegrationTests
             ClientFactory: Repository.Create<IContainerRegistryClientFactory>().Object,
             TemplateSpecRepositoryFactory: Repository.Create<ITemplateSpecRepositoryFactory>().Object);
 
-        protected static Task<(string output, string error, int result)> Bicep(InvocationSettings settings, params string[] args) =>
-            TextWriterHelper.InvokeWriterAction((@out, err) =>
-                new Program(new InvocationContext(
-                    TestTypeHelper.CreateEmptyAzResourceTypeLoader(),
-                    @out,
-                    err,
-                    featureProviderFactory: BicepTestConstants.CreateFeatureProviderFactory(settings.FeatureOverrides),
-                    clientFactory: settings.ClientFactory,
-                    templateSpecRepositoryFactory: settings.TemplateSpecRepositoryFactory)).RunAsync(args));
+        protected static Task<(string output, string error, int result)> Bicep(InvocationSettings settings, params string[] args)
+            => TextWriterHelper.InvokeWriterAction((@out, err)
+                => new Program(new(Output: @out, Error: err), services
+                    => services
+                        .WithEmptyAzResources()
+                        .WithFeatureOverrides(settings.FeatureOverrides)
+                        .AddSingleton(settings.ClientFactory)
+                        .AddSingleton(settings.TemplateSpecRepositoryFactory))
+                    .RunAsync(args));
 
         protected static void AssertNoErrors(string error)
         {

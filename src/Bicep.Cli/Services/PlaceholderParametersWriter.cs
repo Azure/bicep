@@ -15,11 +15,11 @@ namespace Bicep.Cli.Services
     /// </summary>
     public class PlaceholderParametersWriter
     {
-        private readonly InvocationContext invocationContext;
+        private readonly IOContext io;
 
-        public PlaceholderParametersWriter(InvocationContext invocationContext)
+        public PlaceholderParametersWriter(IOContext io)
         {
-            this.invocationContext = invocationContext;
+            this.io = io;
         }
 
         public EmitResult ToFile(Compilation compilation, string outputPath)
@@ -36,7 +36,7 @@ namespace Bicep.Cli.Services
 
         public EmitResult ToStdout(Compilation compilation)
         {
-            using var writer = new JsonTextWriter(invocationContext.OutputWriter)
+            using var writer = new JsonTextWriter(io.Output)
             {
                 Formatting = Formatting.Indented
             };

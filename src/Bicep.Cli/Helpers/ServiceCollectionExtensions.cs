@@ -45,25 +45,5 @@ namespace Bicep.Cli.Helpers
 
             return services;
         }
-
-        public static IServiceCollection AddInvocationContext(this IServiceCollection services, InvocationContext context)
-        {
-            // add itself
-            services.AddSingleton(context);
-
-            // add contents of the context
-            services.AddSingleton(context.NamespaceProvider);
-            if (context.FeatureProviderFactory is {} factory)
-            {
-                services.AddSingleton(factory);
-            } else
-            {
-                services.AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>();
-            }
-            services.AddSingleton(context.ClientFactory);
-            services.AddSingleton(context.TemplateSpecRepositoryFactory);
-
-            return services;
-        }
     }
 }

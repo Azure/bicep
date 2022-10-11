@@ -9,11 +9,11 @@ namespace Bicep.Cli.Services
 {
     public class DecompilationWriter
     {
-        private readonly InvocationContext invocationContext;
+        private readonly IOContext io;
 
-        public DecompilationWriter(InvocationContext invocationContext)
+        public DecompilationWriter(IOContext io)
         {
-            this.invocationContext = invocationContext;
+            this.io = io;
         }
 
         public int ToFile((Uri, ImmutableDictionary<Uri, string>) decompilation)
@@ -35,7 +35,7 @@ namespace Bicep.Cli.Services
 
             foreach (var (_, bicepOutput) in filesToSave)
             {
-                invocationContext.OutputWriter.Write(bicepOutput);
+                io.Output.Write(bicepOutput);
             }
 
             return 0;

@@ -11,6 +11,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
@@ -28,34 +29,37 @@ namespace Bicep.Cli.Services
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IConfigurationManager configurationManager;
-        private readonly InvocationContext invocationContext;
+        private readonly IOContext io;
         private readonly Workspace workspace;
         private readonly TemplateDecompiler decompiler;
         private readonly IApiVersionProviderFactory apiVersionProviderFactory;
         private readonly IFeatureProviderFactory featureProviderFactory;
         private readonly IBicepAnalyzer bicepAnalyzer;
+        private readonly INamespaceProvider namespaceProvider;
 
         public CompilationService(
             IDiagnosticLogger diagnosticLogger,
             IFileResolver fileResolver,
-            InvocationContext invocationContext,
+            IOContext io,
             IModuleDispatcher moduleDispatcher,
             IConfigurationManager configurationManager,
             TemplateDecompiler decompiler,
             IApiVersionProviderFactory apiVersionProviderFactory,
             IFeatureProviderFactory featureProviderFactory,
-            IBicepAnalyzer bicepAnalyzer)
+            IBicepAnalyzer bicepAnalyzer,
+            INamespaceProvider namespaceProvider)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.configurationManager = configurationManager;
-            this.invocationContext = invocationContext;
+            this.io = io;
             this.workspace = new Workspace();
             this.decompiler = decompiler;
             this.apiVersionProviderFactory = apiVersionProviderFactory;
             this.featureProviderFactory = featureProviderFactory;
             this.bicepAnalyzer = bicepAnalyzer;
+            this.namespaceProvider = namespaceProvider;
         }
 
         public async Task RestoreAsync(string inputPath, bool forceModulesRestore)
@@ -103,7 +107,7 @@ namespace Bicep.Cli.Services
                 }
             }
 
-            var compilation = new Compilation(featureProviderFactory, this.invocationContext.NamespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
+            var compilation = new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
             LogDiagnostics(compilation);
 
             return compilation;
@@ -131,7 +135,7 @@ namespace Bicep.Cli.Services
                 var compilationGrouping = new SourceFileGrouping(fileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
 
 
-                return new Compilation(featureProviderFactory, this.invocationContext.NamespaceProvider, compilationGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
+                return new Compilation(featureProviderFactory, namespaceProvider, compilationGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
             });
             LogParamDiagnostics(model);
 
