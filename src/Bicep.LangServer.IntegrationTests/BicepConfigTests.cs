@@ -667,15 +667,10 @@ param storageAccountName string = 'test'";
         private async Task<LanguageServerHelper> StartServerWithClientConnectionAsync(MultipleMessageListener<PublishDiagnosticsParams> diagsListener)
         {
             var fileSystemDict = new Dictionary<Uri, string>();
-            var fileResolver = new InMemoryFileResolver(fileSystemDict);
-            var serverOptions = new Server.CreationOptions(FileResolver: fileResolver);
-            return await LanguageServerHelper.StartServerWithClientConnectionAsync(
+            return await LanguageServerHelper.StartServer(
                 TestContext,
-                options =>
-                {
-                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
-                },
-                serverOptions);
+                options => options.OnPublishDiagnostics(diagsListener.AddMessage),
+                services => services.WithFileResolver(new InMemoryFileResolver(fileSystemDict)));
         }
 
         private DocumentUri SaveFile(string fileName, string fileContents, string testOutputPath)

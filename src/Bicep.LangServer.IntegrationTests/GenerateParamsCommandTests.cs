@@ -29,12 +29,10 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
 
-            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
+            using var helper = await LanguageServerHelper.StartServer(
                 this.TestContext,
-                options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
-                new LanguageServer.Server.CreationOptions(
-                    NamespaceProvider: BuiltInTestTypes.Create(),
-                    FeatureProviderFactory: BicepTestConstants.CreateFeatureProviderFactory(new(TestContext))));
+                options => options.OnPublishDiagnostics(diagnosticsListener.AddMessage),
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()).WithFeatureOverrides(new(TestContext)));
             var client = helper.Client;
 
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(

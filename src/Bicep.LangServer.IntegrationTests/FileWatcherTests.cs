@@ -18,6 +18,7 @@ using System.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.UnitTests.FileSystem;
+using Bicep.Core.UnitTests.Utils;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -63,13 +64,10 @@ module myMod '../toOther/module.bicep' = {
 // mis-spelling!
 param requiredIpnut string
 ";
-            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
+            using var helper = await LanguageServerHelper.StartServer(
                 this.TestContext,
-                options =>
-                {
-                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
-                },
-                creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict)));
+                options => options.OnPublishDiagnostics(diagsListener.AddMessage),
+                services => services.WithFileResolver(new InMemoryFileResolver(fileSystemDict)));
             var client = helper.Client;
 
             // open the main document
@@ -146,13 +144,10 @@ param requiredIpnut string
 ";
 
             var fileResolver = new InMemoryFileResolver(fileSystemDict);
-            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
+            using var helper = await LanguageServerHelper.StartServer(
                 this.TestContext,
-                options =>
-                {
-                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
-                },
-                creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: fileResolver));
+                options => options.OnPublishDiagnostics(diagsListener.AddMessage),
+                services => services.WithFileResolver(fileResolver));
             var client = helper.Client;
 
             // open the main document
@@ -216,13 +211,10 @@ param requiredIpnut string
 ";
 
             var fileResolver = new InMemoryFileResolver(fileSystemDict);
-            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
+            using var helper = await LanguageServerHelper.StartServer(
                 this.TestContext,
-                options =>
-                {
-                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
-                },
-                creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: fileResolver));
+                options => options.OnPublishDiagnostics(diagsListener.AddMessage),
+                services => services.WithFileResolver(fileResolver));
             var client = helper.Client;
 
             // open the main document

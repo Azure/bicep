@@ -23,16 +23,12 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task RequestDocumentSymbol_should_return_full_symbol_list()
         {
+            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var documentUri = DocumentUri.From("/template.bicep");
-            var diagsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
 
-            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(this.TestContext, options =>
-            {
-                options.OnPublishDiagnostics(diags =>
-                {
-                    diagsReceived.SetResult(diags);
-                });
-            });
+            using var helper = await LanguageServerHelper.StartServer(
+                this.TestContext,
+                options => options.OnPublishDiagnostics(diagsListener.AddMessage));
             var client = helper.Client;
 
             // client opens the document

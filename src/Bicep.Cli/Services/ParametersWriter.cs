@@ -15,11 +15,11 @@ namespace Bicep.Cli.Services
     /// </summary>
     public class ParametersWriter
     {
-        private readonly InvocationContext invocationContext;
+        private readonly IOContext io;
 
-        public ParametersWriter(InvocationContext invocationContext)
+        public ParametersWriter(IOContext io)
         {
-            this.invocationContext = invocationContext;
+            this.io = io;
         }
 
         public EmitResult ToFile(ParamsSemanticModel paramSemanticModel, string outputPath)
@@ -30,7 +30,7 @@ namespace Bicep.Cli.Services
 
         public EmitResult ToStdout(ParamsSemanticModel paramSemanticModel)
         {
-            using var writer = new JsonTextWriter(invocationContext.OutputWriter)
+            using var writer = new JsonTextWriter(io.Output)
             {
                 Formatting = Formatting.Indented
             };

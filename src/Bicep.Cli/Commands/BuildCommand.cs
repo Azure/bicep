@@ -16,7 +16,7 @@ namespace Bicep.Cli.Commands
     {
         private readonly ILogger logger;
         private readonly IDiagnosticLogger diagnosticLogger;
-        private readonly InvocationContext invocationContext;
+        private readonly IOContext io;
         private readonly CompilationService compilationService;
         private readonly CompilationWriter writer;
         private readonly ParametersWriter paramsWriter;
@@ -25,7 +25,7 @@ namespace Bicep.Cli.Commands
         public BuildCommand(
             ILogger logger,
             IDiagnosticLogger diagnosticLogger,
-            InvocationContext invocationContext,
+            IOContext io,
             CompilationService compilationService,
             CompilationWriter writer,
             ParametersWriter paramsWriter,
@@ -33,7 +33,7 @@ namespace Bicep.Cli.Commands
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
-            this.invocationContext = invocationContext;
+            this.io = io;
             this.compilationService = compilationService;
             this.writer = writer;
             this.paramsWriter = paramsWriter;

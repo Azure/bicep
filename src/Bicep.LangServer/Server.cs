@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
@@ -41,17 +42,9 @@ namespace Bicep.LanguageServer
 {
     public class Server : IDisposable
     {
-        public record CreationOptions(
-            ISnippetsProvider? SnippetsProvider = null,
-            INamespaceProvider? NamespaceProvider = null,
-            IFileResolver? FileResolver = null,
-            IFeatureProviderFactory? FeatureProviderFactory = null,
-            IModuleRestoreScheduler? ModuleRestoreScheduler = null,
-            Action<IServiceCollection>? onRegisterServices = null);
-
         private readonly OmnisharpLanguageServer server;
 
-        public Server(CreationOptions creationOptions, Action<LanguageServerOptions> onOptionsFunc)
+        public Server(Action<LanguageServerOptions> onOptionsFunc)
         {
             BicepDeploymentsInterop.Initialize();
             server = OmnisharpLanguageServer.PreInit(options =>
@@ -92,9 +85,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepForceModulesRestoreCommandHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
                     .WithHandler<InsertResourceHandler>()
-                    .WithServices(services => RegisterServices(creationOptions, services));
-
-                creationOptions.onRegisterServices?.Invoke(options.Services);
+                    .WithServices(RegisterServices);
 
                 onOptionsFunc(options);
             });
@@ -120,39 +111,26 @@ namespace Bicep.LanguageServer
             }
         }
 
-        private static void RegisterServices(CreationOptions creationOptions, IServiceCollection services)
+        private static void RegisterServices(IServiceCollection services)
         {
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
-            services.AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>();
-            services.AddSingletonOrInstance<INamespaceProvider, DefaultNamespaceProvider>(creationOptions.NamespaceProvider);
-            services.AddSingletonOrInstance<ISnippetsProvider, SnippetsProvider>(creationOptions.SnippetsProvider);
-            services.AddSingletonOrInstance<IFileResolver, FileResolver>(creationOptions.FileResolver);
-            services.AddSingletonOrInstance<IFeatureProviderFactory, FeatureProviderFactory>(creationOptions.FeatureProviderFactory);
-            services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
-            services.AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
-            services.AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
-            services.AddSingleton<IModuleDispatcher, ModuleDispatcher>();
-            services.AddSingleton<IFileSystem, FileSystem>();
-            services.AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
-            services.AddSingleton<ITelemetryProvider, TelemetryProvider>();
-            services.AddSingleton<IWorkspace, Workspace>();
-            services.AddSingleton<ICompilationManager, BicepCompilationManager>();
-            services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();
-            services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
-            services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
-            services.AddSingletonOrInstance<IModuleRestoreScheduler, ModuleRestoreScheduler>(creationOptions.ModuleRestoreScheduler);
-            services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
-            services.AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
-            services.AddSingleton<IConfigurationManager, ConfigurationManager>();
-            services.AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>();
-            services.AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>();
-            services.AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>();
-            services.AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>();
-            services.AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>();
-            services.AddSingleton<IApiVersionProviderFactory, ApiVersionProviderFactory>();
-            services.AddSingleton<IParamsCompilationManager, BicepParamsCompilationManager>();
-            services.AddSingleton<IBicepAnalyzer, LinterAnalyzer>();
+            services
+                .AddBicepCore()
+                .AddSingleton<ISnippetsProvider, SnippetsProvider>()
+                .AddSingleton<ITelemetryProvider, TelemetryProvider>()
+                .AddSingleton<ICompilationManager, BicepCompilationManager>()
+                .AddSingleton<ICompilationProvider, BicepCompilationProvider>()
+                .AddSingleton<ISymbolResolver, BicepSymbolResolver>()
+                .AddSingleton<ICompletionProvider, BicepCompletionProvider>()
+                .AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>()
+                .AddSingleton<IAzResourceProvider, AzResourceProvider>()
+                .AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>()
+                .AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>()
+                .AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>()
+                .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
+                .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>()
+                .AddSingleton<IParamsCompilationManager, BicepParamsCompilationManager>();
         }
 
         public void Dispose()

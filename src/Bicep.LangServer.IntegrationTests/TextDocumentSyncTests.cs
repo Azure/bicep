@@ -23,16 +23,12 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task DidOpenTextDocument_should_trigger_PublishDiagnostics()
         {
+            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var documentUri = DocumentUri.From("/template.bicep");
-            var diagsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
 
-            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(this.TestContext, options =>
-            {
-                options.OnPublishDiagnostics(diags =>
-                {
-                    diagsReceived.SetResult(diags);
-                });
-            });
+            using var helper = await LanguageServerHelper.StartServer(
+                this.TestContext,
+                options => options.OnPublishDiagnostics(diagsListener.AddMessage));
             var client = helper.Client;
 
             // open document
@@ -44,7 +40,7 @@ resource myRes 'invalidFormat' = {
 randomToken
 ", 1));
 
-            var response = await IntegrationTestHelper.WithTimeoutAsync(diagsReceived.Task);
+            var response = await diagsListener.WaitNext();
             response.Diagnostics.Should().SatisfyRespectively(
                 d =>
                 {
@@ -70,7 +66,6 @@ randomToken
             );
 
             // change document
-            diagsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
             client.TextDocument.DidChangeTextDocument(TextDocumentParamHelper.CreateDidChangeTextDocumentParams(documentUri, @"
 param myParam string = 'fixed!'
 resource myRes 'invalidFormat' = {
@@ -79,7 +74,7 @@ resource myRes 'invalidFormat' = {
 randomToken
 ", 2));
 
-            response = await IntegrationTestHelper.WithTimeoutAsync(diagsReceived.Task);
+            response = await diagsListener.WaitNext();
             response.Diagnostics.Should().SatisfyRespectively(
                 d =>
                 {
@@ -100,10 +95,9 @@ randomToken
             );
 
             // close document
-            diagsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
             client.TextDocument.DidCloseTextDocument(TextDocumentParamHelper.CreateDidCloseTextDocumentParams(documentUri, 3));
 
-            response = await IntegrationTestHelper.WithTimeoutAsync(diagsReceived.Task);
+            response = await diagsListener.WaitNext();
             response.Diagnostics.Should().BeEmpty();
         }
     }

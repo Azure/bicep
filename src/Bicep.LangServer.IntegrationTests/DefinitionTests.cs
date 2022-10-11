@@ -254,12 +254,10 @@ module appPlanDeploy2 'wrong|.bicep' = {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
             var bicepFile = SourceFileFactory.CreateBicepFile(new($"file:///{testContext.TestName}/path/to/main.bicep"), file);
 
-            var langServerOptions = new Server.CreationOptions
-            {
-                FileResolver = new InMemoryFileResolver(additionalFiles.ToDictionary(x => new Uri($"file:///{testContext.TestName}/path/to/{x.fileName}"), x => x.fileBody))
-            };
             var server = new SharedLanguageHelperManager();
-            server.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, langServerOptions));
+            var fileResolver = new InMemoryFileResolver(additionalFiles.ToDictionary(x => new Uri($"file:///{testContext.TestName}/path/to/{x.fileName}"), x => x.fileBody));
+            server.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, services =>
+                services.WithFileResolver(fileResolver)));
 
             var helper = await server.GetAsync();
             await helper.OpenFileOnceAsync(testContext, file, bicepFile.FileUri);

@@ -37,21 +37,7 @@ public class ServiceBuilder
     {
         if (services is null)
         {
-            services = new ServiceCollection()
-                .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
-                .AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>()
-                .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
-                .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
-                .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
-                .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
-                .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-                .AddSingleton<IFileResolver, FileResolver>()
-                .AddSingleton<IConfigurationManager, ConfigurationManager>()
-                .AddSingleton<IApiVersionProviderFactory, ApiVersionProviderFactory>()
-                .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
-                .AddSingleton<IFileSystem, IOFileSystem>()
-                .AddSingleton<IWorkspace, Workspace>()
-                .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>();
+            services = new ServiceCollection().AddBicepCore();
         }
 
         this.services = services;

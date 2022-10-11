@@ -14,18 +14,15 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Bicep.Core.UnitTests.Utils;
 using System.Collections.Generic;
-using Bicep.LanguageServer.Snippets;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
-using System.Linq;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Bicep.LangServer.IntegrationTests
 {
     public sealed class LanguageServerHelper : IDisposable
     {
-        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.ModuleDispatcher, BicepTestConstants.LinterAnalyzer);
-
         public Server Server { get; }
         public ILanguageClient Client { get; }
 
@@ -38,28 +35,17 @@ namespace Bicep.LangServer.IntegrationTests
         /// <summary>
         /// Creates and initializes a new language server/client pair without loading any files. This is recommended when you need to open multiple files using the language server.
         /// </summary>
-        /// <param name="testContext">The test context</param>
-        /// <param name="onClientOptions">The client options</param>
-        /// <param name="creationOptions">The server creation options</param>
-        public static async Task<LanguageServerHelper> StartServerWithClientConnectionAsync(TestContext testContext, Action<LanguageClientOptions> onClientOptions, Server.CreationOptions? creationOptions = null)
+        public static async Task<LanguageServerHelper> StartServer(TestContext testContext, Action<LanguageClientOptions> onClientOptions, Action<IServiceCollection>? onRegisterServices = null)
         {
             var clientPipe = new Pipe();
             var serverPipe = new Pipe();
 
-            creationOptions ??= new Server.CreationOptions();
-            creationOptions = creationOptions with
-            {
-                FeatureProviderFactory = creationOptions.FeatureProviderFactory ?? BicepTestConstants.FeatureProviderFactory,
-                SnippetsProvider = creationOptions.SnippetsProvider ?? SnippetsProvider,
-                FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string>()),
-                ModuleRestoreScheduler = creationOptions.ModuleRestoreScheduler ?? BicepTestConstants.ModuleRestoreScheduler
-            };
-
             var server = new Server(
-                creationOptions,
                 options => options
                     .WithInput(serverPipe.Reader)
-                    .WithOutput(clientPipe.Writer));
+                    .WithOutput(clientPipe.Writer)
+                    .WithServices(services => services.AddSingleton(BicepTestConstants.ModuleRestoreScheduler))
+                    .WithServices(services => onRegisterServices?.Invoke(services)));
             var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
 
             var client = LanguageClient.PreInit(options =>
@@ -86,42 +72,34 @@ namespace Bicep.LangServer.IntegrationTests
         /// Starts a language client/server pair that will load the specified Bicep text and wait for the diagnostics to be published.
         /// No further file opening is possible.
         /// </summary>
-        /// <param name="testContext">The test context</param>
-        /// <param name="text">The bicep text</param>
-        /// <param name="documentUri">The document URI of the Bicep text</param>
-        /// <param name="onClientOptions">The additional client options</param>
-        /// <param name="creationOptions">The server creation options</param>
-        public static async Task<LanguageServerHelper> StartServerWithTextAsync(TestContext testContext, string text, DocumentUri documentUri, Action<LanguageClientOptions>? onClientOptions = null, Server.CreationOptions? creationOptions = null)
-        {
-            var diagnosticsPublished = new TaskCompletionSource<PublishDiagnosticsParams>();
+        public static Task<LanguageServerHelper> StartServerWithText(TestContext testContext, string text, DocumentUri documentUri, Action<IServiceCollection>? onRegisterServices = null)
+            => StartServerWithText(testContext, new Dictionary<Uri, string> { [documentUri.ToUri()] = text }, documentUri.ToUri(), onRegisterServices);
 
-            creationOptions ??= new Server.CreationOptions();
-            creationOptions = creationOptions with
-            {
-                FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string> { [documentUri.ToUri()] = text, }),
-                ModuleRestoreScheduler = creationOptions.ModuleRestoreScheduler ?? BicepTestConstants.ModuleRestoreScheduler
-            };
-            var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
+        /// <summary>
+        /// Starts a language client/server pair that will load the specified Bicep text and wait for the diagnostics to be published.
+        /// No further file opening is possible.
+        /// </summary>
+        public static async Task<LanguageServerHelper> StartServerWithText(TestContext testContext, IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri, Action<IServiceCollection>? onRegisterServices = null)
+        {
+            var diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
+
+            var fileResolver = new InMemoryFileResolver(fileContentsByUri);
+            var helper = await LanguageServerHelper.StartServer(
                 testContext,
-                options =>
-                {
-                    onClientOptions?.Invoke(options);
-                    options.OnPublishDiagnostics(p =>
-                    {
-                        testContext.WriteLine($"Received {p.Diagnostics.Count()} diagnostic(s).");
-                        diagnosticsPublished.SetResult(p);
-                    });
-                },
-                creationOptions);
+                options => options.OnPublishDiagnostics(diagnosticsListener.AddMessage),
+                services => {
+                    onRegisterServices?.Invoke(services);
+                    services.WithFileResolver(fileResolver);
+                });
 
             // send open document notification
-            helper.Client.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, text, 0));
+            helper.Client.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(entryFileUri, fileContentsByUri[entryFileUri], 0));
 
-            testContext.WriteLine($"Opened file {documentUri}.");
+            testContext.WriteLine($"Opened file {entryFileUri}.");
 
             // notifications don't produce responses,
             // but our server should send us diagnostics when it receives the notification
-            await IntegrationTestHelper.WithTimeoutAsync(diagnosticsPublished.Task);
+            await diagnosticsListener.WaitNext();
 
             return helper;
         }

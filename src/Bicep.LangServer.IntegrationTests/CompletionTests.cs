@@ -70,27 +70,21 @@ namespace Bicep.LangServer.IntegrationTests
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
-            ServerWithNamespaceProvider.Initialize(
-                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
-                    testContext,
-                    creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider)));
+            ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
-            ServerWithNamespaceAndTestResolver.Initialize(
-                async () => await MultiFileLanguageServerHelper.StartLanguageServer(
-                    testContext,
-                    creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider, FileResolver: BicepTestConstants.FileResolver)));
+            ServerWithNamespaceAndTestResolver.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
             DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
             ServerWithImportsEnabled.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
-                    new LanguageServer.Server.CreationOptions(FeatureProviderFactory: BicepTestConstants.CreateFeatureProviderFactory(new(testContext, ImportsEnabled: true)))));
+                    services => services.WithFeatureOverrides(new(testContext, ImportsEnabled: true))));
 
             ServerWithBuiltInTypes.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
-                    new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create())));
+                    services => services.WithNamespaceProvider(BuiltInTestTypes.Create())));
         }
 
         [ClassCleanup]
@@ -942,15 +936,14 @@ module bar2 'test.bicep' = [for item in list: |  ]
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
             Uri mainUri = new Uri("file:///main.bicep");
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///test.bicep")] = @"param foo string",
                 [mainUri] = text
-            });
+            };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, creationOptions: creationOptions);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -998,12 +991,11 @@ module mod2 './|' = {}
                 [InMemoryFileResolver.GetFileUri("/path/to/module3.bicep")] = "",
             };
 
-            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+            using var helper = await LanguageServerHelper.StartServerWithText(
                 TestContext,
-                mainFileText,
+                fileTextsByUri,
                 mainUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
 
             var file = new FileRequestHelper(helper.Client, mainFile);
 
@@ -1256,17 +1248,16 @@ module a '|' = {
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
             Uri mainUri = InMemoryFileResolver.GetFileUri("/dir/main.bicep");
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            var files = new Dictionary<Uri, string>
             {
                 [InMemoryFileResolver.GetFileUri("/dir/folder with space/mod with space.bicep")] = @"param foo string",
                 [InMemoryFileResolver.GetFileUri("/dir/percentage%file.bicep")] = @"param foo string",
                 [InMemoryFileResolver.GetFileUri("/dir/already%20escaped.bicep")] = @"param foo string",
                 [mainUri] = text
-            });
+            };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, creationOptions: creationOptions);
+            using var helper = await LanguageServerHelper.StartServerWithText(this.TestContext, files, bicepFile.FileUri, services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletion(cursor);
@@ -1303,20 +1294,18 @@ var modOut = m.outputs.inputTi|
 
             var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent);
             Uri mainUri = new Uri("file:///main.bicep");
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            var files = new Dictionary<Uri, string>
             {
                 [new Uri("file:///mod.bicep")] = moduleContent,
                 [mainUri] = text
-            });
+            };
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, text);
-            var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+            using var helper = await LanguageServerHelper.StartServerWithText(
                 this.TestContext,
-                text,
+                files,
                 bicepFile.FileUri,
-                null,
-                creationOptions);
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
 
             var file = new FileRequestHelper(helper.Client, bicepFile);
             var completions = await file.RequestCompletions(cursors);
@@ -2336,13 +2325,11 @@ var file = " + functionName + @"('|')
                 [InMemoryFileResolver.GetFileUri("/path/to/module3.bicep")] = "",
             };
 
-            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
-
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+            using var helper = await LanguageServerHelper.StartServerWithText(
                 TestContext,
-                mainFileText,
+                fileTextsByUri,
                 mainUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
 
             var file = new FileRequestHelper(helper.Client, mainFile);
 
@@ -2411,13 +2398,11 @@ var file = " + functionName + @"(templ|)
                 [InMemoryFileResolver.GetFileUri("/path/to/module3.bicep")] = "",
             };
 
-            var fileResolver = new InMemoryFileResolver(fileTextsByUri);
-
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+            using var helper = await LanguageServerHelper.StartServerWithText(
                 TestContext,
-                mainFileText,
+                fileTextsByUri,
                 mainUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
+                services => services.WithNamespaceProvider(BuiltInTestTypes.Create()));
             var file = new FileRequestHelper(helper.Client, mainFile);
 
             var completions = await file.RequestCompletion(cursor);
@@ -2473,9 +2458,7 @@ var file = " + functionName + @"(templ|)
                 [InMemoryFileResolver.GetFileUri("/path2/to/main.bicep")] = "",
             });
 
-            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, new LanguageServer.Server.CreationOptions {
-                FileResolver = fileResolver,
-            });
+            using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFileResolver(fileResolver));
 
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, text);

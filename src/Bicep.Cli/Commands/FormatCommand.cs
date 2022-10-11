@@ -17,25 +17,25 @@ namespace Bicep.Cli.Commands
     {
         private readonly ILogger logger;
         private readonly IDiagnosticLogger diagnosticLogger;
-        private readonly InvocationContext invocationContext;
+        private readonly IOContext io;
         private readonly IFileResolver fileResolver;
 
         public FormatCommand(
             ILogger logger,
             IDiagnosticLogger diagnosticLogger,
-            InvocationContext invocationContext,
+            IOContext io,
             IFileResolver fileResolver)
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
-            this.invocationContext = invocationContext;
+            this.io = io;
             this.fileResolver = fileResolver;
         }
 
         public int Run(FormatArguments args)
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
-            
+
             if (IsBicepFile(inputPath))
             {
                 var inputUri = PathHelper.FilePathToFileUrl(inputPath);
@@ -56,8 +56,8 @@ namespace Bicep.Cli.Commands
                 string output = PrettyPrinter.PrintProgram(programSyntax, options);
                 if (args.OutputToStdOut)
                 {
-                    invocationContext.OutputWriter.Write(output);
-                    invocationContext.OutputWriter.Flush();
+                    io.Output.Write(output);
+                    io.Output.Flush();
                 }
                 else
                 {
@@ -66,8 +66,8 @@ namespace Bicep.Cli.Commands
 
                     File.WriteAllText(outputPath, output);
                 }
-                
-                return diagnosticLogger.ErrorCount > 0 ? 1 : 0;       
+
+                return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
             }
 
             logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
