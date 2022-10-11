@@ -14,28 +14,27 @@ namespace Bicep.Core.Semantics
 {
     public class Binder : IBinder
     {
-        private readonly BicepFile bicepFile;
+        private readonly BicepSourceFile bicepFile;
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
-        private readonly ImmutableDictionary<BindableSymbol, ImmutableArray<BindableSymbol>> cyclesBySymbol;
+        private readonly ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol;
 
-        public Binder(INamespaceProvider namespaceProvider, IFeatureProvider features, BicepFile bicepFile, ISymbolContext symbolContext)
+        public Binder(INamespaceProvider namespaceProvider, IFeatureProvider features, BicepSourceFile sourceFile, ISymbolContext symbolContext)
         {
             // TODO use lazy or some other pattern for init
-            this.bicepFile = bicepFile;
-            this.TargetScope = SyntaxHelper.GetTargetScope(bicepFile);
-            var (declarations, outermostScopes) = DeclarationVisitor.GetDeclarations(namespaceProvider, features, TargetScope, bicepFile, symbolContext);
+            this.bicepFile = sourceFile;
+            this.TargetScope = SyntaxHelper.GetTargetScope(sourceFile);
+            var (declarations, outermostScopes) = DeclarationVisitor.GetDeclarations(namespaceProvider, features, TargetScope, sourceFile, symbolContext);
             var uniqueDeclarations = GetUniqueDeclarations(declarations);
             this.NamespaceResolver = GetNamespaceResolver(features, namespaceProvider, this.TargetScope, uniqueDeclarations);
-            this.bindings = NameBindingVisitor.GetBindings(bicepFile.ProgramSyntax, uniqueDeclarations, NamespaceResolver, outermostScopes);
-            this.cyclesBySymbol = GetCyclesBySymbol(bicepFile, this.bindings);
+            this.bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, uniqueDeclarations, NamespaceResolver, outermostScopes);
+            this.cyclesBySymbol = GetCyclesBySymbol(sourceFile, this.bindings);
 
             this.FileSymbol = new FileSymbol(
-                bicepFile.FileUri.LocalPath,
-                bicepFile.ProgramSyntax,
+                symbolContext,
+                sourceFile,
                 NamespaceResolver,
                 outermostScopes,
-                declarations,
-                bicepFile.FileUri);
+                declarations);
         }
 
         public ResourceScope TargetScope { get; }
@@ -54,7 +53,7 @@ namespace Bicep.Core.Semantics
         /// <param name="syntax">the syntax node</param>
         public Symbol? GetSymbolInfo(SyntaxBase syntax) => this.bindings.TryGetValue(syntax);
 
-        public ImmutableArray<BindableSymbol>? TryGetCycle(DeclaredSymbol declaredSymbol)
+        public ImmutableArray<DeclaredSymbol>? TryGetCycle(DeclaredSymbol declaredSymbol)
             => this.cyclesBySymbol.TryGetValue(declaredSymbol, out var cycle) ? cycle : null;
 
         private static ImmutableDictionary<string, DeclaredSymbol> GetUniqueDeclarations(IEnumerable<DeclaredSymbol> outermostDeclarations)
@@ -75,9 +74,9 @@ namespace Bicep.Core.Semantics
             return NamespaceResolver.Create(features, namespaceProvider, targetScope, importedNamespaces);
         }
 
-        private static ImmutableDictionary<BindableSymbol, ImmutableArray<BindableSymbol>> GetCyclesBySymbol(BicepFile bicepFile, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
+        private static ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> GetCyclesBySymbol(BicepSourceFile sourceFile, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
-            return CyclicCheckVisitor.FindCycles(bicepFile.ProgramSyntax, bindings);
+            return CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, bindings);
         }
     }
 }

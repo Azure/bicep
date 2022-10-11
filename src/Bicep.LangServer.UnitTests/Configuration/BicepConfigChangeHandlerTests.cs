@@ -22,6 +22,7 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.UnitTests;
+using Bicep.LanguageServer.Providers;
 
 namespace Bicep.LangServer.UnitTests.Configuration
 {
@@ -235,8 +236,8 @@ namespace Bicep.LangServer.UnitTests.Configuration
             var workspace = new Workspace();
 
             var configurationManager = new ConfigurationManager(new IOFileSystem());
-            var bicepCompilationManager = new BicepCompilationManager(server, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(configurationManager), workspace, BicepTestConstants.FileResolver, BicepCompilationManagerHelper.CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()), BicepTestConstants.CreateMockTelemetryProvider().Object, new LinterRulesProvider(), BicepTestConstants.LinterAnalyzer);
-            bicepCompilationManager.UpsertCompilation(DocumentUri.From(bicepFilePath), null, bicepFileContents, LanguageConstants.LanguageId);
+            var bicepCompilationManager = new BicepCompilationManager(server, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(configurationManager), workspace, BicepTestConstants.FileResolver, BicepCompilationManagerHelper.CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()), BicepTestConstants.CreateMockTelemetryProvider().Object, new LinterRulesProvider(), BicepTestConstants.LinterAnalyzer, new FileLanguageTracker());
+            bicepCompilationManager.OpenCompilation(DocumentUri.From(bicepFilePath), null, bicepFileContents, LanguageConstants.LanguageId);
 
             var bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
 

@@ -141,7 +141,7 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        private static async Task ValidateOffset(ILanguageClient client, DocumentUri uri, BicepFile bicepFile, int offset, FunctionSymbol? symbol, bool expectDecorator)
+        private static async Task ValidateOffset(ILanguageClient client, DocumentUri uri, BicepSourceFile bicepFile, int offset, FunctionSymbol? symbol, bool expectDecorator)
         {
             var position = PositionHelper.GetPosition(bicepFile.LineStarts, offset);
             var initial = await RequestSignatureHelp(client, position, uri);

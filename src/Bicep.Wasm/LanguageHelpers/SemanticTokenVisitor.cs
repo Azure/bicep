@@ -19,7 +19,7 @@ namespace Bicep.Wasm.LanguageHelpers
             this.tokens = new List<(IPositionable, SemanticTokenType)>();
         }
 
-        public static IEnumerable<SemanticToken> BuildSemanticTokens(BicepFile bicepFile)
+        public static IEnumerable<SemanticToken> BuildSemanticTokens(BicepSourceFile bicepFile)
         {
             var visitor = new SemanticTokenVisitor();
 

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Bicep.Core;
@@ -43,9 +44,10 @@ namespace Bicep.LanguageServer
         private readonly ITelemetryProvider TelemetryProvider;
         private readonly ILinterRulesProvider LinterRulesProvider;
         private readonly IBicepAnalyzer bicepAnalyzer;
+        private readonly IFileLanguageTracker fileLanguageTracker;
 
-        // represents compilations of open bicep files
-        private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, CompilationContext>();
+        // represents compilations of open bicep or param files
+        private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new();
 
         public BicepCompilationManager(
             ILanguageServerFacade server,
@@ -56,7 +58,8 @@ namespace Bicep.LanguageServer
             IConfigurationManager configurationManager,
             ITelemetryProvider telemetryProvider,
             ILinterRulesProvider LinterRulesProvider,
-            IBicepAnalyzer bicepAnalyzer)
+            IBicepAnalyzer bicepAnalyzer,
+            IFileLanguageTracker fileLanguageTracker)
         {
             this.server = server;
             this.provider = provider;
@@ -67,6 +70,7 @@ namespace Bicep.LanguageServer
             this.TelemetryProvider = telemetryProvider;
             this.LinterRulesProvider = LinterRulesProvider;
             this.bicepAnalyzer = bicepAnalyzer;
+            this.fileLanguageTracker = fileLanguageTracker;
         }
 
         public void RefreshCompilation(DocumentUri documentUri)
@@ -87,23 +91,58 @@ namespace Bicep.LanguageServer
                 {
                     UpsertCompilationInternal(documentUri, null, sourceFile);
                 }
+
                 return;
             }
 
             // TODO: This may cause race condition if the user is modifying the file at the same time
             // need to make a shallow copy so it counts as a different file even though all the content is identical
             // this was the easiest way to force the compilation to be regenerated
-            var shallowCopy = new BicepFile(compilationContext.Compilation.SourceFileGrouping.EntryPoint);
+            var shallowCopy = compilationContext.Compilation.SourceFileGrouping.EntryPoint.ShallowClone();
             UpsertCompilationInternal(documentUri, null, shallowCopy);
         }
 
-        public void UpsertCompilation(DocumentUri documentUri, int? version, string fileContents, string? languageId = null, bool triggeredByFileOpenEvent = false)
+        public void OpenCompilation(DocumentUri documentUri, int? version, string fileContents, string languageId)
         {
+            if (LanguageConstants.IsBicepOrParamsLanguage(languageId))
+            {
+                this.fileLanguageTracker.NotifyFileOpen(documentUri, languageId);
+            }
+
             if (this.ShouldUpsertCompilation(documentUri, languageId))
             {
-                var newFile = SourceFileFactory.CreateSourceFile(documentUri.ToUri(), fileContents);
-                UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: triggeredByFileOpenEvent);
+                var newFile = CreateSourceFile(documentUri, fileContents);
+                UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: true);
             }
+        }
+
+        public void UpdateCompilation(DocumentUri documentUri, int? version, string fileContents)
+        {
+            if (this.ShouldUpsertCompilation(documentUri, languageId: null))
+            {
+                var newFile = CreateSourceFile(documentUri, fileContents);
+                UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: false);
+            }
+        }
+
+        private ISourceFile CreateSourceFile(DocumentUri documentUri, string fileContents)
+        {
+            // normally the language ID is only available on file open
+            // however we stashed the ID in a dictionary, so we can conveniently
+            // look it up for as long as the file is open
+            if (this.fileLanguageTracker.TryGetLanguageId(documentUri) is { } languageId)
+            {
+                // since we know what language we're dealing with, we can just create the file
+                return SourceFileFactory.CreateSourceFileByLanguageId(documentUri.ToUri(), fileContents, languageId);
+            }
+
+            if(SourceFileFactory.TryCreateArmTemplateFile(documentUri.ToUri(), fileContents) is { } sourceFile)
+            {
+                // we managed to create an ARM template or Template Spec file by file extension
+                return sourceFile;
+            }
+
+            throw new InvalidOperationException($"Unable to create source file for uri '{documentUri.ToUri()}'.");
         }
 
         private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool triggeredByFileOpenEvent = false)
@@ -111,7 +150,7 @@ namespace Bicep.LanguageServer
             var (_, removedFiles) = workspace.UpsertSourceFile(newFile);
 
             var modelLookup = new Dictionary<ISourceFile, ISemanticModel>();
-            if (newFile is BicepFile)
+            if (newFile is BicepSourceFile)
             {
                 // Do not update compilation if it is an ARM template file, since it cannot be an entrypoint.
                 UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles, triggeredByFileOpenEvent);
@@ -131,6 +170,8 @@ namespace Bicep.LanguageServer
             // close and clear diagnostics for the file
             // if upsert failed to create a compilation due to a fatal error, we still need to clean up the diagnostics
             CloseCompilationInternal(documentUri, 0, Enumerable.Empty<Diagnostic>());
+
+            this.fileLanguageTracker.NotifyFileClose(documentUri);
         }
 
         public void HandleFileChanges(IEnumerable<FileEvent> fileEvents)
@@ -182,8 +223,7 @@ namespace Bicep.LanguageServer
             // We should only upsert compilation when languageId is bicep or the file is already tracked in workspace.
             // When the file is in workspace but languageId is null, the file can be a bicep file or a JSON template
             // being referenced as a bicep module.
-            return string.Equals(languageId, LanguageConstants.LanguageId, StringComparison.OrdinalIgnoreCase) ||
-                this.workspace.TryGetSourceFile(documentUri.ToUri(), out var _);
+            return LanguageConstants.IsBicepOrParamsLanguage(languageId) || this.workspace.TryGetSourceFile(documentUri.ToUri(), out var _);
         }
 
         private ImmutableArray<ISourceFile> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<Diagnostic> closingDiagnostics)

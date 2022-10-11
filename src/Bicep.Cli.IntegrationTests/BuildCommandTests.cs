@@ -14,6 +14,7 @@ using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
@@ -199,6 +200,34 @@ namespace Bicep.Cli.IntegrationTests
                 output.Should().BeEmpty();
                 AssertNoErrors(error);
             }
+
+            data.Compiled!.ShouldHaveExpectedJsonValue();
+        }
+
+        [DataTestMethod]
+        [BaselineData_Bicepparam.TestData(Filter = BaselineData_Bicepparam.TestDataFilterType.ValidOnly)]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public async Task Build_Valid_Params_File_ToStdOut_Should_Succeed(BaselineData_Bicepparam baselineData)
+        {
+            var data = baselineData.GetData(TestContext);
+
+            var features = new FeatureProviderOverrides(TestContext, ParamsFilesEnabled: true);
+            var settings = new InvocationSettings(features, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+
+            var (output, error, result) = await Bicep(settings, "build", "--stdout", data.Parameters.OutputFilePath);
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+                output.Should().NotBeEmpty();
+                AssertNoErrors(error);
+            }
+
+            string compiledFilePath = data.Compiled!.OutputFilePath;
+            File.Exists(compiledFilePath);
+
+            // overwrite the output file
+            File.WriteAllText(compiledFilePath, output);
 
             data.Compiled!.ShouldHaveExpectedJsonValue();
         }

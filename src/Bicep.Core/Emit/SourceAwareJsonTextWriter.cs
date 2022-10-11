@@ -24,7 +24,7 @@ namespace Bicep.Core.Emit
 
     public class SourceAwareJsonTextWriter : JsonTextWriter
     {
-        private readonly BicepFile? sourceFile;
+        private readonly BicepSourceFile? sourceFile;
 
         public SourceMap? SourceMap { get; private set; }
         public readonly PositionTrackingJsonTextWriter TrackingJsonWriter;
@@ -35,7 +35,7 @@ namespace Bicep.Core.Emit
         /// <param name="fileResolver"></param>
         /// <param name="textWriter"></param>
         /// <param name="sourceFileToTrack">If set to default, source mapping is disabled</param>
-        public SourceAwareJsonTextWriter(IFileResolver fileResolver, TextWriter textWriter, BicepFile? sourceFileToTrack = default) : base(textWriter)
+        public SourceAwareJsonTextWriter(IFileResolver fileResolver, TextWriter textWriter, BicepSourceFile? sourceFileToTrack = default) : base(textWriter)
         {
             this.sourceFile = sourceFileToTrack;
             this.TrackingJsonWriter = new PositionTrackingJsonTextWriter(fileResolver, new StringWriter(), this.sourceFile);

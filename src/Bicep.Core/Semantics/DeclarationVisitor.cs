@@ -38,13 +38,13 @@ namespace Bicep.Core.Semantics
         }
 
         // Returns the list of top level declarations as well as top level scopes.
-        public static (ImmutableArray<DeclaredSymbol>, ImmutableArray<LocalScope>) GetDeclarations(INamespaceProvider namespaceProvider, IFeatureProvider features, ResourceScope targetScope, BicepFile bicepFile, ISymbolContext symbolContext)
+        public static (ImmutableArray<DeclaredSymbol>, ImmutableArray<LocalScope>) GetDeclarations(INamespaceProvider namespaceProvider, IFeatureProvider features, ResourceScope targetScope, BicepSourceFile sourceFile, ISymbolContext symbolContext)
         {
             // collect declarations
             var declarations = new List<DeclaredSymbol>();
             var childScopes = new List<ScopeInfo>();
             var declarationVisitor = new DeclarationVisitor(namespaceProvider, features, targetScope, symbolContext, declarations, childScopes);
-            declarationVisitor.Visit(bicepFile.ProgramSyntax);
+            declarationVisitor.Visit(sourceFile.ProgramSyntax);
 
             return (declarations.ToImmutableArray(), childScopes.Select(MakeImmutable).ToImmutableArray());
         }
@@ -136,6 +136,14 @@ namespace Bicep.Core.Semantics
             }
 
             var symbol = new ImportedNamespaceSymbol(this.context, syntax.Name.IdentifierName, declaredType, syntax);
+            DeclareSymbol(symbol);
+        }
+
+        public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
+        {
+            base.VisitParameterAssignmentSyntax(syntax);
+
+            var symbol = new ParameterAssignmentSymbol(this.context, syntax.Name.IdentifierName, syntax);
             DeclareSymbol(symbol);
         }
 

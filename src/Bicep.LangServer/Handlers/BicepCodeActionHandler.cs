@@ -135,7 +135,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private static CommandOrCodeAction? DisableDiagnostic(DocumentUri documentUri,
             DiagnosticCode diagnosticCode,
-            BicepFile bicepFile,
+            BicepSourceFile bicepFile,
             TextSpan span,
             ImmutableArray<int> lineStarts)
         {

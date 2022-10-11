@@ -8,26 +8,19 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Workspaces
 {
-    public class BicepParamFile : IBicepSourceFile
+    public class BicepParamFile : BicepSourceFile
     {
         public BicepParamFile(Uri fileUri, ImmutableArray<int> lineStarts, ProgramSyntax programSyntax)
+            : base(lineStarts, programSyntax, fileUri)
         {
-            FileUri = fileUri;
-            LineStarts = lineStarts;
-            ProgramSyntax = programSyntax;
-            Hierarchy = new SyntaxHierarchy();
-            Hierarchy.AddRoot(ProgramSyntax);
-            DisabledDiagnosticsCache = new DisabledDiagnosticsCache(ProgramSyntax, lineStarts);
         }
 
-        public Uri FileUri { get; }
+        private BicepParamFile(BicepParamFile original) : base(original)
+        {
+        }
 
-        public ImmutableArray<int> LineStarts { get; }
+        public override BicepSourceFileKind FileKind => BicepSourceFileKind.ParamsFile;
 
-        public ProgramSyntax ProgramSyntax { get; }
-
-        public SyntaxHierarchy Hierarchy { get; }
-
-        public DisabledDiagnosticsCache DisabledDiagnosticsCache { get; }
+        public override BicepSourceFile ShallowClone() => new BicepParamFile(this);
     }
 }

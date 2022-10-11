@@ -26,11 +26,6 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
-        public virtual void VisitParamFileSymbol(ParamFileSymbol symbol)
-        {
-            VisitDescendants(symbol);
-        }
-
         public virtual void VisitParamAssignmentSymbol(ParameterAssignmentSymbol symbol)
         {
             VisitDescendants(symbol);

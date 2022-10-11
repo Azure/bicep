@@ -12,7 +12,7 @@ namespace Bicep.LanguageServer.Utils
 {
     public static class DiagnosticsHelper
     {
-        public static string GetDiagnosticsMessage(KeyValuePair<BicepFile, ImmutableArray<IDiagnostic>> diagnosticsByFile)
+        public static string GetDiagnosticsMessage(KeyValuePair<BicepSourceFile, ImmutableArray<IDiagnostic>> diagnosticsByFile)
         {
             StringBuilder sb = new StringBuilder();
             IReadOnlyList<int> lineStarts = diagnosticsByFile.Key.LineStarts;

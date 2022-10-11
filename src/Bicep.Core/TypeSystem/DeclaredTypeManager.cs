@@ -44,12 +44,15 @@ namespace Bicep.Core.TypeSystem
             {
                 case ImportDeclarationSyntax import:
                     return GetImportType(import);
-                
+
                 case MetadataDeclarationSyntax metadata:
                     return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(metadata.Value), metadata);
 
                 case ParameterDeclarationSyntax parameter:
                     return GetParameterType(parameter);
+
+                case ParameterAssignmentSyntax parameterAssignment:
+                    return GetParameterAssignmentType(parameterAssignment);
 
                 case ResourceDeclarationSyntax resource:
                     return GetResourceType(resource);
@@ -121,6 +124,46 @@ namespace Bicep.Core.TypeSystem
             declaredType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType());
 
             return new(declaredType, syntax);
+        }
+
+        private DeclaredTypeAssignment? GetParameterAssignmentType(ParameterAssignmentSyntax syntax)
+        {
+            if(GetDeclaredParameterAssignmentType(syntax) is { } declaredParamAssignmentType)
+            {
+                return new(declaredParamAssignmentType, syntax);
+            }
+
+            return null;
+        }
+
+        private TypeSymbol? GetDeclaredParameterAssignmentType(ParameterAssignmentSyntax syntax)
+        {
+            if (this.binder.GetSymbolInfo(syntax) is not ParameterAssignmentSymbol parameterAssignmentSymbol)
+            {
+                // no access to the compilation to get something better
+                return null;
+            }
+
+            if(!parameterAssignmentSymbol.Context.Compilation.GetEntrypointSemanticModel().Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out var failureDiagnostic))
+            {
+                // failed to resolve using
+                return failureDiagnostic is ErrorDiagnostic error
+                    ? ErrorType.Create(error)
+                    : null;
+            }
+
+            var parameterDeclarations = bicepSemanticModel.Root.ParameterDeclarations;
+
+            // TODO: Needs to be optimized
+            foreach (var parameterSymbol in parameterDeclarations)
+            {
+                if (LanguageConstants.IdentifierComparer.Equals(parameterSymbol.Name, parameterAssignmentSymbol.Name))
+                {
+                    return bicepSemanticModel.GetDeclaredType(parameterSymbol.DeclaringParameter);
+                }
+            }
+
+            return null;
         }
 
         private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax)

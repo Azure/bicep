@@ -83,18 +83,19 @@ namespace Bicep.LanguageServer.Completions
         }
 
 
-        public IEnumerable<CompletionItem> GetFilteredParamsCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
+        public IEnumerable<CompletionItem> GetFilteredParamsCompletions(Compilation compilation, ParamsCompletionContext paramsCompletionContext)
         {
+            var paramsSemanticModel = compilation.GetEntrypointSemanticModel();
+
             return GetParamIdentifierCompletions(paramsSemanticModel, paramsCompletionContext)
                   .Concat(GetParamAllowedValueCompletions(paramsSemanticModel, paramsCompletionContext))
                   .Concat(GetUsingDeclarationPathCompletions(paramsSemanticModel, paramsCompletionContext));
         }
 
-        private IEnumerable<CompletionItem> GetParamIdentifierCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
+        private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
         {
-            if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamIdentifier) && paramsSemanticModel.BicepCompilation is {} bicepCompilation)
+            if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamIdentifier) && paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
             {
-                var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
                 var bicepFileParamDeclarations = bicepSemanticModel.Root.ParameterDeclarations;
 
                 foreach(var declaration in bicepFileParamDeclarations)
@@ -106,15 +107,13 @@ namespace Bicep.LanguageServer.Completions
                 }
             }
 
-            bool IsParamAssigned(ParameterSymbol declaration) => paramsSemanticModel.ParamBinder.ParamFileSymbol.ParameterAssignmentSymbols.Any(paramDeclaration => paramDeclaration.Name == declaration.Name);
+            bool IsParamAssigned(ParameterSymbol declaration) => paramsSemanticModel.Binder.FileSymbol.ParameterAssignments.Any(paramDeclaration => paramDeclaration.Name == declaration.Name);
         }
 
-        private IEnumerable<CompletionItem> GetParamAllowedValueCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
+        private IEnumerable<CompletionItem> GetParamAllowedValueCompletions(SemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
         {
-
-            if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamValue) && paramsSemanticModel.BicepCompilation is {} bicepCompilation)
+            if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamValue) && paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
             {
-                var bicepSemanticModel = bicepCompilation.GetEntrypointSemanticModel();
                 var bicepFileParamDeclaration = bicepSemanticModel.Parameters.Where(parameterMetaData => parameterMetaData.Name == paramsCompletionContext.ParamAssignment).FirstOrDefault();
                 if(bicepFileParamDeclaration?.TypeReference.Type is UnionType union)
                 {
@@ -135,7 +134,7 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private IEnumerable<CompletionItem> GetUsingDeclarationPathCompletions(ParamsSemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
+        private IEnumerable<CompletionItem> GetUsingDeclarationPathCompletions(SemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
         {
             if (!paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.UsingFilePath))
             {
@@ -151,13 +150,13 @@ namespace Bicep.LanguageServer.Completions
 
 
              // These should only fail if we're not able to resolve cwd path or the entered string
-            if (TryGetFilesForPathCompletions(paramsSemanticModel.BicepParamFile.FileUri, entered) is not {} fileCompletionInfo)
+            if (TryGetFilesForPathCompletions(paramsSemanticModel.SourceFile.FileUri, entered) is not {} fileCompletionInfo)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
 
             // Prioritize .bicep files higher than other files.
-            var bicepFileItems = CreateFileCompletionItems(paramsSemanticModel.BicepParamFile.FileUri, paramsCompletionContext.ReplacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);
+            var bicepFileItems = CreateFileCompletionItems(paramsSemanticModel.SourceFile.FileUri, paramsCompletionContext.ReplacementRange, fileCompletionInfo, IsBicepFile, CompletionPriority.High);
             var dirItems = CreateDirectoryCompletionItems(paramsCompletionContext.ReplacementRange, fileCompletionInfo);
 
             return bicepFileItems.Concat(dirItems);
@@ -570,7 +569,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.EnclosingDeclaration is ParameterDeclarationSyntax parameterDeclarationSyntax)
             {
-                BicepFile bicepFile = compitation.SourceFileGrouping.EntryPoint;
+                var bicepFile = compitation.SourceFileGrouping.EntryPoint;
                 Range enclosingDeclarationRange = parameterDeclarationSyntax.Keyword.ToRange(bicepFile.LineStarts);
                 TextEdit textEdit = new TextEdit()
                 {
@@ -1315,7 +1314,7 @@ namespace Bicep.LanguageServer.Completions
                 .Build();
         }
 
-        private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, BicepFile tree, PropertyAccessSyntax propertyAccess, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, BicepSourceFile tree, PropertyAccessSyntax propertyAccess, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
         {
             var item = CompletionItemBuilder.Create(CompletionItemKind.Property, property.Name)
                 .WithCommitCharacters(PropertyAccessCommitChars)

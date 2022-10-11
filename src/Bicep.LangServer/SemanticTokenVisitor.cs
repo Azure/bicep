@@ -23,7 +23,7 @@ namespace Bicep.LanguageServer
             this.tokens = new List<(IPositionable, SemanticTokenType)>();
         }
 
-        public static void BuildSemanticTokens(SemanticTokensBuilder builder, BicepFile bicepFile)
+        public static void BuildSemanticTokens(SemanticTokensBuilder builder, BicepSourceFile bicepFile)
         {
             BuildSemanticTokens(builder, bicepFile.ProgramSyntax, bicepFile.LineStarts);
         }

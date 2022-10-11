@@ -68,7 +68,6 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepSignatureHelpHandler>()
                     .WithHandler<BicepSemanticTokensHandler>()
 
-                    .WithHandler<BicepParamsTextDocumentSyncHandler>()
                     .WithHandler<BicepParamsCompletionHandler>()
                     .WithHandler<BicepParamsDefinitionHandler>()
 
@@ -120,6 +119,7 @@ namespace Bicep.LanguageServer
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<ITelemetryProvider, TelemetryProvider>()
                 .AddSingleton<ICompilationManager, BicepCompilationManager>()
+                .AddSingleton<IFileLanguageTracker, FileLanguageTracker>()
                 .AddSingleton<ICompilationProvider, BicepCompilationProvider>()
                 .AddSingleton<ISymbolResolver, BicepSymbolResolver>()
                 .AddSingleton<ICompletionProvider, BicepCompletionProvider>()
@@ -129,8 +129,7 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>()
                 .AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>()
                 .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
-                .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>()
-                .AddSingleton<IParamsCompilationManager, BicepParamsCompilationManager>();
+                .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>();
         }
 
         public void Dispose()
