@@ -26,12 +26,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return string.Format(CoreResources.MaxNumberParametersRuleMessageFormat, values);
         }
 
-        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
             if (model.Root.ParameterDeclarations.Count() > MaxNumber)
             {
                 var firstItem = model.Root.ParameterDeclarations.First();
-                return new IDiagnostic[] { CreateDiagnosticForSpan(GetDiagnosticLevel(model), firstItem.NameSyntax.Span, MaxNumber) };
+                return new IDiagnostic[] { CreateDiagnosticForSpan(diagnosticLevel, firstItem.NameSyntax.Span, MaxNumber) };
             }
             return Enumerable.Empty<IDiagnostic>();
         }

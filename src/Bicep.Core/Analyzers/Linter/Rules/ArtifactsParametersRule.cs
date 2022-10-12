@@ -37,11 +37,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public override string FormatMessage(params object[] values)
             => string.Format((string)values[0]);
 
-        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
             var diagnostics = new List<IDiagnostic>();
 
-            var diagnosticLevel = GetDiagnosticLevel(model);
             diagnostics.AddRange(VerifyTopLevelParameters(model, diagnosticLevel));
             diagnostics.AddRange(VerifyModuleParameters(model, diagnosticLevel));
 

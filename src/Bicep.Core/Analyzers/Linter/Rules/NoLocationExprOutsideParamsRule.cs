@@ -25,9 +25,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public override string FormatMessage(params object[] values)
             => string.Format((string)values[0]);
 
-        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            RuleVisitor visitor = new(this, GetDiagnosticLevel(model));
+            RuleVisitor visitor = new(this, diagnosticLevel);
             visitor.Visit(model.SourceFile.ProgramSyntax);
             return visitor.diagnostics;
         }

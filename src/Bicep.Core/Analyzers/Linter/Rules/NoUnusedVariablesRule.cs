@@ -27,9 +27,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return string.Format(CoreResources.UnusedVariableRuleMessageFormat, values);
         }
 
-        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            var diagnosticLevel = GetDiagnosticLevel(model);
             // TODO: Performance: Use a visitor to visit VariableAccesssyntax and collects the non-error symbols into a list.
             // Then do a symbol visitor to go through all the symbols that exist and compare.
             // Same issue for unused-params rule.

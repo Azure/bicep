@@ -24,13 +24,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 
-        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
             var spanFixes = new Dictionary<TextSpan, CodeFix>();
             var visitor = new Visitor(spanFixes, model);
             visitor.Visit(model.SourceFile.ProgramSyntax);
 
-            var diagnosticLevel = GetDiagnosticLevel(model);
             return spanFixes.Select(kvp => CreateFixableDiagnosticForSpan(diagnosticLevel, kvp.Key, kvp.Value));
         }
 

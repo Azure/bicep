@@ -35,9 +35,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public override string FormatMessage(params object[] values)
             => string.Format(CoreResources.ProtectCommandToExecuteSecretsRuleMessage, (string)values[0]);
 
-        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel semanticModel)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel semanticModel, DiagnosticLevel diagnosticLevel)
         {
-            var diagnosticLevel = GetDiagnosticLevel(semanticModel);
             List<IDiagnostic> diagnostics = new();
 
             foreach (var resource in semanticModel.DeclaredResources.Where(r => r.IsAzResource))

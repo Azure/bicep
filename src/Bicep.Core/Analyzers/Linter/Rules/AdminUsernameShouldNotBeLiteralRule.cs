@@ -26,9 +26,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public override string FormatMessage(params object[] values)
             => string.Format("{0} Found literal string value \"{1}\"", this.Description, values.First());
 
-        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            var visitor = new ResourceVisitor(this, model, GetDiagnosticLevel(model));
+            var visitor = new ResourceVisitor(this, model, diagnosticLevel);
             visitor.Visit(model.SourceFile.ProgramSyntax);
             return visitor.diagnostics;
         }

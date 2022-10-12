@@ -26,7 +26,7 @@ namespace Bicep.Core.Analyzers.Linter
             this.Code = code;
             this.Description = description;
             this.Uri = docUri;
-            this.DiagnosticLevel = diagnosticLevel;
+            this.DefaultDiagnosticLevel = diagnosticLevel;
             this.DiagnosticStyling = diagnosticStyling;
         }
 
@@ -36,7 +36,7 @@ namespace Bicep.Core.Analyzers.Linter
 
         public readonly string RuleConfigSection = $"{LinterAnalyzer.AnalyzerName}.rules";
 
-        public DiagnosticLevel DiagnosticLevel { get; }
+        public DiagnosticLevel DefaultDiagnosticLevel { get; }
 
         public string Description { get; }
 
@@ -70,7 +70,7 @@ namespace Bicep.Core.Analyzers.Linter
                 return Enumerable.Empty<IDiagnostic>();
             }
 
-            return AnalyzeInternal(model);
+            return AnalyzeInternal(model, GetDiagnosticLevel(model));
         }
 
         /// <summary>
@@ -79,18 +79,18 @@ namespace Bicep.Core.Analyzers.Linter
         /// </summary>
         /// <param name="model"></param>
         /// <returns></returns>
-        public abstract IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model);
+        public abstract IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel);
 
         protected DiagnosticLevel GetDiagnosticLevel(SemanticModel model) => GetDiagnosticLevel(model.Configuration.Analyzers);
 
         protected DiagnosticLevel GetDiagnosticLevel(AnalyzersConfiguration configuration)
         {
-            if (GetConfigurationValue(configuration, "level", DiagnosticLevel.ToString()) is string configuredLevel && Enum.TryParse<DiagnosticLevel>(configuredLevel, true, out var parsed))
+            if (GetConfigurationValue(configuration, "level", DefaultDiagnosticLevel.ToString()) is string configuredLevel && Enum.TryParse<DiagnosticLevel>(configuredLevel, true, out var parsed))
             {
                 return parsed;
             }
 
-            return DiagnosticLevel;
+            return DefaultDiagnosticLevel;
         }
 
         /// <summary>

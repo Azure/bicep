@@ -27,14 +27,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public override string FormatMessage(params object[] values)
             => string.Format(CoreResources.NoUnnecessaryDependsOnRuleMessage, values.First());
 
-        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
             Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap =
                 new(
                     () => ResourceDependencyVisitor.GetResourceDependencies(
                         model,
                         new ResourceDependencyVisitor.Options { IgnoreExplicitDependsOn = true }));
-            var visitor = new ResourceVisitor(this, inferredDependenciesMap, model, GetDiagnosticLevel(model));
+            var visitor = new ResourceVisitor(this, inferredDependenciesMap, model, diagnosticLevel);
             visitor.Visit(model.SourceFile.ProgramSyntax);
             return visitor.diagnostics;
         }

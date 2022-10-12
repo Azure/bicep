@@ -47,9 +47,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return string.Format(CoreResources.SecretsInParamsRule_MessageFormat, paramName);
         }
 
-        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            var diagnosticLevel = GetDiagnosticLevel(model);
             foreach (var param in model.Root.ParameterDeclarations)
             {
                 if (!param.IsSecure())

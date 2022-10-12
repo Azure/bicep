@@ -26,9 +26,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return string.Format(CoreResources.ParameterMustBeUsedRuleMessageFormat, values);
         }
 
-        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            var diagnosticLevel = GetDiagnosticLevel(model);
             // VariableAccessSyntax indicates a reference to the parameter
             var unreferencedParams = model.Root.ParameterDeclarations
                 .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any())

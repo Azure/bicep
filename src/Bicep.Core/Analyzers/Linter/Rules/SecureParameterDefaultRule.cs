@@ -21,9 +21,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 
-        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            var diagnosticLevel = GetDiagnosticLevel(model);
             var defaultValueSyntaxes = model.Root.ParameterDeclarations.Where(p => p.IsSecure())
                 .Select(p => p.DeclaringParameter.Modifier as ParameterDefaultValueSyntax)
                 .OfType<ParameterDefaultValueSyntax>(); // this eliminates nulls (when there's no default value)

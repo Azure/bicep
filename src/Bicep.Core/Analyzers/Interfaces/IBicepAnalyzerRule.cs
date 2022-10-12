@@ -25,7 +25,7 @@ namespace Bicep.Core.Analyzers.Interfaces
 
         string Description { get; }
 
-        DiagnosticLevel DiagnosticLevel { get; }
+        DiagnosticLevel DefaultDiagnosticLevel { get; }
 
         DiagnosticStyling DiagnosticStyling { get; }
 

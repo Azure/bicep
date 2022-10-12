@@ -21,9 +21,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 
-        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            var diagnosticLevel = GetDiagnosticLevel(model);
             foreach (var resource in model.DeclaredResources)
             {
                 foreach (var identifier in resource.Type.UniqueIdentifierProperties)

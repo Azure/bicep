@@ -37,9 +37,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return $"{problem} {CoreResources.SecureParamsInNestedDeployRule_Solution}";
         }
 
-        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+        override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            var diagnosticLevel = GetDiagnosticLevel(model);
             foreach (ResourceSymbol resource in model.Root.ResourceDeclarations)
             {
                 if (GetPropertiesIfOuterScopedDeployment(resource) is ObjectSyntax propertiesObject)

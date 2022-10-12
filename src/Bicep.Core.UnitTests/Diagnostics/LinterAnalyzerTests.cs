@@ -77,7 +77,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         {
             var analyzer = new LinterAnalyzer();
             var ruleSet = analyzer.GetRuleSet();
-            var numberEnabled = ruleSet.Where(r => r.DiagnosticLevel != DiagnosticLevel.Off).Count();
+            var numberEnabled = ruleSet.Where(r => r.DefaultDiagnosticLevel != DiagnosticLevel.Off).Count();
             numberEnabled.Should().BeGreaterThan(ruleSet.Count() / 2, "most rules should probably be enabled by default");
         }
 
@@ -93,12 +93,12 @@ namespace Bicep.Core.UnitTests.Diagnostics
         {
             public LinterThrowsTestRule() : base("ThrowsRule", "Throws an exception when used", null, DiagnosticLevel.Warning) { }
 
-            public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
+            public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
             {
                 // Have a yield return to force this method to return an iterator like the real rules
                 yield return new AnalyzerDiagnostic(this.AnalyzerName,
                                                     TextSpan.TextDocumentStart,
-                                                    DiagnosticLevel.Warning,
+                                                    diagnosticLevel,
                                                     "fakeRule",
                                                     "Fake Rule",
                                                     null);
