@@ -70,17 +70,6 @@ namespace Bicep.Cli {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to WARNING: Decompilation is a best-effort process, as there is no guaranteed mapping from ARM JSON to Bicep.
-        ///You may need to fix warnings and errors in the generated bicep file(s), or decompilation may fail entirely if an accurate conversion is not possible.
-        ///If you would like to report any issues or inaccurate conversions, please see https://github.com/Azure/bicep/issues..
-        /// </summary>
-        internal static string DecompilerDisclaimerMessage {
-            get {
-                return ResourceManager.GetString("DecompilerDisclaimerMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The specified output directory &quot;{0}&quot; does not exist..
         /// </summary>
         internal static string DirectoryDoesNotExistFormat {

@@ -82,9 +82,10 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepBuildCommandHandler>()
                     .WithHandler<BicepGenerateParamsCommandHandler>()
                     .WithHandler<BicepDeploymentStartCommandHandler>()
-                    // Base handler - ExecuteTypedResponseCommandHandlerBase is serial. This blocks other commands on the client side.
+                    // Base handler (ExecuteTypedResponseCommandHandlerBase) is serial. This blocks other commands on the client side.
                     // To avoid the above issue, we'll change the RequestProcessType to parallel
                     .WithHandler<BicepDeploymentWaitForCompletionCommandHandler>(new JsonRpcHandlerOptions() { RequestProcessType = RequestProcessType.Parallel })
+                    .WithHandler<BicepDecompileCommandHandler>(new JsonRpcHandlerOptions() { RequestProcessType = RequestProcessType.Parallel /* avoid blocking other commands */ })
                     .WithHandler<BicepDeploymentScopeRequestHandler>()
                     .WithHandler<BicepDeploymentParametersHandler>()
                     .WithHandler<ImportKubernetesManifestHandler>()

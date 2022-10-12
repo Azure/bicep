@@ -34,6 +34,8 @@ namespace Bicep.Decompiler
         private readonly IConfigurationManager configurationManager;
         private readonly ApiVersionProvider apiVersionProvider = new ApiVersionProvider();
 
+        public static string DecompilerDisclaimerMessage => DecompilerResources.DecompilerDisclaimerMessage;
+
         public TemplateDecompiler(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider, IConfigurationManager configurationManager)
         {
             this.features = features;

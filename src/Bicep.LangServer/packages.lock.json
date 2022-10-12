@@ -1890,6 +1890,14 @@
           "System.Collections.Immutable": "[6.0.0, )",
           "System.IO.Abstractions": "[17.2.3, )"
         }
+      },
+      "Azure.Bicep.Decompiler": {
+        "type": "Project",
+        "dependencies": {
+          "Azure.Bicep.Core": "[1.0.0, )",
+          "Newtonsoft.Json": "[13.0.1, )",
+          "System.Collections.Immutable": "[6.0.0, )"
+        }
       }
     },
     "net6.0/linux-arm64": {

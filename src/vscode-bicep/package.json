@@ -37,6 +37,7 @@
   "activationEvents": [
     "onLanguage:bicep",
     "onCommand:bicep.build",
+    "onCommand:bicep.decompile",
     "onCommand:bicep.generateParams",
     "onCommand:bicep.createConfigFile",
     "onCommand:bicep.deploy",
@@ -160,6 +161,14 @@
         "icon": "$(output)"
       },
       {
+        "command": "bicep.decompile",
+        "title": "Decompile into Bicep",
+        "category": "Bicep",
+        "enablement": "!bicep.cannotDecompile || !editorFocus",
+        "$comment1": "Intentionally enabling this command when the language server has not yet been loaded, otherwise we must be loaded for all JSON files. If user selects the command when the JSON file is not an ARM template, it will load then give a meaningful error",
+        "$comment2": "Also keeping it enabled when the editor doesn't have focus, to allow command to appear enabled on e.g. right-clicking in explorer"
+      },
+      {
         "command": "bicep.generateParams",
         "title": "Generate Parameters File",
         "category": "Bicep",
@@ -234,6 +243,12 @@
         "key": "ctrl+k i",
         "mac": "cmd+k i",
         "when": "resourceLangId == bicep"
+      },
+      {
+        "command": "bicep.decompile",
+        "key": "ctrl+b d",
+        "mac": "cmd+b d",
+        "when": "editorFocus && (resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template)"
       }
     ],
     "menus": {
@@ -290,6 +305,11 @@
           "command": "bicep.showVisualizerToSide",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_3_visualize"
+        },
+        {
+          "command": "bicep.decompile",
+          "when": "resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template",
+          "group": "9_bicep_in_json"
         }
       ],
       "editor/title/context": [
@@ -327,6 +347,11 @@
           "command": "bicep.showVisualizerToSide",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_3_visualize"
+        },
+        {
+          "command": "bicep.decompile",
+          "when": "resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template",
+          "group": "9_bicep_in_json"
         }
       ],
       "editor/context": [
@@ -364,6 +389,11 @@
           "command": "bicep.showVisualizerToSide",
           "when": "resourceLangId == bicep",
           "group": "2_bicep_3_visualize"
+        },
+        {
+          "command": "bicep.decompile",
+          "when": "resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template",
+          "group": "9_bicep_in_json"
         }
       ],
       "commandPalette": [

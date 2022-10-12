@@ -113,7 +113,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (clientCapabilitiesProvider.DoesClientSupportShowDocumentRequest())
             {
-                // Add "Edit <rule> in bicep.config" for all linter failures
+                // Add "Edit <rule> in bicepconfig.json" for all linter failures
                 var editLinterRuleActions = diagnostics
                     .Where(analyzerDiagnostic =>
                         analyzerDiagnostic.Span.ContainsInclusive(requestStartOffset) ||

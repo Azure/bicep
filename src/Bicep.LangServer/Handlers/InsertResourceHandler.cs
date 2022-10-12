@@ -59,7 +59,7 @@ namespace Bicep.LanguageServer.Handlers
             this.compilationManager = compilationManager;
             this.azResourceProvider = azResourceProvider;
             this.azResourceTypeLoader = azResourceTypeLoader;
-            this.helper = new TelemetryAndErrorHandlingHelper<Unit>(server.Window, telemetryProvider, Unit.Value);
+            this.helper = new TelemetryAndErrorHandlingHelper<Unit>(server.Window, telemetryProvider);
         }
 
         public Task<Unit> Handle(InsertResourceParams request, CancellationToken cancellationToken)
@@ -72,9 +72,10 @@ namespace Bicep.LanguageServer.Handlers
 
                 if (TryParseResourceId(request.ResourceId) is not { } resourceId)
                 {
-                    throw new TelemetryAndErrorHandlingException(
+                    throw helper.CreateException(
                         $"Failed to parse supplied resourceId \"{request.ResourceId}\".",
-                        BicepTelemetryEvent.InsertResourceFailure("ParseResourceIdFailed"));
+                        BicepTelemetryEvent.InsertResourceFailure("ParseResourceIdFailed"),
+                        Unit.Value);
                 }
 
                 var matchedType = azResourceTypeLoader.GetAvailableTypes()
@@ -84,9 +85,10 @@ namespace Bicep.LanguageServer.Handlers
 
                 if (matchedType is null || matchedType.ApiVersion is null)
                 {
-                    throw new TelemetryAndErrorHandlingException(
+                    throw helper.CreateException(
                         $"Failed to find a Bicep type definition for resource of type \"{resourceId.FullyQualifiedType}\".",
-                        BicepTelemetryEvent.InsertResourceFailure($"MissingType({resourceId.FullyQualifiedType})"));
+                        BicepTelemetryEvent.InsertResourceFailure($"MissingType({resourceId.FullyQualifiedType})"),
+                        Unit.Value);
                 }
 
                 JsonElement? resource = null;
@@ -122,9 +124,10 @@ namespace Bicep.LanguageServer.Handlers
                 {
                     Trace.WriteLine($"Failed to fetch resource '{resourceId}' without API version: {exception}");
 
-                    throw new TelemetryAndErrorHandlingException(
+                    throw helper.CreateException(
                         $"Caught exception fetching resource: {exception.Message}.",
-                        BicepTelemetryEvent.InsertResourceFailure($"FetchResourceFailure"));
+                        BicepTelemetryEvent.InsertResourceFailure($"FetchResourceFailure"),
+                        Unit.Value);
                 }
 
                 var resourceDeclaration = CreateResourceSyntax(resource.Value, resourceId, matchedType);

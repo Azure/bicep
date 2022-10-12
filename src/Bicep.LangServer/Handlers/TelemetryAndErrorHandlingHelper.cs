@@ -8,31 +8,35 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class TelemetryAndErrorHandlingException : Exception
-    {
-        public BicepTelemetryEvent TelemetryEvent { get; }
-
-        public TelemetryAndErrorHandlingException(string message, BicepTelemetryEvent telemetryEvent)
-            : base(message)
-        {
-            TelemetryEvent = telemetryEvent;
-        }
-    }
-
     public class TelemetryAndErrorHandlingHelper<T>
     {
         private readonly IWindowLanguageServer window;
         private readonly ITelemetryProvider telemetryProvider;
-        private readonly T errorResponse;
+
+        public class TelemetryAndErrorHandlingException : Exception
+        {
+            public BicepTelemetryEvent TelemetryEvent { get; }
+            public T ErrorResponse { get; }
+
+            public TelemetryAndErrorHandlingException(string message, BicepTelemetryEvent telemetryEvent, T errorResponse)
+                : base(message)
+            {
+                TelemetryEvent = telemetryEvent;
+                ErrorResponse = errorResponse;
+            }
+        }
 
         public TelemetryAndErrorHandlingHelper(
             IWindowLanguageServer window,
-            ITelemetryProvider telemetryProvider,
-            T errorResponse)
+            ITelemetryProvider telemetryProvider)
         {
             this.window = window;
             this.telemetryProvider = telemetryProvider;
-            this.errorResponse = errorResponse;
+        }
+
+        public TelemetryAndErrorHandlingException CreateException(string message, BicepTelemetryEvent telemetryEvent, T errorResponse)
+        {
+            return new TelemetryAndErrorHandlingException(message, telemetryEvent, errorResponse);
         }
 
         public async Task<T> ExecuteWithTelemetryAndErrorHandling(Func<Task<(T result, BicepTelemetryEvent? successTelemetry)>> executeFunc)
@@ -52,7 +56,7 @@ namespace Bicep.LanguageServer.Handlers
                 window.ShowError(ex.Message);
                 telemetryProvider.PostEvent(ex.TelemetryEvent);
 
-                return errorResponse;
+                return ex.ErrorResponse;
             }
             catch (Exception ex)
             {

@@ -1,18 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { TextEditor, Uri, window } from "vscode";
-import path from "path";
+import { } from "fs";
 import fse from "fs-extra";
-import os from "os";
+import path from "path";
+import { TextEditor, Uri, window } from "vscode";
+import { createUniqueTempFolder } from "../utils/createUniqueTempFolder";
+import { normalizeMultilineString } from "../utils/normalizeMultilineString";
+import { testScope } from "../utils/testScope";
 import {
   executeCloseAllEditors,
-  executeCreateConfigFileCommand,
+  executeCreateConfigFileCommand
 } from "./commands";
-import {} from "fs";
-import { testScope } from "../utils/testScope";
 import { expectedNewConfigFileContents } from "./expectedNewConfigFileContents";
-import { normalizeMultilineString } from "../utils/normalizeMultilineString";
 
 describe("bicep.createConfigFile", (): void => {
   afterEach(async () => {
@@ -121,12 +121,3 @@ describe("bicep.createConfigFile", (): void => {
     return !!contents.match(pattern);
   }
 });
-
-function createUniqueTempFolder(filenamePrefix: string): string {
-  const tempFolder = os.tmpdir();
-  if (!fse.existsSync(tempFolder)) {
-    fse.mkdirSync(tempFolder, { recursive: true });
-  }
-
-  return fse.mkdtempSync(path.join(tempFolder, filenamePrefix));
-}

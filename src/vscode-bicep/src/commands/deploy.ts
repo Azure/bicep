@@ -1,17 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import * as fse from "fs-extra";
-import * as path from "path";
-import vscode, { commands, Uri } from "vscode";
 import { AccessToken } from "@azure/identity";
-import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
-import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
-import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
-import { Command } from "./types";
-import { localize } from "../utils/localize";
-import { LocationTreeItem } from "../tree/LocationTreeItem";
-import { OutputChannelManager } from "../utils/OutputChannelManager";
-import { TreeManager } from "../tree/TreeManager";
 import {
   AzExtTreeDataProvider,
   IActionContext,
@@ -19,6 +8,13 @@ import {
   ISubscriptionContext,
   parseError,
 } from "@microsoft/vscode-azext-utils";
+import * as fse from "fs-extra";
+import * as path from "path";
+import vscode, { commands, Uri } from "vscode";
+import {
+  LanguageClient,
+  TextDocumentIdentifier,
+} from "vscode-languageclient/node";
 import {
   BicepDeploymentParametersResponse,
   BicepDeploymentScopeParams,
@@ -29,13 +25,17 @@ import {
   BicepUpdatedDeploymentParameter,
   ParametersFileUpdateOption,
 } from "../language";
-import {
-  LanguageClient,
-  TextDocumentIdentifier,
-} from "vscode-languageclient/node";
-import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
-import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
+import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
+import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
+import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
+import { LocationTreeItem } from "../tree/LocationTreeItem";
+import { TreeManager } from "../tree/TreeManager";
 import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
+import { localize } from "../utils/localize";
+import { OutputChannelManager } from "../utils/OutputChannelManager";
+import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
+import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
+import { Command } from "./types";
 
 export class DeployCommand implements Command {
   private _none = localize("none", "$(circle-slash) None");

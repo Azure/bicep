@@ -19,3 +19,7 @@ export function debounce<T extends (...args: never[]) => void>(
     timeout = setTimeout(callback, ms);
   };
 }
+
+export function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

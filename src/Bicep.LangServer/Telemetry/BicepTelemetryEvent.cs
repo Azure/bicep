@@ -7,15 +7,15 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Telemetry
 {
+    public static class EventResult
+    {
+        public const string Succeeded = "Succeeded";
+        public const string Canceled = "Canceled";
+        public const string Failed = "Failed";
+    }
+
     public record BicepTelemetryEvent : TelemetryEventParams
     {
-        public static class Result
-        {
-            public const string Succeeded = "Succeeded";
-            public const string Canceled = "Canceled";
-            public const string Failed = "Failed";
-        }
-
         public string EventName { get; private set; }
 
         public Dictionary<string, string> Properties { get; private set; }
@@ -84,7 +84,7 @@ namespace Bicep.LanguageServer.Telemetry
         public static BicepTelemetryEvent InsertResourceSuccess(string resourceType, string apiVersion)
             => new BicepTelemetryEvent
             (
-                eventName:  "InsertResource/success",
+                eventName: "InsertResource/success",
                 properties: new()
                 {
                     ["resourceType"] = resourceType,
@@ -95,7 +95,7 @@ namespace Bicep.LanguageServer.Telemetry
         public static BicepTelemetryEvent InsertResourceFailure(string failureType)
             => new BicepTelemetryEvent
             (
-                eventName:  "InsertResource/failure",
+                eventName: "InsertResource/failure",
                 properties: new()
                 {
                     ["failureType"] = failureType,
@@ -105,7 +105,7 @@ namespace Bicep.LanguageServer.Telemetry
         public static BicepTelemetryEvent ImportKubernetesManifestSuccess()
             => new BicepTelemetryEvent
             (
-                eventName:  "ImportKubernetesManifest/success",
+                eventName: "ImportKubernetesManifest/success",
                 properties: new()
                 {
                     // Properties has to contain some data
@@ -116,7 +116,7 @@ namespace Bicep.LanguageServer.Telemetry
         public static BicepTelemetryEvent ImportKubernetesManifestFailure(string failureType)
             => new BicepTelemetryEvent
             (
-                eventName:  "ImportKubernetesManifest/failure",
+                eventName: "ImportKubernetesManifest/failure",
                 properties: new()
                 {
                     ["failureType"] = failureType,
@@ -126,7 +126,7 @@ namespace Bicep.LanguageServer.Telemetry
         public static BicepTelemetryEvent CreateDisableNextLineDiagnostics(string code)
             => new BicepTelemetryEvent
             (
-                eventName:  TelemetryConstants.EventNames.DisableNextLineDiagnostics,
+                eventName: TelemetryConstants.EventNames.DisableNextLineDiagnostics,
                 properties: new()
                 {
                     ["code"] = code,
@@ -136,14 +136,14 @@ namespace Bicep.LanguageServer.Telemetry
         public static BicepTelemetryEvent EditLinterRule(string code, bool newConfigFile, bool newRuleAdded, string? error)
             => new BicepTelemetryEvent
             (
-                eventName:  TelemetryConstants.EventNames.EditLinterRule,
+                eventName: TelemetryConstants.EventNames.EditLinterRule,
                 properties: new()
                 {
                     ["code"] = code,
                     ["newConfigFile"] = ToTrueFalse(newConfigFile),
                     ["newRuleAdded"] = ToTrueFalse(newRuleAdded),
                     ["error"] = error ?? string.Empty,
-                    ["result"] = error == null ? Result.Succeeded : Result.Failed,
+                    ["result"] = error == null ? EventResult.Succeeded : EventResult.Failed,
                 }
             );
 
@@ -162,7 +162,7 @@ namespace Bicep.LanguageServer.Telemetry
         public static BicepTelemetryEvent CreateOverallLinterStateChangeInBicepConfig(string prevState, string curState)
             => new BicepTelemetryEvent
             (
-                eventName:  TelemetryConstants.EventNames.LinterCoreEnabledStateChange,
+                eventName: TelemetryConstants.EventNames.LinterCoreEnabledStateChange,
                 properties: new()
                 {
                     ["previousState"] = prevState,
@@ -173,14 +173,14 @@ namespace Bicep.LanguageServer.Telemetry
         public static BicepTelemetryEvent CreateLinterStateOnBicepFileOpen(Dictionary<string, string> properties)
             => new BicepTelemetryEvent
             (
-                eventName:  TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen,
+                eventName: TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen,
                 properties: properties
             );
 
         public static BicepTelemetryEvent CreateBicepFileOpen(Dictionary<string, string> properties)
             => new BicepTelemetryEvent
             (
-                eventName:  TelemetryConstants.EventNames.BicepFileOpen,
+                eventName: TelemetryConstants.EventNames.BicepFileOpen,
                 properties: properties
             );
 
@@ -201,7 +201,29 @@ namespace Bicep.LanguageServer.Telemetry
                 properties: new()
                 {
                     ["deployId"] = deployId,
-                    ["result"] = isSuccess ? Result.Succeeded : Result.Failed
+                    ["result"] = isSuccess ? EventResult.Succeeded : EventResult.Failed
+                }
+            );
+
+        public static BicepTelemetryEvent DecompileSuccess(int countOutputFiles, int countConflictingFiles, bool overwrite)
+            => new BicepTelemetryEvent
+            (
+                eventName: "decompile/success",
+                properties: new()
+                {
+                    ["countOutputFiles"] = countOutputFiles.ToString(),
+                    ["countConflictingFiles"] = countConflictingFiles.ToString(),
+                    ["overwrite"] = ToTrueFalse(overwrite),
+                }
+            );
+
+        public static BicepTelemetryEvent DecompileFailure(string failureType)
+            => new BicepTelemetryEvent
+            (
+                eventName: "decompile/failure",
+                properties: new()
+                {
+                    ["failureType"] = failureType,
                 }
             );
 
