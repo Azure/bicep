@@ -16,7 +16,7 @@ namespace Bicep.Core.Emit
         private enum VisitedElement
         {
             Module,
-            ModuleParams
+            ModuleParams,
         }
 
         private readonly SemanticModel semanticModel;
@@ -83,7 +83,7 @@ namespace Bicep.Core.Emit
             if (semanticModel.GetSymbolInfo(syntax) is FunctionSymbol functionSymbol && functionSymbol.FunctionFlags.HasFlag(FunctionFlags.ModuleSecureParameterOnly))
             {
                 // we can check placement only for funtions that were matched and has a proper placement flag
-                var (_, levelUpSymbol) = syntaxRecorder.Skip(1).FirstOrDefault();
+                var (_, levelUpSymbol) = syntaxRecorder.Skip(1).SkipWhile(x => x.syntax is TernaryOperationSyntax).FirstOrDefault();
                 if (!(elementsRecorder.TryPeek(out var head) && head == VisitedElement.ModuleParams)
                     || levelUpSymbol is not PropertySymbol propertySymbol
                     || !propertySymbol.Type.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsSecure))

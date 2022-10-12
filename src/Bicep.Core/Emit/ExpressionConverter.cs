@@ -7,12 +7,14 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
+using Azure.Deployments.Expression.Serializers;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
@@ -41,6 +43,60 @@ namespace Bicep.Core.Emit
             return new(this.context, this.localReplacements.SetItem(symbol, replacement));
         }
 
+        public LanguageExpression ConvertModuleParameterTernaryExpression(TernaryOperationSyntax ternary)
+        {
+            LanguageExpression ConvertParameter(SyntaxBase syntax)
+            {
+                return syntax switch
+                {
+                    TernaryOperationSyntax innerTernary => ConvertModuleParameterTernaryExpression(innerTernary),
+                    InstanceFunctionCallSyntax instanceFunctionCall when string.Equals(instanceFunctionCall.Name.IdentifierName, "getSecret", LanguageConstants.IdentifierComparison) => ConvertGetSecretFunctionCall(instanceFunctionCall),
+                    _ => GetCreateObjectExpression(new JTokenExpression("value"), ConvertExpression(syntax))
+                };
+            }
+
+            return CreateFunction(
+                "if",
+                ConvertExpression(ternary.ConditionExpression),
+                ConvertParameter(ternary.TrueExpression),
+                ConvertParameter(ternary.FalseExpression));
+        }
+
+        private LanguageExpression ConvertGetSecretFunctionCall(InstanceFunctionCallSyntax instanceFunctionCallSyntax)
+        {
+            var (baseSyntax, _) = SyntaxHelper.UnwrapArrayAccessSyntax(instanceFunctionCallSyntax.BaseExpression);
+
+            if (context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax) is not { } resource ||
+                !StringComparer.OrdinalIgnoreCase.Equals(resource.TypeReference.FormatType(), AzResourceTypeProvider.ResourceTypeKeyVault))
+            {
+                throw new InvalidOperationException("Cannot emit parameter's KeyVault secret reference.");
+            }
+
+            var keyVaultId = instanceFunctionCallSyntax.BaseExpression switch
+            {
+                ArrayAccessSyntax arrayAccessSyntax when resource is DeclaredResourceMetadata declared =>
+                    CreateConverterForIndexReplacement(declared.NameSyntax, arrayAccessSyntax.IndexExpression, instanceFunctionCallSyntax)
+                    .GetFullyQualifiedResourceId(resource),
+                _ => GetFullyQualifiedResourceId(resource)
+            };
+
+            if (instanceFunctionCallSyntax.Arguments.Count() > 1)
+            {
+                return GetCreateObjectExpression(
+                    new JTokenExpression("reference"), GetCreateObjectExpression(
+                        new JTokenExpression("keyVault"), GetCreateObjectExpression(new JTokenExpression("id"), keyVaultId),
+                        new JTokenExpression("secretName"), ConvertExpression(instanceFunctionCallSyntax.GetArgumentByPosition(0).Expression),
+                        new JTokenExpression("secretVersion"), ConvertExpression(instanceFunctionCallSyntax.GetArgumentByPosition(1).Expression)
+                    )
+                );
+            }
+            return GetCreateObjectExpression(
+                new JTokenExpression("reference"), GetCreateObjectExpression(
+                    new JTokenExpression("keyVault"), GetCreateObjectExpression(new JTokenExpression("id"), keyVaultId),
+                    new JTokenExpression("secretName"), ConvertExpression(instanceFunctionCallSyntax.GetArgumentByPosition(0).Expression)
+                    )
+            );
+        }
         /// <summary>
         /// Converts the specified bicep expression tree into an ARM template expression tree.
         /// The returned tree may be rooted at either a function expression or jtoken expression.
@@ -855,7 +911,8 @@ namespace Bicep.Core.Emit
             }
 
             var enclosingSyntax = GetEnclosingDeclaringSyntax(localVariableSymbol);
-            switch (enclosingSyntax) {
+            switch (enclosingSyntax)
+            {
                 case ForSyntax @for:
                     return GetLoopVariableExpression(localVariableSymbol, @for, CreateCopyIndexFunction(@for));
                 case LambdaSyntax lambda:
