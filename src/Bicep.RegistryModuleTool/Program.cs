@@ -22,23 +22,25 @@ namespace Bicep.RegistryModuleTool
 {
     public class Program
     {
-        public static Task<int> Main(string[] args) => CreateCommandLineBuilder()
-            .UseHost(Host.CreateDefaultBuilder, ConfigureHost)
-            .UseDefaults()
-            .UseVerboseOption()
-            .UseVersionOption()
-            .Build()
-            .InvokeAsync(args);
+        public static Task<int> Main(string[] args) => CreateParser().InvokeAsync(args);
 
-        private static CommandLineBuilder CreateCommandLineBuilder()
+        private static Parser CreateParser()
         {
             var rootCommand = new RootCommand("Bicep registry module tool")
                 .AddSubcommand(new ValidateCommand())
                 .AddSubcommand(new GenerateCommand());
 
-            rootCommand.Handler = CommandHandler.Create(() => rootCommand.Invoke("-h"));
+            var parser = new CommandLineBuilder(rootCommand)
+                .UseHost(Host.CreateDefaultBuilder, ConfigureHost)
+                .UseDefaults()
+                .UseVerboseOption()
+                .Build();
 
-            return new(rootCommand);
+            // Have to use parser.Invoke instead of rootCommand.Invoke due to the
+            // System.CommandLine bug: https://github.com/dotnet/command-line-api/issues/1691.
+            rootCommand.Handler = CommandHandler.Create(() => parser.Invoke("-h"));
+
+            return parser;
         }
 
         private static void ConfigureHost(IHostBuilder builder) => builder
