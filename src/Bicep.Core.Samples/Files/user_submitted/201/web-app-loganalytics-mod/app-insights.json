@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13415136452678460192"
+      "templateHash": "9847526936443091703"
     }
   },
   "parameters": {
@@ -43,7 +43,7 @@
   "outputs": {
     "APPINSIGHTS_INSTRUMENTATIONKEY": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName'))).InstrumentationKey]"
+      "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName')), '2020-02-02-preview').InstrumentationKey]"
     }
   }
 }

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1246647204480210469"
+      "templateHash": "5090156930551489182"
     }
   },
   "parameters": {
@@ -90,11 +90,11 @@
             },
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[reference(resourceId('Microsoft.Insights/components', format('{0}-ai', variables('componentBase')))).InstrumentationKey]"
+              "value": "[reference(resourceId('Microsoft.Insights/components', format('{0}-ai', variables('componentBase'))), '2015-05-01').InstrumentationKey]"
             },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-              "value": "[format('InstrumentationKey={0}', reference(resourceId('Microsoft.Insights/components', format('{0}-ai', variables('componentBase')))).InstrumentationKey)]"
+              "value": "[format('InstrumentationKey={0}', reference(resourceId('Microsoft.Insights/components', format('{0}-ai', variables('componentBase'))), '2015-05-01').InstrumentationKey)]"
             },
             {
               "name": "AzureWebJobsStorage",
@@ -126,7 +126,7 @@
         "TXTRecords": [
           {
             "value": [
-              "[format('{0}', reference(resourceId('Microsoft.Web/sites', format('{0}-functionapp', variables('componentBase')))).customDomainVerificationId)]"
+              "[format('{0}', reference(resourceId('Microsoft.Web/sites', format('{0}-functionapp', variables('componentBase'))), '2020-06-01').customDomainVerificationId)]"
             ]
           }
         ]
@@ -196,7 +196,7 @@
             "value": "[format('{0}', format('{0}.{1}', parameters('applicationName'), parameters('dnsZone')))]"
           },
           "certificateThumbprint": {
-            "value": "[reference(resourceId('Microsoft.Web/certificates', format('{0}.{1}', parameters('applicationName'), parameters('dnsZone')))).thumbprint]"
+            "value": "[reference(resourceId('Microsoft.Web/certificates', format('{0}.{1}', parameters('applicationName'), parameters('dnsZone'))), '2020-06-01').thumbprint]"
           }
         },
         "template": {

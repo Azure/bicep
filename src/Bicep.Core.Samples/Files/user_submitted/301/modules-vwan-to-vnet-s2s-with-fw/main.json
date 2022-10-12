@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12160546872956632991"
+      "templateHash": "17070701769985672199"
     }
   },
   "parameters": {
@@ -107,7 +107,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6169687425211550359"
+              "templateHash": "3745439856706238497"
             }
           },
           "parameters": {
@@ -316,11 +316,11 @@
             },
             "subnets": {
               "type": "array",
-              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).subnets]"
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2020-05-01').subnets]"
             },
             "vnetaddress": {
               "type": "array",
-              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).addressSpace.addressPrefixes]"
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2020-05-01').addressSpace.addressPrefixes]"
             }
           }
         }
@@ -363,7 +363,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7888079620585144668"
+              "templateHash": "9355385094073877227"
             }
           },
           "parameters": {
@@ -448,15 +448,15 @@
             },
             "vpngwip": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('vpngwpipname'))).ipAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('vpngwpipname')), '2020-06-01').ipAddress]"
             },
             "vpngwbgpaddress": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname'))).bgpSettings.bgpPeeringAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname')), '2020-06-01').bgpSettings.bgpPeeringAddress]"
             },
             "bgpasn": {
               "type": "int",
-              "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname'))).bgpSettings.asn]"
+              "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname')), '2020-06-01').bgpSettings.asn]"
             }
           }
         }
@@ -1005,7 +1005,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6267441064966571983"
+              "templateHash": "15694398023338821197"
             }
           },
           "parameters": {
@@ -1055,7 +1055,7 @@
             },
             "vhubaddress": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Network/virtualHubs', parameters('hubname'))).addressPrefix]"
+              "value": "[reference(resourceId('Microsoft.Network/virtualHubs', parameters('hubname')), '2020-06-01').addressPrefix]"
             }
           }
         }
@@ -1419,7 +1419,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10469250134169586077"
+              "templateHash": "16630818117462838473"
             }
           },
           "parameters": {
@@ -1470,15 +1470,15 @@
             },
             "gwpublicip": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname'))).ipConfigurations[0].publicIpAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname')), '2020-06-01').ipConfigurations[0].publicIpAddress]"
             },
             "gwprivateip": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname'))).ipConfigurations[0].privateIpAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname')), '2020-06-01').ipConfigurations[0].privateIpAddress]"
             },
             "bgpasn": {
               "type": "int",
-              "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname'))).bgpSettings.asn]"
+              "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname')), '2020-06-01').bgpSettings.asn]"
             }
           }
         }

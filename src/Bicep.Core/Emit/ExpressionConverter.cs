@@ -815,16 +815,10 @@ namespace Bicep.Core.Emit
                     new JTokenExpression("full"));
             }
 
-            var shouldIncludeApiVersion =
-                !context.Settings.EnableSymbolicNames &&
-                (resource.IsExistingResource ||
-                (resource is DeclaredResourceMetadata { Symbol.DeclaringResource: var declaringResource } && declaringResource.HasCondition()));
-
-            if (shouldIncludeApiVersion)
+            if (!context.Settings.EnableSymbolicNames)
             {
                 var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
 
-                // we must include an API version for an existing resource, because it cannot be inferred from any deployed template resource
                 return CreateFunction(
                     "reference",
                     referenceExpression,

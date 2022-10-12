@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2564861032733655849"
+      "templateHash": "8906057175053538460"
     }
   },
   "parameters": {
@@ -193,7 +193,7 @@
         "otherName": "nestedTemplate1",
         "otherVersion": "2019-10-01",
         "otherType": "Microsoft.Resources/deployments",
-        "otherThings": "[reference(resourceId('Microsoft.Resources/deployments', 'nestedTemplate1')).mode]"
+        "otherThings": "[reference(resourceId('Microsoft.Resources/deployments', 'nestedTemplate1'), '2019-10-01').mode]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'nestedTemplate1')]"
@@ -221,7 +221,7 @@
         "aType": "My.Rp/typeA",
         "aName": "resourceA",
         "aApiVersion": "2020-01-01",
-        "bProperties": "[reference(resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1]))]"
+        "bProperties": "[reference(resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1]), '2020-01-01')]"
       },
       "dependsOn": [
         "[resourceId('My.Rp/typeA', 'resourceA')]",
@@ -311,9 +311,9 @@
         "res1": "[resourceId('Microsoft.Compute/virtualMachines', 'vmName')]",
         "res1runtime": "[reference(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), '2020-06-01').something]",
         "res2": "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
-        "res2runtime": "[reference(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')).something]",
+        "res2runtime": "[reference(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), '2020-12-01').something]",
         "res3": "[extensionResourceId(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'My.Rp/extensionResource', 'extension')]",
-        "res3runtime": "[reference(extensionResourceId(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'My.Rp/extensionResource', 'extension')).something]"
+        "res3runtime": "[reference(extensionResourceId(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'My.Rp/extensionResource', 'extension'), '2020-12-01').something]"
       },
       "dependsOn": [
         "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
@@ -584,7 +584,7 @@
     },
     "p1_subnet1prefix": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks/subnets', 'myVnet', 'subnet1')).addressPrefix]"
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks/subnets', 'myVnet', 'subnet1'), '2020-06-01').addressPrefix]"
     },
     "p1_subnet1name": {
       "type": "string",
@@ -600,7 +600,7 @@
     },
     "p2_res2childprop": {
       "type": "string",
-      "value": "[reference(extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2')).someProp]"
+      "value": "[reference(extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2'), '2020-06-01').someProp]"
     },
     "p2_res2childname": {
       "type": "string",
@@ -616,7 +616,7 @@
     },
     "p3_res1childprop": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')).someProp]"
+      "value": "[reference(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), '2020-06-01').someProp]"
     },
     "p3_res1childname": {
       "type": "string",

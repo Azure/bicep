@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10469250134169586077"
+      "templateHash": "16630818117462838473"
     }
   },
   "parameters": {
@@ -56,15 +56,15 @@
     },
     "gwpublicip": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname'))).ipConfigurations[0].publicIpAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname')), '2020-06-01').ipConfigurations[0].publicIpAddress]"
     },
     "gwprivateip": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname'))).ipConfigurations[0].privateIpAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname')), '2020-06-01').ipConfigurations[0].privateIpAddress]"
     },
     "bgpasn": {
       "type": "int",
-      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname'))).bgpSettings.asn]"
+      "value": "[reference(resourceId('Microsoft.Network/vpnGateways', parameters('hubvpngwname')), '2020-06-01').bgpSettings.asn]"
     }
   }
 }

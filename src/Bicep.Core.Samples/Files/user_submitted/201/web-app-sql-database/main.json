@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2168193440551224912"
+      "templateHash": "9601947738803736912"
     }
   },
   "parameters": {
@@ -121,7 +121,7 @@
       "name": "[format('{0}/connectionstrings', variables('webSiteName'))]",
       "properties": {
         "DefaultConnection": {
-          "value": "[format('Data Source=tcp:{0},1433;Initial Catalog={1};User Id={2}@{3};Password={4};', reference(resourceId('Microsoft.Sql/servers', variables('sqlserverName'))).fullyQualifiedDomainName, variables('databaseName'), parameters('sqlAdministratorLogin'), reference(resourceId('Microsoft.Sql/servers', variables('sqlserverName'))).fullyQualifiedDomainName, parameters('sqlAdministratorLoginPassword'))]",
+          "value": "[format('Data Source=tcp:{0},1433;Initial Catalog={1};User Id={2}@{3};Password={4};', reference(resourceId('Microsoft.Sql/servers', variables('sqlserverName')), '2019-06-01-preview').fullyQualifiedDomainName, variables('databaseName'), parameters('sqlAdministratorLogin'), reference(resourceId('Microsoft.Sql/servers', variables('sqlserverName')), '2019-06-01-preview').fullyQualifiedDomainName, parameters('sqlAdministratorLoginPassword'))]",
           "type": "SQLAzure"
         }
       },

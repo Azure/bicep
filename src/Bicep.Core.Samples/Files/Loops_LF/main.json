@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4459479612029218305"
+      "templateHash": "10092926960028975712"
     }
   },
   "parameters": {
@@ -349,8 +349,8 @@
                   "name": "backends",
                   "count": "[length(range(0, length(parameters('accounts'))))]",
                   "input": {
-                    "address": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex('backends')]].name))).primaryEndpoints.internetEndpoints.web]",
-                    "backendHostHeader": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex('backends')]].name))).primaryEndpoints.internetEndpoints.web]",
+                    "address": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex('backends')]].name)), '2019-06-01').primaryEndpoints.internetEndpoints.web]",
+                    "backendHostHeader": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex('backends')]].name)), '2019-06-01').primaryEndpoints.internetEndpoints.web]",
                     "httpPort": 80,
                     "httpsPort": 443,
                     "priority": 1,
@@ -382,8 +382,8 @@
             "properties": {
               "backends": [
                 {
-                  "address": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex()]].name))).primaryEndpoints.internetEndpoints.web]",
-                  "backendHostHeader": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex()]].name))).primaryEndpoints.internetEndpoints.web]",
+                  "address": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex()]].name)), '2019-06-01').primaryEndpoints.internetEndpoints.web]",
+                  "backendHostHeader": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex()]].name)), '2019-06-01').primaryEndpoints.internetEndpoints.web]",
                   "httpPort": 80,
                   "httpsPort": 443,
                   "priority": 1,
@@ -567,7 +567,7 @@
         "mode": "Incremental",
         "parameters": {
           "myInput": {
-            "value": "[concat(reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')]), '2020-10-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name))).accessTier)]"
+            "value": "[concat(reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')]), '2020-10-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name)), '2019-06-01').accessTier)]"
           }
         },
         "template": {
@@ -615,7 +615,7 @@
         "mode": "Incremental",
         "parameters": {
           "myInput": {
-            "value": "[format('{0} - {1} - {2}', reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')]), '2020-10-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name))).accessTier, variables('moduleSetup')[copyIndex()])]"
+            "value": "[format('{0} - {1} - {2}', reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')]), '2020-10-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name)), '2019-06-01').accessTier, variables('moduleSetup')[copyIndex()])]"
           }
         },
         "template": {
@@ -783,7 +783,7 @@
   "outputs": {
     "indexedCollectionBlobEndpoint": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name))).primaryEndpoints.blob]"
+      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name)), '2019-06-01').primaryEndpoints.blob]"
     },
     "indexedCollectionName": {
       "type": "string",
@@ -808,13 +808,13 @@
     "indexedEndpointPair": {
       "type": "object",
       "value": {
-        "primary": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name))).primaryEndpoints.blob]",
-        "secondary": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[add(parameters('index'), 1)].name))).secondaryEndpoints.blob]"
+        "primary": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name)), '2019-06-01').primaryEndpoints.blob]",
+        "secondary": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[add(parameters('index'), 1)].name)), '2019-06-01').secondaryEndpoints.blob]"
       }
     },
     "indexViaReference": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[int(reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name))).creationTime)].name))).accessTier]"
+      "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[int(reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[parameters('index')].name)), '2019-06-01').creationTime)].name)), '2019-06-01').accessTier]"
     },
     "indexedModulesName": {
       "type": "string",

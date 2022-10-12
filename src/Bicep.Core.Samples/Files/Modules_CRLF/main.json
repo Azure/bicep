@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16608562497583254094"
+      "templateHash": "2843855100478136215"
     }
   },
   "parameters": {
@@ -117,7 +117,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "454017335624971246"
+              "templateHash": "8300391961099598421"
             }
           },
           "parameters": {
@@ -160,7 +160,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -804,7 +804,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "454017335624971246"
+              "templateHash": "8300391961099598421"
             }
           },
           "parameters": {
@@ -847,7 +847,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -896,7 +896,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "454017335624971246"
+              "templateHash": "8300391961099598421"
             }
           },
           "parameters": {
@@ -939,7 +939,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -989,7 +989,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "454017335624971246"
+              "templateHash": "8300391961099598421"
             }
           },
           "parameters": {
@@ -1032,7 +1032,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -1085,7 +1085,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "454017335624971246"
+              "templateHash": "8300391961099598421"
             }
           },
           "parameters": {
@@ -1128,7 +1128,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -1181,7 +1181,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "454017335624971246"
+              "templateHash": "8300391961099598421"
             }
           },
           "parameters": {
@@ -1224,7 +1224,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -1274,7 +1274,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "454017335624971246"
+              "templateHash": "8300391961099598421"
             }
           },
           "parameters": {
@@ -1317,7 +1317,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -1396,7 +1396,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "454017335624971246"
+              "templateHash": "8300391961099598421"
             }
           },
           "parameters": {
@@ -1439,7 +1439,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -1519,7 +1519,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "454017335624971246"
+              "templateHash": "8300391961099598421"
             }
           },
           "parameters": {
@@ -1562,7 +1562,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
             },
             "arrayOutput": {
               "type": "array",
@@ -1645,7 +1645,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "454017335624971246"
+              "templateHash": "8300391961099598421"
             }
           },
           "parameters": {
@@ -1688,7 +1688,7 @@
             },
             "objOutput": {
               "type": "object",
-              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'))]"
+              "value": "[reference(resourceId('Mock.Rp/mockResource', 'basicblobs'), '2020-01-01')]"
             },
             "arrayOutput": {
               "type": "array",

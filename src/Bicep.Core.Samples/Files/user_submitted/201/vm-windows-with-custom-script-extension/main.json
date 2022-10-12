@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12266997967202912994"
+      "templateHash": "10400776470073514583"
     }
   },
   "parameters": {
@@ -265,7 +265,7 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": true,
-            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name)).primaryEndpoints.blob]"
+            "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name), '2019-06-01').primaryEndpoints.blob]"
           }
         }
       },

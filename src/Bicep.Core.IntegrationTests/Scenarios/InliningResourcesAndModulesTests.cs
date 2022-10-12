@@ -55,7 +55,7 @@ resource storage2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
                     },
                     "Referenced resource should be added to depends on section");
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.allowBlobPublicAccess",
-                    "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test')).allowBlobPublicAccess]",
+                    "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test'), '2019-06-01').allowBlobPublicAccess]",
                     "Resource access should be in-lined");
             }
         }
@@ -103,7 +103,7 @@ resource storage2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
                     },
                     "Referenced resource should be added to depends on section");
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.allowBlobPublicAccess",
-                    "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test')).allowBlobPublicAccess]",
+                    "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test'), '2019-06-01').allowBlobPublicAccess]",
                     "Resource access should be in-lined");
             }
         }
@@ -452,7 +452,7 @@ resource storage2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
                     },
                     "Referenced resource should be added to depends on section");
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.routingPreference.routingChoice",
-                    "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test')).routingPreference.routingChoice]",
+                    "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test'), '2019-06-01').routingPreference.routingChoice]",
                     "Object should be in-lined");
             }
         }
@@ -506,8 +506,8 @@ resource resB 'My.Rp/myResourceType@2020-01-01' = {
                         "[resourceId('My.Rp/myResourceType', 'resA')]",
                         "resA",
                         "My.Rp/myResourceType",
-                        "[reference(resourceId('My.Rp/myResourceType', 'resA')).deployTime]",
-                        "[reference(resourceId('My.Rp/myResourceType', 'resA')).eTag]"
+                        "[reference(resourceId('My.Rp/myResourceType', 'resA'), '2020-01-01').deployTime]",
+                        "[reference(resourceId('My.Rp/myResourceType', 'resA'), '2020-01-01').eTag]"
                     },
                     "Object should be in-lined");
             }

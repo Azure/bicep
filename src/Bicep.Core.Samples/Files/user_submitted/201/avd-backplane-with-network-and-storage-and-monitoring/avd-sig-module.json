@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1528651399167082047"
+      "templateHash": "3415198297049534922"
     }
   },
   "parameters": {
@@ -81,7 +81,7 @@
       "name": "[guid(resourceGroup().id, resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage'))), resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]",
       "properties": {
         "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))]",
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName'))).principalId]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')), '2018-11-30').principalId]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [
@@ -123,7 +123,7 @@
   "outputs": {
     "sigid": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage')))).roleName]"
+      "value": "[reference(resourceId('Microsoft.Authorization/roleDefinitions', guid(parameters('roleNameGalleryImage'))), '2018-01-01-preview').roleName]"
     },
     "avdidoutput": {
       "type": "string",
