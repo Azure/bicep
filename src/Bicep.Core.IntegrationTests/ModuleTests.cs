@@ -587,12 +587,12 @@ output storage resource = storage
             result.Template.Should().HaveValueAtPath("$.outputs.id", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[reference(resourceId('Microsoft.Resources/deployments', 'test')).outputs.storage.value]"),
+                ["value"] = new JValue("[reference(resourceId('Microsoft.Resources/deployments', 'test'), '2020-10-01').outputs.storage.value]"),
             });
             result.Template.Should().HaveValueAtPath("$.outputs.name", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[last(split(reference(resourceId('Microsoft.Resources/deployments', 'test')).outputs.storage.value, '/'))]"),
+                ["value"] = new JValue("[last(split(reference(resourceId('Microsoft.Resources/deployments', 'test'), '2020-10-01').outputs.storage.value, '/'))]"),
             });
             result.Template.Should().HaveValueAtPath("$.outputs.type", new JObject()
             {
@@ -607,7 +607,7 @@ output storage resource = storage
             result.Template.Should().HaveValueAtPath("$.outputs.accessTier", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[reference(reference(resourceId('Microsoft.Resources/deployments', 'test')).outputs.storage.value, '2019-06-01').accessTier]"),
+                ["value"] = new JValue("[reference(reference(resourceId('Microsoft.Resources/deployments', 'test'), '2020-10-01').outputs.storage.value, '2019-06-01').accessTier]"),
             });
         }
 
@@ -640,12 +640,12 @@ output storage resource = storage
             result.Template.Should().HaveValueAtPath("$.outputs.id", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0))).outputs.storage.value]"),
+                ["value"] = new JValue("[reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0)), '2020-10-01').outputs.storage.value]"),
             });
             result.Template.Should().HaveValueAtPath("$.outputs.name", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[last(split(reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0))).outputs.storage.value, '/'))]"),
+                ["value"] = new JValue("[last(split(reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0)), '2020-10-01').outputs.storage.value, '/'))]"),
             });
             result.Template.Should().HaveValueAtPath("$.outputs.type", new JObject()
             {
@@ -660,7 +660,7 @@ output storage resource = storage
             result.Template.Should().HaveValueAtPath("$.outputs.accessTier", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[reference(reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0))).outputs.storage.value, '2019-06-01').accessTier]"),
+                ["value"] = new JValue("[reference(reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0)), '2020-10-01').outputs.storage.value, '2019-06-01').accessTier]"),
             });
         }
 

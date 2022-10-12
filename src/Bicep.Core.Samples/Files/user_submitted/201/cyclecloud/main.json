@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16137950815528411640"
+      "templateHash": "13223213834114750061"
     }
   },
   "parameters": {
@@ -202,7 +202,7 @@
             "value": "[variables('customData')]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/Default', reference(resourceId('Microsoft.Resources/deployments', 'network')).outputs.vnetId.value)]"
+            "value": "[format('{0}/subnets/Default', reference(resourceId('Microsoft.Resources/deployments', 'network'), '2020-10-01').outputs.vnetId.value)]"
           },
           "userAssignedIdentity": {
             "value": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'CycleCloud-MI')]"

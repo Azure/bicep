@@ -765,20 +765,11 @@ namespace Bicep.Core.Emit
                     new JTokenExpression("outputs"));
             }
 
-            if (moduleSymbol.DeclaringModule.HasCondition())
-            {
-                return AppendProperties(
-                    CreateFunction(
-                        "reference",
-                        GetFullyQualifiedResourceId(moduleSymbol),
-                        new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion)),
-                    new JTokenExpression("outputs"));
-            }
-
             return AppendProperties(
                 CreateFunction(
                     "reference",
-                    GetFullyQualifiedResourceId(moduleSymbol)),
+                    GetFullyQualifiedResourceId(moduleSymbol),
+                    new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion)),
                 new JTokenExpression("outputs"));
         }
 

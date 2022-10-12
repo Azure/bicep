@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18407703639333297410"
+      "templateHash": "16459957040614519089"
     }
   },
   "parameters": {
@@ -98,10 +98,10 @@
             "value": "[parameters('appName')]"
           },
           "appServicePlanID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'appServicePlanDeploy')).outputs.appServicePlanID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'appServicePlanDeploy'), '2020-10-01').outputs.appServicePlanID.value]"
           },
           "APPINSIGHTS_INSTRUMENTATIONKEY": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'appInsightsDeploy')).outputs.APPINSIGHTS_INSTRUMENTATIONKEY.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'appInsightsDeploy'), '2020-10-01').outputs.APPINSIGHTS_INSTRUMENTATIONKEY.value]"
           }
         },
         "template": {
@@ -221,7 +221,7 @@
             "value": "[parameters('appName')]"
           },
           "logAnalaticsWorkspaceResourceID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logAnalyticsWorkspaceDeploy')).outputs.logAnalaticsWorkspaceResourceID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logAnalyticsWorkspaceDeploy'), '2020-10-01').outputs.logAnalaticsWorkspaceResourceID.value]"
           }
         },
         "template": {

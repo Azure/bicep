@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "990985255082664465"
+      "templateHash": "18096088897546366532"
     }
   },
   "parameters": {
@@ -171,13 +171,13 @@
             "value": "[parameters('location')]"
           },
           "storageName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName')))).outputs.storageName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName'))), '2020-10-01').outputs.storageName.value]"
           },
           "storageId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName')))).outputs.resourceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName'))), '2020-10-01').outputs.resourceId.value]"
           },
           "fileShareName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName')))).outputs.fileShareName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName'))), '2020-10-01').outputs.fileShareName.value]"
           },
           "type": {
             "value": "[parameters('type')]"

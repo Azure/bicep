@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7935120756355915845"
+      "templateHash": "12160546872956632991"
     }
   },
   "parameters": {
@@ -347,7 +347,7 @@
             "value": "[variables('vpngwname')]"
           },
           "subnetref": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', variables('vnetname'))).outputs.subnets.value[2].id]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', variables('vnetname')), '2020-10-01').outputs.subnets.value[2].id]"
           },
           "vpngwpipname": {
             "value": "[variables('vpngwpipname')]"
@@ -762,13 +762,13 @@
             "value": "VNet"
           },
           "fwpolicyid": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'fwpolicy-deploy')).outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'fwpolicy-deploy'), '2020-10-01').outputs.id.value]"
           },
           "publicipid": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'pip-deploy')).outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'pip-deploy'), '2020-10-01').outputs.id.value]"
           },
           "subnetid": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', variables('vnetname'))).outputs.subnets.value[3].id]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', variables('vnetname')), '2020-10-01').outputs.subnets.value[3].id]"
           }
         },
         "template": {
@@ -995,7 +995,7 @@
             "value": "10.10.0.0/24"
           },
           "wanid": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vwan-deploy')).outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vwan-deploy'), '2020-10-01').outputs.id.value]"
           }
         },
         "template": {
@@ -1254,13 +1254,13 @@
             "value": "vWAN"
           },
           "hubid": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhub-deploy')).outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhub-deploy'), '2020-10-01').outputs.id.value]"
           },
           "hubpublicipcount": {
             "value": 1
           },
           "fwpolicyid": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubfwpolicy-deploy')).outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubfwpolicy-deploy'), '2020-10-01').outputs.id.value]"
           }
         },
         "template": {
@@ -1406,7 +1406,7 @@
             "value": "[variables('vhubvpngwname')]"
           },
           "hubid": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhub-deploy')).outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhub-deploy'), '2020-10-01').outputs.id.value]"
           },
           "asn": {
             "value": 65515
@@ -1506,19 +1506,19 @@
             "value": "[parameters('vwanlocation')]"
           },
           "addressprefix": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', variables('vnetname'))).outputs.vnetaddress.value[0]]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', variables('vnetname')), '2020-10-01').outputs.vnetaddress.value[0]]"
           },
           "bgppeeringpddress": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy')).outputs.vpngwbgpaddress.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy'), '2020-10-01').outputs.vpngwbgpaddress.value]"
           },
           "ipaddress": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy')).outputs.vpngwip.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy'), '2020-10-01').outputs.vpngwip.value]"
           },
           "remotesiteasn": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy')).outputs.bgpasn.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy'), '2020-10-01').outputs.bgpasn.value]"
           },
           "wanid": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vwan-deploy')).outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vwan-deploy'), '2020-10-01').outputs.id.value]"
           }
         },
         "template": {
@@ -1624,13 +1624,13 @@
         "mode": "Incremental",
         "parameters": {
           "hubvpngwname": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubvpngw')).outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubvpngw'), '2020-10-01').outputs.name.value]"
           },
           "psk": {
             "value": "[parameters('psk')]"
           },
           "vpnsiteid": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vwanvpnsite-deploy')).outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vwanvpnsite-deploy'), '2020-10-01').outputs.id.value]"
           }
         },
         "template": {
@@ -1702,26 +1702,26 @@
           },
           "addressprefixes": {
             "value": [
-              "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhub-deploy')).outputs.vhubaddress.value]"
+              "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhub-deploy'), '2020-10-01').outputs.vhubaddress.value]"
             ]
           },
           "connectionname": {
             "value": "[variables('vpnconname')]"
           },
           "bgppeeringpddress": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubvpngw')).outputs.gwprivateip.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubvpngw'), '2020-10-01').outputs.gwprivateip.value]"
           },
           "gwipaddress": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubvpngw')).outputs.gwpublicip.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubvpngw'), '2020-10-01').outputs.gwpublicip.value]"
           },
           "remotesiteasn": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubvpngw')).outputs.bgpasn.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-vwan-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vhubvpngw'), '2020-10-01').outputs.bgpasn.value]"
           },
           "psk": {
             "value": "[parameters('psk')]"
           },
           "vpngwid": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy')).outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}-hubvnet-rg', parameters('nameprefix'))), 'Microsoft.Resources/deployments', 'vpngw-deploy'), '2020-10-01').outputs.id.value]"
           }
         },
         "template": {

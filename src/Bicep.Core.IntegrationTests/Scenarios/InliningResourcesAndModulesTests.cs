@@ -258,7 +258,7 @@ output test bool = true
                     },
                     "Module should be added to depends on section");
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.allowBlobPublicAccess",
-                    "[reference(resourceId('Microsoft.Resources/deployments', 'testmod')).outputs.test.value]",
+                    "[reference(resourceId('Microsoft.Resources/deployments', 'testmod'), '2020-10-01').outputs.test.value]",
                     "Module access should be in-lined correctly");
             }
         }
@@ -300,7 +300,7 @@ output test bool = true
                     },
                     "Module should be added to depends on section");
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.allowBlobPublicAccess",
-                    "[reference(resourceId('Microsoft.Resources/deployments', 'testmod')).outputs.test.value]",
+                    "[reference(resourceId('Microsoft.Resources/deployments', 'testmod'), '2020-10-01').outputs.test.value]",
                     "Module access should be in-lined correctly");
             }
         }

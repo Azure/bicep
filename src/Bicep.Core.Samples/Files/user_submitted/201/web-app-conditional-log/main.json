@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12596320509280102170"
+      "templateHash": "3034225805702252853"
     }
   },
   "parameters": {
@@ -151,7 +151,7 @@
         "mode": "Incremental",
         "parameters": {
           "appName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'webAppPlanDeploy')).outputs.appServiceName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'webAppPlanDeploy'), '2020-10-01').outputs.appServiceName.value]"
           }
         },
         "template": {

@@ -111,11 +111,11 @@ resource resWithDependencies 'Mock.Rp/mockResource@2020-01-01' = {
   properties: {
 //@[62:66]       "properties": {
     modADep: modATest.outputs.stringOutputA
-//@[63:63]         "modADep": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest')).outputs.stringOutputA.value]",
+//@[63:63]         "modADep": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2020-10-01').outputs.stringOutputA.value]",
     modBDep: modB.outputs.myResourceId
-//@[64:64]         "modBDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modB')).outputs.myResourceId.value]",
+//@[64:64]         "modBDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modB'), '2020-10-01').outputs.myResourceId.value]",
     modCDep: modC.outputs.myResourceId
-//@[65:65]         "modCDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modC')).outputs.myResourceId.value]"
+//@[65:65]         "modCDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modC'), '2020-10-01').outputs.myResourceId.value]"
   }
 }
 
@@ -177,7 +177,7 @@ resource resWithCalculatedNameDependencies 'Mock.Rp/mockResource@2020-01-01' = {
   properties: {
 //@[77:79]       "properties": {
     modADep: moduleWithCalculatedName.outputs.outputObj
-//@[78:78]         "modADep": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix')))).outputs.outputObj.value]"
+//@[78:78]         "modADep": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))), '2020-10-01').outputs.outputObj.value]"
   }
 }
 

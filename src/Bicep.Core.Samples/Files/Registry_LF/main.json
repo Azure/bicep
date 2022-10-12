@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6124862228568970407"
+      "templateHash": "1872456562591003148"
     }
   },
   "variables": {
@@ -175,7 +175,7 @@
         "mode": "Incremental",
         "parameters": {
           "appPlanId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy')).outputs.planId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy'), '2020-10-01').outputs.planId.value]"
           },
           "namePrefix": {
             "value": "[variables('websites')[copyIndex()].name]"
@@ -276,7 +276,7 @@
         "mode": "Incremental",
         "parameters": {
           "appPlanId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy')).outputs.planId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy'), '2020-10-01').outputs.planId.value]"
           },
           "namePrefix": {
             "value": "[variables('websites')[copyIndex()].name]"
@@ -658,7 +658,7 @@
       "type": "array",
       "copy": {
         "count": "[length(variables('websites'))]",
-        "input": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', format('{0}siteDeploy', variables('websites')[copyIndex()].name))).outputs.siteUrl.value]"
+        "input": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', format('{0}siteDeploy', variables('websites')[copyIndex()].name)), '2020-10-01').outputs.siteUrl.value]"
       }
     }
   }
