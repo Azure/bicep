@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.LangServer.UnitTests.Mocks
 {
-    internal class WindowMock
+    public class WindowMock
     {
         public Mock<IWindowLanguageServer> Mock;
 
@@ -140,5 +140,4 @@ namespace Bicep.LangServer.UnitTests.Mocks
             return this;
         }
     }
-
 }

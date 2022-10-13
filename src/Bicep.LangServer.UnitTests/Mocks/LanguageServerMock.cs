@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.LangServer.UnitTests.Mocks
 {
-    internal class LanguageServerMock
+    public class LanguageServerMock
     {
         private readonly ClientCapabilitiesProviderMock clientCapabilitiesProviderMock;
 

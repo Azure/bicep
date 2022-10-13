@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 //asdfg needs tests
 namespace Bicep.LangServer.UnitTests.Mocks
 {
-    internal class WorkspaceMock
+    public class WorkspaceMock
     {
         public Mock<IWorkspaceLanguageServer> Mock;
 
@@ -60,5 +60,4 @@ namespace Bicep.LangServer.UnitTests.Mocks
             return this;
         }
     }
-
 }
