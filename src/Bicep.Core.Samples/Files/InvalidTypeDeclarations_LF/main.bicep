@@ -1,0 +1,52 @@
+﻿type 44
+
+type noAssignment
+
+type incompleteAssignment =
+
+@sealed()
+type sealedString = string
+
+type disallowedUnion = string|int
+
+type validStringLiteralUnion = 'foo'|'bar'|'baz'
+
+type validUnionInvalidAddition = validStringLiteralUnion|int
+
+type invalidUnionInvalidAddition = disallowedUnion|bool
+
+@minLength(3)
+type lengthConstrainedInt = int
+
+@minValue(3)
+type valueConstrainedString = string
+
+type tautology = tautology
+
+type tautologicalUnion = tautologicalUnion|'foo'
+
+type tautologicalArray = tautologicalArray[]
+
+type directCycleStart = directCycleReturn
+
+type directCycleReturn = directCycleStart
+
+type cycleRoot = connector
+
+type connector = cycleBack
+
+type cycleBack = cycleRoot
+
+type objectWithInvalidPropertyDecorators = {
+  @sealed()
+  fooProp: string
+
+  @secure()
+  @sealed()
+  barProp: int
+}
+
+@sealed()
+param sealedStringParam string
+
+param disallowedUnionParam string|int
