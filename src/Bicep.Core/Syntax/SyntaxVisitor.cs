@@ -146,6 +146,53 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Identifier);
         }
 
+        public virtual void VisitObjectTypeSyntax(ObjectTypeSyntax syntax)
+        {
+            this.Visit(syntax.OpenBrace);
+            this.VisitNodes(syntax.Children);
+            this.Visit(syntax.CloseBrace);
+        }
+
+        public virtual void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Key);
+            this.Visit(syntax.OptionalityMarker);
+            this.Visit(syntax.Colon);
+            this.Visit(syntax.Value);
+        }
+
+        public virtual void VisitArrayTypeSyntax(ArrayTypeSyntax syntax)
+        {
+            this.Visit(syntax.Item);
+            this.Visit(syntax.OpenBracket);
+            this.Visit(syntax.CloseBracket);
+        }
+
+        public virtual void VisitUnionTypeSyntax(UnionTypeSyntax syntax)
+        {
+            this.VisitNodes(syntax.Children);
+        }
+
+        public virtual void VisitUnionTypeMemberSyntax(UnionTypeMemberSyntax syntax)
+        {
+            this.Visit(syntax.Value);
+        }
+
+        public virtual void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Assignment);
+            this.Visit(syntax.Value);
+        }
+
+        public virtual void VisitTypeAccessSyntax(TypeAccessSyntax syntax)
+        {
+            this.Visit(syntax.Name);
+        }
+
         public virtual void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
         {
             this.Visit(syntax.Literal);
@@ -352,7 +399,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Path);
         }
-        
+
         public virtual void VisitLambdaSyntax(LambdaSyntax syntax)
         {
             this.Visit(syntax.VariableSection);

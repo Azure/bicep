@@ -14,7 +14,6 @@ namespace Bicep.Core.Syntax
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.OutputKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax), typeof(IdentifierSyntax));
-            AssertSyntaxType(type, nameof(type), typeof(SimpleTypeSyntax), typeof(ResourceTypeSyntax), typeof(SkippedTriviaSyntax));
             AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
 

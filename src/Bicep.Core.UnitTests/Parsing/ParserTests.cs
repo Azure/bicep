@@ -3,7 +3,6 @@
 using System;
 using System.Linq;
 using System.Text;
-using System.Diagnostics;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -31,6 +30,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("var mvVar = 'hello'", typeof(VariableDeclarationSyntax))]
         [DataRow("resource myRes 'My.Provider/someResource@2020-08-01' = { \n }", typeof(ResourceDeclarationSyntax))]
         [DataRow("output string myOutput = 'hello'", typeof(OutputDeclarationSyntax))]
+        [DataRow("type arraysOfArraysOfArraysOfStrings = string[][][]", typeof(TypeDeclarationSyntax))]
         public void NewLinesForDeclarationsShouldBeOptionalAtEof(string text, Type expectedType)
         {
             var validFiles = new (int statementCount, string file)[]
@@ -358,6 +358,43 @@ namespace Bicep.Core.UnitTests.Parsing
             RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
         }
 
+        [TestMethod]
+        public void ObjectTypeLiteralsShouldParseSuccessfully()
+        {
+            var typeDeclaration = @"
+@description('The foo type')
+@sealed()
+type foo = {
+    @minLength(3)
+    @maxLength(10)
+    stringProp: string
+    objectProp: {
+        @minValue(1)
+        intProp: int
+        arrayProp: int[] [] []
+    }
+
+    @sealed()
+    sealedObjectProp: {
+        fizz: int
+        buzz: bool
+    }
+}";
+
+            var parsed = ParserHelper.Parse(typeDeclaration);
+            parsed.Should().BeOfType<ProgramSyntax>();
+            (parsed as ProgramSyntax).Declarations.Should().HaveCount(1);
+            (parsed as ProgramSyntax).Declarations.Single().Should().BeOfType<TypeDeclarationSyntax>();
+            var declaration = (TypeDeclarationSyntax) (parsed as ProgramSyntax).Declarations.Single();
+            declaration.Decorators.Should().HaveCount(2);
+
+            declaration.Value.Should().BeOfType<ObjectTypeSyntax>();
+            var declaredObject = (ObjectTypeSyntax) declaration.Value;
+            declaredObject.Properties.Should().HaveCount(3);
+            declaredObject.Properties.First().Decorators.Should().HaveCount(3);
+            declaredObject.Properties.Skip(1).First().Value.Should().BeOfType<ObjectTypeSyntax>();
+        }
+
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)
         {
             SyntaxBase expression = ParserHelper.ParseExpression(text);
@@ -385,14 +422,5 @@ namespace Bicep.Core.UnitTests.Parsing
 
             return buffer.ToString();
         }
-        
-        [TestMethod]
-        public void testParams(){
-            var test = ParserHelper.Parse("set myint = 12 \n");
-            
-            Trace.WriteLine("Test running!");
-            Trace.WriteLine("Test ended");
-        }
     }
 }
-

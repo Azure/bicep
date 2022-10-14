@@ -979,7 +979,7 @@ namespace Bicep.Core.Parsing
                                 return TokenType.LogicalOr;
                         }
                     }
-                    return TokenType.Unrecognized;
+                    return TokenType.Pipe;
                 case '\'':
                     // "'''" means we're starting a multiline string.
                     if (textWindow.Peek(0) == '\'' && textWindow.Peek(1) == '\'')

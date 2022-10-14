@@ -1343,10 +1343,10 @@ namespace Bicep.Core.Diagnostics
                 "Expected at least one diagnostic code at this location. Valid format is \"#disable-next-line diagnosticCode1 diagnosticCode2 ...\""
             );
 
-            public ErrorDiagnostic UnsupportedResourceTypeParameterType(string resourceType) => new(
+            public ErrorDiagnostic UnsupportedResourceTypeParameterOrOutputType(string resourceType) => new(
                 TextSpan,
                 "BCP227",
-                $"The type \"{resourceType}\" cannot be used as a parameter type. Extensibility types are currently not supported as parameters or outputs.");
+                $"The type \"{resourceType}\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs.");
 
             public ErrorDiagnostic UnsupportedResourceTypeOutputType(string resourceType) => new(
                 TextSpan,
@@ -1367,7 +1367,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ParamOrOutputResourceTypeUnsupported() => new(
                 TextSpan,
                 "BCP231",
-                "Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature BICEP_RESOURCE_TYPED_PARAMS_AND_OUTPUTS_EXPERIMENTAL.");
+                "Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature resourceTypedParamsAndOutputs.");
 
             public ErrorDiagnostic ModuleDeleteFailed(string moduleRef) => new(
                 TextSpan,
@@ -1611,6 +1611,97 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP278",
                 "This parameters file references itself, which is not allowed.");
+
+            public ErrorDiagnostic UnrecognizedTypeExpression() => new(
+                TextSpan,
+                "BCP279",
+                $"Expected a type at this location. Please specify a valid type expression or one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
+
+            public ErrorDiagnostic TypeDeclarationStatementsUnsupported() => new(
+                TextSpan,
+                "BCP280",
+                "Using type declaration statement requires enabling EXPERIMENTAL feature aggregateTypes.");
+
+            public ErrorDiagnostic TypedArrayDeclarationsUnsupported() => new(
+                TextSpan,
+                "BCP281",
+                "Using a typed array type declaration requires enabling EXPERIMENTAL feature aggregateTypes.");
+
+            public ErrorDiagnostic TypedObjectDeclarationsUnsupported() => new(
+                TextSpan,
+                "BCP282",
+                "Using a strongly-typed object type declaration requires enabling EXPERIMENTAL feature aggregateTypes.");
+
+            public ErrorDiagnostic TypeLiteralDeclarationsUnsupported() => new(
+                TextSpan,
+                "BCP283",
+                "Using a literal value as a type requires enabling EXPERIMENTAL feature aggregateTypes.");
+
+            public ErrorDiagnostic TypeUnionDeclarationsUnsupported() => new(
+                TextSpan,
+                "BCP284",
+                "Using a type union declaration requires enabling EXPERIMENTAL feature aggregateTypes.");
+
+            public ErrorDiagnostic InterpolatedStringTypeDeclarationsUnsupported() => new(
+                TextSpan,
+                "BCP285",
+                "String literal types cannot use interpolation.");
+
+            public ErrorDiagnostic InvalidUnionTypeMember(string keystoneType) => new(
+                TextSpan,
+                "BCP286",
+                $"This union member is invalid because it cannot be assigned to the '{keystoneType}' type.");
+
+            public ErrorDiagnostic ValueSymbolUsedAsType(string symbolName) => new(
+                TextSpan,
+                "BCP287",
+                // TODO: Add "Did you mean 'typeof({symbolName})'?" When support for typeof has been added.
+                $"'{symbolName}' refers to a value but is being used as a type here.");
+
+            public ErrorDiagnostic TypeSymbolUsedAsValue(string symbolName) => new(
+                TextSpan,
+                "BCP288",
+                $"'{symbolName}' refers to a type but is being used as a value here.");
+
+            public ErrorDiagnostic InvalidTypeDefinition() => new(
+                TextSpan,
+                "BCP289",
+                $"The type definition is not valid.");
+
+            public ErrorDiagnostic ExpectedParameterOrTypeDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP290",
+                "Expected a parameter or type declaration after the decorator.");
+
+            public ErrorDiagnostic ExpectedParameterOrOutputDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP291",
+                "Expected a parameter or output declaration after the decorator.");
+
+            public ErrorDiagnostic ExpectedParameterOutputOrTypeDeclarationAfterDecorator() => new(
+                TextSpan,
+                "BCP292",
+                "Expected a parameter, output, or type declaration after the decorator.");
+
+            public ErrorDiagnostic NonLiteralUnionMember() => new(
+                TextSpan,
+                "BCP293",
+                "All members of a union type declaration must be literal values.");
+
+            public ErrorDiagnostic InvalidTypeUnion() => new(
+                TextSpan,
+                "BCP294",
+                "Type unions must be reduceable to a single ARM type (such as 'string', 'int', or 'bool').");
+
+            public ErrorDiagnostic DecoratorNotPermittedOnLiteralType(string decoratorName) => new(
+                TextSpan,
+                "BCP295",
+                $"The '{decoratorName}' decorator may not be used on targets of a union or literal type. The allowed values for this parameter or type definition will be derived from the union or literal type automatically.");
+
+            public ErrorDiagnostic NonConstantTypeProperty() => new(
+                TextSpan,
+                "BCP296",
+                "Property names on types must be compile-time constant values.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
