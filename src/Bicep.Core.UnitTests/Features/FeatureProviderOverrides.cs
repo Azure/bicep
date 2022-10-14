@@ -15,6 +15,7 @@ public record FeatureProviderOverrides(
     bool? ResourceTypedParamsAndOutputsEnabled = default,
     bool? SourceMappingEnabled = default,
     bool? ParamsFilesEnabled = default,
+    bool? AggregateTypesEnabled = default,
     string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion)
 {
     public FeatureProviderOverrides(TestContext testContext,
@@ -25,6 +26,7 @@ public record FeatureProviderOverrides(
         bool? ResourceTypedParamsAndOutputsEnabled = default,
         bool? SourceMappingEnabled = default,
         bool? ParamsFilesEnabled = default,
+        bool? AggregateTypesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
-    ) : this(FileHelper.GetCacheRootPath(testContext), RegistryEnabled, SymbolicNameCodegenEnabled, ImportsEnabled, AdvancedListComprehensionEnabled, ResourceTypedParamsAndOutputsEnabled, SourceMappingEnabled, ParamsFilesEnabled, AssemblyVersion) {}
+    ) : this(FileHelper.GetCacheRootPath(testContext), RegistryEnabled, SymbolicNameCodegenEnabled, ImportsEnabled, AdvancedListComprehensionEnabled, ResourceTypedParamsAndOutputsEnabled, SourceMappingEnabled, ParamsFilesEnabled, AggregateTypesEnabled, AssemblyVersion) {}
 }

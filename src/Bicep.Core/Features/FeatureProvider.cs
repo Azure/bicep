@@ -32,6 +32,8 @@ namespace Bicep.Core.Features
 
         public bool ParamsFilesEnabled => configuration.ExperimentalFeaturesEnabled.ParamsFiles ?? false;
 
+        public bool AggregateTypesEnabled => configuration.ExperimentalFeaturesEnabled.AggregateTypes ?? false;
+
         public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 
         public static TraceVerbosity TracingVerbosity => ReadEnumEnvvar<TraceVerbosity>("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);
