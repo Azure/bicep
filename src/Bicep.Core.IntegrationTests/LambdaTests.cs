@@ -96,10 +96,10 @@ var fo|o2 = map([123], a|bc => 'Hello ${abc}')
             var info = result.GetInfoAtCursors(cursors);
 
             info.Should().SatisfyRespectively(
-                x => x.Type.Name.Should().Be("int[]"),
-                x => x.Type.Name.Should().Be("int"),
+                x => x.Type.Name.Should().Be("123[]"),
+                x => x.Type.Name.Should().Be("123"),
                 x => x.Type.Name.Should().Be("string[]"),
-                x => x.Type.Name.Should().Be("int"));
+                x => x.Type.Name.Should().Be("123"));
         }
 
         [TestMethod]
@@ -150,7 +150,7 @@ var foo2 = map(['foo'], () => 'Hi!')
 
             var result = CompilationHelper.Compile(file);
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP070", DiagnosticLevel.Error, "Argument of type \"(int, any) => int\" is not assignable to parameter of type \"any => any\"."),
+                ("BCP070", DiagnosticLevel.Error, "Argument of type \"(123, any) => 123\" is not assignable to parameter of type \"any => any\"."),
                 ("BCP070", DiagnosticLevel.Error, "Argument of type \"() => 'Hi!'\" is not assignable to parameter of type \"any => any\"."),
             });
         }
@@ -192,8 +192,8 @@ var fo|o2 = filter(['abc', 'def'], a|bc => abc == '123')
             var info = result.GetInfoAtCursors(cursors);
 
             info.Should().SatisfyRespectively(
-                x => x.Type.Name.Should().Be("int[]"),
-                x => x.Type.Name.Should().Be("int"),
+                x => x.Type.Name.Should().Be("123[]"),
+                x => x.Type.Name.Should().Be("123"),
                 x => x.Type.Name.Should().Be("('abc' | 'def')[]"),
                 x => x.Type.Name.Should().Be("'abc' | 'def'"));
         }
@@ -211,8 +211,8 @@ var fo|o2 = sort(['bar', 'foo'], (abc, def) => abc < d|ef)
             var info = result.GetInfoAtCursors(cursors);
 
             info.Should().SatisfyRespectively(
-                x => x.Type.Name.Should().Be("int[]"),
-                x => x.Type.Name.Should().Be("int"),
+                x => x.Type.Name.Should().Be("123[]"),
+                x => x.Type.Name.Should().Be("123"),
                 x => x.Type.Name.Should().Be("('bar' | 'foo')[]"),
                 x => x.Type.Name.Should().Be("'bar' | 'foo'"));
         }
@@ -230,8 +230,8 @@ var fo|o2 = reduce(['abc', 'def'], '', (cur, nex|t) => concat(cur, next))
             var info = result.GetInfoAtCursors(cursors);
 
             info.Should().SatisfyRespectively(
-                x => x.Type.Name.Should().Be("int"),
-                x => x.Type.Name.Should().Be("int"),
+                x => x.Type.Name.Should().Be("246"),
+                x => x.Type.Name.Should().Be("123"),
                 x => x.Type.Name.Should().Be("string"),
                 x => x.Type.Name.Should().Be("'abc' | 'def'"));
         }

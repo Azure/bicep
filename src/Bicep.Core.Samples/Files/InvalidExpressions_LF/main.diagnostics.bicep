@@ -79,7 +79,7 @@ var not = !null
 var not = !4
 //@[04:07) [BCP028 (Error)] Identifier "not" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |not|
 //@[04:07) [no-unused-vars (Warning)] Variable "not" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |not|
-//@[10:12) [BCP044 (Error)] Cannot apply operator "!" to operand of type "int". (CodeDescription: none) |!4|
+//@[10:12) [BCP044 (Error)] Cannot apply operator "!" to operand of type "4". (CodeDescription: none) |!4|
 var not = !'s'
 //@[04:07) [BCP028 (Error)] Identifier "not" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |not|
 //@[04:07) [no-unused-vars (Warning)] Variable "not" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |not|
@@ -111,7 +111,7 @@ var minus = ------12
 var minus = -true
 //@[04:09) [BCP028 (Error)] Identifier "minus" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |minus|
 //@[04:09) [no-unused-vars (Warning)] Variable "minus" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |minus|
-//@[12:17) [BCP044 (Error)] Cannot apply operator "-" to operand of type "bool". (CodeDescription: none) |-true|
+//@[12:17) [BCP044 (Error)] Cannot apply operator "-" to operand of type "true". (CodeDescription: none) |-true|
 var minus = -null
 //@[04:09) [BCP028 (Error)] Identifier "minus" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |minus|
 //@[04:09) [no-unused-vars (Warning)] Variable "minus" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |minus|
@@ -134,10 +134,10 @@ var minus = -{
 // multiplicative
 var mod = 's' % true
 //@[04:07) [no-unused-vars (Warning)] Variable "mod" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mod|
-//@[10:20) [BCP045 (Error)] Cannot apply operator "%" to operands of type "'s'" and "bool". (CodeDescription: none) |'s' % true|
+//@[10:20) [BCP045 (Error)] Cannot apply operator "%" to operands of type "'s'" and "true". (CodeDescription: none) |'s' % true|
 var mul = true * null
 //@[04:07) [no-unused-vars (Warning)] Variable "mul" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mul|
-//@[10:21) [BCP045 (Error)] Cannot apply operator "*" to operands of type "bool" and "null". (CodeDescription: none) |true * null|
+//@[10:21) [BCP045 (Error)] Cannot apply operator "*" to operands of type "true" and "null". (CodeDescription: none) |true * null|
 var div = {
 //@[04:07) [no-unused-vars (Warning)] Variable "div" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |div|
 //@[10:19) [BCP045 (Error)] Cannot apply operator "/" to operands of type "object" and "array". (CodeDescription: none) |{\n} / [\n]|
@@ -151,7 +151,7 @@ var add = null + 's'
 //@[10:20) [BCP045 (Error)] Cannot apply operator "+" to operands of type "null" and "'s'". (CodeDescription: none) |null + 's'|
 var sub = true - false
 //@[04:07) [no-unused-vars (Warning)] Variable "sub" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |sub|
-//@[10:22) [BCP045 (Error)] Cannot apply operator "-" to operands of type "bool" and "bool". (CodeDescription: none) |true - false|
+//@[10:22) [BCP045 (Error)] Cannot apply operator "-" to operands of type "true" and "false". (CodeDescription: none) |true - false|
 var add = 'bad' + 'str'
 //@[04:07) [BCP028 (Error)] Identifier "add" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |add|
 //@[04:07) [no-unused-vars (Warning)] Variable "add" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |add|
@@ -160,26 +160,26 @@ var add = 'bad' + 'str'
 // equality (== and != can't have a type error because they work on "any" type)
 var eq = true =~ null
 //@[04:06) [no-unused-vars (Warning)] Variable "eq" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |eq|
-//@[09:21) [BCP045 (Error)] Cannot apply operator "=~" to operands of type "bool" and "null". (CodeDescription: none) |true =~ null|
+//@[09:21) [BCP045 (Error)] Cannot apply operator "=~" to operands of type "true" and "null". (CodeDescription: none) |true =~ null|
 var ne = 15 !~ [
 //@[04:06) [no-unused-vars (Warning)] Variable "ne" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |ne|
-//@[09:18) [BCP045 (Error)] Cannot apply operator "!~" to operands of type "int" and "array". (CodeDescription: none) |15 !~ [\n]|
+//@[09:18) [BCP045 (Error)] Cannot apply operator "!~" to operands of type "15" and "array". (CodeDescription: none) |15 !~ [\n]|
 ]
 
 // relational
 var lt = 4 < 's'
 //@[04:06) [no-unused-vars (Warning)] Variable "lt" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |lt|
-//@[09:16) [BCP045 (Error)] Cannot apply operator "<" to operands of type "int" and "'s'". (CodeDescription: none) |4 < 's'|
+//@[09:16) [BCP045 (Error)] Cannot apply operator "<" to operands of type "4" and "'s'". (CodeDescription: none) |4 < 's'|
 var lteq = null <= 10
 //@[04:08) [no-unused-vars (Warning)] Variable "lteq" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |lteq|
-//@[11:21) [BCP045 (Error)] Cannot apply operator "<=" to operands of type "null" and "int". (CodeDescription: none) |null <= 10|
+//@[11:21) [BCP045 (Error)] Cannot apply operator "<=" to operands of type "null" and "10". (CodeDescription: none) |null <= 10|
 var gt = false>[
 //@[04:06) [no-unused-vars (Warning)] Variable "gt" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |gt|
-//@[09:18) [BCP045 (Error)] Cannot apply operator ">" to operands of type "bool" and "array". (CodeDescription: none) |false>[\n]|
+//@[09:18) [BCP045 (Error)] Cannot apply operator ">" to operands of type "false" and "array". (CodeDescription: none) |false>[\n]|
 ]
 var gteq = {
 //@[04:08) [no-unused-vars (Warning)] Variable "gteq" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |gteq|
-//@[11:23) [BCP045 (Error)] Cannot apply operator ">=" to operands of type "object" and "bool". (CodeDescription: none) |{\n} >= false|
+//@[11:23) [BCP045 (Error)] Cannot apply operator ">=" to operands of type "object" and "false". (CodeDescription: none) |{\n} >= false|
 } >= false
 
 // logical
@@ -188,7 +188,7 @@ var and = null && 'a'
 //@[10:21) [BCP045 (Error)] Cannot apply operator "&&" to operands of type "null" and "'a'". (CodeDescription: none) |null && 'a'|
 var or = 10 || 4
 //@[04:06) [no-unused-vars (Warning)] Variable "or" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |or|
-//@[09:16) [BCP045 (Error)] Cannot apply operator "||" to operands of type "int" and "int". (CodeDescription: none) |10 || 4|
+//@[09:16) [BCP045 (Error)] Cannot apply operator "||" to operands of type "10" and "4". (CodeDescription: none) |10 || 4|
 
 // conditional
 var ternary = null ? 4 : false
@@ -200,22 +200,22 @@ var complex = test(2 + 3*4, true || false && null)
 //@[04:11) [BCP028 (Error)] Identifier "complex" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |complex|
 //@[04:11) [no-unused-vars (Warning)] Variable "complex" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |complex|
 //@[14:18) [BCP057 (Error)] The name "test" does not exist in the current context. (CodeDescription: none) |test|
-//@[36:49) [BCP045 (Error)] Cannot apply operator "&&" to operands of type "bool" and "null". (CodeDescription: none) |false && null|
+//@[36:49) [BCP045 (Error)] Cannot apply operator "&&" to operands of type "false" and "null". (CodeDescription: none) |false && null|
 var complex = -2 && 3 && !4 && 5
 //@[04:11) [BCP028 (Error)] Identifier "complex" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |complex|
 //@[04:11) [no-unused-vars (Warning)] Variable "complex" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |complex|
-//@[14:21) [BCP045 (Error)] Cannot apply operator "&&" to operands of type "int" and "int". (CodeDescription: none) |-2 && 3|
-//@[25:27) [BCP044 (Error)] Cannot apply operator "!" to operand of type "int". (CodeDescription: none) |!4|
+//@[14:21) [BCP045 (Error)] Cannot apply operator "&&" to operands of type "-2" and "3". (CodeDescription: none) |-2 && 3|
+//@[25:27) [BCP044 (Error)] Cannot apply operator "!" to operand of type "4". (CodeDescription: none) |!4|
 var complex = null ? !4: false
 //@[04:11) [BCP028 (Error)] Identifier "complex" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |complex|
 //@[04:11) [no-unused-vars (Warning)] Variable "complex" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |complex|
-//@[21:23) [BCP044 (Error)] Cannot apply operator "!" to operand of type "int". (CodeDescription: none) |!4|
+//@[21:23) [BCP044 (Error)] Cannot apply operator "!" to operand of type "4". (CodeDescription: none) |!4|
 var complex = true == false != null == 4 != 'a' ? -2 && 3 && !4 && 5 : true || false && null
 //@[04:11) [BCP028 (Error)] Identifier "complex" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |complex|
 //@[04:11) [no-unused-vars (Warning)] Variable "complex" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |complex|
-//@[50:57) [BCP045 (Error)] Cannot apply operator "&&" to operands of type "int" and "int". (CodeDescription: none) |-2 && 3|
-//@[61:63) [BCP044 (Error)] Cannot apply operator "!" to operand of type "int". (CodeDescription: none) |!4|
-//@[79:92) [BCP045 (Error)] Cannot apply operator "&&" to operands of type "bool" and "null". (CodeDescription: none) |false && null|
+//@[50:57) [BCP045 (Error)] Cannot apply operator "&&" to operands of type "-2" and "3". (CodeDescription: none) |-2 && 3|
+//@[61:63) [BCP044 (Error)] Cannot apply operator "!" to operand of type "4". (CodeDescription: none) |!4|
+//@[79:92) [BCP045 (Error)] Cannot apply operator "&&" to operands of type "false" and "null". (CodeDescription: none) |false && null|
 
 var nestedTernary = null ? 1 : 2 ? true ? 'a': 'b' : false ? 'd' : 15
 //@[04:17) [BCP028 (Error)] Identifier "nestedTernary" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |nestedTernary|
@@ -232,7 +232,7 @@ var errorInsideArrayAccess = [
   !null
 //@[02:07) [BCP044 (Error)] Cannot apply operator "!" to operand of type "null". (CodeDescription: none) |!null|
 ][!0]
-//@[02:04) [BCP044 (Error)] Cannot apply operator "!" to operand of type "int". (CodeDescription: none) |!0|
+//@[02:04) [BCP044 (Error)] Cannot apply operator "!" to operand of type "0". (CodeDescription: none) |!0|
 var integerIndexOnNonArray = (null)[0]
 //@[04:26) [no-unused-vars (Warning)] Variable "integerIndexOnNonArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |integerIndexOnNonArray|
 //@[29:35) [BCP076 (Error)] Cannot index over expression of type "null". Arrays or objects are required. (CodeDescription: none) |(null)|
@@ -246,7 +246,7 @@ var malformedStringIndex = {
 //@[07:09) [BCP006 (Error)] The specified escape sequence is not recognized. Only the following escape sequences are allowed: "\$", "\'", "\\", "\n", "\r", "\t", "\u{...}". (CodeDescription: none) |\e|
 var invalidIndexTypeOverAny = any(true)[true]
 //@[04:27) [no-unused-vars (Warning)] Variable "invalidIndexTypeOverAny" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |invalidIndexTypeOverAny|
-//@[40:44) [BCP049 (Error)] The array index must be of type "string" or "int" but the provided index was of type "bool". (CodeDescription: none) |true|
+//@[40:44) [BCP049 (Error)] The array index must be of type "string" or "int" but the provided index was of type "true". (CodeDescription: none) |true|
 var badIndexOverArray = [][null]
 //@[04:21) [no-unused-vars (Warning)] Variable "badIndexOverArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badIndexOverArray|
 //@[27:31) [BCP074 (Error)] Indexing over arrays requires an index of type "int" but the provided index was of type "null". (CodeDescription: none) |null|
@@ -256,10 +256,10 @@ var badIndexOverArray2 = []['s']
 //@[28:31) [BCP074 (Error)] Indexing over arrays requires an index of type "int" but the provided index was of type "'s'". (CodeDescription: none) |'s'|
 var badIndexOverObj = {}[true]
 //@[04:19) [no-unused-vars (Warning)] Variable "badIndexOverObj" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badIndexOverObj|
-//@[25:29) [BCP075 (Error)] Indexing over objects requires an index of type "string" but the provided index was of type "bool". (CodeDescription: none) |true|
+//@[25:29) [BCP075 (Error)] Indexing over objects requires an index of type "string" but the provided index was of type "true". (CodeDescription: none) |true|
 var badIndexOverObj2 = {}[0]
 //@[04:20) [no-unused-vars (Warning)] Variable "badIndexOverObj2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badIndexOverObj2|
-//@[26:27) [BCP075 (Error)] Indexing over objects requires an index of type "string" but the provided index was of type "int". (CodeDescription: none) |0|
+//@[26:27) [BCP075 (Error)] Indexing over objects requires an index of type "string" but the provided index was of type "0". (CodeDescription: none) |0|
 var badExpressionIndexer = {}[base64('a')]
 //@[04:24) [no-unused-vars (Warning)] Variable "badExpressionIndexer" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badExpressionIndexer|
 //@[30:41) [BCP054 (Error)] The type "object" does not contain any properties. (CodeDescription: none) |base64('a')|
@@ -267,7 +267,7 @@ var badExpressionIndexer = {}[base64('a')]
 // bad propertyAccess
 var dotAccessOnNonObject = true.foo
 //@[04:24) [no-unused-vars (Warning)] Variable "dotAccessOnNonObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |dotAccessOnNonObject|
-//@[32:35) [BCP055 (Error)] Cannot access properties of type "bool". An "object" type is required. (CodeDescription: none) |foo|
+//@[32:35) [BCP055 (Error)] Cannot access properties of type "true". An "object" type is required. (CodeDescription: none) |foo|
 var badExpressionInPropertyAccess = resourceGroup()[!'location']
 //@[04:33) [no-unused-vars (Warning)] Variable "badExpressionInPropertyAccess" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badExpressionInPropertyAccess|
 //@[52:63) [BCP044 (Error)] Cannot apply operator "!" to operand of type "'location'". (CodeDescription: none) |!'location'|
@@ -363,7 +363,7 @@ var concatWrongTypesContradiction = concat('s', [
 ])
 var indexOfWrongTypes = indexOf(1,1)
 //@[04:21) [no-unused-vars (Warning)] Variable "indexOfWrongTypes" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |indexOfWrongTypes|
-//@[32:33) [BCP048 (Error)] Cannot resolve function overload.\n  Overload 1 of 2, "(stringToSearch: string, stringToFind: string): int", gave the following error:\n    Argument of type "int" is not assignable to parameter of type "string".\n  Overload 2 of 2, "(array: array, itemToFind: any): int", gave the following error:\n    Argument of type "int" is not assignable to parameter of type "array". (CodeDescription: none) |1|
+//@[32:33) [BCP048 (Error)] Cannot resolve function overload.\n  Overload 1 of 2, "(stringToSearch: string, stringToFind: string): int", gave the following error:\n    Argument of type "1" is not assignable to parameter of type "string".\n  Overload 2 of 2, "(array: array, itemToFind: any): int", gave the following error:\n    Argument of type "1" is not assignable to parameter of type "array". (CodeDescription: none) |1|
 
 // not enough params
 var test1 = listKeys('abcd')
@@ -411,13 +411,13 @@ var badPropertyIndexer = sampleObject['fake']
 //@[38:44) [BCP053 (Error)] The type "object" does not contain property "fake". Available properties include "myArr", "myBool", "myInner", "myInt", "myNull", "myStr". (CodeDescription: none) |'fake'|
 var badType = sampleObject.myStr / 32
 //@[04:11) [no-unused-vars (Warning)] Variable "badType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badType|
-//@[14:37) [BCP045 (Error)] Cannot apply operator "/" to operands of type "'s'" and "int". (CodeDescription: none) |sampleObject.myStr / 32|
+//@[14:37) [BCP045 (Error)] Cannot apply operator "/" to operands of type "'s'" and "32". (CodeDescription: none) |sampleObject.myStr / 32|
 var badInnerProperty = sampleObject.myInner.fake
 //@[04:20) [no-unused-vars (Warning)] Variable "badInnerProperty" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badInnerProperty|
 //@[44:48) [BCP053 (Error)] The type "object" does not contain property "fake". Available properties include "anotherStr", "otherArr". (CodeDescription: none) |fake|
 var badInnerType = sampleObject.myInner.anotherStr + 2
 //@[04:16) [no-unused-vars (Warning)] Variable "badInnerType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badInnerType|
-//@[19:54) [BCP045 (Error)] Cannot apply operator "+" to operands of type "'a'" and "int". (CodeDescription: none) |sampleObject.myInner.anotherStr + 2|
+//@[19:54) [BCP045 (Error)] Cannot apply operator "+" to operands of type "'a'" and "2". (CodeDescription: none) |sampleObject.myInner.anotherStr + 2|
 var badArrayIndexer = sampleObject.myArr['s']
 //@[04:19) [no-unused-vars (Warning)] Variable "badArrayIndexer" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |badArrayIndexer|
 //@[40:45) [prefer-unquoted-property-names (Warning)] Property names that are valid identifiers should be declared without quotation marks and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-unquoted-property-names)) |['s']|
@@ -451,7 +451,7 @@ var invalidPropertyAccessOnSysNamespace = sys.az
 //@[46:48) [BCP052 (Error)] The type "sys" does not contain property "az". (CodeDescription: none) |az|
 var invalidOperands = 1 + az
 //@[04:19) [no-unused-vars (Warning)] Variable "invalidOperands" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |invalidOperands|
-//@[22:28) [BCP045 (Error)] Cannot apply operator "+" to operands of type "int" and "az". (CodeDescription: none) |1 + az|
+//@[22:28) [BCP045 (Error)] Cannot apply operator "+" to operands of type "1" and "az". (CodeDescription: none) |1 + az|
 var invalidStringAddition = 'hello' + sampleObject.myStr
 //@[04:25) [no-unused-vars (Warning)] Variable "invalidStringAddition" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |invalidStringAddition|
 //@[28:56) [BCP045 (Error)] Cannot apply operator "+" to operands of type "'hello'" and "'s'". Use string interpolation instead. (CodeDescription: none) |'hello' + sampleObject.myStr|

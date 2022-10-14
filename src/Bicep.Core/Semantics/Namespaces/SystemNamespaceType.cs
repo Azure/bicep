@@ -7,7 +7,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -68,20 +67,20 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("format")
-                .WithReturnType(LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("format", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Creates a formatted string from input values.")
                 .WithRequiredParameter("formatString", LanguageConstants.String, "The composite format string.")
                 .WithVariableParameter("arg", LanguageConstants.Any, minimumCount: 0, "The value to include in the formatted string.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("base64")
-                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("base64"), LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("base64", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Returns the base64 representation of the input string.")
                 .WithRequiredParameter("inputString", LanguageConstants.String, "The value to return as a base64 representation.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("padLeft")
-                .WithReturnType(LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("padLeft", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Returns a right-aligned string by adding characters to the left until reaching the total specified length.")
                 .WithRequiredParameter("valueToPad", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), "The value to right-align.")
                 .WithRequiredParameter("totalLength", LanguageConstants.Int, "The total number of characters in the returned string.")
@@ -89,7 +88,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("replace")
-                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("replace"), LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("replace", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Returns a new string with all instances of one string replaced by another string.")
                 .WithRequiredParameter("originalString", LanguageConstants.String, "The original string.")
                 .WithRequiredParameter("oldString", LanguageConstants.String, "The string to be removed from the original string.")
@@ -97,19 +96,19 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("toLower")
-                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("toLower"), LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("toLower", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Converts the specified string to lower case.")
                 .WithRequiredParameter("stringToChange", LanguageConstants.String, "The value to convert to lower case.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("toUpper")
-                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("toUpper"), LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("toUpper", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Converts the specified string to upper case.")
                 .WithRequiredParameter("stringToChange", LanguageConstants.String, "The value to convert to upper case.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("length")
-                .WithReturnType(LanguageConstants.Int)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("length", LanguageConstants.Int), LanguageConstants.Int)
                 .WithGenericDescription("Returns the number of characters in a string, elements in an array, or root-level properties in an object.")
                 .WithRequiredParameter("arg", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object, LanguageConstants.Array), "The array to use for getting the number of elements, the string to use for getting the number of characters, or the object to use for getting the number of root-level properties.")
                 .Build();
@@ -122,7 +121,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("join")
-                .WithReturnType(LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("join", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Joins multiple strings into a single string, separated using a delimiter.")
                 .WithRequiredParameter("inputArray", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default), "An array of strings to join.")
                 .WithRequiredParameter("delimiter", LanguageConstants.String, "The delimiter to use to join the string.")
@@ -141,25 +140,25 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("uniqueString")
-                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("uniqueString"), LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("uniqueString", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Creates a deterministic hash string based on the values provided as parameters. The returned value is 13 characters long.")
                 .WithVariableParameter("arg", LanguageConstants.String, minimumCount: 1, "The value used in the hash function to create a unique string.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("guid")
-                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("guid"), LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("guid", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Creates a value in the format of a globally unique identifier based on the values provided as parameters.")
                 .WithVariableParameter("arg", LanguageConstants.String, minimumCount: 1, "The value used in the hash function to create the GUID.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("trim")
-                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("trim"), LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("trim", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Removes all leading and trailing white-space characters from the specified string.")
                 .WithRequiredParameter("stringToTrim", LanguageConstants.String, "The value to trim.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("uri")
-                .WithReturnType(LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("uri", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Creates an absolute URI by combining the baseUri and the relativeUri string.")
                 .WithRequiredParameter("baseUri", LanguageConstants.String, "The base uri string.")
                 .WithRequiredParameter("relativeUri", LanguageConstants.String, "The relative uri string to add to the base uri string.")
@@ -167,7 +166,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             // TODO: Docs deviation
             yield return new FunctionOverloadBuilder("substring")
-                .WithReturnType(LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("substring", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Returns a substring that starts at the specified character position and contains the specified number of characters.")
                 .WithRequiredParameter("stringToParse", LanguageConstants.String, "The original string from which the substring is extracted.")
                 .WithRequiredParameter("startIndex", LanguageConstants.Int, "The zero-based starting character position for the substring.")
@@ -183,7 +182,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("take")
-                .WithReturnType(LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("take", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription(TakeDescription)
                 .WithDescription("Returns a string with the specified number of characters from the start of the string.")
                 .WithRequiredParameter("originalValue", LanguageConstants.String, "The string to take the elements from.")
@@ -199,7 +198,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("skip")
-                .WithReturnType(LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("skip", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription(SkipDescription)
                 .WithDescription("Returns a string with all the characters after the specified number in the string.")
                 .WithRequiredParameter("originalValue", LanguageConstants.String, "The string to use for skipping.")
@@ -207,13 +206,13 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("empty")
-                .WithReturnType(LanguageConstants.Bool)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("empty", LanguageConstants.Bool), LanguageConstants.Bool)
                 .WithGenericDescription("Determines if an array, object, or string is empty.")
                 .WithRequiredParameter("itemToTest", TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.Object, LanguageConstants.Array, LanguageConstants.String), "The value to check if it is empty.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("contains")
-                .WithReturnType(LanguageConstants.Bool)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("contains", LanguageConstants.Bool), LanguageConstants.Bool)
                 .WithGenericDescription(ContainsDescription)
                 .WithDescription("Checks whether an object contains a property. The property name comparison is case-insensitive.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The object")
@@ -229,7 +228,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("contains")
-                .WithReturnType(LanguageConstants.Bool)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("contains", LanguageConstants.Bool), LanguageConstants.Bool)
                 .WithGenericDescription(ContainsDescription)
                 .WithDescription("Checks whether a string contains a substring. The string comparison is case-sensitive.")
                 .WithRequiredParameter("string", LanguageConstants.String, "The string.")
@@ -272,7 +271,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("first")
-                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("first"), LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("first", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription(FirstDescription)
                 .WithDescription("Returns the first character of the string.")
                 .WithRequiredParameter("string", LanguageConstants.String, "The value to retrieve the first character.")
@@ -286,14 +285,14 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("last")
-                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("last"), LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("last", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription(LastDescription)
                 .WithDescription("Returns the last character of the string.")
                 .WithRequiredParameter("string", LanguageConstants.String, "The value to retrieve the last character.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("indexOf")
-                .WithReturnType(LanguageConstants.Int)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("indexOf", LanguageConstants.Int), LanguageConstants.Int)
                 .WithGenericDescription("Returns the first position of a value within a string. The comparison is case-insensitive.")
                 .WithRequiredParameter("stringToSearch", LanguageConstants.String, "The value that contains the item to find.")
                 .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
@@ -307,7 +306,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("lastIndexOf")
-                .WithReturnType(LanguageConstants.Int)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("lastIndexOf", LanguageConstants.Int), LanguageConstants.Int)
                 .WithGenericDescription("Returns the last position of a value within a string. The comparison is case-insensitive.")
                 .WithRequiredParameter("stringToSearch", LanguageConstants.String, "The value that contains the item to find.")
                 .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
@@ -321,14 +320,14 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("startsWith")
-                .WithReturnType(LanguageConstants.Bool)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("startsWith", LanguageConstants.Bool), LanguageConstants.Bool)
                 .WithGenericDescription("Determines whether a string starts with a value. The comparison is case-insensitive.")
                 .WithRequiredParameter("stringToSearch", LanguageConstants.String, "The value that contains the item to find.")
                 .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("endsWith")
-                .WithReturnType(LanguageConstants.Bool)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("endsWith", LanguageConstants.Bool), LanguageConstants.Bool)
                 .WithGenericDescription("Determines whether a string ends with a value. The comparison is case-insensitive.")
                 .WithRequiredParameter("stringToSearch", LanguageConstants.String, "The value that contains the item to find.")
                 .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
@@ -337,7 +336,7 @@ namespace Bicep.Core.Semantics.Namespaces
             // TODO: Needs to support number type as well
             // TODO: Docs need updates
             yield return new FunctionOverloadBuilder("min")
-                .WithReturnType(LanguageConstants.Int)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("min", LanguageConstants.Int), LanguageConstants.Int)
                 .WithGenericDescription(MinDescription)
                 .WithDescription("Returns the minimum value from the specified integers.")
                 .WithVariableParameter("int", LanguageConstants.Int, minimumCount: 1, "One of the integers used to calculate the minimum value")
@@ -354,7 +353,7 @@ namespace Bicep.Core.Semantics.Namespaces
             // TODO: Needs to support number type as well
             // TODO: Docs need updates
             yield return new FunctionOverloadBuilder("max")
-                .WithReturnType(LanguageConstants.Int)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("max", LanguageConstants.Int), LanguageConstants.Int)
                 .WithGenericDescription(MaxDescription)
                 .WithDescription("Returns the maximum value from the specified integers.")
                 .WithVariableParameter("int", LanguageConstants.Int, minimumCount: 1, "One of the integers used to calculate the maximum value")
@@ -376,7 +375,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("base64ToString")
-                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("base64ToString"), LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("base64ToString", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Converts a base64 representation to a string.")
                 .WithRequiredParameter("base64Value", LanguageConstants.String, "The base64 representation to convert to a string.")
                 .Build();
@@ -388,26 +387,26 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("uriComponentToString")
-                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("uriComponentToString"), LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("uriComponentToString", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Returns a string of a URI encoded value.")
                 .WithRequiredParameter("uriEncodedString", LanguageConstants.String, "The URI encoded value to convert to a string.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("uriComponent")
-                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("uriComponent"), LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("uriComponent", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Encodes a URI.")
                 .WithRequiredParameter("stringToEncode", LanguageConstants.String, "The value to encode.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("dataUriToString")
                 .WithGenericDescription("Converts a data URI formatted value to a string.")
-                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("dataUriToString"), LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("dataUriToString", LanguageConstants.String), LanguageConstants.String)
                 .WithRequiredParameter("dataUriToConvert", LanguageConstants.String, "The data URI value to convert.")
                 .Build();
 
             // TODO: Docs have wrong param type and param name (any is actually supported)
             yield return new FunctionOverloadBuilder("dataUri")
-                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("dataUri"), LanguageConstants.String)
+                .WithReturnResultBuilder(TryDeriveLiteralReturnType("dataUri", LanguageConstants.String), LanguageConstants.String)
                 .WithGenericDescription("Converts a value to a data URI.")
                 .WithRequiredParameter("valueToConvert", LanguageConstants.Any, "The value to convert to a data URI.")
                 .Build();
@@ -584,36 +583,16 @@ namespace Bicep.Core.Semantics.Namespaces
             return true;
         }
 
-        private static FunctionOverload.ResultBuilderDelegate PerformArmConversionOfStringLiterals(string armFunctionName) =>
+        private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, TypeSymbol nonLitealReturnType) =>
             (_, _, diagnostics, functionCall, argumentTypes) =>
             {
-                var arguments = functionCall.Arguments.ToImmutableArray();
-                if (arguments.Length > 0 && argumentTypes.All(s => s is StringLiteralType))
-                {
-                    var parameters = argumentTypes.OfType<StringLiteralType>()
-                        .Select(slt => new FunctionArgument(JValue.CreateString(slt.RawStringValue))).ToArray();
-                    try
-                    {
-                        if (ExpressionBuiltInFunctions.Functions.EvaluateFunction(armFunctionName, parameters, new()) is JValue { Value: string stringValue })
-                        {
-                            return new(new StringLiteralType(stringValue));
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        // The ARM function invoked will almost certainly fail at runtime, but there's a chance a fix has been
-                        // deployed to ARM since this version of Bicep was released. Given that context, this failure will only
-                        // be reported as a warning, and the fallback type will be used.
-                        diagnostics.Write(
-                            DiagnosticBuilder.ForPosition(TextSpan.Between(arguments.First().Span, arguments.Last().Span))
-                                .ArmFunctionLiteralTypeConversionFailedWithMessage(
-                                    string.Join(", ", parameters.Select(t => t.ToString())),
-                                    armFunctionName,
-                                    e.Message));
-                    }
-                }
+                var returnType = ArmFunctionReturnTypeEvaluator.Evaluate(armFunctionName, nonLitealReturnType, out var diagnosticBuilders, argumentTypes);
+                var diagnosticTarget = functionCall.Arguments.Any()
+                    ? TextSpan.Between(functionCall.Arguments.First(), functionCall.Arguments.Last())
+                    : TextSpan.Between(functionCall.OpenParen, functionCall.CloseParen);
+                diagnostics.WriteMultiple(diagnosticBuilders.Select(b => b(DiagnosticBuilder.ForPosition(diagnosticTarget))));
 
-                return new(LanguageConstants.String);
+                return new(returnType);
             };
 
         private static TypeSymbol? CalculateLambdaFromArrayParam(GetFunctionArgumentType getArgumentType, int arrayIndex, Func<TypeSymbol, LambdaType> lambdaBuilder)

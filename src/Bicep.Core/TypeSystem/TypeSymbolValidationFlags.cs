@@ -21,9 +21,9 @@ namespace Bicep.Core.TypeSystem
         WarnOnTypeMismatch = 1 << 0,
 
         /// <summary>
-        /// Permits assignment from string to string literal.
+        /// Permits assignment from string/int/bool to string/int/bool literal, respectively.
         /// </summary>
-        AllowLooseStringAssignment = 1 << 1,
+        AllowLooseAssignment = 1 << 1,
 
         /// <summary>
         /// Prevents all assignment of this type.

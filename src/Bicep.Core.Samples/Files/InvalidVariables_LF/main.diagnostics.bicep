@@ -86,12 +86,12 @@ var bar = foo()
 //@[10:13) [BCP059 (Error)] The name "foo" is not a function. (CodeDescription: none) |foo|
 var x = 2 + !3
 //@[04:05) [BCP028 (Error)] Identifier "x" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |x|
-//@[12:14) [BCP044 (Error)] Cannot apply operator "!" to operand of type "int". (CodeDescription: none) |!3|
+//@[12:14) [BCP044 (Error)] Cannot apply operator "!" to operand of type "3". (CodeDescription: none) |!3|
 var y = false ? true + 1 : !4
 //@[04:05) [BCP028 (Error)] Identifier "y" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |y|
 //@[04:05) [no-unused-vars (Warning)] Variable "y" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |y|
-//@[16:24) [BCP045 (Error)] Cannot apply operator "+" to operands of type "bool" and "int". (CodeDescription: none) |true + 1|
-//@[27:29) [BCP044 (Error)] Cannot apply operator "!" to operand of type "int". (CodeDescription: none) |!4|
+//@[16:24) [BCP045 (Error)] Cannot apply operator "+" to operands of type "true" and "1". (CodeDescription: none) |true + 1|
+//@[27:29) [BCP044 (Error)] Cannot apply operator "!" to operand of type "4". (CodeDescription: none) |!4|
 
 // test for array item recovery
 var x = [
@@ -112,7 +112,7 @@ var y = {
 //@[02:03) [BCP022 (Error)] Expected a property name at this location. (CodeDescription: none) |=|
 //@[03:03) [BCP018 (Error)] Expected the ":" character at this location. (CodeDescription: none) ||
   foo: !2
-//@[07:09) [BCP044 (Error)] Cannot apply operator "!" to operand of type "int". (CodeDescription: none) |!2|
+//@[07:09) [BCP044 (Error)] Cannot apply operator "!" to operand of type "2". (CodeDescription: none) |!2|
 }
 
 // utcNow and newGuid used outside a param default value
@@ -258,7 +258,7 @@ var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 // Issue 486
 var myFloat = 3.14
 //@[04:11) [no-unused-vars (Warning)] Variable "myFloat" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |myFloat|
-//@[16:16) [BCP055 (Error)] Cannot access properties of type "int". An "object" type is required. (CodeDescription: none) ||
+//@[16:16) [BCP055 (Error)] Cannot access properties of type "3". An "object" type is required. (CodeDescription: none) ||
 //@[16:16) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 //@[16:18) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) |14|
 

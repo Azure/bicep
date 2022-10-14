@@ -1988,7 +1988,7 @@ var primaryFoo = foos[0]
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP076", DiagnosticLevel.Error, "Cannot index over expression of type \"array | bool\". Arrays or objects are required.")
+                ("BCP076", DiagnosticLevel.Error, "Cannot index over expression of type \"array | true\". Arrays or objects are required.")
             });
         }
 
@@ -3303,13 +3303,13 @@ output fooBadIdProps object = {
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2021-09-00\" does not have types available."),
-                ("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"int\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"123\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
                 ("BCP036", DiagnosticLevel.Warning, "The property \"capacity\" expected a value of type \"int\" but the provided value is of type \"'1'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-                ("BCP036", DiagnosticLevel.Warning, "The property \"type\" expected a value of type \"'ArcZone' | 'CustomLocation' | 'EdgeZone' | 'NotSpecified' | string\" but the provided value is of type \"int\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"type\" expected a value of type \"'ArcZone' | 'CustomLocation' | 'EdgeZone' | 'NotSpecified' | string\" but the provided value is of type \"1\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
                 ("BCP036", DiagnosticLevel.Warning, "The property \"capacity\" expected a value of type \"int\" but the provided value is of type \"'2'\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-                ("BCP036", DiagnosticLevel.Warning, "The property \"tenantId\" expected a value of type \"string\" but the provided value is of type \"int\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-                ("BCP036", DiagnosticLevel.Warning, "The property \"clientId\" expected a value of type \"string\" but the provided value is of type \"int\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
-                ("BCP036", DiagnosticLevel.Warning, "The property \"principalId\" expected a value of type \"string\" but the provided value is of type \"int\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"tenantId\" expected a value of type \"string\" but the provided value is of type \"3\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"clientId\" expected a value of type \"string\" but the provided value is of type \"1\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP036", DiagnosticLevel.Warning, "The property \"principalId\" expected a value of type \"string\" but the provided value is of type \"2\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
                 ("BCP053", DiagnosticLevel.Error, "The type \"userAssignedIdentityProperties\" does not contain property \"hello\". Available properties include \"clientId\", \"principalId\"."),
             });
         }

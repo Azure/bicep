@@ -25,4 +25,4 @@ targetScope = { }
 
 targetScope = true
 //@[00:11) [BCP112 (Error)] The "targetScope" cannot be declared multiple times in one file. (CodeDescription: none) |targetScope|
-//@[14:18) [BCP033 (Error)] Expected a value of type "'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'" but the provided value is of type "bool". (CodeDescription: none) |true|
+//@[14:18) [BCP033 (Error)] Expected a value of type "'managementGroup' | 'resourceGroup' | 'subscription' | 'tenant'" but the provided value is of type "true". (CodeDescription: none) |true|

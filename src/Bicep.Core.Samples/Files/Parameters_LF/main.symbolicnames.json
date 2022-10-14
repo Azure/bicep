@@ -7,14 +7,14 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6318552819722623937"
+      "templateHash": "16324908782901110354"
     }
   },
   "parameters": {
     "myString": {
       "type": "string",
       "metadata": {
-        "description": "this is my multi line \ndescription for my myString\n"
+        "description": "this is my multi line\ndescription for my myString\n"
       }
     },
     "myInt": {
@@ -93,6 +93,14 @@
       "allowedValues": [
         "Standard_LRS",
         "Standard_GRS"
+      ]
+    },
+    "intEnum": {
+      "type": "int",
+      "allowedValues": [
+        1,
+        2,
+        3
       ]
     },
     "storageName": {
