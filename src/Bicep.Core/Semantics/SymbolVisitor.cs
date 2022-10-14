@@ -1,13 +1,23 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Generic;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
     public class SymbolVisitor
     {
+        private readonly HashSet<Symbol> visited = new();
+
         public void Visit(Symbol node)
         {
+            // symbols may be recursive but should only be visited once
+            if (visited.Contains(node))
+            {
+                return;
+            }
+            visited.Add(node);
+
             VisitInternal(node);
         }
 
@@ -61,6 +71,11 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
+        public virtual void VisitDeclaredTypeSymbol(DeclaredTypeSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
         public virtual void VisitBuiltInNamespaceSymbol(BuiltInNamespaceSymbol symbol)
         {
             VisitDescendants(symbol);
@@ -105,4 +120,3 @@ namespace Bicep.Core.Semantics
         }
     }
 }
-

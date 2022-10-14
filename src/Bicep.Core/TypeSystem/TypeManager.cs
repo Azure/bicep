@@ -22,7 +22,7 @@ namespace Bicep.Core.TypeSystem
             // so we can't make an immutable copy here
             // (using the IReadOnlyDictionary to prevent accidental mutation)
             this.typeAssignmentVisitor = new TypeAssignmentVisitor(this, features, binder, fileResolver, kind);
-            this.declaredTypeManager = new DeclaredTypeManager(this, binder);
+            this.declaredTypeManager = new DeclaredTypeManager(this, binder, features);
         }
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)

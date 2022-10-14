@@ -65,6 +65,14 @@ namespace Bicep.Core.Semantics
             DeclareSymbol(symbol);
         }
 
+        public override void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax)
+        {
+            base.VisitTypeDeclarationSyntax(syntax);
+
+            var symbol = new DeclaredTypeSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Value);
+            DeclareSymbol(symbol);
+        }
+
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
             base.VisitVariableDeclarationSyntax(syntax);

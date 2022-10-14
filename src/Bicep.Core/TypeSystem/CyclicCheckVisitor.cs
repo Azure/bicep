@@ -110,6 +110,9 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
+        public override void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax)
+            => VisitDeclaration(syntax, base.VisitTypeDeclarationSyntax);
+
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
             if (!currentDeclarations.TryPeek(out var currentDeclaration))
@@ -144,6 +147,24 @@ namespace Bicep.Core.TypeSystem
 
             declarationAccessDict[currentDeclaration].Add(syntax);
             base.VisitFunctionCallSyntax(syntax);
+        }
+
+        public override void VisitTypeAccessSyntax(TypeAccessSyntax syntax)
+        {
+            if (!currentDeclarations.TryPeek(out var currentDeclaration))
+            {
+                // we're not inside a declaration, so there should be no risk of a cycle
+                return;
+            }
+
+            declarationAccessDict[currentDeclaration].Add(syntax);
+            base.VisitTypeAccessSyntax(syntax);
+        }
+
+        public override void VisitObjectTypeSyntax(ObjectTypeSyntax syntax)
+        {
+            // Recursive types are not considered cyclic, so stop visiting.
+            return;
         }
     }
 }
