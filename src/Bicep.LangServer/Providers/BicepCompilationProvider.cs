@@ -40,14 +40,14 @@ namespace Bicep.LanguageServer.Providers
 
         public CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, IBicepAnalyzer bicepAnalyzer)
         {
-            var syntaxTreeGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, documentUri.ToUri());
-            return this.CreateContext(syntaxTreeGrouping, modelLookup, bicepAnalyzer);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, documentUri.ToUri());
+            return this.CreateContext(sourceFileGrouping, modelLookup, bicepAnalyzer);
         }
 
         public CompilationContext Update(IReadOnlyWorkspace workspace, CompilationContext current, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, IBicepAnalyzer bicepAnalyzer)
         {
-            var syntaxTreeGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, workspace, current.Compilation.SourceFileGrouping);
-            return this.CreateContext(syntaxTreeGrouping, modelLookup, bicepAnalyzer);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, workspace, current.Compilation.SourceFileGrouping);
+            return this.CreateContext(sourceFileGrouping, modelLookup, bicepAnalyzer);
         }
 
         private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, IBicepAnalyzer bicepAnalyzer)

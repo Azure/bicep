@@ -119,7 +119,6 @@ namespace Bicep.LanguageServer
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<ITelemetryProvider, TelemetryProvider>()
                 .AddSingleton<ICompilationManager, BicepCompilationManager>()
-                .AddSingleton<IFileLanguageTracker, FileLanguageTracker>()
                 .AddSingleton<ICompilationProvider, BicepCompilationProvider>()
                 .AddSingleton<ISymbolResolver, BicepSymbolResolver>()
                 .AddSingleton<ICompletionProvider, BicepCompletionProvider>()

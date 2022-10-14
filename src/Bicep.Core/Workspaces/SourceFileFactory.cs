@@ -23,21 +23,23 @@ namespace Bicep.Core.Workspaces
             LineInfoHandling = LineInfoHandling.Ignore,
         };
 
-        public static BicepSourceFile CreateSourceFileByLanguageId(Uri fileUri, string fileContents, string languageId) => languageId switch
+        public static BicepSourceFile? TryCreateSourceFileByBicepLanguageId(Uri fileUri, string fileContents, string languageId) => languageId switch
         {
             LanguageConstants.LanguageId => CreateBicepFile(fileUri, fileContents),
             LanguageConstants.ParamsLanguageId => CreateBicepParamFile(fileUri, fileContents),
-            _ => throw new NotImplementedException($"Unexpected language id '{languageId}'.")
+            _ => null
         };
 
-        public static BicepSourceFile CreateFromExistingSourceFile(BicepSourceFile sourceFile, string newFileContents) => sourceFile switch
+
+        public static BicepSourceFile? TryCreateSourceFileByFileKind(Uri fileUri, string fileContents, BicepSourceFileKind? fileKind) => fileKind switch
         {
-            BicepFile => CreateBicepFile(sourceFile.FileUri, newFileContents),
-            BicepParamFile => CreateBicepParamFile(sourceFile.FileUri, newFileContents),
-            _ => throw new NotImplementedException($"Unexpected source file type '{sourceFile.GetType().Name}'.")
+            BicepSourceFileKind.BicepFile => CreateBicepFile(fileUri, fileContents),
+            BicepSourceFileKind.ParamsFile => CreateBicepParamFile(fileUri, fileContents),
+            null => null,
+            _ => throw new NotImplementedException($"Unexpected file kind '{fileKind}'.")
         };
 
-        public static ISourceFile? TryCreateArmTemplateFile(Uri fileUri, string fileContents, ModuleReference? moduleReference = null)
+        public static ISourceFile? TryCreateSourceFile(Uri fileUri, string fileContents, ModuleReference? moduleReference = null)
         {
             if (PathHelper.HasArmTemplateLikeExtension(fileUri))
             {
@@ -46,17 +48,7 @@ namespace Bicep.Core.Workspaces
                     : CreateArmTemplateFile(fileUri, fileContents);
             }
 
-            return null;
-        }
-
-        public static ISourceFile? TryCreateSourceFile(Uri fileUri, string fileContents, ModuleReference? moduleReference = null)
-        {
-            if(TryCreateArmTemplateFile(fileUri, fileContents, moduleReference) is { } armTemplateFile)
-            {
-                return armTemplateFile;
-            }
-
-            if(PathHelper.HasBicepExtension(fileUri))
+            if (PathHelper.HasBicepExtension(fileUri))
             {
                 return CreateBicepFile(fileUri, fileContents);
             }

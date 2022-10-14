@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -38,39 +39,30 @@ namespace Bicep.LanguageServer
         private readonly IWorkspace workspace;
         private readonly ILanguageServerFacade server;
         private readonly ICompilationProvider provider;
-        private readonly IFileResolver fileResolver;
         private readonly IModuleRestoreScheduler scheduler;
-        private readonly IConfigurationManager configurationManager;
         private readonly ITelemetryProvider TelemetryProvider;
         private readonly ILinterRulesProvider LinterRulesProvider;
         private readonly IBicepAnalyzer bicepAnalyzer;
-        private readonly IFileLanguageTracker fileLanguageTracker;
 
         // represents compilations of open bicep or param files
-        private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new();
+        private readonly ConcurrentDictionary<DocumentUri, CompilationContextBase> activeContexts = new();
 
         public BicepCompilationManager(
             ILanguageServerFacade server,
             ICompilationProvider provider,
             IWorkspace workspace,
-            IFileResolver fileResolver,
             IModuleRestoreScheduler scheduler,
-            IConfigurationManager configurationManager,
             ITelemetryProvider telemetryProvider,
             ILinterRulesProvider LinterRulesProvider,
-            IBicepAnalyzer bicepAnalyzer,
-            IFileLanguageTracker fileLanguageTracker)
+            IBicepAnalyzer bicepAnalyzer)
         {
             this.server = server;
             this.provider = provider;
             this.workspace = workspace;
-            this.fileResolver = fileResolver;
             this.scheduler = scheduler;
-            this.configurationManager = configurationManager;
             this.TelemetryProvider = telemetryProvider;
             this.LinterRulesProvider = LinterRulesProvider;
             this.bicepAnalyzer = bicepAnalyzer;
-            this.fileLanguageTracker = fileLanguageTracker;
         }
 
         public void RefreshCompilation(DocumentUri documentUri)
@@ -104,14 +96,9 @@ namespace Bicep.LanguageServer
 
         public void OpenCompilation(DocumentUri documentUri, int? version, string fileContents, string languageId)
         {
-            if (LanguageConstants.IsBicepOrParamsLanguage(languageId))
-            {
-                this.fileLanguageTracker.NotifyFileOpen(documentUri, languageId);
-            }
-
             if (this.ShouldUpsertCompilation(documentUri, languageId))
             {
-                var newFile = CreateSourceFile(documentUri, fileContents);
+                var newFile = CreateSourceFile(documentUri, fileContents, languageId);
                 UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: true);
             }
         }
@@ -120,26 +107,33 @@ namespace Bicep.LanguageServer
         {
             if (this.ShouldUpsertCompilation(documentUri, languageId: null))
             {
-                var newFile = CreateSourceFile(documentUri, fileContents);
+                var newFile = CreateSourceFile(documentUri, fileContents, languageId: null);
                 UpsertCompilationInternal(documentUri, version, newFile, triggeredByFileOpenEvent: false);
             }
         }
 
-        private ISourceFile CreateSourceFile(DocumentUri documentUri, string fileContents)
+        private ISourceFile CreateSourceFile(DocumentUri documentUri, string fileContents, string? languageId)
         {
-            // normally the language ID is only available on file open
-            // however we stashed the ID in a dictionary, so we can conveniently
-            // look it up for as long as the file is open
-            if (this.fileLanguageTracker.TryGetLanguageId(documentUri) is { } languageId)
+            if (languageId is not null &&
+                SourceFileFactory.TryCreateSourceFileByBicepLanguageId(documentUri.ToUri(), fileContents, languageId) is { } sourceFileViaLanguageId)
             {
-                // since we know what language we're dealing with, we can just create the file
-                return SourceFileFactory.CreateSourceFileByLanguageId(documentUri.ToUri(), fileContents, languageId);
+                return sourceFileViaLanguageId;
             }
 
-            if(SourceFileFactory.TryCreateArmTemplateFile(documentUri.ToUri(), fileContents) is { } sourceFile)
+            // try creating the file using the URI (like in the SourceFileGroupingBuilder)
+            if(SourceFileFactory.TryCreateSourceFile(documentUri.ToUri(), fileContents) is { } sourceFileViaUri)
             {
-                // we managed to create an ARM template or Template Spec file by file extension
-                return sourceFile;
+                // this handles *.bicep, *.bicepparam, *.jsonc, *.json, and *.arm files
+                return sourceFileViaUri;
+            }
+
+            // we failed to create new file by URI
+            // this means we're dealing with an untitled file
+            // however the language ID was made available to us on file open
+            if(this.GetCompilationUnsafe(documentUri) is { } potentiallyUnsafeContext &&
+                SourceFileFactory.TryCreateSourceFileByFileKind(documentUri.ToUri(), fileContents, potentiallyUnsafeContext.SourceFileKind) is { } sourceFileViaFileKind)
+            {
+                return sourceFileViaFileKind;
             }
 
             throw new InvalidOperationException($"Unable to create source file for uri '{documentUri.ToUri()}'.");
@@ -156,8 +150,9 @@ namespace Bicep.LanguageServer
                 UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles, triggeredByFileOpenEvent);
             }
 
-            foreach (var (entrypointUri, context) in activeContexts)
+            foreach (var (entrypointUri, context) in GetAllSafeActiveContexts())
             {
+                // we may see an unsafe context if there was a fatal exception
                 if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
                 {
                     UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles, triggeredByFileOpenEvent);
@@ -170,8 +165,6 @@ namespace Bicep.LanguageServer
             // close and clear diagnostics for the file
             // if upsert failed to create a compilation due to a fatal error, we still need to clean up the diagnostics
             CloseCompilationInternal(documentUri, 0, Enumerable.Empty<Diagnostic>());
-
-            this.fileLanguageTracker.NotifyFileClose(documentUri);
         }
 
         public void HandleFileChanges(IEnumerable<FileEvent> fileEvents)
@@ -203,7 +196,7 @@ namespace Bicep.LanguageServer
             workspace.RemoveSourceFiles(removedFiles);
 
             var modelLookup = new Dictionary<ISourceFile, ISemanticModel>();
-            foreach (var (entrypointUri, context) in activeContexts)
+            foreach (var (entrypointUri, context) in GetAllSafeActiveContexts())
             {
                 if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
                 {
@@ -212,11 +205,18 @@ namespace Bicep.LanguageServer
             }
         }
 
-        public CompilationContext? GetCompilation(DocumentUri uri)
+        public CompilationContext? GetCompilation(DocumentUri uri) => GetCompilationUnsafe(uri) as CompilationContext;
+
+        private CompilationContextBase? GetCompilationUnsafe(DocumentUri uri)
         {
             this.activeContexts.TryGetValue(uri, out var context);
             return context;
         }
+
+        private IEnumerable<KeyValuePair<DocumentUri, CompilationContext>> GetAllSafeActiveContexts() =>
+            this.activeContexts
+                .Where(pair => pair.Value is CompilationContext)
+                .Select(pair => new KeyValuePair<DocumentUri, CompilationContext>(pair.Key, (CompilationContext)pair.Value));
 
         private bool ShouldUpsertCompilation(DocumentUri documentUri, string? languageId = null)
         {
@@ -228,17 +228,17 @@ namespace Bicep.LanguageServer
 
         private ImmutableArray<ISourceFile> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<Diagnostic> closingDiagnostics)
         {
-            this.activeContexts.TryRemove(documentUri, out var removedContext);
+            this.activeContexts.TryRemove(documentUri, out var removedPotentiallyUnsafeContext);
 
             this.PublishDocumentDiagnostics(documentUri, version, closingDiagnostics);
 
-            if (removedContext == null)
+            if (removedPotentiallyUnsafeContext is not CompilationContext removedContext)
             {
                 return ImmutableArray<ISourceFile>.Empty;
             }
 
             var closedFiles = removedContext.Compilation.SourceFileGrouping.SourceFiles.ToHashSet();
-            foreach (var (_, context) in activeContexts)
+            foreach (var (_, context) in GetAllSafeActiveContexts())
             {
                 closedFiles.ExceptWith(context.Compilation.SourceFileGrouping.SourceFiles);
             }
@@ -248,77 +248,118 @@ namespace Bicep.LanguageServer
             return closedFiles.ToImmutableArray();
         }
 
-        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles, bool triggeredByFileOpenEvent = false)
+        private CompilationContextBase CreateCompilationContext(IWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
             try
             {
-                var context = this.activeContexts.AddOrUpdate(
-                    documentUri,
-                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), bicepAnalyzer),
-                    (documentUri, prevContext) =>
-                    {
-                        var sourceDependencies = removedFiles
-                            .SelectMany(x => prevContext.Compilation.SourceFileGrouping.GetFilesDependingOn(x))
-                            .ToImmutableHashSet();
+                return this.provider.Create(workspace, documentUri, modelLookup, bicepAnalyzer);
+            }
+            catch(Exception exception)
+            {
+                if (!workspace.TryGetSourceFile(documentUri.ToUri(), out var sourceFile))
+                {
+                    // the document is somehow missing from the workspace,
+                    // which should not happen since we upsert into the workspace before creating the compilation
+                    throw new InvalidOperationException($"Unable to create unsafe compilation context because file '{documentUri}' is missing from the workspace.");
+                }
 
-                        // check for semantic models that we can safely reuse from the previous compilation
-                        foreach (var sourceFile in prevContext.Compilation.SourceFileGrouping.SourceFiles)
+                var fileKind = sourceFile is BicepSourceFile bicepSourceFile
+                    ? bicepSourceFile.FileKind
+                    : (BicepSourceFileKind?)null;
+
+                return new UnsafeCompilationContext(exception, fileKind);
+            }
+        }
+
+        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles, bool triggeredByFileOpenEvent = false)
+        {
+            static IEnumerable<Diagnostic> CreateFatalDiagnostics(Exception exception) => new Diagnostic
+            {
+                Range = new Range
+                {
+                    Start = new Position(0, 0),
+                    End = new Position(1, 0),
+                },
+                Severity = DiagnosticSeverity.Error,
+                Message = exception.Message,
+                Code = new DiagnosticCode("Fatal")
+            }.AsEnumerable();
+
+            try
+            {
+                var potentiallyUnsafeContext = this.activeContexts.AddOrUpdate(
+                    documentUri,
+                    (documentUri) => CreateCompilationContext(workspace, documentUri, modelLookup.ToImmutableDictionary()),
+                    (documentUri, prevPotentiallyUnsafeContext) =>
+                    {
+                        if (prevPotentiallyUnsafeContext is CompilationContext prevContext)
                         {
-                            if (!modelLookup.ContainsKey(sourceFile) && !sourceDependencies.Contains(sourceFile))
+                            var sourceDependencies = removedFiles
+                                .SelectMany(x => prevContext.Compilation.SourceFileGrouping.GetFilesDependingOn(x))
+                                .ToImmutableHashSet();
+
+                            // check for semantic models that we can safely reuse from the previous compilation
+                            foreach (var sourceFile in prevContext.Compilation.SourceFileGrouping.SourceFiles)
                             {
-                                // if we have a file with no dependencies on the modified file(s), we can reuse the previous model
-                                modelLookup[sourceFile] = prevContext.Compilation.GetSemanticModel(sourceFile);
+                                if (!modelLookup.ContainsKey(sourceFile) && !sourceDependencies.Contains(sourceFile))
+                                {
+                                    // if we have a file with no dependencies on the modified file(s), we can reuse the previous model
+                                    modelLookup[sourceFile] = prevContext.Compilation.GetSemanticModel(sourceFile);
+                                }
                             }
                         }
 
-                        return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), bicepAnalyzer);
+                        return CreateCompilationContext(workspace, documentUri, modelLookup.ToImmutableDictionary());
                     });
 
-                foreach (var sourceFile in context.Compilation.SourceFileGrouping.SourceFiles)
+                switch(potentiallyUnsafeContext)
                 {
-                    // store all the updated models as other compilations may be able to reuse them
-                    modelLookup[sourceFile] = context.Compilation.GetSemanticModel(sourceFile);
-                }
+                    case CompilationContext context:
+                        foreach (var sourceFile in context.Compilation.SourceFileGrouping.SourceFiles)
+                        {
+                            // store all the updated models as other compilations may be able to reuse them
+                            modelLookup[sourceFile] = context.Compilation.GetSemanticModel(sourceFile);
+                        }
 
-                // this completes immediately
-                this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.GetModulesToRestore());
+                        // this completes immediately
+                        this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.GetModulesToRestore());
 
-                var sourceFiles = context.Compilation.SourceFileGrouping.SourceFiles;
-                var output = workspace.UpsertSourceFiles(sourceFiles);
+                        var sourceFiles = context.Compilation.SourceFileGrouping.SourceFiles;
+                        var output = workspace.UpsertSourceFiles(sourceFiles);
 
-                // convert all the diagnostics to LSP diagnostics
-                var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
+                        // convert all the diagnostics to LSP diagnostics
+                        var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
 
-                if (triggeredByFileOpenEvent)
-                {
-                    var model = context.Compilation.GetEntrypointSemanticModel();
-                    SendTelemetryOnBicepFileOpen(model, documentUri.ToUri(), model.Configuration, sourceFiles, diagnostics);
-                }
+                        if (triggeredByFileOpenEvent)
+                        {
+                            var model = context.Compilation.GetEntrypointSemanticModel();
+                            SendTelemetryOnBicepFileOpen(model, documentUri.ToUri(), model.Configuration, sourceFiles, diagnostics);
+                        }
 
-                // publish all the diagnostics
-                this.PublishDocumentDiagnostics(documentUri, version, diagnostics);
+                        // publish all the diagnostics
+                        this.PublishDocumentDiagnostics(documentUri, version, diagnostics);
 
-                return output;
+                        return output;
+
+                    case UnsafeCompilationContext unsafeContext:
+                        // fatal error due to unhandled exception (code defect) while creating the compilation
+                        // publish a single fatal error diagnostic to tell the user something horrible has occurred
+                        // TODO: Tell user how to create an issue on GitHub.
+                        this.PublishDocumentDiagnostics(documentUri, version, CreateFatalDiagnostics(unsafeContext.Exception));
+
+                        return (ImmutableArray<ISourceFile>.Empty, ImmutableArray<ISourceFile>.Empty);
+
+                    default:
+                        throw new NotImplementedException($"Unexpected compilation context type '{potentiallyUnsafeContext.GetType().Name}'.");
+                }                
             }
             catch (Exception exception)
             {
-                // this is a fatal error likely due to a code defect
-
+                // this is a fatal error due to a code defect in the compilation upsert logic
+                // handling the exception here allows the language server to recover by user typing more text
                 // publish a single fatal error diagnostic to tell the user something horrible has occurred
                 // TODO: Tell user how to create an issue on GitHub.
-                var fatalError = new Diagnostic
-                {
-                    Range = new Range
-                    {
-                        Start = new Position(0, 0),
-                        End = new Position(1, 0),
-                    },
-                    Severity = DiagnosticSeverity.Error,
-                    Message = exception.Message,
-                    Code = new DiagnosticCode("Fatal")
-                };
-
-                this.PublishDocumentDiagnostics(documentUri, version, fatalError.AsEnumerable());
+                this.PublishDocumentDiagnostics(documentUri, version, CreateFatalDiagnostics(exception));
 
                 return (ImmutableArray<ISourceFile>.Empty, ImmutableArray<ISourceFile>.Empty);
             }
