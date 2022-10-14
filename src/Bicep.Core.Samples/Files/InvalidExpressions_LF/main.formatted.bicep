@@ -132,12 +132,12 @@ var takeTooMany = take([
   ], 1, 2, 's')
 
 // missing arguments
-var trailingArgumentComma = format('s', )
-var onlyArgumentComma = concat(, )
-var multipleArgumentCommas = concat(, , , , , )
-var emptyArgInBetween = concat(true, , false)
-var leadingEmptyArg = concat(, [])
-var leadingAndTrailingEmptyArg = concat(, 's', )
+var trailingArgumentComma = format('s',)
+var onlyArgumentComma = concat(,)
+var multipleArgumentCommas = concat(,,,,,)
+var emptyArgInBetween = concat(true,,false)
+var leadingEmptyArg = concat(,[])
+var leadingAndTrailingEmptyArg = concat(,'s',)
 
 // wrong argument types
 var concatWrongTypes = concat({

@@ -273,14 +273,17 @@ namespace Bicep.Core.PrettyPrint
 
                     this.Visit(nodes[i]);
 
-                    this.visitingBrokenStatement = visitingBrokenStatement;
-
-                    if (i < nodes.Length - 1 &&
-                        nodes[i] is Token { Type: TokenType.Comma } &&
-                        nodes[i + 1] is not Token { Type: TokenType.NewLine })
+                    if (!this.visitingBrokenStatement)
                     {
-                        this.PushDocument(Space);
+                        if (i < nodes.Length - 1 &&
+                            nodes[i] is Token { Type: TokenType.Comma } &&
+                            nodes[i + 1] is not Token { Type: TokenType.NewLine })
+                        {
+                            this.PushDocument(Space);
+                        }
                     }
+
+                    this.visitingBrokenStatement = visitingBrokenStatement;
                 }
 
                 if (leadingAndTrailingSpace && nodes.Any() && trailingNewLine is null)
