@@ -12,11 +12,11 @@ namespace Bicep.Core.Emit
 {
     public class ParametersEmitter
     {
-        private readonly ParamsSemanticModel paramSemanticModel;
+        private readonly SemanticModel paramSemanticModel;
 
         private readonly EmitterSettings settings;
 
-        public ParametersEmitter(ParamsSemanticModel paramSemanticModel)
+        public ParametersEmitter(SemanticModel paramSemanticModel)
         {
             this.paramSemanticModel = paramSemanticModel;
             this.settings = new(paramSemanticModel.Features);

@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -191,16 +193,24 @@ param myInt = 1", @"
             var result = CompilationHelper.CompileParams(paramsText);
 
             // Exclude the "No using declaration is present in this parameters file" diagnostic
-            result.WithFilteredDiagnostics(x => x.Code != "BCP261").Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().WithFilteredDiagnostics(x => x.Code != "BCP261").Should().NotHaveAnyDiagnostics();
             result.Parameters.Should().DeepEqual(JToken.Parse(jsonText));
         }
 
-        [DataTestMethod]
-        public void Params_file_with_not_implemented_syntax_should_throw_expction()
+        [TestMethod]
+        public void Params_file_with_not_implemented_syntax_should_log_diagnostic()
         {
-            // TODO: We should be raising a diagnostic, not throwing an exception here!
-            Action act = () => CompilationHelper.CompileParams("param foo = 1 + 2");
-            act.Should().Throw<NotImplementedException>().WithMessage("Cannot emit unexpected expression of type BinaryOperationSyntax");
+            var result = CompilationHelper.CompileParams("param foo = 1 + 2");
+
+            using(new AssertionScope())
+            {
+                result.Parameters.Should().BeNull();
+                result.Diagnostics.Should().HaveDiagnostics(new[]
+                {
+                    ("BCP261", DiagnosticLevel.Warning, "No using declaration is present in this parameters file. Parameter validation/completions will not be available"),
+                    ("BCP252", DiagnosticLevel.Error, "Binary operator is not allowed in Bicep parameter file.")
+                });
+            }
         }
     }
 }

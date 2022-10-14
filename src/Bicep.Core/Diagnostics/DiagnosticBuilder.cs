@@ -629,10 +629,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP094",
                 "This module references itself, which is not allowed.");
 
-            public ErrorDiagnostic CyclicModule(IEnumerable<string> cycle) => new(
+            public ErrorDiagnostic CyclicFile(IEnumerable<string> cycle) => new(
                 TextSpan,
                 "BCP095",
-                $"The module is involved in a cycle (\"{string.Join("\" -> \"", cycle)}\").");
+                $"The file is involved in a cycle (\"{string.Join("\" -> \"", cycle)}\").");
 
             public ErrorDiagnostic ExpectedModuleIdentifier() => new(
                 TextSpan,
@@ -1596,6 +1596,21 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP275",
                 $"Unable to open file at path \"{directoryPath}\". Found a directory instead.");
+
+            public ErrorDiagnostic UsingDeclarationMustReferenceBicepFile() => new(
+                TextSpan,
+                "BCP276",
+                "A using declaration can only reference a Bicep file.");
+
+            public ErrorDiagnostic ModuleDeclarationMustReferenceBicepModule() => new(
+                TextSpan,
+                "BCP277",
+                "A module declaration can only reference a Bicep File, an ARM template, a registry reference or a template spec reference.");
+
+            public ErrorDiagnostic CyclicParametersSelfReference() => new(
+                TextSpan,
+                "BCP278",
+                "This parameters file references itself, which is not allowed.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

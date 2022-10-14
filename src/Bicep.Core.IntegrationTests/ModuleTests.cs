@@ -174,13 +174,13 @@ module main 'main.bicep' = {
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
-                ("BCP095", DiagnosticLevel.Error, "The module is involved in a cycle (\"/modulea.bicep\" -> \"/moduleb.bicep\" -> \"/main.bicep\")."),
+                ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/modulea.bicep\" -> \"/moduleb.bicep\" -> \"/main.bicep\")."),
             });
             diagnosticsByFile[moduleAUri].Should().HaveDiagnostics(new[] {
-                ("BCP095", DiagnosticLevel.Error, "The module is involved in a cycle (\"/moduleb.bicep\" -> \"/main.bicep\" -> \"/modulea.bicep\")."),
+                ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/moduleb.bicep\" -> \"/main.bicep\" -> \"/modulea.bicep\")."),
             });
             diagnosticsByFile[moduleBUri].Should().HaveDiagnostics(new[] {
-                ("BCP095", DiagnosticLevel.Error, "The module is involved in a cycle (\"/main.bicep\" -> \"/modulea.bicep\" -> \"/moduleb.bicep\")."),
+                ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/main.bicep\" -> \"/modulea.bicep\" -> \"/moduleb.bicep\")."),
             });
             success.Should().BeFalse();
         }
@@ -737,6 +737,20 @@ output out string = p.properties.minimalTlsVersion
             {
                 ("BCP036", DiagnosticLevel.Error, "The property \"p\" expected a value of type \"Microsoft.Sql/servers\" but the provided value is of type \"Microsoft.Storage/storageAccounts@2019-06-01\"."),
             });
+        }
+
+        [TestMethod]
+        public void Module_cannot_reference_bicep_params_file()
+        {
+            var result = CompilationHelper.Compile(
+                Services,
+("main.bicep", @"
+module mod './foo.bicepparam' = {
+  name: 'hello'
+}
+"),
+("foo.bicepparam", @""));
+            result.Should().OnlyContainDiagnostic("BCP277", DiagnosticLevel.Error, "A module declaration can only reference a Bicep File, an ARM template, a registry reference or a template spec reference.");
         }
 
         private static string GetTemplate(Compilation compilation)

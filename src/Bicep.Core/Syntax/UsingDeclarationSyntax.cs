@@ -1,11 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Linq;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class UsingDeclarationSyntax : StatementSyntax
+    public class UsingDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax
     {
         public UsingDeclarationSyntax(Token keyword, SyntaxBase path)
             : base(Enumerable.Empty<SyntaxBase>())

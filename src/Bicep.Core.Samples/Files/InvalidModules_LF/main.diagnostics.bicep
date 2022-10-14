@@ -207,7 +207,7 @@ var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 //@[054:058) [BCP053 (Error)] The type "outputs" does not contain property "test". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". (CodeDescription: none) |test|
 
 module modCycle './cycle.bicep' = {
-//@[016:031) [BCP095 (Error)] The module is involved in a cycle ("${TEST_OUTPUT_DIR}/cycle.bicep" -> "${TEST_OUTPUT_DIR}/main.bicep"). (CodeDescription: none) |'./cycle.bicep'|
+//@[016:031) [BCP095 (Error)] The file is involved in a cycle ("${TEST_OUTPUT_DIR}/cycle.bicep" -> "${TEST_OUTPUT_DIR}/main.bicep"). (CodeDescription: none) |'./cycle.bicep'|
   
 }
 

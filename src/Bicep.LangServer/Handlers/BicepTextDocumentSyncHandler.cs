@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
+using Bicep.Core.FileSystem;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Configuration;
 using Bicep.LanguageServer.Utils;
@@ -34,6 +35,11 @@ namespace Bicep.LanguageServer.Handlers
                 return new TextDocumentAttributes(uri, LanguageConstants.JsoncLanguageId);
             }
 
+            if(PathHelper.HasBicepparamsExension(uri.ToUri()))
+            {
+                return new TextDocumentAttributes(uri, LanguageConstants.ParamsLanguageId);
+            }
+
             return new TextDocumentAttributes(uri, LanguageConstants.LanguageId);
         }
 
@@ -44,7 +50,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var documentUri = request.TextDocument.Uri;
 
-            this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, contents);
+            this.compilationManager.UpdateCompilation(documentUri, request.TextDocument.Version, contents);
 
             // Handle scenario where the bicepconfig.json file was opened prior to
             // language service activation. If the config file was opened before the language server
@@ -68,7 +74,7 @@ namespace Bicep.LanguageServer.Handlers
                 bicepConfigChangeHandler.HandleBicepConfigOpenEvent(documentUri);
             }
 
-            this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId, triggeredByFileOpenEvent: true);
+            this.compilationManager.OpenCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
 
             return Unit.Task;
         }

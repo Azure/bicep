@@ -47,9 +47,9 @@ namespace Bicep.LanguageServer.Completions
             ParamAssignment = paramAssignment;
         }
 
-        public static ParamsCompletionContext Create(ParamsCompilationContext paramsCompilationContext, int offset)
+        public static ParamsCompletionContext Create(CompilationContext paramsCompilationContext, int offset)
         {
-            var paramsFile = paramsCompilationContext.ParamsSemanticModel.BicepParamFile;
+            var paramsFile = paramsCompilationContext.Compilation.GetEntrypointSemanticModel().SourceFile;
             var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(paramsFile.ProgramSyntax, offset);
             if (!matchingNodes.Any())
             {
@@ -103,7 +103,7 @@ namespace Bicep.LanguageServer.Completions
 
         private static ParamsCompletionContextKind ConvertFlag(bool value, ParamsCompletionContextKind flag) => value ? flag : ParamsCompletionContextKind.None;
 
-        private static Range GetReplacementRange(BicepParamFile paramsFile, SyntaxBase innermostMatchingNode, int offset)
+        private static Range GetReplacementRange(BicepSourceFile paramsFile, SyntaxBase innermostMatchingNode, int offset)
         {
             if (innermostMatchingNode is Token token && ReplaceableTokens.Contains(token.Type))
             {

@@ -37,25 +37,14 @@ namespace Bicep.LangServer.UnitTests
 
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
-            BicepCompilationManager bicepCompilationManager = new(server.Object, CreateEmptyCompilationProvider(configManager), new Workspace(), FileResolver, CreateMockScheduler().Object, configManager, BicepTestConstants.CreateMockTelemetryProvider().Object, linterRulesProvider, BicepTestConstants.LinterAnalyzer);
+            var bicepCompilationManager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(configManager), new Workspace(), CreateMockScheduler().Object, BicepTestConstants.CreateMockTelemetryProvider().Object, linterRulesProvider, BicepTestConstants.LinterAnalyzer);
 
             if (upsertCompilation)
             {
-                bicepCompilationManager.UpsertCompilation(documentUri, version: null, fileContents, LanguageConstants.LanguageId);
+                bicepCompilationManager.OpenCompilation(documentUri, version: null, fileContents, LanguageConstants.LanguageId);
             }
 
             return bicepCompilationManager;
-        }
-
-        public static BicepParamsCompilationManager CreateParamsCompilationManager(){
-            PublishDiagnosticsParams? receivedParams = null;
-            var document = CreateMockDocument(p => receivedParams = p);
-            var server = CreateMockServer(document);
-            var configManager = new ConfigurationManager(new IOFileSystem());
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.FeatureProviderFactory, configManager), configManager);
-            var provider = new BicepCompilationProvider(BicepTestConstants.FeatureProviderFactory, BicepTestConstants.NamespaceProvider, FileResolver, dispatcher, BicepTestConstants.ApiVersionProviderFactory, configManager);
-
-            return new BicepParamsCompilationManager(server.Object, provider, configManager, BicepTestConstants.FileResolver, dispatcher, new Workspace(), BicepTestConstants.FeatureProviderFactory, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.NamespaceProvider, BicepTestConstants.LinterAnalyzer);
         }
 
         public static Mock<ITextDocumentLanguageServer> CreateMockDocument(Action<PublishDiagnosticsParams> callback)

@@ -101,7 +101,7 @@ namespace Bicep.Core.Syntax
             };
         }
 
-        public static ResourceScope GetTargetScope(BicepFile bicepFile)
+        public static ResourceScope GetTargetScope(BicepSourceFile bicepFile)
         {
             var defaultTargetScope = ResourceScope.ResourceGroup;
             var targetSyntax = bicepFile.ProgramSyntax.Children.OfType<TargetScopeSyntax>().FirstOrDefault();

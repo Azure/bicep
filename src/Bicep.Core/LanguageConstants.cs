@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -16,8 +17,14 @@ namespace Bicep.Core
         public const string LanguageId = "bicep";
         public const string LanguageFileExtension = ".bicep";
 
+        public static bool IsBicepLanguage(string? languageId) => string.Equals(LanguageId, languageId, StringComparison.OrdinalIgnoreCase);
+
         public const string ParamsLanguageId = "bicep-params";
         public const string ParamsFileExtension = ".bicepparam";
+
+        public static bool IsParamsLanguage(string? languageId) => string.Equals(ParamsLanguageId, languageId, StringComparison.OrdinalIgnoreCase);
+
+        public static bool IsBicepOrParamsLanguage([NotNullWhen(true)] string? languageId) => IsBicepLanguage(languageId) || IsParamsLanguage(languageId);
 
         public const string JsonLanguageId = "json";
         public const string JsoncLanguageId = "jsonc";

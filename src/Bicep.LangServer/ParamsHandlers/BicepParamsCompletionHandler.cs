@@ -21,14 +21,14 @@ namespace Bicep.LanguageServer.ParamsHandlers
         private readonly ILogger<BicepParamsCompletionHandler> logger;
         private readonly ICompletionProvider completionProvider;
         private readonly IFeatureProviderFactory featureProviderFactory;
-        private readonly IParamsCompilationManager paramsCompilationManager;
+        private readonly ICompilationManager compilationManager;
 
-        public BicepParamsCompletionHandler(ILogger<BicepParamsCompletionHandler> logger, ICompletionProvider completionProvider, IFeatureProviderFactory featureProviderFactory, IParamsCompilationManager paramsCompilationManager)
+        public BicepParamsCompletionHandler(ILogger<BicepParamsCompletionHandler> logger, ICompletionProvider completionProvider, IFeatureProviderFactory featureProviderFactory, ICompilationManager compilationManager)
         {
             this.logger = logger;
             this.completionProvider = completionProvider;
             this.featureProviderFactory = featureProviderFactory;
-            this.paramsCompilationManager = paramsCompilationManager;
+            this.compilationManager = compilationManager;
         }
 
         public override Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
@@ -37,7 +37,7 @@ namespace Bicep.LanguageServer.ParamsHandlers
 
             if (featureProviderFactory.GetFeatureProvider(request.TextDocument.Uri.ToUri()).ParamsFilesEnabled)
             {
-                var paramsCompilationContext = this.paramsCompilationManager.GetCompilation(request.TextDocument.Uri);
+                var paramsCompilationContext = this.compilationManager.GetCompilation(request.TextDocument.Uri);
                 if (paramsCompilationContext is null)
                 {
                     return Task.FromResult(new CompletionList());
@@ -47,7 +47,7 @@ namespace Bicep.LanguageServer.ParamsHandlers
                 var paramsCompletionContext = ParamsCompletionContext.Create(paramsCompilationContext, offset);
                 try
                 {
-                    completions = this.completionProvider.GetFilteredParamsCompletions(paramsCompilationContext.ParamsSemanticModel, paramsCompletionContext);
+                    completions = this.completionProvider.GetFilteredParamsCompletions(paramsCompilationContext.Compilation, paramsCompletionContext);
                 }
                 catch (Exception e)
                 {

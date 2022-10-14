@@ -13,15 +13,13 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepSemanticTokensHandler : SemanticTokensHandlerBase
     {
         private readonly ICompilationManager compilationManager;
-        private readonly IParamsCompilationManager paramsCompilationManager;
 
         // TODO: Not sure if this needs to be shared.
         private readonly SemanticTokensLegend legend = new();
 
-        public BicepSemanticTokensHandler(ICompilationManager compilationManager, IParamsCompilationManager paramsCompilationManager)
+        public BicepSemanticTokensHandler(ICompilationManager compilationManager)
         {
             this.compilationManager = compilationManager;
-            this.paramsCompilationManager = paramsCompilationManager;
         }
 
         protected override Task<SemanticTokensDocument> GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken)
@@ -39,12 +37,6 @@ namespace Bicep.LanguageServer.Handlers
             if (compilationContext is not null)
             {
                 SemanticTokenVisitor.BuildSemanticTokens(builder, compilationContext.Compilation.SourceFileGrouping.EntryPoint);
-            }
-
-            var paramsCompilationContext = this.paramsCompilationManager.GetCompilation(identifier.TextDocument.Uri);
-            if (paramsCompilationContext is not null)
-            {
-                SemanticTokenVisitor.BuildSemanticTokens(builder, paramsCompilationContext.ProgramSyntax, paramsCompilationContext.LineStarts);
             }
 
             return Task.CompletedTask;

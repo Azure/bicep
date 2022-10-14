@@ -22,7 +22,7 @@ namespace Bicep.Core.UnitTests.Assertions
             return new ParamsCompilationResult(
                 result.Parameters,
                 result.Diagnostics.ExcludingLinterDiagnostics(),
-                result.SemanticModel);
+                result.Compilation);
         }
 
         public static ParamsCompilationResult WithFilteredDiagnostics(this ParamsCompilationResult result, Func<IDiagnostic, bool> filterFunc)
@@ -30,7 +30,7 @@ namespace Bicep.Core.UnitTests.Assertions
             return new ParamsCompilationResult(
                 result.Parameters,
                 result.Diagnostics.Where(filterFunc),
-                result.SemanticModel);
+                result.Compilation);
         }
     }
 

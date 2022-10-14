@@ -292,13 +292,8 @@ this
 
         private EmitResult EmitParam(SourceFileGrouping sourceFileGrouping, FeatureProviderOverrides features, string outputFilePath)
         {
-            var model = new ParamsSemanticModel(sourceFileGrouping, BicepTestConstants.BuiltInConfiguration, BicepTestConstants.Features, file => {
-                var compilationGrouping = new SourceFileGrouping(BicepTestConstants.FileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
-
-                return Services.WithFeatureOverrides(features).Build().BuildCompilation(compilationGrouping);
-            });
-
-            var emitter = new ParametersEmitter(model);
+            var compilation = Services.WithFeatureOverrides(features).Build().BuildCompilation(sourceFileGrouping);
+            var emitter = new ParametersEmitter(compilation.GetEntrypointSemanticModel());
             using var stream = new FileStream(outputFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
             return emitter.EmitParamsFile(stream);
         }

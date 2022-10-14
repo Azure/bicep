@@ -39,7 +39,7 @@ namespace Bicep.Core.Workspaces
                     .Where(x => kvp.Value[x].RequiresRestore)
                     .Select(mds => new ModuleSourceResolutionInfo(mds, kvp.Key)));
 
-        public BicepFile EntryPoint => (FileResultByUri[EntryFileUri].File as BicepFile)!;
+        public BicepSourceFile EntryPoint => (FileResultByUri[EntryFileUri].File as BicepSourceFile)!;
 
         public IEnumerable<ISourceFile> SourceFiles => FileResultByUri.Values.Select(x => x.File).WhereNotNull();
 

@@ -79,22 +79,16 @@ namespace Bicep.Cli.IntegrationTests
 
         protected static IEnumerable<string> GetAllParamDiagnostics(string paramFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
         {
-            var configuration = BicepTestConstants.BuiltInConfiguration;
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.FeatureProviderFactory, BicepTestConstants.BuiltInOnlyConfigurationManager), BicepTestConstants.BuiltInOnlyConfigurationManager);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(paramFilePath));
             var compilation = Services.Build().BuildCompilation(sourceFileGrouping);
 
-            var semanticModel = new ParamsSemanticModel(sourceFileGrouping, configuration, BicepTestConstants.Features, file => {
-                var compilationGrouping = new SourceFileGrouping(BicepTestConstants.FileResolver, file.FileUri, sourceFileGrouping.FileResultByUri, sourceFileGrouping.UriResultByModule, sourceFileGrouping.SourceFileParentLookup);
-
-
-                return Services.Build().BuildCompilation(compilationGrouping);
-            });
+            var semanticModel = compilation.GetEntrypointSemanticModel();
 
             var output = new List<string>();
             foreach(var diagnostic in semanticModel.GetAllDiagnostics())
             {
-                var (line, character) = TextCoordinateConverter.GetPosition(semanticModel.BicepParamFile.LineStarts, diagnostic.Span.Position);
+                var (line, character) = TextCoordinateConverter.GetPosition(semanticModel.SourceFile.LineStarts, diagnostic.Span.Position);
                 var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";
                 output.Add($"{paramFilePath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}");
             }

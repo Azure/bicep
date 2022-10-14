@@ -200,7 +200,7 @@ namespace Bicep.LanguageServer.Completions
                 activeScopes);
         }
 
-        private static bool IsDisableNextLineDiagnosticsDirectiveStartContext(BicepFile bicepFile, int offset, List<SyntaxBase> matchingNodes)
+        private static bool IsDisableNextLineDiagnosticsDirectiveStartContext(BicepSourceFile bicepFile, int offset, List<SyntaxBase> matchingNodes)
         {
             return matchingNodes[^1] is Token token &&
                 token.Text == "#" &&
@@ -208,7 +208,7 @@ namespace Bicep.LanguageServer.Completions
                 ShouldAllowCompletionAfterPoundSign(bicepFile, token);
         }
 
-        private static bool ShouldAllowCompletionAfterPoundSign(BicepFile bicepFile, Token token)
+        private static bool ShouldAllowCompletionAfterPoundSign(BicepSourceFile bicepFile, Token token)
         {
             var lineStarts = bicepFile.LineStarts;
             var position = token.GetPosition();
@@ -944,7 +944,7 @@ namespace Bicep.LanguageServer.Completions
 
         static bool IsOffsetImmediatlyAfterNode(int offset, SyntaxBase node) => node.Span.Position + node.Span.Length == offset;
 
-        private static Range GetReplacementRange(BicepFile bicepFile, SyntaxBase innermostMatchingNode, int offset)
+        private static Range GetReplacementRange(BicepSourceFile bicepFile, SyntaxBase innermostMatchingNode, int offset)
         {
             if (innermostMatchingNode is Token token && ReplaceableTokens.Contains(token.Type))
             {

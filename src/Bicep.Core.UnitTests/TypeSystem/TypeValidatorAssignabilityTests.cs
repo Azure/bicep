@@ -624,7 +624,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Setup(x => x.GetSymbolInfo(It.IsAny<SyntaxBase>()))
                 .Returns<Symbol?>(null);
 
-            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, fileResolverMock.Object);
+            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, fileResolverMock.Object, Core.Workspaces.BicepSourceFileKind.BicepFile);
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var result = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binderMock.Object, diagnosticWriter, expression, targetType);

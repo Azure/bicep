@@ -3,33 +3,40 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
     public class FileSymbol : Symbol, ILanguageScope
     {
         private readonly ILookup<string, DeclaredSymbol> declarationsByName;
+        private readonly Lazy<UsingDeclarationSyntax?> usingDeclarationLazy;
 
-        public FileSymbol(string name,
-            ProgramSyntax syntax,
+        public FileSymbol(
+            ISymbolContext context,
+            BicepSourceFile sourceFile,
             NamespaceResolver namespaceResolver,
             IEnumerable<LocalScope> outermostScopes,
-            IEnumerable<DeclaredSymbol> declarations,
-            Uri fileUri)
-            : base(name)
+            IEnumerable<DeclaredSymbol> declarations)
+            : base(sourceFile.FileUri.LocalPath)
         {
-            this.Syntax = syntax;
+            this.Context = context;
+            this.Syntax = sourceFile.ProgramSyntax;
             this.NamespaceResolver = namespaceResolver;
-            FileUri = fileUri;
+            this.FileUri = sourceFile.FileUri;
+            this.FileKind = sourceFile.FileKind;
             this.LocalScopes = outermostScopes.ToImmutableArray();
 
-            // TODO: Avoid looping 6 times?
+            // TODO: Avoid looping 8 times?
             this.ImportDeclarations = declarations.OfType<ImportedNamespaceSymbol>().ToImmutableArray();
             this.MetadataDeclarations = declarations.OfType<MetadataSymbol>().ToImmutableArray();
             this.ParameterDeclarations = declarations.OfType<ParameterSymbol>().ToImmutableArray();
@@ -37,8 +44,11 @@ namespace Bicep.Core.Semantics
             this.ResourceDeclarations = declarations.OfType<ResourceSymbol>().ToImmutableArray();
             this.ModuleDeclarations = declarations.OfType<ModuleSymbol>().ToImmutableArray();
             this.OutputDeclarations = declarations.OfType<OutputSymbol>().ToImmutableArray();
+            this.ParameterAssignments = declarations.OfType<ParameterAssignmentSymbol>().ToImmutableArray();
 
             this.declarationsByName = this.Declarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
+
+            this.usingDeclarationLazy = new Lazy<UsingDeclarationSyntax?>(() => this.Syntax.Children.OfType<UsingDeclarationSyntax>().FirstOrDefault());
         }
 
         public override IEnumerable<Symbol> Descendants =>
@@ -50,13 +60,18 @@ namespace Bicep.Core.Semantics
             .Concat(this.VariableDeclarations)
             .Concat(this.ResourceDeclarations)
             .Concat(this.ModuleDeclarations)
-            .Concat(this.OutputDeclarations);
+            .Concat(this.OutputDeclarations)
+            .Concat(this.ParameterAssignments);
 
         public IEnumerable<Symbol> Namespaces =>
             this.NamespaceResolver.BuiltIns.Values
             .Concat<Symbol>(this.ImportDeclarations);
 
         public override SymbolKind Kind => SymbolKind.File;
+
+        public BicepSourceFileKind FileKind { get; }
+
+        public ISymbolContext Context { get; }
 
         public ProgramSyntax Syntax { get; }
 
@@ -78,6 +93,10 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<OutputSymbol> OutputDeclarations { get; }
 
+        public ImmutableArray<ParameterAssignmentSymbol> ParameterAssignments { get; }
+
+        public UsingDeclarationSyntax? UsingDeclarationSyntax => this.usingDeclarationLazy.Value;
+
         public Uri FileUri { get; }
 
         /// <summary>
@@ -93,6 +112,52 @@ namespace Bicep.Core.Semantics
         public override IEnumerable<ErrorDiagnostic> GetDiagnostics() => DuplicateIdentifierValidatorVisitor.GetDiagnostics(this);
 
         public IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name) => this.declarationsByName[name];
+
+        /// <summary>
+        /// Tries to get the semantic module of the Bicep File referenced via a using declaration from the current file.
+        /// If current file is not a parameter file, the method will return false.
+        /// </summary>
+        public bool TryGetBicepFileSemanticModelViaUsing([NotNullWhen(true)] out SemanticModel? semanticModel, [NotNullWhen(false)] out Diagnostic? failureDiagnostic)
+        {
+            semanticModel = null;
+            failureDiagnostic = null;
+            if (this.FileKind == BicepSourceFileKind.BicepFile)
+            {
+                throw new InvalidOperationException($"File '{this.FileUri}' cannot reference another Bicep file via a using declaration.");
+            }
+
+            var usingDeclaration = this.UsingDeclarationSyntax;
+            if (usingDeclaration is null)
+            {
+                // missing using
+                failureDiagnostic = DiagnosticBuilder.ForDocumentStart().UsingDeclarationNotSpecified();
+                return false;
+            }
+
+            if(this.Context.Compilation.SourceFileGrouping.TryGetErrorDiagnostic(usingDeclaration) is { } errorBuilder)
+            {
+                failureDiagnostic = errorBuilder(DiagnosticBuilder.ForPosition(usingDeclaration.Path));
+                return false;
+            }
+
+            // SourceFileGroupingBuilder should have already visited every using declaration and either recorded a failure or mapped it to a syntax tree.
+            // So it is safe to assume that this lookup will succeed without throwing an exception.
+            var sourceFile = Context.Compilation.SourceFileGrouping.TryGetSourceFile(usingDeclaration) ?? throw new InvalidOperationException($"Failed to find source file for using declaration.");
+            if(sourceFile is not BicepFile)
+            {
+                // TODO: If we wanted to support referencing ARM templates via using, it probably wouldn't very difficult to do
+                failureDiagnostic = DiagnosticBuilder.ForPosition(usingDeclaration.Path).UsingDeclarationMustReferenceBicepFile();
+                return false;
+            }
+
+            if (this.Context.Compilation.GetSemanticModel(sourceFile) is SemanticModel model)
+            {
+                semanticModel = model;
+                return true;
+            }
+
+            throw new InvalidOperationException($"Unexpected semantic model type when following using declaration.");
+        }
 
         private sealed class DuplicateIdentifierValidatorVisitor : SymbolVisitor
         {

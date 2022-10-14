@@ -16,6 +16,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -28,8 +29,9 @@ namespace Bicep.Core.TypeSystem
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, object> matchedFunctionResultValues;
+        private readonly BicepSourceFileKind fileKind;
 
-        public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IFileResolver fileResolver)
+        public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IFileResolver fileResolver, Workspaces.BicepSourceFileKind fileKind)
         {
             this.typeManager = typeManager;
             this.features = features;
@@ -38,6 +40,7 @@ namespace Bicep.Core.TypeSystem
             assignedTypes = new();
             matchedFunctionOverloads = new();
             matchedFunctionResultValues = new();
+            this.fileKind = fileKind;
         }
 
         private TypeAssignment GetTypeAssignment(SyntaxBase syntax)
@@ -433,6 +436,22 @@ namespace Bicep.Core.TypeSystem
                 return assignedType;
             });
 
+        public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var errors = new List<ErrorDiagnostic>();
+
+                var valueType = this.typeManager.GetTypeInfo(syntax.Value);
+                CollectErrors(errors, valueType);
+
+                if (PropagateErrorType(errors, valueType))
+                {
+                    return ErrorType.Create(errors);
+                }
+
+                return valueType;
+            });
+
         public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
@@ -756,6 +775,11 @@ namespace Bicep.Core.TypeSystem
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
             => AssignType(syntax, () =>
             {
+                if(this.fileKind == BicepSourceFileKind.ParamsFile)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterTernaryOperationNotSupported());
+                }
+
                 var errors = new List<ErrorDiagnostic>();
 
                 // ternary operator requires the condition to be of bool type
@@ -786,6 +810,11 @@ namespace Bicep.Core.TypeSystem
         public override void VisitBinaryOperationSyntax(BinaryOperationSyntax syntax)
             => AssignType(syntax, () =>
             {
+                if (this.fileKind == BicepSourceFileKind.ParamsFile)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterBinaryOperationNotSupported());
+                }
+
                 var errors = new List<ErrorDiagnostic>();
 
                 var operandType1 = typeManager.GetTypeInfo(syntax.LeftExpression);
@@ -829,6 +858,11 @@ namespace Bicep.Core.TypeSystem
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
             => AssignType(syntax, () =>
             {
+                if (this.fileKind == BicepSourceFileKind.ParamsFile)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterUnaryOperationNotSupported());
+                }
+
                 var errors = new List<ErrorDiagnostic>();
 
                 // TODO: When we add number type, this will have to be adjusted
@@ -1073,6 +1107,11 @@ namespace Bicep.Core.TypeSystem
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
+                if (this.fileKind == BicepSourceFileKind.ParamsFile)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterFunctionCallNotSupported());
+                }
+
                 var errors = new List<ErrorDiagnostic>();
 
                 foreach (TypeSymbol argumentType in GetArgumentTypes(syntax.Arguments).ToArray())
@@ -1104,6 +1143,11 @@ namespace Bicep.Core.TypeSystem
         public override void VisitLambdaSyntax(LambdaSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
+                if (this.fileKind == BicepSourceFileKind.ParamsFile)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ParameterLambdaFunctionNotSupported());
+                }
+
                 var argumentTypes = syntax.GetLocalVariables().Select(x => typeManager.GetTypeInfo(x));
                 var returnType = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Body, LanguageConstants.Any);
 
