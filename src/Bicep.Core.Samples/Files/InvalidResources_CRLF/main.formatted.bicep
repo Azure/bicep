@@ -1593,3 +1593,10 @@ resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-0
   identity: issue4668_identity
   properties: issue4668_properties
 }
+
+// https://github.com/Azure/bicep/issues/8516
+resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
+  resource blobServices 'blobServices' existing = {
+    name: $account
+  }
+}

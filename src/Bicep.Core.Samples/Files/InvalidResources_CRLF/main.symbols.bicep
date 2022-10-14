@@ -2034,3 +2034,12 @@ resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-0
   properties: issue4668_properties
 }
 
+// https://github.com/Azure/bicep/issues/8516
+resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
+//@[009:016) Resource storage. Type: Microsoft.Storage/storageAccounts@2022-05-01. Declaration start char: 0, length: 157
+  resource blobServices 'blobServices' existing = {
+//@[011:023) Resource blobServices. Type: Microsoft.Storage/storageAccounts/blobServices@2022-05-01. Declaration start char: 2, length: 74
+    name: $account
+  }
+}
+

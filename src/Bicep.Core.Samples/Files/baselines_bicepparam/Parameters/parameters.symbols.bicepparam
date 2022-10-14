@@ -12,9 +12,9 @@ using './main.bicep'
 param myString = 'hello world!!'
 //@[6:14) ParameterAssignment myString. Type: 'hello world!!'. Declaration start char: 0, length: 32
 param myInt = 42
-//@[6:11) ParameterAssignment myInt. Type: int. Declaration start char: 0, length: 16
+//@[6:11) ParameterAssignment myInt. Type: 42. Declaration start char: 0, length: 16
 param myBool = true
-//@[6:12) ParameterAssignment myBool. Type: bool. Declaration start char: 0, length: 19
+//@[6:12) ParameterAssignment myBool. Type: true. Declaration start char: 0, length: 19
 
 // parameter assignment to objects
 param password = 'strongPassword'

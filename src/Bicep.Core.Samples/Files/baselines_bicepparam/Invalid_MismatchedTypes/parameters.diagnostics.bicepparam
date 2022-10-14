@@ -1,13 +1,13 @@
 using './main.bicep'
 
 param string = 123
-//@[0:18) [BCP260 (Error)] The parameter "string" expects a value of type "string" but the provided value is of type "int". (CodeDescription: none) |param string = 123|
+//@[0:18) [BCP260 (Error)] The parameter "string" expects a value of type "string" but the provided value is of type "123". (CodeDescription: none) |param string = 123|
 
 param bool = 'hello'
 //@[0:20) [BCP260 (Error)] The parameter "bool" expects a value of type "bool" but the provided value is of type "'hello'". (CodeDescription: none) |param bool = 'hello'|
 
 param int = false
-//@[0:17) [BCP260 (Error)] The parameter "int" expects a value of type "int" but the provided value is of type "bool". (CodeDescription: none) |param int = false|
+//@[0:17) [BCP260 (Error)] The parameter "int" expects a value of type "int" but the provided value is of type "false". (CodeDescription: none) |param int = false|
 
 param object = ['abc', 'def']
 //@[0:29) [BCP260 (Error)] The parameter "object" expects a value of type "object" but the provided value is of type "('abc' | 'def')[]". (CodeDescription: none) |param object = ['abc', 'def']|
