@@ -264,14 +264,26 @@ namespace Bicep.Core.PrettyPrint
 
                 for (var i = 0; i < nodes.Length; i++)
                 {
+                    var visitingBrokenStatement = this.visitingBrokenStatement;
+
+                    if (nodes[i].GetParseDiagnostics().Any())
+                    {
+                        this.visitingBrokenStatement = true;
+                    }
+
                     this.Visit(nodes[i]);
 
-                    if (i < nodes.Length - 1 &&
-                        nodes[i] is Token { Type: TokenType.Comma } &&
-                        nodes[i + 1] is not Token { Type: TokenType.NewLine })
+                    if (!this.visitingBrokenStatement)
                     {
-                        this.PushDocument(Space);
+                        if (i < nodes.Length - 1 &&
+                            nodes[i] is Token { Type: TokenType.Comma } &&
+                            nodes[i + 1] is not Token { Type: TokenType.NewLine })
+                        {
+                            this.PushDocument(Space);
+                        }
                     }
+
+                    this.visitingBrokenStatement = visitingBrokenStatement;
                 }
 
                 if (leadingAndTrailingSpace && nodes.Any() && trailingNewLine is null)
@@ -290,7 +302,8 @@ namespace Bicep.Core.PrettyPrint
                 var nestedChildren = Concat(hasTrailingNewline ? children[..^1] : children);
                 var newLine = hasTrailingNewline ? children[^1] : Nil;
 
-                if (children.Length > 1)
+                // Do not call Nest() if we are inside a broken statement, otherwise it will keep on indenting further when the user formats document.
+                if (!this.visitingBrokenStatement && children.Length > 1)
                 {
                     nestedChildren = nestedChildren.Nest();
                 }

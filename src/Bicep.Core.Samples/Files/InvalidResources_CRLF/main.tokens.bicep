@@ -7777,6 +7777,37 @@ resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[034:036) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
+
+// https://github.com/Azure/bicep/issues/8516
+//@[045:047) NewLine |\r\n|
+resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
+//@[000:008) Identifier |resource|
+//@[009:016) Identifier |storage|
+//@[017:063) StringComplete |'Microsoft.Storage/storageAccounts@2022-05-01'|
+//@[064:072) Identifier |existing|
+//@[073:074) Assignment |=|
+//@[075:076) LeftBrace |{|
+//@[076:078) NewLine |\r\n|
+  resource blobServices 'blobServices' existing = {
+//@[002:010) Identifier |resource|
+//@[011:023) Identifier |blobServices|
+//@[024:038) StringComplete |'blobServices'|
+//@[039:047) Identifier |existing|
+//@[048:049) Assignment |=|
+//@[050:051) LeftBrace |{|
+//@[051:053) NewLine |\r\n|
+    name: $account
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:011) Unrecognized |$|
+//@[011:018) Identifier |account|
+//@[018:020) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
 //@[001:003) NewLine |\r\n|
 
 //@[000:000) EndOfFile ||

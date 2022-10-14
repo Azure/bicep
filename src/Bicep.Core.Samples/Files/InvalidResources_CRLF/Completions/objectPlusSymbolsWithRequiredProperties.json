@@ -5530,6 +5530,23 @@
     }
   },
   {
+    "label": "storage",
+    "kind": "interface",
+    "detail": "storage",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_storage",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "storage"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "string",
     "kind": "function",
     "documentation": {

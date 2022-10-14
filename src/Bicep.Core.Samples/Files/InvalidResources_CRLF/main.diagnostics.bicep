@@ -2303,3 +2303,12 @@ resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-0
   properties: issue4668_properties
 }
 
+// https://github.com/Azure/bicep/issues/8516
+resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
+  resource blobServices 'blobServices' existing = {
+    name: $account
+//@[010:011) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |$|
+//@[010:011) [BCP001 (Error)] The following token is not recognized: "$". (CodeDescription: none) |$|
+  }
+}
+

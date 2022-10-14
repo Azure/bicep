@@ -61,7 +61,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public void PrintProgram_AnyProgram_ShouldRoundTrip(DataSet dataSet)
+        public void PrintProgram_PrintTwice_ReturnsConsistentResults(DataSet dataSet)
         {
             var program = ParserHelper.Parse(dataSet.Bicep);
             var diagnostics = program.GetParseDiagnostics();

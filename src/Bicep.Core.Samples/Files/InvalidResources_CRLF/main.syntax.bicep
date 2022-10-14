@@ -1,5 +1,5 @@
 
-//@[000:51671) ProgramSyntax
+//@[000:51879) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 // wrong declaration
 //@[020:00022) ├─Token(NewLine) |\r\n|
@@ -12055,6 +12055,48 @@ resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[014:00034) |   |   └─IdentifierSyntax
 //@[014:00034) |   |     └─Token(Identifier) |issue4668_properties|
 //@[034:00036) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
+
+// https://github.com/Azure/bicep/issues/8516
+//@[045:00047) ├─Token(NewLine) |\r\n|
+resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
+//@[000:00157) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00016) | ├─IdentifierSyntax
+//@[009:00016) | | └─Token(Identifier) |storage|
+//@[017:00063) | ├─StringSyntax
+//@[017:00063) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-05-01'|
+//@[064:00072) | ├─Token(Identifier) |existing|
+//@[073:00074) | ├─Token(Assignment) |=|
+//@[075:00157) | └─ObjectSyntax
+//@[075:00076) |   ├─Token(LeftBrace) |{|
+//@[076:00078) |   ├─Token(NewLine) |\r\n|
+  resource blobServices 'blobServices' existing = {
+//@[002:00076) |   ├─ResourceDeclarationSyntax
+//@[002:00010) |   | ├─Token(Identifier) |resource|
+//@[011:00023) |   | ├─IdentifierSyntax
+//@[011:00023) |   | | └─Token(Identifier) |blobServices|
+//@[024:00038) |   | ├─StringSyntax
+//@[024:00038) |   | | └─Token(StringComplete) |'blobServices'|
+//@[039:00047) |   | ├─Token(Identifier) |existing|
+//@[048:00049) |   | ├─Token(Assignment) |=|
+//@[050:00076) |   | └─ObjectSyntax
+//@[050:00051) |   |   ├─Token(LeftBrace) |{|
+//@[051:00053) |   |   ├─Token(NewLine) |\r\n|
+    name: $account
+//@[004:00018) |   |   ├─ObjectPropertySyntax
+//@[004:00008) |   |   | ├─IdentifierSyntax
+//@[004:00008) |   |   | | └─Token(Identifier) |name|
+//@[008:00009) |   |   | ├─Token(Colon) |:|
+//@[010:00018) |   |   | └─SkippedTriviaSyntax
+//@[010:00011) |   |   |   ├─Token(Unrecognized) |$|
+//@[011:00018) |   |   |   └─Token(Identifier) |account|
+//@[018:00020) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00003) ├─Token(NewLine) |\r\n|
