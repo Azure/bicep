@@ -16,7 +16,7 @@ module.exports = {
     },
   },
   extends: ["eslint:recommended", "plugin:prettier/recommended"],
-  ignorePatterns: ["/out/**/*"],
+  ignorePatterns: ["/out/**/*", "/enableParams.js"],
   rules: {
     "header/header": [
       2,
