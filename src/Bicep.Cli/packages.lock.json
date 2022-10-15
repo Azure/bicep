@@ -51,26 +51,26 @@
       },
       "Azure.Bicep.Types": {
         "type": "Transitive",
-        "resolved": "0.3.4",
-        "contentHash": "B+jpNssdLB6qDLmw0WhgsgziEnQZ1TB1tpDrJ69802jQdY3v0YRH0edE3/9QLtXBDHezD/Pbrh66deailLEN5Q==",
+        "resolved": "0.3.22",
+        "contentHash": "qini7SDcICsegMLuhb6UPGjgwKrWfvCD2Vb7o/gqUpOOCHIINgQ2YtxPgyxDLYZ88q0D8/SN5G4BnJgiI4jmdQ==",
         "dependencies": {
           "System.Text.Json": "6.0.6"
         }
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",
-        "resolved": "0.2.148",
-        "contentHash": "qbn+kEjdeuMU8AqP5v53g4WYlrlpy+lvs2aylF2EcJbgy0QgV8vGNXVNWUvqz68UmgCY5l6ejl+CYfDb4z52rQ==",
+        "resolved": "0.2.170",
+        "contentHash": "HwtbAwp6jhqZBkI6XS3IJjQJZWG3cJU3QqQcvwUSc2EmTu1jiQKg++RMu+Vb1zf92mzoMCXmKuZarqyBoNkXqQ==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.3.4"
+          "Azure.Bicep.Types": "0.3.22"
         }
       },
       "Azure.Bicep.Types.K8s": {
         "type": "Transitive",
-        "resolved": "0.1.11",
-        "contentHash": "pKBzr7xjTS7+fj0Fh83T40rnrpGh0JLVV4gErcJCbr+4AAYS/O6Tpu3DCPu8ZlSgHGcuCzGMWYarkSO5VDsf9w==",
+        "resolved": "0.1.186",
+        "contentHash": "bwWC3vuf7n24ddMSwzc6Jzi6cdhSkxi1sB1dRN0tBj8ZnR8vFFRKR6cnyAbW9iFLVDyQT/pJYcBmr4tpqCxLyQ==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.1.304"
+          "Azure.Bicep.Types": "0.3.22"
         }
       },
       "Azure.Containers.ContainerRegistry": {
@@ -1737,9 +1737,9 @@
       "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Types": "[0.3.4, )",
-          "Azure.Bicep.Types.Az": "[0.2.148, )",
-          "Azure.Bicep.Types.K8s": "[0.1.11, )",
+          "Azure.Bicep.Types": "[0.3.22, )",
+          "Azure.Bicep.Types.Az": "[0.2.170, )",
+          "Azure.Bicep.Types.K8s": "[0.1.186, )",
           "Azure.Containers.ContainerRegistry": "[1.1.0-beta.4, )",
           "Azure.Deployments.Core": "[1.0.694, )",
           "Azure.Deployments.Expression": "[1.0.694, )",
