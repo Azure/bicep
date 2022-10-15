@@ -289,13 +289,7 @@ namespace Bicep.Core.Emit
         }
 
         private ObjectSyntax GetTypePropertiesForTypeSymbol(ITypeReference type, SyntaxBase? declaringSyntax)
-        {
-            if (type is TypeSymbolReference symbolReference)
-            {
-                return SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty("$ref", SyntaxFactory.CreateStringLiteral($"#/definitions/{symbolReference.TypeReferenced.Name}")).AsEnumerable());
-            }
-
-            return type.Type switch {
+            => type.Type switch {
                 PrimitiveType primitiveType => GetTypePropertiesForAmbientType(primitiveType.Name),
                 ResourceType resourceType => GetTypePropertiesForTypeSymbol(resourceType),
                 ObjectType objectType => GetTypePropertiesForTypeSymbol(objectType, declaringSyntax),
@@ -308,7 +302,6 @@ namespace Bicep.Core.Emit
                 // this should have been caught by the type checker long ago
                 _ => throw new ArgumentException($"Unable to find type for {type.Type.Name}"),
             };
-        }
 
         private ObjectSyntax GetTypePropertiesForAmbientType(string typeName)
             => SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty("type", SyntaxFactory.CreateStringLiteral(typeName)).AsEnumerable());

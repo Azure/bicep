@@ -222,9 +222,9 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference? GetTypeReferencForTypeProperty(ObjectTypePropertySyntax syntax)
         {
-            if (syntax.Value is TypeAccessSyntax typeAccess && binder.GetSymbolInfo(typeAccess) is DeclaredTypeSymbol signified)
+            if (syntax.Value is TypeAccessSyntax signifier && binder.GetSymbolInfo(signifier) is DeclaredTypeSymbol signified)
             {
-                return new TypeSymbolReference(signified, () => declaredTypeReferences.GetOrAdd(signified, GetTypeDeclared));
+                return new DeferredTypeReference(() => declaredTypeReferences.GetOrAdd(signified, GetTypeDeclared));
             }
 
             return TryGetTypeFromTypeSyntax(syntax.Value);
@@ -353,12 +353,7 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     objectName.Append(": ");
-                    objectName.Append(propertyType switch
-                    {
-                        TypeSymbolReference typeSymbolReference => typeSymbolReference.TypeReferenced.Name,
-                        DeferredTypeReference deferred => "<deferred>",
-                        _ => propertyType.Type.Name,
-                    });
+                    objectName.Append(GetPropertyTypeName(prop.Value, propertyType));
                     objectName.Append(", ");
 
                     var propertyFlags = prop.OptionalityMarker is null ? TypePropertyFlags.Required : TypePropertyFlags.None;
@@ -392,6 +387,20 @@ namespace Bicep.Core.TypeSystem
                 = UnwrapUntilDecorable(syntax, HasSealedDecorator, (null, TypePropertyFlags.None), (LanguageConstants.Any, TypePropertyFlags.FallbackProperty));
 
             return new ObjectType(objectName.ToString(), typeFlags, properties, additionalProperties.type, additionalProperties.flags);
+        }
+
+        private string GetPropertyTypeName(SyntaxBase typeSyntax, ITypeReference propertyType)
+        {
+            if (typeSyntax is TypeAccessSyntax typeAccess)
+            {
+                return typeAccess.Name.IdentifierName;
+            }
+
+            return propertyType switch
+            {
+                DeferredTypeReference deferred => "<deferred>",
+                _ => propertyType.Type.Name,
+            };
         }
 
         private string? TryGetTypePropertyDescription(ObjectTypePropertySyntax syntax)
