@@ -6,13 +6,13 @@ namespace Bicep.Core.TypeSystem
 {
     public class DeferredTypeReference : ITypeReference
     {
-        private readonly Lazy<TypeSymbol> lazyType;
+        private readonly Func<TypeSymbol> typeGetterFunc;
 
         public DeferredTypeReference(Func<TypeSymbol> typeGetterFunc)
         {
-            this.lazyType = new(typeGetterFunc);
+            this.typeGetterFunc = typeGetterFunc;
         }
 
-        public TypeSymbol Type => lazyType.Value;
+        public TypeSymbol Type => typeGetterFunc();
     }
 }

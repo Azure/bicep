@@ -372,6 +372,7 @@ namespace Bicep.Core.TypeSystem
             {
                 var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
 
+                base.VisitParameterDeclarationSyntax(syntax);
 
                 if (syntax.Modifier != null)
                 {
@@ -437,19 +438,42 @@ namespace Bicep.Core.TypeSystem
                 return declaredType;
             });
 
+        public override void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Value, diagnostics);
+
+                base.VisitObjectTypePropertySyntax(syntax);
+
+                return declaredType;
+            });
+
+        public override void VisitResourceTypeSyntax(ResourceTypeSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax);
+                if (declaredType is null)
+                {
+                    return ErrorType.Empty();
+                }
+
+                // If the resource type was explicitly specified, emit a warning if no types can be found
+                if (syntax.Type is {} explicitResourceType
+                    && declaredType is ResourceType resourceType
+                    && !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(explicitResourceType).ResourceTypesUnavailable(resourceType.TypeReference));
+                }
+
+                return declaredType;
+            });
+
         private TypeSymbol GetDeclaredTypeAndValidateDecorators(DecorableSyntax targetSyntax, SyntaxBase typeSyntax, IDiagnosticWriter diagnostics)
         {
             var declaredType = typeManager.GetDeclaredType(targetSyntax);
             if (declaredType is null)
             {
                 return ErrorType.Empty();
-            }
-            if (declaredType is ResourceType resourceType &&
-                typeSyntax is ResourceTypeSyntax resourceTypeSyntax &&
-                resourceTypeSyntax.Type is { } &&
-                !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
-            {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(resourceTypeSyntax.Type!).ResourceTypesUnavailable(resourceType.TypeReference));
             }
 
             this.ValidateDecorators(targetSyntax.Decorators, declaredType, diagnostics);
@@ -612,6 +636,8 @@ namespace Bicep.Core.TypeSystem
             {
                 var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Type, diagnostics);
                 diagnostics.WriteMultiple(GetOutputDeclarationDiagnostics(declaredType, syntax));
+
+                base.VisitOutputDeclarationSyntax(syntax);
 
                 return declaredType;
             });

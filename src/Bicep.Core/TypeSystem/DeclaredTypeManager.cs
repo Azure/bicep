@@ -25,6 +25,7 @@ namespace Bicep.Core.TypeSystem
         // maps syntax nodes to their declared types
         // processed nodes found not to have a declared type will have a null value
         private readonly ConcurrentDictionary<SyntaxBase, DeclaredTypeAssignment?> declaredTypes = new();
+        private readonly ConcurrentDictionary<DeclaredTypeSymbol, TypeSymbol> declaredTypeReferences = new();
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
         private readonly IFeatureProvider features;
@@ -61,6 +62,12 @@ namespace Bicep.Core.TypeSystem
 
                 case TypeDeclarationSyntax typeDeclaration:
                     return GetTypeType(typeDeclaration);
+
+                case ResourceTypeSyntax resourceType:
+                    return GetResourceTypeType(resourceType);
+
+                case ObjectTypePropertySyntax typeProperty:
+                    return GetTypePropertyType(typeProperty);
 
                 case ResourceDeclarationSyntax resource:
                     return GetResourceType(resource);
@@ -181,10 +188,46 @@ namespace Bicep.Core.TypeSystem
                 return new(ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeDeclarationStatementsUnsupported()), syntax);
             }
 
-            var declaredType = TryGetTypeFromTypeSyntax(syntax.Value);
-            declaredType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Value).InvalidTypeDefinition());
+            var type = binder.GetSymbolInfo(syntax) switch
+            {
+                DeclaredTypeSymbol declaredType => declaredTypeReferences.GetOrAdd(declaredType, GetTypeDeclared),
+                ErrorSymbol errorSymbol => errorSymbol.ToErrorType(),
+                // binder.GetSymbolInfo(TypeDeclarationSyntax) should always return a DeclaredTypeSymbol or an error, but just in case...
+                _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameDoesNotExist(syntax.Name.IdentifierName)),
+            };
 
-            return new(declaredType, syntax);
+            return new(type, syntax);
+        }
+
+        private TypeSymbol GetTypeDeclared(DeclaredTypeSymbol symbol)
+        {
+            if (binder.TryGetCycle(symbol) is {} cycle)
+            {
+                var builder = DiagnosticBuilder.ForPosition(symbol.DeclaringType.Name);
+                var diagnostic = cycle.Length == 1
+                    ? builder.CyclicExpressionSelfReference()
+                    : builder.CyclicExpression(cycle.Select(s => s.Name));
+
+                return ErrorType.Create(diagnostic);
+            }
+
+            var declaredType = TryGetTypeFromTypeSyntax(symbol.DeclaringType.Value);
+            declaredType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(symbol.DeclaringType.Value).InvalidTypeDefinition());
+
+            return declaredType;
+        }
+
+        private DeclaredTypeAssignment? GetTypePropertyType(ObjectTypePropertySyntax syntax)
+            => GetTypeReferencForTypeProperty(syntax) is {} @ref ? new(@ref, syntax) : null;
+
+        private ITypeReference? GetTypeReferencForTypeProperty(ObjectTypePropertySyntax syntax)
+        {
+            if (syntax.Value is TypeAccessSyntax typeAccess && binder.GetSymbolInfo(typeAccess) is DeclaredTypeSymbol signified)
+            {
+                return new TypeSymbolReference(signified, () => declaredTypeReferences.GetOrAdd(signified, GetTypeDeclared));
+            }
+
+            return TryGetTypeFromTypeSyntax(syntax.Value);
         }
 
         private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax)
@@ -204,7 +247,7 @@ namespace Bicep.Core.TypeSystem
             return new(declaredType, syntax);
         }
 
-        private ITypeReference? TryGetTypeFromTypeSyntax(SyntaxBase? syntax)
+        private TypeSymbol? TryGetTypeFromTypeSyntax(SyntaxBase? syntax)
         {
             RuntimeHelpers.EnsureSufficientExecutionStack();
 
@@ -213,7 +256,7 @@ namespace Bicep.Core.TypeSystem
             {
                 SkippedTriviaSyntax => LanguageConstants.Any,
                 SimpleTypeSyntax simple => LanguageConstants.TryGetDeclarationType(simple.TypeName),
-                ResourceTypeSyntax resource => ParseTypeExpression(resource),
+                ResourceTypeSyntax resource => GetDeclaredType(resource),
                 TypeAccessSyntax typeRef => ParseTypeExpression(typeRef),
                 ArrayTypeSyntax array => ParseTypeExpression(array),
                 ObjectTypeSyntax @object => ParseTypeExpression(@object),
@@ -226,7 +269,10 @@ namespace Bicep.Core.TypeSystem
             };
         }
 
-        private ITypeReference ParseTypeExpression(ResourceTypeSyntax syntax)
+        private DeclaredTypeAssignment GetResourceTypeType(ResourceTypeSyntax syntax)
+            => new(GetTypeReferenceForResourceType(syntax), syntax);
+
+        private TypeSymbol GetTypeReferenceForResourceType(ResourceTypeSyntax syntax)
         {
             var type = GetDeclaredResourceType(syntax);
 
@@ -246,39 +292,27 @@ namespace Bicep.Core.TypeSystem
             return resourceType.DeclaringNamespace.ProviderName != AzNamespaceType.BuiltInName;
         }
 
-        private ITypeReference ParseTypeExpression(TypeAccessSyntax syntax)
+        private TypeSymbol ParseTypeExpression(TypeAccessSyntax syntax)
             => binder.GetSymbolInfo(syntax) switch
             {
-                DeclaredTypeSymbol declaredType => TypeReferenceForDeclaredType(syntax, declaredType),
+                DeclaredTypeSymbol declaredType => TypeRefToType(syntax, declaredType),
                 ErrorSymbol errorSymbol => errorSymbol.ToErrorType(),
                 DeclaredSymbol declaredSymbol => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
                 _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameDoesNotExist(syntax.Name.IdentifierName)),
             };
 
-        private ITypeReference TypeReferenceForDeclaredType(TypeAccessSyntax syntax, DeclaredTypeSymbol symbol)
+        private TypeSymbol TypeRefToType(TypeAccessSyntax signifier, DeclaredTypeSymbol signified)
         {
-            if (binder.TryGetCycle(symbol) is {} cycle)
+            var signifiedType = declaredTypeReferences.GetOrAdd(signified, GetTypeDeclared);
+            if (signifiedType is ErrorType error)
             {
-                var builder = DiagnosticBuilder.ForPosition(syntax);
-                var diagnostic = cycle.Length == 1
-                    ? builder.CyclicExpressionSelfReference()
-                    : builder.CyclicExpression(cycle.Select(s => s.Name));
-
-                return ErrorType.Create(diagnostic);
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(signifier).ReferencedSymbolHasErrors(signified.Name));
             }
 
-            return new TypeSymbolReference(symbol, () => {
-                var type = symbol.Type;
-                if (type is ErrorType @error)
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ReferencedSymbolHasErrors(syntax.Name.IdentifierName));
-                }
-
-                return type;
-            });
+            return signifiedType;
         }
 
-        private ITypeReference ParseTypeExpression(ArrayTypeSyntax syntax)
+        private TypeSymbol ParseTypeExpression(ArrayTypeSyntax syntax)
         {
             if (!features.AggregateTypesEnabled)
             {
@@ -290,7 +324,7 @@ namespace Bicep.Core.TypeSystem
             return new TypedArrayType(itemType, TypeSymbolValidationFlags.Default);
         }
 
-        private ITypeReference ParseTypeExpression(ObjectTypeSyntax syntax)
+        private TypeSymbol ParseTypeExpression(ObjectTypeSyntax syntax)
         {
             if (!features.AggregateTypesEnabled)
             {
@@ -303,7 +337,7 @@ namespace Bicep.Core.TypeSystem
 
             foreach (var prop in syntax.Properties)
             {
-                var propertyType = TryGetTypeFromTypeSyntax(prop.Value);
+                var propertyType = GetDeclaredTypeAssignment(prop)?.Reference;
                 propertyType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(prop.Value).InvalidTypeDefinition());
 
                 if (prop.TryGetKeyText() is string propertyName)
@@ -422,28 +456,13 @@ namespace Bicep.Core.TypeSystem
             return typeManager.GetTypeInfo(syntax);
         }
 
-        private ITypeReference ParseTypeExpression(UnionTypeSyntax syntax)
+        private TypeSymbol ParseTypeExpression(UnionTypeSyntax syntax)
         {
             if (!features.AggregateTypesEnabled)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeUnionDeclarationsUnsupported());
             }
 
-            var memberTypes = syntax.Members.Select(memberSyntax => (memberSyntax, TryParseTypeExpression(memberSyntax))).ToImmutableArray();
-
-            if (memberTypes.Select(t => t.Item2).OfType<DeferredTypeReference>().Any())
-            {
-                return new DeferredTypeReference(() => CreateUnionType(syntax, memberTypes));
-            }
-
-            return CreateUnionType(syntax, memberTypes);
-        }
-
-        private ITypeReference TryParseTypeExpression(UnionTypeMemberSyntax syntax)
-            => TryGetTypeFromTypeSyntax(syntax.Value) ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidTypeDefinition());
-
-        private TypeSymbol CreateUnionType(UnionTypeSyntax syntax, ImmutableArray<(UnionTypeMemberSyntax, ITypeReference)> memberTypes)
-        {
             // ARM's allowedValues constraint permits mixed type arrays (so long as none of the members are themselves arrays).
             // The runtime in that case will validate that the submitted array contains a subset of the allowed values
             // (e.g., `[1, 2]` or `[2, 3]` would both be permitted with `"type": "array", "allowedValues": [1, 2, 3]`)
@@ -455,25 +474,21 @@ namespace Bicep.Core.TypeSystem
             List<(ITypeReference, UnionTypeMemberSyntax)> nonMatchingMembers = new();
             List<ErrorDiagnostic> memberDiagnostics = new();
 
-            foreach (var (memberSyntax, type) in memberTypes)
+            foreach (var member in syntax.Members)
             {
-                if (type is TypeSymbolReference @ref && @ref.Type is ErrorType refError)
-                {
-                    memberDiagnostics.Add(DiagnosticBuilder.ForPosition(memberSyntax).ReferencedSymbolHasErrors(@ref.TypeReferenced.Name));
-                    continue;
-                }
-
-                if (type.Type is ErrorType error)
+                var memberType = TryGetTypeFromTypeSyntax(member.Value);
+                memberType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(member).InvalidTypeDefinition());
+                if (memberType is ErrorType error)
                 {
                     memberDiagnostics.AddRange(error.GetDiagnostics());
                     continue;
                 }
 
-                foreach (var flattenedType in FlattenUnionMemberType(type))
+                foreach (var flattenedType in FlattenUnionMemberType(memberType))
                 {
                     if (!IsLiteralType(flattenedType))
                     {
-                        memberDiagnostics.Add(DiagnosticBuilder.ForPosition(memberSyntax).NonLiteralUnionMember());
+                        memberDiagnostics.Add(DiagnosticBuilder.ForPosition(member).NonLiteralUnionMember());
                         break;
                     }
 
@@ -481,7 +496,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         if (GetNonLiteralType(flattenedType) is not {} nonLiteral)
                         {
-                            memberDiagnostics.Add(DiagnosticBuilder.ForPosition(memberSyntax).NonLiteralUnionMember());
+                            memberDiagnostics.Add(DiagnosticBuilder.ForPosition(member).NonLiteralUnionMember());
                             break;
                         }
 
@@ -495,7 +510,7 @@ namespace Bicep.Core.TypeSystem
                         foreach (var nonMatchingMemberSyntax in nonMatchingMembers.Select(t => t.Item2).Distinct())
                         {
                             memberDiagnostics.Add(DiagnosticBuilder.ForPosition(nonMatchingMemberSyntax).InvalidUnionTypeMember(keystoneType.Name));
-                            mismatchForCurrentMember = mismatchForCurrentMember || nonMatchingMemberSyntax == memberSyntax;
+                            mismatchForCurrentMember = mismatchForCurrentMember || nonMatchingMemberSyntax == member;
                         }
 
                         if (mismatchForCurrentMember)
@@ -509,10 +524,10 @@ namespace Bicep.Core.TypeSystem
                         matchingMembers.Add(flattenedType);
                     } else if (mightBeArrayAny)
                     {
-                        nonMatchingMembers.Add((flattenedType, memberSyntax));
+                        nonMatchingMembers.Add((flattenedType, member));
                     } else
                     {
-                        memberDiagnostics.Add(DiagnosticBuilder.ForPosition(memberSyntax).InvalidUnionTypeMember(keystoneType.Name));
+                        memberDiagnostics.Add(DiagnosticBuilder.ForPosition(member).InvalidUnionTypeMember(keystoneType.Name));
                         break;
                     }
                 }
@@ -548,7 +563,7 @@ namespace Bicep.Core.TypeSystem
         private IEnumerable<TypeSymbol> FlattenUnionMemberType(ITypeReference memberType)
             => memberType.Type is UnionType union ? union.Members.SelectMany(FlattenUnionMemberType) : memberType.Type.AsEnumerable();
 
-        private ITypeReference ParseTypeExpression(ParenthesizedExpressionSyntax syntax)
+        private TypeSymbol ParseTypeExpression(ParenthesizedExpressionSyntax syntax)
             => TryGetTypeFromTypeSyntax(syntax.Expression)
                 ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Expression).InvalidTypeDefinition());
 
