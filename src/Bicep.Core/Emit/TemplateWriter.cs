@@ -366,8 +366,7 @@ namespace Bicep.Core.Emit
         {
             var baseObject = GetTypePropertiesForTypeSymbol(typedArrayType as ArrayType);
 
-            if (typedArrayType.Item is UnionType unionType
-                && !unionType.Members.Any(t => t.Type is TypedArrayType || t.Type is ArrayType))
+            if (typedArrayType.Item is UnionType unionType && !unionType.Members.OfType<ArrayType>().Any())
             {
                 baseObject = baseObject.MergeProperty("allowedValues", SyntaxFactory.CreateArray(unionType.Members.Select(ToLiteralValue)));
             } else

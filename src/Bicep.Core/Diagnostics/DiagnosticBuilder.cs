@@ -1642,10 +1642,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP284",
                 "Using a type union declaration requires enabling EXPERIMENTAL feature aggregateTypes.");
 
-            public ErrorDiagnostic InterpolatedStringTypeDeclarationsUnsupported() => new(
+            public ErrorDiagnostic TypeExpressionLiteralConversionFailed() => new(
                 TextSpan,
                 "BCP285",
-                "String literal types cannot use interpolation.");
+                "The type expression could not be reduced to a literal value.");
 
             public ErrorDiagnostic InvalidUnionTypeMember(string keystoneType) => new(
                 TextSpan,

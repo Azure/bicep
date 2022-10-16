@@ -211,10 +211,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostic);
             }
 
-            var declaredType = TryGetTypeFromTypeSyntax(symbol.DeclaringType.Value);
-            declaredType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(symbol.DeclaringType.Value).InvalidTypeDefinition());
-
-            return declaredType;
+            return GetTypeFromTypeSyntax(symbol.DeclaringType.Value);
         }
 
         private DeclaredTypeAssignment? GetTypePropertyType(ObjectTypePropertySyntax syntax)
@@ -247,7 +244,10 @@ namespace Bicep.Core.TypeSystem
             return new(declaredType, syntax);
         }
 
-        private TypeSymbol? TryGetTypeFromTypeSyntax(SyntaxBase? syntax)
+        private TypeSymbol GetTypeFromTypeSyntax(SyntaxBase syntax) => TryGetTypeFromTypeSyntax(syntax)
+            ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidTypeDefinition());
+
+        private TypeSymbol? TryGetTypeFromTypeSyntax(SyntaxBase syntax)
         {
             RuntimeHelpers.EnsureSufficientExecutionStack();
 
@@ -263,6 +263,7 @@ namespace Bicep.Core.TypeSystem
                 StringSyntax @string => ParseTypeExpression(@string),
                 IntegerLiteralSyntax @int => ParseTypeExpression(@int),
                 BooleanLiteralSyntax @bool => ParseTypeExpression(@bool),
+                UnaryOperationSyntax unaryOperation => ParseTypeExpression(unaryOperation),
                 UnionTypeSyntax unionType => ParseTypeExpression(unionType),
                 ParenthesizedExpressionSyntax parenthesized => ParseTypeExpression(parenthesized),
                 _ => null
@@ -319,9 +320,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypedArrayDeclarationsUnsupported());
             }
 
-            var itemType = TryGetTypeFromTypeSyntax(syntax.Item);
-            itemType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Item).InvalidTypeDefinition());
-            return new TypedArrayType(itemType, TypeSymbolValidationFlags.Default);
+            return new TypedArrayType(GetTypeFromTypeSyntax(syntax.Item), TypeSymbolValidationFlags.Default);
         }
 
         private TypeSymbol ParseTypeExpression(ObjectTypeSyntax syntax)
@@ -442,7 +441,7 @@ namespace Bicep.Core.TypeSystem
                 return literal;
             }
 
-            return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InterpolatedStringTypeDeclarationsUnsupported());
+            return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed());
         }
 
         private TypeSymbol ParseTypeExpression(IntegerLiteralSyntax syntax)
@@ -452,7 +451,12 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeLiteralDeclarationsUnsupported());
             }
 
-            return typeManager.GetTypeInfo(syntax);
+            if (typeManager.GetTypeInfo(syntax) is IntegerLiteralType literal)
+            {
+                return literal;
+            }
+
+            return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed());
         }
 
         private TypeSymbol ParseTypeExpression(BooleanLiteralSyntax syntax)
@@ -462,7 +466,23 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeLiteralDeclarationsUnsupported());
             }
 
-            return typeManager.GetTypeInfo(syntax);
+            return syntax.Value ? LanguageConstants.True : LanguageConstants.False;
+        }
+
+        private TypeSymbol ParseTypeExpression(UnaryOperationSyntax syntax)
+        {
+            var baseExpressionType = GetTypeFromTypeSyntax(syntax.Expression);
+
+            var evaluated = OperationReturnTypeEvaluator.FoldUnaryExpression(syntax, baseExpressionType, out var foldDiags);
+            foldDiags ??= ImmutableArray<IDiagnostic>.Empty;
+
+            if (evaluated is {} result && IsLiteralType(result) && !foldDiags.OfType<ErrorDiagnostic>().Any())
+            {
+                return result;
+            }
+
+            return ErrorType.Create(foldDiags.OfType<ErrorDiagnostic>()
+                .Append(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed()));
         }
 
         private TypeSymbol ParseTypeExpression(UnionTypeSyntax syntax)
@@ -485,8 +505,12 @@ namespace Bicep.Core.TypeSystem
 
             foreach (var member in syntax.Members)
             {
-                var memberType = TryGetTypeFromTypeSyntax(member.Value);
-                memberType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(member).InvalidTypeDefinition());
+                // Array<any> is the only location in which a null literal is a valid type
+                var memberType = mightBeArrayAny && IsNullLiteral(member.Value)
+                    ? LanguageConstants.Null
+                    : GetTypeFromTypeSyntax(member.Value);
+
+
                 if (memberType is ErrorType error)
                 {
                     memberDiagnostics.AddRange(error.GetDiagnostics());
@@ -495,6 +519,13 @@ namespace Bicep.Core.TypeSystem
 
                 foreach (var flattenedType in FlattenUnionMemberType(memberType))
                 {
+                    // null complicates the type check and is only permissible in a specific circumstance. Treat it as non-matching and skip the check
+                    if (mightBeArrayAny && ReferenceEquals(flattenedType, LanguageConstants.Null))
+                    {
+                        nonMatchingMembers.Add((flattenedType, member));
+                        continue;
+                    }
+
                     if (!IsLiteralType(flattenedType))
                     {
                         memberDiagnostics.Add(DiagnosticBuilder.ForPosition(member).NonLiteralUnionMember());
@@ -550,31 +581,43 @@ namespace Bicep.Core.TypeSystem
             return TypeHelper.CreateTypeUnion(matchingMembers.Concat(nonMatchingMembers.Select(t => t.Item1)));
         }
 
-        private bool MightBeArrayAny(SyntaxBase syntax) => binder.GetParent(syntax) switch {
+        private bool MightBeArrayAny(SyntaxBase syntax) => binder.GetParent(syntax) switch
+        {
             ParenthesizedExpressionSyntax parenthesized => MightBeArrayAny(parenthesized),
             ArrayTypeSyntax => true,
+            _ => false,
+        };
+
+        private bool IsNullLiteral(SyntaxBase syntax) => syntax switch
+        {
+            ParenthesizedExpressionSyntax parenthesized => IsNullLiteral(parenthesized.Expression),
+            NullLiteralSyntax => true,
             _ => false,
         };
 
         private bool IsLiteralType(TypeSymbol type) => type switch
         {
             StringLiteralType => true,
+            IntegerLiteralType => true,
+            BooleanLiteralType => true,
             ObjectType objectType => objectType.Properties.All(kvp => IsLiteralType(kvp.Value.TypeReference.Type)),
+            // TODO for array literals when type system adds support for tuples
             _ => false,
         };
 
         private TypeSymbol? GetNonLiteralType(TypeSymbol? type) => type switch {
             StringLiteralType => LanguageConstants.String,
+            IntegerLiteralType => LanguageConstants.Int,
+            BooleanLiteralType => LanguageConstants.Bool,
             ObjectType => LanguageConstants.Object,
+            // TODO for array literals when type system adds support for tuples
             _ => null,
         };
 
         private IEnumerable<TypeSymbol> FlattenUnionMemberType(ITypeReference memberType)
             => memberType.Type is UnionType union ? union.Members.SelectMany(FlattenUnionMemberType) : memberType.Type.AsEnumerable();
 
-        private TypeSymbol ParseTypeExpression(ParenthesizedExpressionSyntax syntax)
-            => TryGetTypeFromTypeSyntax(syntax.Expression)
-                ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Expression).InvalidTypeDefinition());
+        private TypeSymbol ParseTypeExpression(ParenthesizedExpressionSyntax syntax) => GetTypeFromTypeSyntax(syntax.Expression);
 
         private DeclaredTypeAssignment? GetImportType(ImportDeclarationSyntax syntax)
         {

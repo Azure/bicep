@@ -170,6 +170,8 @@ namespace Bicep.Core
         public static readonly TypeSymbol Bool = new PrimitiveType(TypeNameBool, TypeSymbolValidationFlags.Default);
         // LooseBool should be regarded as equal to the 'bool' type, but with different validation behavior
         public static readonly TypeSymbol LooseBool = new PrimitiveType(TypeNameBool, TypeSymbolValidationFlags.AllowLooseAssignment);
+        public static readonly TypeSymbol True = new BooleanLiteralType(true);
+        public static readonly TypeSymbol False = new BooleanLiteralType(false);
         public static readonly TypeSymbol Null = new PrimitiveType(NullKeyword, TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Array = new ArrayType(ArrayType);
 

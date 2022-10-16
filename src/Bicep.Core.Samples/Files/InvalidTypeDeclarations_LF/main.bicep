@@ -7,13 +7,17 @@ type incompleteAssignment =
 @sealed()
 type sealedString = string
 
-type disallowedUnion = string|int
+type disallowedUnion = 'foo'|21
 
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
 
-type validUnionInvalidAddition = validStringLiteralUnion|int
+type validUnionInvalidAddition = validStringLiteralUnion|10
 
-type invalidUnionInvalidAddition = disallowedUnion|bool
+type invalidUnionInvalidAddition = disallowedUnion|true
+
+type nullLiteral = null
+
+type unionOfNulls = null|null
 
 @minLength(3)
 type lengthConstrainedInt = int
@@ -49,4 +53,4 @@ type objectWithInvalidPropertyDecorators = {
 @sealed()
 param sealedStringParam string
 
-param disallowedUnionParam string|int
+param disallowedUnionParam 'foo'|-99

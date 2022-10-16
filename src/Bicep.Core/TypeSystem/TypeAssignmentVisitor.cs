@@ -643,7 +643,7 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
-            => AssignType(syntax, () => new BooleanLiteralType(syntax.Value));
+            => AssignType(syntax, () => syntax.Value ? LanguageConstants.True : LanguageConstants.False);
 
         public override void VisitStringSyntax(StringSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
