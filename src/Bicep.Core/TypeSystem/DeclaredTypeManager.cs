@@ -229,17 +229,8 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax)
         {
-            ITypeReference declaredType;
-            if (syntax.Type is ResourceTypeSyntax resourceTypeSyntax && resourceTypeSyntax.Type is null)
-            {
-                // The resource type of an output can be inferred.
-                declaredType = this.typeManager.GetTypeInfo(syntax.Value);
-            }
-            else
-            {
-                declaredType = TryGetTypeFromTypeSyntax(syntax.Type) ??
-                    ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType());
-            }
+            var declaredType = TryGetTypeFromTypeSyntax(syntax.Type) ??
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType());
 
             return new(declaredType, syntax);
         }
@@ -275,14 +266,17 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol GetTypeReferenceForResourceType(ResourceTypeSyntax syntax)
         {
-            var type = GetDeclaredResourceType(syntax);
-
-            if (type is ResourceType resourceType)
+            if (!features.ResourceTypedParamsAndOutputsEnabled)
             {
-                if (IsExtensibilityType(resourceType))
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnsupportedResourceTypeParameterOrOutputType(resourceType.Name));
-                }
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Span).ParamOrOutputResourceTypeUnsupported());
+            }
+
+            // The resource type of an output can be inferred.
+            var type = syntax.Type == null && GetOutputValueType(syntax) is {} inferredType ? inferredType : GetDeclaredResourceType(syntax);
+
+            if (type is ResourceType resourceType && IsExtensibilityType(resourceType))
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnsupportedResourceTypeParameterOrOutputType(resourceType.Name));
             }
 
             return type;
@@ -292,6 +286,13 @@ namespace Bicep.Core.TypeSystem
         {
             return resourceType.DeclaringNamespace.ProviderName != AzNamespaceType.BuiltInName;
         }
+
+        private TypeSymbol? GetOutputValueType(SyntaxBase syntax) => binder.GetParent(syntax) switch
+        {
+            OutputDeclarationSyntax outputDeclaration => typeManager.GetTypeInfo(outputDeclaration.Value),
+            ParenthesizedExpressionSyntax parenthesized => GetOutputValueType(parenthesized),
+            _ => null,
+        };
 
         private TypeSymbol ParseTypeExpression(TypeAccessSyntax syntax)
             => binder.GetSymbolInfo(syntax) switch
@@ -1225,11 +1226,6 @@ namespace Bicep.Core.TypeSystem
         /// </summary>
         private TypeSymbol GetDeclaredResourceType(ResourceTypeSyntax typeSyntax)
         {
-            if (!features.ResourceTypedParamsAndOutputsEnabled)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(typeSyntax).ParamOrOutputResourceTypeUnsupported());
-            }
-
             // NOTE: this is closely related to the logic in the other overload. Keep them in sync.
             var stringSyntax = typeSyntax.TypeString;
             if (stringSyntax != null && stringSyntax.IsInterpolated())

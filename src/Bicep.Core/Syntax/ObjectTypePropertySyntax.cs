@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
@@ -46,5 +47,5 @@ public class ObjectTypePropertySyntax : DecorableSyntax
 
     public override void Accept(ISyntaxVisitor visitor) => visitor.VisitObjectTypePropertySyntax(this);
 
-    public override TextSpan Span => TextSpan.Between(this.Key, this.Value);
+    public override TextSpan Span => TextSpan.Between(LeadingNodes.FirstOrDefault() ?? Key, Value);
 }

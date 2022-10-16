@@ -368,17 +368,14 @@ type foo = {
     @minLength(3)
     @maxLength(10)
     stringProp: string
+
     objectProp: {
         @minValue(1)
         intProp: int
-        arrayProp: int[] [] []
+        arrayProp: int[][][]
     }
 
-    @sealed()
-    sealedObjectProp: {
-        fizz: int
-        buzz: bool
-    }
+    unionProp: 'several'|'string'|'literals'
 }";
 
             var parsed = ParserHelper.Parse(typeDeclaration);
@@ -391,8 +388,20 @@ type foo = {
             declaration.Value.Should().BeOfType<ObjectTypeSyntax>();
             var declaredObject = (ObjectTypeSyntax) declaration.Value;
             declaredObject.Properties.Should().HaveCount(3);
-            declaredObject.Properties.First().Decorators.Should().HaveCount(3);
+            declaredObject.Properties.First().Decorators.Should().HaveCount(2);
+            declaredObject.Properties.First().Value.Should().BeOfType<SimpleTypeSyntax>();
             declaredObject.Properties.Skip(1).First().Value.Should().BeOfType<ObjectTypeSyntax>();
+
+            var objectProp = (ObjectTypeSyntax) declaredObject.Properties.Skip(1).First().Value;
+            objectProp.Properties.Should().HaveCount(2);
+            objectProp.Properties.Last().Value.Should().BeOfType<ArrayTypeSyntax>();
+
+            var arrayProp = (ArrayTypeSyntax) objectProp.Properties.Last().Value;
+            arrayProp.Item.Should().BeOfType<ArrayTypeSyntax>();
+            var intermediateArray = (ArrayTypeSyntax) arrayProp.Item;
+            intermediateArray.Item.Should().BeOfType<ArrayTypeSyntax>();
+            var innerArray = (ArrayTypeSyntax) intermediateArray.Item;
+            innerArray.Item.Should().BeOfType<SimpleTypeSyntax>();
         }
 
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)

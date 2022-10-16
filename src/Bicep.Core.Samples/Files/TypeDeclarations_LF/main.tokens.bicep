@@ -1,10 +1,7 @@
-@description('The foo type')
-//@[00:01) At |@|
-//@[01:12) Identifier |description|
-//@[12:13) LeftParen |(|
-//@[13:27) StringComplete |'The foo type'|
-//@[27:28) RightParen |)|
-//@[28:29) NewLine |\n|
+// @description('The foo type')
+//@[31:32) NewLine |\n|
+// @sealed()
+//@[12:13) NewLine |\n|
 type foo = {
 //@[00:04) Identifier |type|
 //@[05:08) Identifier |foo|
@@ -25,13 +22,8 @@ type foo = {
 //@[13:15) Integer |10|
 //@[15:16) RightParen |)|
 //@[16:17) NewLine |\n|
-  @description('A string property')
-//@[02:03) At |@|
-//@[03:14) Identifier |description|
-//@[14:15) LeftParen |(|
-//@[15:34) StringComplete |'A string property'|
-//@[34:35) RightParen |)|
-//@[35:36) NewLine |\n|
+  // @description('A string property')
+//@[38:39) NewLine |\n|
   stringProp: string
 //@[02:12) Identifier |stringProp|
 //@[12:13) Colon |:|
@@ -98,58 +90,18 @@ type foo = {
 //@[11:12) Integer |3|
 //@[12:13) RightParen |)|
 //@[13:14) NewLine |\n|
-@description('An array of array of arrays of arrays of ints')
-//@[00:01) At |@|
-//@[01:12) Identifier |description|
-//@[12:13) LeftParen |(|
-//@[13:60) StringComplete |'An array of array of arrays of arrays of ints'|
-//@[60:61) RightParen |)|
-//@[61:62) NewLine |\n|
-@metadata({
-//@[00:01) At |@|
-//@[01:09) Identifier |metadata|
-//@[09:10) LeftParen |(|
-//@[10:11) LeftBrace |{|
-//@[11:12) NewLine |\n|
-  examples: [
-//@[02:10) Identifier |examples|
-//@[10:11) Colon |:|
-//@[12:13) LeftSquare |[|
-//@[13:14) NewLine |\n|
-    [[[[1]]], [[[2]]], [[[3]]]]
-//@[04:05) LeftSquare |[|
-//@[05:06) LeftSquare |[|
-//@[06:07) LeftSquare |[|
-//@[07:08) LeftSquare |[|
-//@[08:09) Integer |1|
-//@[09:10) RightSquare |]|
-//@[10:11) RightSquare |]|
-//@[11:12) RightSquare |]|
-//@[12:13) Comma |,|
-//@[14:15) LeftSquare |[|
-//@[15:16) LeftSquare |[|
-//@[16:17) LeftSquare |[|
-//@[17:18) Integer |2|
-//@[18:19) RightSquare |]|
-//@[19:20) RightSquare |]|
-//@[20:21) RightSquare |]|
-//@[21:22) Comma |,|
-//@[23:24) LeftSquare |[|
-//@[24:25) LeftSquare |[|
-//@[25:26) LeftSquare |[|
-//@[26:27) Integer |3|
-//@[27:28) RightSquare |]|
-//@[28:29) RightSquare |]|
-//@[29:30) RightSquare |]|
-//@[30:31) RightSquare |]|
-//@[31:32) NewLine |\n|
-  ]
-//@[02:03) RightSquare |]|
-//@[03:04) NewLine |\n|
-})
-//@[00:01) RightBrace |}|
-//@[01:02) RightParen |)|
-//@[02:03) NewLine |\n|
+// @description('An array of array of arrays of arrays of ints')
+//@[64:65) NewLine |\n|
+// @metadata({
+//@[14:15) NewLine |\n|
+//   examples: [
+//@[16:17) NewLine |\n|
+//     [[[[1]]], [[[2]]], [[[3]]]]
+//@[34:35) NewLine |\n|
+//   ]
+//@[06:07) NewLine |\n|
+// })
+//@[05:06) NewLine |\n|
 type bar = int[][][][]
 //@[00:04) Identifier |type|
 //@[05:08) Identifier |bar|

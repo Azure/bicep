@@ -1,9 +1,10 @@
-@description('The foo type')
+// @description('The foo type')
+// @sealed()
 type foo = {
-//@[5:08) Type foo. Type: { stringProp: string, objectProp: { intProp: int, intArrayArrayProp: int[][] }, typeRefProp: bar, literalProp: 'literal', recursion: foo }. Declaration start char: 0, length: 287
+//@[5:08) Type foo. Type: { stringProp: string, objectProp: { intProp: int, intArrayArrayProp: int[][] }, typeRefProp: bar, literalProp: 'literal', recursion: foo }. Declaration start char: 0, length: 261
   @minLength(3)
   @maxLength(10)
-  @description('A string property')
+  // @description('A string property')
   stringProp: string
 
   objectProp: {
@@ -21,14 +22,14 @@ type foo = {
 }
 
 @minLength(3)
-@description('An array of array of arrays of arrays of ints')
-@metadata({
-  examples: [
-    [[[[1]]], [[[2]]], [[[3]]]]
-  ]
-})
+// @description('An array of array of arrays of arrays of ints')
+// @metadata({
+//   examples: [
+//     [[[[1]]], [[[2]]], [[[3]]]]
+//   ]
+// })
 type bar = int[][][][]
-//@[5:08) Type bar. Type: int[][][][]. Declaration start char: 0, length: 163
+//@[5:08) Type bar. Type: int[][][][]. Declaration start char: 0, length: 181
 
 type aUnion = 'snap'|'crackle'|'pop'
 //@[5:11) Type aUnion. Type: 'crackle' | 'pop' | 'snap'. Declaration start char: 0, length: 36

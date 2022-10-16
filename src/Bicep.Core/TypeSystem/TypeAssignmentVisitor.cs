@@ -458,9 +458,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 // If the resource type was explicitly specified, emit a warning if no types can be found
-                if (syntax.Type is {} explicitResourceType
-                    && declaredType is ResourceType resourceType
-                    && !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
+                if (syntax.Type is {} explicitResourceType && declaredType is ResourceType resourceType && !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(explicitResourceType).ResourceTypesUnavailable(resourceType.TypeReference));
                 }
@@ -1587,8 +1585,7 @@ namespace Bicep.Core.TypeSystem
             diagnostics.AddRange(valueType.GetDiagnostics());
 
             // Avoid reporting an additional error if we failed to bind the output type.
-            if (TypeValidator.AreTypesAssignable(valueType, assignedType) == false &&
-                valueType is not ErrorType)
+            if (TypeValidator.AreTypesAssignable(valueType, assignedType) == false && valueType is not ErrorType && assignedType is not ErrorType)
             {
                 return DiagnosticBuilder.ForPosition(syntax.Value).OutputTypeMismatch(assignedType, valueType).AsEnumerable();
             }

@@ -53,18 +53,12 @@
         },
         "stringProp": {
           "type": "string",
-          "metadata": {
-            "description": "A string property"
-          },
           "maxLength": 10,
           "minLength": 3
         },
         "typeRefProp": {
           "$ref": "#/definitions/bar"
         }
-      },
-      "metadata": {
-        "description": "The foo type"
       }
     },
     "bar": {
@@ -80,34 +74,6 @@
             }
           }
         }
-      },
-      "metadata": {
-        "examples": [
-          [
-            [
-              [
-                [
-                  1
-                ]
-              ]
-            ],
-            [
-              [
-                [
-                  2
-                ]
-              ]
-            ],
-            [
-              [
-                [
-                  3
-                ]
-              ]
-            ]
-          ]
-        ],
-        "description": "An array of array of arrays of arrays of ints"
       },
       "minLength": 3
     },

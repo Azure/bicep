@@ -124,7 +124,7 @@ namespace Bicep.Core.UnitTests.Parsing
         public void DisableNextLineDiagnosticsDirectiveWithInvalidTrailingCharacter_ShouldLexCorrectly()
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
-            var lexer = new Lexer(new SlidingTextWindow("#disable-next-line BCP037|"), diagnosticWriter);
+            var lexer = new Lexer(new SlidingTextWindow("#disable-next-line BCP037~"), diagnosticWriter);
             lexer.Lex();
 
             var diagnostics = diagnosticWriter.GetDiagnostics();
@@ -134,7 +134,7 @@ namespace Bicep.Core.UnitTests.Parsing
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP001");
-                    x.Message.Should().Be("The following token is not recognized: \"|\".");
+                    x.Message.Should().Be("The following token is not recognized: \"~\".");
                 });
 
             var tokens = lexer.GetTokens();
@@ -332,7 +332,7 @@ namespace Bicep.Core.UnitTests.Parsing
         public void ValidDisableNextLineDiagnosticsDirective_WithinResourceAndWithTrailingWhiteSpace_ShouldLexCorrectly()
         {
             string text = @"resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
-#disable-next-line BCP226   
+#disable-next-line BCP226
   properties: vmProperties
 }";
             var diagnosticWriter = ToListDiagnosticWriter.Create();

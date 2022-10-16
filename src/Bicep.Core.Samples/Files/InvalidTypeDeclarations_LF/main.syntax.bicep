@@ -293,6 +293,7 @@ type objectWithInvalidPropertyDecorators = {
 //@[43:044) |   ├─Token(LeftBrace) |{|
 //@[44:045) |   ├─Token(NewLine) |\n|
   @sealed()
+//@[02:029) |   ├─ObjectTypePropertySyntax
 //@[02:011) |   | ├─DecoratorSyntax
 //@[02:003) |   | | ├─Token(At) |@|
 //@[03:011) |   | | └─FunctionCallSyntax
@@ -302,7 +303,6 @@ type objectWithInvalidPropertyDecorators = {
 //@[10:011) |   | |   └─Token(RightParen) |)|
 //@[11:012) |   | ├─Token(NewLine) |\n|
   fooProp: string
-//@[02:017) |   ├─ObjectTypePropertySyntax
 //@[02:009) |   | ├─IdentifierSyntax
 //@[02:009) |   | | └─Token(Identifier) |fooProp|
 //@[09:010) |   | ├─Token(Colon) |:|
@@ -311,6 +311,7 @@ type objectWithInvalidPropertyDecorators = {
 //@[17:019) |   ├─Token(NewLine) |\n\n|
 
   @secure()
+//@[02:029) |   ├─ObjectTypePropertySyntax
 //@[02:011) |   | ├─DecoratorSyntax
 //@[02:003) |   | | ├─Token(At) |@|
 //@[03:011) |   | | └─FunctionCallSyntax
@@ -320,7 +321,6 @@ type objectWithInvalidPropertyDecorators = {
 //@[10:011) |   | |   └─Token(RightParen) |)|
 //@[11:012) |   | ├─Token(NewLine) |\n|
   barProp: string
-//@[02:017) |   ├─ObjectTypePropertySyntax
 //@[02:009) |   | ├─IdentifierSyntax
 //@[02:009) |   | | └─Token(Identifier) |barProp|
 //@[09:010) |   | ├─Token(Colon) |:|
@@ -329,6 +329,7 @@ type objectWithInvalidPropertyDecorators = {
 //@[17:019) |   ├─Token(NewLine) |\n\n|
 
   @allowed(['snap', 'crackle', 'pop'])
+//@[02:059) |   ├─ObjectTypePropertySyntax
 //@[02:038) |   | ├─DecoratorSyntax
 //@[02:003) |   | | ├─Token(At) |@|
 //@[03:038) |   | | └─FunctionCallSyntax
@@ -353,7 +354,6 @@ type objectWithInvalidPropertyDecorators = {
 //@[37:038) |   | |   └─Token(RightParen) |)|
 //@[38:039) |   | ├─Token(NewLine) |\n|
   krispyProp: string
-//@[02:020) |   ├─ObjectTypePropertySyntax
 //@[02:012) |   | ├─IdentifierSyntax
 //@[02:012) |   | | └─Token(Identifier) |krispyProp|
 //@[12:013) |   | ├─Token(Colon) |:|

@@ -1,26 +1,19 @@
-@description('The foo type')
-//@[00:757) ProgramSyntax
-//@[00:287) ├─TypeDeclarationSyntax
-//@[00:028) | ├─DecoratorSyntax
-//@[00:001) | | ├─Token(At) |@|
-//@[01:028) | | └─FunctionCallSyntax
-//@[01:012) | |   ├─IdentifierSyntax
-//@[01:012) | |   | └─Token(Identifier) |description|
-//@[12:013) | |   ├─Token(LeftParen) |(|
-//@[13:027) | |   ├─FunctionArgumentSyntax
-//@[13:027) | |   | └─StringSyntax
-//@[13:027) | |   |   └─Token(StringComplete) |'The foo type'|
-//@[27:028) | |   └─Token(RightParen) |)|
-//@[28:029) | ├─Token(NewLine) |\n|
+// @description('The foo type')
+//@[00:794) ProgramSyntax
+//@[31:032) ├─Token(NewLine) |\n|
+// @sealed()
+//@[12:013) ├─Token(NewLine) |\n|
 type foo = {
+//@[00:261) ├─TypeDeclarationSyntax
 //@[00:004) | ├─Token(Identifier) |type|
 //@[05:008) | ├─IdentifierSyntax
 //@[05:008) | | └─Token(Identifier) |foo|
 //@[09:010) | ├─Token(Assignment) |=|
-//@[11:258) | └─ObjectTypeSyntax
+//@[11:261) | └─ObjectTypeSyntax
 //@[11:012) |   ├─Token(LeftBrace) |{|
 //@[12:013) |   ├─Token(NewLine) |\n|
   @minLength(3)
+//@[02:092) |   ├─ObjectTypePropertySyntax
 //@[02:015) |   | ├─DecoratorSyntax
 //@[02:003) |   | | ├─Token(At) |@|
 //@[03:015) |   | | └─FunctionCallSyntax
@@ -44,20 +37,9 @@ type foo = {
 //@[13:015) |   | |   |   └─Token(Integer) |10|
 //@[15:016) |   | |   └─Token(RightParen) |)|
 //@[16:017) |   | ├─Token(NewLine) |\n|
-  @description('A string property')
-//@[02:035) |   | ├─DecoratorSyntax
-//@[02:003) |   | | ├─Token(At) |@|
-//@[03:035) |   | | └─FunctionCallSyntax
-//@[03:014) |   | |   ├─IdentifierSyntax
-//@[03:014) |   | |   | └─Token(Identifier) |description|
-//@[14:015) |   | |   ├─Token(LeftParen) |(|
-//@[15:034) |   | |   ├─FunctionArgumentSyntax
-//@[15:034) |   | |   | └─StringSyntax
-//@[15:034) |   | |   |   └─Token(StringComplete) |'A string property'|
-//@[34:035) |   | |   └─Token(RightParen) |)|
-//@[35:036) |   | ├─Token(NewLine) |\n|
+  // @description('A string property')
+//@[38:039) |   | ├─Token(NewLine) |\n|
   stringProp: string
-//@[02:020) |   ├─ObjectTypePropertySyntax
 //@[02:012) |   | ├─IdentifierSyntax
 //@[02:012) |   | | └─Token(Identifier) |stringProp|
 //@[12:013) |   | ├─Token(Colon) |:|
@@ -74,6 +56,7 @@ type foo = {
 //@[14:015) |   |   ├─Token(LeftBrace) |{|
 //@[15:016) |   |   ├─Token(NewLine) |\n|
     @minValue(1)
+//@[04:033) |   |   ├─ObjectTypePropertySyntax
 //@[04:016) |   |   | ├─DecoratorSyntax
 //@[04:005) |   |   | | ├─Token(At) |@|
 //@[05:016) |   |   | | └─FunctionCallSyntax
@@ -86,7 +69,6 @@ type foo = {
 //@[15:016) |   |   | |   └─Token(RightParen) |)|
 //@[16:017) |   |   | ├─Token(NewLine) |\n|
     intProp: int
-//@[04:016) |   |   ├─ObjectTypePropertySyntax
 //@[04:011) |   |   | ├─IdentifierSyntax
 //@[04:011) |   |   | | └─Token(Identifier) |intProp|
 //@[11:012) |   |   | ├─Token(Colon) |:|
@@ -146,7 +128,7 @@ type foo = {
 //@[01:003) ├─Token(NewLine) |\n\n|
 
 @minLength(3)
-//@[00:163) ├─TypeDeclarationSyntax
+//@[00:181) ├─TypeDeclarationSyntax
 //@[00:013) | ├─DecoratorSyntax
 //@[00:001) | | ├─Token(At) |@|
 //@[01:013) | | └─FunctionCallSyntax
@@ -158,97 +140,18 @@ type foo = {
 //@[11:012) | |   |   └─Token(Integer) |3|
 //@[12:013) | |   └─Token(RightParen) |)|
 //@[13:014) | ├─Token(NewLine) |\n|
-@description('An array of array of arrays of arrays of ints')
-//@[00:061) | ├─DecoratorSyntax
-//@[00:001) | | ├─Token(At) |@|
-//@[01:061) | | └─FunctionCallSyntax
-//@[01:012) | |   ├─IdentifierSyntax
-//@[01:012) | |   | └─Token(Identifier) |description|
-//@[12:013) | |   ├─Token(LeftParen) |(|
-//@[13:060) | |   ├─FunctionArgumentSyntax
-//@[13:060) | |   | └─StringSyntax
-//@[13:060) | |   |   └─Token(StringComplete) |'An array of array of arrays of arrays of ints'|
-//@[60:061) | |   └─Token(RightParen) |)|
-//@[61:062) | ├─Token(NewLine) |\n|
-@metadata({
-//@[00:064) | ├─DecoratorSyntax
-//@[00:001) | | ├─Token(At) |@|
-//@[01:064) | | └─FunctionCallSyntax
-//@[01:009) | |   ├─IdentifierSyntax
-//@[01:009) | |   | └─Token(Identifier) |metadata|
-//@[09:010) | |   ├─Token(LeftParen) |(|
-//@[10:063) | |   ├─FunctionArgumentSyntax
-//@[10:063) | |   | └─ObjectSyntax
-//@[10:011) | |   |   ├─Token(LeftBrace) |{|
-//@[11:012) | |   |   ├─Token(NewLine) |\n|
-  examples: [
-//@[02:049) | |   |   ├─ObjectPropertySyntax
-//@[02:010) | |   |   | ├─IdentifierSyntax
-//@[02:010) | |   |   | | └─Token(Identifier) |examples|
-//@[10:011) | |   |   | ├─Token(Colon) |:|
-//@[12:049) | |   |   | └─ArraySyntax
-//@[12:013) | |   |   |   ├─Token(LeftSquare) |[|
-//@[13:014) | |   |   |   ├─Token(NewLine) |\n|
-    [[[[1]]], [[[2]]], [[[3]]]]
-//@[04:031) | |   |   |   ├─ArrayItemSyntax
-//@[04:031) | |   |   |   | └─ArraySyntax
-//@[04:005) | |   |   |   |   ├─Token(LeftSquare) |[|
-//@[05:012) | |   |   |   |   ├─ArrayItemSyntax
-//@[05:012) | |   |   |   |   | └─ArraySyntax
-//@[05:006) | |   |   |   |   |   ├─Token(LeftSquare) |[|
-//@[06:011) | |   |   |   |   |   ├─ArrayItemSyntax
-//@[06:011) | |   |   |   |   |   | └─ArraySyntax
-//@[06:007) | |   |   |   |   |   |   ├─Token(LeftSquare) |[|
-//@[07:010) | |   |   |   |   |   |   ├─ArrayItemSyntax
-//@[07:010) | |   |   |   |   |   |   | └─ArraySyntax
-//@[07:008) | |   |   |   |   |   |   |   ├─Token(LeftSquare) |[|
-//@[08:009) | |   |   |   |   |   |   |   ├─ArrayItemSyntax
-//@[08:009) | |   |   |   |   |   |   |   | └─IntegerLiteralSyntax
-//@[08:009) | |   |   |   |   |   |   |   |   └─Token(Integer) |1|
-//@[09:010) | |   |   |   |   |   |   |   └─Token(RightSquare) |]|
-//@[10:011) | |   |   |   |   |   |   └─Token(RightSquare) |]|
-//@[11:012) | |   |   |   |   |   └─Token(RightSquare) |]|
-//@[12:013) | |   |   |   |   ├─Token(Comma) |,|
-//@[14:021) | |   |   |   |   ├─ArrayItemSyntax
-//@[14:021) | |   |   |   |   | └─ArraySyntax
-//@[14:015) | |   |   |   |   |   ├─Token(LeftSquare) |[|
-//@[15:020) | |   |   |   |   |   ├─ArrayItemSyntax
-//@[15:020) | |   |   |   |   |   | └─ArraySyntax
-//@[15:016) | |   |   |   |   |   |   ├─Token(LeftSquare) |[|
-//@[16:019) | |   |   |   |   |   |   ├─ArrayItemSyntax
-//@[16:019) | |   |   |   |   |   |   | └─ArraySyntax
-//@[16:017) | |   |   |   |   |   |   |   ├─Token(LeftSquare) |[|
-//@[17:018) | |   |   |   |   |   |   |   ├─ArrayItemSyntax
-//@[17:018) | |   |   |   |   |   |   |   | └─IntegerLiteralSyntax
-//@[17:018) | |   |   |   |   |   |   |   |   └─Token(Integer) |2|
-//@[18:019) | |   |   |   |   |   |   |   └─Token(RightSquare) |]|
-//@[19:020) | |   |   |   |   |   |   └─Token(RightSquare) |]|
-//@[20:021) | |   |   |   |   |   └─Token(RightSquare) |]|
-//@[21:022) | |   |   |   |   ├─Token(Comma) |,|
-//@[23:030) | |   |   |   |   ├─ArrayItemSyntax
-//@[23:030) | |   |   |   |   | └─ArraySyntax
-//@[23:024) | |   |   |   |   |   ├─Token(LeftSquare) |[|
-//@[24:029) | |   |   |   |   |   ├─ArrayItemSyntax
-//@[24:029) | |   |   |   |   |   | └─ArraySyntax
-//@[24:025) | |   |   |   |   |   |   ├─Token(LeftSquare) |[|
-//@[25:028) | |   |   |   |   |   |   ├─ArrayItemSyntax
-//@[25:028) | |   |   |   |   |   |   | └─ArraySyntax
-//@[25:026) | |   |   |   |   |   |   |   ├─Token(LeftSquare) |[|
-//@[26:027) | |   |   |   |   |   |   |   ├─ArrayItemSyntax
-//@[26:027) | |   |   |   |   |   |   |   | └─IntegerLiteralSyntax
-//@[26:027) | |   |   |   |   |   |   |   |   └─Token(Integer) |3|
-//@[27:028) | |   |   |   |   |   |   |   └─Token(RightSquare) |]|
-//@[28:029) | |   |   |   |   |   |   └─Token(RightSquare) |]|
-//@[29:030) | |   |   |   |   |   └─Token(RightSquare) |]|
-//@[30:031) | |   |   |   |   └─Token(RightSquare) |]|
-//@[31:032) | |   |   |   ├─Token(NewLine) |\n|
-  ]
-//@[02:003) | |   |   |   └─Token(RightSquare) |]|
-//@[03:004) | |   |   ├─Token(NewLine) |\n|
-})
-//@[00:001) | |   |   └─Token(RightBrace) |}|
-//@[01:002) | |   └─Token(RightParen) |)|
-//@[02:003) | ├─Token(NewLine) |\n|
+// @description('An array of array of arrays of arrays of ints')
+//@[64:065) | ├─Token(NewLine) |\n|
+// @metadata({
+//@[14:015) | ├─Token(NewLine) |\n|
+//   examples: [
+//@[16:017) | ├─Token(NewLine) |\n|
+//     [[[[1]]], [[[2]]], [[[3]]]]
+//@[34:035) | ├─Token(NewLine) |\n|
+//   ]
+//@[06:007) | ├─Token(NewLine) |\n|
+// })
+//@[05:006) | ├─Token(NewLine) |\n|
 type bar = int[][][][]
 //@[00:004) | ├─Token(Identifier) |type|
 //@[05:008) | ├─IdentifierSyntax

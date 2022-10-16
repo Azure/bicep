@@ -1,13 +1,12 @@
-@description('The foo type')
-//@[66:66]         "description": "The foo type"
+// @description('The foo type')
+// @sealed()
 type foo = {
-//@[13:68]     "foo": {
+//@[13:62]     "foo": {
   @minLength(3)
-//@[59:59]           "minLength": 3
+//@[56:56]           "minLength": 3
   @maxLength(10)
-//@[58:58]           "maxLength": 10,
-  @description('A string property')
-//@[56:56]             "description": "A string property"
+//@[55:55]           "maxLength": 10,
+  // @description('A string property')
   stringProp: string
 
   objectProp: {
@@ -26,39 +25,36 @@ type foo = {
 }
 
 @minLength(3)
-//@[111:111]       "minLength": 3
-@description('An array of array of arrays of arrays of ints')
-//@[109:109]         "description": "An array of array of arrays of arrays of ints"
-@metadata({
-  examples: [
-//@[84:108]         "examples": [
-    [[[[1]]], [[[2]]], [[[3]]]]
-//@[85:107]                   1
-  ]
-})
+//@[77:77]       "minLength": 3
+// @description('An array of array of arrays of arrays of ints')
+// @metadata({
+//   examples: [
+//     [[[[1]]], [[[2]]], [[[3]]]]
+//   ]
+// })
 type bar = int[][][][]
-//@[69:112]     "bar": {
+//@[63:78]     "bar": {
 
 type aUnion = 'snap'|'crackle'|'pop'
-//@[113:120]     "aUnion": {
+//@[79:86]     "aUnion": {
 
 type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
-//@[121:130]     "expandedUnion": {
+//@[87:96]     "expandedUnion": {
 
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
-//@[131:146]     "mixedArray": {
+//@[97:112]     "mixedArray": {
 
 param inlineObjectParam {
-//@[149:179]     "inlineObjectParam": {
+//@[115:145]     "inlineObjectParam": {
   foo: string
   bar: 100|200|300|400|500
   baz: bool
 } = {
   foo: 'foo'
-//@[175:175]         "foo": "foo",
+//@[141:141]         "foo": "foo",
   bar: 300
-//@[176:176]         "bar": 300,
+//@[142:142]         "bar": 300,
   baz: false
-//@[177:177]         "baz": false
+//@[143:143]         "baz": false
 }
 
