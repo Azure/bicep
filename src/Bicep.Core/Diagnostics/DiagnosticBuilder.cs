@@ -1702,6 +1702,12 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP296",
                 "Property names on types must be compile-time constant values.");
+
+
+            public ErrorDiagnostic CannotUseFunctionAsTypeDecorator(string functionName) => new(
+                TextSpan,
+                "BCP297",
+                $"Function \"{functionName}\" cannot be used as a type decorator.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

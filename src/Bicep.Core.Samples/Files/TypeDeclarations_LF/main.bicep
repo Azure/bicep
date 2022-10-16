@@ -1,5 +1,4 @@
 ﻿@description('The foo type')
-@sealed()
 type foo = {
   @minLength(3)
   @maxLength(10)
@@ -13,12 +12,7 @@ type foo = {
     intArrayArrayProp?: int [] []
   }
 
-  @sealed()
-  sealedObjectProp: {
-    fizz: int
-    buzz: bool
-    pop: bar
-  }
+  typeRefProp: bar
 
   literalProp: 'literal'
 

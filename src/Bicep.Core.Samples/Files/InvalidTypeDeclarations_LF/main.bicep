@@ -46,8 +46,10 @@ type objectWithInvalidPropertyDecorators = {
   fooProp: string
 
   @secure()
-  @sealed()
-  barProp: int
+  barProp: string
+
+  @allowed(['snap', 'crackle', 'pop'])
+  krispyProp: string
 }
 
 @sealed()
