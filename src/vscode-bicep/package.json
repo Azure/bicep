@@ -530,7 +530,8 @@
     "testlocal:e2e": "(export BICEP_LANGUAGE_SERVER_PATH=${INIT_CWD}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll || set BICEP_LANGUAGE_SERVER_PATH=%INIT_CWD%/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll) && npm run build && npm run build:e2e && npm run test:e2e",
     "clean": "rimraf ./out ./coverage",
     "package": "npm run clean && nbgv-setversion && vsce package --githubBranch main --out ./vscode-bicep.vsix && nbgv-setversion --reset",
-    "packagelocal": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net6.0 ./bicepLanguageServer && npm run package"
+    "packagelocal": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net6.0 ./bicepLanguageServer && npm run package",
+    "params": "node ./enableParams.js"
   },
   "devDependencies": {
     "@types/copy-webpack-plugin": "^10.1.0",
@@ -561,6 +562,7 @@
     "fork-ts-checker-webpack-plugin": "^7.2.13",
     "jest": "^27.5.1",
     "jest-styled-components": "^7.1.1",
+    "json-merger": "^1.1.9",
     "ncp": "^2.0.0",
     "nerdbank-gitversioning": "^3.5.113",
     "prettier": "^2.7.1",
