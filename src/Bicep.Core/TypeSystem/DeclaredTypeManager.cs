@@ -477,7 +477,7 @@ namespace Bicep.Core.TypeSystem
             var evaluated = OperationReturnTypeEvaluator.FoldUnaryExpression(syntax, baseExpressionType, out var foldDiags);
             foldDiags ??= ImmutableArray<IDiagnostic>.Empty;
 
-            if (evaluated is {} result && IsLiteralType(result) && !foldDiags.OfType<ErrorDiagnostic>().Any())
+            if (evaluated is {} result && TypeHelper.IsLiteralType(result) && !foldDiags.OfType<ErrorDiagnostic>().Any())
             {
                 return result;
             }
@@ -527,7 +527,7 @@ namespace Bicep.Core.TypeSystem
                         continue;
                     }
 
-                    if (!IsLiteralType(flattenedType))
+                    if (!TypeHelper.IsLiteralType(flattenedType))
                     {
                         memberDiagnostics.Add(DiagnosticBuilder.ForPosition(member).NonLiteralUnionMember());
                         break;
@@ -593,16 +593,6 @@ namespace Bicep.Core.TypeSystem
         {
             ParenthesizedExpressionSyntax parenthesized => IsNullLiteral(parenthesized.Expression),
             NullLiteralSyntax => true,
-            _ => false,
-        };
-
-        private bool IsLiteralType(TypeSymbol type) => type switch
-        {
-            StringLiteralType => true,
-            IntegerLiteralType => true,
-            BooleanLiteralType => true,
-            ObjectType objectType => objectType.Properties.All(kvp => IsLiteralType(kvp.Value.TypeReference.Type)),
-            // TODO for array literals when type system adds support for tuples
             _ => false,
         };
 

@@ -21,10 +21,10 @@ public class TypeDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationS
         AssertSyntaxType(assignment, nameof(assignment), typeof(Token), typeof(SkippedTriviaSyntax));
         AssertTokenType(assignment as Token, nameof(assignment), TokenType.Assignment);
 
-        this.Keyword = keyword;
-        this.Name = name;
-        this.Assignment = assignment;
-        this.Value = value;
+        Keyword = keyword;
+        Name = name;
+        Assignment = assignment;
+        Value = value;
     }
 
     public Token Keyword { get; }
@@ -37,5 +37,5 @@ public class TypeDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationS
 
     public override void Accept(ISyntaxVisitor visitor) => visitor.VisitTypeDeclarationSyntax(this);
 
-    public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? Keyword, Value);
+    public override TextSpan Span => TextSpan.Between(LeadingNodes.FirstOrDefault() ?? Keyword, Value);
 }

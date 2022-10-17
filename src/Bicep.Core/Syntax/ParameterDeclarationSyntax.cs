@@ -72,8 +72,7 @@ namespace Bicep.Core.Syntax
             } else if (ReferenceEquals(assignedType, LanguageConstants.Bool))
             {
                 assignedType = UnionIfLiterals<BooleanLiteralType>(assignedType, LanguageConstants.LooseBool, allowedItemTypes);
-            } else if (ReferenceEquals(assignedType, LanguageConstants.Array) &&
-                allowedItemTypes?.All(itemType => itemType is StringLiteralType) == true)
+            } else if (ReferenceEquals(assignedType, LanguageConstants.Array) && allowedItemTypes?.All(TypeHelper.IsLiteralType) is true)
             {
                 assignedType = new TypedArrayType(TypeHelper.CreateTypeUnion(allowedItemTypes), TypeSymbolValidationFlags.Default);
             }
