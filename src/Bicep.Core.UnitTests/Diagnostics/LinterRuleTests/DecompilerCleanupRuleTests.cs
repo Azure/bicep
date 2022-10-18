@@ -312,7 +312,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ).ToArray(),
                 new() { IncludePosition = IncludePosition.None });
         }
-
     }
 }
 
