@@ -79,6 +79,10 @@ namespace Bicep.LanguageServer.Handlers
                     return WithMarkdown(CodeBlockWithDescription(
                         $"param {parameter.Name}: {parameter.Type}", TryGetDescriptionMarkdown(result, parameter)));
 
+                case DeclaredTypeSymbol declaredType:
+                    return WithMarkdown(CodeBlockWithDescription(
+                        $"type {declaredType.Name}: {declaredType.Type}", TryGetDescriptionMarkdown(result, declaredType)));
+
                 case VariableSymbol variable:
                     return WithMarkdown(CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescriptionMarkdown(result, variable)));
 

@@ -265,7 +265,8 @@ namespace Bicep.LanguageServer.Completions
                 (output.Assignment is SkippedTriviaSyntax || (output.Assignment is Token assignment && offset <= assignment.GetPosition()));
 
             if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax>(matchingNodes, parameter => CheckTypeIsExpected(parameter.Name, parameter.Type)) ||
-                SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
+                SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier) ||
+                SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, TypeAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) )
             {
                 // the most specific matching node is a parameter declaration
                 // the declaration syntax is "param <identifier> <type> ..."
@@ -287,7 +288,8 @@ namespace Bicep.LanguageServer.Completions
             }
 
             if (SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output => CheckTypeIsExpected(output.Name, output.Type)) ||
-                SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
+                SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier) ||
+                SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, TypeAccessSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
             {
                 // the most specific matching node is an output declaration
                 // the declaration syntax is "output <identifier> <type> ..."

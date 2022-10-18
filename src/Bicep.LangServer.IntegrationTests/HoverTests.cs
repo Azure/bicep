@@ -581,6 +581,10 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
                         tooltip.Should().Contain($"param {parameter.Name}: {parameter.Type}");
                         break;
 
+                    case DeclaredTypeSymbol declaredType:
+                        tooltip.Should().Contain($"type {declaredType.Name}: {declaredType.Type}");
+                        break;
+
                     case VariableSymbol variable:
                         // the hovers with errors don't appear in VS code and only occur in tests
                         tooltip.Should().ContainAny(new[] { $"var {variable.Name}: {variable.Type}", $"var {variable.Name}: error" });
