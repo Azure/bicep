@@ -706,7 +706,7 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<ObjectTypePropertySyntax, TypeAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier);
         
         private static bool IsUnionTypeMemberContext(List<SyntaxBase> matchingNodes, int offset) =>
-            SyntaxMatcher.IsTailMatch<UnionTypeSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (_, _, _) => true) ||
+            SyntaxMatcher.IsTailMatch<UnionTypeSyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Pipe) ||
             SyntaxMatcher.IsTailMatch<UnionTypeSyntax, UnionTypeMemberSyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) ||
             SyntaxMatcher.IsTailMatch<UnionTypeSyntax, UnionTypeMemberSyntax, TypeAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, _, token) => token.Type == TokenType.Identifier);
 
