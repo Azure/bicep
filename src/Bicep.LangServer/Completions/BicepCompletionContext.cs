@@ -163,6 +163,8 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsOuterExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope) |
                        ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName) |
+                       ConvertFlag(IsObjectTypePropertyValueContext(matchingNodes, offset), BicepCompletionContextKind.ObjectTypePropertyValue) |
+                       ConvertFlag(IsUnionTypeMemberContext(matchingNodes, offset), BicepCompletionContextKind.UnionTypeMember) |
                        ConvertFlag(functionArgumentContext is not null, BicepCompletionContextKind.FunctionArgument | BicepCompletionContextKind.Expression);
 
             if (featureProvider.ImportsEnabled)
@@ -266,14 +268,26 @@ namespace Bicep.LanguageServer.Completions
 
             if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax>(matchingNodes, parameter => CheckTypeIsExpected(parameter.Name, parameter.Type)) ||
                 SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier) ||
-                SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, TypeAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) )
+                SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, TypeAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier))
             {
                 // the most specific matching node is a parameter declaration
                 // the declaration syntax is "param <identifier> <type> ..."
                 // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the type position
                 // OR
-                // we are in a token that is inside a SimpleTypeSyntax node, which is inside a parameter node
+                // we are in a token that is inside a SimpleTypeSyntax/TypeAccessSyntax node, which is inside a parameter node
                 return BicepCompletionContextKind.ParameterType;
+            }
+
+            if (SyntaxMatcher.IsTailMatch<TypeDeclarationSyntax>(matchingNodes, typeDeclaration => typeDeclaration.Assignment is not SkippedTriviaSyntax && offset > typeDeclaration.Assignment.GetEndPosition() && offset <= typeDeclaration.Value.Span.Position) ||
+                SyntaxMatcher.IsTailMatch<TypeDeclarationSyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier) ||
+                SyntaxMatcher.IsTailMatch<TypeDeclarationSyntax, TypeAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier))
+            {
+                // the most specific matching node is a type declaration
+                // the declaration syntax is "type <identifier> = <type>"
+                // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the type position
+                // OR
+                // we are in a token that is inside a SimpleTypeSyntax/TypeAccessSyntax node, which is inside a type declaration node
+                return BicepCompletionContextKind.TypeDeclarationValue;
             }
 
             if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, ResourceTypeSyntax>(matchingNodes, (parameter, type) => CheckParameterResourceTypeIsExpected(type)) ||
@@ -685,6 +699,16 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<DecoratorSyntax, PropertyAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) ||
             SyntaxMatcher.IsTailMatch<DecoratorSyntax, PropertyAccessSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Dot) ||
             SyntaxMatcher.IsTailMatch<DecoratorSyntax, PropertyAccessSyntax>(matchingNodes, (_, propertyAccessSyntax) => offset > propertyAccessSyntax.Dot.Span.Position);
+
+        private static bool IsObjectTypePropertyValueContext(List<SyntaxBase> matchingNodes, int offset) =>
+            SyntaxMatcher.IsTailMatch<ObjectTypePropertySyntax>(matchingNodes, typePropertySyntax => typePropertySyntax.Colon is not SkippedTriviaSyntax && offset > typePropertySyntax.Colon.Span.Position) ||
+            SyntaxMatcher.IsTailMatch<ObjectTypePropertySyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier) ||
+            SyntaxMatcher.IsTailMatch<ObjectTypePropertySyntax, TypeAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier);
+        
+        private static bool IsUnionTypeMemberContext(List<SyntaxBase> matchingNodes, int offset) =>
+            SyntaxMatcher.IsTailMatch<UnionTypeSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (_, _, _) => true) ||
+            SyntaxMatcher.IsTailMatch<UnionTypeSyntax, UnionTypeMemberSyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) ||
+            SyntaxMatcher.IsTailMatch<UnionTypeSyntax, UnionTypeMemberSyntax, TypeAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, _, token) => token.Type == TokenType.Identifier);
 
         private static FunctionArgumentContext? TryGetFunctionArgumentContext(List<SyntaxBase> matchingNodes, int offset)
         {

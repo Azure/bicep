@@ -5,7 +5,7 @@ using System;
 namespace Bicep.LanguageServer.Completions
 {
     [Flags]
-    public enum BicepCompletionContextKind
+    public enum BicepCompletionContextKind : ulong
     {
         /// <summary>
         /// No specific information about the current completion context is available.
@@ -158,5 +158,20 @@ namespace Bicep.LanguageServer.Completions
         /// We're at this place in an import statement: 'import foo as bar |'
         /// </summary>
         ImportAliasFollower = 1 << 28,
+
+        /// <summary>
+        /// The current location is after the assignment operator in a type declaration: 'type foo = |'
+        /// </summary>
+        TypeDeclarationValue = 1 << 29,
+
+        /// <summary>
+        /// The current location is after the assignment operator in a type declaration: 'type foo = |'
+        /// </summary>
+        ObjectTypePropertyValue = 1 << 30,
+
+        /// <summary>
+        /// The current location is after a pipe separator within a union type: `type foo = 'foo'|'bar'|ǂ`
+        /// </summary>
+        UnionTypeMember = ((ulong) 1) << 31,
     }
 }

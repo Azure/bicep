@@ -173,8 +173,9 @@ namespace Bicep.Core.Parsing
                 while (Check(TokenType.Pipe))
                 {
                     elementAndSeparators.Add(reader.Read());
-                    elementAndSeparators.AddRange(NewLines());
-                    elementAndSeparators.Add(new UnionTypeMemberSyntax(BinaryExpression(expressionFlags)));
+                    // error reporting gets really wonky if users can have newlines between union members. `type foo = 'foo'|` causes the start of the next declaration (i.e., a language keyword) to be reported as a non-existent symbol
+                    // elementAndSeparators.AddRange(NewLines());
+                    elementAndSeparators.Add(WithRecovery(() => new UnionTypeMemberSyntax(BinaryExpression(expressionFlags)), RecoveryFlags.None));
                 }
 
                 return new UnionTypeSyntax(elementAndSeparators);
