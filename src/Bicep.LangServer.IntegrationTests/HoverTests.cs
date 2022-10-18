@@ -210,7 +210,8 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = {
 }
 
 output string test = testRes.prop|erties.rea|donly
-");
+",
+                '|');
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
 
@@ -244,7 +245,8 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = [for i in range(0, 10): {
 }]
 
 output string test = testRes[3].prop|erties.rea|donly
-");
+",
+                '|');
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
 
@@ -278,7 +280,8 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = if (true) {
 }
 
 output string test = testRes.prop|erties.rea|donly
-");
+",
+                '|');
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
 
@@ -319,7 +322,8 @@ resource test|Res 'Test.Rp/discriminatorTests@2020-01-01' = {
 
 @description('''this is my output''')
 resource test|Output string = 'str'
-");
+",
+                '|');
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
 
@@ -364,7 +368,8 @@ module mod|1 './mod.bicep' = {
 var var1 = mod1.outputs.ou|t1
 
 output moduleOutput string = '${var|1}-${mod1.outputs.o|ut2}'
-");
+",
+                '|');
 
             var moduleFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/mod.bicep"), modFile);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
@@ -397,7 +402,8 @@ var nsRgFunc = az.resourceGroup|()
 
 var concatFunc = conc|at('abc', 'def')
 var nsConcatFunc = sys.c|oncat('abc', 'def')
-");
+",
+                '|');
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope.\n"),
@@ -416,7 +422,8 @@ resource fo|o 'Test.Rp/basicTests@2020-01-01' = {}
 resource b|ar 'Test.Rp/basicTests@2020-01-01' = {}
 
 resource m|adeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01' = {}
-");
+",
+                '|');
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
@@ -445,7 +452,8 @@ resource madeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01'
             var hovers = await RequestHoversAtCursorLocations(@"
 var concatFunc = conc|at(any('hello'))
 var nsConcatFunc = sys.conc|at(any('hello'))
-");
+",
+                '|');
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkedStrings.Should().ContainInOrder(
@@ -490,7 +498,8 @@ module mo|d1 './mod.json' = {
 var var1 = mod1.outputs.out|1
 
 output moduleOutput string = '${va|r1}-${mod1.outputs.ou|t2}'
-");
+",
+                '|');
 
             var (template, diags, _) = CompilationHelper.Compile(modFile);
             template!.Should().NotBeNull();
@@ -526,7 +535,8 @@ output moduleOutput string = '${va|r1}-${mod1.outputs.ou|t2}'
 resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
   ki|nd
 }
-");
+",
+                '|');
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
 
             var helper = await ServerWithBuiltInTypes.GetAsync();
@@ -641,9 +651,9 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             return hovers;
         }
 
-        public async Task<IEnumerable<Hover?>> RequestHoversAtCursorLocations(string fileWithCursors)
+        public async Task<IEnumerable<Hover?>> RequestHoversAtCursorLocations(string fileWithCursors, char cursor)
         {
-            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, cursor);
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
 

@@ -212,7 +212,7 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task CompletionRequestShouldProduceExpectedCompletions(DataSet dataSet, string setName, IList<Position> positions)
-        {
+        {   
             // ensure all files are present locally
             string basePath = dataSet.SaveFilesToTestDirectory(this.TestContext);
 
@@ -934,7 +934,7 @@ module bar 'doesNotExist.bicep' = [for item in list:|]
 module bar2 'test.bicep' = [for item in list: |  ]
 ";
 
-            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, '|');
             Uri mainUri = new Uri("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
@@ -972,7 +972,8 @@ module bar2 'test.bicep' = [for item in list: |  ]
 module mod1 './module1.txt' = {}
 module mod2 './template3.jsonc' = {}
 module mod2 './|' = {}
-");
+",
+                '|');
             var mainFile = SourceFileFactory.CreateBicepFile(mainUri, mainFileText);
             var schema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
 
@@ -1185,7 +1186,7 @@ import a|
 import kubernetes as k8s |
 ";
 
-                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
                 var file = await new ServerRequestHelper(TestContext, ServerWithImportsEnabled).OpenFile(text);
 
                 var completions = await file.RequestCompletion(cursor);
@@ -1208,7 +1209,7 @@ import kubernetes as k8s {
 }
 ";
 
-                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
                 var file = await new ServerRequestHelper(TestContext, ServerWithImportsEnabled).OpenFile(text);
 
                 var completions = await file.RequestCompletion(cursor);
@@ -1229,7 +1230,7 @@ import kubernetes as k8s {
 import az as az |
 ";
 
-                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
                 var file = await new ServerRequestHelper(TestContext, ServerWithImportsEnabled).OpenFile(text);
 
                 var completions = await file.RequestCompletion(cursor);
@@ -1246,7 +1247,7 @@ module a '|' = {
 }
 ";
 
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             Uri mainUri = InMemoryFileResolver.GetFileUri("/dir/main.bicep");
             var files = new Dictionary<Uri, string>
             {
@@ -1292,7 +1293,7 @@ module m 'mod.bicep' = {
 var modOut = m.outputs.inputTi|
 ";
 
-            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent);
+            var (text, cursors) = ParserHelper.GetFileWithCursors(mainContent, '|');
             Uri mainUri = new Uri("file:///main.bicep");
             var files = new Dictionary<Uri, string>
             {
@@ -1363,7 +1364,7 @@ resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
 var outTest = abc.|
 ";
 
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
@@ -1391,7 +1392,7 @@ resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
 var outTest = abc.listWithInput(|)
 ";
 
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
@@ -1418,7 +1419,7 @@ resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
 var outTest = abc.listWithInput('2020-01-01', |)
 ";
 
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
@@ -1450,7 +1451,7 @@ var outTest = abc.listWithInput('2020-01-01', {
 })
 ";
 
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
@@ -1567,7 +1568,7 @@ var outTest = abc.listWithInput('2020-01-01', {
 ")]
         public async Task List_functions_accepting_inputs_permit_object_value_completions(string fileWithCursors, string updatedFileWithCursors)
         {
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
@@ -1588,7 +1589,7 @@ resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
 
 var outTest = abc.listWithInput().|
 ";
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
@@ -1642,7 +1643,7 @@ var testF = stg.listAccountSas('2021-06-01', {}).|
             var fileWithCursors = @"#|
 param storageAccount string = 'testAccount";
 
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
@@ -1664,7 +1665,7 @@ var sorted = sort(['abc'], (x, y) => |)
 var sorted2 = sort(['abc'], (x, y) => x < |)
 ";
 
-            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletions(cursors);
@@ -1683,7 +1684,8 @@ var sorted2 = sort(['abc'], (x, y) => x < |)
         {
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(@"
 var foo = map([123], |)
-");
+",
+                '|');
 
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
@@ -1699,7 +1701,8 @@ var foo = map([123], foo => |)
         {
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(@"
 var foo = sort([123], |)
-");
+",
+                '|');
 
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
@@ -1770,7 +1773,7 @@ param storageAccount1 string = 'testAccount'
     #|
 param storageAccount2 string = 'testAccount'";
 
-            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursors[0]);
@@ -1812,7 +1815,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   properties: vmProperties
 }";
 
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
@@ -1859,7 +1862,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   properties: vmProperties
 }";
 
-            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var (text, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursors[0]);
@@ -1950,7 +1953,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   properties: vmProperties
 }";
 
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
@@ -1982,7 +1985,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 var foo = concat('abc'/*
   */, 'asd')";
 
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, ServerWithNamespaceProvider).OpenFile(text);
 
             var completions = await file.RequestCompletion(cursor);
@@ -2062,7 +2065,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
             string fileWithCursors = @"#disable-next-line |
 resource test";
 
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, ServerWithBuiltInTypes).OpenFile(text);
 
             CompilationHelper.Compile(text).ExcludingLinterDiagnostics().Diagnostics.Should().SatisfyRespectively(
@@ -2168,7 +2171,7 @@ Returns the unique identifier of a resource. You use this function when the reso
 
         private static async Task RunCompletionScenarioTest(TestContext testContext, SharedLanguageHelperManager server, string fileWithCursors, Action<IEnumerable<CompletionList>> assertAction)
         {
-            var (fileText, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var (fileText, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, '|');
             var file = await new ServerRequestHelper(testContext, server).OpenFile(fileText);
 
             var completions = await file.RequestCompletions(cursors);
@@ -2306,7 +2309,8 @@ Returns the unique identifier of a resource. You use this function when the reso
 
             var (mainFileText, cursor) = ParserHelper.GetFileWithSingleCursor(@"
 var file = " + functionName + @"('|')
-");
+",
+                '|');
             var mainFile = SourceFileFactory.CreateBicepFile(mainUri, mainFileText);
             var schema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
 
@@ -2379,7 +2383,8 @@ var file = " + functionName + @"('|')
             var (mainFileText, cursor) = ParserHelper.GetFileWithSingleCursor(@"
 var template = 'template1.json'
 var file = " + functionName + @"(templ|)
-");
+",
+                '|');
             var mainFile = SourceFileFactory.CreateBicepFile(mainUri, mainFileText);
             var schema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
 
@@ -2460,7 +2465,7 @@ var file = " + functionName + @"(templ|)
 
             using var helper = await MultiFileLanguageServerHelper.StartLanguageServer(TestContext, services => services.WithFileResolver(fileResolver));
 
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors);
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
             var file = await new ServerRequestHelper(TestContext, helper).OpenFile(fileUri, text);
 
             var completions = await file.RequestCompletion(cursor);

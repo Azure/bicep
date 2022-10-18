@@ -120,7 +120,7 @@ new CompletionItemKind[] { CompletionItemKind.Field, CompletionItemKind.Field }
 ]
         public async Task Request_for_parameter_identifier_completions_should_return_correct_identifiers(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
         {
-            var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText);
+            var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText, '|');
 
             var paramUri = InMemoryFileResolver.GetFileUri("/path/to/param.bicepparam");
             var paramFile = SourceFileFactory.CreateBicepFile(paramUri, paramFileTextNoCursor);
@@ -218,7 +218,7 @@ new CompletionItemKind[] { CompletionItemKind.EnumMember, CompletionItemKind.Enu
 ]
         public async Task Request_for_parameter_allowed_value_completions_should_return_correct_value(string paramText, string bicepText, string[] completionLables, CompletionItemKind[] completionItemKinds)
         {
-            var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText);
+            var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramText, '|');
 
             var paramUri = InMemoryFileResolver.GetFileUri("/path/to/param.bicepparam");
             var paramFile = SourceFileFactory.CreateBicepFile(paramUri, paramFileTextNoCursor);
@@ -256,7 +256,8 @@ new CompletionItemKind[] { CompletionItemKind.EnumMember, CompletionItemKind.Enu
             var paramUri = InMemoryFileResolver.GetFileUri("/path/to/param.bicepparam");
             var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(@"
 using |
-");
+",
+                '|');
             var paramFile = SourceFileFactory.CreateBicepFile(paramUri, paramFileTextNoCursor);
 
             var fileTextsByUri = new Dictionary<Uri, string>
@@ -302,7 +303,8 @@ using |
 
             var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(@"
 using './nested1/|'
-");
+",
+                '|');
             var paramFile = SourceFileFactory.CreateBicepFile(paramUri, paramFileTextNoCursor);
 
             var fileTextsByUri = new Dictionary<Uri, string>
