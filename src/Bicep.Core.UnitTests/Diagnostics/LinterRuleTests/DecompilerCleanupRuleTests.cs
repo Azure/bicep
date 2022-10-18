@@ -146,7 +146,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 DecompilerCleanupRule.Code,
                 bicep,
                 expectedFailingResourceNames.Select(name =>
-                    $"The decompiler was unable to automatically create a unique symbolic name for resource '{name}' because of a conflict with an existing name. You may want to rename it manually (using the editor's rename symbol functionality)."
+                    $"The symbolic name of resource '{name}' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality)."
                 ).ToArray(),
                 new() { IncludePosition = IncludePosition.None });
         }
@@ -227,7 +227,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 DecompilerCleanupRule.Code,
                 bicep,
                 expectedFailingResourceNames.Select(name =>
-                    $"The decompiler was unable to automatically create a unique name for variable '{name}' because of a conflict with an existing name. You may want to rename it manually (using the editor's rename symbol functionality)."
+                    $"The name of variable '{name}' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality)."
                 ).ToArray(),
                 new() { IncludePosition = IncludePosition.None });
         }
@@ -308,7 +308,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 DecompilerCleanupRule.Code,
                 bicep,
                 expectedFailingResourceNames.Select(name =>
-                    $"The decompiler was unable to automatically create a unique name for variable '{name}' because of a conflict with an existing name. You may want to rename it manually (using the editor's rename symbol functionality)."
+                    $"The name of variable '{name}' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality)."
                 ).ToArray(),
                 new() { IncludePosition = IncludePosition.None });
         }

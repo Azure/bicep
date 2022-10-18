@@ -130,7 +130,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You may want to rename it manually (using the editor&apos;s rename symbol functionality)..
+        ///   Looks up a localized string similar to Consider renaming it and removing the suffix (using the editor&apos;s rename functionality)..
         /// </summary>
         internal static string DecompilerImperfectionsRule_MayWantToRename {
             get {
@@ -139,7 +139,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The decompiler was unable to automatically create a unique symbolic name for resource &apos;{0}&apos; because of a conflict with an existing name..
+        ///   Looks up a localized string similar to The symbolic name of resource &apos;{0}&apos; appears to have originated from a naming conflict during a decompilation from JSON..
         /// </summary>
         internal static string DecompilerImperfectionsRule_Resource {
             get {
@@ -148,7 +148,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The decompiler was unable to automatically create a unique name for variable &apos;{0}&apos; because of a conflict with an existing name..
+        ///   Looks up a localized string similar to The name of variable &apos;{0}&apos; appears to have originated from a naming conflict during a decompilation from JSON..
         /// </summary>
         internal static string DecompilerImperfectionsRule_Variable {
             get {

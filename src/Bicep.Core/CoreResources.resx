@@ -397,12 +397,12 @@
     <value>Some decompiler imperfections may need to be cleaned up manually</value>
   </data>
   <data name="DecompilerImperfectionsRule_MayWantToRename" xml:space="preserve">
-    <value>You may want to rename it manually (using the editor's rename symbol functionality).</value>
+    <value>Consider renaming it and removing the suffix (using the editor's rename functionality).</value>
   </data>
   <data name="DecompilerImperfectionsRule_Resource" xml:space="preserve">
-    <value>The decompiler was unable to automatically create a unique symbolic name for resource '{0}' because of a conflict with an existing name.</value>
+    <value>The symbolic name of resource '{0}' appears to have originated from a naming conflict during a decompilation from JSON.</value>
   </data>
   <data name="DecompilerImperfectionsRule_Variable" xml:space="preserve">
-    <value>The decompiler was unable to automatically create a unique name for variable '{0}' because of a conflict with an existing name.</value>
+    <value>The name of variable '{0}' appears to have originated from a naming conflict during a decompilation from JSON.</value>
   </data>
 </root>
