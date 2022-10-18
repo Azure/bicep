@@ -125,7 +125,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
         [TestMethod]
-        public void RuleConfigs_RulesShouldBeAlphabetizedForEasierMaintenace()
+        public void RuleConfigs_RulesShouldBeAlphabetizedForEasierMaintenance()
         {
             var (rules, schema) = GetRulesAndSchema();
             var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToArray();
