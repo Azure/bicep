@@ -221,6 +221,21 @@ type objectWithInvalidPropertyDecorators = {
 //@[00:01) RightBrace |}|
 //@[01:03) NewLine |\n\n|
 
+type objectWithInvalidRecursion = {
+//@[00:04) Identifier |type|
+//@[05:31) Identifier |objectWithInvalidRecursion|
+//@[32:33) Assignment |=|
+//@[34:35) LeftBrace |{|
+//@[35:36) NewLine |\n|
+  requiredAndRecursiveProp: objectWithInvalidRecursion
+//@[02:26) Identifier |requiredAndRecursiveProp|
+//@[26:27) Colon |:|
+//@[28:54) Identifier |objectWithInvalidRecursion|
+//@[54:55) NewLine |\n|
+}
+//@[00:01) RightBrace |}|
+//@[01:03) NewLine |\n\n|
+
 @sealed()
 //@[00:01) At |@|
 //@[01:07) Identifier |sealed|

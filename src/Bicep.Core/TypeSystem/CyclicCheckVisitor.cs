@@ -161,10 +161,15 @@ namespace Bicep.Core.TypeSystem
             base.VisitTypeAccessSyntax(syntax);
         }
 
-        public override void VisitObjectTypeSyntax(ObjectTypeSyntax syntax)
+        public override void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)
         {
-            // Recursive types are not considered cyclic, so stop visiting.
-            return;
+            if (syntax.OptionalityMarker is not null)
+            {
+                // Optionally recursive types are not considered cyclic, so stop visiting.
+                return;
+            }
+
+            base.VisitObjectTypePropertySyntax(syntax);
         }
     }
 }

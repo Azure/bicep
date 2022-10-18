@@ -1,17 +1,17 @@
 // @description('The foo type')
 // @sealed()
 type foo = {
-//@[13:62]     "foo": {
+//@[13:61]     "foo": {
   @minLength(3)
-//@[56:56]           "minLength": 3
+//@[55:55]           "minLength": 3
   @maxLength(10)
-//@[55:55]           "maxLength": 10,
+//@[54:54]           "maxLength": 10,
   // @description('A string property')
   stringProp: string
 
   objectProp: {
     @minValue(1)
-//@[46:46]               "minValue": 1
+//@[45:45]               "minValue": 1
     intProp: int
 
     intArrayArrayProp?: int [] []
@@ -21,11 +21,11 @@ type foo = {
 
   literalProp: 'literal'
 
-  recursion: foo
+  recursion?: foo
 }
 
 @minLength(3)
-//@[77:77]       "minLength": 3
+//@[76:76]       "minLength": 3
 // @description('An array of array of arrays of arrays of ints')
 // @metadata({
 //   examples: [
@@ -33,28 +33,28 @@ type foo = {
 //   ]
 // })
 type bar = int[][][][]
-//@[63:78]     "bar": {
+//@[62:77]     "bar": {
 
 type aUnion = 'snap'|'crackle'|'pop'
-//@[79:86]     "aUnion": {
+//@[78:85]     "aUnion": {
 
 type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
-//@[87:96]     "expandedUnion": {
+//@[86:95]     "expandedUnion": {
 
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
-//@[97:112]     "mixedArray": {
+//@[96:111]     "mixedArray": {
 
 param inlineObjectParam {
-//@[115:145]     "inlineObjectParam": {
+//@[114:144]     "inlineObjectParam": {
   foo: string
   bar: 100|200|300|400|500
   baz: bool
 } = {
   foo: 'foo'
-//@[141:141]         "foo": "foo",
+//@[140:140]         "foo": "foo",
   bar: 300
-//@[142:142]         "bar": 300,
+//@[141:141]         "bar": 300,
   baz: false
-//@[143:143]         "baz": false
+//@[142:142]         "baz": false
 }
 

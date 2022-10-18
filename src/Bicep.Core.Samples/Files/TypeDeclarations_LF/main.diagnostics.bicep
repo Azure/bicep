@@ -17,7 +17,7 @@ type foo = {
 
   literalProp: 'literal'
 
-  recursion: foo
+  recursion?: foo
 }
 
 @minLength(3)

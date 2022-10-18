@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12918957798788560149"
+      "templateHash": "10747938231378728300"
     }
   },
   "definitions": {
@@ -16,7 +16,6 @@
       "required": [
         "literalProp",
         "objectProp",
-        "recursion",
         "stringProp",
         "typeRefProp"
       ],

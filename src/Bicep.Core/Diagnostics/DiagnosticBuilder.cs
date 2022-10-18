@@ -1708,6 +1708,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP297",
                 $"Function \"{functionName}\" cannot be used as a type decorator.");
+
+            public ErrorDiagnostic CyclicTypeSelfReference() => new(
+                TextSpan,
+                "BCP298",
+                "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled.");
+
+            public ErrorDiagnostic CyclicType(IEnumerable<string> cycle) => new(
+                TextSpan,
+                "BCP299",
+                $"This type definition includes itself as a required component via a cycle (\"{string.Join("\" -> \"", cycle)}\").");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

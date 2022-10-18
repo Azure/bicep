@@ -205,8 +205,8 @@ namespace Bicep.Core.TypeSystem
             {
                 var builder = DiagnosticBuilder.ForPosition(symbol.DeclaringType.Name);
                 var diagnostic = cycle.Length == 1
-                    ? builder.CyclicExpressionSelfReference()
-                    : builder.CyclicExpression(cycle.Select(s => s.Name));
+                    ? builder.CyclicTypeSelfReference()
+                    : builder.CyclicType(cycle.Select(s => s.Name));
 
                 return ErrorType.Create(diagnostic);
             }
@@ -350,6 +350,11 @@ namespace Bicep.Core.TypeSystem
                         objectName.Append('\'');
                         objectName.Append(StringUtils.EscapeBicepString(propertyName));
                         objectName.Append('\'');
+                    }
+
+                    if (prop.OptionalityMarker is not null)
+                    {
+                        objectName.Append('?');
                     }
 
                     objectName.Append(": ");

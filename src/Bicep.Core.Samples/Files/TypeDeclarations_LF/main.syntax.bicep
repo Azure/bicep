@@ -1,15 +1,15 @@
 // @description('The foo type')
-//@[00:794) ProgramSyntax
+//@[00:795) ProgramSyntax
 //@[31:032) ├─Token(NewLine) |\n|
 // @sealed()
 //@[12:013) ├─Token(NewLine) |\n|
 type foo = {
-//@[00:261) ├─TypeDeclarationSyntax
+//@[00:262) ├─TypeDeclarationSyntax
 //@[00:004) | ├─Token(Identifier) |type|
 //@[05:008) | ├─IdentifierSyntax
 //@[05:008) | | └─Token(Identifier) |foo|
 //@[09:010) | ├─Token(Assignment) |=|
-//@[11:261) | └─ObjectTypeSyntax
+//@[11:262) | └─ObjectTypeSyntax
 //@[11:012) |   ├─Token(LeftBrace) |{|
 //@[12:013) |   ├─Token(NewLine) |\n|
   @minLength(3)
@@ -114,15 +114,16 @@ type foo = {
 //@[15:024) |   |   └─Token(StringComplete) |'literal'|
 //@[24:026) |   ├─Token(NewLine) |\n\n|
 
-  recursion: foo
-//@[02:016) |   ├─ObjectTypePropertySyntax
+  recursion?: foo
+//@[02:017) |   ├─ObjectTypePropertySyntax
 //@[02:011) |   | ├─IdentifierSyntax
 //@[02:011) |   | | └─Token(Identifier) |recursion|
-//@[11:012) |   | ├─Token(Colon) |:|
-//@[13:016) |   | └─TypeAccessSyntax
-//@[13:016) |   |   └─IdentifierSyntax
-//@[13:016) |   |     └─Token(Identifier) |foo|
-//@[16:017) |   ├─Token(NewLine) |\n|
+//@[11:012) |   | ├─Token(Question) |?|
+//@[12:013) |   | ├─Token(Colon) |:|
+//@[14:017) |   | └─TypeAccessSyntax
+//@[14:017) |   |   └─IdentifierSyntax
+//@[14:017) |   |     └─Token(Identifier) |foo|
+//@[17:018) |   ├─Token(NewLine) |\n|
 }
 //@[00:001) |   └─Token(RightBrace) |}|
 //@[01:003) ├─Token(NewLine) |\n\n|

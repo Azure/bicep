@@ -1,7 +1,7 @@
 // @description('The foo type')
 // @sealed()
 type foo = {
-//@[5:08) Type foo. Type: { stringProp: string, objectProp: { intProp: int, intArrayArrayProp: int[][] }, typeRefProp: bar, literalProp: 'literal', recursion: foo }. Declaration start char: 0, length: 261
+//@[5:08) Type foo. Type: { stringProp: string, objectProp: { intProp: int, intArrayArrayProp?: int[][] }, typeRefProp: bar, literalProp: 'literal', recursion?: foo }. Declaration start char: 0, length: 262
   @minLength(3)
   @maxLength(10)
   // @description('A string property')
@@ -18,7 +18,7 @@ type foo = {
 
   literalProp: 'literal'
 
-  recursion: foo
+  recursion?: foo
 }
 
 @minLength(3)

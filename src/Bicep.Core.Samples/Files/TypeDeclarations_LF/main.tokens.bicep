@@ -74,11 +74,12 @@ type foo = {
 //@[15:24) StringComplete |'literal'|
 //@[24:26) NewLine |\n\n|
 
-  recursion: foo
+  recursion?: foo
 //@[02:11) Identifier |recursion|
-//@[11:12) Colon |:|
-//@[13:16) Identifier |foo|
-//@[16:17) NewLine |\n|
+//@[11:12) Question |?|
+//@[12:13) Colon |:|
+//@[14:17) Identifier |foo|
+//@[17:18) NewLine |\n|
 }
 //@[00:01) RightBrace |}|
 //@[01:03) NewLine |\n\n|

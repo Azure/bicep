@@ -73,6 +73,11 @@ type objectWithInvalidPropertyDecorators = {
   krispyProp: string
 }
 
+type objectWithInvalidRecursion = {
+//@[5:31) Type objectWithInvalidRecursion. Type: error. Declaration start char: 0, length: 92
+  requiredAndRecursiveProp: objectWithInvalidRecursion
+}
+
 @sealed()
 param sealedStringParam string
 //@[6:23) Parameter sealedStringParam. Type: string. Declaration start char: 0, length: 40

@@ -41,28 +41,28 @@ type lengthConstrainedInt = int
 type valueConstrainedString = string
 
 type tautology = tautology
-//@[05:14) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. (CodeDescription: none) |tautology|
+//@[05:14) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |tautology|
 
 type tautologicalUnion = tautologicalUnion|'foo'
-//@[05:22) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. (CodeDescription: none) |tautologicalUnion|
+//@[05:22) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |tautologicalUnion|
 
 type tautologicalArray = tautologicalArray[]
-//@[05:22) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. (CodeDescription: none) |tautologicalArray|
+//@[05:22) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |tautologicalArray|
 
 type directCycleStart = directCycleReturn
-//@[05:21) [BCP080 (Error)] The expression is involved in a cycle ("directCycleStart" -> "directCycleReturn"). (CodeDescription: none) |directCycleStart|
+//@[05:21) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("directCycleStart" -> "directCycleReturn"). (CodeDescription: none) |directCycleStart|
 
 type directCycleReturn = directCycleStart
-//@[05:22) [BCP080 (Error)] The expression is involved in a cycle ("directCycleReturn" -> "directCycleStart"). (CodeDescription: none) |directCycleReturn|
+//@[05:22) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("directCycleReturn" -> "directCycleStart"). (CodeDescription: none) |directCycleReturn|
 
 type cycleRoot = connector
-//@[05:14) [BCP080 (Error)] The expression is involved in a cycle ("cycleRoot" -> "connector" -> "cycleBack"). (CodeDescription: none) |cycleRoot|
+//@[05:14) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("cycleRoot" -> "connector" -> "cycleBack"). (CodeDescription: none) |cycleRoot|
 
 type connector = cycleBack
-//@[05:14) [BCP080 (Error)] The expression is involved in a cycle ("connector" -> "cycleBack" -> "cycleRoot"). (CodeDescription: none) |connector|
+//@[05:14) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("connector" -> "cycleBack" -> "cycleRoot"). (CodeDescription: none) |connector|
 
 type cycleBack = cycleRoot
-//@[05:14) [BCP080 (Error)] The expression is involved in a cycle ("cycleBack" -> "cycleRoot" -> "connector"). (CodeDescription: none) |cycleBack|
+//@[05:14) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("cycleBack" -> "cycleRoot" -> "connector"). (CodeDescription: none) |cycleBack|
 
 type objectWithInvalidPropertyDecorators = {
   @sealed()
@@ -76,6 +76,11 @@ type objectWithInvalidPropertyDecorators = {
   @allowed(['snap', 'crackle', 'pop'])
 //@[03:10) [BCP297 (Error)] Function "allowed" cannot be used as a type decorator. (CodeDescription: none) |allowed|
   krispyProp: string
+}
+
+type objectWithInvalidRecursion = {
+//@[05:31) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |objectWithInvalidRecursion|
+  requiredAndRecursiveProp: objectWithInvalidRecursion
 }
 
 @sealed()
