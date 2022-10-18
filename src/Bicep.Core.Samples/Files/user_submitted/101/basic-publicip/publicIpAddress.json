@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7368437974421050543"
+      "templateHash": "9887703658498367123"
     }
   },
   "parameters": {
@@ -41,7 +41,7 @@
   "outputs": {
     "ipFqdn": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpResourceName'))).dnsSettings.fqdn]"
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('publicIpResourceName')), '2020-06-01').dnsSettings.fqdn]"
     }
   }
 }

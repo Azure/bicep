@@ -13,7 +13,7 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
     properties: {
 //@[44:47]       "properties": {
       size: basicParent.properties.large
-//@[45:45]         "size": "[reference(resourceId('My.Rp/parentType', 'basicParent')).large]",
+//@[45:45]         "size": "[reference(resourceId('My.Rp/parentType', 'basicParent'), '2020-12-01').large]",
       style: 'cool'
 //@[46:46]         "style": "cool"
     }
@@ -24,9 +24,9 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
       properties: {
 //@[32:35]       "properties": {
         size: basicParent.properties.size
-//@[33:33]         "size": "[reference(resourceId('My.Rp/parentType', 'basicParent')).size]",
+//@[33:33]         "size": "[reference(resourceId('My.Rp/parentType', 'basicParent'), '2020-12-01').size]",
         style: basicChild.properties.style
-//@[34:34]         "style": "[reference(resourceId('My.Rp/parentType/childType', 'basicParent', 'basicChild')).style]"
+//@[34:34]         "style": "[reference(resourceId('My.Rp/parentType/childType', 'basicParent', 'basicChild'), '2020-12-01').style]"
       }
     }
   }
@@ -37,9 +37,9 @@ resource basicParent 'My.Rp/parentType@2020-12-01' = {
     properties: {
 //@[56:59]       "properties": {
       size: basicParent.properties.size
-//@[57:57]         "size": "[reference(resourceId('My.Rp/parentType', 'basicParent')).size]",
+//@[57:57]         "size": "[reference(resourceId('My.Rp/parentType', 'basicParent'), '2020-12-01').size]",
       style: basicChild::basicGrandchild.properties.style
-//@[58:58]         "style": "[reference(resourceId('My.Rp/parentType/childType/grandchildType', 'basicParent', 'basicChild', 'basicGrandchild')).style]"
+//@[58:58]         "style": "[reference(resourceId('My.Rp/parentType/childType/grandchildType', 'basicParent', 'basicChild', 'basicGrandchild'), '2020-12-01').style]"
     }
   }
 }

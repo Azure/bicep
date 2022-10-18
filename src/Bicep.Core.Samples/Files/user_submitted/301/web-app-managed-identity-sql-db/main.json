@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6304729299566766267"
+      "templateHash": "10058849782192575637"
     }
   },
   "parameters": {
@@ -135,7 +135,7 @@
       "name": "[format('{0}/connectionstrings', variables('webSiteName'))]",
       "properties": {
         "DefaultConnection": {
-          "value": "[format('Data Source=tcp:{0},1433;Initial Catalog={1};User Id={2}@{3};Password={4};', reference(resourceId('Microsoft.Sql/servers', variables('sqlserverName'))).fullyQualifiedDomainName, variables('databaseName'), parameters('sqlAdministratorLogin'), reference(resourceId('Microsoft.Sql/servers', variables('sqlserverName'))).fullyQualifiedDomainName, parameters('sqlAdministratorLoginPassword'))]",
+          "value": "[format('Data Source=tcp:{0},1433;Initial Catalog={1};User Id={2}@{3};Password={4};', reference(resourceId('Microsoft.Sql/servers', variables('sqlserverName')), '2019-06-01-preview').fullyQualifiedDomainName, variables('databaseName'), parameters('sqlAdministratorLogin'), reference(resourceId('Microsoft.Sql/servers', variables('sqlserverName')), '2019-06-01-preview').fullyQualifiedDomainName, parameters('sqlAdministratorLoginPassword'))]",
           "type": "SQLAzure"
         }
       },
@@ -157,7 +157,7 @@
       "properties": {
         "principalType": "ServicePrincipal",
         "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', parameters('roleDefinitionId'))]",
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName'))).principalId]"
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName')), '2018-11-30').principalId]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managedIdentityName'))]"

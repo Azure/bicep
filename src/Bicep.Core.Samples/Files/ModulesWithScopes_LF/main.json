@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16076579260677928059"
+      "templateHash": "7686813142851057718"
     }
   },
   "resources": [
@@ -27,7 +27,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11362987843478878394"
+              "templateHash": "6066236114936137763"
             }
           },
           "resources": [
@@ -116,7 +116,7 @@
           "outputs": {
             "myOutput": {
               "type": "string",
-              "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod')).outputs.myOutput.value]"
+              "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2020-10-01').outputs.myOutput.value]"
             }
           }
         }
@@ -165,7 +165,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11893670532557286102"
+              "templateHash": "12301588538908463385"
             }
           },
           "resources": [
@@ -186,7 +186,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "6665983621791748447"
+                      "templateHash": "3773512362905547979"
                     }
                   },
                   "resources": [
@@ -306,11 +306,11 @@
                   "outputs": {
                     "myOutput": {
                       "type": "string",
-                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod')).outputs.myOutput.value]"
+                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2020-10-01').outputs.myOutput.value]"
                     },
                     "myOutputResourceGroup": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup')).outputs.myOutput.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2020-10-01').outputs.myOutput.value]"
                     }
                   }
                 }
@@ -333,7 +333,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "6665983621791748447"
+                      "templateHash": "3773512362905547979"
                     }
                   },
                   "resources": [
@@ -453,11 +453,11 @@
                   "outputs": {
                     "myOutput": {
                       "type": "string",
-                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod')).outputs.myOutput.value]"
+                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2020-10-01').outputs.myOutput.value]"
                     },
                     "myOutputResourceGroup": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup')).outputs.myOutput.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2020-10-01').outputs.myOutput.value]"
                     }
                   }
                 }
@@ -481,7 +481,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "6665983621791748447"
+                      "templateHash": "3773512362905547979"
                     }
                   },
                   "resources": [
@@ -601,11 +601,11 @@
                   "outputs": {
                     "myOutput": {
                       "type": "string",
-                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod')).outputs.myOutput.value]"
+                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2020-10-01').outputs.myOutput.value]"
                     },
                     "myOutputResourceGroup": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup')).outputs.myOutput.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2020-10-01').outputs.myOutput.value]"
                     }
                   }
                 }
@@ -646,15 +646,15 @@
           "outputs": {
             "myOutput": {
               "type": "string",
-              "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod')).outputs.myOutput.value]"
+              "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2020-10-01').outputs.myOutput.value]"
             },
             "myOutputRgMod": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod')).outputs.myOutput.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod'), '2020-10-01').outputs.myOutput.value]"
             },
             "myOutputRgMod2": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod2')).outputs.myOutput.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod2'), '2020-10-01').outputs.myOutput.value]"
             }
           }
         }
@@ -679,7 +679,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11893670532557286102"
+              "templateHash": "12301588538908463385"
             }
           },
           "resources": [
@@ -700,7 +700,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "6665983621791748447"
+                      "templateHash": "3773512362905547979"
                     }
                   },
                   "resources": [
@@ -820,11 +820,11 @@
                   "outputs": {
                     "myOutput": {
                       "type": "string",
-                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod')).outputs.myOutput.value]"
+                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2020-10-01').outputs.myOutput.value]"
                     },
                     "myOutputResourceGroup": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup')).outputs.myOutput.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2020-10-01').outputs.myOutput.value]"
                     }
                   }
                 }
@@ -847,7 +847,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "6665983621791748447"
+                      "templateHash": "3773512362905547979"
                     }
                   },
                   "resources": [
@@ -967,11 +967,11 @@
                   "outputs": {
                     "myOutput": {
                       "type": "string",
-                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod')).outputs.myOutput.value]"
+                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2020-10-01').outputs.myOutput.value]"
                     },
                     "myOutputResourceGroup": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup')).outputs.myOutput.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2020-10-01').outputs.myOutput.value]"
                     }
                   }
                 }
@@ -995,7 +995,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "6665983621791748447"
+                      "templateHash": "3773512362905547979"
                     }
                   },
                   "resources": [
@@ -1115,11 +1115,11 @@
                   "outputs": {
                     "myOutput": {
                       "type": "string",
-                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod')).outputs.myOutput.value]"
+                      "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2020-10-01').outputs.myOutput.value]"
                     },
                     "myOutputResourceGroup": {
                       "type": "string",
-                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup')).outputs.myOutput.value]"
+                      "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'db90cfef-a146-4f67-b32f-b263518bd216', 'myOtherRg'), 'Microsoft.Resources/deployments', 'myOtherResourceGroup'), '2020-10-01').outputs.myOutput.value]"
                     }
                   }
                 }
@@ -1160,15 +1160,15 @@
           "outputs": {
             "myOutput": {
               "type": "string",
-              "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod')).outputs.myOutput.value]"
+              "value": "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myTenantMod'), '2020-10-01').outputs.myOutput.value]"
             },
             "myOutputRgMod": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod')).outputs.myOutput.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod'), '2020-10-01').outputs.myOutput.value]"
             },
             "myOutputRgMod2": {
               "type": "string",
-              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod2')).outputs.myOutput.value]"
+              "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'myRg'), 'Microsoft.Resources/deployments', 'myResourceGroupMod2'), '2020-10-01').outputs.myOutput.value]"
             }
           }
         }
@@ -1203,11 +1203,11 @@
   "outputs": {
     "myManagementGroupOutput": {
       "type": "string",
-      "value": "[reference(extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'myManagementGroup'), 'Microsoft.Resources/deployments', 'myManagementGroupMod')).outputs.myOutput.value]"
+      "value": "[reference(extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'myManagementGroup'), 'Microsoft.Resources/deployments', 'myManagementGroupMod'), '2020-10-01').outputs.myOutput.value]"
     },
     "mySubscriptionOutput": {
       "type": "string",
-      "value": "[reference(subscriptionResourceId('ee44cd78-68c6-43d9-874e-e684ec8d1191', 'Microsoft.Resources/deployments', 'mySubscriptionMod')).outputs.myOutput.value]"
+      "value": "[reference(subscriptionResourceId('ee44cd78-68c6-43d9-874e-e684ec8d1191', 'Microsoft.Resources/deployments', 'mySubscriptionMod'), '2020-10-01').outputs.myOutput.value]"
     }
   }
 }

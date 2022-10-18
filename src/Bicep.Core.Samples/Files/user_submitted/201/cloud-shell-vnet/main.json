@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6991162332882572174"
+      "templateHash": "6854917204260024602"
     }
   },
   "parameters": {
@@ -309,7 +309,7 @@
         "ttl": 3600,
         "aRecords": [
           {
-            "ipv4Address": "[first(first(reference(resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpointName'))).customDnsConfigs).ipAddresses)]"
+            "ipv4Address": "[first(first(reference(resourceId('Microsoft.Network/privateEndpoints', parameters('privateEndpointName')), '2020-04-01').customDnsConfigs).ipAddresses)]"
           }
         ]
       },

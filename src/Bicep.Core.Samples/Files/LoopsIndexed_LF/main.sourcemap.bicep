@@ -120,9 +120,9 @@ output indexedCollectionIdentity object = storageAccounts[index].identity
 output indexedEndpointPair object = {
 //@[697:703]     "indexedEndpointPair": {
   primary: storageAccounts[index].properties.primaryEndpoints.blob
-//@[700:700]         "primary": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[parameters('index')].name, parameters('index')))).primaryEndpoints.blob]",
+//@[700:700]         "primary": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[parameters('index')].name, parameters('index'))), '2019-06-01').primaryEndpoints.blob]",
   secondary: storageAccounts[index + 1].properties.secondaryEndpoints.blob
-//@[701:701]         "secondary": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[add(parameters('index'), 1)].name, add(parameters('index'), 1)))).secondaryEndpoints.blob]"
+//@[701:701]         "secondary": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[add(parameters('index'), 1)].name, add(parameters('index'), 1))), '2019-06-01').secondaryEndpoints.blob]"
 }
 
 // nested indexer?
@@ -323,7 +323,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 //@[539:539]       "name": "hello",
   params: {
     myInput: concat(moduleCollectionWithCollectionDependencies[index].outputs.myOutput, storageAccounts[index * 3].properties.accessTier)
-//@[547:547]             "value": "[concat(reference(resourceId('Microsoft.Resources/deployments', concat(variables('moduleSetup')[parameters('index')], parameters('index')))).outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name, mul(parameters('index'), 3)))).accessTier)]"
+//@[547:547]             "value": "[concat(reference(resourceId('Microsoft.Resources/deployments', concat(variables('moduleSetup')[parameters('index')], parameters('index'))), '2020-10-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name, mul(parameters('index'), 3))), '2019-06-01').accessTier)]"
   }
   dependsOn: [
     storageAccounts2[index - 10]
@@ -336,7 +336,7 @@ module moduleCollectionWithIndexedDependencies 'passthrough.bicep' = [for (modul
 //@[587:587]       "name": "[concat(variables('moduleSetup')[copyIndex()], copyIndex())]",
   params: {
     myInput: '${moduleCollectionWithCollectionDependencies[index].outputs.myOutput} - ${storageAccounts[index * 3].properties.accessTier} - ${moduleName} - ${moduleIndex}'
-//@[595:595]             "value": "[format('{0} - {1} - {2} - {3}', reference(resourceId('Microsoft.Resources/deployments', concat(variables('moduleSetup')[parameters('index')], parameters('index')))).outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name, mul(parameters('index'), 3)))).accessTier, variables('moduleSetup')[copyIndex()], copyIndex())]"
+//@[595:595]             "value": "[format('{0} - {1} - {2} - {3}', reference(resourceId('Microsoft.Resources/deployments', concat(variables('moduleSetup')[parameters('index')], parameters('index'))), '2020-10-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name, mul(parameters('index'), 3))), '2019-06-01').accessTier, variables('moduleSetup')[copyIndex()], copyIndex())]"
   }
   dependsOn: [
     storageAccounts2[index - 9]
@@ -422,9 +422,9 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
             // would be outside of the scope of the property loop
             // as a result, this will generate a dependency on the entire collection
             address: apim[index + i].outputs.myOutput
-//@[286:286]                     "address": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}-{2}', variables('regions')[add(range(0, length(variables('regions')))[copyIndex('backends')], copyIndex('backends'))], parameters('name'), add(range(0, length(variables('regions')))[copyIndex('backends')], copyIndex('backends'))))).outputs.myOutput.value]",
+//@[286:286]                     "address": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}-{2}', variables('regions')[add(range(0, length(variables('regions')))[copyIndex('backends')], copyIndex('backends'))], parameters('name'), add(range(0, length(variables('regions')))[copyIndex('backends')], copyIndex('backends')))), '2020-10-01').outputs.myOutput.value]",
             backendHostHeader: apim[index + i].outputs.myOutput
-//@[287:287]                     "backendHostHeader": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}-{2}', variables('regions')[add(range(0, length(variables('regions')))[copyIndex('backends')], copyIndex('backends'))], parameters('name'), add(range(0, length(variables('regions')))[copyIndex('backends')], copyIndex('backends'))))).outputs.myOutput.value]",
+//@[287:287]                     "backendHostHeader": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}-{2}', variables('regions')[add(range(0, length(variables('regions')))[copyIndex('backends')], copyIndex('backends'))], parameters('name'), add(range(0, length(variables('regions')))[copyIndex('backends')], copyIndex('backends')))), '2020-10-01').outputs.myOutput.value]",
             httpPort: 80
 //@[288:288]                     "httpPort": 80,
             httpsPort: 443
@@ -460,9 +460,9 @@ resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05
               // this indexed dependency on a module collection will be generated correctly because
               // copyIndex() can be invoked in the generated dependsOn
               address: apim[index+i].outputs.myOutput
-//@[319:319]                   "address": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}-{2}', variables('regions')[add(range(0, length(variables('regions')))[copyIndex()], copyIndex())], parameters('name'), add(range(0, length(variables('regions')))[copyIndex()], copyIndex())))).outputs.myOutput.value]",
+//@[319:319]                   "address": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}-{2}', variables('regions')[add(range(0, length(variables('regions')))[copyIndex()], copyIndex())], parameters('name'), add(range(0, length(variables('regions')))[copyIndex()], copyIndex()))), '2020-10-01').outputs.myOutput.value]",
               backendHostHeader: apim[index+i].outputs.myOutput
-//@[320:320]                   "backendHostHeader": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}-{2}', variables('regions')[add(range(0, length(variables('regions')))[copyIndex()], copyIndex())], parameters('name'), add(range(0, length(variables('regions')))[copyIndex()], copyIndex())))).outputs.myOutput.value]",
+//@[320:320]                   "backendHostHeader": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}-{2}', variables('regions')[add(range(0, length(variables('regions')))[copyIndex()], copyIndex())], parameters('name'), add(range(0, length(variables('regions')))[copyIndex()], copyIndex()))), '2020-10-01').outputs.myOutput.value]",
               httpPort: 80
 //@[321:321]                   "httpPort": 80,
               httpsPort: 443
@@ -499,9 +499,9 @@ resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoor
             // would be outside of the scope of the property loop
             // as a result, this will generate a dependency on the entire collection
             address: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
-//@[351:351]                     "address": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex('backends')]].name, range(0, length(parameters('accounts')))[copyIndex('backends')]))).primaryEndpoints.internetEndpoints.web]",
+//@[351:351]                     "address": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex('backends')]].name, range(0, length(parameters('accounts')))[copyIndex('backends')])), '2019-06-01').primaryEndpoints.internetEndpoints.web]",
             backendHostHeader: storageAccounts[index].properties.primaryEndpoints.internetEndpoints.web
-//@[352:352]                     "backendHostHeader": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex('backends')]].name, range(0, length(parameters('accounts')))[copyIndex('backends')]))).primaryEndpoints.internetEndpoints.web]",
+//@[352:352]                     "backendHostHeader": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[range(0, length(parameters('accounts')))[copyIndex('backends')]].name, range(0, length(parameters('accounts')))[copyIndex('backends')])), '2019-06-01').primaryEndpoints.internetEndpoints.web]",
             httpPort: 80
 //@[353:353]                     "httpPort": 80,
             httpsPort: 443
@@ -537,9 +537,9 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
               // this indexed dependency on a module collection will be generated correctly because
               // copyIndex() can be invoked in the generated dependsOn
               address: storageAccounts[index+i].properties.primaryEndpoints.internetEndpoints.web
-//@[384:384]                   "address": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[add(range(0, length(parameters('accounts')))[copyIndex()], copyIndex())].name, add(range(0, length(parameters('accounts')))[copyIndex()], copyIndex())))).primaryEndpoints.internetEndpoints.web]",
+//@[384:384]                   "address": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[add(range(0, length(parameters('accounts')))[copyIndex()], copyIndex())].name, add(range(0, length(parameters('accounts')))[copyIndex()], copyIndex()))), '2019-06-01').primaryEndpoints.internetEndpoints.web]",
               backendHostHeader: storageAccounts[index+i].properties.primaryEndpoints.internetEndpoints.web
-//@[385:385]                   "backendHostHeader": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[add(range(0, length(parameters('accounts')))[copyIndex()], copyIndex())].name, add(range(0, length(parameters('accounts')))[copyIndex()], copyIndex())))).primaryEndpoints.internetEndpoints.web]",
+//@[385:385]                   "backendHostHeader": "[reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}-{2}', parameters('name'), parameters('accounts')[add(range(0, length(parameters('accounts')))[copyIndex()], copyIndex())].name, add(range(0, length(parameters('accounts')))[copyIndex()], copyIndex()))), '2019-06-01').primaryEndpoints.internetEndpoints.web]",
               httpPort: 80
 //@[386:386]                   "httpPort": 80,
               httpsPort: 443

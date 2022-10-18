@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10459396956924179800"
+      "templateHash": "14082802463726556737"
     }
   },
   "parameters": {
@@ -831,7 +831,7 @@
             "value": "[parameters('bastionName')]"
           },
           "bastionSubnetId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet')).outputs.bastionSubnetId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2020-10-01').outputs.bastionSubnetId.value]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -1062,13 +1062,13 @@
             "value": "[parameters('blobStorageAccountPrivateEndpointName')]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep')).outputs.logAnalyticsWorkspaceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep'), '2020-10-01').outputs.logAnalyticsWorkspaceId.value]"
           },
           "virtualNetworkId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet')).outputs.virtualNetworkResourceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2020-10-01').outputs.virtualNetworkResourceId.value]"
           },
           "vmSubnetId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet')).outputs.vmSubnetId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2020-10-01').outputs.vmSubnetId.value]"
           }
         },
         "template": {
@@ -1078,7 +1078,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1174945229140989916"
+              "templateHash": "8709710893014230448"
             }
           },
           "parameters": {
@@ -1322,7 +1322,7 @@
                 "diagnosticsProfile": {
                   "bootDiagnostics": {
                     "enabled": true,
-                    "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('blobStorageAccountName'))).primaryEndpoints.blob]"
+                    "storageUri": "[reference(resourceId('Microsoft.Storage/storageAccounts', parameters('blobStorageAccountName')), '2021-01-01').primaryEndpoints.blob]"
                   }
                 }
               },
@@ -1567,10 +1567,10 @@
             "value": "[parameters('nodePoolVmSize')]"
           },
           "virtualNetworkId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet')).outputs.virtualNetworkResourceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2020-10-01').outputs.virtualNetworkResourceId.value]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep')).outputs.logAnalyticsWorkspaceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep'), '2020-10-01').outputs.logAnalyticsWorkspaceId.value]"
           }
         },
         "template": {

@@ -52,7 +52,7 @@ module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in web
   scope: rg
   params: {
     appPlanId: appPlanDeploy.outputs.planId
-//@[177:177]             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy')).outputs.planId.value]"
+//@[177:177]             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy'), '2020-10-01').outputs.planId.value]"
     namePrefix: site.name
 //@[180:180]             "value": "[variables('websites')[copyIndex()].name]"
     dockerImage: 'nginxdemos/hello'
@@ -69,7 +69,7 @@ module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
   scope: rg
   params: {
     appPlanId: appPlanDeploy.outputs.planId
-//@[278:278]             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy')).outputs.planId.value]"
+//@[278:278]             "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy'), '2020-10-01').outputs.planId.value]"
     namePrefix: site.name
 //@[281:281]             "value": "[variables('websites')[copyIndex()].name]"
     dockerImage: 'nginxdemos/hello'

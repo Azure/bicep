@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9212466459275478447"
+      "templateHash": "11416995507121229636"
     }
   },
   "parameters": {
@@ -111,7 +111,7 @@
         "loggerType": "applicationInsights",
         "description": "Logger resources to APIM",
         "credentials": {
-          "instrumentationKey": "[reference(resourceId('Microsoft.Insights/components', parameters('appInsightsName'))).InstrumentationKey]"
+          "instrumentationKey": "[reference(resourceId('Microsoft.Insights/components', parameters('appInsightsName')), '2015-05-01').InstrumentationKey]"
         }
       },
       "dependsOn": [
@@ -381,11 +381,11 @@
   "outputs": {
     "appInsightsInstrumentationKey": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Insights/components', parameters('appInsightsName'))).InstrumentationKey]"
+      "value": "[reference(resourceId('Microsoft.Insights/components', parameters('appInsightsName')), '2015-05-01').InstrumentationKey]"
     },
     "apimURL": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.ApiManagement/service', parameters('apimInstanceName'))).portalUrl]"
+      "value": "[reference(resourceId('Microsoft.ApiManagement/service', parameters('apimInstanceName')), '2019-01-01').portalUrl]"
     }
   }
 }

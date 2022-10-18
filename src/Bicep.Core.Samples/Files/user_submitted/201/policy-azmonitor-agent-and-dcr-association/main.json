@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16597123993034586719"
+      "templateHash": "5790911459543227271"
     }
   },
   "parameters": {
@@ -396,7 +396,7 @@
         "mode": "Incremental",
         "parameters": {
           "monitoringGovernanceId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'policy')).outputs.monitoringGovernanceId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'policy'), '2020-10-01').outputs.monitoringGovernanceId.value]"
           },
           "assignmentIdentityLocation": {
             "value": "[parameters('assignmentIdentityLocation')]"

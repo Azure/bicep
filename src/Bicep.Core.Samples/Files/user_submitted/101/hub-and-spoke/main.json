@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5775269505886055345"
+      "templateHash": "5265707706271113226"
     }
   },
   "parameters": {
@@ -135,7 +135,7 @@
                 "properties": {
                   "addressPrefix": "10.0.0.0/24",
                   "routeTable": {
-                    "id": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-rot')).outputs.id.value]"
+                    "id": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-rot'), '2020-10-01').outputs.id.value]"
                   }
                 }
               }
@@ -209,7 +209,7 @@
             "value": "hub"
           },
           "hubId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet')).outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet'), '2020-10-01').outputs.id.value]"
           }
         },
         "template": {
@@ -219,7 +219,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13311839235455797530"
+              "templateHash": "18175539014458142340"
             }
           },
           "parameters": {
@@ -272,7 +272,7 @@
           "outputs": {
             "privateIp": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Network/azureFirewalls', format('{0}-fwl', parameters('prefix')))).ipConfigurations[0].properties.privateIPAddress]"
+              "value": "[reference(resourceId('Microsoft.Network/azureFirewalls', format('{0}-fwl', parameters('prefix'))), '2020-06-01').ipConfigurations[0].properties.privateIPAddress]"
             }
           }
         }
@@ -294,13 +294,13 @@
         "mode": "Incremental",
         "parameters": {
           "localVnetName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet')).outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet'), '2020-10-01').outputs.name.value]"
           },
           "remoteVnetName": {
             "value": "spoke"
           },
           "remoteVnetId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-vnet')).outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-vnet'), '2020-10-01').outputs.id.value]"
           }
         },
         "template": {
@@ -360,13 +360,13 @@
         "mode": "Incremental",
         "parameters": {
           "localVnetName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-vnet')).outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-vnet'), '2020-10-01').outputs.name.value]"
           },
           "remoteVnetName": {
             "value": "hub"
           },
           "remoteVnetId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet')).outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet'), '2020-10-01').outputs.id.value]"
           }
         },
         "template": {
@@ -429,7 +429,7 @@
             "value": "spoke"
           },
           "azFwlIp": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-fwl')).outputs.privateIp.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-fwl'), '2020-10-01').outputs.privateIp.value]"
           }
         },
         "template": {

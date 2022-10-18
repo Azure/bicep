@@ -23,9 +23,9 @@ var resourceDependency = {
     resA.type
 //@[48:48]             "My.Rp/myResourceType",
     resA.properties.deployTime
-//@[49:49]             "[reference(resourceId('My.Rp/myResourceType', 'resA')).deployTime]",
+//@[49:49]             "[reference(resourceId('My.Rp/myResourceType', 'resA'), '2020-01-01').deployTime]",
     resA.properties.eTag
-//@[50:50]             "[reference(resourceId('My.Rp/myResourceType', 'resA')).eTag]"
+//@[50:50]             "[reference(resourceId('My.Rp/myResourceType', 'resA'), '2020-01-01').eTag]"
   ]
 }
 

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "371500996590452575"
+      "templateHash": "12584048323392979453"
     }
   },
   "parameters": {
@@ -65,7 +65,7 @@
   "outputs": {
     "acrLoginServer": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName'))).loginServer]"
+      "value": "[reference(resourceId('Microsoft.ContainerRegistry/registries', parameters('acrName')), '2019-12-01-preview').loginServer]"
     }
   }
 }

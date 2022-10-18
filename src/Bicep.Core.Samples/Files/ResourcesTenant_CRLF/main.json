@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3469345291207429346"
+      "templateHash": "16136882420951513019"
     }
   },
   "variables": {
@@ -38,7 +38,7 @@
       "apiVersion": "2020-05-01",
       "name": "[variables('managementGroups')[copyIndex()].name]",
       "properties": {
-        "displayName": "[format('{0} ({1})', variables('managementGroups')[copyIndex()].displayName, reference(tenantResourceId('Microsoft.Management/managementGroups', 'myMG')).displayName)]"
+        "displayName": "[format('{0} ({1})', variables('managementGroups')[copyIndex()].displayName, reference(tenantResourceId('Microsoft.Management/managementGroups', 'myMG'), '2020-05-01').displayName)]"
       },
       "dependsOn": [
         "[tenantResourceId('Microsoft.Management/managementGroups', 'myMG')]"
@@ -53,7 +53,7 @@
       "apiVersion": "2020-05-01",
       "name": "[concat(variables('managementGroups')[copyIndex()].name, '-one-', copyIndex())]",
       "properties": {
-        "displayName": "[format('{0} ({1}) (set 1) (index {2})', variables('managementGroups')[copyIndex()].displayName, reference(tenantResourceId('Microsoft.Management/managementGroups', 'myMG')).displayName, copyIndex())]"
+        "displayName": "[format('{0} ({1}) (set 1) (index {2})', variables('managementGroups')[copyIndex()].displayName, reference(tenantResourceId('Microsoft.Management/managementGroups', 'myMG'), '2020-05-01').displayName, copyIndex())]"
       },
       "dependsOn": [
         "manyGroups",
@@ -69,7 +69,7 @@
       "apiVersion": "2020-05-01",
       "name": "[concat(variables('managementGroups')[copyIndex()].name, '-two')]",
       "properties": {
-        "displayName": "[format('{0} ({1}) (set 2)', variables('managementGroups')[copyIndex()].displayName, reference(tenantResourceId('Microsoft.Management/managementGroups', 'myMG')).displayName)]"
+        "displayName": "[format('{0} ({1}) (set 2)', variables('managementGroups')[copyIndex()].displayName, reference(tenantResourceId('Microsoft.Management/managementGroups', 'myMG'), '2020-05-01').displayName)]"
       },
       "dependsOn": [
         "[tenantResourceId('Microsoft.Management/managementGroups', concat(variables('managementGroups')[0].name, '-one-', 0))]",
@@ -84,7 +84,7 @@
         "count": "[length(range(0, length(variables('managementGroups'))))]",
         "input": {
           "name": "[concat(variables('managementGroups')[range(0, length(variables('managementGroups')))[copyIndex()]].name, '-two')]",
-          "displayName": "[reference(tenantResourceId('Microsoft.Management/managementGroups', concat(variables('managementGroups')[range(0, length(variables('managementGroups')))[copyIndex()]].name, '-two'))).displayName]"
+          "displayName": "[reference(tenantResourceId('Microsoft.Management/managementGroups', concat(variables('managementGroups')[range(0, length(variables('managementGroups')))[copyIndex()]].name, '-two')), '2020-05-01').displayName]"
         }
       }
     }
