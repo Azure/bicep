@@ -66,6 +66,7 @@ export interface BicepDeploymentStartParams {
   token: string;
   expiresOnTimestamp: string;
   deployId: string;
+  deploymentName: string;
   portalUrl: string;
   parametersFileName: string;
   parametersFileUpdateOption: ParametersFileUpdateOption;
