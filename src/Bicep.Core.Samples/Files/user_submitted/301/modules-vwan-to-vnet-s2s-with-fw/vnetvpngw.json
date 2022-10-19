@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7888079620585144668"
+      "templateHash": "9355385094073877227"
     }
   },
   "parameters": {
@@ -90,15 +90,15 @@
     },
     "vpngwip": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('vpngwpipname'))).ipAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', parameters('vpngwpipname')), '2020-06-01').ipAddress]"
     },
     "vpngwbgpaddress": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname'))).bgpSettings.bgpPeeringAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname')), '2020-06-01').bgpSettings.bgpPeeringAddress]"
     },
     "bgpasn": {
       "type": "int",
-      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname'))).bgpSettings.asn]"
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworkGateways', parameters('vpngwname')), '2020-06-01').bgpSettings.asn]"
     }
   }
 }

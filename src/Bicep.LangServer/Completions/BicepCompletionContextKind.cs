@@ -160,18 +160,33 @@ namespace Bicep.LanguageServer.Completions
         ImportAliasFollower = 1 << 28,
 
         /// <summary>
-        /// The current location is after the assignment operator in a type declaration: 'type foo = |'
+        /// The current location needs a bicep file path completion for using declaration
         /// </summary>
-        TypeDeclarationValue = 1 << 29,
+        UsingFilePath = 1 << 29,
+
+        /// <summary>
+        /// The current location needs a parameter identifier completion from corresponding bicep file
+        /// </summary>
+        ParamIdentifier = 1 << 30,
+
+        /// <summary>
+        /// The current location needs a parameter value completion from allowed values in corresponding bicep file
+        /// </summary>
+        ParamValue = ((ulong) 1) << 31,
 
         /// <summary>
         /// The current location is after the assignment operator in a type declaration: 'type foo = |'
         /// </summary>
-        ObjectTypePropertyValue = 1 << 30,
+        TypeDeclarationValue = ((ulong) 1) << 32,
+
+        /// <summary>
+        /// The current location is after the assignment operator in a type declaration: 'type foo = |'
+        /// </summary>
+        ObjectTypePropertyValue = ((ulong) 1) << 33,
 
         /// <summary>
         /// The current location is after a pipe separator within a union type: `type foo = 'foo'|'bar'|ǂ`
         /// </summary>
-        UnionTypeMember = ((ulong) 1) << 31,
+        UnionTypeMember = ((ulong) 1) << 34,
     }
 }

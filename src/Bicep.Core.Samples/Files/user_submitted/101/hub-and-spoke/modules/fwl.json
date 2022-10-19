@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13311839235455797530"
+      "templateHash": "18175539014458142340"
     }
   },
   "parameters": {
@@ -58,7 +58,7 @@
   "outputs": {
     "privateIp": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/azureFirewalls', format('{0}-fwl', parameters('prefix')))).ipConfigurations[0].properties.privateIPAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/azureFirewalls', format('{0}-fwl', parameters('prefix'))), '2020-06-01').ipConfigurations[0].properties.privateIPAddress]"
     }
   }
 }

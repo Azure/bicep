@@ -7,5 +7,7 @@ namespace Bicep.LanguageServer.Providers
     {
         bool DoesClientSupportWorkspaceFolders();
         bool DoesClientSupportShowDocumentRequest();
+        // ... as opposed to ShowMessage which apparently is always supported
+        bool DoesClientSupportShowMessageRequest();
     }
 }

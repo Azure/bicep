@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5886354623703578688"
+      "templateHash": "9277618774445059994"
     }
   },
   "parameters": {
@@ -72,7 +72,7 @@
     },
     "assignedIp": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nicName'))).ipConfigurations[0].properties.privateIPAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/networkInterfaces', parameters('nicName')), '2020-06-01').ipConfigurations[0].properties.privateIPAddress]"
     }
   }
 }

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8300956721063303527"
+      "templateHash": "2806756609712635298"
     }
   },
   "parameters": {
@@ -148,7 +148,7 @@
       "name": "[format('{0}/{1}', parameters('siteName'), 'connectionstrings')]",
       "properties": {
         "defaultConnection": {
-          "value": "[format('Database={0};Data Source={1};User Id={2}@{3};Password={4}', variables('databaseName'), reference(resourceId('Microsoft.DBforMySQL/servers', variables('serverName'))).fullyQualifiedDomainName, parameters('administratorLogin'), variables('serverName'), parameters('administratorLoginPassword'))]",
+          "value": "[format('Database={0};Data Source={1};User Id={2}@{3};Password={4}', variables('databaseName'), reference(resourceId('Microsoft.DBforMySQL/servers', variables('serverName')), '2017-12-01').fullyQualifiedDomainName, parameters('administratorLogin'), variables('serverName'), parameters('administratorLoginPassword'))]",
           "type": "MySql"
         }
       },

@@ -167,18 +167,9 @@ namespace Bicep.Core.TypeSystem
                     : null;
             }
 
-            var parameterDeclarations = bicepSemanticModel.Root.ParameterDeclarations;
-
-            // TODO: Needs to be optimized
-            foreach (var parameterSymbol in parameterDeclarations)
-            {
-                if (LanguageConstants.IdentifierComparer.Equals(parameterSymbol.Name, parameterAssignmentSymbol.Name))
-                {
-                    return bicepSemanticModel.GetDeclaredType(parameterSymbol.DeclaringParameter);
-                }
-            }
-
-            return null;
+            // TODO: Parameters need to support O(1) lookup by name
+            var parameterMetadata = bicepSemanticModel.Parameters.FirstOrDefault(parameterMetadata => LanguageConstants.IdentifierComparer.Equals(parameterMetadata.Name, parameterAssignmentSymbol.Name));
+            return parameterMetadata?.TypeReference.Type;
         }
 
         private DeclaredTypeAssignment GetTypeType(TypeDeclarationSyntax syntax)

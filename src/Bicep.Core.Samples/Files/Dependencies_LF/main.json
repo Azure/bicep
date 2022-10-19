@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7668963420318347864"
+      "templateHash": "10969660194523330241"
     }
   },
   "parameters": {
@@ -47,8 +47,8 @@
             "[resourceId('My.Rp/myResourceType', 'resA')]",
             "resA",
             "My.Rp/myResourceType",
-            "[reference(resourceId('My.Rp/myResourceType', 'resA')).deployTime]",
-            "[reference(resourceId('My.Rp/myResourceType', 'resA')).eTag]"
+            "[reference(resourceId('My.Rp/myResourceType', 'resA'), '2020-01-01').deployTime]",
+            "[reference(resourceId('My.Rp/myResourceType', 'resA'), '2020-01-01').eTag]"
           ]
         }
       },
@@ -100,7 +100,7 @@
     },
     "resourceCProperties": {
       "type": "object",
-      "value": "[reference(resourceId('My.Rp/myResourceType', 'resC'))]"
+      "value": "[reference(resourceId('My.Rp/myResourceType', 'resC'), '2020-01-01')]"
     }
   }
 }

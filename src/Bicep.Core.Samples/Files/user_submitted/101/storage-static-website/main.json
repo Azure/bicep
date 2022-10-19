@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3641556810042792892"
+      "templateHash": "1368699855883285493"
     }
   },
   "parameters": {
@@ -65,7 +65,7 @@
       "name": "[guid(resourceGroup().id, variables('storageAccountContributorRoleDefinitionId'))]",
       "properties": {
         "roleDefinitionId": "[variables('storageAccountContributorRoleDefinitionId')]",
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'DeploymentScript')).principalId]"
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'DeploymentScript'), '2018-11-30').principalId]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'DeploymentScript')]",
@@ -105,7 +105,7 @@
     },
     "staticWebsiteHostName": {
       "type": "string",
-      "value": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('accountName'))).primaryEndpoints.web, 'https://', ''), '/', '')]"
+      "value": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', parameters('accountName')), '2019-06-01').primaryEndpoints.web, 'https://', ''), '/', '')]"
     }
   }
 }

@@ -29,8 +29,6 @@ namespace Bicep.LangServer.UnitTests
     {
         private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
-        private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
-        private static readonly ILanguageServerFacade Server = Repository.Create<ILanguageServerFacade>().Object;
         private static readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.FeatureProviderFactory, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProviderFactory, BicepTestConstants.ModuleDispatcher, BicepTestConstants.LinterAnalyzer);
 
         [TestMethod]
@@ -39,7 +37,7 @@ namespace Bicep.LangServer.UnitTests
             var compilation = Services.BuildCompilation(string.Empty);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
-            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), compilation.NamespaceProvider);
+            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, compilation.NamespaceProvider);
             var completions = completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, 0));
 
             var keywordCompletions = completions
@@ -127,7 +125,7 @@ output o int = 42
             var offset = compilation.GetEntrypointSemanticModel().Root.VariableDeclarations.Select(x => x.DeclaringVariable).Single().Value.Span.Position;
 
             var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset);
-            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), compilation.NamespaceProvider);
+            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, compilation.NamespaceProvider);
             var completions = completionProvider.GetFilteredCompletions(compilation, context).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: false);
@@ -164,7 +162,7 @@ output o int = 42
 
             var offset = ((ParameterDefaultValueSyntax)compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.Select(x => x.DeclaringParameter).Single().Modifier!).DefaultValue.Span.Position;
 
-            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), compilation.NamespaceProvider);
+            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, compilation.NamespaceProvider);
             var completions = completionProvider.GetFilteredCompletions(
                 compilation,
                 BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset)).ToList();
@@ -197,7 +195,7 @@ output length int =
             var offset = compilation.GetEntrypointSemanticModel().Root.OutputDeclarations.Select(x => x.DeclaringOutput).Single().Value.Span.Position;
 
             var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset);
-            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), compilation.NamespaceProvider);
+            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, compilation.NamespaceProvider);
             var completions = completionProvider.GetFilteredCompletions(compilation, context).ToList();
 
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: false, new[] { "sys.concat", "az.resourceGroup", "sys.base64" });
@@ -240,7 +238,7 @@ output length int =
 
             var offset = compilation.GetEntrypointSemanticModel().Root.OutputDeclarations.Select(x => x.DeclaringOutput).Single().Type.Span.Position;
 
-            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), compilation.NamespaceProvider);
+            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, compilation.NamespaceProvider);
             var completions = completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
@@ -256,7 +254,7 @@ output length int =
 
             var offset = compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.Select(x => x.DeclaringParameter).Single().Type.Span.Position;
 
-            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), compilation.NamespaceProvider);
+            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, compilation.NamespaceProvider);
             var completions = completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
@@ -302,7 +300,7 @@ output length int =
 
             var offset = compilation.GetEntrypointSemanticModel().Root.ParameterDeclarations.Select(x => x.DeclaringParameter).Single().Type.Span.Position;
 
-            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), compilation.NamespaceProvider);
+            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, compilation.NamespaceProvider);
             var completions = completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
             var declarationTypeCompletions = completions.Where(c => c.Kind == CompletionItemKind.Class).ToList();
 
@@ -359,7 +357,7 @@ output length int =
 
             var offset = codeFragment.IndexOf('|');
 
-            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), compilation.NamespaceProvider);
+            BicepCompletionProvider completionProvider = new(BicepTestConstants.FileResolver, snippetsProvider, compilation.NamespaceProvider);
             var completions = completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
 
             completions.Should().BeEmpty();

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Azure.Bicep.Types;
 using Azure.Bicep.Types.K8s;
 using Bicep.Core.Resources;
 
@@ -15,9 +16,10 @@ namespace Bicep.Core.TypeSystem.K8s
 
         public K8sResourceTypeLoader()
         {
-            this.typeLoader = new TypeLoader();
+            this.typeLoader = new K8sTypeLoader();
             this.resourceTypeFactory = new K8sResourceTypeFactory();
-            this.availableTypes = typeLoader.GetIndexedTypes().Types.ToImmutableDictionary(
+            var indexedTypes = typeLoader.LoadTypeIndex();
+            this.availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value,
                 ResourceTypeReferenceComparer.Instance);

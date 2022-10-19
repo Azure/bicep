@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1585737288452125417"
+      "templateHash": "14608229208274186955"
     }
   },
   "parameters": {
@@ -227,7 +227,7 @@
       "name": "[guid(resourceGroup().id)]",
       "properties": {
         "roleDefinitionId": "[tenantResourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefinitions').contributor)]",
-        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'CycleCloud-MI')).principalId]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', 'CycleCloud-MI'), '2018-11-30').principalId]",
         "principalType": "ServicePrincipal"
       },
       "dependsOn": [

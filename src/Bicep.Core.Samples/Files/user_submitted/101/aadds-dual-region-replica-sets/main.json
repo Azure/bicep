@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12477514229007498846"
+      "templateHash": "845289579932239356"
     }
   },
   "parameters": {
@@ -41,11 +41,11 @@
         },
         "replicaSets": [
           {
-            "subnetId": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet')).subnets[0].id]",
+            "subnetId": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet'), '2020-06-01').subnets[0].id]",
             "location": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-eus-vnet'), '2020-06-01', 'full').location]"
           },
           {
-            "subnetId": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet')).subnets[0].id]",
+            "subnetId": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet'), '2020-06-01').subnets[0].id]",
             "location": "[reference(resourceId('Microsoft.Network/virtualNetworks', 'aadds-weu-vnet'), '2020-06-01', 'full').location]"
           }
         ],

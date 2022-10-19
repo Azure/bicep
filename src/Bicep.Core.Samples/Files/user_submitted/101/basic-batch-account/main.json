@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14399301132784284519"
+      "templateHash": "5049629332565395465"
     }
   },
   "parameters": {
@@ -39,7 +39,7 @@
   "outputs": {
     "batchaccountFQDN": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Batch/batchAccounts', parameters('batchAccountName'))).accountEndpoint]"
+      "value": "[reference(resourceId('Microsoft.Batch/batchAccounts', parameters('batchAccountName')), '2020-09-01').accountEndpoint]"
     }
   }
 }

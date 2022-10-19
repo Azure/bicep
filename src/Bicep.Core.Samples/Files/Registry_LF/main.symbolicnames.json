@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17157951326347879171"
+      "templateHash": "8037191791834011397"
     }
   },
   "variables": {
@@ -196,7 +196,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16733674086069502117"
+              "templateHash": "15188988612540889945"
             }
           },
           "parameters": {
@@ -252,7 +252,7 @@
           "outputs": {
             "siteUrl": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Web/sites', format('{0}site', parameters('namePrefix')))).hostNames[0]]"
+              "value": "[reference(resourceId('Microsoft.Web/sites', format('{0}site', parameters('namePrefix'))), '2020-06-01').hostNames[0]]"
             }
           }
         }
@@ -297,7 +297,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16733674086069502117"
+              "templateHash": "15188988612540889945"
             }
           },
           "parameters": {
@@ -353,7 +353,7 @@
           "outputs": {
             "siteUrl": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.Web/sites', format('{0}site', parameters('namePrefix')))).hostNames[0]]"
+              "value": "[reference(resourceId('Microsoft.Web/sites', format('{0}site', parameters('namePrefix'))), '2020-06-01').hostNames[0]]"
             }
           }
         }
