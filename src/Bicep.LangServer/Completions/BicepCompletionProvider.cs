@@ -42,14 +42,12 @@ namespace Bicep.LanguageServer.Completions
 
         private readonly IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
-        private readonly ITelemetryProvider TelemetryProvider;
         private readonly INamespaceProvider namespaceProvider;
 
-        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, ITelemetryProvider telemetryProvider, INamespaceProvider namespaceProvider)
+        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, INamespaceProvider namespaceProvider)
         {
             this.FileResolver = fileResolver;
             this.SnippetsProvider = snippetsProvider;
-            this.TelemetryProvider = telemetryProvider;
             this.namespaceProvider = namespaceProvider;
         }
 
@@ -79,28 +77,22 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetFunctionParamCompletions(model, context))
                 .Concat(GetExpressionCompletions(model, context))
                 .Concat(GetDisableNextLineDiagnosticsDirectiveCompletion(context))
-                .Concat(GetDisableNextLineDiagnosticsDirectiveCodesCompletion(model, context));
+                .Concat(GetDisableNextLineDiagnosticsDirectiveCodesCompletion(model, context))
+                .Concat(GetParamIdentifierCompletions(model, context))
+                .Concat(GetParamValueCompletions(model, context))
+                .Concat(GetUsingDeclarationPathCompletions(model, context));
         }
 
-
-        public IEnumerable<CompletionItem> GetFilteredParamsCompletions(Compilation compilation, ParamsCompletionContext paramsCompletionContext)
+        private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
         {
-            var paramsSemanticModel = compilation.GetEntrypointSemanticModel();
-
-            return GetParamIdentifierCompletions(paramsSemanticModel, paramsCompletionContext)
-                  .Concat(GetParamAllowedValueCompletions(paramsSemanticModel, paramsCompletionContext))
-                  .Concat(GetUsingDeclarationPathCompletions(paramsSemanticModel, paramsCompletionContext));
-        }
-
-        private IEnumerable<CompletionItem> GetParamIdentifierCompletions(SemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
-        {
-            if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamIdentifier) && paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
+            if (paramsCompletionContext.Kind.HasFlag(BicepCompletionContextKind.ParamIdentifier) &&
+                paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
             {
                 var bicepFileParamDeclarations = bicepSemanticModel.Root.ParameterDeclarations;
 
-                foreach(var declaration in bicepFileParamDeclarations)
+                foreach (var declaration in bicepFileParamDeclarations)
                 {
-                    if(!IsParamAssigned(declaration))
+                    if (!IsParamAssigned(declaration))
                     {
                         yield return CreateSymbolCompletion(declaration, paramsCompletionContext.ReplacementRange);
                     }
@@ -110,38 +102,28 @@ namespace Bicep.LanguageServer.Completions
             bool IsParamAssigned(ParameterSymbol declaration) => paramsSemanticModel.Binder.FileSymbol.ParameterAssignments.Any(paramDeclaration => paramDeclaration.Name == declaration.Name);
         }
 
-        private IEnumerable<CompletionItem> GetParamAllowedValueCompletions(SemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
+        private IEnumerable<CompletionItem> GetParamValueCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
         {
-            if(paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.ParamValue) && paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
-            {
-                var bicepFileParamDeclaration = bicepSemanticModel.Parameters.Where(parameterMetaData => parameterMetaData.Name == paramsCompletionContext.ParamAssignment).FirstOrDefault();
-                if(bicepFileParamDeclaration?.TypeReference.Type is UnionType union)
-                {
-                    foreach(var typeRef in union.Members)
-                    {
-                        if(typeRef.Type is StringLiteralType stringLiteral)
-                        {
-                            var returnVal = CompletionItemBuilder.Create(CompletionItemKind.EnumMember, stringLiteral.Name)
-                                        .WithPlainTextEdit(paramsCompletionContext.ReplacementRange, stringLiteral.Name)
-                                        .WithDetail(stringLiteral.Name)
-                                        .Preselect()
-                                        .WithSortText(GetSortText(stringLiteral.Name, CompletionPriority.Medium))
-                                        .Build();
-                            yield return returnVal;
-                        }
-                    }
-                }
-            }
-        }
-
-        private IEnumerable<CompletionItem> GetUsingDeclarationPathCompletions(SemanticModel paramsSemanticModel, ParamsCompletionContext paramsCompletionContext)
-        {
-            if (!paramsCompletionContext.Kind.HasFlag(ParamsCompletionContextKind.UsingFilePath))
+            if (!paramsCompletionContext.Kind.HasFlag(BicepCompletionContextKind.ParamValue) ||
+                paramsCompletionContext.EnclosingDeclaration is not ParameterAssignmentSyntax paramAssignment)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            if(paramsCompletionContext.UsingDeclaration is not UsingDeclarationSyntax usingDeclarationSyntax ||
+            var declaredType = paramsSemanticModel.GetDeclaredType(paramAssignment);
+
+            // loops are not allowed in param files... yet!
+            return GetValueCompletionsForType(paramsSemanticModel, paramsCompletionContext, declaredType, loopsAllowed: false);
+        }
+
+        private IEnumerable<CompletionItem> GetUsingDeclarationPathCompletions(SemanticModel paramsSemanticModel, BicepCompletionContext paramsCompletionContext)
+        {
+            if (!paramsCompletionContext.Kind.HasFlag(BicepCompletionContextKind.UsingFilePath))
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            if(paramsCompletionContext.EnclosingDeclaration is not UsingDeclarationSyntax usingDeclarationSyntax ||
                usingDeclarationSyntax.Path is not StringSyntax stringSyntax ||
                stringSyntax.TryGetLiteralValue() is not string entered)
             {
@@ -168,42 +150,57 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.TopLevelDeclarationStart))
             {
-                yield return CreateKeywordCompletion(LanguageConstants.MetadataKeyword, "Metadata keyword", context.ReplacementRange);
-
-                yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter keyword", context.ReplacementRange);
-
-                yield return CreateKeywordCompletion(LanguageConstants.VariableKeyword, "Variable keyword", context.ReplacementRange);
-
-                yield return CreateKeywordCompletion(LanguageConstants.ResourceKeyword, "Resource keyword", context.ReplacementRange, priority: CompletionPriority.High);
-
-                yield return CreateKeywordCompletion(LanguageConstants.OutputKeyword, "Output keyword", context.ReplacementRange);
-
-                yield return CreateKeywordCompletion(LanguageConstants.ModuleKeyword, "Module keyword", context.ReplacementRange);
-
-                yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
-
-                if (model.Features.ImportsEnabled)
+                switch (model.SourceFileKind)
                 {
-                    yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
-                }
+                    case BicepSourceFileKind.BicepFile:
+                        yield return CreateKeywordCompletion(LanguageConstants.MetadataKeyword, "Metadata keyword", context.ReplacementRange);
+                        yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter keyword", context.ReplacementRange);
+                        yield return CreateKeywordCompletion(LanguageConstants.VariableKeyword, "Variable keyword", context.ReplacementRange);
+                        yield return CreateKeywordCompletion(LanguageConstants.ResourceKeyword, "Resource keyword", context.ReplacementRange, priority: CompletionPriority.High);
+                        yield return CreateKeywordCompletion(LanguageConstants.OutputKeyword, "Output keyword", context.ReplacementRange);
+                        yield return CreateKeywordCompletion(LanguageConstants.ModuleKeyword, "Module keyword", context.ReplacementRange);
+                        yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
 
-                foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
-                {
-                    string prefix = resourceSnippet.Prefix;
-                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateTopLevelDeclarationSnippetInsertion(prefix);
-                    var command = TelemetryHelper.CreateCommand
-                    (
-                        title: "top level snippet completion",
-                        name: TelemetryConstants.CommandName,
-                        args: JArray.FromObject(new List<object> { telemetryEvent })
-                    );
+                        if (model.Features.ImportsEnabled)
+                        {
+                            yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
+                        }
 
-                    yield return CreateContextualSnippetCompletion(prefix,
-                                                                   resourceSnippet.Detail,
-                                                                   resourceSnippet.Text,
-                                                                   context.ReplacementRange,
-                                                                   command,
-                                                                   resourceSnippet.CompletionPriority);
+                        foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
+                        {
+                            string prefix = resourceSnippet.Prefix;
+                            BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateTopLevelDeclarationSnippetInsertion(prefix);
+                            var command = TelemetryHelper.CreateCommand
+                            (
+                                title: "top level snippet completion",
+                                name: TelemetryConstants.CommandName,
+                                args: JArray.FromObject(new List<object> { telemetryEvent })
+                            );
+
+                            yield return CreateContextualSnippetCompletion(prefix,
+                                                                           resourceSnippet.Detail,
+                                                                           resourceSnippet.Text,
+                                                                           context.ReplacementRange,
+                                                                           command,
+                                                                           resourceSnippet.CompletionPriority);
+                        }
+
+                        break;
+
+                    case BicepSourceFileKind.ParamsFile:
+                        // the using declaration is a singleton
+                        // we should not offer completions for it more than once
+                        if (model.Root.UsingDeclarationSyntax is null)
+                        {
+                            yield return CreateKeywordCompletion(LanguageConstants.UsingKeyword, "Using keyword", context.ReplacementRange);
+                        }
+
+                        yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter assignment keyword", context.ReplacementRange);
+
+                        break;
+
+                    default:
+                        throw new NotImplementedException($"Unexpected source file kind '{model.SourceFileKind}'.");
                 }
             }
 
@@ -245,6 +242,12 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetSymbolCompletions(SemanticModel model, BicepCompletionContext context)
         {
+            // TODO: Revisit when we support functions in param files
+            if(model.SourceFileKind != BicepSourceFileKind.BicepFile)
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
             if (!context.Kind.HasFlag(BicepCompletionContextKind.Expression) &&
                 !context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName))
             {
@@ -1069,7 +1072,7 @@ namespace Bicep.LanguageServer.Completions
             var replacementRange = context.ReplacementRange;
             switch (type)
             {
-                case PrimitiveType _ when ReferenceEquals(type, LanguageConstants.Bool):
+                case PrimitiveType _ when TypeValidator.AreTypesAssignable(type, LanguageConstants.Bool):
                     yield return CreateKeywordCompletion(LanguageConstants.TrueKeyword, LanguageConstants.TrueKeyword, replacementRange, preselect: true, CompletionPriority.High);
                     yield return CreateKeywordCompletion(LanguageConstants.FalseKeyword, LanguageConstants.FalseKeyword, replacementRange, preselect: true, CompletionPriority.High);
 
@@ -1170,7 +1173,7 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetExpressionCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.Expression))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.Expression) && model.SourceFileKind == BicepSourceFileKind.BicepFile)
             {
                 yield return CreateConditionCompletion(context.ReplacementRange);
             }

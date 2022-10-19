@@ -18,4 +18,5 @@ param array = {
 }
 
 param stringAllowed = 'notTheAllowedValue'
+//@[0:42) [BCP260 (Error)] The parameter "stringAllowed" expects a value of type "'bar' | 'foo'" but the provided value is of type "'notTheAllowedValue'". (CodeDescription: none) |param stringAllowed = 'notTheAllowedValue'|
 
