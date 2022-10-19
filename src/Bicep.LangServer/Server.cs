@@ -68,7 +68,6 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepSignatureHelpHandler>()
                     .WithHandler<BicepSemanticTokensHandler>()
 
-                    .WithHandler<BicepParamsCompletionHandler>()
                     .WithHandler<BicepParamsDefinitionHandler>()
 
                     .WithHandler<BicepTelemetryHandler>()

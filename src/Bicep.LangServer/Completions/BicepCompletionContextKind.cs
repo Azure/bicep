@@ -158,5 +158,20 @@ namespace Bicep.LanguageServer.Completions
         /// We're at this place in an import statement: 'import foo as bar |'
         /// </summary>
         ImportAliasFollower = 1 << 28,
+
+        /// <summary>
+        /// The current location needs a bicep file path completion for using declaration
+        /// </summary>
+        UsingFilePath = 1 << 29,
+
+        /// <summary>
+        /// The current location needs a parameter identifier completion from corresponding bicep file
+        /// </summary>
+        ParamIdentifier = 1 << 30,
+
+        /// <summary>
+        /// The current location needs a parameter value completion from allowed values in corresponding bicep file
+        /// </summary>
+        ParamValue = 1 << 31
     }
 }

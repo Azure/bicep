@@ -134,6 +134,8 @@ namespace Bicep.Core.Semantics
 
         public BicepSourceFile SourceFile { get; }
 
+        public BicepSourceFileKind SourceFileKind => this.SourceFile.FileKind;
+
         public RootConfiguration Configuration { get; }
 
         public IFeatureProvider Features { get; }
