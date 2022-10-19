@@ -140,104 +140,36 @@ new CompletionItemKind[] { CompletionItemKind.Field, CompletionItemKind.Field }
             }
         }
 
-        [DataTestMethod]
-        [DataRow(
-@"
-//Parameters file
-
-using './main.bicep'
-
-param firstParam = |",
-
-@"
-//Bicep file
-
-@allowed([
+        [DataRow(@"using './main.bicep'
+param myInt = |", @"param myInt int", new string[0], new CompletionItemKind[0])]
+        [DataRow(@"using './main.bicep'
+param myBool = |", @"param myBool bool", new[] { "false", "true" }, new[] { CompletionItemKind.Keyword, CompletionItemKind.Keyword })]
+        [DataRow(@"using './main.bicep'
+param myBool =|", @"param myBool bool", new[] { "false", "true" }, new[] { CompletionItemKind.Keyword, CompletionItemKind.Keyword })]
+        [DataRow(@"using './main.bicep'
+param myArray = |", @"param myArray array", new[] { "[]" }, new[] { CompletionItemKind.Value })]
+        [DataRow(@"using './main.bicep'
+param myArray =|", @"param myArray array", new[] { "[]" }, new[] { CompletionItemKind.Value })]
+        [DataRow(@"using './main.bicep'
+param myObj = |", @"param myObj object", new[] { "{}" }, new[] { CompletionItemKind.Snippet })]
+        [DataRow(@"using './main.bicep'
+param myObj =|", @"param myObj object", new[] { "{}" }, new[] { CompletionItemKind.Snippet })]
+        [DataRow(@"using './main.bicep'
+param firstParam = |", @"@allowed([
   'one'
   'two'
 ])
-param firstParam string
-
-",
-new string[] { "'one'", "'two'" },
-new CompletionItemKind[] { CompletionItemKind.EnumMember, CompletionItemKind.EnumMember }
-)
-]
-
-        [DataRow(
-@"
-//Parameters file
-
-using './main.bicep'
-
-param firstParam = |",
-
-@"
-//Bicep file
-
-param firstParam string
-
-",
-new string[] { },
-new CompletionItemKind[] { }
-)
-]
-        [DataRow(
-@"
-//Parameters file
-
-using './main.bicep'
-
-param firstParam = 'o|'",
-
-@"
-//Bicep file
-
-@allowed([
+param firstParam string", new[] { "'one'", "'two'" }, new[] { CompletionItemKind.EnumMember, CompletionItemKind.EnumMember })]
+        [DataRow(@"using './main.bicep'
+param firstParam = |", @"param firstParam string", new string[0], new CompletionItemKind[0])]
+        [DataRow(@"using './main.bicep'
+param firstParam = 'o|'", @"@allowed([
   'one'
   'two'
 ])
-param firstParam string
-
-",
-new string[] { "'one'", "'two'" },
-new CompletionItemKind[] { CompletionItemKind.EnumMember, CompletionItemKind.EnumMember }
-)
-]
-        public async Task Request_for_parameter_allowed_value_completions_should_return_correct_value(string paramTextWithCursor, string bicepText, string[] expectedLabels, CompletionItemKind[] expectedKinds)
-        {
-            var fileTextsByUri = new Dictionary<Uri, string>
-            {
-                [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText
-            };
-
-            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary());
-
-            var expectedValueIndex = 0;
-            foreach (var completion in completions)
-            {
-                completion.Label.Should().Be(expectedLabels[expectedValueIndex]);
-                completion.Kind.Should().Be(expectedKinds[expectedValueIndex]);
-                expectedValueIndex += 1;
-            }
-        }
-
-        [DataRow(@"using './main.bicep'
-param myInt = |",@"param myInt int", new string[0])]
-        [DataRow(@"using './main.bicep'
-param myBool = |", @"param myBool bool", new[] {"false", "true"})]
-        [DataRow(@"using './main.bicep'
-param myBool =|", @"param myBool bool", new[] { "false", "true" })]
-        [DataRow(@"using './main.bicep'
-param myArray = |", @"param myArray array", new[] { "[]" })]
-        [DataRow(@"using './main.bicep'
-param myArray =|", @"param myArray array", new[] { "[]" })]
-        [DataRow(@"using './main.bicep'
-param myObj = |", @"param myObj object", new[] { "{}" })]
-        [DataRow(@"using './main.bicep'
-param myObj =|", @"param myObj object", new[] { "{}" })]
+param firstParam string", new[] { "'one'", "'two'" }, new[] { CompletionItemKind.EnumMember, CompletionItemKind.EnumMember })]
         [DataTestMethod]
-        public async Task Value_completions_should_be_based_on_type(string paramTextWithCursor, string bicepText, string[] expectedLabels)
+        public async Task Value_completions_should_be_based_on_type(string paramTextWithCursor, string bicepText, string[] expectedLabels, CompletionItemKind[] expectedKinds)
         {
             var fileTextsByUri = new Dictionary<Uri, string>
             {
@@ -246,6 +178,7 @@ param myObj =|", @"param myObj object", new[] { "{}" })]
 
             var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary());
             completions.Select(completion => completion.Label).Should().Equal(expectedLabels);
+            completions.Select(completion => completion.Kind).Should().Equal(expectedKinds);
         }
 
         [TestMethod]
