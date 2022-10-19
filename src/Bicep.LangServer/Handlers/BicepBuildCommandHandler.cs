@@ -83,6 +83,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var fileUri = documentUri.ToUri();
 
+            // Bicep file could contain load functions like loadTextContent(..). We'll refresh compilation to detect changes in files referenced in load functions.
             compilationManager.RefreshCompilation(fileUri);
             CompilationContext? context = compilationManager.GetCompilation(fileUri);
             Compilation compilation;
