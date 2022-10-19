@@ -967,7 +967,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static void ValidateLength(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
             {
-                if (targetType is UnionType || targetType is StringLiteralType)
+                if (targetType is UnionType || TypeHelper.IsLiteralType(targetType))
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorNotPermittedOnLiteralType(decoratorName));
                 }
@@ -1006,8 +1006,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter) =>
                 {
-                    // TODO: Catch boolean and integer literal types here, too
-                    if (targetType is UnionType || targetType is StringLiteralType)
+                    if (targetType is UnionType || TypeHelper.IsLiteralType(targetType))
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorNotPermittedOnLiteralType(decoratorName));
                         return;
