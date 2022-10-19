@@ -42,7 +42,6 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDeploymentScopeRequestHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentScopeParams, BicepDeploymentScopeResponse>
     {
-        private readonly ICompilationManager compilationManager;
         private readonly IConfigurationManager configurationManager;
         private readonly IDeploymentFileCompilationCache deploymentFileCompilationCache;
         private readonly IFeatureProviderFactory featureProviderFactory;
@@ -53,7 +52,6 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IBicepAnalyzer bicepAnalyzer;
 
         public BicepDeploymentScopeRequestHandler(
-            ICompilationManager compilationManager,
             IConfigurationManager configurationManager,
             IDeploymentFileCompilationCache deploymentFileCompilationCache,
             IFeatureProviderFactory featureProviderFactory,
@@ -65,7 +63,6 @@ namespace Bicep.LanguageServer.Handlers
             IBicepAnalyzer bicepAnalyzer)
             : base(LangServerConstants.GetDeploymentScopeCommand, serializer)
         {
-            this.compilationManager = compilationManager;
             this.configurationManager = configurationManager;
             this.deploymentFileCompilationCache = deploymentFileCompilationCache;
             this.featureProviderFactory = featureProviderFactory;
@@ -84,7 +81,7 @@ namespace Bicep.LanguageServer.Handlers
 
             try
             {
-                compilation = GetCompilation(documentUri);
+                compilation = GetCompilation(documentUri.ToUri());
 
                 // Cache the compilation so that it can be reused by BicepDeploymentParametersHandler
                 deploymentFileCompilationCache.CacheCompilation(documentUri, compilation);
@@ -130,20 +127,11 @@ namespace Bicep.LanguageServer.Handlers
             return stringBuilder.ToString();
         }
 
-        private Compilation GetCompilation(DocumentUri documentUri)
+        private Compilation GetCompilation(Uri uri)
         {
-            var fileUri = documentUri.ToUri();
+            SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), uri);
 
-            CompilationContext? context = compilationManager.GetCompilation(documentUri);
-            if (context is null)
-            {
-                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
-                return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
-            }
-            else
-            {
-                return context.Compilation;
-            }
+            return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
         }
     }
 }

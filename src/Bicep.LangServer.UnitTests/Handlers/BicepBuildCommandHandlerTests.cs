@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -94,7 +95,23 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         [TestMethod]
         public async Task Handle_WithValidPath_AndErrorsAndWarningsInInputFile_ReturnsBuildFailedMessage()
         {
-            DocumentUri documentUri = DocumentUri.From("input.bicep");
+            var inputFile = FileHelper.SaveResultFile(this.TestContext, "input.bicep", @"targetScope
+
+ #completionTest(12) -> empty
+targetScope
+
+ #completionTest(13,14) -> targetScopes
+targetScope =
+
+
+targetScope = 'asdfds'
+
+targetScope = { }
+
+targetScope = true
+param accountName string = 'testAccount'
+");
+            DocumentUri documentUri = DocumentUri.FromFileSystemPath(inputFile);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, @"targetScope
 
  #completionTest(12) -> empty

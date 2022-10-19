@@ -47,10 +47,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
 ";
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
 
             BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
-                bicepCompilationManager,
                 configurationManager,
                 new DeploymentFileCompilationCache(),
                 BicepTestConstants.FeatureProviderFactory,
@@ -82,10 +80,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents, outputPath);
             FileHelper.SaveResultFile(TestContext, "bicepconfig.json", "invalid json", outputPath);
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
 
             BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
-                bicepCompilationManager,
                 configurationManager,
                 new DeploymentFileCompilationCache(),
                 BicepTestConstants.FeatureProviderFactory,
@@ -115,10 +111,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
 }";
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
 
             BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
-                bicepCompilationManager,
                 configurationManager,
                 new DeploymentFileCompilationCache(),
                 BicepTestConstants.FeatureProviderFactory,
@@ -172,10 +166,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
 }";
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
 
             BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
-                bicepCompilationManager,
                 configurationManager,
                 new DeploymentFileCompilationCache(),
                 BicepTestConstants.FeatureProviderFactory,
@@ -207,7 +199,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var deploymentFileCompilationCache = new DeploymentFileCompilationCache();
 
             BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
-                bicepCompilationManager,
                 configurationManager,
                 deploymentFileCompilationCache,
                 BicepTestConstants.FeatureProviderFactory,

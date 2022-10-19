@@ -82,19 +82,8 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             var fileUri = documentUri.ToUri();
-
-            CompilationContext? context = compilationManager.GetCompilation(fileUri);
-            Compilation compilation;
-
-            if (context is null)
-            {
-                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
-                compilation = new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
-            }
-            else
-            {
-                compilation = context.Compilation;
-            }
+            SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
+            var compilation = new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
 
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
                 .FirstOrDefault(x => x.Key.FileUri == fileUri);
