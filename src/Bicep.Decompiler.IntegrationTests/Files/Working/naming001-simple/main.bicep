@@ -3,7 +3,7 @@ param location string
 
 var virtualMachineName = 'VM-MultiNic'
 var virtualMachineRename_var = 'VM-MultiNic'
-//@[4:28) [decompiler-cleanup (Warning)] The decompiler was unable to automatically create a unique name for variable 'virtualMachineRename_var' because of a conflict with an existing name. You may want to rename it manually (using the editor's rename symbol functionality). (CodeDescription: bicep core(https://aka.ms/bicep/linter/decompiler-cleanup)) |virtualMachineRename_var|
+//@[4:28) [decompiler-cleanup (Warning)] The name of variable 'virtualMachineRename_var' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality). (CodeDescription: bicep core(https://aka.ms/bicep/linter/decompiler-cleanup)) |virtualMachineRename_var|
 var virtualMachineName3 = 'VM-MultiNic'
 
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-06-01' = {

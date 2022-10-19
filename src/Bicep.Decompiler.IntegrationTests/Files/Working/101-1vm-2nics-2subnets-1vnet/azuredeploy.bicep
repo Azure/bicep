@@ -20,9 +20,9 @@ param location string = resourceGroup().location
 
 var virtualMachineName = 'VM-MultiNic'
 var nic1_var = 'nic-1'
-//@[04:12) [decompiler-cleanup (Warning)] The decompiler was unable to automatically create a unique name for variable 'nic1_var' because of a conflict with an existing name. You may want to rename it manually (using the editor's rename symbol functionality). (CodeDescription: bicep core(https://aka.ms/bicep/linter/decompiler-cleanup)) |nic1_var|
+//@[04:12) [decompiler-cleanup (Warning)] The name of variable 'nic1_var' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality). (CodeDescription: bicep core(https://aka.ms/bicep/linter/decompiler-cleanup)) |nic1_var|
 var nic2_var = 'nic-2'
-//@[04:12) [decompiler-cleanup (Warning)] The decompiler was unable to automatically create a unique name for variable 'nic2_var' because of a conflict with an existing name. You may want to rename it manually (using the editor's rename symbol functionality). (CodeDescription: bicep core(https://aka.ms/bicep/linter/decompiler-cleanup)) |nic2_var|
+//@[04:12) [decompiler-cleanup (Warning)] The name of variable 'nic2_var' appears to have originated from a naming conflict during a decompilation from JSON. Consider renaming it and removing the suffix (using the editor's rename functionality). (CodeDescription: bicep core(https://aka.ms/bicep/linter/decompiler-cleanup)) |nic2_var|
 var virtualNetworkName = 'virtualNetwork'
 var subnet1Name = 'subnet-1'
 var subnet2Name = 'subnet-2'
