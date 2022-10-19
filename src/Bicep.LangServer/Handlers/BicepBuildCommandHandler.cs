@@ -83,6 +83,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var fileUri = documentUri.ToUri();
 
+            compilationManager.RefreshCompilation(fileUri);
             CompilationContext? context = compilationManager.GetCompilation(fileUri);
             Compilation compilation;
 
