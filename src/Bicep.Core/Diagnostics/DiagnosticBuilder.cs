@@ -130,6 +130,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP013",
                 "Expected a parameter identifier at this location.");
 
+            [Obsolete]
             public ErrorDiagnostic ExpectedParameterType() => new(
                 TextSpan,
                 "BCP014",
@@ -1720,6 +1721,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP299",
                 $"This type definition includes itself as a required component via a cycle (\"{string.Join("\" -> \"", cycle)}\").");
+
+            public ErrorDiagnostic ExpectedTypeLiteral() => new(
+                TextSpan,
+                "BCP300",
+                $"Expected a type literal at this location. Please specify a concrete value or a reference to a literal type.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

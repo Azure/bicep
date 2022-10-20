@@ -35,9 +35,10 @@ namespace Bicep.LanguageServer.Completions
             TokenType.StringComplete
         }.Concat(LanguageConstants.Keywords.Values).ToImmutableHashSet();
 
-        public BicepCompletionContext(
+        private BicepCompletionContext(
             BicepCompletionContextKind kind,
             Range replacementRange,
+            SyntaxBase replacementTarget,
             SyntaxBase? enclosingDeclaration,
             ObjectSyntax? @object,
             ObjectPropertySyntax? property,
@@ -51,6 +52,7 @@ namespace Bicep.LanguageServer.Completions
         {
             this.Kind = kind;
             this.ReplacementRange = replacementRange;
+            this.ReplacementTarget = replacementTarget;
             this.EnclosingDeclaration = enclosingDeclaration;
             this.Object = @object;
             this.Property = property;
@@ -87,6 +89,7 @@ namespace Bicep.LanguageServer.Completions
 
         public Range ReplacementRange { get; }
 
+        public SyntaxBase ReplacementTarget { get; }
 
         public static BicepCompletionContext Create(IFeatureProvider featureProvider, Compilation compilation, int offset)
         {
@@ -99,7 +102,8 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // the check at the beginning guarantees we have at least 1 node
-            var replacementRange = GetReplacementRange(bicepFile, matchingNodes[^1], offset);
+            var replacementTarget = matchingNodes[^1];
+            var replacementRange = GetReplacementRange(bicepFile, replacementTarget, offset);
 
             var triviaMatchingOffset = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, offset);
             switch (triviaMatchingOffset?.Type)
@@ -112,7 +116,7 @@ namespace Bicep.LanguageServer.Completions
 
                         if (previousTrivia is DisableNextLineDiagnosticsSyntaxTrivia)
                         {
-                            return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                            return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
                         }
                     }
                     break;
@@ -120,18 +124,18 @@ namespace Bicep.LanguageServer.Completions
                     // This will handle the following case: #disable-next-line |
                     if (triviaMatchingOffset.Text.EndsWith(' '))
                     {
-                        return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                        return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
                     }
-                    return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                    return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
                 case SyntaxTriviaType.SingleLineComment when offset > triviaMatchingOffset.Span.Position:
                 case SyntaxTriviaType.MultiLineComment when offset > triviaMatchingOffset.Span.Position && offset < triviaMatchingOffset.Span.Position + triviaMatchingOffset.Span.Length:
                     //we're in a comment, no hints here
-                    return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                    return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
             }
 
             if (IsDisableNextLineDiagnosticsDirectiveStartContext(bicepFile, offset, matchingNodes))
             {
-                return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart, replacementRange, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart, replacementRange, replacementTarget, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
             }
 
             var topLevelDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<ITopLevelDeclarationSyntax, SyntaxBase>(matchingNodes);
@@ -193,6 +197,7 @@ namespace Bicep.LanguageServer.Completions
             return new BicepCompletionContext(
                 kind,
                 replacementRange,
+                replacementTarget,
                 topLevelDeclarationInfo.node,
                 objectInfo.node,
                 propertyInfo.node,
@@ -710,6 +715,7 @@ namespace Bicep.LanguageServer.Completions
         
         private static bool IsUnionTypeMemberContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<UnionTypeSyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Pipe) ||
+            SyntaxMatcher.IsTailMatch<UnionTypeSyntax>(matchingNodes, union => union.Children.LastOrDefault() is SkippedTriviaSyntax) ||
             SyntaxMatcher.IsTailMatch<UnionTypeSyntax, UnionTypeMemberSyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) ||
             SyntaxMatcher.IsTailMatch<UnionTypeSyntax, UnionTypeMemberSyntax, TypeAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, _, token) => token.Type == TokenType.Identifier);
 

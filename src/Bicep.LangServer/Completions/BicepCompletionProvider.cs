@@ -300,13 +300,15 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ObjectTypePropertyValue))
             {
-                return GetPrimitiveTypeCompletions(model, context).Concat(GetAggregateTypeCompletions(model, context));
+                var cyclableType = CyclableTypeEnclosingDeclaration(model.Binder, context.ReplacementTarget);
+                return GetPrimitiveTypeCompletions(model, context).Concat(GetAggregateTypeCompletions(model, context, declared => !ReferenceEquals(declared.DeclaringType, cyclableType)));
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.UnionTypeMember))
             {
                 // union types must be composed of literals, so don't include primitive types or non-literal user defined types
-                return GetAggregateTypeCompletions(model, context, declared => IsTypeLiteralSyntax(declared.DeclaringType.Value));
+                var cyclableType = CyclableTypeEnclosingDeclaration(model.Binder, context.ReplacementTarget);
+                return GetAggregateTypeCompletions(model, context, declared => !ReferenceEquals(declared.DeclaringType, cyclableType) && IsTypeLiteralSyntax(declared.DeclaringType.Value));
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.OutputType))
@@ -342,7 +344,17 @@ namespace Bicep.LanguageServer.Completions
         private static bool IsTypeLiteralSyntax(SyntaxBase syntax) => syntax is BooleanLiteralSyntax
             || syntax is IntegerLiteralSyntax
             || (syntax is StringSyntax @string && @string.TryGetLiteralValue() is string literal)
-            || syntax is UnionTypeSyntax;
+            || syntax is UnionTypeSyntax
+            || (syntax is ObjectTypeSyntax objectType && objectType.Properties.All(p => p.OptionalityMarker is null && IsTypeLiteralSyntax(p.Value)));
+
+        private static StatementSyntax? CyclableTypeEnclosingDeclaration(IBinder binder, SyntaxBase? syntax) => syntax switch
+        {
+            StatementSyntax statement => statement,
+            // Optional object properties are allowed to point to an ancestor in the syntax tree
+            ObjectTypePropertySyntax objectTypeProperty when objectTypeProperty.OptionalityMarker is not null => null,
+            SyntaxBase otherwise => CyclableTypeEnclosingDeclaration(binder, binder.GetParent(otherwise)),
+            null => null,
+        };
 
         private IEnumerable<CompletionItem> GetResourceTypeCompletions(SemanticModel model, BicepCompletionContext context)
         {

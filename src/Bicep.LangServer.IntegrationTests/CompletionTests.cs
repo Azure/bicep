@@ -1292,22 +1292,24 @@ type b = string
         }
 
         [TestMethod]
-        public async Task TypeCompletionsShouldNotIncludeCyclicReference()
-        {
-            var fileWithCursors = @"
-type a = ǂ
-";
-            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
-            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
-            var completions = await file.RequestCompletion(cursor);
-            completions.Should().NotContain(x => x.Label == "a");
-        }
-
-        [TestMethod]
         public async Task UnionTypeMembersShouldReceiveTypeCompletions()
         {
             var fileWithCursors = @"
 type a = 'fizz'|'buzz'|ǂ
+type b = 'pop'
+";
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
+            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().Contain(x => x.Label == "b");
+            completions.Should().NotContain(x => x.Label == "a");
+        }
+
+        [TestMethod]
+        public async Task UnionTypeMembersWithSeparationShouldReceiveTypeCompletions()
+        {
+            var fileWithCursors = @"
+type a = 'fizz' | 'buzz' | ǂ
 type b = 'pop'
 ";
             var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
@@ -1334,6 +1336,58 @@ type c = string[]
             completions.Should().NotContain(x => x.Label == "bool");
             completions.Should().NotContain(x => x.Label == "object");
             completions.Should().NotContain(x => x.Label == "array");
+        }
+
+        [TestMethod]
+        public async Task TypeCompletionsShouldNotIncludeCyclicReferences()
+        {
+            var fileWithCursors = @"
+type a = ǂ
+";
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
+            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().NotContain(x => x.Label == "a");
+        }
+
+        [TestMethod]
+        public async Task UnionTypeMemberCompletionsShouldNotIncludeCyclicReferences()
+        {
+            var fileWithCursors = @"
+type a = 'fizz'|'buzz'|ǂ
+";
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
+            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().NotContain(x => x.Label == "a");
+        }
+
+        [TestMethod]
+        public async Task ObjectTypePropertyCompletionsShouldNotIncludeCyclicReferences()
+        {
+            var fileWithCursors = @"
+type a = {
+    requiredAndRecursive: ǂ
+}
+";
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
+            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().NotContain(x => x.Label == "a");
+        }
+
+        [TestMethod]
+        public async Task OptionalObjectTypePropertyCompletionsShouldIncludeRecursiveReferences()
+        {
+            var fileWithCursors = @"
+type a = {
+    optionalAndRecursive?: ǂ
+}
+";
+            var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, 'ǂ');
+            var file = await new ServerRequestHelper(TestContext, ServerWithTypesEnabled).OpenFile(text);
+            var completions = await file.RequestCompletion(cursor);
+            completions.Should().Contain(x => x.Label == "a");
         }
 
         [TestMethod]
