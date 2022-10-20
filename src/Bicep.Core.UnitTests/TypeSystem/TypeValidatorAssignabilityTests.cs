@@ -368,6 +368,29 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
 
         [TestMethod]
+        public void AdditionalPropertiesWithFallbackTypeFlagShouldProduceWarning()
+        {
+            var obj = TestSyntaxFactory.CreateObject(new[]
+            {
+                TestSyntaxFactory.CreateProperty("inSchema", TestSyntaxFactory.CreateString("ping")),
+                TestSyntaxFactory.CreateProperty("notInSchema", TestSyntaxFactory.CreateString("pong")),
+            });
+
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, new ObjectType(
+                "additionalPropertiesFallbackTypeTest", 
+                TypeSymbolValidationFlags.Default,
+                new[] { new TypeProperty("inSchema", LanguageConstants.String) },
+                LanguageConstants.Any,
+                TypePropertyFlags.FallbackProperty));
+
+            diagnostics.Should().HaveCount(1);
+            diagnostics.Should().ContainDiagnostic("BCP037", DiagnosticLevel.Warning, "The property \"notInSchema\" is not allowed on objects of type \"additionalPropertiesFallbackTypeTest\". No other properties are allowed.");
+        }
+
+        [TestMethod]
         public void DiscriminatedObjectType_raises_appropriate_diagnostics_for_matches()
         {
             var discriminatedType = new DiscriminatedObjectType(

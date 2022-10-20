@@ -632,11 +632,11 @@ namespace Bicep.Core.TypeSystem
             var extraProperties = expression.Properties
                 .Where(p => p.TryGetKeyText() is not string keyName || !targetType.Properties.ContainsKey(keyName));
 
-            if (targetType.AdditionalPropertiesType == null)
+            if (targetType.AdditionalPropertiesType == null || targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
             {
                 // extra properties are not allowed by the type
 
-                var shouldWarn = ShouldWarn(targetType);
+                var shouldWarn = targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty) || ShouldWarn(targetType);
                 var validUnspecifiedProperties = targetType.Properties.Values
                     .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty) && !namedPropertyMap.ContainsKey(p.Name))
                     .Select(p => p.Name)
