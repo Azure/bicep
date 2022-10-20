@@ -69,7 +69,7 @@ param myString2 string = 'string value'
 
 param wrongDefaultValue string = 42
 //@[06:023) [no-unused-params (Warning)] Parameter "wrongDefaultValue" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongDefaultValue|
-//@[33:035) [BCP027 (Error)] The parameter expects a default value of type "string" but provided value is of type "42". (CodeDescription: none) |42|
+//@[33:035) [BCP033 (Error)] Expected a value of type "string" but the provided value is of type "42". (CodeDescription: none) |42|
 
 param myInt2 int = 42
 //@[06:012) [no-unused-params (Warning)] Parameter "myInt2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myInt2|
@@ -79,10 +79,10 @@ param noValueAfterColon int =
 
 param myTruth bool = 'not a boolean'
 //@[06:013) [no-unused-params (Warning)] Parameter "myTruth" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myTruth|
-//@[21:036) [BCP027 (Error)] The parameter expects a default value of type "bool" but provided value is of type "'not a boolean'". (CodeDescription: none) |'not a boolean'|
+//@[21:036) [BCP033 (Error)] Expected a value of type "bool" but the provided value is of type "'not a boolean'". (CodeDescription: none) |'not a boolean'|
 param myFalsehood bool = 'false'
 //@[06:017) [no-unused-params (Warning)] Parameter "myFalsehood" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myFalsehood|
-//@[25:032) [BCP027 (Error)] The parameter expects a default value of type "bool" but provided value is of type "'false'". (CodeDescription: none) |'false'|
+//@[25:032) [BCP033 (Error)] Expected a value of type "bool" but the provided value is of type "'false'". (CodeDescription: none) |'false'|
 
 param wrongAssignmentToken string: 'hello'
 //@[06:026) [no-unused-params (Warning)] Parameter "wrongAssignmentToken" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongAssignmentToken|
@@ -243,7 +243,7 @@ param secureInt int
 //@[10:017) [BCP070 (Error)] Argument of type "'wrong'" is not assignable to parameter of type "object". (CodeDescription: none) |'wrong'|
 param wrongIntModifier int = true
 //@[06:022) [no-unused-params (Warning)] Parameter "wrongIntModifier" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongIntModifier|
-//@[29:033) [BCP027 (Error)] The parameter expects a default value of type "int" but provided value is of type "true". (CodeDescription: none) |true|
+//@[29:033) [BCP033 (Error)] Expected a value of type "int" but the provided value is of type "true". (CodeDescription: none) |true|
 
 @metadata(any([]))
 //@[10:017) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |any([])|
@@ -272,7 +272,7 @@ param wrongMetadataSchema string
 ])
 param expressionInModifier string = 2 + 3
 //@[06:026) [no-unused-params (Warning)] Parameter "expressionInModifier" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |expressionInModifier|
-//@[36:041) [BCP027 (Error)] The parameter expects a default value of type "string" but provided value is of type "5". (CodeDescription: none) |2 + 3|
+//@[36:041) [BCP033 (Error)] Expected a value of type "string" but the provided value is of type "5". (CodeDescription: none) |2 + 3|
 
 @maxLength(2 + 3)
 //@[11:016) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |2 + 3|
@@ -326,7 +326,7 @@ param paramAccessingVar string = concat(sampleVar, 's')
 
 param paramAccessingResource string = sampleResource
 //@[06:028) [no-unused-params (Warning)] Parameter "paramAccessingResource" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramAccessingResource|
-//@[38:052) [BCP027 (Error)] The parameter expects a default value of type "string" but provided value is of type "Microsoft.Foo/foos@2020-02-02". (CodeDescription: none) |sampleResource|
+//@[38:052) [BCP033 (Error)] Expected a value of type "string" but the provided value is of type "Microsoft.Foo/foos@2020-02-02". (CodeDescription: none) |sampleResource|
 //@[38:052) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. (CodeDescription: none) |sampleResource|
 
 param paramAccessingOutput string = sampleOutput
@@ -487,7 +487,7 @@ param invalidPermutation array = [
 ])
 param invalidDefaultWithAllowedArrayDecorator array = true
 //@[06:045) [no-unused-params (Warning)] Parameter "invalidDefaultWithAllowedArrayDecorator" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |invalidDefaultWithAllowedArrayDecorator|
-//@[54:058) [BCP027 (Error)] The parameter expects a default value of type "array" but provided value is of type "true". (CodeDescription: none) |true|
+//@[54:058) [BCP033 (Error)] Expected a value of type "array" but the provided value is of type "true". (CodeDescription: none) |true|
 
 // unterminated multi-line comment
 /*    

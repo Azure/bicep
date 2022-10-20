@@ -1604,21 +1604,11 @@ namespace Bicep.Core.TypeSystem
                 return defaultValueType.GetDiagnostics();
             }
 
-            if (assignedType is TypedArrayType)
-            {
-                var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
 
-                TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnosticWriter, defaultValueSyntax.DefaultValue, assignedType);
+            TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnosticWriter, defaultValueSyntax.DefaultValue, assignedType);
 
-                return diagnosticWriter.GetDiagnostics();
-            }
-            else if (!TypeValidator.AreTypesAssignable(defaultValueType, assignedType))
-            {
-                TypeValidator.AreTypesAssignable(defaultValueType, assignedType);
-                return DiagnosticBuilder.ForPosition(defaultValueSyntax.DefaultValue).ParameterTypeMismatch(assignedType, defaultValueType).AsEnumerable();
-            }
-
-            return Enumerable.Empty<IDiagnostic>();
+            return diagnosticWriter.GetDiagnostics();
         }
 
         private IEnumerable<IDiagnostic> ValidateIdentifierAccess(SyntaxBase syntax)

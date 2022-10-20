@@ -195,6 +195,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP026",
                 $"The output expects a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
 
+            [Obsolete]
             public ErrorDiagnostic ParameterTypeMismatch(TypeSymbol expectedType, TypeSymbol actualType) => new(
                 TextSpan,
                 "BCP027",
@@ -1348,6 +1349,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP227",
                 $"The type \"{resourceType}\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs.");
 
+            [Obsolete]
             public ErrorDiagnostic UnsupportedResourceTypeOutputType(string resourceType) => new(
                 TextSpan,
                 "BCP228",
