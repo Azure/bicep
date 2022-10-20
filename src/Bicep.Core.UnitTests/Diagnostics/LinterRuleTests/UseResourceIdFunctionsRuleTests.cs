@@ -1950,7 +1950,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 ",
                 expectedMessages: new string[]
                 {
-                    // asdfg
+                    // pass
                 });
         }
     }
