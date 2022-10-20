@@ -11,7 +11,7 @@ namespace Bicep.Core.Semantics
     {
         ResourceScope TargetScope { get; }
 
-        ImmutableArray<ParameterMetadata> Parameters { get; }
+        ImmutableDictionary<string, ParameterMetadata> Parameters { get; }
 
         ImmutableArray<OutputMetadata> Outputs { get; }
 
