@@ -454,12 +454,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         }
                     ")});
 
-            result.Diagnostics.Should().HaveDiagnostics(new[]
-            {
-                  ("artifacts-parameters", DiagnosticLevel.Warning, "Parameter '_artifactsLocation' of module 'creatingVM' should be assigned an explicit value."),
-                  ("artifacts-parameters", DiagnosticLevel.Warning, "Parameter '_artifactsLocationSasToken' of module 'creatingVM' should be assigned an explicit value."),
-                  ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"_artifactsLocation\"."),
-            });
+            result.Diagnostics.Should().ContainDiagnostic("artifacts-parameters", DiagnosticLevel.Warning, "Parameter '_artifactsLocationSasToken' of module 'creatingVM' should be assigned an explicit value.");
+            result.Diagnostics.Should().ContainDiagnostic("artifacts-parameters", DiagnosticLevel.Warning, "Parameter '_artifactsLocation' of module 'creatingVM' should be assigned an explicit value.");
+            result.Diagnostics.Should().ContainDiagnostic("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"_artifactsLocation\".");
         }
     }
 }

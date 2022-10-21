@@ -27,7 +27,7 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<EmitLimitationInfo> emitLimitationInfoLazy;
         private readonly Lazy<SymbolHierarchy> symbolHierarchyLazy;
         private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
-        private readonly Lazy<ImmutableArray<ParameterMetadata>> parametersLazy;
+        private readonly Lazy<ImmutableDictionary<string, ParameterMetadata>> parametersLazy;
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
 
         // needed to support param file go to def
@@ -84,9 +84,9 @@ namespace Bicep.Core.Semantics
             // lazy load single use diagnostic set
             this.allDiagnostics = new Lazy<ImmutableArray<IDiagnostic>>(() => AssembleDiagnostics());
 
-            this.parametersLazy = new Lazy<ImmutableArray<ParameterMetadata>>(() =>
+            this.parametersLazy = new Lazy<ImmutableDictionary<string, ParameterMetadata>>(() =>
             {
-                var parameters = new List<ParameterMetadata>();
+                var parameters = ImmutableDictionary.CreateBuilder<string, ParameterMetadata>();
 
                 foreach (var param in this.Root.ParameterDeclarations.DistinctBy(p => p.Name))
                 {
@@ -97,15 +97,15 @@ namespace Bicep.Core.Semantics
                         // Resource type parameters are a special case, we need to convert to a dedicated
                         // type so we can compare differently for assignment.
                         var type = new UnboundResourceType(resourceType.TypeReference);
-                        parameters.Add(new ParameterMetadata(param.Name, type, isRequired, description));
+                        parameters.Add(param.Name, new ParameterMetadata(param.Name, type, isRequired, description));
                     }
                     else
                     {
-                        parameters.Add(new ParameterMetadata(param.Name, param.Type, isRequired, description));
+                        parameters.Add(param.Name, new ParameterMetadata(param.Name, param.Type, isRequired, description));
                     }
                 }
 
-                return parameters.ToImmutableArray();
+                return parameters.ToImmutable();
             });
 
             this.outputsLazy = new Lazy<ImmutableArray<OutputMetadata>>(() =>
@@ -160,7 +160,7 @@ namespace Bicep.Core.Semantics
 
         public IBicepAnalyzer LinterAnalyzer { get; }
 
-        public ImmutableArray<ParameterMetadata> Parameters => this.parametersLazy.Value;
+        public ImmutableDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
 
         public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
 
@@ -457,13 +457,10 @@ namespace Bicep.Core.Semantics
             // parameters that are declared but not assigned
             var missingRequiredParams = new List<string>();
 
-            var parameterMetadata = bicepSemanticModel.Parameters;
-            var metadataByName = parameterMetadata.ToDictionary(x => x.Name, x => x);
-
             foreach (var parameter in parameters)
             {
                 if (bicepSemanticModel.Binder.GetSymbolInfo(parameter) is ParameterSymbol symbol && TryGetParameterAssignment(symbol) is null &&
-                    metadataByName[parameter.Name.IdentifierName].IsRequired)
+                    bicepSemanticModel.Parameters[parameter.Name.IdentifierName].IsRequired)
                 {
                     missingRequiredParams.Add(parameter.Name.IdentifierName);
                 }
