@@ -1,5 +1,5 @@
 // @description('The foo type')
-//@[00:795) ProgramSyntax
+//@[00:817) ProgramSyntax
 //@[31:032) ├─Token(NewLine) |\n|
 // @sealed()
 //@[12:013) ├─Token(NewLine) |\n|
@@ -282,6 +282,16 @@ type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!tr
 //@[88:089) |   ├─Token(LeftSquare) |[|
 //@[89:090) |   └─Token(RightSquare) |]|
 //@[90:092) ├─Token(NewLine) |\n\n|
+
+type String = string
+//@[00:020) ├─TypeDeclarationSyntax
+//@[00:004) | ├─Token(Identifier) |type|
+//@[05:011) | ├─IdentifierSyntax
+//@[05:011) | | └─Token(Identifier) |String|
+//@[12:013) | ├─Token(Assignment) |=|
+//@[14:020) | └─SimpleTypeSyntax
+//@[14:020) |   └─Token(Identifier) |string|
+//@[20:022) ├─Token(NewLine) |\n\n|
 
 param inlineObjectParam {
 //@[00:123) ├─ParameterDeclarationSyntax

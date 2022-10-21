@@ -1726,6 +1726,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP300",
                 $"Expected a type literal at this location. Please specify a concrete value or a reference to a literal type.");
+
+            public ErrorDiagnostic TypeNameMasksAmbientType(string conflictingName) => new(
+                TextSpan,
+                "BCP301",
+                $"A user-defined type may not be named '{conflictingName},' as this masks the ARM type of the same name.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

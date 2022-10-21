@@ -7,6 +7,9 @@ type noAssignment
 type incompleteAssignment =
 //@[5:25) Type incompleteAssignment. Type: any. Declaration start char: 0, length: 27
 
+type string = string
+//@[5:11) Type string. Type: string. Declaration start char: 0, length: 20
+
 @sealed()
 type sealedString = string
 //@[5:17) Type sealedString. Type: string. Declaration start char: 0, length: 36

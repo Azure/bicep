@@ -1,5 +1,5 @@
 type 44
-//@[00:1087) ProgramSyntax
+//@[00:1109) ProgramSyntax
 //@[00:0007) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
 //@[05:0007) | ├─IdentifierSyntax
@@ -26,6 +26,16 @@ type incompleteAssignment =
 //@[26:0027) | ├─Token(Assignment) |=|
 //@[27:0027) | └─SkippedTriviaSyntax
 //@[27:0029) ├─Token(NewLine) |\n\n|
+
+type string = string
+//@[00:0020) ├─TypeDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0011) | ├─IdentifierSyntax
+//@[05:0011) | | └─Token(Identifier) |string|
+//@[12:0013) | ├─Token(Assignment) |=|
+//@[14:0020) | └─SimpleTypeSyntax
+//@[14:0020) |   └─Token(Identifier) |string|
+//@[20:0022) ├─Token(NewLine) |\n\n|
 
 @sealed()
 //@[00:0036) ├─TypeDeclarationSyntax

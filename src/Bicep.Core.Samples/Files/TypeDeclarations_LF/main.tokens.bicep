@@ -177,6 +177,13 @@ type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!tr
 //@[89:90) RightSquare |]|
 //@[90:92) NewLine |\n\n|
 
+type String = string
+//@[00:04) Identifier |type|
+//@[05:11) Identifier |String|
+//@[12:13) Assignment |=|
+//@[14:20) Identifier |string|
+//@[20:22) NewLine |\n\n|
+
 param inlineObjectParam {
 //@[00:05) Identifier |param|
 //@[06:23) Identifier |inlineObjectParam|

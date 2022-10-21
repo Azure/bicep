@@ -44,17 +44,20 @@ type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
 //@[96:111]     "mixedArray": {
 
+type String = string
+//@[112:114]     "String": {
+
 param inlineObjectParam {
-//@[114:144]     "inlineObjectParam": {
+//@[117:147]     "inlineObjectParam": {
   foo: string
   bar: 100|200|300|400|500
   baz: bool
 } = {
   foo: 'foo'
-//@[140:140]         "foo": "foo",
+//@[143:143]         "foo": "foo",
   bar: 300
-//@[141:141]         "bar": 300,
+//@[144:144]         "bar": 300,
   baz: false
-//@[142:142]         "baz": false
+//@[145:145]         "baz": false
 }
 

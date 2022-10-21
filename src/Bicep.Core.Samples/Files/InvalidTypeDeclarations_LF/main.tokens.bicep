@@ -14,6 +14,13 @@ type incompleteAssignment =
 //@[26:27) Assignment |=|
 //@[27:29) NewLine |\n\n|
 
+type string = string
+//@[00:04) Identifier |type|
+//@[05:11) Identifier |string|
+//@[12:13) Assignment |=|
+//@[14:20) Identifier |string|
+//@[20:22) NewLine |\n\n|
+
 @sealed()
 //@[00:01) At |@|
 //@[01:07) Identifier |sealed|

@@ -4,6 +4,8 @@ type noAssignment
 
 type incompleteAssignment =
 
+type string = string
+
 @sealed()
 type sealedString = string
 
