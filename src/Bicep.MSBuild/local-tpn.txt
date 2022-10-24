@@ -866,6 +866,8 @@ OTHER
 runtime.any.System.Collections 4.3.0 - OTHER
 
 
+(c) Microsoft Corporation
+Copyright (c) .NET Foundation and Contributors
 
 OTHER
 
@@ -936,6 +938,8 @@ OTHER
 runtime.any.System.Runtime 4.3.0 - OTHER
 
 
+(c) Microsoft Corporation
+Copyright (c) .NET Foundation and Contributors
 
 OTHER
 
@@ -958,6 +962,8 @@ OTHER
 runtime.any.System.Runtime.InteropServices 4.3.0 - OTHER
 
 
+(c) Microsoft Corporation
+Copyright (c) .NET Foundation and Contributors
 
 OTHER
 
@@ -968,6 +974,8 @@ OTHER
 runtime.any.System.Text.Encoding 4.3.0 - OTHER
 
 
+(c) Microsoft Corporation
+Copyright (c) .NET Foundation and Contributors
 
 OTHER
 
@@ -978,6 +986,8 @@ OTHER
 runtime.any.System.Threading.Tasks 4.3.0 - OTHER
 
 
+(c) Microsoft Corporation
+Copyright (c) .NET Foundation and Contributors
 
 OTHER
 
@@ -988,6 +998,8 @@ OTHER
 runtime.debian.8-x64.runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
 
 
+(c) Microsoft Corporation
+Copyright (c) .NET Foundation and Contributors
 
 OTHER
 
@@ -1008,6 +1020,8 @@ OTHER
 runtime.fedora.24-x64.runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
 
 
+(c) Microsoft Corporation
+Copyright (c) .NET Foundation and Contributors
 
 OTHER
 
@@ -1028,6 +1042,8 @@ OTHER
 runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
 
 
+(c) Microsoft Corporation
+Copyright (c) .NET Foundation and Contributors
 
 OTHER
 
@@ -1038,6 +1054,8 @@ OTHER
 runtime.opensuse.13.2-x64.runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
 
 
+(c) Microsoft Corporation
+Copyright (c) .NET Foundation and Contributors
 
 OTHER
 
@@ -1084,6 +1102,8 @@ OTHER
 runtime.ubuntu.14.04-x64.runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
 
 
+(c) Microsoft Corporation
+Copyright (c) .NET Foundation and Contributors
 
 OTHER
 
@@ -1106,6 +1126,8 @@ OTHER
 runtime.ubuntu.16.10-x64.runtime.native.System.Security.Cryptography.OpenSsl 4.3.0 - OTHER
 
 
+(c) Microsoft Corporation
+Copyright (c) .NET Foundation and Contributors
 
 OTHER
 
@@ -1116,6 +1138,8 @@ OTHER
 runtime.unix.System.Private.Uri 4.3.0 - OTHER
 
 
+(c) Microsoft Corporation
+Copyright (c) .NET Foundation and Contributors
 
 OTHER
 
@@ -1186,6 +1210,8 @@ OTHER
 System.Private.Uri 4.3.0 - OTHER
 
 
+(c) Microsoft Corporation
+Copyright (c) .NET Foundation and Contributors
 
 OTHER
 
