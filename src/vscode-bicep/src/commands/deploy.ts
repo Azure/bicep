@@ -9,6 +9,7 @@ import {
   parseError,
 } from "@microsoft/vscode-azext-utils";
 import assert from "assert";
+import moment from "moment";
 import * as fse from "fs-extra";
 import * as path from "path";
 import vscode, { commands, Uri } from "vscode";
@@ -126,7 +127,9 @@ export class DeployCommand implements Command {
 
       const options = {
         title: `Please enter name for deployment`,
-        value: "bicep_deployment_".concat(Date.now().toString()),
+        value: "bicep_deployment_".concat(
+          moment.utc().format("YYYYMMDDHHmmss")
+        ),
       };
       const deploymentName = await context.ui.showInputBox(options);
 
