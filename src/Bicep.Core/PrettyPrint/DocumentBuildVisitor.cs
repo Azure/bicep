@@ -83,10 +83,9 @@ namespace Bicep.Core.PrettyPrint
                 this.VisitNodes(syntax.LeadingNodes);
                 this.Visit(syntax.Keyword);
                 this.documentStack.Push(Nil);
-                this.Visit(syntax.ProviderName);
-                this.Visit(syntax.AsKeyword);
-                this.Visit(syntax.AliasName);
-                this.Visit(syntax.Config);
+                this.Visit(syntax.Specification);
+                this.Visit(syntax.WithClause);
+                this.Visit(syntax.AsClause);
             });
 
         public override void VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax) =>

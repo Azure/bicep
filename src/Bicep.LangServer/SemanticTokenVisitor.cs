@@ -331,10 +331,22 @@ namespace Bicep.LanguageServer
         public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
-            AddTokenType(syntax.ProviderName, SemanticTokenType.Variable);
-            AddContextualKeyword(syntax.AsKeyword, LanguageConstants.AsKeyword);
-            AddTokenType(syntax.AliasName, SemanticTokenType.Variable);
+            this.Visit(syntax.Specification);
+            this.Visit(syntax.WithClause);
+            this.Visit(syntax.AsClause);
             base.VisitImportDeclarationSyntax(syntax);
+        }
+
+        public override void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            this.Visit(syntax.Config);
+        }
+        
+        public override void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Alias, SemanticTokenType.Variable);
         }
 
         public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)

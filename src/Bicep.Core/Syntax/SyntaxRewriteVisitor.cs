@@ -301,19 +301,46 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
             hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
-            hasChanges |= TryRewriteStrict(syntax.ProviderName, out var providerName);
-            hasChanges |= TryRewriteStrict(syntax.AsKeyword, out var asKeyword);
-            hasChanges |= TryRewriteStrict(syntax.AliasName, out var aliasName);
-            hasChanges |= TryRewrite(syntax.Config, out var config);
+            hasChanges |= TryRewriteStrict(syntax.Specification, out var specification);
+            hasChanges |= TryRewriteStrict(syntax.WithClause, out var withClause);
+            hasChanges |= TryRewriteStrict(syntax.AsClause, out var asClause);
 
             if (!hasChanges)
             {
                 return syntax;
             }
 
-            return new ImportDeclarationSyntax(leadingNodes, keyword, providerName, asKeyword, aliasName, config);
+            return new ImportDeclarationSyntax(leadingNodes, keyword, specification, withClause, asClause);
         }
         void ISyntaxVisitor.VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceImportDeclarationSyntax);
+
+        protected virtual SyntaxBase ReplaceImportWithClauseSyntax(ImportWithClauseSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Config, out var config);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ImportWithClauseSyntax(keyword, config);
+        }
+        void ISyntaxVisitor.VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax) => ReplaceCurrent(syntax, ReplaceImportWithClauseSyntax);
+
+        protected virtual SyntaxBase ReplaceImportAsClauseSyntax(ImportAsClauseSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Alias, out var alias);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ImportAsClauseSyntax(keyword, alias);
+        }
+        void ISyntaxVisitor.VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax) => ReplaceCurrent(syntax, ReplaceImportAsClauseSyntax);
 
         protected virtual SyntaxBase ReplaceIdentifierSyntax(IdentifierSyntax syntax)
         {

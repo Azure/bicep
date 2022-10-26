@@ -1718,6 +1718,26 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP302",
                 $@"The name ""{name}"" is not a valid type. Please specify one of the following types: {ToQuotedString(validTypes)}.");
+
+            public ErrorDiagnostic ExpectedProviderSpecification() => new(
+                TextSpan,
+                "BCP303",
+                "Expected a provider specification string. Specify a valid provider of format \"<providerName>@<providerVersion>\".");
+
+            public ErrorDiagnostic ExpectedImportAliasIdentifier() => new(
+                TextSpan,
+                "BCP304",
+                "Expected an import alias identifier at this location.");
+
+            public ErrorDiagnostic ProviderSpecificationInterpolationUnsupported() => new(
+                TextSpan,
+                "BCP305",
+                "String interpolation is unsupported for specifying the provider.");
+
+            public ErrorDiagnostic InvalidProviderSpecification() => new(
+                TextSpan,
+                "BCP306",
+                "Invalid provider specifier string. Specify a valid provider of format \"<providerName>@<providerVersion>\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

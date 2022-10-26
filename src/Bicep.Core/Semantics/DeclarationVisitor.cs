@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -123,27 +124,44 @@ namespace Bicep.Core.Semantics
         {
             base.VisitImportDeclarationSyntax(syntax);
 
-            var alias = syntax.Name.IdentifierName;
+            var aliasOrName = syntax.Alias?.IdentifierName;
+
             TypeSymbol declaredType;
+
             if (!features.ImportsEnabled)
             {
                 declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ImportsAreDisabled());
             }
-            else if (!syntax.ProviderName.IsValid)
+            else if (syntax.HasParseErrors())
             {
                 // There should be a parse error if the import statement is incomplete
                 declaredType = ErrorType.Empty();
             }
-            else if (namespaceProvider.TryGetNamespace(syntax.ProviderName.IdentifierName, alias, targetScope, features) is not { } namespaceType)
+            else if (syntax.Specification.As<StringSyntax>().TryGetLiteralValue() is not { } specificationValue)
             {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.ProviderName.IdentifierName));
+                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Specification).ProviderSpecificationInterpolationUnsupported());
+            }
+            else if (ImportSpecification.TryParse(specificationValue) is not { } specification)
+            {
+                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Specification).InvalidProviderSpecification());
             }
             else
             {
-                declaredType = namespaceType;
+                aliasOrName ??= specification.Name;
+
+                if (namespaceProvider.TryGetNamespace(specification.Name, aliasOrName, targetScope, features) is not { } namespaceType)
+                {
+                    declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(specification.Name));
+                }
+                else
+                {
+                    declaredType = namespaceType;
+                }
             }
 
-            var symbol = new ImportedNamespaceSymbol(this.context, syntax.Name.IdentifierName, declaredType, syntax);
+            aliasOrName ??= LanguageConstants.ErrorName;
+
+            var symbol = new ImportedNamespaceSymbol(this.context, aliasOrName, declaredType, syntax);
             DeclareSymbol(symbol);
         }
 

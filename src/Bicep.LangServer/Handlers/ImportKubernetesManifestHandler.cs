@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
@@ -66,15 +67,16 @@ namespace Bicep.LanguageServer.Handlers
 
             declarations.Add(new ImportDeclarationSyntax(
                 Enumerable.Empty<SyntaxBase>(),
-                SyntaxFactory.CreateToken(Core.Parsing.TokenType.Identifier, "import"),
-                SyntaxFactory.CreateIdentifier("kubernetes"),
-                SyntaxFactory.CreateToken(Core.Parsing.TokenType.Identifier, "as"),
-                SyntaxFactory.CreateIdentifier("k8s"),
-                SyntaxFactory.CreateObject(new [] {
-                    SyntaxFactory.CreateObjectProperty("namespace", SyntaxFactory.CreateStringLiteral("default")),
-                    SyntaxFactory.CreateObjectProperty("kubeConfig", SyntaxFactory.CreateIdentifier("kubeConfig")),
-                })
-            ));
+                SyntaxFactory.CreateToken(TokenType.Identifier, "import"),
+                SyntaxFactory.CreateStringLiteral("kubernetes@1.0"),
+                new ImportWithClauseSyntax(
+                    SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.WithKeyword), 
+                    SyntaxFactory.CreateObject(new []
+                    {
+                        SyntaxFactory.CreateObjectProperty("namespace", SyntaxFactory.CreateStringLiteral("default")),
+                        SyntaxFactory.CreateObjectProperty("kubeConfig", SyntaxFactory.CreateIdentifier("kubeConfig"))
+                    })),
+                asClause: null));
 
 
             try

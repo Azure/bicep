@@ -10,8 +10,8 @@ namespace Bicep.Core.Semantics
 {
     public class ImportedNamespaceSymbol : DeclaredSymbol, INamespaceSymbol
     {
-        public ImportedNamespaceSymbol(ISymbolContext context, string name, TypeSymbol declaredType, ImportDeclarationSyntax declaringSyntax)
-            : base(context, name, declaringSyntax, declaringSyntax.Name)
+        public ImportedNamespaceSymbol(ISymbolContext context, string aliasOrName, TypeSymbol declaredType, ImportDeclarationSyntax declaringSyntax)
+            : base(context, aliasOrName, declaringSyntax, declaringSyntax.Alias ?? CreateSyntheticNameIdentifier(aliasOrName, declaringSyntax))
         {
             DeclaredType = declaredType;
         }
@@ -30,5 +30,8 @@ namespace Bicep.Core.Semantics
         public TypeSymbol DeclaredType { get; }
 
         public NamespaceType? TryGetNamespaceType() => DeclaredType as NamespaceType;
+
+        private static IdentifierSyntax CreateSyntheticNameIdentifier(string name, ImportDeclarationSyntax declaringSyntax) =>
+            SyntaxFactory.CreateIdentifier(name, declaringSyntax.Specification.Span);
     }
 }

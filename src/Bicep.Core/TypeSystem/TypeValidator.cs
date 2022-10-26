@@ -763,7 +763,7 @@ namespace Bicep.Core.TypeSystem
                 ObjectPropertySyntax objectPropertyParent => (objectPropertyParent.Key, "object"),
 
                 // for import declarations, mark the entire configuration object
-                ImportDeclarationSyntax importParent => (expression, "object"),
+                ImportWithClauseSyntax importParent => (expression, "object"),
 
                 // for declaration bodies, put it on the declaration identifier
                 ITopLevelNamedDeclarationSyntax declarationParent => (declarationParent.Name, declarationParent.Keyword.Text),
