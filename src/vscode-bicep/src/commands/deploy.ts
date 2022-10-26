@@ -125,11 +125,10 @@ export class DeployCommand implements Command {
         context
       );
 
+      const fileName = path.basename(documentPath, ".bicep");
       const options = {
         title: `Please enter name for deployment`,
-        value: "bicep_deployment_".concat(
-          moment.utc().format("YYYYMMDDHHmmss")
-        ),
+        value: fileName.concat("-", moment.utc().format("MMDD-HHMM")),
       };
       const deploymentName = await context.ui.showInputBox(options);
 
