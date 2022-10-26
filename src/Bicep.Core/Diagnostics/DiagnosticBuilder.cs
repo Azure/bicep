@@ -7,6 +7,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Bicep.Core.CodeAction;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
@@ -130,12 +131,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP013",
                 "Expected a parameter identifier at this location.");
 
-            [Obsolete]
-            public ErrorDiagnostic ExpectedParameterType() => new(
-                TextSpan,
-                "BCP014",
-                $"Expected a parameter type at this location. Please specify one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
-
             public ErrorDiagnostic ExpectedVariableIdentifier() => new(
                 TextSpan,
                 "BCP015",
@@ -196,12 +191,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP026",
                 $"The output expects a value of type \"{expectedType}\" but the provided value is of type \"{actualType}\".");
 
-            [Obsolete]
-            public ErrorDiagnostic ParameterTypeMismatch(TypeSymbol expectedType, TypeSymbol actualType) => new(
-                TextSpan,
-                "BCP027",
-                $"The parameter expects a default value of type \"{expectedType}\" but provided value is of type \"{actualType}\".");
-
             public ErrorDiagnostic IdentifierMultipleDeclarations(string identifier) => new(
                 TextSpan,
                 "BCP028",
@@ -217,10 +206,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP030",
                 $"The output type is not valid. Please specify one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
 
-            public ErrorDiagnostic InvalidParameterType() => new(
+            public ErrorDiagnostic InvalidParameterType(IEnumerable<string> validTypes) => new(
                 TextSpan,
                 "BCP031",
-                $"The parameter type is not valid. Please specify one of the following types: {ToQuotedString(LanguageConstants.DeclarationTypes.Keys)}.");
+                $"The parameter type is not valid. Please specify one of the following types: {ToQuotedString(validTypes)}.");
 
             public ErrorDiagnostic CompileTimeConstantRequired() => new(
                 TextSpan,
@@ -1350,12 +1339,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP227",
                 $"The type \"{resourceType}\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs.");
 
-            [Obsolete]
-            public ErrorDiagnostic UnsupportedResourceTypeOutputType(string resourceType) => new(
-                TextSpan,
-                "BCP228",
-                $"The type \"{resourceType}\" cannot be used as an output type. Extensibility types are currently not supported as parameters or outputs.");
-
             public ErrorDiagnostic InvalidResourceScopeCannotBeResourceTypeParameter(string parameterName) => new(
                 TextSpan,
                 "BCP229",
@@ -1370,7 +1353,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ParamOrOutputResourceTypeUnsupported() => new(
                 TextSpan,
                 "BCP231",
-                "Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature resourceTypedParamsAndOutputs.");
+                $@"Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.ResourceTypedParamsAndOutputs)}"".");
 
             public ErrorDiagnostic ModuleDeleteFailed(string moduleRef) => new(
                 TextSpan,
@@ -1623,27 +1606,27 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic TypeDeclarationStatementsUnsupported() => new(
                 TextSpan,
                 "BCP280",
-                "Using type declaration statement requires enabling EXPERIMENTAL feature aggregateTypes.");
+                $@"Using type declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.AggregateTypes)}"".");
 
             public ErrorDiagnostic TypedArrayDeclarationsUnsupported() => new(
                 TextSpan,
                 "BCP281",
-                "Using a typed array type declaration requires enabling EXPERIMENTAL feature aggregateTypes.");
+                $@"Using a typed array type declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.AggregateTypes)}"".");
 
             public ErrorDiagnostic TypedObjectDeclarationsUnsupported() => new(
                 TextSpan,
                 "BCP282",
-                "Using a strongly-typed object type declaration requires enabling EXPERIMENTAL feature aggregateTypes.");
+                $@"Using a strongly-typed object type declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.AggregateTypes)}"".");
 
             public ErrorDiagnostic TypeLiteralDeclarationsUnsupported() => new(
                 TextSpan,
                 "BCP283",
-                "Using a literal value as a type requires enabling EXPERIMENTAL feature aggregateTypes.");
+                $@"Using a literal value as a type requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.AggregateTypes)}"".");
 
             public ErrorDiagnostic TypeUnionDeclarationsUnsupported() => new(
                 TextSpan,
                 "BCP284",
-                "Using a type union declaration requires enabling EXPERIMENTAL feature aggregateTypes.");
+                $@"Using a type union declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.AggregateTypes)}"".");
 
             public ErrorDiagnostic TypeExpressionLiteralConversionFailed() => new(
                 TextSpan,
@@ -1730,7 +1713,12 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic TypeNameMasksAmbientType(string conflictingName) => new(
                 TextSpan,
                 "BCP301",
-                $"A user-defined type may not be named '{conflictingName},' as this masks the ARM type of the same name.");
+                $@"A user-defined type may not be named ""{conflictingName}"" because it would mask the ARM type of the same name.");
+
+            public ErrorDiagnostic SymbolicNameIsNotAType(string name, IEnumerable<string> validTypes) => new(
+                TextSpan,
+                "BCP302",
+                $@"The name ""{name}"" is not a valid type. Please specify one of the following types: {ToQuotedString(validTypes)}.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -11,7 +11,7 @@ type incompleteAssignment =
 //@[27:27) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 type string = string
-//@[05:11) [BCP301 (Error)] A user-defined type may not be named 'string,' as this masks the ARM type of the same name. (CodeDescription: none) |string|
+//@[05:11) [BCP301 (Error)] A user-defined type may not be named "string" because it would mask the ARM type of the same name. (CodeDescription: none) |string|
 
 @sealed()
 //@[00:09) [BCP124 (Error)] The decorator "sealed" can only be attached to targets of type "object", but the target has type "string". (CodeDescription: none) |@sealed()|

@@ -46,23 +46,23 @@ param trailingSpace
 // partial type #completionTest(18, 19, 20, 21) -> paramTypes
 param partialType str
 //@[06:017) [no-unused-params (Warning)] Parameter "partialType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |partialType|
-//@[18:021) [BCP057 (Error)] The name "str" does not exist in the current context. (CodeDescription: none) |str|
+//@[18:021) [BCP302 (Error)] The name "str" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |str|
 
 param malformedType 44
 //@[06:019) [no-unused-params (Warning)] Parameter "malformedType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |malformedType|
-//@[20:022) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature aggregateTypes. (CodeDescription: none) |44|
+//@[20:022) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "AggregateTypes". (CodeDescription: none) |44|
 
 // malformed type but type check should still happen
 param malformedType2 44 = f
 //@[06:020) [no-unused-params (Warning)] Parameter "malformedType2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |malformedType2|
-//@[21:023) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature aggregateTypes. (CodeDescription: none) |44|
+//@[21:023) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "AggregateTypes". (CodeDescription: none) |44|
 
 // malformed type but type check should still happen
 @secure('s')
 //@[07:012) [BCP071 (Error)] Expected 0 arguments, but got 1. (CodeDescription: none) |('s')|
 param malformedModifier 44
 //@[06:023) [no-unused-params (Warning)] Parameter "malformedModifier" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |malformedModifier|
-//@[24:026) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature aggregateTypes. (CodeDescription: none) |44|
+//@[24:026) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "AggregateTypes". (CodeDescription: none) |44|
 
 param myString2 string = 'string value'
 //@[06:015) [no-unused-params (Warning)] Parameter "myString2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myString2|
@@ -111,7 +111,7 @@ param objectCompletions object =
 param wrongType fluffyBunny = 'what's up doc?'
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP057 (Error)] The name "fluffyBunny" does not exist in the current context. (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[36:037) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) |s|
 //@[45:046) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |'|
 
@@ -119,37 +119,37 @@ param wrongType fluffyBunny = 'what's up doc?'
 param wrongType fluffyBunny = 'what\s up doc?'
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP057 (Error)] The name "fluffyBunny" does not exist in the current context. (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[35:037) [BCP006 (Error)] The specified escape sequence is not recognized. Only the following escape sequences are allowed: "\$", "\'", "\\", "\n", "\r", "\t", "\u{...}". (CodeDescription: none) |\s|
 
 // unterminated string 
 param wrongType fluffyBunny = 'what\'s up doc?
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP057 (Error)] The name "fluffyBunny" does not exist in the current context. (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[30:046) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |'what\'s up doc?|
 
 // unterminated interpolated string
 param wrongType fluffyBunny = 'what\'s ${
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP057 (Error)] The name "fluffyBunny" does not exist in the current context. (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[41:041) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 //@[41:041) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 param wrongType fluffyBunny = 'what\'s ${up
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP057 (Error)] The name "fluffyBunny" does not exist in the current context. (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[43:043) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 param wrongType fluffyBunny = 'what\'s ${up}
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP057 (Error)] The name "fluffyBunny" does not exist in the current context. (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[43:044) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |}|
 param wrongType fluffyBunny = 'what\'s ${'up
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP057 (Error)] The name "fluffyBunny" does not exist in the current context. (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[41:044) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |'up|
 //@[44:044) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 
@@ -157,42 +157,42 @@ param wrongType fluffyBunny = 'what\'s ${'up
 param wrongType fluffyBunny = 'what\'s ${'up${
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP057 (Error)] The name "fluffyBunny" does not exist in the current context. (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[46:046) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 //@[46:046) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 param wrongType fluffyBunny = 'what\'s ${'up${
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP057 (Error)] The name "fluffyBunny" does not exist in the current context. (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[46:046) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 //@[46:046) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 param wrongType fluffyBunny = 'what\'s ${'up${doc
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP057 (Error)] The name "fluffyBunny" does not exist in the current context. (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[49:049) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 param wrongType fluffyBunny = 'what\'s ${'up${doc}
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP057 (Error)] The name "fluffyBunny" does not exist in the current context. (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[49:050) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |}|
 //@[50:050) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP057 (Error)] The name "fluffyBunny" does not exist in the current context. (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[51:051) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP057 (Error)] The name "fluffyBunny" does not exist in the current context. (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[51:053) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |}?|
 
 // object literal inside interpolated string
 param wrongType fluffyBunny = '${{this: doesnt}.work}'
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP057 (Error)] The name "fluffyBunny" does not exist in the current context. (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[33:034) [BCP087 (Error)] Array and object literals are not allowed here. (CodeDescription: none) |{|
 //@[53:054) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |'|
 //@[54:054) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
@@ -208,14 +208,14 @@ param badInterpolatedString2 string = 'hello ${a b c}!'
 param wrongType fluffyBunny = 'what\'s up doc?'
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP057 (Error)] The name "fluffyBunny" does not exist in the current context. (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 
 // modifier on an invalid type
 @minLength(3)
 @maxLength(24)
 param someArray arra
 //@[06:015) [no-unused-params (Warning)] Parameter "someArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |someArray|
-//@[16:020) [BCP057 (Error)] The name "arra" does not exist in the current context. (CodeDescription: none) |arra|
+//@[16:020) [BCP302 (Error)] The name "arra" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |arra|
 
 @secure()
 //@[00:009) [BCP124 (Error)] The decorator "secure" can only be attached to targets of type "object | string", but the target has type "int". (CodeDescription: none) |@secure()|

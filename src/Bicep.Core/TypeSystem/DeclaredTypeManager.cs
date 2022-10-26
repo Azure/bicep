@@ -136,7 +136,7 @@ namespace Bicep.Core.TypeSystem
         private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax)
         {
             var declaredType = TryGetTypeFromTypeSyntax(syntax.Type);
-            declaredType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType());
+            declaredType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType(GetValidTypeNames()));
 
             return new(declaredType, syntax);
         }
@@ -187,7 +187,7 @@ namespace Bicep.Core.TypeSystem
                 DeclaredTypeSymbol declaredType => declaredTypeReferences.GetOrAdd(declaredType, GetTypeDeclared),
                 ErrorSymbol errorSymbol => errorSymbol.ToErrorType(),
                 // binder.GetSymbolInfo(TypeDeclarationSyntax) should always return a DeclaredTypeSymbol or an error, but just in case...
-                _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameDoesNotExist(syntax.Name.IdentifierName)),
+                _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
             };
 
             return new(type, syntax);
@@ -292,10 +292,13 @@ namespace Bicep.Core.TypeSystem
             => binder.GetSymbolInfo(syntax) switch
             {
                 DeclaredTypeSymbol declaredType => TypeRefToType(syntax, declaredType),
-                ErrorSymbol errorSymbol => errorSymbol.ToErrorType(),
                 DeclaredSymbol declaredSymbol => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
-                _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameDoesNotExist(syntax.Name.IdentifierName)),
+                _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
             };
+
+        private IEnumerable<string> GetValidTypeNames() => LanguageConstants.DeclarationTypes.Keys
+                .Concat(binder.FileSymbol.TypeDeclarations.Select(td => td.Name))
+                .Distinct();
 
         private TypeSymbol TypeRefToType(TypeAccessSyntax signifier, DeclaredTypeSymbol signified)
         {
