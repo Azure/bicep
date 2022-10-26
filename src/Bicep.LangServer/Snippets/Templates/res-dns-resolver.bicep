@@ -13,7 +13,7 @@ resource /*${1:dnsResolvers}*/dnsResolvers 'Microsoft.Network/dnsResolvers@2022-
     properties: {
       ipConfigurations: [
         {
-          privateIpAllocationMethod: /*${8|'Static','Dynamic'}*/'Dynamic'
+          privateIpAllocationMethod: /*${8|'Static','Dynamic'|}*/'Dynamic'
           subnet: {
             id: /*${9:'subnetId'}*/'subnetId'
           }
@@ -32,5 +32,3 @@ resource /*${1:dnsResolvers}*/dnsResolvers 'Microsoft.Network/dnsResolvers@2022-
     }
   }
 }
-
-

@@ -1166,6 +1166,36 @@
     }
   },
   {
+    "label": "res-dns-resolver",
+    "kind": "snippet",
+    "detail": "",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource dnsResolvers 'Microsoft.Network/dnsResolvers@2022-07-01' = {\n  name: 'name'\n  location: location\n  properties: {\n     virtualNetwork: {\n      id: 'virtualNetworkId'\n     }\n  }\n\n  resource inboundEndpoints 'inboundEndpoints' = {\n    name: 'name'\n    location: location\n    properties: {\n      ipConfigurations: [\n        {\n          privateIpAllocationMethod: 'Static'\n          subnet: {\n            id: 'subnetId'\n          }\n        }\n      ]\n    }\n  }\n\n  resource outboundEndpoints 'outboundEndpoints' = {\n    name: 'name'\n    location: location\n    properties: {\n      subnet: {\n        id: 'subnetId'\n      }\n    }\n  }\n}\n\n\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-dns-resolver",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:dnsResolvers} 'Microsoft.Network/dnsResolvers@2022-07-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n     virtualNetwork: {\n      id: ${4:'virtualNetworkId'}\n     }\n  }\n\n  resource ${5:inboundEndpoints} 'inboundEndpoints' = {\n    name: ${6:'name'}\n    location: ${7:location}\n    properties: {\n      ipConfigurations: [\n        {\n          privateIpAllocationMethod: ${8|'Static','Dynamic'|}\n          subnet: {\n            id: ${9:'subnetId'}\n          }\n        }\n      ]\n    }\n  }\n\n  resource ${10:outboundEndpoints} 'outboundEndpoints' = {\n    name: ${11:'name'}\n    location: ${12:location}\n    properties: {\n      subnet: {\n        id: ${13:'subnetId'}\n      }\n    }\n  }\n}\n\n\n"
+    },
+    "command": {
+      "title": "top level snippet completion",
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "snippet/toplevel",
+          "Properties": {
+            "name": "res-dns-resolver"
+          }
+        }
+      ]
+    }
+  },
+  {
     "label": "res-dns-zone",
     "kind": "snippet",
     "detail": "DNS Zone",
