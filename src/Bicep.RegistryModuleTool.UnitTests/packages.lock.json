@@ -189,8 +189,8 @@
       },
       "FluentAssertions": {
         "type": "Transitive",
-        "resolved": "6.7.0",
-        "contentHash": "PWbow/R3MnYDP8UW7zh/w80rGb+1NufGoNJeuzouTo2bqpvwNTFxbDwF6XWfFZ5IuquL2225Um+qSyZ8jVsT+w==",
+        "resolved": "6.8.0",
+        "contentHash": "NfSlAG97wMxS48Ov+wQEhJITdn4bKrgtKrG4sCPrFBVKozpC57lQ2vzsPdxUOsPbfEgEQTMtvCDECxIlDBfgNA==",
         "dependencies": {
           "System.Configuration.ConfigurationManager": "4.4.0"
         }
@@ -2124,7 +2124,7 @@
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
           "DiffPlex": "[1.7.1, )",
-          "FluentAssertions": "[6.7.0, )",
+          "FluentAssertions": "[6.8.0, )",
           "JsonPath.Net": "[0.2.1, )",
           "JsonSchema.Net": "[3.2.1, )",
           "Markdig": "[0.30.4, )",
@@ -2144,7 +2144,7 @@
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.RegistryModuleTool": "[1.0.0, )",
-          "FluentAssertions": "[6.7.0, )",
+          "FluentAssertions": "[6.8.0, )",
           "JsonPatch.Net": "[2.0.4, )",
           "Microsoft.Extensions.Logging.Abstractions": "[6.0.2, )",
           "Moq": "[4.18.2, )",

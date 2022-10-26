@@ -167,9 +167,12 @@ namespace Bicep.Core.TypeSystem
                     : null;
             }
 
-            // TODO: Parameters need to support O(1) lookup by name
-            var parameterMetadata = bicepSemanticModel.Parameters.FirstOrDefault(parameterMetadata => LanguageConstants.IdentifierComparer.Equals(parameterMetadata.Name, parameterAssignmentSymbol.Name));
-            return parameterMetadata?.TypeReference.Type;
+            if(bicepSemanticModel.Parameters.TryGetValue(parameterAssignmentSymbol.Name, out var parameterMetadata))
+            {
+                return parameterMetadata.TypeReference.Type;
+            }
+
+            return null;
         }
 
         private DeclaredTypeAssignment GetTypeType(TypeDeclarationSyntax syntax)
@@ -1275,7 +1278,8 @@ namespace Bicep.Core.TypeSystem
             // within the context of this type manager. This will surface any issues where the type declared by
             // a module is not understood inside this compilation unit.
             var parameters = new List<TypeProperty>();
-            foreach (var parameter in moduleSemanticModel.Parameters)
+
+            foreach (var parameter in moduleSemanticModel.Parameters.Values)
             {
                 var type = parameter.TypeReference.Type;
                 if (type is UnboundResourceType unboundType)

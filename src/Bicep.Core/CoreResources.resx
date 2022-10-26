@@ -393,4 +393,16 @@
   <data name="UseRecentApiVersionRule_UnknownVersion" xml:space="preserve">
     <value>Could not find apiVersion {0} for {1}.</value>
   </data>
+  <data name="DecompilerImperfectionsRule_Description" xml:space="preserve">
+    <value>Some decompiler imperfections may need to be cleaned up manually</value>
+  </data>
+  <data name="DecompilerImperfectionsRule_MayWantToRename" xml:space="preserve">
+    <value>Consider renaming it and removing the suffix (using the editor's rename functionality).</value>
+  </data>
+  <data name="DecompilerImperfectionsRule_Resource" xml:space="preserve">
+    <value>The symbolic name of resource '{0}' appears to have originated from a naming conflict during a decompilation from JSON.</value>
+  </data>
+  <data name="DecompilerImperfectionsRule_Variable" xml:space="preserve">
+    <value>The name of variable '{0}' appears to have originated from a naming conflict during a decompilation from JSON.</value>
+  </data>
 </root>
