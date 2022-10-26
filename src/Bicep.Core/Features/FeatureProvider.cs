@@ -32,7 +32,7 @@ namespace Bicep.Core.Features
 
         public bool ParamsFilesEnabled => configuration.ExperimentalFeaturesEnabled.ParamsFiles ?? false;
 
-        public bool AggregateTypesEnabled => configuration.ExperimentalFeaturesEnabled.AggregateTypes ?? false;
+        public bool UserDefinedTypesEnabled => configuration.ExperimentalFeaturesEnabled.UserDefinedTypes ?? false;
 
         public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 

@@ -279,9 +279,9 @@ namespace Bicep.LanguageServer.Completions
                 var completions = GetPrimitiveTypeCompletions(model, context).Concat(GetParameterTypeSnippets(model.Compilation, context));
 
                 // Only show the aggregate type completions if the feature is enabled
-                if (model.Features.AggregateTypesEnabled)
+                if (model.Features.UserDefinedTypesEnabled)
                 {
-                    completions = completions.Concat(GetAggregateTypeCompletions(model, context));
+                    completions = completions.Concat(GetUserDefinedTypeCompletions(model, context));
                 }
                 
                 // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
@@ -295,20 +295,20 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.TypeDeclarationValue))
             {
-                return GetPrimitiveTypeCompletions(model, context).Concat(GetAggregateTypeCompletions(model, context, declaredType => !ReferenceEquals(declaredType.DeclaringType, context.EnclosingDeclaration)));
+                return GetPrimitiveTypeCompletions(model, context).Concat(GetUserDefinedTypeCompletions(model, context, declaredType => !ReferenceEquals(declaredType.DeclaringType, context.EnclosingDeclaration)));
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ObjectTypePropertyValue))
             {
                 var cyclableType = CyclableTypeEnclosingDeclaration(model.Binder, context.ReplacementTarget);
-                return GetPrimitiveTypeCompletions(model, context).Concat(GetAggregateTypeCompletions(model, context, declared => !ReferenceEquals(declared.DeclaringType, cyclableType)));
+                return GetPrimitiveTypeCompletions(model, context).Concat(GetUserDefinedTypeCompletions(model, context, declared => !ReferenceEquals(declared.DeclaringType, cyclableType)));
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.UnionTypeMember))
             {
                 // union types must be composed of literals, so don't include primitive types or non-literal user defined types
                 var cyclableType = CyclableTypeEnclosingDeclaration(model.Binder, context.ReplacementTarget);
-                return GetAggregateTypeCompletions(model, context, declared => !ReferenceEquals(declared.DeclaringType, cyclableType) && IsTypeLiteralSyntax(declared.DeclaringType.Value));
+                return GetUserDefinedTypeCompletions(model, context, declared => !ReferenceEquals(declared.DeclaringType, cyclableType) && IsTypeLiteralSyntax(declared.DeclaringType.Value));
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.OutputType))
@@ -329,7 +329,7 @@ namespace Bicep.LanguageServer.Completions
         private static IEnumerable<CompletionItem> GetPrimitiveTypeCompletions(SemanticModel model, BicepCompletionContext context) =>
             LanguageConstants.DeclarationTypes.Values.Select(type => CreateTypeCompletion(type, context.ReplacementRange));
 
-        private static IEnumerable<CompletionItem> GetAggregateTypeCompletions(SemanticModel model, BicepCompletionContext context, Func<DeclaredTypeSymbol, bool>? filter = null)
+        private static IEnumerable<CompletionItem> GetUserDefinedTypeCompletions(SemanticModel model, BicepCompletionContext context, Func<DeclaredTypeSymbol, bool>? filter = null)
         {
             IEnumerable<DeclaredTypeSymbol> declarationsForCompletions = model.Binder.FileSymbol.TypeDeclarations;
             

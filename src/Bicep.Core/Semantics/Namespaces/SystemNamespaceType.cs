@@ -1111,7 +1111,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.BatchSizePropertyName, SingleArgumentSelector))
                 .Build();
 
-            if (featureProvider.AggregateTypesEnabled)
+            if (featureProvider.UserDefinedTypesEnabled)
             {
                 yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")

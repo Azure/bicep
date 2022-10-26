@@ -1606,27 +1606,27 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic TypeDeclarationStatementsUnsupported() => new(
                 TextSpan,
                 "BCP280",
-                $@"Using type declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.AggregateTypes)}"".");
+                $@"Using type declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
 
             public ErrorDiagnostic TypedArrayDeclarationsUnsupported() => new(
                 TextSpan,
                 "BCP281",
-                $@"Using a typed array type declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.AggregateTypes)}"".");
+                $@"Using a typed array type declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
 
             public ErrorDiagnostic TypedObjectDeclarationsUnsupported() => new(
                 TextSpan,
                 "BCP282",
-                $@"Using a strongly-typed object type declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.AggregateTypes)}"".");
+                $@"Using a strongly-typed object type declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
 
             public ErrorDiagnostic TypeLiteralDeclarationsUnsupported() => new(
                 TextSpan,
                 "BCP283",
-                $@"Using a literal value as a type requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.AggregateTypes)}"".");
+                $@"Using a literal value as a type requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
 
             public ErrorDiagnostic TypeUnionDeclarationsUnsupported() => new(
                 TextSpan,
                 "BCP284",
-                $@"Using a type union declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.AggregateTypes)}"".");
+                $@"Using a type union declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
 
             public ErrorDiagnostic TypeExpressionLiteralConversionFailed() => new(
                 TextSpan,

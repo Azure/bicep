@@ -32,5 +32,5 @@ public class OverriddenFeatureProvider : IFeatureProvider
 
     public bool ParamsFilesEnabled => overrides.ParamsFilesEnabled ?? features.ParamsFilesEnabled;
 
-    public bool AggregateTypesEnabled => overrides.AggregateTypesEnabled ?? features.AggregateTypesEnabled;
+    public bool UserDefinedTypesEnabled => overrides.UserDefinedTypesEnabled ?? features.UserDefinedTypesEnabled;
 }

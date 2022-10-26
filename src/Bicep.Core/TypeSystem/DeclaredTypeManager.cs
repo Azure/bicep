@@ -177,7 +177,7 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment GetTypeType(TypeDeclarationSyntax syntax)
         {
-            if (!features.AggregateTypesEnabled)
+            if (!features.UserDefinedTypesEnabled)
             {
                 return new(ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeDeclarationStatementsUnsupported()), syntax);
             }
@@ -313,7 +313,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol ParseTypeExpression(ArrayTypeSyntax syntax)
         {
-            if (!features.AggregateTypesEnabled)
+            if (!features.UserDefinedTypesEnabled)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypedArrayDeclarationsUnsupported());
             }
@@ -323,7 +323,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol ParseTypeExpression(ObjectTypeSyntax syntax)
         {
-            if (!features.AggregateTypesEnabled)
+            if (!features.UserDefinedTypesEnabled)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypedObjectDeclarationsUnsupported());
             }
@@ -434,7 +434,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol ParseTypeExpression(StringSyntax syntax)
         {
-            if (!features.AggregateTypesEnabled)
+            if (!features.UserDefinedTypesEnabled)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeLiteralDeclarationsUnsupported());
             }
@@ -449,7 +449,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol ParseTypeExpression(IntegerLiteralSyntax syntax)
         {
-            if (!features.AggregateTypesEnabled)
+            if (!features.UserDefinedTypesEnabled)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeLiteralDeclarationsUnsupported());
             }
@@ -464,7 +464,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol ParseTypeExpression(BooleanLiteralSyntax syntax)
         {
-            if (!features.AggregateTypesEnabled)
+            if (!features.UserDefinedTypesEnabled)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeLiteralDeclarationsUnsupported());
             }
@@ -490,7 +490,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol ParseTypeExpression(UnionTypeSyntax syntax)
         {
-            if (!features.AggregateTypesEnabled)
+            if (!features.UserDefinedTypesEnabled)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeUnionDeclarationsUnsupported());
             }

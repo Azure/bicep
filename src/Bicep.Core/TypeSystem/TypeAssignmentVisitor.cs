@@ -1325,10 +1325,10 @@ namespace Bicep.Core.TypeSystem
                 {
                     FunctionFlags.MetadataDecorator => builder.ExpectedMetadataDeclarationAfterDecorator(),
                     FunctionFlags.ParameterDecorator => builder.ExpectedParameterDeclarationAfterDecorator(),
-                    FunctionFlags.ParameterOutputOrTypeDecorator => features.AggregateTypesEnabled
+                    FunctionFlags.ParameterOutputOrTypeDecorator => features.UserDefinedTypesEnabled
                         ? builder.ExpectedParameterOutputOrTypeDeclarationAfterDecorator()
                         : builder.ExpectedParameterOrOutputDeclarationAfterDecorator(),
-                    FunctionFlags.ParameterOrTypeDecorator => features.AggregateTypesEnabled
+                    FunctionFlags.ParameterOrTypeDecorator => features.UserDefinedTypesEnabled
                         ? builder.ExpectedParameterOrTypeDeclarationAfterDecorator()
                         : builder.ExpectedParameterDeclarationAfterDecorator(),
                     FunctionFlags.VariableDecorator => builder.ExpectedVariableDeclarationAfterDecorator(),

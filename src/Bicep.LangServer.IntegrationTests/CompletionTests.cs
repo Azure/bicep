@@ -86,7 +86,7 @@ namespace Bicep.LangServer.IntegrationTests
             ServerWithTypesEnabled.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
-                    services => services.WithFeatureOverrides(new(testContext, AggregateTypesEnabled: true))));
+                    services => services.WithFeatureOverrides(new(testContext, UserDefinedTypesEnabled: true))));
 
             ServerWithBuiltInTypes.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
