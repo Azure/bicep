@@ -33,6 +33,7 @@ const KEYWORDS = {
     'existing',
     'import',
     'as',
+    'type',
   ],
   literal: [
     "true",
