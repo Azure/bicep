@@ -48,7 +48,5 @@ resource dnsResolvers 'Microsoft.Network/dnsResolvers@2022-07-01' = {
     }
   }
 }
-
-
 // Insert snippet here
 
