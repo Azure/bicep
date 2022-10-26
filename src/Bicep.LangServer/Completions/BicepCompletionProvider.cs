@@ -1562,15 +1562,15 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ImportAliasFollower))
             {
-                if (context.EnclosingDeclaration is ImportDeclarationSyntax importSyntax &&
-                    model.GetSymbolInfo(importSyntax) is ImportedNamespaceSymbol importSymbol &&
-                    importSymbol.TryGetNamespaceType() is {} namespaceType)
-                {
-                    foreach (var completion in GetValueCompletionsForType(model, context, namespaceType.ConfigurationType, loopsAllowed: false))
-                    {
-                        yield return completion;
-                    }
-                }
+                //if (context.EnclosingDeclaration is ImportDeclarationSyntax importSyntax &&
+                //    model.GetSymbolInfo(importSyntax) is ImportedNamespaceSymbol importSymbol &&
+                //    importSymbol.TryGetNamespaceType() is {} namespaceType)
+                //{
+                //    foreach (var completion in GetValueCompletionsForType(model, context, namespaceType.ConfigurationType, loopsAllowed: false))
+                //    {
+                //        yield return completion;
+                //    }
+                //}
             }
         }
 

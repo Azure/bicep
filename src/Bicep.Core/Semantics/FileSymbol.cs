@@ -225,7 +225,7 @@ namespace Bicep.Core.Semantics
                 // singleton namespaces cannot be duplicated
                 this.Diagnostics.AddRange(
                     FindDuplicateNamespaceImports(namespaceDeclarations)
-                    .Select(decl => DiagnosticBuilder.ForPosition(decl.DeclaringImport.ProviderName).NamespaceMultipleDeclarations(decl.DeclaringImport.ProviderName.IdentifierName)));
+                    .Select(decl => DiagnosticBuilder.ForPosition(decl.DeclaringImport.Alias ?? decl.DeclaringImport.Specification).NamespaceMultipleDeclarations(decl.Name)));
             }
 
             private static IEnumerable<DeclaredSymbol> FindDuplicateNamedSymbols(IEnumerable<DeclaredSymbol> symbols)
@@ -248,7 +248,7 @@ namespace Bicep.Core.Semantics
 
                 return typeBySymbol
                     .Where(kvp => kvp.Value.Settings.IsSingleton)
-                    .GroupBy(kvp => kvp.Key.DeclaringImport.ProviderName.IdentifierName, LanguageConstants.IdentifierComparer)
+                    .GroupBy(kvp => kvp.Key.Name, LanguageConstants.IdentifierComparer)
                     .Where(group => group.Count() > 1)
                     .SelectMany(group => group.Select(kvp => kvp.Key));
             }

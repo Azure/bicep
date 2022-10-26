@@ -286,28 +286,29 @@ namespace Bicep.Core.Parsing
         private ImportDeclarationSyntax ImportDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ImportKeyword);
-            var providerName = this.IdentifierWithRecovery(b => b.ExpectedImportProviderName(), RecoveryFlags.None, TokenType.NewLine);
-            var asKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.AsKeyword), GetSuppressionFlag(providerName), TokenType.NewLine);
-            var aliasName = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), GetSuppressionFlag(asKeyword), TokenType.NewLine);
-            var config = this.WithRecovery<SyntaxBase>(
-                () =>
-                {
-                    var current = reader.Peek();
-                    return current.Type switch
-                    {
-                        // no config is supplied
-                        TokenType.NewLine => SkipEmpty(),
-                        TokenType.EndOfFile => SkipEmpty(),
+            var providerSpecification = this.WithRecovery(
+                () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedProviderSpecification()),
+                RecoveryFlags.None,
+                TokenType.Assignment, TokenType.NewLine);
 
-                        // we have config!
-                        TokenType.LeftBrace => this.Object(ExpressionFlags.AllowComplexLiterals),
-                        _ => throw new ExpectedTokenException(current, b => b.ExpectedCharacter("{")),
-                    };
-                },
-                GetSuppressionFlag(providerName),
-                TokenType.NewLine);
+            var withClause = this.GetOptionalKeyword(LanguageConstants.WithKeyword) is { } withKeyword ? this.ImportWithClause(withKeyword) : null;
+            var asClause = this.GetOptionalKeyword(LanguageConstants.AsKeyword) is { } asKeyword ? this.ImportAsClause(asKeyword) : null;
 
-            return new(leadingNodes, keyword, providerName, asKeyword, aliasName, config);
+            return new(leadingNodes, keyword, providerSpecification, withClause, asClause);
+        }
+
+        private ImportWithClauseSyntax ImportWithClause(Token withKeyword)
+        {
+            var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine);
+
+            return new(withKeyword, config);
+        }
+
+        private ImportAsClauseSyntax ImportAsClause(Token asKeyword)
+        {
+            var modifier = this.IdentifierWithRecovery(b => b.ExpectedImportAliasIdentifier(), RecoveryFlags.None, TokenType.NewLine);
+
+            return new(asKeyword, modifier);
         }
     }
 }

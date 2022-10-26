@@ -1611,6 +1611,26 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP278",
                 "This parameters file references itself, which is not allowed.");
+
+            public ErrorDiagnostic ExpectedProviderSpecification() => new(
+                TextSpan,
+                "BCP279",
+                "Expected a provider specification string. Specify a valid provider of format \"<providerName>@<providerVersion>\".");
+
+            public ErrorDiagnostic ExpectedImportAliasIdentifier() => new(
+                TextSpan,
+                "BCP280",
+                "Expected an import alias identifier at this location.");
+
+            public ErrorDiagnostic ProviderSpecificationInterpolationUnsupported() => new(
+                TextSpan,
+                "BCP281",
+                "String interpolation is unsupported for specifying the provider.");
+
+            public ErrorDiagnostic InvalidProviderSpecification() => new(
+                TextSpan,
+                "BCP282",
+                "Invalid provider specifier string. Specify a valid provider of format \"<providerName>@<providerVersion>\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
