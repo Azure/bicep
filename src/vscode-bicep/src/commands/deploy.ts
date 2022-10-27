@@ -128,9 +128,13 @@ export class DeployCommand implements Command {
       const fileName = path.basename(documentPath, ".bicep");
       const options = {
         title: `Please enter name for deployment`,
-        value: fileName.concat("-", moment.utc().format("MMDD-HHMM")),
+        value: fileName.concat("-", moment.utc().format("YYMMDD-HHMM")),
       };
-      const deploymentName = await context.ui.showInputBox(options);
+      let deploymentName = await context.ui.showInputBox(options);
+      // Replace special characters with '_'
+      deploymentName = deploymentName
+        .replace(/[^a-z0-9\-_.!~*'()]/gi, "_")
+        .substring(0, 64);
 
       let deploymentStartResponse: BicepDeploymentStartResponse | undefined;
 
