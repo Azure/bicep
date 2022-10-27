@@ -85,8 +85,6 @@ namespace Bicep.LanguageServer.Handlers
         private readonly TemplateDecompiler templateDecompiler;
         private readonly TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult> telemetryHelper;
 
-        private record PathToSave(string Path, string Contents) { }
-
         public BicepDecompileCommandHandler(
             ISerializer serializer,
             IFeatureProviderFactory featureProviderFactory,
@@ -147,21 +145,21 @@ namespace Bicep.LanguageServer.Handlers
             string? outputFolder = Path.GetDirectoryName(bicepUri.LocalPath);
             Debug.Assert(outputFolder is not null, "outputFolder should not be null");
 
-            PathToSave[] pathsToSave = filesToSave.Select(kvp => new PathToSave(kvp.Key.LocalPath, kvp.Value)).ToArray();
+            (string path, string content)[] pathsToSave = filesToSave.Select(kvp => (kvp.Key.LocalPath, kvp.Value)).ToArray();
 
             // Put main bicep file first in the array
-            pathsToSave = pathsToSave.OrderByAscending(f => f.Path == bicepUri.LocalPath ? "" : f.Path).ToArray();
-            Debug.Assert(pathsToSave[0].Path == bicepUri.LocalPath, "Expected Bicep URL to be in the files to save");
+            pathsToSave = pathsToSave.OrderByAscending(f => f.path == bicepUri.LocalPath ? "" : f.path).ToArray();
+            Debug.Assert(pathsToSave[0].path == bicepUri.LocalPath, "Expected Bicep URL to be in the files to save");
             Debug.Assert(pathsToSave.Length >= 1, "No files to save?");
 
             // Conflicts with any existing files?
-            string[] conflictingPaths = pathsToSave.Where(f => File.Exists(f.Path)).Select(f => f.Path).ToArray();
+            string[] conflictingPaths = pathsToSave.Where(f => File.Exists(f.path)).Select(f => f.path).ToArray();
 
             DecompiledFile[] outputFiles =
-                pathsToSave.Select(pts => DetermineDecompiledPaths(outputFolder, pts.Path, pts.Contents))
+                pathsToSave.Select(pts => DetermineDecompiledPaths(outputFolder, pts.path, pts.content))
                 .ToArray();
 
-            string mainBicepPath = pathsToSave[0].Path;
+            string mainBicepPath = pathsToSave[0].path;
 
             // Show disclaimer and completion
             Log(output, TemplateDecompiler.DecompilerDisclaimerMessage);
