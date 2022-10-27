@@ -84,7 +84,17 @@ namespace Bicep.LanguageServer.Handlers
 
             try
             {
-                compilation = GetCompilation(documentUri);
+                compilation = CompilationHelper.GetCompilation(
+                    documentUri,
+                    documentUri.ToUri(),
+                    apiVersionProviderFactory,
+                    bicepAnalyzer,
+                    compilationManager,
+                    configurationManager,
+                    featureProviderFactory,
+                    fileResolver,
+                    moduleDispatcher,
+                    namespaceProvider);
 
                 // Cache the compilation so that it can be reused by BicepDeploymentParametersHandler
                 deploymentFileCompilationCache.CacheCompilation(documentUri, compilation);
@@ -128,24 +138,6 @@ namespace Bicep.LanguageServer.Handlers
             emitter.Emit(stringWriter);
 
             return stringBuilder.ToString();
-        }
-
-        private Compilation GetCompilation(DocumentUri documentUri)
-        {
-            var fileUri = documentUri.ToUri();
-
-            // Bicep file could contain load functions like loadTextContent(..). We'll refresh compilation to detect changes in files referenced in load functions.
-            compilationManager.RefreshCompilation(fileUri);
-            CompilationContext? context = compilationManager.GetCompilation(documentUri);
-            if (context is null)
-            {
-                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
-                return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
-            }
-            else
-            {
-                return context.Compilation;
-            }
         }
     }
 }
