@@ -243,5 +243,50 @@ param accountName string = 'testAccount'
 
             Assert.IsFalse(actual);
         }
+
+        [TestMethod]
+        public async Task Handle_ShouldPickUp_LoadTextContent_Updates()
+        {
+            string testOutputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+
+            string sqlFileContents = @"CREATE TABLE regions1 (
+    region_id INT IDENTITY(1,1) PRIMARY KEY
+);";
+            FileHelper.SaveResultFile(TestContext, "test.sql", sqlFileContents, testOutputPath);
+
+            string bicepFileContents = @"var textFromFile = loadTextContent('test.sql')";
+            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
+
+            Uri bicepFileUri = new Uri(bicepFilePath);
+            DocumentUri documentUri = DocumentUri.From(bicepFileUri);
+            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.FeatureProviderFactory, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, BicepTestConstants.ApiVersionProviderFactory, configurationManager, BicepTestConstants.LinterAnalyzer);
+
+            string buildOutputMessage = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
+
+            string buildOutputFilePath = Path.Combine(testOutputPath, "input.json");
+
+            VerifyBuildOutputMessageAndContents(buildOutputMessage, File.ReadAllText(buildOutputFilePath), @"""variables"": {
+    ""textFromFile"": ""CREATE TABLE regions1 (\n    region_id INT IDENTITY(1,1) PRIMARY KEY\n);""
+  }");
+
+            // Update test.sql and execute build command
+            sqlFileContents = @"CREATE TABLE regions2 (
+    region_id INT IDENTITY(1,1) PRIMARY KEY
+);";
+            FileHelper.SaveResultFile(TestContext, "test.sql", sqlFileContents, testOutputPath);
+
+            buildOutputMessage = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
+
+            VerifyBuildOutputMessageAndContents(buildOutputMessage, File.ReadAllText(buildOutputFilePath), @"""variables"": {
+    ""textFromFile"": ""CREATE TABLE regions2 (\n    region_id INT IDENTITY(1,1) PRIMARY KEY\n);""
+  }");
+        }
+
+        private void VerifyBuildOutputMessageAndContents(string actualBuildOutputMessage, string buildOutputContents, string expectedText)
+        {
+            actualBuildOutputMessage.Should().Be(@"Bicep build succeeded. Created ARM template file: input.json");
+            buildOutputContents.Should().ContainIgnoringNewlines(expectedText);
+        }
     }
 }

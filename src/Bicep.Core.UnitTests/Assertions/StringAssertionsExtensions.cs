@@ -85,6 +85,16 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<StringAssertions>(instance);
         }
 
+        public static AndConstraint<StringAssertions> ContainIgnoringNewlines(this StringAssertions instance, string expected)
+        {
+            var normalizedActual = StringUtils.ReplaceNewlines(instance.Subject, "\n");
+            var normalizedExpected = StringUtils.ReplaceNewlines(expected, "\n");
+
+            normalizedActual.Should().Contain(normalizedExpected);
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
         public static AndConstraint<StringAssertions> HaveLengthLessThanOrEqualTo(this StringAssertions instance, int maxLength, string because = "", params object[] becauseArgs)
         {
             int length = instance.Subject.Length;
