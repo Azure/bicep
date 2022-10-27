@@ -32,6 +32,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
     [TestClass]
     public class BicepEditLinterRuleCommandHandlerTests
     {
+        // TODO: Refactor to use new LanguageServerMock under Mocks namespace
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -155,7 +157,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var server = new LanguageServerMock();
 
-            var telemetryProvider = StrictMock.Of<ITelemetryProvider>(); //asdfg
+            var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
             BicepTelemetryEvent? ev = null;
             telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()))
                 .Callback((BicepTelemetryEvent e) =>
@@ -181,7 +183,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     { "newConfigFile", "false" },
                     { "newRuleAdded", "false" },
                     { "error", string.Empty },
-                    { "result", Result.Succeeded },
+                    { "result", EventResult.Succeeded },
                 });
         }
 
@@ -241,7 +243,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     { "newConfigFile", "true" },
                     { "newRuleAdded", "true" },
                     { "error", string.Empty },
-                    { "result", Result.Succeeded },
+                    { "result", EventResult.Succeeded },
                 });
         }
 
@@ -342,7 +344,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     { "newConfigFile", "false" },
                     { "newRuleAdded", "true" },
                     { "error", string.Empty },
-                    { "result", Result.Succeeded },
+                    { "result", EventResult.Succeeded },
                 });
         }
 
@@ -380,7 +382,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     { "newConfigFile", "false" },
                     { "newRuleAdded", "false" },
                     { "error", "JsonReaderException" },
-                    { "result", Result.Failed },
+                    { "result", EventResult.Failed },
                 });
             message.Should().Be("Unexpected character encountered while parsing value: i. Path '', line 0, position 0.");
         }
@@ -444,7 +446,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     { "newConfigFile", "true" },
                     { "newRuleAdded", "true" },
                     { "error", string.Empty },
-                    { "result", Result.Succeeded },
+                    { "result", EventResult.Succeeded },
                 });
         }
 

@@ -15,7 +15,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-//asdfg needs tests
 namespace Bicep.LangServer.UnitTests.Mocks
 {
     public class WorkspaceMock

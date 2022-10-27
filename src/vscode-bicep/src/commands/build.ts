@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import vscode from "vscode";
-import { Command } from "./types";
-import { LanguageClient } from "vscode-languageclient/node";
 import { IActionContext, parseError } from "@microsoft/vscode-azext-utils";
+import vscode from "vscode";
+import { LanguageClient } from "vscode-languageclient/node";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
+import { Command } from "./types";
 
 export class BuildCommand implements Command {
   public readonly id = "bicep.build";

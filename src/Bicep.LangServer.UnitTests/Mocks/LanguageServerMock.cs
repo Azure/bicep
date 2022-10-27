@@ -34,8 +34,6 @@ namespace Bicep.LangServer.UnitTests.Mocks
 
             bool IClientCapabilitiesProvider.DoesClientSupportShowDocumentRequest() => serverMock.WindowMock.DoesClientSupportShowDocumentRequest;
 
-            bool IClientCapabilitiesProvider.DoesClientSupportShowMessageRequest() => serverMock.WindowMock.DoesClientSupportShowMessageRequest;
-
             bool IClientCapabilitiesProvider.DoesClientSupportWorkspaceFolders() => serverMock.WorkspaceMock.DoesClientSupportWorkspaceFolders;
         }
 

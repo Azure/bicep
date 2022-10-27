@@ -1,0 +1,192 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using Bicep.Core.Analyzers.Interfaces;
+using Bicep.Core.Analyzers.Linter.ApiVersions;
+using Bicep.Core.Features;
+using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Decompiler;
+using Bicep.LanguageServer.Telemetry;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+
+namespace Bicep.LanguageServer.Handlers
+{
+    public record DecompiledFile(
+        // absolute path to overwrite - could be outside input file's folder/subfolders (e.g. ".." in module path)
+        string absolutePath,
+        // relative path if choosing to copy to new folder - original paths outside input file's folder/subfolders may be renamed/moved
+        string clonableRelativePath,
+        string bicepContents
+    );
+
+    public record BicepDecompileCommandParams(DocumentUri jsonUri);
+
+    public record BicepDecompileCommandResult
+    {
+        public string decompileId; // Used to synchronize telemetry events
+        public string output;
+        public string? errorMessage;
+        public string? mainBicepPath; // non-null if errorMessage==null
+        public DecompiledFile[] outputFiles;
+        public string[] conflictingOutputPaths; // client should verify overwrite with user
+
+        private BicepDecompileCommandResult(
+            string output,
+            string? errorMessage,
+            string? mainBicepPath,
+            DecompiledFile[] outputFiles,
+            string[] conflictingOutputPaths)
+        {
+            this.decompileId = Guid.NewGuid().ToString();
+            this.errorMessage = errorMessage;
+            this.output = output;
+            this.mainBicepPath = mainBicepPath;
+            this.outputFiles = outputFiles;
+            this.conflictingOutputPaths = conflictingOutputPaths;
+        }
+
+        public BicepDecompileCommandResult(
+            string output,
+            string? errorMessage
+        ) : this(output, errorMessage, null, new DecompiledFile[] { }, new string[] { })
+        {
+        }
+
+        public BicepDecompileCommandResult(
+            string output,
+            string mainBicepPath,
+            DecompiledFile[] outputFiles,
+            string[] conflictingOutputPaths
+        ) : this(output, null, mainBicepPath, outputFiles, conflictingOutputPaths)
+        {
+        }
+    }
+
+    /// <summary>
+    /// Handles a request from the client to decompile a JSON file for given a file path, creating one or more bicep files
+    /// </summary>
+    public class BicepDecompileCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDecompileCommandParams, BicepDecompileCommandResult>
+    {
+        private readonly TemplateDecompiler templateDecompiler;
+        private readonly TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult> telemetryHelper;
+
+        private record PathToSave(string Path, string Contents) { }
+
+        public BicepDecompileCommandHandler(
+            ISerializer serializer,
+            IFeatureProviderFactory featureProviderFactory,
+            INamespaceProvider namespaceProvider,
+            IModuleRegistryProvider registryProvider,
+            ILanguageServerFacade server,
+            ITelemetryProvider telemetryProvider,
+            IApiVersionProviderFactory apiVersionProviderFactory,
+            IBicepAnalyzer bicepAnalyzer,
+            IFileResolver fileResolver)
+            : base(LangServerConstants.DecompileCommand, serializer)
+        {
+            this.telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult>(server.Window, telemetryProvider);
+
+            this.templateDecompiler = new TemplateDecompiler(featureProviderFactory, namespaceProvider, fileResolver, registryProvider, apiVersionProviderFactory, bicepAnalyzer);
+        }
+
+        public override Task<BicepDecompileCommandResult> Handle(BicepDecompileCommandParams parameters, CancellationToken cancellationToken)
+        {
+            return telemetryHelper.ExecuteWithTelemetryAndErrorHandling(() =>
+            {
+                if (parameters.jsonUri is null)
+                {
+                    throw new ArgumentNullException(nameof(parameters.jsonUri));
+                }
+
+                return Task.FromResult(Decompile(parameters.jsonUri.GetFileSystemPath()));
+            });
+        }
+
+        private (BicepDecompileCommandResult result, BicepTelemetryEvent? successTelemetry) Decompile(string jsonPath)
+        {
+            StringBuilder output = new StringBuilder();
+
+            Uri jsonUri = new Uri(jsonPath, UriKind.Absolute);
+
+            Uri? bicepUri;
+            ImmutableDictionary<Uri, string>? filesToSave;
+            try
+            {
+                // Decompile
+                Log(output, $"Decompiling {jsonPath} into Bicep...");
+                (bicepUri, filesToSave) = templateDecompiler.DecompileFileWithModules(jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
+            }
+            catch (Exception ex)
+            {
+                Log(output, ex.Message);
+                throw telemetryHelper.CreateException(
+                    ex.Message,
+                    BicepTelemetryEvent.DecompileFailure(ex.Message),
+                    new BicepDecompileCommandResult(output.ToString(), ex.Message)
+                );
+            }
+
+            // Determine output files to save
+            Trace.TraceInformation($"Decompilation main output: {bicepUri.LocalPath}");
+            Trace.TraceInformation($"Decompilation all files to save: {string.Join(", ", filesToSave.Select(kvp => kvp.Key.LocalPath))}");
+            string? outputFolder = Path.GetDirectoryName(bicepUri.LocalPath);
+            Debug.Assert(outputFolder is not null, "outputFolder should not be null");
+
+            PathToSave[] pathsToSave = filesToSave.Select(kvp => new PathToSave(kvp.Key.LocalPath, kvp.Value)).ToArray();
+
+            // Put main bicep file first in the array
+            pathsToSave = pathsToSave.OrderByAscending(f => f.Path == bicepUri.LocalPath ? "" : f.Path).ToArray();
+            Debug.Assert(pathsToSave[0].Path == bicepUri.LocalPath, "Expected Bicep URL to be in the files to save");
+            Debug.Assert(pathsToSave.Length >= 1, "No files to save?");
+
+            // Conflicts with any existing files?
+            string[] conflictingPaths = pathsToSave.Where(f => File.Exists(f.Path)).Select(f => f.Path).ToArray();
+
+            DecompiledFile[] outputFiles =
+                pathsToSave.Select(pts => DetermineDecompiledPaths(outputFolder, pts.Path, pts.Contents))
+                .ToArray();
+
+            string mainBicepPath = pathsToSave[0].Path;
+
+            // Show disclaimer and completion
+            Log(output, TemplateDecompiler.DecompilerDisclaimerMessage);
+
+            var result = new BicepDecompileCommandResult(
+                    output.ToString(),
+                    mainBicepPath,
+                    outputFiles,
+                    conflictingPaths);
+            return (
+                result,
+                successTelemetry: BicepTelemetryEvent.DecompileSuccess(result.decompileId, pathsToSave.Length, conflictingPaths.Length)
+                );
+        }
+
+        private DecompiledFile DetermineDecompiledPaths(string outputFolder, string absolutePath, string contents)
+        {
+            string relativePath = Path.GetRelativePath(outputFolder, absolutePath);
+            return new DecompiledFile(absolutePath, relativePath, contents);
+        }
+
+        private static void Log(StringBuilder output, string message)
+        {
+            output.AppendLine(message);
+            Trace.TraceInformation(message);
+        }
+    }
+}

@@ -22,7 +22,6 @@ namespace Bicep.LangServer.UnitTests.Mocks
         public Mock<IWindowLanguageServer> Mock;
 
         public bool DoesClientSupportShowDocumentRequest { get; private set; }
-        public bool DoesClientSupportShowMessageRequest { get; private set; }
 
         public WindowMock(bool enableClientCapabilities = true)
         {
@@ -38,7 +37,6 @@ namespace Bicep.LangServer.UnitTests.Mocks
                 // Use enableClientCapabilities=false if you know your code makes these calls but only after checking against the client capabilities
 
                 OnShowMessageThrow();
-                OnShowMessageRequestThrow(enableClientCapability: true);
                 OnShowDocumentThrow(enableClientCapability: true);
             }
         }
@@ -67,43 +65,6 @@ namespace Bicep.LangServer.UnitTests.Mocks
                     var @params = (ShowMessageParams)request;
                     callback(@params);
                 });
-
-            return this;
-        }
-
-        public WindowMock OnShowMessageRequestThrow(bool enableClientCapability)
-        {
-            Mock
-                .Setup(m => m.SendRequest<MessageActionItem>(It.IsAny<ShowMessageRequestParams>(), It.IsAny<CancellationToken>()))
-                .Callback((IRequest<MessageActionItem> request, CancellationToken token) =>
-                {
-                    var @params = (ShowMessageRequestParams)request;
-                    Assert.Fail($"{nameof(WindowMock)}: Unexpected ShowMessageRequest call: {@params.Message} [{@params.Type}]");
-                });
-            this.DoesClientSupportShowMessageRequest = enableClientCapability;
-
-            return this;
-        }
-
-        public WindowMock OnShowMessageRequest(Action<ShowMessageRequestParams> callback, MessageActionItem returnValue, bool enableClientCapability = true)
-        {
-            Mock
-                .Setup(m => m.SendRequest<MessageActionItem>(It.IsAny<ShowMessageRequestParams>(), It.IsAny<CancellationToken>()))
-                .Callback((IRequest<MessageActionItem> request, CancellationToken token) =>
-                {
-                    if (callback is not null)
-                    {
-                        var @params = (ShowMessageRequestParams)request;
-                        callback(@params);
-                    }
-                })
-                .ReturnsAsync((IRequest<MessageActionItem> request, CancellationToken token) =>
-                {
-                    var @params = (ShowMessageRequestParams)request;
-                    @params.Actions!.Should().Contain(a => a.Title == returnValue.Title, $"{nameof(OnShowMessageRequest)}: Invalid returnValue given to mock setup - does not match any of the action items available as choices");
-                    return returnValue;
-                });
-            this.DoesClientSupportShowMessageRequest = enableClientCapability;
 
             return this;
         }

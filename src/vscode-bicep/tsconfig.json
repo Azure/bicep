@@ -9,6 +9,8 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "strict": true,
+    "alwaysStrict": true,
+    "strictNullChecks": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "jsx": "react-jsx"
