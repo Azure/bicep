@@ -14,8 +14,8 @@ export class OutputChannelManager extends Disposable {
     );
   }
 
-  appendToOutputChannel(text: string, focus = true): void {
-    if (focus) {
+  appendToOutputChannel(text: string, noFocus = false): void {
+    if (!noFocus) {
       this._azExtOutputChannel.show();
     }
 
