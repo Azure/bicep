@@ -1,14 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import vscode from "vscode";
-import { BicepVisualizerViewManager } from "./visualizer";
-import { createAzExtOutputChannel } from "./utils/AzExtOutputChannel";
-import { OutputChannelManager } from "./utils/OutputChannelManager";
 import * as lsp from "vscode-languageclient/node";
-import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
-import { registerUIExtensionVariables } from "@microsoft/vscode-azext-utils";
-import { TreeManager } from "./tree/TreeManager";
+
+import { BicepCacheContentProvider, createLanguageService } from "./language";
 import {
   BuildCommand,
   CommandManager,
@@ -16,6 +11,7 @@ import {
   ForceModulesRestoreCommand,
   GenerateParamsCommand,
   InsertResourceCommand,
+  PublishCommand,
   ShowSourceCommand,
   ShowVisualizerCommand,
   ShowVisualizerToSideCommand,
@@ -23,16 +19,23 @@ import {
   WalkthroughCreateBicepFileCommand,
   WalkthroughOpenBicepFileCommand,
 } from "./commands";
-import { BicepCacheContentProvider, createLanguageService } from "./language";
 import {
+  Disposable,
   activateWithTelemetryAndErrorHandling,
   createLogger,
-  Disposable,
   getLogger,
   resetLogger,
 } from "./utils";
+
+import { BicepVisualizerViewManager } from "./visualizer";
 import { CreateBicepConfigurationFile } from "./commands/createConfigurationFile";
 import { ImportKubernetesManifestCommand } from "./commands/importKubernetesManifest";
+import { OutputChannelManager } from "./utils/OutputChannelManager";
+import { TreeManager } from "./tree/TreeManager";
+import { createAzExtOutputChannel } from "./utils/AzExtOutputChannel";
+import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
+import { registerUIExtensionVariables } from "@microsoft/vscode-azext-utils";
+import vscode from "vscode";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -125,6 +128,7 @@ export async function activate(
               outputChannelManager
             ),
             new InsertResourceCommand(languageClient),
+            new PublishCommand(languageClient, outputChannelManager),
             new ShowVisualizerCommand(viewManager),
             new ShowVisualizerToSideCommand(viewManager),
             new ShowSourceCommand(viewManager),

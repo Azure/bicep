@@ -9,5 +9,6 @@ export * from "./insertResource";
 export * from "./gettingStarted/WalkthroughOpenBicepFileCommand";
 export * from "./gettingStarted/WalkthroughCreateBicepFileCommand";
 export * from "./gettingStarted/WalkthroughCopyToClipboardCommand";
+export * from "./publish";
 export * from "./showSource";
 export * from "./showVisualizer";
