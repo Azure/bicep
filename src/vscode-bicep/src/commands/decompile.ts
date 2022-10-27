@@ -112,6 +112,7 @@ export class DecompileCommand implements Command {
         arguments: [saveParams],
       }
     );
+    context.telemetry.properties.saveStatus = decompileResult.errorMessage ? "failed" : "success";
 
     this.outputChannelManager.appendToOutputChannel(saveResult.output.trimEnd());
   }

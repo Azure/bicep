@@ -98,7 +98,6 @@ namespace Bicep.LanguageServer.Handlers
             : base(LangServerConstants.DecompileCommand, serializer)
         {
             this.telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult>(server.Window, telemetryProvider);
-
             this.templateDecompiler = new TemplateDecompiler(featureProviderFactory, namespaceProvider, fileResolver, registryProvider, apiVersionProviderFactory, bicepAnalyzer);
         }
 
@@ -164,6 +163,7 @@ namespace Bicep.LanguageServer.Handlers
             // Show disclaimer and completion
             Log(output, TemplateDecompiler.DecompilerDisclaimerMessage);
 
+            // Return result
             var result = new BicepDecompileCommandResult(
                     output.ToString(),
                     mainBicepPath,

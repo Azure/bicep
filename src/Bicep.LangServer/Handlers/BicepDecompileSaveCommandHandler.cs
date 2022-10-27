@@ -40,7 +40,7 @@ namespace Bicep.LanguageServer.Handlers
         string[] savedPaths);
 
     /// <summary>
-    /// Handles a request from the client to decompile a JSON file for given a file path, creating one or more bicep files
+    /// Handles saving the decompiled files from a BicepDecompileCommandHandler result (after the client asked the user whether to overwrite or create copies)
     /// </summary>
     public class BicepDecompileSaveCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDecompileSaveCommandParams, BicepDecompileSaveCommandResult>
     {
@@ -64,7 +64,6 @@ namespace Bicep.LanguageServer.Handlers
             : base(LangServerConstants.DecompileSaveCommand, serializer)
         {
             this.telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileSaveCommandResult>(server.Window, telemetryProvider);
-
             this.templateDecompiler = new TemplateDecompiler(featureProviderFactory, namespaceProvider, fileResolver, registryProvider, apiVersionProviderFactory, bicepAnalyzer);
             this.clientCapabilitiesProvider = clientCapabilitiesProvider;
             this.languageServerFacade = languageServerFacade;
@@ -81,7 +80,7 @@ namespace Bicep.LanguageServer.Handlers
         private async Task<(BicepDecompileSaveCommandResult result, BicepTelemetryEvent? successTelemetry)> SaveDecompileResults(
             string decompileId,
             DecompiledFile[] outputFiles,
-            bool overwrite
+            bool overwrite // If false, will create copy(ies) of the output file(s)
         )
         {
             StringBuilder output = new StringBuilder();
@@ -111,20 +110,18 @@ namespace Bicep.LanguageServer.Handlers
                 // Save files
                 SaveFiles(output, filesToSave);
 
+                // Completion message
                 Log(output, $"Decompilation complete.");
 
                 // Show main output file
                 if (this.clientCapabilitiesProvider.DoesClientSupportShowDocumentRequest())
                 {
                     await this.languageServerFacade.Window.ShowDocument(
-                        new()
-                        {
-                            TakeFocus = true,
-                            Uri = actualMainBicepPath,
-                        },
+                        new() { TakeFocus = true, Uri = actualMainBicepPath },
                         CancellationToken.None);
                 }
 
+                // Return result
                 return (
                     result: new BicepDecompileSaveCommandResult(
                         output.ToString(),
@@ -158,32 +155,34 @@ namespace Bicep.LanguageServer.Handlers
                 // Save to original paths
                 return outputFiles.Select(of => (of.absolutePath, of.bicepContents)).ToArray();
             }
+
+            if (singleFileDecompilation)
             {
-                if (singleFileDecompilation)
-                {
-                    // Create a bicep file with unique name alongside the existing bicep file
-                    string newBicepPath = FindUniqueFileOrFolderName(outputFolder, mainBicepPath);
-                    return new[] { (newBicepPath, outputFiles[0].bicepContents) };
-                }
-                else
-                {
-                    // Output every to a new subfolder (using the relative clonable paths)
-                    var newOutputFolder = CreateUniqueSubfolder(outputFolder, $"{Path.GetFileNameWithoutExtension(mainBicepPath)}_decompiled");
-                    Log(output, $"Created new subfolder for output files: {newOutputFolder}");
-                    outputFolder = newOutputFolder;
+                // Create a bicep file with unique name alongside the existing bicep file
+                string newBicepPath = FindUniqueFileOrFolderName(outputFolder, mainBicepPath);
+                return new[] { (newBicepPath, outputFiles[0].bicepContents) };
+            }
+            else
+            {
+                // Output every to a new subfolder (using the relative clonable paths)
+                var newOutputFolder = CreateUniqueSubfolder(outputFolder, $"{Path.GetFileNameWithoutExtension(mainBicepPath)}_decompiled");
+                Log(output, $"Created new subfolder for output files: {newOutputFolder}");
+                outputFolder = newOutputFolder;
 
-                    var newOutputFiles = new List<(string path, string contents)>();
-                    foreach (var outputFile in outputFiles)
-                    {
-                        var newPath = MakePathRelativeToFolder(newOutputFolder, Path.Combine(newOutputFolder, outputFile.clonableRelativePath), newOutputFiles.Select(f => f.path).ToArray());
-                        newOutputFiles.Add((newPath, outputFile.bicepContents));
-                    }
-
-                    return newOutputFiles.ToArray();
+                var newOutputFiles = new List<(string path, string contents)>();
+                foreach (var outputFile in outputFiles)
+                {
+                    var newPath = MakePathRelativeToFolder(newOutputFolder, Path.Combine(newOutputFolder, outputFile.clonableRelativePath), newOutputFiles.Select(f => f.path).ToArray());
+                    newOutputFiles.Add((newPath, outputFile.bicepContents));
                 }
+
+                return newOutputFiles.ToArray();
             }
         }
 
+        // If we place copies of decompilation results into a new subfolder, we need to deal with files outside of the
+        // base folder (e.g. "../child.json"). For these files, we munge the filename to indicate whether they came from,
+        // then throw them into the folder. Not perfect but should be relatively rare.
         private string MakePathRelativeToFolder(string baseFolder, string path, string[] existingPaths)
         {
             if (IsPathRelativeToBasePath(path, baseFolder))
@@ -196,7 +195,7 @@ namespace Bicep.LanguageServer.Handlers
                 string folderName = Path.GetDirectoryName(path) ?? "invalidpath";
                 folderName = Path.GetFileName(folderName); // Get last folder name
 
-                foreach (char c in Path.GetInvalidPathChars())
+                foreach (char c in Path.GetInvalidFileNameChars())
                 {
                     folderName = folderName.Replace(c, '_');
                 }
@@ -207,6 +206,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 string mungedFilename = folderName + "_" + Path.GetFileName(path);
 
+                // Munging could result in identical filenames
                 var uniquePath = FindUniqueFileOrFolderName(
                     baseFolder,
                     mungedFilename,
@@ -230,12 +230,10 @@ namespace Bicep.LanguageServer.Handlers
             Trace.TraceInformation(message);
         }
 
-
         private static void SaveFiles(StringBuilder output, (string path, string contents)[] pathsToSave)
         {
             foreach (var (path, content) in pathsToSave)
             {
-
                 Log(output, File.Exists(path) ? $"Overwriting {path}" : $"Writing {path}");
                 File.WriteAllText(path, content);
             }
