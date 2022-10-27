@@ -17,10 +17,9 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
                 {
                     LanguageId =
                         PathHelper.HasBicepparamsExension(documentUri.ToUri()) ? LanguageConstants.ParamsLanguageId :
-                        PathHelper.HasBicepExtension(documentUri.ToUri()) ? LanguageConstants.LanguageId :
                         PathHelper.HasArmTemplateLikeExtension(documentUri.ToUri()) ? LanguageConstants.ArmTemplateLanguageId :
-                        "text",
-                    Version = version,
+                        LanguageConstants.LanguageId,
+                    Version = version,  
                     Uri = documentUri,
                     Text = text,
                 },
