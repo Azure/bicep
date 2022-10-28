@@ -8,7 +8,6 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -258,15 +257,15 @@ namespace Bicep.Core.TypeSystem
                 SkippedTriviaSyntax => LanguageConstants.Any,
                 SimpleTypeSyntax simple => LanguageConstants.TryGetDeclarationType(simple.TypeName),
                 ResourceTypeSyntax resource => GetDeclaredType(resource),
-                TypeAccessSyntax typeRef => ParseTypeExpression(typeRef),
-                ArrayTypeSyntax array => ParseTypeExpression(array),
-                ObjectTypeSyntax @object => ParseTypeExpression(@object),
-                StringSyntax @string => ParseTypeExpression(@string),
-                IntegerLiteralSyntax @int => ParseTypeExpression(@int),
-                BooleanLiteralSyntax @bool => ParseTypeExpression(@bool),
-                UnaryOperationSyntax unaryOperation => ParseTypeExpression(unaryOperation),
-                UnionTypeSyntax unionType => ParseTypeExpression(unionType),
-                ParenthesizedExpressionSyntax parenthesized => ParseTypeExpression(parenthesized),
+                TypeAccessSyntax typeRef => ConvertTypeExpressionToType(typeRef),
+                ArrayTypeSyntax array => ConvertTypeExpressionToType(array),
+                ObjectTypeSyntax @object => ConvertTypeExpressionToType(@object),
+                StringSyntax @string => ConvertTypeExpressionToType(@string),
+                IntegerLiteralSyntax @int => ConvertTypeExpressionToType(@int),
+                BooleanLiteralSyntax @bool => ConvertTypeExpressionToType(@bool),
+                UnaryOperationSyntax unaryOperation => ConvertTypeExpressionToType(unaryOperation),
+                UnionTypeSyntax unionType => ConvertTypeExpressionToType(unionType),
+                ParenthesizedExpressionSyntax parenthesized => ConvertTypeExpressionToType(parenthesized),
                 _ => null
             };
         }
@@ -304,7 +303,7 @@ namespace Bicep.Core.TypeSystem
             _ => null,
         };
 
-        private TypeSymbol ParseTypeExpression(TypeAccessSyntax syntax)
+        private TypeSymbol ConvertTypeExpressionToType(TypeAccessSyntax syntax)
             => binder.GetSymbolInfo(syntax) switch
             {
                 TypeAliasSymbol declaredType => TypeRefToType(syntax, declaredType),
@@ -327,7 +326,7 @@ namespace Bicep.Core.TypeSystem
             return signifiedType;
         }
 
-        private TypeSymbol ParseTypeExpression(ArrayTypeSyntax syntax)
+        private TypeSymbol ConvertTypeExpressionToType(ArrayTypeSyntax syntax)
         {
             if (!features.UserDefinedTypesEnabled)
             {
@@ -340,7 +339,7 @@ namespace Bicep.Core.TypeSystem
             return new TypedArrayType(memberType, TypeSymbolValidationFlags.Default);
         }
 
-        private TypeSymbol ParseTypeExpression(ObjectTypeSyntax syntax)
+        private TypeSymbol ConvertTypeExpressionToType(ObjectTypeSyntax syntax)
         {
             if (!features.UserDefinedTypesEnabled)
             {
@@ -349,7 +348,7 @@ namespace Bicep.Core.TypeSystem
 
             List<TypeProperty> properties = new();
             List<ErrorDiagnostic> diagnostics = new();
-            StringBuilder objectName = new("{ ");
+            ObjectTypeNameBuilder nameBuilder = new();
 
             foreach (var prop in syntax.Properties)
             {
@@ -358,27 +357,9 @@ namespace Bicep.Core.TypeSystem
 
                 if (prop.TryGetKeyText() is string propertyName)
                 {
-                    if (Lexer.IsValidIdentifier(propertyName))
-                    {
-                        objectName.Append(propertyName);
-                    } else
-                    {
-                        objectName.Append('\'');
-                        objectName.Append(StringUtils.EscapeBicepString(propertyName));
-                        objectName.Append('\'');
-                    }
-
-                    if (prop.OptionalityMarker is not null)
-                    {
-                        objectName.Append('?');
-                    }
-
-                    objectName.Append(": ");
-                    objectName.Append(GetPropertyTypeName(prop.Value, propertyType));
-                    objectName.Append(", ");
-
                     var propertyFlags = prop.OptionalityMarker is null ? TypePropertyFlags.Required : TypePropertyFlags.None;
-                    properties.Add(new(propertyName, propertyType, propertyFlags, TryGetTypePropertyDescription(prop)));
+                    properties.Add(new(propertyName, propertyType, propertyFlags, SemanticModelHelper.TryGetDescription(binder, typeManager.GetDeclaredType, prop)));
+                    nameBuilder.AppendProperty(propertyName, GetPropertyTypeName(prop.Value, propertyType), prop.OptionalityMarker is not null);
                 } else
                 {
                     diagnostics.Add(DiagnosticBuilder.ForPosition(prop.Key).NonConstantTypeProperty());
@@ -397,9 +378,6 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostics.Concat(properties.Select(p => p.TypeReference).OfType<TypeSymbol>().SelectMany(e => e.GetDiagnostics())));
             }
 
-            objectName.Remove(objectName.Length - 2, 1);
-            objectName.Append('}');
-
             var parentSyntax = binder.GetParent(syntax);
 
             var typeFlags = UnwrapUntilDecorable(syntax, HasSecureDecorator, TypeSymbolValidationFlags.IsSecure, TypeSymbolValidationFlags.Default);
@@ -407,7 +385,7 @@ namespace Bicep.Core.TypeSystem
             (TypeSymbol? type, TypePropertyFlags flags) additionalProperties
                 = UnwrapUntilDecorable(syntax, HasSealedDecorator, (null, TypePropertyFlags.None), (LanguageConstants.Any, TypePropertyFlags.FallbackProperty));
 
-            return new ObjectType(objectName.ToString(), typeFlags, properties, additionalProperties.type, additionalProperties.flags);
+            return new ObjectType(nameBuilder.ToString(), typeFlags, properties, additionalProperties.type, additionalProperties.flags);
         }
 
         private string GetPropertyTypeName(SyntaxBase typeSyntax, ITypeReference propertyType)
@@ -417,16 +395,8 @@ namespace Bicep.Core.TypeSystem
                 return typeAccess.Name.IdentifierName;
             }
 
-            return propertyType switch
-            {
-                DeferredTypeReference deferred => "<deferred>",
-                _ => propertyType.Type.Name,
-            };
+            return propertyType.Type.Name;
         }
-
-        private string? TryGetTypePropertyDescription(ObjectTypePropertySyntax syntax)
-            => (TryGetDecorator(syntax.Decorators, SystemNamespaceType.BuiltInName, LanguageConstants.MetadataDescriptionPropertyName)
-                ?.Arguments.FirstOrDefault()?.Expression as StringSyntax)?.TryGetLiteralValue();
 
         private T UnwrapUntilDecorable<T>(SyntaxBase syntax, Predicate<DecorableSyntax> condition, T valueIfTrue, T valueIfFalse) => binder.GetParent(syntax) switch
         {
@@ -438,20 +408,12 @@ namespace Bicep.Core.TypeSystem
         };
 
         private bool HasSecureDecorator(DecorableSyntax syntax)
-            => TryGetDecorator(syntax.Decorators, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
+            => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
 
         private bool HasSealedDecorator(DecorableSyntax syntax)
-            => TryGetDecorator(syntax.Decorators, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSealedPropertyName) is not null;
+            => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSealedPropertyName) is not null;
 
-        private DecoratorSyntax? TryGetDecorator(IEnumerable<DecoratorSyntax> decoratorSyntaxes, string namespaceName, string decoratorName)
-            => decoratorSyntaxes
-                .Where(decoratorSyntax => binder.GetSymbolInfo(decoratorSyntax.Expression) is FunctionSymbol functionSymbol
-                    && functionSymbol.DeclaringObject is NamespaceType namespaceType
-                    && LanguageConstants.IdentifierComparer.Equals(namespaceType.ProviderName, namespaceName)
-                    && LanguageConstants.IdentifierComparer.Equals(functionSymbol.Name, decoratorName))
-                .FirstOrDefault();
-
-        private TypeSymbol ParseTypeExpression(StringSyntax syntax)
+        private TypeSymbol ConvertTypeExpressionToType(StringSyntax syntax)
         {
             if (!features.UserDefinedTypesEnabled)
             {
@@ -466,7 +428,7 @@ namespace Bicep.Core.TypeSystem
             return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed());
         }
 
-        private TypeSymbol ParseTypeExpression(IntegerLiteralSyntax syntax)
+        private TypeSymbol ConvertTypeExpressionToType(IntegerLiteralSyntax syntax)
         {
             if (!features.UserDefinedTypesEnabled)
             {
@@ -481,7 +443,7 @@ namespace Bicep.Core.TypeSystem
             return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed());
         }
 
-        private TypeSymbol ParseTypeExpression(BooleanLiteralSyntax syntax)
+        private TypeSymbol ConvertTypeExpressionToType(BooleanLiteralSyntax syntax)
         {
             if (!features.UserDefinedTypesEnabled)
             {
@@ -491,7 +453,7 @@ namespace Bicep.Core.TypeSystem
             return syntax.Value ? LanguageConstants.True : LanguageConstants.False;
         }
 
-        private TypeSymbol ParseTypeExpression(UnaryOperationSyntax syntax)
+        private TypeSymbol ConvertTypeExpressionToType(UnaryOperationSyntax syntax)
         {
             var baseExpressionType = GetTypeFromTypeSyntax(syntax.Expression);
 
@@ -507,7 +469,7 @@ namespace Bicep.Core.TypeSystem
                 .Append(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed()));
         }
 
-        private TypeSymbol ParseTypeExpression(UnionTypeSyntax syntax)
+        private TypeSymbol ConvertTypeExpressionToType(UnionTypeSyntax syntax)
         {
             if (!features.UserDefinedTypesEnabled)
             {
@@ -630,7 +592,7 @@ namespace Bicep.Core.TypeSystem
         private IEnumerable<TypeSymbol> FlattenUnionMemberType(ITypeReference memberType)
             => memberType.Type is UnionType union ? union.Members.SelectMany(FlattenUnionMemberType) : memberType.Type.AsEnumerable();
 
-        private TypeSymbol ParseTypeExpression(ParenthesizedExpressionSyntax syntax) => GetTypeFromTypeSyntax(syntax.Expression);
+        private TypeSymbol ConvertTypeExpressionToType(ParenthesizedExpressionSyntax syntax) => GetTypeFromTypeSyntax(syntax.Expression);
 
         private DeclaredTypeAssignment? GetImportType(ImportDeclarationSyntax syntax)
         {

@@ -10,9 +10,6 @@ namespace Bicep.Core.Syntax;
 
 public class TypeDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
 {
-    public TypeDeclarationSyntax(Token keyword, IdentifierSyntax name, SyntaxBase assignment, SyntaxBase value)
-        : this(ImmutableArray<SyntaxBase>.Empty, keyword, name, assignment, value) {}
-
     public TypeDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax name, SyntaxBase assignment, SyntaxBase value)
         : base(leadingNodes)
     {

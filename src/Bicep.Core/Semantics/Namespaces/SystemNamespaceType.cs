@@ -986,7 +986,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                 .WithEvaluator((_, targetType, targetObject) =>
                 {
-                    if (targetType is PrimitiveType pt && pt.Name == "string")
+                    if (targetType is PrimitiveType pt && pt.Name == LanguageConstants.TypeNameString)
                     {
                         return targetObject.MergeProperty("type", "secureString");
                     }

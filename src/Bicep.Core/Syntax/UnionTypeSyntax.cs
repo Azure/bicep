@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -12,6 +13,10 @@ public class UnionTypeSyntax : TypeSyntax
     public UnionTypeSyntax(IEnumerable<SyntaxBase> children)
     {
         Children = children.ToImmutableArray();
+        if (!Members.Any())
+        {
+            throw new ArgumentException("Union types must contain at least one member");
+        }
     }
 
     public IEnumerable<SyntaxBase> Children { get; }
