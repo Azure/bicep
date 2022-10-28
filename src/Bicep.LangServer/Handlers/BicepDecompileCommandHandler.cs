@@ -130,11 +130,12 @@ namespace Bicep.LanguageServer.Handlers
             }
             catch (Exception ex)
             {
-                Log(output, ex.Message);
+                var message = $"Decompilation failed. Please fix the following problems and try again:\n{ex.Message}";
+                Log(output, message);
                 throw telemetryHelper.CreateException(
-                    ex.Message,
-                    BicepTelemetryEvent.DecompileFailure(ex.Message),
-                    new BicepDecompileCommandResult(output.ToString(), ex.Message)
+                    message,
+                    BicepTelemetryEvent.DecompileFailure(message),
+                    new BicepDecompileCommandResult(output.ToString(), message)
                 );
             }
 

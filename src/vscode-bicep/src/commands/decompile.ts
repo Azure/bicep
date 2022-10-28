@@ -164,7 +164,7 @@ export class DecompileCommand implements Command {
 
       assert(result === overwriteAction || result === createCopyAction);
       overwrite = (result === overwriteAction);
-      this.outputChannelManager.appendToOutputChannel(result.title);
+      this.outputChannelManager.appendToOutputChannel(`Response: ${result.title}`);
       context.telemetry.properties.conflictResolution = overwrite ? "overwrite" : "copy";
     }
 
