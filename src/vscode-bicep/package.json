@@ -246,8 +246,6 @@
       },
       {
         "command": "bicep.decompile",
-        "key": "ctrl+b d",
-        "mac": "cmd+b d",
         "when": "editorFocus && (resourceLangId == json || resourceLangId == jsonc || resourceLangId == arm-template)"
       }
     ],
