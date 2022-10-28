@@ -389,7 +389,7 @@ namespace Bicep.Core.Syntax
 
         protected virtual SyntaxBase ReplaceArrayTypeSyntax(ArrayTypeSyntax syntax)
         {
-            var hasChanges = TryRewrite(syntax.Item, out var item);
+            var hasChanges = TryRewriteStrict(syntax.Item, out var item);
             hasChanges |= TryRewriteStrict(syntax.OpenBracket, out var openBracket);
             hasChanges |= TryRewriteStrict(syntax.CloseBracket, out var closeBracket);
 
@@ -401,6 +401,19 @@ namespace Bicep.Core.Syntax
             return new ArrayTypeSyntax(item, openBracket, closeBracket);
         }
         void ISyntaxVisitor.VisitArrayTypeSyntax(ArrayTypeSyntax syntax) => ReplaceCurrent(syntax, ReplaceArrayTypeSyntax);
+
+        protected virtual SyntaxBase ReplaceArrayTypeMemberSyntax(ArrayTypeMemberSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.Value, out var value);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ArrayTypeMemberSyntax(value);
+        }
+        void ISyntaxVisitor.VisitArrayTypeMemberSyntax(ArrayTypeMemberSyntax syntax) => ReplaceCurrent(syntax, ReplaceArrayTypeMemberSyntax);
 
         protected virtual SyntaxBase ReplaceUnionTypeSyntax(UnionTypeSyntax syntax)
         {

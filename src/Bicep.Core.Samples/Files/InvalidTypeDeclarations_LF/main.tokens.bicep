@@ -250,6 +250,15 @@ type objectWithInvalidRecursion = {
 //@[00:01) RightBrace |}|
 //@[01:03) NewLine |\n\n|
 
+type arrayWithInvalidMember = objectWithInvalidRecursion[]
+//@[00:04) Identifier |type|
+//@[05:27) Identifier |arrayWithInvalidMember|
+//@[28:29) Assignment |=|
+//@[30:56) Identifier |objectWithInvalidRecursion|
+//@[56:57) LeftSquare |[|
+//@[57:58) RightSquare |]|
+//@[58:60) NewLine |\n\n|
+
 @sealed()
 //@[00:01) At |@|
 //@[01:07) Identifier |sealed|
@@ -269,6 +278,12 @@ param disallowedUnionParam 'foo'|-99
 //@[32:33) Pipe |||
 //@[33:34) Minus |-|
 //@[34:36) Integer |99|
-//@[36:37) NewLine |\n|
+//@[36:38) NewLine |\n\n|
+
+param objectWithInvalidRecursionParam objectWithInvalidRecursion
+//@[00:05) Identifier |param|
+//@[06:37) Identifier |objectWithInvalidRecursionParam|
+//@[38:64) Identifier |objectWithInvalidRecursion|
+//@[64:65) NewLine |\n|
 
 //@[00:00) EndOfFile ||

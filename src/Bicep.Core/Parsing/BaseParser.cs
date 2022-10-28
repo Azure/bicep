@@ -174,7 +174,7 @@ namespace Bicep.Core.Parsing
                 {
                     // consume the pipe
                     elementAndSeparators.Add(reader.Read());
-                    
+
                     // error reporting gets really wonky if users can have newlines between union members. `type foo = 'foo'|` causes the start of the next declaration (i.e., a language keyword) to be reported as a non-existent symbol
                     if (Check(TokenType.NewLine))
                     {
@@ -795,7 +795,7 @@ namespace Bicep.Core.Parsing
                         if (HasExpressionFlag(expressionFlags, ExpressionFlags.TypeExpression))
                         {
                             Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
-                            current = new ArrayTypeSyntax(current, openSquare, closeSquare);
+                            current = new ArrayTypeSyntax(new ArrayTypeMemberSyntax(current), openSquare, closeSquare);
                         } else
                         {
                             // empty indexer - we are allowing this special case in the parser to help with completions

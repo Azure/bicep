@@ -69,6 +69,9 @@ namespace Bicep.Core.TypeSystem
                 case ObjectTypePropertySyntax typeProperty:
                     return GetTypePropertyType(typeProperty);
 
+                case ArrayTypeMemberSyntax typeMember:
+                    return GetTypeMemberType(typeMember);
+
                 case ResourceDeclarationSyntax resource:
                     return GetResourceType(resource);
 
@@ -215,7 +218,20 @@ namespace Bicep.Core.TypeSystem
         {
             if (syntax.Value is TypeAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol signified)
             {
-                return new DeferredTypeReference(() => userDefinedTypeReferences.GetOrAdd(signified, GetUserDefinedTypeType));
+                return new DeferredTypeReference(() => TypeRefToType(signifier, signified));
+            }
+
+            return TryGetTypeFromTypeSyntax(syntax.Value);
+        }
+
+        private DeclaredTypeAssignment? GetTypeMemberType(ArrayTypeMemberSyntax syntax)
+            => GetTypeReferenceForMemberType(syntax) is {} @ref ? new(@ref, syntax) : null;
+
+        private ITypeReference? GetTypeReferenceForMemberType(ArrayTypeMemberSyntax syntax)
+        {
+            if (syntax.Value is TypeAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol signified)
+            {
+                return new DeferredTypeReference(() => TypeRefToType(signifier, signified));
             }
 
             return TryGetTypeFromTypeSyntax(syntax.Value);
@@ -318,7 +334,10 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypedArrayDeclarationsUnsupported());
             }
 
-            return new TypedArrayType(GetTypeFromTypeSyntax(syntax.Item), TypeSymbolValidationFlags.Default);
+            var memberType = GetDeclaredTypeAssignment(syntax.Item)?.Reference;
+            memberType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Item).InvalidTypeDefinition());
+
+            return new TypedArrayType(memberType, TypeSymbolValidationFlags.Default);
         }
 
         private TypeSymbol ParseTypeExpression(ObjectTypeSyntax syntax)
@@ -587,6 +606,7 @@ namespace Bicep.Core.TypeSystem
         private bool MightBeArrayAny(SyntaxBase syntax) => binder.GetParent(syntax) switch
         {
             ParenthesizedExpressionSyntax parenthesized => MightBeArrayAny(parenthesized),
+            ArrayTypeMemberSyntax arrayTypeMember => MightBeArrayAny(arrayTypeMember),
             ArrayTypeSyntax => true,
             _ => false,
         };

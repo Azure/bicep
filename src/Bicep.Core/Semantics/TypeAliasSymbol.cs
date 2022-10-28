@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics;
@@ -20,12 +19,4 @@ public class TypeAliasSymbol : DeclaredSymbol
     public override void Accept(SymbolVisitor visitor) => visitor.VisitTypeAliasSymbol(this);
 
     public override SymbolKind Kind => SymbolKind.TypeAlias;
-
-    public override IEnumerable<Symbol> Descendants
-    {
-        get
-        {
-            yield return this.Type;
-        }
-    }
 }

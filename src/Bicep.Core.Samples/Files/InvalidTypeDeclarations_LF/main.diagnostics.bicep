@@ -54,6 +54,7 @@ type tautologicalUnion = tautologicalUnion|'foo'
 
 type tautologicalArray = tautologicalArray[]
 //@[05:22) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |tautologicalArray|
+//@[25:42) [BCP062 (Error)] The referenced declaration with name "tautologicalArray" is not valid. (CodeDescription: none) |tautologicalArray|
 
 type directCycleStart = directCycleReturn
 //@[05:21) [BCP299 (Error)] This type definition includes itself as a required component via a cycle ("directCycleStart" -> "directCycleReturn"). (CodeDescription: none) |directCycleStart|
@@ -87,7 +88,11 @@ type objectWithInvalidPropertyDecorators = {
 type objectWithInvalidRecursion = {
 //@[05:31) [BCP298 (Error)] This type definition includes itself as required component, which creates a constraint that cannot be fulfilled. (CodeDescription: none) |objectWithInvalidRecursion|
   requiredAndRecursiveProp: objectWithInvalidRecursion
+//@[28:54) [BCP062 (Error)] The referenced declaration with name "objectWithInvalidRecursion" is not valid. (CodeDescription: none) |objectWithInvalidRecursion|
 }
+
+type arrayWithInvalidMember = objectWithInvalidRecursion[]
+//@[30:56) [BCP062 (Error)] The referenced declaration with name "objectWithInvalidRecursion" is not valid. (CodeDescription: none) |objectWithInvalidRecursion|
 
 @sealed()
 //@[00:09) [BCP124 (Error)] The decorator "sealed" can only be attached to targets of type "object", but the target has type "string". (CodeDescription: none) |@sealed()|
@@ -97,4 +102,8 @@ param sealedStringParam string
 param disallowedUnionParam 'foo'|-99
 //@[06:26) [no-unused-params (Warning)] Parameter "disallowedUnionParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |disallowedUnionParam|
 //@[33:36) [BCP286 (Error)] This union member is invalid because it cannot be assigned to the 'string' type. (CodeDescription: none) |-99|
+
+param objectWithInvalidRecursionParam objectWithInvalidRecursion
+//@[06:37) [no-unused-params (Warning)] Parameter "objectWithInvalidRecursionParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |objectWithInvalidRecursionParam|
+//@[38:64) [BCP062 (Error)] The referenced declaration with name "objectWithInvalidRecursion" is not valid. (CodeDescription: none) |objectWithInvalidRecursion|
 

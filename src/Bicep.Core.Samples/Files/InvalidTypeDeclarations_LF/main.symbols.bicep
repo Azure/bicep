@@ -94,3 +94,6 @@ param sealedStringParam string
 param disallowedUnionParam 'foo'|-99
 //@[6:26) Parameter disallowedUnionParam. Type: error. Declaration start char: 0, length: 36
 
+param objectWithInvalidRecursionParam objectWithInvalidRecursion
+//@[6:37) Parameter objectWithInvalidRecursionParam. Type: error. Declaration start char: 0, length: 64
+

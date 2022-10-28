@@ -76,6 +76,8 @@ namespace Bicep.Core.Syntax
 
         void VisitArrayTypeSyntax(ArrayTypeSyntax syntax);
 
+        void VisitArrayTypeMemberSyntax(ArrayTypeMemberSyntax syntax);
+
         void VisitUnionTypeSyntax(UnionTypeSyntax syntax);
 
         void VisitUnionTypeMemberSyntax(UnionTypeMemberSyntax syntax);

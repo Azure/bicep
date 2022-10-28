@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Semantics;
 
 namespace Bicep.Core.TypeSystem
@@ -39,7 +38,5 @@ namespace Bicep.Core.TypeSystem
         public TypePropertyFlags AdditionalPropertiesFlags { get; }
 
         public FunctionResolver MethodResolver { get; }
-
-        public override IEnumerable<Symbol> Descendants => Properties.Values.Select(p => p.TypeReference.Type);
     }
 }

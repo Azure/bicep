@@ -60,7 +60,11 @@ type objectWithInvalidRecursion = {
   requiredAndRecursiveProp: objectWithInvalidRecursion
 }
 
+type arrayWithInvalidMember = objectWithInvalidRecursion[]
+
 @sealed()
 param sealedStringParam string
 
 param disallowedUnionParam 'foo'|-99
+
+param objectWithInvalidRecursionParam objectWithInvalidRecursion

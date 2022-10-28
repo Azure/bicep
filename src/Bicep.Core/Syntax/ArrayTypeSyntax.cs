@@ -7,7 +7,7 @@ namespace Bicep.Core.Syntax;
 
 public class ArrayTypeSyntax : TypeSyntax
 {
-    public ArrayTypeSyntax(SyntaxBase item, Token openBracket, Token closeBracket)
+    public ArrayTypeSyntax(ArrayTypeMemberSyntax item, Token openBracket, Token closeBracket)
     {
         AssertTokenType(openBracket, nameof(openBracket), TokenType.LeftSquare);
         AssertTokenType(closeBracket, nameof(closeBracket), TokenType.RightSquare);
@@ -17,7 +17,7 @@ public class ArrayTypeSyntax : TypeSyntax
         this.CloseBracket = closeBracket;
     }
 
-    public SyntaxBase Item { get; }
+    public ArrayTypeMemberSyntax Item { get; }
 
     public Token OpenBracket { get; }
 

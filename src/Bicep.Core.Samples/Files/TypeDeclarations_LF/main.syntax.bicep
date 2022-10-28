@@ -83,11 +83,13 @@ type foo = {
 //@[21:022) |   |   | ├─Token(Question) |?|
 //@[22:023) |   |   | ├─Token(Colon) |:|
 //@[24:033) |   |   | └─ArrayTypeSyntax
-//@[24:030) |   |   |   ├─ArrayTypeSyntax
-//@[24:027) |   |   |   | ├─SimpleTypeSyntax
-//@[24:027) |   |   |   | | └─Token(Identifier) |int|
-//@[28:029) |   |   |   | ├─Token(LeftSquare) |[|
-//@[29:030) |   |   |   | └─Token(RightSquare) |]|
+//@[24:030) |   |   |   ├─ArrayTypeMemberSyntax
+//@[24:030) |   |   |   | └─ArrayTypeSyntax
+//@[24:027) |   |   |   |   ├─ArrayTypeMemberSyntax
+//@[24:027) |   |   |   |   | └─SimpleTypeSyntax
+//@[24:027) |   |   |   |   |   └─Token(Identifier) |int|
+//@[28:029) |   |   |   |   ├─Token(LeftSquare) |[|
+//@[29:030) |   |   |   |   └─Token(RightSquare) |]|
 //@[31:032) |   |   |   ├─Token(LeftSquare) |[|
 //@[32:033) |   |   |   └─Token(RightSquare) |]|
 //@[33:034) |   |   ├─Token(NewLine) |\n|
@@ -159,17 +161,21 @@ type bar = int[][][][]
 //@[05:008) | | └─Token(Identifier) |bar|
 //@[09:010) | ├─Token(Assignment) |=|
 //@[11:022) | └─ArrayTypeSyntax
-//@[11:020) |   ├─ArrayTypeSyntax
-//@[11:018) |   | ├─ArrayTypeSyntax
-//@[11:016) |   | | ├─ArrayTypeSyntax
-//@[11:014) |   | | | ├─SimpleTypeSyntax
-//@[11:014) |   | | | | └─Token(Identifier) |int|
-//@[14:015) |   | | | ├─Token(LeftSquare) |[|
-//@[15:016) |   | | | └─Token(RightSquare) |]|
-//@[16:017) |   | | ├─Token(LeftSquare) |[|
-//@[17:018) |   | | └─Token(RightSquare) |]|
-//@[18:019) |   | ├─Token(LeftSquare) |[|
-//@[19:020) |   | └─Token(RightSquare) |]|
+//@[11:020) |   ├─ArrayTypeMemberSyntax
+//@[11:020) |   | └─ArrayTypeSyntax
+//@[11:018) |   |   ├─ArrayTypeMemberSyntax
+//@[11:018) |   |   | └─ArrayTypeSyntax
+//@[11:016) |   |   |   ├─ArrayTypeMemberSyntax
+//@[11:016) |   |   |   | └─ArrayTypeSyntax
+//@[11:014) |   |   |   |   ├─ArrayTypeMemberSyntax
+//@[11:014) |   |   |   |   | └─SimpleTypeSyntax
+//@[11:014) |   |   |   |   |   └─Token(Identifier) |int|
+//@[14:015) |   |   |   |   ├─Token(LeftSquare) |[|
+//@[15:016) |   |   |   |   └─Token(RightSquare) |]|
+//@[16:017) |   |   |   ├─Token(LeftSquare) |[|
+//@[17:018) |   |   |   └─Token(RightSquare) |]|
+//@[18:019) |   |   ├─Token(LeftSquare) |[|
+//@[19:020) |   |   └─Token(RightSquare) |]|
 //@[20:021) |   ├─Token(LeftSquare) |[|
 //@[21:022) |   └─Token(RightSquare) |]|
 //@[22:024) ├─Token(NewLine) |\n\n|
@@ -226,59 +232,60 @@ type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!tr
 //@[05:015) | | └─Token(Identifier) |mixedArray|
 //@[16:017) | ├─Token(Assignment) |=|
 //@[18:090) | └─ArrayTypeSyntax
-//@[18:088) |   ├─ParenthesizedExpressionSyntax
-//@[18:019) |   | ├─Token(LeftParen) |(|
-//@[19:087) |   | ├─UnionTypeSyntax
-//@[19:030) |   | | ├─UnionTypeMemberSyntax
-//@[19:030) |   | | | └─StringSyntax
-//@[19:030) |   | | |   └─Token(StringComplete) |'heffalump'|
-//@[30:031) |   | | ├─Token(Pipe) |||
-//@[31:039) |   | | ├─UnionTypeMemberSyntax
-//@[31:039) |   | | | └─StringSyntax
-//@[31:039) |   | | |   └─Token(StringComplete) |'woozle'|
-//@[39:040) |   | | ├─Token(Pipe) |||
-//@[40:064) |   | | ├─UnionTypeMemberSyntax
-//@[40:064) |   | | | └─ObjectTypeSyntax
-//@[40:041) |   | | |   ├─Token(LeftBrace) |{|
-//@[42:052) |   | | |   ├─ObjectTypePropertySyntax
-//@[42:047) |   | | |   | ├─IdentifierSyntax
-//@[42:047) |   | | |   | | └─Token(Identifier) |shape|
-//@[47:048) |   | | |   | ├─Token(Colon) |:|
-//@[49:052) |   | | |   | └─StringSyntax
-//@[49:052) |   | | |   |   └─Token(StringComplete) |'*'|
-//@[52:053) |   | | |   ├─Token(Comma) |,|
-//@[54:063) |   | | |   ├─ObjectTypePropertySyntax
-//@[54:058) |   | | |   | ├─IdentifierSyntax
-//@[54:058) |   | | |   | | └─Token(Identifier) |size|
-//@[58:059) |   | | |   | ├─Token(Colon) |:|
-//@[60:063) |   | | |   | └─StringSyntax
-//@[60:063) |   | | |   |   └─Token(StringComplete) |'*'|
-//@[63:064) |   | | |   └─Token(RightBrace) |}|
-//@[64:065) |   | | ├─Token(Pipe) |||
-//@[65:067) |   | | ├─UnionTypeMemberSyntax
-//@[65:067) |   | | | └─IntegerLiteralSyntax
-//@[65:067) |   | | |   └─Token(Integer) |10|
-//@[67:068) |   | | ├─Token(Pipe) |||
-//@[68:071) |   | | ├─UnionTypeMemberSyntax
-//@[68:071) |   | | | └─UnaryOperationSyntax
-//@[68:069) |   | | |   ├─Token(Minus) |-|
-//@[69:071) |   | | |   └─IntegerLiteralSyntax
-//@[69:071) |   | | |     └─Token(Integer) |10|
-//@[71:072) |   | | ├─Token(Pipe) |||
-//@[72:076) |   | | ├─UnionTypeMemberSyntax
-//@[72:076) |   | | | └─BooleanLiteralSyntax
-//@[72:076) |   | | |   └─Token(TrueKeyword) |true|
-//@[76:077) |   | | ├─Token(Pipe) |||
-//@[77:082) |   | | ├─UnionTypeMemberSyntax
-//@[77:082) |   | | | └─UnaryOperationSyntax
-//@[77:078) |   | | |   ├─Token(Exclamation) |!|
-//@[78:082) |   | | |   └─BooleanLiteralSyntax
-//@[78:082) |   | | |     └─Token(TrueKeyword) |true|
-//@[82:083) |   | | ├─Token(Pipe) |||
-//@[83:087) |   | | └─UnionTypeMemberSyntax
-//@[83:087) |   | |   └─NullLiteralSyntax
-//@[83:087) |   | |     └─Token(NullKeyword) |null|
-//@[87:088) |   | └─Token(RightParen) |)|
+//@[18:088) |   ├─ArrayTypeMemberSyntax
+//@[18:088) |   | └─ParenthesizedExpressionSyntax
+//@[18:019) |   |   ├─Token(LeftParen) |(|
+//@[19:087) |   |   ├─UnionTypeSyntax
+//@[19:030) |   |   | ├─UnionTypeMemberSyntax
+//@[19:030) |   |   | | └─StringSyntax
+//@[19:030) |   |   | |   └─Token(StringComplete) |'heffalump'|
+//@[30:031) |   |   | ├─Token(Pipe) |||
+//@[31:039) |   |   | ├─UnionTypeMemberSyntax
+//@[31:039) |   |   | | └─StringSyntax
+//@[31:039) |   |   | |   └─Token(StringComplete) |'woozle'|
+//@[39:040) |   |   | ├─Token(Pipe) |||
+//@[40:064) |   |   | ├─UnionTypeMemberSyntax
+//@[40:064) |   |   | | └─ObjectTypeSyntax
+//@[40:041) |   |   | |   ├─Token(LeftBrace) |{|
+//@[42:052) |   |   | |   ├─ObjectTypePropertySyntax
+//@[42:047) |   |   | |   | ├─IdentifierSyntax
+//@[42:047) |   |   | |   | | └─Token(Identifier) |shape|
+//@[47:048) |   |   | |   | ├─Token(Colon) |:|
+//@[49:052) |   |   | |   | └─StringSyntax
+//@[49:052) |   |   | |   |   └─Token(StringComplete) |'*'|
+//@[52:053) |   |   | |   ├─Token(Comma) |,|
+//@[54:063) |   |   | |   ├─ObjectTypePropertySyntax
+//@[54:058) |   |   | |   | ├─IdentifierSyntax
+//@[54:058) |   |   | |   | | └─Token(Identifier) |size|
+//@[58:059) |   |   | |   | ├─Token(Colon) |:|
+//@[60:063) |   |   | |   | └─StringSyntax
+//@[60:063) |   |   | |   |   └─Token(StringComplete) |'*'|
+//@[63:064) |   |   | |   └─Token(RightBrace) |}|
+//@[64:065) |   |   | ├─Token(Pipe) |||
+//@[65:067) |   |   | ├─UnionTypeMemberSyntax
+//@[65:067) |   |   | | └─IntegerLiteralSyntax
+//@[65:067) |   |   | |   └─Token(Integer) |10|
+//@[67:068) |   |   | ├─Token(Pipe) |||
+//@[68:071) |   |   | ├─UnionTypeMemberSyntax
+//@[68:071) |   |   | | └─UnaryOperationSyntax
+//@[68:069) |   |   | |   ├─Token(Minus) |-|
+//@[69:071) |   |   | |   └─IntegerLiteralSyntax
+//@[69:071) |   |   | |     └─Token(Integer) |10|
+//@[71:072) |   |   | ├─Token(Pipe) |||
+//@[72:076) |   |   | ├─UnionTypeMemberSyntax
+//@[72:076) |   |   | | └─BooleanLiteralSyntax
+//@[72:076) |   |   | |   └─Token(TrueKeyword) |true|
+//@[76:077) |   |   | ├─Token(Pipe) |||
+//@[77:082) |   |   | ├─UnionTypeMemberSyntax
+//@[77:082) |   |   | | └─UnaryOperationSyntax
+//@[77:078) |   |   | |   ├─Token(Exclamation) |!|
+//@[78:082) |   |   | |   └─BooleanLiteralSyntax
+//@[78:082) |   |   | |     └─Token(TrueKeyword) |true|
+//@[82:083) |   |   | ├─Token(Pipe) |||
+//@[83:087) |   |   | └─UnionTypeMemberSyntax
+//@[83:087) |   |   |   └─NullLiteralSyntax
+//@[83:087) |   |   |     └─Token(NullKeyword) |null|
+//@[87:088) |   |   └─Token(RightParen) |)|
 //@[88:089) |   ├─Token(LeftSquare) |[|
 //@[89:090) |   └─Token(RightSquare) |]|
 //@[90:092) ├─Token(NewLine) |\n\n|

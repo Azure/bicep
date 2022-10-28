@@ -1,5 +1,5 @@
 type 44
-//@[00:1128) ProgramSyntax
+//@[00:1254) ProgramSyntax
 //@[00:0007) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
 //@[05:0007) | ├─IdentifierSyntax
@@ -241,9 +241,10 @@ type tautologicalArray = tautologicalArray[]
 //@[05:0022) | | └─Token(Identifier) |tautologicalArray|
 //@[23:0024) | ├─Token(Assignment) |=|
 //@[25:0044) | └─ArrayTypeSyntax
-//@[25:0042) |   ├─TypeAccessSyntax
-//@[25:0042) |   | └─IdentifierSyntax
-//@[25:0042) |   |   └─Token(Identifier) |tautologicalArray|
+//@[25:0042) |   ├─ArrayTypeMemberSyntax
+//@[25:0042) |   | └─TypeAccessSyntax
+//@[25:0042) |   |   └─IdentifierSyntax
+//@[25:0042) |   |     └─Token(Identifier) |tautologicalArray|
 //@[42:0043) |   ├─Token(LeftSquare) |[|
 //@[43:0044) |   └─Token(RightSquare) |]|
 //@[44:0046) ├─Token(NewLine) |\n\n|
@@ -406,6 +407,21 @@ type objectWithInvalidRecursion = {
 //@[00:0001) |   └─Token(RightBrace) |}|
 //@[01:0003) ├─Token(NewLine) |\n\n|
 
+type arrayWithInvalidMember = objectWithInvalidRecursion[]
+//@[00:0058) ├─TypeDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0027) | ├─IdentifierSyntax
+//@[05:0027) | | └─Token(Identifier) |arrayWithInvalidMember|
+//@[28:0029) | ├─Token(Assignment) |=|
+//@[30:0058) | └─ArrayTypeSyntax
+//@[30:0056) |   ├─ArrayTypeMemberSyntax
+//@[30:0056) |   | └─TypeAccessSyntax
+//@[30:0056) |   |   └─IdentifierSyntax
+//@[30:0056) |   |     └─Token(Identifier) |objectWithInvalidRecursion|
+//@[56:0057) |   ├─Token(LeftSquare) |[|
+//@[57:0058) |   └─Token(RightSquare) |]|
+//@[58:0060) ├─Token(NewLine) |\n\n|
+
 @sealed()
 //@[00:0040) ├─ParameterDeclarationSyntax
 //@[00:0009) | ├─DecoratorSyntax
@@ -439,6 +455,16 @@ param disallowedUnionParam 'foo'|-99
 //@[33:0034) |       ├─Token(Minus) |-|
 //@[34:0036) |       └─IntegerLiteralSyntax
 //@[34:0036) |         └─Token(Integer) |99|
-//@[36:0037) ├─Token(NewLine) |\n|
+//@[36:0038) ├─Token(NewLine) |\n\n|
+
+param objectWithInvalidRecursionParam objectWithInvalidRecursion
+//@[00:0064) ├─ParameterDeclarationSyntax
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0037) | ├─IdentifierSyntax
+//@[06:0037) | | └─Token(Identifier) |objectWithInvalidRecursionParam|
+//@[38:0064) | └─TypeAccessSyntax
+//@[38:0064) |   └─IdentifierSyntax
+//@[38:0064) |     └─Token(Identifier) |objectWithInvalidRecursion|
+//@[64:0065) ├─Token(NewLine) |\n|
 
 //@[00:0000) └─Token(EndOfFile) ||

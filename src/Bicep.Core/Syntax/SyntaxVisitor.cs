@@ -169,6 +169,11 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.CloseBracket);
         }
 
+        public virtual void VisitArrayTypeMemberSyntax(ArrayTypeMemberSyntax syntax)
+        {
+            this.Visit(syntax.Value);
+        }
+
         public virtual void VisitUnionTypeSyntax(UnionTypeSyntax syntax)
         {
             this.VisitNodes(syntax.Children);

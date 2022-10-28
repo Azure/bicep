@@ -432,6 +432,7 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Value, diagnostics);
+                diagnostics.WriteMultiple(declaredType.GetDiagnostics());
 
                 if (LanguageConstants.ReservedTypeNames.Contains(syntax.Name.IdentifierName))
                 {
@@ -447,8 +448,20 @@ namespace Bicep.Core.TypeSystem
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
                 var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Value, diagnostics);
+                diagnostics.WriteMultiple(declaredType.GetDiagnostics());
 
                 base.VisitObjectTypePropertySyntax(syntax);
+
+                return declaredType;
+            });
+
+        public override void VisitArrayTypeMemberSyntax(ArrayTypeMemberSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = typeManager.GetDeclaredType(syntax) ?? ErrorType.Empty();
+                diagnostics.WriteMultiple(declaredType.GetDiagnostics());
+
+                base.VisitArrayTypeMemberSyntax(syntax);
 
                 return declaredType;
             });

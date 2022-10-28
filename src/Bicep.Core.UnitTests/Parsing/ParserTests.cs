@@ -397,10 +397,10 @@ type foo = {
             objectProp.Properties.Last().Value.Should().BeOfType<ArrayTypeSyntax>();
 
             var arrayProp = (ArrayTypeSyntax) objectProp.Properties.Last().Value;
-            arrayProp.Item.Should().BeOfType<ArrayTypeSyntax>();
-            var intermediateArray = (ArrayTypeSyntax) arrayProp.Item;
-            intermediateArray.Item.Should().BeOfType<ArrayTypeSyntax>();
-            var innerArray = (ArrayTypeSyntax) intermediateArray.Item;
+            arrayProp.Item.Value.Should().BeOfType<ArrayTypeSyntax>();
+            var intermediateArray = (ArrayTypeSyntax) arrayProp.Item.Value;
+            intermediateArray.Item.Value.Should().BeOfType<ArrayTypeSyntax>();
+            var innerArray = (ArrayTypeSyntax) intermediateArray.Item.Value;
             innerArray.Item.Should().BeOfType<SimpleTypeSyntax>();
         }
 
