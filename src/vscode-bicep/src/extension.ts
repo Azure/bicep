@@ -11,7 +11,7 @@ import {
   TextEditor,
   Uri,
   window,
-  workspace
+  workspace,
 } from "vscode";
 import * as lsp from "vscode-languageclient/node";
 import {
@@ -26,7 +26,7 @@ import {
   ShowVisualizerToSideCommand,
   WalkthroughCopyToClipboardCommand,
   WalkthroughCreateBicepFileCommand,
-  WalkthroughOpenBicepFileCommand
+  WalkthroughOpenBicepFileCommand,
 } from "./commands";
 import { CreateBicepConfigurationFile } from "./commands/createConfigurationFile";
 import { DecompileCommand } from "./commands/decompile";
@@ -39,7 +39,7 @@ import {
   createLogger,
   Disposable,
   getLogger,
-  resetLogger
+  resetLogger,
 } from "./utils";
 import { createAzExtOutputChannel } from "./utils/AzExtOutputChannel";
 import { OutputChannelManager } from "./utils/OutputChannelManager";

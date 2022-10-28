@@ -11,7 +11,7 @@ import {
   executeCloseAllEditors,
   executeShowSourceCommand,
   executeShowVisualizerCommand,
-  executeShowVisualizerToSideCommand
+  executeShowVisualizerToSideCommand,
 } from "./commands";
 import { resolveExamplePath } from "./examples";
 

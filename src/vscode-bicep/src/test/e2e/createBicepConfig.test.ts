@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { } from "fs";
+import {} from "fs";
 import fse from "fs-extra";
 import path from "path";
 import { TextEditor, Uri, window } from "vscode";
@@ -10,7 +10,7 @@ import { normalizeMultilineString } from "../utils/normalizeMultilineString";
 import { testScope } from "../utils/testScope";
 import {
   executeCloseAllEditors,
-  executeCreateConfigFileCommand
+  executeCreateConfigFileCommand,
 } from "./commands";
 import { expectedNewConfigFileContents } from "./expectedNewConfigFileContents";
 

@@ -7,7 +7,7 @@ import {
   IActionContext,
   IAzureQuickPickItem,
   ISubscriptionContext,
-  parseError
+  parseError,
 } from "@microsoft/vscode-azext-utils";
 import assert from "assert";
 import moment from "moment";
@@ -16,7 +16,7 @@ import * as path from "path";
 import vscode, { commands, Uri } from "vscode";
 import {
   LanguageClient,
-  TextDocumentIdentifier
+  TextDocumentIdentifier,
 } from "vscode-languageclient/node";
 import {
   BicepDeploymentParametersResponse,
@@ -26,7 +26,7 @@ import {
   BicepDeploymentStartResponse,
   BicepDeploymentWaitForCompletionParams,
   BicepUpdatedDeploymentParameter,
-  ParametersFileUpdateOption
+  ParametersFileUpdateOption,
 } from "../language";
 import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
 import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
@@ -60,7 +60,7 @@ export class DeployCommand implements Command {
     private readonly client: LanguageClient,
     private readonly outputChannelManager: OutputChannelManager,
     private readonly treeManager: TreeManager
-  ) { }
+  ) {}
 
   public async execute(
     context: IActionContext,
@@ -103,7 +103,7 @@ export class DeployCommand implements Command {
       if (!template) {
         this.outputChannelManager.appendToOutputChannel(
           "Unable to deploy. Please fix below errors:\n " +
-          deploymentScopeResponse?.errorMessage
+            deploymentScopeResponse?.errorMessage
         );
         return;
       }
@@ -178,7 +178,7 @@ export class DeployCommand implements Command {
         default: {
           throw new Error(
             deploymentScopeResponse?.errorMessage ??
-            "Unknown error determining target scope"
+              "Unknown error determining target scope"
           );
         }
       }
@@ -208,8 +208,9 @@ export class DeployCommand implements Command {
           },
         ];
       } else {
-        errorMessage = `Deployment failed for ${documentPath}. ${parseError(err).message
-          }`;
+        errorMessage = `Deployment failed for ${documentPath}. ${
+          parseError(err).message
+        }`;
       }
       this.outputChannelManager.appendToOutputChannel(errorMessage);
       throw err;
@@ -451,10 +452,10 @@ export class DeployCommand implements Command {
           );
         }
         const bicepDeploymentWaitForCompletionParams: BicepDeploymentWaitForCompletionParams =
-        {
-          deployId,
-          documentPath,
-        };
+          {
+            deployId,
+            documentPath,
+          };
         this.client.sendRequest("workspace/executeCommand", {
           command: "deploy/waitForCompletion",
           arguments: [bicepDeploymentWaitForCompletionParams],

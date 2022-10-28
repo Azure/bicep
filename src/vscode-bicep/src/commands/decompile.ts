@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 import {
-  IActionContext, UserCancelledError
+  IActionContext,
+  UserCancelledError,
 } from "@microsoft/vscode-azext-utils";
 import assert from "assert";
 import * as fse from "fs-extra";
@@ -35,7 +36,7 @@ interface BicepDecompileCommandResult {
 interface BicepDecompileSaveCommandParams {
   decompileId: string;
   outputFiles: DecompiledFile[];
-  overwrite: boolean
+  overwrite: boolean;
 }
 
 interface BicepDecompileSaveCommandResult {
@@ -75,18 +76,24 @@ export class DecompileCommand implements Command {
     const decompileParams: DecompileCommandParams = {
       jsonUri: documentUri.toString(),
     };
-    const decompileResult: BicepDecompileCommandResult = await this.client.sendRequest(
-      "workspace/executeCommand",
-      {
+    const decompileResult: BicepDecompileCommandResult =
+      await this.client.sendRequest("workspace/executeCommand", {
         command: "decompile",
         arguments: [decompileParams],
-      }
-    );
+      });
 
-    this.outputChannelManager.appendToOutputChannel(decompileResult.output.trimEnd());
-    context.telemetry.properties.decompileStatus = decompileResult.errorMessage ? "failed" : "success";
-    context.telemetry.properties.countOutputFiles = String(decompileResult.outputFiles.length);
-    context.telemetry.properties.countConflictFiles = String(decompileResult.conflictingOutputPaths.length);
+    this.outputChannelManager.appendToOutputChannel(
+      decompileResult.output.trimEnd()
+    );
+    context.telemetry.properties.decompileStatus = decompileResult.errorMessage
+      ? "failed"
+      : "success";
+    context.telemetry.properties.countOutputFiles = String(
+      decompileResult.outputFiles.length
+    );
+    context.telemetry.properties.countConflictFiles = String(
+      decompileResult.conflictingOutputPaths.length
+    );
 
     if (decompileResult.errorMessage) {
       // Language server will have already shown the message
@@ -95,26 +102,33 @@ export class DecompileCommand implements Command {
     }
 
     // If there are conflicts, ask if we should overwrite
-    var mainBicepPath = decompileResult.outputFiles[0].absolutePath;
-    var outputFolder = path.dirname(mainBicepPath);
-    var overwrite = await this.queryOverwrite(context, outputFolder, decompileResult.outputFiles, decompileResult.conflictingOutputPaths);
+    const mainBicepPath = decompileResult.outputFiles[0].absolutePath;
+    const outputFolder = path.dirname(mainBicepPath);
+    const overwrite = await this.queryOverwrite(
+      context,
+      outputFolder,
+      decompileResult.outputFiles,
+      decompileResult.conflictingOutputPaths
+    );
 
     // Save the output files
     const saveParams: BicepDecompileSaveCommandParams = {
       decompileId: decompileResult.decompileId,
       outputFiles: decompileResult.outputFiles,
-      overwrite
+      overwrite,
     };
-    const saveResult: BicepDecompileSaveCommandResult = await this.client.sendRequest(
-      "workspace/executeCommand",
-      {
+    const saveResult: BicepDecompileSaveCommandResult =
+      await this.client.sendRequest("workspace/executeCommand", {
         command: "decompileSave",
         arguments: [saveParams],
-      }
-    );
-    context.telemetry.properties.saveStatus = decompileResult.errorMessage ? "failed" : "success";
+      });
+    context.telemetry.properties.saveStatus = decompileResult.errorMessage
+      ? "failed"
+      : "success";
 
-    this.outputChannelManager.appendToOutputChannel(saveResult.output.trimEnd());
+    this.outputChannelManager.appendToOutputChannel(
+      saveResult.output.trimEnd()
+    );
   }
 
   public static async mightBeArmTemplate(documentUri: Uri): Promise<boolean> {
@@ -130,42 +144,57 @@ export class DecompileCommand implements Command {
     return false;
   }
 
-  private async queryOverwrite(context: IActionContext, outputFolder: string, outputFiles: DecompiledFile[], conflictingOutputPaths: DocumentUri[]): Promise<boolean> {
+  private async queryOverwrite(
+    context: IActionContext,
+    outputFolder: string,
+    outputFiles: DecompiledFile[],
+    conflictingOutputPaths: DocumentUri[]
+  ): Promise<boolean> {
     let overwrite: boolean;
-    let isSingleFileDecompilation = outputFiles.length === 1;
+    const isSingleFileDecompilation = outputFiles.length === 1;
 
     if (conflictingOutputPaths.length === 0) {
       // No conflicts - write to intended absolute paths
       overwrite = true;
     } else {
       const overwriteAction: MessageItem = {
-        title: isSingleFileDecompilation ? "Overwrite" : "Overwrite all"
+        title: isSingleFileDecompilation ? "Overwrite" : "Overwrite all",
       };
       const createCopyAction: MessageItem = {
-        title: isSingleFileDecompilation ? "Create copy" : "New subfolder"
+        title: isSingleFileDecompilation ? "Create copy" : "New subfolder",
       };
       const cancelAction: MessageItem = {
         title: "Cancel",
-        isCloseAffordance: true
+        isCloseAffordance: true,
       };
 
-      const conflictFilesWithQuotes = conflictingOutputPaths.map(f => `"${f}"`).join(", ");
-      const message =
-        isSingleFileDecompilation ?
-          `Output file already exists: ${conflictFilesWithQuotes}` :
-          `There are multiple decompilation output files and the following already exist: ${conflictFilesWithQuotes}`;
+      const conflictFilesWithQuotes = conflictingOutputPaths
+        .map((f) => `"${f}"`)
+        .join(", ");
+      const message = isSingleFileDecompilation
+        ? `Output file already exists: ${conflictFilesWithQuotes}`
+        : `There are multiple decompilation output files and the following already exist: ${conflictFilesWithQuotes}`;
       this.outputChannelManager.appendToOutputChannel(message.trimEnd());
 
-      var result = await context.ui.showWarningMessage(message, overwriteAction, createCopyAction, cancelAction);
+      const result = await context.ui.showWarningMessage(
+        message,
+        overwriteAction,
+        createCopyAction,
+        cancelAction
+      );
       if (result === cancelAction) {
         this.outputChannelManager.appendToOutputChannel("Canceled.");
         throw new UserCancelledError("queryOverwrite");
       }
 
       assert(result === overwriteAction || result === createCopyAction);
-      overwrite = (result === overwriteAction);
-      this.outputChannelManager.appendToOutputChannel(`Response: ${result.title}`);
-      context.telemetry.properties.conflictResolution = overwrite ? "overwrite" : "copy";
+      overwrite = result === overwriteAction;
+      this.outputChannelManager.appendToOutputChannel(
+        `Response: ${result.title}`
+      );
+      context.telemetry.properties.conflictResolution = overwrite
+        ? "overwrite"
+        : "copy";
     }
 
     return overwrite;
