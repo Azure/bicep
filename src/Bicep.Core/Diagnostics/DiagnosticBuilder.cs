@@ -1710,10 +1710,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP300",
                 $"Expected a type literal at this location. Please specify a concrete value or a reference to a literal type.");
 
-            public ErrorDiagnostic TypeNameMasksAmbientType(string conflictingName) => new(
+            public ErrorDiagnostic ReservedTypeName(string reservedName) => new(
                 TextSpan,
                 "BCP301",
-                $@"A user-defined type may not be named ""{conflictingName}"" because it would mask the ARM type of the same name.");
+                $@"The type name ""{reservedName}"" is reserved and may not be attached to a user-defined type.");
 
             public ErrorDiagnostic SymbolicNameIsNotAType(string name, IEnumerable<string> validTypes) => new(
                 TextSpan,

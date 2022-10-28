@@ -1,71 +1,74 @@
 type 44
-//@[5:07) Type <error>. Type: any. Declaration start char: 0, length: 7
+//@[5:07) TypeAlias <error>. Type: any. Declaration start char: 0, length: 7
 
 type noAssignment
-//@[5:17) Type noAssignment. Type: any. Declaration start char: 0, length: 17
+//@[5:17) TypeAlias noAssignment. Type: any. Declaration start char: 0, length: 17
 
 type incompleteAssignment =
-//@[5:25) Type incompleteAssignment. Type: any. Declaration start char: 0, length: 27
+//@[5:25) TypeAlias incompleteAssignment. Type: any. Declaration start char: 0, length: 27
 
-type string = string
-//@[5:11) Type string. Type: string. Declaration start char: 0, length: 20
+type string = int
+//@[5:11) TypeAlias string. Type: int. Declaration start char: 0, length: 17
+
+type resource = bool
+//@[5:13) TypeAlias resource. Type: bool. Declaration start char: 0, length: 20
 
 @sealed()
 type sealedString = string
-//@[5:17) Type sealedString. Type: string. Declaration start char: 0, length: 36
+//@[5:17) TypeAlias sealedString. Type: string. Declaration start char: 0, length: 36
 
 type disallowedUnion = 'foo'|21
-//@[5:20) Type disallowedUnion. Type: error. Declaration start char: 0, length: 31
+//@[5:20) TypeAlias disallowedUnion. Type: error. Declaration start char: 0, length: 31
 
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
-//@[5:28) Type validStringLiteralUnion. Type: 'bar' | 'baz' | 'foo'. Declaration start char: 0, length: 48
+//@[5:28) TypeAlias validStringLiteralUnion. Type: 'bar' | 'baz' | 'foo'. Declaration start char: 0, length: 48
 
 type validUnionInvalidAddition = validStringLiteralUnion|10
-//@[5:30) Type validUnionInvalidAddition. Type: error. Declaration start char: 0, length: 59
+//@[5:30) TypeAlias validUnionInvalidAddition. Type: error. Declaration start char: 0, length: 59
 
 type invalidUnionInvalidAddition = disallowedUnion|true
-//@[5:32) Type invalidUnionInvalidAddition. Type: error. Declaration start char: 0, length: 55
+//@[5:32) TypeAlias invalidUnionInvalidAddition. Type: error. Declaration start char: 0, length: 55
 
 type nullLiteral = null
-//@[5:16) Type nullLiteral. Type: error. Declaration start char: 0, length: 23
+//@[5:16) TypeAlias nullLiteral. Type: error. Declaration start char: 0, length: 23
 
 type unionOfNulls = null|null
-//@[5:17) Type unionOfNulls. Type: error. Declaration start char: 0, length: 29
+//@[5:17) TypeAlias unionOfNulls. Type: error. Declaration start char: 0, length: 29
 
 @minLength(3)
 type lengthConstrainedInt = int
-//@[5:25) Type lengthConstrainedInt. Type: int. Declaration start char: 0, length: 45
+//@[5:25) TypeAlias lengthConstrainedInt. Type: int. Declaration start char: 0, length: 45
 
 @minValue(3)
 type valueConstrainedString = string
-//@[5:27) Type valueConstrainedString. Type: string. Declaration start char: 0, length: 49
+//@[5:27) TypeAlias valueConstrainedString. Type: string. Declaration start char: 0, length: 49
 
 type tautology = tautology
-//@[5:14) Type tautology. Type: error. Declaration start char: 0, length: 26
+//@[5:14) TypeAlias tautology. Type: error. Declaration start char: 0, length: 26
 
 type tautologicalUnion = tautologicalUnion|'foo'
-//@[5:22) Type tautologicalUnion. Type: error. Declaration start char: 0, length: 48
+//@[5:22) TypeAlias tautologicalUnion. Type: error. Declaration start char: 0, length: 48
 
 type tautologicalArray = tautologicalArray[]
-//@[5:22) Type tautologicalArray. Type: error. Declaration start char: 0, length: 44
+//@[5:22) TypeAlias tautologicalArray. Type: error. Declaration start char: 0, length: 44
 
 type directCycleStart = directCycleReturn
-//@[5:21) Type directCycleStart. Type: error. Declaration start char: 0, length: 41
+//@[5:21) TypeAlias directCycleStart. Type: error. Declaration start char: 0, length: 41
 
 type directCycleReturn = directCycleStart
-//@[5:22) Type directCycleReturn. Type: error. Declaration start char: 0, length: 41
+//@[5:22) TypeAlias directCycleReturn. Type: error. Declaration start char: 0, length: 41
 
 type cycleRoot = connector
-//@[5:14) Type cycleRoot. Type: error. Declaration start char: 0, length: 26
+//@[5:14) TypeAlias cycleRoot. Type: error. Declaration start char: 0, length: 26
 
 type connector = cycleBack
-//@[5:14) Type connector. Type: error. Declaration start char: 0, length: 26
+//@[5:14) TypeAlias connector. Type: error. Declaration start char: 0, length: 26
 
 type cycleBack = cycleRoot
-//@[5:14) Type cycleBack. Type: error. Declaration start char: 0, length: 26
+//@[5:14) TypeAlias cycleBack. Type: error. Declaration start char: 0, length: 26
 
 type objectWithInvalidPropertyDecorators = {
-//@[5:40) Type objectWithInvalidPropertyDecorators. Type: { fooProp: string, barProp: string, krispyProp: string }. Declaration start char: 0, length: 168
+//@[5:40) TypeAlias objectWithInvalidPropertyDecorators. Type: { fooProp: string, barProp: string, krispyProp: string }. Declaration start char: 0, length: 168
   @sealed()
   fooProp: string
 
@@ -77,9 +80,12 @@ type objectWithInvalidPropertyDecorators = {
 }
 
 type objectWithInvalidRecursion = {
-//@[5:31) Type objectWithInvalidRecursion. Type: error. Declaration start char: 0, length: 92
+//@[5:31) TypeAlias objectWithInvalidRecursion. Type: error. Declaration start char: 0, length: 92
   requiredAndRecursiveProp: objectWithInvalidRecursion
 }
+
+type arrayWithInvalidMember = objectWithInvalidRecursion[]
+//@[5:27) TypeAlias arrayWithInvalidMember. Type: error[]. Declaration start char: 0, length: 58
 
 @sealed()
 param sealedStringParam string

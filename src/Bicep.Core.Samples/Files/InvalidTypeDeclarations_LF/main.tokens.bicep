@@ -14,11 +14,18 @@ type incompleteAssignment =
 //@[26:27) Assignment |=|
 //@[27:29) NewLine |\n\n|
 
-type string = string
+type string = int
 //@[00:04) Identifier |type|
 //@[05:11) Identifier |string|
 //@[12:13) Assignment |=|
-//@[14:20) Identifier |string|
+//@[14:17) Identifier |int|
+//@[17:19) NewLine |\n\n|
+
+type resource = bool
+//@[00:04) Identifier |type|
+//@[05:13) Identifier |resource|
+//@[14:15) Assignment |=|
+//@[16:20) Identifier |bool|
 //@[20:22) NewLine |\n\n|
 
 @sealed()

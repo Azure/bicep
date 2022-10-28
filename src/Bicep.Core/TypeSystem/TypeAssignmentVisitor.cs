@@ -433,9 +433,9 @@ namespace Bicep.Core.TypeSystem
             {
                 var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Value, diagnostics);
 
-                if (LanguageConstants.DeclarationTypes.Keys.Any(s => LanguageConstants.IdentifierComparer.Equals(s, syntax.Name.IdentifierName)))
+                if (LanguageConstants.ReservedTypeNames.Contains(syntax.Name.IdentifierName))
                 {
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Name).TypeNameMasksAmbientType(syntax.Name.IdentifierName));
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Name).ReservedTypeName(syntax.Name.IdentifierName));
                 }
 
                 base.VisitTypeDeclarationSyntax(syntax);

@@ -1,5 +1,5 @@
 type 44
-//@[00:1109) ProgramSyntax
+//@[00:1128) ProgramSyntax
 //@[00:0007) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
 //@[05:0007) | ├─IdentifierSyntax
@@ -27,14 +27,24 @@ type incompleteAssignment =
 //@[27:0027) | └─SkippedTriviaSyntax
 //@[27:0029) ├─Token(NewLine) |\n\n|
 
-type string = string
-//@[00:0020) ├─TypeDeclarationSyntax
+type string = int
+//@[00:0017) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
 //@[05:0011) | ├─IdentifierSyntax
 //@[05:0011) | | └─Token(Identifier) |string|
 //@[12:0013) | ├─Token(Assignment) |=|
-//@[14:0020) | └─SimpleTypeSyntax
-//@[14:0020) |   └─Token(Identifier) |string|
+//@[14:0017) | └─SimpleTypeSyntax
+//@[14:0017) |   └─Token(Identifier) |int|
+//@[17:0019) ├─Token(NewLine) |\n\n|
+
+type resource = bool
+//@[00:0020) ├─TypeDeclarationSyntax
+//@[00:0004) | ├─Token(Identifier) |type|
+//@[05:0013) | ├─IdentifierSyntax
+//@[05:0013) | | └─Token(Identifier) |resource|
+//@[14:0015) | ├─Token(Assignment) |=|
+//@[16:0020) | └─SimpleTypeSyntax
+//@[16:0020) |   └─Token(Identifier) |bool|
 //@[20:0022) ├─Token(NewLine) |\n\n|
 
 @sealed()

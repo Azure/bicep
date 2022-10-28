@@ -1,7 +1,7 @@
 // @description('The foo type')
 // @sealed()
 type foo = {
-//@[5:08) Type foo. Type: { stringProp: string, objectProp: { intProp: int, intArrayArrayProp?: int[][] }, typeRefProp: bar, literalProp: 'literal', recursion?: foo }. Declaration start char: 0, length: 262
+//@[5:08) TypeAlias foo. Type: { stringProp: string, objectProp: { intProp: int, intArrayArrayProp?: int[][] }, typeRefProp: bar, literalProp: 'literal', recursion?: foo }. Declaration start char: 0, length: 262
   @minLength(3)
   @maxLength(10)
   // @description('A string property')
@@ -29,19 +29,19 @@ type foo = {
 //   ]
 // })
 type bar = int[][][][]
-//@[5:08) Type bar. Type: int[][][][]. Declaration start char: 0, length: 181
+//@[5:08) TypeAlias bar. Type: int[][][][]. Declaration start char: 0, length: 181
 
 type aUnion = 'snap'|'crackle'|'pop'
-//@[5:11) Type aUnion. Type: 'crackle' | 'pop' | 'snap'. Declaration start char: 0, length: 36
+//@[5:11) TypeAlias aUnion. Type: 'crackle' | 'pop' | 'snap'. Declaration start char: 0, length: 36
 
 type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
-//@[5:18) Type expandedUnion. Type: 'buzz' | 'crackle' | 'fizz' | 'pop' | 'snap'. Declaration start char: 0, length: 47
+//@[5:18) TypeAlias expandedUnion. Type: 'buzz' | 'crackle' | 'fizz' | 'pop' | 'snap'. Declaration start char: 0, length: 47
 
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
-//@[5:15) Type mixedArray. Type: ('heffalump' | 'woozle' | -10 | 10 | false | null | true | { shape: '*', size: '*' })[]. Declaration start char: 0, length: 90
+//@[5:15) TypeAlias mixedArray. Type: ('heffalump' | 'woozle' | -10 | 10 | false | null | true | { shape: '*', size: '*' })[]. Declaration start char: 0, length: 90
 
 type String = string
-//@[5:11) Type String. Type: string. Declaration start char: 0, length: 20
+//@[5:11) TypeAlias String. Type: string. Declaration start char: 0, length: 20
 
 param inlineObjectParam {
 //@[6:23) Parameter inlineObjectParam. Type: { foo: string, bar: 100 | 200 | 300 | 400 | 500, baz: bool }. Declaration start char: 0, length: 123
