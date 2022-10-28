@@ -25,7 +25,7 @@ namespace Bicep.Core.TypeSystem
         // maps syntax nodes to their declared types
         // processed nodes found not to have a declared type will have a null value
         private readonly ConcurrentDictionary<SyntaxBase, DeclaredTypeAssignment?> declaredTypes = new();
-        private readonly ConcurrentDictionary<DeclaredTypeSymbol, TypeSymbol> declaredTypeReferences = new();
+        private readonly ConcurrentDictionary<TypeAliasSymbol, TypeSymbol> userDefinedTypeReferences = new();
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
         private readonly IFeatureProvider features;
@@ -184,7 +184,7 @@ namespace Bicep.Core.TypeSystem
 
             var type = binder.GetSymbolInfo(syntax) switch
             {
-                DeclaredTypeSymbol declaredType => declaredTypeReferences.GetOrAdd(declaredType, GetTypeDeclared),
+                TypeAliasSymbol declaredType => userDefinedTypeReferences.GetOrAdd(declaredType, GetUserDefinedTypeType),
                 ErrorSymbol errorSymbol => errorSymbol.ToErrorType(),
                 // binder.GetSymbolInfo(TypeDeclarationSyntax) should always return a DeclaredTypeSymbol or an error, but just in case...
                 _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
@@ -193,7 +193,7 @@ namespace Bicep.Core.TypeSystem
             return new(type, syntax);
         }
 
-        private TypeSymbol GetTypeDeclared(DeclaredTypeSymbol symbol)
+        private TypeSymbol GetUserDefinedTypeType(TypeAliasSymbol symbol)
         {
             if (binder.TryGetCycle(symbol) is {} cycle)
             {
@@ -213,9 +213,9 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference? GetTypeReferencForTypeProperty(ObjectTypePropertySyntax syntax)
         {
-            if (syntax.Value is TypeAccessSyntax signifier && binder.GetSymbolInfo(signifier) is DeclaredTypeSymbol signified)
+            if (syntax.Value is TypeAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol signified)
             {
-                return new DeferredTypeReference(() => declaredTypeReferences.GetOrAdd(signified, GetTypeDeclared));
+                return new DeferredTypeReference(() => userDefinedTypeReferences.GetOrAdd(signified, GetUserDefinedTypeType));
             }
 
             return TryGetTypeFromTypeSyntax(syntax.Value);
@@ -291,7 +291,7 @@ namespace Bicep.Core.TypeSystem
         private TypeSymbol ParseTypeExpression(TypeAccessSyntax syntax)
             => binder.GetSymbolInfo(syntax) switch
             {
-                DeclaredTypeSymbol declaredType => TypeRefToType(syntax, declaredType),
+                TypeAliasSymbol declaredType => TypeRefToType(syntax, declaredType),
                 DeclaredSymbol declaredSymbol => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
                 _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
             };
@@ -300,9 +300,9 @@ namespace Bicep.Core.TypeSystem
                 .Concat(binder.FileSymbol.TypeDeclarations.Select(td => td.Name))
                 .Distinct();
 
-        private TypeSymbol TypeRefToType(TypeAccessSyntax signifier, DeclaredTypeSymbol signified)
+        private TypeSymbol TypeRefToType(TypeAccessSyntax signifier, TypeAliasSymbol signified)
         {
-            var signifiedType = declaredTypeReferences.GetOrAdd(signified, GetTypeDeclared);
+            var signifiedType = userDefinedTypeReferences.GetOrAdd(signified, GetUserDefinedTypeType);
             if (signifiedType is ErrorType error)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(signifier).ReferencedSymbolHasErrors(signified.Name));

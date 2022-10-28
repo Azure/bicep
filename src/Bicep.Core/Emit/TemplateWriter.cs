@@ -249,7 +249,7 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndObject();
         }
 
-        private void EmitTypeDeclaration(JsonTextWriter jsonWriter, DeclaredTypeSymbol declaredTypeSymbol, ExpressionEmitter emitter)
+        private void EmitTypeDeclaration(JsonTextWriter jsonWriter, TypeAliasSymbol declaredTypeSymbol, ExpressionEmitter emitter)
         {
             jsonWriter.WriteStartObject();
 

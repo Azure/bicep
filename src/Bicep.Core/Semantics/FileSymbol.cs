@@ -40,7 +40,7 @@ namespace Bicep.Core.Semantics
             this.ImportDeclarations = declarations.OfType<ImportedNamespaceSymbol>().ToImmutableArray();
             this.MetadataDeclarations = declarations.OfType<MetadataSymbol>().ToImmutableArray();
             this.ParameterDeclarations = declarations.OfType<ParameterSymbol>().ToImmutableArray();
-            this.TypeDeclarations = declarations.OfType<DeclaredTypeSymbol>().ToImmutableArray();
+            this.TypeDeclarations = declarations.OfType<TypeAliasSymbol>().ToImmutableArray();
             this.VariableDeclarations = declarations.OfType<VariableSymbol>().ToImmutableArray();
             this.ResourceDeclarations = declarations.OfType<ResourceSymbol>().ToImmutableArray();
             this.ModuleDeclarations = declarations.OfType<ModuleSymbol>().ToImmutableArray();
@@ -87,7 +87,7 @@ namespace Bicep.Core.Semantics
 
         public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
 
-        public ImmutableArray<DeclaredTypeSymbol> TypeDeclarations { get; }
+        public ImmutableArray<TypeAliasSymbol> TypeDeclarations { get; }
 
         public ImmutableArray<VariableSymbol> VariableDeclarations { get; }
 

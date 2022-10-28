@@ -1395,7 +1395,7 @@ namespace Bicep.Core.TypeSystem
                     case OutputSymbol _:
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).OutputReferenceNotSupported(syntax.Name.IdentifierName));
 
-                    case DeclaredTypeSymbol _:
+                    case TypeAliasSymbol _:
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).TypeSymbolUsedAsValue(syntax.Name.IdentifierName));
 
                     default:

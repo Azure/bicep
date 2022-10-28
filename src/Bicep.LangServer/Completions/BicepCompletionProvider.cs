@@ -283,7 +283,7 @@ namespace Bicep.LanguageServer.Completions
                 {
                     completions = completions.Concat(GetUserDefinedTypeCompletions(model, context));
                 }
-                
+
                 // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
                 if (model.Features.ResourceTypedParamsAndOutputsEnabled)
                 {
@@ -329,10 +329,10 @@ namespace Bicep.LanguageServer.Completions
         private static IEnumerable<CompletionItem> GetPrimitiveTypeCompletions(SemanticModel model, BicepCompletionContext context) =>
             LanguageConstants.DeclarationTypes.Values.Select(type => CreateTypeCompletion(type, context.ReplacementRange));
 
-        private static IEnumerable<CompletionItem> GetUserDefinedTypeCompletions(SemanticModel model, BicepCompletionContext context, Func<DeclaredTypeSymbol, bool>? filter = null)
+        private static IEnumerable<CompletionItem> GetUserDefinedTypeCompletions(SemanticModel model, BicepCompletionContext context, Func<TypeAliasSymbol, bool>? filter = null)
         {
-            IEnumerable<DeclaredTypeSymbol> declarationsForCompletions = model.Binder.FileSymbol.TypeDeclarations;
-            
+            IEnumerable<TypeAliasSymbol> declarationsForCompletions = model.Binder.FileSymbol.TypeDeclarations;
+
             if (filter is not null)
             {
                 declarationsForCompletions = declarationsForCompletions.Where(filter);
@@ -915,6 +915,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 MetadataSymbol metadataSymbol => GetAccessible(knownDecoratorFunctions, metadataSymbol.Type, FunctionFlags.MetadataDecorator),
                 ParameterSymbol parameterSymbol => GetAccessible(knownDecoratorFunctions, parameterSymbol.Type, FunctionFlags.ParameterDecorator),
+                TypeAliasSymbol declaredTypeSymbol => GetAccessible(knownDecoratorFunctions, declaredTypeSymbol.Type, FunctionFlags.TypeDecorator),
                 VariableSymbol variableSymbol => GetAccessible(knownDecoratorFunctions, variableSymbol.Type, FunctionFlags.VariableDecorator),
                 ResourceSymbol resourceSymbol => GetAccessible(knownDecoratorFunctions, resourceSymbol.Type, FunctionFlags.ResourceDecorator),
                 ModuleSymbol moduleSymbol => GetAccessible(knownDecoratorFunctions, moduleSymbol.Type, FunctionFlags.ModuleDecorator),
@@ -1434,7 +1435,7 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(GetSortText(type.Name, priority))
                 .Build();
 
-        private static CompletionItem CreateDeclaredTypeCompletion(DeclaredTypeSymbol declaredType, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
+        private static CompletionItem CreateDeclaredTypeCompletion(TypeAliasSymbol declaredType, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
             CompletionItemBuilder.Create(CompletionItemKind.Class, declaredType.Name)
                 .WithPlainTextEdit(replacementRange, declaredType.Name)
                 .WithDetail(declaredType.Type.Name)
@@ -1673,6 +1674,7 @@ namespace Bicep.LanguageServer.Completions
                 SymbolKind.ImportedNamespace => CompletionItemKind.Folder,
                 SymbolKind.Output => CompletionItemKind.Value,
                 SymbolKind.Parameter => CompletionItemKind.Field,
+                SymbolKind.TypeAlias => CompletionItemKind.TypeParameter,
                 SymbolKind.Resource => CompletionItemKind.Interface,
                 SymbolKind.Module => CompletionItemKind.Module,
                 SymbolKind.Local => CompletionItemKind.Variable,

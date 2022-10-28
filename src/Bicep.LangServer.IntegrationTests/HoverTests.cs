@@ -581,7 +581,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
                         tooltip.Should().Contain($"param {parameter.Name}: {parameter.Type}");
                         break;
 
-                    case DeclaredTypeSymbol declaredType:
+                    case TypeAliasSymbol declaredType:
                         tooltip.Should().Contain($"type {declaredType.Name}: {declaredType.Type}");
                         break;
 

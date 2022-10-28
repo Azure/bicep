@@ -69,7 +69,7 @@ namespace Bicep.Core.Semantics
         {
             base.VisitTypeDeclarationSyntax(syntax);
 
-            var symbol = new DeclaredTypeSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Value);
+            var symbol = new TypeAliasSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Value);
             DeclareSymbol(symbol);
         }
 

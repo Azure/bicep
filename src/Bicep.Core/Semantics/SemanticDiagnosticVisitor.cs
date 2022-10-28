@@ -32,9 +32,9 @@ namespace Bicep.Core.Semantics
             this.CollectDiagnostics(symbol);
         }
 
-        public override void VisitDeclaredTypeSymbol(DeclaredTypeSymbol symbol)
+        public override void VisitTypeAliasSymbol(TypeAliasSymbol symbol)
         {
-            base.VisitDeclaredTypeSymbol(symbol);
+            base.VisitTypeAliasSymbol(symbol);
             this.CollectDiagnostics(symbol);
         }
 

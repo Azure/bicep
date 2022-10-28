@@ -71,7 +71,7 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
-        public virtual void VisitDeclaredTypeSymbol(DeclaredTypeSymbol symbol)
+        public virtual void VisitTypeAliasSymbol(TypeAliasSymbol symbol)
         {
             VisitDescendants(symbol);
         }
