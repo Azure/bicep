@@ -30,17 +30,21 @@ The Bicep solution is comprised of the following main components:
 
 ### Running the tests
 
-* You can use the following command to run most of the Bicep tests:
+* You can use the following command to run most of the Bicep dotnet-based tests:
   * `dotnet test`
 
 * Running VS Code extension unit tests
   * From repo root folder: `dotnet build`
   * From src\vscode-bicep:
     * `npm i`
-    * `npm build`
+    * `npm run build`
+    * `npm run test:unit`
+* Running VS Code extension end-to-end tests
+  * From repo root folder: `dotnet build`
+  * From src\vscode-bicep:
+    * `npm i`
+    * `npm run build`
     * `npm run testlocal:e2e`
-
-  
 
 ### Updating test baselines
 
