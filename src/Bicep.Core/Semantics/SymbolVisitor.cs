@@ -7,17 +7,8 @@ namespace Bicep.Core.Semantics
 {
     public class SymbolVisitor
     {
-        private readonly HashSet<Symbol> visited = new();
-
         public void Visit(Symbol node)
         {
-            // symbols may be recursive but should only be visited once
-            if (visited.Contains(node))
-            {
-                return;
-            }
-            visited.Add(node);
-
             VisitInternal(node);
         }
 
