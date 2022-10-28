@@ -100,7 +100,6 @@ namespace Bicep.Core.UnitTests.Assertions
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)
             {
                 instance.Subject.Should().BeEquivalentTo(expected, because, becauseArgs);
-
             }
             else
             {

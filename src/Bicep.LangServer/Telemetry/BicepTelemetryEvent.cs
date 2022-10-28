@@ -84,7 +84,7 @@ namespace Bicep.LanguageServer.Telemetry
         public static BicepTelemetryEvent InsertResourceSuccess(string resourceType, string apiVersion)
             => new BicepTelemetryEvent
             (
-                eventName: "InsertResource/success",
+                eventName: TelemetryConstants.EventNames.InsertResourceSuccess,
                 properties: new()
                 {
                     ["resourceType"] = resourceType,
@@ -95,7 +95,7 @@ namespace Bicep.LanguageServer.Telemetry
         public static BicepTelemetryEvent InsertResourceFailure(string failureType)
             => new BicepTelemetryEvent
             (
-                eventName: "InsertResource/failure",
+                eventName: TelemetryConstants.EventNames.InsertResourceFailure,
                 properties: new()
                 {
                     ["failureType"] = failureType,
@@ -105,7 +105,7 @@ namespace Bicep.LanguageServer.Telemetry
         public static BicepTelemetryEvent ImportKubernetesManifestSuccess()
             => new BicepTelemetryEvent
             (
-                eventName: "ImportKubernetesManifest/success",
+                eventName: TelemetryConstants.EventNames.InsertKubernetesManifestSuccess,
                 properties: new()
                 {
                     // Properties has to contain some data
@@ -116,7 +116,7 @@ namespace Bicep.LanguageServer.Telemetry
         public static BicepTelemetryEvent ImportKubernetesManifestFailure(string failureType)
             => new BicepTelemetryEvent
             (
-                eventName: "ImportKubernetesManifest/failure",
+                eventName: TelemetryConstants.EventNames.InsertKubernetesManifestFailure,
                 properties: new()
                 {
                     ["failureType"] = failureType,
@@ -208,7 +208,7 @@ namespace Bicep.LanguageServer.Telemetry
         public static BicepTelemetryEvent DecompileSuccess(string decompileId, int countOutputFiles, int countConflictingFiles)
             => new BicepTelemetryEvent
             (
-                eventName: "decompile/success",
+                eventName: TelemetryConstants.EventNames.DecompileSuccess,
                 properties: new()
                 {
                     ["decompileId"] = decompileId.ToString(),
@@ -220,7 +220,7 @@ namespace Bicep.LanguageServer.Telemetry
         public static BicepTelemetryEvent DecompileFailure(string failureType)
             => new BicepTelemetryEvent
             (
-                eventName: "decompile/failure",
+                eventName: TelemetryConstants.EventNames.DecompileFailure,
                 properties: new()
                 {
                     ["failureType"] = failureType,
@@ -228,19 +228,19 @@ namespace Bicep.LanguageServer.Telemetry
             );
 
         public static BicepTelemetryEvent DecompileSaveSuccess(string decompileId)
-                 => new BicepTelemetryEvent
-                 (
-                     eventName: "decompileSave/success",
-                     properties: new()
-                     {
-                         ["decompileId"] = decompileId.ToString(),
-                     }
-                 );
+            => new BicepTelemetryEvent
+                (
+                    eventName: TelemetryConstants.EventNames.DecompileSaveSuccess,
+                    properties: new()
+                    {
+                        ["decompileId"] = decompileId.ToString(),
+                    }
+                );
 
         public static BicepTelemetryEvent DecompileSaveFailure(string decompileId, string failureType)
             => new BicepTelemetryEvent
             (
-                eventName: "decompileSave/failure",
+                eventName: TelemetryConstants.EventNames.DecompileSaveFailure,
                 properties: new()
                 {
                     ["decompileId"] = decompileId.ToString(),
