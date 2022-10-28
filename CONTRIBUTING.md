@@ -34,17 +34,14 @@ The Bicep solution is comprised of the following main components:
   * `dotnet test`
 
 * Running VS Code extension unit tests
-  * From repo root folder: `dotnet build`
   * From src\vscode-bicep:
     * `npm i`
-    * `npm run build`
-    * `npm run test:unit`
+    * `npm run test:unit` or run launch vscode from src\vscode-bicep and run "Launch Tests: Unit Tests (dev)" 
 * Running VS Code extension end-to-end tests
   * From repo root folder: `dotnet build`
   * From src\vscode-bicep:
     * `npm i`
-    * `npm run build`
-    * `npm run testlocal:e2e`
+    * `npm run testlocal:e2e` or run launch vscode from src\vscode-bicep and run "Launch Tests: E2E (dev)" 
 
 ### Updating test baselines
 
