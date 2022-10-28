@@ -39,7 +39,7 @@ namespace Bicep.Core.IntegrationTests
             => EmbeddedFile.LoadAll(
                 typeof(DecompilationTests).Assembly,
                 "Working",
-                streamName => Path.GetExtension(streamName) == ".json")
+                streamName => Path.GetExtension(streamName) == ".json" && streamName.Contains("metadata"))
             .Select(x => new object[] { x });
 
         [DataTestMethod]
