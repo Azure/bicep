@@ -85,6 +85,16 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<StringAssertions>(instance);
         }
 
+        public static AndConstraint<StringAssertions> ContainIgnoringNewlines(this StringAssertions instance, string expected)
+        {
+            var normalizedActual = StringUtils.ReplaceNewlines(instance.Subject, "\n");
+            var normalizedExpected = StringUtils.ReplaceNewlines(expected, "\n");
+
+            normalizedActual.Should().Contain(normalizedExpected);
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
         public static AndConstraint<StringAssertions> BeEquivalentToPath(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
         {
             if (Environment.OSVersion.Platform == PlatformID.Win32NT)

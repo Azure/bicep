@@ -109,8 +109,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 if (module.TryGetSemanticModel(out ISemanticModel? moduleModel, out _))
                 {
-                    foreach (var formalParam in moduleModel.Parameters)
+                    foreach (var formalParam in moduleModel.Parameters.Values)
                     {
+                        // we cannot use the Parameters dictionary because we need to do a case-insensitive match in this rule
                         if (formalParam.Name.Equals(ArtifactsLocationName, ArmParameterComparison) ||
                             formalParam.Name.Equals(ArtifactsLocationSasTokenName, ArmParameterComparison))
                         {
@@ -118,7 +119,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             if (module.DeclaringSyntax is ModuleDeclarationSyntax moduleSyntax)
                             {
                                 var moduleParamsPropertyObject = moduleSyntax.TryGetBody()?
-                                    .TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName) as ObjectPropertySyntax;
+                                    .TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName);
 
                                 // Look for a parameter value being passed in for the formal parameter that we found
                                 // Be sure the param value we're looking for matches exactly the name/casing for the formal parameter (ordinal)

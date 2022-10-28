@@ -22,7 +22,7 @@ namespace Bicep.Core.Semantics
 
         public ResourceScope TargetScope => this.mainTemplateSemanticModel.TargetScope;
 
-        public ImmutableArray<ParameterMetadata> Parameters => this.mainTemplateSemanticModel.Parameters;
+        public ImmutableDictionary<string, ParameterMetadata> Parameters => this.mainTemplateSemanticModel.Parameters;
 
         public ImmutableArray<OutputMetadata> Outputs => this.mainTemplateSemanticModel.Outputs;
 
