@@ -401,7 +401,7 @@ type foo = {
             var intermediateArray = (ArrayTypeSyntax) arrayProp.Item.Value;
             intermediateArray.Item.Value.Should().BeOfType<ArrayTypeSyntax>();
             var innerArray = (ArrayTypeSyntax) intermediateArray.Item.Value;
-            innerArray.Item.Should().BeOfType<SimpleTypeSyntax>();
+            innerArray.Item.Value.Should().BeOfType<SimpleTypeSyntax>();
         }
 
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)
