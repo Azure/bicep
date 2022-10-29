@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2398086317730087672"
+      "templateHash": "6318384594241971223"
     }
   },
   "definitions": {
@@ -144,6 +144,20 @@
         "foo": "foo",
         "bar": 300,
         "baz": false
+      }
+    },
+    "unionParam": {
+      "type": "object",
+      "allowedValues": [
+        {
+          "property": "ping"
+        },
+        {
+          "property": "pong"
+        }
+      ],
+      "defaultValue": {
+        "property": "pong"
       }
     }
   },

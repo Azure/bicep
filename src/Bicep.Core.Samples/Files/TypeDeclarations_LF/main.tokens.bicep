@@ -234,6 +234,28 @@ param inlineObjectParam {
 //@[12:13) NewLine |\n|
 }
 //@[00:01) RightBrace |}|
-//@[01:02) NewLine |\n|
+//@[01:03) NewLine |\n\n|
+
+param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
+//@[00:05) Identifier |param|
+//@[06:16) Identifier |unionParam|
+//@[17:18) LeftBrace |{|
+//@[18:26) Identifier |property|
+//@[26:27) Colon |:|
+//@[28:34) StringComplete |'ping'|
+//@[34:35) RightBrace |}|
+//@[35:36) Pipe |||
+//@[36:37) LeftBrace |{|
+//@[37:45) Identifier |property|
+//@[45:46) Colon |:|
+//@[47:53) StringComplete |'pong'|
+//@[53:54) RightBrace |}|
+//@[55:56) Assignment |=|
+//@[57:58) LeftBrace |{|
+//@[58:66) Identifier |property|
+//@[66:67) Colon |:|
+//@[68:74) StringComplete |'pong'|
+//@[74:75) RightBrace |}|
+//@[75:76) NewLine |\n|
 
 //@[00:00) EndOfFile ||

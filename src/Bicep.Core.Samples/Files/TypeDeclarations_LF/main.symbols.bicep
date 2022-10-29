@@ -54,3 +54,6 @@ param inlineObjectParam {
   baz: false
 }
 
+param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
+//@[6:16) Parameter unionParam. Type: { property: 'ping' } | { property: 'pong' }. Declaration start char: 0, length: 75
+

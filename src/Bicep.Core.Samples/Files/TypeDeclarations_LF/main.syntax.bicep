@@ -1,5 +1,5 @@
 // @description('The foo type')
-//@[00:817) ProgramSyntax
+//@[00:894) ProgramSyntax
 //@[31:032) ├─Token(NewLine) |\n|
 // @sealed()
 //@[12:013) ├─Token(NewLine) |\n|
@@ -383,6 +383,46 @@ param inlineObjectParam {
 //@[12:013) |     ├─Token(NewLine) |\n|
 }
 //@[00:001) |     └─Token(RightBrace) |}|
-//@[01:002) ├─Token(NewLine) |\n|
+//@[01:003) ├─Token(NewLine) |\n\n|
+
+param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
+//@[00:075) ├─ParameterDeclarationSyntax
+//@[00:005) | ├─Token(Identifier) |param|
+//@[06:016) | ├─IdentifierSyntax
+//@[06:016) | | └─Token(Identifier) |unionParam|
+//@[17:054) | ├─UnionTypeSyntax
+//@[17:035) | | ├─UnionTypeMemberSyntax
+//@[17:035) | | | └─ObjectTypeSyntax
+//@[17:018) | | |   ├─Token(LeftBrace) |{|
+//@[18:034) | | |   ├─ObjectTypePropertySyntax
+//@[18:026) | | |   | ├─IdentifierSyntax
+//@[18:026) | | |   | | └─Token(Identifier) |property|
+//@[26:027) | | |   | ├─Token(Colon) |:|
+//@[28:034) | | |   | └─StringSyntax
+//@[28:034) | | |   |   └─Token(StringComplete) |'ping'|
+//@[34:035) | | |   └─Token(RightBrace) |}|
+//@[35:036) | | ├─Token(Pipe) |||
+//@[36:054) | | └─UnionTypeMemberSyntax
+//@[36:054) | |   └─ObjectTypeSyntax
+//@[36:037) | |     ├─Token(LeftBrace) |{|
+//@[37:053) | |     ├─ObjectTypePropertySyntax
+//@[37:045) | |     | ├─IdentifierSyntax
+//@[37:045) | |     | | └─Token(Identifier) |property|
+//@[45:046) | |     | ├─Token(Colon) |:|
+//@[47:053) | |     | └─StringSyntax
+//@[47:053) | |     |   └─Token(StringComplete) |'pong'|
+//@[53:054) | |     └─Token(RightBrace) |}|
+//@[55:075) | └─ParameterDefaultValueSyntax
+//@[55:056) |   ├─Token(Assignment) |=|
+//@[57:075) |   └─ObjectSyntax
+//@[57:058) |     ├─Token(LeftBrace) |{|
+//@[58:074) |     ├─ObjectPropertySyntax
+//@[58:066) |     | ├─IdentifierSyntax
+//@[58:066) |     | | └─Token(Identifier) |property|
+//@[66:067) |     | ├─Token(Colon) |:|
+//@[68:074) |     | └─StringSyntax
+//@[68:074) |     |   └─Token(StringComplete) |'pong'|
+//@[74:075) |     └─Token(RightBrace) |}|
+//@[75:076) ├─Token(NewLine) |\n|
 
 //@[00:000) └─Token(EndOfFile) ||

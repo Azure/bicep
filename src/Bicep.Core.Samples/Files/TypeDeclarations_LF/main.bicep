@@ -46,3 +46,5 @@ param inlineObjectParam {
   bar: 300
   baz: false
 }
+
+param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}

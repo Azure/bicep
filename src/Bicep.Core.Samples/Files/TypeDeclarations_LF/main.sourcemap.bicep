@@ -61,3 +61,6 @@ param inlineObjectParam {
 //@[145:145]         "baz": false
 }
 
+param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
+//@[148:161]     "unionParam": {
+
