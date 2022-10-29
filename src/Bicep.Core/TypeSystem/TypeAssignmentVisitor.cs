@@ -431,17 +431,25 @@ namespace Bicep.Core.TypeSystem
         public override void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Value, diagnostics);
-                diagnostics.WriteMultiple(declaredType.GetDiagnostics());
+                base.VisitTypeDeclarationSyntax(syntax);
 
                 if (LanguageConstants.ReservedTypeNames.Contains(syntax.Name.IdentifierName))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Name).ReservedTypeName(syntax.Name.IdentifierName));
                 }
 
-                base.VisitTypeDeclarationSyntax(syntax);
+                var declaredType = typeManager.GetDeclaredType(syntax);
 
-                return declaredType;
+                diagnostics.WriteMultiple(declaredType?.GetDiagnostics() ?? Enumerable.Empty<IDiagnostic>());
+
+                if (declaredType is not null)
+                {
+                    ValidateDecorators(syntax.Decorators,
+                        declaredType is TypeType wrapped ? wrapped.Unwrapped : declaredType,
+                        diagnostics);
+                }
+
+                return declaredType ?? ErrorType.Empty();
             });
 
         public override void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)

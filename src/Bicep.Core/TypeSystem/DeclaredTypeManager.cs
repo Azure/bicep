@@ -191,8 +191,13 @@ namespace Bicep.Core.TypeSystem
                 // binder.GetSymbolInfo(TypeDeclarationSyntax) should always return a DeclaredTypeSymbol or an error, but just in case...
                 _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
             };
+            var typeRefType = type switch
+            {
+                ErrorType => type,
+                _ => new TypeType(type),
+            };
 
-            return new(type, syntax);
+            return new(typeRefType, syntax);
         }
 
         private TypeSymbol GetUserDefinedTypeType(TypeAliasSymbol symbol)

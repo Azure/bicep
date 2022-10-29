@@ -915,7 +915,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 MetadataSymbol metadataSymbol => GetAccessible(knownDecoratorFunctions, metadataSymbol.Type, FunctionFlags.MetadataDecorator),
                 ParameterSymbol parameterSymbol => GetAccessible(knownDecoratorFunctions, parameterSymbol.Type, FunctionFlags.ParameterDecorator),
-                TypeAliasSymbol declaredTypeSymbol => GetAccessible(knownDecoratorFunctions, declaredTypeSymbol.Type, FunctionFlags.TypeDecorator),
+                TypeAliasSymbol declaredTypeSymbol => GetAccessible(knownDecoratorFunctions, declaredTypeSymbol.UnwrapType(), FunctionFlags.TypeDecorator),
                 VariableSymbol variableSymbol => GetAccessible(knownDecoratorFunctions, variableSymbol.Type, FunctionFlags.VariableDecorator),
                 ResourceSymbol resourceSymbol => GetAccessible(knownDecoratorFunctions, resourceSymbol.Type, FunctionFlags.ResourceDecorator),
                 ModuleSymbol moduleSymbol => GetAccessible(knownDecoratorFunctions, moduleSymbol.Type, FunctionFlags.ModuleDecorator),

@@ -1,27 +1,27 @@
 type 44
-//@[5:07) TypeAlias <error>. Type: any. Declaration start char: 0, length: 7
+//@[5:07) TypeAlias <error>. Type: Type<any>. Declaration start char: 0, length: 7
 
 type noAssignment
-//@[5:17) TypeAlias noAssignment. Type: any. Declaration start char: 0, length: 17
+//@[5:17) TypeAlias noAssignment. Type: Type<any>. Declaration start char: 0, length: 17
 
 type incompleteAssignment =
-//@[5:25) TypeAlias incompleteAssignment. Type: any. Declaration start char: 0, length: 27
+//@[5:25) TypeAlias incompleteAssignment. Type: Type<any>. Declaration start char: 0, length: 27
 
 type string = int
-//@[5:11) TypeAlias string. Type: int. Declaration start char: 0, length: 17
+//@[5:11) TypeAlias string. Type: Type<int>. Declaration start char: 0, length: 17
 
 type resource = bool
-//@[5:13) TypeAlias resource. Type: bool. Declaration start char: 0, length: 20
+//@[5:13) TypeAlias resource. Type: Type<bool>. Declaration start char: 0, length: 20
 
 @sealed()
 type sealedString = string
-//@[5:17) TypeAlias sealedString. Type: string. Declaration start char: 0, length: 36
+//@[5:17) TypeAlias sealedString. Type: Type<string>. Declaration start char: 0, length: 36
 
 type disallowedUnion = 'foo'|21
 //@[5:20) TypeAlias disallowedUnion. Type: error. Declaration start char: 0, length: 31
 
 type validStringLiteralUnion = 'foo'|'bar'|'baz'
-//@[5:28) TypeAlias validStringLiteralUnion. Type: 'bar' | 'baz' | 'foo'. Declaration start char: 0, length: 48
+//@[5:28) TypeAlias validStringLiteralUnion. Type: Type<'bar' | 'baz' | 'foo'>. Declaration start char: 0, length: 48
 
 type validUnionInvalidAddition = validStringLiteralUnion|10
 //@[5:30) TypeAlias validUnionInvalidAddition. Type: error. Declaration start char: 0, length: 59
@@ -37,11 +37,11 @@ type unionOfNulls = null|null
 
 @minLength(3)
 type lengthConstrainedInt = int
-//@[5:25) TypeAlias lengthConstrainedInt. Type: int. Declaration start char: 0, length: 45
+//@[5:25) TypeAlias lengthConstrainedInt. Type: Type<int>. Declaration start char: 0, length: 45
 
 @minValue(3)
 type valueConstrainedString = string
-//@[5:27) TypeAlias valueConstrainedString. Type: string. Declaration start char: 0, length: 49
+//@[5:27) TypeAlias valueConstrainedString. Type: Type<string>. Declaration start char: 0, length: 49
 
 type tautology = tautology
 //@[5:14) TypeAlias tautology. Type: error. Declaration start char: 0, length: 26
@@ -68,7 +68,7 @@ type cycleBack = cycleRoot
 //@[5:14) TypeAlias cycleBack. Type: error. Declaration start char: 0, length: 26
 
 type objectWithInvalidPropertyDecorators = {
-//@[5:40) TypeAlias objectWithInvalidPropertyDecorators. Type: { fooProp: string, barProp: string, krispyProp: string }. Declaration start char: 0, length: 168
+//@[5:40) TypeAlias objectWithInvalidPropertyDecorators. Type: Type<{ fooProp: string, barProp: string, krispyProp: string }>. Declaration start char: 0, length: 168
   @sealed()
   fooProp: string
 
@@ -85,7 +85,7 @@ type objectWithInvalidRecursion = {
 }
 
 type arrayWithInvalidMember = objectWithInvalidRecursion[]
-//@[5:27) TypeAlias arrayWithInvalidMember. Type: error[]. Declaration start char: 0, length: 58
+//@[5:27) TypeAlias arrayWithInvalidMember. Type: Type<error[]>. Declaration start char: 0, length: 58
 
 @sealed()
 param sealedStringParam string

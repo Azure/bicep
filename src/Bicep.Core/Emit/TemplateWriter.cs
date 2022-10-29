@@ -290,6 +290,7 @@ namespace Bicep.Core.Emit
 
         private ObjectSyntax GetTypePropertiesForTypeSymbol(ITypeReference type, SyntaxBase? declaringSyntax)
             => type.Type switch {
+                TypeType typeRef => GetTypePropertiesForTypeSymbol(typeRef.Unwrapped, declaringSyntax),
                 PrimitiveType primitiveType => GetTypePropertiesForAmbientType(primitiveType.Name),
                 ResourceType resourceType => GetTypePropertiesForTypeSymbol(resourceType),
                 ObjectType objectType => GetTypePropertiesForTypeSymbol(objectType, declaringSyntax),

@@ -1689,7 +1689,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP296",
                 "Property names on types must be compile-time constant values.");
 
-
             public ErrorDiagnostic CannotUseFunctionAsTypeDecorator(string functionName) => new(
                 TextSpan,
                 "BCP297",
