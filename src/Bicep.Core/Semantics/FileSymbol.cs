@@ -197,44 +197,45 @@ namespace Bicep.Core.Semantics
                 // collect duplicate identifiers at this scope
                 // declaring a variable in a local scope hides the parent scope variables,
                 // so we don't need to look at other levels
-                var outputDeclarations = scope.Declarations.Where(decl => decl is OutputSymbol);
-                var metadataDeclarations = scope.Declarations.Where(decl => decl is MetadataSymbol);
+                var outputDeclarations = scope.Declarations.OfType<OutputSymbol>();
+                var metadataDeclarations = scope.Declarations.OfType<MetadataSymbol>();
                 var namespaceDeclarations = scope.Declarations.OfType<ImportedNamespaceSymbol>();
-                var referenceableDeclarations = scope.Declarations.Where(decl => decl is not OutputSymbol && decl is not MetadataSymbol);
+                var referenceableDeclarations = scope.Declarations.Where(decl => decl is not OutputSymbol and not MetadataSymbol);
 
                 // all symbols apart from outputs are in the same namespace, so check for uniqueness.
                 this.Diagnostics.AddRange(
                     FindDuplicateNamedSymbols(referenceableDeclarations)
-                    .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSyntax).IdentifierMultipleDeclarations(decl.Name)));
+                    .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSource).IdentifierMultipleDeclarations(decl.Name)));
 
                 // output symbols cannot be referenced, so the names declared by them do not need to be unique in the scope.
                 // we still need to ensure that they unique among other outputs.
                 this.Diagnostics.AddRange(
                     FindDuplicateNamedSymbols(outputDeclarations)
-                    .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSyntax).OutputMultipleDeclarations(decl.Name)));
+                    .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSource).OutputMultipleDeclarations(decl.Name)));
 
                 // metadata symbols cannot be referenced, so the names declared by them do not need to be unique in the scope.
                 // we still need to ensure that they unique among other metadata.
                 this.Diagnostics.AddRange(
                     FindDuplicateNamedSymbols(metadataDeclarations)
-                    .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSyntax).OutputMultipleDeclarations(decl.Name)));
+                    .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSource).OutputMultipleDeclarations(decl.Name)));
 
                 // imported namespaces are reserved in all the scopes
                 // otherwise the user could accidentally hide a namespace which would remove the ability
                 // to fully qualify a function
                 this.Diagnostics.AddRange(referenceableDeclarations
-                    .Where(decl => decl.NameSyntax.IsValid && this.builtInNamespaces.ContainsKey(decl.Name))
-                    .Select(reservedSymbol => DiagnosticBuilder.ForPosition(reservedSymbol.NameSyntax).SymbolicNameCannotUseReservedNamespaceName(reservedSymbol.Name, this.builtInNamespaces.Keys)));
+                    .Where(decl => decl.NameSource.IsValid && this.builtInNamespaces.ContainsKey(decl.Name))
+                    .Select(reservedSymbol => DiagnosticBuilder.ForPosition(reservedSymbol.NameSource).SymbolicNameCannotUseReservedNamespaceName(reservedSymbol.Name, this.builtInNamespaces.Keys)));
 
                 // singleton namespaces cannot be duplicated
+                // TODO: validation for alias x name.
                 this.Diagnostics.AddRange(
                     FindDuplicateNamespaceImports(namespaceDeclarations)
-                    .Select(decl => DiagnosticBuilder.ForPosition(decl.DeclaringImport.Alias ?? decl.DeclaringImport.Specification).NamespaceMultipleDeclarations(decl.Name)));
+                    .Select(decl => DiagnosticBuilder.ForPosition(decl.DeclaringImport.Alias as IPositionable ?? decl.DeclaringImport.Specification).NamespaceMultipleDeclarations(decl.Name)));
             }
 
             private static IEnumerable<DeclaredSymbol> FindDuplicateNamedSymbols(IEnumerable<DeclaredSymbol> symbols)
                 => symbols
-                .Where(decl => decl.NameSyntax.IsValid)
+                .Where(decl => decl.NameSource.IsValid)
                 .GroupBy(decl => decl.Name, LanguageConstants.IdentifierComparer)
                 .Where(group => group.Count() > 1)
                 .SelectMany(group => group);

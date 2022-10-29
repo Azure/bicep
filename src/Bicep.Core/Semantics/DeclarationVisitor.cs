@@ -12,6 +12,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
+using Newtonsoft.Json.Schema;
 
 namespace Bicep.Core.Semantics
 {
@@ -124,44 +125,30 @@ namespace Bicep.Core.Semantics
         {
             base.VisitImportDeclarationSyntax(syntax);
 
-            var aliasOrName = syntax.Alias?.IdentifierName;
-
             TypeSymbol declaredType;
 
             if (!features.ImportsEnabled)
             {
                 declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ImportsAreDisabled());
             }
-            else if (syntax.HasParseErrors())
+            else if (syntax.SpecificationString is StringSyntax specificationString && specificationString.IsInterpolated())
             {
-                // There should be a parse error if the import statement is incomplete
-                declaredType = ErrorType.Empty();
+                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.SpecificationString).ProviderSpecificationInterpolationUnsupported());
             }
-            else if (syntax.Specification.As<StringSyntax>().TryGetLiteralValue() is not { } specificationValue)
-            {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Specification).ProviderSpecificationInterpolationUnsupported());
-            }
-            else if (ImportSpecification.TryParse(specificationValue) is not { } specification)
+            else if (!syntax.Specification.IsValid)
             {
                 declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Specification).InvalidProviderSpecification());
             }
+            else if (namespaceProvider.TryGetNamespace(syntax.Specification.Name, syntax.Alias?.IdentifierName ?? syntax.Specification.Name, targetScope, features) is not { } namespaceType)
+            {
+                    declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.Specification.Name));
+            }
             else
             {
-                aliasOrName ??= specification.Name;
-
-                if (namespaceProvider.TryGetNamespace(specification.Name, aliasOrName, targetScope, features) is not { } namespaceType)
-                {
-                    declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(specification.Name));
-                }
-                else
-                {
-                    declaredType = namespaceType;
-                }
+                declaredType = namespaceType;
             }
 
-            aliasOrName ??= LanguageConstants.ErrorName;
-
-            var symbol = new ImportedNamespaceSymbol(this.context, aliasOrName, declaredType, syntax);
+            var symbol = new ImportedNamespaceSymbol(this.context, syntax, declaredType);
             DeclareSymbol(symbol);
         }
 

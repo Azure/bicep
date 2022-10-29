@@ -85,7 +85,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 // resource ... {
                 //   location: location
 
-                TextSpan errorSpan = definingVariable.NameSyntax.Span;
+                TextSpan errorSpan = definingVariable.NameSource.Span;
 
                 // Is there already a diagnostic for this variable definition? Don't add a duplicate
                 if (variablesToChangeToParam.Contains(definingVariable))

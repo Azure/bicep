@@ -38,7 +38,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var param in unreferencedParams)
             {
-                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, param.Name, param.NameSyntax, param.DeclaringSyntax, model.SourceFile.ProgramSyntax);
+                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, param.Name, param.NameSource.Span, param.DeclaringSyntax, model.SourceFile.ProgramSyntax);
             }
         }
 

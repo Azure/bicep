@@ -83,7 +83,7 @@ namespace Bicep.Core.PrettyPrint
                 this.VisitNodes(syntax.LeadingNodes);
                 this.Visit(syntax.Keyword);
                 this.documentStack.Push(Nil);
-                this.Visit(syntax.Specification);
+                this.Visit(syntax.SpecificationString);
                 this.Visit(syntax.WithClause);
                 this.Visit(syntax.AsClause);
             });

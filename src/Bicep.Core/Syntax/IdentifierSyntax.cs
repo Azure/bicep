@@ -12,7 +12,7 @@ namespace Bicep.Core.Syntax
     /// Represents a well-formed identifier.
     /// </summary>
     [DebuggerDisplay("IdentifierName = {" + nameof(IdentifierName) + "}")]
-    public class IdentifierSyntax : SyntaxBase
+    public class IdentifierSyntax : SyntaxBase, ISymbolNameSource
     {
         public IdentifierSyntax(SyntaxBase child)
         {
@@ -41,7 +41,7 @@ namespace Bicep.Core.Syntax
                         return identifier.Text;
 
                     case SkippedTriviaSyntax skipped:
-                        return skipped.Elements.Any() ? LanguageConstants.ErrorName : LanguageConstants.MissingName;
+                        return skipped.TriviaName;
 
                     default:
                         throw new NotImplementedException($"Unexpected child node type '{this.Child.GetType().Name}'.");

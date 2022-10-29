@@ -18,10 +18,10 @@ namespace Bicep.Core.Syntax
 
         public static readonly SkippedTriviaSyntax EmptySkippedTrivia = new SkippedTriviaSyntax(EmptySpan, Enumerable.Empty<SyntaxBase>(), Enumerable.Empty<IDiagnostic>());
 
-        public static Token CreateToken(TokenType tokenType, string text = "", TextSpan? span = null)
-            => new Token(tokenType, span ?? EmptySpan, string.IsNullOrEmpty(text) ? TryGetTokenText(tokenType) : text, EmptyTrivia, EmptyTrivia);
+        public static Token CreateToken(TokenType tokenType, string text = "")
+            => new Token(tokenType, EmptySpan, string.IsNullOrEmpty(text) ? TryGetTokenText(tokenType) : text, EmptyTrivia, EmptyTrivia);
 
-        public static IdentifierSyntax CreateIdentifier(string text, TextSpan? span = null) => new(CreateToken(TokenType.Identifier, text, span));
+        public static IdentifierSyntax CreateIdentifier(string text) => new(CreateToken(TokenType.Identifier, text));
 
         public static VariableAccessSyntax CreateVariableAccess(string text) => new(CreateIdentifier(text));
 

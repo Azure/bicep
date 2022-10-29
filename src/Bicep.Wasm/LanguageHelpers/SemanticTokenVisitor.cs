@@ -294,10 +294,21 @@ namespace Bicep.Wasm.LanguageHelpers
         public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
-            AddTokenType(syntax.ProviderName, SemanticTokenType.Variable);
-            AddContextualKeyword(syntax.AsKeyword, LanguageConstants.AsKeyword);
-            AddTokenType(syntax.AliasName, SemanticTokenType.Variable);
-            base.VisitImportDeclarationSyntax(syntax);
+            this.Visit(syntax.SpecificationString);
+            this.Visit(syntax.WithClause);
+            this.Visit(syntax.AsClause);
+        }
+
+        public override void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            this.Visit(syntax.Config);
+        }
+        
+        public override void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Alias, SemanticTokenType.Variable);
         }
     }
 }

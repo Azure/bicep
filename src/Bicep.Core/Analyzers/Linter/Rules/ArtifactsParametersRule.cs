@@ -58,14 +58,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 yield return CreateDiagnosticForSpan(
                     diagnosticLevel,
-                    artifactsLocationParam.NameSyntax.Span,
+                    artifactsLocationParam.NameSource.Span,
                     string.Format(CoreResources.ArtifactsLocationRule_Error_ParamMissing, ArtifactsLocationName, ArtifactsLocationSasTokenName));
             }
             else if (artifactsSasParam is not null && artifactsLocationParam is null)
             {
                 yield return CreateDiagnosticForSpan(
                     diagnosticLevel,
-                    artifactsSasParam.NameSyntax.Span,
+                    artifactsSasParam.NameSource.Span,
                     string.Format(CoreResources.ArtifactsLocationRule_Error_ParamMissing, ArtifactsLocationSasTokenName, ArtifactsLocationName));
             }
             if (artifactsLocationParam is null || artifactsSasParam is null)
@@ -132,7 +132,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                 {
                                     yield return CreateDiagnosticForSpan(
                                         diagnosticLevel,
-                                        module.NameSyntax.Span,
+                                        module.NameSource.Span,
                                         string.Format(
                                             "Parameter '{0}' of module '{1}' should be assigned an explicit value.",
                                             formalParam.Name,

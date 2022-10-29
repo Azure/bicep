@@ -34,12 +34,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             // variables must have a reference of type VariableAccessSyntax
             var unreferencedVariables = model.Root.VariableDeclarations
-                .Where(sym => sym.NameSyntax.IsValid)
+                .Where(sym => sym.NameSource.IsValid)
                 .Where(sym => !invertedBindings[sym].Any(x => x != sym.DeclaringSyntax));
 
             foreach (var sym in unreferencedVariables)
             {
-                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.ProgramSyntax);
+                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, sym.Name, sym.NameSource.Span, sym.DeclaringSyntax, model.SourceFile.ProgramSyntax);
             }
 
             // TODO: This will not find local variables because they are not in the top-level scope.
@@ -47,12 +47,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             // local variables must have a reference of type VariableAccessSyntax
             var unreferencedLocalVariables = model.Root.Declarations.OfType<LocalVariableSymbol>()
-                .Where(sym => sym.NameSyntax.IsValid)
+                .Where(sym => sym.NameSource.IsValid)
                 .Where(sym => !invertedBindings[sym].Any(x => x != sym.DeclaringSyntax));
 
             foreach (var sym in unreferencedLocalVariables)
             {
-                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.ProgramSyntax);
+                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, sym.Name, sym.NameSource.Span, sym.DeclaringSyntax, model.SourceFile.ProgramSyntax);
             }
         }
 

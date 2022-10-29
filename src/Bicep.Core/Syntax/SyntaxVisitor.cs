@@ -383,7 +383,7 @@ namespace Bicep.Core.Syntax
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
-            this.Visit(syntax.Specification);
+            this.Visit(syntax.SpecificationString);
             this.Visit(syntax.WithClause);
             this.Visit(syntax.AsClause);
         }
