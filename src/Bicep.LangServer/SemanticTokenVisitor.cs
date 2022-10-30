@@ -140,6 +140,13 @@ namespace Bicep.LanguageServer
             base.VisitParameterDeclarationSyntax(syntax);
         }
 
+        public override void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Name, SemanticTokenType.Type);
+            base.VisitTypeDeclarationSyntax(syntax);
+        }
+
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
             AddTokenType(syntax.Dot, SemanticTokenType.Operator);
@@ -281,6 +288,12 @@ namespace Bicep.LanguageServer
         {
             AddTokenType(syntax.Identifier, SemanticTokenType.Type);
             base.VisitSimpleTypeSyntax(syntax);
+        }
+
+        public override void VisitTypeAccessSyntax(TypeAccessSyntax syntax)
+        {
+            AddTokenType(syntax.Name, SemanticTokenType.Type);
+            base.VisitTypeAccessSyntax(syntax);
         }
 
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)

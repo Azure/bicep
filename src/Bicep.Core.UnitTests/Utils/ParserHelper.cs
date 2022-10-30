@@ -20,14 +20,14 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static SyntaxBase ParseExpression(string text, ExpressionFlags expressionFlags = ExpressionFlags.AllowComplexLiterals) => new Parser(text).Expression(expressionFlags);
 
-        public static (string file, IReadOnlyList<int> cursors) GetFileWithCursors(string fileWithCursors)
+        public static (string file, IReadOnlyList<int> cursors) GetFileWithCursors(string fileWithCursors, char cursor)
         {
-            var bicepFile = fileWithCursors.Replace("|", "");
+            var bicepFile = fileWithCursors.Replace(cursor.ToString(), "");
 
             var cursors = new List<int>();
             for (var i = 0; i < fileWithCursors.Length; i++)
             {
-                if (fileWithCursors[i] == '|')
+                if (fileWithCursors[i] == cursor)
                 {
                     cursors.Add(i - cursors.Count);
                 }
@@ -36,9 +36,9 @@ namespace Bicep.Core.UnitTests.Utils
             return (bicepFile, cursors);
         }
 
-        public static (string file, int cursor) GetFileWithSingleCursor(string fileWithCursors)
+        public static (string file, int cursor) GetFileWithSingleCursor(string fileWithCursors, char cursor)
         {
-            var (file, cursors) = GetFileWithCursors(fileWithCursors);
+            var (file, cursors) = GetFileWithCursors(fileWithCursors, cursor);
             cursors.Should().HaveCount(1);
 
             return (file, cursors.Single());

@@ -49,5 +49,6 @@ namespace Bicep.Core.Parsing
         DoubleQuestion,
         DoubleColon,
         Arrow,
+        Pipe,
     }
 }

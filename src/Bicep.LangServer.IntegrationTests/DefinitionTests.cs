@@ -213,7 +213,7 @@ module appPlanDeploy2 'wrong|.bicep' = {
   }
 }
 ";
-            await RunDefinitionScenarioTest(TestContext, text, results => results.Should().SatisfyRespectively(
+            await RunDefinitionScenarioTest(TestContext, text, '|', results => results.Should().SatisfyRespectively(
                 x => x.Should().BeEmpty(),
                 x => x.Should().BeEmpty()));
         }
@@ -226,15 +226,15 @@ module appPlanDeploy2 'wrong|.bicep' = {
         {
             var text = $"var file = {functionCall}('file.j|son')";
             var files = new[] { ("file.json", "{\"test\":1235}") };
-            await RunDefinitionScenarioTestWithFiles(TestContext, text,
+            await RunDefinitionScenarioTestWithFiles(TestContext, text, '|',
                 results => results.Should().SatisfyRespectively(
                     x => x.Should().NotBeEmpty().And.Subject.ElementAt(0).LocationLink!.TargetUri.Path.Should().EndWith("file.json")),
             files);
         }
 
-        private static async Task RunDefinitionScenarioTest(TestContext testContext, string fileWithCursors, Action<List<LocationOrLocationLinks>> assertAction)
+        private static async Task RunDefinitionScenarioTest(TestContext testContext, string fileWithCursors, char cursor, Action<List<LocationOrLocationLinks>> assertAction)
         {
-            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, cursor);
             var bicepFile = SourceFileFactory.CreateBicepFile(new($"file:///{testContext.TestName}/path/to/main.bicep"), file);
 
             var helper = await DefaultServer.GetAsync();
@@ -248,10 +248,11 @@ module appPlanDeploy2 'wrong|.bicep' = {
         private static async Task RunDefinitionScenarioTestWithFiles(
             TestContext testContext,
             string fileWithCursors,
+            char cursor,
             Action<List<LocationOrLocationLinks>> assertAction,
             IEnumerable<(string fileName, string fileBody)> additionalFiles)
         {
-            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, cursor);
             var bicepFile = SourceFileFactory.CreateBicepFile(new($"file:///{testContext.TestName}/path/to/main.bicep"), file);
 
             var server = new SharedLanguageHelperManager();

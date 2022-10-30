@@ -87,6 +87,16 @@ namespace Bicep.Core.Semantics
             this.bindings.Add(syntax, symbol);
         }
 
+        public override void VisitTypeAccessSyntax(TypeAccessSyntax syntax)
+        {
+            base.VisitTypeAccessSyntax(syntax);
+
+            var symbol = this.LookupSymbolByName(syntax.Name, false);
+
+            // bind what we got - the type checker will validate if it fits
+            this.bindings.Add(syntax, symbol);
+        }
+
         public override void VisitResourceAccessSyntax(ResourceAccessSyntax syntax)
         {
             base.VisitResourceAccessSyntax(syntax);
@@ -208,7 +218,9 @@ namespace Bicep.Core.Semantics
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
+            allowedFlags = FunctionFlags.TypeDecorator;
             this.Visit(syntax.Type);
+            allowedFlags = FunctionFlags.OutputDecorator;
             this.Visit(syntax.Assignment);
             allowedFlags = FunctionFlags.RequiresInlining;
             this.Visit(syntax.Value);
@@ -233,21 +245,26 @@ namespace Bicep.Core.Semantics
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
+            allowedFlags = FunctionFlags.TypeDecorator;
             this.Visit(syntax.Type);
             allowedFlags = FunctionFlags.ParamDefaultsOnly;
             this.Visit(syntax.Modifier);
             allowedFlags = FunctionFlags.Default;
         }
 
+        public override void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax)
+        {
+            allowedFlags = FunctionFlags.TypeDecorator;
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Value);
+            allowedFlags = FunctionFlags.Default;
+        }
+
         public override void VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax)
         {
-            allowedFlags = FunctionFlags.MetadataDecorator |
-                FunctionFlags.ParameterDecorator |
-                FunctionFlags.VariableDecorator |
-                FunctionFlags.ResourceDecorator |
-                FunctionFlags.ModuleDecorator |
-                FunctionFlags.OutputDecorator |
-                FunctionFlags.ImportDecorator;
+            allowedFlags = FunctionFlags.AnyDecorator;
             base.VisitMissingDeclarationSyntax(syntax);
             allowedFlags = FunctionFlags.Default;
         }

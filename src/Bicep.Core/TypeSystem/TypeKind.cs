@@ -83,5 +83,10 @@ namespace Bicep.Core.TypeSystem
         /// Integer literal type
         /// </summary>
         IntegerLiteral,
+
+        /// <summary>
+        /// A reference to a type symbol
+        /// </summary>
+        TypeReference,
     }
 }

@@ -445,6 +445,42 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.CloseBracket);
             });
 
+        public override void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax) =>
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.Assignment);
+                this.Visit(syntax.Value);
+            });
+
+        public override void VisitArrayTypeSyntax(ArrayTypeSyntax syntax) =>
+            this.BuildWithConcat(() => {
+                this.Visit(syntax.Item);
+                this.Visit(syntax.OpenBracket);
+                this.Visit(syntax.CloseBracket);
+            });
+
+        public override void VisitObjectTypeSyntax(ObjectTypeSyntax syntax) =>
+            this.BuildWithConcat(() => {
+                this.Visit(syntax.OpenBrace);
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: true);
+                this.Visit(syntax.CloseBrace);
+            });
+
+        public override void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax) =>
+            this.BuildWithConcat(() =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Key);
+                this.Visit(syntax.OptionalityMarker);
+                this.Visit(syntax.Colon);
+                this.documentStack.Push(Space);
+                this.Visit(syntax.Value);
+            });
+
         private static ILinkedDocument Text(string text) =>
             CommonTextCache.TryGetValue(text, out var cached) ? cached : new TextDocument(text);
 

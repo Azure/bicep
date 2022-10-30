@@ -212,7 +212,8 @@ var rg3 = resourceGr|oup().id
 var dep1 = az.depl|oyment()
 
 var dep2 = az.deploy|ment()
-");
+",
+                '|');
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
 

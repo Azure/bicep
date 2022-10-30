@@ -20,5 +20,6 @@ namespace Bicep.Core.Semantics
         Property,
         ParameterAssignment,
         Metadata,
+        TypeAlias,
     }
 }

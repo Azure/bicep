@@ -113,7 +113,8 @@ module myMod './module.bicep' = {
   name: 'test'
 }
 output myOutput string = 'myOutput'
-");
+",
+                '|');
             var lineStarts = TextCoordinateConverter.GetLineStarts(file);
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, file, 0));
@@ -212,7 +213,8 @@ module myMod './module.bicep' = {
   name: 'test'
 }
 output myOutput string = 'myOutput'
-");
+",
+                '|');
             var lineStarts = TextCoordinateConverter.GetLineStarts(file);
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, file, 0));
@@ -306,7 +308,8 @@ module myMod './module.bicep' = {
   name: 'test'
 }
 output myOutput string = 'myOutput'
-");
+",
+                '|');
             var lineStarts = TextCoordinateConverter.GetLineStarts(file);
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, file, 0));
@@ -383,7 +386,8 @@ module myMod './module.bicep' = {
   name: 'test'
 }
 output myOutput string = 'myOutput'
-");
+",
+                '|');
             var lineStarts = TextCoordinateConverter.GetLineStarts(file);
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, file, 0));
@@ -432,7 +436,8 @@ module myMod './module.bicep' = {
   name: 'test'
 }
 output myOutput string = 'myOutput'
-");
+",
+                '|');
             var lineStarts = TextCoordinateConverter.GetLineStarts(file);
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, file, 0));
@@ -504,7 +509,8 @@ module myMod './module.bicep' = {
   name: 'test'
 }
 output myOutput string = 'myOutput'
-");
+",
+                '|');
             var lineStarts = TextCoordinateConverter.GetLineStarts(file);
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, file, 0));
@@ -589,7 +595,8 @@ module myMod './module.bicep' = {
   name: 'test'
 }
 output myOutput string = 'myOutput'
-");
+",
+                '|');
             var lineStarts = TextCoordinateConverter.GetLineStarts(file);
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, file, 0));

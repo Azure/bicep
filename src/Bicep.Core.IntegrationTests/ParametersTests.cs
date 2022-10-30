@@ -177,7 +177,7 @@ output name string = container.name // silence unused params warning
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
             {
-                ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter type. Extensibility types are currently not supported as parameters or outputs."),
+                ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs."),
                 ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"container\" is not valid."),
             });
         }

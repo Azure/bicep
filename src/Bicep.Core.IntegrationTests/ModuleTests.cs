@@ -460,7 +460,6 @@ output storage resource = storage
 "));
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP231", DiagnosticLevel.Error, "Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature BICEP_RESOURCE_TYPED_PARAMS_AND_OUTPUTS_EXPERIMENTAL."),
                 ("BCP104", DiagnosticLevel.Error, "The referenced module has errors.")
             });
         }

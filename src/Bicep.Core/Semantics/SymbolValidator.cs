@@ -130,6 +130,11 @@ namespace Bicep.Core.Semantics
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsParameterDecorator(functionSymbol.Name));
             }
 
+            if (!functionFlags.HasFlag(FunctionFlags.TypeDecorator) && allowedFlags.HasFlag(FunctionFlags.TypeDecorator))
+            {
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsTypeDecorator(functionSymbol.Name));
+            }
+
             if (!functionFlags.HasFlag(FunctionFlags.VariableDecorator) && allowedFlags.HasFlag(FunctionFlags.VariableDecorator))
             {
                 return new ErrorSymbol(DiagnosticBuilder.ForPosition(span).CannotUseFunctionAsVariableDecorator(functionSymbol.Name));
