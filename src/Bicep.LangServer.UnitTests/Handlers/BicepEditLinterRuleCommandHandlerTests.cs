@@ -155,7 +155,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var server = new LanguageServerMock();
 
-            var telemetryProvider = StrictMock.Of<ITelemetryProvider>(); //asdfg
+            var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
             BicepTelemetryEvent? ev = null;
             telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()))
                 .Callback((BicepTelemetryEvent e) =>
