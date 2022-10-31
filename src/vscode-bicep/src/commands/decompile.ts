@@ -102,11 +102,8 @@ export class DecompileCommand implements Command {
     }
 
     // If there are conflicts, ask if we should overwrite
-    const mainBicepPath = decompileResult.outputFiles[0].absolutePath;
-    const outputFolder = path.dirname(mainBicepPath);
     const overwrite = await this.queryOverwrite(
       context,
-      outputFolder,
       decompileResult.outputFiles,
       decompileResult.conflictingOutputPaths
     );
@@ -146,7 +143,6 @@ export class DecompileCommand implements Command {
 
   private async queryOverwrite(
     context: IActionContext,
-    outputFolder: string,
     outputFiles: DecompiledFile[],
     conflictingOutputPaths: DocumentUri[]
   ): Promise<boolean> {
