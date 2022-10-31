@@ -1152,7 +1152,6 @@ namespace Bicep.Decompiler
                 "properties",
                 "dependsOn",
                 "comments",
-                "metadata",
             }, StringComparer.OrdinalIgnoreCase);
 
             var propsToOmit = new HashSet<string>(new[] {
@@ -1418,7 +1417,6 @@ namespace Bicep.Decompiler
                 "dependsOn",
                 "comments",
                 "scope",
-                "metadata",
             }, StringComparer.OrdinalIgnoreCase);
 
             var resourcePropsToOmit = new HashSet<string>(new[]
