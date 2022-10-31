@@ -34,7 +34,7 @@ namespace Bicep.Core.UnitTests.Assertions
         public static AndConstraint<StringAssertions> EqualWithLineByLineDiffOutput(this StringAssertions instance, TestContext testContext, string expected, string expectedLocation, string actualLocation, string because = "", params object[] becauseArgs)
         {
             const int truncate = 100;
-            var diff = InlineDiffBuilder.Diff(instance.Subject, expected, ignoreWhiteSpace: false, ignoreCase: false);
+            var diff = InlineDiffBuilder.Diff(expected, instance.Subject, ignoreWhiteSpace: false, ignoreCase: false);
 
             var lineLogs = diff.Lines
                 .Where(line => line.Type != ChangeType.Unchanged)
