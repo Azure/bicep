@@ -75,7 +75,7 @@ Baseline {2} has been updated.
             {
                 output.Append(@"
 View this diff with:
-    git diff --color-words --no-index {1} {2}
+    git diff --color-words --no-index {2} {1}
 ");
 
                 if (isWindows)
