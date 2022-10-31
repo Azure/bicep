@@ -139,13 +139,14 @@ namespace Bicep.LanguageServer
             throw new InvalidOperationException($"Unable to create source file for uri '{documentUri.ToUri()}'.");
         }
 
-        private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool triggeredByFileOpenEvent = false)
+        private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool triggeredByFileOpenEvent = false)//asdfg
         {
             var (_, removedFiles) = workspace.UpsertSourceFile(newFile);
 
             var modelLookup = new Dictionary<ISourceFile, ISemanticModel>();
             if (newFile is BicepSourceFile)
             {
+                //asdfg version only used for diagnostics
                 // Do not update compilation if it is an ARM template file, since it cannot be an entrypoint.
                 UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles, triggeredByFileOpenEvent);
             }

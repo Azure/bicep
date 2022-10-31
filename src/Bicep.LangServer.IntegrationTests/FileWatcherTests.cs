@@ -236,5 +236,87 @@ param requiredIpnut string
                 nextDiags.Diagnostics.Should().Contain(x => x.Message.Contains("An error occurred reading file. Could not find file '/path/toOther/module.bicep'."));
             }
         }
+
+        [TestMethod]
+        public async Task Background_file_deletion_should_trigger_a_recompilation_asdfg()
+        {
+            var fileSystemDict = new Dictionary<Uri, string>();
+            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
+
+            var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
+            fileSystemDict[mainUri.ToUri()] = @"
+whoops";
+
+            var moduleUri = DocumentUri.FromFileSystemPath("/path/to/other.txt");
+            fileSystemDict[moduleUri.ToUri()] = @"
+// hello
+";
+
+            var fileResolver = new InMemoryFileResolver(fileSystemDict);
+            using var helper = await LanguageServerHelper.StartServer(
+                this.TestContext,
+                options => options.OnPublishDiagnostics(diagsListener.AddMessage),
+                services => services.WithFileResolver(fileResolver));
+            var client = helper.Client;
+
+            // open the main document
+            {
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
+
+                var diagsParams = await diagsListener.WaitNext();
+                diagsParams.Uri.Should().Be(mainUri);
+                diagsParams.Diagnostics.Should().Contain(x => x.Message.Contains("This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration."));
+            }
+
+            // Insert some text
+            {
+                var workspaceEditListener = new MultipleMessageListener<ApplyWorkspaceEditParams>();
+
+                asdfg
+
+                //asdfgvar cursor = cursors.Single();
+                var result = await client.SendRequest(new InsertResourceParams
+                {
+                    TextDocument = documentUri,
+                    Position = PositionHelper.GetPosition(lineStarts, cursor),
+                    ResourceId = resourceId.FullyQualifiedId,
+                }, default);
+
+                var edit = await listeners.ApplyWorkspaceEdit.WaitNext();
+
+                var changes = edit.Edit.Changes![documentUri];
+                changes.Should().HaveCount(1);
+                var test = changes.First();
+
+            }
+
+            // delete the text file with a background process
+            {
+                fileResolver.MockFileSystem.File.Delete(moduleUri.GetFileSystemPath());
+                SendDidChangeWatchedFiles(client, (moduleUri, FileChangeType.Deleted));
+
+                var nextDiags = await diagsListener.WaitNext();
+                nextDiags.Uri.Should().Be(mainUri);
+                nextDiags.Diagnostics.Should().Contain(x => x.Message.Contains("An error occurred reading file. Could not find file '/path/toOther/module.bicep'."));
+            }
+
+            // delete the main file with a background process. this should be ignored, as the close document event should clean it up
+            {
+                fileResolver.MockFileSystem.File.Delete(moduleUri.GetFileSystemPath());
+                SendDidChangeWatchedFiles(client, (mainUri, FileChangeType.Deleted));
+
+                await diagsListener.EnsureNoMessageSent();
+            }
+
+            // close the main file. the language server should send empty diagnostics to clear the IDE state.
+            {
+                client.TextDocument.DidCloseTextDocument(TextDocumentParamHelper.CreateDidCloseTextDocumentParams(mainUri, 1));
+
+                var diagsParams = await diagsListener.WaitNext();
+                diagsParams.Uri.Should().Be(mainUri);
+                diagsParams.Diagnostics.Should().BeEmpty();
+            }
+        }
+
     }
 }
