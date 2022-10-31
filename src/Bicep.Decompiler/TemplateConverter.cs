@@ -1152,6 +1152,7 @@ namespace Bicep.Decompiler
                 "properties",
                 "dependsOn",
                 "comments",
+                "metadata",
             }, StringComparer.OrdinalIgnoreCase);
 
             var propsToOmit = new HashSet<string>(new[] {
@@ -1159,6 +1160,7 @@ namespace Bicep.Decompiler
                 LanguageConstants.CopyLoopIdentifier,
                 "resourceGroup",
                 "subscriptionId",
+                "metadata",
             }, StringComparer.OrdinalIgnoreCase);
 
             TemplateHelpers.AssertUnsupportedProperty(resource, "scope", "The 'scope' property is not supported");
@@ -1417,6 +1419,7 @@ namespace Bicep.Decompiler
                 "dependsOn",
                 "comments",
                 "scope",
+                "metadata",
             }, StringComparer.OrdinalIgnoreCase);
 
             var resourcePropsToOmit = new HashSet<string>(new[]
@@ -1428,6 +1431,7 @@ namespace Bicep.Decompiler
                 "dependsOn",
                 "comments",
                 "scope",
+                "metadata",
             }, StringComparer.OrdinalIgnoreCase);
 
             var topLevelProperties = new List<ObjectPropertySyntax>();

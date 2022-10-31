@@ -1,0 +1,78 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "cdnProfileName": {
+      "type": "string"
+    },
+    "eventHubName": {
+      "type": "string"
+    },
+    "eventHubNamespace": {
+      "type": "string"
+    },
+    "eventHubLocation": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('{0}-eventhub-module', parameters('cdnProfileName'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "eventHubNameSpace": {
+            "value": "[parameters('eventHubNamespace')]"
+          },
+          "eventHubName": {
+            "value": "[parameters('eventHubName')]"
+          },
+          "eventHubLocation": {
+            "value": "[parameters('eventHubLocation')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "other": "other metadata",
+            "_generator": {
+              "name": "bicep",
+              "version": "0.9.1.41621",
+              "templateHash": "10011087564064102984"
+            }
+          },
+          "parameters": {
+            "eventHubNameSpace": {
+              "type": "string",
+              "metadata": {
+                "description": "eventHubNameSpace description"
+              }
+            },
+            "eventHubName": {
+              "type": "string"
+            },
+            "eventHubLocation": {
+              "type": "string"
+            }
+          },
+          "resources": [],
+          "outputs": {
+            "output1": {
+              "type": "string",
+              "value": "[concat(parameters('eventHubLocation'),parameters('eventHubName'),parameters('eventHubNameSpace'))]"
+            }
+          }
+        }
+      },
+      "metadata": {
+        "description": "Create EventHub."
+      }
+    }
+  ]
+}
