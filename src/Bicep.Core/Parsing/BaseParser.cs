@@ -135,7 +135,7 @@ namespace Bicep.Core.Parsing
         {
             var candidate = this.BinaryExpression(expressionFlags);
 
-            if (this.Check(TokenType.Question))
+            if (!HasExpressionFlag(expressionFlags, ExpressionFlags.TypeExpression) && this.Check(TokenType.Question))
             {
                 var question = this.reader.Read();
                 var trueExpression = this.WithRecovery(
@@ -165,6 +165,27 @@ namespace Bicep.Core.Parsing
                     TokenType.NewLine);
 
                 return new TernaryOperationSyntax(candidate, question, trueExpression, colon, falseExpression);
+            }
+
+            if (HasExpressionFlag(expressionFlags, ExpressionFlags.TypeExpression) && this.Check(TokenType.Pipe))
+            {
+                var elementAndSeparators = new List<SyntaxBase> { new UnionTypeMemberSyntax(candidate) };
+                while (Check(TokenType.Pipe))
+                {
+                    // consume the pipe
+                    elementAndSeparators.Add(reader.Read());
+
+                    // error reporting gets really wonky if users can have newlines between union members. `type foo = 'foo'|` causes the start of the next declaration (i.e., a language keyword) to be reported as a non-existent symbol
+                    if (Check(TokenType.NewLine))
+                    {
+                        elementAndSeparators.Add(SkipEmpty(b => b.ExpectedTypeLiteral()));
+                    } else
+                    {
+                        elementAndSeparators.Add(WithRecovery(() => new UnionTypeMemberSyntax(BinaryExpression(expressionFlags)), RecoveryFlags.None));
+                    }
+                }
+
+                return new UnionTypeSyntax(elementAndSeparators);
             }
 
             return candidate;
@@ -363,7 +384,8 @@ namespace Bicep.Core.Parsing
 
         private SyntaxBase FunctionCallOrVariableAccess(ExpressionFlags expressionFlags)
         {
-            var identifier = this.Identifier(b => b.ExpectedVariableOrFunctionName());
+            var identifierToken = Expect(TokenType.Identifier, b => b.ExpectedVariableOrFunctionName());
+            var identifier = new IdentifierSyntax(identifierToken);
 
             if (Check(TokenType.LeftParen))
             {
@@ -382,6 +404,11 @@ namespace Bicep.Core.Parsing
                 var expression = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine, TokenType.RightParen);
 
                 return new LambdaSyntax(new LocalVariableSyntax(identifier), arrow, expression);
+            }
+
+            if (HasExpressionFlag(expressionFlags, ExpressionFlags.TypeExpression))
+            {
+                return LanguageConstants.DeclarationTypes.ContainsKey(identifierToken.Text) ? new SimpleTypeSyntax(identifierToken) : new TypeAccessSyntax(identifier);
             }
 
             // returns variable access
@@ -765,11 +792,18 @@ namespace Bicep.Core.Parsing
 
                     if (this.Check(TokenType.RightSquare))
                     {
-                        // empty indexer - we are allowing this special case in the parser to help with completions
-                        SyntaxBase skipped = SkipEmpty(b => b.EmptyIndexerNotAllowed());
-                        Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
+                        if (HasExpressionFlag(expressionFlags, ExpressionFlags.TypeExpression))
+                        {
+                            Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
+                            current = new ArrayTypeSyntax(new ArrayTypeMemberSyntax(current), openSquare, closeSquare);
+                        } else
+                        {
+                            // empty indexer - we are allowing this special case in the parser to help with completions
+                            SyntaxBase skipped = SkipEmpty(b => b.EmptyIndexerNotAllowed());
+                            Token closeSquare = this.Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
 
-                        current = new ArrayAccessSyntax(current, openSquare, skipped, closeSquare);
+                            current = new ArrayAccessSyntax(current, openSquare, skipped, closeSquare);
+                        }
                     }
                     else
                     {
@@ -1010,6 +1044,9 @@ namespace Bicep.Core.Parsing
                 case TokenType.MultilineString:
                     return this.MultilineString();
 
+                case TokenType.LeftBrace when HasExpressionFlag(expressionFlags, ExpressionFlags.TypeExpression):
+                    return this.ObjectType(expressionFlags);
+
                 case TokenType.LeftBrace when HasExpressionFlag(expressionFlags, ExpressionFlags.AllowComplexLiterals):
                     return this.Object(expressionFlags);
 
@@ -1029,7 +1066,11 @@ namespace Bicep.Core.Parsing
                     return this.FunctionCallOrVariableAccess(expressionFlags);
 
                 default:
-                    throw new ExpectedTokenException(nextToken, b => b.UnrecognizedExpression());
+                    DiagnosticBuilder.ErrorBuilderDelegate errorFunc = HasExpressionFlag(expressionFlags, ExpressionFlags.TypeExpression)
+                        ? b => b.UnrecognizedTypeExpression()
+                        : b => b.UnrecognizedExpression();
+
+                    throw new ExpectedTokenException(nextToken, errorFunc);
             }
         }
 
@@ -1112,7 +1153,7 @@ namespace Bicep.Core.Parsing
             return syntax;
         }
 
-        protected TypeSyntax Type(DiagnosticBuilder.ErrorBuilderDelegate errorFunc, bool allowOptionalResourceType)
+        protected TypeSyntax OutputType()
         {
             if (GetOptionalKeyword(LanguageConstants.ResourceKeyword) is {} resourceKeyword)
             {
@@ -1120,7 +1161,7 @@ namespace Bicep.Core.Parsing
                     () =>
                     {
                         // The resource type is optional for an output
-                        if (allowOptionalResourceType && !this.Check(this.reader.Peek(), TokenType.StringComplete, TokenType.StringLeftPiece))
+                        if (!this.Check(this.reader.Peek(), TokenType.StringComplete, TokenType.StringLeftPiece))
                         {
                             return null;
                         }
@@ -1134,8 +1175,154 @@ namespace Bicep.Core.Parsing
                 return new ResourceTypeSyntax(resourceKeyword, type);
             }
 
-            var identifier = Expect(TokenType.Identifier, errorFunc);
+            var identifier = Expect(TokenType.Identifier, b => b.ExpectedOutputType());
             return new SimpleTypeSyntax(identifier);
+        }
+
+        protected SyntaxBase Type(bool allowOptionalResourceType)
+        {
+            var flags = ExpressionFlags.TypeExpression;
+            if (allowOptionalResourceType)
+            {
+                flags |= ExpressionFlags.AllowOptionalResourceType;
+            }
+
+            return TypeExpression(flags);
+        }
+
+        protected SyntaxBase TypeExpression(ExpressionFlags flags)
+        {
+            if (GetOptionalKeyword(LanguageConstants.ResourceKeyword) is {} resourceKeyword)
+            {
+                var type = this.WithRecoveryNullable(
+                    () =>
+                    {
+                        // The resource type is optional for an output
+                        if (HasExpressionFlag(flags, ExpressionFlags.AllowOptionalResourceType) && !this.Check(this.reader.Peek(), TokenType.StringComplete, TokenType.StringLeftPiece))
+                        {
+                            return null;
+                        }
+                        else
+                        {
+                            return ThrowIfSkipped(this.InterpolableString, b => b.ExpectedResourceTypeString());
+                        }
+                    },
+                    RecoveryFlags.None,
+                    TokenType.Assignment, TokenType.NewLine);
+                return new ResourceTypeSyntax(resourceKeyword, type);
+            }
+
+            return Expression(flags);
+        }
+
+        private ObjectTypeSyntax ObjectType(ExpressionFlags flags)
+        {
+            var openBrace = Expect(TokenType.LeftBrace, b => b.ExpectedCharacter("{"));
+
+            var itemsOrTokens = HandleArrayOrObjectElements(
+                closingTokenType: TokenType.RightBrace,
+                parseChildElement: () => ObjectPropertyType(flags));
+
+            var closeBrace = Expect(TokenType.RightBrace, b => b.ExpectedCharacter("}"));
+
+            return new ObjectTypeSyntax(openBrace, itemsOrTokens, closeBrace);
+        }
+
+        private SyntaxBase ObjectPropertyType(ExpressionFlags flags)
+        {
+            List<SyntaxBase> leadingNodes = new();
+
+            // Parse decorators before the declaration.
+            while (this.Check(TokenType.At))
+            {
+                leadingNodes.Add(this.Decorator());
+
+                // All decorators must followed by a newline.
+                leadingNodes.Add(this.WithRecovery(this.NewLine, RecoveryFlags.ConsumeTerminator, TokenType.NewLine));
+
+
+                while (this.Check(TokenType.NewLine))
+                {
+                    // In case there are skipped trivial syntaxes after a decorator, we need to consume
+                    // all the newlines after them.
+                    leadingNodes.Add(this.NewLine());
+                }
+            }
+
+            var current = this.reader.Peek();
+
+            var key = this.WithRecovery(
+                () => ThrowIfSkipped(
+                    () =>
+                        current.Type switch
+                        {
+                            TokenType.Identifier => this.Identifier(b => b.ExpectedPropertyName()),
+                            TokenType.StringComplete or TokenType.StringLeftPiece => this.InterpolableString(),
+                            _ => throw new ExpectedTokenException(current, b => b.ExpectedPropertyName()),
+                        }, b => b.ExpectedPropertyName()),
+                RecoveryFlags.None,
+                TokenType.Colon, TokenType.NewLine, TokenType.RightBrace);
+
+            Token? optionalityMarker = Check(reader.Peek(), TokenType.Question) ? reader.Read() : default;
+            var colon = this.WithRecovery(() => Expect(TokenType.Colon, b => b.ExpectedCharacter(":")), GetSuppressionFlag(optionalityMarker ?? key), TokenType.NewLine, TokenType.RightBrace);
+            var value = this.WithRecovery(() => Expression(flags), GetSuppressionFlag(colon), TokenType.NewLine, TokenType.RightBrace);
+
+            return new ObjectTypePropertySyntax(leadingNodes, key, optionalityMarker, colon, value);
+        }
+
+        protected SyntaxBase Decorator()
+        {
+            Token at = this.Expect(TokenType.At, b => b.ExpectedCharacter("@"));
+            SyntaxBase expression = this.WithRecovery(() =>
+            {
+                SyntaxBase current;
+                IdentifierSyntax identifier = this.Identifier(b => b.ExpectedNamespaceOrDecoratorName());
+
+                if (Check(TokenType.LeftParen))
+                {
+                    var functionCall = FunctionCallAccess(identifier, ExpressionFlags.AllowComplexLiterals);
+
+                    current = new FunctionCallSyntax(
+                        functionCall.Identifier,
+                        functionCall.OpenParen,
+                        functionCall.ArgumentNodes,
+                        functionCall.CloseParen);
+                }
+                else
+                {
+                    current = new VariableAccessSyntax(identifier);
+                }
+
+
+                while (this.Check(TokenType.Dot))
+                {
+                    Token dot = this.reader.Read();
+                    identifier = this.IdentifierOrSkip(b => b.ExpectedFunctionOrPropertyName());
+
+                    if (Check(TokenType.LeftParen))
+                    {
+                        var functionCall = FunctionCallAccess(identifier, ExpressionFlags.AllowComplexLiterals);
+
+                        current = new InstanceFunctionCallSyntax(
+                            current,
+                            dot,
+                            functionCall.Identifier,
+                            functionCall.OpenParen,
+                            functionCall.ArgumentNodes,
+                            functionCall.CloseParen);
+                    }
+                    else
+                    {
+                        current = new PropertyAccessSyntax(current, dot, identifier);
+                    }
+                }
+
+                return current;
+            },
+            RecoveryFlags.None,
+            TokenType.NewLine);
+
+            return new DecoratorSyntax(at, expression);
         }
 
         private SyntaxBase UnaryExpression(ExpressionFlags expressionFlags)

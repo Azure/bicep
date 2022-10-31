@@ -219,7 +219,7 @@ output out resource = container
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
             {
-                ("BCP228", DiagnosticLevel.Error, "The type \"container\" cannot be used as an output type. Extensibility types are currently not supported as parameters or outputs."),
+                ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs."),
             });
         }
     }

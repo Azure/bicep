@@ -321,11 +321,7 @@ namespace Bicep.Core.TypeSystem
 
             if (targetType is UnionType targetUnionType)
             {
-                // we need to narrow each union member so diagnostics get collected correctly
-                // until we get union type simplification logic, this could generate duplicate diagnostics
-                return TypeHelper.CreateTypeUnion(targetUnionType.Members
-                    .Where(x => AreTypesAssignable(expressionType, x.Type))
-                    .Select(x => NarrowType(config, expression, x.Type)));
+                return NarrowUnionType(config, expression, expressionType, targetUnionType);
             }
 
             if (expression is LambdaSyntax sourceLambda && targetType is LambdaType targetLambdaType)
@@ -426,6 +422,53 @@ namespace Bicep.Core.TypeSystem
 
             return targetType;
         }
+
+        private TypeSymbol NarrowUnionType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, UnionType targetType)
+        {
+            List<UnionTypeMemberViabilityInfo> candidacyEvaluations = new();
+
+            foreach (var candidateType in targetType.Members)
+            {
+                if (!AreTypesAssignable(expressionType, candidateType.Type))
+                {
+                    candidacyEvaluations.Add(new(candidateType, null, ImmutableArray<IDiagnostic>.Empty));
+                    continue;
+                }
+
+                var candidateDiagnostics = ToListDiagnosticWriter.Create();
+                var candidateCollector = new TypeValidator(typeManager, binder, candidateDiagnostics);
+                var narrowed = candidateCollector.NarrowType(config, expression, candidateType.Type);
+
+                // if we have a perfect match, skip checking the rest of the union members
+                if (!candidateDiagnostics.GetDiagnostics().Any())
+                {
+                    return narrowed;
+                }
+
+                candidacyEvaluations.Add(new(candidateType, narrowed, candidateDiagnostics.GetDiagnostics()));
+            }
+
+            var viableCandidates = candidacyEvaluations
+                .Select(c => c.Narrowed is {} Narrowed && !c.Diagnostics.OfType<ErrorDiagnostic>().Any() ? new ViableTypeCandidate(Narrowed, c.Diagnostics) : null)
+                .WhereNotNull()
+                .ToImmutableArray();
+
+            if (viableCandidates.Any())
+            {
+                // It's unclear what we should do with warning and informational diagnostics if there's no path that's assignable without issue.
+                // Should we report only diagnostics raised by every viable candidate? Or report only those raised by a single candidate?
+                // Erring on the side of caution here and just reporting them all.
+                diagnosticWriter.WriteMultiple(viableCandidates.SelectMany(c => c.Diagnostics));
+
+                return TypeHelper.CreateTypeUnion(viableCandidates.Select(c => c.Type));
+            }
+
+            return ErrorType.Create(DiagnosticBuilder.ForPosition(expression).ArgumentTypeMismatch(expressionType, targetType));
+        }
+
+        private record UnionTypeMemberViabilityInfo(ITypeReference Type, TypeSymbol? Narrowed, IEnumerable<IDiagnostic> Diagnostics);
+
+        private record ViableTypeCandidate(TypeSymbol Type, IEnumerable<IDiagnostic> Diagnostics);
 
         private TypeSymbol NarrowDiscriminatedObjectType(TypeValidatorConfig config, ObjectSyntax expression, DiscriminatedObjectType targetType)
         {
@@ -632,11 +675,11 @@ namespace Bicep.Core.TypeSystem
             var extraProperties = expression.Properties
                 .Where(p => p.TryGetKeyText() is not string keyName || !targetType.Properties.ContainsKey(keyName));
 
-            if (targetType.AdditionalPropertiesType == null)
+            if (targetType.AdditionalPropertiesType == null || targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
             {
                 // extra properties are not allowed by the type
 
-                var shouldWarn = ShouldWarn(targetType);
+                var shouldWarn = targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty) || ShouldWarn(targetType);
                 var validUnspecifiedProperties = targetType.Properties.Values
                     .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty) && !namedPropertyMap.ContainsKey(p.Name))
                     .Select(p => p.Name)

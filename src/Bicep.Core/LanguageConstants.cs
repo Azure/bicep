@@ -49,6 +49,7 @@ namespace Bicep.Core
 
         public const string TargetScopeKeyword = "targetScope";
         public const string MetadataKeyword = "metadata";
+        public const string TypeKeyword = "type";
         public const string ParameterKeyword = "param";
         public const string UsingKeyword = "using";
         public const string OutputKeyword = "output";
@@ -79,7 +80,7 @@ namespace Bicep.Core
 
         public static readonly Regex ArmTemplateSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[a-zA-Z]*[dD]eploymentTemplate\.json)#?");
 
-        public static readonly ImmutableSortedSet<string> DeclarationKeywords = new[] { MetadataKeyword, ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword }.ToImmutableSortedSet(StringComparer.Ordinal);
+        public static readonly ImmutableSortedSet<string> DeclarationKeywords = new[] { MetadataKeyword, ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword, TypeKeyword }.ToImmutableSortedSet(StringComparer.Ordinal);
 
         public static readonly ImmutableSortedSet<string> ContextualKeywords = DeclarationKeywords
             .Add(TargetScopeKeyword)
@@ -108,6 +109,7 @@ namespace Bicep.Core
         public const string ParameterMinLengthPropertyName = "minLength";
         public const string ParameterMaxLengthPropertyName = "maxLength";
         public const string ParameterMetadataPropertyName = "metadata";
+        public const string ParameterSealedPropertyName = "sealed";
         public const string MetadataDescriptionPropertyName = "description";
         public const string MetadataResourceTypePropertyName = "resourceType";
         public const string BatchSizePropertyName = "batchSize";
@@ -168,6 +170,8 @@ namespace Bicep.Core
         public static readonly TypeSymbol Bool = new PrimitiveType(TypeNameBool, TypeSymbolValidationFlags.Default);
         // LooseBool should be regarded as equal to the 'bool' type, but with different validation behavior
         public static readonly TypeSymbol LooseBool = new PrimitiveType(TypeNameBool, TypeSymbolValidationFlags.AllowLooseAssignment);
+        public static readonly TypeSymbol True = new BooleanLiteralType(true);
+        public static readonly TypeSymbol False = new BooleanLiteralType(false);
         public static readonly TypeSymbol Null = new PrimitiveType(NullKeyword, TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Array = new ArrayType(ArrayType);
 
@@ -192,6 +196,8 @@ namespace Bicep.Core
 
         // types allowed to use in output and parameter declarations
         public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] { String, Object, Int, Bool, Array }.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);
+
+        public static readonly ImmutableHashSet<string> ReservedTypeNames = ImmutableHashSet.CreateRange<string>(IdentifierComparer, DeclarationTypes.Keys.Append(ResourceKeyword));
 
         public static TypeSymbol? TryGetDeclarationType(string? typeName)
         {

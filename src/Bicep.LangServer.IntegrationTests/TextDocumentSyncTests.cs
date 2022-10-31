@@ -51,7 +51,7 @@ randomToken
                 d =>
                 {
                     d.Range.Should().HaveRange((1, 23), (1, 24));
-                    d.Should().HaveCodeAndSeverity("BCP027", DiagnosticSeverity.Error);
+                    d.Should().HaveCodeAndSeverity("BCP033", DiagnosticSeverity.Error);
                 },
                 d =>
                 {

@@ -80,6 +80,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             ImportedNamespaceSymbol => SymbolKind.Namespace,
             ParameterSymbol => SymbolKind.Field,
+            TypeAliasSymbol => SymbolKind.Field,
             VariableSymbol => SymbolKind.Variable,
             ResourceSymbol => SymbolKind.Object,
             ModuleSymbol => SymbolKind.Module,
@@ -91,6 +92,7 @@ namespace Bicep.LanguageServer.Handlers
         private static string FormatDetail(DeclaredSymbol symbol) => symbol switch
         {
             ParameterSymbol parameter => parameter.Type.Name,
+            TypeAliasSymbol declaredType => declaredType.Type.Name,
             VariableSymbol variable => variable.Type.Name,
             ResourceSymbol resource => resource.Type.Name,
             ModuleSymbol module => module.Type.Name,

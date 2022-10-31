@@ -65,19 +65,26 @@ namespace Bicep.Core.TypeSystem
         /// </summary>
         MetadataDecorator = 1 << 9,
 
+        TypeDecorator = 1 << 10,
+
         /// <summary>
         /// The function can be used as a resource or module decorator.
         /// </summary>
         ResourceOrModuleDecorator = ResourceDecorator | ModuleDecorator,
 
         /// <summary>
-        /// The function can be used as a parameter or output decorator.
+        /// The function can be used as a parameter or type decorator.
         /// </summary>
-        ParamterOrOutputDecorator = ParameterDecorator | OutputDecorator,
+        ParameterOrTypeDecorator = ParameterDecorator | TypeDecorator,
+
+        /// <summary>
+        /// The function can be used as a parameter, output, or type decorator.
+        /// </summary>
+        ParameterOutputOrTypeDecorator = ParameterDecorator | OutputDecorator | TypeDecorator,
 
         /// <summary>
         /// The function can be used as a decorator anywhere.
         /// </summary>
-        AnyDecorator = ParameterDecorator | VariableDecorator | ResourceDecorator | ModuleDecorator | OutputDecorator | ImportDecorator | MetadataDecorator,
+        AnyDecorator = ParameterDecorator | VariableDecorator | ResourceDecorator | ModuleDecorator | OutputDecorator | ImportDecorator | MetadataDecorator | TypeDecorator,
     }
 }

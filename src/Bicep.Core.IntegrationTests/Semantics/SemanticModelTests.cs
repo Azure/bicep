@@ -119,6 +119,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                     symbol.Should().Match(s =>
                         s is MetadataSymbol ||
                         s is ParameterSymbol ||
+                        s is TypeAliasSymbol ||
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
                         s is ModuleSymbol ||
@@ -135,6 +136,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                         s is ErrorSymbol ||
                         s is MetadataSymbol ||
                         s is ParameterSymbol ||
+                        s is TypeAliasSymbol ||
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
                         s is ModuleSymbol ||

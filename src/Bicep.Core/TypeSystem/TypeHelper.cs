@@ -80,6 +80,16 @@ namespace Bicep.Core.TypeSystem
         public static TypeSymbol CreateTypeUnion(params ITypeReference[] members)
             => CreateTypeUnion((IEnumerable<ITypeReference>)members);
 
+        public static bool IsLiteralType(TypeSymbol type) => type switch
+        {
+            StringLiteralType => true,
+            IntegerLiteralType => true,
+            BooleanLiteralType => true,
+            ObjectType objectType => objectType.Properties.All(kvp => IsLiteralType(kvp.Value.TypeReference.Type)),
+            // TODO for array literals when type system adds support for tuples
+            _ => false,
+        };
+
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)
         {
             // flatten and then de-duplicate members

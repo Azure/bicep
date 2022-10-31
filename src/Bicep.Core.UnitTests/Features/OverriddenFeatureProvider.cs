@@ -31,4 +31,6 @@ public class OverriddenFeatureProvider : IFeatureProvider
     public bool SourceMappingEnabled => overrides.SourceMappingEnabled ?? features.SourceMappingEnabled;
 
     public bool ParamsFilesEnabled => overrides.ParamsFilesEnabled ?? features.ParamsFilesEnabled;
+
+    public bool UserDefinedTypesEnabled => overrides.UserDefinedTypesEnabled ?? features.UserDefinedTypesEnabled;
 }

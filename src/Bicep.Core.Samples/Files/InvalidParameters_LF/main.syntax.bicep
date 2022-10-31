@@ -118,8 +118,9 @@ param partialType str
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0017) | ├─IdentifierSyntax
 //@[006:0017) | | └─Token(Identifier) |partialType|
-//@[018:0021) | └─SimpleTypeSyntax
-//@[018:0021) |   └─Token(Identifier) |str|
+//@[018:0021) | └─TypeAccessSyntax
+//@[018:0021) |   └─IdentifierSyntax
+//@[018:0021) |     └─Token(Identifier) |str|
 //@[021:0023) ├─Token(NewLine) |\n\n|
 
 param malformedType 44
@@ -127,7 +128,7 @@ param malformedType 44
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0019) | ├─IdentifierSyntax
 //@[006:0019) | | └─Token(Identifier) |malformedType|
-//@[020:0022) | └─SkippedTriviaSyntax
+//@[020:0022) | └─IntegerLiteralSyntax
 //@[020:0022) |   └─Token(Integer) |44|
 //@[022:0024) ├─Token(NewLine) |\n\n|
 
@@ -138,7 +139,7 @@ param malformedType2 44 = f
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0020) | ├─IdentifierSyntax
 //@[006:0020) | | └─Token(Identifier) |malformedType2|
-//@[021:0023) | ├─SkippedTriviaSyntax
+//@[021:0023) | ├─IntegerLiteralSyntax
 //@[021:0023) | | └─Token(Integer) |44|
 //@[024:0027) | └─ParameterDefaultValueSyntax
 //@[024:0025) |   ├─Token(Assignment) |=|
@@ -166,7 +167,7 @@ param malformedModifier 44
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0023) | ├─IdentifierSyntax
 //@[006:0023) | | └─Token(Identifier) |malformedModifier|
-//@[024:0026) | └─SkippedTriviaSyntax
+//@[024:0026) | └─IntegerLiteralSyntax
 //@[024:0026) |   └─Token(Integer) |44|
 //@[026:0028) ├─Token(NewLine) |\n\n|
 
@@ -319,8 +320,9 @@ param wrongType fluffyBunny = 'what's up doc?'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─SimpleTypeSyntax
-//@[016:0027) | | └─Token(Identifier) |fluffyBunny|
+//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | | └─IdentifierSyntax
+//@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0036) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0036) |   └─StringSyntax
@@ -340,8 +342,9 @@ param wrongType fluffyBunny = 'what\s up doc?'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─SimpleTypeSyntax
-//@[016:0027) | | └─Token(Identifier) |fluffyBunny|
+//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | | └─IdentifierSyntax
+//@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0046) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0046) |   └─SkippedTriviaSyntax
@@ -355,8 +358,9 @@ param wrongType fluffyBunny = 'what\'s up doc?
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─SimpleTypeSyntax
-//@[016:0027) | | └─Token(Identifier) |fluffyBunny|
+//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | | └─IdentifierSyntax
+//@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0046) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0046) |   └─SkippedTriviaSyntax
@@ -370,8 +374,9 @@ param wrongType fluffyBunny = 'what\'s ${
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─SimpleTypeSyntax
-//@[016:0027) | | └─Token(Identifier) |fluffyBunny|
+//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | | └─IdentifierSyntax
+//@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0041) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0041) |   └─SkippedTriviaSyntax
@@ -384,8 +389,9 @@ param wrongType fluffyBunny = 'what\'s ${up
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─SimpleTypeSyntax
-//@[016:0027) | | └─Token(Identifier) |fluffyBunny|
+//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | | └─IdentifierSyntax
+//@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0043) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0043) |   └─SkippedTriviaSyntax
@@ -400,8 +406,9 @@ param wrongType fluffyBunny = 'what\'s ${up}
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─SimpleTypeSyntax
-//@[016:0027) | | └─Token(Identifier) |fluffyBunny|
+//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | | └─IdentifierSyntax
+//@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0044) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0044) |   └─SkippedTriviaSyntax
@@ -416,8 +423,9 @@ param wrongType fluffyBunny = 'what\'s ${'up
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─SimpleTypeSyntax
-//@[016:0027) | | └─Token(Identifier) |fluffyBunny|
+//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | | └─IdentifierSyntax
+//@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0044) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0044) |   └─SkippedTriviaSyntax
@@ -434,8 +442,9 @@ param wrongType fluffyBunny = 'what\'s ${'up${
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─SimpleTypeSyntax
-//@[016:0027) | | └─Token(Identifier) |fluffyBunny|
+//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | | └─IdentifierSyntax
+//@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0046) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0046) |   └─SkippedTriviaSyntax
@@ -450,8 +459,9 @@ param wrongType fluffyBunny = 'what\'s ${'up${
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─SimpleTypeSyntax
-//@[016:0027) | | └─Token(Identifier) |fluffyBunny|
+//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | | └─IdentifierSyntax
+//@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0046) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0046) |   └─SkippedTriviaSyntax
@@ -466,8 +476,9 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─SimpleTypeSyntax
-//@[016:0027) | | └─Token(Identifier) |fluffyBunny|
+//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | | └─IdentifierSyntax
+//@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0049) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0049) |   └─SkippedTriviaSyntax
@@ -484,8 +495,9 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─SimpleTypeSyntax
-//@[016:0027) | | └─Token(Identifier) |fluffyBunny|
+//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | | └─IdentifierSyntax
+//@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0050) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0050) |   └─SkippedTriviaSyntax
@@ -503,8 +515,9 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─SimpleTypeSyntax
-//@[016:0027) | | └─Token(Identifier) |fluffyBunny|
+//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | | └─IdentifierSyntax
+//@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0051) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0051) |   └─SkippedTriviaSyntax
@@ -522,8 +535,9 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─SimpleTypeSyntax
-//@[016:0027) | | └─Token(Identifier) |fluffyBunny|
+//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | | └─IdentifierSyntax
+//@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0053) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0053) |   └─SkippedTriviaSyntax
@@ -544,8 +558,9 @@ param wrongType fluffyBunny = '${{this: doesnt}.work}'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─SimpleTypeSyntax
-//@[016:0027) | | └─Token(Identifier) |fluffyBunny|
+//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | | └─IdentifierSyntax
+//@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0054) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0054) |   └─SkippedTriviaSyntax
@@ -605,8 +620,9 @@ param wrongType fluffyBunny = 'what\'s up doc?'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─SimpleTypeSyntax
-//@[016:0027) | | └─Token(Identifier) |fluffyBunny|
+//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | | └─IdentifierSyntax
+//@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0047) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0047) |   └─StringSyntax
@@ -644,8 +660,9 @@ param someArray arra
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |someArray|
-//@[016:0020) | └─SimpleTypeSyntax
-//@[016:0020) |   └─Token(Identifier) |arra|
+//@[016:0020) | └─TypeAccessSyntax
+//@[016:0020) |   └─IdentifierSyntax
+//@[016:0020) |     └─Token(Identifier) |arra|
 //@[020:0022) ├─Token(NewLine) |\n\n|
 
 @secure()

@@ -5,7 +5,7 @@ using System;
 namespace Bicep.LanguageServer.Completions
 {
     [Flags]
-    public enum BicepCompletionContextKind
+    public enum BicepCompletionContextKind : ulong
     {
         /// <summary>
         /// No specific information about the current completion context is available.
@@ -172,6 +172,21 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location needs a parameter value completion from allowed values in corresponding bicep file
         /// </summary>
-        ParamValue = 1 << 31
+        ParamValue = ((ulong) 1) << 31,
+
+        /// <summary>
+        /// The current location is after the assignment operator in a type declaration: 'type foo = |'
+        /// </summary>
+        TypeDeclarationValue = ((ulong) 1) << 32,
+
+        /// <summary>
+        /// The current location is after the assignment operator in a type declaration: 'type foo = |'
+        /// </summary>
+        ObjectTypePropertyValue = ((ulong) 1) << 33,
+
+        /// <summary>
+        /// The current location is after a pipe separator within a union type: `type foo = 'foo'|'bar'|ǂ`
+        /// </summary>
+        UnionTypeMember = ((ulong) 1) << 34,
     }
 }

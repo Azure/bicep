@@ -11,5 +11,270 @@
     "myString": "this is a string",
     "myInt": 1
   },
-  "resources": []
+  "parameters": {
+    "cdnProfileName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of CDN Profile"
+      }
+    },
+    "afdEndpointName": {
+      "type": "string",
+      "metadata": {
+        "description": "AFD Endpoint Name"
+      }
+    },
+    "customDomains": {
+      "type": "array",
+      "metadata": {
+        "description": "Custom Domain List"
+      }
+    },
+    "origins": {
+      "type": "array",
+      "metadata": {
+        "description": "Origin List"
+      }
+    },
+    "wafPolicyName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the WAF policy to create."
+      }
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Cdn/profiles",
+      "apiVersion": "2021-06-01",
+      "name": "[parameters('cdnProfileName')]",
+      "location": "Global",
+      "metadata": {
+        "description": "Create CDN Profile"
+      },
+      "properties": {
+        "originResponseTimeoutSeconds": 16
+      },
+      "sku": {}
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/afdEndpoints",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', parameters('cdnProfileName'), parameters('afdEndpointName'))]",
+      "location": "Global",
+      "properties": {},
+      "metadata": {
+        "description": "Create AFD Endpoint"
+      }
+    },
+    {
+      "copy": {
+        "name": "custom_domains",
+        "count": "[length(parameters('customDomains'))]"
+      },
+      "type": "Microsoft.Cdn/profiles/customDomains",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', parameters('cdnProfileName'), replace(parameters('customDomains')[copyIndex()].hostname, '.', '-'))]",
+      "metadata": {
+        "description": "Create Custom Domains to be used for CDN profile"
+      },
+      "properties": {
+        "hostName": ""
+      }
+    },
+    {
+      "copy": {
+        "name": "origin_groups",
+        "count": "[length(parameters('origins'))]"
+      },
+      "type": "Microsoft.Cdn/profiles/originGroups",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', parameters('cdnProfileName'), parameters('origins')[copyIndex()].originGroupName)]",
+      "metadata": {
+        "description": "List of Origin Groups"
+      },
+      "properties": {}
+    },
+    {
+      "copy": {
+        "name": "cdn_origins",
+        "count": "[length(parameters('origins'))]"
+      },
+      "type": "Microsoft.Cdn/profiles/originGroups/origins",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}/{2}', parameters('cdnProfileName'), parameters('origins')[copyIndex()].originGroupName, replace(parameters('origins')[copyIndex()].hostname, '.', '-'))]",
+      "metadata": {
+        "description": "List of origin and mapping to Origin Groups"
+      },
+      "properties": {
+        "hostName": ""
+      }
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/securityPolicies",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', parameters('cdnProfileName'), parameters('wafPolicyName'))]",
+      "metadata": {
+        "description": "Attach WAF for Security policy"
+      },
+      "properties": {}
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('{0}-eventhub-module', parameters('cdnProfileName'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.9.1.41621",
+              "templateHash": "10011087564064102984"
+            }
+          },
+          "resources": [
+          ]
+        }
+      },
+      "metadata": {
+        "description": "Create EventHub."
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('{0}-rulesets-module', parameters('cdnProfileName'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "cdnProfileName": {
+            "value": "[parameters('cdnProfileName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.9.1.41621",
+              "templateHash": "13124418295169759821"
+            }
+          },
+          "parameters": {
+            "cdnProfileName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of CDN Profile. For chaining, use output from parent module"
+              }
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Cdn/profiles/ruleSets",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/{1}', parameters('cdnProfileName'), 'Global')]",
+              "metadata": {
+                "description": "Default ruleset"
+              }
+            },
+            {
+              "type": "Microsoft.Cdn/profiles/ruleSets/rules",
+              "apiVersion": "2021-06-01",
+              "name": "[format('{0}/{1}/{2}', parameters('cdnProfileName'), 'Global', 'OverwriteResponseHeaders')]",
+              "metadata": {
+                "description": "Modify other request-response headers and add to global rulesets"
+              },
+              "properties": {
+                "order": 1,
+                "actions": []
+              }
+            }
+          ]
+        }
+      },
+      "metadata": {
+        "description": "Default Rule Sets."
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "[format('{0}-monitoring-module', parameters('cdnProfileName'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "parameters": {
+          "cdnProfileName": {
+            "value": "[parameters('cdnProfileName')]"
+          }
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.9.1.41621",
+              "templateHash": "291091334959894439"
+            }
+          },
+          "parameters": {
+            "cdnProfileName": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of CDN Profile. For chaining, use output from parent module"
+              }
+            }
+          },
+          "variables": {
+            "diagnosticSettings": {
+            }
+          },
+          "resources": [
+            {
+              "copy": {
+                "name": "diagnostic_setting",
+                "count": "[length(variables('diagnosticSettings'))]"
+              },
+              "type": "Microsoft.Insights/diagnosticSettings",
+              "apiVersion": "2021-05-01-preview",
+              "scope": "[format('Microsoft.Cdn/profiles/{0}', parameters('cdnProfileName'))]",
+              "name": "[variables('diagnosticSettings')[copyIndex()].name]",
+              "properties": {
+                "copy": [
+                  {
+                    "name": "logs",
+                    "count": "[length(variables('diagnosticSettings')[copyIndex()].logSettings)]",
+                    "input": {
+                      "category": "[variables('diagnosticSettings')[copyIndex()].logSettings[copyIndex('logs')].name]",
+                      "enabled": "[variables('diagnosticSettings')[copyIndex()].logSettings[copyIndex('logs')].enabled]",
+                      "retentionPolicy": {
+                        "enabled": false,
+                        "days": 0
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "metadata": {
+        "description": "Create Diagnostic Settings for Logs"
+      }
+    }
+  ]
 }
