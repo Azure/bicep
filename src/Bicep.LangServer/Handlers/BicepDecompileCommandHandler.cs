@@ -105,11 +105,6 @@ namespace Bicep.LanguageServer.Handlers
         {
             return telemetryHelper.ExecuteWithTelemetryAndErrorHandling(() =>
             {
-                if (parameters.jsonUri is null)
-                {
-                    throw new ArgumentNullException(nameof(parameters.jsonUri));
-                }
-
                 return Task.FromResult(Decompile(parameters.jsonUri.GetFileSystemPath()));
             });
         }
@@ -125,12 +120,12 @@ namespace Bicep.LanguageServer.Handlers
             try
             {
                 // Decompile
-                Log(output, $"Decompiling {jsonPath} into Bicep...");
+                Log(output, String.Format(LangServerResources.Decompile_DecompilationStartMsg, jsonPath));
                 (bicepUri, filesToSave) = templateDecompiler.DecompileFileWithModules(jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
             }
             catch (Exception ex)
             {
-                var message = $"Decompilation failed. Please fix the following problems and try again:\n{ex.Message}";
+                var message = string.Format(LangServerResources.Decompile_DecompilationFailed, ex.Message);
                 Log(output, message);
                 throw telemetryHelper.CreateException(
                     message,

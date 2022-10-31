@@ -61,6 +61,24 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Decompilation failed. Please fix the following problems and try again: {0}.
+        /// </summary>
+        public static string Decompile_DecompilationFailed {
+            get {
+                return ResourceManager.GetString("Decompile_DecompilationFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Decompile_Decompiling {0} into Bicep....
+        /// </summary>
+        public static string Decompile_DecompilationStartMsg {
+            get {
+                return ResourceManager.GetString("Decompile_DecompilationStartMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Deployment failed for {0}..
         /// </summary>
         public static string DeploymentFailedMessage {
