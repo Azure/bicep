@@ -217,12 +217,13 @@ namespace Bicep.LanguageServer.Telemetry
                 }
             );
 
-        public static BicepTelemetryEvent DecompileFailure(string failureType)
+        public static BicepTelemetryEvent DecompileFailure(string decompileId, string failureType)
             => new BicepTelemetryEvent
             (
                 eventName: TelemetryConstants.EventNames.DecompileFailure,
                 properties: new()
                 {
+                    ["decompileId"] = decompileId,
                     ["failureType"] = failureType,
                 }
             );

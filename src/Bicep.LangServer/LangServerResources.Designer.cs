@@ -61,6 +61,15 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Created new subfolder for output files: {0}.
+        /// </summary>
+        public static string Decompile_CreatedNewSubfolder {
+            get {
+                return ResourceManager.GetString("Decompile_CreatedNewSubfolder", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Decompilation failed. Please fix the following problems and try again: {0}.
         /// </summary>
         public static string Decompile_DecompilationFailed {

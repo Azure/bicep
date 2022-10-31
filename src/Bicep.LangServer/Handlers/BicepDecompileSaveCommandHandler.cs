@@ -148,14 +148,13 @@ namespace Bicep.LanguageServer.Handlers
 
         private (string path, string contents)[] DeterminePathsToSave(StringBuilder output, ref string outputFolder, string mainBicepPath, DecompiledFile[] outputFiles, bool overwrite)
         {
-            var singleFileDecompilation = outputFiles.Length == 1;
-
             if (overwrite)
             {
                 // Save to original paths
                 return outputFiles.Select(of => (of.absolutePath, of.bicepContents)).ToArray();
             }
 
+            var singleFileDecompilation = outputFiles.Length == 1;
             if (singleFileDecompilation)
             {
                 // Create a bicep file with unique name alongside the existing bicep file
@@ -165,14 +164,13 @@ namespace Bicep.LanguageServer.Handlers
             else
             {
                 // Output every to a new subfolder (using the relative clonable paths)
-                var newOutputFolder = CreateUniqueSubfolder(outputFolder, $"{Path.GetFileNameWithoutExtension(mainBicepPath)}_decompiled");
-                Log(output, $"Created new subfolder for output files: {newOutputFolder}");
-                outputFolder = newOutputFolder;
+                outputFolder = CreateUniqueSubfolder(outputFolder, $"{Path.GetFileNameWithoutExtension(mainBicepPath)}_decompiled");
+                Log(output, String.Format(LangServerResources.Decompile_CreatedNewSubfolder, outputFolder));
 
                 var newOutputFiles = new List<(string path, string contents)>();
                 foreach (var outputFile in outputFiles)
                 {
-                    var newPath = MakePathRelativeToFolder(newOutputFolder, Path.Combine(newOutputFolder, outputFile.clonableRelativePath), newOutputFiles.Select(f => f.path).ToArray());
+                    var newPath = MakePathRelativeToFolder(outputFolder, Path.Combine(outputFolder, outputFile.clonableRelativePath), newOutputFiles.Select(f => f.path).ToArray());
                     newOutputFiles.Add((newPath, outputFile.bicepContents));
                 }
 

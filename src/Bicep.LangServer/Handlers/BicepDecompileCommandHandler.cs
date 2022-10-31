@@ -46,13 +46,14 @@ namespace Bicep.LanguageServer.Handlers
         public string[] conflictingOutputPaths; // client should verify overwrite with user
 
         private BicepDecompileCommandResult(
+            string decompileId,
             string output,
             string? errorMessage,
             string? mainBicepPath,
             DecompiledFile[] outputFiles,
             string[] conflictingOutputPaths)
         {
-            this.decompileId = Guid.NewGuid().ToString();
+            this.decompileId = decompileId;
             this.errorMessage = errorMessage;
             this.output = output;
             this.mainBicepPath = mainBicepPath;
@@ -61,18 +62,20 @@ namespace Bicep.LanguageServer.Handlers
         }
 
         public BicepDecompileCommandResult(
+            string decompileId,
             string output,
             string? errorMessage
-        ) : this(output, errorMessage, null, new DecompiledFile[] { }, new string[] { })
+        ) : this(decompileId, output, errorMessage, null, new DecompiledFile[] { }, new string[] { })
         {
         }
 
         public BicepDecompileCommandResult(
+            string decompileId,
             string output,
             string mainBicepPath,
             DecompiledFile[] outputFiles,
             string[] conflictingOutputPaths
-        ) : this(output, null, mainBicepPath, outputFiles, conflictingOutputPaths)
+        ) : this(decompileId, output, null, mainBicepPath, outputFiles, conflictingOutputPaths)
         {
         }
     }
@@ -112,6 +115,7 @@ namespace Bicep.LanguageServer.Handlers
         private (BicepDecompileCommandResult result, BicepTelemetryEvent? successTelemetry) Decompile(string jsonPath)
         {
             StringBuilder output = new StringBuilder();
+            string decompileId = Guid.NewGuid().ToString();
 
             Uri jsonUri = new Uri(jsonPath, UriKind.Absolute);
 
@@ -129,16 +133,14 @@ namespace Bicep.LanguageServer.Handlers
                 Log(output, message);
                 throw telemetryHelper.CreateException(
                     message,
-                    BicepTelemetryEvent.DecompileFailure(message),
-                    new BicepDecompileCommandResult(output.ToString(), message)
+                    BicepTelemetryEvent.DecompileFailure(decompileId, message),
+                    new BicepDecompileCommandResult(decompileId, output.ToString(), message)
                 );
             }
 
             // Determine output files to save
             Trace.TraceInformation($"Decompilation main output: {bicepUri.LocalPath}");
             Trace.TraceInformation($"Decompilation all files to save: {string.Join(", ", filesToSave.Select(kvp => kvp.Key.LocalPath))}");
-            string? outputFolder = Path.GetDirectoryName(bicepUri.LocalPath);
-            Debug.Assert(outputFolder is not null, "outputFolder should not be null");
 
             (string path, string content)[] pathsToSave = filesToSave.Select(kvp => (kvp.Key.LocalPath, kvp.Value)).ToArray();
 
@@ -150,21 +152,24 @@ namespace Bicep.LanguageServer.Handlers
             // Conflicts with any existing files?
             string[] conflictingPaths = pathsToSave.Where(f => File.Exists(f.path)).Select(f => f.path).ToArray();
 
+            string? outputFolder = Path.GetDirectoryName(bicepUri.LocalPath);
+            Debug.Assert(outputFolder is not null, "outputFolder should not be null");
             DecompiledFile[] outputFiles =
                 pathsToSave.Select(pts => DetermineDecompiledPaths(outputFolder, pts.path, pts.content))
                 .ToArray();
 
-            string mainBicepPath = pathsToSave[0].path;
 
             // Show disclaimer and completion
             Log(output, TemplateDecompiler.DecompilerDisclaimerMessage);
 
             // Return result
+            string mainBicepPath = pathsToSave[0].path;
             var result = new BicepDecompileCommandResult(
-                    output.ToString(),
-                    mainBicepPath,
-                    outputFiles,
-                    conflictingPaths);
+                decompileId, 
+                output.ToString(),
+                mainBicepPath,
+                outputFiles,
+                conflictingPaths);
             return (
                 result,
                 successTelemetry: BicepTelemetryEvent.DecompileSuccess(result.decompileId, pathsToSave.Length, conflictingPaths.Length)
