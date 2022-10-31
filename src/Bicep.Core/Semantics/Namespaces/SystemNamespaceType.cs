@@ -938,7 +938,7 @@ namespace Bicep.Core.Semantics.Namespaces
             BannedFunction.CreateForOperator("coalesce", "??")
         }.ToImmutableArray();
 
-        private static IEnumerable<Decorator> GetSystemDecorators()
+        private static IEnumerable<Decorator> GetSystemDecorators(IFeatureProvider featureProvider)
         {
             static DecoratorEvaluator MergeToTargetObject(string propertyName, Func<DecoratorSyntax, SyntaxBase> propertyValueSelector) =>
                 (decoratorSyntax, _, targetObject) =>
@@ -967,6 +967,11 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static void ValidateLength(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
             {
+                if (targetType is UnionType || TypeHelper.IsLiteralType(targetType))
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorNotPermittedOnLiteralType(decoratorName));
+                }
+
                 var lengthSyntax = SingleArgumentSelector(decoratorSyntax);
 
                 if (TryGetIntegerLiteralValue(lengthSyntax) is not null and < 0)
@@ -981,12 +986,12 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                 .WithEvaluator((_, targetType, targetObject) =>
                 {
-                    if (ReferenceEquals(targetType, LanguageConstants.String))
+                    if (targetType is PrimitiveType pt && pt.Name == LanguageConstants.TypeNameString)
                     {
                         return targetObject.MergeProperty("type", "secureString");
                     }
 
-                    if (ReferenceEquals(targetType, LanguageConstants.Object))
+                    if (targetType is ObjectType)
                     {
                         return targetObject.MergeProperty("type", "secureObject");
                     }
@@ -999,8 +1004,14 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Defines the allowed values of the parameter.")
                 .WithRequiredParameter("values", LanguageConstants.Array, "The allowed values.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithValidator((_, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter) =>
+                .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter) =>
                 {
+                    if (targetType is UnionType || TypeHelper.IsLiteralType(targetType))
+                    {
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorNotPermittedOnLiteralType(decoratorName));
+                        return;
+                    }
+
                     if (ReferenceEquals(targetType, LanguageConstants.Array) &&
                         SingleArgumentSelector(decoratorSyntax) is ArraySyntax allowedValues &&
                         allowedValues.Items.All(item => item.Value is not ArraySyntax))
@@ -1026,7 +1037,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new DecoratorBuilder(LanguageConstants.ParameterMinValuePropertyName)
                 .WithDescription("Defines the minimum value of the parameter.")
                 .WithRequiredParameter("value", LanguageConstants.Int, "The minimum value.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
+                .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Int)
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinValuePropertyName, SingleArgumentSelector))
                 .Build();
@@ -1034,7 +1045,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new DecoratorBuilder(LanguageConstants.ParameterMaxValuePropertyName)
                 .WithDescription("Defines the maximum value of the parameter.")
                 .WithRequiredParameter("value", LanguageConstants.Int, "The maximum value.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
+                .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Int)
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxValuePropertyName, SingleArgumentSelector))
                 .Build();
@@ -1042,7 +1053,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new DecoratorBuilder(LanguageConstants.ParameterMinLengthPropertyName)
                 .WithDescription("Defines the minimum length of the parameter.")
                 .WithRequiredParameter("length", LanguageConstants.Int, "The minimum length.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
+                .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array))
                 .WithValidator(ValidateLength)
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinLengthPropertyName, SingleArgumentSelector))
@@ -1051,7 +1062,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new DecoratorBuilder(LanguageConstants.ParameterMaxLengthPropertyName)
                 .WithDescription("Defines the maximum length of the parameter.")
                 .WithRequiredParameter("length", LanguageConstants.Int, "The maximum length.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
+                .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array))
                 .WithValidator(ValidateLength)
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxLengthPropertyName, SingleArgumentSelector))
@@ -1060,7 +1071,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new DecoratorBuilder(LanguageConstants.ParameterMetadataPropertyName)
                 .WithDescription("Defines metadata of the parameter.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The metadata object.")
-                .WithFlags(FunctionFlags.ParamterOrOutputDecorator)
+                .WithFlags(FunctionFlags.ParameterOutputOrTypeDecorator)
                 .WithValidator((_, decoratorSyntax, _, typeManager, binder, diagnosticWriter) =>
                     TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnosticWriter, SingleArgumentSelector(decoratorSyntax), LanguageConstants.ParameterModifierMetadata))
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMetadataPropertyName, SingleArgumentSelector))
@@ -1099,6 +1110,16 @@ namespace Bicep.Core.Semantics.Namespaces
                 })
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.BatchSizePropertyName, SingleArgumentSelector))
                 .Build();
+
+            if (featureProvider.UserDefinedTypesEnabled)
+            {
+                yield return new DecoratorBuilder(LanguageConstants.ParameterSealedPropertyName)
+                    .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
+                    .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
+                    .WithAttachableType(LanguageConstants.Object)
+                    .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty(LanguageConstants.ParameterSealedPropertyName, "true"))
+                    .Build();
+            }
         }
 
         public static NamespaceType Create(string aliasName, IFeatureProvider featureProvider)
@@ -1109,7 +1130,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 ImmutableArray<TypeProperty>.Empty,
                 GetSystemOverloads(featureProvider),
                 BannedFunctions,
-                GetSystemDecorators(),
+                GetSystemDecorators(featureProvider),
                 new EmptyResourceTypeProvider());
         }
     }

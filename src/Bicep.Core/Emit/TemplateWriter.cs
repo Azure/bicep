@@ -56,6 +56,12 @@ namespace Bicep.Core.Emit
             LanguageConstants.ParameterMaxLengthPropertyName,
             LanguageConstants.ParameterMetadataPropertyName,
             LanguageConstants.MetadataDescriptionPropertyName,
+            LanguageConstants.ParameterSealedPropertyName,
+        }.ToImmutableHashSet();
+
+        private static readonly ImmutableHashSet<string> DecoratorsEmittedAsPropertiesPermittedOnTypeReferences = new[] {
+            LanguageConstants.ParameterMetadataPropertyName,
+            LanguageConstants.MetadataDescriptionPropertyName,
         }.ToImmutableHashSet();
 
         private static ISemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
@@ -128,6 +134,8 @@ namespace Bicep.Core.Emit
 
             this.EmitMetadata(jsonWriter, emitter);
 
+            this.EmitTypeDefinitionsIfPresent(jsonWriter, emitter);
+
             this.EmitParametersIfPresent(jsonWriter, emitter);
 
             this.EmitVariablesIfPresent(jsonWriter, emitter);
@@ -142,6 +150,27 @@ namespace Bicep.Core.Emit
 
             var content = jsonWriter.ToString();
             return (Template.FromJson<Template>(content), content.FromJson<JToken>());
+        }
+
+        private void EmitTypeDefinitionsIfPresent(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
+        {
+            if (context.SemanticModel.Root.TypeDeclarations.Length == 0)
+            {
+                return;
+            }
+
+            jsonWriter.WritePropertyName("definitions");
+            jsonWriter.WriteStartObject();
+
+            foreach (var declaredTypeSymbol in context.SemanticModel.Root.TypeDeclarations)
+            {
+                jsonWriter.WritePropertyWithPosition(
+                    declaredTypeSymbol.DeclaringType,
+                    declaredTypeSymbol.Name,
+                    () => EmitTypeDeclaration(jsonWriter, declaredTypeSymbol, emitter));
+            }
+
+            jsonWriter.WriteEndObject();
         }
 
         private void EmitParametersIfPresent(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
@@ -165,10 +194,10 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndObject();
         }
 
-        private ObjectSyntax AddDecoratorsToBody(StatementSyntax statement, ObjectSyntax input, TypeSymbol targetType)
+        private ObjectSyntax AddDecoratorsToBody(DecorableSyntax decorated, ObjectSyntax input, TypeSymbol targetType)
         {
             var result = input;
-            foreach (var decoratorSyntax in statement.Decorators.Reverse())
+            foreach (var decoratorSyntax in decorated.Decorators.Reverse())
             {
                 var symbol = this.context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
 
@@ -198,33 +227,9 @@ namespace Bicep.Core.Emit
         {
             var declaringParameter = parameterSymbol.DeclaringParameter;
 
-            var properties = new List<ObjectPropertySyntax>();
-            if (parameterSymbol.Type is ResourceType resourceType)
-            {
-                // Encode a resource type as a string parameter with a metadata for the resource type.
-                properties.Add(SyntaxFactory.CreateObjectProperty("type", SyntaxFactory.CreateStringLiteral(LanguageConstants.String.Name)));
-                properties.Add(SyntaxFactory.CreateObjectProperty(
-                    LanguageConstants.ParameterMetadataPropertyName,
-                    SyntaxFactory.CreateObject(new[]
-                    {
-                        SyntaxFactory.CreateObjectProperty(
-                            LanguageConstants.MetadataResourceTypePropertyName,
-                            SyntaxFactory.CreateStringLiteral(resourceType.TypeReference.FormatName())),
-                    })));
-            }
-            else if (SyntaxHelper.TryGetPrimitiveType(declaringParameter) is TypeSymbol primitiveType)
-            {
-                properties.Add(SyntaxFactory.CreateObjectProperty("type", SyntaxFactory.CreateStringLiteral(primitiveType.Name)));
-            }
-            else
-            {
-                // this should have been caught by the type checker long ago
-                throw new ArgumentException($"Unable to find primitive type for parameter {parameterSymbol.Name}");
-            }
-
             jsonWriter.WriteStartObject();
 
-            var parameterObject = SyntaxFactory.CreateObject(properties);
+            var parameterObject = TypePropertiesForUndecoratedTypeExpression(parameterSymbol.Type, declaringParameter, declaringParameter.Type);
 
             if (declaringParameter.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
             {
@@ -243,6 +248,198 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteEndObject();
         }
+
+        private void EmitTypeDeclaration(JsonTextWriter jsonWriter, TypeAliasSymbol declaredTypeSymbol, ExpressionEmitter emitter)
+        {
+            jsonWriter.WriteStartObject();
+
+            var typeDefinitionObject = TypePropertiesForTypeExpression(declaredTypeSymbol.Type, declaredTypeSymbol.DeclaringType, declaredTypeSymbol.DeclaringType.Value);
+
+            foreach (var property in typeDefinitionObject.Properties)
+            {
+                if (property.TryGetKeyText() is string propertyName)
+                {
+                    emitter.EmitProperty(propertyName, property.Value);
+                }
+            }
+
+            jsonWriter.WriteEndObject();
+        }
+
+        private ObjectSyntax TypePropertiesForTypeExpression(TypeSymbol type, DecorableSyntax parentSyntax, SyntaxBase typeExpressionSyntax)
+            => AddDecoratorsToBody(parentSyntax, TypePropertiesForUndecoratedTypeExpression(type, parentSyntax, typeExpressionSyntax), type);
+
+        private ObjectSyntax TypePropertiesForUndecoratedTypeExpression(TypeSymbol type, DecorableSyntax parentSyntax, SyntaxBase typeExpressionSyntax)
+        {
+            if (typeExpressionSyntax is TypeAccessSyntax typeRef && !parentSyntax.Decorators.Any(DecoratorPrecludesTypeRef))
+            {
+                return SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty("$ref", SyntaxFactory.CreateStringLiteral($"#/definitions/{typeRef.Name.IdentifierName}")).AsEnumerable());
+            }
+
+            return GetTypePropertiesForTypeSymbol(type, typeExpressionSyntax);
+        }
+
+        private bool DecoratorPrecludesTypeRef(DecoratorSyntax decorator)
+        {
+            var symbol = this.context.SemanticModel.GetSymbolInfo(decorator.Expression);
+
+            return symbol is FunctionSymbol decoratorSymbol
+                && DecoratorsToEmitAsResourceProperties.Contains(decoratorSymbol.Name)
+                && !DecoratorsEmittedAsPropertiesPermittedOnTypeReferences.Contains(decoratorSymbol.Name);
+        }
+
+        private ObjectSyntax GetTypePropertiesForTypeSymbol(ITypeReference type, SyntaxBase? declaringSyntax)
+            => type.Type switch {
+                TypeType typeRef => GetTypePropertiesForTypeSymbol(typeRef.Unwrapped, declaringSyntax),
+                PrimitiveType primitiveType => GetTypePropertiesForAmbientType(primitiveType.Name),
+                ResourceType resourceType => GetTypePropertiesForTypeSymbol(resourceType),
+                ObjectType objectType => GetTypePropertiesForTypeSymbol(objectType, declaringSyntax),
+                TypedArrayType typedArrayType => GetTypePropertiesForTypeSymbol(typedArrayType, declaringSyntax),
+                ArrayType arrayType => GetTypePropertiesForTypeSymbol(arrayType),
+                StringLiteralType stringLiteralType => GetTypePropertiesForTypeSymbol(stringLiteralType, declaringSyntax),
+                IntegerLiteralType integerLiteralType => GetTypePropertiesForTypeSymbol(integerLiteralType, declaringSyntax),
+                BooleanLiteralType booleanLiteralType => GetTypePropertiesForTypeSymbol(booleanLiteralType, declaringSyntax),
+                UnionType unionType => GetTypePropertiesForTypeSymbol(unionType, declaringSyntax),
+                // this should have been caught by the type checker long ago
+                _ => throw new ArgumentException($"Unable to find type for {type.Type.Name}"),
+            };
+
+        private ObjectSyntax GetTypePropertiesForAmbientType(string typeName)
+            => SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty("type", SyntaxFactory.CreateStringLiteral(typeName)).AsEnumerable());
+
+        private ObjectSyntax GetTypePropertiesForTypeSymbol(ResourceType resourceType) => SyntaxFactory.CreateObject(new []
+        {
+            SyntaxFactory.CreateObjectProperty("type", SyntaxFactory.CreateStringLiteral(LanguageConstants.String.Name)),
+            SyntaxFactory.CreateObjectProperty(LanguageConstants.ParameterMetadataPropertyName,
+                SyntaxFactory.CreateObject(new[]
+                {
+                    SyntaxFactory.CreateObjectProperty(LanguageConstants.MetadataResourceTypePropertyName,
+                        SyntaxFactory.CreateStringLiteral(resourceType.TypeReference.FormatName())),
+                })),
+        });
+
+        private ObjectSyntax GetTypePropertiesForTypeSymbol(ObjectType objectType, SyntaxBase? declaringSyntax)
+        {
+            var baseObject = GetTypePropertiesForAmbientType("object");
+
+            if (objectType.AdditionalPropertiesType is null)
+            {
+                baseObject = baseObject.MergeProperty("sealed", SyntaxFactory.CreateBooleanLiteral(true));
+            }
+
+            List<string> required = new();
+            SortedDictionary<string, ObjectSyntax> properties = new(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var (name, type) in objectType.Properties)
+            {
+                if ((type.Flags & TypePropertyFlags.Required) == TypePropertyFlags.Required)
+                {
+                    required.Add(name);
+                }
+
+                // If this type was declared in the template (rather than being derived via typeof()),
+                // there may be decorators we need to account for. The heuristic for determining if this
+                // type was declared vs derived is, can we locate the type property syntax?
+                if (declaringSyntax is ObjectTypeSyntax objectTypeSyntax
+                    && objectTypeSyntax.Properties.Where(p => p.TryGetKeyText() == name).FirstOrDefault() is {} propertySyntax)
+                {
+                    properties.Add(name, TypePropertiesForTypeExpression(type.TypeReference.Type, propertySyntax, propertySyntax.Value));
+                } else
+                {
+                    properties.Add(name, GetTypePropertiesForTypeSymbol(type.TypeReference, null));
+                }
+            }
+
+            if (required.Any())
+            {
+                baseObject = baseObject.MergeProperty("required", SyntaxFactory.CreateArray(required.Select(SyntaxFactory.CreateStringLiteral)));
+            }
+
+            if (properties.Any())
+            {
+                baseObject = baseObject.MergeProperty("properties", SyntaxFactory.CreateObject(properties.Select(kvp => SyntaxFactory.CreateObjectProperty(kvp.Key, kvp.Value))));
+            }
+
+            return baseObject;
+        }
+
+        private ObjectSyntax GetTypePropertiesForTypeSymbol(TypedArrayType typedArrayType, SyntaxBase? declaringSyntax)
+        {
+            var baseObject = GetTypePropertiesForTypeSymbol(typedArrayType as ArrayType);
+
+            if (typedArrayType.Item is UnionType unionType && !unionType.Members.OfType<ArrayType>().Any())
+            {
+                baseObject = baseObject.MergeProperty("allowedValues", SyntaxFactory.CreateArray(unionType.Members.Select(ToLiteralValue)));
+            } else
+            {
+                baseObject = baseObject.MergeProperty("items", GetTypePropertiesForTypeSymbol(typedArrayType.Item, (declaringSyntax as ArrayTypeSyntax)?.Item));
+            }
+
+            return baseObject;
+        }
+
+        private ObjectSyntax GetTypePropertiesForTypeSymbol(ArrayType arrayType)
+            => GetTypePropertiesForAmbientType("array");
+
+        private ObjectSyntax GetTypePropertiesForTypeSymbol(StringLiteralType stringLiteralType, SyntaxBase? declaringSyntax)
+            => GetTypePropertiesForTypeSymbol(new UnionType("literal", ImmutableArray.Create<ITypeReference>(stringLiteralType)), declaringSyntax);
+
+        private ObjectSyntax GetTypePropertiesForTypeSymbol(IntegerLiteralType intLiteralType, SyntaxBase? declaringSyntax)
+            => GetTypePropertiesForTypeSymbol(new UnionType("literal", ImmutableArray.Create<ITypeReference>(intLiteralType)), declaringSyntax);
+
+        private ObjectSyntax GetTypePropertiesForTypeSymbol(BooleanLiteralType boolLiteralType, SyntaxBase? declaringSyntax)
+            => GetTypePropertiesForTypeSymbol(new UnionType("literal", ImmutableArray.Create<ITypeReference>(boolLiteralType)), declaringSyntax);
+
+        private ObjectSyntax GetTypePropertiesForTypeSymbol(UnionType unionType, SyntaxBase? declaringSyntax)
+        {
+            var properties = new List<ObjectPropertySyntax> { SyntaxFactory.CreateObjectProperty("type", GetNonLiteralTypeName(unionType.Members.First().Type)) };
+
+            // If the union was created via an @allowed() decorator rather than via UnionTypeSyntax, add the property based on the decorator rather than the type
+            if (declaringSyntax is not null && !SyntaxHasAllowedDecorator(declaringSyntax))
+            {
+                properties.Add(SyntaxFactory.CreateObjectProperty("allowedValues", SyntaxFactory.CreateArray(unionType.Members.Select(ToLiteralValue))));
+            }
+
+            return SyntaxFactory.CreateObject(properties);
+        }
+
+        private bool SyntaxHasAllowedDecorator(SyntaxBase syntax) => context.SemanticModel.Binder.GetParent(syntax) switch
+        {
+            DecorableSyntax decorable when decorable.Decorators.Any(IsAllowedDecorator) => true,
+            ParenthesizedExpressionSyntax or TernaryOperationSyntax => SyntaxHasAllowedDecorator(syntax),
+            _ => false,
+        };
+
+        private bool IsAllowedDecorator(DecoratorSyntax syntax)
+        {
+            var symbol = this.context.SemanticModel.GetSymbolInfo(syntax.Expression);
+
+            return symbol is FunctionSymbol decoratorSymbol
+                && decoratorSymbol.DeclaringObject is NamespaceType namespaceType
+                && LanguageConstants.ParameterAllowedPropertyName == symbol.Name;
+        }
+
+        private SyntaxBase ToLiteralValue(ITypeReference literalType) => literalType.Type switch
+        {
+            StringLiteralType @string => SyntaxFactory.CreateStringLiteral(@string.RawStringValue),
+            IntegerLiteralType @int => @int.Value < 0 ? SyntaxFactory.CreateNegativeIntegerLiteral((ulong) Math.Abs(@int.Value)) : SyntaxFactory.CreateIntegerLiteral((ulong) @int.Value),
+            BooleanLiteralType @bool => SyntaxFactory.CreateBooleanLiteral(@bool.Value),
+            PrimitiveType pt when pt.Name == LanguageConstants.NullKeyword => SyntaxFactory.CreateNullLiteral(),
+            ObjectType @object => SyntaxFactory.CreateObject(@object.Properties.Select(kvp => SyntaxFactory.CreateObjectProperty(kvp.Key, ToLiteralValue(kvp.Value.TypeReference)))),
+            // This would have been caught by the DeclaredTypeManager during initial type assignment
+            _ => throw new ArgumentException("Union types used in ARM type checks must be composed entirely of literal types"),
+        };
+
+        private SyntaxBase GetNonLiteralTypeName(TypeSymbol? type) => type switch {
+            StringLiteralType => SyntaxFactory.CreateStringLiteral("string"),
+            IntegerLiteralType => SyntaxFactory.CreateStringLiteral("int"),
+            BooleanLiteralType => SyntaxFactory.CreateStringLiteral("bool"),
+            ObjectType => SyntaxFactory.CreateStringLiteral("object"),
+            ArrayType => SyntaxFactory.CreateStringLiteral("array"),
+            PrimitiveType pt when pt.Name != LanguageConstants.NullKeyword => SyntaxFactory.CreateStringLiteral(pt.Name),
+            // This would have been caught by the DeclaredTypeManager during initial type assignment
+            _ => throw new ArgumentException("Union types used in ARM type checks must be composed entirely of literal types"),
+        };
 
         private void EmitVariablesIfPresent(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
         {

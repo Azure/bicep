@@ -129,7 +129,7 @@ new CompletionItemKind[] { CompletionItemKind.Field, CompletionItemKind.Field }
                 [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText
             };
 
-            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary());
+            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary(), '|');
 
             var expectedValueIndex = 0;
             foreach (var completion in completions)
@@ -176,7 +176,7 @@ param firstParam string", new[] { "'one'", "'two'" }, new[] { CompletionItemKind
                 [InMemoryFileResolver.GetFileUri("/path/to/main.bicep")] = bicepText
             };
 
-            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary());
+            var completions = await RunCompletionScenario(paramTextWithCursor, fileTextsByUri.ToImmutableDictionary(), '|');
             completions.Select(completion => completion.Label).Should().Equal(expectedLabels);
             completions.Select(completion => completion.Kind).Should().Equal(expectedKinds);
         }
@@ -196,7 +196,7 @@ param firstParam string", new[] { "'one'", "'two'" }, new[] { CompletionItemKind
 
             var completions = await RunCompletionScenario(@"
 using |
-", fileTextsByUri.ToImmutableDictionary());
+", fileTextsByUri.ToImmutableDictionary(), '|');
 
             completions.Should().SatisfyRespectively(
                 x =>
@@ -241,7 +241,7 @@ using |
 
             var completions = await RunCompletionScenario(@"
 using './nested1/|'
-", fileTextsByUri.ToImmutableDictionary());
+", fileTextsByUri.ToImmutableDictionary(), '|');
 
             completions.Should().SatisfyRespectively(
                 x =>
@@ -269,7 +269,7 @@ using './nested1/|'
         [DataTestMethod]
         public async Task Param_file_should_have_keyword_completions(string text)
         {
-            var completions = await RunCompletionScenario(text, ImmutableDictionary<Uri, string>.Empty);
+            var completions = await RunCompletionScenario(text, ImmutableDictionary<Uri, string>.Empty, '|');
 
             completions.Should().SatisfyRespectively(
                 x =>
@@ -294,7 +294,7 @@ using 'bar.bicep'
         [DataTestMethod]
         public async Task Using_completion_should_only_be_offered_once(string paramTextWithCursor)
         {
-            var completions = await RunCompletionScenario(paramTextWithCursor, ImmutableDictionary<Uri, string>.Empty);
+            var completions = await RunCompletionScenario(paramTextWithCursor, ImmutableDictionary<Uri, string>.Empty, '|');
 
             completions.Should().SatisfyRespectively(
                 x =>
@@ -305,10 +305,10 @@ using 'bar.bicep'
                 });
         }
 
-        private async Task<IEnumerable<CompletionItem>> RunCompletionScenario(string paramTextWithCursors, ImmutableDictionary<Uri, string> fileTextsByUri)
+        private async Task<IEnumerable<CompletionItem>> RunCompletionScenario(string paramTextWithCursors, ImmutableDictionary<Uri, string> fileTextsByUri, char cursorInsertionMarker)
         {
             var paramUri = InMemoryFileResolver.GetFileUri("/path/to/param.bicepparam");
-            var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramTextWithCursors);
+            var (paramFileTextNoCursor, cursor) = ParserHelper.GetFileWithSingleCursor(paramTextWithCursors, cursorInsertionMarker);
             var paramFile = SourceFileFactory.CreateBicepFile(paramUri, paramFileTextNoCursor);
 
             fileTextsByUri = fileTextsByUri.Add(paramUri, paramFileTextNoCursor);

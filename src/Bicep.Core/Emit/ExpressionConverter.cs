@@ -1287,4 +1287,3 @@ namespace Bicep.Core.Emit
         }
     }
 }
-

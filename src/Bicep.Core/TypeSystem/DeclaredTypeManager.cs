@@ -10,9 +10,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.TypeSystem
@@ -22,13 +24,16 @@ namespace Bicep.Core.TypeSystem
         // maps syntax nodes to their declared types
         // processed nodes found not to have a declared type will have a null value
         private readonly ConcurrentDictionary<SyntaxBase, DeclaredTypeAssignment?> declaredTypes = new();
+        private readonly ConcurrentDictionary<TypeAliasSymbol, TypeSymbol> userDefinedTypeReferences = new();
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
+        private readonly IFeatureProvider features;
 
-        public DeclaredTypeManager(TypeManager typeManager, IBinder binder)
+        public DeclaredTypeManager(TypeManager typeManager, IBinder binder, IFeatureProvider features)
         {
             this.typeManager = typeManager;
             this.binder = binder;
+            this.features = features;
         }
 
         public DeclaredTypeAssignment? GetDeclaredTypeAssignment(SyntaxBase syntax) =>
@@ -53,6 +58,18 @@ namespace Bicep.Core.TypeSystem
 
                 case ParameterAssignmentSyntax parameterAssignment:
                     return GetParameterAssignmentType(parameterAssignment);
+
+                case TypeDeclarationSyntax typeDeclaration:
+                    return GetTypeType(typeDeclaration);
+
+                case ResourceTypeSyntax resourceType:
+                    return GetResourceTypeType(resourceType);
+
+                case ObjectTypePropertySyntax typeProperty:
+                    return GetTypePropertyType(typeProperty);
+
+                case ArrayTypeMemberSyntax typeMember:
+                    return GetTypeMemberType(typeMember);
 
                 case ResourceDeclarationSyntax resource:
                     return GetResourceType(resource);
@@ -120,8 +137,8 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax)
         {
-            var declaredType = TryGetTypeFromTypeSyntax(syntax.ParameterType);
-            declaredType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType());
+            var declaredType = TryGetTypeFromTypeSyntax(syntax.Type);
+            declaredType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType(GetValidTypeNames()));
 
             return new(declaredType, syntax);
         }
@@ -160,34 +177,427 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
+        private DeclaredTypeAssignment GetTypeType(TypeDeclarationSyntax syntax)
+        {
+            if (!features.UserDefinedTypesEnabled)
+            {
+                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeDeclarationStatementsUnsupported()), syntax);
+            }
+
+            var type = binder.GetSymbolInfo(syntax) switch
+            {
+                TypeAliasSymbol declaredType => userDefinedTypeReferences.GetOrAdd(declaredType, GetUserDefinedTypeType),
+                ErrorSymbol errorSymbol => errorSymbol.ToErrorType(),
+                // binder.GetSymbolInfo(TypeDeclarationSyntax) should always return a DeclaredTypeSymbol or an error, but just in case...
+                _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
+            };
+            var typeRefType = type switch
+            {
+                ErrorType => type,
+                _ => new TypeType(type),
+            };
+
+            return new(typeRefType, syntax);
+        }
+
+        private TypeSymbol GetUserDefinedTypeType(TypeAliasSymbol symbol)
+        {
+            if (binder.TryGetCycle(symbol) is {} cycle)
+            {
+                var builder = DiagnosticBuilder.ForPosition(symbol.DeclaringType.Name);
+                var diagnostic = cycle.Length == 1
+                    ? builder.CyclicTypeSelfReference()
+                    : builder.CyclicType(cycle.Select(s => s.Name));
+
+                return ErrorType.Create(diagnostic);
+            }
+
+            return GetTypeFromTypeSyntax(symbol.DeclaringType.Value);
+        }
+
+        private DeclaredTypeAssignment? GetTypePropertyType(ObjectTypePropertySyntax syntax)
+            => GetTypeReferencForTypeProperty(syntax) is {} @ref ? new(@ref, syntax) : null;
+
+        private ITypeReference? GetTypeReferencForTypeProperty(ObjectTypePropertySyntax syntax)
+        {
+            if (syntax.Value is TypeAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol signified)
+            {
+                return new DeferredTypeReference(() => TypeRefToType(signifier, signified));
+            }
+
+            return TryGetTypeFromTypeSyntax(syntax.Value);
+        }
+
+        private DeclaredTypeAssignment? GetTypeMemberType(ArrayTypeMemberSyntax syntax)
+            => GetTypeReferenceForMemberType(syntax) is {} @ref ? new(@ref, syntax) : null;
+
+        private ITypeReference? GetTypeReferenceForMemberType(ArrayTypeMemberSyntax syntax)
+        {
+            if (syntax.Value is TypeAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol signified)
+            {
+                return new DeferredTypeReference(() => TypeRefToType(signifier, signified));
+            }
+
+            return TryGetTypeFromTypeSyntax(syntax.Value);
+        }
+
         private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax)
         {
-            TypeSymbol declaredType;
-            if (syntax.Type is ResourceTypeSyntax resourceTypeSyntax && resourceTypeSyntax.Type is null)
-            {
-                // The resource type of an output can be inferred.
-                declaredType = this.typeManager.GetTypeInfo(syntax.Value);
-            }
-            else
-            {
-                declaredType = TryGetTypeFromTypeSyntax(syntax.OutputType) ??
-                    ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType());
-            }
+            var declaredType = TryGetTypeFromTypeSyntax(syntax.Type) ??
+                ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType());
 
             return new(declaredType, syntax);
         }
 
-        private TypeSymbol? TryGetTypeFromTypeSyntax(TypeSyntax? syntax)
+        private TypeSymbol GetTypeFromTypeSyntax(SyntaxBase syntax) => TryGetTypeFromTypeSyntax(syntax)
+            ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidTypeDefinition());
+
+        private TypeSymbol? TryGetTypeFromTypeSyntax(SyntaxBase syntax)
         {
+            RuntimeHelpers.EnsureSufficientExecutionStack();
+
             // assume "any" type when the parameter has parse errors (either missing or was skipped)
             return syntax switch
             {
-                null => LanguageConstants.Any,
+                SkippedTriviaSyntax => LanguageConstants.Any,
                 SimpleTypeSyntax simple => LanguageConstants.TryGetDeclarationType(simple.TypeName),
-                ResourceTypeSyntax resource => GetDeclaredResourceType(this.binder, resource),
+                ResourceTypeSyntax resource => GetDeclaredType(resource),
+                TypeAccessSyntax typeRef => ConvertTypeExpressionToType(typeRef),
+                ArrayTypeSyntax array => ConvertTypeExpressionToType(array),
+                ObjectTypeSyntax @object => ConvertTypeExpressionToType(@object),
+                StringSyntax @string => ConvertTypeExpressionToType(@string),
+                IntegerLiteralSyntax @int => ConvertTypeExpressionToType(@int),
+                BooleanLiteralSyntax @bool => ConvertTypeExpressionToType(@bool),
+                UnaryOperationSyntax unaryOperation => ConvertTypeExpressionToType(unaryOperation),
+                UnionTypeSyntax unionType => ConvertTypeExpressionToType(unionType),
+                ParenthesizedExpressionSyntax parenthesized => ConvertTypeExpressionToType(parenthesized),
                 _ => null
             };
         }
+
+        private DeclaredTypeAssignment GetResourceTypeType(ResourceTypeSyntax syntax)
+            => new(GetTypeReferenceForResourceType(syntax), syntax);
+
+        private TypeSymbol GetTypeReferenceForResourceType(ResourceTypeSyntax syntax)
+        {
+            if (!features.ResourceTypedParamsAndOutputsEnabled)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Span).ParamOrOutputResourceTypeUnsupported());
+            }
+
+            // The resource type of an output can be inferred.
+            var type = syntax.Type == null && GetOutputValueType(syntax) is {} inferredType ? inferredType : GetDeclaredResourceType(syntax);
+
+            if (type is ResourceType resourceType && IsExtensibilityType(resourceType))
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnsupportedResourceTypeParameterOrOutputType(resourceType.Name));
+            }
+
+            return type;
+        }
+
+        private bool IsExtensibilityType(ResourceType resourceType)
+        {
+            return resourceType.DeclaringNamespace.ProviderName != AzNamespaceType.BuiltInName;
+        }
+
+        private TypeSymbol? GetOutputValueType(SyntaxBase syntax) => binder.GetParent(syntax) switch
+        {
+            OutputDeclarationSyntax outputDeclaration => typeManager.GetTypeInfo(outputDeclaration.Value),
+            ParenthesizedExpressionSyntax parenthesized => GetOutputValueType(parenthesized),
+            _ => null,
+        };
+
+        private TypeSymbol ConvertTypeExpressionToType(TypeAccessSyntax syntax)
+            => binder.GetSymbolInfo(syntax) switch
+            {
+                TypeAliasSymbol declaredType => TypeRefToType(syntax, declaredType),
+                DeclaredSymbol declaredSymbol => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
+                _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
+            };
+
+        private IEnumerable<string> GetValidTypeNames() => LanguageConstants.DeclarationTypes.Keys
+                .Concat(binder.FileSymbol.TypeDeclarations.Select(td => td.Name))
+                .Distinct();
+
+        private TypeSymbol TypeRefToType(TypeAccessSyntax signifier, TypeAliasSymbol signified)
+        {
+            var signifiedType = userDefinedTypeReferences.GetOrAdd(signified, GetUserDefinedTypeType);
+            if (signifiedType is ErrorType error)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(signifier).ReferencedSymbolHasErrors(signified.Name));
+            }
+
+            return signifiedType;
+        }
+
+        private TypeSymbol ConvertTypeExpressionToType(ArrayTypeSyntax syntax)
+        {
+            if (!features.UserDefinedTypesEnabled)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypedArrayDeclarationsUnsupported());
+            }
+
+            var memberType = GetDeclaredTypeAssignment(syntax.Item)?.Reference;
+            memberType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Item).InvalidTypeDefinition());
+
+            return new TypedArrayType(memberType, TypeSymbolValidationFlags.Default);
+        }
+
+        private TypeSymbol ConvertTypeExpressionToType(ObjectTypeSyntax syntax)
+        {
+            if (!features.UserDefinedTypesEnabled)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypedObjectDeclarationsUnsupported());
+            }
+
+            List<TypeProperty> properties = new();
+            List<ErrorDiagnostic> diagnostics = new();
+            ObjectTypeNameBuilder nameBuilder = new();
+
+            foreach (var prop in syntax.Properties)
+            {
+                var propertyType = GetDeclaredTypeAssignment(prop)?.Reference;
+                propertyType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(prop.Value).InvalidTypeDefinition());
+
+                if (prop.TryGetKeyText() is string propertyName)
+                {
+                    var propertyFlags = prop.OptionalityMarker is null ? TypePropertyFlags.Required : TypePropertyFlags.None;
+                    properties.Add(new(propertyName, propertyType, propertyFlags, SemanticModelHelper.TryGetDescription(binder, typeManager.GetDeclaredType, prop)));
+                    nameBuilder.AppendProperty(propertyName, GetPropertyTypeName(prop.Value, propertyType), prop.OptionalityMarker is not null);
+                } else
+                {
+                    diagnostics.Add(DiagnosticBuilder.ForPosition(prop.Key).NonConstantTypeProperty());
+                    // since we're not attaching this property to the object due to the non-constant key, forward any property errors to the object type
+                    if (propertyType is ErrorType error)
+                    {
+                        diagnostics.AddRange(error.GetDiagnostics());
+                    }
+                }
+            }
+
+            if (diagnostics.Any())
+            {
+                // foward any diagnostics gathered from parsing properties to the return type. normally, these diagnostics would be gathered by the SemanticDiagnosticVisitor (which would visit the properties of an ObjectType looking for errors).
+                // Errors hidden behind DeferredTypeReferences will unfortunately be dropped, as we can't call their type function without risking an infinite loop (in the case that a recursive object type has errors)
+                return ErrorType.Create(diagnostics.Concat(properties.Select(p => p.TypeReference).OfType<TypeSymbol>().SelectMany(e => e.GetDiagnostics())));
+            }
+
+            var parentSyntax = binder.GetParent(syntax);
+
+            var typeFlags = UnwrapUntilDecorable(syntax, HasSecureDecorator, TypeSymbolValidationFlags.IsSecure, TypeSymbolValidationFlags.Default);
+
+            (TypeSymbol? type, TypePropertyFlags flags) additionalProperties
+                = UnwrapUntilDecorable(syntax, HasSealedDecorator, (null, TypePropertyFlags.None), (LanguageConstants.Any, TypePropertyFlags.FallbackProperty));
+
+            return new ObjectType(nameBuilder.ToString(), typeFlags, properties, additionalProperties.type, additionalProperties.flags);
+        }
+
+        private string GetPropertyTypeName(SyntaxBase typeSyntax, ITypeReference propertyType)
+        {
+            if (typeSyntax is TypeAccessSyntax typeAccess)
+            {
+                return typeAccess.Name.IdentifierName;
+            }
+
+            return propertyType.Type.Name;
+        }
+
+        private T UnwrapUntilDecorable<T>(SyntaxBase syntax, Predicate<DecorableSyntax> condition, T valueIfTrue, T valueIfFalse) => binder.GetParent(syntax) switch
+        {
+            DecorableSyntax decorable when condition(decorable) => valueIfTrue,
+            ParenthesizedExpressionSyntax parenthesized => UnwrapUntilDecorable(parenthesized, condition, valueIfTrue, valueIfFalse),
+            TernaryOperationSyntax ternary when ternary.TrueExpression == syntax || ternary.FalseExpression == syntax
+                => UnwrapUntilDecorable(ternary, condition, valueIfTrue, valueIfFalse),
+            _ => valueIfFalse,
+        };
+
+        private bool HasSecureDecorator(DecorableSyntax syntax)
+            => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSecurePropertyName) is not null;
+
+        private bool HasSealedDecorator(DecorableSyntax syntax)
+            => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSealedPropertyName) is not null;
+
+        private TypeSymbol ConvertTypeExpressionToType(StringSyntax syntax)
+        {
+            if (!features.UserDefinedTypesEnabled)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeLiteralDeclarationsUnsupported());
+            }
+
+            if (typeManager.GetTypeInfo(syntax) is StringLiteralType literal)
+            {
+                return literal;
+            }
+
+            return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed());
+        }
+
+        private TypeSymbol ConvertTypeExpressionToType(IntegerLiteralSyntax syntax)
+        {
+            if (!features.UserDefinedTypesEnabled)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeLiteralDeclarationsUnsupported());
+            }
+
+            if (typeManager.GetTypeInfo(syntax) is IntegerLiteralType literal)
+            {
+                return literal;
+            }
+
+            return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed());
+        }
+
+        private TypeSymbol ConvertTypeExpressionToType(BooleanLiteralSyntax syntax)
+        {
+            if (!features.UserDefinedTypesEnabled)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeLiteralDeclarationsUnsupported());
+            }
+
+            return syntax.Value ? LanguageConstants.True : LanguageConstants.False;
+        }
+
+        private TypeSymbol ConvertTypeExpressionToType(UnaryOperationSyntax syntax)
+        {
+            var baseExpressionType = GetTypeFromTypeSyntax(syntax.Expression);
+
+            var evaluated = OperationReturnTypeEvaluator.FoldUnaryExpression(syntax, baseExpressionType, out var foldDiags);
+            foldDiags ??= ImmutableArray<IDiagnostic>.Empty;
+
+            if (evaluated is {} result && TypeHelper.IsLiteralType(result) && !foldDiags.OfType<ErrorDiagnostic>().Any())
+            {
+                return result;
+            }
+
+            return ErrorType.Create(foldDiags.OfType<ErrorDiagnostic>()
+                .Append(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed()));
+        }
+
+        private TypeSymbol ConvertTypeExpressionToType(UnionTypeSyntax syntax)
+        {
+            if (!features.UserDefinedTypesEnabled)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeUnionDeclarationsUnsupported());
+            }
+
+            // ARM's allowedValues constraint permits mixed type arrays (so long as none of the members are themselves arrays).
+            // The runtime in that case will validate that the submitted array contains a subset of the allowed values
+            // (e.g., `[1, 2]` or `[2, 3]` would both be permitted with `"type": "array", "allowedValues": [1, 2, 3]`)
+            // Ergo, syntax like `type foo = (1|true|'a string')[]` should bypass the validity checker
+            var mightBeArrayAny = MightBeArrayAny(syntax);
+
+            TypeSymbol? keystoneType = null;
+            List<ITypeReference> matchingMembers = new();
+            List<(ITypeReference, UnionTypeMemberSyntax)> nonMatchingMembers = new();
+            List<ErrorDiagnostic> memberDiagnostics = new();
+
+            foreach (var member in syntax.Members)
+            {
+                // Array<any> is the only location in which a null literal is a valid type
+                var memberType = mightBeArrayAny && IsNullLiteral(member.Value)
+                    ? LanguageConstants.Null
+                    : GetTypeFromTypeSyntax(member.Value);
+
+
+                if (memberType is ErrorType error)
+                {
+                    memberDiagnostics.AddRange(error.GetDiagnostics());
+                    continue;
+                }
+
+                foreach (var flattenedType in FlattenUnionMemberType(memberType))
+                {
+                    // null complicates the type check and is only permissible in a specific circumstance. Treat it as non-matching and skip the check
+                    if (mightBeArrayAny && ReferenceEquals(flattenedType, LanguageConstants.Null))
+                    {
+                        nonMatchingMembers.Add((flattenedType, member));
+                        continue;
+                    }
+
+                    if (!TypeHelper.IsLiteralType(flattenedType))
+                    {
+                        memberDiagnostics.Add(DiagnosticBuilder.ForPosition(member).NonLiteralUnionMember());
+                        break;
+                    }
+
+                    if (keystoneType is null)
+                    {
+                        if (GetNonLiteralType(flattenedType) is not {} nonLiteral)
+                        {
+                            memberDiagnostics.Add(DiagnosticBuilder.ForPosition(member).NonLiteralUnionMember());
+                            break;
+                        }
+
+                        keystoneType = nonLiteral;
+                    }
+
+                    if (mightBeArrayAny && flattenedType is ArrayType)
+                    {
+                        mightBeArrayAny = false;
+                        var mismatchForCurrentMember = false;
+                        foreach (var nonMatchingMemberSyntax in nonMatchingMembers.Select(t => t.Item2).Distinct())
+                        {
+                            memberDiagnostics.Add(DiagnosticBuilder.ForPosition(nonMatchingMemberSyntax).InvalidUnionTypeMember(keystoneType.Name));
+                            mismatchForCurrentMember = mismatchForCurrentMember || nonMatchingMemberSyntax == member;
+                        }
+
+                        if (mismatchForCurrentMember)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (TypeValidator.AreTypesAssignable(flattenedType, keystoneType))
+                    {
+                        matchingMembers.Add(flattenedType);
+                    } else if (mightBeArrayAny)
+                    {
+                        nonMatchingMembers.Add((flattenedType, member));
+                    } else
+                    {
+                        memberDiagnostics.Add(DiagnosticBuilder.ForPosition(member).InvalidUnionTypeMember(keystoneType.Name));
+                        break;
+                    }
+                }
+            }
+
+            if (memberDiagnostics.Any())
+            {
+                return ErrorType.Create(memberDiagnostics);
+            }
+
+            return TypeHelper.CreateTypeUnion(matchingMembers.Concat(nonMatchingMembers.Select(t => t.Item1)));
+        }
+
+        private bool MightBeArrayAny(SyntaxBase syntax) => binder.GetParent(syntax) switch
+        {
+            ParenthesizedExpressionSyntax parenthesized => MightBeArrayAny(parenthesized),
+            ArrayTypeMemberSyntax arrayTypeMember => MightBeArrayAny(arrayTypeMember),
+            ArrayTypeSyntax => true,
+            _ => false,
+        };
+
+        private bool IsNullLiteral(SyntaxBase syntax) => syntax switch
+        {
+            ParenthesizedExpressionSyntax parenthesized => IsNullLiteral(parenthesized.Expression),
+            NullLiteralSyntax => true,
+            _ => false,
+        };
+
+        private TypeSymbol? GetNonLiteralType(TypeSymbol? type) => type switch {
+            StringLiteralType => LanguageConstants.String,
+            IntegerLiteralType => LanguageConstants.Int,
+            BooleanLiteralType => LanguageConstants.Bool,
+            ObjectType => LanguageConstants.Object,
+            // TODO for array literals when type system adds support for tuples
+            _ => null,
+        };
+
+        private IEnumerable<TypeSymbol> FlattenUnionMemberType(ITypeReference memberType)
+            => memberType.Type is UnionType union ? union.Members.SelectMany(FlattenUnionMemberType) : memberType.Type.AsEnumerable();
+
+        private TypeSymbol ConvertTypeExpressionToType(ParenthesizedExpressionSyntax syntax) => GetTypeFromTypeSyntax(syntax.Expression);
 
         private DeclaredTypeAssignment? GetImportType(ImportDeclarationSyntax syntax)
         {
@@ -793,7 +1203,7 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// Returns the declared type of the parameter/output based on a resource type.
         /// </summary>
-        private TypeSymbol GetDeclaredResourceType(IBinder binder, ResourceTypeSyntax typeSyntax)
+        private TypeSymbol GetDeclaredResourceType(ResourceTypeSyntax typeSyntax)
         {
             // NOTE: this is closely related to the logic in the other overload. Keep them in sync.
             var stringSyntax = typeSyntax.TypeString;

@@ -78,7 +78,7 @@ param l
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"l\" is declared multiple times. Remove or rename the duplicates."),
                 ("BCP079", DiagnosticLevel.Error, "This expression is referencing its own declaration, which is not allowed."),
                 ("BCP028", DiagnosticLevel.Error, "Identifier \"l\" is declared multiple times. Remove or rename the duplicates."),
-                ("BCP014", DiagnosticLevel.Error, "Expected a parameter type at this location. Please specify one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
+                ("BCP279", DiagnosticLevel.Error, "Expected a type at this location. Please specify a valid type expression or one of the following types: \"array\", \"bool\", \"int\", \"object\", \"string\"."),
             });
         }
 
@@ -1818,7 +1818,7 @@ param foo string = 'peach'
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP027", DiagnosticLevel.Error, "The parameter expects a default value of type \"'apple' | 'banana'\" but provided value is of type \"'peach'\"."),
+                ("BCP033", DiagnosticLevel.Error, "Expected a value of type \"'apple' | 'banana'\" but the provided value is of type \"'peach'\"."),
             });
         }
 

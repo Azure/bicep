@@ -584,6 +584,9 @@
         },
         "paramsFiles": {
           "type": "boolean"
+        },
+        "userDefinedTypes": {
+          "type": "boolean"
         }
       }
     }

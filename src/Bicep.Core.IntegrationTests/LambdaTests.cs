@@ -89,7 +89,8 @@ namespace Bicep.Core.IntegrationTests
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
 var fo|o = map([123], ab|c => abc)
 var fo|o2 = map([123], a|bc => 'Hello ${abc}')
-");
+",
+                '|');
 
             var result = CompilationHelper.Compile(file);
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
@@ -108,7 +109,8 @@ var fo|o2 = map([123], a|bc => 'Hello ${abc}')
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
 var fo|o = map(['abc', 'def'], ab|c => abc)
 var fo|o2 = map(['abc', 'def'], a|bc => length(abc))
-");
+",
+                '|');
 
             var result = CompilationHelper.Compile(file);
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
@@ -127,7 +129,8 @@ var fo|o2 = map(['abc', 'def'], a|bc => length(abc))
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
 var fo|o = map([], ab|c => abc)
 var fo|o2 = map([any('foo')], a|bc => 'Hi ${abc}!')
-");
+",
+                '|');
 
             var result = CompilationHelper.Compile(file);
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
@@ -146,7 +149,8 @@ var fo|o2 = map([any('foo')], a|bc => 'Hi ${abc}!')
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
 var foo = map([123], (abc, def) => abc)
 var foo2 = map(['foo'], () => 'Hi!')
-");
+",
+                '|');
 
             var result = CompilationHelper.Compile(file);
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
@@ -185,7 +189,8 @@ var foo = i => 123
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
 var fo|o = filter([123], abc => a|bc == 123)
 var fo|o2 = filter(['abc', 'def'], a|bc => abc == '123')
-");
+",
+                '|');
 
             var result = CompilationHelper.Compile(file);
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
@@ -204,7 +209,8 @@ var fo|o2 = filter(['abc', 'def'], a|bc => abc == '123')
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
 var fo|o = sort([123], (abc, def) => a|bc < def)
 var fo|o2 = sort(['bar', 'foo'], (abc, def) => abc < d|ef)
-");
+",
+                '|');
 
             var result = CompilationHelper.Compile(file);
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
@@ -223,7 +229,8 @@ var fo|o2 = sort(['bar', 'foo'], (abc, def) => abc < d|ef)
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
 var fo|o = reduce([123], 0, (c|ur, next) => cur + next)
 var fo|o2 = reduce(['abc', 'def'], '', (cur, nex|t) => concat(cur, next))
-");
+",
+                '|');
 
             var result = CompilationHelper.Compile(file);
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
@@ -256,7 +263,8 @@ var abc = map(
     )
   )
 )
-");
+",
+                '|');
 
             var result = CompilationHelper.Compile(file);
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();

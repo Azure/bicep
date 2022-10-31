@@ -24,6 +24,7 @@ const keywords = [
   'existing',
   'import',
   'as',
+  'type',
 ];
 
 const namedLiterals = [
