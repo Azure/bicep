@@ -47,22 +47,23 @@
       },
       "Azure.Deployments.Core": {
         "type": "Direct",
-        "requested": "[1.0.694, )",
-        "resolved": "1.0.694",
-        "contentHash": "kt0lN9Qp5y5yAyjNup3v+EK8b/csLD6PwDctn3PM3AFIPbLZqfrKVUjjCAHvvK7TKBLynRgTFIVYNrJD6AMvcw==",
+        "requested": "[1.0.750, )",
+        "resolved": "1.0.750",
+        "contentHash": "MlRL1EU+wj5y973CQU0cjKAYm3XXlECpyUeglbjUxHg0kaAkiMmLS8MI1ZVxmp4WHgx2PcJgfEPeKPf/Tf/SVw==",
         "dependencies": {
           "Microsoft.PowerPlatform.ResourceStack": "6.0.0.1323",
           "Newtonsoft.Json": "13.0.1",
+          "System.Collections.Immutable": "5.0.0",
           "System.Reflection.Emit.Lightweight": "4.7.0"
         }
       },
       "Azure.Deployments.Expression": {
         "type": "Direct",
-        "requested": "[1.0.694, )",
-        "resolved": "1.0.694",
-        "contentHash": "iFawKKAMEG9GrpSwf/lG54r9IyxRY0S1gSHvAUQcNaSuGtIXIALN9nZzNCFNZQs+IeA5r4nLji8+91uQPJYO1A==",
+        "requested": "[1.0.750, )",
+        "resolved": "1.0.750",
+        "contentHash": "8h+KovzakrCELBpG/azPMkhulgrAxQmZEHrmtGM8yBCWp5bxc156g76FkKdzFcAklZFVrEntq/w7Z4rYrZf8uA==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.0.694",
+          "Azure.Deployments.Core": "1.0.750",
           "Newtonsoft.Json": "13.0.1"
         }
       },
@@ -74,12 +75,12 @@
       },
       "Azure.Deployments.Templates": {
         "type": "Direct",
-        "requested": "[1.0.694, )",
-        "resolved": "1.0.694",
-        "contentHash": "pQz5ZfaZ9FZjWUm2g68OFgwGE8ErZvBROPxC4FwCQZIgk1Ma+CUL/SGJjZxxCHLqvx6PPYGLFBIYZSCqijqoyA==",
+        "requested": "[1.0.750, )",
+        "resolved": "1.0.750",
+        "contentHash": "++EFkXDze5qWQUCcHsPATB1ZZQu2lkQ2Jhugitv9s+fx4iz83ivB+bADlGSUeaLyDfkVIYS8K20qDX7lvu1Zhg==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.0.694",
-          "Azure.Deployments.Expression": "1.0.694",
+          "Azure.Deployments.Core": "1.0.750",
+          "Azure.Deployments.Expression": "1.0.750",
           "Newtonsoft.Json": "13.0.1"
         }
       },
