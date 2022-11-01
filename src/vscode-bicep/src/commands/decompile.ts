@@ -68,7 +68,9 @@ export class DecompileCommand implements Command {
 
     const canDecompile = await DecompileCommand.mightBeArmTemplate(documentUri);
     if (!canDecompile) {
-      this.outputChannelManager.appendToOutputChannel(`Cannot decompile "${documentUri.fsPath}" into Bicep because it does not appear to be an ARM template.`);
+      this.outputChannelManager.appendToOutputChannel(
+        `Cannot decompile "${documentUri.fsPath}" into Bicep because it does not appear to be an ARM template.`
+      );
       throw new UserCancelledError("Can't decompile because not ARM template");
     }
 

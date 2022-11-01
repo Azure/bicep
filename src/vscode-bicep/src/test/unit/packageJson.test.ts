@@ -33,8 +33,8 @@ describe("package.json tests", () => {
       expect(bindings).not.toHaveLength(0);
 
       for (const binding of bindings) {
-        const windowsKey: string  = binding.key ?? "";
-        const macKey: string  = binding.mac ?? "";
+        const windowsKey: string = binding.key ?? "";
+        const macKey: string = binding.mac ?? "";
 
         if (windowsKey.match(/ctrl/i)) {
           // See https://code.visualstudio.com/api/references/contribution-points#keybinding-example
