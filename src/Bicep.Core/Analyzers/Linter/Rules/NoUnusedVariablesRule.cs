@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using System;
@@ -29,14 +30,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            // TODO: Performance: Use a visitor to visit VariableAccesssyntax and collects the non-error symbols into a list.
-            // Then do a symbol visitor to go through all the symbols that exist and compare.
-            // Same issue for unused-params rule.
+            var invertedBindings = model.Binder.Bindings.ToLookup(kvp => kvp.Value, kvp => kvp.Key);
 
             // variables must have a reference of type VariableAccessSyntax
-            var unreferencedVariables = model.Root.Declarations.OfType<VariableSymbol>()
-                .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any())
-                .Where(sym => sym.NameSyntax.IsValid);
+            var unreferencedVariables = model.Root.VariableDeclarations
+                .Where(sym => sym.NameSyntax.IsValid)
+                .Where(sym => !invertedBindings[sym].Any(x => x != sym.DeclaringSyntax));
+
             foreach (var sym in unreferencedVariables)
             {
                 yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.ProgramSyntax);
@@ -47,8 +47,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             // local variables must have a reference of type VariableAccessSyntax
             var unreferencedLocalVariables = model.Root.Declarations.OfType<LocalVariableSymbol>()
-                        .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any())
-                        .Where(sym => sym.NameSyntax.IsValid);
+                .Where(sym => sym.NameSyntax.IsValid)
+                .Where(sym => !invertedBindings[sym].Any(x => x != sym.DeclaringSyntax));
 
             foreach (var sym in unreferencedLocalVariables)
             {
