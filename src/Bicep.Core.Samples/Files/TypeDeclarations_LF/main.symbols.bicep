@@ -1,10 +1,10 @@
-// @description('The foo type')
-// @sealed()
+@description('The foo type')
+@sealed()
 type foo = {
-//@[5:08) TypeAlias foo. Type: Type<{ stringProp: string, objectProp: { intProp: int, intArrayArrayProp?: int[][] }, typeRefProp: bar, literalProp: 'literal', recursion?: foo }>. Declaration start char: 0, length: 262
+//@[5:08) TypeAlias foo. Type: Type<{ stringProp: string, objectProp: { intProp: int, intArrayArrayProp?: int[][] }, typeRefProp: bar, literalProp: 'literal', recursion?: foo }>. Declaration start char: 0, length: 298
   @minLength(3)
   @maxLength(10)
-  // @description('A string property')
+  @description('A string property')
   stringProp: string
 
   objectProp: {
@@ -22,14 +22,14 @@ type foo = {
 }
 
 @minLength(3)
-// @description('An array of array of arrays of arrays of ints')
-// @metadata({
-//   examples: [
-//     [[[[1]]], [[[2]]], [[[3]]]]
-//   ]
-// })
+@description('An array of array of arrays of arrays of ints')
+@metadata({
+  examples: [
+    [[[[1]]], [[[2]]], [[[3]]]]
+  ]
+})
 type bar = int[][][][]
-//@[5:08) TypeAlias bar. Type: Type<int[][][][]>. Declaration start char: 0, length: 181
+//@[5:08) TypeAlias bar. Type: Type<int[][][][]>. Declaration start char: 0, length: 163
 
 type aUnion = 'snap'|'crackle'|'pop'
 //@[5:11) TypeAlias aUnion. Type: Type<'crackle' | 'pop' | 'snap'>. Declaration start char: 0, length: 36
@@ -56,4 +56,7 @@ param inlineObjectParam {
 
 param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
 //@[6:16) Parameter unionParam. Type: { property: 'ping' } | { property: 'pong' }. Declaration start char: 0, length: 75
+
+param paramUsingType mixedArray
+//@[6:20) Parameter paramUsingType. Type: ('heffalump' | 'woozle' | -10 | 10 | false | null | true | { shape: '*', size: '*' })[]. Declaration start char: 0, length: 31
 

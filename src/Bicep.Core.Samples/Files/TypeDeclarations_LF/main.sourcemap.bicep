@@ -1,17 +1,19 @@
-// @description('The foo type')
-// @sealed()
+@description('The foo type')
+//@[66:66]         "description": "The foo type"
+@sealed()
 type foo = {
-//@[13:61]     "foo": {
+//@[13:68]     "foo": {
   @minLength(3)
-//@[55:55]           "minLength": 3
+//@[59:59]           "minLength": 3
   @maxLength(10)
-//@[54:54]           "maxLength": 10,
-  // @description('A string property')
+//@[58:58]           "maxLength": 10,
+  @description('A string property')
+//@[56:56]             "description": "A string property"
   stringProp: string
 
   objectProp: {
     @minValue(1)
-//@[45:45]               "minValue": 1
+//@[46:46]               "minValue": 1
     intProp: int
 
     intArrayArrayProp?: int [] []
@@ -25,42 +27,48 @@ type foo = {
 }
 
 @minLength(3)
-//@[76:76]       "minLength": 3
-// @description('An array of array of arrays of arrays of ints')
-// @metadata({
-//   examples: [
-//     [[[[1]]], [[[2]]], [[[3]]]]
-//   ]
-// })
+//@[111:111]       "minLength": 3
+@description('An array of array of arrays of arrays of ints')
+//@[109:109]         "description": "An array of array of arrays of arrays of ints"
+@metadata({
+  examples: [
+//@[84:108]         "examples": [
+    [[[[1]]], [[[2]]], [[[3]]]]
+//@[85:107]                   1
+  ]
+})
 type bar = int[][][][]
-//@[62:77]     "bar": {
+//@[69:112]     "bar": {
 
 type aUnion = 'snap'|'crackle'|'pop'
-//@[78:85]     "aUnion": {
+//@[113:120]     "aUnion": {
 
 type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
-//@[86:95]     "expandedUnion": {
+//@[121:130]     "expandedUnion": {
 
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
-//@[96:111]     "mixedArray": {
+//@[131:146]     "mixedArray": {
 
 type String = string
-//@[112:114]     "String": {
+//@[147:149]     "String": {
 
 param inlineObjectParam {
-//@[117:147]     "inlineObjectParam": {
+//@[152:182]     "inlineObjectParam": {
   foo: string
   bar: 100|200|300|400|500
   baz: bool
 } = {
   foo: 'foo'
-//@[143:143]         "foo": "foo",
+//@[178:178]         "foo": "foo",
   bar: 300
-//@[144:144]         "bar": 300,
+//@[179:179]         "bar": 300,
   baz: false
-//@[145:145]         "baz": false
+//@[180:180]         "baz": false
 }
 
 param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
-//@[148:161]     "unionParam": {
+//@[183:196]     "unionParam": {
+
+param paramUsingType mixedArray
+//@[197:199]     "paramUsingType": {
 
