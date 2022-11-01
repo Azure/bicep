@@ -11,7 +11,6 @@ import vscode, { MessageItem, Uri, window } from "vscode";
 import { DocumentUri, LanguageClient } from "vscode-languageclient/node";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { Command } from "./types";
-import path from "path";
 
 interface DecompileCommandParams {
   jsonUri: DocumentUri;
