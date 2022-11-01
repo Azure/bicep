@@ -4,6 +4,7 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.FileSystem;
+using Bicep.Decompiler;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
@@ -34,7 +35,7 @@ namespace Bicep.Cli.Commands
 
         public async Task<int> RunAsync(DecompileArguments args)
         {
-            logger.LogWarning(CliResources.DecompilerDisclaimerMessage);
+            logger.LogWarning(TemplateDecompiler.DecompilerDisclaimerMessage);
 
             var inputPath = PathHelper.ResolvePath(args.InputFile);
 

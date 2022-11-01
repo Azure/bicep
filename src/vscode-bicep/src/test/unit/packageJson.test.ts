@@ -33,12 +33,21 @@ describe("package.json tests", () => {
       expect(bindings).not.toHaveLength(0);
 
       for (const binding of bindings) {
-        if (binding.key.match(/ctrl/i)) {
+        const windowsKey: string = binding.key ?? "";
+        const macKey: string = binding.mac ?? "";
+
+        if (windowsKey.match(/ctrl/i)) {
           // See https://code.visualstudio.com/api/references/contribution-points#keybinding-example
           // Note that "ALT" in a "mac" binding is interpreted as "OPT"
 
           // eslint-disable-next-line jest/no-conditional-expect
-          expect(binding.mac).toMatch(/cmd/i);
+          expect(macKey).toMatch(/cmd/i);
+        } else if (macKey.match(/cmd/i)) {
+          // See https://code.visualstudio.com/api/references/contribution-points#keybinding-example
+          // Note that "ALT" in a "mac" binding is interpreted as "OPT"
+
+          // eslint-disable-next-line jest/no-conditional-expect
+          expect(macKey).toMatch(/ctrl/i);
         }
       }
     });

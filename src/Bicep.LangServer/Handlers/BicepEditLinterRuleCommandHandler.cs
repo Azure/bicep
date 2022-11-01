@@ -26,7 +26,7 @@ namespace Bicep.LanguageServer.Handlers
     /// Handles the internal command for code actions to edit a particular linter rule in the bicepconfig.json file
     /// </summary>
     /// <remarks>
-    /// Using ExecuteTypedResponseCommandHandlerBase instead of IJsonRpcRequestHandler because IJsonRpcRequestHandler will throw "Content modified" if text changes are detected, and for this command
+    /// Using ExecuteTypedCommandHandlerBase instead of IJsonRpcRequestHandler because IJsonRpcRequestHandler will throw "Content modified" if text changes are detected, and for this command
     /// that is expected.
     /// </remarks>
     public class BicepEditLinterRuleCommandHandler : ExecuteTypedCommandHandlerBase<DocumentUri, string, string>

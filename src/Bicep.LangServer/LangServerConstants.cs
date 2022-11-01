@@ -6,6 +6,8 @@ namespace Bicep.LanguageServer
     public static class LangServerConstants
     {
         public const string BuildCommand = "build";
+        public const string DecompileCommand = "decompile";
+        public const string DecompileSaveCommand = "decompileSave";
         public const string GenerateParamsCommand = "generateParams";
         public const string DeployCompleteMethod = "deploymentComplete";
         public const string DeployStartCommand = "deploy/start";

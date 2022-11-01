@@ -95,6 +95,20 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<StringAssertions>(instance);
         }
 
+        public static AndConstraint<StringAssertions> BeEquivalentToPath(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
+        {
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                instance.Subject.Should().BeEquivalentTo(expected, because, becauseArgs);
+            }
+            else
+            {
+                instance.Subject.Should().Be(expected, because, becauseArgs);
+            }
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
         public static AndConstraint<StringAssertions> HaveLengthLessThanOrEqualTo(this StringAssertions instance, int maxLength, string because = "", params object[] becauseArgs)
         {
             int length = instance.Subject.Length;

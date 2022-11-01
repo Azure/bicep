@@ -35,6 +35,8 @@ namespace Bicep.Decompiler
         private readonly IApiVersionProviderFactory apiVersionProviderFactory;
         private readonly IBicepAnalyzer bicepAnalyzer;
 
+        public static string DecompilerDisclaimerMessage => DecompilerResources.DecompilerDisclaimerMessage;
+
         public TemplateDecompiler(IFeatureProviderFactory featureProviderFactory, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider, IApiVersionProviderFactory apiVersionProviderFactory, IBicepAnalyzer bicepAnalyzer)
         {
             this.featureProviderFactory = featureProviderFactory;

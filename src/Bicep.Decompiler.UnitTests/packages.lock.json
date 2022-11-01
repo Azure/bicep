@@ -2048,6 +2048,7 @@
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Core": "[1.0.0, )",
+          "Azure.Bicep.Decompiler": "[1.0.0, )",
           "CommandLineParser": "[2.9.1, )",
           "OmniSharp.Extensions.LanguageServer": "[0.19.5, )",
           "SharpYaml": "[2.1.0, )"

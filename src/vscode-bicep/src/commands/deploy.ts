@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import { AccessToken } from "@azure/identity";
 import {
   AzExtTreeDataProvider,
