@@ -15,7 +15,6 @@ namespace Bicep.Core.Semantics
     public class Binder : IBinder
     {
         private readonly BicepSourceFile bicepFile;
-        private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
         private readonly ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol;
 
         public Binder(INamespaceProvider namespaceProvider, IFeatureProvider features, BicepSourceFile sourceFile, ISymbolContext symbolContext)
@@ -26,8 +25,8 @@ namespace Bicep.Core.Semantics
             var (declarations, outermostScopes) = DeclarationVisitor.GetDeclarations(namespaceProvider, features, TargetScope, sourceFile, symbolContext);
             var uniqueDeclarations = GetUniqueDeclarations(declarations);
             this.NamespaceResolver = GetNamespaceResolver(features, namespaceProvider, this.TargetScope, uniqueDeclarations);
-            this.bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, uniqueDeclarations, NamespaceResolver, outermostScopes);
-            this.cyclesBySymbol = GetCyclesBySymbol(sourceFile, this.bindings);
+            this.Bindings = NameBindingVisitor.GetBindings(sourceFile.ProgramSyntax, uniqueDeclarations, NamespaceResolver, outermostScopes);
+            this.cyclesBySymbol = CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, this.Bindings);
 
             this.FileSymbol = new FileSymbol(
                 symbolContext,
@@ -43,6 +42,8 @@ namespace Bicep.Core.Semantics
 
         public NamespaceResolver NamespaceResolver { get; }
 
+        public ImmutableDictionary<SyntaxBase, Symbol> Bindings { get; }
+
         public SyntaxBase? GetParent(SyntaxBase syntax)
             => bicepFile.Hierarchy.GetParent(syntax);
 
@@ -51,7 +52,7 @@ namespace Bicep.Core.Semantics
         /// a symbol will always be returned. Binding failures are represented with a non-null error symbol.
         /// </summary>
         /// <param name="syntax">the syntax node</param>
-        public Symbol? GetSymbolInfo(SyntaxBase syntax) => this.bindings.TryGetValue(syntax);
+        public Symbol? GetSymbolInfo(SyntaxBase syntax) => this.Bindings.TryGetValue(syntax);
 
         public ImmutableArray<DeclaredSymbol>? TryGetCycle(DeclaredSymbol declaredSymbol)
             => this.cyclesBySymbol.TryGetValue(declaredSymbol, out var cycle) ? cycle : null;
@@ -72,11 +73,6 @@ namespace Bicep.Core.Semantics
             var importedNamespaces = uniqueDeclarations.Values.OfType<ImportedNamespaceSymbol>();
 
             return NamespaceResolver.Create(features, namespaceProvider, targetScope, importedNamespaces);
-        }
-
-        private static ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> GetCyclesBySymbol(BicepSourceFile sourceFile, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
-        {
-            return CyclicCheckVisitor.FindCycles(sourceFile.ProgramSyntax, bindings);
         }
     }
 }
