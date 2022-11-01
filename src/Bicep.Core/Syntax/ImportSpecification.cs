@@ -61,6 +61,7 @@ namespace Bicep.Core.Syntax
                     return new ImportSpecification(LanguageConstants.ErrorName, LanguageConstants.ErrorName, false, specificationSyntax.Span);
             }
         }
+
         private static (string Name, string Version, bool IsValid) Parse(string value)
         {
             var match = SpecificationPattern.Match(value);

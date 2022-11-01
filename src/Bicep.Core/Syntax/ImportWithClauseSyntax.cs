@@ -14,6 +14,9 @@ namespace Bicep.Core.Syntax
     {
         public ImportWithClauseSyntax(Token keyword, SyntaxBase config)
         {
+            AssertTokenType(keyword, nameof(keyword), TokenType.WithKeyword);
+            AssertSyntaxType(config, nameof(config), typeof(ObjectSyntax), typeof(SkippedTriviaSyntax));
+
             this.Keyword = keyword;
             this.Config = config;
         }

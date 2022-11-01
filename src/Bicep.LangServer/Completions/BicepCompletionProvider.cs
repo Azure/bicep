@@ -1621,34 +1621,50 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetImportCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ImportProviderFollower))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportSpecification))
             {
-                yield return CreateKeywordCompletion(LanguageConstants.AsKeyword, "As keyword", context.ReplacementRange);
-            }
-
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ImportFollower))
-            {
-                foreach (var builtInNamespace in namespaceProvider.AvailableNamespaces.OrderBy(x => x, LanguageConstants.IdentifierComparer))
+                // TODO: move to INamespaceProvider.
+                var availableNamespaceSettingsList = new[]
                 {
-                    yield return CompletionItemBuilder.Create(CompletionItemKind.Folder, builtInNamespace)
-                        .WithSortText(GetSortText(builtInNamespace, CompletionPriority.High))
-                        .WithDetail(builtInNamespace)
-                        .WithPlainTextEdit(context.ReplacementRange, builtInNamespace)
+                    SystemNamespaceType.Settings,
+                    AzNamespaceType.Settings,
+                    K8sNamespaceType.Settings,
+                };
+
+                foreach (var setting in availableNamespaceSettingsList.OrderBy(x => x.BicepProviderName, LanguageConstants.IdentifierComparer))
+                {
+                    var completionText = $"'{setting.BicepProviderName}@{setting.ArmTemplateProviderVersion}'";
+
+                    yield return CompletionItemBuilder.Create(CompletionItemKind.Folder, completionText)
+                        .WithSortText(GetSortText(completionText, CompletionPriority.High))
+                        .WithDetail(completionText)
+                        .WithPlainTextEdit(context.ReplacementRange, completionText)
                         .Build();
                 }
             }
 
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ImportAliasFollower))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportWithOrAsKeyword))
             {
-                //if (context.EnclosingDeclaration is ImportDeclarationSyntax importSyntax &&
-                //    model.GetSymbolInfo(importSyntax) is ImportedNamespaceSymbol importSymbol &&
-                //    importSymbol.TryGetNamespaceType() is {} namespaceType)
-                //{
-                //    foreach (var completion in GetValueCompletionsForType(model, context, namespaceType.ConfigurationType, loopsAllowed: false))
-                //    {
-                //        yield return completion;
-                //    }
-                //}
+                yield return CreateKeywordCompletion(LanguageConstants.WithKeyword, "With keyword", context.ReplacementRange);
+                yield return CreateKeywordCompletion(LanguageConstants.AsKeyword, "As keyword", context.ReplacementRange);
+            }
+
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportConfig))
+            {
+                if (context.EnclosingDeclaration is ImportDeclarationSyntax importSyntax &&
+                    model.GetSymbolInfo(importSyntax) is ImportedNamespaceSymbol importSymbol &&
+                    importSymbol.TryGetNamespaceType() is { } namespaceType)
+                {
+                    foreach (var completion in GetValueCompletionsForType(model, context, namespaceType.ConfigurationType, loopsAllowed: false))
+                    {
+                        yield return completion;
+                    }
+                }
+            }
+
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ExpectingImportAsKeyword))
+            {
+                yield return CreateKeywordCompletion(LanguageConstants.AsKeyword, "As keyword", context.ReplacementRange);
             }
         }
 

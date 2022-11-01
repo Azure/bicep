@@ -14,6 +14,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
+using Bicep.LanguageServer.Completions.SyntaxPatterns;
 using Bicep.LanguageServer.Extensions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -25,6 +26,21 @@ namespace Bicep.LanguageServer.Completions
             FunctionCallSyntaxBase Function,
             int ArgumentIndex
         );
+        private static CompositeSyntaxPattern ExpectingImportSpecification => CompositeSyntaxPattern.Create(
+            "import |",
+            "import |'kuber'",
+            "import 'kuber|'");
+
+        private static CompositeSyntaxPattern ExpectingImportWithOrAsKeyword => CompositeSyntaxPattern.Create(
+            "import 'kubernetes@v1' |",
+            "import 'kubernetes@v1' a|",
+            "import 'kubernetes@v1' |b");
+
+        private static SyntaxPattern ExpectingImportConfig => SyntaxPattern.Create(
+            "import 'kubernetes@v1' with |");
+
+        private static SyntaxPattern ExpectingImportAsKeyword => SyntaxPattern.Create(
+            @"import 'kubernetes@v1' with { foo: true } |");
 
         // completions will replace only these token types
         // all others will result in an insertion upon completion commit
@@ -176,9 +192,12 @@ namespace Bicep.LanguageServer.Completions
 
             if (featureProvider.ImportsEnabled)
             {
-                //kind |= ConvertFlag(IsImportFollower(matchingNodes, offset), BicepCompletionContextKind.ImportFollower) |
-                //    ConvertFlag(IsImportProviderFollower(matchingNodes, offset), BicepCompletionContextKind.ImportProviderFollower) |
-                //    ConvertFlag(IsImportAliasFollower(matchingNodes, offset), BicepCompletionContextKind.ImportAliasFollower);
+                var nodes = SyntaxPattern.GetAncestorsAndLeftSiblings(bicepFile.ProgramSyntax, offset);
+
+                kind |= ConvertFlag(ExpectingImportSpecification.TailMatch(nodes), BicepCompletionContextKind.ExpectingImportSpecification) |
+                    ConvertFlag(ExpectingImportWithOrAsKeyword.TailMatch(nodes), BicepCompletionContextKind.ExpectingImportWithOrAsKeyword) |
+                    ConvertFlag(ExpectingImportConfig.TailMatch(nodes), BicepCompletionContextKind.ExpectingImportConfig) |
+                    ConvertFlag(ExpectingImportAsKeyword.TailMatch(nodes), BicepCompletionContextKind.ExpectingImportAsKeyword);
             }
 
             if (kind == BicepCompletionContextKind.None)
@@ -772,17 +791,27 @@ namespace Bicep.LanguageServer.Completions
             return null;
         }
 
-        //private static bool IsImportFollower(List<SyntaxBase> matchingNodes, int offset) =>
-        //    // import |
-        //    SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.ProviderName.Child is SkippedTriviaSyntax && offset > import.Keyword.GetEndPosition()) ||
-        //    // import f|
-        //    SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, IdentifierSyntax, Token>(matchingNodes, (import, ident, _) => import.ProviderName == ident);
+        //private static bool IsImportFollower(List<SyntaxBase> matchingNodes, int offset) => ImportFollower.Match(matchingNodes, offset);
+            //// import |
+            //SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.SpecificationString is SkippedTriviaSyntax && offset > import.Keyword.GetEndPosition()) ||
+            //// import |'kuber'
+            //// import 'kuber|'
+            //SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, StringSyntax>(matchingNodes, (import, specificationString) => import.SpecificationString == specificationString);
 
-        //private static bool IsImportProviderFollower(List<SyntaxBase> matchingNodes, int offset) =>
-        //    // import foo |
-        //    SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.ProviderName.IsValid && offset > import.ProviderName.GetEndPosition() && offset <= import.AsKeyword.GetEndPosition()) ||
-        //    // import foo a|
-        //    SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (import, skipped, _) => import.AsKeyword == skipped);
+        //private static bool IsImportSpecificationFollower(List<SyntaxBase> matchingNodes, int offset) =>
+        //    // import 'kubernetes@v1' |
+        //    SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, Token>((matchingNodes), (import, token) =>
+        //        import.SpecificationString is StringSyntax &&
+        //        import.AsClause is null &&
+        //        import.WithClause is null &&
+        //        token.Type == TokenType.NewLine &&
+        //        offset > import.SpecificationString.GetEndPosition() && offset <= token.GetEndPosition()) ||
+        //    // import 'kubernetes@v1' a|
+        //    SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (import, _, _) => import.AsClause is null && import.WithClause is null);
+
+        //private static bool IsImportWithFollower(List<SyntaxBase> matchingNodes, int offset) =>
+        //    // import 'kubernetes@v1' with |
+        //    SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, ImportWithClauseSyntax, SkippedTriviaSyntax>(matchingNodes);
 
         //private static bool IsImportAliasFollower(List<SyntaxBase> matchingNodes, int offset) =>
         //    // import foo as bar |

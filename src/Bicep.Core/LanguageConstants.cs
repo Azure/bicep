@@ -99,7 +99,9 @@ namespace Bicep.Core
         {
             [TrueKeyword] = TokenType.TrueKeyword,
             [FalseKeyword] = TokenType.FalseKeyword,
-            [NullKeyword] = TokenType.NullKeyword
+            [NullKeyword] = TokenType.NullKeyword,
+            [WithKeyword] = TokenType.WithKeyword,
+            [AsKeyword] = TokenType.AsKeyword,
         }.ToImmutableDictionary();
 
         // Decorators

@@ -16,39 +16,33 @@ namespace Bicep.Core.Syntax
     {
         private readonly Lazy<ImportSpecification> lazySpecification;
 
-        public ImportDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase specificationString, ImportWithClauseSyntax? withClause, ImportAsClauseSyntax? asClause)
+        public ImportDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase specificationString, SyntaxBase withClause, SyntaxBase asClause)
             : base(leadingNodes)
         {
+            AssertKeyword(keyword, nameof(keyword), LanguageConstants.ImportKeyword);
+            AssertSyntaxType(specificationString, nameof(specificationString), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
+
             this.Keyword = keyword;
             this.SpecificationString = specificationString;
             this.WithClause = withClause;
             this.AsClause = asClause;
 
-            try
-            {
-
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-            this.lazySpecification = new(() => ImportSpecification.From(SpecificationString));
+            this.lazySpecification = new(() => ImportSpecification.From(specificationString));
         }
 
         public Token Keyword { get; }
 
         public SyntaxBase SpecificationString { get; }
 
-        public ImportWithClauseSyntax? WithClause { get; }
+        public SyntaxBase WithClause { get; }
 
-        public ImportAsClauseSyntax? AsClause { get; }
+        public SyntaxBase AsClause { get; }
 
         public ImportSpecification Specification => lazySpecification.Value;
 
-        public ObjectSyntax? Config => this.WithClause?.Config as ObjectSyntax;
+        public ObjectSyntax? Config => (this.WithClause as ImportWithClauseSyntax)?.Config as ObjectSyntax;
 
-        public IdentifierSyntax? Alias => this.AsClause?.Alias as IdentifierSyntax;
+        public IdentifierSyntax? Alias => (this.AsClause as ImportAsClauseSyntax)?.Alias as IdentifierSyntax;
 
         public override TextSpan Span => TextSpan.Between(this.Keyword, TextSpan.LastNonNull(this.SpecificationString, this.WithClause, this.AsClause));
 

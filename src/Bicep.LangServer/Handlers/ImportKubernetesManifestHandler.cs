@@ -68,7 +68,7 @@ namespace Bicep.LanguageServer.Handlers
             declarations.Add(new ImportDeclarationSyntax(
                 Enumerable.Empty<SyntaxBase>(),
                 SyntaxFactory.CreateToken(TokenType.Identifier, "import"),
-                SyntaxFactory.CreateStringLiteral("kubernetes@1.0"),
+                SyntaxFactory.CreateStringLiteral("kubernetes@1.0.0"),
                 new ImportWithClauseSyntax(
                     SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.WithKeyword), 
                     SyntaxFactory.CreateObject(new []
@@ -76,7 +76,7 @@ namespace Bicep.LanguageServer.Handlers
                         SyntaxFactory.CreateObjectProperty("namespace", SyntaxFactory.CreateStringLiteral("default")),
                         SyntaxFactory.CreateObjectProperty("kubeConfig", SyntaxFactory.CreateIdentifier("kubeConfig"))
                     })),
-                asClause: null));
+                asClause: SyntaxFactory.EmptySkippedTrivia));
 
 
             try

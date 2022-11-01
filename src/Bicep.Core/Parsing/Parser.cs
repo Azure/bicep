@@ -245,26 +245,29 @@ namespace Bicep.Core.Parsing
             var providerSpecification = this.WithRecovery(
                 () => ThrowIfSkipped(this.InterpolableString, b => b.ExpectedProviderSpecification()),
                 RecoveryFlags.None,
-                TokenType.Assignment, TokenType.NewLine);
+                TokenType.Assignment,
+                TokenType.NewLine);
 
-            var withClause = this.GetOptionalKeyword(LanguageConstants.WithKeyword) is { } withKeyword ? this.ImportWithClause(withKeyword) : null;
-            var asClause = this.GetOptionalKeyword(LanguageConstants.AsKeyword) is { } asKeyword ? this.ImportAsClause(asKeyword) : null;
+            var withClause = this.WithRecovery(() => this.ImportWithClause(), RecoveryFlags.SuppressDiagnostics, TokenType.AsKeyword, TokenType.NewLine);
+            var asClause = this.WithRecovery(() => this.ImportAsClause(), RecoveryFlags.SuppressDiagnostics, TokenType.NewLine);
 
             return new(leadingNodes, keyword, providerSpecification, withClause, asClause);
         }
 
-        private ImportWithClauseSyntax ImportWithClause(Token withKeyword)
+        private ImportWithClauseSyntax ImportWithClause()
         {
-            var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine);
+            var keyword = this.Expect(TokenType.WithKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword));
+            var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.AsKeyword, TokenType.NewLine);
 
-            return new(withKeyword, config);
+            return new(keyword, config);
         }
 
-        private ImportAsClauseSyntax ImportAsClause(Token asKeyword)
+        private ImportAsClauseSyntax ImportAsClause()
         {
+            var keyword = this.Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword));
             var modifier = this.IdentifierWithRecovery(b => b.ExpectedImportAliasIdentifier(), RecoveryFlags.None, TokenType.NewLine);
 
-            return new(asKeyword, modifier);
+            return new(keyword, modifier);
         }
     }
 }

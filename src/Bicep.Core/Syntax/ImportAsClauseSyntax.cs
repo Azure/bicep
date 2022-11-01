@@ -12,9 +12,12 @@ namespace Bicep.Core.Syntax
 {
     public class ImportAsClauseSyntax : SyntaxBase
     {
-        public ImportAsClauseSyntax(Token Keyword, SyntaxBase alias)
+        public ImportAsClauseSyntax(Token keyword, SyntaxBase alias)
         {
-            this.Keyword = Keyword;
+            AssertTokenType(keyword, nameof(keyword), TokenType.AsKeyword);
+            AssertSyntaxType(alias, nameof(alias), typeof(IdentifierSyntax), typeof(SkippedTriviaSyntax));
+
+            this.Keyword = keyword;
             this.Alias = alias;
         }
 
