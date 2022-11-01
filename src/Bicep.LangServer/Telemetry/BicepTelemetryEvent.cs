@@ -211,7 +211,7 @@ namespace Bicep.LanguageServer.Telemetry
                 eventName: TelemetryConstants.EventNames.DecompileSuccess,
                 properties: new()
                 {
-                    ["decompileId"] = decompileId.ToString(),
+                    ["decompileId"] = decompileId,
                     ["countOutputFiles"] = countOutputFiles.ToString(),
                     ["countConflictingFiles"] = countConflictingFiles.ToString(),
                 }
@@ -234,7 +234,7 @@ namespace Bicep.LanguageServer.Telemetry
                     eventName: TelemetryConstants.EventNames.DecompileSaveSuccess,
                     properties: new()
                     {
-                        ["decompileId"] = decompileId.ToString(),
+                        ["decompileId"] = decompileId,
                     }
                 );
 
@@ -244,7 +244,7 @@ namespace Bicep.LanguageServer.Telemetry
                 eventName: TelemetryConstants.EventNames.DecompileSaveFailure,
                 properties: new()
                 {
-                    ["decompileId"] = decompileId.ToString(),
+                    ["decompileId"] = decompileId,
                     ["failureType"] = failureType,
                 }
             );

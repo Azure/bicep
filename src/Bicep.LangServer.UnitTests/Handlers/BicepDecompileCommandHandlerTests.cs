@@ -272,11 +272,8 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
             ICompilationManager bicepCompilationManager = Repository.Create<ICompilationManager>().Object;
             var (handler, _) = CreateCommandHandlers(server);
 
-#pragma warning disable VSTHRD002 // Throws synchronously
-            var sut = () => handler.Handle(new(DocumentUri.File(path)), CancellationToken.None).Result;
-#pragma warning restore VSTHRD002
-
-            sut.Should().Throw<Exception>();
+            Action action = () => handler.Handle(new(DocumentUri.File(path)), CancellationToken.None);
+            action.Should().Throw<Exception>();
         }
 
         [TestMethod]
@@ -747,6 +744,5 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
             output.Should().MatchRegex("Decompilation complete.");
             saveResult.mainSavedBicepPath.Should().BeEquivalentToPath(Path.Join(testOutputPath, "abc", "def", "main_decompiled", "main.bicep"), "Should have displayed main file");
         }
-
     }
 }
