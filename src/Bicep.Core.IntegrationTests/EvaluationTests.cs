@@ -600,5 +600,142 @@ var reduceEmpty = reduce([], 0, (cur, next) => cur)
                 evaluated.Should().HaveValueAtPath("$.variables['reduceEmpty']", 0);
             }
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/8782
+        /// </summary>
+        [TestMethod]
+        public void Issue8782()
+        {
+            var result = CompilationHelper.Compile(@"
+var testArray = [
+  {
+    property1: 'test'
+    property2: 1
+  }
+  {
+    property1: 'dev'
+    property2: 2
+  }
+  {
+    property1: 'test'
+    property2: 0
+  }
+  {
+    property1: 'prod'
+    property2: 1
+  }
+  {
+    property1: 'prod'
+    property2: 0
+  }
+  {
+    property1: 'dev'
+    property2: 0
+  }
+  {
+    property1: 'test'
+    property2: 0
+  }
+]
+
+output testMap array = map(testArray, record => {
+  result: record.property2 > 0 ? record.property1 : record.property1 =~ 'test' ? 'test!' : 'notTest!'
+})
+
+output testFor array = [for record in testArray: {
+  result: record.property2 > 0 ? record.property1 : record.property1 =~ 'test' ? 'test!' : 'notTest!'
+}]
+");
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+            evaluated.Should().HaveValueAtPath("$.outputs['testMap'].value", JToken.Parse(@"
+[
+  {
+    ""result"": ""test""
+  },
+  {
+    ""result"": ""dev""
+  },
+  {
+    ""result"": ""test!""
+  },
+  {
+    ""result"": ""prod""
+  },
+  {
+    ""result"": ""notTest!""
+  },
+  {
+    ""result"": ""notTest!""
+  },
+  {
+    ""result"": ""test!""
+  }
+]
+"));
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/8798
+        /// </summary>
+        [TestMethod]
+        public void Issue8798()
+        {
+            var result = CompilationHelper.Compile(@"
+var dogs = [
+  {
+    name: 'Evie'
+    age: 5
+    interests: ['Ball', 'Frisbee']
+  }
+  {
+    name: 'Casper'
+    age: 3
+    interests: ['Other dogs']
+  }
+  {
+    name: 'Indy'
+    age: 2
+    interests: ['Butter']
+  }
+  {
+    name: 'Kira'
+    age: 8
+    interests: ['Rubs']
+  }
+]
+
+output iDogs array = filter(dogs, dog =>  (contains(dog.name, 'C') || contains(dog.name, 'i')))
+");
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+            evaluated.Should().HaveValueAtPath("$.outputs['iDogs'].value", JToken.Parse(@"
+[
+  {
+    ""name"": ""Evie"",
+    ""age"": 5,
+    ""interests"": [
+      ""Ball"",
+      ""Frisbee""
+    ]
+  },
+  {
+    ""name"": ""Casper"",
+    ""age"": 3,
+    ""interests"": [
+      ""Other dogs""
+    ]
+  },
+  {
+    ""name"": ""Kira"",
+    ""age"": 8,
+    ""interests"": [
+      ""Rubs""
+    ]
+  }
+]
+"));
+        }
     }
 }
