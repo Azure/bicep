@@ -25,12 +25,12 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
             this.patternNodes = patternNodes;
         }
 
-        public static SyntaxPattern Create(string textWithCursor) =>
-            Create(parser => parser.Program(), textWithCursor);
+        public static SyntaxPattern Create(char cursor, string textWithCursor) =>
+            Create(parser => parser.Program(), cursor, textWithCursor);
 
-        public static SyntaxPattern Create(Func<Parser, SyntaxBase> syntaxFactory, string textWithCursor)
+        public static SyntaxPattern Create(Func<Parser, SyntaxBase> syntaxFactory, char cursor, string textWithCursor)
         {
-            var (text, offset) = ProcessTextWithCursor(textWithCursor);
+            var (text, offset) = ProcessTextWithCursor(cursor, textWithCursor);
 
             var parser = new Parser(text);
             var syntax = syntaxFactory(parser);
@@ -79,14 +79,14 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
             return ancestors.Concat(leftSiblings).Append(overlappingNode).ToImmutableArray();
         }
 
-        private static (string text, int offset) ProcessTextWithCursor(string textWithCursor)
+        private static (string text, int offset) ProcessTextWithCursor(char cursor, string textWithCursor)
         {
-            var text = textWithCursor.Replace("|", "");
+            var text = textWithCursor.Replace(cursor.ToString(), "");
             var offsets = new List<int>();
 
             for (var i = 0; i < textWithCursor.Length; i++)
             {
-                if (textWithCursor[i] == '|')
+                if (textWithCursor[i] == cursor)
                 {
                     offsets.Add(i - offsets.Count);
                 }

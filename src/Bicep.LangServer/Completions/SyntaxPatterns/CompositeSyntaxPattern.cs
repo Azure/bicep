@@ -21,11 +21,11 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
             this.patterns = patterns;
         }
 
-        public static CompositeSyntaxPattern Create(params string[] textWithCursorData) =>
-            new(AugmentData(textWithCursorData).Select(textWithCursor => SyntaxPattern.Create(textWithCursor)));
+        public static CompositeSyntaxPattern Create(char cursor, params string[] textWithCursorData) =>
+            new(AugmentData(cursor, textWithCursorData).Select(textWithCursor => SyntaxPattern.Create(cursor, textWithCursor)));
 
-        public static CompositeSyntaxPattern Create(Func<Parser, SyntaxBase> syntaxFactory, params string[] textWithCursorData) =>
-            new(AugmentData(textWithCursorData).Select(textWithCursor => SyntaxPattern.Create(syntaxFactory, textWithCursor)));
+        public static CompositeSyntaxPattern Create(Func<Parser, SyntaxBase> syntaxFactory, char cursor, params string[] textWithCursorData) =>
+            new(AugmentData(cursor, textWithCursorData).Select(textWithCursor => SyntaxPattern.Create(syntaxFactory, cursor, textWithCursor)));
 
         public bool TailMatch(SyntaxPattern other)
         {
@@ -40,13 +40,13 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
             return false;
         }
 
-        private static IEnumerable<string> AugmentData(IEnumerable<string> textWithCursorData)
+        private static IEnumerable<string> AugmentData(char cursor, IEnumerable<string> textWithCursorData)
         {
             foreach (var textWithCursor in textWithCursorData)
             {
                 yield return textWithCursor;
 
-                if (textWithCursor.EndsWith('|'))
+                if (textWithCursor.EndsWith(cursor))
                 {
                     yield return $"{textWithCursor}\n";
                 }

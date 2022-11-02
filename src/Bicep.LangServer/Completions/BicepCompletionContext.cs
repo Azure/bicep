@@ -27,20 +27,24 @@ namespace Bicep.LanguageServer.Completions
             int ArgumentIndex
         );
         private static readonly CompositeSyntaxPattern ExpectingImportSpecification = CompositeSyntaxPattern.Create(
+            cursor: '|',
             "import |",
             "import |'kuber'",
             "import 'kuber|'");
 
         private static readonly CompositeSyntaxPattern ExpectingImportWithOrAsKeyword = CompositeSyntaxPattern.Create(
+            cursor: '|',
             "import 'kubernetes@v1' |",
             "import 'kubernetes@v1' a|",
             "import 'kubernetes@v1' |b");
 
         private static readonly CompositeSyntaxPattern ExpectingImportConfig = CompositeSyntaxPattern.Create(
+            cursor: '|',
             "import 'kubernetes@v1' with |",
             "import 'kubernetes@v1' with | as foo");
 
         private static readonly SyntaxPattern ExpectingImportAsKeyword = SyntaxPattern.Create(
+            cursor: '|',
             "import 'kubernetes@v1' with { foo: true } |");
 
         // completions will replace only these token types
