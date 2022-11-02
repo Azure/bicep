@@ -792,32 +792,6 @@ namespace Bicep.LanguageServer.Completions
             return null;
         }
 
-        //private static bool IsImportFollower(List<SyntaxBase> matchingNodes, int offset) => ImportFollower.Match(matchingNodes, offset);
-            //// import |
-            //SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.SpecificationString is SkippedTriviaSyntax && offset > import.Keyword.GetEndPosition()) ||
-            //// import |'kuber'
-            //// import 'kuber|'
-            //SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, StringSyntax>(matchingNodes, (import, specificationString) => import.SpecificationString == specificationString);
-
-        //private static bool IsImportSpecificationFollower(List<SyntaxBase> matchingNodes, int offset) =>
-        //    // import 'kubernetes@v1' |
-        //    SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, Token>((matchingNodes), (import, token) =>
-        //        import.SpecificationString is StringSyntax &&
-        //        import.AsClause is null &&
-        //        import.WithClause is null &&
-        //        token.Type == TokenType.NewLine &&
-        //        offset > import.SpecificationString.GetEndPosition() && offset <= token.GetEndPosition()) ||
-        //    // import 'kubernetes@v1' a|
-        //    SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (import, _, _) => import.AsClause is null && import.WithClause is null);
-
-        //private static bool IsImportWithFollower(List<SyntaxBase> matchingNodes, int offset) =>
-        //    // import 'kubernetes@v1' with |
-        //    SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, ImportWithClauseSyntax, SkippedTriviaSyntax>(matchingNodes);
-
-        //private static bool IsImportAliasFollower(List<SyntaxBase> matchingNodes, int offset) =>
-        //    // import foo as bar |
-        //    SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.AliasName.IsValid && offset > import.AliasName.GetEndPosition());
-
         private static bool IsOuterExpressionContext(List<SyntaxBase> matchingNodes, int offset)
         {
             switch (matchingNodes[^1])
