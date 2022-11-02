@@ -1287,8 +1287,9 @@ output doggoGreetings array = [for item in mapObject: item.greeting]
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0021) | ├─IdentifierSyntax
 //@[007:0021) | | └─Token(Identifier) |doggoGreetings|
-//@[022:0027) | ├─SimpleTypeSyntax
-//@[022:0027) | | └─Token(Identifier) |array|
+//@[022:0027) | ├─VariableAccessSyntax
+//@[022:0027) | | └─IdentifierSyntax
+//@[022:0027) | |   └─Token(Identifier) |array|
 //@[028:0029) | ├─Token(Assignment) |=|
 //@[030:0068) | └─ForSyntax
 //@[030:0031) |   ├─Token(LeftSquare) |[|

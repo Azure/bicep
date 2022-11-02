@@ -40,14 +40,14 @@ type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
 //@[5:15) TypeAlias mixedArray. Type: Type<('heffalump' | 'woozle' | -10 | 10 | false | null | true | { shape: '*', size: '*' })[]>. Declaration start char: 0, length: 90
 
-type String = string
-//@[5:11) TypeAlias String. Type: Type<string>. Declaration start char: 0, length: 20
+type bool = string
+//@[5:09) TypeAlias bool. Type: Type<string>. Declaration start char: 0, length: 18
 
 param inlineObjectParam {
-//@[6:23) Parameter inlineObjectParam. Type: { foo: string, bar: 100 | 200 | 300 | 400 | 500, baz: bool }. Declaration start char: 0, length: 123
+//@[6:23) Parameter inlineObjectParam. Type: { foo: string, bar: 100 | 200 | 300 | 400 | 500, baz: bool }. Declaration start char: 0, length: 127
   foo: string
   bar: 100|200|300|400|500
-  baz: bool
+  baz: sys.bool
 } = {
   foo: 'foo'
   bar: 300

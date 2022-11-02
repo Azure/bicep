@@ -14,13 +14,6 @@ type incompleteAssignment =
 //@[26:27) Assignment |=|
 //@[27:29) NewLine |\n\n|
 
-type string = int
-//@[00:04) Identifier |type|
-//@[05:11) Identifier |string|
-//@[12:13) Assignment |=|
-//@[14:17) Identifier |int|
-//@[17:19) NewLine |\n\n|
-
 type resource = bool
 //@[00:04) Identifier |type|
 //@[05:13) Identifier |resource|

@@ -1664,8 +1664,9 @@ param parameters bool = true
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0016) | ├─IdentifierSyntax
 //@[006:0016) | | └─Token(Identifier) |parameters|
-//@[017:0021) | ├─SimpleTypeSyntax
-//@[017:0021) | | └─Token(Identifier) |bool|
+//@[017:0021) | ├─VariableAccessSyntax
+//@[017:0021) | | └─IdentifierSyntax
+//@[017:0021) | |   └─Token(Identifier) |bool|
 //@[022:0028) | └─ParameterDefaultValueSyntax
 //@[022:0023) |   ├─Token(Assignment) |=|
 //@[024:0028) |   └─BooleanLiteralSyntax
@@ -1739,8 +1740,9 @@ param mod bool = true
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0009) | ├─IdentifierSyntax
 //@[006:0009) | | └─Token(Identifier) |mod|
-//@[010:0014) | ├─SimpleTypeSyntax
-//@[010:0014) | | └─Token(Identifier) |bool|
+//@[010:0014) | ├─VariableAccessSyntax
+//@[010:0014) | | └─IdentifierSyntax
+//@[010:0014) | |   └─Token(Identifier) |bool|
 //@[015:0021) | └─ParameterDefaultValueSyntax
 //@[015:0016) |   ├─Token(Assignment) |=|
 //@[017:0021) |   └─BooleanLiteralSyntax
@@ -1787,8 +1789,9 @@ param equals bool = true
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0012) | ├─IdentifierSyntax
 //@[006:0012) | | └─Token(Identifier) |equals|
-//@[013:0017) | ├─SimpleTypeSyntax
-//@[013:0017) | | └─Token(Identifier) |bool|
+//@[013:0017) | ├─VariableAccessSyntax
+//@[013:0017) | | └─IdentifierSyntax
+//@[013:0017) | |   └─Token(Identifier) |bool|
 //@[018:0024) | └─ParameterDefaultValueSyntax
 //@[018:0019) |   ├─Token(Assignment) |=|
 //@[020:0024) |   └─BooleanLiteralSyntax
