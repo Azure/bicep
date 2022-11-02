@@ -60,7 +60,7 @@ namespace Bicep.Core.IntegrationTests
 import az as foo
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP203", DiagnosticLevel.Error, "Import statements are currently not supported."),
+                ("BCP203", DiagnosticLevel.Error, "Using import statements requires enabling EXPERIMENTAL feature \"Imports\"."),
             });
         }
 

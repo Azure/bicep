@@ -1,10 +1,7 @@
 #!/bin/bash
 # Deploys main.bicep in this folder
 
-# Enable Azure CLI & VSCode for extensibility
-export BICEP_IMPORTS_ENABLED_EXPERIMENTAL=true
-
-scriptPath=$(dirname "$0")
+scriptPath=$(dirname -- "$0")
 baseName="bicepkubedemo"
 adminUsername="anthony"
 

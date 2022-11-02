@@ -33,10 +33,6 @@ function getServerStartupOptions(
     // pause language server startup until a dotnet debugger has been attached
     args.push(`--wait-for-debugger`);
   }
-  const envVars = {
-    ...process.env,
-    ...getFeatureEnvVars(),
-  };
 
   switch (transportKind) {
     case TransportKind.stdio: {
@@ -44,7 +40,7 @@ function getServerStartupOptions(
         command: dotnetCommandPath,
         args: [languageServerPath, ...args],
         options: {
-          env: envVars,
+          env: process.env,
         },
       };
       return {
@@ -59,7 +55,7 @@ function getServerStartupOptions(
         transport: transportKind,
         args,
         options: {
-          env: envVars,
+          env: process.env,
         },
       };
       return {
@@ -244,15 +240,5 @@ function configureTelemetry(client: lsp.LanguageClient) {
       );
       return defaultErrorHandler.closed();
     },
-  };
-}
-
-function getFeatureEnvVars() {
-  const importsEnabledExperimental = vscode.workspace
-    .getConfiguration("bicep")
-    .get<boolean>("importsEnabledExperimental");
-
-  return {
-    BICEP_IMPORTS_ENABLED_EXPERIMENTAL: importsEnabledExperimental,
   };
 }

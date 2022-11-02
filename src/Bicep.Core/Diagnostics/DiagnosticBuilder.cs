@@ -1215,7 +1215,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ImportsAreDisabled() => new(
                 TextSpan,
                 "BCP203",
-                "Import statements are currently not supported.");
+                $@"Using import statements requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.Imports)}"".");
 
             public ErrorDiagnostic UnrecognizedImportProvider(string identifier) => new(
                 TextSpan,
