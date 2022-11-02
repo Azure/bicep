@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using Azure.Deployments.Expression.Parsers;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 
@@ -248,15 +249,29 @@ namespace Bicep.Core.Parsing
                 TokenType.Assignment,
                 TokenType.NewLine);
 
-            var withClause = this.WithRecovery(() => this.ImportWithClause(), RecoveryFlags.SuppressDiagnostics, TokenType.AsKeyword, TokenType.NewLine);
-            var asClause = this.WithRecovery(() => this.ImportAsClause(), RecoveryFlags.SuppressDiagnostics, TokenType.NewLine);
+            var withClause = this.reader.Peek().Type switch
+            {
+                TokenType.EndOfFile or
+                TokenType.NewLine or
+                TokenType.AsKeyword => this.SkipEmpty(),
+
+                _ => this.WithRecovery(() => this.ImportWithClause(), GetSuppressionFlag(providerSpecification), TokenType.NewLine),
+            };
+
+            var asClause = this.reader.Peek().Type switch
+            {
+                TokenType.EndOfFile or
+                TokenType.NewLine => this.SkipEmpty(),
+
+                _ => this.WithRecovery(() => this.ImportAsClause(), GetSuppressionFlag(withClause), TokenType.NewLine),
+            };
 
             return new(leadingNodes, keyword, providerSpecification, withClause, asClause);
         }
 
         private ImportWithClauseSyntax ImportWithClause()
         {
-            var keyword = this.Expect(TokenType.WithKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword));
+            var keyword = this.Expect(TokenType.WithKeyword, b => b.ExpectedKeyword(LanguageConstants.WithKeyword, LanguageConstants.AsKeyword));
             var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.AsKeyword, TokenType.NewLine);
 
             return new(keyword, config);

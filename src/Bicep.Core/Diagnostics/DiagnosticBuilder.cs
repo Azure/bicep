@@ -121,10 +121,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP011",
                 "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.");
 
-            public ErrorDiagnostic ExpectedKeyword(string keyword) => new(
+            public ErrorDiagnostic ExpectedKeyword(params string[] keywords) => new(
                 TextSpan,
                 "BCP012",
-                $"Expected the \"{keyword}\" keyword at this location.");
+                $"Expected the {ToQuotedString(keywords)} {(keywords.Length > 1 ? "keyword" : "keyword")} at this location.");
 
             public ErrorDiagnostic ExpectedParameterIdentifier() => new(
                 TextSpan,

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Completions.SyntaxPatterns
 {
-    public class SyntaxTypeComparer : IEqualityComparer<SyntaxBase>
+    public class SyntaxTypeComparer : IEqualityComparer<SyntaxBase?>
     {
         public bool Equals(SyntaxBase? x, SyntaxBase? y)
         {

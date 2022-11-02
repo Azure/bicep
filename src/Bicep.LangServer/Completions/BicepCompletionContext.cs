@@ -26,21 +26,22 @@ namespace Bicep.LanguageServer.Completions
             FunctionCallSyntaxBase Function,
             int ArgumentIndex
         );
-        private static CompositeSyntaxPattern ExpectingImportSpecification => CompositeSyntaxPattern.Create(
+        private static readonly CompositeSyntaxPattern ExpectingImportSpecification = CompositeSyntaxPattern.Create(
             "import |",
             "import |'kuber'",
             "import 'kuber|'");
 
-        private static CompositeSyntaxPattern ExpectingImportWithOrAsKeyword => CompositeSyntaxPattern.Create(
+        private static readonly CompositeSyntaxPattern ExpectingImportWithOrAsKeyword = CompositeSyntaxPattern.Create(
             "import 'kubernetes@v1' |",
             "import 'kubernetes@v1' a|",
             "import 'kubernetes@v1' |b");
 
-        private static SyntaxPattern ExpectingImportConfig => SyntaxPattern.Create(
-            "import 'kubernetes@v1' with |");
+        private static readonly CompositeSyntaxPattern ExpectingImportConfig = CompositeSyntaxPattern.Create(
+            "import 'kubernetes@v1' with |",
+            "import 'kubernetes@v1' with | as foo");
 
-        private static SyntaxPattern ExpectingImportAsKeyword => SyntaxPattern.Create(
-            @"import 'kubernetes@v1' with { foo: true } |");
+        private static readonly SyntaxPattern ExpectingImportAsKeyword = SyntaxPattern.Create(
+            "import 'kubernetes@v1' with { foo: true } |");
 
         // completions will replace only these token types
         // all others will result in an insertion upon completion commit
@@ -192,12 +193,12 @@ namespace Bicep.LanguageServer.Completions
 
             if (featureProvider.ImportsEnabled)
             {
-                var nodes = SyntaxPattern.GetAncestorsAndLeftSiblings(bicepFile.ProgramSyntax, offset);
+                var pattern = SyntaxPattern.Create(bicepFile.ProgramSyntax, offset);
 
-                kind |= ConvertFlag(ExpectingImportSpecification.TailMatch(nodes), BicepCompletionContextKind.ExpectingImportSpecification) |
-                    ConvertFlag(ExpectingImportWithOrAsKeyword.TailMatch(nodes), BicepCompletionContextKind.ExpectingImportWithOrAsKeyword) |
-                    ConvertFlag(ExpectingImportConfig.TailMatch(nodes), BicepCompletionContextKind.ExpectingImportConfig) |
-                    ConvertFlag(ExpectingImportAsKeyword.TailMatch(nodes), BicepCompletionContextKind.ExpectingImportAsKeyword);
+                kind |= ConvertFlag(ExpectingImportSpecification.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportSpecification) |
+                    ConvertFlag(ExpectingImportWithOrAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportWithOrAsKeyword) |
+                    ConvertFlag(ExpectingImportConfig.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportConfig) |
+                    ConvertFlag(ExpectingImportAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportAsKeyword);
             }
 
             if (kind == BicepCompletionContextKind.None)

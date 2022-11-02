@@ -34,12 +34,14 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
 
         protected override void VisitInternal(SyntaxBase node)
         {
-            if (node.Span.ContainsInclusive(this.offset) && !node.IsSkipped && node is not Token)
+            if (node.Span.ContainsInclusive(this.offset) && CanBeAncestor(node))
             {
                 this.ancestors.Add(node);
 
                 base.VisitInternal(node);
             }
         }
+
+        private static bool CanBeAncestor(SyntaxBase node) => !node.IsSkipped && node is not Token or IdentifierSyntax;
     }
 }

@@ -17,18 +17,20 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
 
         private readonly IList<SyntaxBase> leftSiblings = new List<SyntaxBase>();
 
+        private SyntaxBase? overlappingNode = null;
+
         private LeftSiblingsCollector(int offset)
         {
             this.offset = offset;
         }
 
-        public static IList<SyntaxBase> CollectLeftSiblings(SyntaxBase parent, int offset)
+        public static (IList<SyntaxBase> LeftSiblings, SyntaxBase? overlappingNode) CollectLeftSiblings(SyntaxBase parent, int offset)
         {
             var collector = new LeftSiblingsCollector(offset);
 
             collector.Visit(parent);
 
-            return collector.leftSiblings;
+            return (collector.leftSiblings, collector.overlappingNode);
         }
 
         public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax) =>
@@ -46,7 +48,7 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
             {
                 if (candidate.IsOverlapping(this.offset))
                 {
-                    this.leftSiblings.Add(candidate);
+                    this.overlappingNode = candidate;
 
                     return;
                 }

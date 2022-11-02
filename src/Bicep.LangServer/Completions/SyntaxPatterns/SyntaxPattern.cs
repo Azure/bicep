@@ -17,11 +17,12 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
 {
     public class SyntaxPattern
     {
-        private readonly ImmutableArray<SyntaxBase> expectedNodes;
+        // Pattern nodes: ancestors + left siblings + overlapping node.
+        private readonly ImmutableArray<SyntaxBase?> patternNodes;
 
-        private SyntaxPattern(ImmutableArray<SyntaxBase> expectedNodes)
+        private SyntaxPattern(ImmutableArray<SyntaxBase?> patternNodes)
         {
-            this.expectedNodes = expectedNodes;
+            this.patternNodes = patternNodes;
         }
 
         public static SyntaxPattern Create(string textWithCursor) =>
@@ -33,29 +34,49 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
 
             var parser = new Parser(text);
             var syntax = syntaxFactory(parser);
-            var expectedTypes = GetAncestorsAndLeftSiblings(syntax, offset);
+            var patternNodes = GetPatternNodes(syntax, offset);
 
-            return new(expectedTypes);
+            return new(patternNodes);
         }
 
-        public static ImmutableArray<SyntaxBase> GetAncestorsAndLeftSiblings(SyntaxBase syntax, int offset)
+        public static SyntaxPattern Create(SyntaxBase syntax, int offset)
         {
-            var ancestors = AncestorsCollector.CollectAncestors(syntax, offset);
-            var leftSiblings = LeftSiblingsCollector.CollectLeftSiblings(ancestors[^1], offset);
+            var patternNodes = GetPatternNodes(syntax, offset);
 
-            return ancestors.Concat(leftSiblings).ToImmutableArray();
+            return new(patternNodes);
         }
 
-        public bool TailMatch(ImmutableArray<SyntaxBase> nodes)
+        public bool TailMatch(SyntaxPattern other)
         {
-            if (this.expectedNodes.Length > nodes.Length)
+            if (this.patternNodes.Length > other.patternNodes.Length)
             {
                 return false;
             }
 
-            var tailNodes = nodes.Skip(nodes.Length - expectedNodes.Length);
+            var tailNodes = other.patternNodes.Skip(other.patternNodes.Length - patternNodes.Length);
 
-            return tailNodes.SequenceEqual(this.expectedNodes, new SyntaxTypeComparer());
+            return this.patternNodes.SequenceEqual(tailNodes, new SyntaxTypeComparer());
+        }
+
+        public bool TailMatch(ImmutableArray<SyntaxBase?> nodes)
+        {
+            if (this.patternNodes.Length > nodes.Length)
+            {
+                return false;
+            }
+
+            var tailNodes = nodes.Skip(nodes.Length - patternNodes.Length);
+
+            return tailNodes.SequenceEqual(this.patternNodes, new SyntaxTypeComparer());
+        }
+
+        private static ImmutableArray<SyntaxBase?> GetPatternNodes(SyntaxBase syntax, int offset)
+        {
+            var ancestors = AncestorsCollector.CollectAncestors(syntax, offset);
+            var (leftSiblings, overlappingNode) = LeftSiblingsCollector.CollectLeftSiblings(ancestors[^1], offset);
+
+            // pattern nodes = ancestors + left siblings + overlapping node.
+            return ancestors.Concat(leftSiblings).Append(overlappingNode).ToImmutableArray();
         }
 
         private static (string text, int offset) ProcessTextWithCursor(string textWithCursor)

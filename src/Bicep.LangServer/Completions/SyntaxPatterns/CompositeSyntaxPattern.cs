@@ -27,11 +27,11 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
         public static CompositeSyntaxPattern Create(Func<Parser, SyntaxBase> syntaxFactory, params string[] textWithCursorData) =>
             new(AugmentData(textWithCursorData).Select(textWithCursor => SyntaxPattern.Create(syntaxFactory, textWithCursor)));
 
-        public bool TailMatch(ImmutableArray<SyntaxBase> nodes)
+        public bool TailMatch(SyntaxPattern other)
         {
             foreach (var pattern in patterns)
             {
-                if (pattern.TailMatch(nodes))
+                if (pattern.TailMatch(other))
                 {
                     return true;
                 }
