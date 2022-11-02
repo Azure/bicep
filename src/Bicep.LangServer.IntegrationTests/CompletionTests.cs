@@ -1173,20 +1173,20 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
         {
             var fileWithCursors = @"
 |
-import ns1 |
-import ns2 a|
-import ns3 as|
+import 'ns1@1.0.0' |
+import 'ns2@1.0.0' a|
+import 'ns3@1.0.0' as|
 import |
 import a|
 ";
             await RunCompletionScenarioTest(this.TestContext, ServerWithImportsEnabled, fileWithCursors, 
                 completions => completions.Should().SatisfyRespectively(
                     c => c!.Select(x => x.Label).Should().Contain("import"),
-                    c => c!.Select(x => x.Label).Should().Equal("as"),
-                    c => c!.Select(x => x.Label).Should().Equal("as"),
+                    c => c!.Select(x => x.Label).Should().Equal("with", "as"),
+                    c => c!.Select(x => x.Label).Should().Equal("with", "as"),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
-                    c => c!.Select(x => x.Label).Should().Equal("az", "kubernetes", "sys"),
-                    c => c!.Select(x => x.Label).Should().Equal("az", "kubernetes", "sys")
+                    c => c!.Select(x => x.Label).Should().Equal("'az@1.0.0'", "'kubernetes@1.0.0'", "'sys@1.0.0'"),
+                    c => c!.Select(x => x.Label).Should().Equal("'az@1.0.0'", "'kubernetes@1.0.0'", "'sys@1.0.0'")
                 ),
                 '|');
 
@@ -1207,7 +1207,7 @@ import a|
         {
             {
                 var fileWithCursors = @"
-import kubernetes as k8s |
+import 'kubernetes@1.0.0' with | as k8s
 ";
 
                 var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
@@ -1219,16 +1219,16 @@ import kubernetes as k8s |
 
                 var updatedFile = file.ApplyCompletion(completions, "required-properties");
                 updatedFile.Should().HaveSourceText(@"
-import kubernetes as k8s {
+import 'kubernetes@1.0.0' with {
   kubeConfig: $1
   namespace: $2
-}|
+}| as k8s
 ");
             }
 
             {
                 var fileWithCursors = @"
-import kubernetes as k8s {
+import 'kubernetes@1.0.0' with {
   |
 }
 ";
@@ -1242,23 +1242,10 @@ import kubernetes as k8s {
 
                 var updatedFile = file.ApplyCompletion(completions, "kubeConfig");
                 updatedFile.Should().HaveSourceText(@"
-import kubernetes as k8s {
+import 'kubernetes@1.0.0' with {
   kubeConfig:|
 }
 ");
-            }
-
-            {
-                // az provider does not support configuration - expect no completions
-                var fileWithCursors = @"
-import az as az |
-";
-
-                var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
-                var file = await new ServerRequestHelper(TestContext, ServerWithImportsEnabled).OpenFile(text);
-
-                var completions = await file.RequestCompletion(cursor);
-                completions.Should().BeEmpty();
             }
         }
 

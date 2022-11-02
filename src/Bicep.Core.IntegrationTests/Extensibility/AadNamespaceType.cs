@@ -23,7 +23,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
             BicepProviderName: BuiltInName,
             ConfigurationType: null,
             ArmTemplateProviderName: "AAD",
-            ArmTemplateProviderVersion: "1.0");
+            ArmTemplateProviderVersion: "1.0.0");
 
         private class AadTypeProvider : IResourceTypeProvider
         {

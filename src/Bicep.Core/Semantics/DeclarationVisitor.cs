@@ -137,7 +137,9 @@ namespace Bicep.Core.Semantics
             }
             else if (!syntax.Specification.IsValid)
             {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Specification).InvalidProviderSpecification());
+                declaredType = syntax.SpecificationString is StringSyntax
+                    ? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Specification).InvalidProviderSpecification())
+                    : ErrorType.Empty();
             }
             else if (namespaceProvider.TryGetNamespace(syntax.Specification.Name, syntax.Alias?.IdentifierName ?? syntax.Specification.Name, targetScope, features) is not { } namespaceType)
             {

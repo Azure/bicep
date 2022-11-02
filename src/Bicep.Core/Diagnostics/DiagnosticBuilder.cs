@@ -121,10 +121,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP011",
                 "The type of the specified value is incorrect. Specify a string, boolean, or integer literal.");
 
-            public ErrorDiagnostic ExpectedKeyword(params string[] keywords) => new(
+            public ErrorDiagnostic ExpectedKeyword(string keyword) => new(
                 TextSpan,
                 "BCP012",
-                $"Expected the {ToQuotedString(keywords)} {(keywords.Length > 1 ? "keyword" : "keyword")} at this location.");
+                $"Expected the \"{keyword}\" keyword at this location.");
 
             public ErrorDiagnostic ExpectedParameterIdentifier() => new(
                 TextSpan,
@@ -1202,10 +1202,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP200",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic ExpectedImportProviderName() => new(
+            public ErrorDiagnostic ExpectedProviderSpecification() => new(
                 TextSpan,
                 "BCP201",
-                "Expected an import provider name at this location.");
+                "Expected a provider specification string. Specify a valid provider of format \"<providerName>@<providerVersion>\".");
 
             public ErrorDiagnostic ExpectedImportAliasName() => new(
                 TextSpan,
@@ -1719,25 +1719,20 @@ namespace Bicep.Core.Diagnostics
                 "BCP302",
                 $@"The name ""{name}"" is not a valid type. Please specify one of the following types: {ToQuotedString(validTypes)}.");
 
-            public ErrorDiagnostic ExpectedProviderSpecification() => new(
-                TextSpan,
-                "BCP303",
-                "Expected a provider specification string. Specify a valid provider of format \"<providerName>@<providerVersion>\".");
-
-            public ErrorDiagnostic ExpectedImportAliasIdentifier() => new(
-                TextSpan,
-                "BCP304",
-                "Expected an import alias identifier at this location.");
-
             public ErrorDiagnostic ProviderSpecificationInterpolationUnsupported() => new(
                 TextSpan,
-                "BCP305",
+                "BCP303",
                 "String interpolation is unsupported for specifying the provider.");
 
             public ErrorDiagnostic InvalidProviderSpecification() => new(
                 TextSpan,
-                "BCP306",
+                "BCP304",
                 "Invalid provider specifier string. Specify a valid provider of format \"<providerName>@<providerVersion>\".");
+
+            public ErrorDiagnostic ExpectedWithOrAsKeywordOrNewLine() => new(
+                TextSpan,
+                "BCP305",
+                $"Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

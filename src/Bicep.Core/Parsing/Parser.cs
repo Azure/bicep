@@ -271,7 +271,7 @@ namespace Bicep.Core.Parsing
 
         private ImportWithClauseSyntax ImportWithClause()
         {
-            var keyword = this.Expect(TokenType.WithKeyword, b => b.ExpectedKeyword(LanguageConstants.WithKeyword, LanguageConstants.AsKeyword));
+            var keyword = this.Expect(TokenType.WithKeyword, b => b.ExpectedWithOrAsKeywordOrNewLine());
             var config = this.WithRecovery(() => this.Object(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.AsKeyword, TokenType.NewLine);
 
             return new(keyword, config);
@@ -280,7 +280,7 @@ namespace Bicep.Core.Parsing
         private ImportAsClauseSyntax ImportAsClause()
         {
             var keyword = this.Expect(TokenType.AsKeyword, b => b.ExpectedKeyword(LanguageConstants.AsKeyword));
-            var modifier = this.IdentifierWithRecovery(b => b.ExpectedImportAliasIdentifier(), RecoveryFlags.None, TokenType.NewLine);
+            var modifier = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), RecoveryFlags.None, TokenType.NewLine);
 
             return new(keyword, modifier);
         }

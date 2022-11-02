@@ -70,14 +70,13 @@ namespace Bicep.LanguageServer.Handlers
                 SyntaxFactory.CreateToken(TokenType.Identifier, "import"),
                 SyntaxFactory.CreateStringLiteral("kubernetes@1.0.0"),
                 new ImportWithClauseSyntax(
-                    SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.WithKeyword), 
+                    SyntaxFactory.CreateToken(TokenType.WithKeyword, LanguageConstants.WithKeyword), 
                     SyntaxFactory.CreateObject(new []
                     {
                         SyntaxFactory.CreateObjectProperty("namespace", SyntaxFactory.CreateStringLiteral("default")),
                         SyntaxFactory.CreateObjectProperty("kubeConfig", SyntaxFactory.CreateIdentifier("kubeConfig"))
                     })),
                 asClause: SyntaxFactory.EmptySkippedTrivia));
-
 
             try
             {

@@ -32,22 +32,16 @@ namespace Bicep.Core.IntegrationTests
                 this.builderDict = builderDict.ToImmutableDictionary();
             }
 
-            public bool AllowImportStatements => true;
+            public static bool AllowImportStatements => true;
 
             public IEnumerable<string> AvailableNamespaces => builderDict.Keys.Concat(new [] { SystemNamespaceType.BuiltInName });
 
-            public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features)
+            public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope, IFeatureProvider features) => providerName switch
             {
-                switch (providerName)
-                {
-                    case SystemNamespaceType.BuiltInName:
-                        return SystemNamespaceType.Create(aliasName, features);
-                    case { } _ when builderDict.TryGetValue(providerName) is { } builderFunc:
-                        return builderFunc(aliasName);
-                }
-
-                return null;
-            }
+                SystemNamespaceType.BuiltInName => SystemNamespaceType.Create(aliasName, features),
+                { } _ when builderDict.TryGetValue(providerName) is { } builderFunc => builderFunc(aliasName),
+                _ => null,
+            };
         }
 
         [NotNull]
@@ -57,7 +51,7 @@ namespace Bicep.Core.IntegrationTests
         public void Imports_are_disabled_unless_feature_is_enabled()
         {
             var result = CompilationHelper.Compile(@"
-import az as foo
+import 'az@1.0.0'
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Import statements are currently not supported."),
@@ -71,18 +65,45 @@ import az as foo
 import
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP201", DiagnosticLevel.Error, "Expected an import provider name at this location."),
+                ("BCP201", DiagnosticLevel.Error, "Expected a provider specification string. Specify a valid provider of format \"<providerName>@<providerVersion>\"."),
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"
-import az
+import 'az@1.0.0' blahblah 
+");
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP305", DiagnosticLevel.Error, "Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location."),
+            });
+
+            result = CompilationHelper.Compile(ServicesWithImports, @"
+import 'kubernetes@1.0.0' with 
+");
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP018", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
+            });
+
+            result = CompilationHelper.Compile(ServicesWithImports, @"
+import 'kubernetes@1.0.0' with {
+  kubeConfig: 'foo'
+  namespace: 'bar'
+} something
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP012", DiagnosticLevel.Error, "Expected the \"as\" keyword at this location."),
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"
-import az as
+import 'kubernetes@1.0.0' with {
+  kubeConfig: 'foo'
+  namespace: 'bar'
+} as
+");
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP202", DiagnosticLevel.Error, "Expected an import alias name at this location."),
+            });
+
+            result = CompilationHelper.Compile(ServicesWithImports, @"
+import 'az@1.0.0' as
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP202", DiagnosticLevel.Error, "Expected an import alias name at this location."),
@@ -93,7 +114,7 @@ import az as
         public void Imports_return_error_with_unrecognized_namespace()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import madeUpNamespace as foo
+import 'madeUpNamespace@1.0.0'
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP204", DiagnosticLevel.Error, "Imported namespace \"madeUpNamespace\" is not recognized."),
@@ -104,7 +125,7 @@ import madeUpNamespace as foo
         public void Import_configuration_is_blocked_by_default()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import az as ns {
+import 'az@1.0.0' with {
   foo: 'bar'
 }
 ");
@@ -117,7 +138,7 @@ import az as ns {
         public void Using_import_statements_frees_up_the_namespace_symbol()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import az as newAz
+import 'az@1.0.0' as newAz
 
 var az = 'Fake AZ!'
 var myRg = newAz.resourceGroup()
@@ -133,8 +154,8 @@ output rgLocation string = myRg.location
         public void You_can_swap_imported_namespaces_if_you_really_really_want_to()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import az as sys
-import sys as az
+import 'az@1.0.0' as sys
+import 'sys@1.0.0' as az
 
 var myRg = sys.resourceGroup()
 
@@ -150,7 +171,7 @@ output rgLocation string = myRg.location
         public void Overwriting_single_built_in_namespace_with_import_is_permitted()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import az as sys
+import 'az@1.0.0' as sys
 
 var myRg = sys.resourceGroup()
 
@@ -164,11 +185,11 @@ output rgLocation string = myRg.location
         public void Singleton_imports_cannot_be_used_multiple_times()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
-import az as az1
-import az as az2
+import 'az@1.0.0' as az1
+import 'az@1.0.0' as az2
 
-import sys as sys1
-import sys as sys2
+import 'sys@1.0.0' as sys1
+import 'sys@1.0.0' as sys2
 ");
 
             result.Should().HaveDiagnostics(new[] {
@@ -176,6 +197,23 @@ import sys as sys2
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is imported multiple times. Remove the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is imported multiple times. Remove the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is imported multiple times. Remove the duplicates."),
+            });
+        }
+
+        [TestMethod]
+        public void Import_names_must_not_conflict_with_other_symbols()
+        {
+            var result = CompilationHelper.Compile(ServicesWithImports, @"
+import 'az@1.0.0'
+import 'kubernetes@1.0.0' with {
+  kubeConfig: ''
+  namespace: ''
+} as az
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP028", DiagnosticLevel.Error, "Identifier \"az\" is declared multiple times. Remove or rename the duplicates."),
+                ("BCP028", DiagnosticLevel.Error, "Identifier \"az\" is declared multiple times. Remove or rename the duplicates."),
             });
         }
 
@@ -221,8 +259,8 @@ import sys as sys2
             var services = ServicesWithImports.WithNamespaceProvider(nsProvider);
 
             var result = CompilationHelper.Compile(services, @"
-import ns1 as ns1
-import ns2 as ns2
+import 'ns1@1.0.0' as ns1
+import 'ns2@1.0.0' as ns2
 
 output ambiguousResult string = dupeFunc()
 output ns1Result string = ns1Func()
@@ -235,8 +273,8 @@ output ns2Result string = ns2Func()
 
             // fix by fully-qualifying
             result = CompilationHelper.Compile(services, @"
-import ns1 as ns1
-import ns2 as ns2
+import 'ns1@1.0.0' as ns1
+import 'ns2@1.0.0' as ns2
 
 output ambiguousResult string = ns1.dupeFunc()
 output ns1Result string = ns1Func()
@@ -265,7 +303,7 @@ output ns2Result string = ns2Func()
                             },
                             null),
                         ArmTemplateProviderName: "Unused",
-                        ArmTemplateProviderVersion: "1.0"),
+                        ArmTemplateProviderVersion: "1.0.0"),
                     ImmutableArray<TypeProperty>.Empty,
                     ImmutableArray<FunctionOverload>.Empty,
                     ImmutableArray<BannedFunction>.Empty,
@@ -276,10 +314,10 @@ output ns2Result string = ns2Func()
             var services = ServicesWithImports.WithNamespaceProvider(nsProvider);
 
             var result = CompilationHelper.Compile(services, @"
-import mockNs as ns1 {
+import 'mockNs@1.0.0' with {
   optionalConfig: 'blah blah'
-}
-import mockNs as ns2
+} as ns1
+import 'mockNs@1.0.0' as ns2
 ");
 
             result.Should().NotHaveAnyDiagnostics();

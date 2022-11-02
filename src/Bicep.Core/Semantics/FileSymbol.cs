@@ -219,10 +219,10 @@ namespace Bicep.Core.Semantics
                     FindDuplicateNamedSymbols(metadataDeclarations)
                     .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSource).OutputMultipleDeclarations(decl.Name)));
 
-                // imported namespaces are reserved in all the scopes
+                // imported namespaces are reserved in all the scopes except imports.
                 // otherwise the user could accidentally hide a namespace which would remove the ability
                 // to fully qualify a function
-                this.Diagnostics.AddRange(referenceableDeclarations
+                this.Diagnostics.AddRange(referenceableDeclarations.Where(x => x is not ImportedNamespaceSymbol)
                     .Where(decl => decl.NameSource.IsValid && this.builtInNamespaces.ContainsKey(decl.Name))
                     .Select(reservedSymbol => DiagnosticBuilder.ForPosition(reservedSymbol.NameSource).SymbolicNameCannotUseReservedNamespaceName(reservedSymbol.Name, this.builtInNamespaces.Keys)));
 
@@ -230,7 +230,7 @@ namespace Bicep.Core.Semantics
                 // TODO: validation for alias x name.
                 this.Diagnostics.AddRange(
                     FindDuplicateNamespaceImports(namespaceDeclarations)
-                    .Select(decl => DiagnosticBuilder.ForPosition(decl.DeclaringImport.Alias as IPositionable ?? decl.DeclaringImport.Specification).NamespaceMultipleDeclarations(decl.Name)));
+                    .Select(decl => DiagnosticBuilder.ForPosition(decl.DeclaringImport.Specification).NamespaceMultipleDeclarations(decl.DeclaringImport.Specification.Name)));
             }
 
             private static IEnumerable<DeclaredSymbol> FindDuplicateNamedSymbols(IEnumerable<DeclaredSymbol> symbols)
@@ -243,6 +243,7 @@ namespace Bicep.Core.Semantics
             private static IEnumerable<ImportedNamespaceSymbol> FindDuplicateNamespaceImports(IEnumerable<ImportedNamespaceSymbol> symbols)
             {
                 var typeBySymbol = new Dictionary<ImportedNamespaceSymbol, NamespaceType>();
+
                 foreach (var symbol in symbols)
                 {
                     if (symbol.TryGetNamespaceType() is { } namespaceType)
@@ -253,7 +254,7 @@ namespace Bicep.Core.Semantics
 
                 return typeBySymbol
                     .Where(kvp => kvp.Value.Settings.IsSingleton)
-                    .GroupBy(kvp => kvp.Key.Name, LanguageConstants.IdentifierComparer)
+                    .GroupBy(kvp => kvp.Key.DeclaringImport.Specification.Name, LanguageConstants.IdentifierComparer)
                     .Where(group => group.Count() > 1)
                     .SelectMany(group => group.Select(kvp => kvp.Key));
             }

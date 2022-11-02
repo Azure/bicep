@@ -1042,7 +1042,14 @@ namespace Bicep.Core.TypeSystem
                     // use the item's type and propagate flags
                     return TryCreateAssignment(ResolveDiscriminatedObjects(arrayParent, syntax), syntax, arrayItemAssignment.Flags);
 
-                case ImportDeclarationSyntax:
+                case ImportWithClauseSyntax:
+                    parent = this.binder.GetParent(parent);
+
+                    if (parent is null)
+                    {
+                        throw new InvalidOperationException("Expected ImportWithClauseSyntax to have a parent.");
+                    }
+
                     if (GetDeclaredTypeAssignment(parent) is not { } importAssignment ||
                         importAssignment.Reference.Type is not NamespaceType namespaceType)
                     {

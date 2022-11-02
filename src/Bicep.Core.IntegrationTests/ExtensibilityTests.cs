@@ -26,9 +26,9 @@ namespace Bicep.Core.IntegrationTests
         public void Storage_import_bad_config_is_blocked()
         {
             var result = CompilationHelper.Compile(Services, @"
-import storage as stg {
+import 'storage@1.0.0' with {
   madeUpProperty: 'asdf'
-}
+} as stg
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"connectionString\"."),
@@ -40,13 +40,13 @@ import storage as stg {
         public void Storage_import_can_be_duplicated()
         {
             var result = CompilationHelper.Compile(Services, @"
-import storage as stg1 {
+import 'storage@1.0.0' with {
   connectionString: 'connectionString1'
-}
+} as stg
 
-import storage as stg2 {
+import 'storage@1.0.0' with {
   connectionString: 'connectionString2'
-}
+} as stg2
 ");
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
@@ -55,9 +55,9 @@ import storage as stg2 {
         public void Storage_import_basic_test()
         {
             var result = CompilationHelper.Compile(Services, @"
-import storage as stg {
+import 'storage@1.0.0' with {
   connectionString: 'asdf'
-}
+} as stg
 
 resource container 'container' = {
   name: 'myblob'
@@ -76,13 +76,13 @@ resource blob 'blob' = {
         public void Ambiguous_type_references_return_errors()
         {
             var result = CompilationHelper.Compile(Services, @"
-import storage as stg {
+import 'storage@1.0.0' with {
   connectionString: 'asdf'
-}
+} as stg
 
-import storage as stg2 {
+import 'storage@1.0.0' with {
   connectionString: 'asdf'
-}
+} as stg2
 
 resource container 'container' = {
   name: 'myblob'
@@ -93,13 +93,13 @@ resource container 'container' = {
             });
 
             result = CompilationHelper.Compile(Services, @"
-import storage as stg {
+import 'storage@1.0.0' with {
   connectionString: 'asdf'
-}
+} as stg
 
-import storage as stg2 {
+import 'storage@1.0.0' with {
   connectionString: 'asdf'
-}
+} as stg2
 
 resource container 'stg2:container' = {
   name: 'myblob'
@@ -112,9 +112,9 @@ resource container 'stg2:container' = {
         public void Storage_import_basic_test_loops_and_referencing()
         {
             var result = CompilationHelper.Compile(Services, @"
-import storage as stg {
+import 'storage@1.0.0' with {
   connectionString: 'asdf'
-}
+} as stg
 
 resource container 'container' = {
   name: 'myblob'
@@ -152,7 +152,7 @@ output base64Content string = blobs[3]['base64Content']
         public void Aad_import_basic_test_loops_and_referencing()
         {
             var result = CompilationHelper.Compile(Services, @"
-import aad as aad
+import 'aad@1.0.0' as aad
 param numApps int
 
 resource myApp 'application' = {
@@ -182,7 +182,7 @@ output myAppsLoopId2 string = myAppsLoop[3]['appId']
         {
             // we've accidentally used 'name' even though this resource type doesn't support it
             var result = CompilationHelper.Compile(Services, @"
-import aad as aad
+import 'aad@1.0.0'
 
 resource myApp 'application' existing = {
   name: 'foo'
@@ -198,7 +198,7 @@ resource myApp 'application' existing = {
 
             // oops! let's change it to 'uniqueName'
             result = CompilationHelper.Compile(Services, @"
-import aad as aad
+import 'aad@1.0.0' as aad
 
 resource myApp 'application' existing = {
   uniqueName: 'foo'
@@ -215,7 +215,7 @@ resource myApp 'application' existing = {
         public void Kubernetes_import_existing_warns_with_readonly_fields()
         {
             var result = CompilationHelper.Compile(Services, @"
-import kubernetes as kubernetes {
+import 'kubernetes@1.0.0' with {
   namespace: 'default'
   kubeConfig: ''
 }
@@ -245,12 +245,12 @@ resource service 'core/Service@v1' existing = {
         public void Kubernetes_competing_imports_are_blocked()
         {
             var result = CompilationHelper.Compile(Services, @"
-import kubernetes as k8s1 {
+import 'kubernetes@1.0.0' with {
   namespace: 'default'
   kubeConfig: ''
 }
 
-import kubernetes as k8s2 {
+import 'kubernetes@1.0.0' with {
   namespace: 'default'
   kubeConfig: ''
 }
@@ -258,7 +258,9 @@ import kubernetes as k8s2 {
 
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(new[] {
+                ("BCP028", DiagnosticLevel.Error, "Identifier \"kubernetes\" is declared multiple times. Remove or rename the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"kubernetes\" is imported multiple times. Remove the duplicates."),
+                ("BCP028", DiagnosticLevel.Error, "Identifier \"kubernetes\" is declared multiple times. Remove or rename the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"kubernetes\" is imported multiple times. Remove the duplicates."),
             });
         }
@@ -267,7 +269,7 @@ import kubernetes as k8s2 {
         public void Kubernetes_import_existing_resources()
         {
             var result = CompilationHelper.Compile(Services, @"
-import kubernetes as kubernetes {
+import 'kubernetes@1.0.0' with {
   namespace: 'default'
   kubeConfig: ''
 }
@@ -303,7 +305,7 @@ resource configmap 'core/ConfigMap@v1' existing = {
         public void Kubernetes_import_existing_connectionstring_test()
         {
             var result = CompilationHelper.Compile(Services, @"
-import kubernetes as kubernetes {
+import 'kubernetes@1.0.0' with {
   namespace: 'default'
   kubeConfig: ''
 }
@@ -342,9 +344,9 @@ resource secret 'core/Secret@v1' = {
         public void Storage_import_basic_test_with_qualified_type()
         {
             var result = CompilationHelper.Compile(Services, @"
-import storage as stg {
+import 'storage@1.0.0' with {
   connectionString: 'asdf'
-}
+} as stg
 
 resource container 'stg:container' = {
   name: 'myblob'
@@ -363,9 +365,9 @@ resource blob 'stg:blob' = {
         public void Invalid_namespace_qualifier_returns_error()
         {
             var result = CompilationHelper.Compile(Services, @"
-import storage as stg {
+import 'storage@1.0.0' with {
   connectionString: 'asdf'
-}
+} as stg
 
 resource container 'foo:container' = {
   name: 'myblob'
@@ -388,9 +390,9 @@ resource blob 'bar:blob' = {
         public void Child_resource_with_parent_namespace_mismatch_returns_error()
         {
             var result = CompilationHelper.Compile(Services, @"
-import storage as stg {
+import 'storage@1.0.0' with {
   connectionString: 'asdf'
-}
+} as stg
 
 resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
   name: 'stgParent'
@@ -436,9 +438,9 @@ module website './website.bicep' = {
 @secure()
 param connectionString string
 
-import storage as stg {
+import 'storage@1.0.0' with {
   connectionString: connectionString
-}
+} as stg
 
 resource container 'container' = {
   name: 'bicep'
@@ -463,7 +465,7 @@ Hello from Bicep!"));
     ""_generator"": {
       ""name"": ""bicep"",
       ""version"": ""dev"",
-      ""templateHash"": ""6873992617593787355""
+      ""templateHash"": ""761960318881502315""
     }
   },
   ""parameters"": {
@@ -505,7 +507,7 @@ Hello from Bicep!"));
             ""_generator"": {
               ""name"": ""bicep"",
               ""version"": ""dev"",
-              ""templateHash"": ""15105054226010417893""
+              ""templateHash"": ""5609881366445430907""
             }
           },
           ""parameters"": {
@@ -519,7 +521,7 @@ Hello from Bicep!"));
           ""imports"": {
             ""stg"": {
               ""provider"": ""AzureStorage"",
-              ""version"": ""1.0"",
+              ""version"": ""1.0.0"",
               ""config"": {
                 ""connectionString"": ""[parameters('connectionString')]""
               }
@@ -560,7 +562,7 @@ Hello from Bicep!"));
         public void Az_namespace_can_be_used_without_configuration()
         {
             var result = CompilationHelper.Compile(Services, @"
-import az as az
+import 'az@1.0.0'
 ");
 
             result.Should().GenerateATemplate();
@@ -571,7 +573,7 @@ import az as az
         public void Az_namespace_errors_with_configuration()
         {
             var result = CompilationHelper.Compile(Services, @"
-import az as az {}
+import 'az@1.0.0' with {}
 ");
 
             result.Should().NotGenerateATemplate();

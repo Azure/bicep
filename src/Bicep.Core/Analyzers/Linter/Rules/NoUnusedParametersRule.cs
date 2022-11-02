@@ -33,7 +33,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             // VariableAccessSyntax indicates a reference to the parameter
             var unreferencedParams = model.Root.ParameterDeclarations
-                .Where(sym => sym.NameSyntax.IsValid)
+                .Where(sym => sym.NameSource.IsValid)
                 .Where(sym => !invertedBindings[sym].Any(x => x != sym.DeclaringSyntax));
 
             foreach (var param in unreferencedParams)
