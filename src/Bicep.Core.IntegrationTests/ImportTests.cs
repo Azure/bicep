@@ -21,7 +21,7 @@ namespace Bicep.Core.IntegrationTests
     public class ImportTests
     {
         private ServiceBuilder ServicesWithImports => new ServiceBuilder()
-            .WithFeatureOverrides(new(TestContext, ImportsEnabled: true));
+            .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true));
 
         private class TestNamespaceProvider : INamespaceProvider
         {
@@ -60,7 +60,7 @@ namespace Bicep.Core.IntegrationTests
 import az as foo
 ");
             result.Should().HaveDiagnostics(new[] {
-                ("BCP203", DiagnosticLevel.Error, "Using import statements requires enabling EXPERIMENTAL feature \"Imports\"."),
+                ("BCP203", DiagnosticLevel.Error, "Using import statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
             });
         }
 

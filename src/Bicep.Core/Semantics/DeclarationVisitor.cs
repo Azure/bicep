@@ -125,7 +125,7 @@ namespace Bicep.Core.Semantics
 
             var alias = syntax.Name.IdentifierName;
             TypeSymbol declaredType;
-            if (!features.ImportsEnabled)
+            if (!features.ExtensibilityEnabled)
             {
                 declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ImportsAreDisabled());
             }

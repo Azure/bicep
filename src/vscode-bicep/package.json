@@ -419,7 +419,7 @@
           "group": "0_bicep"
         },
         {
-          "command": "bicep.importKubernetesManifest",
+          "command": "bicep.importKubernetesManifest"
         },
         {
           "command": "bicep.showSource",
