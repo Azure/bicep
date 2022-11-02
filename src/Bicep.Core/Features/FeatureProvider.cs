@@ -22,7 +22,7 @@ namespace Bicep.Core.Features
 
         public bool SymbolicNameCodegenEnabled => configuration.ExperimentalFeaturesEnabled.SymbolicNameCodegen ?? false;
 
-        public bool ImportsEnabled => configuration.ExperimentalFeaturesEnabled.Imports ?? false;
+        public bool ExtensibilityEnabled => configuration.ExperimentalFeaturesEnabled.Extensibility ?? false;
 
         public bool ResourceTypedParamsAndOutputsEnabled => configuration.ExperimentalFeaturesEnabled.ResourceTypedParamsAndOutputs ?? false;
 

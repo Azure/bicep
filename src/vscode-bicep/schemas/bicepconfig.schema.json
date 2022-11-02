@@ -573,7 +573,7 @@
         "symbolicNameCodegen": {
           "type": "boolean"
         },
-        "imports": {
+        "extensibility": {
           "type": "boolean"
         },
         "resourceTypedParamsAndOutputs": {

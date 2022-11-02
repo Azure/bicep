@@ -13,7 +13,7 @@ namespace Bicep.Core.Features
 
         bool SymbolicNameCodegenEnabled { get; }
 
-        bool ImportsEnabled { get; }
+        bool ExtensibilityEnabled { get; }
 
         bool ResourceTypedParamsAndOutputsEnabled { get; }
 

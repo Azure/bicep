@@ -19,7 +19,7 @@ namespace Bicep.Core.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         private ServiceBuilder Services => new ServiceBuilder()
-            .WithFeatureOverrides(new(ImportsEnabled: true))
+            .WithFeatureOverrides(new(ExtensibilityEnabled: true))
             .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoader));
 
         [TestMethod]

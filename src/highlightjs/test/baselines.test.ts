@@ -79,7 +79,7 @@ for (const filePath of baselineFiles) {
 
         const result = spawnSync(`dotnet`, ['run', '-p', cliCsproj, 'build', '--stdout', filePath], {
           encoding: 'utf-8',
-          env: { ...env, 'BICEP_LAMBDAS_ENABLED_EXPERIMENTAL': 'true'}
+          env,
         });
 
         // NOTE - if stderr or status are null, this indicates we were unable to invoke the exe (missing file, or hasn't had 'chmod +x' run)

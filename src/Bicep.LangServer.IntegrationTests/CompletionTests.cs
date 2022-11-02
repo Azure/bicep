@@ -50,7 +50,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         private static readonly SharedLanguageHelperManager DefaultServer = new();
 
-        private static readonly SharedLanguageHelperManager ServerWithImportsEnabled = new();
+        private static readonly SharedLanguageHelperManager ServerWithExtensibilityEnabled = new();
 
         private static readonly SharedLanguageHelperManager ServerWithTypesEnabled = new();
 
@@ -78,10 +78,10 @@ namespace Bicep.LangServer.IntegrationTests
 
             DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
 
-            ServerWithImportsEnabled.Initialize(
+            ServerWithExtensibilityEnabled.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
                     testContext,
-                    services => services.WithFeatureOverrides(new(testContext, ImportsEnabled: true))));
+                    services => services.WithFeatureOverrides(new(testContext, ExtensibilityEnabled: true))));
 
             ServerWithTypesEnabled.Initialize(
                 async () => await MultiFileLanguageServerHelper.StartLanguageServer(
@@ -100,7 +100,7 @@ namespace Bicep.LangServer.IntegrationTests
             await ServerWithNamespaceProvider.DisposeAsync();
             await ServerWithNamespaceAndTestResolver.DisposeAsync();
             await DefaultServer.DisposeAsync();
-            await ServerWithImportsEnabled.DisposeAsync();
+            await ServerWithExtensibilityEnabled.DisposeAsync();
             await ServerWithTypesEnabled.DisposeAsync();
             await ServerWithBuiltInTypes.DisposeAsync();
         }
@@ -220,7 +220,7 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
         public async Task CompletionRequestShouldProduceExpectedCompletions(DataSet dataSet, string setName, IList<Position> positions)
-        {   
+        {
             // ensure all files are present locally
             string basePath = dataSet.SaveFilesToTestDirectory(this.TestContext);
 
@@ -1179,7 +1179,7 @@ import 'ns3@1.0.0' as|
 import |
 import a|
 ";
-            await RunCompletionScenarioTest(this.TestContext, ServerWithImportsEnabled, fileWithCursors, 
+            await RunCompletionScenarioTest(this.TestContext, ServerWithExtensibilityEnabled, fileWithCursors,
                 completions => completions.Should().SatisfyRespectively(
                     c => c!.Select(x => x.Label).Should().Contain("import"),
                     c => c!.Select(x => x.Label).Should().Equal("with", "as"),
@@ -1190,7 +1190,7 @@ import a|
                 ),
                 '|');
 
-            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors, 
+            await RunCompletionScenarioTest(this.TestContext, ServerWithBuiltInTypes, fileWithCursors,
                 completions => completions.Should().SatisfyRespectively(
                     c => c!.Select(x => x.Label).Should().NotContain("import"),
                     c => c!.Select(x => x.Label).Should().BeEmpty(),
@@ -1211,7 +1211,7 @@ import 'kubernetes@1.0.0' with | as k8s
 ";
 
                 var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
-                var file = await new ServerRequestHelper(TestContext, ServerWithImportsEnabled).OpenFile(text);
+                var file = await new ServerRequestHelper(TestContext, ServerWithExtensibilityEnabled).OpenFile(text);
 
                 var completions = await file.RequestCompletion(cursor);
                 completions.Should().Contain(x => x.Label == "{}");
@@ -1234,7 +1234,7 @@ import 'kubernetes@1.0.0' with {
 ";
 
                 var (text, cursor) = ParserHelper.GetFileWithSingleCursor(fileWithCursors, '|');
-                var file = await new ServerRequestHelper(TestContext, ServerWithImportsEnabled).OpenFile(text);
+                var file = await new ServerRequestHelper(TestContext, ServerWithExtensibilityEnabled).OpenFile(text);
 
                 var completions = await file.RequestCompletion(cursor);
                 completions.Should().Contain(x => x.Label == "namespace");

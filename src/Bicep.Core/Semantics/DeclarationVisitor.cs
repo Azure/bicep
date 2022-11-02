@@ -126,8 +126,7 @@ namespace Bicep.Core.Semantics
             base.VisitImportDeclarationSyntax(syntax);
 
             TypeSymbol declaredType;
-
-            if (!features.ImportsEnabled)
+            if (!features.ExtensibilityEnabled)
             {
                 declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ImportsAreDisabled());
             }

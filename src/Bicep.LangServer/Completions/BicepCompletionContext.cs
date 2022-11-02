@@ -195,7 +195,7 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsObjectTypePropertyValueContext(matchingNodes, offset), BicepCompletionContextKind.ObjectTypePropertyValue) |
                        ConvertFlag(IsUnionTypeMemberContext(matchingNodes, offset), BicepCompletionContextKind.UnionTypeMember);
 
-            if (featureProvider.ImportsEnabled)
+            if (featureProvider.ExtensibilityEnabled)
             {
                 var pattern = SyntaxPattern.Create(bicepFile.ProgramSyntax, offset);
 
@@ -736,7 +736,7 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<ObjectTypePropertySyntax>(matchingNodes, typePropertySyntax => typePropertySyntax.Colon is not SkippedTriviaSyntax && offset > typePropertySyntax.Colon.Span.Position) ||
             SyntaxMatcher.IsTailMatch<ObjectTypePropertySyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier) ||
             SyntaxMatcher.IsTailMatch<ObjectTypePropertySyntax, TypeAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier);
-        
+
         private static bool IsUnionTypeMemberContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<UnionTypeSyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Pipe) ||
             SyntaxMatcher.IsTailMatch<UnionTypeSyntax>(matchingNodes, union => union.Children.LastOrDefault() is SkippedTriviaSyntax) ||

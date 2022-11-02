@@ -10,7 +10,7 @@ public record FeatureProviderOverrides(
     string? CacheRootDirectory = null,
     bool? RegistryEnabled = default,
     bool? SymbolicNameCodegenEnabled = default,
-    bool? ImportsEnabled = default,
+    bool? ExtensibilityEnabled = default,
     bool? AdvancedListComprehensionEnabled = default,
     bool? ResourceTypedParamsAndOutputsEnabled = default,
     bool? SourceMappingEnabled = default,
@@ -21,12 +21,12 @@ public record FeatureProviderOverrides(
     public FeatureProviderOverrides(TestContext testContext,
         bool? RegistryEnabled = default,
         bool? SymbolicNameCodegenEnabled = default,
-        bool? ImportsEnabled = default,
+        bool? ExtensibilityEnabled = default,
         bool? AdvancedListComprehensionEnabled = default,
         bool? ResourceTypedParamsAndOutputsEnabled = default,
         bool? SourceMappingEnabled = default,
         bool? ParamsFilesEnabled = default,
         bool? UserDefinedTypesEnabled = default,
         string? AssemblyVersion = BicepTestConstants.DevAssemblyFileVersion
-    ) : this(FileHelper.GetCacheRootPath(testContext), RegistryEnabled, SymbolicNameCodegenEnabled, ImportsEnabled, AdvancedListComprehensionEnabled, ResourceTypedParamsAndOutputsEnabled, SourceMappingEnabled, ParamsFilesEnabled, UserDefinedTypesEnabled, AssemblyVersion) {}
+    ) : this(FileHelper.GetCacheRootPath(testContext), RegistryEnabled, SymbolicNameCodegenEnabled, ExtensibilityEnabled, AdvancedListComprehensionEnabled, ResourceTypedParamsAndOutputsEnabled, SourceMappingEnabled, ParamsFilesEnabled, UserDefinedTypesEnabled, AssemblyVersion) {}
 }

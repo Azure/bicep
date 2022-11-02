@@ -34,7 +34,7 @@ public class FeatureProviderTests
 
         var control = fpm.GetFeatureProvider(new Uri("inmemory:///main.bicp"));
         var sut = fpm.GetFeatureProvider(new Uri(this.CreatePath("repo/main.bicep")));
-        sut.ImportsEnabled.Should().Be(control.ImportsEnabled);
+        sut.ExtensibilityEnabled.Should().Be(control.ExtensibilityEnabled);
     }
 
     [TestMethod]
@@ -45,18 +45,18 @@ public class FeatureProviderTests
             [CreatePath("repo")] = new MockDirectoryData(),
             [CreatePath("repo/bicepconfig.json")] = @"{""experimentalFeaturesEnabled"": {}}",
             [CreatePath("repo/subdir")] = new MockDirectoryData(),
-            [CreatePath("repo/subdir/bicepconfig.json")] = @"{""experimentalFeaturesEnabled"": {""imports"": true}}",
+            [CreatePath("repo/subdir/bicepconfig.json")] = @"{""experimentalFeaturesEnabled"": {""extensibility"": true}}",
         });
         var configManager = new ConfigurationManager(fileSystem);
         var configuration = configManager.GetConfiguration(new Uri(this.CreatePath("repo/main.bicep")));
         var fpm = new FeatureProviderFactory(configManager);
 
         var control = fpm.GetFeatureProvider(new Uri("inmemory:///main.bicp"));
-        control.ImportsEnabled.Should().BeFalse();
+        control.ExtensibilityEnabled.Should().BeFalse();
         var mainDirFeatures = fpm.GetFeatureProvider(new Uri(this.CreatePath("repo/main.bicep")));
-        mainDirFeatures.ImportsEnabled.Should().BeFalse();
+        mainDirFeatures.ExtensibilityEnabled.Should().BeFalse();
         var subDirFeatures = fpm.GetFeatureProvider(new Uri(this.CreatePath("repo/subdir/module.bicep")));
-        subDirFeatures.ImportsEnabled.Should().BeTrue();
+        subDirFeatures.ExtensibilityEnabled.Should().BeTrue();
     }
 
     private string CreatePath(string path) => Path.Combine(this.TestContext.ResultsDirectory, path.Replace('/', Path.DirectorySeparatorChar));

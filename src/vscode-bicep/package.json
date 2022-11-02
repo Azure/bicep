@@ -85,11 +85,6 @@
           "description": "Prepend each line displayed in the Bicep Operations output channel with a timestamp.",
           "default": true,
           "$comment": "This is used by vscode-azuretools package and has to be in the following format: <extensionPrefix>.enableOutputTimestamps"
-        },
-        "bicep.importsEnabledExperimental": {
-          "type": "boolean",
-          "description": "Enable Bicep import statements (experimental!)",
-          "default": false
         }
       }
     },
@@ -193,7 +188,7 @@
       },
       {
         "command": "bicep.importKubernetesManifest",
-        "title": "Import Kubernetes Manifest",
+        "title": "Import Kubernetes Manifest (EXPERIMENTAL)",
         "category": "Bicep",
         "icon": "$(cloud-download)"
       },
@@ -424,8 +419,7 @@
           "group": "0_bicep"
         },
         {
-          "command": "bicep.importKubernetesManifest",
-          "when": "config.bicep.importsEnabledExperimental"
+          "command": "bicep.importKubernetesManifest"
         },
         {
           "command": "bicep.showSource",
