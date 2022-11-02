@@ -34,7 +34,7 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
 
         protected override void VisitInternal(SyntaxBase node)
         {
-            if (node.Span.ContainsInclusive(this.offset) && CanBeAncestor(node))
+            if (node.Span.ContainsInclusive(this.offset) && !IsLeafNode(node))
             {
                 this.ancestors.Add(node);
 
@@ -42,6 +42,7 @@ namespace Bicep.LanguageServer.Completions.SyntaxPatterns
             }
         }
 
-        private static bool CanBeAncestor(SyntaxBase node) => !node.IsSkipped && node is not Token or IdentifierSyntax;
+        // Ancestors does not include leaf nodes matching the offset in the syntax tree.
+        private static bool IsLeafNode(SyntaxBase node) => node.IsSkipped || node is Token or IdentifierSyntax;
     }
 }
