@@ -1,12 +1,12 @@
-param string string
+param string sys.string
 
-param bool bool
+param bool sys.bool
 
-param int int
+param int sys.int
 
-param object object
+param object sys.object
 
-param array array
+param array sys.array
 
 @allowed(['foo', 'bar'])
-param stringAllowed string
+param stringAllowed sys.string

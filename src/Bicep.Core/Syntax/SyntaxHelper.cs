@@ -70,9 +70,6 @@ namespace Bicep.Core.Syntax
             return pathValue;
         }
 
-        public static TypeSymbol? TryGetPrimitiveType(ParameterDeclarationSyntax parameterDeclarationSyntax)
-            => LanguageConstants.TryGetDeclarationType((parameterDeclarationSyntax.ParameterType as SimpleTypeSyntax)?.TypeName);
-
         public static ResourceScope GetTargetScope(TargetScopeSyntax targetScopeSyntax)
         {
             // TODO: Revisit when adding support for multiple target scopes

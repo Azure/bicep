@@ -369,19 +369,6 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitResourceTypeSyntax(ResourceTypeSyntax syntax) => ReplaceCurrent(syntax, ReplaceResourceTypeSyntax);
 
-        protected virtual SyntaxBase ReplaceSimpleTypeSyntax(SimpleTypeSyntax syntax)
-        {
-            var hasChanges = TryRewriteStrict(syntax.Identifier, out var identifier);
-
-            if (!hasChanges)
-            {
-                return syntax;
-            }
-
-            return new SimpleTypeSyntax(identifier);
-        }
-        void ISyntaxVisitor.VisitSimpleTypeSyntax(SimpleTypeSyntax syntax) => ReplaceCurrent(syntax, ReplaceSimpleTypeSyntax);
-
         protected virtual SyntaxBase ReplaceObjectTypeSyntax(ObjectTypeSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.OpenBrace, out var openBrace);
@@ -480,19 +467,6 @@ namespace Bicep.Core.Syntax
             return new TypeDeclarationSyntax(leadingNodes, keyword, name, assignment, value);
         }
         void ISyntaxVisitor.VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceTypeDeclarationSyntax);
-
-        protected virtual SyntaxBase ReplaceTypeAccessSyntax(TypeAccessSyntax syntax)
-        {
-            var hasChanges = TryRewriteStrict(syntax.Name, out var name);
-
-            if (!hasChanges)
-            {
-                return syntax;
-            }
-
-            return new TypeAccessSyntax(name);
-        }
-        void ISyntaxVisitor.VisitTypeAccessSyntax(TypeAccessSyntax syntax) => ReplaceCurrent(syntax, ReplaceTypeAccessSyntax);
 
         protected virtual SyntaxBase ReplaceBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
         {

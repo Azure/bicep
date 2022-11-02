@@ -120,6 +120,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                         s is MetadataSymbol ||
                         s is ParameterSymbol ||
                         s is TypeAliasSymbol ||
+                        s is AmbientTypeSymbol ||
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
                         s is ModuleSymbol ||
@@ -137,6 +138,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                         s is MetadataSymbol ||
                         s is ParameterSymbol ||
                         s is TypeAliasSymbol ||
+                        s is AmbientTypeSymbol ||
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
                         s is ModuleSymbol ||

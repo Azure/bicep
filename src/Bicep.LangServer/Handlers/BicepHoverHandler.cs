@@ -83,6 +83,9 @@ namespace Bicep.LanguageServer.Handlers
                     return WithMarkdown(CodeBlockWithDescription(
                         $"type {declaredType.Name}: {declaredType.Type}", TryGetDescriptionMarkdown(result, declaredType)));
 
+                case AmbientTypeSymbol ambientType:
+                    return WithMarkdown(CodeBlock($"type {ambientType.Name}: {ambientType.Type}"));
+
                 case VariableSymbol variable:
                     return WithMarkdown(CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescriptionMarkdown(result, variable)));
 

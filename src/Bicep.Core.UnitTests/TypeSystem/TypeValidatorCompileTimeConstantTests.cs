@@ -169,7 +169,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         private static IEnumerable<object[]> GetNonExpressionData()
         {
-            yield return CreateRow("param declaration", new Parser("param foo string").Program());
+            yield return CreateRow("param declaration", new Parser("param foo 'fizz'|'buzz'|'pop'").Program());
 
             yield return CreateRow("empty file", new Parser("").Program());
         }
@@ -177,4 +177,3 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static object[] CreateRow(string name, SyntaxBase expression) => new object[] { name, expression };
     }
 }
-

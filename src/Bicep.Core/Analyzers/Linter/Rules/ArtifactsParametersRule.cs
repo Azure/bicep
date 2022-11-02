@@ -221,14 +221,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private static string? GetParameterType(ParameterSymbol parameterSymbol)
         {
             if (parameterSymbol.DeclaringSyntax is ParameterDeclarationSyntax parameterDeclaration
-               && parameterDeclaration.ParameterType is SimpleTypeSyntax typeSyntax)
+               && parameterDeclaration.Type is VariableAccessSyntax typeSyntax)
             {
                 if (typeSyntax.HasParseErrors())
                 {
                     return null;
                 }
 
-                return typeSyntax.TypeName;
+                return typeSyntax.Name.IdentifierName;
             }
 
             return null;

@@ -236,7 +236,7 @@ namespace Bicep.Core.Emit
                 parameterObject = parameterObject.MergeProperty("defaultValue", defaultValueSyntax.DefaultValue);
             }
 
-            parameterObject = AddDecoratorsToBody(declaringParameter, parameterObject, SyntaxHelper.TryGetPrimitiveType(declaringParameter) ?? parameterSymbol.Type);
+            parameterObject = AddDecoratorsToBody(declaringParameter, parameterObject, parameterSymbol.Type);
 
             foreach (var property in parameterObject.Properties)
             {
@@ -271,9 +271,9 @@ namespace Bicep.Core.Emit
 
         private ObjectSyntax TypePropertiesForUndecoratedTypeExpression(TypeSymbol type, DecorableSyntax parentSyntax, SyntaxBase typeExpressionSyntax)
         {
-            if (typeExpressionSyntax is TypeAccessSyntax typeRef && !parentSyntax.Decorators.Any(DecoratorPrecludesTypeRef))
+            if (typeExpressionSyntax is VariableAccessSyntax && !parentSyntax.Decorators.Any(DecoratorPrecludesTypeRef) && context.SemanticModel.GetSymbolInfo(typeExpressionSyntax) is TypeAliasSymbol typeAlias)
             {
-                return SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty("$ref", SyntaxFactory.CreateStringLiteral($"#/definitions/{typeRef.Name.IdentifierName}")).AsEnumerable());
+                return SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty("$ref", SyntaxFactory.CreateStringLiteral($"#/definitions/{typeAlias.Name}")).AsEnumerable());
             }
 
             return GetTypePropertiesForTypeSymbol(type, typeExpressionSyntax);
