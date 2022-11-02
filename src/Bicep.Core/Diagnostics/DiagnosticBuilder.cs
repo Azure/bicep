@@ -1202,10 +1202,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP200",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic ExpectedImportProviderName() => new(
+            public ErrorDiagnostic ExpectedProviderSpecification() => new(
                 TextSpan,
                 "BCP201",
-                "Expected an import provider name at this location.");
+                "Expected a provider specification string. Specify a valid provider of format \"<providerName>@<providerVersion>\".");
 
             public ErrorDiagnostic ExpectedImportAliasName() => new(
                 TextSpan,
@@ -1718,6 +1718,21 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP302",
                 $@"The name ""{name}"" is not a valid type. Please specify one of the following types: {ToQuotedString(validTypes)}.");
+
+            public ErrorDiagnostic ProviderSpecificationInterpolationUnsupported() => new(
+                TextSpan,
+                "BCP303",
+                "String interpolation is unsupported for specifying the provider.");
+
+            public ErrorDiagnostic InvalidProviderSpecification() => new(
+                TextSpan,
+                "BCP304",
+                "Invalid provider specifier string. Specify a valid provider of format \"<providerName>@<providerVersion>\".");
+
+            public ErrorDiagnostic ExpectedWithOrAsKeywordOrNewLine() => new(
+                TextSpan,
+                "BCP305",
+                $"Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

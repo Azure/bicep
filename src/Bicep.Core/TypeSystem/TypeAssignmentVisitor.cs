@@ -522,7 +522,7 @@ namespace Bicep.Core.TypeSystem
 
                 this.ValidateDecorators(syntax.Decorators, namespaceType, diagnostics);
 
-                if (syntax.Config is not SkippedTriviaSyntax)
+                if (syntax.Config is not null)
                 {
                     if (namespaceType.ConfigurationType is null)
                     {
@@ -536,7 +536,8 @@ namespace Bicep.Core.TypeSystem
                 }
                 else
                 {
-                    if (namespaceType.ConfigurationType is not null &&
+                    if (syntax.WithClause.IsSkipped &&
+                        namespaceType.ConfigurationType is not null &&
                         namespaceType.ConfigurationType.Properties.Values.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)))
                     {
                         diagnostics.Write(syntax, x => x.ImportProviderRequiresConfiguration(namespaceType.ProviderName));

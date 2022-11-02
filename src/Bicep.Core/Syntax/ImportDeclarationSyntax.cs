@@ -1,45 +1,51 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Linq;
+using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Bicep.Core.Syntax
 {
-    public class ImportDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
+    public class ImportDeclarationSyntax : StatementSyntax, ITopLevelDeclarationSyntax
     {
-        public ImportDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax providerName, SyntaxBase asKeyword, IdentifierSyntax aliasName, SyntaxBase config)
+        private readonly Lazy<ImportSpecification> lazySpecification;
+
+        public ImportDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, SyntaxBase specificationString, SyntaxBase withClause, SyntaxBase asClause)
             : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ImportKeyword);
-            AssertSyntaxType(providerName, nameof(providerName), typeof(IdentifierSyntax));
-            AssertSyntaxType(asKeyword, nameof(asKeyword), typeof(Token), typeof(SkippedTriviaSyntax));
-            AssertSyntaxType(aliasName, nameof(aliasName), typeof(IdentifierSyntax));
-            AssertSyntaxType(config, nameof(config), typeof(ObjectSyntax), typeof(SkippedTriviaSyntax));
+            AssertSyntaxType(specificationString, nameof(specificationString), typeof(StringSyntax), typeof(SkippedTriviaSyntax));
 
             this.Keyword = keyword;
-            this.ProviderName = providerName;
-            this.AsKeyword = asKeyword;
-            this.AliasName = aliasName;
-            this.Config = config;
+            this.SpecificationString = specificationString;
+            this.WithClause = withClause;
+            this.AsClause = asClause;
+
+            this.lazySpecification = new(() => ImportSpecification.From(specificationString));
         }
 
         public Token Keyword { get; }
 
-        public IdentifierSyntax ProviderName { get; }
+        public SyntaxBase SpecificationString { get; }
 
-        public SyntaxBase AsKeyword { get; }
+        public SyntaxBase WithClause { get; }
 
-        public IdentifierSyntax AliasName { get; }
+        public SyntaxBase AsClause { get; }
 
-        public SyntaxBase Config { get; }
+        public ImportSpecification Specification => lazySpecification.Value;
+
+        public ObjectSyntax? Config => (this.WithClause as ImportWithClauseSyntax)?.Config as ObjectSyntax;
+
+        public IdentifierSyntax? Alias => (this.AsClause as ImportAsClauseSyntax)?.Alias as IdentifierSyntax;
+
+        public override TextSpan Span => TextSpan.Between(this.Keyword, TextSpan.LastNonNull(this.SpecificationString, this.WithClause, this.AsClause));
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitImportDeclarationSyntax(this);
-
-        public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, TextSpan.LastNonNull(AliasName, Config));
-
-        public IdentifierSyntax Name => AliasName;
     }
 }

@@ -162,7 +162,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 // entire span of the declaredSymbol
                 TargetRange = declaration.DeclaringSyntax.ToRange(result.Context.LineStarts),
-                TargetSelectionRange = declaration.NameSyntax.ToRange(result.Context.LineStarts)
+                TargetSelectionRange = declaration.NameSource.ToRange(result.Context.LineStarts)
             })));
         }
 

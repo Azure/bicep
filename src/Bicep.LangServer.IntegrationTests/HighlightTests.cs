@@ -61,7 +61,7 @@ namespace Bicep.LangServer.IntegrationTests
             // filter out binding failures and locals with invalid identifiers
             // (locals are special because their full span is the same as the identifier span,
             // which makes it impossible to highlight locals with invalid identifiers)
-            var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalVariableSymbol local || local.NameSyntax.IsValid));
+            var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalVariableSymbol local || local.NameSource.IsValid));
             // TODO: Implement for PropertySymbol
             filteredSymbolTable = filteredSymbolTable.Where(pair => pair.Value is not PropertySymbol);
 

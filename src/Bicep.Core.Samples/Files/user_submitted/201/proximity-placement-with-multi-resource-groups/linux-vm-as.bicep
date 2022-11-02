@@ -4,7 +4,7 @@ param ppgId string
 param subnetId string
 param vmName string
 
-resource as 'Microsoft.Compute/availabilitySets@2020-06-01' = {
+resource availabilitySets 'Microsoft.Compute/availabilitySets@2020-06-01' = {
   name: 'as'
   location: location
   properties: {
@@ -42,7 +42,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
   location: location
   properties: {
     availabilitySet: {
-      id: as.id
+      id: availabilitySets.id
     }
     hardwareProfile: {
       vmSize: 'Standard_B4ms'

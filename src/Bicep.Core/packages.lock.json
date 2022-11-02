@@ -10,29 +10,29 @@
       },
       "Azure.Bicep.Types": {
         "type": "Direct",
-        "requested": "[0.3.28, )",
-        "resolved": "0.3.28",
-        "contentHash": "aiVvJsSf449vhBhVkfWVVMuT4RMhPYbwKxGcEFt6x0YHMWG3Hbcf2kt0JAPpdEc2XMP79dYdIJcQLKXCg5oWDQ==",
+        "requested": "[0.3.29, )",
+        "resolved": "0.3.29",
+        "contentHash": "+zdebR/QIFnRU8c+CofLmbfDx8vvp+e/cnjHAdJiMFESe8+BrkYjLri7tzb7obLaiJ9+EV3vTWtDRqHfFRopIg==",
         "dependencies": {
           "System.Text.Json": "6.0.6"
         }
       },
       "Azure.Bicep.Types.Az": {
         "type": "Direct",
-        "requested": "[0.2.170, )",
-        "resolved": "0.2.170",
-        "contentHash": "HwtbAwp6jhqZBkI6XS3IJjQJZWG3cJU3QqQcvwUSc2EmTu1jiQKg++RMu+Vb1zf92mzoMCXmKuZarqyBoNkXqQ==",
+        "requested": "[0.2.199, )",
+        "resolved": "0.2.199",
+        "contentHash": "gqBHnxrLNXLjh6PeaBqNwDYPI+Sk0TXdKaRB1YXrAMtLx4Y4qOBqWR4/tpM+BQ1VMpUDd9IAn9y15JtRGx396A==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.3.22"
+          "Azure.Bicep.Types": "0.3.29"
         }
       },
       "Azure.Bicep.Types.K8s": {
         "type": "Direct",
-        "requested": "[0.1.186, )",
-        "resolved": "0.1.186",
-        "contentHash": "bwWC3vuf7n24ddMSwzc6Jzi6cdhSkxi1sB1dRN0tBj8ZnR8vFFRKR6cnyAbW9iFLVDyQT/pJYcBmr4tpqCxLyQ==",
+        "requested": "[0.1.202, )",
+        "resolved": "0.1.202",
+        "contentHash": "YSLRcfwFSR5F3QuogO9QCN221COz3dbxuMH12rJoYkvdv2AI+icUSKea4FWDW+y6DwFBx5UBf3vrGObn95BxPg==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.3.22"
+          "Azure.Bicep.Types": "0.3.29"
         }
       },
       "Azure.Containers.ContainerRegistry": {
@@ -194,9 +194,9 @@
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.5.113, )",
-        "resolved": "3.5.113",
-        "contentHash": "4fBSMkqhi410qlkjPm+Mxfk8iO3C7dmgdVS7ljsfVO21WEzZCHP1VCOqB6rlOPfPidR/oxX+/Do/I7meCAz+Jg=="
+        "requested": "[3.5.119, )",
+        "resolved": "3.5.119",
+        "contentHash": "x8k4zV6YKZA5Rr810439lG9NngdbyPtFv0QpIYz32m1Im59kvSbEHO8gKGZoNvsfZSquayjEDUCa8acbut372g=="
       },
       "Newtonsoft.Json": {
         "type": "Direct",

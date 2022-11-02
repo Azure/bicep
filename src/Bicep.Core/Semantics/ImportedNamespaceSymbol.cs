@@ -10,11 +10,13 @@ namespace Bicep.Core.Semantics
 {
     public class ImportedNamespaceSymbol : DeclaredSymbol, INamespaceSymbol
     {
-        public ImportedNamespaceSymbol(ISymbolContext context, string name, TypeSymbol declaredType, ImportDeclarationSyntax declaringSyntax)
-            : base(context, name, declaringSyntax, declaringSyntax.Name)
+        public ImportedNamespaceSymbol(ISymbolContext context, ImportDeclarationSyntax declaringSyntax, TypeSymbol declaredType)
+            : base(context, declaringSyntax.Alias?.IdentifierName ?? declaringSyntax.Specification.Name, declaringSyntax, declaringSyntax.Alias as ISymbolNameSource ?? declaringSyntax.Specification)
         {
-            DeclaredType = declaredType;
+            this.DeclaredType = declaredType;
         }
+
+        public TypeSymbol DeclaredType { get; }
 
         public ImportDeclarationSyntax DeclaringImport => (ImportDeclarationSyntax)this.DeclaringSyntax;
 
@@ -27,8 +29,8 @@ namespace Bicep.Core.Semantics
 
         public override IEnumerable<Symbol> Descendants => this.Type.AsEnumerable();
 
-        public TypeSymbol DeclaredType { get; }
+        public ResourceScope TargetScope { get; }
 
-        public NamespaceType? TryGetNamespaceType() => DeclaredType as NamespaceType;
+        public NamespaceType? TryGetNamespaceType() => this.DeclaredType as NamespaceType;
     }
 }

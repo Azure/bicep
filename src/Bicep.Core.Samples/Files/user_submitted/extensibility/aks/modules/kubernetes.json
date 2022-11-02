@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12621916361753458827"
+      "templateHash": "11915896620322564367"
     }
   },
   "parameters": {
@@ -22,9 +22,9 @@
     "frontPort": 80
   },
   "imports": {
-    "k8s": {
+    "kubernetes": {
       "provider": "Kubernetes",
-      "version": "1.0",
+      "version": "1.0.0",
       "config": {
         "kubeConfig": "[parameters('kubeConfig')]",
         "namespace": "default"
@@ -33,7 +33,7 @@
   },
   "resources": {
     "backDeploy": {
-      "import": "k8s",
+      "import": "kubernetes",
       "type": "apps/Deployment@v1",
       "properties": {
         "metadata": {
@@ -90,7 +90,7 @@
       }
     },
     "backSvc": {
-      "import": "k8s",
+      "import": "kubernetes",
       "type": "core/Service@v1",
       "properties": {
         "metadata": {
@@ -112,7 +112,7 @@
       }
     },
     "frontDeploy": {
-      "import": "k8s",
+      "import": "kubernetes",
       "type": "apps/Deployment@v1",
       "properties": {
         "metadata": {
@@ -171,7 +171,7 @@
       }
     },
     "frontSvc": {
-      "import": "k8s",
+      "import": "kubernetes",
       "type": "core/Service@v1",
       "properties": {
         "metadata": {

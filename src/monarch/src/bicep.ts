@@ -25,6 +25,7 @@ const keywords = [
   'import',
   'as',
   'type',
+  'with',
 ];
 
 const namedLiterals = [

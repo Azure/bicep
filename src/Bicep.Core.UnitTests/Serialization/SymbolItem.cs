@@ -17,7 +17,7 @@ namespace Bicep.Core.UnitTests.Serialization
             this.NameSpan = nameSpan;
         }
 
-        public SymbolItem(Symbol symbol) : this(symbol.Name, symbol.Kind, (symbol as DeclaredSymbol)?.DeclaringSyntax.Span, (symbol as DeclaredSymbol)?.NameSyntax.Span)
+        public SymbolItem(Symbol symbol) : this(symbol.Name, symbol.Kind, (symbol as DeclaredSymbol)?.DeclaringSyntax.Span, (symbol as DeclaredSymbol)?.NameSource.Span)
         {
         }
 

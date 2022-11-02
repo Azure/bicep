@@ -106,6 +106,10 @@ namespace Bicep.Core.Syntax
 
         void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax);
 
+        void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax);
+
+        void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax);
+
         void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax);
 
         void VisitLambdaSyntax(LambdaSyntax syntax);

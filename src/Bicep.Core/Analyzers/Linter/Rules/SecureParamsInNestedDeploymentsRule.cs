@@ -55,7 +55,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                 CoreResources.SecureParamsInNestedDeployRule_Message_SecureParams,
                                 resource.Name,
                                 secureParamsAsString);
-                            yield return CreateDiagnosticForSpan(diagnosticLevel, resource.NameSyntax.Span, message);
+                            yield return CreateDiagnosticForSpan(diagnosticLevel, resource.NameSource.Span, message);
                         }
 
                         // Look for list* functions
@@ -66,7 +66,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                 CoreResources.SecureParamsInNestedDeployRule_Message_ListFunction,
                                 resource.Name,
                                 listFunctionReference.ToText());
-                            yield return CreateDiagnosticForSpan(diagnosticLevel, resource.NameSyntax.Span, message);
+                            yield return CreateDiagnosticForSpan(diagnosticLevel, resource.NameSource.Span, message);
                         }
                     }
                 }
@@ -111,7 +111,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private static Symbol[] FindSecureParametersReferencedInNestedDeployment(SemanticModel model, ResourceSymbol deploymentResource)
         {
             var secureParamsReferencedInDeployment = model.Root.ParameterDeclarations
-                .Where(p => p.NameSyntax.IsValid && p.IsSecure())
+                .Where(p => p.NameSource.IsValid && p.IsSecure())
                 .Where(p => model.FindReferences(p, deploymentResource.DeclaringSyntax).Any());
             return secureParamsReferencedInDeployment.ToArray();
         }

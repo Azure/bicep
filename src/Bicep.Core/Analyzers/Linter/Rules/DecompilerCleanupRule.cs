@@ -57,7 +57,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var variable in model.Root.VariableDeclarations)
             {
-                if (variable.NameSyntax is IdentifierSyntax nameSyntax)
+                if (variable.NameSource is IdentifierSyntax nameSyntax)
                 {
                     if (regexVariableNameNeedsCleanup.IsMatch(nameSyntax.IdentifierName))
                     {
