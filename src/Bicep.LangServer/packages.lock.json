@@ -56,26 +56,26 @@
       },
       "Azure.Bicep.Types": {
         "type": "Transitive",
-        "resolved": "0.3.28",
-        "contentHash": "aiVvJsSf449vhBhVkfWVVMuT4RMhPYbwKxGcEFt6x0YHMWG3Hbcf2kt0JAPpdEc2XMP79dYdIJcQLKXCg5oWDQ==",
+        "resolved": "0.3.29",
+        "contentHash": "+zdebR/QIFnRU8c+CofLmbfDx8vvp+e/cnjHAdJiMFESe8+BrkYjLri7tzb7obLaiJ9+EV3vTWtDRqHfFRopIg==",
         "dependencies": {
           "System.Text.Json": "6.0.6"
         }
       },
       "Azure.Bicep.Types.Az": {
         "type": "Transitive",
-        "resolved": "0.2.170",
-        "contentHash": "HwtbAwp6jhqZBkI6XS3IJjQJZWG3cJU3QqQcvwUSc2EmTu1jiQKg++RMu+Vb1zf92mzoMCXmKuZarqyBoNkXqQ==",
+        "resolved": "0.2.199",
+        "contentHash": "gqBHnxrLNXLjh6PeaBqNwDYPI+Sk0TXdKaRB1YXrAMtLx4Y4qOBqWR4/tpM+BQ1VMpUDd9IAn9y15JtRGx396A==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.3.22"
+          "Azure.Bicep.Types": "0.3.29"
         }
       },
       "Azure.Bicep.Types.K8s": {
         "type": "Transitive",
-        "resolved": "0.1.186",
-        "contentHash": "bwWC3vuf7n24ddMSwzc6Jzi6cdhSkxi1sB1dRN0tBj8ZnR8vFFRKR6cnyAbW9iFLVDyQT/pJYcBmr4tpqCxLyQ==",
+        "resolved": "0.1.202",
+        "contentHash": "YSLRcfwFSR5F3QuogO9QCN221COz3dbxuMH12rJoYkvdv2AI+icUSKea4FWDW+y6DwFBx5UBf3vrGObn95BxPg==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.3.22"
+          "Azure.Bicep.Types": "0.3.29"
         }
       },
       "Azure.Containers.ContainerRegistry": {
@@ -1874,9 +1874,9 @@
       "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Types": "[0.3.28, )",
-          "Azure.Bicep.Types.Az": "[0.2.170, )",
-          "Azure.Bicep.Types.K8s": "[0.1.186, )",
+          "Azure.Bicep.Types": "[0.3.29, )",
+          "Azure.Bicep.Types.Az": "[0.2.199, )",
+          "Azure.Bicep.Types.K8s": "[0.1.202, )",
           "Azure.Containers.ContainerRegistry": "[1.1.0-beta.4, )",
           "Azure.Deployments.Core": "[1.0.750, )",
           "Azure.Deployments.Expression": "[1.0.750, )",
