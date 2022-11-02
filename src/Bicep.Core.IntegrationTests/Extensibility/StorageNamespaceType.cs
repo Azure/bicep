@@ -23,7 +23,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
             BicepProviderName: BuiltInName,
             ConfigurationType: GetConfigurationType(),
             ArmTemplateProviderName: "AzureStorage",
-            ArmTemplateProviderVersion: "1.0");
+            ArmTemplateProviderVersion: "1.0.0");
 
         private static ObjectType GetConfigurationType()
         {

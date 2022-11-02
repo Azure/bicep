@@ -36,12 +36,12 @@ namespace Bicep.Core.Semantics.Namespaces
         private const string MinDescription = "Returns the minimum value from an array of integers or a comma-separated list of integers.";
         private const string MaxDescription = "Returns the maximum value from an array of integers or a comma-separated list of integers.";
 
-        private static NamespaceSettings Settings { get; } = new(
+        public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
             BicepProviderName: BuiltInName,
             ConfigurationType: null,
             ArmTemplateProviderName: "System",
-            ArmTemplateProviderVersion: "1.0");
+            ArmTemplateProviderVersion: "1.0.0");
 
         private static IEnumerable<FunctionOverload> GetSystemOverloads(IFeatureProvider featureProvider)
         {

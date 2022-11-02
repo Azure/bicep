@@ -1,7 +1,7 @@
 @secure()
 param kubeConfig string
 
-import kubernetes as k8s {
+import 'kubernetes@1.0.0' with {
   kubeConfig: kubeConfig
   namespace: 'default'
 }

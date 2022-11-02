@@ -232,10 +232,9 @@ namespace Bicep.Core.Semantics
             allowedFlags = FunctionFlags.ImportDecorator;
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
-            this.Visit(syntax.ProviderName);
-            this.Visit(syntax.AsKeyword);
-            this.Visit(syntax.AliasName);
-            this.Visit(syntax.Config);
+            this.Visit(syntax.SpecificationString);
+            this.Visit(syntax.WithClause);
+            this.Visit(syntax.AsClause);
             allowedFlags = FunctionFlags.Default;
         }
 

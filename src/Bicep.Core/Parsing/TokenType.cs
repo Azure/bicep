@@ -50,5 +50,7 @@ namespace Bicep.Core.Parsing
         DoubleColon,
         Arrow,
         Pipe,
+        WithKeyword,
+        AsKeyword,
     }
 }

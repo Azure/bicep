@@ -511,13 +511,13 @@ namespace Bicep.Core.Emit
                 var namespaceType = context.SemanticModel.GetTypeInfo(import.DeclaringSyntax) as NamespaceType
                     ?? throw new ArgumentException("Imported namespace does not have namespace type");
 
-                jsonWriter.WritePropertyWithPosition(import.DeclaringSyntax, import.DeclaringImport.AliasName.IdentifierName, () =>
+                jsonWriter.WritePropertyWithPosition(import.DeclaringSyntax, import.Name, () =>
                 {
                     jsonWriter.WriteObjectWithPosition(import.DeclaringSyntax, () =>
                     {
                         emitter.EmitProperty("provider", namespaceType.Settings.ArmTemplateProviderName);
                         emitter.EmitProperty("version", namespaceType.Settings.ArmTemplateProviderVersion);
-                        if (import.DeclaringImport.Config is not SkippedTriviaSyntax)
+                        if (import.DeclaringImport.Config is not null)
                         {
                             emitter.EmitProperty("config", import.DeclaringImport.Config);
                         }

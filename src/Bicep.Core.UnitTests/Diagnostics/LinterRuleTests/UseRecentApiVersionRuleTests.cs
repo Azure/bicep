@@ -1756,7 +1756,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             public void LinterIgnoresNotAzureResources()
             {
                 CompileAndTestWithFakeDateAndTypes(@"
-                        import kubernetes as kubernetes {
+                        import 'kubernetes@1.0.0' {
                           namespace: 'default'
                           kubeConfig: ''
                         }

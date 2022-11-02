@@ -32,7 +32,7 @@ namespace Bicep.LanguageServer.Completions
                    (predicate is null || predicate(one, two));
         }
 
-        public static bool IsTailMatch<T1, T2, T3>(IList<SyntaxBase> nodes, Func<T1, T2, T3, bool> predicate)
+        public static bool IsTailMatch<T1, T2, T3>(IList<SyntaxBase> nodes, Func<T1, T2, T3, bool>? predicate = null)
             where T1 : SyntaxBase
             where T2 : SyntaxBase
             where T3 : SyntaxBase
@@ -41,7 +41,7 @@ namespace Bicep.LanguageServer.Completions
                    nodes[^3] is T1 one &&
                    nodes[^2] is T2 two &&
                    nodes[^1] is T3 three &&
-                   predicate(one, two, three);
+                   (predicate is null || predicate(one, two, three));
         }
 
         public static bool IsTailMatch<T1, T2, T3, T4>(IList<SyntaxBase> nodes, Func<T1, T2, T3, T4, bool> predicate, Action<T1, T2, T3, T4>? actionOnMatch = null)
@@ -123,7 +123,7 @@ namespace Bicep.LanguageServer.Completions
         /// </summary>
         /// <param name="syntax">The program node</param>
         /// <param name="offset">The offset</param>
-        public static List<SyntaxBase> FindNodesMatchingOffset(ProgramSyntax syntax, int offset)
+        public static List<SyntaxBase> FindNodesMatchingOffset(SyntaxBase syntax, int offset)
         {
             var nodes = new List<SyntaxBase>();
             syntax.TryFindMostSpecificNodeInclusive(offset, current =>

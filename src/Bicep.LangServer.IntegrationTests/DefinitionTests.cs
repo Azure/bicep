@@ -69,7 +69,7 @@ namespace Bicep.LangServer.IntegrationTests
             // (locals are special because their full span is the same as the identifier span,
             // which makes it impossible to go to definition on a local with invalid identifiers)
             var declaredSymbolBindings = symbolTable
-                .Where(pair => pair.Value is DeclaredSymbol && (pair.Value is not LocalVariableSymbol local || local.NameSyntax.IsValid))
+                .Where(pair => pair.Value is DeclaredSymbol && (pair.Value is not LocalVariableSymbol local || local.NameSource.IsValid))
                 .Select(pair => new KeyValuePair<SyntaxBase, DeclaredSymbol>(pair.Key, (DeclaredSymbol)pair.Value));
 
             foreach (var (syntax, symbol) in declaredSymbolBindings)
@@ -89,7 +89,7 @@ namespace Bicep.LangServer.IntegrationTests
                 link.TargetRange.Should().Be(symbol.DeclaringSyntax.Span.ToRange(lineStarts));
 
                 // selection range should be the span of the identifier of the symbol
-                link.TargetSelectionRange.Should().Be(symbol.NameSyntax.Span.ToRange(lineStarts));
+                link.TargetSelectionRange.Should().Be(symbol.NameSource.Span.ToRange(lineStarts));
 
                 if (syntax is ParameterDeclarationSyntax parameterSyntax)
                 {

@@ -71,7 +71,7 @@ namespace Bicep.LanguageServer.Handlers
                 Children = new Container<DocumentSymbol>(children),
                 Range = symbol.DeclaringSyntax.ToRange(lineStarts),
                 // use the name node span with fallback to entire declaration span
-                SelectionRange = symbol.NameSyntax.ToRange(lineStarts)
+                SelectionRange = symbol.NameSource.ToRange(lineStarts)
             };
         }
 

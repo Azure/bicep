@@ -208,9 +208,9 @@ output out resource = resource
         public void Output_cannot_use_extensibility_resource_type()
         {
             var result = CompilationHelper.Compile(ServicesWithExtensibility, @"
-import storage as stg {
+import 'storage@1.0.0' with {
   connectionString: 'asdf'
-}
+} as stg
 
 resource container 'stg:container' = {
   name: 'myblob'

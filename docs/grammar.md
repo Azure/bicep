@@ -16,7 +16,11 @@ statement ->
 
 targetScopeDecl -> "targetScope" "=" expression
 
-importDecl -> decorator* "import" IDENTIFIER(providerName) "as" IDENTIFIER(aliasName) object? NL
+importDecl -> decorator* "import" interpString(specification) importWithClause? importAsClause? NL
+
+importWithClause -> "with" object
+
+importAsClause -> "as" IDENTIFIER(alias)
 
 metadataDecl -> "metadata" IDENTIFIER(name) "=" expression NL
 

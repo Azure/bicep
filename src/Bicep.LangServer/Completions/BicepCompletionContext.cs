@@ -14,6 +14,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
+using Bicep.LanguageServer.Completions.SyntaxPatterns;
 using Bicep.LanguageServer.Extensions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -25,6 +26,26 @@ namespace Bicep.LanguageServer.Completions
             FunctionCallSyntaxBase Function,
             int ArgumentIndex
         );
+        private static readonly CompositeSyntaxPattern ExpectingImportSpecification = CompositeSyntaxPattern.Create(
+            cursor: '|',
+            "import |",
+            "import |'kuber'",
+            "import 'kuber|'");
+
+        private static readonly CompositeSyntaxPattern ExpectingImportWithOrAsKeyword = CompositeSyntaxPattern.Create(
+            cursor: '|',
+            "import 'kubernetes@1.0.0' |",
+            "import 'kubernetes@1.0.0' a|",
+            "import 'kubernetes@1.0.0' |b");
+
+        private static readonly CompositeSyntaxPattern ExpectingImportConfig = CompositeSyntaxPattern.Create(
+            cursor: '|',
+            "import 'kubernetes@1.0.0' with |",
+            "import 'kubernetes@1.0.0' with | as foo");
+
+        private static readonly SyntaxPattern ExpectingImportAsKeyword = SyntaxPattern.Create(
+            cursor: '|',
+            "import 'kubernetes@1.0.0' with { foo: true } |");
 
         // completions will replace only these token types
         // all others will result in an insertion upon completion commit
@@ -176,9 +197,12 @@ namespace Bicep.LanguageServer.Completions
 
             if (featureProvider.ImportsEnabled)
             {
-                kind |= ConvertFlag(IsImportFollower(matchingNodes, offset), BicepCompletionContextKind.ImportFollower) |
-                    ConvertFlag(IsImportProviderFollower(matchingNodes, offset), BicepCompletionContextKind.ImportProviderFollower) |
-                    ConvertFlag(IsImportAliasFollower(matchingNodes, offset), BicepCompletionContextKind.ImportAliasFollower);
+                var pattern = SyntaxPattern.Create(bicepFile.ProgramSyntax, offset);
+
+                kind |= ConvertFlag(ExpectingImportSpecification.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportSpecification) |
+                    ConvertFlag(ExpectingImportWithOrAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportWithOrAsKeyword) |
+                    ConvertFlag(ExpectingImportConfig.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportConfig) |
+                    ConvertFlag(ExpectingImportAsKeyword.TailMatch(pattern), BicepCompletionContextKind.ExpectingImportAsKeyword);
             }
 
             if (kind == BicepCompletionContextKind.None)
@@ -771,22 +795,6 @@ namespace Bicep.LanguageServer.Completions
 
             return null;
         }
-
-        private static bool IsImportFollower(List<SyntaxBase> matchingNodes, int offset) =>
-            // import |
-            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.ProviderName.Child is SkippedTriviaSyntax && offset > import.Keyword.GetEndPosition()) ||
-            // import f|
-            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, IdentifierSyntax, Token>(matchingNodes, (import, ident, _) => import.ProviderName == ident);
-
-        private static bool IsImportProviderFollower(List<SyntaxBase> matchingNodes, int offset) =>
-            // import foo |
-            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.ProviderName.IsValid && offset > import.ProviderName.GetEndPosition() && offset <= import.AsKeyword.GetEndPosition()) ||
-            // import foo a|
-            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (import, skipped, _) => import.AsKeyword == skipped);
-
-        private static bool IsImportAliasFollower(List<SyntaxBase> matchingNodes, int offset) =>
-            // import foo as bar |
-            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.AliasName.IsValid && offset > import.AliasName.GetEndPosition());
 
         private static bool IsOuterExpressionContext(List<SyntaxBase> matchingNodes, int offset)
         {

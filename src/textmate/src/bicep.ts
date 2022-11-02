@@ -59,6 +59,7 @@ const keywords = [
   'import',
   'as',
   'type',
+  'with',
 ];
 
 const keywordExpression: MatchRule = {

@@ -383,10 +383,21 @@ namespace Bicep.Core.Syntax
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
-            this.Visit(syntax.ProviderName);
-            this.Visit(syntax.AsKeyword);
-            this.Visit(syntax.AliasName);
+            this.Visit(syntax.SpecificationString);
+            this.Visit(syntax.WithClause);
+            this.Visit(syntax.AsClause);
+        }
+
+        public virtual void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax)
+        {
+            this.Visit(syntax.Keyword);
             this.Visit(syntax.Config);
+        }
+
+        public virtual void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax)
+        {
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Alias);
         }
 
         public virtual void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)

@@ -47,7 +47,7 @@ namespace Bicep.LanguageServer.ParamsHandlers
                     return Task.FromResult(new LocationOrLocationLinks());
                 }
 
-                if (result.Symbol is ParameterAssignmentSymbol param && param.NameSyntax is { } nameSyntax)
+                if (result.Symbol is ParameterAssignmentSymbol param && param.NameSource is { } nameSyntax)
                 {
                     var paramsSemanticModel = context.Compilation.GetEntrypointSemanticModel();
                     if (!paramsSemanticModel.Root.TryGetBicepFileSemanticModelViaUsing(out var bicepSemanticModel, out _))
