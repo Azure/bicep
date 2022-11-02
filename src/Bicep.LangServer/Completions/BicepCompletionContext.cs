@@ -34,18 +34,18 @@ namespace Bicep.LanguageServer.Completions
 
         private static readonly CompositeSyntaxPattern ExpectingImportWithOrAsKeyword = CompositeSyntaxPattern.Create(
             cursor: '|',
-            "import 'kubernetes@v1' |",
-            "import 'kubernetes@v1' a|",
-            "import 'kubernetes@v1' |b");
+            "import 'kubernetes@1.0.0' |",
+            "import 'kubernetes@1.0.0' a|",
+            "import 'kubernetes@1.0.0' |b");
 
         private static readonly CompositeSyntaxPattern ExpectingImportConfig = CompositeSyntaxPattern.Create(
             cursor: '|',
-            "import 'kubernetes@v1' with |",
-            "import 'kubernetes@v1' with | as foo");
+            "import 'kubernetes@1.0.0' with |",
+            "import 'kubernetes@1.0.0' with | as foo");
 
         private static readonly SyntaxPattern ExpectingImportAsKeyword = SyntaxPattern.Create(
             cursor: '|',
-            "import 'kubernetes@v1' with { foo: true } |");
+            "import 'kubernetes@1.0.0' with { foo: true } |");
 
         // completions will replace only these token types
         // all others will result in an insertion upon completion commit
