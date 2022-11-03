@@ -2,6 +2,14 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        "_artifactsLocation": {
+          "type": "string",
+          "defaultValue": "[deployment().properties.templateLink.uri]"
+        },
+        "_artifactsLocationSasToken": {
+          "type": "securestring",
+          "defaultValue": ""
+        },
         "location": {
             "type": "string",
             "defaultValue": "[resourceGroup().location]"
@@ -16,7 +24,7 @@
     },
     "variables": {
         "armBaseUrl": "[parameters('baseUrl')]",
-        "module1Url": "[concat(variables('armBaseUrl'),'/nested/module1.json')]",
+        "module1Url": "[uri(parameters('_artifactsLocation'), concat('/nested/module1.json', parameters('_artifactsLocationSasToken')))]"
         "module2Url": "[concat(variables('armBaseUrl'),'/nested/module2.jsonc')]",
         "objectVar": {
             "val1": "[concat('a', parameters('location'), 'b')]"
