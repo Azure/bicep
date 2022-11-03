@@ -72,7 +72,6 @@ namespace Bicep.Core.UnitTests.Configuration
           ""level"": ""warning"",
           ""disallowedhosts"": [
             ""api.loganalytics.io"",
-            ""asazure.windows.net"",
             ""azuredatalakeanalytics.net"",
             ""azuredatalakestore.net"",
             ""batch.core.windows.net"",
@@ -211,7 +210,6 @@ namespace Bicep.Core.UnitTests.Configuration
           ""level"": ""off"",
           ""disallowedhosts"": [
             ""api.loganalytics.io"",
-            ""asazure.windows.net"",
             ""azuredatalakeanalytics.net"",
             ""azuredatalakestore.net"",
             ""batch.core.windows.net"",
