@@ -68,4 +68,4 @@ module moduleWithSub 'nested/module1.bicep' = {
   }
 }
 
-output sampleOutput string = module1Deploy.output.module1Deploy
+output sampleOutput string = module1Deploy.outputs.module1Deploy
