@@ -139,5 +139,9 @@
         }
     ],
 
-    "outputs": {}
+    "outputs": {
+      "logAnalyticsWorkspaceName": {
+        "value": "[reference('module1Deploy').outputs.sampleOutput.value]"
+      }
+    }
 }
