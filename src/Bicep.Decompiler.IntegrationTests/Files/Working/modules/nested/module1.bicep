@@ -5,4 +5,5 @@ param objectParam object
 param arrayParam array
 //@[6:16) [no-unused-params (Warning)] Parameter "arrayParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |arrayParam|
 param optionalParam string = 'hello!'
-//@[6:19) [no-unused-params (Warning)] Parameter "optionalParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |optionalParam|
+
+output sampleOutput string = optionalParam
