@@ -67,3 +67,5 @@ module moduleWithSub 'nested/module1.bicep' = {
 //@[02:08) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "arrayParam", "location", "objectParam". (CodeDescription: none) |params|
   }
 }
+
+output sampleOutput string = module1Deploy.output.module1Deploy
