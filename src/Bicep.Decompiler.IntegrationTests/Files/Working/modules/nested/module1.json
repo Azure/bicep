@@ -18,5 +18,10 @@
     },
     "variables": {},
     "resources": [],
-    "outputs": {}
+    "outputs": {
+        "sampleOutput": {
+          "type": "string",
+          "value": "[parameters('optionalParam')]"
+        }
+    }
 }
