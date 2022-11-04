@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4279620453807219391"
+      "templateHash": "16324908782901110354"
     }
   },
   "parameters": {
@@ -112,32 +112,6 @@
       "type": "array",
       "maxLength": 24,
       "minLength": 3
-    },
-    "fizzArray": {
-      "type": "array",
-      "allowedValues": [
-        "fizz"
-      ]
-    },
-    "trueArray": {
-      "type": "array",
-      "allowedValues": [
-        true
-      ]
-    },
-    "oneArray": {
-      "type": "array",
-      "allowedValues": [
-        1
-      ]
-    },
-    "permittedSubsetArray": {
-      "type": "array",
-      "allowedValues": [
-        "fizz",
-        "buzz",
-        "pop"
-      ]
     },
     "emptyMetadata": {
       "type": "string",

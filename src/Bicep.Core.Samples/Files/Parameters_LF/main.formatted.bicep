@@ -90,19 +90,6 @@ param storageName string
 @maxLength(24)
 param someArray array
 
-// allowed constraint on arrays
-@allowed([ 'fizz' ])
-param fizzArray array
-
-@allowed([ true ])
-param trueArray array
-
-@allowed([ 1 ])
-param oneArray array
-
-@allowed([ 'fizz', 'buzz', 'pop' ])
-param permittedSubsetArray array
-
 // empty metadata
 @metadata({})
 param emptyMetadata string

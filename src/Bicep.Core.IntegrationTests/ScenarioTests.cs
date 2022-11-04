@@ -3971,5 +3971,49 @@ resource queueAuthorizationRules 'Microsoft.ServiceBus/namespaces/queues/authori
             result.Template.Should().HaveValueAtPath("$.resources[2].name", "[format('{0}/{1}/{2}', variables('Names')[0], variables('Service_Bus_Queues')[copyIndex()], 'Listen')]");
             result.Template.Should().HaveValueAtPath("$.resources[2].dependsOn", new JArray("[resourceId('Microsoft.ServiceBus/namespaces/queues', variables('Names')[0], variables('Service_Bus_Queues')[copyIndex()])]"));
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/8884
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue8884()
+        {
+            var result = CompilationHelper.Compile(@"
+@minLength(1)
+@allowed(['fizz'])
+param fizzArray array
+
+@minLength(1)
+@allowed([true])
+param trueArray array
+
+@minLength(1)
+@allowed([1])
+param oneArray array
+
+@minLength(1)
+@allowed(['fizz', 'buzz', 'pop'])
+param permittedSubsetArray array
+
+output fizz string = fizzArray[0]
+output trueVal bool = trueArray[0]
+output one int = oneArray[0]
+output fizzBuzzOrPop string = permittedSubsetArray[0]
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath("$.parameters.fizzArray.allowedValues", new JArray("fizz"));
+            result.Template.Should().NotHaveValueAtPath("$.parameters.fizzArray.items");
+
+            result.Template.Should().HaveValueAtPath("$.parameters.trueArray.allowedValues", new JArray(true));
+            result.Template.Should().NotHaveValueAtPath("$.parameters.trueArray.items");
+
+            result.Template.Should().HaveValueAtPath("$.parameters.oneArray.allowedValues", new JArray(1));
+            result.Template.Should().NotHaveValueAtPath("$.parameters.oneArray.items");
+
+            result.Template.Should().HaveValueAtPath("$.parameters.permittedSubsetArray.allowedValues", new JArray("fizz", "buzz", "pop"));
+            result.Template.Should().NotHaveValueAtPath("$.parameters.permittedSubsetArray.items");
+        }
     }
 }
