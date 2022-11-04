@@ -3971,5 +3971,52 @@ resource queueAuthorizationRules 'Microsoft.ServiceBus/namespaces/queues/authori
             result.Template.Should().HaveValueAtPath("$.resources[2].name", "[format('{0}/{1}/{2}', variables('Names')[0], variables('Service_Bus_Queues')[copyIndex()], 'Listen')]");
             result.Template.Should().HaveValueAtPath("$.resources[2].dependsOn", new JArray("[resourceId('Microsoft.ServiceBus/namespaces/queues', variables('Names')[0], variables('Service_Bus_Queues')[copyIndex()])]"));
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/8890
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue8890()
+        {
+            var result = CompilationHelper.Compile(@"
+param location string = resourceGroup().location
+
+@description('Optional. Enables system assigned managed identity on the resource.')
+param systemAssignedIdentity bool = false
+
+@description('Optional. The ID(s) to assign to the resource.')
+param userAssignedIdentities object = {}
+
+var identityType = systemAssignedIdentity ? (!empty(userAssignedIdentities) ? 'SystemAssigned,UserAssigned' : 'SystemAssigned') : (!empty(userAssignedIdentities) ? 'UserAssigned' : 'None')
+
+var identity = identityType != 'None' ? {
+  type: identityType
+  userAssignedIdentities: !empty(userAssignedIdentities) ? userAssignedIdentities : null
+} : null
+
+resource vm 'Microsoft.Compute/virtualMachines@2021-07-01' = {
+  name: 'name'
+  location: location
+  identity: identity
+}
+
+param usePython bool
+
+resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
+  name: 'fa'
+  location: location
+  kind: 'functionApp'
+  identity: identity
+  properties: {
+    siteConfig: {
+      pythonVersion: usePython ? '~3.10' : null
+      nodeVersion: !usePython ? '18' : null
+    }
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
     }
 }
