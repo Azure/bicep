@@ -24,6 +24,7 @@ module module1Deploy 'nested/module1.bicep' = {
   name: 'module1Deploy'
   params: {
     location: location
+    sample_param: 'Hello!'
     objectParam: objectVar
     arrayParam: arrayVar
     _artifactsLocation: _artifactsLocation
