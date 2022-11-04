@@ -23,6 +23,9 @@
       }
     }
   },
+  "variables": {
+    "var1": "TestVar" 
+  },
   "resources": [
   ],
   "outputs": {
@@ -77,6 +80,10 @@
     "items_1": {
       "type": "array",
       "value": "[items(parameters('insensitiveToTest'))]"
+    },
+    "testConcat": {
+      "type": "string",
+      "value": "[if(equals('true', 'true'), concat(resourceGroup().name, add(1,1), variables('var1')), '')]"
     }
   }
 }
