@@ -4018,7 +4018,8 @@ resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
 
             result.Should().NotHaveAnyDiagnostics();
         }
-        
+
+        /// <summary>
         /// https://github.com/Azure/bicep/issues/8884
         /// </summary>
         [TestMethod]
