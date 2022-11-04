@@ -356,6 +356,72 @@ param someArray array
 //@[16:21) Identifier |array|
 //@[21:23) NewLine |\n\n|
 
+// allowed constraint on arrays
+//@[31:32) NewLine |\n|
+@allowed(['fizz'])
+//@[00:01) At |@|
+//@[01:08) Identifier |allowed|
+//@[08:09) LeftParen |(|
+//@[09:10) LeftSquare |[|
+//@[10:16) StringComplete |'fizz'|
+//@[16:17) RightSquare |]|
+//@[17:18) RightParen |)|
+//@[18:19) NewLine |\n|
+param fizzArray array
+//@[00:05) Identifier |param|
+//@[06:15) Identifier |fizzArray|
+//@[16:21) Identifier |array|
+//@[21:23) NewLine |\n\n|
+
+@allowed([true])
+//@[00:01) At |@|
+//@[01:08) Identifier |allowed|
+//@[08:09) LeftParen |(|
+//@[09:10) LeftSquare |[|
+//@[10:14) TrueKeyword |true|
+//@[14:15) RightSquare |]|
+//@[15:16) RightParen |)|
+//@[16:17) NewLine |\n|
+param trueArray array
+//@[00:05) Identifier |param|
+//@[06:15) Identifier |trueArray|
+//@[16:21) Identifier |array|
+//@[21:23) NewLine |\n\n|
+
+@allowed([1])
+//@[00:01) At |@|
+//@[01:08) Identifier |allowed|
+//@[08:09) LeftParen |(|
+//@[09:10) LeftSquare |[|
+//@[10:11) Integer |1|
+//@[11:12) RightSquare |]|
+//@[12:13) RightParen |)|
+//@[13:14) NewLine |\n|
+param oneArray array
+//@[00:05) Identifier |param|
+//@[06:14) Identifier |oneArray|
+//@[15:20) Identifier |array|
+//@[20:22) NewLine |\n\n|
+
+@allowed(['fizz', 'buzz', 'pop'])
+//@[00:01) At |@|
+//@[01:08) Identifier |allowed|
+//@[08:09) LeftParen |(|
+//@[09:10) LeftSquare |[|
+//@[10:16) StringComplete |'fizz'|
+//@[16:17) Comma |,|
+//@[18:24) StringComplete |'buzz'|
+//@[24:25) Comma |,|
+//@[26:31) StringComplete |'pop'|
+//@[31:32) RightSquare |]|
+//@[32:33) RightParen |)|
+//@[33:34) NewLine |\n|
+param permittedSubsetArray array
+//@[00:05) Identifier |param|
+//@[06:26) Identifier |permittedSubsetArray|
+//@[27:32) Identifier |array|
+//@[32:34) NewLine |\n\n|
+
 // empty metadata
 //@[17:18) NewLine |\n|
 @metadata({})

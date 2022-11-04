@@ -1,5 +1,5 @@
 /*
-//@[00:3073) ProgramSyntax
+//@[00:3291) ProgramSyntax
   This is a block comment.
 */
 //@[02:0004) ├─Token(NewLine) |\n\n|
@@ -548,6 +548,116 @@ param someArray array
 //@[16:0021) | └─SimpleTypeSyntax
 //@[16:0021) |   └─Token(Identifier) |array|
 //@[21:0023) ├─Token(NewLine) |\n\n|
+
+// allowed constraint on arrays
+//@[31:0032) ├─Token(NewLine) |\n|
+@allowed(['fizz'])
+//@[00:0040) ├─ParameterDeclarationSyntax
+//@[00:0018) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0018) | | └─FunctionCallSyntax
+//@[01:0008) | |   ├─IdentifierSyntax
+//@[01:0008) | |   | └─Token(Identifier) |allowed|
+//@[08:0009) | |   ├─Token(LeftParen) |(|
+//@[09:0017) | |   ├─FunctionArgumentSyntax
+//@[09:0017) | |   | └─ArraySyntax
+//@[09:0010) | |   |   ├─Token(LeftSquare) |[|
+//@[10:0016) | |   |   ├─ArrayItemSyntax
+//@[10:0016) | |   |   | └─StringSyntax
+//@[10:0016) | |   |   |   └─Token(StringComplete) |'fizz'|
+//@[16:0017) | |   |   └─Token(RightSquare) |]|
+//@[17:0018) | |   └─Token(RightParen) |)|
+//@[18:0019) | ├─Token(NewLine) |\n|
+param fizzArray array
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0015) | ├─IdentifierSyntax
+//@[06:0015) | | └─Token(Identifier) |fizzArray|
+//@[16:0021) | └─SimpleTypeSyntax
+//@[16:0021) |   └─Token(Identifier) |array|
+//@[21:0023) ├─Token(NewLine) |\n\n|
+
+@allowed([true])
+//@[00:0038) ├─ParameterDeclarationSyntax
+//@[00:0016) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0016) | | └─FunctionCallSyntax
+//@[01:0008) | |   ├─IdentifierSyntax
+//@[01:0008) | |   | └─Token(Identifier) |allowed|
+//@[08:0009) | |   ├─Token(LeftParen) |(|
+//@[09:0015) | |   ├─FunctionArgumentSyntax
+//@[09:0015) | |   | └─ArraySyntax
+//@[09:0010) | |   |   ├─Token(LeftSquare) |[|
+//@[10:0014) | |   |   ├─ArrayItemSyntax
+//@[10:0014) | |   |   | └─BooleanLiteralSyntax
+//@[10:0014) | |   |   |   └─Token(TrueKeyword) |true|
+//@[14:0015) | |   |   └─Token(RightSquare) |]|
+//@[15:0016) | |   └─Token(RightParen) |)|
+//@[16:0017) | ├─Token(NewLine) |\n|
+param trueArray array
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0015) | ├─IdentifierSyntax
+//@[06:0015) | | └─Token(Identifier) |trueArray|
+//@[16:0021) | └─SimpleTypeSyntax
+//@[16:0021) |   └─Token(Identifier) |array|
+//@[21:0023) ├─Token(NewLine) |\n\n|
+
+@allowed([1])
+//@[00:0034) ├─ParameterDeclarationSyntax
+//@[00:0013) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0013) | | └─FunctionCallSyntax
+//@[01:0008) | |   ├─IdentifierSyntax
+//@[01:0008) | |   | └─Token(Identifier) |allowed|
+//@[08:0009) | |   ├─Token(LeftParen) |(|
+//@[09:0012) | |   ├─FunctionArgumentSyntax
+//@[09:0012) | |   | └─ArraySyntax
+//@[09:0010) | |   |   ├─Token(LeftSquare) |[|
+//@[10:0011) | |   |   ├─ArrayItemSyntax
+//@[10:0011) | |   |   | └─IntegerLiteralSyntax
+//@[10:0011) | |   |   |   └─Token(Integer) |1|
+//@[11:0012) | |   |   └─Token(RightSquare) |]|
+//@[12:0013) | |   └─Token(RightParen) |)|
+//@[13:0014) | ├─Token(NewLine) |\n|
+param oneArray array
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0014) | ├─IdentifierSyntax
+//@[06:0014) | | └─Token(Identifier) |oneArray|
+//@[15:0020) | └─SimpleTypeSyntax
+//@[15:0020) |   └─Token(Identifier) |array|
+//@[20:0022) ├─Token(NewLine) |\n\n|
+
+@allowed(['fizz', 'buzz', 'pop'])
+//@[00:0066) ├─ParameterDeclarationSyntax
+//@[00:0033) | ├─DecoratorSyntax
+//@[00:0001) | | ├─Token(At) |@|
+//@[01:0033) | | └─FunctionCallSyntax
+//@[01:0008) | |   ├─IdentifierSyntax
+//@[01:0008) | |   | └─Token(Identifier) |allowed|
+//@[08:0009) | |   ├─Token(LeftParen) |(|
+//@[09:0032) | |   ├─FunctionArgumentSyntax
+//@[09:0032) | |   | └─ArraySyntax
+//@[09:0010) | |   |   ├─Token(LeftSquare) |[|
+//@[10:0016) | |   |   ├─ArrayItemSyntax
+//@[10:0016) | |   |   | └─StringSyntax
+//@[10:0016) | |   |   |   └─Token(StringComplete) |'fizz'|
+//@[16:0017) | |   |   ├─Token(Comma) |,|
+//@[18:0024) | |   |   ├─ArrayItemSyntax
+//@[18:0024) | |   |   | └─StringSyntax
+//@[18:0024) | |   |   |   └─Token(StringComplete) |'buzz'|
+//@[24:0025) | |   |   ├─Token(Comma) |,|
+//@[26:0031) | |   |   ├─ArrayItemSyntax
+//@[26:0031) | |   |   | └─StringSyntax
+//@[26:0031) | |   |   |   └─Token(StringComplete) |'pop'|
+//@[31:0032) | |   |   └─Token(RightSquare) |]|
+//@[32:0033) | |   └─Token(RightParen) |)|
+//@[33:0034) | ├─Token(NewLine) |\n|
+param permittedSubsetArray array
+//@[00:0005) | ├─Token(Identifier) |param|
+//@[06:0026) | ├─IdentifierSyntax
+//@[06:0026) | | └─Token(Identifier) |permittedSubsetArray|
+//@[27:0032) | └─SimpleTypeSyntax
+//@[27:0032) |   └─Token(Identifier) |array|
+//@[32:0034) ├─Token(NewLine) |\n\n|
 
 // empty metadata
 //@[17:0018) ├─Token(NewLine) |\n|

@@ -106,6 +106,23 @@ param storageName string
 param someArray array
 //@[6:15) Parameter someArray. Type: array. Declaration start char: 0, length: 50
 
+// allowed constraint on arrays
+@allowed(['fizz'])
+param fizzArray array
+//@[6:15) Parameter fizzArray. Type: 'fizz'[]. Declaration start char: 0, length: 40
+
+@allowed([true])
+param trueArray array
+//@[6:15) Parameter trueArray. Type: true[]. Declaration start char: 0, length: 38
+
+@allowed([1])
+param oneArray array
+//@[6:14) Parameter oneArray. Type: 1[]. Declaration start char: 0, length: 34
+
+@allowed(['fizz', 'buzz', 'pop'])
+param permittedSubsetArray array
+//@[6:26) Parameter permittedSubsetArray. Type: ('buzz' | 'fizz' | 'pop')[]. Declaration start char: 0, length: 66
+
 // empty metadata
 @metadata({})
 param emptyMetadata string

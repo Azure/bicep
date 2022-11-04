@@ -106,6 +106,23 @@ param storageName string
 param someArray array
 //@[06:015) [no-unused-params (Warning)] Parameter "someArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |someArray|
 
+// allowed constraint on arrays
+@allowed(['fizz'])
+param fizzArray array
+//@[06:015) [no-unused-params (Warning)] Parameter "fizzArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |fizzArray|
+
+@allowed([true])
+param trueArray array
+//@[06:015) [no-unused-params (Warning)] Parameter "trueArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |trueArray|
+
+@allowed([1])
+param oneArray array
+//@[06:014) [no-unused-params (Warning)] Parameter "oneArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |oneArray|
+
+@allowed(['fizz', 'buzz', 'pop'])
+param permittedSubsetArray array
+//@[06:026) [no-unused-params (Warning)] Parameter "permittedSubsetArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |permittedSubsetArray|
+
 // empty metadata
 @metadata({})
 param emptyMetadata string
