@@ -1,3 +1,8 @@
+param _artifactsLocation string = deployment().properties.templateLink.uri
+
+@secure()
+param _artifactsLocationSasToken string = ''
+
 param location string = resourceGroup().location
 
 @description('Base URL for the reference templates and scripts')
@@ -21,6 +26,8 @@ module module1Deploy 'nested/module1.bicep' = {
     location: location
     objectParam: objectVar
     arrayParam: arrayVar
+    _artifactsLocation: _artifactsLocation
+    _artifactsLocationSasToken: _artifactsLocationSasToken
   }
 }
 
