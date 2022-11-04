@@ -8,6 +8,10 @@
         "_artifactsLocationSasToken": {
           "type": "securestring"
         },
+        "sample-param": {
+          "type": "string",
+          "defaultValue": "hello!"
+        },
         "location": {
             "type": "string"
         },
