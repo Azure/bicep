@@ -52,6 +52,9 @@
                     "_artifactsLocationSasToken": {
                       "value": "[parameters('_artifactsLocationSasToken')]"
                     },
+                    "sample-param": {
+                      "value": "hello!"
+                    },
                     "location": {
                         "value": "[parameters('location')]"
                     },
