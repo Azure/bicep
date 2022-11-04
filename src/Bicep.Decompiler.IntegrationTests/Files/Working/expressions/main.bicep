@@ -17,6 +17,8 @@ param insensitiveToTest object = {
   rightInsensitive: 'Value'
 }
 
+var var1 = 'TestVar'
+
 output andExampleOutput bool = (bool('true') && bool('false'))
 output orExampleOutput bool = (bool('true') || bool('false'))
 output notExampleOutput bool = (!bool('true'))
@@ -30,3 +32,4 @@ output equalsInsensitiveWithLower bool = (insensitiveToTest.leftInsensitive =~ i
 output notEqualsInsensitiveWithLower bool = (insensitiveToTest.leftInsensitive !~ insensitiveToTest.rightInsensitive)
 output notEquals bool = (insensitiveToTest.left != insensitiveToTest.right)
 output items_1 array = items(insensitiveToTest)
+output testConcat string = (('true' == 'true') ? '${resourceGroup().name}${(1 + 1)}${var1}' : '')
