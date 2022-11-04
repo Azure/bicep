@@ -4000,6 +4000,8 @@ resource vm 'Microsoft.Compute/virtualMachines@2021-07-01' = {
   identity: identity
 }
 
+output vmPrincipalId string = vm.identity.principalId
+
 param usePython bool
 
 resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
