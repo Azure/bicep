@@ -215,9 +215,10 @@ namespace Bicep.Core.TypeSystem
         }
 
         private TypeSymbol NarrowType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol targetType)
-        {
-            var expressionType = typeManager.GetTypeInfo(expression);
+            => NarrowType(config, expression, typeManager.GetTypeInfo(expression), targetType);
 
+        private TypeSymbol NarrowType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, TypeSymbol targetType)
+        {
             if (config.DisallowAny && expressionType is AnyType)
             {
                 // certain properties such as scope, parent, dependsOn do not allow values of "any" type
@@ -423,42 +424,85 @@ namespace Bicep.Core.TypeSystem
             return targetType;
         }
 
+
         private TypeSymbol NarrowUnionType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, UnionType targetType)
+            => expressionType switch
+            {
+                UnionType expressionUnion => NarrowUnionTypeForUnionExpressionType(config, expression, expressionUnion, targetType),
+                _ => NarrowUnionTypeForSingleExpressionType(config, expression, expressionType, targetType),
+            };
+
+        private TypeSymbol NarrowUnionTypeForUnionExpressionType(TypeValidatorConfig config, SyntaxBase expression, UnionType expressionType, UnionType targetType)
         {
             List<UnionTypeMemberViabilityInfo> candidacyEvaluations = new();
 
-            foreach (var candidateType in targetType.Members)
+            foreach (var candidateExpressionType in expressionType.Members)
             {
-                if (!AreTypesAssignable(expressionType, candidateType.Type))
+                if (!AreTypesAssignable(candidateExpressionType.Type, targetType))
                 {
-                    candidacyEvaluations.Add(new(candidateType, null, ImmutableArray<IDiagnostic>.Empty));
+                    candidacyEvaluations.Add(new(candidateExpressionType, null, ImmutableArray<IDiagnostic>.Empty));
                     continue;
                 }
 
                 var candidateDiagnostics = ToListDiagnosticWriter.Create();
                 var candidateCollector = new TypeValidator(typeManager, binder, candidateDiagnostics);
-                var narrowed = candidateCollector.NarrowType(config, expression, candidateType.Type);
+                var narrowed = candidateCollector.NarrowUnionType(config, expression, candidateExpressionType.Type, targetType);
+                candidacyEvaluations.Add(new(candidateExpressionType, narrowed, candidateDiagnostics.GetDiagnostics()));
+            }
 
-                // if we have a perfect match, skip checking the rest of the union members
-                if (!candidateDiagnostics.GetDiagnostics().Any())
+            // report all informational and warning diagnostics
+            diagnosticWriter.WriteMultiple(candidacyEvaluations.SelectMany(e => e.Diagnostics));
+
+            var errors = candidacyEvaluations.SelectMany(c =>
+            {
+                if (c.NarrowedType is null || c.Errors.Any())
                 {
-                    return narrowed;
+                    return c.Errors.Append(DiagnosticBuilder.ForPosition(expression).ArgumentTypeMismatch(c.UnionTypeMemberEvaluated.Type, targetType));
                 }
 
-                candidacyEvaluations.Add(new(candidateType, narrowed, candidateDiagnostics.GetDiagnostics()));
+                return c.Errors;
+            });
+
+            // If *any* variant of the expression type is not assignable, the expression type is not assignable
+            if (errors.Any())
+            {
+                return ErrorType.Create(errors);
+            }
+
+            return TypeHelper.CreateTypeUnion(candidacyEvaluations.Select(c => c.NarrowedType!));
+        }
+
+        private TypeSymbol NarrowUnionTypeForSingleExpressionType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, UnionType targetType)
+        {
+            List<UnionTypeMemberViabilityInfo> candidacyEvaluations = new();
+
+            foreach (var candidateTargetType in targetType.Members)
+            {
+                if (!AreTypesAssignable(expressionType, candidateTargetType.Type))
+                {
+                    candidacyEvaluations.Add(new(candidateTargetType, null, ImmutableArray<IDiagnostic>.Empty));
+                    continue;
+                }
+
+                var candidateDiagnostics = ToListDiagnosticWriter.Create();
+                var candidateCollector = new TypeValidator(typeManager, binder, candidateDiagnostics);
+                var narrowed = candidateCollector.NarrowType(config, expression, expressionType, candidateTargetType.Type);
+                candidacyEvaluations.Add(new(candidateTargetType, narrowed, candidateDiagnostics.GetDiagnostics()));
             }
 
             var viableCandidates = candidacyEvaluations
-                .Select(c => c.Narrowed is {} Narrowed && !c.Diagnostics.OfType<ErrorDiagnostic>().Any() ? new ViableTypeCandidate(Narrowed, c.Diagnostics) : null)
+                .Select(c => c.NarrowedType is {} Narrowed && !c.Errors.Any() ? new ViableTypeCandidate(Narrowed, c.Diagnostics) : null)
                 .WhereNotNull()
                 .ToImmutableArray();
 
             if (viableCandidates.Any())
             {
-                // It's unclear what we should do with warning and informational diagnostics if there's no path that's assignable without issue.
-                // Should we report only diagnostics raised by every viable candidate? Or report only those raised by a single candidate?
-                // Erring on the side of caution here and just reporting them all.
-                diagnosticWriter.WriteMultiple(viableCandidates.SelectMany(c => c.Diagnostics));
+                // It's unclear what we should do with warning and informational diagnostics. Should we report only the intersection of diagnostics raised by every viable candidate?
+                // Erring on the side of caution here and just reporting them all unless there are one or more candidates that are assignable w/o warning.
+                if (viableCandidates.All(c => c.Diagnostics.Any()))
+                {
+                    diagnosticWriter.WriteMultiple(viableCandidates.SelectMany(c => c.Diagnostics));
+                }
 
                 return TypeHelper.CreateTypeUnion(viableCandidates.Select(c => c.Type));
             }
@@ -466,7 +510,58 @@ namespace Bicep.Core.TypeSystem
             return ErrorType.Create(DiagnosticBuilder.ForPosition(expression).ArgumentTypeMismatch(expressionType, targetType));
         }
 
-        private record UnionTypeMemberViabilityInfo(ITypeReference Type, TypeSymbol? Narrowed, IEnumerable<IDiagnostic> Diagnostics);
+        private record UnionTypeMemberViabilityInfo
+        {
+            internal UnionTypeMemberViabilityInfo(ITypeReference unionTypeMemberEvaluated, TypeSymbol? narrowedType, IEnumerable<IDiagnostic> diagnostics)
+            {
+                UnionTypeMemberEvaluated = unionTypeMemberEvaluated;
+                NarrowedType = narrowedType;
+
+                List<IDiagnostic> nonErrorDiagnostics = new();
+                List<ErrorDiagnostic> errorDiagnostics = new();
+
+                foreach (var diagnostic in diagnostics)
+                {
+                    if (diagnostic.Level == DiagnosticLevel.Error)
+                    {
+                        errorDiagnostics.Add(AsErrorDiagnostic(diagnostic));
+                    }
+                    else
+                    {
+                        nonErrorDiagnostics.Add(diagnostic);
+                    }
+                }
+
+                Diagnostics = nonErrorDiagnostics;
+                Errors = errorDiagnostics;
+            }
+
+            /// <summary>
+            /// The type being checked for assignability and narrowing
+            /// </summary>
+            public ITypeReference UnionTypeMemberEvaluated { get; }
+
+            /// <summary>
+            /// The narrowed type. Will be null if the type is unassignable
+            /// </summary>
+            public TypeSymbol? NarrowedType { get; }
+
+            /// <summary>
+            /// Any warning or informational diagnostics raised during type narrowing
+            /// </summary>
+            public IReadOnlyList<IDiagnostic> Diagnostics { get; }
+
+            /// <summary>
+            /// Any error-level diagnostics raised during type narrowing
+            /// </summary>
+            public IReadOnlyList<ErrorDiagnostic> Errors { get; }
+
+            private static ErrorDiagnostic AsErrorDiagnostic(IDiagnostic diagnostic) => diagnostic switch
+            {
+                ErrorDiagnostic errorDiagnostic => errorDiagnostic,
+                _ => new(diagnostic.Span, diagnostic.Code, diagnostic.Message, diagnostic.Uri, diagnostic.Styling),
+            };
+        }
 
         private record ViableTypeCandidate(TypeSymbol Type, IEnumerable<IDiagnostic> Diagnostics);
 
