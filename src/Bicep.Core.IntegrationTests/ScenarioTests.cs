@@ -4018,5 +4018,48 @@ resource functionApp 'Microsoft.Web/sites@2022-03-01' = {
 
             result.Should().NotHaveAnyDiagnostics();
         }
+        
+        /// https://github.com/Azure/bicep/issues/8884
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue8884()
+        {
+            var result = CompilationHelper.Compile(@"
+@minLength(1)
+@allowed(['fizz'])
+param fizzArray array
+
+@minLength(1)
+@allowed([true])
+param trueArray array
+
+@minLength(1)
+@allowed([1])
+param oneArray array
+
+@minLength(1)
+@allowed(['fizz', 'buzz', 'pop'])
+param permittedSubsetArray array
+
+output fizz string = fizzArray[0]
+output trueVal bool = trueArray[0]
+output one int = oneArray[0]
+output fizzBuzzOrPop string = permittedSubsetArray[0]
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath("$.parameters.fizzArray.allowedValues", new JArray("fizz"));
+            result.Template.Should().NotHaveValueAtPath("$.parameters.fizzArray.items");
+
+            result.Template.Should().HaveValueAtPath("$.parameters.trueArray.allowedValues", new JArray(true));
+            result.Template.Should().NotHaveValueAtPath("$.parameters.trueArray.items");
+
+            result.Template.Should().HaveValueAtPath("$.parameters.oneArray.allowedValues", new JArray(1));
+            result.Template.Should().NotHaveValueAtPath("$.parameters.oneArray.items");
+
+            result.Template.Should().HaveValueAtPath("$.parameters.permittedSubsetArray.allowedValues", new JArray("fizz", "buzz", "pop"));
+            result.Template.Should().NotHaveValueAtPath("$.parameters.permittedSubsetArray.items");
+        }
     }
 }

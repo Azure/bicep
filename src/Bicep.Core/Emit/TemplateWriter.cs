@@ -367,10 +367,15 @@ namespace Bicep.Core.Emit
         {
             var baseObject = GetTypePropertiesForTypeSymbol(typedArrayType as ArrayType);
 
-            if (typedArrayType.Item is UnionType unionType && !unionType.Members.OfType<ArrayType>().Any())
+            if (TypeHelper.IsLiteralType(typedArrayType.Item.Type))
+            {
+                baseObject = baseObject.MergeProperty("allowedValues", SyntaxFactory.CreateArray(ToLiteralValue(typedArrayType.Item).AsEnumerable()));
+            }
+            else if (typedArrayType.Item.Type is UnionType unionType && !unionType.Members.OfType<ArrayType>().Any())
             {
                 baseObject = baseObject.MergeProperty("allowedValues", SyntaxFactory.CreateArray(unionType.Members.Select(ToLiteralValue)));
-            } else
+            }
+            else
             {
                 baseObject = baseObject.MergeProperty("items", GetTypePropertiesForTypeSymbol(typedArrayType.Item, (declaringSyntax as ArrayTypeSyntax)?.Item));
             }
