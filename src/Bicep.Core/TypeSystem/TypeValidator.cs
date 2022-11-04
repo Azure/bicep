@@ -491,7 +491,11 @@ namespace Bicep.Core.TypeSystem
             }
 
             var viableCandidates = candidacyEvaluations
-                .Select(c => c.NarrowedType is {} Narrowed && !c.Errors.Any() ? new ViableTypeCandidate(Narrowed, c.Diagnostics) : null)
+                .Select(c => c.NarrowedType is {} Narrowed && !c.Errors.Any()
+                    // If this node was encountered in a resource declaration, use the target type rather than the narrowed type, as the
+                    // target type describes what will be returned by the service (included derived and read-only fields)
+                    ? new ViableTypeCandidate(config.IsResourceDeclaration ? c.UnionTypeMemberEvaluated.Type : Narrowed, c.Diagnostics)
+                    : null)
                 .WhereNotNull()
                 .ToImmutableArray();
 
