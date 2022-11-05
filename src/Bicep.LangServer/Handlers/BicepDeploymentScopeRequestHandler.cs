@@ -76,7 +76,7 @@ namespace Bicep.LanguageServer.Handlers
             this.bicepAnalyzer = bicepAnalyzer;
         }
 
-        public override Task<BicepDeploymentScopeResponse> Handle(BicepDeploymentScopeParams request, CancellationToken cancellationToken)
+        public override async Task<BicepDeploymentScopeResponse> Handle(BicepDeploymentScopeParams request, CancellationToken cancellationToken)
         {
             var documentUri = request.TextDocument.Uri;
 
@@ -84,7 +84,7 @@ namespace Bicep.LanguageServer.Handlers
 
             try
             {
-                compilation = CompilationHelper.GetCompilation(
+                compilation = await CompilationHelper.GetCompilationAsync(
                     documentUri,
                     documentUri.ToUri(),
                     apiVersionProviderFactory,
@@ -101,11 +101,11 @@ namespace Bicep.LanguageServer.Handlers
 
                 var deploymentScope = GetDeploymentScope(compilation.GetEntrypointSemanticModel().TargetScope);
 
-                return Task.FromResult(new BicepDeploymentScopeResponse(deploymentScope, GetCompiledFile(compilation, documentUri), null));
+                return new BicepDeploymentScopeResponse(deploymentScope, GetCompiledFile(compilation, documentUri), null);
             }
             catch (Exception exception)
             {
-                return Task.FromResult(new BicepDeploymentScopeResponse(ResourceScope.None.ToString(), null, exception.Message));
+                return new BicepDeploymentScopeResponse(ResourceScope.None.ToString(), null, exception.Message);
             }
         }
 

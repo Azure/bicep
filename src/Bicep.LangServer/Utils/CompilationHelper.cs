@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Threading.Tasks;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
@@ -18,7 +19,7 @@ namespace Bicep.LanguageServer.Utils
 {
     public static class CompilationHelper
     {
-        public static Compilation GetCompilation(
+        public static async Task<Compilation> GetCompilationAsync(
             DocumentUri documentUri,
             Uri fileUri,
             IApiVersionProviderFactory apiVersionProviderFactory,
@@ -37,7 +38,15 @@ namespace Bicep.LanguageServer.Utils
             // E.g. When user right clicks on a file from the explorer context menu without opening the file and invokes build/deploy
             if (context is null)
             {
-                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, new Workspace(), fileUri);
+                var workspace = new Workspace();
+                var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, fileUri);
+
+                if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.GetModulesToRestore())))
+                {
+                    // modules had to be restored - recompile
+                    sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, workspace, sourceFileGrouping);
+                }
+
                 return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
             }
             else

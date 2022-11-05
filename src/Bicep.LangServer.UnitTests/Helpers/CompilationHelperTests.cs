@@ -18,6 +18,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 using CompilationHelper = Bicep.LanguageServer.Utils.CompilationHelper;
+using System.Threading.Tasks;
 
 namespace Bicep.LangServer.UnitTests.Helpers
 {
@@ -32,7 +33,7 @@ namespace Bicep.LangServer.UnitTests.Helpers
         private readonly ModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, configurationManager);
 
         [TestMethod]
-        public void GetCompilation_WithNullCompilationContext_ShouldCreateCompilation()
+        public async Task GetCompilationAsync_WithNullCompilationContext_ShouldCreateCompilation()
         {
             string bicepFileContents = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: 'dnsZone'
@@ -46,7 +47,7 @@ namespace Bicep.LangServer.UnitTests.Helpers
 
             compilationContext.Should().BeNull();
 
-            var compilation = CompilationHelper.GetCompilation(
+            var compilation = await CompilationHelper.GetCompilationAsync(
                 documentUri,
                 documentUri.ToUri(),
                 BicepTestConstants.ApiVersionProviderFactory,
@@ -62,7 +63,7 @@ namespace Bicep.LangServer.UnitTests.Helpers
         }
 
         [TestMethod]
-        public void GetCompilation_WithNonNullCompilationContext_ShouldReuseCompilation()
+        public async Task GetCompilationAsync_WithNonNullCompilationContext_ShouldReuseCompilation()
         {
             string bicepFileContents = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: 'dnsZone'
@@ -73,7 +74,7 @@ namespace Bicep.LangServer.UnitTests.Helpers
             // Upsert compilation. This will cause CompilationContext to be non null
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, upsertCompilation: true);
 
-            var compilation = CompilationHelper.GetCompilation(
+            var compilation = await CompilationHelper.GetCompilationAsync(
                 documentUri,
                 documentUri.ToUri(),
                 BicepTestConstants.ApiVersionProviderFactory,
