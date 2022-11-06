@@ -14,7 +14,9 @@ import {
 } from "./utils/br";
 import { invokingBicepCommand } from "./utils/command";
 import {
+  emptyDir,
   expectFileExists,
+  moduleCacheRoot,
   pathToCachedTsModuleFile,
   pathToExampleFile,
   pathToTempFile,
@@ -23,9 +25,15 @@ import {
 } from "./utils/fs";
 import { getEnvironment } from "./utils/liveTestEnvironments";
 
+async function emptyModuleCacheRoot() {
+  await emptyDir(moduleCacheRoot);
+}
+
 describe("bicep build", () => {
   const testArea = "build";
   const environment = getEnvironment();
+
+  beforeEach(emptyModuleCacheRoot);
 
   it("should fail to build with --no-restore switch if modules are not cached", () => {
     const bicep = `
@@ -154,6 +162,58 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
         `${environment.templateSpecSubscriptionId}/bicep-ci/webappspec-${environment.resourceSuffix}/1.0.0`,
         "main.json"
       )
+    );
+  });
+
+  it("should build file deeply nested external modules", () => {
+    const builder = new BicepRegistryReferenceBuilder(
+      environment.registryUri,
+      testArea
+    );
+
+    const passthroughRef = builder.getBicepReference("passthrough", "v1");
+    publishModule(
+      environment.environmentOverrides,
+      passthroughRef,
+      "modules" + environment.suffix,
+      "passthrough.bicep"
+    );
+
+    const nested0 = `
+module nested1 'nested1.bicep' = {
+  name: 'nested1'
+}
+`;
+
+    const nested1 = `
+module nested2 'nested2.bicep' = {
+  name: 'nested2'
+}
+`;
+
+    const nested2 = `
+module passthrough '${passthroughRef}' = {
+  name: 'passthrough'
+  params: {
+    text: 'hello'
+    number: 42
+  }
+}
+`;
+
+    const bicepPath = writeTempFile("build", "nested0.bicep", nested0);
+    writeTempFile("build", "nested1.bicep", nested1);
+    writeTempFile("build", "nested2.bicep", nested2);
+
+    invokingBicepCommand("build", bicepPath)
+      .withEnvironmentOverrides(environment.environmentOverrides)
+      .shouldSucceed()
+      .withEmptyStdout();
+
+    expectBrModuleStructure(
+      builder.registry,
+      "build$passthrough",
+      `v1_${builder.tagSuffix}$4002000`
     );
   });
 });

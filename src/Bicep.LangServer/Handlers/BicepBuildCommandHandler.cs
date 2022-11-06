@@ -56,7 +56,7 @@ namespace Bicep.LanguageServer.Handlers
             this.bicepAnalyzer = bicepAnalyzer;
         }
 
-        public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
+        public override async Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(bicepFilePath))
             {
@@ -64,12 +64,12 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            string buildOutput = GenerateCompiledFileAndReturnBuildOutputMessage(bicepFilePath, documentUri);
+            string buildOutput = await GenerateCompiledFileAndReturnBuildOutputMessageAsync(bicepFilePath, documentUri);
 
-            return Task.FromResult(buildOutput);
+            return buildOutput;
         }
 
-        private string GenerateCompiledFileAndReturnBuildOutputMessage(string bicepFilePath, DocumentUri documentUri)
+        private async Task<string> GenerateCompiledFileAndReturnBuildOutputMessageAsync(string bicepFilePath, DocumentUri documentUri)
         {
             string compiledFilePath = PathHelper.GetDefaultBuildOutputPath(bicepFilePath);
             string compiledFile = Path.GetFileName(compiledFilePath);
@@ -83,7 +83,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var fileUri = documentUri.ToUri();
 
-            var compilation = CompilationHelper.GetCompilation(
+            var compilation = await CompilationHelper.GetCompilationAsync(
                 documentUri,
                 fileUri,
                 apiVersionProviderFactory,

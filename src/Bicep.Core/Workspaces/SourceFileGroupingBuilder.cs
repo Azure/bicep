@@ -69,6 +69,8 @@ namespace Bicep.Core.Workspaces
             // Rebuild source files that contains external module references restored during the inital build.
             var sourceFilesToRebuild = current.SourceFiles
                 .Where(sourceFile => GetModuleDeclarations(sourceFile).Any(moduleDeclaration => modulesToRestore.Contains(new(moduleDeclaration, sourceFile))))
+                .ToImmutableHashSet()
+                .SelectMany(sourceFile => current.GetFilesDependingOn(sourceFile))
                 .ToImmutableHashSet();
 
             return builder.Build(current.EntryPoint.FileUri, sourceFilesToRebuild);
