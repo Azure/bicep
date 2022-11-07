@@ -88,7 +88,17 @@ namespace Bicep.Core.TypeSystem
             StringLiteralType => true,
             IntegerLiteralType => true,
             BooleanLiteralType => true,
-            ObjectType objectType => objectType.Properties.All(kvp => IsLiteralType(kvp.Value.TypeReference.Type)),
+
+            // An object type can be a literal iff:
+            //   - All properties are themselves of a literal type
+            //   - No properties are optional
+            //   - Only explicitly defined properties are accepted (i.e., no additional properties are permitted)
+            //
+            // The lattermost condition is identified by the object type either not defining an AdditionalPropertiesType
+            // or explicitly flagging the AdditionalPropertiesType as a fallback (the default for non-sealed user-defined types)
+            ObjectType objectType => (objectType.AdditionalPropertiesType is null || objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)) &&
+                objectType.Properties.All(kvp => kvp.Value.Flags.HasFlag(TypePropertyFlags.Required) && IsLiteralType(kvp.Value.TypeReference.Type)),
+
             // TODO for array literals when type system adds support for tuples
             _ => false,
         };
