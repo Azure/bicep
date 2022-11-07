@@ -26,10 +26,10 @@ namespace Bicep.LanguageServer.Handlers
     // It returns build succeeded/failed message, which can be displayed approriately in IDE output window
     public class BicepBuildCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
-        private readonly IBicepCompiler bicepCompiler;
+        private readonly BicepCompiler bicepCompiler;
         private readonly ICompilationManager compilationManager;
 
-        public BicepBuildCommandHandler(IBicepCompiler bicepCompiler, ICompilationManager compilationManager, ISerializer serializer)
+        public BicepBuildCommandHandler(BicepCompiler bicepCompiler, ICompilationManager compilationManager, ISerializer serializer)
             : base(LangServerConstants.BuildCommand, serializer)
         {
             this.bicepCompiler = bicepCompiler;

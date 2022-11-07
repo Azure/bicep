@@ -20,14 +20,14 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Decompiler;
 
-public class BicepDecompiler : IBicepDecompiler
+public class BicepDecompiler
 {
-    private readonly IBicepCompiler bicepCompiler;
+    private readonly BicepCompiler bicepCompiler;
     private readonly IFileResolver fileResolver;
 
     public static string DecompilerDisclaimerMessage => DecompilerResources.DecompilerDisclaimerMessage;
 
-    public BicepDecompiler(IBicepCompiler bicepCompiler, IFileResolver fileResolver)
+    public BicepDecompiler(BicepCompiler bicepCompiler, IFileResolver fileResolver)
     {
         this.bicepCompiler = bicepCompiler;
         this.fileResolver = fileResolver;

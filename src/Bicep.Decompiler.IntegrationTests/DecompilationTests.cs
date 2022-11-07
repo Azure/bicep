@@ -30,8 +30,8 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static IBicepDecompiler CreateDecompiler(IFileResolver fileResolver)
-            => TestDiHelper.Create(s => s.WithEmptyAzResources().WithFileResolver(fileResolver)).Construct<IBicepDecompiler>();
+        private static BicepDecompiler CreateDecompiler(IFileResolver fileResolver)
+            => TestDiHelper.Create(s => s.WithEmptyAzResources().WithFileResolver(fileResolver)).Construct<BicepDecompiler>();
 
         [TestMethod]
         public void ExampleData_should_return_a_number_of_records()
@@ -55,7 +55,7 @@ namespace Bicep.Core.IntegrationTests
             var jsonFile = baselineFolder.EntryFile;
 
             var jsonUri = PathHelper.FilePathToFileUrl(jsonFile.OutputFilePath);
-            var decompiler = TestDiHelper.Create().Construct<IBicepDecompiler>();
+            var decompiler = TestDiHelper.Create().Construct<BicepDecompiler>();
             var (bicepUri, filesToSave) = await decompiler.Decompile(jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
 
             var result = CompilationHelper.Compile(new(), new InMemoryFileResolver(filesToSave), filesToSave.Keys, bicepUri);

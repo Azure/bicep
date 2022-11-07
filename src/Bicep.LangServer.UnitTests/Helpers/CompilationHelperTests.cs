@@ -30,7 +30,7 @@ namespace Bicep.LangServer.UnitTests.Helpers
 }";
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            var bicepCompiler = TestDiHelper.Create().Construct<IBicepCompiler>();
+            var bicepCompiler = TestDiHelper.Create().Construct<BicepCompiler>();
 
             // Do not upsert compilation. This will cause CompilationContext to be null
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, upsertCompilation: false);
@@ -52,7 +52,7 @@ namespace Bicep.LangServer.UnitTests.Helpers
 }";
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            var bicepCompiler = TestDiHelper.Create().Construct<IBicepCompiler>();
+            var bicepCompiler = TestDiHelper.Create().Construct<BicepCompiler>();
 
             // Upsert compilation. This will cause CompilationContext to be non null
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, upsertCompilation: true);

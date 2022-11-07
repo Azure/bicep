@@ -14,7 +14,7 @@ using Bicep.Core.Workspaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace Bicep.Core;
+namespace Bicep.Core.UnitTests;
 
 public interface IBicepService
 {

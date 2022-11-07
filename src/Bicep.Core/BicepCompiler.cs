@@ -14,7 +14,7 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core;
 
-public class BicepCompiler : IBicepCompiler
+public class BicepCompiler
 {
     private readonly IFeatureProviderFactory featureProviderFactory;
     private readonly INamespaceProvider namespaceProvider;
@@ -42,7 +42,7 @@ public class BicepCompiler : IBicepCompiler
         this.moduleDispatcher = moduleDispatcher;
     }
 
-    public async Task<Compilation> CreateCompilation(Uri bicepUri, bool skipRestore, IReadOnlyWorkspace? workspace)
+    public async Task<Compilation> CreateCompilation(Uri bicepUri, bool skipRestore = false, IReadOnlyWorkspace? workspace = null)
     {
         workspace ??= new Workspace();
         var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, bicepUri, false);

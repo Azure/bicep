@@ -10,6 +10,7 @@ using System.IO.Abstractions;
 using System.Collections.Immutable;
 using FluentAssertions;
 using System;
+using Bicep.Core.UnitTests;
 
 namespace Bicep.Tools.Benchmark;
 

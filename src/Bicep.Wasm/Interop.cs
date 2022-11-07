@@ -66,7 +66,7 @@ namespace Bicep.Wasm
         public async Task<DecompileResult> Decompile(string jsonContent)
         {
             using var serviceScope = serviceProvider.CreateScope();
-            var decompiler = serviceScope.ServiceProvider.GetRequiredService<IBicepDecompiler>();
+            var decompiler = serviceScope.ServiceProvider.GetRequiredService<BicepDecompiler>();
             var fileSystem = serviceScope.ServiceProvider.GetRequiredService<IFileSystem>();
 
             var jsonUri = new Uri("file:///main.json");
@@ -142,7 +142,7 @@ namespace Bicep.Wasm
         private async Task<Compilation> GetCompilation(string fileContents)
         {
             using var serviceScope = serviceProvider.CreateScope();
-            var compiler = serviceScope.ServiceProvider.GetRequiredService<IBicepCompiler>();
+            var compiler = serviceScope.ServiceProvider.GetRequiredService<BicepCompiler>();
             var fileSystem = serviceScope.ServiceProvider.GetRequiredService<IFileSystem>();
 
             var fileUri = new Uri("file:///main.bicep");

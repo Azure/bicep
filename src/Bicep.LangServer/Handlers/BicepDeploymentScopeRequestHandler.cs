@@ -34,12 +34,12 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDeploymentScopeRequestHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentScopeParams, BicepDeploymentScopeResponse>
     {
-        private readonly IBicepCompiler bicepCompiler;
+        private readonly BicepCompiler bicepCompiler;
         private readonly ICompilationManager compilationManager;
         private readonly IDeploymentFileCompilationCache deploymentFileCompilationCache;
 
         public BicepDeploymentScopeRequestHandler(
-            IBicepCompiler bicepCompiler,
+            BicepCompiler bicepCompiler,
             ICompilationManager compilationManager,
             IDeploymentFileCompilationCache deploymentFileCompilationCache,
             ISerializer serializer)

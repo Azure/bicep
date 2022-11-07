@@ -34,9 +34,9 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepGenerateParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
         private readonly ICompilationManager compilationManager;
-        private readonly IBicepCompiler bicepCompiler;
+        private readonly BicepCompiler bicepCompiler;
 
-        public BicepGenerateParamsCommandHandler(ICompilationManager compilationManager, IBicepCompiler bicepCompiler, ISerializer serializer)
+        public BicepGenerateParamsCommandHandler(ICompilationManager compilationManager, BicepCompiler bicepCompiler, ISerializer serializer)
             : base(LangServerConstants.GenerateParamsCommand, serializer)
         {
             this.compilationManager = compilationManager;

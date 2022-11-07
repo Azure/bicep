@@ -85,14 +85,14 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDecompileCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDecompileCommandParams, BicepDecompileCommandResult>
     {
-        private readonly IBicepDecompiler bicepDecompiler;
+        private readonly BicepDecompiler bicepDecompiler;
         private readonly TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult> telemetryHelper;
 
         public BicepDecompileCommandHandler(
             ISerializer serializer,
             ILanguageServerFacade server,
             ITelemetryProvider telemetryProvider,
-            IBicepDecompiler bicepDecompiler)
+            BicepDecompiler bicepDecompiler)
             : base(LangServerConstants.DecompileCommand, serializer)
         {
             this.telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult>(server.Window, telemetryProvider);

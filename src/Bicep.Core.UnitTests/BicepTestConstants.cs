@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
@@ -18,10 +17,8 @@ using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
-using Bicep.Decompiler;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
-using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 

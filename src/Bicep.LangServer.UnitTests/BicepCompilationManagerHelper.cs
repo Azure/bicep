@@ -52,7 +52,6 @@ namespace Bicep.LangServer.UnitTests
                 .AddSingleton(BicepTestConstants.CreateMockTelemetryProvider().Object)
                 .AddSingleton<ICompilationProvider, BicepCompilationProvider>()
                 .AddSingleton<IWorkspace>(workspace)
-                .WithFeatureOverrides(new())
                 .AddSingleton<BicepCompilationManager>());
 
             return helper.Construct<BicepCompilationManager>();

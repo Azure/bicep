@@ -11,10 +11,10 @@ namespace Bicep.LanguageServer.Utils
 {
     public class CompilationHelper
     {
-        private readonly IBicepCompiler bicepCompiler;
+        private readonly BicepCompiler bicepCompiler;
         private readonly ICompilationManager compilationManager;
 
-        public CompilationHelper(IBicepCompiler bicepCompiler, ICompilationManager compilationManager)
+        public CompilationHelper(BicepCompiler bicepCompiler, ICompilationManager compilationManager)
         {
             this.bicepCompiler = bicepCompiler;
             this.compilationManager = compilationManager;

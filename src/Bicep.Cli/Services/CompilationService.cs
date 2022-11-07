@@ -26,16 +26,16 @@ namespace Bicep.Cli.Services
 {
     public class CompilationService
     {
-        private readonly IBicepCompiler bicepCompiler;
-        private readonly IBicepDecompiler decompiler;
+        private readonly BicepCompiler bicepCompiler;
+        private readonly BicepDecompiler decompiler;
         private readonly IDiagnosticLogger diagnosticLogger;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IConfigurationManager configurationManager;
         private readonly Workspace workspace;
 
         public CompilationService(
-            IBicepCompiler bicepCompiler,
-            IBicepDecompiler decompiler,
+            BicepCompiler bicepCompiler,
+            BicepDecompiler decompiler,
             IDiagnosticLogger diagnosticLogger,
             IModuleDispatcher moduleDispatcher,
             IConfigurationManager configurationManager)

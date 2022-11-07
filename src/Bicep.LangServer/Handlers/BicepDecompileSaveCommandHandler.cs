@@ -44,7 +44,7 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDecompileSaveCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDecompileSaveCommandParams, BicepDecompileSaveCommandResult>
     {
-        private readonly IBicepDecompiler bicepDecompiler;
+        private readonly BicepDecompiler bicepDecompiler;
         private readonly ILanguageServerFacade languageServerFacade;
         private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
         private readonly TelemetryAndErrorHandlingHelper<BicepDecompileSaveCommandResult> telemetryHelper;
@@ -54,7 +54,7 @@ namespace Bicep.LanguageServer.Handlers
             ILanguageServerFacade server,
             ITelemetryProvider telemetryProvider,
             IClientCapabilitiesProvider clientCapabilitiesProvider,
-            IBicepDecompiler bicepDecompiler)
+            BicepDecompiler bicepDecompiler)
             : base(LangServerConstants.DecompileSaveCommand, serializer)
         {
             this.telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileSaveCommandResult>(server.Window, telemetryProvider);
