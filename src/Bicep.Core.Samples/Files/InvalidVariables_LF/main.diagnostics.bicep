@@ -150,10 +150,10 @@ var objWithInterp = {
 // invalid fully qualified function access
 var mySum = az.add(1,2)
 //@[04:09) [no-unused-vars (Warning)] Variable "mySum" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mySum|
-//@[15:18) [BCP107 (Error)] The function "add" does not exist in namespace "az". (CodeDescription: none) |add|
+//@[15:18) [BCP067 (Error)] Cannot call functions on type "1". An "object" type is required. (CodeDescription: none) |add|
 var myConcat = sys.concat('a', az.concat('b', 'c'))
 //@[04:12) [no-unused-vars (Warning)] Variable "myConcat" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |myConcat|
-//@[34:40) [BCP107 (Error)] The function "concat" does not exist in namespace "az". (CodeDescription: none) |concat|
+//@[34:40) [BCP067 (Error)] Cannot call functions on type "1". An "object" type is required. (CodeDescription: none) |concat|
 
 // invalid string using double quotes
 var doubleString = "bad string"
@@ -188,12 +188,10 @@ var invalidEnvAuthVar = environment().authentication.asdgdsag
 // invalid use of reserved namespace
 var az = 1
 //@[04:06) [BCP084 (Error)] The symbolic name "az" is reserved. Please use a different symbolic name. Reserved namespaces are "az", "sys". (CodeDescription: none) |az|
-//@[04:06) [no-unused-vars (Warning)] Variable "az" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |az|
 
 // cannot assign a variable to a namespace
 var invalidNamespaceAssignment = az
 //@[04:30) [no-unused-vars (Warning)] Variable "invalidNamespaceAssignment" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |invalidNamespaceAssignment|
-//@[33:35) [BCP041 (Error)] Values of type "az" cannot be assigned to a variable. (CodeDescription: none) |az|
 
 var objectLiteralType = {
   first: true
@@ -340,6 +338,7 @@ resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneI
   name: zone
   location: az.resourceGroup().location
 //@[12:39) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |az.resourceGroup().location|
+//@[15:28) [BCP067 (Error)] Cannot call functions on type "1". An "object" type is required. (CodeDescription: none) |resourceGroup|
 }]
 var inlinedVariable = zones[0].properties.zoneType
 

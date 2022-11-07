@@ -4,8 +4,9 @@ param deployTimeParam string = 'steve'
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0021) | ├─IdentifierSyntax
 //@[06:0021) | | └─Token(Identifier) |deployTimeParam|
-//@[22:0028) | ├─SimpleTypeSyntax
-//@[22:0028) | | └─Token(Identifier) |string|
+//@[22:0028) | ├─VariableAccessSyntax
+//@[22:0028) | | └─IdentifierSyntax
+//@[22:0028) | |   └─Token(Identifier) |string|
 //@[29:0038) | └─ParameterDefaultValueSyntax
 //@[29:0030) |   ├─Token(Assignment) |=|
 //@[31:0038) |   └─StringSyntax
@@ -143,8 +144,9 @@ output resourceAType string = resA.type
 //@[00:0006) | ├─Token(Identifier) |output|
 //@[07:0020) | ├─IdentifierSyntax
 //@[07:0020) | | └─Token(Identifier) |resourceAType|
-//@[21:0027) | ├─SimpleTypeSyntax
-//@[21:0027) | | └─Token(Identifier) |string|
+//@[21:0027) | ├─VariableAccessSyntax
+//@[21:0027) | | └─IdentifierSyntax
+//@[21:0027) | |   └─Token(Identifier) |string|
 //@[28:0029) | ├─Token(Assignment) |=|
 //@[30:0039) | └─PropertyAccessSyntax
 //@[30:0034) |   ├─VariableAccessSyntax
@@ -210,8 +212,9 @@ output resourceBId string = resB.id
 //@[00:0006) | ├─Token(Identifier) |output|
 //@[07:0018) | ├─IdentifierSyntax
 //@[07:0018) | | └─Token(Identifier) |resourceBId|
-//@[19:0025) | ├─SimpleTypeSyntax
-//@[19:0025) | | └─Token(Identifier) |string|
+//@[19:0025) | ├─VariableAccessSyntax
+//@[19:0025) | | └─IdentifierSyntax
+//@[19:0025) | |   └─Token(Identifier) |string|
 //@[26:0027) | ├─Token(Assignment) |=|
 //@[28:0035) | └─PropertyAccessSyntax
 //@[28:0032) |   ├─VariableAccessSyntax
@@ -440,8 +443,9 @@ output resourceCProperties object = resC.properties
 //@[00:0006) | ├─Token(Identifier) |output|
 //@[07:0026) | ├─IdentifierSyntax
 //@[07:0026) | | └─Token(Identifier) |resourceCProperties|
-//@[27:0033) | ├─SimpleTypeSyntax
-//@[27:0033) | | └─Token(Identifier) |object|
+//@[27:0033) | ├─VariableAccessSyntax
+//@[27:0033) | | └─IdentifierSyntax
+//@[27:0033) | |   └─Token(Identifier) |object|
 //@[34:0035) | ├─Token(Assignment) |=|
 //@[36:0051) | └─PropertyAccessSyntax
 //@[36:0040) |   ├─VariableAccessSyntax

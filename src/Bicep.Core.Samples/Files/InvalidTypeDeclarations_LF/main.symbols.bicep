@@ -7,9 +7,6 @@ type noAssignment
 type incompleteAssignment =
 //@[5:25) TypeAlias incompleteAssignment. Type: Type<any>. Declaration start char: 0, length: 27
 
-type string = int
-//@[5:11) TypeAlias string. Type: Type<int>. Declaration start char: 0, length: 17
-
 type resource = bool
 //@[5:13) TypeAlias resource. Type: Type<bool>. Declaration start char: 0, length: 20
 

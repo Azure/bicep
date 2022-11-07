@@ -65,11 +65,14 @@ namespace Bicep.Core.UnitTests.Syntax
             var varIdSyntax = nodes.OfType<IdentifierSyntax>().Single(id => string.Equals(id.IdentifierName, "bar"));
             hierarchy.GetParent(varIdSyntax).Should().BeSameAs(varDecl);
 
-            var paramTypeSyntax = nodes.OfType<TypeSyntax>().Single();
+            var paramTypeSyntax = nodes.OfType<VariableAccessSyntax>().Single();
             hierarchy.GetParent(paramTypeSyntax).Should().BeSameAs(paramDecl);
 
+            var paramTypeIdSyntax = nodes.OfType<IdentifierSyntax>().Single(id => string.Equals(id.IdentifierName, "string"));
+            hierarchy.GetParent(paramTypeIdSyntax).Should().BeSameAs(paramTypeSyntax);
+
             var paramTypeToken = nodes.OfType<Token>().Single(t => t.Type == TokenType.Identifier && string.Equals(t.Text, "string"));
-            hierarchy.GetParent(paramTypeToken).Should().BeSameAs(paramTypeSyntax);
+            hierarchy.GetParent(paramTypeToken).Should().BeSameAs(paramTypeIdSyntax);
         }
     }
 }

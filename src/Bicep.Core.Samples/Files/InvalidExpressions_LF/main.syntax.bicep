@@ -1144,8 +1144,9 @@ param funcvarparam bool = concat
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0018) | ├─IdentifierSyntax
 //@[06:0018) | | └─Token(Identifier) |funcvarparam|
-//@[19:0023) | ├─SimpleTypeSyntax
-//@[19:0023) | | └─Token(Identifier) |bool|
+//@[19:0023) | ├─VariableAccessSyntax
+//@[19:0023) | | └─IdentifierSyntax
+//@[19:0023) | |   └─Token(Identifier) |bool|
 //@[24:0032) | └─ParameterDefaultValueSyntax
 //@[24:0025) |   ├─Token(Assignment) |=|
 //@[26:0032) |   └─VariableAccessSyntax
@@ -1157,8 +1158,9 @@ output funcvarout array = padLeft
 //@[00:0006) | ├─Token(Identifier) |output|
 //@[07:0017) | ├─IdentifierSyntax
 //@[07:0017) | | └─Token(Identifier) |funcvarout|
-//@[18:0023) | ├─SimpleTypeSyntax
-//@[18:0023) | | └─Token(Identifier) |array|
+//@[18:0023) | ├─VariableAccessSyntax
+//@[18:0023) | | └─IdentifierSyntax
+//@[18:0023) | |   └─Token(Identifier) |array|
 //@[24:0025) | ├─Token(Assignment) |=|
 //@[26:0033) | └─VariableAccessSyntax
 //@[26:0033) |   └─IdentifierSyntax
@@ -1198,8 +1200,9 @@ param fakeFuncP string = blue()
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0015) | ├─IdentifierSyntax
 //@[06:0015) | | └─Token(Identifier) |fakeFuncP|
-//@[16:0022) | ├─SimpleTypeSyntax
-//@[16:0022) | | └─Token(Identifier) |string|
+//@[16:0022) | ├─VariableAccessSyntax
+//@[16:0022) | | └─IdentifierSyntax
+//@[16:0022) | |   └─Token(Identifier) |string|
 //@[23:0031) | └─ParameterDefaultValueSyntax
 //@[23:0024) |   ├─Token(Assignment) |=|
 //@[25:0031) |   └─FunctionCallSyntax

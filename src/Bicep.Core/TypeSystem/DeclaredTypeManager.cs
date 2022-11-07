@@ -137,7 +137,7 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax)
         {
-            var declaredType = TryGetTypeFromTypeSyntax(syntax.Type);
+            var declaredType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false);
             declaredType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType(GetValidTypeNames()));
 
             return new(declaredType, syntax);
@@ -212,7 +212,7 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostic);
             }
 
-            return GetTypeFromTypeSyntax(symbol.DeclaringType.Value);
+            return GetTypeFromTypeSyntax(symbol.DeclaringType.Value, allowNamespaceReferences: false);
         }
 
         private DeclaredTypeAssignment? GetTypePropertyType(ObjectTypePropertySyntax syntax)
@@ -220,12 +220,12 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference? GetTypeReferencForTypeProperty(ObjectTypePropertySyntax syntax)
         {
-            if (syntax.Value is TypeAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol signified)
+            if (syntax.Value is VariableAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol signified)
             {
                 return new DeferredTypeReference(() => TypeRefToType(signifier, signified));
             }
 
-            return TryGetTypeFromTypeSyntax(syntax.Value);
+            return TryGetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false);
         }
 
         private DeclaredTypeAssignment? GetTypeMemberType(ArrayTypeMemberSyntax syntax)
@@ -233,26 +233,26 @@ namespace Bicep.Core.TypeSystem
 
         private ITypeReference? GetTypeReferenceForMemberType(ArrayTypeMemberSyntax syntax)
         {
-            if (syntax.Value is TypeAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol signified)
+            if (syntax.Value is VariableAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol signified)
             {
                 return new DeferredTypeReference(() => TypeRefToType(signifier, signified));
             }
 
-            return TryGetTypeFromTypeSyntax(syntax.Value);
+            return TryGetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false);
         }
 
         private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax)
         {
-            var declaredType = TryGetTypeFromTypeSyntax(syntax.Type) ??
+            var declaredType = TryGetTypeFromTypeSyntax(syntax.Type, allowNamespaceReferences: false) ??
                 ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType());
 
             return new(declaredType, syntax);
         }
 
-        private TypeSymbol GetTypeFromTypeSyntax(SyntaxBase syntax) => TryGetTypeFromTypeSyntax(syntax)
+        private TypeSymbol GetTypeFromTypeSyntax(SyntaxBase syntax, bool allowNamespaceReferences) => TryGetTypeFromTypeSyntax(syntax, allowNamespaceReferences)
             ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidTypeDefinition());
 
-        private TypeSymbol? TryGetTypeFromTypeSyntax(SyntaxBase syntax)
+        private TypeSymbol? TryGetTypeFromTypeSyntax(SyntaxBase syntax, bool allowNamespaceReferences)
         {
             RuntimeHelpers.EnsureSufficientExecutionStack();
 
@@ -260,9 +260,8 @@ namespace Bicep.Core.TypeSystem
             return syntax switch
             {
                 SkippedTriviaSyntax => LanguageConstants.Any,
-                SimpleTypeSyntax simple => LanguageConstants.TryGetDeclarationType(simple.TypeName),
                 ResourceTypeSyntax resource => GetDeclaredType(resource),
-                TypeAccessSyntax typeRef => ConvertTypeExpressionToType(typeRef),
+                VariableAccessSyntax typeRef => ConvertTypeExpressionToType(typeRef, allowNamespaceReferences),
                 ArrayTypeSyntax array => ConvertTypeExpressionToType(array),
                 ObjectTypeSyntax @object => ConvertTypeExpressionToType(@object),
                 StringSyntax @string => ConvertTypeExpressionToType(@string),
@@ -270,7 +269,8 @@ namespace Bicep.Core.TypeSystem
                 BooleanLiteralSyntax @bool => ConvertTypeExpressionToType(@bool),
                 UnaryOperationSyntax unaryOperation => ConvertTypeExpressionToType(unaryOperation),
                 UnionTypeSyntax unionType => ConvertTypeExpressionToType(unionType),
-                ParenthesizedExpressionSyntax parenthesized => ConvertTypeExpressionToType(parenthesized),
+                ParenthesizedExpressionSyntax parenthesized => ConvertTypeExpressionToType(parenthesized, allowNamespaceReferences),
+                PropertyAccessSyntax propertyAccess => ConvertTypeExpressionToType(propertyAccess),
                 _ => null
             };
         }
@@ -308,19 +308,23 @@ namespace Bicep.Core.TypeSystem
             _ => null,
         };
 
-        private TypeSymbol ConvertTypeExpressionToType(TypeAccessSyntax syntax)
+        private TypeSymbol ConvertTypeExpressionToType(VariableAccessSyntax syntax, bool allowNamespaceReferences)
             => binder.GetSymbolInfo(syntax) switch
             {
+                BuiltInNamespaceSymbol builtInNamespace when allowNamespaceReferences => builtInNamespace.Type,
+                ImportedNamespaceSymbol importedNamespace when allowNamespaceReferences => importedNamespace.Type,
+                BuiltInNamespaceSymbol or ImportedNamespaceSymbol => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).NamespaceSymbolUsedAsType(syntax.Name.IdentifierName)),
+                AmbientTypeSymbol ambientType when ambientType.Type is TypeType assignableType => assignableType.Unwrapped,
                 TypeAliasSymbol declaredType => TypeRefToType(syntax, declaredType),
                 DeclaredSymbol declaredSymbol => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ValueSymbolUsedAsType(declaredSymbol.Name)),
                 _ => ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).SymbolicNameIsNotAType(syntax.Name.IdentifierName, GetValidTypeNames())),
             };
 
-        private IEnumerable<string> GetValidTypeNames() => LanguageConstants.DeclarationTypes.Keys
-                .Concat(binder.FileSymbol.TypeDeclarations.Select(td => td.Name))
-                .Distinct();
+        private IEnumerable<string> GetValidTypeNames() => binder.NamespaceResolver.GetKnownPropertyNames()
+            .Concat(binder.FileSymbol.TypeDeclarations.Select(td => td.Name))
+            .Distinct();
 
-        private TypeSymbol TypeRefToType(TypeAccessSyntax signifier, TypeAliasSymbol signified)
+        private TypeSymbol TypeRefToType(VariableAccessSyntax signifier, TypeAliasSymbol signified)
         {
             var signifiedType = userDefinedTypeReferences.GetOrAdd(signified, GetUserDefinedTypeType);
             if (signifiedType is ErrorType error)
@@ -395,7 +399,7 @@ namespace Bicep.Core.TypeSystem
 
         private string GetPropertyTypeName(SyntaxBase typeSyntax, ITypeReference propertyType)
         {
-            if (typeSyntax is TypeAccessSyntax typeAccess)
+            if (typeSyntax is VariableAccessSyntax typeAccess)
             {
                 return typeAccess.Name.IdentifierName;
             }
@@ -460,7 +464,7 @@ namespace Bicep.Core.TypeSystem
 
         private TypeSymbol ConvertTypeExpressionToType(UnaryOperationSyntax syntax)
         {
-            var baseExpressionType = GetTypeFromTypeSyntax(syntax.Expression);
+            var baseExpressionType = GetTypeFromTypeSyntax(syntax.Expression, allowNamespaceReferences: false);
 
             var evaluated = OperationReturnTypeEvaluator.FoldUnaryExpression(syntax, baseExpressionType, out var foldDiags);
             foldDiags ??= ImmutableArray<IDiagnostic>.Empty;
@@ -497,7 +501,7 @@ namespace Bicep.Core.TypeSystem
                 // Array<any> is the only location in which a null literal is a valid type
                 var memberType = mightBeArrayAny && IsNullLiteral(member.Value)
                     ? LanguageConstants.Null
-                    : GetTypeFromTypeSyntax(member.Value);
+                    : GetTypeFromTypeSyntax(member.Value, allowNamespaceReferences: false);
 
 
                 if (memberType is ErrorType error)
@@ -597,7 +601,30 @@ namespace Bicep.Core.TypeSystem
         private IEnumerable<TypeSymbol> FlattenUnionMemberType(ITypeReference memberType)
             => memberType.Type is UnionType union ? union.Members.SelectMany(FlattenUnionMemberType) : memberType.Type.AsEnumerable();
 
-        private TypeSymbol ConvertTypeExpressionToType(ParenthesizedExpressionSyntax syntax) => GetTypeFromTypeSyntax(syntax.Expression);
+        private TypeSymbol ConvertTypeExpressionToType(ParenthesizedExpressionSyntax syntax, bool allowNamespaceReferences)
+            => GetTypeFromTypeSyntax(syntax.Expression, allowNamespaceReferences);
+
+        private TypeSymbol ConvertTypeExpressionToType(PropertyAccessSyntax syntax)
+        {
+            var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression, allowNamespaceReferences: true);
+
+            if (baseType is ErrorType error)
+            {
+                return error;
+            }
+
+            if (baseType is not ObjectType objectType)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.PropertyName).ObjectRequiredForPropertyAccess(baseType));
+            }
+
+            // Diagnostics will be surfaced by the TypeAssignmentVisitor, so we're only concerned here with whether the property access would be an error type
+            return TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, shouldWarn: false, SimpleDiagnosticWriter.Create()) switch
+            {
+                TypeType tt => tt.Unwrapped,
+                TypeSymbol otherwise => otherwise,
+            };
+        }
 
         private DeclaredTypeAssignment? GetImportType(ImportDeclarationSyntax syntax)
         {

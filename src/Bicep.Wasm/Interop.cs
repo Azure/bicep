@@ -98,7 +98,7 @@ namespace Bicep.Wasm
         public object GetSemanticTokens(string content)
         {
             var compilation = GetCompilation(content);
-            var tokens = SemanticTokenVisitor.BuildSemanticTokens(compilation.SourceFileGrouping.EntryPoint);
+            var tokens = SemanticTokenVisitor.BuildSemanticTokens(compilation.GetEntrypointSemanticModel());
 
             var data = new List<int>();
             SemanticToken? prevToken = null;

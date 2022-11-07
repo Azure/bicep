@@ -141,11 +141,6 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Type);
         }
 
-        public virtual void VisitSimpleTypeSyntax(SimpleTypeSyntax syntax)
-        {
-            this.Visit(syntax.Identifier);
-        }
-
         public virtual void VisitObjectTypeSyntax(ObjectTypeSyntax syntax)
         {
             this.Visit(syntax.OpenBrace);
@@ -191,11 +186,6 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Name);
             this.Visit(syntax.Assignment);
             this.Visit(syntax.Value);
-        }
-
-        public virtual void VisitTypeAccessSyntax(TypeAccessSyntax syntax)
-        {
-            this.Visit(syntax.Name);
         }
 
         public virtual void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)

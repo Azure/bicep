@@ -62,7 +62,7 @@ namespace Bicep.LanguageServer.Handlers
                 },
                 SyntaxFactory.CreateToken(Core.Parsing.TokenType.Identifier, "param"),
                 SyntaxFactory.CreateIdentifier("kubeConfig"),
-                new SimpleTypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "string")),
+                new VariableAccessSyntax(new(SyntaxFactory.CreateToken(TokenType.Identifier, "string"))),
                 null));
 
             declarations.Add(new ImportDeclarationSyntax(

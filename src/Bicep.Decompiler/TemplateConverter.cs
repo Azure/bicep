@@ -152,7 +152,7 @@ namespace Bicep.Decompiler
             return ExpressionHelpers.FlattenStringOperations(inlined);
         }
 
-        private static SimpleTypeSyntax? TryParseType(JToken? value)
+        private static VariableAccessSyntax? TryParseType(JToken? value)
         {
             // ARM JSON always encodes the type as a simple type (not a resource type).
             var typeString = value?.Value<string>();
@@ -161,7 +161,7 @@ namespace Bicep.Decompiler
                 return null;
             }
 
-            return new SimpleTypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, typeString.ToLowerInvariant()));
+            return new VariableAccessSyntax(new(SyntaxFactory.CreateToken(TokenType.Identifier, typeString.ToLowerInvariant())));
         }
 
         private string? TryLookupResource(LanguageExpression expression)
@@ -787,21 +787,21 @@ namespace Bicep.Decompiler
 
             var typeSyntax = TryParseType(value.Value?["type"]) ?? throw new ConversionFailedException($"Unable to locate 'type' for parameter '{value.Name}'", value);
 
-            switch (typeSyntax.TypeName)
+            switch (typeSyntax.Name.IdentifierName)
             {
                 case "securestring":
-                    typeSyntax = new SimpleTypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "string"));
+                    typeSyntax = new VariableAccessSyntax(new(SyntaxFactory.CreateToken(TokenType.Identifier, "string")));
                     decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(LanguageConstants.ParameterSecurePropertyName));
                     decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
                     break;
                 case "secureobject":
-                    typeSyntax = new SimpleTypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "object"));
+                    typeSyntax = new VariableAccessSyntax(new(SyntaxFactory.CreateToken(TokenType.Identifier, "object")));
                     decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(LanguageConstants.ParameterSecurePropertyName));
                     decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
                     break;
                 case "__bicep_replace":
                     var fixupToken = SyntaxHelpers.CreatePlaceholderToken(TokenType.Identifier, "TODO: fill in correct type");
-                    typeSyntax = new SimpleTypeSyntax(fixupToken);
+                    typeSyntax = new VariableAccessSyntax(new(fixupToken));
                     break;
             }
 

@@ -1606,7 +1606,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic TypeDeclarationStatementsUnsupported() => new(
                 TextSpan,
                 "BCP280",
-                $@"Using type declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
+                $@"Using a type declaration statement requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
 
             public ErrorDiagnostic TypedArrayDeclarationsUnsupported() => new(
                 TextSpan,
@@ -1733,6 +1733,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP305",
                 $"Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location.");
+
+            public ErrorDiagnostic NamespaceSymbolUsedAsType(string name) => new(
+                TextSpan,
+                "BCP306",
+                $@"The name ""{name}"" refers to a namespace, not to a type.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

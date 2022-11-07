@@ -219,10 +219,10 @@ namespace Bicep.Core.Semantics
                     FindDuplicateNamedSymbols(metadataDeclarations)
                     .Select(decl => DiagnosticBuilder.ForPosition(decl.NameSource).OutputMultipleDeclarations(decl.Name)));
 
-                // imported namespaces are reserved in all the scopes except imports.
+                // imported namespaces are reserved in all the scopes.
                 // otherwise the user could accidentally hide a namespace which would remove the ability
                 // to fully qualify a function
-                this.Diagnostics.AddRange(referenceableDeclarations.Where(x => x is not ImportedNamespaceSymbol)
+                this.Diagnostics.AddRange(referenceableDeclarations
                     .Where(decl => decl.NameSource.IsValid && this.builtInNamespaces.ContainsKey(decl.Name))
                     .Select(reservedSymbol => DiagnosticBuilder.ForPosition(reservedSymbol.NameSource).SymbolicNameCannotUseReservedNamespaceName(reservedSymbol.Name, this.builtInNamespaces.Keys)));
 

@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Core.Syntax;
+using Bicep.Core;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
@@ -743,19 +743,26 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   displayName: 'Blocked Resource Types policy definition'
   description: 'Block certain resource types'
 }", ParameterType.Object)]
+        [DataRow(@"type foo = bar
+type bar = baz
+type baz = quux
+type quux = (1|2|3|4|5)[]
+param test foo", ParameterType.Array, @"{""experimentalFeaturesEnabled"":{""userDefinedTypes"":true}}")]
         [DataRow("param test ", null)]
-        public void VerifyParameterType(string bicepFileContents, ParameterType? expected)
+        public void VerifyParameterType(string bicepFileContents, ParameterType? expected, string? configFileContents = null)
         {
-            var programSyntax = ParserHelper.Parse(bicepFileContents);
-            programSyntax.Should().NotBeNull();
+            var outputPath = FileHelper.GetUniqueTestOutputPath(TestContext);
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, outputPath);
+            if (configFileContents is not null)
+            {
+              FileHelper.SaveResultFile(TestContext, "bicepconfig.json", configFileContents, outputPath);
+            }
+            var service = new ServiceBuilder().Build();
+            var parameterSymbol = service.BuildCompilation(service.BuildSourceFileGrouping(new(bicepFilePath))).GetEntrypointSemanticModel().Binder.FileSymbol.ParameterDeclarations.Single();
 
-            var parameterDeclarationSyntax = programSyntax.Declarations.First() as ParameterDeclarationSyntax;
-            parameterDeclarationSyntax.Should().NotBeNull();
-
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             var bicepDeploymentParametersHandler = GetBicepDeploymentParametersHandler(bicepFilePath, string.Empty);
 
-            var result = bicepDeploymentParametersHandler.GetParameterType(parameterDeclarationSyntax!);
+            var result = bicepDeploymentParametersHandler.GetParameterType(parameterSymbol);
 
             result.Should().Be(expected);
         }

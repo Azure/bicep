@@ -449,7 +449,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return new NamespaceType(
                 aliasName,
                 Settings,
-                ImmutableArray<TypeProperty>.Empty,
+                ImmutableArray<TypeTypeProperty>.Empty,
                 GetAzOverloads(resourceScope),
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,

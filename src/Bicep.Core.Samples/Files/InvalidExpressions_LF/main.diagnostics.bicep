@@ -448,7 +448,7 @@ var invalidPropertyAccessOnAzNamespace = az.az
 //@[44:46) [BCP052 (Error)] The type "az" does not contain property "az". (CodeDescription: none) |az|
 var invalidPropertyAccessOnSysNamespace = sys.az
 //@[04:39) [no-unused-vars (Warning)] Variable "invalidPropertyAccessOnSysNamespace" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |invalidPropertyAccessOnSysNamespace|
-//@[46:48) [BCP052 (Error)] The type "sys" does not contain property "az". (CodeDescription: none) |az|
+//@[46:48) [BCP053 (Error)] The type "sys" does not contain property "az". Available properties include "array", "bool", "int", "object", "string". (CodeDescription: none) |az|
 var invalidOperands = 1 + az
 //@[04:19) [no-unused-vars (Warning)] Variable "invalidOperands" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |invalidOperands|
 //@[22:28) [BCP045 (Error)] Cannot apply operator "+" to operands of type "1" and "az". (CodeDescription: none) |1 + az|
@@ -495,12 +495,12 @@ var azFunctions = az.a
 // #completionTest(24) -> sysFunctions
 var sysFunctions = sys.a
 //@[04:16) [no-unused-vars (Warning)] Variable "sysFunctions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |sysFunctions|
-//@[23:24) [BCP052 (Error)] The type "sys" does not contain property "a". (CodeDescription: none) |a|
+//@[23:24) [BCP053 (Error)] The type "sys" does not contain property "a". Available properties include "array", "bool", "int", "object", "string". (CodeDescription: none) |a|
 
 // #completionTest(33) -> sysFunctions
 var sysFunctionsInParens = (sys.a)
 //@[04:24) [no-unused-vars (Warning)] Variable "sysFunctionsInParens" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |sysFunctionsInParens|
-//@[32:33) [BCP052 (Error)] The type "sys" does not contain property "a". (CodeDescription: none) |a|
+//@[32:33) [BCP053 (Error)] The type "sys" does not contain property "a". Available properties include "array", "bool", "int", "object", "string". (CodeDescription: none) |a|
 
 // missing method name
 var missingMethodName = az.()

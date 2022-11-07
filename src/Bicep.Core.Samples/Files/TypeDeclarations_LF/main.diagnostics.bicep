@@ -35,13 +35,13 @@ type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
 
-type String = string
+type bool = string
 
 param inlineObjectParam {
 //@[6:23) [no-unused-params (Warning)] Parameter "inlineObjectParam" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |inlineObjectParam|
   foo: string
   bar: 100|200|300|400|500
-  baz: bool
+  baz: sys.bool
 } = {
   foo: 'foo'
   bar: 300

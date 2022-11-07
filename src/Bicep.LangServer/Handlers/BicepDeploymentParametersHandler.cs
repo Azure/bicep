@@ -7,8 +7,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Deploy;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -66,7 +68,7 @@ namespace Bicep.LanguageServer.Handlers
                     var parameterDeclarationSyntax = parameterSymbol.DeclaringParameter;
                     var modifier = parameterDeclarationSyntax.Modifier;
                     var parameterName = parameterSymbol.Name;
-                    var parameterType = GetParameterType(parameterDeclarationSyntax);
+                    var parameterType = GetParameterType(parameterSymbol);
 
                     if (modifier is null)
                     {
@@ -225,23 +227,15 @@ namespace Bicep.LanguageServer.Handlers
                 (parameterType == ParameterType.Array || parameterType == ParameterType.Object);
         }
 
-        public ParameterType? GetParameterType(ParameterDeclarationSyntax parameterDeclarationSyntax)
+        public ParameterType? GetParameterType(ParameterSymbol parameterSymbol) => parameterSymbol.Type switch
         {
-            if (parameterDeclarationSyntax.ParameterType is SimpleTypeSyntax simpleTypeSyntax &&
-                simpleTypeSyntax is not null)
-            {
-                return simpleTypeSyntax.TypeName switch
-                {
-                    "array" => ParameterType.Array,
-                    "bool" => ParameterType.Bool,
-                    "int" => ParameterType.Int,
-                    "object" => ParameterType.Object,
-                    "string" => ParameterType.String,
-                    _ => null,
-                };
-            }
-
-            return null;
-        }
+            var type when ReferenceEquals(type, LanguageConstants.Any) => null,
+            var type when TypeValidator.AreTypesAssignable(type, LanguageConstants.Array) => ParameterType.Array,
+            var type when TypeValidator.AreTypesAssignable(type, LanguageConstants.Bool) => ParameterType.Bool,
+            var type when TypeValidator.AreTypesAssignable(type, LanguageConstants.Int) => ParameterType.Int,
+            var type when TypeValidator.AreTypesAssignable(type, LanguageConstants.Object) => ParameterType.Object,
+            var type when TypeValidator.AreTypesAssignable(type, LanguageConstants.String) => ParameterType.String,
+            _ => null,
+        };
     }
 }

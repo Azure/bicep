@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9766386612525987809"
+      "templateHash": "6117416302808585508"
     }
   },
   "definitions": {
@@ -145,7 +145,7 @@
         }
       ]
     },
-    "String": {
+    "bool": {
       "type": "string"
     }
   },

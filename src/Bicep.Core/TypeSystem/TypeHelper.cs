@@ -4,7 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -89,6 +92,77 @@ namespace Bicep.Core.TypeSystem
             // TODO for array literals when type system adds support for tuples
             _ => false,
         };
+
+        /// <summary>
+        /// Gets the type of the property whose name we can obtain at compile-time.
+        /// </summary>
+        /// <param name="baseType">The base object type</param>
+        /// <param name="propertyExpressionPositionable">The position of the property name expression</param>
+        /// <param name="propertyName">The resolved property name</param>
+        /// <param name="shouldWarn">Whether diagnostics with a configurable level should be issued as warnings</param>
+        /// <param name="diagnostics">Sink for diagnostics are not included in the return type symbol</param>
+        public static TypeSymbol GetNamedPropertyType(ObjectType baseType, IPositionable propertyExpressionPositionable, string propertyName, bool shouldWarn, IDiagnosticWriter diagnostics)
+        {
+            if (baseType.TypeKind == TypeKind.Any)
+            {
+                // all properties of "any" type are of type "any"
+                return LanguageConstants.Any;
+            }
+
+            // is there a declared property with this name
+            var declaredProperty = baseType.Properties.TryGetValue(propertyName);
+            if (declaredProperty != null)
+            {
+                if (declaredProperty.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+                {
+                    var writeOnlyDiagnostic = DiagnosticBuilder.ForPosition(propertyExpressionPositionable).WriteOnlyProperty(shouldWarn, baseType, propertyName);
+                    diagnostics.Write(writeOnlyDiagnostic);
+
+                    if (writeOnlyDiagnostic.Level == DiagnosticLevel.Error)
+                    {
+                        return ErrorType.Create(Enumerable.Empty<ErrorDiagnostic>());
+                    }
+                }
+
+                if (declaredProperty.Flags.HasFlag(TypePropertyFlags.FallbackProperty))
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).FallbackPropertyUsed(propertyName));
+                }
+
+                // there is - return its type
+                return declaredProperty.TypeReference.Type;
+            }
+
+            // the property is not declared
+            // check additional properties
+            if (baseType.AdditionalPropertiesType != null)
+            {
+                // yes - return the additional property type
+                return baseType.AdditionalPropertiesType.Type;
+            }
+
+            var availableProperties = baseType.Properties.Values
+                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+                .Select(p => p.Name)
+                .OrderBy(x => x);
+
+            var diagnosticBuilder = DiagnosticBuilder.ForPosition(propertyExpressionPositionable);
+
+            var unknownPropertyDiagnostic = availableProperties.Any() switch
+            {
+                true => SpellChecker.GetSpellingSuggestion(propertyName, availableProperties) switch
+                {
+                    string suggestedPropertyName when suggestedPropertyName != null =>
+                        diagnosticBuilder.UnknownPropertyWithSuggestion(shouldWarn, baseType, propertyName, suggestedPropertyName),
+                    _ => diagnosticBuilder.UnknownPropertyWithAvailableProperties(shouldWarn, baseType, propertyName, availableProperties),
+                },
+                _ => diagnosticBuilder.UnknownProperty(shouldWarn, baseType, propertyName)
+            };
+
+            diagnostics.Write(unknownPropertyDiagnostic);
+
+            return (unknownPropertyDiagnostic.Level == DiagnosticLevel.Error) ? ErrorType.Create(Enumerable.Empty<ErrorDiagnostic>()) : LanguageConstants.Any;
+        }
 
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)
         {

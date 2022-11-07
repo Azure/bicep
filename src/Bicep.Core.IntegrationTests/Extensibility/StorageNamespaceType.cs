@@ -101,7 +101,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
             return new NamespaceType(
                 aliasName,
                 Settings,
-                ImmutableArray<TypeProperty>.Empty,
+                ImmutableArray<TypeTypeProperty>.Empty,
                 ImmutableArray<FunctionOverload>.Empty,
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,

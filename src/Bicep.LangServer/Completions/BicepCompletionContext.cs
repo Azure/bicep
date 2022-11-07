@@ -299,26 +299,24 @@ namespace Bicep.LanguageServer.Completions
                 (output.Assignment is SkippedTriviaSyntax || (output.Assignment is Token assignment && offset <= assignment.GetPosition()));
 
             if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax>(matchingNodes, parameter => CheckTypeIsExpected(parameter.Name, parameter.Type)) ||
-                SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier) ||
-                SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, TypeAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier))
+                SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier))
             {
                 // the most specific matching node is a parameter declaration
                 // the declaration syntax is "param <identifier> <type> ..."
                 // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the type position
                 // OR
-                // we are in a token that is inside a SimpleTypeSyntax/TypeAccessSyntax node, which is inside a parameter node
+                // we are in a token that is inside a VariableAccessSyntax node, which is inside a parameter node
                 return BicepCompletionContextKind.ParameterType;
             }
 
             if (SyntaxMatcher.IsTailMatch<TypeDeclarationSyntax>(matchingNodes, typeDeclaration => typeDeclaration.Assignment is not SkippedTriviaSyntax && offset > typeDeclaration.Assignment.GetEndPosition() && offset <= typeDeclaration.Value.Span.Position) ||
-                SyntaxMatcher.IsTailMatch<TypeDeclarationSyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier) ||
-                SyntaxMatcher.IsTailMatch<TypeDeclarationSyntax, TypeAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier))
+                SyntaxMatcher.IsTailMatch<TypeDeclarationSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier))
             {
                 // the most specific matching node is a type declaration
                 // the declaration syntax is "type <identifier> = <type>"
                 // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the type position
                 // OR
-                // we are in a token that is inside a SimpleTypeSyntax/TypeAccessSyntax node, which is inside a type declaration node
+                // we are in a token that is inside a VariableAccessSyntax node, which is inside a type declaration node
                 return BicepCompletionContextKind.TypeDeclarationValue;
             }
 
@@ -334,14 +332,13 @@ namespace Bicep.LanguageServer.Completions
             }
 
             if (SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output => CheckTypeIsExpected(output.Name, output.Type)) ||
-                SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier) ||
-                SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, TypeAccessSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
+                SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier))
             {
                 // the most specific matching node is an output declaration
                 // the declaration syntax is "output <identifier> <type> ..."
                 // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the type position
                 // OR
-                // we are in a token that is inside a SimpleTypeSyntax node, which is inside an output node
+                // we are in a token that is inside a VariableAccessSyntax node, which is inside an output node
                 return BicepCompletionContextKind.OutputType;
             }
 
@@ -679,7 +676,7 @@ namespace Bicep.LanguageServer.Completions
             // output foo type =|
             SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, Token>(matchingNodes, (output, token) => output.Assignment == token && token.Type == TokenType.Assignment && offset == token.GetEndPosition()) ||
             // output foo type = a|
-            SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier);
+            SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (output, _, _, token) => output.Assignment is Token assignmentToken && offset > assignmentToken.GetEndPosition() && token.Type == TokenType.Identifier);
 
         private static bool IsVariableValueContext(List<SyntaxBase> matchingNodes, int offset) =>
             // | below indicates cursor position
@@ -734,14 +731,12 @@ namespace Bicep.LanguageServer.Completions
 
         private static bool IsObjectTypePropertyValueContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<ObjectTypePropertySyntax>(matchingNodes, typePropertySyntax => typePropertySyntax.Colon is not SkippedTriviaSyntax && offset > typePropertySyntax.Colon.Span.Position) ||
-            SyntaxMatcher.IsTailMatch<ObjectTypePropertySyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier) ||
-            SyntaxMatcher.IsTailMatch<ObjectTypePropertySyntax, TypeAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier);
+            SyntaxMatcher.IsTailMatch<ObjectTypePropertySyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier);
 
         private static bool IsUnionTypeMemberContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<UnionTypeSyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Pipe) ||
             SyntaxMatcher.IsTailMatch<UnionTypeSyntax>(matchingNodes, union => union.Children.LastOrDefault() is SkippedTriviaSyntax) ||
-            SyntaxMatcher.IsTailMatch<UnionTypeSyntax, UnionTypeMemberSyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) ||
-            SyntaxMatcher.IsTailMatch<UnionTypeSyntax, UnionTypeMemberSyntax, TypeAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, _, token) => token.Type == TokenType.Identifier);
+            SyntaxMatcher.IsTailMatch<UnionTypeSyntax, UnionTypeMemberSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, _, token) => token.Type == TokenType.Identifier);
 
         private static FunctionArgumentContext? TryGetFunctionArgumentContext(List<SyntaxBase> matchingNodes, int offset)
         {

@@ -14,7 +14,7 @@ using Bicep.Core.CodeAction.Fixes;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
-using Bicep.Core.Syntax;
+using Bicep.Core.Semantics;
 using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
@@ -40,13 +40,6 @@ namespace Bicep.LanguageServer.Handlers
 
         private static readonly ImmutableArray<ICodeFixProvider> codeFixProviders = new ICodeFixProvider[]
         {
-            new ParameterCodeFixProvider("secure", new []{"string", "object"}, Array.Empty<SyntaxBase>()),
-            new ParameterCodeFixProvider("description", new []{"string", "object", "array", "bool", "int"}, new []{SyntaxFactory.CreateStringLiteral(String.Empty)}),
-            new ParameterCodeFixProvider("allowed", new []{"string", "object", "array", "bool", "int"}, new []{SyntaxFactory.CreateArray(Array.Empty<SyntaxBase>()) }),
-            new ParameterCodeFixProvider("minLength", new []{"string", "array"}, Array.Empty<SyntaxBase>()),
-            new ParameterCodeFixProvider("maxLength", new []{"string", "array"}, Array.Empty<SyntaxBase>()),
-            new ParameterCodeFixProvider("minValue", new []{"int"}, Array.Empty<SyntaxBase>()),
-            new ParameterCodeFixProvider("maxValue", new []{"int"}, Array.Empty<SyntaxBase>()),
             new MultilineObjectsAndArraysCodeFixProvider(),
         }.ToImmutableArray<ICodeFixProvider>();
 
@@ -126,11 +119,24 @@ namespace Bicep.LanguageServer.Handlers
 
             var matchingNodes = SyntaxMatcher.FindNodesInRange(compilationContext.ProgramSyntax, requestStartOffset, requestEndOffset);
             var codeFixes = codeFixProviders
+                .Concat(GetDecoratorCodeFixProviders(semanticModel))
                 .SelectMany(provider => provider.GetFixes(semanticModel, matchingNodes))
                 .Select(fix => CreateCodeFix(request.TextDocument.Uri, compilationContext, fix));
             commandOrCodeActions.AddRange(codeFixes);
 
             return Task.FromResult(new CommandOrCodeActionContainer(commandOrCodeActions));
+        }
+
+        private IEnumerable<DecoratorCodeFixProvider> GetDecoratorCodeFixProviders(SemanticModel semanticModel)
+        {
+            var nsResolver = semanticModel.Binder.NamespaceResolver;
+            return nsResolver.GetNamespaceNames().Select(nsResolver.TryGetNamespace).WhereNotNull()
+                .SelectMany(ns => ns.DecoratorResolver.GetKnownDecoratorFunctions().Select(kvp => (ns, kvp.Key, kvp.Value)))
+                .ToLookup(t => t.Key)
+                .SelectMany(grouping => grouping.Count() > 1
+                    ? grouping.SelectMany(tuple => tuple.Value.Overloads.Select(tuple.ns.DecoratorResolver.TryGetDecorator).WhereNotNull().Select(decorator => ($"{tuple.ns.Name}.{tuple.Key}", decorator)))
+                    : grouping.SelectMany(tuple => tuple.Value.Overloads.Select(tuple.ns.DecoratorResolver.TryGetDecorator).WhereNotNull().Select(decorator => (tuple.Key, decorator))))
+                .Select(t => new DecoratorCodeFixProvider(t.Item1, t.decorator));
         }
 
         private static CommandOrCodeAction? DisableDiagnostic(DocumentUri documentUri,
