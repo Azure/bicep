@@ -14,5 +14,5 @@ resource templateSpec 'Microsoft.Resources/templateSpecs@2021-05-01' = {
     displayName: 'displayName'
   }
 }
-// Insert snippet here
+
 

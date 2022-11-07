@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("param mystr = 'hello world' \n")]
         public void TestParsingParameterAssignment(String text)
         {
-            var programSyntax = ParamsParserHelper.ParamsParse(text);
+            var programSyntax = ParserHelper.ParamsParse(text);
 
             programSyntax.Children.OfType<ParameterAssignmentSyntax>().Should().HaveCount(1);
         }
@@ -38,7 +38,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("param myobj = {\nname : 'vm1'\nlocation : 'westus'\n} \n")]
         public void TestParameterObjectAssignment(String text)
         {
-            var programSyntax = ParamsParserHelper.ParamsParse(text);
+            var programSyntax = ParserHelper.ParamsParse(text);
 
             programSyntax.Children.OfType<ParameterAssignmentSyntax>().Should().HaveCount(1);
         }
@@ -47,7 +47,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("param myarr = [ 1\n2\n3\n4\n5 ] \n")]
         public void TestParameterArrayAssignment(String text)
         {
-            var programSyntax = ParamsParserHelper.ParamsParse(text);
+            var programSyntax = ParserHelper.ParamsParse(text);
 
             programSyntax.Children.OfType<ParameterAssignmentSyntax>().Should().HaveCount(1);
         }
@@ -56,7 +56,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("using './main.bicep' \n")]
         public void TestParsingUsingKeyword(String text)
         {
-            var programSyntax = ParamsParserHelper.ParamsParse(text);
+            var programSyntax = ParserHelper.ParamsParse(text);
 
             programSyntax.Children.OfType<UsingDeclarationSyntax>().Should().HaveCount(1);
         }

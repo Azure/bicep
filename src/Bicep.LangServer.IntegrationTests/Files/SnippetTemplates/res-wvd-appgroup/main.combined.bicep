@@ -16,5 +16,5 @@ resource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@202
     hostPoolArmPath: 'desktopVirtualizationHostPools.id'
   }
 }
-// Insert snippet here
+
 

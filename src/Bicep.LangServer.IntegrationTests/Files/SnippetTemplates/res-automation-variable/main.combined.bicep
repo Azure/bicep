@@ -18,5 +18,5 @@ resource automationVariable 'Microsoft.Automation/automationAccounts/variables@2
     isEncrypted: true
   }
 }
-// Insert snippet here
+
 

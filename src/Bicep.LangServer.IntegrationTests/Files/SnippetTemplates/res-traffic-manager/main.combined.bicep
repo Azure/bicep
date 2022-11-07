@@ -43,5 +43,5 @@ resource trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-08
     ]
   }
 }
-// Insert snippet here
+
 

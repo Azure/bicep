@@ -16,5 +16,5 @@ resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-06-01-pr
     adminUserEnabled: false
   }
 }
-// Insert snippet here
+
 

@@ -26,5 +26,5 @@ resource sqlServerFirewallRules 'Microsoft.Sql/servers/firewallRules@2021-02-01-
     endIpAddress: 'endIpAddress'
   }
 }
-// Insert snippet here
+
 

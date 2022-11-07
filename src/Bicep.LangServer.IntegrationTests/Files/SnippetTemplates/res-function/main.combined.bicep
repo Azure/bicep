@@ -54,5 +54,5 @@ resource azureFunction 'Microsoft.Web/sites@2020-12-01' = {
     }
   }
 }
-// Insert snippet here
+
 

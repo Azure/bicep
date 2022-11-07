@@ -26,5 +26,5 @@ resource routeTable 'Microsoft.Network/routeTables@2019-11-01' = {
     disableBgpRoutePropagation: true
   }
 }
-// Insert snippet here
+
 

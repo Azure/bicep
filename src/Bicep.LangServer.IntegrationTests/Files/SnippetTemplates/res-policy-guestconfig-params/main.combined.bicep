@@ -39,5 +39,5 @@ resource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationA
     }
   }
 }
-// Insert snippet here
+
 

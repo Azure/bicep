@@ -25,8 +25,7 @@ namespace Bicep.Core.TypeSystem.Az
             var indexedTypes = typeLoader.LoadTypeIndex();
             this.availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
-                kvp => kvp.Value,
-                ResourceTypeReferenceComparer.Instance);
+                kvp => kvp.Value);
             this.availableFunctions = indexedTypes.Functions.ToImmutableDictionary(
                 kvp => kvp.Key,
                 kvp => kvp.Value.ToImmutableDictionary(

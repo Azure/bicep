@@ -8,5 +8,5 @@ resource testIdentifier 'Microsoft.Advisor/recommendations/suppressions@2020-01-
   properties: {
     suppressionId: any(1)
   }
-}// Insert snippet here
+}
 

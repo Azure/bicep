@@ -20,5 +20,5 @@ resource automationCertificate 'Microsoft.Automation/automationAccounts/certific
     isExportable: true
   }
 }
-// Insert snippet here
+
 

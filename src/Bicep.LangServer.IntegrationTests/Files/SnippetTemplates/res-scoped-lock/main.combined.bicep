@@ -14,6 +14,6 @@ resource lock 'Microsoft.Authorization/locks@2017-04-01' = {
     level: 'NotSpecified'
   }
 }
-// Insert snippet here
+
 
 

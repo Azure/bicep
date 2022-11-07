@@ -73,5 +73,5 @@ resource loadBalancerInternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
     ]
   }
 }
-// Insert snippet here
+
 
