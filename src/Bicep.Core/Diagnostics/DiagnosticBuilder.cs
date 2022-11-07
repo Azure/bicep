@@ -1738,6 +1738,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP306",
                 $@"The name ""{name}"" refers to a namespace, not to a type.");
+
+            public ErrorDiagnostic DecoratorMayNotTargetTypeAlias(string decoratorName) => new(
+                TextSpan,
+                "BCP307",
+                $@"The decorator ""{decoratorName}"" may not be used on statements whose declared type is a reference to a user-defined type.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -965,8 +965,27 @@ namespace Bicep.Core.Semantics.Namespaces
                 _ => null,
             };
 
+            static void ValidateNotTargetingAlias(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
+            {
+                var targetTypeSyntax = binder.GetParent(decoratorSyntax) switch
+                {
+                    ParameterDeclarationSyntax parameterDeclaration => parameterDeclaration.Type,
+                    OutputDeclarationSyntax outputDeclaration => outputDeclaration.Type,
+                    TypeDeclarationSyntax typeDeclaration => typeDeclaration.Value,
+                    ObjectTypePropertySyntax objectTypeProperty => objectTypeProperty.Value,
+                    _ => null,
+                };
+
+                if (targetTypeSyntax is VariableAccessSyntax variableAccess && binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol)
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
+                }
+            }
+
             static void ValidateLength(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
             {
+                ValidateNotTargetingAlias(decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter);
+
                 if (targetType is UnionType || TypeHelper.IsLiteralType(targetType))
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorNotPermittedOnLiteralType(decoratorName));
@@ -984,6 +1003,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Makes the parameter a secure parameter.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
+                .WithValidator(ValidateNotTargetingAlias)
                 .WithEvaluator((_, targetType, targetObject) =>
                 {
                     if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.String))
@@ -1006,6 +1026,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter) =>
                 {
+                    ValidateNotTargetingAlias(decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter);
+
                     if (targetType is UnionType || TypeHelper.IsLiteralType(targetType))
                     {
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorNotPermittedOnLiteralType(decoratorName));
@@ -1039,6 +1061,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("value", LanguageConstants.Int, "The minimum value.")
                 .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Int)
+                .WithValidator(ValidateNotTargetingAlias)
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinValuePropertyName, SingleArgumentSelector))
                 .Build();
 
@@ -1047,6 +1070,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("value", LanguageConstants.Int, "The maximum value.")
                 .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Int)
+                .WithValidator(ValidateNotTargetingAlias)
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxValuePropertyName, SingleArgumentSelector))
                 .Build();
 
@@ -1117,6 +1141,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
                     .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                     .WithAttachableType(LanguageConstants.Object)
+                    .WithValidator(ValidateNotTargetingAlias)
                     .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty(LanguageConstants.ParameterSealedPropertyName, "true"))
                     .Build();
             }

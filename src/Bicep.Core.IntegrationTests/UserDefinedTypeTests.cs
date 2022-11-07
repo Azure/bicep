@@ -104,6 +104,61 @@ param stringParam sys.string = 'foo'
     }
 
     [TestMethod]
+    public void Constraint_decorators_prohibited_on_type_refs()
+    {
+        var result = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+@minLength(3)
+@maxLength(5)
+@description('A string with a bunch of constraints')
+type constrainedString = string
+
+@minValue(3)
+@maxValue(5)
+@description('An int with a bunch of constraints')
+type constrainedInt = int
+
+@minLength(3)
+@maxLength(5)
+@description('A type alias with a bunch of constraints pointing to another type alias')
+type constrainedStringAlias = constrainedString
+
+@minValue(3)
+@maxValue(5)
+@description('A type alias with a bunch of constraints pointing to another type alias')
+type constrainedIntAlias = constrainedInt
+
+@minLength(3)
+@maxLength(5)
+@secure()
+@allowed(['fizz', 'buzz', 'pop'])
+@description('A parameter with a bunch of constraints that uses a type alias')
+param stringParam constrainedString
+
+@minValue(3)
+@maxValue(5)
+@allowed([3, 4, 5])
+@description('A parameter with a bunch of constraints that uses a type alias')
+param intParam constrainedInt
+");
+
+        result.Should().HaveDiagnostics(new[] {
+            ("BCP307", DiagnosticLevel.Error, "The decorator \"minLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP307", DiagnosticLevel.Error, "The decorator \"maxLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP307", DiagnosticLevel.Error, "The decorator \"minValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP307", DiagnosticLevel.Error, "The decorator \"maxValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP307", DiagnosticLevel.Error, "The decorator \"minLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP307", DiagnosticLevel.Error, "The decorator \"maxLength\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP307", DiagnosticLevel.Error, "The decorator \"secure\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP307", DiagnosticLevel.Error, "The decorator \"allowed\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"stringParam\" is declared but never used."),
+            ("BCP307", DiagnosticLevel.Error, "The decorator \"minValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP307", DiagnosticLevel.Error, "The decorator \"maxValue\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("BCP307", DiagnosticLevel.Error, "The decorator \"allowed\" may not be used on statements whose declared type is a reference to a user-defined type."),
+            ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"intParam\" is declared but never used."),
+        });
+    }
+
+    [TestMethod]
     public void Unions_that_incorporate_their_parent_object_do_not_blow_the_stack()
     {
         var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
