@@ -252,7 +252,7 @@ namespace Bicep.LanguageServer
         {
             try
             {
-                return this.provider.Create(workspace, documentUri, modelLookup, bicepAnalyzer);
+                return this.provider.Create(workspace, documentUri, modelLookup);
             }
             catch(Exception exception)
             {
@@ -351,7 +351,7 @@ namespace Bicep.LanguageServer
 
                     default:
                         throw new NotImplementedException($"Unexpected compilation context type '{potentiallyUnsafeContext.GetType().Name}'.");
-                }                
+                }
             }
             catch (Exception exception)
             {

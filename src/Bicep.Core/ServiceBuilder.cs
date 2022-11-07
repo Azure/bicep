@@ -2,29 +2,23 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Immutable;
-using System.IO.Abstractions;
 using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 using Microsoft.Extensions.DependencyInjection;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Bicep.Core;
 
 public interface IBicepService
 {
     SourceFileGrouping BuildSourceFileGrouping(Uri entryFileUri, bool forceModulesRestore = false);
-
-    SourceFileGrouping RebuildSourceFileGrouping(SourceFileGrouping current);
 
     Compilation BuildCompilation(SourceFileGrouping sourceFileGrouping, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null);
 }
@@ -37,7 +31,7 @@ public class ServiceBuilder
     {
         if (services is null)
         {
-            services = new ServiceCollection().AddBicepCore();
+            services = new ServiceCollection();
         }
 
         this.services = services;
@@ -52,6 +46,9 @@ public class ServiceBuilder
 
     public IBicepService Build()
     {
+        services.AddBicepCore();
+        services.TryAddSingleton<IWorkspace, Workspace>();
+
         return new ServiceBuilderInternal(services.BuildServiceProvider());
     }
 
@@ -81,11 +78,5 @@ public class ServiceBuilder
                 provider.GetRequiredService<IWorkspace>(),
                 entryFileUri,
                 forceModulesRestore);
-
-        public SourceFileGrouping RebuildSourceFileGrouping(SourceFileGrouping current)
-            => SourceFileGroupingBuilder.Rebuild(
-                provider.GetRequiredService<IModuleDispatcher>(),
-                provider.GetRequiredService<IWorkspace>(),
-                current);
     }
 }

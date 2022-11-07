@@ -76,4 +76,15 @@ public static class IServiceCollectionExtensions
 
         return services.WithWorkspace(workspace);
     }
+
+    public static IServiceCollection AddSingletonIfNonNull<TService>(this IServiceCollection services, TService? instance)
+        where TService : class
+    {
+        if (instance is not null)
+        {
+            return services.AddSingleton(instance);
+        }
+
+        return services;
+    }
 }

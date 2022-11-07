@@ -7,23 +7,21 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
-using Bicep.Core.Configuration;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
+using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -33,10 +31,16 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static readonly FileResolver FileResolver = BicepTestConstants.FileResolver;
-        private static readonly IConfigurationManager configurationManager = new ConfigurationManager(new IOFileSystem());
-        private readonly ModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider, configurationManager);
-        private readonly ISerializer Serializer = StrictMock.Of<ISerializer>().Object;
+        private static BicepDeploymentScopeRequestHandler CreateHandler(ICompilationManager compilationManager, IDeploymentFileCompilationCache? deploymentFileCompilationCache = null)
+        {
+            var helper = TestDiHelper.Create(services => services
+                .AddSingleton(StrictMock.Of<ISerializer>().Object)
+                .AddSingleton<IDeploymentFileCompilationCache>(deploymentFileCompilationCache ?? new DeploymentFileCompilationCache())
+                .AddSingleton(compilationManager)
+                .AddSingleton<BicepDeploymentScopeRequestHandler>());
+
+            return helper.Construct<BicepDeploymentScopeRequestHandler>();
+        }
 
         [TestMethod]
         public async Task Handle_WithInvalidInputFile_ReturnsBicepDeploymentScopeResponseWithErrorMessage()
@@ -49,17 +53,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
 
-            BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
-                bicepCompilationManager,
-                configurationManager,
-                new DeploymentFileCompilationCache(),
-                BicepTestConstants.FeatureProviderFactory,
-                FileResolver,
-                ModuleDispatcher,
-                BicepTestConstants.NamespaceProvider,
-                Serializer,
-                BicepTestConstants.ApiVersionProviderFactory,
-                BicepTestConstants.LinterAnalyzer);
+            var bicepDeploymentScopeRequestHandler = CreateHandler(bicepCompilationManager);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
             BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
@@ -84,17 +78,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
 
-            BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
-                bicepCompilationManager,
-                configurationManager,
-                new DeploymentFileCompilationCache(),
-                BicepTestConstants.FeatureProviderFactory,
-                FileResolver,
-                ModuleDispatcher,
-                BicepTestConstants.NamespaceProvider,
-                Serializer,
-                BicepTestConstants.ApiVersionProviderFactory,
-                BicepTestConstants.LinterAnalyzer);
+            var bicepDeploymentScopeRequestHandler = CreateHandler(bicepCompilationManager);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
             BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
@@ -115,19 +99,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
 }";
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
 
-            BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
-                bicepCompilationManager,
-                configurationManager,
-                new DeploymentFileCompilationCache(),
-                BicepTestConstants.FeatureProviderFactory,
-                FileResolver,
-                ModuleDispatcher,
-                BicepTestConstants.NamespaceProvider,
-                Serializer,
-                BicepTestConstants.ApiVersionProviderFactory,
-                BicepTestConstants.LinterAnalyzer);
+            var bicepDeploymentScopeRequestHandler = CreateHandler(bicepCompilationManager);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
             BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
@@ -174,17 +148,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
 
-            BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
-                bicepCompilationManager,
-                configurationManager,
-                new DeploymentFileCompilationCache(),
-                BicepTestConstants.FeatureProviderFactory,
-                FileResolver,
-                ModuleDispatcher,
-                BicepTestConstants.NamespaceProvider,
-                Serializer,
-                BicepTestConstants.ApiVersionProviderFactory,
-                BicepTestConstants.LinterAnalyzer);
+            var bicepDeploymentScopeRequestHandler = CreateHandler(bicepCompilationManager);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
             BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
@@ -206,17 +170,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
             var deploymentFileCompilationCache = new DeploymentFileCompilationCache();
 
-            BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
-                bicepCompilationManager,
-                configurationManager,
-                deploymentFileCompilationCache,
-                BicepTestConstants.FeatureProviderFactory,
-                FileResolver,
-                ModuleDispatcher,
-                BicepTestConstants.NamespaceProvider,
-                Serializer,
-                BicepTestConstants.ApiVersionProviderFactory,
-                BicepTestConstants.LinterAnalyzer);
+            var bicepDeploymentScopeRequestHandler = CreateHandler(bicepCompilationManager, deploymentFileCompilationCache);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
             BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);

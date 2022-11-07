@@ -42,8 +42,6 @@ namespace Bicep.LangServer.IntegrationTests
     {
         private static ServiceBuilder Services => new ServiceBuilder();
 
-        public static readonly INamespaceProvider NamespaceProvider = BicepTestConstants.NamespaceProvider;
-
         private static readonly SharedLanguageHelperManager ServerWithNamespaceProvider = new();
 
         private static readonly SharedLanguageHelperManager ServerWithNamespaceAndTestResolver = new();

@@ -293,7 +293,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             var defaultSettings = CreateDefaultSettings();
-            var diagnostics = GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
+            var diagnostics = await GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep("build", bicepFilePath);
 
@@ -318,7 +318,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             output.Should().BeEmpty();
 
             var defaultSettings = CreateDefaultSettings();
-            var diagnostics = GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
+            var diagnostics = await GetAllDiagnostics(bicepFilePath, defaultSettings.ClientFactory, defaultSettings.TemplateSpecRepositoryFactory);
             error.Should().ContainAll(diagnostics);
         }
 
@@ -330,7 +330,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
             var data = baselineData.GetData(TestContext);
 
             var settings = new InvocationSettings(new(TestContext, ParamsFilesEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
-            var diagnostics = GetAllParamDiagnostics(data.Parameters.OutputFilePath, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
+            var diagnostics = await GetAllParamDiagnostics(data.Parameters.OutputFilePath, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "build", data.Parameters.OutputFilePath);
 

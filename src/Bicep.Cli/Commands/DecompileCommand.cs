@@ -35,7 +35,7 @@ namespace Bicep.Cli.Commands
 
         public async Task<int> RunAsync(DecompileArguments args)
         {
-            logger.LogWarning(TemplateDecompiler.DecompilerDisclaimerMessage);
+            logger.LogWarning(BicepDecompiler.DecompilerDisclaimerMessage);
 
             var inputPath = PathHelper.ResolvePath(args.InputFile);
 

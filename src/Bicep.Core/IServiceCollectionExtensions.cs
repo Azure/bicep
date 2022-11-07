@@ -13,6 +13,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core;
@@ -20,20 +21,23 @@ namespace Bicep.Core;
 public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddBicepCore(this IServiceCollection services)
-        => services
-            .AddSingleton<INamespaceProvider, DefaultNamespaceProvider>()
-            .AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>()
-            .AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>()
-            .AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>()
-            .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
-            .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
-            .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-            .AddSingleton<IFileResolver, FileResolver>()
-            .AddSingleton<IConfigurationManager, ConfigurationManager>()
-            .AddSingleton<IApiVersionProviderFactory, ApiVersionProviderFactory>()
-            .AddSingleton<IBicepAnalyzer, LinterAnalyzer>()
-            .AddSingleton<IFileSystem, IOFileSystem>()
-            .AddSingleton<IWorkspace, Workspace>()
-            .AddSingleton<IFeatureProviderFactory, FeatureProviderFactory>()
-            .AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
+    {
+        services.TryAddSingleton<INamespaceProvider, DefaultNamespaceProvider>();
+        services.TryAddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>();
+        services.TryAddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
+        services.TryAddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
+        services.TryAddSingleton<IModuleDispatcher, ModuleDispatcher>();
+        services.TryAddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
+        services.TryAddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
+        services.TryAddSingleton<IFileResolver, FileResolver>();
+        services.TryAddSingleton<IConfigurationManager, ConfigurationManager>();
+        services.TryAddSingleton<IApiVersionProviderFactory, ApiVersionProviderFactory>();
+        services.TryAddSingleton<IBicepAnalyzer, LinterAnalyzer>();
+        services.TryAddSingleton<IFileSystem, IOFileSystem>();
+        services.TryAddSingleton<IFeatureProviderFactory, FeatureProviderFactory>();
+        services.TryAddSingleton<ILinterRulesProvider, LinterRulesProvider>();
+        services.TryAddSingleton<IBicepCompiler, BicepCompiler>();
+
+        return services;
+    }
 }

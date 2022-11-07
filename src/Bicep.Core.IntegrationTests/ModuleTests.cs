@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -34,7 +35,6 @@ namespace Bicep.Core.IntegrationTests
         private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
-        private static readonly IConfigurationManager ConfigurationManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
 
         private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
 
@@ -215,7 +215,7 @@ module main 'main.bicep' = {
         }
 
         [TestMethod]
-        public void Module_should_include_diagnostic_if_module_file_cannot_be_resolved()
+        public async Task Module_should_include_diagnostic_if_module_file_cannot_be_resolved()
         {
             var mainFileUri = new Uri("file:///path/to/main.bicep");
             var mainFileContents = @"
@@ -235,9 +235,8 @@ module modulea 'modulea.bicep' = {
             SetupFileReaderMock(mockFileResolver, mainFileUri, mainFileContents, null);
             mockFileResolver.Setup(x => x.TryResolveFilePath(mainFileUri, "modulea.bicep")).Returns((Uri?)null);
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(mockFileResolver.Object, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.FeatureProviderFactory, ConfigurationManager), ConfigurationManager);
-
-            var compilation = Services.Build().BuildCompilation(SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainFileUri));
+            var compiler = TestDiHelper.Create(s => s.WithFileResolver(mockFileResolver.Object).WithDisabledAnalyzersConfiguration()).Construct<IBicepCompiler>();
+            var compilation = await compiler.CreateCompilation(mainFileUri);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainFileUri].Should().HaveDiagnostics(new[] {
@@ -356,7 +355,7 @@ output outputc2 int = inputb + 1
         }
 
         [TestMethod]
-        public void Module_should_include_diagnostic_if_module_file_cannot_be_loaded()
+        public async Task Module_should_include_diagnostic_if_module_file_cannot_be_loaded()
         {
             var mainUri = new Uri("file:///path/to/main.bicep");
             var moduleAUri = new Uri("file:///path/to/modulea.bicep");
@@ -378,9 +377,8 @@ module modulea 'modulea.bicep' = {
             SetupFileReaderMock(mockFileResolver, moduleAUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
             mockFileResolver.Setup(x => x.TryResolveFilePath(mainUri, "modulea.bicep")).Returns(moduleAUri);
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(mockFileResolver.Object, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.FeatureProviderFactory, ConfigurationManager), ConfigurationManager);
-
-            var compilation = Services.Build().BuildCompilation(SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainUri));
+            var compiler = TestDiHelper.Create(s => s.WithFileResolver(mockFileResolver.Object).WithDisabledAnalyzersConfiguration()).Construct<IBicepCompiler>();
+            var compilation = await compiler.CreateCompilation(mainUri);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {

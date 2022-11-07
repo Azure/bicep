@@ -44,29 +44,23 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDecompileSaveCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDecompileSaveCommandParams, BicepDecompileSaveCommandResult>
     {
-        private readonly TemplateDecompiler templateDecompiler;
+        private readonly IBicepDecompiler bicepDecompiler;
         private readonly ILanguageServerFacade languageServerFacade;
         private readonly IClientCapabilitiesProvider clientCapabilitiesProvider;
         private readonly TelemetryAndErrorHandlingHelper<BicepDecompileSaveCommandResult> telemetryHelper;
 
         public BicepDecompileSaveCommandHandler(
             ISerializer serializer,
-            IFeatureProviderFactory featureProviderFactory,
-            INamespaceProvider namespaceProvider,
-            IModuleRegistryProvider registryProvider,
             ILanguageServerFacade server,
             ITelemetryProvider telemetryProvider,
-            IApiVersionProviderFactory apiVersionProviderFactory,
-            IBicepAnalyzer bicepAnalyzer,
-            IFileResolver fileResolver,
             IClientCapabilitiesProvider clientCapabilitiesProvider,
-            ILanguageServerFacade languageServerFacade)
+            IBicepDecompiler bicepDecompiler)
             : base(LangServerConstants.DecompileSaveCommand, serializer)
         {
             this.telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileSaveCommandResult>(server.Window, telemetryProvider);
-            this.templateDecompiler = new TemplateDecompiler(featureProviderFactory, namespaceProvider, fileResolver, registryProvider, apiVersionProviderFactory, bicepAnalyzer);
+            this.bicepDecompiler = bicepDecompiler;
             this.clientCapabilitiesProvider = clientCapabilitiesProvider;
-            this.languageServerFacade = languageServerFacade;
+            this.languageServerFacade = server;
         }
 
         public override Task<BicepDecompileSaveCommandResult> Handle(BicepDecompileSaveCommandParams parameters, CancellationToken cancellationToken)
