@@ -88,7 +88,8 @@ namespace Bicep.Core.TypeSystem
             StringLiteralType => true,
             IntegerLiteralType => true,
             BooleanLiteralType => true,
-            ObjectType objectType => objectType.Properties.All(kvp => IsLiteralType(kvp.Value.TypeReference.Type)),
+            ObjectType objectType => (objectType.AdditionalPropertiesType is null || objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)) &&
+                objectType.Properties.All(kvp => kvp.Value.Flags.HasFlag(TypePropertyFlags.Required) && IsLiteralType(kvp.Value.TypeReference.Type)),
             // TODO for array literals when type system adds support for tuples
             _ => false,
         };
