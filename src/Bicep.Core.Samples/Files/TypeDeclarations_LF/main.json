@@ -7,50 +7,19 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6117416302808585508"
+      "templateHash": "6979751254860831268"
     }
   },
   "definitions": {
     "foo": {
       "type": "object",
-      "sealed": "true",
       "required": [
-        "literalProp",
-        "objectProp",
         "stringProp",
-        "typeRefProp"
+        "objectProp",
+        "typeRefProp",
+        "literalProp"
       ],
       "properties": {
-        "literalProp": {
-          "type": "string",
-          "allowedValues": [
-            "literal"
-          ]
-        },
-        "objectProp": {
-          "type": "object",
-          "required": [
-            "intProp"
-          ],
-          "properties": {
-            "intArrayArrayProp": {
-              "type": "array",
-              "items": {
-                "type": "array",
-                "items": {
-                  "type": "int"
-                }
-              }
-            },
-            "intProp": {
-              "type": "int",
-              "minValue": 1
-            }
-          }
-        },
-        "recursion": {
-          "$ref": "#/definitions/foo"
-        },
         "stringProp": {
           "type": "string",
           "metadata": {
@@ -59,10 +28,41 @@
           "maxLength": 10,
           "minLength": 3
         },
+        "objectProp": {
+          "type": "object",
+          "required": [
+            "intProp"
+          ],
+          "properties": {
+            "intProp": {
+              "type": "int",
+              "minValue": 1
+            },
+            "intArrayArrayProp": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "int"
+                }
+              }
+            }
+          }
+        },
         "typeRefProp": {
           "$ref": "#/definitions/bar"
+        },
+        "literalProp": {
+          "type": "string",
+          "allowedValues": [
+            "literal"
+          ]
+        },
+        "recursion": {
+          "$ref": "#/definitions/foo"
         }
       },
+      "sealed": "true",
       "metadata": {
         "description": "The foo type"
       }
@@ -153,11 +153,14 @@
     "inlineObjectParam": {
       "type": "object",
       "required": [
+        "foo",
         "bar",
-        "baz",
-        "foo"
+        "baz"
       ],
       "properties": {
+        "foo": {
+          "type": "string"
+        },
         "bar": {
           "type": "int",
           "allowedValues": [
@@ -170,9 +173,6 @@
         },
         "baz": {
           "type": "bool"
-        },
-        "foo": {
-          "type": "string"
         }
       },
       "defaultValue": {
