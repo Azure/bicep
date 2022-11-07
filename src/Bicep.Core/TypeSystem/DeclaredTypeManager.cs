@@ -66,11 +66,20 @@ namespace Bicep.Core.TypeSystem
                 case ResourceTypeSyntax resourceType:
                     return GetResourceTypeType(resourceType);
 
+                case ObjectTypeSyntax objectType:
+                    return new(GetObjectTypeType(objectType), objectType);
+
                 case ObjectTypePropertySyntax typeProperty:
                     return GetTypePropertyType(typeProperty);
 
                 case ArrayTypeMemberSyntax typeMember:
                     return GetTypeMemberType(typeMember);
+
+                case UnionTypeSyntax unionType:
+                    return new(GetUnionTypeType(unionType), unionType);
+
+                case UnaryOperationSyntax unaryOperation:
+                    return new(GetUnaryOperationType(unaryOperation), unaryOperation);
 
                 case ResourceDeclarationSyntax resource:
                     return GetResourceType(resource);
@@ -224,11 +233,14 @@ namespace Bicep.Core.TypeSystem
             VariableAccessSyntax signifier when binder.GetSymbolInfo(signifier) is TypeAliasSymbol signified
                 => new DeferredTypeReference(() => TypeRefToType(signifier, signified)),
             UnionTypeSyntax unionTypeSyntax when unionTypeSyntax.Members.Any(m => m.Value is VariableAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol)
-                => new DeferredTypeReference(() => ConvertTypeExpressionToType(unionTypeSyntax)),
+                => new DeferredTypeReference(() => MustGetDeclaredType(unionTypeSyntax)),
             UnaryOperationSyntax unaryOperationSyntax when unaryOperationSyntax.Expression is VariableAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol
-                => new DeferredTypeReference(() => ConvertTypeExpressionToType(unaryOperationSyntax)),
+                => new DeferredTypeReference(() => MustGetDeclaredType(unaryOperationSyntax)),
             SyntaxBase otherwise => TryGetTypeFromTypeSyntax(otherwise, allowNamespaceReferences: false),
         };
+
+        private TypeSymbol MustGetDeclaredType(SyntaxBase syntax) => GetDeclaredType(syntax)
+            ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidTypeDefinition());
 
         private DeclaredTypeAssignment? GetTypeMemberType(ArrayTypeMemberSyntax syntax)
             => GetTypeReferenceForMemberType(syntax) is {} @ref ? new(@ref, syntax) : null;
@@ -265,12 +277,12 @@ namespace Bicep.Core.TypeSystem
                 ResourceTypeSyntax resource => GetDeclaredType(resource),
                 VariableAccessSyntax typeRef => ConvertTypeExpressionToType(typeRef, allowNamespaceReferences),
                 ArrayTypeSyntax array => ConvertTypeExpressionToType(array),
-                ObjectTypeSyntax @object => ConvertTypeExpressionToType(@object),
+                ObjectTypeSyntax @object => GetDeclaredType(@object),
                 StringSyntax @string => ConvertTypeExpressionToType(@string),
                 IntegerLiteralSyntax @int => ConvertTypeExpressionToType(@int),
                 BooleanLiteralSyntax @bool => ConvertTypeExpressionToType(@bool),
-                UnaryOperationSyntax unaryOperation => ConvertTypeExpressionToType(unaryOperation),
-                UnionTypeSyntax unionType => ConvertTypeExpressionToType(unionType),
+                UnaryOperationSyntax unaryOperation => GetDeclaredType(unaryOperation),
+                UnionTypeSyntax unionType => GetDeclaredType(unionType),
                 ParenthesizedExpressionSyntax parenthesized => ConvertTypeExpressionToType(parenthesized, allowNamespaceReferences),
                 PropertyAccessSyntax propertyAccess => ConvertTypeExpressionToType(propertyAccess),
                 _ => null
@@ -350,7 +362,7 @@ namespace Bicep.Core.TypeSystem
             return new TypedArrayType(memberType, TypeSymbolValidationFlags.Default);
         }
 
-        private TypeSymbol ConvertTypeExpressionToType(ObjectTypeSyntax syntax)
+        private TypeSymbol GetObjectTypeType(ObjectTypeSyntax syntax)
         {
             if (!features.UserDefinedTypesEnabled)
             {
@@ -464,7 +476,7 @@ namespace Bicep.Core.TypeSystem
             return syntax.Value ? LanguageConstants.True : LanguageConstants.False;
         }
 
-        private TypeSymbol ConvertTypeExpressionToType(UnaryOperationSyntax syntax)
+        private TypeSymbol GetUnaryOperationType(UnaryOperationSyntax syntax)
         {
             var baseExpressionType = GetTypeFromTypeSyntax(syntax.Expression, allowNamespaceReferences: false);
 
@@ -480,7 +492,7 @@ namespace Bicep.Core.TypeSystem
                 .Append(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed()));
         }
 
-        private TypeSymbol ConvertTypeExpressionToType(UnionTypeSyntax syntax)
+        private TypeSymbol GetUnionTypeType(UnionTypeSyntax syntax)
         {
             if (!features.UserDefinedTypesEnabled)
             {
