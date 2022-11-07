@@ -29,7 +29,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private static BicepForceModulesRestoreCommandHandler CreateHandler(ICompilationManager compilationManager)
         {
-            var helper = TestDiHelper.Create(services => services
+            var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ICompilationManager>(compilationManager)
                 .AddSingleton(StrictMock.Of<ISerializer>().Object)
                 .AddSingleton<BicepForceModulesRestoreCommandHandler>());

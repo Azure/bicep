@@ -31,7 +31,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private static BicepBuildCommandHandler CreateHandler(ICompilationManager compilationManager)
         {
-            var helper = TestDiHelper.Create(services => services
+            var helper = ServiceBuilder.Create(services => services
                 .AddSingleton(StrictMock.Of<ISerializer>().Object)
                 .AddSingleton(compilationManager)
                 .AddSingleton<BicepBuildCommandHandler>());

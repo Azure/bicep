@@ -24,8 +24,8 @@ namespace Bicep.Cli.IntegrationTests
     public abstract class TestBase
     {
         private static BicepCompiler CreateCompiler(IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
-            => TestDiHelper.Create(
-                x => x.WithEmptyAzResources().AddSingleton(clientFactory).AddSingleton(templateSpecRepositoryFactory)).Construct<BicepCompiler>();
+            => ServiceBuilder.Create(
+                x => x.WithEmptyAzResources().AddSingleton(clientFactory).AddSingleton(templateSpecRepositoryFactory)).GetCompiler();
 
         protected const string BuildSummaryFailedRegex = @"Build failed: (\d*) Warning\(s\), ([1-9][0-9]*) Error\(s\)";
         protected const string BuildSummarySucceededRegex = @"Build succeeded: (\d*) Warning\(s\), 0 Error\(s\)";

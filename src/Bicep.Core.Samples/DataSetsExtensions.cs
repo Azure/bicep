@@ -49,7 +49,7 @@ namespace Bicep.Core.Samples
             await dataSet.PublishModulesToRegistryAsync(clientFactory, testContext);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(testContext);
 
-            var compiler = TestDiHelper.Create(s => s.AddSingleton(templateSpecRepositoryFactory).AddSingleton(clientFactory).WithFeatureOverrides(features)).Construct<BicepCompiler>();
+            var compiler = ServiceBuilder.Create(s => s.AddSingleton(templateSpecRepositoryFactory).AddSingleton(clientFactory).WithFeatureOverrides(features)).GetCompiler();
 
             var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMain));
             var compilation = await compiler.CreateCompilation(fileUri);
@@ -60,7 +60,7 @@ namespace Bicep.Core.Samples
         public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, TestContext testContext, params (Uri registryUri, string repository)[] additionalClients)
         {
             var clientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
-            var dispatcher = TestDiHelper.Create(s => s.WithDisabledAnalyzersConfiguration()
+            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory))
                 .Construct<IModuleDispatcher>();
@@ -101,7 +101,7 @@ namespace Bicep.Core.Samples
 
         public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(this DataSet dataSet, TestContext testContext)
         {
-            var dispatcher = TestDiHelper.Create(s => s.WithDisabledAnalyzersConfiguration()
+            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(BicepTestConstants.ClientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory))
                 .Construct<IModuleDispatcher>();
@@ -133,7 +133,7 @@ namespace Bicep.Core.Samples
 
         public static async Task PublishModulesToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory, TestContext testContext)
         {
-            var dispatcher = TestDiHelper.Create(s => s.WithDisabledAnalyzersConfiguration()
+            var dispatcher = ServiceBuilder.Create(s => s.WithDisabledAnalyzersConfiguration()
                 .AddSingleton(clientFactory)
                 .AddSingleton(BicepTestConstants.TemplateSpecRepositoryFactory))
                 .Construct<IModuleDispatcher>();

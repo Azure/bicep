@@ -31,7 +31,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private static (BicepDecompileCommandHandler, BicepDecompileSaveCommandHandler) CreateHandlers(LanguageServerMock server)
         {
-            var helper = TestDiHelper.Create(services => services
+            var helper = ServiceBuilder.Create(services => services
                 .AddSingleton(StrictMock.Of<ISerializer>().Object)
                 .AddSingleton(BicepTestConstants.CreateMockTelemetryProvider().Object)
                 .AddSingleton(server.Mock.Object)

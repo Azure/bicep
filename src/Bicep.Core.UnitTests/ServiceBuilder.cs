@@ -11,30 +11,61 @@ using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Workspaces;
+using Bicep.Decompiler;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Bicep.Core.UnitTests;
 
-public interface IBicepService
+public interface IDependencyHelper
 {
-    SourceFileGrouping BuildSourceFileGrouping(Uri entryFileUri, bool forceModulesRestore = false);
+    public TService Construct<TService>()
+        where TService : class;
+}
 
-    Compilation BuildCompilation(SourceFileGrouping sourceFileGrouping, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null);
+public static class IDependencyHelperExtensions
+{
+    public static Compilation BuildCompilation(this IDependencyHelper helper, SourceFileGrouping sourceFileGrouping, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+        => new(
+            helper.Construct<IFeatureProviderFactory>(),
+            helper.Construct<INamespaceProvider>(),
+            sourceFileGrouping,
+            helper.Construct<IConfigurationManager>(),
+            helper.Construct<IApiVersionProviderFactory>(),
+            helper.Construct<IBicepAnalyzer>(),
+            modelLookup);
+
+    public static SourceFileGrouping BuildSourceFileGrouping(this IDependencyHelper helper, Uri entryFileUri, bool forceModulesRestore = false)
+        => SourceFileGroupingBuilder.Build(
+            helper.Construct<IFileResolver>(),
+            helper.Construct<IModuleDispatcher>(),
+            helper.Construct<IWorkspace>(),
+            entryFileUri,
+            forceModulesRestore);
+
+    public static BicepCompiler GetCompiler(this IDependencyHelper helper)
+        => helper.Construct<BicepCompiler>();
+
+    public static BicepDecompiler GetDecompiler(this IDependencyHelper helper)
+        => helper.Construct<BicepDecompiler>();
 }
 
 public class ServiceBuilder
 {
     private readonly IServiceCollection services;
 
-    public ServiceBuilder(IServiceCollection? services = null)
+    public ServiceBuilder()
     {
-        if (services is null)
-        {
-            services = new ServiceCollection();
-        }
+        this.services = new ServiceCollection()
+            .AddBicepCore()
+            .AddBicepDecompiler()
+            .WithWorkspace(new Workspace());
+    }
 
-        this.services = services;
+    public static IDependencyHelper Create(Action<IServiceCollection>? registerAction = null)
+    {
+        registerAction ??= services => {};
+
+        return new ServiceBuilder().WithRegistration(registerAction).Build();
     }
 
     public ServiceBuilder WithRegistration(Action<IServiceCollection> registerAction)
@@ -44,15 +75,12 @@ public class ServiceBuilder
         return this;
     }
 
-    public IBicepService Build()
+    public IDependencyHelper Build()
     {
-        services.AddBicepCore();
-        services.TryAddSingleton<IWorkspace, Workspace>();
-
         return new ServiceBuilderInternal(services.BuildServiceProvider());
     }
 
-    private class ServiceBuilderInternal : IBicepService
+    private class ServiceBuilderInternal : IDependencyHelper
     {
         private readonly IServiceProvider provider;
 
@@ -61,22 +89,10 @@ public class ServiceBuilder
             this.provider = provider;
         }
 
-        public Compilation BuildCompilation(SourceFileGrouping sourceFileGrouping, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
-            => new(
-                provider.GetRequiredService<IFeatureProviderFactory>(),
-                provider.GetRequiredService<INamespaceProvider>(),
-                sourceFileGrouping,
-                provider.GetRequiredService<IConfigurationManager>(),
-                provider.GetRequiredService<IApiVersionProviderFactory>(),
-                provider.GetRequiredService<IBicepAnalyzer>(),
-                modelLookup);
-
-        public SourceFileGrouping BuildSourceFileGrouping(Uri entryFileUri, bool forceModulesRestore = false)
-            => SourceFileGroupingBuilder.Build(
-                provider.GetRequiredService<IFileResolver>(),
-                provider.GetRequiredService<IModuleDispatcher>(),
-                provider.GetRequiredService<IWorkspace>(),
-                entryFileUri,
-                forceModulesRestore);
+        public TService Construct<TService>()
+            where TService : class
+        {
+            return provider.GetRequiredService<TService>();
+        }
     }
 }

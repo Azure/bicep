@@ -33,7 +33,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private static BicepDeploymentScopeRequestHandler CreateHandler(ICompilationManager compilationManager, IDeploymentFileCompilationCache? deploymentFileCompilationCache = null)
         {
-            var helper = TestDiHelper.Create(services => services
+            var helper = ServiceBuilder.Create(services => services
                 .AddSingleton(StrictMock.Of<ISerializer>().Object)
                 .AddSingleton<IDeploymentFileCompilationCache>(deploymentFileCompilationCache ?? new DeploymentFileCompilationCache())
                 .AddSingleton(compilationManager)

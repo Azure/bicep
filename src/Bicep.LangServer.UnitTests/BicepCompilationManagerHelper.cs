@@ -45,13 +45,15 @@ namespace Bicep.LangServer.UnitTests
 
         public static BicepCompilationManager CreateCompilationManager(ILanguageServerFacade server, IWorkspace workspace)
         {
-            var helper = TestDiHelper.Create(services => services
+            var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ILanguageServerFacade>(server)
                 .AddSingleton<IAzResourceTypeLoader>(TestTypeHelper.CreateEmptyAzResourceTypeLoader())
                 .AddSingleton(CreateMockScheduler().Object)
                 .AddSingleton(BicepTestConstants.CreateMockTelemetryProvider().Object)
                 .AddSingleton<ICompilationProvider, BicepCompilationProvider>()
                 .AddSingleton<IWorkspace>(workspace)
+                // This is necessary to avoid hard-coding a particular version number into a compiled template
+                .WithFeatureOverrides(new(AssemblyVersion: BicepTestConstants.DevAssemblyFileVersion))
                 .AddSingleton<BicepCompilationManager>());
 
             return helper.Construct<BicepCompilationManager>();
@@ -88,7 +90,7 @@ namespace Bicep.LangServer.UnitTests
 
         public static ICompilationProvider CreateEmptyCompilationProvider(IConfigurationManager? configurationManager = null)
         {
-            var helper = TestDiHelper.Create(services => services
+            var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<IAzResourceTypeLoader>(TestTypeHelper.CreateEmptyAzResourceTypeLoader())
                 .AddSingletonIfNonNull<IConfigurationManager>(configurationManager)
                 .AddSingleton<BicepCompilationProvider>());

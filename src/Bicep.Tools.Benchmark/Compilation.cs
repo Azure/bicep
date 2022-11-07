@@ -18,7 +18,7 @@ public class Compilation
 {
     private record BenchmarkData(
         ImmutableArray<DataSet> DataSets,
-        IBicepService BicepService);
+        IDependencyHelper BicepService);
 
     private static BenchmarkData CreateBenchmarkData()
     {

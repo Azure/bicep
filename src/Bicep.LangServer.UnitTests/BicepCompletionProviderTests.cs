@@ -26,7 +26,7 @@ namespace Bicep.LangServer.UnitTests
     {
         private static BicepCompletionProvider CreateProvider()
         {
-            var helper = TestDiHelper.Create(services => services
+            var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<BicepCompletionProvider>());
 

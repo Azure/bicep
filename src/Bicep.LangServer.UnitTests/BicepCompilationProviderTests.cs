@@ -20,7 +20,7 @@ namespace Bicep.LangServer.UnitTests
     {
         private static BicepCompilationProvider Create()
         {
-            var helper = TestDiHelper.Create(services => services
+            var helper = ServiceBuilder.Create(services => services
                 .WithDisabledAnalyzersConfiguration()
                 .AddSingleton<BicepCompilationProvider>());
 
