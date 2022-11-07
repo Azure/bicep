@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
@@ -21,6 +22,8 @@ namespace Bicep.LanguageServer.Completions
 {
     public class BicepCompletionContext
     {
+        private static readonly Regex BicepSchemaAzureContainerRegistryPath = new Regex(@"'br:[a-zA-Z0-9]+.azurecr.io/'", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+
         public record FunctionArgumentContext(
             FunctionCallSyntaxBase Function,
             int ArgumentIndex
@@ -351,6 +354,16 @@ namespace Bicep.LanguageServer.Completions
                 SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, StringSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.StringComplete) ||
                 SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (module, skipped, _) => module.Path == skipped))
             {
+                if (matchingNodes.Count == 4 &&
+                    matchingNodes[^1] is Token token &&
+                    token.Type == TokenType.StringComplete)
+                {
+                    if (BicepSchemaAzureContainerRegistryPath.IsMatch(token.Text))
+                    {
+                        return BicepCompletionContextKind.OciArtifactModuleReferenceRepositoryPath;
+                    }
+                }
+
                 // the most specific matching node is a module declaration
                 // the declaration syntax is "module <identifier> '<path>' ..."
                 // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the path position

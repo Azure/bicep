@@ -127,7 +127,10 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>()
                 .AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>()
                 .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
-                .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>();
+                .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>()
+                .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
+                .AddSingleton<IAccessTokenProvider, AccessTokenProvider>()
+                .AddSingleton<IOciArtifactModuleRepositoryCompletionProvider, OciArtifactModuleRepositoryCompletionProvider>();
         }
 
         public void Dispose()

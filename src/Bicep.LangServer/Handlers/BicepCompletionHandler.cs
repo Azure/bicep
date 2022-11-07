@@ -2,9 +2,13 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.Containers.ContainerRegistry;
+using Azure.Identity;
+using Azure;
 using Bicep.Core.Features;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
@@ -14,6 +18,8 @@ using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System.Drawing.Printing;
+using Bicep.LanguageServer.Providers;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -23,16 +29,18 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ICompilationManager compilationManager;
         private readonly ICompletionProvider completionProvider;
         private readonly IFeatureProviderFactory featureProviderFactory;
+        private readonly IOciArtifactModuleRepositoryCompletionProvider ociArtifactModuleRepositoryCompletionProvider;
 
-        public BicepCompletionHandler(ILogger<BicepCompletionHandler> logger, ICompilationManager compilationManager, ICompletionProvider completionProvider, IFeatureProviderFactory featureProviderFactory)
+        public BicepCompletionHandler(ILogger<BicepCompletionHandler> logger, ICompilationManager compilationManager, ICompletionProvider completionProvider, IFeatureProviderFactory featureProviderFactory, IOciArtifactModuleRepositoryCompletionProvider ociArtifactModuleRepositoryCompletionProvider)
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
             this.completionProvider = completionProvider;
             this.featureProviderFactory = featureProviderFactory;
+            this.ociArtifactModuleRepositoryCompletionProvider = ociArtifactModuleRepositoryCompletionProvider;
         }
 
-        public override Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
+        public override async Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
         {
             var completions = Enumerable.Empty<CompletionItem>();
 
@@ -42,7 +50,14 @@ namespace Bicep.LanguageServer.Handlers
                 (compilationContext.SourceFileKind == BicepSourceFileKind.ParamsFile && !featureProvider.ParamsFilesEnabled))
             {
                 // no compilation context or this is a param file and params are disabled
-                return Task.FromResult(new CompletionList());
+                return new CompletionList();
+            }
+
+            var completions1 = await ociArtifactModuleRepositoryCompletionProvider.GetOciArtifactModuleRepositoryPathCompletionsAsync(request.TextDocument.Uri.ToUri());
+
+            if (completions1.Any())
+            {
+                return new CompletionList(completions1, isIncomplete: false);
             }
 
             int offset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Position);
@@ -58,7 +73,7 @@ namespace Bicep.LanguageServer.Handlers
                 this.logger.LogError("Error with Completion in file {Uri} with {Context}. Underlying exception is: {Exception}", request.TextDocument.Uri, completionContext, e.ToString());
             }
 
-            return Task.FromResult(new CompletionList(completions, isIncomplete: false));
+            return new CompletionList(completions, isIncomplete: false);
         }
 
         public override Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken)

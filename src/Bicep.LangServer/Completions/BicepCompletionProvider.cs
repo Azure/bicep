@@ -5,8 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Net;
 using System.Text;
+using Azure;
+using Azure.Containers.ContainerRegistry;
 using Azure.Deployments.Core.Comparers;
+using Azure.Identity;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
@@ -67,6 +71,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetResourceTypeFollowerCompletions(context))
                 .Concat(GetModulePathCompletions(model, context))
                 .Concat(GetModuleBodyCompletions(model, context))
+                .Concat(GetOciArtifactModuleRepositoryPathCompletions(model, context))
                 .Concat(GetResourceBodyCompletions(model, context))
                 .Concat(GetParameterDefaultValueCompletions(model, context))
                 .Concat(GetVariableValueCompletions(context))
@@ -122,7 +127,7 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            if(paramsCompletionContext.EnclosingDeclaration is not UsingDeclarationSyntax usingDeclarationSyntax ||
+            if (paramsCompletionContext.EnclosingDeclaration is not UsingDeclarationSyntax usingDeclarationSyntax ||
                usingDeclarationSyntax.Path is not StringSyntax stringSyntax ||
                stringSyntax.TryGetLiteralValue() is not string entered)
             {
@@ -130,8 +135,8 @@ namespace Bicep.LanguageServer.Completions
             }
 
 
-             // These should only fail if we're not able to resolve cwd path or the entered string
-            if (TryGetFilesForPathCompletions(paramsSemanticModel.SourceFile.FileUri, entered) is not {} fileCompletionInfo)
+            // These should only fail if we're not able to resolve cwd path or the entered string
+            if (TryGetFilesForPathCompletions(paramsSemanticModel.SourceFile.FileUri, entered) is not { } fileCompletionInfo)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -242,7 +247,7 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> GetSymbolCompletions(SemanticModel model, BicepCompletionContext context)
         {
             // TODO: Revisit when we support functions in param files
-            if(model.SourceFileKind != BicepSourceFileKind.BicepFile)
+            if (model.SourceFileKind != BicepSourceFileKind.BicepFile)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -488,7 +493,7 @@ namespace Bicep.LanguageServer.Completions
                 dirs = FileResolver.GetDirectories(queryParent, string.Empty).ToList();
 
                 // include the parent folder as a completion if we're not at the file system root
-                if (FileResolver.TryResolveFilePath(queryParent, "..") is {} parentDir &&
+                if (FileResolver.TryResolveFilePath(queryParent, "..") is { } parentDir &&
                     parentDir != queryParent)
                 {
                     dirs.Add(parentDir);
@@ -553,6 +558,34 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
+        private IEnumerable<CompletionItem> GetOciArtifactModuleRepositoryPathCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.OciArtifactModuleReferenceRepositoryPath))
+            {
+                // Create a new ContainerRegistryClient
+                var containerRegistryClientOptions = new ContainerRegistryClientOptions()
+                {
+                    Audience = ContainerRegistryAudience.AzureResourceManagerPublicCloud
+                };
+
+                ContainerRegistryClient client = new ContainerRegistryClient(new Uri("https://bhsubrarg.azurecr.io/"), new DefaultAzureCredential(), containerRegistryClientOptions);
+
+                Pageable<string> repositories = client.GetRepositoryNames();
+                List<CompletionItem> completions = new List<CompletionItem>();
+
+                foreach (string repository in repositories)
+                {
+                    completions.Add(CompletionItemBuilder.Create(CompletionItemKind.File, repository)
+                    .WithFilterText(repository)
+                    .WithSortText(GetSortText(repository, CompletionPriority.High)).Build());
+                }
+
+                return completions;
+            }
+
+            return Enumerable.Empty<CompletionItem>();
+        }
+
         private IEnumerable<CompletionItem> GetModulePathCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath))
@@ -569,7 +602,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // These should only fail if we're not able to resolve cwd path or the entered string
-            if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not {} fileCompletionInfo)
+            if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not { } fileCompletionInfo)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -1083,7 +1116,7 @@ namespace Bicep.LanguageServer.Completions
             return GetValueCompletionsForType(model, context, argType, loopsAllowed: false);
         }
 
-        private IEnumerable<CompletionItem> GetFileCompletionPaths(SemanticModel model,BicepCompletionContext context, TypeSymbol argType)
+        private IEnumerable<CompletionItem> GetFileCompletionPaths(SemanticModel model, BicepCompletionContext context, TypeSymbol argType)
         {
             if (context.FunctionArgument is not { } functionArgument || !argType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.IsStringFilePath))
             {
@@ -1095,7 +1128,7 @@ namespace Bicep.LanguageServer.Completions
             var entered = (functionArgument.Function.Arguments.ElementAtOrDefault(functionArgument.ArgumentIndex)?.Expression as StringSyntax)?.TryGetLiteralValue() ?? string.Empty;
 
             // These should only fail if we're not able to resolve cwd path or the entered string
-            if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not {} fileCompletionInfo)
+            if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not { } fileCompletionInfo)
             {
                 return Enumerable.Empty<CompletionItem>();
             }
@@ -1204,7 +1237,8 @@ namespace Bicep.LanguageServer.Completions
                     break;
 
                 case LambdaType lambda:
-                    var (snippet, label) = lambda.ArgumentTypes.Length switch {
+                    var (snippet, label) = lambda.ArgumentTypes.Length switch
+                    {
                         1 => (
                             "${1:arg} => $0",
                             "arg => ..."),
@@ -1642,7 +1676,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 if (context.EnclosingDeclaration is ImportDeclarationSyntax importSyntax &&
                     model.GetSymbolInfo(importSyntax) is ImportedNamespaceSymbol importSymbol &&
-                    importSymbol.TryGetNamespaceType() is {} namespaceType)
+                    importSymbol.TryGetNamespaceType() is { } namespaceType)
                 {
                     foreach (var completion in GetValueCompletionsForType(model, context, namespaceType.ConfigurationType, loopsAllowed: false))
                     {

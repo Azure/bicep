@@ -188,5 +188,10 @@ namespace Bicep.LanguageServer.Completions
         /// The current location is after a pipe separator within a union type: `type foo = 'foo'|'bar'|ǂ`
         /// </summary>
         UnionTypeMember = ((ulong) 1) << 34,
+
+        /// <summary>
+        /// The current location needs a repository path.
+        /// </summary>
+        OciArtifactModuleReferenceRepositoryPath = 1 << 35,
     }
 }

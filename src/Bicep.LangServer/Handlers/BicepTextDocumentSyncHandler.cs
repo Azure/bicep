@@ -7,6 +7,7 @@ using Bicep.Core;
 using Bicep.Core.FileSystem;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Configuration;
+using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
 using MediatR;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -21,9 +22,11 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly ICompilationManager compilationManager;
         private readonly IBicepConfigChangeHandler bicepConfigChangeHandler;
+        private readonly IAccessTokenProvider accessTokenProvider;
 
-        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler) 
+        public BicepTextDocumentSyncHandler(IAccessTokenProvider accessTokenProvider, ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler) 
         {
+            this.accessTokenProvider = accessTokenProvider;
             this.bicepConfigChangeHandler = bicepConfigChangeHandler;
             this.compilationManager = compilationManager;
         }
@@ -64,7 +67,7 @@ namespace Bicep.LanguageServer.Handlers
             return Unit.Task;
         }
 
-        public override Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
+        public override async Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
             var documentUri = request.TextDocument.Uri;
 
@@ -76,10 +79,12 @@ namespace Bicep.LanguageServer.Handlers
 
             this.compilationManager.OpenCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
 
-            return Unit.Task;
+            await accessTokenProvider.CacheAccessTokenAsync(documentUri.ToUri());
+
+            return Unit.Value;
         }
 
-        public override Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken)
+        public override async Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken)
         {
             var documentUri = request.TextDocument.Uri;
 
@@ -89,10 +94,11 @@ namespace Bicep.LanguageServer.Handlers
             // We'll also update the entry in activeBicepConfigCache.
             if (ConfigurationHelper.IsBicepConfigFile(documentUri))
             {
+                await accessTokenProvider.CacheAccessTokenAsync(documentUri.ToUri());
                 bicepConfigChangeHandler.HandleBicepConfigSaveEvent(documentUri);
             }
 
-            return Unit.Task;
+            return Unit.Value;
         }
 
         public override Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken)
