@@ -480,6 +480,9 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Value);
             });
 
+        public override void VisitUnionTypeSyntax(UnionTypeSyntax syntax) =>
+            this.Build(() => base.VisitUnionTypeSyntax(syntax), Spread);
+
         private static ILinkedDocument Text(string text) =>
             CommonTextCache.TryGetValue(text, out var cached) ? cached : new TextDocument(text);
 

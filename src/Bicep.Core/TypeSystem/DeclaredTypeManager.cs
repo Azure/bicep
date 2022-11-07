@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
@@ -218,15 +219,16 @@ namespace Bicep.Core.TypeSystem
         private DeclaredTypeAssignment? GetTypePropertyType(ObjectTypePropertySyntax syntax)
             => GetTypeReferencForTypeProperty(syntax) is {} @ref ? new(@ref, syntax) : null;
 
-        private ITypeReference? GetTypeReferencForTypeProperty(ObjectTypePropertySyntax syntax)
+        private ITypeReference? GetTypeReferencForTypeProperty(ObjectTypePropertySyntax syntax) => syntax.Value switch
         {
-            if (syntax.Value is VariableAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol signified)
-            {
-                return new DeferredTypeReference(() => TypeRefToType(signifier, signified));
-            }
-
-            return TryGetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false);
-        }
+            VariableAccessSyntax signifier when binder.GetSymbolInfo(signifier) is TypeAliasSymbol signified
+                => new DeferredTypeReference(() => TypeRefToType(signifier, signified)),
+            UnionTypeSyntax unionTypeSyntax when unionTypeSyntax.Members.Any(m => m.Value is VariableAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol)
+                => new DeferredTypeReference(() => ConvertTypeExpressionToType(unionTypeSyntax)),
+            UnaryOperationSyntax unaryOperationSyntax when unaryOperationSyntax.Expression is VariableAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol
+                => new DeferredTypeReference(() => ConvertTypeExpressionToType(unaryOperationSyntax)),
+            SyntaxBase otherwise => TryGetTypeFromTypeSyntax(otherwise, allowNamespaceReferences: false),
+        };
 
         private DeclaredTypeAssignment? GetTypeMemberType(ArrayTypeMemberSyntax syntax)
             => GetTypeReferenceForMemberType(syntax) is {} @ref ? new(@ref, syntax) : null;
@@ -399,9 +401,9 @@ namespace Bicep.Core.TypeSystem
 
         private string GetPropertyTypeName(SyntaxBase typeSyntax, ITypeReference propertyType)
         {
-            if (typeSyntax is VariableAccessSyntax typeAccess)
+            if (propertyType is DeferredTypeReference)
             {
-                return typeAccess.Name.IdentifierName;
+                return typeSyntax.ToText();
             }
 
             return propertyType.Type.Name;

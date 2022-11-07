@@ -102,4 +102,54 @@ param stringParam sys.string = 'foo'
             ("no-unused-params", DiagnosticLevel.Warning, "Parameter \"stringParam\" is declared but never used."),
         });
     }
+
+    [TestMethod]
+    public void Unions_that_incorporate_their_parent_object_do_not_blow_the_stack()
+    {
+        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recur: {foo: 'bar'}|anObject
+}
+");
+
+        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
+            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
+        });
+
+        var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recur?: {foo: 'bar'}|anObject
+}
+");
+
+        blockedBecauseOfUnionSemantics.Should().HaveDiagnostics(new[] {
+            ("BCP293", DiagnosticLevel.Error, "All members of a union type declaration must be literal values."),
+        });
+    }
+
+    [TestMethod]
+    public void Unary_operations_that_incorporate_their_parent_object_do_not_blow_the_stack()
+    {
+        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recur: !anObject
+}
+");
+
+        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
+            ("BCP285", DiagnosticLevel.Error, "The type expression could not be reduced to a literal value."),
+        });
+
+        var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recur?: !anObject
+}
+");
+
+        blockedBecauseOfUnionSemantics.Should().HaveDiagnostics(new[] {
+            ("BCP285", DiagnosticLevel.Error, "The type expression could not be reduced to a literal value."),
+        });
+    }
 }
