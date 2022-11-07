@@ -562,7 +562,7 @@
     "@types/jest": "^27.0.2",
     "@types/mocha": "^10.0.0",
     "@types/node": "^18.11.0",
-    "@types/react": "^18.0.24",
+    "@types/react": "^18.0.25",
     "@types/react-dom": "^18.0.8",
     "@types/react-test-renderer": "^18.0.0",
     "@types/semver": "^7.3.12",
