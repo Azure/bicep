@@ -4091,5 +4091,19 @@ output sku string = appServicePlanSku.name
 
             result.Should().NotHaveAnyDiagnostics();
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/8950
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue8960()
+        {
+            var result = CompilationHelper.Compile(@"
+param string sys.string = 'hello'
+output message sys.string = string
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
     }
 }

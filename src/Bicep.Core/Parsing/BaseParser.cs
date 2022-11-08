@@ -1169,7 +1169,14 @@ namespace Bicep.Core.Parsing
                 return new ResourceTypeSyntax(resourceKeyword, type);
             }
 
-            return new VariableAccessSyntax(new(Expect(TokenType.Identifier, b => b.ExpectedOutputType())));
+            SyntaxBase current = new VariableAccessSyntax(new(Expect(TokenType.Identifier, b => b.ExpectedOutputType())));
+
+            while (this.Check(TokenType.Dot))
+            {
+                current = new PropertyAccessSyntax(current, this.reader.Read(), this.IdentifierOrSkip(b => b.ExpectedFunctionOrPropertyName()));
+            }
+
+            return current;
         }
 
         protected SyntaxBase Type(bool allowOptionalResourceType)
