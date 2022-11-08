@@ -17,6 +17,17 @@ namespace Bicep.LanguageServer.Telemetry
             public const string ModuleBodySnippetInsertion = "snippet/modulebody";
             public const string ObjectBodySnippetInsertion = "snippet/object";
 
+            public const string DecompileSuccess = "decompile/success";
+            public const string DecompileFailure = "decompile/failure";
+            public const string DecompileSaveSuccess = "decompileSave/success";
+            public const string DecompileSaveFailure = "decompileSave/failure";
+
+            public const string InsertResourceSuccess = "InsertResource/success";
+            public const string InsertResourceFailure = "InsertResource/failure";
+
+            public const string InsertKubernetesManifestSuccess = "ImportKubernetesManifest/success";
+            public const string InsertKubernetesManifestFailure = "ImportKubernetesManifest/failure";
+
             public const string DeployResult = "deploy/result";
             public const string DeployStart = "deploy/start";
             public const string DeployStartResult = "deploy/startresult";

@@ -1867,6 +1867,29 @@ var joinedString = join(['I', 'love', 'Bicep!'], ' ')
 //@[047:048) Comma |,|
 //@[049:052) StringComplete |' '|
 //@[052:053) RightParen |)|
-//@[053:054) NewLine |\n|
+//@[053:055) NewLine |\n\n|
+
+var prefix = take('food', 3)
+//@[000:003) Identifier |var|
+//@[004:010) Identifier |prefix|
+//@[011:012) Assignment |=|
+//@[013:017) Identifier |take|
+//@[017:018) LeftParen |(|
+//@[018:024) StringComplete |'food'|
+//@[024:025) Comma |,|
+//@[026:027) Integer |3|
+//@[027:028) RightParen |)|
+//@[028:029) NewLine |\n|
+var isPrefixed = startsWith('food', 'foo')
+//@[000:003) Identifier |var|
+//@[004:014) Identifier |isPrefixed|
+//@[015:016) Assignment |=|
+//@[017:027) Identifier |startsWith|
+//@[027:028) LeftParen |(|
+//@[028:034) StringComplete |'food'|
+//@[034:035) Comma |,|
+//@[036:041) StringComplete |'foo'|
+//@[041:042) RightParen |)|
+//@[042:043) NewLine |\n|
 
 //@[000:000) EndOfFile ||

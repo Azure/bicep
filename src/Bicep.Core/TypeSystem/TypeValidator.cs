@@ -123,15 +123,35 @@ namespace Bicep.Core.TypeSystem
                     // The name *is* the escaped string value, so we must have an exact match.
                     return targetType.Name == sourceType.Name;
 
+                case (IntegerLiteralType sourceInt, IntegerLiteralType targetInt):
+                    return targetInt.Value == sourceInt.Value;
+
+                case (BooleanLiteralType sourceBool, BooleanLiteralType targetBool):
+                    return sourceBool.Value == targetBool.Value;
+
                 case (PrimitiveType, StringLiteralType):
-                    // We allow string to string literal assignment only in the case where the "AllowLooseStringAssignment" validation flag has been set.
+                    // We allow primitive to like-typed literal assignment only in the case where the "AllowLooseAssignment" validation flag has been set.
                     // This is to allow parameters without 'allowed' values to be assigned to fields expecting enums.
                     // At some point we may want to consider flowing the enum type backwards to solve this more elegantly.
-                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseStringAssignment) && sourceType.Name == LanguageConstants.String.Name;
+                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment) && sourceType.Name == LanguageConstants.String.Name;
+
+                case (PrimitiveType, IntegerLiteralType):
+                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment) && sourceType.Name == LanguageConstants.Int.Name;
+
+                case (PrimitiveType, BooleanLiteralType):
+                    return sourceType.ValidationFlags.HasFlag(TypeSymbolValidationFlags.AllowLooseAssignment) && sourceType.Name == LanguageConstants.Bool.Name;
 
                 case (StringLiteralType, PrimitiveType):
                     // string literals can be assigned to strings
                     return targetType.Name == LanguageConstants.String.Name;
+
+                case (IntegerLiteralType, PrimitiveType):
+                    // integer literals can be assigned to ints
+                    return targetType.Name == LanguageConstants.Int.Name;
+
+                case (BooleanLiteralType, PrimitiveType):
+                    // boolean literals can be assigned to bools
+                    return targetType.Name == LanguageConstants.Bool.Name;
 
                 case (PrimitiveType, PrimitiveType):
                     // both types are primitive
@@ -195,9 +215,10 @@ namespace Bicep.Core.TypeSystem
         }
 
         private TypeSymbol NarrowType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol targetType)
-        {
-            var expressionType = typeManager.GetTypeInfo(expression);
+            => NarrowType(config, expression, typeManager.GetTypeInfo(expression), targetType);
 
+        private TypeSymbol NarrowType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, TypeSymbol targetType)
+        {
             if (config.DisallowAny && expressionType is AnyType)
             {
                 // certain properties such as scope, parent, dependsOn do not allow values of "any" type
@@ -301,11 +322,7 @@ namespace Bicep.Core.TypeSystem
 
             if (targetType is UnionType targetUnionType)
             {
-                // we need to narrow each union member so diagnostics get collected correctly
-                // until we get union type simplification logic, this could generate duplicate diagnostics
-                return TypeHelper.CreateTypeUnion(targetUnionType.Members
-                    .Where(x => AreTypesAssignable(expressionType, x.Type))
-                    .Select(x => NarrowType(config, expression, x.Type)));
+                return NarrowUnionType(config, expression, expressionType, targetUnionType);
             }
 
             if (expression is LambdaSyntax sourceLambda && targetType is LambdaType targetLambdaType)
@@ -406,6 +423,151 @@ namespace Bicep.Core.TypeSystem
 
             return targetType;
         }
+
+
+        private TypeSymbol NarrowUnionType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, UnionType targetType)
+            => expressionType switch
+            {
+                UnionType expressionUnion => NarrowUnionTypeForUnionExpressionType(config, expression, expressionUnion, targetType),
+                _ => NarrowUnionTypeForSingleExpressionType(config, expression, expressionType, targetType),
+            };
+
+        private TypeSymbol NarrowUnionTypeForUnionExpressionType(TypeValidatorConfig config, SyntaxBase expression, UnionType expressionType, UnionType targetType)
+        {
+            List<UnionTypeMemberViabilityInfo> candidacyEvaluations = new();
+
+            foreach (var candidateExpressionType in expressionType.Members)
+            {
+                if (!AreTypesAssignable(candidateExpressionType.Type, targetType))
+                {
+                    candidacyEvaluations.Add(new(candidateExpressionType, null, ImmutableArray<IDiagnostic>.Empty));
+                    continue;
+                }
+
+                var candidateDiagnostics = ToListDiagnosticWriter.Create();
+                var candidateCollector = new TypeValidator(typeManager, binder, candidateDiagnostics);
+                var narrowed = candidateCollector.NarrowUnionType(config, expression, candidateExpressionType.Type, targetType);
+                candidacyEvaluations.Add(new(candidateExpressionType, narrowed, candidateDiagnostics.GetDiagnostics()));
+            }
+
+            // report all informational and warning diagnostics
+            diagnosticWriter.WriteMultiple(candidacyEvaluations.SelectMany(e => e.Diagnostics));
+
+            var errors = candidacyEvaluations.SelectMany(c =>
+            {
+                if (c.NarrowedType is null || c.Errors.Any())
+                {
+                    return c.Errors.Append(DiagnosticBuilder.ForPosition(expression).ArgumentTypeMismatch(c.UnionTypeMemberEvaluated.Type, targetType));
+                }
+
+                return c.Errors;
+            });
+
+            // If *any* variant of the expression type is not assignable, the expression type is not assignable
+            if (errors.Any())
+            {
+                return ErrorType.Create(errors);
+            }
+
+            return TypeHelper.CreateTypeUnion(candidacyEvaluations.Select(c => c.NarrowedType!));
+        }
+
+        private TypeSymbol NarrowUnionTypeForSingleExpressionType(TypeValidatorConfig config, SyntaxBase expression, TypeSymbol expressionType, UnionType targetType)
+        {
+            List<UnionTypeMemberViabilityInfo> candidacyEvaluations = new();
+
+            foreach (var candidateTargetType in targetType.Members)
+            {
+                if (!AreTypesAssignable(expressionType, candidateTargetType.Type))
+                {
+                    candidacyEvaluations.Add(new(candidateTargetType, null, ImmutableArray<IDiagnostic>.Empty));
+                    continue;
+                }
+
+                var candidateDiagnostics = ToListDiagnosticWriter.Create();
+                var candidateCollector = new TypeValidator(typeManager, binder, candidateDiagnostics);
+                var narrowed = candidateCollector.NarrowType(config, expression, expressionType, candidateTargetType.Type);
+                candidacyEvaluations.Add(new(candidateTargetType, narrowed, candidateDiagnostics.GetDiagnostics()));
+            }
+
+            var viableCandidates = candidacyEvaluations
+                .Select(c => c.NarrowedType is {} Narrowed && !c.Errors.Any()
+                    // If this node was encountered in a resource declaration, use the target type rather than the narrowed type, as the
+                    // target type describes what will be returned by the service (included derived and read-only fields)
+                    ? new ViableTypeCandidate(config.IsResourceDeclaration ? c.UnionTypeMemberEvaluated.Type : Narrowed, c.Diagnostics)
+                    : null)
+                .WhereNotNull()
+                .ToImmutableArray();
+
+            if (viableCandidates.Any())
+            {
+                // It's unclear what we should do with warning and informational diagnostics. Should we report only the intersection of diagnostics raised by every viable candidate?
+                // Erring on the side of caution here and just reporting them all unless there are one or more candidates that are assignable w/o warning.
+                if (viableCandidates.All(c => c.Diagnostics.Any()))
+                {
+                    diagnosticWriter.WriteMultiple(viableCandidates.SelectMany(c => c.Diagnostics));
+                }
+
+                return TypeHelper.CreateTypeUnion(viableCandidates.Select(c => c.Type));
+            }
+
+            return ErrorType.Create(DiagnosticBuilder.ForPosition(expression).ArgumentTypeMismatch(expressionType, targetType));
+        }
+
+        private record UnionTypeMemberViabilityInfo
+        {
+            internal UnionTypeMemberViabilityInfo(ITypeReference unionTypeMemberEvaluated, TypeSymbol? narrowedType, IEnumerable<IDiagnostic> diagnostics)
+            {
+                UnionTypeMemberEvaluated = unionTypeMemberEvaluated;
+                NarrowedType = narrowedType;
+
+                List<IDiagnostic> nonErrorDiagnostics = new();
+                List<ErrorDiagnostic> errorDiagnostics = new();
+
+                foreach (var diagnostic in diagnostics)
+                {
+                    if (diagnostic.Level == DiagnosticLevel.Error)
+                    {
+                        errorDiagnostics.Add(AsErrorDiagnostic(diagnostic));
+                    }
+                    else
+                    {
+                        nonErrorDiagnostics.Add(diagnostic);
+                    }
+                }
+
+                Diagnostics = nonErrorDiagnostics;
+                Errors = errorDiagnostics;
+            }
+
+            /// <summary>
+            /// The type being checked for assignability and narrowing
+            /// </summary>
+            public ITypeReference UnionTypeMemberEvaluated { get; }
+
+            /// <summary>
+            /// The narrowed type. Will be null if the type is unassignable
+            /// </summary>
+            public TypeSymbol? NarrowedType { get; }
+
+            /// <summary>
+            /// Any warning or informational diagnostics raised during type narrowing
+            /// </summary>
+            public IReadOnlyList<IDiagnostic> Diagnostics { get; }
+
+            /// <summary>
+            /// Any error-level diagnostics raised during type narrowing
+            /// </summary>
+            public IReadOnlyList<ErrorDiagnostic> Errors { get; }
+
+            private static ErrorDiagnostic AsErrorDiagnostic(IDiagnostic diagnostic) => diagnostic switch
+            {
+                ErrorDiagnostic errorDiagnostic => errorDiagnostic,
+                _ => new(diagnostic.Span, diagnostic.Code, diagnostic.Message, diagnostic.Uri, diagnostic.Styling),
+            };
+        }
+
+        private record ViableTypeCandidate(TypeSymbol Type, IEnumerable<IDiagnostic> Diagnostics);
 
         private TypeSymbol NarrowDiscriminatedObjectType(TypeValidatorConfig config, ObjectSyntax expression, DiscriminatedObjectType targetType)
         {
@@ -612,11 +774,11 @@ namespace Bicep.Core.TypeSystem
             var extraProperties = expression.Properties
                 .Where(p => p.TryGetKeyText() is not string keyName || !targetType.Properties.ContainsKey(keyName));
 
-            if (targetType.AdditionalPropertiesType == null)
+            if (targetType.AdditionalPropertiesType == null || targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty))
             {
                 // extra properties are not allowed by the type
 
-                var shouldWarn = ShouldWarn(targetType);
+                var shouldWarn = targetType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty) || ShouldWarn(targetType);
                 var validUnspecifiedProperties = targetType.Properties.Values
                     .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty) && !namedPropertyMap.ContainsKey(p.Name))
                     .Select(p => p.Name)
@@ -700,7 +862,7 @@ namespace Bicep.Core.TypeSystem
                 ObjectPropertySyntax objectPropertyParent => (objectPropertyParent.Key, "object"),
 
                 // for import declarations, mark the entire configuration object
-                ImportDeclarationSyntax importParent => (expression, "object"),
+                ImportWithClauseSyntax importParent => (expression, "object"),
 
                 // for declaration bodies, put it on the declaration identifier
                 ITopLevelNamedDeclarationSyntax declarationParent => (declarationParent.Name, declarationParent.Keyword.Text),

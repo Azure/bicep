@@ -27,6 +27,7 @@ namespace Bicep.LanguageServer.Handlers
         string token,
         string expiresOnTimestamp,
         string deployId,
+        string deploymentName,
         string portalUrl,
         bool parametersFileExists,
         string parametersFileName,
@@ -59,8 +60,6 @@ namespace Bicep.LanguageServer.Handlers
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
             var armClient = new ArmClient(credential, default, options);
 
-            string deploymentName = "bicep_deployment_" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-
             var bicepDeploymentStartResponse = await DeploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider,
                 armClient,
@@ -75,7 +74,7 @@ namespace Bicep.LanguageServer.Handlers
                 request.parametersFileUpdateOption,
                 request.updatedDeploymentParameters,
                 request.portalUrl,
-                deploymentName,
+                request.deploymentName,
                 deploymentOperationsCache);
 
             PostDeployStartResultTelemetryEvent(request.deployId, bicepDeploymentStartResponse.isSuccess);

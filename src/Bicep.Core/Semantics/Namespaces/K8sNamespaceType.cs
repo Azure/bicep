@@ -17,7 +17,7 @@ namespace Bicep.Core.Semantics.Namespaces
             BicepProviderName: BuiltInName,
             ConfigurationType: GetConfigurationType(),
             ArmTemplateProviderName: "Kubernetes",
-            ArmTemplateProviderVersion: "1.0");
+            ArmTemplateProviderVersion: "1.0.0");
 
         private static ObjectType GetConfigurationType()
         {
@@ -34,7 +34,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return new NamespaceType(
                 aliasName,
                 Settings,
-                ImmutableArray<TypeProperty>.Empty,
+                ImmutableArray<TypeTypeProperty>.Empty,
                 ImmutableArray<FunctionOverload>.Empty,
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,

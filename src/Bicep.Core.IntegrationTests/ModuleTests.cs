@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -34,7 +35,6 @@ namespace Bicep.Core.IntegrationTests
         private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
 
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
-        private static readonly IConfigurationManager ConfigurationManager = IConfigurationManager.WithStaticConfiguration(BicepTestConstants.BuiltInConfigurationWithAllAnalyzersDisabled);
 
         private ServiceBuilder ServicesWithResourceTyped => new ServiceBuilder().WithFeatureOverrides(new(TestContext, ResourceTypedParamsAndOutputsEnabled: true));
 
@@ -174,13 +174,13 @@ module main 'main.bicep' = {
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
-                ("BCP095", DiagnosticLevel.Error, "The module is involved in a cycle (\"/modulea.bicep\" -> \"/moduleb.bicep\" -> \"/main.bicep\")."),
+                ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/modulea.bicep\" -> \"/moduleb.bicep\" -> \"/main.bicep\")."),
             });
             diagnosticsByFile[moduleAUri].Should().HaveDiagnostics(new[] {
-                ("BCP095", DiagnosticLevel.Error, "The module is involved in a cycle (\"/moduleb.bicep\" -> \"/main.bicep\" -> \"/modulea.bicep\")."),
+                ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/moduleb.bicep\" -> \"/main.bicep\" -> \"/modulea.bicep\")."),
             });
             diagnosticsByFile[moduleBUri].Should().HaveDiagnostics(new[] {
-                ("BCP095", DiagnosticLevel.Error, "The module is involved in a cycle (\"/main.bicep\" -> \"/modulea.bicep\" -> \"/moduleb.bicep\")."),
+                ("BCP095", DiagnosticLevel.Error, "The file is involved in a cycle (\"/main.bicep\" -> \"/modulea.bicep\" -> \"/moduleb.bicep\")."),
             });
             success.Should().BeFalse();
         }
@@ -215,7 +215,7 @@ module main 'main.bicep' = {
         }
 
         [TestMethod]
-        public void Module_should_include_diagnostic_if_module_file_cannot_be_resolved()
+        public async Task Module_should_include_diagnostic_if_module_file_cannot_be_resolved()
         {
             var mainFileUri = new Uri("file:///path/to/main.bicep");
             var mainFileContents = @"
@@ -235,9 +235,8 @@ module modulea 'modulea.bicep' = {
             SetupFileReaderMock(mockFileResolver, mainFileUri, mainFileContents, null);
             mockFileResolver.Setup(x => x.TryResolveFilePath(mainFileUri, "modulea.bicep")).Returns((Uri?)null);
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(mockFileResolver.Object, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.FeatureProviderFactory, ConfigurationManager), ConfigurationManager);
-
-            var compilation = Services.Build().BuildCompilation(SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainFileUri));
+            var compiler = ServiceBuilder.Create(s => s.WithFileResolver(mockFileResolver.Object).WithDisabledAnalyzersConfiguration()).GetCompiler();
+            var compilation = await compiler.CreateCompilation(mainFileUri);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainFileUri].Should().HaveDiagnostics(new[] {
@@ -356,7 +355,7 @@ output outputc2 int = inputb + 1
         }
 
         [TestMethod]
-        public void Module_should_include_diagnostic_if_module_file_cannot_be_loaded()
+        public async Task Module_should_include_diagnostic_if_module_file_cannot_be_loaded()
         {
             var mainUri = new Uri("file:///path/to/main.bicep");
             var moduleAUri = new Uri("file:///path/to/modulea.bicep");
@@ -378,9 +377,8 @@ module modulea 'modulea.bicep' = {
             SetupFileReaderMock(mockFileResolver, moduleAUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
             mockFileResolver.Setup(x => x.TryResolveFilePath(mainUri, "modulea.bicep")).Returns(moduleAUri);
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(mockFileResolver.Object, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.FeatureProviderFactory, ConfigurationManager), ConfigurationManager);
-
-            var compilation = Services.Build().BuildCompilation(SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainUri));
+            var compiler = ServiceBuilder.Create(s => s.WithFileResolver(mockFileResolver.Object).WithDisabledAnalyzersConfiguration()).GetCompiler();
+            var compilation = await compiler.CreateCompilation(mainUri);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
@@ -460,7 +458,6 @@ output storage resource = storage
 "));
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP231", DiagnosticLevel.Error, "Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature BICEP_RESOURCE_TYPED_PARAMS_AND_OUTPUTS_EXPERIMENTAL."),
                 ("BCP104", DiagnosticLevel.Error, "The referenced module has errors.")
             });
         }
@@ -587,12 +584,12 @@ output storage resource = storage
             result.Template.Should().HaveValueAtPath("$.outputs.id", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[reference(resourceId('Microsoft.Resources/deployments', 'test')).outputs.storage.value]"),
+                ["value"] = new JValue("[reference(resourceId('Microsoft.Resources/deployments', 'test'), '2020-10-01').outputs.storage.value]"),
             });
             result.Template.Should().HaveValueAtPath("$.outputs.name", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[last(split(reference(resourceId('Microsoft.Resources/deployments', 'test')).outputs.storage.value, '/'))]"),
+                ["value"] = new JValue("[last(split(reference(resourceId('Microsoft.Resources/deployments', 'test'), '2020-10-01').outputs.storage.value, '/'))]"),
             });
             result.Template.Should().HaveValueAtPath("$.outputs.type", new JObject()
             {
@@ -607,7 +604,7 @@ output storage resource = storage
             result.Template.Should().HaveValueAtPath("$.outputs.accessTier", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[reference(reference(resourceId('Microsoft.Resources/deployments', 'test')).outputs.storage.value, '2019-06-01').accessTier]"),
+                ["value"] = new JValue("[reference(reference(resourceId('Microsoft.Resources/deployments', 'test'), '2020-10-01').outputs.storage.value, '2019-06-01').accessTier]"),
             });
         }
 
@@ -640,12 +637,12 @@ output storage resource = storage
             result.Template.Should().HaveValueAtPath("$.outputs.id", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0))).outputs.storage.value]"),
+                ["value"] = new JValue("[reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0)), '2020-10-01').outputs.storage.value]"),
             });
             result.Template.Should().HaveValueAtPath("$.outputs.name", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[last(split(reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0))).outputs.storage.value, '/'))]"),
+                ["value"] = new JValue("[last(split(reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0)), '2020-10-01').outputs.storage.value, '/'))]"),
             });
             result.Template.Should().HaveValueAtPath("$.outputs.type", new JObject()
             {
@@ -660,7 +657,7 @@ output storage resource = storage
             result.Template.Should().HaveValueAtPath("$.outputs.accessTier", new JObject()
             {
                 ["type"] = new JValue("string"),
-                ["value"] = new JValue("[reference(reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0))).outputs.storage.value, '2019-06-01').accessTier]"),
+                ["value"] = new JValue("[reference(reference(resourceId('Microsoft.Resources/deployments', format('test-{0}', 0)), '2020-10-01').outputs.storage.value, '2019-06-01').accessTier]"),
             });
         }
 
@@ -737,6 +734,20 @@ output out string = p.properties.minimalTlsVersion
             {
                 ("BCP036", DiagnosticLevel.Error, "The property \"p\" expected a value of type \"Microsoft.Sql/servers\" but the provided value is of type \"Microsoft.Storage/storageAccounts@2019-06-01\"."),
             });
+        }
+
+        [TestMethod]
+        public void Module_cannot_reference_bicep_params_file()
+        {
+            var result = CompilationHelper.Compile(
+                Services,
+("main.bicep", @"
+module mod './foo.bicepparam' = {
+  name: 'hello'
+}
+"),
+("foo.bicepparam", @""));
+            result.Should().OnlyContainDiagnostic("BCP277", DiagnosticLevel.Error, "A module declaration can only reference a Bicep File, an ARM template, a registry reference or a template spec reference.");
         }
 
         private static string GetTemplate(Compilation compilation)

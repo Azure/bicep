@@ -69,7 +69,7 @@ namespace Bicep.LanguageServer.Handlers
                 case ImportedNamespaceSymbol import:
                     return WithMarkdown(CodeBlockWithDescription(
                         $"import {import.Name}", TryGetDescriptionMarkdown(result, import)));
-                
+
                 case MetadataSymbol metadata:
                     return WithMarkdown(CodeBlockWithDescription(
                         $"metadata {metadata.Name}: {metadata.Type}", TryGetDescriptionMarkdown(result, metadata)));
@@ -78,6 +78,13 @@ namespace Bicep.LanguageServer.Handlers
                 case ParameterSymbol parameter:
                     return WithMarkdown(CodeBlockWithDescription(
                         $"param {parameter.Name}: {parameter.Type}", TryGetDescriptionMarkdown(result, parameter)));
+
+                case TypeAliasSymbol declaredType:
+                    return WithMarkdown(CodeBlockWithDescription(
+                        $"type {declaredType.Name}: {declaredType.Type}", TryGetDescriptionMarkdown(result, declaredType)));
+
+                case AmbientTypeSymbol ambientType:
+                    return WithMarkdown(CodeBlock($"type {ambientType.Name}: {ambientType.Type}"));
 
                 case VariableSymbol variable:
                     return WithMarkdown(CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescriptionMarkdown(result, variable)));

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5825830842373980012"
+      "templateHash": "13466318512342251126"
     }
   },
   "parameters": {
@@ -40,7 +40,7 @@
   "outputs": {
     "scriptOutput": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', parameters('dsName'))).outputs.test]"
+      "value": "[reference(resourceId('Microsoft.Resources/deploymentScripts', parameters('dsName')), '2020-10-01').outputs.test]"
     }
   }
 }

@@ -24,7 +24,7 @@ namespace Bicep.Core.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         private ServiceBuilder ServicesWithExtensibility => new ServiceBuilder()
-            .WithFeatureOverrides(new(TestContext, ImportsEnabled: true, ResourceTypedParamsAndOutputsEnabled: true))
+            .WithFeatureOverrides(new(TestContext, ExtensibilityEnabled: true, ResourceTypedParamsAndOutputsEnabled: true))
             .WithNamespaceProvider(new TestExtensibilityNamespaceProvider(BicepTestConstants.AzResourceTypeLoader));
 
         [TestMethod]
@@ -168,16 +168,16 @@ output id string = p.id
         public void Parameter_cannot_use_extensibility_resource_type()
         {
             var result = CompilationHelper.Compile(ServicesWithExtensibility, @"
-import storage as stg {
+import 'storage@1.0.0' with {
   connectionString: 'asdf'
-}
+} as stg
 
 param container resource 'stg:container'
 output name string = container.name // silence unused params warning
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new []
             {
-                ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter type. Extensibility types are currently not supported as parameters or outputs."),
+                ("BCP227", DiagnosticLevel.Error, "The type \"container\" cannot be used as a parameter or output type. Extensibility types are currently not supported as parameters or outputs."),
                 ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"container\" is not valid."),
             });
         }

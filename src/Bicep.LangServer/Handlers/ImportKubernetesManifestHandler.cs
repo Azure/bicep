@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
@@ -35,7 +36,7 @@ namespace Bicep.LanguageServer.Handlers
 
         public ImportKubernetesManifestHandler(ILanguageServerFacade server, ITelemetryProvider telemetryProvider)
         {
-            this.helper = new TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse>(server.Window, telemetryProvider, new(null));
+            this.helper = new TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse>(server.Window, telemetryProvider);
         }
 
         public Task<ImportKubernetesManifestResponse> Handle(ImportKubernetesManifestRequest request, CancellationToken cancellationToken)
@@ -43,14 +44,14 @@ namespace Bicep.LanguageServer.Handlers
                 var bicepFilePath = Path.ChangeExtension(request.ManifestFilePath, ".bicep");
                 var manifestContents = await File.ReadAllTextAsync(request.ManifestFilePath);
 
-                var bicepContents = Decompile(manifestContents);
+                var bicepContents = Decompile(manifestContents, this.helper);
 
                 await File.WriteAllTextAsync(bicepFilePath, bicepContents, cancellationToken);
 
                 return new(new(bicepFilePath), BicepTelemetryEvent.ImportKubernetesManifestSuccess());
             });
 
-        public static string Decompile(string manifestContents)
+        public static string Decompile(string manifestContents, TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> telemetryHelper)
         {
             var declarations = new List<SyntaxBase>();
 
@@ -61,21 +62,21 @@ namespace Bicep.LanguageServer.Handlers
                 },
                 SyntaxFactory.CreateToken(Core.Parsing.TokenType.Identifier, "param"),
                 SyntaxFactory.CreateIdentifier("kubeConfig"),
-                new SimpleTypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "string")),
+                new VariableAccessSyntax(new(SyntaxFactory.CreateToken(TokenType.Identifier, "string"))),
                 null));
 
             declarations.Add(new ImportDeclarationSyntax(
                 Enumerable.Empty<SyntaxBase>(),
-                SyntaxFactory.CreateToken(Core.Parsing.TokenType.Identifier, "import"),
-                SyntaxFactory.CreateIdentifier("kubernetes"),
-                SyntaxFactory.CreateToken(Core.Parsing.TokenType.Identifier, "as"),
-                SyntaxFactory.CreateIdentifier("k8s"),
-                SyntaxFactory.CreateObject(new [] {
-                    SyntaxFactory.CreateObjectProperty("namespace", SyntaxFactory.CreateStringLiteral("default")),
-                    SyntaxFactory.CreateObjectProperty("kubeConfig", SyntaxFactory.CreateIdentifier("kubeConfig")),
-                })
-            ));
-
+                SyntaxFactory.CreateToken(TokenType.Identifier, "import"),
+                SyntaxFactory.CreateStringLiteral("kubernetes@1.0.0"),
+                new ImportWithClauseSyntax(
+                    SyntaxFactory.CreateToken(TokenType.WithKeyword, LanguageConstants.WithKeyword), 
+                    SyntaxFactory.CreateObject(new []
+                    {
+                        SyntaxFactory.CreateObjectProperty("namespace", SyntaxFactory.CreateStringLiteral("default")),
+                        SyntaxFactory.CreateObjectProperty("kubeConfig", SyntaxFactory.CreateIdentifier("kubeConfig"))
+                    })),
+                asClause: SyntaxFactory.EmptySkippedTrivia));
 
             try
             {
@@ -85,7 +86,7 @@ namespace Bicep.LanguageServer.Handlers
 
                 foreach (var yamlDocument in yamlStream.Documents)
                 {
-                    var syntax = ProcessResourceYaml(yamlDocument);
+                    var syntax = ProcessResourceYaml(yamlDocument, telemetryHelper);
 
                     declarations.Add(syntax);
                 }
@@ -93,10 +94,10 @@ namespace Bicep.LanguageServer.Handlers
             catch (Exception ex)
             {
                 Trace.TraceError("Exception deserializing manifest: {0}", ex);
-
-                throw new TelemetryAndErrorHandlingException(
+                throw telemetryHelper.CreateException(
                     $"Failed to deserialize kubernetes manifest YAML: {ex.Message}",
-                    BicepTelemetryEvent.ImportKubernetesManifestFailure("DeserializeYamlFailed"));
+                    BicepTelemetryEvent.ImportKubernetesManifestFailure("DeserializeYamlFailed"),
+                    new ImportKubernetesManifestResponse(null));
             }
 
             var program = new ProgramSyntax(
@@ -107,7 +108,7 @@ namespace Bicep.LanguageServer.Handlers
             return PrettyPrinter.PrintProgram(program, new PrettyPrintOptions(NewlineOption.LF, IndentKindOption.Space, 2, false));
         }
 
-        private static ResourceDeclarationSyntax ProcessResourceYaml(YamlDocument yamlDocument)
+        private static ResourceDeclarationSyntax ProcessResourceYaml(YamlDocument yamlDocument, TelemetryAndErrorHandlingHelper<ImportKubernetesManifestResponse> telemetryHelper)
         {
             if (yamlDocument.RootNode is not YamlMappingNode rootNode)
             {

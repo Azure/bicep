@@ -3,7 +3,7 @@
 
 import { readdirSync, existsSync } from 'fs';
 import { readFile, writeFile } from 'fs/promises';
-import { IOnigLib, IToken, parseRawGrammar, Registry, StackElement } from 'vscode-textmate';
+import { IOnigLib, IToken, parseRawGrammar, Registry, StateStack } from 'vscode-textmate';
 import { createOnigScanner, createOnigString, loadWASM } from 'vscode-oniguruma';
 import path, { dirname, basename, extname } from 'path';
 import { grammarPath, BicepScope } from '../src/bicep';
@@ -67,7 +67,7 @@ async function getTokensByLine(content: string) {
   const lines = content.split(/\r\n|\r|\n/);
   const tokensByLine: IToken[][] = [];
 
-  let ruleStack: StackElement | null = null;
+  let ruleStack: StateStack | null = null;
   for (const line of lines) {
     const result = grammar.tokenizeLine(line, ruleStack);
 
@@ -180,7 +180,7 @@ for (const filePath of baselineFiles) {
 
         const result = spawnSync(`dotnet`, ['run', '-p', cliCsproj, 'build', '--stdout', filePath], {
           encoding: 'utf-8',
-          env: { ...env, 'BICEP_LAMBDAS_ENABLED_EXPERIMENTAL': 'true'}
+          env,
         });
 
         expect(result.error).toBeUndefined();

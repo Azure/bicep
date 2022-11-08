@@ -29,18 +29,16 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
-            // TODO: Performance: Use a visitor to visit VariableAccesssyntax and collects the non-error symbols into a list.
-            // Then do a symbol visitor to go through all the symbols that exist and compare.
-            // Same issue for unused-params and unused-variables rule.
+            var invertedBindings = model.Binder.Bindings.ToLookup(kvp => kvp.Value, kvp => kvp.Key);
 
-            var unreferencedResources = model.Root.Declarations.OfType<ResourceSymbol>()
-                .Where(sym => sym.NameSyntax.IsValid)
+            var unreferencedResources = model.Root.ResourceDeclarations
+                .Where(sym => sym.NameSource.IsValid)
                 .Where(sym => sym.DeclaringResource.IsExistingResource())
-                .Where(sym => !model.FindReferences(sym).Any(rf => rf != sym.DeclaringResource))
+                .Where(sym => !invertedBindings[sym].Any(x => x != sym.DeclaringSyntax))
                 .Where(sym => !(sym.DeclaringResource.TryGetBody()?.Resources ?? Enumerable.Empty<ResourceDeclarationSyntax>()).Any());
             foreach (var sym in unreferencedResources)
             {
-                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.ProgramSyntax);
+                yield return CreateRemoveUnusedDiagnosticForSpan(diagnosticLevel, sym.Name, sym.NameSource.Span, sym.DeclaringSyntax, model.SourceFile.ProgramSyntax);
             }
         }
 

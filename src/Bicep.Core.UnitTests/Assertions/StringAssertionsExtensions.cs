@@ -34,7 +34,7 @@ namespace Bicep.Core.UnitTests.Assertions
         public static AndConstraint<StringAssertions> EqualWithLineByLineDiffOutput(this StringAssertions instance, TestContext testContext, string expected, string expectedLocation, string actualLocation, string because = "", params object[] becauseArgs)
         {
             const int truncate = 100;
-            var diff = InlineDiffBuilder.Diff(instance.Subject, expected, ignoreWhiteSpace: false, ignoreCase: false);
+            var diff = InlineDiffBuilder.Diff(expected, instance.Subject, ignoreWhiteSpace: false, ignoreCase: false);
 
             var lineLogs = diff.Lines
                 .Where(line => line.Type != ChangeType.Unchanged)
@@ -81,6 +81,30 @@ namespace Bicep.Core.UnitTests.Assertions
             var normalizedExpected = StringUtils.ReplaceNewlines(expected, "\n");
 
             normalizedActual.Should().Be(normalizedExpected, because, becauseArgs);
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
+        public static AndConstraint<StringAssertions> ContainIgnoringNewlines(this StringAssertions instance, string expected)
+        {
+            var normalizedActual = StringUtils.ReplaceNewlines(instance.Subject, "\n");
+            var normalizedExpected = StringUtils.ReplaceNewlines(expected, "\n");
+
+            normalizedActual.Should().Contain(normalizedExpected);
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
+        public static AndConstraint<StringAssertions> BeEquivalentToPath(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
+        {
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                instance.Subject.Should().BeEquivalentTo(expected, because, becauseArgs);
+            }
+            else
+            {
+                instance.Subject.Should().Be(expected, because, becauseArgs);
+            }
 
             return new AndConstraint<StringAssertions>(instance);
         }

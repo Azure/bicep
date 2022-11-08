@@ -274,7 +274,7 @@ namespace Bicep.Core.Emit
                 if (context.SemanticModel.ResourceMetadata.TryLookup(arrayAccess.BaseExpression) is DeclaredResourceMetadata resource &&
                     resource.Symbol.IsCollection)
                 {
-                    var movedSyntax = context.Settings.EnableSymbolicNames ? resource.Symbol.NameSyntax : resource.NameSyntax;
+                    var movedSyntax = context.Settings.EnableSymbolicNames ? resource.Symbol.NameIdentifier : resource.NameSyntax;
 
                     return this.CreateConverterForIndexReplacement(movedSyntax, arrayAccess.IndexExpression, arrayAccess)
                         .GetReferenceExpression(resource, arrayAccess.IndexExpression, true);
@@ -440,7 +440,7 @@ namespace Bicep.Core.Emit
         {
             if (context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is DeclaredResourceMetadata resource)
             {
-                var movedSyntax = context.Settings.EnableSymbolicNames ? resource.Symbol.NameSyntax : resource.NameSyntax;
+                var movedSyntax = context.Settings.EnableSymbolicNames ? resource.Symbol.NameIdentifier : resource.NameSyntax;
 
                 // we are doing property access on a single resource
                 return CreateConverterForIndexReplacement(movedSyntax, null, propertyAccess)
@@ -459,7 +459,7 @@ namespace Bicep.Core.Emit
             if (propertyAccess.BaseExpression is ArrayAccessSyntax propArrayAccess &&
                 context.SemanticModel.ResourceMetadata.TryLookup(propArrayAccess.BaseExpression) is DeclaredResourceMetadata resourceCollection)
             {
-                var movedSyntax = context.Settings.EnableSymbolicNames ? resourceCollection.Symbol.NameSyntax : resourceCollection.NameSyntax;
+                var movedSyntax = context.Settings.EnableSymbolicNames ? resourceCollection.Symbol.NameIdentifier : resourceCollection.NameSyntax;
 
                 // we are doing property access on an array access of a resource collection
                 return CreateConverterForIndexReplacement(movedSyntax, propArrayAccess.IndexExpression, propertyAccess)
@@ -679,7 +679,7 @@ namespace Bicep.Core.Emit
                 // or the resource itself if we're on the last ancestor
                 var newContext = i < ancestors.Length - 1 ? ancestors[i + 1].Resource : resource;
 
-                var inaccessibleLocals = this.context.DataFlowAnalyzer.GetInaccessibleLocalsAfterSyntaxMove(rewritten, newContext.Symbol.NameSyntax);
+                var inaccessibleLocals = this.context.DataFlowAnalyzer.GetInaccessibleLocalsAfterSyntaxMove(rewritten, newContext.Symbol.NameIdentifier);
                 var inaccessibleLocalLoops = inaccessibleLocals.Select(local => GetEnclosingForExpression(local)).Distinct().ToList();
 
                 switch (inaccessibleLocalLoops.Count)
@@ -821,20 +821,11 @@ namespace Bicep.Core.Emit
                     new JTokenExpression("outputs"));
             }
 
-            if (moduleSymbol.DeclaringModule.HasCondition())
-            {
-                return AppendProperties(
-                    CreateFunction(
-                        "reference",
-                        GetFullyQualifiedResourceId(moduleSymbol),
-                        new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion)),
-                    new JTokenExpression("outputs"));
-            }
-
             return AppendProperties(
                 CreateFunction(
                     "reference",
-                    GetFullyQualifiedResourceId(moduleSymbol)),
+                    GetFullyQualifiedResourceId(moduleSymbol),
+                    new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion)),
                 new JTokenExpression("outputs"));
         }
 
@@ -880,16 +871,10 @@ namespace Bicep.Core.Emit
                     new JTokenExpression("full"));
             }
 
-            var shouldIncludeApiVersion =
-                !context.Settings.EnableSymbolicNames &&
-                (resource.IsExistingResource ||
-                (resource is DeclaredResourceMetadata { Symbol.DeclaringResource: var declaringResource } && declaringResource.HasCondition()));
-
-            if (shouldIncludeApiVersion)
+            if (!context.Settings.EnableSymbolicNames)
             {
                 var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
 
-                // we must include an API version for an existing resource, because it cannot be inferred from any deployed template resource
                 return CreateFunction(
                     "reference",
                     referenceExpression,
@@ -1359,4 +1344,3 @@ namespace Bicep.Core.Emit
         }
     }
 }
-

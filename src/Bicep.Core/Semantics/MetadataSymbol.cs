@@ -34,7 +34,7 @@ namespace Bicep.Core.Semantics
         {
             if (this.Name.StartsWith("_"))
             {
-                yield return DiagnosticBuilder.ForPosition(this.NameSyntax).ReservedMetadataIdentifier(this.Name);
+                yield return DiagnosticBuilder.ForPosition(this.NameSource).ReservedMetadataIdentifier(this.Name);
             }
         }
     }

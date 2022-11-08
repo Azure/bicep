@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -25,12 +26,23 @@ namespace Bicep.Core.Parsing
 
             this.diagnosticWriter.WriteMultiple(syntax.LexerDiagnostics);
 
-            var targetScopeSyntaxes = syntax.Children.OfType<TargetScopeSyntax>().ToList();
-            if (targetScopeSyntaxes.Count > 1)
+            // find duplicate target scope declarations
+            var targetScopeSyntaxes = syntax.Children.OfType<TargetScopeSyntax>().ToImmutableArray();
+            if (targetScopeSyntaxes.Length > 1)
             {
                 foreach (var targetScope in targetScopeSyntaxes)
                 {
                     this.diagnosticWriter.Write(targetScope.Keyword, x => x.TargetScopeMultipleDeclarations());
+                }
+            }
+
+            // find duplicate using declarations
+            var usingSyntaxes = syntax.Children.OfType<UsingDeclarationSyntax>().ToImmutableArray();
+            if (usingSyntaxes.Length > 1)
+            {
+                foreach (var declaration in usingSyntaxes)
+                {
+                    this.diagnosticWriter.Write(declaration.Keyword, x => x.MoreThanOneUsingDeclarationSpecified());
                 }
             }
         }

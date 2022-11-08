@@ -1,5 +1,5 @@
 
-//@[000:7440) ProgramSyntax
+//@[000:7513) ProgramSyntax
 //@[000:0001) ├─Token(NewLine) |\n|
 // int
 //@[006:0007) ├─Token(NewLine) |\n|
@@ -1664,8 +1664,9 @@ param parameters bool = true
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0016) | ├─IdentifierSyntax
 //@[006:0016) | | └─Token(Identifier) |parameters|
-//@[017:0021) | ├─SimpleTypeSyntax
-//@[017:0021) | | └─Token(Identifier) |bool|
+//@[017:0021) | ├─VariableAccessSyntax
+//@[017:0021) | | └─IdentifierSyntax
+//@[017:0021) | |   └─Token(Identifier) |bool|
 //@[022:0028) | └─ParameterDefaultValueSyntax
 //@[022:0023) |   ├─Token(Assignment) |=|
 //@[024:0028) |   └─BooleanLiteralSyntax
@@ -1739,8 +1740,9 @@ param mod bool = true
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0009) | ├─IdentifierSyntax
 //@[006:0009) | | └─Token(Identifier) |mod|
-//@[010:0014) | ├─SimpleTypeSyntax
-//@[010:0014) | | └─Token(Identifier) |bool|
+//@[010:0014) | ├─VariableAccessSyntax
+//@[010:0014) | | └─IdentifierSyntax
+//@[010:0014) | |   └─Token(Identifier) |bool|
 //@[015:0021) | └─ParameterDefaultValueSyntax
 //@[015:0016) |   ├─Token(Assignment) |=|
 //@[017:0021) |   └─BooleanLiteralSyntax
@@ -1787,8 +1789,9 @@ param equals bool = true
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0012) | ├─IdentifierSyntax
 //@[006:0012) | | └─Token(Identifier) |equals|
-//@[013:0017) | ├─SimpleTypeSyntax
-//@[013:0017) | | └─Token(Identifier) |bool|
+//@[013:0017) | ├─VariableAccessSyntax
+//@[013:0017) | | └─IdentifierSyntax
+//@[013:0017) | |   └─Token(Identifier) |bool|
 //@[018:0024) | └─ParameterDefaultValueSyntax
 //@[018:0019) |   ├─Token(Assignment) |=|
 //@[020:0024) |   └─BooleanLiteralSyntax
@@ -2968,6 +2971,45 @@ var joinedString = join(['I', 'love', 'Bicep!'], ' ')
 //@[049:0052) |   | └─StringSyntax
 //@[049:0052) |   |   └─Token(StringComplete) |' '|
 //@[052:0053) |   └─Token(RightParen) |)|
-//@[053:0054) ├─Token(NewLine) |\n|
+//@[053:0055) ├─Token(NewLine) |\n\n|
+
+var prefix = take('food', 3)
+//@[000:0028) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0010) | ├─IdentifierSyntax
+//@[004:0010) | | └─Token(Identifier) |prefix|
+//@[011:0012) | ├─Token(Assignment) |=|
+//@[013:0028) | └─FunctionCallSyntax
+//@[013:0017) |   ├─IdentifierSyntax
+//@[013:0017) |   | └─Token(Identifier) |take|
+//@[017:0018) |   ├─Token(LeftParen) |(|
+//@[018:0024) |   ├─FunctionArgumentSyntax
+//@[018:0024) |   | └─StringSyntax
+//@[018:0024) |   |   └─Token(StringComplete) |'food'|
+//@[024:0025) |   ├─Token(Comma) |,|
+//@[026:0027) |   ├─FunctionArgumentSyntax
+//@[026:0027) |   | └─IntegerLiteralSyntax
+//@[026:0027) |   |   └─Token(Integer) |3|
+//@[027:0028) |   └─Token(RightParen) |)|
+//@[028:0029) ├─Token(NewLine) |\n|
+var isPrefixed = startsWith('food', 'foo')
+//@[000:0042) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0014) | ├─IdentifierSyntax
+//@[004:0014) | | └─Token(Identifier) |isPrefixed|
+//@[015:0016) | ├─Token(Assignment) |=|
+//@[017:0042) | └─FunctionCallSyntax
+//@[017:0027) |   ├─IdentifierSyntax
+//@[017:0027) |   | └─Token(Identifier) |startsWith|
+//@[027:0028) |   ├─Token(LeftParen) |(|
+//@[028:0034) |   ├─FunctionArgumentSyntax
+//@[028:0034) |   | └─StringSyntax
+//@[028:0034) |   |   └─Token(StringComplete) |'food'|
+//@[034:0035) |   ├─Token(Comma) |,|
+//@[036:0041) |   ├─FunctionArgumentSyntax
+//@[036:0041) |   | └─StringSyntax
+//@[036:0041) |   |   └─Token(StringComplete) |'foo'|
+//@[041:0042) |   └─Token(RightParen) |)|
+//@[042:0043) ├─Token(NewLine) |\n|
 
 //@[000:0000) └─Token(EndOfFile) ||

@@ -27,7 +27,7 @@ namespace Bicep.LanguageServer.Handlers
         /// This handler waits for the deployment to complete and sends a "deploymentComplete" notification to the client.
         /// This notification can be used on the client side to write success/failure messsage to the output channel without
         /// blocking other commands.
-        /// Note: Base handler - ExecuteTypedResponseCommandHandlerBase is serial. This blocks other commands on the client side.
+        /// Note: Base handler (ExecuteTypedResponseCommandHandlerBase) is serial. This blocks other commands on the client side.
         /// To avoid the above issue, we changed the RequestProcessType to parallel in <see cref="Server"/>
         /// We need to make sure changes to this handler are thread safe.
         /// </summary>

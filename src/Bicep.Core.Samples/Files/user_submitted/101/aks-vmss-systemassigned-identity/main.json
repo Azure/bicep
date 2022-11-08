@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13212496622087610294"
+      "templateHash": "13668530403792753639"
     }
   },
   "parameters": {
@@ -148,7 +148,7 @@
     },
     "apiServerAddress": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))).fqdn]"
+      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName')), '2020-09-01').fqdn]"
     }
   }
 }

@@ -33,7 +33,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
             matches.Should().HaveCount(1);
 
             var functionCall = SyntaxFactory.CreateFunctionCall("foo");
-            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, functionCall, Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type.Should().BeSameAs(expectedReturnType);
+
+            // Since we're invoking the function overload with 0 arguments, a function evaluation failure (BCP234) is not unexpected.
+            var mockDiagnosticWriter = Repository.Create<IDiagnosticWriter>();
+            mockDiagnosticWriter.Setup(writer => writer.Write(It.Is<IDiagnostic>(diag => diag.Code == "BCP234")));
+
+            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type.Should().BeSameAs(expectedReturnType);
         }
 
         [DataTestMethod]
@@ -44,7 +49,12 @@ namespace Bicep.Core.UnitTests.TypeSystem
             matches.Should().HaveCount(expectedReturnTypes.Count);
 
             var functionCall = SyntaxFactory.CreateFunctionCall("foo");
-            matches.Select(m => m.ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, functionCall, Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
+
+            // Since we're invoking the function overload with 0 arguments, a function evaluation failure (BCP234) is not unexpected.
+            var mockDiagnosticWriter = Repository.Create<IDiagnosticWriter>();
+            mockDiagnosticWriter.Setup(writer => writer.Write(It.Is<IDiagnostic>(diag => diag.Code == "BCP234")));
+
+            matches.Select(m => m.ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, mockDiagnosticWriter.Object, functionCall, Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
         }
 
         [DataTestMethod]
@@ -96,11 +106,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
 
         [DataTestMethod]
         [DynamicData(nameof(GetStringLiteralTransformations), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        public void StringLiteralTransformationsYieldStringLiteralReturnType(string displayName, string functionName, string[] argumentTypeLiterals, string returnTypeLiteral)
+        public void StringLiteralTransformationsYieldStringLiteralReturnType(string displayName, string functionName, IList<TypeSymbol> argumentTypes, FunctionArgumentSyntax[] arguments, TypeSymbol expectedReturnType)
         {
-            var arguments = argumentTypeLiterals.Select(atl => new FunctionArgumentSyntax(TestSyntaxFactory.CreateString(atl))).ToList();
-            var argumentTypes = argumentTypeLiterals.Select(atl => new StringLiteralType(atl) as TypeSymbol).ToList();
-
             var matches = GetMatches(functionName, argumentTypes, out _, out _);
             matches.Should().HaveCount(1);
 
@@ -108,18 +115,37 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 Repository.Create<IBinder>().Object,
                 Repository.Create<IFileResolver>().Object,
                 Repository.Create<IDiagnosticWriter>().Object,
-                SyntaxFactory.CreateFunctionCall("foo", arguments.ToArray()),
+                SyntaxFactory.CreateFunctionCall("foo", arguments),
                 argumentTypes.ToImmutableArray()
             );
-            returnType.Should().NotBeNull().And.Subject.As<FunctionResult>().Type.Should().BeAssignableTo<StringLiteralType>().Subject.RawStringValue.Should().Be(returnTypeLiteral);
+            returnType.Should().NotBeNull().And.Subject.As<FunctionResult>().Type.Should().Be(expectedReturnType);
         }
 
         private static IEnumerable<object[]> GetStringLiteralTransformations()
         {
-            object[] CreateRow(string returnedLiteral, string functionName, params string[] argumentLiterals)
+            FunctionArgumentSyntax ToFunctionArgumentSyntax(object argument) => argument switch
             {
+                string str => new(TestSyntaxFactory.CreateString(str)),
+                int intVal => new(TestSyntaxFactory.CreateInt((ulong) intVal)),
+                bool boolVal => new(TestSyntaxFactory.CreateBool(boolVal)),
+                _ => throw new NotImplementedException($"Unable to transform {argument} to a literal syntax node.")
+            };
+
+            TypeSymbol ToTypeLiteral(object argument) => argument switch
+            {
+                string str => new StringLiteralType(str),
+                int intVal => new IntegerLiteralType(intVal),
+                bool boolVal => new BooleanLiteralType(boolVal),
+                _ => throw new NotImplementedException($"Unable to transform {argument} to a type literal.")
+            };
+
+            object[] CreateRow(object returnedLiteral, string functionName, params object[] argumentLiterals)
+            {
+                var argumentLiteralSyntaxes = argumentLiterals.Select(ToFunctionArgumentSyntax).ToArray();
+                var argumentTypeLiterals = argumentLiterals.Select(ToTypeLiteral).ToList();
+
                 string displayName = $@"{functionName}({string.Join(", ", argumentLiterals.Select(l => $@"""{l}"""))}): ""{returnedLiteral}""";
-                return new object[] { displayName, functionName, argumentLiterals, returnedLiteral };
+                return new object[] { displayName, functionName, argumentTypeLiterals, argumentLiteralSyntaxes, ToTypeLiteral(returnedLiteral) };
             }
 
             yield return CreateRow("IEZpenog", "base64", " Fizz ");
@@ -136,6 +162,21 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("byghxckddilkc", "uniqueString", "snap", "crackle", "pop");
             yield return CreateRow("2ed86837-7c7c-5eaa-9864-dd077fd19b0d", "guid", "foo", "bar", "baz");
             yield return CreateRow("food", "replace", "foot", "t", "d");
+            yield return CreateRow("1/2/3/True", "format", "{0}/{1}/{2}/{3}", 1, 2, 3, true);
+            yield return CreateRow("   00", "padLeft", "00", 5, " ");
+            yield return CreateRow(5, "length", "table");
+            yield return CreateRow("https://github.com/Azure/bicep", "uri", "https://github.com/another/repo", "/Azure/bicep");
+            yield return CreateRow("foo", "substring", "foot", 0, 3);
+            yield return CreateRow("foo", "take", "foot", 3);
+            yield return CreateRow("t", "skip", "foot", 3);
+            yield return CreateRow(false, "empty", "non-empty string");
+            yield return CreateRow(true, "contains", "foot", "foo");
+            yield return CreateRow(1, "indexOf", "food", "o");
+            yield return CreateRow(2, "lastIndexOf", "food", "o");
+            yield return CreateRow(true, "startsWith", "food", "foo");
+            yield return CreateRow(true, "endsWith", "foot", "t");
+            yield return CreateRow(1, "min", 10, 4, 1, 6);
+            yield return CreateRow(10, "max", 10, 4, 1, 6);
         }
 
         public static string GetDisplayName(MethodInfo method, object[] row)

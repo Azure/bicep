@@ -1,5 +1,5 @@
 
-//@[000:51671) ProgramSyntax
+//@[000:51879) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 // wrong declaration
 //@[020:00022) ├─Token(NewLine) |\r\n|
@@ -952,8 +952,9 @@ param resrefpar string = foo.id
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00015) | ├─IdentifierSyntax
 //@[006:00015) | | └─Token(Identifier) |resrefpar|
-//@[016:00022) | ├─SimpleTypeSyntax
-//@[016:00022) | | └─Token(Identifier) |string|
+//@[016:00022) | ├─VariableAccessSyntax
+//@[016:00022) | | └─IdentifierSyntax
+//@[016:00022) | |   └─Token(Identifier) |string|
 //@[023:00031) | └─ParameterDefaultValueSyntax
 //@[023:00024) |   ├─Token(Assignment) |=|
 //@[025:00031) |   └─PropertyAccessSyntax
@@ -970,8 +971,9 @@ output resrefout bool = bar.id
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00016) | ├─IdentifierSyntax
 //@[007:00016) | | └─Token(Identifier) |resrefout|
-//@[017:00021) | ├─SimpleTypeSyntax
-//@[017:00021) | | └─Token(Identifier) |bool|
+//@[017:00021) | ├─VariableAccessSyntax
+//@[017:00021) | | └─IdentifierSyntax
+//@[017:00021) | |   └─Token(Identifier) |bool|
 //@[022:00023) | ├─Token(Assignment) |=|
 //@[024:00030) | └─PropertyAccessSyntax
 //@[024:00027) |   ├─VariableAccessSyntax
@@ -9045,8 +9047,9 @@ output directRefViaOutput array = union(premiumStorages, stuffs)
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00025) | ├─IdentifierSyntax
 //@[007:00025) | | └─Token(Identifier) |directRefViaOutput|
-//@[026:00031) | ├─SimpleTypeSyntax
-//@[026:00031) | | └─Token(Identifier) |array|
+//@[026:00031) | ├─VariableAccessSyntax
+//@[026:00031) | | └─IdentifierSyntax
+//@[026:00031) | |   └─Token(Identifier) |array|
 //@[032:00033) | ├─Token(Assignment) |=|
 //@[034:00064) | └─FunctionCallSyntax
 //@[034:00039) |   ├─IdentifierSyntax
@@ -11357,16 +11360,18 @@ param dataCollectionRule object
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00024) | ├─IdentifierSyntax
 //@[006:00024) | | └─Token(Identifier) |dataCollectionRule|
-//@[025:00031) | └─SimpleTypeSyntax
-//@[025:00031) |   └─Token(Identifier) |object|
+//@[025:00031) | └─VariableAccessSyntax
+//@[025:00031) |   └─IdentifierSyntax
+//@[025:00031) |     └─Token(Identifier) |object|
 //@[031:00033) ├─Token(NewLine) |\r\n|
 param tags object
 //@[000:00017) ├─ParameterDeclarationSyntax
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00010) | ├─IdentifierSyntax
 //@[006:00010) | | └─Token(Identifier) |tags|
-//@[011:00017) | └─SimpleTypeSyntax
-//@[011:00017) |   └─Token(Identifier) |object|
+//@[011:00017) | └─VariableAccessSyntax
+//@[011:00017) |   └─IdentifierSyntax
+//@[011:00017) |     └─Token(Identifier) |object|
 //@[017:00021) ├─Token(NewLine) |\r\n\r\n|
 
 var defaultLogAnalyticsWorkspace = {
@@ -11954,8 +11959,9 @@ param issue4668_kind string = 'AzureCLI'
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00020) | ├─IdentifierSyntax
 //@[006:00020) | | └─Token(Identifier) |issue4668_kind|
-//@[021:00027) | ├─SimpleTypeSyntax
-//@[021:00027) | | └─Token(Identifier) |string|
+//@[021:00027) | ├─VariableAccessSyntax
+//@[021:00027) | | └─IdentifierSyntax
+//@[021:00027) | |   └─Token(Identifier) |string|
 //@[028:00040) | └─ParameterDefaultValueSyntax
 //@[028:00029) |   ├─Token(Assignment) |=|
 //@[030:00040) |   └─StringSyntax
@@ -11978,8 +11984,9 @@ param issue4668_identity object
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00024) | ├─IdentifierSyntax
 //@[006:00024) | | └─Token(Identifier) |issue4668_identity|
-//@[025:00031) | └─SimpleTypeSyntax
-//@[025:00031) |   └─Token(Identifier) |object|
+//@[025:00031) | └─VariableAccessSyntax
+//@[025:00031) |   └─IdentifierSyntax
+//@[025:00031) |     └─Token(Identifier) |object|
 //@[031:00033) ├─Token(NewLine) |\r\n|
 @description('The properties of the Deployment Script.')
 //@[000:00091) ├─ParameterDeclarationSyntax
@@ -11998,8 +12005,9 @@ param issue4668_properties object
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00026) | ├─IdentifierSyntax
 //@[006:00026) | | └─Token(Identifier) |issue4668_properties|
-//@[027:00033) | └─SimpleTypeSyntax
-//@[027:00033) |   └─Token(Identifier) |object|
+//@[027:00033) | └─VariableAccessSyntax
+//@[027:00033) |   └─IdentifierSyntax
+//@[027:00033) |     └─Token(Identifier) |object|
 //@[033:00035) ├─Token(NewLine) |\r\n|
 resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[000:00229) ├─ResourceDeclarationSyntax
@@ -12055,6 +12063,48 @@ resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[014:00034) |   |   └─IdentifierSyntax
 //@[014:00034) |   |     └─Token(Identifier) |issue4668_properties|
 //@[034:00036) |   ├─Token(NewLine) |\r\n|
+}
+//@[000:00001) |   └─Token(RightBrace) |}|
+//@[001:00005) ├─Token(NewLine) |\r\n\r\n|
+
+// https://github.com/Azure/bicep/issues/8516
+//@[045:00047) ├─Token(NewLine) |\r\n|
+resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
+//@[000:00157) ├─ResourceDeclarationSyntax
+//@[000:00008) | ├─Token(Identifier) |resource|
+//@[009:00016) | ├─IdentifierSyntax
+//@[009:00016) | | └─Token(Identifier) |storage|
+//@[017:00063) | ├─StringSyntax
+//@[017:00063) | | └─Token(StringComplete) |'Microsoft.Storage/storageAccounts@2022-05-01'|
+//@[064:00072) | ├─Token(Identifier) |existing|
+//@[073:00074) | ├─Token(Assignment) |=|
+//@[075:00157) | └─ObjectSyntax
+//@[075:00076) |   ├─Token(LeftBrace) |{|
+//@[076:00078) |   ├─Token(NewLine) |\r\n|
+  resource blobServices 'blobServices' existing = {
+//@[002:00076) |   ├─ResourceDeclarationSyntax
+//@[002:00010) |   | ├─Token(Identifier) |resource|
+//@[011:00023) |   | ├─IdentifierSyntax
+//@[011:00023) |   | | └─Token(Identifier) |blobServices|
+//@[024:00038) |   | ├─StringSyntax
+//@[024:00038) |   | | └─Token(StringComplete) |'blobServices'|
+//@[039:00047) |   | ├─Token(Identifier) |existing|
+//@[048:00049) |   | ├─Token(Assignment) |=|
+//@[050:00076) |   | └─ObjectSyntax
+//@[050:00051) |   |   ├─Token(LeftBrace) |{|
+//@[051:00053) |   |   ├─Token(NewLine) |\r\n|
+    name: $account
+//@[004:00018) |   |   ├─ObjectPropertySyntax
+//@[004:00008) |   |   | ├─IdentifierSyntax
+//@[004:00008) |   |   | | └─Token(Identifier) |name|
+//@[008:00009) |   |   | ├─Token(Colon) |:|
+//@[010:00018) |   |   | └─SkippedTriviaSyntax
+//@[010:00011) |   |   |   ├─Token(Unrecognized) |$|
+//@[011:00018) |   |   |   └─Token(Identifier) |account|
+//@[018:00020) |   |   ├─Token(NewLine) |\r\n|
+  }
+//@[002:00003) |   |   └─Token(RightBrace) |}|
+//@[003:00005) |   ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) |   └─Token(RightBrace) |}|
 //@[001:00003) ├─Token(NewLine) |\r\n|

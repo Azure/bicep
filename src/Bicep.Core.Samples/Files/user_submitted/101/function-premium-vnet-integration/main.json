@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4860097698762412896"
+      "templateHash": "4180162331319940394"
     }
   },
   "parameters": {
@@ -170,11 +170,11 @@
           "appSettings": [
             {
               "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
-              "value": "[reference(resourceId('Microsoft.Insights/components', variables('functionAppName'))).InstrumentationKey]"
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('functionAppName')), '2018-05-01-preview').InstrumentationKey]"
             },
             {
               "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
-              "value": "[format('InstrumentationKey={0}', reference(resourceId('Microsoft.Insights/components', variables('functionAppName'))).InstrumentationKey)]"
+              "value": "[format('InstrumentationKey={0}', reference(resourceId('Microsoft.Insights/components', variables('functionAppName')), '2018-05-01-preview').InstrumentationKey)]"
             },
             {
               "name": "AzureWebJobsStorage",

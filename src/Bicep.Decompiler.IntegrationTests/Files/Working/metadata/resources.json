@@ -1,0 +1,55 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "skuName": {
+      "type": "string"
+    },
+    "cdnProfileName": {
+      "type": "string"
+    },
+    "afdEndpointName": {
+      "type": "string"
+    },
+    "enableAfdEndpoint": {
+      "type": "bool"
+    },
+    "cdnProfileTags": {
+      "type": "object"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Cdn/profiles",
+      "apiVersion": "2021-06-01",
+      "name": "[parameters('cdnProfileName')]",
+      "location": "Global",
+      "tags": "[parameters('cdnProfileTags')]",
+      "sku": {
+        "name": "[parameters('skuName')]"
+      },
+      "properties": {
+        "originResponseTimeoutSeconds": 60
+      },
+      "metadata": {
+        "description": "Create CDN Profile"
+      }
+    },
+    {
+      "type": "Microsoft.Cdn/profiles/afdEndpoints",
+      "apiVersion": "2021-06-01",
+      "name": "[format('{0}/{1}', parameters('cdnProfileName'), parameters('afdEndpointName'))]",
+      "location": "Global",
+      "properties": {
+        "enabledState": "[if(parameters('enableAfdEndpoint'), 'Enabled', 'Disabled')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Cdn/profiles', parameters('cdnProfileName'))]"
+      ],
+      "metadata": {
+        "description": "Create AFD Endpoint",
+        "other": "Other metadata"
+      }
+    }
+  ]
+}

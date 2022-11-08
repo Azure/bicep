@@ -260,6 +260,16 @@
                     }
                   ]
                 },
+                "decompiler-cleanup": {
+                  "allOf": [
+                    {
+                      "description": "Some decompiler imperfections may need to be cleaned up manually. See https://aka.ms/bicep/linter/decompiler-cleanup"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "explicit-values-for-loc-params": {
                   "allOf": [
                     {
@@ -267,6 +277,46 @@
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
+                "max-outputs": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of outputs used. See https://aka.ms/bicep/linter/max-outputs"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
+                    }
+                  ]
+                },
+                "max-params": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of parameters used. See https://aka.ms/bicep/linter/max-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
+                    }
+                  ]
+                },
+                "max-resources": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of resources used. See https://aka.ms/bicep/linter/max-resources"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
+                    }
+                  ]
+                },
+                "max-variables": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of variables used. See https://aka.ms/bicep/linter/max-variables"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-error"
                     }
                   ]
                 },
@@ -281,7 +331,6 @@
                           "type": "array",
                           "default": [
                             "api.loganalytics.io",
-                            "asazure.windows.net",
                             "azuredatalakeanalytics.net",
                             "azuredatalakestore.net",
                             "batch.core.windows.net",
@@ -396,6 +445,16 @@
                     }
                   ]
                 },
+                "prefer-interpolation": {
+                  "allOf": [
+                    {
+                      "description": "Use string interpolation instead of the concat function. See https://aka.ms/bicep/linter/prefer-interpolation"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "prefer-unquoted-property-names": {
                   "allOf": [
                     {
@@ -406,10 +465,10 @@
                     }
                   ]
                 },
-                "prefer-interpolation": {
+                "protect-commandtoexecute-secrets": {
                   "allOf": [
                     {
-                      "description": "Use string interpolation instead of the concat function. See https://aka.ms/bicep/linter/prefer-interpolation"
+                      "description": "Use protectedSettings for commandToExecute secrets. See https://aka.ms/bicep/linter/protect-commandtoexecute-secrets"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -456,16 +515,6 @@
                     }
                   ]
                 },
-                "protect-commandtoexecute-secrets": {
-                  "allOf": [
-                    {
-                      "description": "Use protectedSettings for commandToExecute secrets. See https://aka.ms/bicep/linter/protect-commandtoexecute-secrets"
-                    },
-                    {
-                      "$ref": "#/definitions/rule-def-level-warning"
-                    }
-                  ]
-                },
                 "use-recent-api-versions": {
                   "allOf": [
                     {
@@ -486,60 +535,20 @@
                     }
                   ]
                 },
-                "use-stable-vm-image": {
+                "use-stable-resource-identifiers": {
                   "allOf": [
                     {
-                      "description": "Virtual machines shouldn't use preview images. See https://aka.ms/bicep/linter/use-stable-vm-image"
+                      "description": "Resource identifiers should be reproducible outside of their initial deployment context. See https://aka.ms/bicep/linter/use-stable-resource-identifiers"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
                     }
                   ]
                 },
-                "max-params": {
+                "use-stable-vm-image": {
                   "allOf": [
                     {
-                      "description": "Maximum number of parameters used. See https://aka.ms/bicep/linter/max-params"
-                    },
-                    {
-                      "$ref": "#/definitions/rule-def-level-error"
-                    }
-                  ]
-                },
-                "max-variables": {
-                  "allOf": [
-                    {
-                      "description": "Maximum number of variables used. See https://aka.ms/bicep/linter/max-variables"
-                    },
-                    {
-                      "$ref": "#/definitions/rule-def-level-error"
-                    }
-                  ]
-                },
-                "max-outputs": {
-                  "allOf": [
-                    {
-                      "description": "Maximum number of outputs used. See https://aka.ms/bicep/linter/max-outputs"
-                    },
-                    {
-                      "$ref": "#/definitions/rule-def-level-error"
-                    }
-                  ]
-                },
-                "max-resources": {
-                  "allOf": [
-                    {
-                      "description": "Maximum number of resources used. See https://aka.ms/bicep/linter/max-resources"
-                    },
-                    {
-                      "$ref": "#/definitions/rule-def-level-error"
-                    }
-                  ]
-                },
-                "use-stable-resource-identifiers": {
-                  "allOf": [
-                    {
-                      "description": "Resource identifiers should be reproducible outside of their initial deployment context. See https://aka.ms/bicep/linter/use-stable-resource-identifiers"
+                      "description": "Virtual machines shouldn't use preview images. See https://aka.ms/bicep/linter/use-stable-vm-image"
                     },
                     {
                       "$ref": "#/definitions/rule-def-level-warning"
@@ -563,7 +572,7 @@
         "symbolicNameCodegen": {
           "type": "boolean"
         },
-        "imports": {
+        "extensibility": {
           "type": "boolean"
         },
         "resourceTypedParamsAndOutputs": {
@@ -573,6 +582,9 @@
           "type": "boolean"
         },
         "paramsFiles": {
+          "type": "boolean"
+        },
+        "userDefinedTypes": {
           "type": "boolean"
         }
       }

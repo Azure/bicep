@@ -6,11 +6,11 @@
 metadata myString2 = 'string value'
 //@[9:18) Metadata myString2. Type: 'string value'. Declaration start char: 0, length: 35
 metadata myInt2 = 42
-//@[9:15) Metadata myInt2. Type: int. Declaration start char: 0, length: 20
+//@[9:15) Metadata myInt2. Type: 42. Declaration start char: 0, length: 20
 metadata myTruth = true
-//@[9:16) Metadata myTruth. Type: bool. Declaration start char: 0, length: 23
+//@[9:16) Metadata myTruth. Type: true. Declaration start char: 0, length: 23
 metadata myFalsehood = false
-//@[9:20) Metadata myFalsehood. Type: bool. Declaration start char: 0, length: 28
+//@[9:20) Metadata myFalsehood. Type: false. Declaration start char: 0, length: 28
 metadata myEscapedString = 'First line\r\nSecond\ttabbed\tline'
 //@[9:24) Metadata myEscapedString. Type: 'First line\r\nSecond\ttabbed\tline'. Declaration start char: 0, length: 63
 metadata myMultiLineString = '''

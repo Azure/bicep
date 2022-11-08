@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import { AccessToken } from "@azure/identity";
 import {
   AzExtTreeDataProvider,
@@ -9,6 +10,7 @@ import {
   parseError,
 } from "@microsoft/vscode-azext-utils";
 import assert from "assert";
+import moment from "moment";
 import * as fse from "fs-extra";
 import * as path from "path";
 import vscode, { commands, Uri } from "vscode";
@@ -124,6 +126,17 @@ export class DeployCommand implements Command {
         context
       );
 
+      const fileName = path.basename(documentPath, ".bicep");
+      const options = {
+        title: `Please enter name for deployment`,
+        value: fileName.concat("-", moment.utc().format("YYMMDD-HHMM")),
+      };
+      let deploymentName = await context.ui.showInputBox(options);
+      // Replace special characters with '_'
+      deploymentName = deploymentName
+        .replace(/[^a-z0-9\-_.!~*'()]/gi, "_")
+        .substring(0, 64);
+
       let deploymentStartResponse: BicepDeploymentStartResponse | undefined;
 
       switch (deploymentScope) {
@@ -133,7 +146,8 @@ export class DeployCommand implements Command {
             documentUri,
             deploymentScope,
             template,
-            deployId
+            deployId,
+            deploymentName
           );
           break;
         case "subscription":
@@ -142,7 +156,8 @@ export class DeployCommand implements Command {
             documentUri,
             deploymentScope,
             template,
-            deployId
+            deployId,
+            deploymentName
           );
           break;
         case "managementGroup":
@@ -151,7 +166,8 @@ export class DeployCommand implements Command {
             documentUri,
             deploymentScope,
             template,
-            deployId
+            deployId,
+            deploymentName
           );
           break;
         case "tenant": {
@@ -206,7 +222,8 @@ export class DeployCommand implements Command {
     documentUri: vscode.Uri,
     deploymentScope: string,
     template: string,
-    deployId: string
+    deployId: string,
+    deploymentName: string
   ): Promise<BicepDeploymentStartResponse | undefined> {
     const managementGroupTreeItem =
       await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<AzManagementGroupTreeItem>(
@@ -235,7 +252,8 @@ export class DeployCommand implements Command {
           location,
           template,
           managementGroupTreeItem.subscription,
-          deployId
+          deployId,
+          deploymentName
         );
       }
     }
@@ -248,7 +266,8 @@ export class DeployCommand implements Command {
     documentUri: vscode.Uri,
     deploymentScope: string,
     template: string,
-    deployId: string
+    deployId: string,
+    deploymentName: string
   ): Promise<BicepDeploymentStartResponse | undefined> {
     const resourceGroupTreeItem =
       await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker<AzResourceGroupTreeItem>(
@@ -272,7 +291,8 @@ export class DeployCommand implements Command {
         "",
         template,
         resourceGroupTreeItem.subscription,
-        deployId
+        deployId,
+        deploymentName
       );
     }
 
@@ -284,7 +304,8 @@ export class DeployCommand implements Command {
     documentUri: vscode.Uri,
     deploymentScope: string,
     template: string,
-    deployId: string
+    deployId: string,
+    deploymentName: string
   ): Promise<BicepDeploymentStartResponse | undefined> {
     const locationTreeItem =
       await this.treeManager.azLocationTree.showTreeItemPicker<LocationTreeItem>(
@@ -309,7 +330,8 @@ export class DeployCommand implements Command {
       location,
       template,
       subscription,
-      deployId
+      deployId,
+      deploymentName
     );
   }
 
@@ -322,7 +344,8 @@ export class DeployCommand implements Command {
     location: string,
     template: string,
     subscription: ISubscriptionContext,
-    deployId: string
+    deployId: string,
+    deploymentName: string
   ): Promise<BicepDeploymentStartResponse | undefined> {
     if (!parametersFilePath) {
       context.telemetry.properties.parameterFileProvided = "false";
@@ -376,6 +399,7 @@ export class DeployCommand implements Command {
         token,
         expiresOnTimestamp,
         deployId,
+        deploymentName,
         portalUrl,
         parametersFileName,
         parametersFileUpdateOption,

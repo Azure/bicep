@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Features;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Utils;
@@ -35,14 +36,18 @@ namespace Bicep.LanguageServer.Handlers
         {
             var completions = Enumerable.Empty<CompletionItem>();
 
+            var featureProvider = featureProviderFactory.GetFeatureProvider(request.TextDocument.Uri.ToUri());
             var compilationContext = this.compilationManager.GetCompilation(request.TextDocument.Uri);
-            if (compilationContext is null)
+            if (compilationContext is null ||
+                (compilationContext.SourceFileKind == BicepSourceFileKind.ParamsFile && !featureProvider.ParamsFilesEnabled))
             {
+                // no compilation context or this is a param file and params are disabled
                 return Task.FromResult(new CompletionList());
             }
 
             int offset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Position);
-            var completionContext = BicepCompletionContext.Create(featureProviderFactory.GetFeatureProvider(request.TextDocument.Uri.ToUri()), compilationContext.Compilation, offset);
+            
+            var completionContext = BicepCompletionContext.Create(featureProvider, compilationContext.Compilation, offset);
 
             try
             {
@@ -63,7 +68,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override CompletionRegistrationOptions CreateRegistrationOptions(CompletionCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.Create(),
+            DocumentSelector = DocumentSelectorFactory.CreateForBicepAndParams(),
             AllCommitCharacters = new Container<string>(),
             ResolveProvider = false,
             TriggerCharacters = new Container<string>(":", " ", ".", "/", "'", "@", "{", "#")

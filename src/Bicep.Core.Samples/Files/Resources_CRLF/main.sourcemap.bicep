@@ -238,7 +238,7 @@ resource accessingReadOnlyProperties 'Microsoft.Foo/foos@2019-10-01' = {
 //@[194:194]         "otherType": "Microsoft.Resources/deployments",
 
     otherThings: nested.properties.mode
-//@[195:195]         "otherThings": "[reference(resourceId('Microsoft.Resources/deployments', 'nestedTemplate1')).mode]"
+//@[195:195]         "otherThings": "[reference(resourceId('Microsoft.Resources/deployments', 'nestedTemplate1'), '2019-10-01').mode]"
   }
 }
 
@@ -266,7 +266,7 @@ resource resourceC 'My.Rp/typeA/typeB@2020-01-01' = {
     aApiVersion: resourceA.apiVersion
 //@[222:222]         "aApiVersion": "2020-01-01",
     bProperties: resourceB.properties
-//@[223:223]         "bProperties": "[reference(resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1]))]"
+//@[223:223]         "bProperties": "[reference(resourceId('My.Rp/typeA/typeB', split(format('{0}/myName', 'resourceA'), '/')[0], split(format('{0}/myName', 'resourceA'), '/')[1]), '2020-01-01')]"
   }
 }
 
@@ -383,11 +383,11 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
     res2: extension1.id
 //@[312:312]         "res2": "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
     res2runtime: extension1.properties.something
-//@[313:313]         "res2runtime": "[reference(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')).something]",
+//@[313:313]         "res2runtime": "[reference(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), '2020-12-01').something]",
     res3: extension2.id
 //@[314:314]         "res3": "[extensionResourceId(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'My.Rp/extensionResource', 'extension')]",
     res3runtime: extension2.properties.something
-//@[315:315]         "res3runtime": "[reference(extensionResourceId(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'My.Rp/extensionResource', 'extension')).something]"
+//@[315:315]         "res3runtime": "[reference(extensionResourceId(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'My.Rp/extensionResource', 'extension'), '2020-12-01').something]"
   }
 }
 

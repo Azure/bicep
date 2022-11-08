@@ -22,8 +22,9 @@ param deployTimeSuffix string = newGuid()
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0022) | ├─IdentifierSyntax
 //@[006:0022) | | └─Token(Identifier) |deployTimeSuffix|
-//@[023:0029) | ├─SimpleTypeSyntax
-//@[023:0029) | | └─Token(Identifier) |string|
+//@[023:0029) | ├─VariableAccessSyntax
+//@[023:0029) | | └─IdentifierSyntax
+//@[023:0029) | |   └─Token(Identifier) |string|
 //@[030:0041) | └─ParameterDefaultValueSyntax
 //@[030:0031) |   ├─Token(Assignment) |=|
 //@[032:0041) |   └─FunctionCallSyntax
@@ -930,8 +931,9 @@ output stringOutputA string = modATest.outputs.stringOutputA
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0020) | ├─IdentifierSyntax
 //@[007:0020) | | └─Token(Identifier) |stringOutputA|
-//@[021:0027) | ├─SimpleTypeSyntax
-//@[021:0027) | | └─Token(Identifier) |string|
+//@[021:0027) | ├─VariableAccessSyntax
+//@[021:0027) | | └─IdentifierSyntax
+//@[021:0027) | |   └─Token(Identifier) |string|
 //@[028:0029) | ├─Token(Assignment) |=|
 //@[030:0060) | └─PropertyAccessSyntax
 //@[030:0046) |   ├─PropertyAccessSyntax
@@ -950,8 +952,9 @@ output stringOutputB string = modATest.outputs.stringOutputB
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0020) | ├─IdentifierSyntax
 //@[007:0020) | | └─Token(Identifier) |stringOutputB|
-//@[021:0027) | ├─SimpleTypeSyntax
-//@[021:0027) | | └─Token(Identifier) |string|
+//@[021:0027) | ├─VariableAccessSyntax
+//@[021:0027) | | └─IdentifierSyntax
+//@[021:0027) | |   └─Token(Identifier) |string|
 //@[028:0029) | ├─Token(Assignment) |=|
 //@[030:0060) | └─PropertyAccessSyntax
 //@[030:0046) |   ├─PropertyAccessSyntax
@@ -970,8 +973,9 @@ output objOutput object = modATest.outputs.objOutput
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0016) | ├─IdentifierSyntax
 //@[007:0016) | | └─Token(Identifier) |objOutput|
-//@[017:0023) | ├─SimpleTypeSyntax
-//@[017:0023) | | └─Token(Identifier) |object|
+//@[017:0023) | ├─VariableAccessSyntax
+//@[017:0023) | | └─IdentifierSyntax
+//@[017:0023) | |   └─Token(Identifier) |object|
 //@[024:0025) | ├─Token(Assignment) |=|
 //@[026:0052) | └─PropertyAccessSyntax
 //@[026:0042) |   ├─PropertyAccessSyntax
@@ -990,8 +994,9 @@ output arrayOutput array = modATest.outputs.arrayOutput
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0018) | ├─IdentifierSyntax
 //@[007:0018) | | └─Token(Identifier) |arrayOutput|
-//@[019:0024) | ├─SimpleTypeSyntax
-//@[019:0024) | | └─Token(Identifier) |array|
+//@[019:0024) | ├─VariableAccessSyntax
+//@[019:0024) | | └─IdentifierSyntax
+//@[019:0024) | |   └─Token(Identifier) |array|
 //@[025:0026) | ├─Token(Assignment) |=|
 //@[027:0055) | └─PropertyAccessSyntax
 //@[027:0043) |   ├─PropertyAccessSyntax
@@ -1010,8 +1015,9 @@ output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputO
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0030) | ├─IdentifierSyntax
 //@[007:0030) | | └─Token(Identifier) |modCalculatedNameOutput|
-//@[031:0037) | ├─SimpleTypeSyntax
-//@[031:0037) | | └─Token(Identifier) |object|
+//@[031:0037) | ├─VariableAccessSyntax
+//@[031:0037) | | └─IdentifierSyntax
+//@[031:0037) | |   └─Token(Identifier) |object|
 //@[038:0039) | ├─Token(Assignment) |=|
 //@[040:0082) | └─PropertyAccessSyntax
 //@[040:0072) |   ├─PropertyAccessSyntax

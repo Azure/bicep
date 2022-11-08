@@ -70,9 +70,6 @@ namespace Bicep.Core.Syntax
             return pathValue;
         }
 
-        public static TypeSymbol? TryGetPrimitiveType(ParameterDeclarationSyntax parameterDeclarationSyntax)
-            => LanguageConstants.TryGetDeclarationType((parameterDeclarationSyntax.ParameterType as SimpleTypeSyntax)?.TypeName);
-
         public static ResourceScope GetTargetScope(TargetScopeSyntax targetScopeSyntax)
         {
             // TODO: Revisit when adding support for multiple target scopes
@@ -101,7 +98,7 @@ namespace Bicep.Core.Syntax
             };
         }
 
-        public static ResourceScope GetTargetScope(BicepFile bicepFile)
+        public static ResourceScope GetTargetScope(BicepSourceFile bicepFile)
         {
             var defaultTargetScope = ResourceScope.ResourceGroup;
             var targetSyntax = bicepFile.ProgramSyntax.Children.OfType<TargetScopeSyntax>().FirstOrDefault();

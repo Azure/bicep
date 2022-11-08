@@ -72,7 +72,6 @@ namespace Bicep.Core.UnitTests.Configuration
           ""level"": ""warning"",
           ""disallowedhosts"": [
             ""api.loganalytics.io"",
-            ""asazure.windows.net"",
             ""azuredatalakeanalytics.net"",
             ""azuredatalakestore.net"",
             ""batch.core.windows.net"",
@@ -97,10 +96,11 @@ namespace Bicep.Core.UnitTests.Configuration
   },
   ""experimentalFeaturesEnabled"": {
     ""symbolicNameCodegen"": null,
-    ""imports"": null,
+    ""extensibility"": null,
     ""resourceTypedParamsAndOutputs"": null,
     ""sourceMapping"": null,
-    ""paramsFiles"": null
+    ""paramsFiles"": null,
+    ""userDefinedTypes"": null
   }
 }");
         }
@@ -154,10 +154,11 @@ namespace Bicep.Core.UnitTests.Configuration
   ""analyzers"": {},
   ""experimentalFeaturesEnabled"": {
     ""symbolicNameCodegen"": null,
-    ""imports"": null,
+    ""extensibility"": null,
     ""resourceTypedParamsAndOutputs"": null,
     ""sourceMapping"": null,
-    ""paramsFiles"": null
+    ""paramsFiles"": null,
+    ""userDefinedTypes"": null
   }
 }");
         }
@@ -209,7 +210,6 @@ namespace Bicep.Core.UnitTests.Configuration
           ""level"": ""off"",
           ""disallowedhosts"": [
             ""api.loganalytics.io"",
-            ""asazure.windows.net"",
             ""azuredatalakeanalytics.net"",
             ""azuredatalakestore.net"",
             ""batch.core.windows.net"",
@@ -237,10 +237,11 @@ namespace Bicep.Core.UnitTests.Configuration
   },
   ""experimentalFeaturesEnabled"": {
     ""symbolicNameCodegen"": null,
-    ""imports"": null,
+    ""extensibility"": null,
     ""resourceTypedParamsAndOutputs"": null,
     ""sourceMapping"": null,
-    ""paramsFiles"": null
+    ""paramsFiles"": null,
+    ""userDefinedTypes"": null
   }
 }");
         }
@@ -455,7 +456,7 @@ namespace Bicep.Core.UnitTests.Configuration
   },
   ""cacheRootDirectory"": ""/home/username/.bicep/cache"",
   ""experimentalFeaturesEnabled"": {
-    ""imports"": true
+    ""extensibility"": true
   }
 }"
             });
@@ -541,10 +542,11 @@ namespace Bicep.Core.UnitTests.Configuration
   ""cacheRootDirectory"": ""/home/username/.bicep/cache"",
   ""experimentalFeaturesEnabled"": {
     ""symbolicNameCodegen"": null,
-    ""imports"": true,
+    ""extensibility"": true,
     ""resourceTypedParamsAndOutputs"": null,
     ""sourceMapping"": null,
-    ""paramsFiles"": null
+    ""paramsFiles"": null,
+    ""userDefinedTypes"": null
   }
 }");
         }

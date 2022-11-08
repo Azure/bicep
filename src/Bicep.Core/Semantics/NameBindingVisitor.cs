@@ -208,7 +208,9 @@ namespace Bicep.Core.Semantics
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
+            allowedFlags = FunctionFlags.TypeDecorator;
             this.Visit(syntax.Type);
+            allowedFlags = FunctionFlags.OutputDecorator;
             this.Visit(syntax.Assignment);
             allowedFlags = FunctionFlags.RequiresInlining;
             this.Visit(syntax.Value);
@@ -220,10 +222,9 @@ namespace Bicep.Core.Semantics
             allowedFlags = FunctionFlags.ImportDecorator;
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
-            this.Visit(syntax.ProviderName);
-            this.Visit(syntax.AsKeyword);
-            this.Visit(syntax.AliasName);
-            this.Visit(syntax.Config);
+            this.Visit(syntax.SpecificationString);
+            this.Visit(syntax.WithClause);
+            this.Visit(syntax.AsClause);
             allowedFlags = FunctionFlags.Default;
         }
 
@@ -233,21 +234,26 @@ namespace Bicep.Core.Semantics
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Name);
+            allowedFlags = FunctionFlags.TypeDecorator;
             this.Visit(syntax.Type);
             allowedFlags = FunctionFlags.ParamDefaultsOnly;
             this.Visit(syntax.Modifier);
             allowedFlags = FunctionFlags.Default;
         }
 
+        public override void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax)
+        {
+            allowedFlags = FunctionFlags.TypeDecorator;
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Value);
+            allowedFlags = FunctionFlags.Default;
+        }
+
         public override void VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax)
         {
-            allowedFlags = FunctionFlags.MetadataDecorator |
-                FunctionFlags.ParameterDecorator |
-                FunctionFlags.VariableDecorator |
-                FunctionFlags.ResourceDecorator |
-                FunctionFlags.ModuleDecorator |
-                FunctionFlags.OutputDecorator |
-                FunctionFlags.ImportDecorator;
+            allowedFlags = FunctionFlags.AnyDecorator;
             base.VisitMissingDeclarationSyntax(syntax);
             allowedFlags = FunctionFlags.Default;
         }
@@ -346,13 +352,6 @@ namespace Bicep.Core.Semantics
 
         private Symbol LookupGlobalSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall)
         {
-            // attempt to find name in the built in namespaces. imported namespaces will be present in the declarations list as they create declared symbols.
-            if (this.namespaceResolver.BuiltIns.TryGetValue(identifierSyntax.IdentifierName) is { } namespaceSymbol)
-            {
-                // namespace symbol found
-                return namespaceSymbol;
-            }
-
             // declarations must not have a namespace value, namespaces are used to fully qualify a function access.
             // There might be instances where a variable declaration for example uses the same name as one of the imported
             // functions, in this case to differentiate a variable declaration vs a function access we check the namespace value,
@@ -363,21 +362,46 @@ namespace Bicep.Core.Semantics
                 return globalSymbol;
             }
 
+            // attempt to find name in the built in namespaces. imported namespaces will be present in the declarations list as they create declared symbols.
+            if (this.namespaceResolver.BuiltIns.TryGetValue(identifierSyntax.IdentifierName) is { } namespaceSymbol)
+            {
+                // namespace symbol found
+                return namespaceSymbol;
+            }
+
+            if (!isFunctionCall)
+            {
+                var foundTypes = namespaceResolver.ResolveUnqualifiedTypeSymbol(identifierSyntax);
+                if (foundTypes.Count() > 1)
+                {
+                    return AmbiguousSymbol(identifierSyntax, foundTypes, x => x.DeclaringNamespace.Name);
+                }
+
+                // if no types were found, fall back to checking against imported functions to show a more relevant error message if a function name is used as an uninvoked symbol
+                var foundType = foundTypes.FirstOrDefault() ?? FindFunctionMatchesInAllNamespaces(identifierSyntax).FirstOrDefault();
+                return SymbolValidator.ResolveUnqualifiedSymbol(foundType, identifierSyntax, namespaceResolver, declarations.Keys);
+            }
+
             // attempt to find function in all imported namespaces
             var foundSymbols = namespaceResolver.ResolveUnqualifiedFunction(identifierSyntax, includeDecorators: allowedFlags.HasAnyDecoratorFlag());
             if (foundSymbols.Count() > 1)
             {
-                var ambiguousNamespaces = foundSymbols.OfType<FunctionSymbol>().Select(x => x.DeclaringObject.Name);
-
-                // ambiguous symbol
-                return new ErrorSymbol(DiagnosticBuilder.ForPosition(identifierSyntax).AmbiguousSymbolReference(identifierSyntax.IdentifierName, ambiguousNamespaces.ToImmutableSortedSet(StringComparer.Ordinal)));
+                return AmbiguousSymbol(identifierSyntax, foundSymbols.OfType<FunctionSymbol>(), x => x.DeclaringObject.Name);
             }
 
-            var foundSymbol = foundSymbols.FirstOrDefault();
-            return isFunctionCall ?
-                SymbolValidator.ResolveUnqualifiedFunction(allowedFlags, foundSymbol, identifierSyntax, namespaceResolver) :
-                SymbolValidator.ResolveUnqualifiedSymbol(foundSymbol, identifierSyntax, namespaceResolver, declarations.Keys);
+            return SymbolValidator.ResolveUnqualifiedFunction(allowedFlags, foundSymbols.FirstOrDefault(), identifierSyntax, namespaceResolver);
         }
+
+        private ErrorSymbol AmbiguousSymbol<S>(IdentifierSyntax signifier, IEnumerable<S> foundSymbols, Func<S, string> namespaceSelector)
+        {
+            var ambiguousNamespaces = foundSymbols.Select(namespaceSelector);
+
+            // ambiguous symbol
+            return new ErrorSymbol(DiagnosticBuilder.ForPosition(signifier).AmbiguousSymbolReference(signifier.IdentifierName, ambiguousNamespaces.ToImmutableSortedSet(StringComparer.Ordinal)));
+        }
+
+        private IEnumerable<Symbol> FindFunctionMatchesInAllNamespaces(IdentifierSyntax identifierSyntax)
+            => namespaceResolver.ResolveUnqualifiedFunction(identifierSyntax, includeDecorators: allowedFlags.HasAnyDecoratorFlag());
 
         private class ScopeCollectorVisitor : SymbolVisitor
         {

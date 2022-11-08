@@ -1,0 +1,203 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "6117416302808585508"
+    }
+  },
+  "definitions": {
+    "foo": {
+      "type": "object",
+      "sealed": "true",
+      "required": [
+        "literalProp",
+        "objectProp",
+        "stringProp",
+        "typeRefProp"
+      ],
+      "properties": {
+        "literalProp": {
+          "type": "string",
+          "allowedValues": [
+            "literal"
+          ]
+        },
+        "objectProp": {
+          "type": "object",
+          "required": [
+            "intProp"
+          ],
+          "properties": {
+            "intArrayArrayProp": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "int"
+                }
+              }
+            },
+            "intProp": {
+              "type": "int",
+              "minValue": 1
+            }
+          }
+        },
+        "recursion": {
+          "$ref": "#/definitions/foo"
+        },
+        "stringProp": {
+          "type": "string",
+          "metadata": {
+            "description": "A string property"
+          },
+          "maxLength": 10,
+          "minLength": 3
+        },
+        "typeRefProp": {
+          "$ref": "#/definitions/bar"
+        }
+      },
+      "metadata": {
+        "description": "The foo type"
+      }
+    },
+    "bar": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "int"
+            }
+          }
+        }
+      },
+      "metadata": {
+        "examples": [
+          [
+            [
+              [
+                [
+                  1
+                ]
+              ]
+            ],
+            [
+              [
+                [
+                  2
+                ]
+              ]
+            ],
+            [
+              [
+                [
+                  3
+                ]
+              ]
+            ]
+          ]
+        ],
+        "description": "An array of array of arrays of arrays of ints"
+      },
+      "minLength": 3
+    },
+    "aUnion": {
+      "type": "string",
+      "allowedValues": [
+        "crackle",
+        "pop",
+        "snap"
+      ]
+    },
+    "expandedUnion": {
+      "type": "string",
+      "allowedValues": [
+        "buzz",
+        "crackle",
+        "fizz",
+        "pop",
+        "snap"
+      ]
+    },
+    "mixedArray": {
+      "type": "array",
+      "allowedValues": [
+        "heffalump",
+        "woozle",
+        -10,
+        10,
+        false,
+        null,
+        true,
+        {
+          "shape": "*",
+          "size": "*"
+        }
+      ]
+    },
+    "bool": {
+      "type": "string"
+    }
+  },
+  "parameters": {
+    "inlineObjectParam": {
+      "type": "object",
+      "required": [
+        "bar",
+        "baz",
+        "foo"
+      ],
+      "properties": {
+        "bar": {
+          "type": "int",
+          "allowedValues": [
+            100,
+            200,
+            300,
+            400,
+            500
+          ]
+        },
+        "baz": {
+          "type": "bool"
+        },
+        "foo": {
+          "type": "string"
+        }
+      },
+      "defaultValue": {
+        "foo": "foo",
+        "bar": 300,
+        "baz": false
+      }
+    },
+    "unionParam": {
+      "type": "object",
+      "allowedValues": [
+        {
+          "property": "ping"
+        },
+        {
+          "property": "pong"
+        }
+      ],
+      "defaultValue": {
+        "property": "pong"
+      }
+    },
+    "paramUsingType": {
+      "$ref": "#/definitions/mixedArray"
+    }
+  },
+  "resources": {}
+}

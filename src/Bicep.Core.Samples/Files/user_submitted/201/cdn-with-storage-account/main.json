@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12531169173066130470"
+      "templateHash": "13597868732513035325"
     }
   },
   "parameters": {
@@ -57,7 +57,7 @@
         "displayName": "[variables('endpointName')]"
       },
       "properties": {
-        "originHostHeader": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob, 'https://', ''), '/', '')]",
+        "originHostHeader": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-01-01').primaryEndpoints.blob, 'https://', ''), '/', '')]",
         "isHttpAllowed": true,
         "isHttpsAllowed": true,
         "queryStringCachingBehavior": "IgnoreQueryString",
@@ -73,7 +73,7 @@
           {
             "name": "origin1",
             "properties": {
-              "hostName": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))).primaryEndpoints.blob, 'https://', ''), '/', '')]"
+              "hostName": "[replace(replace(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2021-01-01').primaryEndpoints.blob, 'https://', ''), '/', '')]"
             }
           }
         ]
@@ -87,11 +87,11 @@
   "outputs": {
     "hostName": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', variables('profileName'), variables('endpointName'))).hostName]"
+      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', variables('profileName'), variables('endpointName')), '2020-09-01').hostName]"
     },
     "originHostHeader": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', variables('profileName'), variables('endpointName'))).originHostHeader]"
+      "value": "[reference(resourceId('Microsoft.Cdn/profiles/endpoints', variables('profileName'), variables('endpointName')), '2020-09-01').originHostHeader]"
     }
   }
 }

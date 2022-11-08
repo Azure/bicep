@@ -5,30 +5,31 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Wasm.LanguageHelpers
 {
     public class SemanticTokenVisitor : SyntaxVisitor
     {
-        private readonly List<(IPositionable positionable, SemanticTokenType tokenType)> tokens;
+        private readonly List<(IPositionable positionable, SemanticTokenType tokenType)> tokens = new();
+        private readonly SemanticModel model;
 
-        private SemanticTokenVisitor()
+        private SemanticTokenVisitor(SemanticModel model)
         {
-            this.tokens = new List<(IPositionable, SemanticTokenType)>();
+            this.model = model;
         }
 
-        public static IEnumerable<SemanticToken> BuildSemanticTokens(BicepFile bicepFile)
+        public static IEnumerable<SemanticToken> BuildSemanticTokens(SemanticModel model)
         {
-            var visitor = new SemanticTokenVisitor();
+            var visitor = new SemanticTokenVisitor(model);
 
-            visitor.Visit(bicepFile.ProgramSyntax);
+            visitor.Visit(model.SourceFile.ProgramSyntax);
 
             // the builder is fussy about ordering. tokens are visited out of order, we need to call build after visiting everything
             foreach (var (positionable, tokenType) in visitor.tokens.OrderBy(t => t.positionable.Span.Position))
             {
-                var tokenRanges = positionable.ToRangeSpanningLines(bicepFile.LineStarts);
+                var tokenRanges = positionable.ToRangeSpanningLines(model.SourceFile.LineStarts);
                 foreach (var tokenRange in tokenRanges)
                 {
                     yield return new SemanticToken(tokenRange.Start.Line, tokenRange.Start.Character, tokenRange.End.Character - tokenRange.Start.Character, tokenType);
@@ -253,12 +254,6 @@ namespace Bicep.Wasm.LanguageHelpers
             base.VisitResourceTypeSyntax(syntax);
         }
 
-        public override void VisitSimpleTypeSyntax(SimpleTypeSyntax syntax)
-        {
-            AddTokenType(syntax.Identifier, SemanticTokenType.Type);
-            base.VisitSimpleTypeSyntax(syntax);
-        }
-
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
         {
             AddTokenType(syntax.OperatorToken, SemanticTokenType.Operator);
@@ -267,7 +262,11 @@ namespace Bicep.Wasm.LanguageHelpers
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
-            AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            AddTokenType(syntax.Name, model.GetSymbolInfo(syntax) switch
+            {
+                TypeAliasSymbol or AmbientTypeSymbol => SemanticTokenType.Type,
+                _ => SemanticTokenType.Variable
+            });
             base.VisitVariableAccessSyntax(syntax);
         }
 
@@ -277,7 +276,7 @@ namespace Bicep.Wasm.LanguageHelpers
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitMetadataDeclarationSyntax(syntax);
         }
-        
+
         public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
@@ -294,10 +293,21 @@ namespace Bicep.Wasm.LanguageHelpers
         public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
-            AddTokenType(syntax.ProviderName, SemanticTokenType.Variable);
-            AddContextualKeyword(syntax.AsKeyword, LanguageConstants.AsKeyword);
-            AddTokenType(syntax.AliasName, SemanticTokenType.Variable);
-            base.VisitImportDeclarationSyntax(syntax);
+            this.Visit(syntax.SpecificationString);
+            this.Visit(syntax.WithClause);
+            this.Visit(syntax.AsClause);
+        }
+
+        public override void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            this.Visit(syntax.Config);
+        }
+        
+        public override void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Alias, SemanticTokenType.Variable);
         }
     }
 }

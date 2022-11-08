@@ -6,27 +6,19 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public class ParameterAssignmentSymbol : BindableSymbol
+    public class ParameterAssignmentSymbol : DeclaredSymbol
     {
-
-        private ParamsSymbolContext paramsSymbolContext;
-        public ParameterAssignmentSymbol(string name, SyntaxBase assigningSyntax, IdentifierSyntax nameSyntax, ParamsSymbolContext paramsSymbolContext)
-            : base(name, nameSyntax)
+        public ParameterAssignmentSymbol(ISymbolContext context, string name, ParameterAssignmentSyntax declaringSyntax)
+            : base(context, name, declaringSyntax, declaringSyntax.Name)
         {
-            this.AssigningSyntax = assigningSyntax;
-            this.paramsSymbolContext = paramsSymbolContext;
+            // TODO: Shouldn't we store the value syntax in the symbol?
         }
         /// <summary>
         /// Gets the syntax node that declared this symbol.
         /// </summary>
-        public SyntaxBase AssigningSyntax { get; }
+        public ParameterAssignmentSyntax DeclaringParameterAssignment => (ParameterAssignmentSyntax)this.DeclaringSyntax;
 
-        /// <summary>
-        /// Gets the type of the symbol.
-        /// </summary>
-        public TypeSymbol Type => paramsSymbolContext.ParamsTypeManager.GetTypeInfo(AssigningSyntax); // change this variable name
-
-        public override SymbolKind Kind => SymbolKind.AssignedParameter;
+        public override SymbolKind Kind => SymbolKind.ParameterAssignment;
 
         public override IEnumerable<Symbol> Descendants
         {

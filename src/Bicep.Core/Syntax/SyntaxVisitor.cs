@@ -141,9 +141,51 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Type);
         }
 
-        public virtual void VisitSimpleTypeSyntax(SimpleTypeSyntax syntax)
+        public virtual void VisitObjectTypeSyntax(ObjectTypeSyntax syntax)
         {
-            this.Visit(syntax.Identifier);
+            this.Visit(syntax.OpenBrace);
+            this.VisitNodes(syntax.Children);
+            this.Visit(syntax.CloseBrace);
+        }
+
+        public virtual void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Key);
+            this.Visit(syntax.OptionalityMarker);
+            this.Visit(syntax.Colon);
+            this.Visit(syntax.Value);
+        }
+
+        public virtual void VisitArrayTypeSyntax(ArrayTypeSyntax syntax)
+        {
+            this.Visit(syntax.Item);
+            this.Visit(syntax.OpenBracket);
+            this.Visit(syntax.CloseBracket);
+        }
+
+        public virtual void VisitArrayTypeMemberSyntax(ArrayTypeMemberSyntax syntax)
+        {
+            this.Visit(syntax.Value);
+        }
+
+        public virtual void VisitUnionTypeSyntax(UnionTypeSyntax syntax)
+        {
+            this.VisitNodes(syntax.Children);
+        }
+
+        public virtual void VisitUnionTypeMemberSyntax(UnionTypeMemberSyntax syntax)
+        {
+            this.Visit(syntax.Value);
+        }
+
+        public virtual void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Assignment);
+            this.Visit(syntax.Value);
         }
 
         public virtual void VisitBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
@@ -331,10 +373,21 @@ namespace Bicep.Core.Syntax
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
-            this.Visit(syntax.ProviderName);
-            this.Visit(syntax.AsKeyword);
-            this.Visit(syntax.AliasName);
+            this.Visit(syntax.SpecificationString);
+            this.Visit(syntax.WithClause);
+            this.Visit(syntax.AsClause);
+        }
+
+        public virtual void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax)
+        {
+            this.Visit(syntax.Keyword);
             this.Visit(syntax.Config);
+        }
+
+        public virtual void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax)
+        {
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Alias);
         }
 
         public virtual void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)
@@ -352,7 +405,7 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Keyword);
             this.Visit(syntax.Path);
         }
-        
+
         public virtual void VisitLambdaSyntax(LambdaSyntax syntax)
         {
             this.Visit(syntax.VariableSection);

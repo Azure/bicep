@@ -15,11 +15,11 @@ namespace Bicep.Core.TypeSystem
     {
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
 
-        private readonly IDictionary<BindableSymbol, IList<SyntaxBase>> declarationAccessDict;
+        private readonly IDictionary<DeclaredSymbol, IList<SyntaxBase>> declarationAccessDict;
 
-        private Stack<BindableSymbol> currentDeclarations;
+        private Stack<DeclaredSymbol> currentDeclarations;
 
-        public static ImmutableDictionary<BindableSymbol, ImmutableArray<BindableSymbol>> FindCycles(ProgramSyntax programSyntax, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
+        public static ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> FindCycles(ProgramSyntax programSyntax, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             var visitor = new CyclicCheckVisitor(bindings);
             visitor.Visit(programSyntax);
@@ -27,27 +27,27 @@ namespace Bicep.Core.TypeSystem
             return visitor.FindCycles();
         }
 
-        private ImmutableDictionary<BindableSymbol, ImmutableArray<BindableSymbol>> FindCycles()
+        private ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> FindCycles()
         {
             var symbolGraph = declarationAccessDict
-                .SelectMany(kvp => kvp.Value.Select(x => bindings[x]).OfType<BindableSymbol>().Select(x => (kvp.Key, x)))
+                .SelectMany(kvp => kvp.Value.Select(x => bindings[x]).OfType<DeclaredSymbol>().Select(x => (kvp.Key, x)))
                 .ToLookup(x => x.Item1, x => x.Item2);
 
-            return CycleDetector<BindableSymbol>.FindCycles(symbolGraph);
+            return CycleDetector<DeclaredSymbol>.FindCycles(symbolGraph);
         }
 
         private CyclicCheckVisitor(IReadOnlyDictionary<SyntaxBase, Symbol> bindings)
         {
             this.bindings = bindings;
-            this.declarationAccessDict = new Dictionary<BindableSymbol, IList<SyntaxBase>>();
-            this.currentDeclarations = new Stack<BindableSymbol>();
+            this.declarationAccessDict = new Dictionary<DeclaredSymbol, IList<SyntaxBase>>();
+            this.currentDeclarations = new Stack<DeclaredSymbol>();
         }
 
         private void VisitDeclaration<TDeclarationSyntax>(TDeclarationSyntax syntax, Action<TDeclarationSyntax> visitBaseFunc)
             where TDeclarationSyntax : SyntaxBase, ITopLevelNamedDeclarationSyntax
         {
             if (!bindings.TryGetValue(syntax, out var symbol) ||
-                symbol is not BindableSymbol currentDeclaration ||
+                symbol is not DeclaredSymbol currentDeclaration ||
                 string.IsNullOrEmpty(currentDeclaration.Name) ||
                 string.Equals(LanguageConstants.ErrorName, currentDeclaration.Name, StringComparison.Ordinal) ||
                 string.Equals(LanguageConstants.MissingName, currentDeclaration.Name, StringComparison.Ordinal))
@@ -94,7 +94,7 @@ namespace Bicep.Core.TypeSystem
 
             // Resources are special because a lexically nested resource implies a dependency
             // They are both a source of declarations and a use of them.
-            if (!bindings.TryGetValue(syntax, out var symbol) || symbol is not BindableSymbol currentDeclaration)
+            if (!bindings.TryGetValue(syntax, out var symbol) || symbol is not DeclaredSymbol currentDeclaration)
             {
                 // If we've failed to bind the symbol, we should already have an error, and a cycle should not be possible
                 return;
@@ -109,6 +109,9 @@ namespace Bicep.Core.TypeSystem
                 }
             }
         }
+
+        public override void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax)
+            => VisitDeclaration(syntax, base.VisitTypeDeclarationSyntax);
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
@@ -145,6 +148,16 @@ namespace Bicep.Core.TypeSystem
             declarationAccessDict[currentDeclaration].Add(syntax);
             base.VisitFunctionCallSyntax(syntax);
         }
+
+        public override void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)
+        {
+            if (syntax.OptionalityMarker is not null)
+            {
+                // Optionally recursive types are not considered cyclic, so stop visiting.
+                return;
+            }
+
+            base.VisitObjectTypePropertySyntax(syntax);
+        }
     }
 }
-

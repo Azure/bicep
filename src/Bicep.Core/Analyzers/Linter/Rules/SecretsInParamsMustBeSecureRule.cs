@@ -79,7 +79,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                         return CreateFixableDiagnosticForSpan(
                             diagnosticLevel,
-                            parameterSymbol.NameSyntax.Span,
+                            parameterSymbol.NameSource.Span,
                             new CodeFix("Mark parameter as secure", isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
                             name);
                     }

@@ -338,3 +338,6 @@ var copyBlockInObject = {
 }
 
 var joinedString = join(['I', 'love', 'Bicep!'], ' ')
+
+var prefix = take('food', 3)
+var isPrefixed = startsWith('food', 'foo')

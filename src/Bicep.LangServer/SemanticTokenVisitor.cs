@@ -2,12 +2,11 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core;
 using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Extensions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -16,28 +15,24 @@ namespace Bicep.LanguageServer
 {
     public class SemanticTokenVisitor : SyntaxVisitor
     {
-        private readonly List<(IPositionable positionable, SemanticTokenType tokenType)> tokens;
+        private readonly SemanticModel model;
+        private readonly List<(IPositionable positionable, SemanticTokenType tokenType)> tokens = new();
 
-        private SemanticTokenVisitor()
+        private SemanticTokenVisitor(SemanticModel model)
         {
-            this.tokens = new List<(IPositionable, SemanticTokenType)>();
+            this.model = model;
         }
 
-        public static void BuildSemanticTokens(SemanticTokensBuilder builder, BicepFile bicepFile)
+        public static void BuildSemanticTokens(SemanticTokensBuilder builder, SemanticModel model)
         {
-            BuildSemanticTokens(builder, bicepFile.ProgramSyntax, bicepFile.LineStarts);
-        }
+            var visitor = new SemanticTokenVisitor(model);
 
-        public static void BuildSemanticTokens(SemanticTokensBuilder builder, ProgramSyntax programSyntax,  ImmutableArray<int> lineStarts)
-        {
-            var visitor = new SemanticTokenVisitor();
-
-            visitor.Visit(programSyntax);
+            visitor.Visit(model.SourceFile.ProgramSyntax);
 
             // the builder is fussy about ordering. tokens are visited out of order, we need to call build after visiting everything
             foreach (var (positionable, tokenType) in visitor.tokens.OrderBy(t => t.positionable.Span.Position))
             {
-                var tokenRanges = positionable.ToRangeSpanningLines(lineStarts);
+                var tokenRanges = positionable.ToRangeSpanningLines(model.SourceFile.LineStarts);
                 foreach (var tokenRange in tokenRanges)
                 {
                     builder.Push(tokenRange.Start.Line, tokenRange.Start.Character, tokenRange.End.Character - tokenRange.Start.Character, tokenType as SemanticTokenType?);
@@ -138,6 +133,13 @@ namespace Bicep.LanguageServer
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitParameterDeclarationSyntax(syntax);
+        }
+
+        public override void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Name, SemanticTokenType.Type);
+            base.VisitTypeDeclarationSyntax(syntax);
         }
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
@@ -277,12 +279,6 @@ namespace Bicep.LanguageServer
             base.VisitResourceTypeSyntax(syntax);
         }
 
-        public override void VisitSimpleTypeSyntax(SimpleTypeSyntax syntax)
-        {
-            AddTokenType(syntax.Identifier, SemanticTokenType.Type);
-            base.VisitSimpleTypeSyntax(syntax);
-        }
-
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
         {
             AddTokenType(syntax.OperatorToken, SemanticTokenType.Operator);
@@ -291,7 +287,11 @@ namespace Bicep.LanguageServer
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
-            AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            AddTokenType(syntax.Name, model.GetSymbolInfo(syntax) switch
+            {
+                TypeAliasSymbol or AmbientTypeSymbol => SemanticTokenType.Type,
+                _ => SemanticTokenType.Variable,
+            });
             base.VisitVariableAccessSyntax(syntax);
         }
 
@@ -308,7 +308,7 @@ namespace Bicep.LanguageServer
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
             base.VisitVariableDeclarationSyntax(syntax);
         }
-        
+
         public override void VisitTargetScopeSyntax(TargetScopeSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
@@ -318,10 +318,21 @@ namespace Bicep.LanguageServer
         public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
-            AddTokenType(syntax.ProviderName, SemanticTokenType.Variable);
-            AddContextualKeyword(syntax.AsKeyword, LanguageConstants.AsKeyword);
-            AddTokenType(syntax.AliasName, SemanticTokenType.Variable);
-            base.VisitImportDeclarationSyntax(syntax);
+            this.Visit(syntax.SpecificationString);
+            this.Visit(syntax.WithClause);
+            this.Visit(syntax.AsClause);
+        }
+
+        public override void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            this.Visit(syntax.Config);
+        }
+        
+        public override void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Alias, SemanticTokenType.Variable);
         }
 
         public override void VisitParameterAssignmentSyntax(ParameterAssignmentSyntax syntax)

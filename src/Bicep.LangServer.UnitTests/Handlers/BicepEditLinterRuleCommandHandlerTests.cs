@@ -12,6 +12,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.LangServer.UnitTests.Mocks;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Telemetry;
@@ -31,6 +32,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
     [TestClass]
     public class BicepEditLinterRuleCommandHandlerTests
     {
+        // TODO: Refactor to use new LanguageServerMock under Mocks namespace
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -93,92 +96,39 @@ namespace Bicep.LangServer.UnitTests.Handlers
             return selectedText;
         }
 
-        private class MockClientCapabilitiesProvider
+        private LanguageServerMock SetUpOnTriggerCompletion(LanguageServerMock server, Action<ShowDocumentParams> onShowDocument, Action<string?> onTriggerCompletion, bool enableShowDocumentCapability)
         {
-            public Mock<IClientCapabilitiesProvider> Mock;
+            ShowDocumentParams? showDocumentParams = null;
+            server.WindowMock.OnShowDocument(
+                p =>
+                {
+                    showDocumentParams = p;
+                    onShowDocument(p);
+                },
+                enableClientCapability: enableShowDocumentCapability);
 
-            public MockClientCapabilitiesProvider()
-            {
-                var clientCapabilitiesProvider = StrictMock.Of<IClientCapabilitiesProvider>();
-                clientCapabilitiesProvider.Setup(m => m.DoesClientSupportShowDocumentRequest()).Returns(true);
-                clientCapabilitiesProvider.Setup(m => m.DoesClientSupportWorkspaceFolders()).Returns(true);
-
-                Mock = clientCapabilitiesProvider;
-            }
-        }
-
-        private class LanguageServerMock
-        {
-            public Mock<ILanguageServerFacade> Mock;
-            public string? StringTriggeredForCompletion { get; private set; }
-            public ShowDocumentParams? ShowDocumentParams { get; private set; }
-
-            public LanguageServerMock(
-                ShowDocumentResult result,
-                Action<string>? messageCallback = null,
-                Container<WorkspaceFolder>? workspaceFolders = null)
-            {
-                var window = StrictMock.Of<IWindowLanguageServer>();
-
-                window
-                    .Setup(m => m.SendNotification(It.IsAny<LogMessageParams>()));
-                window
-                    .Setup(m => m.SendRequest<ShowDocumentResult>(It.IsAny<ShowDocumentParams>(), It.IsAny<CancellationToken>()))
-                    .Callback((IRequest<ShowDocumentResult> request, CancellationToken token) =>
+            server.Mock
+                .Setup(m => m.SendNotification("bicep/triggerEditorCompletion"))
+                .Callback((string notification) =>
+                {
+                    if (showDocumentParams == null)
                     {
-                        var @params = (ShowDocumentParams)request;
-                        ShowDocumentParams = @params;
-                    })
-                    .ReturnsAsync(() => result);
-                window
-                    .Setup(m => m.SendNotification(It.IsAny<ShowMessageParams>()))
-                    .Callback((IRequest request) =>
+                        throw new Exception("Completion was triggered but no show document call was made");
+                    }
+                    else if (showDocumentParams.Selection == null)
                     {
-                        var @params = (ShowMessageParams)request;
-                        if (messageCallback != null)
-                        {
-                            messageCallback(@params.Message);
-                        }
-                        else
-                        {
-                            Assert.Fail($"Message was displayed when no message expected: {@params.Message}");
-                        }
-                    });
+                        throw new Exception("No selection was given in the show document call");
+                    }
+                    else if (showDocumentParams.Selection.Start != showDocumentParams.Selection.End)
+                    {
+                        throw new Exception("Completion was triggered on a non-empty selection");
+                    }
 
-                var workspace = StrictMock.Of<IWorkspaceLanguageServer>();
-                workspace
-                    .Setup(m => m.SendRequest<Container<WorkspaceFolder>?>(It.IsAny<WorkspaceFolderParams>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(() => workspaceFolders);
+                    string? stringTriggeredForCompletion = GetStringContentsAtDocumentPosition(showDocumentParams.Uri, showDocumentParams.Selection.Start);
+                    onTriggerCompletion(stringTriggeredForCompletion);
+                });
 
-                var server = StrictMock.Of<ILanguageServerFacade>();
-                server
-                    .Setup(m => m.Window)
-                    .Returns(window.Object);
-                server
-                    .Setup(m => m.Workspace)
-                    .Returns(workspace.Object);
-                server
-                 .Setup(m => m.SendNotification("bicep/triggerEditorCompletion"))
-                 .Callback((string notification) =>
-                 {
-                     if (this.ShowDocumentParams == null)
-                     {
-                         throw new Exception("Completion was triggered but no show document call was made");
-                     }
-                     if (this.ShowDocumentParams.Selection == null)
-                     {
-                         throw new Exception("No selection was given in the show document call");
-                     }
-                     if (this.ShowDocumentParams.Selection.Start != this.ShowDocumentParams.Selection.End)
-                     {
-                         throw new Exception("Completion was triggered on a non-empty selection");
-                     }
-
-                     StringTriggeredForCompletion = GetStringContentsAtDocumentPosition(this.ShowDocumentParams.Uri, this.ShowDocumentParams.Selection.Start);
-                 });
-
-                Mock = server;
-            }
+            return server;
         }
 
         #endregion Support
@@ -205,9 +155,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var (bicepPath, configPath) = CreateFiles(bicepConfig);
 
-            var server = new LanguageServerMock(new ShowDocumentResult() { Success = true });
-
-            var clientCapabilitiesProvider = new MockClientCapabilitiesProvider();
+            var server = new LanguageServerMock();
 
             var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
             BicepTelemetryEvent? ev = null;
@@ -217,12 +165,17 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     ev = e;
                 });
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, clientCapabilitiesProvider.Mock.Object, telemetryProvider.Object);
+            ShowDocumentParams? showDocumentParams = null;
+            string? stringTriggeredForCompletion = null;
+            SetUpOnTriggerCompletion(server, p => showDocumentParams = p, s => stringTriggeredForCompletion = s, enableShowDocumentCapability: true);
+
+            // act
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, server.ClientCapabilitiesProvider, telemetryProvider.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "no-unused-params", configPath, CancellationToken.None);
 
-            server.ShowDocumentParams.Should().NotBeNull();
-            server.ShowDocumentParams!.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
-            server.StringTriggeredForCompletion.Should().Be("no-unused-params-current-level", "rule's current level value should be selected and completion triggered when the config file is opened");
+            showDocumentParams.Should().NotBeNull();
+            showDocumentParams!.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
+            stringTriggeredForCompletion.Should().Be("no-unused-params-current-level", "rule's current level value should be selected and completion triggered when the config file is opened");
             ev.Should().NotBeNull();
             ev!.EventName.Should().Be(TelemetryConstants.EventNames.EditLinterRule);
             ev.Properties.Should().Contain(new Dictionary<string, string> {
@@ -230,12 +183,12 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     { "newConfigFile", "false" },
                     { "newRuleAdded", "false" },
                     { "error", string.Empty },
-                    { "result", Result.Succeeded },
+                    { "result", EventResult.Succeeded },
                 });
         }
 
         [TestMethod]
-        public async Task WhenClientDoesNotSupportShowDocumentRequestAndWorkspaceFolders_ShowDocumentParamsAndStringTriggeredForCompletionsShouldBeNull()
+        public async Task WhenClientDoesNotSupportShowDocumentRequestOrWorkspaceFolders_ShowDocumentParamsAndStringTriggeredForCompletionsShouldBeNull()
         {
             string expectedConfig = @"{
   // See https://aka.ms/bicep/config for more information on Bicep configuration options
@@ -261,9 +214,13 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             string expectedConfigPath = Path.Join(bicepFolder, "bicepconfig.json");
 
-            var server = new LanguageServerMock(
-             new ShowDocumentResult() { Success = true },
-              workspaceFolders: new Container<WorkspaceFolder>(new WorkspaceFolder[] { new() { Name = "my workspace", Uri = DocumentUri.File(rootFolder) } }));
+            var server = new LanguageServerMock();
+
+            ShowDocumentParams? showDocumentParams = null;
+            string? stringTriggeredForCompletion = null;
+            SetUpOnTriggerCompletion(server, p => showDocumentParams = p, s => stringTriggeredForCompletion = s, enableShowDocumentCapability: false);
+
+            server.WorkspaceMock.OnRequestWorkspaceFoldersThrow(enableClientCapability: false);
 
             var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
             BicepTelemetryEvent? ev = null;
@@ -273,15 +230,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     ev = e;
                 });
 
-            var clientCapabilitiesProvider = StrictMock.Of<IClientCapabilitiesProvider>();
-            clientCapabilitiesProvider.Setup(m => m.DoesClientSupportShowDocumentRequest()).Returns(false);
-            clientCapabilitiesProvider.Setup(m => m.DoesClientSupportWorkspaceFolders()).Returns(false);
-
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, clientCapabilitiesProvider.Object, telemetryProvider.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, server.ClientCapabilitiesProvider, telemetryProvider.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", "", CancellationToken.None);
 
-            server.ShowDocumentParams.Should().BeNull();
-            server.StringTriggeredForCompletion.Should().BeNull();
+            showDocumentParams.Should().BeNull();
+            stringTriggeredForCompletion.Should().BeNull();
             File.ReadAllText(expectedConfigPath).Should().BeEquivalentToIgnoringNewlines(expectedConfig);
             ev.Should().NotBeNull();
             ev!.EventName.Should().Be(TelemetryConstants.EventNames.EditLinterRule);
@@ -290,7 +243,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     { "newConfigFile", "true" },
                     { "newRuleAdded", "true" },
                     { "error", string.Empty },
-                    { "result", Result.Succeeded },
+                    { "result", EventResult.Succeeded },
                 });
         }
 
@@ -312,18 +265,20 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var (bicepPath, configPath) = CreateFiles(bicepConfig);
 
-            var server = new LanguageServerMock(new ShowDocumentResult() { Success = true });
+            var server = new LanguageServerMock();
+
+            ShowDocumentParams? showDocumentParams = null;
+            string? stringTriggeredForCompletion = null;
+            SetUpOnTriggerCompletion(server, p => showDocumentParams = p, s => stringTriggeredForCompletion = s, enableShowDocumentCapability: true);
 
             var telemetryProvider = BicepTestConstants.CreateMockTelemetryProvider();
 
-            var clientCapabilitiesProvider = new MockClientCapabilitiesProvider();
-
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, clientCapabilitiesProvider.Mock.Object,telemetryProvider.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, server.ClientCapabilitiesProvider, telemetryProvider.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "no-unused-params", configPath, CancellationToken.None);
 
-            server.ShowDocumentParams.Should().NotBeNull();
-            server.ShowDocumentParams!.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
-            server.StringTriggeredForCompletion.Should().Be("warning", "rule's current level value should be selected when the config file is opened");
+            showDocumentParams.Should().NotBeNull();
+            showDocumentParams!.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
+            stringTriggeredForCompletion.Should().Be("warning", "rule's current level value should be selected when the config file is opened");
         }
 
         [TestMethod]
@@ -361,7 +316,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var (bicepPath, configPath) = CreateFiles(bicepConfig);
 
-            var server = new LanguageServerMock(new ShowDocumentResult() { Success = true });
+            var server = new LanguageServerMock();
+
+            ShowDocumentParams? showDocumentParams = null;
+            string? stringTriggeredForCompletion = null;
+            SetUpOnTriggerCompletion(server, p => showDocumentParams = p, s => stringTriggeredForCompletion = s, enableShowDocumentCapability: true);
 
             var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
             BicepTelemetryEvent? ev = null;
@@ -371,14 +330,12 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     ev = e;
                 });
 
-            var clientCapabilitiesProvider = new MockClientCapabilitiesProvider();
-
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, clientCapabilitiesProvider.Mock.Object, telemetryProvider.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, server.ClientCapabilitiesProvider, telemetryProvider.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", configPath, CancellationToken.None);
 
-            server.ShowDocumentParams.Should().NotBeNull();
-            server.ShowDocumentParams!.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
-            server.StringTriggeredForCompletion.Should().Be("warning", "new rule's level value should be selected and completion triggered when the config file is opened");
+            showDocumentParams.Should().NotBeNull();
+            showDocumentParams!.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
+            stringTriggeredForCompletion.Should().Be("warning", "new rule's level value should be selected and completion triggered when the config file is opened");
             File.ReadAllText(configPath).Should().BeEquivalentToIgnoringNewlines(expectedConfig);
             ev.Should().NotBeNull();
             ev!.EventName.Should().Be(TelemetryConstants.EventNames.EditLinterRule);
@@ -387,7 +344,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     { "newConfigFile", "false" },
                     { "newRuleAdded", "true" },
                     { "error", string.Empty },
-                    { "result", Result.Succeeded },
+                    { "result", EventResult.Succeeded },
                 });
         }
 
@@ -397,14 +354,14 @@ namespace Bicep.LangServer.UnitTests.Handlers
             string bicepConfig = @"invalid json";
 
             var (bicepPath, configPath) = CreateFiles(bicepConfig);
-            string? message = null;
 
-            var server = new LanguageServerMock(
-                   new ShowDocumentResult() { Success = true },
-                messageCallback: (msg) =>
-                {
-                    message = msg;
-                });
+            var server = new LanguageServerMock();
+
+            ShowDocumentParams? showDocumentParams = null;
+            server.WindowMock.OnShowDocument(p => showDocumentParams = p);
+
+            string? message = null;
+            server.WindowMock.OnShowMessage(p => message = p.Message);
 
             var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
             BicepTelemetryEvent? ev = null;
@@ -413,12 +370,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 {
                     ev = e;
                 });
-            var clientCapabilitiesProvider = new MockClientCapabilitiesProvider();
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, clientCapabilitiesProvider.Mock.Object,telemetryProvider.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, server.ClientCapabilitiesProvider, telemetryProvider.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", configPath, CancellationToken.None);
 
-            server.ShowDocumentParams.Should().BeNull("ShowTextDocument Shouldn't get called");
+            showDocumentParams.Should().BeNull("ShowTextDocument Shouldn't get called");
             ev.Should().NotBeNull();
             ev!.EventName.Should().Be(TelemetryConstants.EventNames.EditLinterRule);
             ev.Properties.Should().Contain(new Dictionary<string, string> {
@@ -426,7 +382,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     { "newConfigFile", "false" },
                     { "newRuleAdded", "false" },
                     { "error", "JsonReaderException" },
-                    { "result", Result.Failed },
+                    { "result", EventResult.Failed },
                 });
             message.Should().Be("Unexpected character encountered while parsing value: i. Path '', line 0, position 0.");
         }
@@ -458,9 +414,15 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             string expectedConfigPath = Path.Join(rootFolder, "bicepconfig.json");
 
-            var server = new LanguageServerMock(
-             new ShowDocumentResult() { Success = true },
-              workspaceFolders: new Container<WorkspaceFolder>(new WorkspaceFolder[] { new() { Name = "my workspace", Uri = DocumentUri.File(rootFolder) } }));
+            var server = new LanguageServerMock();
+
+            ShowDocumentParams? showDocumentParams = null;
+            string? stringTriggeredForCompletion = null;
+            SetUpOnTriggerCompletion(server, p => showDocumentParams = p, s => stringTriggeredForCompletion = s, enableShowDocumentCapability: true);
+
+            server.WorkspaceMock.OnRequestWorkspaceFolders(
+                new Container<WorkspaceFolder>(
+                    new WorkspaceFolder[] { new() { Name = "my workspace", Uri = DocumentUri.File(rootFolder) } }));
 
             var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
             BicepTelemetryEvent? ev = null;
@@ -470,14 +432,12 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     ev = e;
                 });
 
-            var clientCapabilitiesProvider = new MockClientCapabilitiesProvider();
-
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, clientCapabilitiesProvider.Mock.Object,telemetryProvider.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, server.ClientCapabilitiesProvider, telemetryProvider.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", "", CancellationToken.None);
 
-            server.ShowDocumentParams.Should().NotBeNull();
-            server.ShowDocumentParams!.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(expectedConfigPath.ToLowerInvariant());
-            server.StringTriggeredForCompletion.Should().Be("warning", "new rule's level value should be selected and completion triggered when the config file is opened");
+            showDocumentParams.Should().NotBeNull();
+            showDocumentParams!.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(expectedConfigPath.ToLowerInvariant());
+            stringTriggeredForCompletion.Should().Be("warning", "new rule's level value should be selected and completion triggered when the config file is opened");
             File.ReadAllText(expectedConfigPath).Should().BeEquivalentToIgnoringNewlines(expectedConfig);
             ev.Should().NotBeNull();
             ev!.EventName.Should().Be(TelemetryConstants.EventNames.EditLinterRule);
@@ -486,7 +446,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                     { "newConfigFile", "true" },
                     { "newRuleAdded", "true" },
                     { "error", string.Empty },
-                    { "result", Result.Succeeded },
+                    { "result", EventResult.Succeeded },
                 });
         }
 
@@ -509,19 +469,21 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var (bicepPath, configPath) = CreateFiles(bicepConfig);
 
-            var server = new LanguageServerMock(new ShowDocumentResult() { Success = true });
+            var server = new LanguageServerMock();
+
+            ShowDocumentParams? showDocumentParams = null;
+            string? stringTriggeredForCompletion = null;
+            SetUpOnTriggerCompletion(server, p => showDocumentParams = p, s => stringTriggeredForCompletion = s, enableShowDocumentCapability: true);
 
             var telemetryProvider = BicepTestConstants.CreateMockTelemetryProvider();
 
-            var clientCapabilitiesProvider = new MockClientCapabilitiesProvider();
-
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, clientCapabilitiesProvider.Mock.Object,telemetryProvider.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Mock.Object, server.ClientCapabilitiesProvider, telemetryProvider.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "no-unused-params", configPath, CancellationToken.None);
 
-            server.ShowDocumentParams.Should().NotBeNull();
-            server.ShowDocumentParams!.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
+            showDocumentParams.Should().NotBeNull();
+            showDocumentParams!.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
 
-            server.StringTriggeredForCompletion.Should().Be("warning", "rule's current level value should be selected and completion triggered when the config file is opened");
+            stringTriggeredForCompletion.Should().Be("warning", "rule's current level value should be selected and completion triggered when the config file is opened");
         }
 
     }

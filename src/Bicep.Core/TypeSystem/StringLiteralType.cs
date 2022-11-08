@@ -21,5 +21,14 @@ namespace Bicep.Core.TypeSystem
         public override TypeKind TypeKind => TypeKind.StringLiteral;
 
         public string RawStringValue { get; }
+
+        public override bool Equals(object? other) =>
+            other is StringLiteralType otherStringLiteral ? otherStringLiteral == this : false;
+
+        public override int GetHashCode() => (GetType(), RawStringValue).GetHashCode();
+
+        public static bool operator ==(StringLiteralType? a, StringLiteralType? b) => a?.RawStringValue == b?.RawStringValue;
+
+        public static bool operator !=(StringLiteralType? a, StringLiteralType? b) => a?.RawStringValue == b?.RawStringValue;
     }
 }

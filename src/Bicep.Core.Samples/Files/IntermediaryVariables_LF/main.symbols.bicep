@@ -1,5 +1,5 @@
 var boolVal = true
-//@[04:11) Variable boolVal. Type: bool. Declaration start char: 0, length: 18
+//@[04:11) Variable boolVal. Type: true. Declaration start char: 0, length: 18
 
 var vmProperties = {
 //@[04:16) Variable vmProperties. Type: object. Declaration start char: 0, length: 173

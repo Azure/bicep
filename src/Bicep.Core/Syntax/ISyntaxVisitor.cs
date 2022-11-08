@@ -66,9 +66,21 @@ namespace Bicep.Core.Syntax
 
         void VisitToken(Token token);
 
-        void VisitSimpleTypeSyntax(SimpleTypeSyntax syntax);
-
         void VisitResourceTypeSyntax(ResourceTypeSyntax syntax);
+
+        void VisitObjectTypeSyntax(ObjectTypeSyntax syntax);
+
+        void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax);
+
+        void VisitArrayTypeSyntax(ArrayTypeSyntax syntax);
+
+        void VisitArrayTypeMemberSyntax(ArrayTypeMemberSyntax syntax);
+
+        void VisitUnionTypeSyntax(UnionTypeSyntax syntax);
+
+        void VisitUnionTypeMemberSyntax(UnionTypeMemberSyntax syntax);
+
+        void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax);
 
         void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax);
 
@@ -90,8 +102,12 @@ namespace Bicep.Core.Syntax
 
         void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax);
 
+        void VisitImportWithClauseSyntax(ImportWithClauseSyntax syntax);
+
+        void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax);
+
         void VisitUsingDeclarationSyntax(UsingDeclarationSyntax syntax);
-        
+
         void VisitLambdaSyntax(LambdaSyntax syntax);
     }
 }

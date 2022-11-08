@@ -246,8 +246,9 @@ output referenceBasicChild string = basicParent::basicChild.properties.size
 //@[00:0006) | ├─Token(Identifier) |output|
 //@[07:0026) | ├─IdentifierSyntax
 //@[07:0026) | | └─Token(Identifier) |referenceBasicChild|
-//@[27:0033) | ├─SimpleTypeSyntax
-//@[27:0033) | | └─Token(Identifier) |string|
+//@[27:0033) | ├─VariableAccessSyntax
+//@[27:0033) | | └─IdentifierSyntax
+//@[27:0033) | |   └─Token(Identifier) |string|
 //@[34:0035) | ├─Token(Assignment) |=|
 //@[36:0075) | └─PropertyAccessSyntax
 //@[36:0070) |   ├─PropertyAccessSyntax
@@ -272,8 +273,9 @@ output referenceBasicGrandchild string = basicParent::basicChild::basicGrandchil
 //@[00:0006) | ├─Token(Identifier) |output|
 //@[07:0031) | ├─IdentifierSyntax
 //@[07:0031) | | └─Token(Identifier) |referenceBasicGrandchild|
-//@[32:0038) | ├─SimpleTypeSyntax
-//@[32:0038) | | └─Token(Identifier) |string|
+//@[32:0038) | ├─VariableAccessSyntax
+//@[32:0038) | | └─IdentifierSyntax
+//@[32:0038) | |   └─Token(Identifier) |string|
 //@[39:0040) | ├─Token(Assignment) |=|
 //@[41:0098) | └─PropertyAccessSyntax
 //@[41:0092) |   ├─PropertyAccessSyntax
@@ -417,24 +419,27 @@ param createParent bool
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0018) | ├─IdentifierSyntax
 //@[06:0018) | | └─Token(Identifier) |createParent|
-//@[19:0023) | └─SimpleTypeSyntax
-//@[19:0023) |   └─Token(Identifier) |bool|
+//@[19:0023) | └─VariableAccessSyntax
+//@[19:0023) |   └─IdentifierSyntax
+//@[19:0023) |     └─Token(Identifier) |bool|
 //@[23:0024) ├─Token(NewLine) |\n|
 param createChild bool
 //@[00:0022) ├─ParameterDeclarationSyntax
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0017) | ├─IdentifierSyntax
 //@[06:0017) | | └─Token(Identifier) |createChild|
-//@[18:0022) | └─SimpleTypeSyntax
-//@[18:0022) |   └─Token(Identifier) |bool|
+//@[18:0022) | └─VariableAccessSyntax
+//@[18:0022) |   └─IdentifierSyntax
+//@[18:0022) |     └─Token(Identifier) |bool|
 //@[22:0023) ├─Token(NewLine) |\n|
 param createGrandchild bool
 //@[00:0027) ├─ParameterDeclarationSyntax
 //@[00:0005) | ├─Token(Identifier) |param|
 //@[06:0022) | ├─IdentifierSyntax
 //@[06:0022) | | └─Token(Identifier) |createGrandchild|
-//@[23:0027) | └─SimpleTypeSyntax
-//@[23:0027) |   └─Token(Identifier) |bool|
+//@[23:0027) | └─VariableAccessSyntax
+//@[23:0027) |   └─IdentifierSyntax
+//@[23:0027) |     └─Token(Identifier) |bool|
 //@[27:0028) ├─Token(NewLine) |\n|
 resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
 //@[00:0433) ├─ResourceDeclarationSyntax
@@ -659,8 +664,9 @@ output loopChildOutput string = loopParent::loopChild[0].name
 //@[00:0006) | ├─Token(Identifier) |output|
 //@[07:0022) | ├─IdentifierSyntax
 //@[07:0022) | | └─Token(Identifier) |loopChildOutput|
-//@[23:0029) | ├─SimpleTypeSyntax
-//@[23:0029) | | └─Token(Identifier) |string|
+//@[23:0029) | ├─VariableAccessSyntax
+//@[23:0029) | | └─IdentifierSyntax
+//@[23:0029) | |   └─Token(Identifier) |string|
 //@[30:0031) | ├─Token(Assignment) |=|
 //@[32:0061) | └─PropertyAccessSyntax
 //@[32:0056) |   ├─ArrayAccessSyntax

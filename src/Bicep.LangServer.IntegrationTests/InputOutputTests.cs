@@ -147,7 +147,7 @@ param foo string = 123 // trigger a type error
                     d =>
                     {
                         d.Range.Should().HaveRange((2, 19), (2, 22));
-                        d.Should().HaveCodeAndSeverity("BCP027", DiagnosticSeverity.Error);
+                        d.Should().HaveCodeAndSeverity("BCP033", DiagnosticSeverity.Error);
                     });
             }
             finally
@@ -184,7 +184,7 @@ param foo string = 123 // trigger a type error
                     d =>
                     {
                         d.Range.Should().HaveRange((2, 19), (2, 22));
-                        d.Should().HaveCodeAndSeverity("BCP027", DiagnosticSeverity.Error);
+                        d.Should().HaveCodeAndSeverity("BCP033", DiagnosticSeverity.Error);
                     });
             }
             finally
@@ -225,7 +225,7 @@ param foo string = 123 // trigger a type error
                     d =>
                     {
                         d.Range.Should().HaveRange((2, 19), (2, 22));
-                        d.Should().HaveCodeAndSeverity("BCP027", DiagnosticSeverity.Error);
+                        d.Should().HaveCodeAndSeverity("BCP033", DiagnosticSeverity.Error);
                     });
             }
             finally

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.9.1.41621",
+      "templateHash": "14981122793425715178"
+    }
+  },
+  "parameters": {
+    "skuName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of skuName"
+      },
+      "allowedValues": [
+        "Premium_AzureFrontDoor",
+        "Standard_AzureFrontDoor"
+      ]
+    },
+    "cdnProfileName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of cdnProfileName",
+        "other": "other metadata"
+      }
+    }
+  },
+  "resources": [
+  ],
+  "outputs": {
+    "output1": {
+      "type": "string",
+      "value": "[concat(parameters('cdnProfileName'),parameters('skuName'))]"
+    }
+  }
+}

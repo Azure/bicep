@@ -60,9 +60,9 @@ var filterEmpty = filter([], foo => 'def' == foo)
 //@[004:015) Variable filterEmpty. Type: array. Declaration start char: 0, length: 49
 
 var sortNumeric = sort([8, 3, 10, -13, 5], (x, y) => x < y)
-//@[044:045) Local x. Type: int. Declaration start char: 44, length: 1
-//@[047:048) Local y. Type: int. Declaration start char: 47, length: 1
-//@[004:015) Variable sortNumeric. Type: int[]. Declaration start char: 0, length: 59
+//@[044:045) Local x. Type: -13 | 10 | 3 | 5 | 8. Declaration start char: 44, length: 1
+//@[047:048) Local y. Type: -13 | 10 | 3 | 5 | 8. Declaration start char: 47, length: 1
+//@[004:015) Variable sortNumeric. Type: (-13 | 10 | 3 | 5 | 8)[]. Declaration start char: 0, length: 59
 var sortAlpha = sort(['ghi', 'abc', 'def'], (x, y) => x < y)
 //@[045:046) Local x. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 45, length: 1
 //@[048:049) Local y. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 48, length: 1

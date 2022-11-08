@@ -23,7 +23,7 @@ namespace Bicep.Core.Semantics
     {
         private readonly Lazy<ResourceScope> targetScopeLazy;
 
-        private readonly Lazy<ImmutableArray<ParameterMetadata>> parametersLazy;
+        private readonly Lazy<ImmutableDictionary<string, ParameterMetadata>> parametersLazy;
 
         private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
 
@@ -61,16 +61,24 @@ namespace Bicep.Core.Semantics
             {
                 if (this.SourceFile.Template?.Parameters is null)
                 {
-                    return ImmutableArray<ParameterMetadata>.Empty;
+                    return ImmutableDictionary<string, ParameterMetadata>.Empty;
                 }
 
+                // the source here is of type InsensitiveDictionary<TemplateInputParameter>,
+                // which is basically a Dictionary<string, TemplateInputParameter> that uses an
+                // InvariantCultureIgnoreCase key comparer
+                // there should be no possibility of clashes since the target dictionary is using
+                // Ordinal key comparer, which looks purely at the key string code points
+                // without applying any additional rules
                 return this.SourceFile.Template.Parameters
-                    .Select(parameterProperty => new ParameterMetadata(
-                        parameterProperty.Key,
-                        GetType(parameterProperty.Value),
-                        parameterProperty.Value.DefaultValue is null,
-                        TryGetMetadataDescription(parameterProperty.Value.Metadata)))
-                    .ToImmutableArray();
+                    .ToImmutableDictionary(
+                        parameterProperty => parameterProperty.Key,
+                        parameterProperty => new ParameterMetadata(
+                            parameterProperty.Key,
+                            GetType(parameterProperty.Value),
+                            parameterProperty.Value.DefaultValue is null,
+                            TryGetMetadataDescription(parameterProperty.Value.Metadata)),
+                        LanguageConstants.IdentifierComparer);
             });
 
             this.outputsLazy = new(() =>
@@ -95,7 +103,7 @@ namespace Bicep.Core.Semantics
             ? ResourceScope.ResourceGroup
             : this.targetScopeLazy.Value;
 
-        public ImmutableArray<ParameterMetadata> Parameters => this.parametersLazy.Value;
+        public ImmutableDictionary<string, ParameterMetadata> Parameters => this.parametersLazy.Value;
 
         public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
 
@@ -114,7 +122,7 @@ namespace Bicep.Core.Semantics
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var visitor = new SemanticDiagnosticVisitor(diagnosticWriter);
 
-            foreach (var parameter in this.Parameters)
+            foreach (var parameter in this.Parameters.Values)
             {
                 visitor.Visit(parameter.TypeReference.Type);
             }

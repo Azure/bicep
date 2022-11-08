@@ -14,7 +14,7 @@ param
 
 param 3
 //@[06:007) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) |3|
-//@[07:007) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
+//@[07:007) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 param % string
 //@[06:007) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) |%|
 param % string 3 = 's'
@@ -26,51 +26,50 @@ param myBool bool
 
 param missingType
 //@[06:017) [no-unused-params (Warning)] Parameter "missingType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |missingType|
-//@[17:017) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
+//@[17:017) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // space after identifier #completionTest(32) -> paramTypes
 param missingTypeWithSpaceAfter 
 //@[06:031) [no-unused-params (Warning)] Parameter "missingTypeWithSpaceAfter" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |missingTypeWithSpaceAfter|
-//@[32:032) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
+//@[32:032) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // tab after identifier #completionTest(30) -> paramTypes
 param missingTypeWithTabAfter	
 //@[06:029) [no-unused-params (Warning)] Parameter "missingTypeWithTabAfter" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |missingTypeWithTabAfter|
-//@[30:030) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
+//@[30:030) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // #completionTest(20) -> paramTypes
 param trailingSpace  
 //@[06:019) [no-unused-params (Warning)] Parameter "trailingSpace" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |trailingSpace|
-//@[21:021) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
+//@[21:021) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // partial type #completionTest(18, 19, 20, 21) -> paramTypes
 param partialType str
 //@[06:017) [no-unused-params (Warning)] Parameter "partialType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |partialType|
-//@[18:021) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |str|
+//@[18:021) [BCP302 (Error)] The name "str" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |str|
 
 param malformedType 44
 //@[06:019) [no-unused-params (Warning)] Parameter "malformedType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |malformedType|
-//@[20:022) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |44|
+//@[20:022) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |44|
 
 // malformed type but type check should still happen
 param malformedType2 44 = f
 //@[06:020) [no-unused-params (Warning)] Parameter "malformedType2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |malformedType2|
-//@[21:023) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |44|
-//@[26:027) [BCP057 (Error)] The name "f" does not exist in the current context. (CodeDescription: none) |f|
+//@[21:023) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |44|
 
 // malformed type but type check should still happen
 @secure('s')
 //@[07:012) [BCP071 (Error)] Expected 0 arguments, but got 1. (CodeDescription: none) |('s')|
 param malformedModifier 44
 //@[06:023) [no-unused-params (Warning)] Parameter "malformedModifier" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |malformedModifier|
-//@[24:026) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |44|
+//@[24:026) [BCP283 (Error)] Using a literal value as a type requires enabling EXPERIMENTAL feature "UserDefinedTypes". (CodeDescription: none) |44|
 
 param myString2 string = 'string value'
 //@[06:015) [no-unused-params (Warning)] Parameter "myString2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myString2|
 
 param wrongDefaultValue string = 42
 //@[06:023) [no-unused-params (Warning)] Parameter "wrongDefaultValue" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongDefaultValue|
-//@[33:035) [BCP027 (Error)] The parameter expects a default value of type "string" but provided value is of type "int". (CodeDescription: none) |42|
+//@[33:035) [BCP033 (Error)] Expected a value of type "string" but the provided value is of type "42". (CodeDescription: none) |42|
 
 param myInt2 int = 42
 //@[06:012) [no-unused-params (Warning)] Parameter "myInt2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myInt2|
@@ -80,10 +79,10 @@ param noValueAfterColon int =
 
 param myTruth bool = 'not a boolean'
 //@[06:013) [no-unused-params (Warning)] Parameter "myTruth" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myTruth|
-//@[21:036) [BCP027 (Error)] The parameter expects a default value of type "bool" but provided value is of type "'not a boolean'". (CodeDescription: none) |'not a boolean'|
+//@[21:036) [BCP033 (Error)] Expected a value of type "bool" but the provided value is of type "'not a boolean'". (CodeDescription: none) |'not a boolean'|
 param myFalsehood bool = 'false'
 //@[06:017) [no-unused-params (Warning)] Parameter "myFalsehood" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myFalsehood|
-//@[25:032) [BCP027 (Error)] The parameter expects a default value of type "bool" but provided value is of type "'false'". (CodeDescription: none) |'false'|
+//@[25:032) [BCP033 (Error)] Expected a value of type "bool" but the provided value is of type "'false'". (CodeDescription: none) |'false'|
 
 param wrongAssignmentToken string: 'hello'
 //@[06:026) [no-unused-params (Warning)] Parameter "wrongAssignmentToken" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongAssignmentToken|
@@ -112,7 +111,7 @@ param objectCompletions object =
 param wrongType fluffyBunny = 'what's up doc?'
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[36:037) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) |s|
 //@[45:046) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |'|
 
@@ -120,37 +119,37 @@ param wrongType fluffyBunny = 'what's up doc?'
 param wrongType fluffyBunny = 'what\s up doc?'
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[35:037) [BCP006 (Error)] The specified escape sequence is not recognized. Only the following escape sequences are allowed: "\$", "\'", "\\", "\n", "\r", "\t", "\u{...}". (CodeDescription: none) |\s|
 
 // unterminated string 
 param wrongType fluffyBunny = 'what\'s up doc?
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[30:046) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |'what\'s up doc?|
 
 // unterminated interpolated string
 param wrongType fluffyBunny = 'what\'s ${
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[41:041) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 //@[41:041) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 param wrongType fluffyBunny = 'what\'s ${up
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[43:043) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 param wrongType fluffyBunny = 'what\'s ${up}
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[43:044) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |}|
 param wrongType fluffyBunny = 'what\'s ${'up
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[41:044) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |'up|
 //@[44:044) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 
@@ -158,42 +157,42 @@ param wrongType fluffyBunny = 'what\'s ${'up
 param wrongType fluffyBunny = 'what\'s ${'up${
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[46:046) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 //@[46:046) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 param wrongType fluffyBunny = 'what\'s ${'up${
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[46:046) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 //@[46:046) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 param wrongType fluffyBunny = 'what\'s ${'up${doc
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[49:049) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 param wrongType fluffyBunny = 'what\'s ${'up${doc}
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[49:050) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |}|
 //@[50:050) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[51:051) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
 param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[51:053) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |}?|
 
 // object literal inside interpolated string
 param wrongType fluffyBunny = '${{this: doesnt}.work}'
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 //@[33:034) [BCP087 (Error)] Array and object literals are not allowed here. (CodeDescription: none) |{|
 //@[53:054) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) |'|
 //@[54:054) [BCP004 (Error)] The string at this location is not terminated due to an unexpected new line character. (CodeDescription: none) ||
@@ -209,14 +208,14 @@ param badInterpolatedString2 string = 'hello ${a b c}!'
 param wrongType fluffyBunny = 'what\'s up doc?'
 //@[06:015) [BCP028 (Error)] Identifier "wrongType" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |wrongType|
 //@[06:015) [no-unused-params (Warning)] Parameter "wrongType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongType|
-//@[16:027) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
+//@[16:027) [BCP302 (Error)] The name "fluffyBunny" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffyBunny|
 
 // modifier on an invalid type
 @minLength(3)
 @maxLength(24)
 param someArray arra
 //@[06:015) [no-unused-params (Warning)] Parameter "someArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |someArray|
-//@[16:020) [BCP031 (Error)] The parameter type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |arra|
+//@[16:020) [BCP302 (Error)] The name "arra" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |arra|
 
 @secure()
 //@[00:009) [BCP124 (Error)] The decorator "secure" can only be attached to targets of type "object | string", but the target has type "int". (CodeDescription: none) |@secure()|
@@ -232,7 +231,7 @@ param secureInt int
   'test'
 //@[02:008) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "'test'". (CodeDescription: none) |'test'|
   true
-//@[02:006) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "bool". (CodeDescription: none) |true|
+//@[02:006) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "true". (CodeDescription: none) |true|
 ])
 @minValue({
 //@[10:013) [BCP070 (Error)] Argument of type "object" is not assignable to parameter of type "int". (CodeDescription: none) |{\n}|
@@ -244,7 +243,7 @@ param secureInt int
 //@[10:017) [BCP070 (Error)] Argument of type "'wrong'" is not assignable to parameter of type "object". (CodeDescription: none) |'wrong'|
 param wrongIntModifier int = true
 //@[06:022) [no-unused-params (Warning)] Parameter "wrongIntModifier" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongIntModifier|
-//@[29:033) [BCP027 (Error)] The parameter expects a default value of type "int" but provided value is of type "bool". (CodeDescription: none) |true|
+//@[29:033) [BCP033 (Error)] Expected a value of type "int" but the provided value is of type "true". (CodeDescription: none) |true|
 
 @metadata(any([]))
 //@[10:017) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |any([])|
@@ -252,12 +251,12 @@ param wrongIntModifier int = true
 //@[09:015) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |any(2)|
 param fatalErrorInIssue1713
 //@[06:027) [no-unused-params (Warning)] Parameter "fatalErrorInIssue1713" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |fatalErrorInIssue1713|
-//@[27:027) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
+//@[27:027) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // wrong metadata schema
 @metadata({
   description: true
-//@[15:019) [BCP036 (Error)] The property "description" expected a value of type "string" but the provided value is of type "bool". (CodeDescription: none) |true|
+//@[15:019) [BCP036 (Error)] The property "description" expected a value of type "string" but the provided value is of type "true". (CodeDescription: none) |true|
 })
 param wrongMetadataSchema string
 //@[06:025) [no-unused-params (Warning)] Parameter "wrongMetadataSchema" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |wrongMetadataSchema|
@@ -273,7 +272,7 @@ param wrongMetadataSchema string
 ])
 param expressionInModifier string = 2 + 3
 //@[06:026) [no-unused-params (Warning)] Parameter "expressionInModifier" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |expressionInModifier|
-//@[36:041) [BCP027 (Error)] The parameter expects a default value of type "string" but provided value is of type "int". (CodeDescription: none) |2 + 3|
+//@[36:041) [BCP033 (Error)] Expected a value of type "string" but the provided value is of type "5". (CodeDescription: none) |2 + 3|
 
 @maxLength(2 + 3)
 //@[11:016) [BCP032 (Error)] The value must be a compile-time constant. (CodeDescription: none) |2 + 3|
@@ -327,7 +326,7 @@ param paramAccessingVar string = concat(sampleVar, 's')
 
 param paramAccessingResource string = sampleResource
 //@[06:028) [no-unused-params (Warning)] Parameter "paramAccessingResource" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |paramAccessingResource|
-//@[38:052) [BCP027 (Error)] The parameter expects a default value of type "string" but provided value is of type "Microsoft.Foo/foos@2020-02-02". (CodeDescription: none) |sampleResource|
+//@[38:052) [BCP033 (Error)] Expected a value of type "string" but the provided value is of type "Microsoft.Foo/foos@2020-02-02". (CodeDescription: none) |sampleResource|
 //@[38:052) [BCP072 (Error)] This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values. (CodeDescription: none) |sampleResource|
 
 param paramAccessingOutput string = sampleOutput
@@ -381,7 +380,7 @@ param someString string
 
 @allowed([
     true
-//@[04:008) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "bool". (CodeDescription: none) |true|
+//@[04:008) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "true". (CodeDescription: none) |true|
     10
     'foo'
 //@[04:009) [BCP034 (Error)] The enclosing array expected an item of type "int", but the provided item was of type "'foo'". (CodeDescription: none) |'foo'|
@@ -471,9 +470,9 @@ param invalidPermutation array = [
 	'foobar'
 //@[01:009) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "'foobar'". (CodeDescription: none) |'foobar'|
 	true
-//@[01:005) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "bool". (CodeDescription: none) |true|
+//@[01:005) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "true". (CodeDescription: none) |true|
     100
-//@[04:007) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "int". (CodeDescription: none) |100|
+//@[04:007) [BCP034 (Error)] The enclosing array expected an item of type "'Microsoft.AnalysisServices/servers' | 'Microsoft.ApiManagement/service' | 'Microsoft.Automation/automationAccounts' | 'Microsoft.ContainerInstance/containerGroups' | 'Microsoft.ContainerRegistry/registries' | 'Microsoft.ContainerService/managedClusters' | 'Microsoft.Network/applicationGateways'", but the provided item was of type "100". (CodeDescription: none) |100|
 ]
 
 @allowed([
@@ -488,7 +487,7 @@ param invalidPermutation array = [
 ])
 param invalidDefaultWithAllowedArrayDecorator array = true
 //@[06:045) [no-unused-params (Warning)] Parameter "invalidDefaultWithAllowedArrayDecorator" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |invalidDefaultWithAllowedArrayDecorator|
-//@[54:058) [BCP027 (Error)] The parameter expects a default value of type "array" but provided value is of type "bool". (CodeDescription: none) |true|
+//@[54:058) [BCP033 (Error)] Expected a value of type "array" but the provided value is of type "true". (CodeDescription: none) |true|
 
 // unterminated multi-line comment
 /*    

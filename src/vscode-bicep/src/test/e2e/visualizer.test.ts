@@ -1,19 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import vscode from "vscode";
-import path from "path";
 import fs from "fs";
+import path from "path";
+import vscode from "vscode";
 
-import { resolveExamplePath } from "./examples";
+import { expectDefined } from "../utils/assert";
+import { sleep, until } from "../utils/time";
 import {
   executeCloseAllEditors,
   executeShowSourceCommand,
   executeShowVisualizerCommand,
   executeShowVisualizerToSideCommand,
 } from "./commands";
-import { sleep, until } from "../utils/time";
-import { expectDefined } from "../utils/assert";
+import { resolveExamplePath } from "./examples";
 
 const extensionLogPath = path.join(__dirname, "../../../bicep.log");
 
@@ -46,7 +46,7 @@ describe("visualizer", (): void => {
     const document = await vscode.workspace.openTextDocument(examplePath);
     await vscode.window.showTextDocument(document);
 
-    // Give the language server sometime to finish compilation.
+    // Give the language server some time to finish compilation.
     await sleep(2000);
     const viewColumn = await executeShowVisualizerToSideCommand(document.uri);
     await until(() => visualizerIsReady(document.uri), {

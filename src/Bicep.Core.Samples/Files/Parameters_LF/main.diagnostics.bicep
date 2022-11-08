@@ -1,10 +1,10 @@
-/* 
+/*
   This is a block comment.
 */
 
 // parameters without default value
 @sys.description('''
-this is my multi line 
+this is my multi line
 description for my myString
 ''')
 param myString string
@@ -85,6 +85,14 @@ param secretObject object
 ])
 param storageSku string
 //@[06:016) [no-unused-params (Warning)] Parameter "storageSku" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |storageSku|
+
+@allowed([
+  1
+  2
+  3
+])
+param intEnum int
+//@[06:013) [no-unused-params (Warning)] Parameter "intEnum" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |intEnum|
 
 // length constraint on a string
 @minLength(3)

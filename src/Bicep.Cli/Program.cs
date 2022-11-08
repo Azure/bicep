@@ -116,14 +116,13 @@ namespace Bicep.Cli
         private static IServiceCollection ConfigureServices(IOContext io)
             => new ServiceCollection()
                 .AddBicepCore()
+                .AddBicepDecompiler()
                 .AddCommands()
                 .AddSingleton(CreateLoggerFactory(io).CreateLogger("bicep"))
                 .AddSingleton<IDiagnosticLogger, BicepDiagnosticLogger>()
-                .AddSingleton<TemplateDecompiler>()
                 .AddSingleton<DecompilationWriter>()
                 .AddSingleton<CompilationWriter>()
                 .AddSingleton<PlaceholderParametersWriter>()
-                .AddSingleton<ParametersWriter>()
                 .AddSingleton<CompilationService>()
                 .AddSingleton(io);
     }

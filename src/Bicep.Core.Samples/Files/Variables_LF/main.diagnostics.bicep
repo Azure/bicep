@@ -320,6 +320,7 @@ var myBigIntExpression = 2199023255552 * 2
 //@[04:22) [no-unused-vars (Warning)] Variable "myBigIntExpression" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |myBigIntExpression|
 var myBigIntExpression2 = 2199023255552 * 2199023255552
 //@[04:23) [no-unused-vars (Warning)] Variable "myBigIntExpression2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |myBigIntExpression2|
+//@[26:55) [BCP234 (Warning)] The ARM function "mul" failed when invoked on the value [2199023255552, 2199023255552]: The template language function 'mul' overflowed with the operants '2199023255552' and '2199023255552'. Please see https://aka.ms/arm-functions for usage details. (CodeDescription: none) |2199023255552 * 2199023255552|
 
 // variable loops
 var incrementingNumbers = [for i in range(0,10) : i]
@@ -426,4 +427,9 @@ var copyBlockInObject = {
 
 var joinedString = join(['I', 'love', 'Bicep!'], ' ')
 //@[04:16) [no-unused-vars (Warning)] Variable "joinedString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |joinedString|
+
+var prefix = take('food', 3)
+//@[04:10) [no-unused-vars (Warning)] Variable "prefix" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |prefix|
+var isPrefixed = startsWith('food', 'foo')
+//@[04:14) [no-unused-vars (Warning)] Variable "isPrefixed" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |isPrefixed|
 

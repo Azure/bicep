@@ -85,7 +85,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
                 return $"{symbol.Kind} {symbol.Name}. Type: {symbol.Type}. Declaration start char: {startChar}, length: {symbol.DeclaringSyntax.Span.Length}";
             }
 
-            var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, symbols, symb => symb.NameSyntax.Span, getLoggingString);
+            var sourceTextWithDiags = DataSet.AddDiagsToSourceText(dataSet, symbols, symb => symb.NameSource.Span, getLoggingString);
             var resultsFile = Path.Combine(outputDirectory, DataSet.TestFileMainDiagnostics);
             File.WriteAllText(resultsFile, sourceTextWithDiags);
 
@@ -119,6 +119,8 @@ namespace Bicep.Core.IntegrationTests.Semantics
                     symbol.Should().Match(s =>
                         s is MetadataSymbol ||
                         s is ParameterSymbol ||
+                        s is TypeAliasSymbol ||
+                        s is AmbientTypeSymbol ||
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
                         s is ModuleSymbol ||
@@ -135,6 +137,8 @@ namespace Bicep.Core.IntegrationTests.Semantics
                         s is ErrorSymbol ||
                         s is MetadataSymbol ||
                         s is ParameterSymbol ||
+                        s is TypeAliasSymbol ||
+                        s is AmbientTypeSymbol ||
                         s is VariableSymbol ||
                         s is ResourceSymbol ||
                         s is ModuleSymbol ||

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6169687425211550359"
+      "templateHash": "3745439856706238497"
     }
   },
   "parameters": {
@@ -214,11 +214,11 @@
     },
     "subnets": {
       "type": "array",
-      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).subnets]"
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2020-05-01').subnets]"
     },
     "vnetaddress": {
       "type": "array",
-      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname'))).addressSpace.addressPrefixes]"
+      "value": "[reference(resourceId('Microsoft.Network/virtualNetworks', parameters('vnetname')), '2020-05-01').addressSpace.addressPrefixes]"
     }
   }
 }

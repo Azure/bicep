@@ -693,8 +693,9 @@ output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUr
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0015) | ├─IdentifierSyntax
 //@[007:0015) | | └─Token(Identifier) |siteUrls|
-//@[016:0021) | ├─SimpleTypeSyntax
-//@[016:0021) | | └─Token(Identifier) |array|
+//@[016:0021) | ├─VariableAccessSyntax
+//@[016:0021) | | └─IdentifierSyntax
+//@[016:0021) | |   └─Token(Identifier) |array|
 //@[022:0023) | ├─Token(Assignment) |=|
 //@[024:0082) | └─ForSyntax
 //@[024:0025) |   ├─Token(LeftSquare) |[|

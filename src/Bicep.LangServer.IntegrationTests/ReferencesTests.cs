@@ -65,7 +65,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             // filter out bind failures and locals with invalid identifiers
             // (locals are special because their span is equal to their identifier span)
-            var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalVariableSymbol local || local.NameSyntax.IsValid));
+            var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalVariableSymbol local || local.NameSource.IsValid));
             // TODO: Implement for PropertySymbol
             filteredSymbolTable = filteredSymbolTable.Where(pair => pair.Value is not PropertySymbol);
             var symbolToSyntaxLookup = filteredSymbolTable.ToLookup(pair => pair.Value, pair => pair.Key);
@@ -114,7 +114,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             // filter out bind failures and locals with invalid identifiers
             // (locals are special because their span is equal to their identifier span)
-            var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalVariableSymbol local || local.NameSyntax.IsValid));
+            var filteredSymbolTable = symbolTable.Where(pair => pair.Value.Kind != SymbolKind.Error && (pair.Value is not LocalVariableSymbol local || local.NameSource.IsValid));
             // TODO: Implement for PropertySymbol
             filteredSymbolTable = filteredSymbolTable.Where(pair => pair.Value is not PropertySymbol);
             var symbolToSyntaxLookup = filteredSymbolTable.ToLookup(pair => pair.Value, pair => pair.Key);
@@ -212,7 +212,8 @@ var rg3 = resourceGr|oup().id
 var dep1 = az.depl|oyment()
 
 var dep2 = az.deploy|ment()
-");
+",
+                '|');
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
 

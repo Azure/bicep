@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10907776101612744589"
+      "templateHash": "17610915880492382089"
     }
   },
   "parameters": {
@@ -388,7 +388,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "989816019903503296"
+              "templateHash": "16602990965325228130"
             }
           },
           "parameters": {
@@ -410,7 +410,7 @@
             }
           },
           "resources": {
-            "as": {
+            "availabilitySets": {
               "type": "Microsoft.Compute/availabilitySets",
               "apiVersion": "2020-06-01",
               "name": "as",
@@ -452,7 +452,7 @@
               "location": "[parameters('location')]",
               "properties": {
                 "availabilitySet": {
-                  "id": "[resourceInfo('as').id]"
+                  "id": "[resourceInfo('availabilitySets').id]"
                 },
                 "hardwareProfile": {
                   "vmSize": "Standard_B4ms"
@@ -496,7 +496,7 @@
                 }
               },
               "dependsOn": [
-                "as",
+                "availabilitySets",
                 "nic"
               ]
             }
@@ -542,7 +542,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "989816019903503296"
+              "templateHash": "16602990965325228130"
             }
           },
           "parameters": {
@@ -564,7 +564,7 @@
             }
           },
           "resources": {
-            "as": {
+            "availabilitySets": {
               "type": "Microsoft.Compute/availabilitySets",
               "apiVersion": "2020-06-01",
               "name": "as",
@@ -606,7 +606,7 @@
               "location": "[parameters('location')]",
               "properties": {
                 "availabilitySet": {
-                  "id": "[resourceInfo('as').id]"
+                  "id": "[resourceInfo('availabilitySets').id]"
                 },
                 "hardwareProfile": {
                   "vmSize": "Standard_B4ms"
@@ -650,7 +650,7 @@
                 }
               },
               "dependsOn": [
-                "as",
+                "availabilitySets",
                 "nic"
               ]
             }

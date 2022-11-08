@@ -15,6 +15,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Tracing;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
+using Bicep.Decompiler;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Configuration;
@@ -68,17 +69,17 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepSignatureHelpHandler>()
                     .WithHandler<BicepSemanticTokensHandler>()
 
-                    .WithHandler<BicepParamsTextDocumentSyncHandler>()
-                    .WithHandler<BicepParamsCompletionHandler>()
                     .WithHandler<BicepParamsDefinitionHandler>()
 
                     .WithHandler<BicepTelemetryHandler>()
                     .WithHandler<BicepBuildCommandHandler>()
                     .WithHandler<BicepGenerateParamsCommandHandler>()
                     .WithHandler<BicepDeploymentStartCommandHandler>()
-                    // Base handler - ExecuteTypedResponseCommandHandlerBase is serial. This blocks other commands on the client side.
+                    // Base handler (ExecuteTypedResponseCommandHandlerBase) is serial. This blocks other commands on the client side.
                     // To avoid the above issue, we'll change the RequestProcessType to parallel
                     .WithHandler<BicepDeploymentWaitForCompletionCommandHandler>(new JsonRpcHandlerOptions() { RequestProcessType = RequestProcessType.Parallel })
+                    .WithHandler<BicepDecompileCommandHandler>()
+                    .WithHandler<BicepDecompileSaveCommandHandler>()
                     .WithHandler<BicepDeploymentScopeRequestHandler>()
                     .WithHandler<BicepDeploymentParametersHandler>()
                     .WithHandler<ImportKubernetesManifestHandler>()
@@ -117,6 +118,8 @@ namespace Bicep.LanguageServer
             // without manually constructing up the graph
             services
                 .AddBicepCore()
+                .AddBicepDecompiler()
+                .AddSingleton<IWorkspace, Workspace>()
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<ITelemetryProvider, TelemetryProvider>()
                 .AddSingleton<ICompilationManager, BicepCompilationManager>()
@@ -129,8 +132,7 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>()
                 .AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>()
                 .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
-                .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>()
-                .AddSingleton<IParamsCompilationManager, BicepParamsCompilationManager>();
+                .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>();
         }
 
         public void Dispose()

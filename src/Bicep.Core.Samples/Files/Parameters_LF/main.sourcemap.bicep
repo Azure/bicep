@@ -1,11 +1,11 @@
-/* 
+/*
   This is a block comment.
 */
 
 // parameters without default value
 @sys.description('''
-//@[14:14]         "description": "this is my multi line \ndescription for my myString\n"
-this is my multi line 
+//@[14:14]         "description": "this is my multi line\ndescription for my myString\n"
+this is my multi line
 description for my myString
 ''')
 param myString string
@@ -109,207 +109,219 @@ param secretObject object
 param storageSku string
 //@[88:94]     "storageSku": {
 
+@allowed([
+//@[97:101]       "allowedValues": [
+  1
+//@[98:98]         1,
+  2
+//@[99:99]         2,
+  3
+//@[100:100]         3
+])
+param intEnum int
+//@[95:102]     "intEnum": {
+
 // length constraint on a string
 @minLength(3)
-//@[98:98]       "minLength": 3
+//@[106:106]       "minLength": 3
 @maxLength(24)
-//@[97:97]       "maxLength": 24,
+//@[105:105]       "maxLength": 24,
 param storageName string
-//@[95:99]     "storageName": {
+//@[103:107]     "storageName": {
 
 // length constraint on an array
 @minLength(3)
-//@[103:103]       "minLength": 3
+//@[111:111]       "minLength": 3
 @maxLength(24)
-//@[102:102]       "maxLength": 24,
+//@[110:110]       "maxLength": 24,
 param someArray array
-//@[100:104]     "someArray": {
+//@[108:112]     "someArray": {
 
 // empty metadata
 @metadata({})
-//@[107:107]       "metadata": {}
+//@[115:115]       "metadata": {}
 param emptyMetadata string
-//@[105:108]     "emptyMetadata": {
+//@[113:116]     "emptyMetadata": {
 
 // description
 @metadata({
-//@[111:113]       "metadata": {
+//@[119:121]       "metadata": {
   description: 'my description'
-//@[112:112]         "description": "my description"
+//@[120:120]         "description": "my description"
 })
 param description string
-//@[109:114]     "description": {
+//@[117:122]     "description": {
 
 @sys.description('my description')
-//@[118:118]         "description": "my description"
+//@[126:126]         "description": "my description"
 param description2 string
-//@[115:120]     "description2": {
+//@[123:128]     "description2": {
 
 // random extra metadata
 @metadata({
-//@[123:131]       "metadata": {
+//@[131:139]       "metadata": {
   description: 'my description'
-//@[124:124]         "description": "my description",
+//@[132:132]         "description": "my description",
   a: 1
-//@[125:125]         "a": 1,
+//@[133:133]         "a": 1,
   b: true
-//@[126:126]         "b": true,
+//@[134:134]         "b": true,
   c: [
-//@[127:127]         "c": [],
+//@[135:135]         "c": [],
   ]
   d: {
-//@[128:130]         "d": {
+//@[136:138]         "d": {
     test: 'abc'
-//@[129:129]           "test": "abc"
+//@[137:137]           "test": "abc"
   }
 })
 param additionalMetadata string
-//@[121:132]     "additionalMetadata": {
+//@[129:140]     "additionalMetadata": {
 
 // all modifiers together
 @secure()
 @minLength(3)
-//@[144:144]       "minLength": 3
+//@[152:152]       "minLength": 3
 @maxLength(24)
-//@[143:143]       "maxLength": 24,
+//@[151:151]       "maxLength": 24,
 @allowed([
-//@[138:142]       "allowedValues": [
+//@[146:150]       "allowedValues": [
   'one'
-//@[139:139]         "one",
+//@[147:147]         "one",
   'two'
-//@[140:140]         "two",
+//@[148:148]         "two",
   'three'
-//@[141:141]         "three"
+//@[149:149]         "three"
 ])
 @metadata({
-//@[135:137]       "metadata": {
+//@[143:145]       "metadata": {
   description: 'Name of the storage account'
-//@[136:136]         "description": "Name of the storage account"
+//@[144:144]         "description": "Name of the storage account"
 })
 param someParameter string
-//@[133:145]     "someParameter": {
+//@[141:153]     "someParameter": {
 
 param defaultExpression bool = 18 != (true || false)
-//@[146:149]     "defaultExpression": {
+//@[154:157]     "defaultExpression": {
 
 @allowed([
-//@[152:155]       "allowedValues": [
-  'abc'
-//@[153:153]         "abc",
-  'def'
-//@[154:154]         "def"
-])
-param stringLiteral string
-//@[150:156]     "stringLiteral": {
-
-@allowed([
-//@[160:164]       "allowedValues": [
+//@[160:163]       "allowedValues": [
   'abc'
 //@[161:161]         "abc",
   'def'
-//@[162:162]         "def",
+//@[162:162]         "def"
+])
+param stringLiteral string
+//@[158:164]     "stringLiteral": {
+
+@allowed([
+//@[168:172]       "allowedValues": [
+  'abc'
+//@[169:169]         "abc",
+  'def'
+//@[170:170]         "def",
   'ghi'
-//@[163:163]         "ghi"
+//@[171:171]         "ghi"
 ])
 param stringLiteralWithAllowedValuesSuperset string = stringLiteral
-//@[157:165]     "stringLiteralWithAllowedValuesSuperset": {
+//@[165:173]     "stringLiteralWithAllowedValuesSuperset": {
 
 @secure()
 @minLength(2)
-//@[173:173]       "minLength": 2
+//@[181:181]       "minLength": 2
   @maxLength(10)
-//@[172:172]       "maxLength": 10,
+//@[180:180]       "maxLength": 10,
 @allowed([
-//@[168:171]       "allowedValues": [
+//@[176:179]       "allowedValues": [
   'Apple'
-//@[169:169]         "Apple",
+//@[177:177]         "Apple",
   'Banana'
-//@[170:170]         "Banana"
+//@[178:178]         "Banana"
 ])
 param decoratedString string
-//@[166:174]     "decoratedString": {
+//@[174:182]     "decoratedString": {
 
 @minValue(200)
-//@[178:178]       "minValue": 200
+//@[186:186]       "minValue": 200
 param decoratedInt int = 123
-//@[175:179]     "decoratedInt": {
+//@[183:187]     "decoratedInt": {
 
 // negative integer literals are allowed as decorator values
 @minValue(-10)
-//@[183:183]       "minValue": -10
+//@[191:191]       "minValue": -10
 @maxValue(-3)
-//@[182:182]       "maxValue": -3,
+//@[190:190]       "maxValue": -3,
 param negativeValues int
-//@[180:184]     "negativeValues": {
+//@[188:192]     "negativeValues": {
 
 @sys.description('A boolean.')
-//@[189:189]         "description": "A boolean.",
+//@[197:197]         "description": "A boolean.",
 @metadata({
     description: 'I will be overrode.'
     foo: 'something'
-//@[190:190]         "foo": "something",
+//@[198:198]         "foo": "something",
     bar: [
-//@[191:195]         "bar": [
+//@[199:203]         "bar": [
         {          }
         true
-//@[193:193]           true,
+//@[201:201]           true,
         123
-//@[194:194]           123
+//@[202:202]           123
     ]
 })
 param decoratedBool bool = (true && false) != true
-//@[185:197]     "decoratedBool": {
+//@[193:205]     "decoratedBool": {
 
 @secure()
 param decoratedObject object = {
-//@[198:221]     "decoratedObject": {
+//@[206:229]     "decoratedObject": {
   enabled: true
-//@[201:201]         "enabled": true,
+//@[209:209]         "enabled": true,
   name: 'this is my object'
-//@[202:202]         "name": "this is my object",
+//@[210:210]         "name": "this is my object",
   priority: 3
-//@[203:203]         "priority": 3,
+//@[211:211]         "priority": 3,
   info: {
-//@[204:206]         "info": {
+//@[212:214]         "info": {
     a: 'b'
-//@[205:205]           "a": "b"
+//@[213:213]           "a": "b"
   }
   empty: {
-//@[207:207]         "empty": {},
+//@[215:215]         "empty": {},
   }
   array: [
-//@[208:219]         "array": [
+//@[216:227]         "array": [
     'string item'
-//@[209:209]           "string item",
+//@[217:217]           "string item",
     12
-//@[210:210]           12,
+//@[218:218]           12,
     true
-//@[211:211]           true,
+//@[219:219]           true,
     [
       'inner'
-//@[213:213]             "inner",
+//@[221:221]             "inner",
       false
-//@[214:214]             false
+//@[222:222]             false
     ]
     {
       a: 'b'
-//@[217:217]             "a": "b"
+//@[225:225]             "a": "b"
     }
   ]
 }
 
 @sys.metadata({
     description: 'An array.'
-//@[229:229]         "description": "An array."
+//@[237:237]         "description": "An array."
 })
 @sys.maxLength(20)
-//@[231:231]       "maxLength": 20
+//@[239:239]       "maxLength": 20
 @sys.description('I will be overrode.')
 param decoratedArray array = [
-//@[222:232]     "decoratedArray": {
+//@[230:240]     "decoratedArray": {
     utcNow()
-//@[225:225]         "[utcNow()]",
+//@[233:233]         "[utcNow()]",
     newGuid()
-//@[226:226]         "[newGuid()]"
+//@[234:234]         "[newGuid()]"
 ]
 

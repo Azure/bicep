@@ -255,8 +255,9 @@ param foo string
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:009) | ├─IdentifierSyntax
 //@[06:009) | | └─Token(Identifier) |foo|
-//@[10:016) | └─SimpleTypeSyntax
-//@[10:016) |   └─Token(Identifier) |string|
+//@[10:016) | └─VariableAccessSyntax
+//@[10:016) |   └─IdentifierSyntax
+//@[10:016) |     └─Token(Identifier) |string|
 //@[16:018) ├─Token(NewLine) |\r\n|
 
 //@[00:000) └─Token(EndOfFile) ||

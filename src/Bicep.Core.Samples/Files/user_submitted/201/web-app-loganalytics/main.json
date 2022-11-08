@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3916294298560318870"
+      "templateHash": "1780179941706035587"
     }
   },
   "parameters": {
@@ -102,7 +102,7 @@
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/appsettings', variables('webSiteName'))]",
       "properties": {
-        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName'))).InstrumentationKey]"
+        "APPINSIGHTS_INSTRUMENTATIONKEY": "[reference(resourceId('Microsoft.Insights/components', variables('appInsightName')), '2020-02-02-preview').InstrumentationKey]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Insights/components', variables('appInsightName'))]",

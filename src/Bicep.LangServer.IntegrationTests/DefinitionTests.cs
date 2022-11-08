@@ -18,6 +18,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -69,7 +70,7 @@ namespace Bicep.LangServer.IntegrationTests
             // (locals are special because their full span is the same as the identifier span,
             // which makes it impossible to go to definition on a local with invalid identifiers)
             var declaredSymbolBindings = symbolTable
-                .Where(pair => pair.Value is DeclaredSymbol && (pair.Value is not LocalVariableSymbol local || local.NameSyntax.IsValid))
+                .Where(pair => pair.Value is DeclaredSymbol && (pair.Value is not LocalVariableSymbol local || local.NameSource.IsValid))
                 .Select(pair => new KeyValuePair<SyntaxBase, DeclaredSymbol>(pair.Key, (DeclaredSymbol)pair.Value));
 
             foreach (var (syntax, symbol) in declaredSymbolBindings)
@@ -89,7 +90,7 @@ namespace Bicep.LangServer.IntegrationTests
                 link.TargetRange.Should().Be(symbol.DeclaringSyntax.Span.ToRange(lineStarts));
 
                 // selection range should be the span of the identifier of the symbol
-                link.TargetSelectionRange.Should().Be(symbol.NameSyntax.Span.ToRange(lineStarts));
+                link.TargetSelectionRange.Should().Be(symbol.NameSource.Span.ToRange(lineStarts));
 
                 if (syntax is ParameterDeclarationSyntax parameterSyntax)
                 {
@@ -213,7 +214,7 @@ module appPlanDeploy2 'wrong|.bicep' = {
   }
 }
 ";
-            await RunDefinitionScenarioTest(TestContext, text, results => results.Should().SatisfyRespectively(
+            await RunDefinitionScenarioTest(TestContext, text, '|', results => results.Should().SatisfyRespectively(
                 x => x.Should().BeEmpty(),
                 x => x.Should().BeEmpty()));
         }
@@ -226,15 +227,15 @@ module appPlanDeploy2 'wrong|.bicep' = {
         {
             var text = $"var file = {functionCall}('file.j|son')";
             var files = new[] { ("file.json", "{\"test\":1235}") };
-            await RunDefinitionScenarioTestWithFiles(TestContext, text,
+            await RunDefinitionScenarioTestWithFiles(TestContext, text, '|',
                 results => results.Should().SatisfyRespectively(
                     x => x.Should().NotBeEmpty().And.Subject.ElementAt(0).LocationLink!.TargetUri.Path.Should().EndWith("file.json")),
             files);
         }
 
-        private static async Task RunDefinitionScenarioTest(TestContext testContext, string fileWithCursors, Action<List<LocationOrLocationLinks>> assertAction)
+        private static async Task RunDefinitionScenarioTest(TestContext testContext, string fileWithCursors, char cursor, Action<List<LocationOrLocationLinks>> assertAction)
         {
-            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, cursor);
             var bicepFile = SourceFileFactory.CreateBicepFile(new($"file:///{testContext.TestName}/path/to/main.bicep"), file);
 
             var helper = await DefaultServer.GetAsync();
@@ -248,10 +249,11 @@ module appPlanDeploy2 'wrong|.bicep' = {
         private static async Task RunDefinitionScenarioTestWithFiles(
             TestContext testContext,
             string fileWithCursors,
+            char cursor,
             Action<List<LocationOrLocationLinks>> assertAction,
             IEnumerable<(string fileName, string fileBody)> additionalFiles)
         {
-            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, cursor);
             var bicepFile = SourceFileFactory.CreateBicepFile(new($"file:///{testContext.TestName}/path/to/main.bicep"), file);
 
             var server = new SharedLanguageHelperManager();

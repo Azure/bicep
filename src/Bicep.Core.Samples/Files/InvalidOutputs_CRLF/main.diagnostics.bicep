@@ -45,7 +45,7 @@ output spacesAfterCursor
 
 // partial type #completionTest(19, 20, 21, 22) -> outputTypes
 output partialType obj
-//@[19:22) [BCP030 (Error)] The output type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |obj|
+//@[19:22) [BCP302 (Error)] The name "obj" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |obj|
 //@[22:22) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // malformed identifier
@@ -61,7 +61,7 @@ output malformedType 3
 // malformed type but type check should still happen
 output malformedType2 3 = 2 + null
 //@[22:23) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |3|
-//@[26:34) [BCP045 (Error)] Cannot apply operator "+" to operands of type "int" and "null". (CodeDescription: none) |2 + null|
+//@[26:34) [BCP045 (Error)] Cannot apply operator "+" to operands of type "2" and "null". (CodeDescription: none) |2 + null|
 
 // malformed type assignment
 output malformedAssignment 2 = 2
@@ -74,7 +74,7 @@ output lol 2 = true
 // wrong type + missing value
 output foo fluffy
 //@[07:10) [BCP145 (Error)] Output "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[11:17) [BCP030 (Error)] The output type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffy|
+//@[11:17) [BCP302 (Error)] The name "fluffy" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffy|
 //@[17:17) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // missing value
@@ -90,10 +90,10 @@ output foo string =
 // wrong string output values
 output str string = true
 //@[07:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
-//@[20:24) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "bool". (CodeDescription: none) |true|
+//@[20:24) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "true". (CodeDescription: none) |true|
 output str string = false
 //@[07:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
-//@[20:25) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "bool". (CodeDescription: none) |false|
+//@[20:25) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "false". (CodeDescription: none) |false|
 output str string = [
 //@[07:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
 //@[20:24) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "array". (CodeDescription: none) |[\r\n]|
@@ -104,15 +104,15 @@ output str string = {
 }
 output str string = 52
 //@[07:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
-//@[20:22) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "int". (CodeDescription: none) |52|
+//@[20:22) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "52". (CodeDescription: none) |52|
 
 // wrong int output values
 output i int = true
 //@[07:08) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
-//@[15:19) [BCP026 (Error)] The output expects a value of type "int" but the provided value is of type "bool". (CodeDescription: none) |true|
+//@[15:19) [BCP026 (Error)] The output expects a value of type "int" but the provided value is of type "true". (CodeDescription: none) |true|
 output i int = false
 //@[07:08) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
-//@[15:20) [BCP026 (Error)] The output expects a value of type "int" but the provided value is of type "bool". (CodeDescription: none) |false|
+//@[15:20) [BCP026 (Error)] The output expects a value of type "int" but the provided value is of type "false". (CodeDescription: none) |false|
 output i int = [
 //@[07:08) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
 //@[15:19) [BCP026 (Error)] The output expects a value of type "int" but the provided value is of type "array". (CodeDescription: none) |[\r\n]|
@@ -137,7 +137,7 @@ output b bool = {
 }
 output b bool = 32
 //@[07:08) [BCP145 (Error)] Output "b" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |b|
-//@[16:18) [BCP026 (Error)] The output expects a value of type "bool" but the provided value is of type "int". (CodeDescription: none) |32|
+//@[16:18) [BCP026 (Error)] The output expects a value of type "bool" but the provided value is of type "32". (CodeDescription: none) |32|
 output b bool = 'str'
 //@[07:08) [BCP145 (Error)] Output "b" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |b|
 //@[16:21) [BCP026 (Error)] The output expects a value of type "bool" but the provided value is of type "'str'". (CodeDescription: none) |'str'|
@@ -145,13 +145,13 @@ output b bool = 'str'
 // wrong array output values
 output arr array = 32
 //@[07:10) [BCP145 (Error)] Output "arr" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |arr|
-//@[19:21) [BCP026 (Error)] The output expects a value of type "array" but the provided value is of type "int". (CodeDescription: none) |32|
+//@[19:21) [BCP026 (Error)] The output expects a value of type "array" but the provided value is of type "32". (CodeDescription: none) |32|
 output arr array = true
 //@[07:10) [BCP145 (Error)] Output "arr" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |arr|
-//@[19:23) [BCP026 (Error)] The output expects a value of type "array" but the provided value is of type "bool". (CodeDescription: none) |true|
+//@[19:23) [BCP026 (Error)] The output expects a value of type "array" but the provided value is of type "true". (CodeDescription: none) |true|
 output arr array = false
 //@[07:10) [BCP145 (Error)] Output "arr" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |arr|
-//@[19:24) [BCP026 (Error)] The output expects a value of type "array" but the provided value is of type "bool". (CodeDescription: none) |false|
+//@[19:24) [BCP026 (Error)] The output expects a value of type "array" but the provided value is of type "false". (CodeDescription: none) |false|
 output arr array = {
 //@[07:10) [BCP145 (Error)] Output "arr" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |arr|
 //@[19:23) [BCP026 (Error)] The output expects a value of type "array" but the provided value is of type "object". (CodeDescription: none) |{\r\n}|
@@ -163,13 +163,13 @@ output arr array = 'str'
 // wrong object output values
 output o object = 32
 //@[07:08) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|
-//@[18:20) [BCP026 (Error)] The output expects a value of type "object" but the provided value is of type "int". (CodeDescription: none) |32|
+//@[18:20) [BCP026 (Error)] The output expects a value of type "object" but the provided value is of type "32". (CodeDescription: none) |32|
 output o object = true
 //@[07:08) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|
-//@[18:22) [BCP026 (Error)] The output expects a value of type "object" but the provided value is of type "bool". (CodeDescription: none) |true|
+//@[18:22) [BCP026 (Error)] The output expects a value of type "object" but the provided value is of type "true". (CodeDescription: none) |true|
 output o object = false
 //@[07:08) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|
-//@[18:23) [BCP026 (Error)] The output expects a value of type "object" but the provided value is of type "bool". (CodeDescription: none) |false|
+//@[18:23) [BCP026 (Error)] The output expects a value of type "object" but the provided value is of type "false". (CodeDescription: none) |false|
 output o object = [
 //@[07:08) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|
 //@[18:22) [BCP026 (Error)] The output expects a value of type "object" but the provided value is of type "array". (CodeDescription: none) |[\r\n]|
@@ -180,14 +180,14 @@ output o object = 'str'
 
 // a few expression cases
 output exp string = 2 + 3
-//@[20:25) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "int". (CodeDescription: none) |2 + 3|
+//@[20:25) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "5". (CodeDescription: none) |2 + 3|
 output union string = true ? 's' : 1
-//@[22:36) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "'s' | int". (CodeDescription: none) |true ? 's' : 1|
+//@[22:36) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "'s' | 1". (CodeDescription: none) |true ? 's' : 1|
 output bad int = true && !4
-//@[25:27) [BCP044 (Error)] Cannot apply operator "!" to operand of type "int". (CodeDescription: none) |!4|
+//@[25:27) [BCP044 (Error)] Cannot apply operator "!" to operand of type "4". (CodeDescription: none) |!4|
 output deeper bool = true ? -true : (14 && 's') + 10
-//@[28:33) [BCP044 (Error)] Cannot apply operator "-" to operand of type "bool". (CodeDescription: none) |-true|
-//@[37:46) [BCP045 (Error)] Cannot apply operator "&&" to operands of type "int" and "'s'". (CodeDescription: none) |14 && 's'|
+//@[28:33) [BCP044 (Error)] Cannot apply operator "-" to operand of type "true". (CodeDescription: none) |-true|
+//@[37:46) [BCP045 (Error)] Cannot apply operator "&&" to operands of type "14" and "'s'". (CodeDescription: none) |14 && 's'|
 
 output myOutput string = 'hello'
 var attemptToReferenceAnOutput = myOutput

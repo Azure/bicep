@@ -58,14 +58,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 yield return CreateDiagnosticForSpan(
                     diagnosticLevel,
-                    artifactsLocationParam.NameSyntax.Span,
+                    artifactsLocationParam.NameSource.Span,
                     string.Format(CoreResources.ArtifactsLocationRule_Error_ParamMissing, ArtifactsLocationName, ArtifactsLocationSasTokenName));
             }
             else if (artifactsSasParam is not null && artifactsLocationParam is null)
             {
                 yield return CreateDiagnosticForSpan(
                     diagnosticLevel,
-                    artifactsSasParam.NameSyntax.Span,
+                    artifactsSasParam.NameSource.Span,
                     string.Format(CoreResources.ArtifactsLocationRule_Error_ParamMissing, ArtifactsLocationSasTokenName, ArtifactsLocationName));
             }
             if (artifactsLocationParam is null || artifactsSasParam is null)
@@ -109,8 +109,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 if (module.TryGetSemanticModel(out ISemanticModel? moduleModel, out _))
                 {
-                    foreach (var formalParam in moduleModel.Parameters)
+                    foreach (var formalParam in moduleModel.Parameters.Values)
                     {
+                        // we cannot use the Parameters dictionary because we need to do a case-insensitive match in this rule
                         if (formalParam.Name.Equals(ArtifactsLocationName, ArmParameterComparison) ||
                             formalParam.Name.Equals(ArtifactsLocationSasTokenName, ArmParameterComparison))
                         {
@@ -118,7 +119,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             if (module.DeclaringSyntax is ModuleDeclarationSyntax moduleSyntax)
                             {
                                 var moduleParamsPropertyObject = moduleSyntax.TryGetBody()?
-                                    .TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName) as ObjectPropertySyntax;
+                                    .TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName);
 
                                 // Look for a parameter value being passed in for the formal parameter that we found
                                 // Be sure the param value we're looking for matches exactly the name/casing for the formal parameter (ordinal)
@@ -131,7 +132,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                 {
                                     yield return CreateDiagnosticForSpan(
                                         diagnosticLevel,
-                                        module.NameSyntax.Span,
+                                        module.NameSource.Span,
                                         string.Format(
                                             "Parameter '{0}' of module '{1}' should be assigned an explicit value.",
                                             formalParam.Name,
@@ -220,14 +221,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private static string? GetParameterType(ParameterSymbol parameterSymbol)
         {
             if (parameterSymbol.DeclaringSyntax is ParameterDeclarationSyntax parameterDeclaration
-               && parameterDeclaration.ParameterType is SimpleTypeSyntax typeSyntax)
+               && parameterDeclaration.Type is VariableAccessSyntax typeSyntax)
             {
                 if (typeSyntax.HasParseErrors())
                 {
                     return null;
                 }
 
-                return typeSyntax.TypeName;
+                return typeSyntax.Name.IdentifierName;
             }
 
             return null;

@@ -69,6 +69,8 @@ namespace Bicep.Core.Workspaces
             // Rebuild source files that contains external module references restored during the inital build.
             var sourceFilesToRebuild = current.SourceFiles
                 .Where(sourceFile => GetModuleDeclarations(sourceFile).Any(moduleDeclaration => modulesToRestore.Contains(new(moduleDeclaration, sourceFile))))
+                .ToImmutableHashSet()
+                .SelectMany(sourceFile => current.GetFilesDependingOn(sourceFile))
                 .ToImmutableHashSet();
 
             return builder.Build(current.EntryPoint.FileUri, sourceFilesToRebuild);
@@ -229,7 +231,7 @@ namespace Bicep.Core.Workspaces
             var sourceFileGraph = this.fileResultByUri.Values
                 .Select(x => x.File)
                 .WhereNotNull()
-                .SelectMany(sourceFile => GetModuleDeclarations(sourceFile)
+                .SelectMany(sourceFile => GetReferenceSourceNodes(sourceFile)
                     .SelectMany(moduleDeclaration => this.uriResultByModule.Values.Select(f => f.TryGetValue(moduleDeclaration)?.FileUri))
                     .Select(fileUri => fileUri != null ? this.fileResultByUri[fileUri].File : null)
                     .WhereNotNull()
@@ -248,11 +250,16 @@ namespace Bicep.Core.Workspaces
                     {
                         if (cycle.Length == 1)
                         {
-                            uriResultByModuleForFile[statement] = new(statement, null, false, x => x.CyclicModuleSelfReference());
+                            uriResultByModuleForFile[statement] = cycle[0] switch
+                            {
+                                BicepParamFile => new(statement, null, false, x => x.CyclicParametersSelfReference()),
+                                _ => new(statement, null, false, x => x.CyclicModuleSelfReference())
+                            };
                         }
                         else
                         {
-                            uriResultByModuleForFile[statement] = new(statement, null, false, x => x.CyclicModule(cycle.Select(u => u.FileUri.LocalPath)));
+                            // the error message is generic so it should work for either bicep module or params
+                            uriResultByModuleForFile[statement] = new(statement, null, false, x => x.CyclicFile(cycle.Select(u => u.FileUri.LocalPath)));
                         }
                     }
                 }
@@ -261,8 +268,15 @@ namespace Bicep.Core.Workspaces
             return sourceFileGraph;
         }
 
+        private static IEnumerable<StatementSyntax> GetReferenceSourceNodes(ISourceFile sourceFile) =>
+            GetModuleDeclarations(sourceFile).Concat<StatementSyntax>(GetUsingDeclarations(sourceFile));
+
         private static IEnumerable<ModuleDeclarationSyntax> GetModuleDeclarations(ISourceFile sourceFile) => sourceFile is BicepFile bicepFile
             ? bicepFile.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>()
             : Enumerable.Empty<ModuleDeclarationSyntax>();
+
+        private static IEnumerable<UsingDeclarationSyntax> GetUsingDeclarations(ISourceFile sourceFile) => sourceFile is BicepParamFile paramsFile
+            ? paramsFile.ProgramSyntax.Children.OfType<UsingDeclarationSyntax>()
+            : Enumerable.Empty<UsingDeclarationSyntax>();
     }
 }

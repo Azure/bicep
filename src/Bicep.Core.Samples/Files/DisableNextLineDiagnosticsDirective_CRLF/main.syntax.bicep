@@ -113,8 +113,9 @@ param storageAccount1 string = 'testStorageAccount'
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:021) | ├─IdentifierSyntax
 //@[06:021) | | └─Token(Identifier) |storageAccount1|
-//@[22:028) | ├─SimpleTypeSyntax
-//@[22:028) | | └─Token(Identifier) |string|
+//@[22:028) | ├─VariableAccessSyntax
+//@[22:028) | | └─IdentifierSyntax
+//@[22:028) | |   └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax
 //@[29:030) |   ├─Token(Assignment) |=|
 //@[31:051) |   └─StringSyntax
@@ -127,8 +128,9 @@ param storageAccount2 string = 'testStorageAccount'
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:021) | ├─IdentifierSyntax
 //@[06:021) | | └─Token(Identifier) |storageAccount2|
-//@[22:028) | ├─SimpleTypeSyntax
-//@[22:028) | | └─Token(Identifier) |string|
+//@[22:028) | ├─VariableAccessSyntax
+//@[22:028) | | └─IdentifierSyntax
+//@[22:028) | |   └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax
 //@[29:030) |   ├─Token(Assignment) |=|
 //@[31:051) |   └─StringSyntax
@@ -141,8 +143,9 @@ param storageAccount3 string = 'testStorageAccount'
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:021) | ├─IdentifierSyntax
 //@[06:021) | | └─Token(Identifier) |storageAccount3|
-//@[22:028) | ├─SimpleTypeSyntax
-//@[22:028) | | └─Token(Identifier) |string|
+//@[22:028) | ├─VariableAccessSyntax
+//@[22:028) | | └─IdentifierSyntax
+//@[22:028) | |   └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax
 //@[29:030) |   ├─Token(Assignment) |=|
 //@[31:051) |   └─StringSyntax
@@ -155,8 +158,9 @@ param storageAccount5 string = 'testStorageAccount'
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:021) | ├─IdentifierSyntax
 //@[06:021) | | └─Token(Identifier) |storageAccount5|
-//@[22:028) | ├─SimpleTypeSyntax
-//@[22:028) | | └─Token(Identifier) |string|
+//@[22:028) | ├─VariableAccessSyntax
+//@[22:028) | | └─IdentifierSyntax
+//@[22:028) | |   └─Token(Identifier) |string|
 //@[29:051) | └─ParameterDefaultValueSyntax
 //@[29:030) |   ├─Token(Assignment) |=|
 //@[31:051) |   └─StringSyntax

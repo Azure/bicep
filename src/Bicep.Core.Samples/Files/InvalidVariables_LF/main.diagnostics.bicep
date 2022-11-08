@@ -22,7 +22,6 @@ va
 // unassigned variable
 var foo
 //@[04:07) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[04:07) [no-unused-vars (Warning)] Variable "foo" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |foo|
 //@[07:07) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(18,19) -> symbols
@@ -86,12 +85,12 @@ var bar = foo()
 //@[10:13) [BCP059 (Error)] The name "foo" is not a function. (CodeDescription: none) |foo|
 var x = 2 + !3
 //@[04:05) [BCP028 (Error)] Identifier "x" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |x|
-//@[12:14) [BCP044 (Error)] Cannot apply operator "!" to operand of type "int". (CodeDescription: none) |!3|
+//@[12:14) [BCP044 (Error)] Cannot apply operator "!" to operand of type "3". (CodeDescription: none) |!3|
 var y = false ? true + 1 : !4
 //@[04:05) [BCP028 (Error)] Identifier "y" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |y|
 //@[04:05) [no-unused-vars (Warning)] Variable "y" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |y|
-//@[16:24) [BCP045 (Error)] Cannot apply operator "+" to operands of type "bool" and "int". (CodeDescription: none) |true + 1|
-//@[27:29) [BCP044 (Error)] Cannot apply operator "!" to operand of type "int". (CodeDescription: none) |!4|
+//@[16:24) [BCP045 (Error)] Cannot apply operator "+" to operands of type "true" and "1". (CodeDescription: none) |true + 1|
+//@[27:29) [BCP044 (Error)] Cannot apply operator "!" to operand of type "4". (CodeDescription: none) |!4|
 
 // test for array item recovery
 var x = [
@@ -112,7 +111,7 @@ var y = {
 //@[02:03) [BCP022 (Error)] Expected a property name at this location. (CodeDescription: none) |=|
 //@[03:03) [BCP018 (Error)] Expected the ":" character at this location. (CodeDescription: none) ||
   foo: !2
-//@[07:09) [BCP044 (Error)] Cannot apply operator "!" to operand of type "int". (CodeDescription: none) |!2|
+//@[07:09) [BCP044 (Error)] Cannot apply operator "!" to operand of type "2". (CodeDescription: none) |!2|
 }
 
 // utcNow and newGuid used outside a param default value
@@ -151,10 +150,10 @@ var objWithInterp = {
 // invalid fully qualified function access
 var mySum = az.add(1,2)
 //@[04:09) [no-unused-vars (Warning)] Variable "mySum" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |mySum|
-//@[15:18) [BCP107 (Error)] The function "add" does not exist in namespace "az". (CodeDescription: none) |add|
+//@[15:18) [BCP067 (Error)] Cannot call functions on type "1". An "object" type is required. (CodeDescription: none) |add|
 var myConcat = sys.concat('a', az.concat('b', 'c'))
 //@[04:12) [no-unused-vars (Warning)] Variable "myConcat" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |myConcat|
-//@[34:40) [BCP107 (Error)] The function "concat" does not exist in namespace "az". (CodeDescription: none) |concat|
+//@[34:40) [BCP067 (Error)] Cannot call functions on type "1". An "object" type is required. (CodeDescription: none) |concat|
 
 // invalid string using double quotes
 var doubleString = "bad string"
@@ -164,13 +163,11 @@ var doubleString = "bad string"
 //@[30:31) [BCP103 (Error)] The following token is not recognized: """. Strings are defined using single quotes in bicep. (CodeDescription: none) |"|
 
 var resourceGroup = ''
-//@[04:17) [no-unused-vars (Warning)] Variable "resourceGroup" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |resourceGroup|
 var rgName = resourceGroup().name
 //@[04:10) [no-unused-vars (Warning)] Variable "rgName" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |rgName|
 //@[13:26) [BCP265 (Error)] The name "resourceGroup" is not a function. Did you mean "az.resourceGroup"? (CodeDescription: none) |resourceGroup|
 
 var subscription = ''
-//@[04:16) [no-unused-vars (Warning)] Variable "subscription" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |subscription|
 var subName = subscription().name
 //@[04:11) [no-unused-vars (Warning)] Variable "subName" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |subName|
 //@[14:26) [BCP265 (Error)] The name "subscription" is not a function. Did you mean "az.subscription"? (CodeDescription: none) |subscription|
@@ -191,12 +188,10 @@ var invalidEnvAuthVar = environment().authentication.asdgdsag
 // invalid use of reserved namespace
 var az = 1
 //@[04:06) [BCP084 (Error)] The symbolic name "az" is reserved. Please use a different symbolic name. Reserved namespaces are "az", "sys". (CodeDescription: none) |az|
-//@[04:06) [no-unused-vars (Warning)] Variable "az" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |az|
 
 // cannot assign a variable to a namespace
 var invalidNamespaceAssignment = az
 //@[04:30) [no-unused-vars (Warning)] Variable "invalidNamespaceAssignment" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |invalidNamespaceAssignment|
-//@[33:35) [BCP041 (Error)] Values of type "az" cannot be assigned to a variable. (CodeDescription: none) |az|
 
 var objectLiteralType = {
   first: true
@@ -258,7 +253,7 @@ var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 // Issue 486
 var myFloat = 3.14
 //@[04:11) [no-unused-vars (Warning)] Variable "myFloat" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |myFloat|
-//@[16:16) [BCP055 (Error)] Cannot access properties of type "int". An "object" type is required. (CodeDescription: none) ||
+//@[16:16) [BCP055 (Error)] Cannot access properties of type "3". An "object" type is required. (CodeDescription: none) ||
 //@[16:16) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 //@[16:18) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) |14|
 
@@ -343,6 +338,7 @@ resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneI
   name: zone
   location: az.resourceGroup().location
 //@[12:39) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |az.resourceGroup().location|
+//@[15:28) [BCP067 (Error)] Cannot call functions on type "1". An "object" type is required. (CodeDescription: none) |resourceGroup|
 }]
 var inlinedVariable = zones[0].properties.zoneType
 
@@ -414,7 +410,6 @@ var keyVaultSecretArrayInterpolatedVar = [
 ]
 
 var listSecrets= ''
-//@[04:15) [no-unused-vars (Warning)] Variable "listSecrets" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |listSecrets|
 var listSecretsVar = listSecrets()
 //@[04:18) [no-unused-vars (Warning)] Variable "listSecretsVar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |listSecretsVar|
 //@[21:32) [BCP265 (Error)] The name "listSecrets" is not a function. Did you mean "az.listSecrets"? (CodeDescription: none) |listSecrets|

@@ -73,5 +73,20 @@ namespace Bicep.Core.TypeSystem
         /// Lambda type
         /// </summary>
         Lambda,
+
+        /// <summary>
+        /// Boolean literal type
+        /// </summary>
+        BooleanLiteral,
+
+        /// <summary>
+        /// Integer literal type
+        /// </summary>
+        IntegerLiteral,
+
+        /// <summary>
+        /// A reference to a type symbol
+        /// </summary>
+        TypeReference,
     }
 }

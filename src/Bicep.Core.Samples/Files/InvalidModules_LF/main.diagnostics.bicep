@@ -207,7 +207,7 @@ var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 //@[054:058) [BCP053 (Error)] The type "outputs" does not contain property "test". Available properties include "arrayOutput", "objOutput", "stringOutputA", "stringOutputB". (CodeDescription: none) |test|
 
 module modCycle './cycle.bicep' = {
-//@[016:031) [BCP095 (Error)] The module is involved in a cycle ("${TEST_OUTPUT_DIR}/cycle.bicep" -> "${TEST_OUTPUT_DIR}/main.bicep"). (CodeDescription: none) |'./cycle.bicep'|
+//@[016:031) [BCP095 (Error)] The file is involved in a cycle ("${TEST_OUTPUT_DIR}/cycle.bicep" -> "${TEST_OUTPUT_DIR}/main.bicep"). (CodeDescription: none) |'./cycle.bicep'|
   
 }
 
@@ -514,7 +514,7 @@ module missingLoopBodyProperties2 'modulea.bicep' = [for (x,i) in emptyArray:{
 // wrong array type
 var notAnArray = true
 module wrongArrayType 'modulea.bicep' = [for x in notAnArray:{
-//@[050:060) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "bool". (CodeDescription: none) |notAnArray|
+//@[050:060) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "true". (CodeDescription: none) |notAnArray|
 }]
 
 // missing fewer properties
@@ -783,7 +783,7 @@ module jsonModMissingParam 'moduled.json' = {
   params: {
 //@[002:008) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar". (CodeDescription: none) |params|
     foo: 123
-//@[009:012) [BCP036 (Error)] The property "foo" expected a value of type "string" but the provided value is of type "int". (CodeDescription: none) |123|
+//@[009:012) [BCP036 (Error)] The property "foo" expected a value of type "string" but the provided value is of type "123". (CodeDescription: none) |123|
     baz: 'C'
 //@[009:012) [BCP088 (Error)] The property "baz" expected a value of type "'A' | 'B'" but the provided value is of type "'C'". Did you mean "'A'"? (CodeDescription: none) |'C'|
   }

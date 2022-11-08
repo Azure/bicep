@@ -285,8 +285,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
             diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics(new[] {
-                ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"string\", but the provided item was of type \"bool\"."),
-                ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"string\", but the provided item was of type \"int\"."),
+                ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"string\", but the provided item was of type \"2\"."),
+                ("BCP034", DiagnosticLevel.Error, "The enclosing array expected an item of type \"string\", but the provided item was of type \"true\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"managedByExtended\" expected a value of type \"string[]\" but the provided value is of type \"'not an array'\"."),
             });
         }
@@ -341,8 +341,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
             diagnostics.OrderBy(x => x.Message).Should().HaveDiagnostics(new[] {
-                ("BCP036", DiagnosticLevel.Error, "The property \"wrongTagType\" expected a value of type \"string\" but the provided value is of type \"bool\"."),
-                ("BCP036", DiagnosticLevel.Error, "The property \"wrongTagType2\" expected a value of type \"string\" but the provided value is of type \"int\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"wrongTagType\" expected a value of type \"string\" but the provided value is of type \"true\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"wrongTagType2\" expected a value of type \"string\" but the provided value is of type \"3\"."),
             });
         }
 
@@ -365,6 +365,29 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, CreateDummyResourceType());
 
             diagnostics.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void AdditionalPropertiesWithFallbackTypeFlagShouldProduceWarning()
+        {
+            var obj = TestSyntaxFactory.CreateObject(new[]
+            {
+                TestSyntaxFactory.CreateProperty("inSchema", TestSyntaxFactory.CreateString("ping")),
+                TestSyntaxFactory.CreateProperty("notInSchema", TestSyntaxFactory.CreateString("pong")),
+            });
+
+            var hierarchy = new SyntaxHierarchy();
+            hierarchy.AddRoot(obj);
+
+            var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, obj, new ObjectType(
+                "additionalPropertiesFallbackTypeTest", 
+                TypeSymbolValidationFlags.Default,
+                new[] { new TypeProperty("inSchema", LanguageConstants.String) },
+                LanguageConstants.Any,
+                TypePropertyFlags.FallbackProperty));
+
+            diagnostics.Should().HaveCount(1);
+            diagnostics.Should().ContainDiagnostic("BCP037", DiagnosticLevel.Warning, "The property \"notInSchema\" is not allowed on objects of type \"additionalPropertiesFallbackTypeTest\". No other properties are allowed.");
         }
 
         [TestMethod]
@@ -518,7 +541,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 var (narrowedType, diagnostics) = NarrowTypeAndCollectDiagnostics(hierarchy, intSyntax, unionType);
 
                 diagnostics.Should().BeEmpty();
-                narrowedType.Should().Be(LanguageConstants.Int);
+                narrowedType.Should().BeOfType<IntegerLiteralType>();
+                (narrowedType as IntegerLiteralType)!.Value.Should().Be(1234);
             }
 
             {
@@ -624,7 +648,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Setup(x => x.GetSymbolInfo(It.IsAny<SyntaxBase>()))
                 .Returns<Symbol?>(null);
 
-            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, fileResolverMock.Object);
+            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, fileResolverMock.Object, Core.Workspaces.BicepSourceFileKind.BicepFile);
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var result = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binderMock.Object, diagnosticWriter, expression, targetType);

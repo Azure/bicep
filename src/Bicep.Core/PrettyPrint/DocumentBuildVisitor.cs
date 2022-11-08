@@ -83,10 +83,9 @@ namespace Bicep.Core.PrettyPrint
                 this.VisitNodes(syntax.LeadingNodes);
                 this.Visit(syntax.Keyword);
                 this.documentStack.Push(Nil);
-                this.Visit(syntax.ProviderName);
-                this.Visit(syntax.AsKeyword);
-                this.Visit(syntax.AliasName);
-                this.Visit(syntax.Config);
+                this.Visit(syntax.SpecificationString);
+                this.Visit(syntax.WithClause);
+                this.Visit(syntax.AsClause);
             });
 
         public override void VisitMetadataDeclarationSyntax(MetadataDeclarationSyntax syntax) =>
@@ -264,14 +263,26 @@ namespace Bicep.Core.PrettyPrint
 
                 for (var i = 0; i < nodes.Length; i++)
                 {
+                    var visitingBrokenStatement = this.visitingBrokenStatement;
+
+                    if (nodes[i].GetParseDiagnostics().Any())
+                    {
+                        this.visitingBrokenStatement = true;
+                    }
+
                     this.Visit(nodes[i]);
 
-                    if (i < nodes.Length - 1 &&
-                        nodes[i] is Token { Type: TokenType.Comma } &&
-                        nodes[i + 1] is not Token { Type: TokenType.NewLine })
+                    if (!this.visitingBrokenStatement)
                     {
-                        this.PushDocument(Space);
+                        if (i < nodes.Length - 1 &&
+                            nodes[i] is Token { Type: TokenType.Comma } &&
+                            nodes[i + 1] is not Token { Type: TokenType.NewLine })
+                        {
+                            this.PushDocument(Space);
+                        }
                     }
+
+                    this.visitingBrokenStatement = visitingBrokenStatement;
                 }
 
                 if (leadingAndTrailingSpace && nodes.Any() && trailingNewLine is null)
@@ -290,7 +301,8 @@ namespace Bicep.Core.PrettyPrint
                 var nestedChildren = Concat(hasTrailingNewline ? children[..^1] : children);
                 var newLine = hasTrailingNewline ? children[^1] : Nil;
 
-                if (children.Length > 1)
+                // Do not call Nest() if we are inside a broken statement, otherwise it will keep on indenting further when the user formats document.
+                if (!this.visitingBrokenStatement && children.Length > 1)
                 {
                     nestedChildren = nestedChildren.Nest();
                 }
@@ -430,6 +442,42 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.OpenBracket);
                 this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: true);
                 this.Visit(syntax.CloseBracket);
+            });
+
+        public override void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax) =>
+            this.BuildStatement(syntax, () =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Keyword);
+                this.documentStack.Push(Nil);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.Assignment);
+                this.Visit(syntax.Value);
+            });
+
+        public override void VisitArrayTypeSyntax(ArrayTypeSyntax syntax) =>
+            this.BuildWithConcat(() => {
+                this.Visit(syntax.Item);
+                this.Visit(syntax.OpenBracket);
+                this.Visit(syntax.CloseBracket);
+            });
+
+        public override void VisitObjectTypeSyntax(ObjectTypeSyntax syntax) =>
+            this.BuildWithConcat(() => {
+                this.Visit(syntax.OpenBrace);
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: true);
+                this.Visit(syntax.CloseBrace);
+            });
+
+        public override void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax) =>
+            this.BuildWithConcat(() =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Key);
+                this.Visit(syntax.OptionalityMarker);
+                this.Visit(syntax.Colon);
+                this.documentStack.Push(Space);
+                this.Visit(syntax.Value);
             });
 
         private static ILinkedDocument Text(string text) =>

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18297789197769121229"
+      "templateHash": "4464118241273221545"
     }
   },
   "parameters": {
@@ -201,7 +201,7 @@
             "value": "[resourceId('Microsoft.Network/networkInterfaces', variables('nic2Name'))]"
           },
           "diagsStorageUri": {
-            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('diagStorageAccountName'))).primaryEndpoints.blob]"
+            "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('diagStorageAccountName')), '2017-06-01').primaryEndpoints.blob]"
           }
         },
         "template": {
@@ -308,7 +308,7 @@
   "outputs": {
     "publicIp": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))).ipAddress]"
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName')), '2017-06-01').ipAddress]"
     }
   }
 }

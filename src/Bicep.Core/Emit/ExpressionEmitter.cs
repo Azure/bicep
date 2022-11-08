@@ -6,6 +6,7 @@ using System.Linq;
 using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Serializers;
+using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -116,7 +117,7 @@ namespace Bicep.Core.Emit
 
         public void EmitIndexedSymbolReference(DeclaredResourceMetadata resource, SyntaxBase indexExpression, SyntaxBase newContext)
         {
-            var expression = converter.CreateConverterForIndexReplacement(resource.Symbol.NameSyntax, indexExpression, newContext)
+            var expression = converter.CreateConverterForIndexReplacement(resource.Symbol.NameIdentifier, indexExpression, newContext)
                 .GenerateSymbolicReference(resource, indexExpression);
 
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));

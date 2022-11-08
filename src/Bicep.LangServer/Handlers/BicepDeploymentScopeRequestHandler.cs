@@ -8,18 +8,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
-using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.Features;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Utils;
@@ -42,60 +34,39 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDeploymentScopeRequestHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentScopeParams, BicepDeploymentScopeResponse>
     {
+        private readonly BicepCompiler bicepCompiler;
         private readonly ICompilationManager compilationManager;
-        private readonly IConfigurationManager configurationManager;
         private readonly IDeploymentFileCompilationCache deploymentFileCompilationCache;
-        private readonly IFeatureProviderFactory featureProviderFactory;
-        private readonly IFileResolver fileResolver;
-        private readonly IModuleDispatcher moduleDispatcher;
-        private readonly INamespaceProvider namespaceProvider;
-        private readonly IApiVersionProviderFactory apiVersionProviderFactory;
-        private readonly IBicepAnalyzer bicepAnalyzer;
 
         public BicepDeploymentScopeRequestHandler(
+            BicepCompiler bicepCompiler,
             ICompilationManager compilationManager,
-            IConfigurationManager configurationManager,
             IDeploymentFileCompilationCache deploymentFileCompilationCache,
-            IFeatureProviderFactory featureProviderFactory,
-            IFileResolver fileResolver,
-            IModuleDispatcher moduleDispatcher,
-            INamespaceProvider namespaceProvider,
-            ISerializer serializer,
-            IApiVersionProviderFactory apiVersionProviderFactory,
-            IBicepAnalyzer bicepAnalyzer)
+            ISerializer serializer)
             : base(LangServerConstants.GetDeploymentScopeCommand, serializer)
         {
+            this.bicepCompiler = bicepCompiler;
             this.compilationManager = compilationManager;
-            this.configurationManager = configurationManager;
             this.deploymentFileCompilationCache = deploymentFileCompilationCache;
-            this.featureProviderFactory = featureProviderFactory;
-            this.fileResolver = fileResolver;
-            this.moduleDispatcher = moduleDispatcher;
-            this.namespaceProvider = namespaceProvider;
-            this.apiVersionProviderFactory = apiVersionProviderFactory;
-            this.bicepAnalyzer = bicepAnalyzer;
         }
 
-        public override Task<BicepDeploymentScopeResponse> Handle(BicepDeploymentScopeParams request, CancellationToken cancellationToken)
+        public override async Task<BicepDeploymentScopeResponse> Handle(BicepDeploymentScopeParams request, CancellationToken cancellationToken)
         {
-            var documentUri = request.TextDocument.Uri;
-
-            Compilation? compilation;
-
             try
             {
-                compilation = GetCompilation(documentUri);
+                var documentUri = request.TextDocument.Uri;
+                var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetCompilation(documentUri);
 
                 // Cache the compilation so that it can be reused by BicepDeploymentParametersHandler
                 deploymentFileCompilationCache.CacheCompilation(documentUri, compilation);
 
                 var deploymentScope = GetDeploymentScope(compilation.GetEntrypointSemanticModel().TargetScope);
 
-                return Task.FromResult(new BicepDeploymentScopeResponse(deploymentScope, GetCompiledFile(compilation, documentUri), null));
+                return new(deploymentScope, GetCompiledFile(compilation, documentUri), null);
             }
             catch (Exception exception)
             {
-                return Task.FromResult(new BicepDeploymentScopeResponse(ResourceScope.None.ToString(), null, exception.Message));
+                return new(ResourceScope.None.ToString(), null, exception.Message);
             }
         }
 
@@ -128,22 +99,6 @@ namespace Bicep.LanguageServer.Handlers
             emitter.Emit(stringWriter);
 
             return stringBuilder.ToString();
-        }
-
-        private Compilation GetCompilation(DocumentUri documentUri)
-        {
-            var fileUri = documentUri.ToUri();
-
-            CompilationContext? context = compilationManager.GetCompilation(documentUri);
-            if (context is null)
-            {
-                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
-                return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
-            }
-            else
-            {
-                return context.Compilation;
-            }
         }
     }
 }

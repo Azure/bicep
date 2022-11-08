@@ -216,19 +216,19 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
 resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[013:050) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: true ? 's' : 'a' + 1
-//@[021:028) [BCP045 (Error)] Cannot apply operator "+" to operands of type "'a'" and "int". (CodeDescription: none) |'a' + 1|
+//@[021:028) [BCP045 (Error)] Cannot apply operator "+" to operands of type "'a'" and "1". (CodeDescription: none) |'a' + 1|
   properties: {
     x: foo()
 //@[007:010) [BCP059 (Error)] The name "foo" is not a function. (CodeDescription: none) |foo|
     y: true && (null || !4)
-//@[024:026) [BCP044 (Error)] Cannot apply operator "!" to operand of type "int". (CodeDescription: none) |!4|
+//@[024:026) [BCP044 (Error)] Cannot apply operator "!" to operand of type "4". (CodeDescription: none) |!4|
     a: [
       a
 //@[006:007) [BCP057 (Error)] The name "a" does not exist in the current context. (CodeDescription: none) |a|
       !null
 //@[006:011) [BCP044 (Error)] Cannot apply operator "!" to operand of type "null". (CodeDescription: none) |!null|
       true && true || true + -true * 4
-//@[029:034) [BCP044 (Error)] Cannot apply operator "-" to operand of type "bool". (CodeDescription: none) |-true|
+//@[029:034) [BCP044 (Error)] Cannot apply operator "-" to operand of type "true". (CodeDescription: none) |-true|
     ]
   }
 }
@@ -307,7 +307,7 @@ resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
     'hello'
 //@[004:011) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "'hello'". (CodeDescription: none) |'hello'|
     true
-//@[004:008) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "bool". (CodeDescription: none) |true|
+//@[004:008) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "true". (CodeDescription: none) |true|
   ]
 }
 
@@ -1580,19 +1580,19 @@ resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (
 
 // errors in the array expression
 resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {
-//@[106:107) [BCP070 (Error)] Argument of type "int" is not assignable to parameter of type "array". (CodeDescription: none) |2|
+//@[106:107) [BCP070 (Error)] Argument of type "2" is not assignable to parameter of type "array". (CodeDescription: none) |2|
 }]
 resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,k) in union([], 2): {
-//@[111:112) [BCP070 (Error)] Argument of type "int" is not assignable to parameter of type "array". (CodeDescription: none) |2|
+//@[111:112) [BCP070 (Error)] Argument of type "2" is not assignable to parameter of type "array". (CodeDescription: none) |2|
 }]
 
 // wrong array type
 var notAnArray = true
 resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in notAnArray: {
-//@[089:099) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "bool". (CodeDescription: none) |notAnArray|
+//@[089:099) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "true". (CodeDescription: none) |notAnArray|
 }]
 resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in notAnArray: {
-//@[094:104) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "bool". (CodeDescription: none) |notAnArray|
+//@[094:104) [BCP137 (Error)] Loop expected an expression of type "array" but the provided value is of type "true". (CodeDescription: none) |notAnArray|
 }]
 
 // wrong filter expression type
@@ -2301,5 +2301,14 @@ resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[008:022) [BCP225 (Warning)] The discriminator property "kind" value cannot be determined at compilation time. Type checking for this object is disabled. (CodeDescription: none) |issue4668_kind|
   identity: issue4668_identity
   properties: issue4668_properties
+}
+
+// https://github.com/Azure/bicep/issues/8516
+resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' existing = {
+  resource blobServices 'blobServices' existing = {
+    name: $account
+//@[010:011) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |$|
+//@[010:011) [BCP001 (Error)] The following token is not recognized: "$". (CodeDescription: none) |$|
+  }
 }
 
