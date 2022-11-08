@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.IO.Abstractions;
 using System.Text;
 using Bicep.Core.Diagnostics;
 
@@ -39,6 +40,25 @@ namespace Bicep.Core.FileSystem
         bool TryReadAtMostNCharaters(Uri fileUri, Encoding fileEncoding, int n, [NotNullWhen(true)] out string? fileContents);
 
         void Write(Uri fileUri, Stream contents);
+
+        /// <summary>
+        /// Deletes the file at <see paramref="fileUri"/> if it exists.
+        /// </summary>
+        /// <param name="fileUri">The file URI to read.</param>
+        void Delete(Uri fileUri);
+
+        /// <summary>
+        /// Creates a directory at <see paramref="directoryUri" /> if one does not exist.
+        /// </summary>
+        /// <param name="directoryUri">The URI of the directory to create.</param>
+        IDirectoryInfo CreateDirectory(Uri directoryUri);
+
+        /// <summary>
+        /// Deletes the directory at <see paramref="directoryUri" /> if it exists.
+        /// </summary>
+        /// <param name="directoryUri">The URI of the directory to delete.</param>
+        /// <param name="recursive">Whether to remove files and subdirectories under <see paramref="directoryUri"/>.</param>
+        void DeleteDirectory(Uri directoryUri, bool recursive);
 
         /// <summary>
         /// Tries to resolve a child file path relative to a parent module file path.

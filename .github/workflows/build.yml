@@ -59,7 +59,7 @@ jobs:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli/bin/release/net6.0/${{ matrix.rid }}/publish/*
           if-no-files-found: error
-      
+
       - name: Upload Bicep project assets file
         uses: actions/upload-artifact@v3
         with:
@@ -112,7 +112,7 @@ jobs:
           name: Bicep.LangServer
           path: ./src/Bicep.LangServer/bin/release/net6.0/publish/*
           if-no-files-found: error
-      
+
       # needed to generate notice file
       - name: Upload Language Server project assets file
         uses: actions/upload-artifact@v3
@@ -174,19 +174,19 @@ jobs:
         with:
           name: Bicep.LangServer
           path: ./src/vscode-bicep/bicepLanguageServer
-      
+
       - name: Download Language Server project assets file
         if: runner.os == 'Linux'
         uses: actions/download-artifact@v3
         with:
           name: Bicep.LangServer.ProjAssets
           path: ./src/vscode-bicep-notice/inputs
-      
+
       - name: npm list -a --json
         if: runner.os == 'Linux'
         run: npm list -a --json > ../vscode-bicep-notice/inputs/npm-list.json
         working-directory: ./src/vscode-bicep
-      
+
       - name: Generate VSIX notice
         if: runner.os == 'Linux'
         run: dotnet build --configuration Release ./src/vscode-bicep-notice/vscode-bicep-notice.proj
@@ -318,7 +318,7 @@ jobs:
         with:
           name: bicep-release-win-x64
           path: ./src/installer-win/bicep
-      
+
       - name: Download Bicep CLI project assets file
         uses: actions/download-artifact@v3
         with:
@@ -401,7 +401,7 @@ jobs:
         with:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/tools
-      
+
       - name: Download Bicep CLI project assets file
         uses: actions/download-artifact@v3
         with:
@@ -697,3 +697,35 @@ jobs:
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
+
+  sanity-check-external-bicep-sources:
+    name: Sanity check CARML et al
+    runs-on: ubuntu-latest
+    needs:
+      - build-cli
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: npm ci
+        run: npm ci
+        working-directory: ./src/external-bicep-sources-tests
+
+      - name: Download Bicep CLI
+        uses: actions/download-artifact@v3
+        with:
+          name: bicep-release-linux-x64
+          path: ./temp/bicep-cli
+
+      - name: Make Bicep CLI executable
+        run: chmod +x ./temp/bicep-cli/bicep
+
+      - name: npm test
+        run: npm test
+        env:
+          BICEP_CLI_EXECUTABLE: ../../../temp/bicep-cli/bicep
+        working-directory: ./src/external-bicep-sources-tests

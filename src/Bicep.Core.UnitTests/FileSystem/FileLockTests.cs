@@ -12,6 +12,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests.FileSystem
 {
@@ -24,14 +25,15 @@ namespace Bicep.Core.UnitTests.FileSystem
         [TestMethod]
         public async Task ConcurrentRequestsShouldBeSerializedByFileLock()
         {
+            var fileSystem = new IOFileSystem();
             var list = new List<int>();
             string lockDir = FileHelper.GetUniqueTestOutputPath(this.TestContext);
-            Directory.CreateDirectory(lockDir);
+            fileSystem.Directory.CreateDirectory(lockDir);
             var fileName = Path.Combine(lockDir, "locktest");
 
-            static void Append(List<int> list, string fileName)
+            void Append(List<int> list, string fileName)
             {
-                var @lock = TryAcquireWithTimeout(fileName);
+                var @lock = TryAcquireWithTimeout(fileSystem, fileName);
                 @lock.Should().NotBeNull();
                 using (@lock)
                 {
@@ -67,11 +69,12 @@ namespace Bicep.Core.UnitTests.FileSystem
         [TestMethod]
         public void FileLockShouldNotThrowIfLockFileIsDeleted()
         {
+            var fileSystem = new IOFileSystem();
             string lockDir = FileHelper.GetUniqueTestOutputPath(this.TestContext);
-            Directory.CreateDirectory(lockDir);
+            fileSystem.Directory.CreateDirectory(lockDir);
             var fileName = Path.Combine(lockDir, "locktest");
 
-            var @lock = FileLock.TryAcquire(fileName);
+            var @lock = FileLock.TryAcquire(fileSystem, fileName);
             @lock.Should().NotBeNull();
             using (@lock)
             {
@@ -87,11 +90,12 @@ namespace Bicep.Core.UnitTests.FileSystem
         [TestMethod]
         public void CallingDisposeTwiceShouldNotThrow()
         {
+            var fileSystem = new IOFileSystem();
             string lockDir = FileHelper.GetUniqueTestOutputPath(this.TestContext);
-            Directory.CreateDirectory(lockDir);
+            fileSystem.Directory.CreateDirectory(lockDir);
             var fileName = Path.Combine(lockDir, "locktest");
 
-            using (var @lock = FileLock.TryAcquire(fileName))
+            using (var @lock = FileLock.TryAcquire(fileSystem, fileName))
             {
                 @lock.Should().NotBeNull();
                 // extra call to Dispose() is intentional
@@ -99,7 +103,7 @@ namespace Bicep.Core.UnitTests.FileSystem
             }
         }
 
-        private static FileLock? TryAcquireWithTimeout(string name)
+        private static FileLock? TryAcquireWithTimeout(System.IO.Abstractions.IFileSystem fileSystem, string name)
         {
             var sw = Stopwatch.StartNew();
 
@@ -107,7 +111,7 @@ namespace Bicep.Core.UnitTests.FileSystem
 
             while (sw.Elapsed < acquireTimeout)
             {
-                var acquired = FileLock.TryAcquire(name);
+                var acquired = FileLock.TryAcquire(fileSystem, name);
                 if (acquired is not null)
                 {
                     return acquired;

@@ -1,0 +1,6 @@
+[submodule "src/Bicep.Core.Samples/Files/external/gh/Azure/ResourceModules"]
+	path = src/Bicep.Core.Samples/Files/external/gh/Azure/ResourceModules
+	url = https://github.com/Azure/ResourceModules.git
+[submodule "src/Bicep.Core.Samples/Files/external/gh/Azure/bicep-registry-modules"]
+	path = src/Bicep.Core.Samples/Files/external/gh/Azure/bicep-registry-modules
+	url = https://github.com/Azure/bicep-registry-modules.git

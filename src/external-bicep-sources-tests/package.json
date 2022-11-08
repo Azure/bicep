@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "devDependencies": {
+    "@jsq/seq": "^0.5.0"
+  }
+}

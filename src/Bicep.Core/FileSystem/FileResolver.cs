@@ -24,7 +24,7 @@ namespace Bicep.Core.FileSystem
         public IDisposable? TryAcquireFileLock(Uri fileUri)
         {
             RequireFileUri(fileUri);
-            return FileLock.TryAcquire(fileUri.LocalPath);
+            return FileLock.TryAcquire(fileSystem, fileUri.LocalPath);
         }
 
         public bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
@@ -212,6 +212,12 @@ namespace Bicep.Core.FileSystem
             contents.CopyTo(fileStream);
         }
 
+        public void Delete(Uri fileUri)
+        {
+            RequireFileUri(fileUri);
+            fileSystem.File.Delete(fileUri.LocalPath);
+        }
+
         public Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath)
         {
             if (!Uri.TryCreate(parentFileUri, childFilePath, out var relativeUri))
@@ -226,6 +232,12 @@ namespace Bicep.Core.FileSystem
         {
             return fileSystem.Path.GetRelativePath(relativeTo, path).Replace('\\', '/');
         }
+
+        public IDirectoryInfo CreateDirectory(Uri directoryUri)
+            => fileSystem.Directory.CreateDirectory(directoryUri.LocalPath);
+
+        public void DeleteDirectory(Uri directoryUri, bool recursive)
+            => fileSystem.Directory.Delete(directoryUri.LocalPath, recursive);
 
         public IEnumerable<Uri> GetDirectories(Uri fileUri, string pattern)
         {

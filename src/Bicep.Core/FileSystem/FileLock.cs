@@ -3,14 +3,15 @@
 
 using System;
 using System.IO;
+using System.IO.Abstractions;
 
 namespace Bicep.Core.FileSystem
 {
     public sealed class FileLock : IDisposable
     {
-        private readonly FileStream lockStream;
+        private readonly IDisposable lockStream;
 
-        private FileLock(FileStream lockStream)
+        private FileLock(IDisposable lockStream)
         {
             this.lockStream = lockStream;
         }
@@ -20,14 +21,14 @@ namespace Bicep.Core.FileSystem
             this.lockStream.Dispose();
         }
 
-        public static FileLock? TryAcquire(string name)
+        public static FileLock? TryAcquire(IFileSystem fileSystem, string name)
         {
             try
             {
                 // FileMode.OpenOrCreate - we don't want Create because it will also execute a truncate operation in some cases, which is unnecessary
                 // FileShare.None - we want locking on the file (even if advisory on some platforms)
                 // FileOptions.None - DeleteOnClose is NOT ATOMIC on Linux/Mac and causes race conditions
-                var lockStream = new FileStream(name, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.None);
+                var lockStream = fileSystem.FileStream.Create(name, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 1, FileOptions.None);
 
                 return new FileLock(lockStream);
             }

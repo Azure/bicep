@@ -48,7 +48,7 @@ namespace Bicep.Core.Registry
              * We have already downloaded the module content from the registry.
              * The following sections will attempt to synchronize the module write with other
              * instances of the language server running on the same machine.
-             * 
+             *
              * We are not trying to prevent tampering with the module cache by the user.
              */
 
@@ -85,12 +85,12 @@ namespace Bicep.Core.Registry
             throw new ExternalModuleException($"Exceeded the timeout of \"{ModuleDirectoryContentionTimeout}\" to acquire the lock on file \"{lockFileUri}\".");
         }
 
-        private static void CreateModuleDirectory(string moduleDirectoryPath)
+        private void CreateModuleDirectory(string moduleDirectoryPath)
         {
             try
             {
                 // ensure that the directory exists
-                Directory.CreateDirectory(moduleDirectoryPath);
+                FileResolver.CreateDirectory(PathHelper.FilePathToFileUrl(moduleDirectoryPath));
             }
             catch (Exception exception)
             {
@@ -98,25 +98,25 @@ namespace Bicep.Core.Registry
             }
         }
 
-        private static void DeleteModuleDirectory(string moduleDirectoryPath)
+        private void DeleteModuleDirectory(string moduleDirectoryPath)
         {
             try
             {
-                // recursively delete the directory 
-                Directory.Delete(moduleDirectoryPath, true);
+                // recursively delete the directory
+                FileResolver.DeleteDirectory(PathHelper.FilePathToFileUrl(moduleDirectoryPath), true);
             }
             catch (Exception exception)
             {
                 throw new ExternalModuleException($"Unable to delete the local module directory \"{moduleDirectoryPath}\". {exception.Message}", exception);
             }
-        }        
+        }
 
         private async Task TryDeleteModuleDirectoryAsync(TModuleReference reference)
         {
             /*
              * The following sections will attempt to synchronize the module directory delete with other
              * instances of the language server running on the same machine.
-             * 
+             *
              * We are not trying to prevent tampering with the module cache by the user.
              */
 
@@ -138,9 +138,9 @@ namespace Bicep.Core.Registry
                     try {
                         // Even if the FileLock is disposed, the file remain there. See comments in FileLock.cs
                         // saying there's a race condition on Linux with the DeleteOnClose flag on the FileStream.
-                        // We will attempt the delete the file. If it throws, the lock is still open and will continue 
+                        // We will attempt the delete the file. If it throws, the lock is still open and will continue
                         // to wait until retry interval expires
-                        File.Delete(lockFileUri.LocalPath);
+                        FileResolver.Delete(lockFileUri);
                     }
                     catch (IOException) { break; }
                 }
@@ -164,7 +164,7 @@ namespace Bicep.Core.Registry
                 using var timer = new ExecutionTimer($"Delete module {reference.FullyQualifiedReference} from cache");
                 try
                 {
-                    if(Directory.Exists(GetModuleDirectoryPath(reference))) {
+                    if(FileResolver.DirExists(PathHelper.FilePathToFileUrl(GetModuleDirectoryPath(reference)))) {
                         await this.TryDeleteModuleDirectoryAsync(reference);
                     }
                 }
