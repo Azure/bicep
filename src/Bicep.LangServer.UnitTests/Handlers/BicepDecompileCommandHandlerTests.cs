@@ -2,37 +2,24 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.DirectoryServices.Protocols;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Core.Configuration;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Decompiler;
 using Bicep.LangServer.UnitTests.Mocks;
-using Bicep.LanguageServer;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Handlers;
-using Bicep.LanguageServer.Providers;
 using FluentAssertions;
-using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using static Bicep.LanguageServer.Telemetry.BicepTelemetryEvent;
-using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.LangServer.UnitTests.Handlers
 {
@@ -42,7 +29,20 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private static readonly MockRepository Repository = new(MockBehavior.Strict);
+        private static (BicepDecompileCommandHandler, BicepDecompileSaveCommandHandler) CreateHandlers(LanguageServerMock server)
+        {
+            var helper = ServiceBuilder.Create(services => services
+                .AddSingleton(StrictMock.Of<ISerializer>().Object)
+                .AddSingleton(BicepTestConstants.CreateMockTelemetryProvider().Object)
+                .AddSingleton(server.Mock.Object)
+                .AddSingleton(server.ClientCapabilitiesProvider)
+                .AddSingleton<BicepDecompileCommandHandler>()
+                .AddSingleton<BicepDecompileSaveCommandHandler>());
+
+            return (
+                helper.Construct<BicepDecompileCommandHandler>(),
+                helper.Construct<BicepDecompileSaveCommandHandler>());
+        }
 
         #region Simple JSON
 
@@ -233,34 +233,6 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
 
         #endregion
 
-        private (BicepDecompileCommandHandler, BicepDecompileSaveCommandHandler) CreateCommandHandlers(LanguageServerMock server)
-        {
-            return (
-                new BicepDecompileCommandHandler(
-                    Repository.Create<ISerializer>().Object,
-                    BicepTestConstants.FeatureProviderFactory,
-                    BicepTestConstants.NamespaceProvider,
-                    BicepTestConstants.RegistryProvider,
-                    server.Mock.Object,
-                    BicepTestConstants.CreateMockTelemetryProvider().Object,
-                    BicepTestConstants.ApiVersionProviderFactory,
-                    BicepTestConstants.LinterAnalyzer,
-                    BicepTestConstants.FileResolver),
-                new BicepDecompileSaveCommandHandler(
-                    Repository.Create<ISerializer>().Object,
-                    BicepTestConstants.FeatureProviderFactory,
-                    BicepTestConstants.NamespaceProvider,
-                    BicepTestConstants.RegistryProvider,
-                    server.Mock.Object,
-                    BicepTestConstants.CreateMockTelemetryProvider().Object,
-                    BicepTestConstants.ApiVersionProviderFactory,
-                    BicepTestConstants.LinterAnalyzer,
-                    BicepTestConstants.FileResolver,
-                    server.ClientCapabilitiesProvider,
-                    server.Mock.Object)
-                );
-        }
-
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
@@ -269,8 +241,8 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
         {
             var server = new LanguageServerMock();
 
-            ICompilationManager bicepCompilationManager = Repository.Create<ICompilationManager>().Object;
-            var (handler, _) = CreateCommandHandlers(server);
+            ICompilationManager bicepCompilationManager = StrictMock.Of<ICompilationManager>().Object;
+            var (handler, _) = CreateHandlers(server);
 
             Action action = () => handler.Handle(new(DocumentUri.File(path)), CancellationToken.None);
             action.Should().Throw<Exception>();
@@ -285,7 +257,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
             var server = new LanguageServerMock();
             server.WindowMock.OnShowDocument();
 
-            var (handler, saveHandler) = CreateCommandHandlers(server);
+            var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
@@ -312,7 +284,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
             var server = new LanguageServerMock();
             server.WindowMock.OnShowDocument();
 
-            var (handler, _) = CreateCommandHandlers(server);
+            var (handler, _) = CreateHandlers(server);
             var result = await handler.Handle(
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
@@ -331,7 +303,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
             DocumentUri? showDocUri = null;
             server.WindowMock.OnShowDocument(p => showDocUri = p.Uri);
 
-            var (handler, saveHandler) = CreateCommandHandlers(server);
+            var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
@@ -355,7 +327,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
                 p => showDocUri = p.Uri,
                 enableClientCapability: false);
 
-            var (handler, saveHandler) = CreateCommandHandlers(server);
+            var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
@@ -375,7 +347,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
             ShowMessageParams? showMessageParams = null;
             server.WindowMock.OnShowMessage(p => showMessageParams = p);
 
-            var (handler, _) = CreateCommandHandlers(server);
+            var (handler, _) = CreateHandlers(server);
             var result = await handler.Handle(
                 new BicepDecompileCommandParams(DocumentUri.File(Path.Join(testOutputPath, "folder and file don't exist.json"))),
                 CancellationToken.None);
@@ -397,7 +369,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
             ShowMessageParams? showMessageParams = null;
             server.WindowMock.OnShowMessage(p => showMessageParams = p);
 
-            var (handler, saveHandler) = CreateCommandHandlers(server);
+            var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
@@ -421,7 +393,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
             var server = new LanguageServerMock();
             server.WindowMock.OnShowDocument();
 
-            var (handler, saveHandler) = CreateCommandHandlers(server);
+            var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
@@ -449,7 +421,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
             var server = new LanguageServerMock();
             server.WindowMock.OnShowDocument();
 
-            var (handler, saveHandler) = CreateCommandHandlers(server);
+            var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
@@ -485,7 +457,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
             string? displayedDoc = null;
             server.WindowMock.OnShowDocument(p => displayedDoc = p.Uri.ToUri().LocalPath);
 
-            var (handler, saveHandler) = CreateCommandHandlers(server);
+            var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
@@ -515,7 +487,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
             string? displayedDoc = null;
             server.WindowMock.OnShowDocument(p => displayedDoc = p.Uri.ToUri().LocalPath);
 
-            var (handler, saveHandler) = CreateCommandHandlers(server);
+            var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
@@ -555,7 +527,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
             string? displayedDoc = null;
             server.WindowMock.OnShowDocument(p => displayedDoc = p.Uri.ToUri().LocalPath);
 
-            var (handler, saveHandler) = CreateCommandHandlers(server);
+            var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
@@ -593,7 +565,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
             string? displayedDoc = null;
             server.WindowMock.OnShowDocument(p => displayedDoc = p.Uri.ToUri().LocalPath);
 
-            var (handler, saveHandler) = CreateCommandHandlers(server);
+            var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
@@ -636,7 +608,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
             string? displayedDoc = null;
             server.WindowMock.OnShowDocument(p => displayedDoc = p.Uri.ToUri().LocalPath);
 
-            var (handler, saveHandler) = CreateCommandHandlers(server);
+            var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);
@@ -730,7 +702,7 @@ module nestedDeploymentInner2 './nested_nestedDeploymentInner2.bicep' = {
             var server = new LanguageServerMock();
             server.WindowMock.OnShowDocument(p => { });
 
-            var (handler, saveHandler) = CreateCommandHandlers(server);
+            var (handler, saveHandler) = CreateHandlers(server);
             var result = await handler.Handle(
                 new BicepDecompileCommandParams(DocumentUri.File(jsonPath)),
                 CancellationToken.None);

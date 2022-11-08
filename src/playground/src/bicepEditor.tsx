@@ -20,7 +20,7 @@ function configureEditorForBicep(editor: monacoEditor.editor.IStandaloneCodeEdit
 
   monaco.languages.registerDocumentSemanticTokensProvider('bicep', {
     getLegend: () => getSemanticTokensLegend(),
-    provideDocumentSemanticTokens: (model) => getSemanticTokens(model.getValue()),
+    provideDocumentSemanticTokens: async (model) => await getSemanticTokens(model.getValue()),
     releaseDocumentSemanticTokens: () => { return; }
   });
 
@@ -81,9 +81,9 @@ export const BicepEditor : React.FC<Props> = (props) => {
   const [initialCode, setInitialCode] = useState(props.initialCode);
   const [bicepContent, setBicepContent] = useState(props.initialCode);
 
-  const handleContentChange = (editor: monacoEditor.editor.IStandaloneCodeEditor, text: string) => {
+  const handleContentChange = async (editor: monacoEditor.editor.IStandaloneCodeEditor, text: string) => {
     setBicepContent(text);
-    const { template, diagnostics } = compileAndEmitDiagnostics(text);
+    const { template, diagnostics } = await compileAndEmitDiagnostics(text);
     monacoEditor.editor.setModelMarkers(editor.getModel(), 'default', diagnostics);
     props.onBicepChange(text);
     props.onJsonChange(template);

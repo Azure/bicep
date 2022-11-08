@@ -3,6 +3,7 @@
 using Bicep.Core.UnitTests.Assertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions.Execution;
 using Bicep.Core.Diagnostics;

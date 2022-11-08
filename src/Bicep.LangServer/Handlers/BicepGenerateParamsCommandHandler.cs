@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.ApiVersions;
 using Bicep.Core.Configuration;
@@ -33,28 +34,16 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepGenerateParamsCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
         private readonly ICompilationManager compilationManager;
-        private readonly IFeatureProviderFactory featureProviderFactory;
-        private readonly IFileResolver fileResolver;
-        private readonly IModuleDispatcher moduleDispatcher;
-        private readonly INamespaceProvider namespaceProvider;
-        private readonly IConfigurationManager configurationManager;
-        private readonly IApiVersionProviderFactory apiVersionProviderFactory;
-        private readonly IBicepAnalyzer bicepAnalyzer;
+        private readonly BicepCompiler bicepCompiler;
 
-        public BicepGenerateParamsCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProviderFactory featureProviderFactory, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, IApiVersionProviderFactory apiVersionProviderFactory, IBicepAnalyzer bicepAnalyzer)
+        public BicepGenerateParamsCommandHandler(ICompilationManager compilationManager, BicepCompiler bicepCompiler, ISerializer serializer)
             : base(LangServerConstants.GenerateParamsCommand, serializer)
         {
             this.compilationManager = compilationManager;
-            this.featureProviderFactory = featureProviderFactory;
-            this.namespaceProvider = namespaceProvider;
-            this.fileResolver = fileResolver;
-            this.moduleDispatcher = moduleDispatcher;
-            this.configurationManager = configurationManager;
-            this.apiVersionProviderFactory = apiVersionProviderFactory;
-            this.bicepAnalyzer = bicepAnalyzer;
+            this.bicepCompiler = bicepCompiler;
         }
 
-        public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
+        public override async Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(bicepFilePath))
             {
@@ -62,12 +51,12 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            string output = GenerateCompiledParametersFileAndReturnOutputMessage(bicepFilePath, documentUri);
+            string output = await GenerateCompiledParametersFileAndReturnOutputMessage(bicepFilePath, documentUri);
 
-            return Task.FromResult(output);
+            return output;
         }
 
-        private string GenerateCompiledParametersFileAndReturnOutputMessage(string bicepFilePath, DocumentUri documentUri)
+        private async Task<string> GenerateCompiledParametersFileAndReturnOutputMessage(string bicepFilePath, DocumentUri documentUri)
         {
             string compiledFilePath = PathHelper.ResolveParametersFileOutputPath(bicepFilePath);
             string compiledFile = Path.GetFileName(compiledFilePath);
@@ -79,20 +68,8 @@ namespace Bicep.LanguageServer.Handlers
                 return "Generating parameters file failed. The file \"" + compiledFile + "\" already exists but does not contain the schema for a parameters file. If overwriting the file is intended, delete it manually and retry the Generate Parameters command.";
             }
 
+            var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetCompilation(documentUri);
             var fileUri = documentUri.ToUri();
-
-            CompilationContext? context = compilationManager.GetCompilation(fileUri);
-            Compilation compilation;
-
-            if (context is null)
-            {
-                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
-                compilation = new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, bicepAnalyzer);
-            }
-            else
-            {
-                compilation = context.Compilation;
-            }
 
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
                 .FirstOrDefault(x => x.Key.FileUri == fileUri);

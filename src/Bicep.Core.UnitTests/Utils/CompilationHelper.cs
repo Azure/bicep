@@ -89,8 +89,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .Where(x => PathHelper.HasBicepparamsExension(x.Key) || PathHelper.HasBicepExtension(x.Key) || PathHelper.HasArmTemplateLikeExtension(x.Key))
                 .ToDictionary(x => x.Key, x => x.Value);
 
-            var sourceFileGrouping = services.BuildSourceFileGrouping(sourceFiles, entryUri);
-            var compilation = services.WithFeatureOverrides(features).Build().BuildCompilation(sourceFileGrouping);
+            var compilation = services.WithFeatureOverrides(features).BuildCompilation(sourceFiles, entryUri);
 
             return CompileParams(compilation);
         }
