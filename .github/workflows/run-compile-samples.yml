@@ -1,0 +1,29 @@
+name: Compile Samples
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'GH Actions Run Id for the version of Bicep to use'
+        required: true
+
+jobs:
+  run-benchmarks:
+    name: Compile Samples
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch Bicep
+        run: |
+          gh run download ${{ github.event.inputs.run_id }} -n bicep-release-linux-x64 -D /tmp/bicep-release-linux-x64
+          chmod +x /tmp/bicep-release-linux-x64/bicep
+
+      - name: Compile Sample Files
+        run: ./scripts/compile_samples.sh /tmp/bicep-release-linux-x64/bicep > results.txt
+
+      - name: Upload Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: results.txt
+          path: ./results.txt
+          if-no-files-found: error
