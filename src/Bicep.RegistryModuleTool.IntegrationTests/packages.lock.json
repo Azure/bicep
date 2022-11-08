@@ -235,8 +235,8 @@
       },
       "JsonSchema.Net": {
         "type": "Transitive",
-        "resolved": "3.2.1",
-        "contentHash": "qJ5wRhmdD2SPQdZhmhlOsDFptpYf+52LRxLXJzSBT8s1+37SkP0ccJCoZbh50MUYpTthgcsqli2qpiZ451Cj8A==",
+        "resolved": "3.3.0",
+        "contentHash": "J86DY8Xpawd10Pk66jjODhyzMWgN1XD76o0RbCONQvhPg17ufwdzQzXNcZBrASqdkXzpgVzXI0yfGzf2ekw9Fg==",
         "dependencies": {
           "JetBrains.Annotations": "2021.2.0",
           "Json.More.Net": "1.7.0",
@@ -2127,7 +2127,7 @@
           "DiffPlex": "[1.7.1, )",
           "FluentAssertions": "[6.8.0, )",
           "JsonPath.Net": "[0.2.1, )",
-          "JsonSchema.Net": "[3.2.1, )",
+          "JsonSchema.Net": "[3.3.0, )",
           "Markdig": "[0.30.4, )",
           "Microsoft.Extensions.Logging": "[6.0.0, )",
           "Microsoft.Extensions.Logging.Console": "[6.0.0, )",
