@@ -307,7 +307,6 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 
 module secureModule1 'child/secureParams.bicep' = {
   name: 'secureModule1'
-//@[08:023) [BCP122 (Error)] Modules: "secureModule1", "secureModuleCondition1" are defined with this same name and this same scope in a file. Rename them or split into different modules. (CodeDescription: none) |'secureModule1'|
   params: {
     secureStringParam1: kv.getSecret('mySecret')
     secureStringParam2: kv.getSecret('mySecret','secretVersion')
@@ -364,9 +363,8 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
   }
 }]
 
-module secureModuleCondition1 'child/secureParams.bicep' = {
-  name: 'secureModule1'
-//@[08:023) [BCP122 (Error)] Modules: "secureModule1", "secureModuleCondition1" are defined with this same name and this same scope in a file. Rename them or split into different modules. (CodeDescription: none) |'secureModule1'|
+module secureModuleCondition 'child/secureParams.bicep' = {
+  name: 'secureModuleCondition'
   params: {
     secureStringParam1: true ? kv.getSecret('mySecret') : 'notTrue'
     secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret','secretVersion') : 'notTrue'

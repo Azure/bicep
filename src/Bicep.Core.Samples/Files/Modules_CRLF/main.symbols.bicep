@@ -418,9 +418,9 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
   }
 }]
 
-module secureModuleCondition1 'child/secureParams.bicep' = {
-//@[07:29) Module secureModuleCondition1. Type: module. Declaration start char: 0, length: 278
-  name: 'secureModule1'
+module secureModuleCondition 'child/secureParams.bicep' = {
+//@[07:28) Module secureModuleCondition. Type: module. Declaration start char: 0, length: 285
+  name: 'secureModuleCondition'
   params: {
     secureStringParam1: true ? kv.getSecret('mySecret') : 'notTrue'
     secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret','secretVersion') : 'notTrue'

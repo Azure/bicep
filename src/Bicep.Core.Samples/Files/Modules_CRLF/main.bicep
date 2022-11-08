@@ -343,8 +343,8 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
   }
 }]
 
-module secureModuleCondition1 'child/secureParams.bicep' = {
-  name: 'secureModule1'
+module secureModuleCondition 'child/secureParams.bicep' = {
+  name: 'secureModuleCondition'
   params: {
     secureStringParam1: true ? kv.getSecret('mySecret') : 'notTrue'
     secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret','secretVersion') : 'notTrue'

@@ -182,15 +182,15 @@ resource resWithCalculatedNameDependencies 'Mock.Rp/mockResource@2020-01-01' = {
 }
 
 output stringOutputA string = modATest.outputs.stringOutputA
-//@[1985:1988]     "stringOutputA": {
+//@[2027:2030]     "stringOutputA": {
 output stringOutputB string = modATest.outputs.stringOutputB
-//@[1989:1992]     "stringOutputB": {
+//@[2031:2034]     "stringOutputB": {
 output objOutput object = modATest.outputs.objOutput
-//@[1993:1996]     "objOutput": {
+//@[2035:2038]     "objOutput": {
 output arrayOutput array = modATest.outputs.arrayOutput
-//@[1997:2000]     "arrayOutput": {
+//@[2039:2042]     "arrayOutput": {
 output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputObj
-//@[2001:2004]     "modCalculatedNameOutput": {
+//@[2043:2046]     "modCalculatedNameOutput": {
 
 /*
   valid loop cases
@@ -507,24 +507,33 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
   }
 }]
 
+module secureModuleCondition 'child/secureParams.bicep' = {
+//@[1878:1919]       "type": "Microsoft.Resources/deployments",
+  name: 'secureModuleCondition'
+//@[1881:1881]       "name": "secureModuleCondition",
+  params: {
+    secureStringParam1: true ? kv.getSecret('mySecret') : 'notTrue'
+    secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret','secretVersion') : 'notTrue'
+  }
+}
 
 // END: Key Vault Secret Reference
 
 module withSpace 'module with space.bicep' = {
-//@[1878:1912]       "type": "Microsoft.Resources/deployments",
+//@[1920:1954]       "type": "Microsoft.Resources/deployments",
   name: 'withSpace'
-//@[1881:1881]       "name": "withSpace",
+//@[1923:1923]       "name": "withSpace",
 }
 
 module folderWithSpace 'child/folder with space/child with space.bicep' = {
-//@[1913:1947]       "type": "Microsoft.Resources/deployments",
+//@[1955:1989]       "type": "Microsoft.Resources/deployments",
   name: 'childWithSpace'
-//@[1916:1916]       "name": "childWithSpace",
+//@[1958:1958]       "name": "childWithSpace",
 }
 
 module withSeparateConfig './child/folder with separate config/moduleWithAzImport.bicep' = {
-//@[1948:1982]       "type": "Microsoft.Resources/deployments",
+//@[1990:2024]       "type": "Microsoft.Resources/deployments",
   name: 'withSeparateConfig'
-//@[1951:1951]       "name": "withSeparateConfig",
+//@[1993:1993]       "name": "withSeparateConfig",
 }
 

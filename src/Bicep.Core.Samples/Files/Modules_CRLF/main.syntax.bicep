@@ -1,5 +1,5 @@
 
-//@[000:8874) ProgramSyntax
+//@[000:8881) ProgramSyntax
 //@[000:0002) ├─Token(NewLine) |\r\n|
 @sys.description('this is deployTimeSuffix param')
 //@[000:0093) ├─ParameterDeclarationSyntax
@@ -3148,25 +3148,25 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 //@[001:0002) |   └─Token(RightSquare) |]|
 //@[002:0006) ├─Token(NewLine) |\r\n\r\n|
 
-module secureModuleCondition1 'child/secureParams.bicep' = {
-//@[000:0278) ├─ModuleDeclarationSyntax
+module secureModuleCondition 'child/secureParams.bicep' = {
+//@[000:0285) ├─ModuleDeclarationSyntax
 //@[000:0006) | ├─Token(Identifier) |module|
-//@[007:0029) | ├─IdentifierSyntax
-//@[007:0029) | | └─Token(Identifier) |secureModuleCondition1|
-//@[030:0056) | ├─StringSyntax
-//@[030:0056) | | └─Token(StringComplete) |'child/secureParams.bicep'|
-//@[057:0058) | ├─Token(Assignment) |=|
-//@[059:0278) | └─ObjectSyntax
-//@[059:0060) |   ├─Token(LeftBrace) |{|
-//@[060:0062) |   ├─Token(NewLine) |\r\n|
-  name: 'secureModule1'
-//@[002:0023) |   ├─ObjectPropertySyntax
+//@[007:0028) | ├─IdentifierSyntax
+//@[007:0028) | | └─Token(Identifier) |secureModuleCondition|
+//@[029:0055) | ├─StringSyntax
+//@[029:0055) | | └─Token(StringComplete) |'child/secureParams.bicep'|
+//@[056:0057) | ├─Token(Assignment) |=|
+//@[058:0285) | └─ObjectSyntax
+//@[058:0059) |   ├─Token(LeftBrace) |{|
+//@[059:0061) |   ├─Token(NewLine) |\r\n|
+  name: 'secureModuleCondition'
+//@[002:0031) |   ├─ObjectPropertySyntax
 //@[002:0006) |   | ├─IdentifierSyntax
 //@[002:0006) |   | | └─Token(Identifier) |name|
 //@[006:0007) |   | ├─Token(Colon) |:|
-//@[008:0023) |   | └─StringSyntax
-//@[008:0023) |   |   └─Token(StringComplete) |'secureModule1'|
-//@[023:0025) |   ├─Token(NewLine) |\r\n|
+//@[008:0031) |   | └─StringSyntax
+//@[008:0031) |   |   └─Token(StringComplete) |'secureModuleCondition'|
+//@[031:0033) |   ├─Token(NewLine) |\r\n|
   params: {
 //@[002:0188) |   ├─ObjectPropertySyntax
 //@[002:0008) |   | ├─IdentifierSyntax

@@ -1970,18 +1970,18 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 //@[001:002) RightSquare |]|
 //@[002:006) NewLine |\r\n\r\n|
 
-module secureModuleCondition1 'child/secureParams.bicep' = {
+module secureModuleCondition 'child/secureParams.bicep' = {
 //@[000:006) Identifier |module|
-//@[007:029) Identifier |secureModuleCondition1|
-//@[030:056) StringComplete |'child/secureParams.bicep'|
-//@[057:058) Assignment |=|
-//@[059:060) LeftBrace |{|
-//@[060:062) NewLine |\r\n|
-  name: 'secureModule1'
+//@[007:028) Identifier |secureModuleCondition|
+//@[029:055) StringComplete |'child/secureParams.bicep'|
+//@[056:057) Assignment |=|
+//@[058:059) LeftBrace |{|
+//@[059:061) NewLine |\r\n|
+  name: 'secureModuleCondition'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
-//@[008:023) StringComplete |'secureModule1'|
-//@[023:025) NewLine |\r\n|
+//@[008:031) StringComplete |'secureModuleCondition'|
+//@[031:033) NewLine |\r\n|
   params: {
 //@[002:008) Identifier |params|
 //@[008:009) Colon |:|
