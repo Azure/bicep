@@ -2,24 +2,19 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Containers.ContainerRegistry;
-using Azure.Identity;
-using Azure;
 using Bicep.Core.Features;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using System.Drawing.Printing;
-using Bicep.LanguageServer.Providers;
 
 namespace Bicep.LanguageServer.Handlers
 {

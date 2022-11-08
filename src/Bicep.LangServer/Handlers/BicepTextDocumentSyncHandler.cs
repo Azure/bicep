@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,11 +23,11 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly ICompilationManager compilationManager;
         private readonly IBicepConfigChangeHandler bicepConfigChangeHandler;
-        private readonly IAccessTokenProvider accessTokenProvider;
+        private readonly IServiceClientCredentialsProvider serviceClientCredentialsProvider;
 
-        public BicepTextDocumentSyncHandler(IAccessTokenProvider accessTokenProvider, ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler) 
+        public BicepTextDocumentSyncHandler(IServiceClientCredentialsProvider serviceClientCredentialsProvider, ICompilationManager compilationManager, IBicepConfigChangeHandler bicepConfigChangeHandler) 
         {
-            this.accessTokenProvider = accessTokenProvider;
+            this.serviceClientCredentialsProvider = serviceClientCredentialsProvider;
             this.bicepConfigChangeHandler = bicepConfigChangeHandler;
             this.compilationManager = compilationManager;
         }
@@ -79,7 +80,7 @@ namespace Bicep.LanguageServer.Handlers
 
             this.compilationManager.OpenCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
 
-            await accessTokenProvider.CacheAccessTokenAsync(documentUri.ToUri());
+            await serviceClientCredentialsProvider.CacheAccessTokenAsync(documentUri.ToUri());
 
             return Unit.Value;
         }
@@ -94,7 +95,7 @@ namespace Bicep.LanguageServer.Handlers
             // We'll also update the entry in activeBicepConfigCache.
             if (ConfigurationHelper.IsBicepConfigFile(documentUri))
             {
-                await accessTokenProvider.CacheAccessTokenAsync(documentUri.ToUri());
+                await serviceClientCredentialsProvider.CacheAccessTokenAsync(documentUri.ToUri());
                 bicepConfigChangeHandler.HandleBicepConfigSaveEvent(documentUri);
             }
 

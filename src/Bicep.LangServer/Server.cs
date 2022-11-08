@@ -129,7 +129,7 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
                 .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>()
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
-                .AddSingleton<IAccessTokenProvider, AccessTokenProvider>()
+                .AddSingleton<IServiceClientCredentialsProvider, ServiceClientCredentialsProvider>()
                 .AddSingleton<IOciArtifactModuleRepositoryCompletionProvider, OciArtifactModuleRepositoryCompletionProvider>();
         }
 
