@@ -1738,6 +1738,17 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP306",
                 $@"The name ""{name}"" refers to a namespace, not to a type.");
+
+            public ErrorDiagnostic NestedRuntimePropertyAccessNotSupported(string? resourceSymbol, IEnumerable<string> accessiblePropertyNames, IEnumerable<string> accessibleFunctionNames)
+            {
+                var accessiblePropertyNamesClause = accessiblePropertyNames.Any() ? $" Accessible properties of {resourceSymbol} include {ToQuotedString(accessiblePropertyNames.OrderBy(x => x))}." : "";
+                var accessibleFunctionNamesClause = accessibleFunctionNames.Any() ? $" Accessible functions of {resourceSymbol} include {ToQuotedString(accessibleFunctionNames.OrderBy(x => x))}." : "";
+
+                return new(
+                    TextSpan,
+                    "BCP307",
+                    $"The expression may lead to nested runtime functions, which is not supported.{accessiblePropertyNamesClause}{accessibleFunctionNamesClause}");
+            }
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

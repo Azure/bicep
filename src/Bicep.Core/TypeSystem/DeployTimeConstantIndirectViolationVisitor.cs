@@ -42,7 +42,7 @@ namespace Bicep.Core.TypeSystem
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
             if (syntax.IndexExpression is StringSyntax stringSyntax &&
-                this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression, isCollection: false) is ({ } accessedSymbol, { } accessedBodyType))
+                this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
                 if (stringSyntax.TryGetLiteralValue() is { } propertyName)
                 {
@@ -62,7 +62,7 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression, isCollection: false) is ({ } accessedSymbol, { } accessedBodyType))
+            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
                 this.FlagIfPropertyNotReadableAtDeployTime(syntax.PropertyName.IdentifierName, accessedSymbol, accessedBodyType);
             }
@@ -129,7 +129,7 @@ namespace Bicep.Core.TypeSystem
                 //   bar: myVM <-- accessing an entire resource/module.
                 // }]
                 case not PropertyAccessSyntax and not ArrayAccessSyntax when
-                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax, isCollection: false) is ({ } accessedSymbol, { } accessedBodyType):
+                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax) is ({ } accessedSymbol, { } accessedBodyType):
                     {
                         var variableDependencyChain = this.BuildVariablDependencyChain(accessedSymbol.Name);
                         this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);
@@ -141,7 +141,7 @@ namespace Bicep.Core.TypeSystem
                 // }]
                 case ArrayAccessSyntax { IndexExpression: IntegerLiteralSyntax } arrayAccessSyntax when
                     this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
-                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax, isCollection: true) is ({ } accessedSymbol, { } accessedBodyType):
+                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax) is ({ } accessedSymbol, { } accessedBodyType):
                     {
                         var variableDependencyChain = this.BuildVariablDependencyChain(accessedSymbol.Name);
                         this.FlagDeployTimeConstantViolation(accessedSymbol, accessedBodyType, variableDependencyChain);

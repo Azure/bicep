@@ -68,10 +68,5 @@ namespace Bicep.Core.TypeSystem
         /// Language system property, i.e. id, type, api-version
         /// </summary>
         SystemProperty = 1 << 10,
-
-        /// <summary>
-        /// Accessing the property will lead to nested runtime functions. It only applies to properties of existing resoures whose name is not a DeployTimeConstant.
-        /// </summary>
-        NestedRuntimeProperty = 1 << 11,
     }
 }

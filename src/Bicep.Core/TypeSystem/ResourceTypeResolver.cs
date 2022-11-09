@@ -34,7 +34,12 @@ namespace Bicep.Core.TypeSystem
             return new(semanticModel, existingResourceBodyTypeOverrides);
         }
 
-        public (DeclaredSymbol?, ObjectType?) TryResolveResourceOrModuleSymbolAndBodyType(SyntaxBase syntax, bool isCollection) => this.semanticModel.GetSymbolInfo(syntax) switch
+        public (DeclaredSymbol?, ObjectType?) TryResolveResourceOrModuleSymbolAndBodyType(SyntaxBase resourceOrModuleAccessSyntax) =>
+            resourceOrModuleAccessSyntax is ArrayAccessSyntax { IndexExpression: IntegerLiteralSyntax, BaseExpression: var baseAccessSyntax }
+                ? TryResolveResourceOrModuleSymbolAndBodyType(baseAccessSyntax, true)
+                : TryResolveResourceOrModuleSymbolAndBodyType(resourceOrModuleAccessSyntax, false);
+
+        private (DeclaredSymbol?, ObjectType?) TryResolveResourceOrModuleSymbolAndBodyType(SyntaxBase syntax, bool isCollection) => this.semanticModel.GetSymbolInfo(syntax) switch
         {
             ResourceSymbol resourceSymbol when resourceSymbol.IsCollection == isCollection =>
                 (resourceSymbol, this.existingResourceBodyTypeOverrides.GetValueOrDefault(resourceSymbol) ?? resourceSymbol.TryGetBodyObjectType()),
@@ -77,21 +82,11 @@ namespace Bicep.Core.TypeSystem
 
                         DeployTimeConstantValidator.Validate(nameProperty, semanticModel, resourceTypeResolver, diagnosticWriter);
 
-                        // If a DTC diagnostic was caught, the existing resource name property contains a runtime function.
-                        // We need to remove ReadableAtDeployTime flag from the name property and mark runtime properties as
-                        // nested runtime properties.
+                        // If a DTC diagnostic was caught, the existing resource name property contains a runtime value.
+                        // Remove ReadableAtDeployTime flag from the name property.
                         if (diagnosticWriter.HasDiagnostics())
                         {
-                            SetNestedRuntimePropertyFlag(
-                                existingResourceBodyTypeOverrides,
-                                existingResourceSymbol,
-                                existingResourceBodyType);
-
-                            ClearNamePropertyFlags(
-                                existingResourceBodyTypeOverrides,
-                                existingResourceSymbol,
-                                existingResourceBodyType,
-                                TypePropertyFlags.ReadableAtDeployTime);
+                            existingResourceBodyTypeOverrides[existingResourceSymbol] = ClearNamePropertyFlags(existingResourceBodyType, TypePropertyFlags.ReadableAtDeployTime);;
                         }
                     }
                 }
@@ -106,47 +101,19 @@ namespace Bicep.Core.TypeSystem
             // now map every resourceSymbol in the dictionary to the same ObjectType but with the DeployTimeConstant flag removed this time
             foreach (var (existingResourceSymbol, existingResourceBodyType) in existingResourceBodyTypeOverrides)
             {
-                ClearNamePropertyFlags(
-                    existingResourceBodyTypeOverrides,
-                    existingResourceSymbol,
-                    existingResourceBodyType,
-                    TypePropertyFlags.DeployTimeConstant);
+                existingResourceBodyTypeOverrides[existingResourceSymbol] = ClearNamePropertyFlags(existingResourceBodyType, TypePropertyFlags.DeployTimeConstant);
             }
 
             return existingResourceBodyTypeOverrides;
         }
 
-        private static void ClearNamePropertyFlags(
-            IDictionary<ResourceSymbol, ObjectType> existingResourceBodyTypeOverrides,
-            ResourceSymbol existingResourceSymbol,
-            ObjectType existingResourceBodyType,
-            TypePropertyFlags flagsToClear)
+        private static ObjectType ClearNamePropertyFlags(ObjectType existingResourceBodyType, TypePropertyFlags flagsToClear)
         {
-            if (existingResourceBodyType.Properties.TryGetValue(AzResourceTypeProvider.ResourceNamePropertyName, out var namePropertyType))
-            {
-                namePropertyType = namePropertyType.With(namePropertyType.Flags.Clear(flagsToClear));
-                existingResourceBodyType = existingResourceBodyType.With(
-                    properties: existingResourceBodyType.Properties.SetItem(AzResourceTypeProvider.ResourceNamePropertyName, namePropertyType).Values);
+            var namePropertyType = existingResourceBodyType.Properties[AzResourceTypeProvider.ResourceNamePropertyName];
+            namePropertyType = namePropertyType.With(namePropertyType.Flags & ~flagsToClear);
 
-                existingResourceBodyTypeOverrides[existingResourceSymbol] = existingResourceBodyType;
-            }
-        }
-
-        private static void SetNestedRuntimePropertyFlag(
-            IDictionary<ResourceSymbol, ObjectType> existingResourceBodyTypeOverrides,
-            ResourceSymbol existingResourceSymbol,
-            ObjectType existingResourceBodyType)
-        {
-            // Mark runtime properties with the NestedRuntimeProperty flag.
-            // A runtime property is not WriteOnly and not ReadableAtDeployTime.
-            var nestedRunTimePropertyItems = existingResourceBodyType.Properties
-                .Where(x => !x.Value.Flags.HasFlag(TypePropertyFlags.WriteOnly) && !x.Value.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
-                .Select(x => new KeyValuePair<string, TypeProperty>(x.Key, x.Value.With(x.Value.Flags.Set(TypePropertyFlags.NestedRuntimeProperty))));
-
-            existingResourceBodyType = existingResourceBodyType.With(
-                properties: existingResourceBodyType.Properties.SetItems(nestedRunTimePropertyItems).Values);
-
-            existingResourceBodyTypeOverrides[existingResourceSymbol] = existingResourceBodyType;
+            return existingResourceBodyType.With(
+                properties: existingResourceBodyType.Properties.SetItem(AzResourceTypeProvider.ResourceNamePropertyName, namePropertyType).Values);
         }
     }
 }
