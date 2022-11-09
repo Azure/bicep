@@ -9,8 +9,9 @@ param myString string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0014) | ├─IdentifierSyntax
 //@[006:0014) | | └─Token(Identifier) |myString|
-//@[015:0021) | └─SimpleTypeSyntax
-//@[015:0021) |   └─Token(Identifier) |string|
+//@[015:0021) | └─VariableAccessSyntax
+//@[015:0021) |   └─IdentifierSyntax
+//@[015:0021) |     └─Token(Identifier) |string|
 //@[021:0022) ├─Token(NewLine) |\n|
 wrong
 //@[000:0005) ├─SkippedTriviaSyntax
@@ -22,8 +23,9 @@ param myInt int
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0011) | ├─IdentifierSyntax
 //@[006:0011) | | └─Token(Identifier) |myInt|
-//@[012:0015) | └─SimpleTypeSyntax
-//@[012:0015) |   └─Token(Identifier) |int|
+//@[012:0015) | └─VariableAccessSyntax
+//@[012:0015) |   └─IdentifierSyntax
+//@[012:0015) |     └─Token(Identifier) |int|
 //@[015:0016) ├─Token(NewLine) |\n|
 param
 //@[000:0005) ├─ParameterDeclarationSyntax
@@ -47,8 +49,9 @@ param % string
 //@[006:0007) | ├─IdentifierSyntax
 //@[006:0007) | | └─SkippedTriviaSyntax
 //@[006:0007) | |   └─Token(Modulo) |%|
-//@[008:0014) | └─SimpleTypeSyntax
-//@[008:0014) |   └─Token(Identifier) |string|
+//@[008:0014) | └─VariableAccessSyntax
+//@[008:0014) |   └─IdentifierSyntax
+//@[008:0014) |     └─Token(Identifier) |string|
 //@[014:0015) ├─Token(NewLine) |\n|
 param % string 3 = 's'
 //@[000:0022) ├─ParameterDeclarationSyntax
@@ -56,8 +59,9 @@ param % string 3 = 's'
 //@[006:0007) | ├─IdentifierSyntax
 //@[006:0007) | | └─SkippedTriviaSyntax
 //@[006:0007) | |   └─Token(Modulo) |%|
-//@[008:0014) | ├─SimpleTypeSyntax
-//@[008:0014) | | └─Token(Identifier) |string|
+//@[008:0014) | ├─VariableAccessSyntax
+//@[008:0014) | | └─IdentifierSyntax
+//@[008:0014) | |   └─Token(Identifier) |string|
 //@[015:0022) | └─SkippedTriviaSyntax
 //@[015:0016) |   ├─Token(Integer) |3|
 //@[017:0018) |   ├─Token(Assignment) |=|
@@ -69,8 +73,9 @@ param myBool bool
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0012) | ├─IdentifierSyntax
 //@[006:0012) | | └─Token(Identifier) |myBool|
-//@[013:0017) | └─SimpleTypeSyntax
-//@[013:0017) |   └─Token(Identifier) |bool|
+//@[013:0017) | └─VariableAccessSyntax
+//@[013:0017) |   └─IdentifierSyntax
+//@[013:0017) |     └─Token(Identifier) |bool|
 //@[017:0019) ├─Token(NewLine) |\n\n|
 
 param missingType
@@ -118,7 +123,7 @@ param partialType str
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0017) | ├─IdentifierSyntax
 //@[006:0017) | | └─Token(Identifier) |partialType|
-//@[018:0021) | └─TypeAccessSyntax
+//@[018:0021) | └─VariableAccessSyntax
 //@[018:0021) |   └─IdentifierSyntax
 //@[018:0021) |     └─Token(Identifier) |str|
 //@[021:0023) ├─Token(NewLine) |\n\n|
@@ -176,8 +181,9 @@ param myString2 string = 'string value'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |myString2|
-//@[016:0022) | ├─SimpleTypeSyntax
-//@[016:0022) | | └─Token(Identifier) |string|
+//@[016:0022) | ├─VariableAccessSyntax
+//@[016:0022) | | └─IdentifierSyntax
+//@[016:0022) | |   └─Token(Identifier) |string|
 //@[023:0039) | └─ParameterDefaultValueSyntax
 //@[023:0024) |   ├─Token(Assignment) |=|
 //@[025:0039) |   └─StringSyntax
@@ -189,8 +195,9 @@ param wrongDefaultValue string = 42
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0023) | ├─IdentifierSyntax
 //@[006:0023) | | └─Token(Identifier) |wrongDefaultValue|
-//@[024:0030) | ├─SimpleTypeSyntax
-//@[024:0030) | | └─Token(Identifier) |string|
+//@[024:0030) | ├─VariableAccessSyntax
+//@[024:0030) | | └─IdentifierSyntax
+//@[024:0030) | |   └─Token(Identifier) |string|
 //@[031:0035) | └─ParameterDefaultValueSyntax
 //@[031:0032) |   ├─Token(Assignment) |=|
 //@[033:0035) |   └─IntegerLiteralSyntax
@@ -202,8 +209,9 @@ param myInt2 int = 42
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0012) | ├─IdentifierSyntax
 //@[006:0012) | | └─Token(Identifier) |myInt2|
-//@[013:0016) | ├─SimpleTypeSyntax
-//@[013:0016) | | └─Token(Identifier) |int|
+//@[013:0016) | ├─VariableAccessSyntax
+//@[013:0016) | | └─IdentifierSyntax
+//@[013:0016) | |   └─Token(Identifier) |int|
 //@[017:0021) | └─ParameterDefaultValueSyntax
 //@[017:0018) |   ├─Token(Assignment) |=|
 //@[019:0021) |   └─IntegerLiteralSyntax
@@ -214,8 +222,9 @@ param noValueAfterColon int =
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0023) | ├─IdentifierSyntax
 //@[006:0023) | | └─Token(Identifier) |noValueAfterColon|
-//@[024:0027) | ├─SimpleTypeSyntax
-//@[024:0027) | | └─Token(Identifier) |int|
+//@[024:0027) | ├─VariableAccessSyntax
+//@[024:0027) | | └─IdentifierSyntax
+//@[024:0027) | |   └─Token(Identifier) |int|
 //@[028:0032) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[032:0032) |   └─SkippedTriviaSyntax
@@ -226,8 +235,9 @@ param myTruth bool = 'not a boolean'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0013) | ├─IdentifierSyntax
 //@[006:0013) | | └─Token(Identifier) |myTruth|
-//@[014:0018) | ├─SimpleTypeSyntax
-//@[014:0018) | | └─Token(Identifier) |bool|
+//@[014:0018) | ├─VariableAccessSyntax
+//@[014:0018) | | └─IdentifierSyntax
+//@[014:0018) | |   └─Token(Identifier) |bool|
 //@[019:0036) | └─ParameterDefaultValueSyntax
 //@[019:0020) |   ├─Token(Assignment) |=|
 //@[021:0036) |   └─StringSyntax
@@ -238,8 +248,9 @@ param myFalsehood bool = 'false'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0017) | ├─IdentifierSyntax
 //@[006:0017) | | └─Token(Identifier) |myFalsehood|
-//@[018:0022) | ├─SimpleTypeSyntax
-//@[018:0022) | | └─Token(Identifier) |bool|
+//@[018:0022) | ├─VariableAccessSyntax
+//@[018:0022) | | └─IdentifierSyntax
+//@[018:0022) | |   └─Token(Identifier) |bool|
 //@[023:0032) | └─ParameterDefaultValueSyntax
 //@[023:0024) |   ├─Token(Assignment) |=|
 //@[025:0032) |   └─StringSyntax
@@ -251,8 +262,9 @@ param wrongAssignmentToken string: 'hello'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0026) | ├─IdentifierSyntax
 //@[006:0026) | | └─Token(Identifier) |wrongAssignmentToken|
-//@[027:0033) | ├─SimpleTypeSyntax
-//@[027:0033) | | └─Token(Identifier) |string|
+//@[027:0033) | ├─VariableAccessSyntax
+//@[027:0033) | | └─IdentifierSyntax
+//@[027:0033) | |   └─Token(Identifier) |string|
 //@[033:0042) | └─SkippedTriviaSyntax
 //@[033:0034) |   ├─Token(Colon) |:|
 //@[035:0042) |   └─Token(StringComplete) |'hello'|
@@ -263,8 +275,9 @@ param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWh
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0267) | ├─IdentifierSyntax
 //@[006:0267) | | └─Token(Identifier) |WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong|
-//@[268:0274) | ├─SimpleTypeSyntax
-//@[268:0274) | | └─Token(Identifier) |string|
+//@[268:0274) | ├─VariableAccessSyntax
+//@[268:0274) | | └─IdentifierSyntax
+//@[268:0274) | |   └─Token(Identifier) |string|
 //@[275:0287) | └─ParameterDefaultValueSyntax
 //@[275:0276) |   ├─Token(Assignment) |=|
 //@[277:0287) |   └─StringSyntax
@@ -278,8 +291,9 @@ param boolCompletions bool =
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0021) | ├─IdentifierSyntax
 //@[006:0021) | | └─Token(Identifier) |boolCompletions|
-//@[022:0026) | ├─SimpleTypeSyntax
-//@[022:0026) | | └─Token(Identifier) |bool|
+//@[022:0026) | ├─VariableAccessSyntax
+//@[022:0026) | | └─IdentifierSyntax
+//@[022:0026) | |   └─Token(Identifier) |bool|
 //@[027:0029) | └─ParameterDefaultValueSyntax
 //@[027:0028) |   ├─Token(Assignment) |=|
 //@[029:0029) |   └─SkippedTriviaSyntax
@@ -292,8 +306,9 @@ param arrayCompletions array =
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0022) | ├─IdentifierSyntax
 //@[006:0022) | | └─Token(Identifier) |arrayCompletions|
-//@[023:0028) | ├─SimpleTypeSyntax
-//@[023:0028) | | └─Token(Identifier) |array|
+//@[023:0028) | ├─VariableAccessSyntax
+//@[023:0028) | | └─IdentifierSyntax
+//@[023:0028) | |   └─Token(Identifier) |array|
 //@[029:0031) | └─ParameterDefaultValueSyntax
 //@[029:0030) |   ├─Token(Assignment) |=|
 //@[031:0031) |   └─SkippedTriviaSyntax
@@ -306,8 +321,9 @@ param objectCompletions object =
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0023) | ├─IdentifierSyntax
 //@[006:0023) | | └─Token(Identifier) |objectCompletions|
-//@[024:0030) | ├─SimpleTypeSyntax
-//@[024:0030) | | └─Token(Identifier) |object|
+//@[024:0030) | ├─VariableAccessSyntax
+//@[024:0030) | | └─IdentifierSyntax
+//@[024:0030) | |   └─Token(Identifier) |object|
 //@[031:0033) | └─ParameterDefaultValueSyntax
 //@[031:0032) |   ├─Token(Assignment) |=|
 //@[033:0033) |   └─SkippedTriviaSyntax
@@ -320,7 +336,7 @@ param wrongType fluffyBunny = 'what's up doc?'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | ├─VariableAccessSyntax
 //@[016:0027) | | └─IdentifierSyntax
 //@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0036) | └─ParameterDefaultValueSyntax
@@ -342,7 +358,7 @@ param wrongType fluffyBunny = 'what\s up doc?'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | ├─VariableAccessSyntax
 //@[016:0027) | | └─IdentifierSyntax
 //@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0046) | └─ParameterDefaultValueSyntax
@@ -358,7 +374,7 @@ param wrongType fluffyBunny = 'what\'s up doc?
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | ├─VariableAccessSyntax
 //@[016:0027) | | └─IdentifierSyntax
 //@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0046) | └─ParameterDefaultValueSyntax
@@ -374,7 +390,7 @@ param wrongType fluffyBunny = 'what\'s ${
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | ├─VariableAccessSyntax
 //@[016:0027) | | └─IdentifierSyntax
 //@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0041) | └─ParameterDefaultValueSyntax
@@ -389,7 +405,7 @@ param wrongType fluffyBunny = 'what\'s ${up
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | ├─VariableAccessSyntax
 //@[016:0027) | | └─IdentifierSyntax
 //@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0043) | └─ParameterDefaultValueSyntax
@@ -406,7 +422,7 @@ param wrongType fluffyBunny = 'what\'s ${up}
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | ├─VariableAccessSyntax
 //@[016:0027) | | └─IdentifierSyntax
 //@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0044) | └─ParameterDefaultValueSyntax
@@ -423,7 +439,7 @@ param wrongType fluffyBunny = 'what\'s ${'up
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | ├─VariableAccessSyntax
 //@[016:0027) | | └─IdentifierSyntax
 //@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0044) | └─ParameterDefaultValueSyntax
@@ -442,7 +458,7 @@ param wrongType fluffyBunny = 'what\'s ${'up${
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | ├─VariableAccessSyntax
 //@[016:0027) | | └─IdentifierSyntax
 //@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0046) | └─ParameterDefaultValueSyntax
@@ -459,7 +475,7 @@ param wrongType fluffyBunny = 'what\'s ${'up${
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | ├─VariableAccessSyntax
 //@[016:0027) | | └─IdentifierSyntax
 //@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0046) | └─ParameterDefaultValueSyntax
@@ -476,7 +492,7 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | ├─VariableAccessSyntax
 //@[016:0027) | | └─IdentifierSyntax
 //@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0049) | └─ParameterDefaultValueSyntax
@@ -495,7 +511,7 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | ├─VariableAccessSyntax
 //@[016:0027) | | └─IdentifierSyntax
 //@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0050) | └─ParameterDefaultValueSyntax
@@ -515,7 +531,7 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | ├─VariableAccessSyntax
 //@[016:0027) | | └─IdentifierSyntax
 //@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0051) | └─ParameterDefaultValueSyntax
@@ -535,7 +551,7 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | ├─VariableAccessSyntax
 //@[016:0027) | | └─IdentifierSyntax
 //@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0053) | └─ParameterDefaultValueSyntax
@@ -558,7 +574,7 @@ param wrongType fluffyBunny = '${{this: doesnt}.work}'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | ├─VariableAccessSyntax
 //@[016:0027) | | └─IdentifierSyntax
 //@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0054) | └─ParameterDefaultValueSyntax
@@ -585,8 +601,9 @@ param badInterpolatedString string = 'hello ${}!'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0027) | ├─IdentifierSyntax
 //@[006:0027) | | └─Token(Identifier) |badInterpolatedString|
-//@[028:0034) | ├─SimpleTypeSyntax
-//@[028:0034) | | └─Token(Identifier) |string|
+//@[028:0034) | ├─VariableAccessSyntax
+//@[028:0034) | | └─IdentifierSyntax
+//@[028:0034) | |   └─Token(Identifier) |string|
 //@[035:0049) | └─ParameterDefaultValueSyntax
 //@[035:0036) |   ├─Token(Assignment) |=|
 //@[037:0049) |   └─StringSyntax
@@ -599,8 +616,9 @@ param badInterpolatedString2 string = 'hello ${a b c}!'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0028) | ├─IdentifierSyntax
 //@[006:0028) | | └─Token(Identifier) |badInterpolatedString2|
-//@[029:0035) | ├─SimpleTypeSyntax
-//@[029:0035) | | └─Token(Identifier) |string|
+//@[029:0035) | ├─VariableAccessSyntax
+//@[029:0035) | | └─IdentifierSyntax
+//@[029:0035) | |   └─Token(Identifier) |string|
 //@[036:0055) | └─ParameterDefaultValueSyntax
 //@[036:0037) |   ├─Token(Assignment) |=|
 //@[038:0055) |   └─StringSyntax
@@ -620,7 +638,7 @@ param wrongType fluffyBunny = 'what\'s up doc?'
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |wrongType|
-//@[016:0027) | ├─TypeAccessSyntax
+//@[016:0027) | ├─VariableAccessSyntax
 //@[016:0027) | | └─IdentifierSyntax
 //@[016:0027) | |   └─Token(Identifier) |fluffyBunny|
 //@[028:0047) | └─ParameterDefaultValueSyntax
@@ -660,7 +678,7 @@ param someArray arra
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |someArray|
-//@[016:0020) | └─TypeAccessSyntax
+//@[016:0020) | └─VariableAccessSyntax
 //@[016:0020) |   └─IdentifierSyntax
 //@[016:0020) |     └─Token(Identifier) |arra|
 //@[020:0022) ├─Token(NewLine) |\n\n|
@@ -703,8 +721,9 @@ param secureInt int
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0015) | ├─IdentifierSyntax
 //@[006:0015) | | └─Token(Identifier) |secureInt|
-//@[016:0019) | └─SimpleTypeSyntax
-//@[016:0019) |   └─Token(Identifier) |int|
+//@[016:0019) | └─VariableAccessSyntax
+//@[016:0019) |   └─IdentifierSyntax
+//@[016:0019) |     └─Token(Identifier) |int|
 //@[019:0021) ├─Token(NewLine) |\n\n|
 
 // wrong modifier value types
@@ -781,8 +800,9 @@ param wrongIntModifier int = true
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0022) | ├─IdentifierSyntax
 //@[006:0022) | | └─Token(Identifier) |wrongIntModifier|
-//@[023:0026) | ├─SimpleTypeSyntax
-//@[023:0026) | | └─Token(Identifier) |int|
+//@[023:0026) | ├─VariableAccessSyntax
+//@[023:0026) | | └─IdentifierSyntax
+//@[023:0026) | |   └─Token(Identifier) |int|
 //@[027:0033) | └─ParameterDefaultValueSyntax
 //@[027:0028) |   ├─Token(Assignment) |=|
 //@[029:0033) |   └─BooleanLiteralSyntax
@@ -864,8 +884,9 @@ param wrongMetadataSchema string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0025) | ├─IdentifierSyntax
 //@[006:0025) | | └─Token(Identifier) |wrongMetadataSchema|
-//@[026:0032) | └─SimpleTypeSyntax
-//@[026:0032) |   └─Token(Identifier) |string|
+//@[026:0032) | └─VariableAccessSyntax
+//@[026:0032) |   └─IdentifierSyntax
+//@[026:0032) |     └─Token(Identifier) |string|
 //@[032:0034) ├─Token(NewLine) |\n\n|
 
 // expression in modifier
@@ -928,8 +949,9 @@ param expressionInModifier string = 2 + 3
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0026) | ├─IdentifierSyntax
 //@[006:0026) | | └─Token(Identifier) |expressionInModifier|
-//@[027:0033) | ├─SimpleTypeSyntax
-//@[027:0033) | | └─Token(Identifier) |string|
+//@[027:0033) | ├─VariableAccessSyntax
+//@[027:0033) | | └─IdentifierSyntax
+//@[027:0033) | |   └─Token(Identifier) |string|
 //@[034:0041) | └─ParameterDefaultValueSyntax
 //@[034:0035) |   ├─Token(Assignment) |=|
 //@[036:0041) |   └─BinaryOperationSyntax
@@ -1007,8 +1029,9 @@ param nonCompileTimeConstant string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0028) | ├─IdentifierSyntax
 //@[006:0028) | | └─Token(Identifier) |nonCompileTimeConstant|
-//@[029:0035) | └─SimpleTypeSyntax
-//@[029:0035) |   └─Token(Identifier) |string|
+//@[029:0035) | └─VariableAccessSyntax
+//@[029:0035) |   └─IdentifierSyntax
+//@[029:0035) |     └─Token(Identifier) |string|
 //@[035:0038) ├─Token(NewLine) |\n\n\n|
 
 
@@ -1030,8 +1053,9 @@ param emptyAllowedString string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0024) | ├─IdentifierSyntax
 //@[006:0024) | | └─Token(Identifier) |emptyAllowedString|
-//@[025:0031) | └─SimpleTypeSyntax
-//@[025:0031) |   └─Token(Identifier) |string|
+//@[025:0031) | └─VariableAccessSyntax
+//@[025:0031) |   └─IdentifierSyntax
+//@[025:0031) |     └─Token(Identifier) |string|
 //@[031:0033) ├─Token(NewLine) |\n\n|
 
 @allowed([])
@@ -1052,8 +1076,9 @@ param emptyAllowedInt int
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0021) | ├─IdentifierSyntax
 //@[006:0021) | | └─Token(Identifier) |emptyAllowedInt|
-//@[022:0025) | └─SimpleTypeSyntax
-//@[022:0025) |   └─Token(Identifier) |int|
+//@[022:0025) | └─VariableAccessSyntax
+//@[022:0025) |   └─IdentifierSyntax
+//@[022:0025) |     └─Token(Identifier) |int|
 //@[025:0027) ├─Token(NewLine) |\n\n|
 
 // 1-cycle in params
@@ -1063,8 +1088,9 @@ param paramDefaultOneCycle string = paramDefaultOneCycle
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0026) | ├─IdentifierSyntax
 //@[006:0026) | | └─Token(Identifier) |paramDefaultOneCycle|
-//@[027:0033) | ├─SimpleTypeSyntax
-//@[027:0033) | | └─Token(Identifier) |string|
+//@[027:0033) | ├─VariableAccessSyntax
+//@[027:0033) | | └─IdentifierSyntax
+//@[027:0033) | |   └─Token(Identifier) |string|
 //@[034:0056) | └─ParameterDefaultValueSyntax
 //@[034:0035) |   ├─Token(Assignment) |=|
 //@[036:0056) |   └─VariableAccessSyntax
@@ -1079,8 +1105,9 @@ param paramDefaultTwoCycle1 string = paramDefaultTwoCycle2
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0027) | ├─IdentifierSyntax
 //@[006:0027) | | └─Token(Identifier) |paramDefaultTwoCycle1|
-//@[028:0034) | ├─SimpleTypeSyntax
-//@[028:0034) | | └─Token(Identifier) |string|
+//@[028:0034) | ├─VariableAccessSyntax
+//@[028:0034) | | └─IdentifierSyntax
+//@[028:0034) | |   └─Token(Identifier) |string|
 //@[035:0058) | └─ParameterDefaultValueSyntax
 //@[035:0036) |   ├─Token(Assignment) |=|
 //@[037:0058) |   └─VariableAccessSyntax
@@ -1092,8 +1119,9 @@ param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0027) | ├─IdentifierSyntax
 //@[006:0027) | | └─Token(Identifier) |paramDefaultTwoCycle2|
-//@[028:0034) | ├─SimpleTypeSyntax
-//@[028:0034) | | └─Token(Identifier) |string|
+//@[028:0034) | ├─VariableAccessSyntax
+//@[028:0034) | | └─IdentifierSyntax
+//@[028:0034) | |   └─Token(Identifier) |string|
 //@[035:0058) | └─ParameterDefaultValueSyntax
 //@[035:0036) |   ├─Token(Assignment) |=|
 //@[037:0058) |   └─VariableAccessSyntax
@@ -1127,8 +1155,9 @@ param paramModifierSelfCycle string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0028) | ├─IdentifierSyntax
 //@[006:0028) | | └─Token(Identifier) |paramModifierSelfCycle|
-//@[029:0035) | └─SimpleTypeSyntax
-//@[029:0035) |   └─Token(Identifier) |string|
+//@[029:0035) | └─VariableAccessSyntax
+//@[029:0035) |   └─IdentifierSyntax
+//@[029:0035) |     └─Token(Identifier) |string|
 //@[035:0037) ├─Token(NewLine) |\n\n|
 
 // wrong types of "variable"/identifier access
@@ -1169,8 +1198,9 @@ output sampleOutput string = 'hello'
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0019) | ├─IdentifierSyntax
 //@[007:0019) | | └─Token(Identifier) |sampleOutput|
-//@[020:0026) | ├─SimpleTypeSyntax
-//@[020:0026) | | └─Token(Identifier) |string|
+//@[020:0026) | ├─VariableAccessSyntax
+//@[020:0026) | | └─IdentifierSyntax
+//@[020:0026) | |   └─Token(Identifier) |string|
 //@[027:0028) | ├─Token(Assignment) |=|
 //@[029:0036) | └─StringSyntax
 //@[029:0036) |   └─Token(StringComplete) |'hello'|
@@ -1181,8 +1211,9 @@ param paramAccessingVar string = concat(sampleVar, 's')
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0023) | ├─IdentifierSyntax
 //@[006:0023) | | └─Token(Identifier) |paramAccessingVar|
-//@[024:0030) | ├─SimpleTypeSyntax
-//@[024:0030) | | └─Token(Identifier) |string|
+//@[024:0030) | ├─VariableAccessSyntax
+//@[024:0030) | | └─IdentifierSyntax
+//@[024:0030) | |   └─Token(Identifier) |string|
 //@[031:0055) | └─ParameterDefaultValueSyntax
 //@[031:0032) |   ├─Token(Assignment) |=|
 //@[033:0055) |   └─FunctionCallSyntax
@@ -1205,8 +1236,9 @@ param paramAccessingResource string = sampleResource
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0028) | ├─IdentifierSyntax
 //@[006:0028) | | └─Token(Identifier) |paramAccessingResource|
-//@[029:0035) | ├─SimpleTypeSyntax
-//@[029:0035) | | └─Token(Identifier) |string|
+//@[029:0035) | ├─VariableAccessSyntax
+//@[029:0035) | | └─IdentifierSyntax
+//@[029:0035) | |   └─Token(Identifier) |string|
 //@[036:0052) | └─ParameterDefaultValueSyntax
 //@[036:0037) |   ├─Token(Assignment) |=|
 //@[038:0052) |   └─VariableAccessSyntax
@@ -1219,8 +1251,9 @@ param paramAccessingOutput string = sampleOutput
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0026) | ├─IdentifierSyntax
 //@[006:0026) | | └─Token(Identifier) |paramAccessingOutput|
-//@[027:0033) | ├─SimpleTypeSyntax
-//@[027:0033) | | └─Token(Identifier) |string|
+//@[027:0033) | ├─VariableAccessSyntax
+//@[027:0033) | | └─IdentifierSyntax
+//@[027:0033) | |   └─Token(Identifier) |string|
 //@[034:0048) | └─ParameterDefaultValueSyntax
 //@[034:0035) |   ├─Token(Assignment) |=|
 //@[036:0048) |   └─VariableAccessSyntax
@@ -1245,8 +1278,9 @@ param defaultValueOneLinerCompletions string =
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0037) | ├─IdentifierSyntax
 //@[006:0037) | | └─Token(Identifier) |defaultValueOneLinerCompletions|
-//@[038:0044) | ├─SimpleTypeSyntax
-//@[038:0044) | | └─Token(Identifier) |string|
+//@[038:0044) | ├─VariableAccessSyntax
+//@[038:0044) | | └─IdentifierSyntax
+//@[038:0044) | |   └─Token(Identifier) |string|
 //@[045:0047) | └─ParameterDefaultValueSyntax
 //@[045:0046) |   ├─Token(Assignment) |=|
 //@[047:0047) |   └─SkippedTriviaSyntax
@@ -1309,8 +1343,9 @@ param commaOne string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0014) | ├─IdentifierSyntax
 //@[006:0014) | | └─Token(Identifier) |commaOne|
-//@[015:0021) | └─SimpleTypeSyntax
-//@[015:0021) |   └─Token(Identifier) |string|
+//@[015:0021) | └─VariableAccessSyntax
+//@[015:0021) |   └─IdentifierSyntax
+//@[015:0021) |     └─Token(Identifier) |string|
 //@[021:0023) ├─Token(NewLine) |\n\n|
 
 @secure
@@ -1351,8 +1386,9 @@ param incompleteDecorators string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0026) | ├─IdentifierSyntax
 //@[006:0026) | | └─Token(Identifier) |incompleteDecorators|
-//@[027:0033) | └─SimpleTypeSyntax
-//@[027:0033) |   └─Token(Identifier) |string|
+//@[027:0033) | └─VariableAccessSyntax
+//@[027:0033) |   └─IdentifierSyntax
+//@[027:0033) |     └─Token(Identifier) |string|
 //@[033:0035) ├─Token(NewLine) |\n\n|
 
 @concat(1, 2)
@@ -1419,8 +1455,9 @@ param someString string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0016) | ├─IdentifierSyntax
 //@[006:0016) | | └─Token(Identifier) |someString|
-//@[017:0023) | └─SimpleTypeSyntax
-//@[017:0023) |   └─Token(Identifier) |string|
+//@[017:0023) | └─VariableAccessSyntax
+//@[017:0023) |   └─IdentifierSyntax
+//@[017:0023) |     └─Token(Identifier) |string|
 //@[023:0025) ├─Token(NewLine) |\n\n|
 
 @allowed([
@@ -1487,8 +1524,9 @@ param someInteger int = 20
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0017) | ├─IdentifierSyntax
 //@[006:0017) | | └─Token(Identifier) |someInteger|
-//@[018:0021) | ├─SimpleTypeSyntax
-//@[018:0021) | | └─Token(Identifier) |int|
+//@[018:0021) | ├─VariableAccessSyntax
+//@[018:0021) | | └─IdentifierSyntax
+//@[018:0021) | |   └─Token(Identifier) |int|
 //@[022:0026) | └─ParameterDefaultValueSyntax
 //@[022:0023) |   ├─Token(Assignment) |=|
 //@[024:0026) |   └─IntegerLiteralSyntax
@@ -1535,8 +1573,9 @@ param tooManyArguments1 int = 20
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0023) | ├─IdentifierSyntax
 //@[006:0023) | | └─Token(Identifier) |tooManyArguments1|
-//@[024:0027) | ├─SimpleTypeSyntax
-//@[024:0027) | | └─Token(Identifier) |int|
+//@[024:0027) | ├─VariableAccessSyntax
+//@[024:0027) | | └─IdentifierSyntax
+//@[024:0027) | |   └─Token(Identifier) |int|
 //@[028:0032) | └─ParameterDefaultValueSyntax
 //@[028:0029) |   ├─Token(Assignment) |=|
 //@[030:0032) |   └─IntegerLiteralSyntax
@@ -1599,8 +1638,9 @@ param tooManyArguments2 string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0023) | ├─IdentifierSyntax
 //@[006:0023) | | └─Token(Identifier) |tooManyArguments2|
-//@[024:0030) | └─SimpleTypeSyntax
-//@[024:0030) |   └─Token(Identifier) |string|
+//@[024:0030) | └─VariableAccessSyntax
+//@[024:0030) |   └─IdentifierSyntax
+//@[024:0030) |     └─Token(Identifier) |string|
 //@[030:0032) ├─Token(NewLine) |\n\n|
 
 @description(sys.concat(2))
@@ -1654,8 +1694,9 @@ param nonConstantInDecorator string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0028) | ├─IdentifierSyntax
 //@[006:0028) | | └─Token(Identifier) |nonConstantInDecorator|
-//@[029:0035) | └─SimpleTypeSyntax
-//@[029:0035) |   └─Token(Identifier) |string|
+//@[029:0035) | └─VariableAccessSyntax
+//@[029:0035) |   └─IdentifierSyntax
+//@[029:0035) |     └─Token(Identifier) |string|
 //@[035:0037) ├─Token(NewLine) |\n\n|
 
 @minValue(-length('s'))
@@ -1708,8 +1749,9 @@ param unaryMinusOnFunction int
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0026) | ├─IdentifierSyntax
 //@[006:0026) | | └─Token(Identifier) |unaryMinusOnFunction|
-//@[027:0030) | └─SimpleTypeSyntax
-//@[027:0030) |   └─Token(Identifier) |int|
+//@[027:0030) | └─VariableAccessSyntax
+//@[027:0030) |   └─IdentifierSyntax
+//@[027:0030) |     └─Token(Identifier) |int|
 //@[030:0032) ├─Token(NewLine) |\n\n|
 
 @minLength(1)
@@ -1774,8 +1816,9 @@ param duplicateDecorators string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0025) | ├─IdentifierSyntax
 //@[006:0025) | | └─Token(Identifier) |duplicateDecorators|
-//@[026:0032) | └─SimpleTypeSyntax
-//@[026:0032) |   └─Token(Identifier) |string|
+//@[026:0032) | └─VariableAccessSyntax
+//@[026:0032) |   └─IdentifierSyntax
+//@[026:0032) |     └─Token(Identifier) |string|
 //@[032:0034) ├─Token(NewLine) |\n\n|
 
 @minLength(-1)
@@ -1811,8 +1854,9 @@ param invalidLength string
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0019) | ├─IdentifierSyntax
 //@[006:0019) | | └─Token(Identifier) |invalidLength|
-//@[020:0026) | └─SimpleTypeSyntax
-//@[020:0026) |   └─Token(Identifier) |string|
+//@[020:0026) | └─VariableAccessSyntax
+//@[020:0026) |   └─IdentifierSyntax
+//@[020:0026) |     └─Token(Identifier) |string|
 //@[026:0028) ├─Token(NewLine) |\n\n|
 
 @allowed([
@@ -1870,8 +1914,9 @@ param invalidPermutation array = [
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0024) | ├─IdentifierSyntax
 //@[006:0024) | | └─Token(Identifier) |invalidPermutation|
-//@[025:0030) | ├─SimpleTypeSyntax
-//@[025:0030) | | └─Token(Identifier) |array|
+//@[025:0030) | ├─VariableAccessSyntax
+//@[025:0030) | | └─IdentifierSyntax
+//@[025:0030) | |   └─Token(Identifier) |array|
 //@[031:0060) | └─ParameterDefaultValueSyntax
 //@[031:0032) |   ├─Token(Assignment) |=|
 //@[033:0060) |   └─ArraySyntax
@@ -1952,8 +1997,9 @@ param invalidDefaultWithAllowedArrayDecorator array = true
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0045) | ├─IdentifierSyntax
 //@[006:0045) | | └─Token(Identifier) |invalidDefaultWithAllowedArrayDecorator|
-//@[046:0051) | ├─SimpleTypeSyntax
-//@[046:0051) | | └─Token(Identifier) |array|
+//@[046:0051) | ├─VariableAccessSyntax
+//@[046:0051) | | └─IdentifierSyntax
+//@[046:0051) | |   └─Token(Identifier) |array|
 //@[052:0058) | └─ParameterDefaultValueSyntax
 //@[052:0053) |   ├─Token(Assignment) |=|
 //@[054:0058) |   └─BooleanLiteralSyntax

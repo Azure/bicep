@@ -49,14 +49,14 @@ type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
 //@[131:146]     "mixedArray": {
 
-type String = string
-//@[147:149]     "String": {
+type bool = string
+//@[147:149]     "bool": {
 
 param inlineObjectParam {
 //@[152:182]     "inlineObjectParam": {
   foo: string
   bar: 100|200|300|400|500
-  baz: bool
+  baz: sys.bool
 } = {
   foo: 'foo'
 //@[178:178]         "foo": "foo",

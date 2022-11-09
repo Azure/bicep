@@ -66,8 +66,6 @@ namespace Bicep.Core.Syntax
 
         void VisitToken(Token token);
 
-        void VisitSimpleTypeSyntax(SimpleTypeSyntax syntax);
-
         void VisitResourceTypeSyntax(ResourceTypeSyntax syntax);
 
         void VisitObjectTypeSyntax(ObjectTypeSyntax syntax);
@@ -83,8 +81,6 @@ namespace Bicep.Core.Syntax
         void VisitUnionTypeMemberSyntax(UnionTypeMemberSyntax syntax);
 
         void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax);
-
-        void VisitTypeAccessSyntax(TypeAccessSyntax syntax);
 
         void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax);
 

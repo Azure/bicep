@@ -10,9 +10,6 @@ type noAssignment
 type incompleteAssignment =
 //@[27:27) [BCP279 (Error)] Expected a type at this location. Please specify a valid type expression or one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
-type string = int
-//@[05:11) [BCP301 (Error)] The type name "string" is reserved and may not be attached to a user-defined type. (CodeDescription: none) |string|
-
 type resource = bool
 //@[05:13) [BCP301 (Error)] The type name "resource" is reserved and may not be attached to a user-defined type. (CodeDescription: none) |resource|
 

@@ -149,18 +149,6 @@ namespace Bicep.Core.TypeSystem
             base.VisitFunctionCallSyntax(syntax);
         }
 
-        public override void VisitTypeAccessSyntax(TypeAccessSyntax syntax)
-        {
-            if (!currentDeclarations.TryPeek(out var currentDeclaration))
-            {
-                // we're not inside a declaration, so there should be no risk of a cycle
-                return;
-            }
-
-            declarationAccessDict[currentDeclaration].Add(syntax);
-            base.VisitTypeAccessSyntax(syntax);
-        }
-
         public override void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax)
         {
             if (syntax.OptionalityMarker is not null)
@@ -173,4 +161,3 @@ namespace Bicep.Core.TypeSystem
         }
     }
 }
-

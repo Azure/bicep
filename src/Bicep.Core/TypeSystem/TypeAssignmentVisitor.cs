@@ -1014,7 +1014,7 @@ namespace Bicep.Core.TypeSystem
                             {
                                 case StringSyntax @string when @string.TryGetLiteralValue() is { } literalValue:
                                     // indexing using a string literal so we know the name of the property
-                                    return GetNamedPropertyType(baseObject, syntax.IndexExpression, literalValue, diagnostics);
+                                    return TypeHelper.GetNamedPropertyType(baseObject, syntax.IndexExpression, literalValue, TypeValidator.ShouldWarn(baseObject), diagnostics);
 
                                 default:
                                     // the property name is itself an expression
@@ -1085,7 +1085,7 @@ namespace Bicep.Core.TypeSystem
                             return ErrorType.Empty();
                         }
 
-                        return GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, diagnostics);
+                        return TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, TypeValidator.ShouldWarn(objectType), diagnostics);
 
                     case DiscriminatedObjectType _:
                         // TODO: We might be able use the declared type here to resolve discriminator to improve the assigned type
@@ -1417,7 +1417,8 @@ namespace Bicep.Core.TypeSystem
                     case OutputSymbol _:
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).OutputReferenceNotSupported(syntax.Name.IdentifierName));
 
-                    case TypeAliasSymbol _:
+                    case TypeAliasSymbol:
+                    case AmbientTypeSymbol:
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Name.Span).TypeSymbolUsedAsValue(syntax.Name.IdentifierName));
 
                     default:
@@ -1524,77 +1525,6 @@ namespace Bicep.Core.TypeSystem
             }
 
             return ErrorType.Create(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).NoPropertiesAllowed(baseType));
-        }
-
-        /// <summary>
-        /// Gets the type of the property whose name we can obtain at compile-time.
-        /// </summary>
-        /// <param name="baseType">The base object type</param>
-        /// <param name="propertyExpressionPositionable">The position of the property name expression</param>
-        /// <param name="propertyName">The resolved property name</param>
-        /// <param name="diagnostics">List of diagnostics to append diagnostics</param>
-        private static TypeSymbol GetNamedPropertyType(ObjectType baseType, IPositionable propertyExpressionPositionable, string propertyName, IDiagnosticWriter diagnostics)
-        {
-            if (baseType.TypeKind == TypeKind.Any)
-            {
-                // all properties of "any" type are of type "any"
-                return LanguageConstants.Any;
-            }
-
-            // is there a declared property with this name
-            var declaredProperty = baseType.Properties.TryGetValue(propertyName);
-            if (declaredProperty != null)
-            {
-                if (declaredProperty.Flags.HasFlag(TypePropertyFlags.WriteOnly))
-                {
-                    var writeOnlyDiagnostic = DiagnosticBuilder.ForPosition(propertyExpressionPositionable).WriteOnlyProperty(TypeValidator.ShouldWarn(baseType), baseType, propertyName);
-                    diagnostics.Write(writeOnlyDiagnostic);
-
-                    if (writeOnlyDiagnostic.Level == DiagnosticLevel.Error)
-                    {
-                        return ErrorType.Create(Enumerable.Empty<ErrorDiagnostic>());
-                    }
-                }
-
-                if (declaredProperty.Flags.HasFlag(TypePropertyFlags.FallbackProperty))
-                {
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(propertyExpressionPositionable).FallbackPropertyUsed(propertyName));
-                }
-
-                // there is - return its type
-                return declaredProperty.TypeReference.Type;
-            }
-
-            // the property is not declared
-            // check additional properties
-            if (baseType.AdditionalPropertiesType != null)
-            {
-                // yes - return the additional property type
-                return baseType.AdditionalPropertiesType.Type;
-            }
-
-            var availableProperties = baseType.Properties.Values
-                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
-                .Select(p => p.Name)
-                .OrderBy(x => x);
-
-            var diagnosticBuilder = DiagnosticBuilder.ForPosition(propertyExpressionPositionable);
-            var shouldWarn = TypeValidator.ShouldWarn(baseType);
-
-            var unknownPropertyDiagnostic = availableProperties.Any() switch
-            {
-                true => SpellChecker.GetSpellingSuggestion(propertyName, availableProperties) switch
-                {
-                    string suggestedPropertyName when suggestedPropertyName != null =>
-                        diagnosticBuilder.UnknownPropertyWithSuggestion(shouldWarn, baseType, propertyName, suggestedPropertyName),
-                    _ => diagnosticBuilder.UnknownPropertyWithAvailableProperties(shouldWarn, baseType, propertyName, availableProperties),
-                },
-                _ => diagnosticBuilder.UnknownProperty(shouldWarn, baseType, propertyName)
-            };
-
-            diagnostics.Write(unknownPropertyDiagnostic);
-
-            return (unknownPropertyDiagnostic.Level == DiagnosticLevel.Error) ? ErrorType.Create(Enumerable.Empty<ErrorDiagnostic>()) : LanguageConstants.Any;
         }
 
         private IEnumerable<TypeSymbol> GetArgumentTypes(IEnumerable<FunctionArgumentSyntax> argumentSyntaxes) =>

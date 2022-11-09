@@ -231,12 +231,12 @@ type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!tr
 //@[89:90) RightSquare |]|
 //@[90:92) NewLine |\n\n|
 
-type String = string
+type bool = string
 //@[00:04) Identifier |type|
-//@[05:11) Identifier |String|
-//@[12:13) Assignment |=|
-//@[14:20) Identifier |string|
-//@[20:22) NewLine |\n\n|
+//@[05:09) Identifier |bool|
+//@[10:11) Assignment |=|
+//@[12:18) Identifier |string|
+//@[18:20) NewLine |\n\n|
 
 param inlineObjectParam {
 //@[00:05) Identifier |param|
@@ -261,11 +261,13 @@ param inlineObjectParam {
 //@[22:23) Pipe |||
 //@[23:26) Integer |500|
 //@[26:27) NewLine |\n|
-  baz: bool
+  baz: sys.bool
 //@[02:05) Identifier |baz|
 //@[05:06) Colon |:|
-//@[07:11) Identifier |bool|
-//@[11:12) NewLine |\n|
+//@[07:10) Identifier |sys|
+//@[10:11) Dot |.|
+//@[11:15) Identifier |bool|
+//@[15:16) NewLine |\n|
 } = {
 //@[00:01) RightBrace |}|
 //@[02:03) Assignment |=|

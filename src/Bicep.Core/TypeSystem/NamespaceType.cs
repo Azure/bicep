@@ -17,7 +17,7 @@ namespace Bicep.Core.TypeSystem
         public NamespaceType(
             string aliasName,
             NamespaceSettings settings,
-            IEnumerable<TypeProperty> properties,
+            IEnumerable<TypeTypeProperty> properties,
             IEnumerable<FunctionOverload> functionOverloads,
             IEnumerable<BannedFunction> bannedFunctions,
             IEnumerable<Decorator> decorators,

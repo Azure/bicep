@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -4063,6 +4064,46 @@ output fizzBuzzOrPop string = permittedSubsetArray[0]
 
             result.Template.Should().HaveValueAtPath("$.parameters.permittedSubsetArray.allowedValues", new JArray("fizz", "buzz", "pop"));
             result.Template.Should().NotHaveValueAtPath("$.parameters.permittedSubsetArray.items");
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/8950
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue8950()
+        {
+            var result = CompilationHelper.Compile(@"
+@description('App Service Plan sku')
+@allowed([
+  {
+    name: 'S1'
+    capacity: 1
+  }
+  {
+    name: 'P1v3'
+    capacity: 1
+  }
+])
+param appServicePlanSku object
+
+output sku string = appServicePlanSku.name
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/8950
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue8960()
+        {
+            var result = CompilationHelper.Compile(@"
+param string sys.string = 'hello'
+output message sys.string = string
+");
+
+            result.Should().NotHaveAnyDiagnostics();
         }
     }
 }

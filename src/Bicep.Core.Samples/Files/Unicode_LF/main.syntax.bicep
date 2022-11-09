@@ -95,8 +95,9 @@ output concatUnicodeStrings string = concat('Θμ', '二头肌', 'α')
 //@[00:006) | ├─Token(Identifier) |output|
 //@[07:027) | ├─IdentifierSyntax
 //@[07:027) | | └─Token(Identifier) |concatUnicodeStrings|
-//@[28:034) | ├─SimpleTypeSyntax
-//@[28:034) | | └─Token(Identifier) |string|
+//@[28:034) | ├─VariableAccessSyntax
+//@[28:034) | | └─IdentifierSyntax
+//@[28:034) | |   └─Token(Identifier) |string|
 //@[35:036) | ├─Token(Assignment) |=|
 //@[37:061) | └─FunctionCallSyntax
 //@[37:043) |   ├─IdentifierSyntax
@@ -120,8 +121,9 @@ output interpolateUnicodeStrings string = 'Θμ二${emojis}头肌${ninjaCat}α'
 //@[00:006) | ├─Token(Identifier) |output|
 //@[07:032) | ├─IdentifierSyntax
 //@[07:032) | | └─Token(Identifier) |interpolateUnicodeStrings|
-//@[33:039) | ├─SimpleTypeSyntax
-//@[33:039) | | └─Token(Identifier) |string|
+//@[33:039) | ├─VariableAccessSyntax
+//@[33:039) | | └─IdentifierSyntax
+//@[33:039) | |   └─Token(Identifier) |string|
 //@[40:041) | ├─Token(Assignment) |=|
 //@[42:070) | └─StringSyntax
 //@[42:048) |   ├─Token(StringLeftPiece) |'Θμ二${|

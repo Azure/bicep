@@ -276,7 +276,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ParameterType))
             {
-                var completions = GetPrimitiveTypeCompletions(model, context).Concat(GetParameterTypeSnippets(model.Compilation, context));
+                var completions = GetAmbientTypeCompletions(model, context).Concat(GetParameterTypeSnippets(model.Compilation, context));
 
                 // Only show the aggregate type completions if the feature is enabled
                 if (model.Features.UserDefinedTypesEnabled)
@@ -295,13 +295,13 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.TypeDeclarationValue))
             {
-                return GetPrimitiveTypeCompletions(model, context).Concat(GetUserDefinedTypeCompletions(model, context, declaredType => !ReferenceEquals(declaredType.DeclaringType, context.EnclosingDeclaration)));
+                return GetAmbientTypeCompletions(model, context).Concat(GetUserDefinedTypeCompletions(model, context, declaredType => !ReferenceEquals(declaredType.DeclaringType, context.EnclosingDeclaration)));
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ObjectTypePropertyValue))
             {
                 var cyclableType = CyclableTypeEnclosingDeclaration(model.Binder, context.ReplacementTarget);
-                return GetPrimitiveTypeCompletions(model, context).Concat(GetUserDefinedTypeCompletions(model, context, declared => !ReferenceEquals(declared.DeclaringType, cyclableType)));
+                return GetAmbientTypeCompletions(model, context).Concat(GetUserDefinedTypeCompletions(model, context, declared => !ReferenceEquals(declared.DeclaringType, cyclableType)));
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.UnionTypeMember))
@@ -314,7 +314,7 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.OutputType))
             {
                 // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
-                var completions = GetPrimitiveTypeCompletions(model, context);
+                var completions = GetAmbientTypeCompletions(model, context);
                 if (model.Features.ResourceTypedParamsAndOutputsEnabled)
                 {
                     completions = completions.Concat(CreateResourceTypeKeywordCompletion(context.ReplacementRange));
@@ -326,8 +326,12 @@ namespace Bicep.LanguageServer.Completions
             return Enumerable.Empty<CompletionItem>();
         }
 
-        private static IEnumerable<CompletionItem> GetPrimitiveTypeCompletions(SemanticModel model, BicepCompletionContext context) =>
-            LanguageConstants.DeclarationTypes.Values.Select(type => CreateTypeCompletion(type, context.ReplacementRange));
+        private static IEnumerable<CompletionItem> GetAmbientTypeCompletions(SemanticModel model, BicepCompletionContext context) => model.Binder.NamespaceResolver.GetKnownTypes()
+            .ToLookup(ambientType => ambientType.Name)
+            .SelectMany(grouping => grouping.Count() > 1 || model.Binder.FileSymbol.Declarations.Any(decl => LanguageConstants.IdentifierComparer.Equals(grouping.Key, decl.Name))
+                ? grouping.Select(ambientType => ($"{ambientType.DeclaringNamespace.Name}.{ambientType.Name}", ambientType))
+                : grouping.Select(ambientType => (ambientType.Name, ambientType)))
+            .Select(tuple => CreateTypeCompletion(tuple.Item1, tuple.ambientType, context.ReplacementRange));
 
         private static IEnumerable<CompletionItem> GetUserDefinedTypeCompletions(SemanticModel model, BicepCompletionContext context, Func<TypeAliasSymbol, bool>? filter = null)
         {
@@ -1428,11 +1432,11 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(GetSortText(keyword, priority))
                 .Build();
 
-        private static CompletionItem CreateTypeCompletion(TypeSymbol type, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
-            CompletionItemBuilder.Create(CompletionItemKind.Class, type.Name)
-                .WithPlainTextEdit(replacementRange, type.Name)
-                .WithDetail(type.Name)
-                .WithSortText(GetSortText(type.Name, priority))
+        private static CompletionItem CreateTypeCompletion(string typeName, AmbientTypeSymbol type, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
+            CompletionItemBuilder.Create(CompletionItemKind.Class, typeName)
+                .WithPlainTextEdit(replacementRange, typeName)
+                .WithDetail(type.Description ?? type.Name)
+                .WithSortText(GetSortText(typeName, priority))
                 .Build();
 
         private static CompletionItem CreateDeclaredTypeCompletion(TypeAliasSymbol declaredType, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>

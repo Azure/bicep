@@ -406,12 +406,6 @@ namespace Bicep.Core.Parsing
                 return new LambdaSyntax(new LocalVariableSyntax(identifier), arrow, expression);
             }
 
-            if (HasExpressionFlag(expressionFlags, ExpressionFlags.TypeExpression))
-            {
-                return LanguageConstants.DeclarationTypes.ContainsKey(identifierToken.Text) ? new SimpleTypeSyntax(identifierToken) : new TypeAccessSyntax(identifier);
-            }
-
-            // returns variable access
             return new VariableAccessSyntax(identifier);
         }
 
@@ -1153,7 +1147,7 @@ namespace Bicep.Core.Parsing
             return syntax;
         }
 
-        protected TypeSyntax OutputType()
+        protected SyntaxBase OutputType()
         {
             if (GetOptionalKeyword(LanguageConstants.ResourceKeyword) is {} resourceKeyword)
             {
@@ -1175,8 +1169,14 @@ namespace Bicep.Core.Parsing
                 return new ResourceTypeSyntax(resourceKeyword, type);
             }
 
-            var identifier = Expect(TokenType.Identifier, b => b.ExpectedOutputType());
-            return new SimpleTypeSyntax(identifier);
+            SyntaxBase current = new VariableAccessSyntax(new(Expect(TokenType.Identifier, b => b.ExpectedOutputType())));
+
+            while (this.Check(TokenType.Dot))
+            {
+                current = new PropertyAccessSyntax(current, this.reader.Read(), this.IdentifierOrSkip(b => b.ExpectedFunctionOrPropertyName()));
+            }
+
+            return current;
         }
 
         protected SyntaxBase Type(bool allowOptionalResourceType)

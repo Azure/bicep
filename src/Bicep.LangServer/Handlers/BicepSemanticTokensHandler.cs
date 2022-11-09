@@ -29,14 +29,14 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override Task Tokenize(SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier, CancellationToken cancellationToken)
         {
-            /* 
+            /*
              * do not check for file extension here because that will prevent untitled files from getting syntax highlighting
              */
 
             var compilationContext = this.compilationManager.GetCompilation(identifier.TextDocument.Uri);
             if (compilationContext is not null)
             {
-                SemanticTokenVisitor.BuildSemanticTokens(builder, compilationContext.Compilation.SourceFileGrouping.EntryPoint);
+                SemanticTokenVisitor.BuildSemanticTokens(builder, compilationContext.Compilation.GetEntrypointSemanticModel());
             }
 
             return Task.CompletedTask;

@@ -389,7 +389,7 @@ type foo = {
             var declaredObject = (ObjectTypeSyntax) declaration.Value;
             declaredObject.Properties.Should().HaveCount(3);
             declaredObject.Properties.First().Decorators.Should().HaveCount(2);
-            declaredObject.Properties.First().Value.Should().BeOfType<SimpleTypeSyntax>();
+            declaredObject.Properties.First().Value.Should().BeOfType<VariableAccessSyntax>();
             declaredObject.Properties.Skip(1).First().Value.Should().BeOfType<ObjectTypeSyntax>();
 
             var objectProp = (ObjectTypeSyntax) declaredObject.Properties.Skip(1).First().Value;
@@ -401,7 +401,7 @@ type foo = {
             var intermediateArray = (ArrayTypeSyntax) arrayProp.Item.Value;
             intermediateArray.Item.Value.Should().BeOfType<ArrayTypeSyntax>();
             var innerArray = (ArrayTypeSyntax) intermediateArray.Item.Value;
-            innerArray.Item.Value.Should().BeOfType<SimpleTypeSyntax>();
+            innerArray.Item.Value.Should().BeOfType<VariableAccessSyntax>();
         }
 
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)

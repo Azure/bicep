@@ -32,12 +32,6 @@ namespace Bicep.Core.Semantics.Namespaces
 
             void TryAddBuiltInNamespace(string @namespace)
             {
-                if (namespaceTypes.ContainsKey(@namespace))
-                {
-                    // we already have an imported namespace with this symbolic name
-                    return;
-                }
-
                 if (namespaceProvider.TryGetNamespace(@namespace, @namespace, targetScope, features) is not { } namespaceType)
                 {
                     // this namespace doesn't match a known built-in namespace
@@ -52,7 +46,14 @@ namespace Bicep.Core.Semantics.Namespaces
 
                 var symbol = new BuiltInNamespaceSymbol(@namespace, namespaceType);
                 builtInNamespaceSymbols[@namespace] = symbol;
-                namespaceTypes = namespaceTypes.Add(@namespace, namespaceType);
+
+                // If we've already imported a namespace with this symbolic name, don't add the builtin namespace to the
+                // dictionary of active namespaces. It will still be listed in the BuiltIns dictionary for error reporting,
+                // as it is masking a namespace that would otherwise be loaded and bound by default.
+                if (!namespaceTypes.ContainsKey(@namespace))
+                {
+                    namespaceTypes = namespaceTypes.Add(@namespace, namespaceType);
+                }
             }
 
             TryAddBuiltInNamespace(SystemNamespaceType.BuiltInName);
@@ -81,6 +82,15 @@ namespace Bicep.Core.Semantics.Namespaces
             }
         }
 
+        /// <summary>
+        /// Attempt to find ambient type in all imported namespaces. As Namespaces are themselves ObjectTypes, their properties can only be types, not values.
+        /// </summary>
+        public IEnumerable<AmbientTypeSymbol> ResolveUnqualifiedTypeSymbol(IdentifierSyntax identifierSyntax) => this.namespaceTypes.Values
+            .Select(@namespace => @namespace.Properties.TryGetValue(identifierSyntax.IdentifierName, out var found)
+                ? new AmbientTypeSymbol(identifierSyntax.IdentifierName, found.TypeReference.Type, @namespace, found.Description)
+                : null)
+            .WhereNotNull();
+
         public IEnumerable<FunctionSymbol> GetKnownFunctions(string functionName)
             => this.namespaceTypes.Values
                 .Select(type => type.MethodResolver.TryGetFunctionSymbol(functionName))
@@ -94,6 +104,9 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public IEnumerable<string> GetKnownPropertyNames()
             => this.namespaceTypes.Values.SelectMany(type => type.Properties.Keys);
+
+        public IEnumerable<AmbientTypeSymbol> GetKnownTypes() => this.namespaceTypes.Values
+            .SelectMany(@namespace => @namespace.Properties.Select(p => new AmbientTypeSymbol(p.Key, p.Value.TypeReference.Type, @namespace, p.Value.Description)));
 
         public IEnumerable<string> GetNamespaceNames()
             => this.namespaceTypes.Keys;

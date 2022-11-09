@@ -10,68 +10,72 @@ using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Wasm.LanguageHelpers;
 using System.Linq;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Workspaces;
 using Bicep.Core.Extensions;
 using Bicep.Decompiler;
-using Bicep.Core.Registry;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Features;
-using Bicep.Core.Configuration;
-using Bicep.Core.Analyzers.Linter;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
+using Microsoft.Extensions.DependencyInjection;
+using System.IO.Abstractions;
+using System.Threading.Tasks;
+using Bicep.Core;
 
 namespace Bicep.Wasm
 {
     public class Interop
     {
-        private static readonly IConfigurationManager configurationManager = IConfigurationManager.WithStaticConfiguration(IConfigurationManager.GetBuiltInConfiguration().WithAllAnalyzersDisabled());
-
-        private static readonly IFeatureProviderFactory featureProviderFactory = new FeatureProviderFactory(configurationManager);
-
-        private static readonly INamespaceProvider namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
-
-        private static readonly IApiVersionProviderFactory apiVersionProviderFactory = new ApiVersionProviderFactory(featureProviderFactory, namespaceProvider);
-
-        private static readonly LinterAnalyzer linterAnalyzer = new LinterAnalyzer();
-
-        private readonly IJSRuntime jsRuntime;
-
-        public Interop(IJSRuntime jsRuntime)
-        {
-            this.jsRuntime = jsRuntime;
-        }
-
-        [JSInvokable]
-        public object CompileAndEmitDiagnostics(string content)
-        {
-            var (output, diagnostics) = CompileInternal(content);
-
-            return new
-            {
-                template = output,
-                diagnostics = diagnostics,
-            };
-        }
-
         public record DecompileResult(string? bicepFile, string? error);
 
-        [JSInvokable]
-        public DecompileResult Decompile(string jsonContent)
-        {
-            var jsonUri = new Uri("inmemory:///main.json");
+        public record CompileResult(string template, object diagnostics);
 
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+        private readonly IJSRuntime jsRuntime;
+        private readonly IServiceProvider serviceProvider;
+
+        public Interop(IJSRuntime jsRuntime, IServiceProvider serviceProvider)
+        {
+            this.jsRuntime = jsRuntime;
+            this.serviceProvider = serviceProvider;
+        }
+
+        [JSInvokable]
+        public async Task<CompileResult> CompileAndEmitDiagnostics(string content)
+        {
+            try
             {
-                [jsonUri] = jsonContent,
-            });
+                var compilation = await GetCompilation(content);
+                var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
+                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+
+                var stringWriter = new StringWriter();
+                var emitResult = emitter.Emit(stringWriter);
+
+                if (emitResult.Status != EmitStatus.Failed)
+                {
+                    // compilation was successful or had warnings - return the compiled template
+                    return new(stringWriter.ToString(), emitResult.Diagnostics.Select(d => ToMonacoDiagnostic(d, lineStarts)));
+                }
+
+                // compilation failed
+                return new("Compilation failed!", emitResult.Diagnostics.Select(d => ToMonacoDiagnostic(d, lineStarts)));
+            }
+            catch (Exception exception)
+            {
+                return new(exception.ToString(), Enumerable.Empty<object>());
+            }
+        }
+
+        [JSInvokable]
+        public async Task<DecompileResult> Decompile(string jsonContent)
+        {
+            using var serviceScope = serviceProvider.CreateScope();
+            var decompiler = serviceScope.ServiceProvider.GetRequiredService<BicepDecompiler>();
+            var fileSystem = serviceScope.ServiceProvider.GetRequiredService<IFileSystem>();
+
+            var jsonUri = new Uri("file:///main.json");
+            await fileSystem.File.WriteAllTextAsync(jsonUri.LocalPath, jsonContent);
 
             try
             {
                 var bicepUri = PathHelper.ChangeToBicepExtension(jsonUri);
-                var decompiler = new TemplateDecompiler(featureProviderFactory, namespaceProvider, fileResolver, new EmptyModuleRegistryProvider(), apiVersionProviderFactory, linterAnalyzer);
-                var (entrypointUri, filesToSave) = decompiler.DecompileFileWithModules(jsonUri, bicepUri);
+                var (entrypointUri, filesToSave) = await decompiler.Decompile(jsonUri, bicepUri);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
             }
@@ -95,10 +99,10 @@ namespace Bicep.Wasm
         }
 
         [JSInvokable]
-        public object GetSemanticTokens(string content)
+        public async Task<object> GetSemanticTokens(string content)
         {
-            var compilation = GetCompilation(content);
-            var tokens = SemanticTokenVisitor.BuildSemanticTokens(compilation.SourceFileGrouping.EntryPoint);
+            var compilation = await GetCompilation(content);
+            var tokens = SemanticTokenVisitor.BuildSemanticTokens(compilation.GetEntrypointSemanticModel());
 
             var data = new List<int>();
             SemanticToken? prevToken = null;
@@ -135,52 +139,16 @@ namespace Bicep.Wasm
             };
         }
 
-        private static (string, IEnumerable<object>) CompileInternal(string content)
+        private async Task<Compilation> GetCompilation(string fileContents)
         {
-            try
-            {
-                var compilation = GetCompilation(content);
-                var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
-                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel());
+            using var serviceScope = serviceProvider.CreateScope();
+            var compiler = serviceScope.ServiceProvider.GetRequiredService<BicepCompiler>();
+            var fileSystem = serviceScope.ServiceProvider.GetRequiredService<IFileSystem>();
 
-                // memory stream is not ideal for frequent large allocations
-                using var stream = new MemoryStream();
-                var emitResult = emitter.Emit(stream);
+            var fileUri = new Uri("file:///main.bicep");
+            await fileSystem.File.WriteAllTextAsync(fileUri.LocalPath, fileContents);
 
-                if (emitResult.Status != EmitStatus.Failed)
-                {
-                    // compilation was successful or had warnings - return the compiled template
-                    stream.Position = 0;
-                    return (ReadStreamToEnd(stream), emitResult.Diagnostics.Select(d => ToMonacoDiagnostic(d, lineStarts)));
-                }
-
-                // compilation failed
-                return ("Compilation failed!", emitResult.Diagnostics.Select(d => ToMonacoDiagnostic(d, lineStarts)));
-            }
-            catch (Exception exception)
-            {
-                return (exception.ToString(), Enumerable.Empty<object>());
-            }
-        }
-
-        private static Compilation GetCompilation(string fileContents)
-        {
-            var fileUri = new Uri("inmemory:///main.bicep");
-            var workspace = new Workspace();
-            var sourceFile = SourceFileFactory.CreateSourceFile(fileUri, fileContents);
-            workspace.UpsertSourceFile(sourceFile);
-
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>());
-            var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider(), configurationManager);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri);
-
-            return new Compilation(featureProviderFactory, namespaceProvider, sourceFileGrouping, configurationManager, apiVersionProviderFactory, linterAnalyzer);
-        }
-
-        private static string ReadStreamToEnd(Stream stream)
-        {
-            using var reader = new StreamReader(stream);
-            return reader.ReadToEnd();
+            return await compiler.CreateCompilation(fileUri);
         }
 
         private static object ToMonacoDiagnostic(IDiagnostic diagnostic, IReadOnlyList<int> lineStarts)

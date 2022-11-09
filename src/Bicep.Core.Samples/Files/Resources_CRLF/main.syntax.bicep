@@ -463,8 +463,9 @@ param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00021) | ├─IdentifierSyntax
 //@[006:00021) | | └─Token(Identifier) |applicationName|
-//@[022:00028) | ├─SimpleTypeSyntax
-//@[022:00028) | | └─Token(Identifier) |string|
+//@[022:00028) | ├─VariableAccessSyntax
+//@[022:00028) | | └─IdentifierSyntax
+//@[022:00028) | |   └─Token(Identifier) |string|
 //@[029:00077) | └─ParameterDefaultValueSyntax
 //@[029:00030) |   ├─Token(Assignment) |=|
 //@[031:00077) |   └─StringSyntax
@@ -502,16 +503,18 @@ param appServicePlanTier string
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00024) | ├─IdentifierSyntax
 //@[006:00024) | | └─Token(Identifier) |appServicePlanTier|
-//@[025:00031) | └─SimpleTypeSyntax
-//@[025:00031) |   └─Token(Identifier) |string|
+//@[025:00031) | └─VariableAccessSyntax
+//@[025:00031) |   └─IdentifierSyntax
+//@[025:00031) |     └─Token(Identifier) |string|
 //@[031:00033) ├─Token(NewLine) |\r\n|
 param appServicePlanInstances int
 //@[000:00033) ├─ParameterDeclarationSyntax
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00029) | ├─IdentifierSyntax
 //@[006:00029) | | └─Token(Identifier) |appServicePlanInstances|
-//@[030:00033) | └─SimpleTypeSyntax
-//@[030:00033) |   └─Token(Identifier) |int|
+//@[030:00033) | └─VariableAccessSyntax
+//@[030:00033) |   └─IdentifierSyntax
+//@[030:00033) |     └─Token(Identifier) |int|
 //@[033:00037) ├─Token(NewLine) |\r\n\r\n|
 
 var location = resourceGroup().location
@@ -684,16 +687,18 @@ param webSiteName string
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00017) | ├─IdentifierSyntax
 //@[006:00017) | | └─Token(Identifier) |webSiteName|
-//@[018:00024) | └─SimpleTypeSyntax
-//@[018:00024) |   └─Token(Identifier) |string|
+//@[018:00024) | └─VariableAccessSyntax
+//@[018:00024) |   └─IdentifierSyntax
+//@[018:00024) |     └─Token(Identifier) |string|
 //@[024:00026) ├─Token(NewLine) |\r\n|
 param cosmosDb object
 //@[000:00021) ├─ParameterDeclarationSyntax
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00014) | ├─IdentifierSyntax
 //@[006:00014) | | └─Token(Identifier) |cosmosDb|
-//@[015:00021) | └─SimpleTypeSyntax
-//@[015:00021) |   └─Token(Identifier) |object|
+//@[015:00021) | └─VariableAccessSyntax
+//@[015:00021) |   └─IdentifierSyntax
+//@[015:00021) |     └─Token(Identifier) |object|
 //@[021:00023) ├─Token(NewLine) |\r\n|
 resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[000:00689) ├─ResourceDeclarationSyntax
@@ -929,8 +934,9 @@ output siteApiVersion string = site.apiVersion
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00021) | ├─IdentifierSyntax
 //@[007:00021) | | └─Token(Identifier) |siteApiVersion|
-//@[022:00028) | ├─SimpleTypeSyntax
-//@[022:00028) | | └─Token(Identifier) |string|
+//@[022:00028) | ├─VariableAccessSyntax
+//@[022:00028) | | └─IdentifierSyntax
+//@[022:00028) | |   └─Token(Identifier) |string|
 //@[029:00030) | ├─Token(Assignment) |=|
 //@[031:00046) | └─PropertyAccessSyntax
 //@[031:00035) |   ├─VariableAccessSyntax
@@ -945,8 +951,9 @@ output siteType string = site.type
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00015) | ├─IdentifierSyntax
 //@[007:00015) | | └─Token(Identifier) |siteType|
-//@[016:00022) | ├─SimpleTypeSyntax
-//@[016:00022) | | └─Token(Identifier) |string|
+//@[016:00022) | ├─VariableAccessSyntax
+//@[016:00022) | | └─IdentifierSyntax
+//@[016:00022) | |   └─Token(Identifier) |string|
 //@[023:00024) | ├─Token(Assignment) |=|
 //@[025:00034) | └─PropertyAccessSyntax
 //@[025:00029) |   ├─VariableAccessSyntax
@@ -1632,8 +1639,9 @@ param shouldDeployVm bool = true
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00020) | ├─IdentifierSyntax
 //@[006:00020) | | └─Token(Identifier) |shouldDeployVm|
-//@[021:00025) | ├─SimpleTypeSyntax
-//@[021:00025) | | └─Token(Identifier) |bool|
+//@[021:00025) | ├─VariableAccessSyntax
+//@[021:00025) | | └─IdentifierSyntax
+//@[021:00025) | |   └─Token(Identifier) |bool|
 //@[026:00032) | └─ParameterDefaultValueSyntax
 //@[026:00027) |   ├─Token(Assignment) |=|
 //@[028:00032) |   └─BooleanLiteralSyntax
@@ -3256,8 +3264,9 @@ output p1_subnet1prefix string = p1_subnet1.properties.addressPrefix
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00023) | ├─IdentifierSyntax
 //@[007:00023) | | └─Token(Identifier) |p1_subnet1prefix|
-//@[024:00030) | ├─SimpleTypeSyntax
-//@[024:00030) | | └─Token(Identifier) |string|
+//@[024:00030) | ├─VariableAccessSyntax
+//@[024:00030) | | └─IdentifierSyntax
+//@[024:00030) | |   └─Token(Identifier) |string|
 //@[031:00032) | ├─Token(Assignment) |=|
 //@[033:00068) | └─PropertyAccessSyntax
 //@[033:00054) |   ├─PropertyAccessSyntax
@@ -3276,8 +3285,9 @@ output p1_subnet1name string = p1_subnet1.name
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00021) | ├─IdentifierSyntax
 //@[007:00021) | | └─Token(Identifier) |p1_subnet1name|
-//@[022:00028) | ├─SimpleTypeSyntax
-//@[022:00028) | | └─Token(Identifier) |string|
+//@[022:00028) | ├─VariableAccessSyntax
+//@[022:00028) | | └─IdentifierSyntax
+//@[022:00028) | |   └─Token(Identifier) |string|
 //@[029:00030) | ├─Token(Assignment) |=|
 //@[031:00046) | └─PropertyAccessSyntax
 //@[031:00041) |   ├─VariableAccessSyntax
@@ -3292,8 +3302,9 @@ output p1_subnet1type string = p1_subnet1.type
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00021) | ├─IdentifierSyntax
 //@[007:00021) | | └─Token(Identifier) |p1_subnet1type|
-//@[022:00028) | ├─SimpleTypeSyntax
-//@[022:00028) | | └─Token(Identifier) |string|
+//@[022:00028) | ├─VariableAccessSyntax
+//@[022:00028) | | └─IdentifierSyntax
+//@[022:00028) | |   └─Token(Identifier) |string|
 //@[029:00030) | ├─Token(Assignment) |=|
 //@[031:00046) | └─PropertyAccessSyntax
 //@[031:00041) |   ├─VariableAccessSyntax
@@ -3308,8 +3319,9 @@ output p1_subnet1id string = p1_subnet1.id
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00019) | ├─IdentifierSyntax
 //@[007:00019) | | └─Token(Identifier) |p1_subnet1id|
-//@[020:00026) | ├─SimpleTypeSyntax
-//@[020:00026) | | └─Token(Identifier) |string|
+//@[020:00026) | ├─VariableAccessSyntax
+//@[020:00026) | | └─IdentifierSyntax
+//@[020:00026) | |   └─Token(Identifier) |string|
 //@[027:00028) | ├─Token(Assignment) |=|
 //@[029:00042) | └─PropertyAccessSyntax
 //@[029:00039) |   ├─VariableAccessSyntax
@@ -3446,8 +3458,9 @@ output p2_res2childprop string = p2_res2child.properties.someProp
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00023) | ├─IdentifierSyntax
 //@[007:00023) | | └─Token(Identifier) |p2_res2childprop|
-//@[024:00030) | ├─SimpleTypeSyntax
-//@[024:00030) | | └─Token(Identifier) |string|
+//@[024:00030) | ├─VariableAccessSyntax
+//@[024:00030) | | └─IdentifierSyntax
+//@[024:00030) | |   └─Token(Identifier) |string|
 //@[031:00032) | ├─Token(Assignment) |=|
 //@[033:00065) | └─PropertyAccessSyntax
 //@[033:00056) |   ├─PropertyAccessSyntax
@@ -3466,8 +3479,9 @@ output p2_res2childname string = p2_res2child.name
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00023) | ├─IdentifierSyntax
 //@[007:00023) | | └─Token(Identifier) |p2_res2childname|
-//@[024:00030) | ├─SimpleTypeSyntax
-//@[024:00030) | | └─Token(Identifier) |string|
+//@[024:00030) | ├─VariableAccessSyntax
+//@[024:00030) | | └─IdentifierSyntax
+//@[024:00030) | |   └─Token(Identifier) |string|
 //@[031:00032) | ├─Token(Assignment) |=|
 //@[033:00050) | └─PropertyAccessSyntax
 //@[033:00045) |   ├─VariableAccessSyntax
@@ -3482,8 +3496,9 @@ output p2_res2childtype string = p2_res2child.type
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00023) | ├─IdentifierSyntax
 //@[007:00023) | | └─Token(Identifier) |p2_res2childtype|
-//@[024:00030) | ├─SimpleTypeSyntax
-//@[024:00030) | | └─Token(Identifier) |string|
+//@[024:00030) | ├─VariableAccessSyntax
+//@[024:00030) | | └─IdentifierSyntax
+//@[024:00030) | |   └─Token(Identifier) |string|
 //@[031:00032) | ├─Token(Assignment) |=|
 //@[033:00050) | └─PropertyAccessSyntax
 //@[033:00045) |   ├─VariableAccessSyntax
@@ -3498,8 +3513,9 @@ output p2_res2childid string = p2_res2child.id
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00021) | ├─IdentifierSyntax
 //@[007:00021) | | └─Token(Identifier) |p2_res2childid|
-//@[022:00028) | ├─SimpleTypeSyntax
-//@[022:00028) | | └─Token(Identifier) |string|
+//@[022:00028) | ├─VariableAccessSyntax
+//@[022:00028) | | └─IdentifierSyntax
+//@[022:00028) | |   └─Token(Identifier) |string|
 //@[029:00030) | ├─Token(Assignment) |=|
 //@[031:00046) | └─PropertyAccessSyntax
 //@[031:00043) |   ├─VariableAccessSyntax
@@ -3573,8 +3589,9 @@ output p3_res1childprop string = p3_child1.properties.someProp
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00023) | ├─IdentifierSyntax
 //@[007:00023) | | └─Token(Identifier) |p3_res1childprop|
-//@[024:00030) | ├─SimpleTypeSyntax
-//@[024:00030) | | └─Token(Identifier) |string|
+//@[024:00030) | ├─VariableAccessSyntax
+//@[024:00030) | | └─IdentifierSyntax
+//@[024:00030) | |   └─Token(Identifier) |string|
 //@[031:00032) | ├─Token(Assignment) |=|
 //@[033:00062) | └─PropertyAccessSyntax
 //@[033:00053) |   ├─PropertyAccessSyntax
@@ -3593,8 +3610,9 @@ output p3_res1childname string = p3_child1.name
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00023) | ├─IdentifierSyntax
 //@[007:00023) | | └─Token(Identifier) |p3_res1childname|
-//@[024:00030) | ├─SimpleTypeSyntax
-//@[024:00030) | | └─Token(Identifier) |string|
+//@[024:00030) | ├─VariableAccessSyntax
+//@[024:00030) | | └─IdentifierSyntax
+//@[024:00030) | |   └─Token(Identifier) |string|
 //@[031:00032) | ├─Token(Assignment) |=|
 //@[033:00047) | └─PropertyAccessSyntax
 //@[033:00042) |   ├─VariableAccessSyntax
@@ -3609,8 +3627,9 @@ output p3_res1childtype string = p3_child1.type
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00023) | ├─IdentifierSyntax
 //@[007:00023) | | └─Token(Identifier) |p3_res1childtype|
-//@[024:00030) | ├─SimpleTypeSyntax
-//@[024:00030) | | └─Token(Identifier) |string|
+//@[024:00030) | ├─VariableAccessSyntax
+//@[024:00030) | | └─IdentifierSyntax
+//@[024:00030) | |   └─Token(Identifier) |string|
 //@[031:00032) | ├─Token(Assignment) |=|
 //@[033:00047) | └─PropertyAccessSyntax
 //@[033:00042) |   ├─VariableAccessSyntax
@@ -3625,8 +3644,9 @@ output p3_res1childid string = p3_child1.id
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00021) | ├─IdentifierSyntax
 //@[007:00021) | | └─Token(Identifier) |p3_res1childid|
-//@[022:00028) | ├─SimpleTypeSyntax
-//@[022:00028) | | └─Token(Identifier) |string|
+//@[022:00028) | ├─VariableAccessSyntax
+//@[022:00028) | | └─IdentifierSyntax
+//@[022:00028) | |   └─Token(Identifier) |string|
 //@[029:00030) | ├─Token(Assignment) |=|
 //@[031:00043) | └─PropertyAccessSyntax
 //@[031:00040) |   ├─VariableAccessSyntax
@@ -3712,8 +3732,9 @@ output p4_res1childprop string = p4_child1.properties.someProp
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00023) | ├─IdentifierSyntax
 //@[007:00023) | | └─Token(Identifier) |p4_res1childprop|
-//@[024:00030) | ├─SimpleTypeSyntax
-//@[024:00030) | | └─Token(Identifier) |string|
+//@[024:00030) | ├─VariableAccessSyntax
+//@[024:00030) | | └─IdentifierSyntax
+//@[024:00030) | |   └─Token(Identifier) |string|
 //@[031:00032) | ├─Token(Assignment) |=|
 //@[033:00062) | └─PropertyAccessSyntax
 //@[033:00053) |   ├─PropertyAccessSyntax
@@ -3732,8 +3753,9 @@ output p4_res1childname string = p4_child1.name
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00023) | ├─IdentifierSyntax
 //@[007:00023) | | └─Token(Identifier) |p4_res1childname|
-//@[024:00030) | ├─SimpleTypeSyntax
-//@[024:00030) | | └─Token(Identifier) |string|
+//@[024:00030) | ├─VariableAccessSyntax
+//@[024:00030) | | └─IdentifierSyntax
+//@[024:00030) | |   └─Token(Identifier) |string|
 //@[031:00032) | ├─Token(Assignment) |=|
 //@[033:00047) | └─PropertyAccessSyntax
 //@[033:00042) |   ├─VariableAccessSyntax
@@ -3748,8 +3770,9 @@ output p4_res1childtype string = p4_child1.type
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00023) | ├─IdentifierSyntax
 //@[007:00023) | | └─Token(Identifier) |p4_res1childtype|
-//@[024:00030) | ├─SimpleTypeSyntax
-//@[024:00030) | | └─Token(Identifier) |string|
+//@[024:00030) | ├─VariableAccessSyntax
+//@[024:00030) | | └─IdentifierSyntax
+//@[024:00030) | |   └─Token(Identifier) |string|
 //@[031:00032) | ├─Token(Assignment) |=|
 //@[033:00047) | └─PropertyAccessSyntax
 //@[033:00042) |   ├─VariableAccessSyntax
@@ -3764,8 +3787,9 @@ output p4_res1childid string = p4_child1.id
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00021) | ├─IdentifierSyntax
 //@[007:00021) | | └─Token(Identifier) |p4_res1childid|
-//@[022:00028) | ├─SimpleTypeSyntax
-//@[022:00028) | | └─Token(Identifier) |string|
+//@[022:00028) | ├─VariableAccessSyntax
+//@[022:00028) | | └─IdentifierSyntax
+//@[022:00028) | |   └─Token(Identifier) |string|
 //@[029:00030) | ├─Token(Assignment) |=|
 //@[031:00043) | └─PropertyAccessSyntax
 //@[031:00040) |   ├─VariableAccessSyntax

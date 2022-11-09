@@ -45,7 +45,7 @@ output spacesAfterCursor
 
 // partial type #completionTest(19, 20, 21, 22) -> outputTypes
 output partialType obj
-//@[19:22) [BCP030 (Error)] The output type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |obj|
+//@[19:22) [BCP302 (Error)] The name "obj" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |obj|
 //@[22:22) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // malformed identifier
@@ -74,7 +74,7 @@ output lol 2 = true
 // wrong type + missing value
 output foo fluffy
 //@[07:10) [BCP145 (Error)] Output "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[11:17) [BCP030 (Error)] The output type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffy|
+//@[11:17) [BCP302 (Error)] The name "fluffy" is not a valid type. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffy|
 //@[17:17) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // missing value

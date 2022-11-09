@@ -22,6 +22,27 @@
   },
   {
     "label": "array",
+    "kind": "property",
+    "detail": "array",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Type<array>`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_array",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "array"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "array",
     "kind": "function",
     "documentation": {
       "kind": "markdown",
@@ -103,6 +124,27 @@
       "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
+  },
+  {
+    "label": "bool",
+    "kind": "property",
+    "detail": "bool",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Type<bool>`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_bool",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "bool"
+    },
+    "commitCharacters": [
+      "."
+    ]
   },
   {
     "label": "bool",
@@ -459,6 +501,27 @@
   },
   {
     "label": "int",
+    "kind": "property",
+    "detail": "int",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Type<int>`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_int",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "int"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
+    "label": "int",
     "kind": "function",
     "documentation": {
       "kind": "markdown",
@@ -769,6 +832,27 @@
     }
   },
   {
+    "label": "object",
+    "kind": "property",
+    "detail": "object",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Type<object>`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_object",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "object"
+    },
+    "commitCharacters": [
+      "."
+    ]
+  },
+  {
     "label": "padLeft",
     "kind": "function",
     "documentation": {
@@ -935,6 +1019,27 @@
       "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
+  },
+  {
+    "label": "string",
+    "kind": "property",
+    "detail": "string",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Type<string>`  \n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_string",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "string"
+    },
+    "commitCharacters": [
+      "."
+    ]
   },
   {
     "label": "string",

@@ -986,12 +986,12 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                 .WithEvaluator((_, targetType, targetObject) =>
                 {
-                    if (targetType is PrimitiveType pt && pt.Name == LanguageConstants.TypeNameString)
+                    if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.String))
                     {
                         return targetObject.MergeProperty("type", "secureString");
                     }
 
-                    if (targetType is ObjectType)
+                    if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.Object))
                     {
                         return targetObject.MergeProperty("type", "secureObject");
                     }
@@ -1122,12 +1122,15 @@ namespace Bicep.Core.Semantics.Namespaces
             }
         }
 
+        private static IEnumerable<TypeTypeProperty> GetSystemAmbientSymbols()
+            => LanguageConstants.DeclarationTypes.Select(t => new TypeTypeProperty(t.Key, new(t.Value)));
+
         public static NamespaceType Create(string aliasName, IFeatureProvider featureProvider)
         {
             return new NamespaceType(
                 aliasName,
                 Settings,
-                ImmutableArray<TypeProperty>.Empty,
+                GetSystemAmbientSymbols(),
                 GetSystemOverloads(featureProvider),
                 BannedFunctions,
                 GetSystemDecorators(featureProvider),

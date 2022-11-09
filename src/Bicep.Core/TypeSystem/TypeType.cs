@@ -5,6 +5,9 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.TypeSystem;
 
+/// <summary>
+/// The type of a symbol that may only be used as a type, not a value.
+/// </summary>
 public class TypeType : TypeSymbol
 {
     private readonly TypeSymbol wrappedType;

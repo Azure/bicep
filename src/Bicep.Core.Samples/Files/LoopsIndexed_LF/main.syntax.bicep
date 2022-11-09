@@ -4,24 +4,27 @@ param name string
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00010) | ├─IdentifierSyntax
 //@[006:00010) | | └─Token(Identifier) |name|
-//@[011:00017) | └─SimpleTypeSyntax
-//@[011:00017) |   └─Token(Identifier) |string|
+//@[011:00017) | └─VariableAccessSyntax
+//@[011:00017) |   └─IdentifierSyntax
+//@[011:00017) |     └─Token(Identifier) |string|
 //@[017:00018) ├─Token(NewLine) |\n|
 param accounts array
 //@[000:00020) ├─ParameterDeclarationSyntax
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00014) | ├─IdentifierSyntax
 //@[006:00014) | | └─Token(Identifier) |accounts|
-//@[015:00020) | └─SimpleTypeSyntax
-//@[015:00020) |   └─Token(Identifier) |array|
+//@[015:00020) | └─VariableAccessSyntax
+//@[015:00020) |   └─IdentifierSyntax
+//@[015:00020) |     └─Token(Identifier) |array|
 //@[020:00021) ├─Token(NewLine) |\n|
 param index int
 //@[000:00015) ├─ParameterDeclarationSyntax
 //@[000:00005) | ├─Token(Identifier) |param|
 //@[006:00011) | ├─IdentifierSyntax
 //@[006:00011) | | └─Token(Identifier) |index|
-//@[012:00015) | └─SimpleTypeSyntax
-//@[012:00015) |   └─Token(Identifier) |int|
+//@[012:00015) | └─VariableAccessSyntax
+//@[012:00015) |   └─IdentifierSyntax
+//@[012:00015) |     └─Token(Identifier) |int|
 //@[015:00017) ├─Token(NewLine) |\n\n|
 
 // single resource
@@ -638,8 +641,9 @@ output indexedCollectionBlobEndpoint string = storageAccounts[index].properties.
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00036) | ├─IdentifierSyntax
 //@[007:00036) | | └─Token(Identifier) |indexedCollectionBlobEndpoint|
-//@[037:00043) | ├─SimpleTypeSyntax
-//@[037:00043) | | └─Token(Identifier) |string|
+//@[037:00043) | ├─VariableAccessSyntax
+//@[037:00043) | | └─IdentifierSyntax
+//@[037:00043) | |   └─Token(Identifier) |string|
 //@[044:00045) | ├─Token(Assignment) |=|
 //@[046:00101) | └─PropertyAccessSyntax
 //@[046:00096) |   ├─PropertyAccessSyntax
@@ -668,8 +672,9 @@ output indexedCollectionName string = storageAccounts[index].name
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00028) | ├─IdentifierSyntax
 //@[007:00028) | | └─Token(Identifier) |indexedCollectionName|
-//@[029:00035) | ├─SimpleTypeSyntax
-//@[029:00035) | | └─Token(Identifier) |string|
+//@[029:00035) | ├─VariableAccessSyntax
+//@[029:00035) | | └─IdentifierSyntax
+//@[029:00035) | |   └─Token(Identifier) |string|
 //@[036:00037) | ├─Token(Assignment) |=|
 //@[038:00065) | └─PropertyAccessSyntax
 //@[038:00060) |   ├─ArrayAccessSyntax
@@ -690,8 +695,9 @@ output indexedCollectionId string = storageAccounts[index].id
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00026) | ├─IdentifierSyntax
 //@[007:00026) | | └─Token(Identifier) |indexedCollectionId|
-//@[027:00033) | ├─SimpleTypeSyntax
-//@[027:00033) | | └─Token(Identifier) |string|
+//@[027:00033) | ├─VariableAccessSyntax
+//@[027:00033) | | └─IdentifierSyntax
+//@[027:00033) | |   └─Token(Identifier) |string|
 //@[034:00035) | ├─Token(Assignment) |=|
 //@[036:00061) | └─PropertyAccessSyntax
 //@[036:00058) |   ├─ArrayAccessSyntax
@@ -712,8 +718,9 @@ output indexedCollectionType string = storageAccounts[index].type
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00028) | ├─IdentifierSyntax
 //@[007:00028) | | └─Token(Identifier) |indexedCollectionType|
-//@[029:00035) | ├─SimpleTypeSyntax
-//@[029:00035) | | └─Token(Identifier) |string|
+//@[029:00035) | ├─VariableAccessSyntax
+//@[029:00035) | | └─IdentifierSyntax
+//@[029:00035) | |   └─Token(Identifier) |string|
 //@[036:00037) | ├─Token(Assignment) |=|
 //@[038:00065) | └─PropertyAccessSyntax
 //@[038:00060) |   ├─ArrayAccessSyntax
@@ -734,8 +741,9 @@ output indexedCollectionVersion string = storageAccounts[index].apiVersion
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00031) | ├─IdentifierSyntax
 //@[007:00031) | | └─Token(Identifier) |indexedCollectionVersion|
-//@[032:00038) | ├─SimpleTypeSyntax
-//@[032:00038) | | └─Token(Identifier) |string|
+//@[032:00038) | ├─VariableAccessSyntax
+//@[032:00038) | | └─IdentifierSyntax
+//@[032:00038) | |   └─Token(Identifier) |string|
 //@[039:00040) | ├─Token(Assignment) |=|
 //@[041:00074) | └─PropertyAccessSyntax
 //@[041:00063) |   ├─ArrayAccessSyntax
@@ -759,8 +767,9 @@ output indexedCollectionIdentity object = storageAccounts[index].identity
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00032) | ├─IdentifierSyntax
 //@[007:00032) | | └─Token(Identifier) |indexedCollectionIdentity|
-//@[033:00039) | ├─SimpleTypeSyntax
-//@[033:00039) | | └─Token(Identifier) |object|
+//@[033:00039) | ├─VariableAccessSyntax
+//@[033:00039) | | └─IdentifierSyntax
+//@[033:00039) | |   └─Token(Identifier) |object|
 //@[040:00041) | ├─Token(Assignment) |=|
 //@[042:00073) | └─PropertyAccessSyntax
 //@[042:00064) |   ├─ArrayAccessSyntax
@@ -784,8 +793,9 @@ output indexedEndpointPair object = {
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00026) | ├─IdentifierSyntax
 //@[007:00026) | | └─Token(Identifier) |indexedEndpointPair|
-//@[027:00033) | ├─SimpleTypeSyntax
-//@[027:00033) | | └─Token(Identifier) |object|
+//@[027:00033) | ├─VariableAccessSyntax
+//@[027:00033) | | └─IdentifierSyntax
+//@[027:00033) | |   └─Token(Identifier) |object|
 //@[034:00035) | ├─Token(Assignment) |=|
 //@[036:00181) | └─ObjectSyntax
 //@[036:00037) |   ├─Token(LeftBrace) |{|
@@ -859,8 +869,9 @@ output indexViaReference string = storageAccounts[int(storageAccounts[index].pro
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00024) | ├─IdentifierSyntax
 //@[007:00024) | | └─Token(Identifier) |indexViaReference|
-//@[025:00031) | ├─SimpleTypeSyntax
-//@[025:00031) | | └─Token(Identifier) |string|
+//@[025:00031) | ├─VariableAccessSyntax
+//@[025:00031) | | └─IdentifierSyntax
+//@[025:00031) | |   └─Token(Identifier) |string|
 //@[032:00033) | ├─Token(Assignment) |=|
 //@[034:00124) | └─PropertyAccessSyntax
 //@[034:00113) |   ├─PropertyAccessSyntax
@@ -2289,8 +2300,9 @@ output indexedModulesName string = moduleCollectionWithSingleDependency[index].n
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00025) | ├─IdentifierSyntax
 //@[007:00025) | | └─Token(Identifier) |indexedModulesName|
-//@[026:00032) | ├─SimpleTypeSyntax
-//@[026:00032) | | └─Token(Identifier) |string|
+//@[026:00032) | ├─VariableAccessSyntax
+//@[026:00032) | | └─IdentifierSyntax
+//@[026:00032) | |   └─Token(Identifier) |string|
 //@[033:00034) | ├─Token(Assignment) |=|
 //@[035:00083) | └─PropertyAccessSyntax
 //@[035:00078) |   ├─ArrayAccessSyntax
@@ -2311,8 +2323,9 @@ output indexedModuleOutput string = moduleCollectionWithSingleDependency[index *
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00026) | ├─IdentifierSyntax
 //@[007:00026) | | └─Token(Identifier) |indexedModuleOutput|
-//@[027:00033) | ├─SimpleTypeSyntax
-//@[027:00033) | | └─Token(Identifier) |string|
+//@[027:00033) | ├─VariableAccessSyntax
+//@[027:00033) | | └─IdentifierSyntax
+//@[027:00033) | |   └─Token(Identifier) |string|
 //@[034:00035) | ├─Token(Assignment) |=|
 //@[036:00100) | └─PropertyAccessSyntax
 //@[036:00091) |   ├─PropertyAccessSyntax
@@ -2403,8 +2416,9 @@ output existingIndexedResourceName string = existingStorageAccounts[index * 0].n
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00034) | ├─IdentifierSyntax
 //@[007:00034) | | └─Token(Identifier) |existingIndexedResourceName|
-//@[035:00041) | ├─SimpleTypeSyntax
-//@[035:00041) | | └─Token(Identifier) |string|
+//@[035:00041) | ├─VariableAccessSyntax
+//@[035:00041) | | └─IdentifierSyntax
+//@[035:00041) | |   └─Token(Identifier) |string|
 //@[042:00043) | ├─Token(Assignment) |=|
 //@[044:00083) | └─PropertyAccessSyntax
 //@[044:00078) |   ├─ArrayAccessSyntax
@@ -2429,8 +2443,9 @@ output existingIndexedResourceId string = existingStorageAccounts[index * 1].id
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00032) | ├─IdentifierSyntax
 //@[007:00032) | | └─Token(Identifier) |existingIndexedResourceId|
-//@[033:00039) | ├─SimpleTypeSyntax
-//@[033:00039) | | └─Token(Identifier) |string|
+//@[033:00039) | ├─VariableAccessSyntax
+//@[033:00039) | | └─IdentifierSyntax
+//@[033:00039) | |   └─Token(Identifier) |string|
 //@[040:00041) | ├─Token(Assignment) |=|
 //@[042:00079) | └─PropertyAccessSyntax
 //@[042:00076) |   ├─ArrayAccessSyntax
@@ -2455,8 +2470,9 @@ output existingIndexedResourceType string = existingStorageAccounts[index+2].typ
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00034) | ├─IdentifierSyntax
 //@[007:00034) | | └─Token(Identifier) |existingIndexedResourceType|
-//@[035:00041) | ├─SimpleTypeSyntax
-//@[035:00041) | | └─Token(Identifier) |string|
+//@[035:00041) | ├─VariableAccessSyntax
+//@[035:00041) | | └─IdentifierSyntax
+//@[035:00041) | |   └─Token(Identifier) |string|
 //@[042:00043) | ├─Token(Assignment) |=|
 //@[044:00081) | └─PropertyAccessSyntax
 //@[044:00076) |   ├─ArrayAccessSyntax
@@ -2481,8 +2497,9 @@ output existingIndexedResourceApiVersion string = existingStorageAccounts[index-
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00040) | ├─IdentifierSyntax
 //@[007:00040) | | └─Token(Identifier) |existingIndexedResourceApiVersion|
-//@[041:00047) | ├─SimpleTypeSyntax
-//@[041:00047) | | └─Token(Identifier) |string|
+//@[041:00047) | ├─VariableAccessSyntax
+//@[041:00047) | | └─IdentifierSyntax
+//@[041:00047) | |   └─Token(Identifier) |string|
 //@[048:00049) | ├─Token(Assignment) |=|
 //@[050:00093) | └─PropertyAccessSyntax
 //@[050:00082) |   ├─ArrayAccessSyntax
@@ -2507,8 +2524,9 @@ output existingIndexedResourceLocation string = existingStorageAccounts[index/2]
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00038) | ├─IdentifierSyntax
 //@[007:00038) | | └─Token(Identifier) |existingIndexedResourceLocation|
-//@[039:00045) | ├─SimpleTypeSyntax
-//@[039:00045) | | └─Token(Identifier) |string|
+//@[039:00045) | ├─VariableAccessSyntax
+//@[039:00045) | | └─IdentifierSyntax
+//@[039:00045) | |   └─Token(Identifier) |string|
 //@[046:00047) | ├─Token(Assignment) |=|
 //@[048:00089) | └─PropertyAccessSyntax
 //@[048:00080) |   ├─ArrayAccessSyntax
@@ -2533,8 +2551,9 @@ output existingIndexedResourceAccessTier string = existingStorageAccounts[index%
 //@[000:00006) | ├─Token(Identifier) |output|
 //@[007:00040) | ├─IdentifierSyntax
 //@[007:00040) | | └─Token(Identifier) |existingIndexedResourceAccessTier|
-//@[041:00047) | ├─SimpleTypeSyntax
-//@[041:00047) | | └─Token(Identifier) |string|
+//@[041:00047) | ├─VariableAccessSyntax
+//@[041:00047) | | └─IdentifierSyntax
+//@[041:00047) | |   └─Token(Identifier) |string|
 //@[048:00049) | ├─Token(Assignment) |=|
 //@[050:00104) | └─PropertyAccessSyntax
 //@[050:00093) |   ├─PropertyAccessSyntax

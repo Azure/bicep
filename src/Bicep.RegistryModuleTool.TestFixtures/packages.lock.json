@@ -220,8 +220,8 @@
       },
       "JsonSchema.Net": {
         "type": "Transitive",
-        "resolved": "3.2.1",
-        "contentHash": "qJ5wRhmdD2SPQdZhmhlOsDFptpYf+52LRxLXJzSBT8s1+37SkP0ccJCoZbh50MUYpTthgcsqli2qpiZ451Cj8A==",
+        "resolved": "3.3.0",
+        "contentHash": "J86DY8Xpawd10Pk66jjODhyzMWgN1XD76o0RbCONQvhPg17ufwdzQzXNcZBrASqdkXzpgVzXI0yfGzf2ekw9Fg==",
         "dependencies": {
           "JetBrains.Annotations": "2021.2.0",
           "Json.More.Net": "1.7.0",
@@ -328,8 +328,8 @@
       },
       "Microsoft.Extensions.DependencyInjection": {
         "type": "Transitive",
-        "resolved": "6.0.1",
-        "contentHash": "vWXPg3HJQIpZkENn1KWq8SfbqVujVD7S7vIAyFXXqK5xkf1Vho+vG0bLBCHxU36lD1cLLtmGpfYf0B3MYFi9tQ==",
+        "resolved": "6.0.0",
+        "contentHash": "k6PWQMuoBDGGHOQTtyois2u4AwyVcIwL2LaSLlTZQm2CYcJ1pxbt6jfAnpWmzENA/wfrYRI/X9DTLoUkE4AsLw==",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "6.0.0",
           "System.Runtime.CompilerServices.Unsafe": "6.0.0"
@@ -2024,7 +2024,6 @@
           "Microsoft.Extensions.Configuration": "[6.0.1, )",
           "Microsoft.Extensions.Configuration.Binder": "[6.0.0, )",
           "Microsoft.Extensions.Configuration.Json": "[6.0.0, )",
-          "Microsoft.Extensions.DependencyInjection": "[6.0.1, )",
           "Newtonsoft.Json": "[13.0.1, )",
           "System.Collections.Immutable": "[6.0.0, )",
           "System.IO.Abstractions": "[17.2.3, )"
@@ -2037,7 +2036,7 @@
           "DiffPlex": "[1.7.1, )",
           "FluentAssertions": "[6.8.0, )",
           "JsonPath.Net": "[0.2.1, )",
-          "JsonSchema.Net": "[3.2.1, )",
+          "JsonSchema.Net": "[3.3.0, )",
           "Markdig": "[0.30.4, )",
           "Microsoft.Extensions.Logging": "[6.0.0, )",
           "Microsoft.Extensions.Logging.Console": "[6.0.0, )",

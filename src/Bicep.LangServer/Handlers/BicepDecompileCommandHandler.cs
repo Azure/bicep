@@ -85,34 +85,29 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDecompileCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDecompileCommandParams, BicepDecompileCommandResult>
     {
-        private readonly TemplateDecompiler templateDecompiler;
+        private readonly BicepDecompiler bicepDecompiler;
         private readonly TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult> telemetryHelper;
 
         public BicepDecompileCommandHandler(
             ISerializer serializer,
-            IFeatureProviderFactory featureProviderFactory,
-            INamespaceProvider namespaceProvider,
-            IModuleRegistryProvider registryProvider,
             ILanguageServerFacade server,
             ITelemetryProvider telemetryProvider,
-            IApiVersionProviderFactory apiVersionProviderFactory,
-            IBicepAnalyzer bicepAnalyzer,
-            IFileResolver fileResolver)
+            BicepDecompiler bicepDecompiler)
             : base(LangServerConstants.DecompileCommand, serializer)
         {
             this.telemetryHelper = new TelemetryAndErrorHandlingHelper<BicepDecompileCommandResult>(server.Window, telemetryProvider);
-            this.templateDecompiler = new TemplateDecompiler(featureProviderFactory, namespaceProvider, fileResolver, registryProvider, apiVersionProviderFactory, bicepAnalyzer);
+            this.bicepDecompiler = bicepDecompiler;
         }
 
         public override Task<BicepDecompileCommandResult> Handle(BicepDecompileCommandParams parameters, CancellationToken cancellationToken)
         {
             return telemetryHelper.ExecuteWithTelemetryAndErrorHandling(() =>
             {
-                return Task.FromResult(Decompile(parameters.jsonUri.GetFileSystemPath()));
+                return Decompile(parameters.jsonUri.GetFileSystemPath());
             });
         }
 
-        private (BicepDecompileCommandResult result, BicepTelemetryEvent? successTelemetry) Decompile(string jsonPath)
+        private async Task<(BicepDecompileCommandResult result, BicepTelemetryEvent? successTelemetry)> Decompile(string jsonPath)
         {
             StringBuilder output = new StringBuilder();
             string decompileId = Guid.NewGuid().ToString();
@@ -125,7 +120,7 @@ namespace Bicep.LanguageServer.Handlers
             {
                 // Decompile
                 Log(output, String.Format(LangServerResources.Decompile_DecompilationStartMsg, jsonPath));
-                (bicepUri, filesToSave) = templateDecompiler.DecompileFileWithModules(jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
+                (bicepUri, filesToSave) = await bicepDecompiler.Decompile(jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
             }
             catch (Exception ex)
             {
@@ -160,12 +155,12 @@ namespace Bicep.LanguageServer.Handlers
 
 
             // Show disclaimer and completion
-            Log(output, TemplateDecompiler.DecompilerDisclaimerMessage);
+            Log(output, BicepDecompiler.DecompilerDisclaimerMessage);
 
             // Return result
             string mainBicepPath = pathsToSave[0].path;
             var result = new BicepDecompileCommandResult(
-                decompileId, 
+                decompileId,
                 output.ToString(),
                 mainBicepPath,
                 outputFiles,

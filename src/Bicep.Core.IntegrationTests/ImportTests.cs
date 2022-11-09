@@ -10,6 +10,7 @@ using Bicep.Core.Features;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -55,6 +56,8 @@ import 'az@1.0.0'
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Using import statements requires enabling EXPERIMENTAL feature \"Extensibility\"."),
+                // BCP084 is raised because BCP203 prevented the compiler from binding a namespace to the `az` symbol (an ErrorType was bound instead).
+                ("BCP084", DiagnosticLevel.Error, "The symbolic name \"az\" is reserved. Please use a different symbolic name. Reserved namespaces are \"az\", \"sys\"."),
             });
         }
 
@@ -69,14 +72,14 @@ import
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'az@1.0.0' blahblah 
+import 'az@1.0.0' blahblah
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP305", DiagnosticLevel.Error, "Expected the \"with\" keyword, \"as\" keyword, or a new line character at this location."),
             });
 
             result = CompilationHelper.Compile(ServicesWithImports, @"
-import 'kubernetes@1.0.0' with 
+import 'kubernetes@1.0.0' with
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"{\" character at this location."),
@@ -168,7 +171,7 @@ output rgLocation string = myRg.location
         }
 
         [TestMethod]
-        public void Overwriting_single_built_in_namespace_with_import_is_permitted()
+        public void Overwriting_single_built_in_namespace_with_import_is_prohibited()
         {
             var result = CompilationHelper.Compile(ServicesWithImports, @"
 import 'az@1.0.0' as sys
@@ -178,7 +181,7 @@ var myRg = sys.resourceGroup()
 output rgLocation string = myRg.location
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.Should().ContainDiagnostic("BCP084", DiagnosticLevel.Error, "The symbolic name \"sys\" is reserved. Please use a different symbolic name. Reserved namespaces are \"sys\".");
         }
 
         [TestMethod]
@@ -230,7 +233,7 @@ import 'kubernetes@1.0.0' with {
                         ConfigurationType: null,
                         ArmTemplateProviderName: "Ns1-Unused",
                         ArmTemplateProviderVersion: "1.0"),
-                    ImmutableArray<TypeProperty>.Empty,
+                    ImmutableArray<TypeTypeProperty>.Empty,
                     new[] {
                         new FunctionOverloadBuilder("ns1Func").Build(),
                         new FunctionOverloadBuilder("dupeFunc").Build(),
@@ -246,7 +249,7 @@ import 'kubernetes@1.0.0' with {
                         ConfigurationType: null,
                         ArmTemplateProviderName: "Ns2-Unused",
                         ArmTemplateProviderVersion: "1.0"),
-                    ImmutableArray<TypeProperty>.Empty,
+                    ImmutableArray<TypeTypeProperty>.Empty,
                     new[] {
                         new FunctionOverloadBuilder("ns2Func").Build(),
                         new FunctionOverloadBuilder("dupeFunc").Build(),
@@ -304,7 +307,7 @@ output ns2Result string = ns2Func()
                             null),
                         ArmTemplateProviderName: "Unused",
                         ArmTemplateProviderVersion: "1.0.0"),
-                    ImmutableArray<TypeProperty>.Empty,
+                    ImmutableArray<TypeTypeProperty>.Empty,
                     ImmutableArray<FunctionOverload>.Empty,
                     ImmutableArray<BannedFunction>.Empty,
                     ImmutableArray<Decorator>.Empty,

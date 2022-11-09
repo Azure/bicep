@@ -4,8 +4,6 @@ type noAssignment
 
 type incompleteAssignment =
 
-type string = int
-
 type resource = bool
 
 @sealed()

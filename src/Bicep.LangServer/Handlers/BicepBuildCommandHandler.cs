@@ -8,18 +8,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Core.Helpers;
-using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter;
-using Bicep.Core.Analyzers.Linter.ApiVersions;
-using Bicep.Core.Configuration;
+using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Registry;
-using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -34,42 +26,28 @@ namespace Bicep.LanguageServer.Handlers
     // It returns build succeeded/failed message, which can be displayed approriately in IDE output window
     public class BicepBuildCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
+        private readonly BicepCompiler bicepCompiler;
         private readonly ICompilationManager compilationManager;
-        private readonly IFeatureProviderFactory featureProviderFactory;
-        private readonly IFileResolver fileResolver;
-        private readonly IModuleDispatcher moduleDispatcher;
-        private readonly INamespaceProvider namespaceProvider;
-        private readonly IConfigurationManager configurationManager;
-        private readonly IApiVersionProviderFactory apiVersionProviderFactory;
-        private readonly IBicepAnalyzer bicepAnalyzer;
 
-        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProviderFactory featureProviderFactory, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IApiVersionProviderFactory apiVersionProviderFactory, IConfigurationManager configurationManager, IBicepAnalyzer bicepAnalyzer)
+        public BicepBuildCommandHandler(BicepCompiler bicepCompiler, ICompilationManager compilationManager, ISerializer serializer)
             : base(LangServerConstants.BuildCommand, serializer)
         {
+            this.bicepCompiler = bicepCompiler;
             this.compilationManager = compilationManager;
-            this.featureProviderFactory = featureProviderFactory;
-            this.namespaceProvider = namespaceProvider;
-            this.fileResolver = fileResolver;
-            this.moduleDispatcher = moduleDispatcher;
-            this.configurationManager = configurationManager;
-            this.apiVersionProviderFactory = apiVersionProviderFactory;
-            this.bicepAnalyzer = bicepAnalyzer;
         }
 
-        public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
+        public override async Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(bicepFilePath))
             {
                 throw new ArgumentException("Invalid input file path");
             }
 
-            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            string buildOutput = GenerateCompiledFileAndReturnBuildOutputMessage(bicepFilePath, documentUri);
-
-            return Task.FromResult(buildOutput);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            return await GenerateCompiledFileAndReturnBuildOutputMessage(bicepFilePath, documentUri);
         }
 
-        private string GenerateCompiledFileAndReturnBuildOutputMessage(string bicepFilePath, DocumentUri documentUri)
+        private async Task<string> GenerateCompiledFileAndReturnBuildOutputMessage(string bicepFilePath, DocumentUri documentUri)
         {
             string compiledFilePath = PathHelper.GetDefaultBuildOutputPath(bicepFilePath);
             string compiledFile = Path.GetFileName(compiledFilePath);
@@ -83,17 +61,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var fileUri = documentUri.ToUri();
 
-            var compilation = CompilationHelper.GetCompilation(
-                documentUri,
-                fileUri,
-                apiVersionProviderFactory,
-                bicepAnalyzer,
-                compilationManager,
-                configurationManager,
-                featureProviderFactory,
-                fileResolver,
-                moduleDispatcher,
-                namespaceProvider);
+            var compilation = await new CompilationHelper(bicepCompiler, compilationManager).GetCompilation(documentUri);
 
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
                 .FirstOrDefault(x => x.Key.FileUri == fileUri);

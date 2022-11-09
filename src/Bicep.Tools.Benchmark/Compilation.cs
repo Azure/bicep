@@ -10,6 +10,7 @@ using System.IO.Abstractions;
 using System.Collections.Immutable;
 using FluentAssertions;
 using System;
+using Bicep.Core.UnitTests;
 
 namespace Bicep.Tools.Benchmark;
 
@@ -17,7 +18,7 @@ public class Compilation
 {
     private record BenchmarkData(
         ImmutableArray<DataSet> DataSets,
-        IBicepService BicepService);
+        IDependencyHelper BicepService);
 
     private static BenchmarkData CreateBenchmarkData()
     {

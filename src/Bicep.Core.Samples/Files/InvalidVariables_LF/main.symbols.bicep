@@ -139,7 +139,7 @@ var az = 1
 
 // cannot assign a variable to a namespace
 var invalidNamespaceAssignment = az
-//@[04:30) Variable invalidNamespaceAssignment. Type: error. Declaration start char: 0, length: 35
+//@[04:30) Variable invalidNamespaceAssignment. Type: 1. Declaration start char: 0, length: 35
 
 var objectLiteralType = {
 //@[04:21) Variable objectLiteralType. Type: object. Declaration start char: 0, length: 199

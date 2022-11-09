@@ -4,8 +4,9 @@ param ids array
 //@[000:0005) | ├─Token(Identifier) |param|
 //@[006:0009) | ├─IdentifierSyntax
 //@[006:0009) | | └─Token(Identifier) |ids|
-//@[010:0015) | └─SimpleTypeSyntax
-//@[010:0015) |   └─Token(Identifier) |array|
+//@[010:0015) | └─VariableAccessSyntax
+//@[010:0015) |   └─IdentifierSyntax
+//@[010:0015) |     └─Token(Identifier) |array|
 //@[015:0017) ├─Token(NewLine) |\n\n|
 
 var flatten1 = flatten('abc')
@@ -896,8 +897,9 @@ output stgKeys array = map(range(0, 2), i => stg[i].listKeys().keys[0].value)
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0014) | ├─IdentifierSyntax
 //@[007:0014) | | └─Token(Identifier) |stgKeys|
-//@[015:0020) | ├─SimpleTypeSyntax
-//@[015:0020) | | └─Token(Identifier) |array|
+//@[015:0020) | ├─VariableAccessSyntax
+//@[015:0020) | | └─IdentifierSyntax
+//@[015:0020) | |   └─Token(Identifier) |array|
 //@[021:0022) | ├─Token(Assignment) |=|
 //@[023:0077) | └─FunctionCallSyntax
 //@[023:0026) |   ├─IdentifierSyntax
@@ -958,8 +960,9 @@ output stgKeys2 array = map(range(0, 2), j => stg[((j + 2) % 123)].listKeys().ke
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0015) | ├─IdentifierSyntax
 //@[007:0015) | | └─Token(Identifier) |stgKeys2|
-//@[016:0021) | ├─SimpleTypeSyntax
-//@[016:0021) | | └─Token(Identifier) |array|
+//@[016:0021) | ├─VariableAccessSyntax
+//@[016:0021) | | └─IdentifierSyntax
+//@[016:0021) | |   └─Token(Identifier) |array|
 //@[022:0023) | ├─Token(Assignment) |=|
 //@[024:0092) | └─FunctionCallSyntax
 //@[024:0027) |   ├─IdentifierSyntax
@@ -1034,8 +1037,9 @@ output stgKeys3 array = map(ids, id => listKeys(id, stg[0].apiVersion).keys[0].v
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0015) | ├─IdentifierSyntax
 //@[007:0015) | | └─Token(Identifier) |stgKeys3|
-//@[016:0021) | ├─SimpleTypeSyntax
-//@[016:0021) | | └─Token(Identifier) |array|
+//@[016:0021) | ├─VariableAccessSyntax
+//@[016:0021) | | └─IdentifierSyntax
+//@[016:0021) | |   └─Token(Identifier) |array|
 //@[022:0023) | ├─Token(Assignment) |=|
 //@[024:0085) | └─FunctionCallSyntax
 //@[024:0027) |   ├─IdentifierSyntax
@@ -1095,8 +1099,9 @@ output accessTiers array = map(range(0, 2), k => stg[k].properties.accessTier)
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0018) | ├─IdentifierSyntax
 //@[007:0018) | | └─Token(Identifier) |accessTiers|
-//@[019:0024) | ├─SimpleTypeSyntax
-//@[019:0024) | | └─Token(Identifier) |array|
+//@[019:0024) | ├─VariableAccessSyntax
+//@[019:0024) | | └─IdentifierSyntax
+//@[019:0024) | |   └─Token(Identifier) |array|
 //@[025:0026) | ├─Token(Assignment) |=|
 //@[027:0078) | └─FunctionCallSyntax
 //@[027:0030) |   ├─IdentifierSyntax
@@ -1146,8 +1151,9 @@ output accessTiers2 array = map(range(0, 2), x => map(range(0, 2), y => stg[x / 
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0019) | ├─IdentifierSyntax
 //@[007:0019) | | └─Token(Identifier) |accessTiers2|
-//@[020:0025) | ├─SimpleTypeSyntax
-//@[020:0025) | | └─Token(Identifier) |array|
+//@[020:0025) | ├─VariableAccessSyntax
+//@[020:0025) | | └─IdentifierSyntax
+//@[020:0025) | |   └─Token(Identifier) |array|
 //@[026:0027) | ├─Token(Assignment) |=|
 //@[028:0106) | └─FunctionCallSyntax
 //@[028:0031) |   ├─IdentifierSyntax
@@ -1227,8 +1233,9 @@ output accessTiers3 array = map(ids, foo => reference('${foo}').accessTier)
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0019) | ├─IdentifierSyntax
 //@[007:0019) | | └─Token(Identifier) |accessTiers3|
-//@[020:0025) | ├─SimpleTypeSyntax
-//@[020:0025) | | └─Token(Identifier) |array|
+//@[020:0025) | ├─VariableAccessSyntax
+//@[020:0025) | | └─IdentifierSyntax
+//@[020:0025) | |   └─Token(Identifier) |array|
 //@[026:0027) | ├─Token(Assignment) |=|
 //@[028:0075) | └─FunctionCallSyntax
 //@[028:0031) |   ├─IdentifierSyntax
@@ -1347,8 +1354,9 @@ output modOutputs array = map(range(0, 5), i => modLoop[i].outputs.foo)
 //@[000:0006) | ├─Token(Identifier) |output|
 //@[007:0017) | ├─IdentifierSyntax
 //@[007:0017) | | └─Token(Identifier) |modOutputs|
-//@[018:0023) | ├─SimpleTypeSyntax
-//@[018:0023) | | └─Token(Identifier) |array|
+//@[018:0023) | ├─VariableAccessSyntax
+//@[018:0023) | | └─IdentifierSyntax
+//@[018:0023) | |   └─Token(Identifier) |array|
 //@[024:0025) | ├─Token(Assignment) |=|
 //@[026:0071) | └─FunctionCallSyntax
 //@[026:0029) |   ├─IdentifierSyntax

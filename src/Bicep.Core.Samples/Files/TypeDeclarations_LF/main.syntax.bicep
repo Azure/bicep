@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:900) ProgramSyntax
+//@[00:902) ProgramSyntax
 //@[00:298) ├─TypeDeclarationSyntax
 //@[00:028) | ├─DecoratorSyntax
 //@[00:001) | | ├─Token(At) |@|
@@ -70,8 +70,9 @@ type foo = {
 //@[02:012) |   | ├─IdentifierSyntax
 //@[02:012) |   | | └─Token(Identifier) |stringProp|
 //@[12:013) |   | ├─Token(Colon) |:|
-//@[14:020) |   | └─SimpleTypeSyntax
-//@[14:020) |   |   └─Token(Identifier) |string|
+//@[14:020) |   | └─VariableAccessSyntax
+//@[14:020) |   |   └─IdentifierSyntax
+//@[14:020) |   |     └─Token(Identifier) |string|
 //@[20:022) |   ├─Token(NewLine) |\n\n|
 
   objectProp: {
@@ -99,8 +100,9 @@ type foo = {
 //@[04:011) |   |   | ├─IdentifierSyntax
 //@[04:011) |   |   | | └─Token(Identifier) |intProp|
 //@[11:012) |   |   | ├─Token(Colon) |:|
-//@[13:016) |   |   | └─SimpleTypeSyntax
-//@[13:016) |   |   |   └─Token(Identifier) |int|
+//@[13:016) |   |   | └─VariableAccessSyntax
+//@[13:016) |   |   |   └─IdentifierSyntax
+//@[13:016) |   |   |     └─Token(Identifier) |int|
 //@[16:018) |   |   ├─Token(NewLine) |\n\n|
 
     intArrayArrayProp?: int [] []
@@ -113,8 +115,9 @@ type foo = {
 //@[24:030) |   |   |   ├─ArrayTypeMemberSyntax
 //@[24:030) |   |   |   | └─ArrayTypeSyntax
 //@[24:027) |   |   |   |   ├─ArrayTypeMemberSyntax
-//@[24:027) |   |   |   |   | └─SimpleTypeSyntax
-//@[24:027) |   |   |   |   |   └─Token(Identifier) |int|
+//@[24:027) |   |   |   |   | └─VariableAccessSyntax
+//@[24:027) |   |   |   |   |   └─IdentifierSyntax
+//@[24:027) |   |   |   |   |     └─Token(Identifier) |int|
 //@[28:029) |   |   |   |   ├─Token(LeftSquare) |[|
 //@[29:030) |   |   |   |   └─Token(RightSquare) |]|
 //@[31:032) |   |   |   ├─Token(LeftSquare) |[|
@@ -129,7 +132,7 @@ type foo = {
 //@[02:013) |   | ├─IdentifierSyntax
 //@[02:013) |   | | └─Token(Identifier) |typeRefProp|
 //@[13:014) |   | ├─Token(Colon) |:|
-//@[15:018) |   | └─TypeAccessSyntax
+//@[15:018) |   | └─VariableAccessSyntax
 //@[15:018) |   |   └─IdentifierSyntax
 //@[15:018) |   |     └─Token(Identifier) |bar|
 //@[18:020) |   ├─Token(NewLine) |\n\n|
@@ -149,7 +152,7 @@ type foo = {
 //@[02:011) |   | | └─Token(Identifier) |recursion|
 //@[11:012) |   | ├─Token(Question) |?|
 //@[12:013) |   | ├─Token(Colon) |:|
-//@[14:017) |   | └─TypeAccessSyntax
+//@[14:017) |   | └─VariableAccessSyntax
 //@[14:017) |   |   └─IdentifierSyntax
 //@[14:017) |   |     └─Token(Identifier) |foo|
 //@[17:018) |   ├─Token(NewLine) |\n|
@@ -274,8 +277,9 @@ type bar = int[][][][]
 //@[11:016) |   |   |   ├─ArrayTypeMemberSyntax
 //@[11:016) |   |   |   | └─ArrayTypeSyntax
 //@[11:014) |   |   |   |   ├─ArrayTypeMemberSyntax
-//@[11:014) |   |   |   |   | └─SimpleTypeSyntax
-//@[11:014) |   |   |   |   |   └─Token(Identifier) |int|
+//@[11:014) |   |   |   |   | └─VariableAccessSyntax
+//@[11:014) |   |   |   |   |   └─IdentifierSyntax
+//@[11:014) |   |   |   |   |     └─Token(Identifier) |int|
 //@[14:015) |   |   |   |   ├─Token(LeftSquare) |[|
 //@[15:016) |   |   |   |   └─Token(RightSquare) |]|
 //@[16:017) |   |   |   ├─Token(LeftSquare) |[|
@@ -314,7 +318,7 @@ type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 //@[19:020) | ├─Token(Assignment) |=|
 //@[21:047) | └─UnionTypeSyntax
 //@[21:027) |   ├─UnionTypeMemberSyntax
-//@[21:027) |   | └─TypeAccessSyntax
+//@[21:027) |   | └─VariableAccessSyntax
 //@[21:027) |   |   └─IdentifierSyntax
 //@[21:027) |   |     └─Token(Identifier) |aUnion|
 //@[27:028) |   ├─Token(Pipe) |||
@@ -396,22 +400,23 @@ type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!tr
 //@[89:090) |   └─Token(RightSquare) |]|
 //@[90:092) ├─Token(NewLine) |\n\n|
 
-type String = string
-//@[00:020) ├─TypeDeclarationSyntax
+type bool = string
+//@[00:018) ├─TypeDeclarationSyntax
 //@[00:004) | ├─Token(Identifier) |type|
-//@[05:011) | ├─IdentifierSyntax
-//@[05:011) | | └─Token(Identifier) |String|
-//@[12:013) | ├─Token(Assignment) |=|
-//@[14:020) | └─SimpleTypeSyntax
-//@[14:020) |   └─Token(Identifier) |string|
-//@[20:022) ├─Token(NewLine) |\n\n|
+//@[05:009) | ├─IdentifierSyntax
+//@[05:009) | | └─Token(Identifier) |bool|
+//@[10:011) | ├─Token(Assignment) |=|
+//@[12:018) | └─VariableAccessSyntax
+//@[12:018) |   └─IdentifierSyntax
+//@[12:018) |     └─Token(Identifier) |string|
+//@[18:020) ├─Token(NewLine) |\n\n|
 
 param inlineObjectParam {
-//@[00:123) ├─ParameterDeclarationSyntax
+//@[00:127) ├─ParameterDeclarationSyntax
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:023) | ├─IdentifierSyntax
 //@[06:023) | | └─Token(Identifier) |inlineObjectParam|
-//@[24:080) | ├─ObjectTypeSyntax
+//@[24:084) | ├─ObjectTypeSyntax
 //@[24:025) | | ├─Token(LeftBrace) |{|
 //@[25:026) | | ├─Token(NewLine) |\n|
   foo: string
@@ -419,8 +424,9 @@ param inlineObjectParam {
 //@[02:005) | | | ├─IdentifierSyntax
 //@[02:005) | | | | └─Token(Identifier) |foo|
 //@[05:006) | | | ├─Token(Colon) |:|
-//@[07:013) | | | └─SimpleTypeSyntax
-//@[07:013) | | |   └─Token(Identifier) |string|
+//@[07:013) | | | └─VariableAccessSyntax
+//@[07:013) | | |   └─IdentifierSyntax
+//@[07:013) | | |     └─Token(Identifier) |string|
 //@[13:014) | | ├─Token(NewLine) |\n|
   bar: 100|200|300|400|500
 //@[02:026) | | ├─ObjectTypePropertySyntax
@@ -448,14 +454,19 @@ param inlineObjectParam {
 //@[23:026) | | |     └─IntegerLiteralSyntax
 //@[23:026) | | |       └─Token(Integer) |500|
 //@[26:027) | | ├─Token(NewLine) |\n|
-  baz: bool
-//@[02:011) | | ├─ObjectTypePropertySyntax
+  baz: sys.bool
+//@[02:015) | | ├─ObjectTypePropertySyntax
 //@[02:005) | | | ├─IdentifierSyntax
 //@[02:005) | | | | └─Token(Identifier) |baz|
 //@[05:006) | | | ├─Token(Colon) |:|
-//@[07:011) | | | └─SimpleTypeSyntax
-//@[07:011) | | |   └─Token(Identifier) |bool|
-//@[11:012) | | ├─Token(NewLine) |\n|
+//@[07:015) | | | └─PropertyAccessSyntax
+//@[07:010) | | |   ├─VariableAccessSyntax
+//@[07:010) | | |   | └─IdentifierSyntax
+//@[07:010) | | |   |   └─Token(Identifier) |sys|
+//@[10:011) | | |   ├─Token(Dot) |.|
+//@[11:015) | | |   └─IdentifierSyntax
+//@[11:015) | | |     └─Token(Identifier) |bool|
+//@[15:016) | | ├─Token(NewLine) |\n|
 } = {
 //@[00:001) | | └─Token(RightBrace) |}|
 //@[02:044) | └─ParameterDefaultValueSyntax
@@ -536,7 +547,7 @@ param paramUsingType mixedArray
 //@[00:005) | ├─Token(Identifier) |param|
 //@[06:020) | ├─IdentifierSyntax
 //@[06:020) | | └─Token(Identifier) |paramUsingType|
-//@[21:031) | └─TypeAccessSyntax
+//@[21:031) | └─VariableAccessSyntax
 //@[21:031) |   └─IdentifierSyntax
 //@[21:031) |     └─Token(Identifier) |mixedArray|
 //@[31:032) ├─Token(NewLine) |\n|

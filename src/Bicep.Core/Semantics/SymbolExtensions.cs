@@ -34,16 +34,15 @@ namespace Bicep.Core.Semantics
             return HasDecorator(parameterSymbol, "secure");
         }
 
-        public static bool HasDecorator(this ParameterSymbol parameterSymbol, string decoratorName)
+        public static bool HasDecorator(this DeclaredSymbol parameterSymbol, string decoratorName)
+            => parameterSymbol?.DeclaringSyntax is DecorableSyntax decorable && HasDecorator(decorable, decoratorName);
+
+        private static bool HasDecorator(DecorableSyntax decorable, string decoratorName)
         {
             // local function
             bool hasDecorator(DecoratorSyntax? value, string decoratorName) => value?.Expression is FunctionCallSyntax functionCallSyntax && functionCallSyntax.NameEquals(decoratorName);
 
-            if (parameterSymbol?.DeclaringSyntax is ParameterDeclarationSyntax paramDeclaration)
-            {
-                return paramDeclaration.Decorators.Any(d => hasDecorator(d, decoratorName));
-            }
-            return false;
+            return decorable.Decorators.Any(d => hasDecorator(d, decoratorName));
         }
 
         /// <summary>
