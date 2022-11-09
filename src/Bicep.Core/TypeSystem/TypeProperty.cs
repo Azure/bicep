@@ -20,5 +20,7 @@ namespace Bicep.Core.TypeSystem
         public ITypeReference TypeReference { get; }
 
         public TypePropertyFlags Flags { get; }
+
+        public TypeProperty With(TypePropertyFlags flags) => new(this.Name, this.TypeReference, flags, this.Description);
     }
 }

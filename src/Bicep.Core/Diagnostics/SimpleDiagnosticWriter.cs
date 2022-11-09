@@ -14,11 +14,7 @@ namespace Bicep.Core.Diagnostics
             this.hasDiagnostics = false;
         }
 
-        public static SimpleDiagnosticWriter Create()
-            => new SimpleDiagnosticWriter();
-
-        public void Write(IDiagnostic diagnostic)
-            => hasDiagnostics = true;
+        public void Write(IDiagnostic diagnostic) => hasDiagnostics = true;
 
         public bool HasDiagnostics() => hasDiagnostics;
     }

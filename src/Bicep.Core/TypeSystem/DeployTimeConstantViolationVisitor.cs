@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -18,12 +19,12 @@ namespace Bicep.Core.TypeSystem
             SyntaxBase deployTimeConstantContainer,
             SemanticModel semanticModel,
             IDiagnosticWriter diagnosticWriter,
-            Dictionary<DeclaredSymbol, ObjectType> existingResourceBodyObjectTypeOverrides)
+            ResourceTypeResolver resourceTypeResolver)
         {
             this.DeployTimeConstantContainer = deployTimeConstantContainer;
             this.SemanticModel = semanticModel;
             this.DiagnosticWriter = diagnosticWriter;
-            this.ExistingResourceBodyObjectTypeOverrides = existingResourceBodyObjectTypeOverrides;
+            this.ResourceTypeResolver = resourceTypeResolver;
         }
 
         protected SyntaxBase DeployTimeConstantContainer { get; }
@@ -32,7 +33,7 @@ namespace Bicep.Core.TypeSystem
 
         protected IDiagnosticWriter DiagnosticWriter { get; }
 
-        protected Dictionary<DeclaredSymbol, ObjectType> ExistingResourceBodyObjectTypeOverrides { get; }
+        protected ResourceTypeResolver ResourceTypeResolver { get; }
 
         protected void FlagDeployTimeConstantViolation(SyntaxBase errorSyntax, DeclaredSymbol? accessedSymbol = null, ObjectType? accessedObjectType = null, IEnumerable<string>? variableDependencyChain = null)
         {
@@ -70,21 +71,6 @@ namespace Bicep.Core.TypeSystem
             TextSpan.AreOverlapping(errorSyntax, forSyntax.Body)
                 ? variableDeclarationSyntax.Name.IdentifierName
                 : null;
-
-        protected (DeclaredSymbol?, ObjectType?) TryExtractResourceOrModuleSymbolAndBodyType(SyntaxBase syntax, bool isCollection)
-        {
-            if (syntax is ArrayAccessSyntax { BaseExpression: var baseSyntax })
-            {
-                return TryExtractResourceOrModuleSymbolAndBodyType(baseSyntax, true);
-            }
-
-            return this.SemanticModel.GetSymbolInfo(syntax) switch
-            {
-                ResourceSymbol resourceSymbol when resourceSymbol.IsCollection == isCollection => (resourceSymbol, this.ExistingResourceBodyObjectTypeOverrides.TryGetValue(resourceSymbol, out var value) ? value : resourceSymbol.TryGetBodyObjectType()),
-                ModuleSymbol moduleSymbol when moduleSymbol.IsCollection == isCollection => (moduleSymbol, moduleSymbol.TryGetBodyObjectType()),
-                _ => (null, null),
-            };
-        }
 
         private static IEnumerable<string>? GetAccessiblePropertyNames(DeclaredSymbol? accessedSymbol, ObjectType? accessedObjectType)
         {

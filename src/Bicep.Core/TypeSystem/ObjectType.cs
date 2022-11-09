@@ -38,5 +38,18 @@ namespace Bicep.Core.TypeSystem
         public TypePropertyFlags AdditionalPropertiesFlags { get; }
 
         public FunctionResolver MethodResolver { get; }
+
+        public ObjectType With(
+            TypeSymbolValidationFlags? validationFlags = null,
+            IEnumerable<TypeProperty>? properties = null,
+            Tuple<ITypeReference?>? additionalPropertiesType = null,
+            TypePropertyFlags? additionalPropertiesFlags = null,
+            Func<ObjectType, FunctionResolver>? methodResolverBuilder = null) => new(
+                this.Name,
+                validationFlags ?? this.ValidationFlags,
+                properties ?? this.Properties.Values,
+                additionalPropertiesType is not null ? additionalPropertiesType.Item1 : this.AdditionalPropertiesType,
+                additionalPropertiesFlags ?? this.AdditionalPropertiesFlags,
+                methodResolverBuilder ?? this.MethodResolver.CopyToObject);
     }
 }

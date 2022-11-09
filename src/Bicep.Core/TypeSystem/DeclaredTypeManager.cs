@@ -619,7 +619,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             // Diagnostics will be surfaced by the TypeAssignmentVisitor, so we're only concerned here with whether the property access would be an error type
-            return TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, shouldWarn: false, SimpleDiagnosticWriter.Create()) switch
+            return TypeHelper.GetNamedPropertyType(objectType, syntax.PropertyName, syntax.PropertyName.IdentifierName, shouldWarn: false, new SimpleDiagnosticWriter()) switch
             {
                 TypeType tt => tt.Unwrapped,
                 TypeSymbol otherwise => otherwise,
