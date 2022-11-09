@@ -4,17 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Azure.Core;
-using Bicep.Core.Configuration;
-using Bicep.Core.Registry.Auth;
+using Azure.ResourceManager.ResourceGraph;
 using Bicep.LanguageServer.Completions;
 using Microsoft.Azure.Management.ResourceGraph;
 using Microsoft.Azure.Management.ResourceGraph.Models;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using Microsoft.Graph;
-using Azure.ResourceManager.ResourceGraph;
-using Azure.ResourceManager;
 
 namespace Bicep.LanguageServer.Providers
 {
@@ -22,7 +17,7 @@ namespace Bicep.LanguageServer.Providers
     {
         private readonly IServiceClientCredentialsProvider serviceClientCredentialsProvider;
 
-        public OciArtifactModuleRepositoryCompletionProvider(IServiceClientCredentialsProvider serviceClientCredentialsProvider, IConfigurationManager configurationManager, ITokenCredentialFactory tokenCredentialFactory)
+        public OciArtifactModuleRepositoryCompletionProvider(IServiceClientCredentialsProvider serviceClientCredentialsProvider)
         {
             this.serviceClientCredentialsProvider = serviceClientCredentialsProvider;
         }
