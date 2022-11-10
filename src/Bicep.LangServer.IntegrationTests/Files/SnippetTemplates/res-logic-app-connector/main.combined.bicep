@@ -14,5 +14,5 @@ resource logicAppConnector 'Microsoft.Web/connections@2016-06-01' = {
     })
   }
 }
-// Insert snippet here
+
 

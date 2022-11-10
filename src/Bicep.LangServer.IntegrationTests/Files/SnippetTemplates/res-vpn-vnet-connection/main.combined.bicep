@@ -26,5 +26,5 @@ resource vpnVnetConnection 'Microsoft.Network/connections@2020-11-01' = {
     sharedKey: 'sharedkey'
   }
 }
-// Insert snippet here
+
 

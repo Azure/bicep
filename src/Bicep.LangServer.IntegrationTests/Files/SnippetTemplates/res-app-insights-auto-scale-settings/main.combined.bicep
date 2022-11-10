@@ -79,5 +79,5 @@ resource appInsightsAutoScaleSettings 'Microsoft.Insights/autoscalesettings@2015
     targetResourceUri: 'metricResourceUri'
   }
 }
-// Insert snippet here
+
 

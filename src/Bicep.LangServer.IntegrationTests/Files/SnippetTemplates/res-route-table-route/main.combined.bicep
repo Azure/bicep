@@ -12,5 +12,5 @@ resource routeTableRoute 'Microsoft.Network/routeTables/routes@2019-11-01' = {
     nextHopIpAddress: '248.233.26.131'
   }
 }
-// Insert snippet here
+
 

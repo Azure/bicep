@@ -19,5 +19,5 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-05-01' = {
     threatIntelMode: 'Alert'
   }
 }
-// Insert snippet here
+
 

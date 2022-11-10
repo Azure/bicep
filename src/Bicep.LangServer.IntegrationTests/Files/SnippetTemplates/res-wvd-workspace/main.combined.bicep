@@ -12,5 +12,5 @@ resource workSpace 'Microsoft.DesktopVirtualization/workspaces@2021-07-12' = {
     friendlyName: 'friendlyName'
   }
 }
-// Insert snippet here
+
 

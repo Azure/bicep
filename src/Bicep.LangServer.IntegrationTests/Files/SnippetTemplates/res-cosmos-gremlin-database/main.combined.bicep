@@ -14,5 +14,5 @@ resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-
     }
   }
 }
-// Insert snippet here
+
 

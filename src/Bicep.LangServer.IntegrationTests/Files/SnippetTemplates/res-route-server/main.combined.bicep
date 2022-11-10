@@ -23,5 +23,5 @@ resource ipConfiguration 'Microsoft.Network/virtualHubs/ipConfigurations@2021-02
     }
   }
 }
-// Insert snippet here
+
 

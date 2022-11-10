@@ -8,5 +8,5 @@ resource managedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-
   name: 'name'
   location: location
 }
-// Insert snippet here
+
 

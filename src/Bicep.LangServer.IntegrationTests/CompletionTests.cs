@@ -141,7 +141,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             var bicepContents = await File.ReadAllTextAsync(bicepFileName);
             bicepContents = StringUtils.ReplaceNewlines(bicepContents, "\n");
-            var cursor = bicepContents.IndexOf("// Insert snippet here");
+            (bicepContents, var cursor) = ParserHelper.GetFileWithSingleCursor(bicepContents, "// Insert snippet here");
 
             // Request the expected completion from the server, and ensure it is unique + valid
             var completionText = await RequestSnippetCompletion(bicepFileName, completionData, bicepContents, cursor);

@@ -2,7 +2,7 @@
 // $2 = int
 // $3 = 1
 
-param ttl int = 1// Insert snippet here
+param ttl int = 1
 
 resource dnsRecord 'Microsoft.Network/dnsZones/A@2018-05-01' = {
   name: 'zone/A'
