@@ -131,7 +131,8 @@ namespace Bicep.Core.TypeSystem
         {
             var accessiblePropertyNames = resourceBodyType.Properties
                 .Where(kv => kv.Value.Flags.HasFlag(TypePropertyFlags.ReadableAtDeployTime))
-                .Select(kv => kv.Key);
+                .Select(kv => kv.Key)
+                .Append(AzResourceTypeProvider.ResourceNamePropertyName);
 
             return accessiblePropertyNames;
         }
