@@ -1741,13 +1741,13 @@ namespace Bicep.Core.Diagnostics
 
             public ErrorDiagnostic NestedRuntimePropertyAccessNotSupported(string? resourceSymbol, IEnumerable<string> accessiblePropertyNames, IEnumerable<string> accessibleFunctionNames)
             {
-                var accessiblePropertyNamesClause = accessiblePropertyNames.Any() ? $" Accessible properties of {resourceSymbol} include {ToQuotedString(accessiblePropertyNames.OrderBy(x => x))}." : "";
-                var accessibleFunctionNamesClause = accessibleFunctionNames.Any() ? $" Accessible functions of {resourceSymbol} include {ToQuotedString(accessibleFunctionNames.OrderBy(x => x))}." : "";
+                var accessiblePropertyNamesClause = accessiblePropertyNames.Any() ? $" the accessible properties of {resourceSymbol} include {ToQuotedString(accessiblePropertyNames.OrderBy(x => x))}." : "";
+                var accessibleFunctionNamesClause = accessibleFunctionNames.Any() ? $" The accessible functions of {resourceSymbol} include {ToQuotedString(accessibleFunctionNames.OrderBy(x => x))}." : "";
 
                 return new(
                     TextSpan,
                     "BCP307",
-                    $"The expression may lead to nested runtime functions, which is not supported.{accessiblePropertyNamesClause}{accessibleFunctionNamesClause}");
+                    $"The expression cannot be evaluated, because the \"name\" property of the referenced existing resource contains a value that cannot be calculated at the start of the deployment. In this situation,{accessiblePropertyNamesClause}{accessibleFunctionNamesClause}");
             }
         }
 
