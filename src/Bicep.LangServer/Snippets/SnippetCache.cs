@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Immutable;
 using System.IO;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using Bicep.Core.Resources;
 
@@ -17,7 +18,10 @@ public record SnippetCache(
 {
     private static JsonSerializerOptions GetSerializerOptions()
     {
-        var options = new JsonSerializerOptions();
+        var options = new JsonSerializerOptions
+        {
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+        };
         options.Converters.Add(new ResourceTypeReferenceJsonConverter());
 
         return options;
