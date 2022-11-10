@@ -23,6 +23,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using FluentAssertions.Execution;
 
 namespace Bicep.Core.IntegrationTests.Emit
 {
@@ -129,23 +130,27 @@ namespace Bicep.Core.IntegrationTests.Emit
             var sourceTextWithSourceMapFileName = Path.Combine(outputDirectory, DataSet.TestFileMainSourceMap);
             File.WriteAllText(sourceTextWithSourceMapFileName, sourceTextWithSourceMap.ToString());
 
-            // validate source file annotated with source map
-            sourceTextWithSourceMap.Should().EqualWithLineByLineDiffOutput(
-                TestContext,
-                dataSet.SourceMap!,
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
-                actualLocation: sourceTextWithSourceMapFileName);
-
             var actualSourceMapJson = JToken.FromObject(sourceMap);
             var actualSourceMapJsonFileName = Path.Combine(outputDirectory, DataSet.TestFileMainCompiledSourceMap);
             File.WriteAllText(actualSourceMapJsonFileName, actualSourceMapJson.ToString());
 
-            // validate source map
-            actualSourceMapJson.Should().EqualWithJsonDiffOutput(
-                TestContext,
-                JToken.Parse(dataSet.CompiledSourceMap!),
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiledSourceMap),
-                actualLocation: actualSourceMapJsonFileName);
+            // Use an assertion scope so that both assertions fail together, and the baseline update script is able to update both files in one pass
+            using (new AssertionScope())
+            {
+                // validate source file annotated with source map
+                sourceTextWithSourceMap.Should().EqualWithLineByLineDiffOutput(
+                    TestContext,
+                    dataSet.SourceMap!,
+                    expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
+                    actualLocation: sourceTextWithSourceMapFileName);
+
+                // validate source map
+                actualSourceMapJson.Should().EqualWithJsonDiffOutput(
+                    TestContext,
+                    JToken.Parse(dataSet.CompiledSourceMap!),
+                    expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiledSourceMap),
+                    actualLocation: actualSourceMapJsonFileName);
+            }
         }
 
         [TestMethod]
