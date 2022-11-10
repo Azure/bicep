@@ -12,5 +12,5 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
     capacity: 1
   }
 }
-// Insert snippet here
+
 

@@ -26,5 +26,5 @@ resource linuxVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensio
     protectedSettings: {}
   }
 }
-// Insert snippet here
+
 

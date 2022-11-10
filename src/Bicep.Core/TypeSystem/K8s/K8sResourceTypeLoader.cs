@@ -21,8 +21,7 @@ namespace Bicep.Core.TypeSystem.K8s
             var indexedTypes = typeLoader.LoadTypeIndex();
             this.availableTypes = indexedTypes.Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
-                kvp => kvp.Value,
-                ResourceTypeReferenceComparer.Instance);
+                kvp => kvp.Value);
         }
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()

@@ -29,5 +29,5 @@ resource firewall 'Microsoft.Network/azureFirewalls@2021-05-01' = {
     }
   }
 }
-// Insert snippet here
+
 

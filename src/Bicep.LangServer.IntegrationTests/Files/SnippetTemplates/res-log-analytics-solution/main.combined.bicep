@@ -26,5 +26,5 @@ resource logAnalyticsSolution 'Microsoft.OperationsManagement/solutions@2015-11-
     promotionCode: 'promotionCode'
   }
 }
-// Insert snippet here
+
 

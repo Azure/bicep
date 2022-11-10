@@ -16,5 +16,5 @@ resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2021-06-01-preview
     tier: 'Basic'
   }
 }
-// Insert snippet here
+
 

@@ -32,5 +32,5 @@ resource applicationGatewayFirewall 'Microsoft.Network/ApplicationGatewayWebAppl
     }
   }
 }
-// Insert snippet here
+
 

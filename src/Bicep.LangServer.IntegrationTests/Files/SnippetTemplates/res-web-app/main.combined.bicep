@@ -16,5 +16,5 @@ resource webApplication 'Microsoft.Web/sites@2021-01-15' = {
     serverFarmId: 'webServerFarms.id'
   }
 }
-// Insert snippet here
+
 

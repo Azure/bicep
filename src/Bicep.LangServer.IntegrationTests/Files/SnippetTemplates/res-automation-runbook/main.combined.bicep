@@ -30,5 +30,5 @@ resource automationRunbook 'Microsoft.Automation/automationAccounts/runbooks@201
     description: 'description'
   }
 }
-// Insert snippet here
+
 

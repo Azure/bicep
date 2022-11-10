@@ -14,5 +14,5 @@ resource cosmosTable 'Microsoft.DocumentDB/databaseAccounts/tables@2021-06-15' =
     }
   }
 }
-// Insert snippet here
+
 

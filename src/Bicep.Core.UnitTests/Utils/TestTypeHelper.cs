@@ -21,10 +21,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             public TestResourceTypeLoader(IEnumerable<ResourceTypeComponents> resourceTypes)
             {
-                this.resourceTypes = resourceTypes.ToImmutableDictionary(
-                    x => x.TypeReference,
-                    x => x,
-                    ResourceTypeReferenceComparer.Instance);
+                this.resourceTypes = resourceTypes.ToImmutableDictionary(x => x.TypeReference);
             }
 
             public ResourceTypeComponents LoadType(ResourceTypeReference reference)

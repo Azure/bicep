@@ -15,5 +15,5 @@ resource automationAccountVariable 'Microsoft.Automation/automationAccounts/modu
       uri: 'https://test-content-url.nupkg'
     }
   }
-}// Insert snippet here
+}
 

@@ -24,5 +24,5 @@ resource networkInterface 'Microsoft.Network/networkInterfaces@2020-11-01' = {
     ]
   }
 }
-// Insert snippet here
+
 

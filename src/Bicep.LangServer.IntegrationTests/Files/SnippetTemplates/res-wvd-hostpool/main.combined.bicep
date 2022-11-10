@@ -18,5 +18,5 @@ resource hostPool 'Microsoft.DesktopVirtualization/hostpools@2021-07-12' = {
     preferredAppGroupType: 'Desktop'
   }
 }
-// Insert snippet here
+
 

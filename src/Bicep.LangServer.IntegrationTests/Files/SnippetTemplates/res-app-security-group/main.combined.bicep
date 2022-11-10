@@ -8,5 +8,5 @@ resource applicationSecurityGroup 'Microsoft.Network/applicationSecurityGroups@2
   name: 'name'
   location: location
 }
-// Insert snippet here
+
 

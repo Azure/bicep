@@ -20,5 +20,5 @@ resource automationSchedule 'Microsoft.Automation/automationAccounts/schedules@2
     frequency: 'OneTime'
   }
 }
-// Insert snippet here
+
 

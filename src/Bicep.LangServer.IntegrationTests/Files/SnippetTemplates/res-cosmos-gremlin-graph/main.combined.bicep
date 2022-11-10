@@ -64,5 +64,5 @@ resource cosmosDBGremlinGraph 'Microsoft.DocumentDB/databaseAccounts/gremlinData
     }
   }
 }
-// Insert snippet here
+
 
