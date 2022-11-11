@@ -1741,8 +1741,8 @@ namespace Bicep.Core.Diagnostics
 
             public ErrorDiagnostic NestedRuntimePropertyAccessNotSupported(string? resourceSymbol, IEnumerable<string> accessiblePropertyNames, IEnumerable<string> accessibleFunctionNames)
             {
-                var accessiblePropertyNamesClause = accessiblePropertyNames.Any() ? $" the accessible properties of {resourceSymbol} include {ToQuotedString(accessiblePropertyNames.OrderBy(x => x))}." : "";
-                var accessibleFunctionNamesClause = accessibleFunctionNames.Any() ? $" The accessible functions of {resourceSymbol} include {ToQuotedString(accessibleFunctionNames.OrderBy(x => x))}." : "";
+                var accessiblePropertyNamesClause = accessiblePropertyNames.Any() ? @$" the accessible properties of ""{resourceSymbol}"" include {ToQuotedString(accessiblePropertyNames.OrderBy(x => x))}." : "";
+                var accessibleFunctionNamesClause = accessibleFunctionNames.Any() ? @$" The accessible functions of ""{resourceSymbol}"" include {ToQuotedString(accessibleFunctionNames.OrderBy(x => x))}." : "";
 
                 return new(
                     TextSpan,

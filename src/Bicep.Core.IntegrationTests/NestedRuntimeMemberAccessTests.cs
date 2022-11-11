@@ -43,9 +43,9 @@ var baz = storage.listKeys().keys
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the ""name"" property of the referenced existing resource contains a value that cannot be calculated at the start of the deployment. In this situation, the accessible properties of windowsVMDsc include ""apiVersion"", ""id"", ""name"", ""type""."),
-                ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the ""name"" property of the referenced existing resource contains a value that cannot be calculated at the start of the deployment. In this situation, the accessible properties of storage include ""apiVersion"", ""id"", ""name"", ""type""."),
-                ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the ""name"" property of the referenced existing resource contains a value that cannot be calculated at the start of the deployment. In this situation, the accessible properties of storage include ""apiVersion"", ""id"", ""name"", ""type""."),
+                ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the ""name"" property of the referenced existing resource contains a value that cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""windowsVMDsc"" include ""apiVersion"", ""id"", ""name"", ""type""."),
+                ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the ""name"" property of the referenced existing resource contains a value that cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""storage"" include ""apiVersion"", ""id"", ""name"", ""type""."),
+                ("BCP307", DiagnosticLevel.Error, @"The expression cannot be evaluated, because the ""name"" property of the referenced existing resource contains a value that cannot be calculated at the start of the deployment. In this situation, the accessible properties of ""storage"" include ""apiVersion"", ""id"", ""name"", ""type""."),
             });
         }
     }
