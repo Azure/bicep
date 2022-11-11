@@ -65,7 +65,7 @@ namespace Bicep.Core.Semantics
             return outermostDeclarations
                 .OrderBy(x => x is not OutputSymbol && x is not MetadataSymbol ? 0 : 1)
                 .ToLookup(x => x.Name, LanguageConstants.IdentifierComparer)
-                .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);;
+                .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
         }
 
         private static NamespaceResolver GetNamespaceResolver(IFeatureProvider features, INamespaceProvider namespaceProvider, ResourceScope targetScope, ImmutableDictionary<string, DeclaredSymbol> uniqueDeclarations)

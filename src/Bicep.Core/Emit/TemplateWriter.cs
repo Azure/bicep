@@ -764,9 +764,9 @@ namespace Bicep.Core.Emit
                 // we can't just call EmitObjectProperties here because the ObjectSyntax is flatter than the structure we're generating
                 // because nested deployment parameters are objects with a single value property
                 jsonWriter.WritePropertyName(keyName);
-                jsonWriter.WriteStartObject();
                 if (propertySyntax.Value is ForSyntax @for)
                 {
+                    jsonWriter.WriteStartObject();
                     // the value is a for-expression
                     // write a single property copy loop
                     emitter.EmitCopyProperty(() =>
@@ -775,15 +775,18 @@ namespace Bicep.Core.Emit
                         emitter.EmitCopyObject("value", @for, @for.Body, "value");
                         jsonWriter.WriteEndArray();
                     });
+                    jsonWriter.WriteEndObject();
                 }
                 else if (
                     this.context.SemanticModel.ResourceMetadata.TryLookup(propertySyntax.Value) is { } resourceMetadata &&
                     moduleSymbol.TryGetModuleType() is ModuleType moduleType &&
                     moduleType.TryGetParameterType(keyName) is ResourceParameterType parameterType)
                 {
+                    jsonWriter.WriteStartObject();
                     // This is a resource being passed into a module, we actually want to pass in its id
                     // rather than the whole resource.
                     emitter.EmitProperty("value", new PropertyAccessSyntax(propertySyntax.Value, SyntaxFactory.DotToken, SyntaxFactory.CreateIdentifier("id")));
+                    jsonWriter.WriteEndObject();
                 }
                 else
                 {
@@ -791,7 +794,6 @@ namespace Bicep.Core.Emit
                     emitter.EmitModuleParameterValue(propertySyntax.Value);
                 }
 
-                jsonWriter.WriteEndObject();
             }
 
             jsonWriter.WriteEndObject();

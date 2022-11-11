@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17949960101113826716"
+      "templateHash": "18170097315916018511"
     }
   },
   "parameters": {
@@ -1913,6 +1913,50 @@
               "secretVersion": "[variables('secrets')[copyIndex()].version]"
             }
           }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "13161254382262042692"
+            }
+          },
+          "parameters": {
+            "secureStringParam1": {
+              "type": "secureString"
+            },
+            "secureStringParam2": {
+              "type": "secureString",
+              "defaultValue": ""
+            }
+          },
+          "resources": {},
+          "outputs": {
+            "exposedSecureString": {
+              "type": "string",
+              "value": "[parameters('secureStringParam1')]"
+            }
+          }
+        }
+      }
+    },
+    "secureModuleCondition": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "secureModuleCondition",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "secureStringParam1": "[if(true(), createObject('reference', createObject('keyVault', createObject('id', resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')), 'secretName', 'mySecret')), createObject('value', 'notTrue'))]",
+          "secureStringParam2": "[if(true(), if(false(), createObject('value', 'false'), createObject('reference', createObject('keyVault', createObject('id', resourceId('Microsoft.KeyVault/vaults', 'testkeyvault')), 'secretName', 'mySecret', 'secretVersion', 'secretVersion'))), createObject('value', 'notTrue'))]"
         },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
