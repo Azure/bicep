@@ -26,8 +26,10 @@ namespace Bicep.Core.Emit
 
             var moduleScopeData = ScopeHelper.GetModuleScopeInfo(model, diagnostics);
             var resourceScopeData = ScopeHelper.GetResourceScopeInfo(model, diagnostics);
+            var resourceTypeResolver = ResourceTypeResolver.Create(model);
 
-            DeployTimeConstantValidator.Validate(model, diagnostics);
+            NestedRuntimeMemberAccessValidator.Validate(model, resourceTypeResolver, diagnostics);
+            DeployTimeConstantValidator.Validate(model, resourceTypeResolver, diagnostics);
             ForSyntaxValidatorVisitor.Validate(model, diagnostics);
             FunctionPlacementValidatorVisitor.Validate(model, diagnostics);
             IntegerValidatorVisitor.Validate(model, diagnostics);

@@ -67,6 +67,6 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// Language system property, i.e. id, type, api-version
         /// </summary>
-        SystemProperty = 1 << 10
+        SystemProperty = 1 << 10,
     }
 }
