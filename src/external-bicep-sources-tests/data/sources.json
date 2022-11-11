@@ -6,22 +6,5 @@
     "Azure/bicep-registry-modules": {
         "commitId": "9d44d244876080e6559ce714f43e5d5fda41832d",
         "include": ["modules"]
-    },
-    "Azure/azure-docs-bicep-samples": {
-        "commitId": "b6f45e30f890a1c50d72ce05ecfcc76453e19617",
-        "include": ["samples", "syntax-samples"]
-    },
-    "Azure/azure-quickstart-templates": {
-        "targetBranch": "master",
-        "commitId": "1c21e53a75d5b31088cd11dd0b2d736014666919",
-        "include": [
-            "application-workloads",
-            "demos",
-            "managementgroup-deployments",
-            "modules",
-            "quickstarts",
-            "subscription-deployments",
-            "tenant-deployments"
-        ]
     }
 }
