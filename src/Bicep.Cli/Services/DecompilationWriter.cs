@@ -1,9 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Immutable;
 using System.IO;
+using Bicep.Decompiler;
 
 namespace Bicep.Cli.Services
 {
@@ -16,12 +15,9 @@ namespace Bicep.Cli.Services
             this.io = io;
         }
 
-        public int ToFile((Uri, ImmutableDictionary<Uri, string>) decompilation)
+        public int ToFile(DecompileResult decompilation)
         {
-
-            var (_, filesToSave) = decompilation;
-
-            foreach (var (fileUri, bicepOutput) in filesToSave)
+            foreach (var (fileUri, bicepOutput) in decompilation.FilesToSave)
             {
                 File.WriteAllText(fileUri.LocalPath, bicepOutput);
             }
@@ -29,11 +25,9 @@ namespace Bicep.Cli.Services
             return 0;
         }
 
-        public int ToStdout((Uri, ImmutableDictionary<Uri, string>) decompilation)
+        public int ToStdout(DecompileResult decompilation)
         {
-            var (_, filesToSave) = decompilation;
-
-            foreach (var (_, bicepOutput) in filesToSave)
+            foreach (var (_, bicepOutput) in decompilation.FilesToSave)
             {
                 io.Output.Write(bicepOutput);
             }

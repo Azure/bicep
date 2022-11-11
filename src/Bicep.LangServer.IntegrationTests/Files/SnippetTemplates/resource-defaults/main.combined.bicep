@@ -12,5 +12,5 @@ resource nsg 'Microsoft.Aad/domainServices@2021-05-01' = {
     
   }
 }
-// Insert snippet here
+
 

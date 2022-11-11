@@ -1,7 +1,7 @@
 // $1 = location
 
 @secure()
-param location string// Insert snippet here
+param location string
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
   name: 'name'

@@ -118,6 +118,8 @@ namespace Bicep.LanguageServer
             // without manually constructing up the graph
             services
                 .AddBicepCore()
+                .AddBicepDecompiler()
+                .AddSingleton<IWorkspace, Workspace>()
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
                 .AddSingleton<ITelemetryProvider, TelemetryProvider>()
                 .AddSingleton<ICompilationManager, BicepCompilationManager>()

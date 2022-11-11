@@ -418,6 +418,14 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
   }
 }]
 
+module secureModuleCondition 'child/secureParams.bicep' = {
+//@[07:28) Module secureModuleCondition. Type: module. Declaration start char: 0, length: 285
+  name: 'secureModuleCondition'
+  params: {
+    secureStringParam1: true ? kv.getSecret('mySecret') : 'notTrue'
+    secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret','secretVersion') : 'notTrue'
+  }
+}
 
 // END: Key Vault Secret Reference
 

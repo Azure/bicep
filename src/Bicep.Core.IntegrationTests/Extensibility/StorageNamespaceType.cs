@@ -67,7 +67,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                         new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
                         new TypeProperty("base64Content", LanguageConstants.String, TypePropertyFlags.Required),
                     }, null)),
-            }.ToImmutableDictionary(x => x.TypeReference, ResourceTypeReferenceComparer.Instance);
+            }.ToImmutableDictionary(x => x.TypeReference);
 
             public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
                 => null;

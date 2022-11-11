@@ -26,5 +26,5 @@ resource windowsVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extens
     protectedSettings: {}
   }
 }
-// Insert snippet here
+
 

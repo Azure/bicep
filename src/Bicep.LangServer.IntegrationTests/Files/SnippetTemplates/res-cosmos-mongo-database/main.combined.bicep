@@ -11,5 +11,5 @@ resource mongoDb 'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases@2021-06
     options: {}
   }
 }
-// Insert snippet here
+
 

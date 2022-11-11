@@ -18,5 +18,5 @@ resource automationCredential 'Microsoft.Automation/automationAccounts/credentia
     description: 'description'
   }
 }
-// Insert snippet here
+
 

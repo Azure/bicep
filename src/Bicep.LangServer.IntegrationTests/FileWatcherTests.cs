@@ -17,6 +17,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using System.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using Bicep.Core.Analyzers.Linter.Rules;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.FileSystem;
 using Bicep.Core.UnitTests.Utils;
 

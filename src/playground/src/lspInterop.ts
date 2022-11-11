@@ -20,16 +20,16 @@ export function getSemanticTokensLegend(): languages.SemanticTokensLegend {
   return interop.invokeMethod('GetSemanticTokensLegend');
 }
 
-export function getSemanticTokens(content: string): languages.SemanticTokens {
-  return interop.invokeMethod('GetSemanticTokens', content);
+export async function getSemanticTokens(content: string): Promise<languages.SemanticTokens> {
+  return await interop.invokeMethodAsync('GetSemanticTokens', content);
 }
 
-export function compileAndEmitDiagnostics(content: string): {template: string, diagnostics: editor.IMarkerData[]} {
-  return interop.invokeMethod('CompileAndEmitDiagnostics', content);
+export async function compileAndEmitDiagnostics(content: string): Promise<{template: string, diagnostics: editor.IMarkerData[]}> {
+  return await interop.invokeMethodAsync('CompileAndEmitDiagnostics', content);
 }
 
-export function decompile(jsonContent: string): string {
-  const { bicepFile, error } = interop.invokeMethod('Decompile', jsonContent);
+export async function decompile(jsonContent: string): Promise<string> {
+  const { bicepFile, error } = await interop.invokeMethodAsync('Decompile', jsonContent);
 
   if (error) {
     throw error;

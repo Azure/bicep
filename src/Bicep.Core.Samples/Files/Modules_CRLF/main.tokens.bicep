@@ -1968,8 +1968,65 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 }]
 //@[000:001) RightBrace |}|
 //@[001:002) RightSquare |]|
-//@[002:008) NewLine |\r\n\r\n\r\n|
+//@[002:006) NewLine |\r\n\r\n|
 
+module secureModuleCondition 'child/secureParams.bicep' = {
+//@[000:006) Identifier |module|
+//@[007:028) Identifier |secureModuleCondition|
+//@[029:055) StringComplete |'child/secureParams.bicep'|
+//@[056:057) Assignment |=|
+//@[058:059) LeftBrace |{|
+//@[059:061) NewLine |\r\n|
+  name: 'secureModuleCondition'
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:031) StringComplete |'secureModuleCondition'|
+//@[031:033) NewLine |\r\n|
+  params: {
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:013) NewLine |\r\n|
+    secureStringParam1: true ? kv.getSecret('mySecret') : 'notTrue'
+//@[004:022) Identifier |secureStringParam1|
+//@[022:023) Colon |:|
+//@[024:028) TrueKeyword |true|
+//@[029:030) Question |?|
+//@[031:033) Identifier |kv|
+//@[033:034) Dot |.|
+//@[034:043) Identifier |getSecret|
+//@[043:044) LeftParen |(|
+//@[044:054) StringComplete |'mySecret'|
+//@[054:055) RightParen |)|
+//@[056:057) Colon |:|
+//@[058:067) StringComplete |'notTrue'|
+//@[067:069) NewLine |\r\n|
+    secureStringParam2: true ? false ? 'false' : kv.getSecret('mySecret','secretVersion') : 'notTrue'
+//@[004:022) Identifier |secureStringParam2|
+//@[022:023) Colon |:|
+//@[024:028) TrueKeyword |true|
+//@[029:030) Question |?|
+//@[031:036) FalseKeyword |false|
+//@[037:038) Question |?|
+//@[039:046) StringComplete |'false'|
+//@[047:048) Colon |:|
+//@[049:051) Identifier |kv|
+//@[051:052) Dot |.|
+//@[052:061) Identifier |getSecret|
+//@[061:062) LeftParen |(|
+//@[062:072) StringComplete |'mySecret'|
+//@[072:073) Comma |,|
+//@[073:088) StringComplete |'secretVersion'|
+//@[088:089) RightParen |)|
+//@[090:091) Colon |:|
+//@[092:101) StringComplete |'notTrue'|
+//@[101:103) NewLine |\r\n|
+  }
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
+}
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // END: Key Vault Secret Reference
 //@[034:038) NewLine |\r\n\r\n|

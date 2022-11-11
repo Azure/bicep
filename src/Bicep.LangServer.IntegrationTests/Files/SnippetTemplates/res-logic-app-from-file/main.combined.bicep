@@ -12,5 +12,5 @@ resource logicApp 'Microsoft.Logic/workflows@2019-05-01' = {
     definition: json(loadTextContent('logicapp.json')).definition
   }
 }
-// Insert snippet here
+
 

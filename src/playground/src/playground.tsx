@@ -79,7 +79,7 @@ export const Playground : React.FC<Props> = (props) => {
         try {
           insights.trackEvent({ name: 'decompileJson' });
           const jsonContents = e.target.result.toString();
-          const bicepContents = decompile(jsonContents);
+          const bicepContents = await decompile(jsonContents);
           setInitialContent(bicepContents);
         } catch (err) {
           alert(err);

@@ -119,15 +119,15 @@ We are integrating the Bicep examples into the [Azure QuickStart Templates](http
 If you'd like to contribute to the collection of snippets:  
 
 * A snippet should either be a single, generic resource or follow [parent-child syntax](https://docs.microsoft.com/azure/azure-resource-manager/bicep/child-resource-name-type). Ensure your snippet meets this criteria.
-* Add a Bicep file to [`./src/Bicep.LangServer/Snippets/Templates`](./src/Bicep.LangServer/Snippets/Templates) using the naming convention res-RESOURCENAME.bicep
+* Add a Bicep file to [`./src/Bicep.LangServer/Files/SnippetTemplates`](./src/Bicep.LangServer/Files/SnippetTemplates) using the naming convention res-RESOURCENAME.bicep
   * The file name without extension will be used as the label.
   * A single line comment at the top of the file will be used as the description.
-  * E.g. [`res-aks-cluster.bicep`](./src/Bicep.LangServer/Snippets/Templates/res-aks-cluster.bicep) results in the following label and description:
+  * E.g. [`res-aks-cluster.bicep`](./src/Bicep.LangServer/Files/SnippetTemplates/res-aks-cluster.bicep) results in the following label and description:
  ![](./docs/images/snippet-template.png)
   * Add the Bicep resource declaration.
   * Add placeholders for tab stops. Placeholders must be enclosed within comment and followed by default text e.g. `/*${1:foo}*/foo`. The placeholder text will be inserted and selected such that it can be easily changed. The symbolic name should be the first tab stop.
   * To add a multi-choice placeholder, the syntax is a comma separated enumeration of values, enclosed with the pipe-character, for example `${1|one,two,three|}`. When the snippet is inserted and the placeholder selected, choices will prompt the user to pick one of the values. [More info on snippet syntax](https://microsoft.github.io/language-server-protocol/specifications/specification-current/#snippet_syntax)
-  * Property placeholder values should correspond to their property names (e.g. dnsPrefix: 'dnsPrefix'), unless it's a property that MUST be changed or parameterized in order to deploy. In that case, use 'REQUIRED' e.g. [keyData](./src/Bicep.LangServer/Snippets/Templates/res-aks-cluster.bicep#L26)
+  * Property placeholder values should correspond to their property names (e.g. dnsPrefix: 'dnsPrefix'), unless it's a property that MUST be changed or parameterized in order to deploy. In that case, use 'REQUIRED' e.g. [keyData](./src/Bicep.LangServer/Files/SnippetTemplates/res-aks-cluster.bicep#L26)
   * Snippet with parent-child syntax, should have parent resource declared first. Do not add placeholder for parent resource symbolic name.
 * Add a new folder in the following directory, for an integration test that validates snippet completion: [`./src/Bicep.LangServer.IntegrationTests/Files/SnippetTemplates`](./src/Bicep.LangServer.IntegrationTests/Files/SnippetTemplates)
   * The folder name should match the snippet label/prefix.

@@ -14,5 +14,5 @@ resource dataLakeStore 'Microsoft.DataLakeStore/accounts@2016-11-01' = {
     encryptionState: 'Enabled'
   }
 }
-// Insert snippet here
+
 

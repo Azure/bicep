@@ -49,7 +49,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
         public void PrintProgram_ParamsFile_ShouldProduceExpectedOutput(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
-            var program = ParamsParserHelper.ParamsParse(data.Parameters.EmbeddedFile.Contents);
+            var program = ParserHelper.ParamsParse(data.Parameters.EmbeddedFile.Contents);
             var options = new PrettyPrintOptions(NewlineOption.Auto, IndentKindOption.Space, 2, true);
 
             var formattedOutput = PrettyPrinter.PrintProgram(program, options);

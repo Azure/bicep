@@ -27,5 +27,5 @@ resource windowsVMDiagnostics 'Microsoft.Compute/virtualMachines/extensions@2020
     }
   }
 }
-// Insert snippet here
+
 

@@ -38,7 +38,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                         new TypeProperty("uniqueName", LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty),
                         new TypeProperty("appId", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                     }, null)),
-            }.ToImmutableDictionary(x => x.TypeReference, ResourceTypeReferenceComparer.Instance);
+            }.ToImmutableDictionary(x => x.TypeReference);
 
             public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
                 => null;

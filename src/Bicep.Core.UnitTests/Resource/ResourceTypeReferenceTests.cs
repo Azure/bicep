@@ -79,6 +79,34 @@ namespace Bicep.Core.UnitTests.Resource
             actual.Should().NotBeNull();
             actual!.FormatName().Should().BeEquivalentTo(expected);
         }
+        [DataTestMethod]
+        [DataRow("Microsoft.Compute/virtualMachines@2019-06-01", "Microsoft.Compute/virtualMachines@2019-06-01")] // same string
+        [DataRow("Microsoft.Compute/virtualMachines@2019-06-01", "Microsoft.Compute/vIrTuAlMaChiNeS@2019-06-01")] // different type casing
+        [DataRow("Microsoft.Compute/virtualMachines@2019-06-01-preview", "Microsoft.Compute/vIrTuAlMaChiNeS@2019-06-01-PREVIEW")] // different api version casing
+        [DataRow("Microsoft.Compute/virtualMachines@2019-06-01", "Microsoft.COMPUTE/vIrTuAlMaChiNeS@2019-06-01")] // different provider name casing
+        [DataRow("Microsoft.Compute/virtualMachines/extensions@2019-06-01", "Microsoft.COMPUTE/vIrTuAlMaChiNeS/eXtEnSIONs@2019-06-01")] // different child name casing
+        public void Equals_and_GetHashCode_should_determine_equality_correctly_for_equal_types(string first, string second)
+        {
+            var firstReference = ResourceTypeReference.Parse(first);
+            var secondReference = ResourceTypeReference.Parse(second);
+
+            firstReference.Equals(secondReference).Should().BeTrue($"'{firstReference}' and '{secondReference}' should be considered equal");
+            firstReference.GetHashCode().Should().Be(secondReference.GetHashCode(), $"calculated hash codes of '{firstReference}' and '{secondReference}' should be equal");
+        }
+
+        [DataTestMethod]
+        [DataRow("Microsoft.Compute/virtualMachines@2019-06-01", "Microsoft.Compute/virtualMachines@2019-07-01")] // different api version
+        [DataRow("Microsoft.Compute/virtualMachines@2019-06-01", "Microsoft.Compute/virtualMachineScaleSets@2019-06-01")] // different type
+        [DataRow("Microsoft.Compute/virtualMachines@2019-06-01", "Microsoft.Copmute/virtualMachines@2019-06-01")] // different provider name
+        [DataRow("Microsoft.Compute/virtualMachines@2019-06-01", "Microsoft.COMPUTE/vIrTuAlMaChiNeS/extensions@2019-06-01")] // different number of child types
+        [DataRow("Microsoft.Compute/virtualMachines/extensions@2019-06-01", "Microsoft.COMPUTE/virtualMachines/etxensions@2019-06-01")] // different child type
+        public void Equals_should_determine_equality_correctly_for_inequal_types(string first, string second)
+        {
+            var firstReference = ResourceTypeReference.Parse(first);
+            var secondReference = ResourceTypeReference.Parse(second);
+
+            firstReference.Equals(secondReference).Should().BeFalse($"'{firstReference}' and '{secondReference}' should not be considered equal");
+        }
     }
 }
 

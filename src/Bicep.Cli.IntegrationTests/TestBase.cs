@@ -23,7 +23,9 @@ namespace Bicep.Cli.IntegrationTests
 {
     public abstract class TestBase
     {
-        private static ServiceBuilder Services => new ServiceBuilder().WithEmptyAzResources();
+        private static BicepCompiler CreateCompiler(IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
+            => ServiceBuilder.Create(
+                x => x.WithEmptyAzResources().AddSingleton(clientFactory).AddSingleton(templateSpecRepositoryFactory)).GetCompiler();
 
         protected const string BuildSummaryFailedRegex = @"Build failed: (\d*) Warning\(s\), ([1-9][0-9]*) Error\(s\)";
         protected const string BuildSummarySucceededRegex = @"Build succeeded: (\d*) Warning\(s\), 0 Error\(s\)";
@@ -57,11 +59,9 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
-        protected static IEnumerable<string> GetAllDiagnostics(string bicepFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
+        protected static async Task<IEnumerable<string>> GetAllDiagnostics(string bicepFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
         {
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.FeatureProviderFactory, BicepTestConstants.BuiltInOnlyConfigurationManager), BicepTestConstants.BuiltInOnlyConfigurationManager);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
-            var compilation = Services.Build().BuildCompilation(sourceFileGrouping);
+            var compilation = await CreateCompiler(clientFactory, templateSpecRepositoryFactory).CreateCompilation(PathHelper.FilePathToFileUrl(bicepFilePath));
 
             var output = new List<string>();
             foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
@@ -77,11 +77,9 @@ namespace Bicep.Cli.IntegrationTests
             return output;
         }
 
-        protected static IEnumerable<string> GetAllParamDiagnostics(string paramFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
+        protected static async Task<IEnumerable<string>> GetAllParamDiagnostics(string paramFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
         {
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.FeatureProviderFactory, BicepTestConstants.BuiltInOnlyConfigurationManager), BicepTestConstants.BuiltInOnlyConfigurationManager);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(paramFilePath));
-            var compilation = Services.Build().BuildCompilation(sourceFileGrouping);
+            var compilation = await CreateCompiler(clientFactory, templateSpecRepositoryFactory).CreateCompilation(PathHelper.FilePathToFileUrl(paramFilePath));
 
             var semanticModel = compilation.GetEntrypointSemanticModel();
 

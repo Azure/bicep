@@ -80,7 +80,7 @@ namespace Bicep.Core.IntegrationTests
         public void Params_Parser_should_produce_expected_syntax(BaselineData_Bicepparam baselineData)
         {
             var data = baselineData.GetData(TestContext);
-            var program = ParamsParserHelper.ParamsParse(data.Parameters.EmbeddedFile.Contents);
+            var program = ParserHelper.ParamsParse(data.Parameters.EmbeddedFile.Contents);
             var syntaxList = SyntaxCollectorVisitor.Build(program);
             var syntaxByParent = syntaxList.ToLookup(x => x.Parent);
 

@@ -9,15 +9,15 @@ namespace Bicep.Core.TypeSystem
 {
     public class DeployTimeConstantDirectViolationVisitor : DeployTimeConstantViolationVisitor
     {
-        public DeployTimeConstantDirectViolationVisitor(SyntaxBase deployTimeConstantContainer, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, Dictionary<DeclaredSymbol, ObjectType> existingResourceBodyObjectTypeOverrides)
-            : base(deployTimeConstantContainer, semanticModel, diagnosticWriter, existingResourceBodyObjectTypeOverrides)
+        public DeployTimeConstantDirectViolationVisitor(SyntaxBase deployTimeConstantContainer, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ResourceTypeResolver resourceTypeResolver)
+            : base(deployTimeConstantContainer, semanticModel, diagnosticWriter, resourceTypeResolver)
         {
         }
 
         public override void VisitArrayAccessSyntax(ArrayAccessSyntax syntax)
         {
-            if (this.TryExtractResourceOrModuleSymbolAndBodyType(syntax.BaseExpression, false) is ({ } accessedSymbol, { } accessedBodyType) &&
-                syntax.IndexExpression is StringSyntax stringSyntax)
+            if (syntax.IndexExpression is StringSyntax stringSyntax &&
+                this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
                 if (stringSyntax.TryGetLiteralValue() is { } propertyName)
                 {
@@ -37,7 +37,7 @@ namespace Bicep.Core.TypeSystem
 
         public override void VisitPropertyAccessSyntax(PropertyAccessSyntax syntax)
         {
-            if (this.TryExtractResourceOrModuleSymbolAndBodyType(syntax.BaseExpression, false) is ({ } accessedSymbol, { } accessedBodyType))
+            if (this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax.BaseExpression) is ({ } accessedSymbol, { } accessedBodyType))
             {
                 this.FlagIfPropertyNotReadableAtDeployTime(syntax, syntax.PropertyName.IdentifierName, accessedSymbol, accessedBodyType);
             }
@@ -85,7 +85,7 @@ namespace Bicep.Core.TypeSystem
                 //   bar: myVM <-- accessing an entire resource/module.
                 // }]
                 case not PropertyAccessSyntax and not ArrayAccessSyntax when
-                    this.TryExtractResourceOrModuleSymbolAndBodyType(syntax, false) is ({ } accessedSymbol, { } accessedBodyType):
+                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(syntax) is ({ } accessedSymbol, { } accessedBodyType):
                     {
                         this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
 
@@ -96,7 +96,7 @@ namespace Bicep.Core.TypeSystem
                 // }]
                 case ArrayAccessSyntax { IndexExpression: IntegerLiteralSyntax } arrayAccessSyntax when
                     this.SemanticModel.Binder.GetParent(arrayAccessSyntax) is not PropertyAccessSyntax and not ArrayAccessSyntax &&
-                    this.TryExtractResourceOrModuleSymbolAndBodyType(syntax, true) is ({ } accessedSymbol, { } accessedBodyType):
+                    this.ResourceTypeResolver.TryResolveResourceOrModuleSymbolAndBodyType(arrayAccessSyntax) is ({ } accessedSymbol, { } accessedBodyType):
                     {
                         this.FlagDeployTimeConstantViolation(syntax, accessedSymbol, accessedBodyType);
 

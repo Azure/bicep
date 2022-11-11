@@ -13,13 +13,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.5" />
+    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.6" />
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="SharpYaml" Version="2.1.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="./Snippets/Templates/*.bicep" LogicalName="$([System.String]::new('Snippets/Templates/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+    <None Remove="./Files/**/*.*" />
+    <EmbeddedResource Include="./Files/**/*.*" LogicalName="$([System.String]::new('Files/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
   </ItemGroup>
 
   <ItemGroup>

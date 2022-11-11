@@ -24,5 +24,5 @@ resource cassandraKeyspaceTable 'Microsoft.DocumentDB/databaseAccounts/cassandra
     options: {}
   }
 }
-// Insert snippet here
+
 

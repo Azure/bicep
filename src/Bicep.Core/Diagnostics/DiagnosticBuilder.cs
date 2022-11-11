@@ -1739,9 +1739,20 @@ namespace Bicep.Core.Diagnostics
                 "BCP306",
                 $@"The name ""{name}"" refers to a namespace, not to a type.");
 
+            public ErrorDiagnostic NestedRuntimePropertyAccessNotSupported(string? resourceSymbol, IEnumerable<string> accessiblePropertyNames, IEnumerable<string> accessibleFunctionNames)
+            {
+                var accessiblePropertyNamesClause = accessiblePropertyNames.Any() ? @$" the accessible properties of ""{resourceSymbol}"" include {ToQuotedString(accessiblePropertyNames.OrderBy(x => x))}." : "";
+                var accessibleFunctionNamesClause = accessibleFunctionNames.Any() ? @$" The accessible functions of ""{resourceSymbol}"" include {ToQuotedString(accessibleFunctionNames.OrderBy(x => x))}." : "";
+
+                return new(
+                    TextSpan,
+                    "BCP307",
+                    $"The expression cannot be evaluated, because the \"name\" property of the referenced existing resource contains a value that cannot be calculated at the start of the deployment. In this situation,{accessiblePropertyNamesClause}{accessibleFunctionNamesClause}");
+            }
+
             public ErrorDiagnostic DecoratorMayNotTargetTypeAlias(string decoratorName) => new(
                 TextSpan,
-                "BCP307",
+                "BCP308",
                 $@"The decorator ""{decoratorName}"" may not be used on statements whose declared type is a reference to a user-defined type.");
         }
 
