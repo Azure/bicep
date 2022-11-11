@@ -149,12 +149,16 @@ primaryTypeExpression ->
   unaryOperator literalValue |
   stringComplete |
   multilineString |
-  objectType
+  objectType |
+  tupleType
 
 ambientTypeReference -> "string" | "int" | "bool" | "array" | "object"
 
 objectType -> "{" (NL+ (objectTypeProperty NL+ )* )? "}"
 objectTypeProperty -> decorator* ( IDENTIFIER(name) | stringComplete | multilineString ) ":" typeExpression
+
+tupleType -> "[" (NL+ tupleItem* )? "]"
+tupleItem -> decorator* typeExpression NL+
 
 parenthesizedTypeExpression -> "(" typeExpression ")"
 
