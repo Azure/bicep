@@ -1,27 +1,17 @@
-import { exec } from 'node:child_process'
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { exec as callbackExec } from 'node:child_process';
+import { promisify } from 'node:util';
+import { resolveRelative } from './pathUtils.js';
+const exec = promisify(callbackExec);
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const bicepCli = resolveRelative(import.meta.url,
+    process.env.BICEP_CLI_EXECUTABLE || "../../Bicep.Cli/bin/Debug/net6.0/bicep");
 
-const bicepCli = resolve(
-    __dirname,
-    process.env.BICEP_CLI_EXECUTABLE ||
-    "../../Bicep.Cli/bin/Debug/net6.0/bicep"
-);
+export async function compileTemplate(templatePath) {
+    const {stdout, stderr} = await exec(`${bicepCli} build --stdout ${templatePath}`);
 
-export function compileTemplate(templatePath) {
-    return new Promise((resolve, reject) => {
-        exec(`${bicepCli} build --stdout ${templatePath}`, (err, stdout, stderr) => {
-            if (err) {
-                reject(err);
-            }
+    if (stderr) {
+        console.error(stderr);
+    }
 
-            if (stderr) {
-                console.error(stderr);
-            }
-
-            resolve(stdout);
-        });
-    });
+    return stdout;
 }

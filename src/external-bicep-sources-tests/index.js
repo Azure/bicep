@@ -2,10 +2,10 @@
 import { merge } from '@jsq/seq';
 import { compileTemplate } from './src/compileTemplate.js';
 import { yieldTemplatesFromRepository } from './src/externalTemplatesIterator.js';
-import sources from './data/sources.json' assert { type: "json" }
+import { repositories } from './src/sources.js';
 
 const externalTemplates = merge(
-    ...Object.entries(sources).map(([clonableUrl, configuration]) => yieldTemplatesFromRepository(
+    ...Object.entries(repositories).map(([clonableUrl, configuration]) => yieldTemplatesFromRepository(
         clonableUrl,
         configuration.commitId,
         configuration.targetBranch,
