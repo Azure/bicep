@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
-using Azure.Deployments.Expression.Parsers;
+using System.Collections.Immutable;
 using Bicep.Core.Navigation;
 using Bicep.Core.Syntax;
 
@@ -45,24 +45,7 @@ namespace Bicep.Core.Parsing
             this.WithRecovery(
                 () =>
                 {
-                    List<SyntaxBase> leadingNodes = new();
-
-                    // Parse decorators before the declaration.
-                    while (this.Check(TokenType.At))
-                    {
-                        leadingNodes.Add(this.Decorator());
-
-                        // A decorators must followed by a newline.
-                        leadingNodes.Add(this.WithRecovery(this.NewLine, RecoveryFlags.ConsumeTerminator, TokenType.NewLine));
-
-
-                        while (this.Check(TokenType.NewLine))
-                        {
-                            // In case there are skipped trivial syntaxes after a decorator, we need to consume
-                            // all the newlines after them.
-                            leadingNodes.Add(this.NewLine());
-                        }
-                    }
+                    var leadingNodes = DecorableSyntaxLeadingNodes().ToImmutableArray();
 
                     Token current = reader.Peek();
 
@@ -79,13 +62,13 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.OutputKeyword => this.OutputDeclaration(leadingNodes),
                             LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
                             LanguageConstants.ImportKeyword => this.ImportDeclaration(leadingNodes),
-                            _ => leadingNodes.Count > 0
+                            _ => leadingNodes.Length > 0
                                 ? new MissingDeclarationSyntax(leadingNodes)
                                 : throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                         },
                         TokenType.NewLine => this.NewLine(),
 
-                        _ => leadingNodes.Count > 0
+                        _ => leadingNodes.Length > 0
                             ? new MissingDeclarationSyntax(leadingNodes)
                             : throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                     };

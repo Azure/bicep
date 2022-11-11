@@ -404,6 +404,34 @@ type foo = {
             innerArray.Item.Value.Should().BeOfType<VariableAccessSyntax>();
         }
 
+        [TestMethod]
+        public void TupleTypeLiteralsShouldParseSuccessfully()
+        {
+            var typeDeclaration = @"
+type aTuple = [
+    @description('First element')
+    @minLength(10)
+    string
+
+    @description('Second element')
+    -37|0|37
+]";
+
+            var parsed = ParserHelper.Parse(typeDeclaration);
+            parsed.Should().BeOfType<ProgramSyntax>();
+            (parsed as ProgramSyntax).Declarations.Should().HaveCount(1);
+            (parsed as ProgramSyntax).Declarations.Single().Should().BeOfType<TypeDeclarationSyntax>();
+            var declaration = (TypeDeclarationSyntax) (parsed as ProgramSyntax).Declarations.Single();
+
+            declaration.Value.Should().BeOfType<TupleTypeSyntax>();
+            var declaredObject = (TupleTypeSyntax) declaration.Value;
+            declaredObject.Items.Should().HaveCount(2);
+            declaredObject.Items.First().Decorators.Should().HaveCount(2);
+            declaredObject.Items.First().Value.Should().BeOfType<VariableAccessSyntax>();
+            declaredObject.Items.Last().Decorators.Should().HaveCount(1);
+            declaredObject.Items.Last().Value.Should().BeOfType<UnionTypeSyntax>();
+        }
+
         private static SyntaxBase RunExpressionTest(string text, string expected, Type expectedRootType)
         {
             SyntaxBase expression = ParserHelper.ParseExpression(text);
