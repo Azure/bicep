@@ -401,6 +401,35 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax) => ReplaceCurrent(syntax, ReplaceObjectPropertyTypeSyntax);
 
+        protected virtual SyntaxBase ReplaceTupleTypeSyntax(TupleTypeSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.OpenBracket, out var openBracket);
+            hasChanges |= TryRewrite(syntax.Children, out var children);
+            hasChanges |= TryRewriteStrict(syntax.CloseBracket, out var closeBracket);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new TupleTypeSyntax(openBracket, children, closeBracket);
+        }
+        void ISyntaxVisitor.VisitTupleTypeSyntax(TupleTypeSyntax syntax) => ReplaceCurrent(syntax, ReplaceTupleTypeSyntax);
+
+        protected virtual SyntaxBase ReplaceTupleTypeItemSyntax(TupleTypeItemSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewrite(syntax.Value, out var value);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new TupleTypeItemSyntax(leadingNodes, value);
+        }
+        void ISyntaxVisitor.VisitTupleTypeItemSyntax(TupleTypeItemSyntax syntax) => ReplaceCurrent(syntax, ReplaceTupleTypeItemSyntax);
+
         protected virtual SyntaxBase ReplaceArrayTypeSyntax(ArrayTypeSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.Item, out var item);

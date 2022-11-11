@@ -419,7 +419,8 @@ namespace Bicep.Core.PrettyPrint
         }
 
         public override void VisitObjectSyntax(ObjectSyntax syntax) =>
-            this.BuildWithConcat(() => {
+            this.BuildWithConcat(() =>
+            {
                 this.Visit(syntax.OpenBrace);
                 this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: true);
                 this.Visit(syntax.CloseBrace);
@@ -438,7 +439,8 @@ namespace Bicep.Core.PrettyPrint
             });
 
         public override void VisitArraySyntax(ArraySyntax syntax) =>
-            this.BuildWithConcat(() => {
+            this.BuildWithConcat(() =>
+            {
                 this.Visit(syntax.OpenBracket);
                 this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: true);
                 this.Visit(syntax.CloseBracket);
@@ -456,7 +458,8 @@ namespace Bicep.Core.PrettyPrint
             });
 
         public override void VisitArrayTypeSyntax(ArrayTypeSyntax syntax) =>
-            this.BuildWithConcat(() => {
+            this.BuildWithConcat(() =>
+            {
                 this.Visit(syntax.Item);
                 this.Visit(syntax.OpenBracket);
                 this.Visit(syntax.CloseBracket);
@@ -480,8 +483,23 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.Value);
             });
 
+        public override void VisitTupleTypeSyntax(TupleTypeSyntax syntax) =>
+            this.BuildWithConcat(() =>
+            {
+                this.Visit(syntax.OpenBracket);
+                this.VisitCommaAndNewLineSeparated(syntax.Children, leadingAndTrailingSpace: true);
+                this.Visit(syntax.CloseBracket);
+            });
+
+        public override void VisitTupleTypeItemSyntax(TupleTypeItemSyntax syntax) =>
+            this.BuildWithConcat(() =>
+            {
+                this.VisitNodes(syntax.LeadingNodes);
+                this.Visit(syntax.Value);
+            });
+
         public override void VisitUnionTypeSyntax(UnionTypeSyntax syntax) =>
-            this.Build(() => base.VisitUnionTypeSyntax(syntax), Spread);
+            this.BuildWithSpread(() => base.VisitUnionTypeSyntax(syntax));
 
         private static ILinkedDocument Text(string text) =>
             CommonTextCache.TryGetValue(text, out var cached) ? cached : new TextDocument(text);

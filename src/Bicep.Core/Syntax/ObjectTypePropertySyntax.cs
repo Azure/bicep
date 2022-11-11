@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Parsing;
 
@@ -11,9 +10,6 @@ namespace Bicep.Core.Syntax;
 
 public class ObjectTypePropertySyntax : DecorableSyntax
 {
-    public ObjectTypePropertySyntax(SyntaxBase key, Token? optionalityMarker, SyntaxBase colon, SyntaxBase value)
-        : this(ImmutableArray<SyntaxBase>.Empty, key, optionalityMarker, colon, value) {}
-
     public ObjectTypePropertySyntax(IEnumerable<SyntaxBase> leadingNodes, SyntaxBase key, SyntaxBase? optionalityMarker, SyntaxBase colon, SyntaxBase value) : base(leadingNodes)
     {
         AssertSyntaxType(key, nameof(key), typeof(IdentifierSyntax), typeof(StringSyntax), typeof(SkippedTriviaSyntax));

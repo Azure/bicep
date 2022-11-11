@@ -2,12 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Parsing;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.Core.Syntax
 {
@@ -38,7 +34,7 @@ namespace Bicep.Core.Syntax
         public abstract void VisitFunctionCallSyntax(FunctionCallSyntax syntax);
 
         public abstract void VisitIdentifierSyntax(IdentifierSyntax syntax);
-        
+
         public abstract void VisitIfConditionSyntax(IfConditionSyntax syntax);
 
         public abstract void VisitImportAsClauseSyntax(ImportAsClauseSyntax syntax);
@@ -70,6 +66,10 @@ namespace Bicep.Core.Syntax
         public abstract void VisitObjectTypePropertySyntax(ObjectTypePropertySyntax syntax);
 
         public abstract void VisitObjectTypeSyntax(ObjectTypeSyntax syntax);
+
+        public abstract void VisitTupleTypeSyntax(TupleTypeSyntax syntax);
+
+        public abstract void VisitTupleTypeItemSyntax(TupleTypeItemSyntax syntax);
 
         public abstract void VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax);
 
