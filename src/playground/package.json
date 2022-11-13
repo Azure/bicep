@@ -42,7 +42,7 @@
     "@microsoft/applicationinsights-web": "^2.8.9",
     "bootstrap": "^5.2.2",
     "monaco-editor": "^0.33.0",
-    "pako": "^2.0.4",
+    "pako": "^2.1.0",
     "react": "^18.2.0",
     "react-bootstrap": "^2.6.0",
     "react-dom": "^18.2.0",
