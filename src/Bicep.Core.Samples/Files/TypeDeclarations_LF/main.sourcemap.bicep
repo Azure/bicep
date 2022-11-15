@@ -4,16 +4,16 @@
 type foo = {
 //@[13:68]     "foo": {
   @minLength(3)
-//@[59:59]           "minLength": 3
+//@[28:28]           "minLength": 3
   @maxLength(10)
-//@[58:58]           "maxLength": 10,
+//@[27:27]           "maxLength": 10,
   @description('A string property')
-//@[56:56]             "description": "A string property"
+//@[25:25]             "description": "A string property"
   stringProp: string
 
   objectProp: {
     @minValue(1)
-//@[46:46]               "minValue": 1
+//@[38:38]               "minValue": 1
     intProp: int
 
     intArrayArrayProp?: int [] []
@@ -22,6 +22,7 @@ type foo = {
   typeRefProp: bar
 
   literalProp: 'literal'
+//@[57:57]             "literal"
 
   recursion?: foo
 }

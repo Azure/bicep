@@ -431,14 +431,14 @@ namespace Bicep.Core.TypeSystem
         public override void VisitTypeDeclarationSyntax(TypeDeclarationSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {
-                base.VisitTypeDeclarationSyntax(syntax);
+                var declaredType = typeManager.GetDeclaredType(syntax);
 
                 if (LanguageConstants.ReservedTypeNames.Contains(syntax.Name.IdentifierName))
                 {
                     diagnostics.Write(DiagnosticBuilder.ForPosition(syntax.Name).ReservedTypeName(syntax.Name.IdentifierName));
                 }
 
-                var declaredType = typeManager.GetDeclaredType(syntax);
+                base.VisitTypeDeclarationSyntax(syntax);
 
                 diagnostics.WriteMultiple(declaredType?.GetDiagnostics() ?? Enumerable.Empty<IDiagnostic>());
 

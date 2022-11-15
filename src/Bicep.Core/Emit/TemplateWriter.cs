@@ -59,11 +59,6 @@ namespace Bicep.Core.Emit
             LanguageConstants.ParameterSealedPropertyName,
         }.ToImmutableHashSet();
 
-        private static readonly ImmutableHashSet<string> DecoratorsEmittedAsPropertiesPermittedOnTypeReferences = new[] {
-            LanguageConstants.ParameterMetadataPropertyName,
-            LanguageConstants.MetadataDescriptionPropertyName,
-        }.ToImmutableHashSet();
-
         private static ISemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
         {
             if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out _))
@@ -229,7 +224,7 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteStartObject();
 
-            var parameterObject = TypePropertiesForUndecoratedTypeExpression(parameterSymbol.Type, declaringParameter, declaringParameter.Type);
+            var parameterObject = TypePropertiesForTypeExpression(parameterSymbol.DeclaringParameter.Type);
 
             if (declaringParameter.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
             {
@@ -253,7 +248,9 @@ namespace Bicep.Core.Emit
         {
             jsonWriter.WriteStartObject();
 
-            var typeDefinitionObject = TypePropertiesForTypeExpression(declaredTypeSymbol.Type, declaredTypeSymbol.DeclaringType, declaredTypeSymbol.DeclaringType.Value);
+            var typeDefinitionObject = TypePropertiesForTypeExpression(declaredTypeSymbol.DeclaringType.Value);
+
+            typeDefinitionObject = AddDecoratorsToBody(declaredTypeSymbol.DeclaringType, typeDefinitionObject, declaredTypeSymbol.Type);
 
             foreach (var property in typeDefinitionObject.Properties)
             {
@@ -266,163 +263,203 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndObject();
         }
 
-        private ObjectSyntax TypePropertiesForTypeExpression(TypeSymbol type, DecorableSyntax parentSyntax, SyntaxBase typeExpressionSyntax)
-            => AddDecoratorsToBody(parentSyntax, TypePropertiesForUndecoratedTypeExpression(type, parentSyntax, typeExpressionSyntax), type);
-
-        private ObjectSyntax TypePropertiesForUndecoratedTypeExpression(TypeSymbol type, DecorableSyntax parentSyntax, SyntaxBase typeExpressionSyntax)
+        private ObjectSyntax TypePropertiesForTypeExpression(SyntaxBase typeExpressionSyntax) => typeExpressionSyntax switch
         {
-            if (typeExpressionSyntax is VariableAccessSyntax && !parentSyntax.Decorators.Any(DecoratorPrecludesTypeRef) && context.SemanticModel.GetSymbolInfo(typeExpressionSyntax) is TypeAliasSymbol typeAlias)
+            VariableAccessSyntax variableAccess => TypePropertiesForUnqualifedReference(variableAccess),
+            PropertyAccessSyntax propertyAccess => TypePropertiesForQualifiedReference(propertyAccess),
+            ResourceTypeSyntax resourceType => GetTypePropertiesForResourceType(resourceType),
+            ArrayTypeSyntax arrayType => GetTypePropertiesForArrayType(arrayType),
+            ObjectTypeSyntax objectType => GetTypePropertiesForObjectType(objectType),
+            StringSyntax @string => GetTypePropertiesForStringSyntax(@string),
+            IntegerLiteralSyntax integerLiteral => GetTypePropertiesForIntegerLiteralSyntax(integerLiteral),
+            BooleanLiteralSyntax booleanLiteral => GetTypePropertiesForBooleanLiteralSyntax(booleanLiteral),
+            UnaryOperationSyntax unaryOperation => GetTypePropertiesForUnaryOperationSyntax(unaryOperation),
+            UnionTypeSyntax unionType => GetTypePropertiesForUnionTypeSyntax(unionType),
+            ParenthesizedExpressionSyntax parenthesizedExpression => TypePropertiesForTypeExpression(parenthesizedExpression.Expression),
+            // this should have been caught by the parser
+            _ => throw new ArgumentException("Invalid type syntax encountered."),
+        };
+
+        private ObjectSyntax TypePropertiesForUnqualifedReference(VariableAccessSyntax variableAccess) => context.SemanticModel.GetSymbolInfo(variableAccess) switch
+        {
+            AmbientTypeSymbol ambientType => SyntaxFactory.CreateObject(TypeProperty(ambientType.Name).AsEnumerable()),
+            TypeAliasSymbol typeAlias => SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty("$ref", SyntaxFactory.CreateStringLiteral($"#/definitions/{typeAlias.Name}")).AsEnumerable()),
+            // should have been caught long ago by the type manager
+            _ => throw new ArgumentException($"The symbolic name \"{variableAccess.Name.IdentifierName}\" does not refer to a type"),
+        };
+
+        private ObjectSyntax TypePropertiesForQualifiedReference(PropertyAccessSyntax propertyAccess)
+        {
+            // The only property access scenario supported at the moment is dereferencing types from a namespace
+            if (context.SemanticModel.GetSymbolInfo(propertyAccess.BaseExpression) is not BuiltInNamespaceSymbol builtInNamespace || builtInNamespace.Type.ProviderName != SystemNamespaceType.BuiltInName)
             {
-                return SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty("$ref", SyntaxFactory.CreateStringLiteral($"#/definitions/{typeAlias.Name}")).AsEnumerable());
+                throw new ArgumentException("Property access base expression did not resolve to the 'sys' namespace.");
             }
 
-            return GetTypePropertiesForTypeSymbol(type, typeExpressionSyntax);
+            return SyntaxFactory.CreateObject(TypeProperty(propertyAccess.PropertyName.IdentifierName).AsEnumerable());
         }
 
-        private bool DecoratorPrecludesTypeRef(DecoratorSyntax decorator)
-        {
-            var symbol = this.context.SemanticModel.GetSymbolInfo(decorator.Expression);
+        private ObjectPropertySyntax TypeProperty(string typeName) => SyntaxFactory.CreateObjectProperty("type", SyntaxFactory.CreateStringLiteral(typeName));
 
-            return symbol is FunctionSymbol decoratorSymbol
-                && DecoratorsToEmitAsResourceProperties.Contains(decoratorSymbol.Name)
-                && !DecoratorsEmittedAsPropertiesPermittedOnTypeReferences.Contains(decoratorSymbol.Name);
+        private ObjectSyntax GetTypePropertiesForResourceType(ResourceTypeSyntax syntax)
+        {
+            var typeString = syntax.TypeString?.TryGetLiteralValue() ?? GetResourceTypeString(syntax);
+
+            return SyntaxFactory.CreateObject(new[]
+            {
+                TypeProperty(LanguageConstants.TypeNameString),
+                SyntaxFactory.CreateObjectProperty(LanguageConstants.ParameterMetadataPropertyName,
+                    SyntaxFactory.CreateObject(
+                        SyntaxFactory.CreateObjectProperty(LanguageConstants.MetadataResourceTypePropertyName,
+                            SyntaxFactory.CreateStringLiteral(typeString)).AsEnumerable())),
+            });
         }
 
-        private ObjectSyntax GetTypePropertiesForTypeSymbol(ITypeReference type, SyntaxBase? declaringSyntax)
-            => type.Type switch {
-                TypeType typeRef => GetTypePropertiesForTypeSymbol(typeRef.Unwrapped, declaringSyntax),
-                PrimitiveType primitiveType => GetTypePropertiesForAmbientType(primitiveType.Name),
-                ResourceType resourceType => GetTypePropertiesForTypeSymbol(resourceType),
-                ObjectType objectType => GetTypePropertiesForTypeSymbol(objectType, declaringSyntax),
-                TypedArrayType typedArrayType => GetTypePropertiesForTypeSymbol(typedArrayType, declaringSyntax),
-                ArrayType arrayType => GetTypePropertiesForTypeSymbol(arrayType),
-                StringLiteralType stringLiteralType => GetTypePropertiesForTypeSymbol(stringLiteralType, declaringSyntax),
-                IntegerLiteralType integerLiteralType => GetTypePropertiesForTypeSymbol(integerLiteralType, declaringSyntax),
-                BooleanLiteralType booleanLiteralType => GetTypePropertiesForTypeSymbol(booleanLiteralType, declaringSyntax),
-                UnionType unionType => GetTypePropertiesForTypeSymbol(unionType, declaringSyntax),
-                // this should have been caught by the type checker long ago
-                _ => throw new ArgumentException($"Unable to find type for {type.Type.Name}"),
-            };
-
-        private ObjectSyntax GetTypePropertiesForAmbientType(string typeName)
-            => SyntaxFactory.CreateObject(SyntaxFactory.CreateObjectProperty("type", SyntaxFactory.CreateStringLiteral(typeName)).AsEnumerable());
-
-        private ObjectSyntax GetTypePropertiesForTypeSymbol(ResourceType resourceType) => SyntaxFactory.CreateObject(new []
+        private string GetResourceTypeString(ResourceTypeSyntax syntax)
         {
-            SyntaxFactory.CreateObjectProperty("type", SyntaxFactory.CreateStringLiteral(LanguageConstants.String.Name)),
-            SyntaxFactory.CreateObjectProperty(LanguageConstants.ParameterMetadataPropertyName,
-                SyntaxFactory.CreateObject(new[]
-                {
-                    SyntaxFactory.CreateObjectProperty(LanguageConstants.MetadataResourceTypePropertyName,
-                        SyntaxFactory.CreateStringLiteral(resourceType.TypeReference.FormatName())),
-                })),
-        });
-
-        private ObjectSyntax GetTypePropertiesForTypeSymbol(ObjectType objectType, SyntaxBase? declaringSyntax)
-        {
-            var baseObject = GetTypePropertiesForAmbientType("object");
-
-            if (objectType.AdditionalPropertiesType is null)
+            if (context.SemanticModel.GetTypeInfo(syntax) is not ResourceType resourceType)
             {
-                baseObject = baseObject.MergeProperty("sealed", SyntaxFactory.CreateBooleanLiteral(true));
+                // This should have been caught during type checking
+                throw new ArgumentException($"Unable to locate resource type.");
             }
 
-            List<string> required = new();
-            SortedDictionary<string, ObjectSyntax> properties = new(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var (name, type) in objectType.Properties)
-            {
-                if ((type.Flags & TypePropertyFlags.Required) == TypePropertyFlags.Required)
-                {
-                    required.Add(name);
-                }
-
-                // If this type was declared in the template (rather than being derived via typeof()),
-                // there may be decorators we need to account for. The heuristic for determining if this
-                // type was declared vs derived is, can we locate the type property syntax?
-                if (declaringSyntax is ObjectTypeSyntax objectTypeSyntax
-                    && objectTypeSyntax.Properties.Where(p => p.TryGetKeyText() == name).FirstOrDefault() is {} propertySyntax)
-                {
-                    properties.Add(name, TypePropertiesForTypeExpression(type.TypeReference.Type, propertySyntax, propertySyntax.Value));
-                } else
-                {
-                    properties.Add(name, GetTypePropertiesForTypeSymbol(type.TypeReference, null));
-                }
-            }
-
-            if (required.Any())
-            {
-                baseObject = baseObject.MergeProperty("required", SyntaxFactory.CreateArray(required.Select(SyntaxFactory.CreateStringLiteral)));
-            }
-
-            if (properties.Any())
-            {
-                baseObject = baseObject.MergeProperty("properties", SyntaxFactory.CreateObject(properties.Select(kvp => SyntaxFactory.CreateObjectProperty(kvp.Key, kvp.Value))));
-            }
-
-            return baseObject;
+            return resourceType.TypeReference.FormatName();
         }
 
-        private ObjectSyntax GetTypePropertiesForTypeSymbol(TypedArrayType typedArrayType, SyntaxBase? declaringSyntax)
+        private ObjectSyntax GetTypePropertiesForArrayType(ArrayTypeSyntax syntax)
         {
-            var baseObject = GetTypePropertiesForTypeSymbol(typedArrayType as ArrayType);
+            var properties = new List<ObjectPropertySyntax> { TypeProperty(LanguageConstants.ArrayType) };
 
-            if (TypeHelper.IsLiteralType(typedArrayType.Item.Type))
+            if (TryGetAllowedValues(syntax.Item.Value) is {} allowedValues)
             {
-                baseObject = baseObject.MergeProperty("allowedValues", SyntaxFactory.CreateArray(ToLiteralValue(typedArrayType.Item).AsEnumerable()));
-            }
-            else if (typedArrayType.Item.Type is UnionType unionType && !unionType.Members.OfType<ArrayType>().Any())
-            {
-                baseObject = baseObject.MergeProperty("allowedValues", SyntaxFactory.CreateArray(unionType.Members.Select(ToLiteralValue)));
+                properties.Add(SyntaxFactory.CreateObjectProperty("allowedValues", allowedValues));
             }
             else
             {
-                baseObject = baseObject.MergeProperty("items", GetTypePropertiesForTypeSymbol(typedArrayType.Item, (declaringSyntax as ArrayTypeSyntax)?.Item));
-            }
-
-            return baseObject;
-        }
-
-        private ObjectSyntax GetTypePropertiesForTypeSymbol(ArrayType arrayType)
-            => GetTypePropertiesForAmbientType("array");
-
-        private ObjectSyntax GetTypePropertiesForTypeSymbol(StringLiteralType stringLiteralType, SyntaxBase? declaringSyntax)
-            => GetTypePropertiesForTypeSymbol(new UnionType("literal", ImmutableArray.Create<ITypeReference>(stringLiteralType)), declaringSyntax);
-
-        private ObjectSyntax GetTypePropertiesForTypeSymbol(IntegerLiteralType intLiteralType, SyntaxBase? declaringSyntax)
-            => GetTypePropertiesForTypeSymbol(new UnionType("literal", ImmutableArray.Create<ITypeReference>(intLiteralType)), declaringSyntax);
-
-        private ObjectSyntax GetTypePropertiesForTypeSymbol(BooleanLiteralType boolLiteralType, SyntaxBase? declaringSyntax)
-            => GetTypePropertiesForTypeSymbol(new UnionType("literal", ImmutableArray.Create<ITypeReference>(boolLiteralType)), declaringSyntax);
-
-        private ObjectSyntax GetTypePropertiesForTypeSymbol(UnionType unionType, SyntaxBase? declaringSyntax)
-        {
-            var properties = new List<ObjectPropertySyntax> { SyntaxFactory.CreateObjectProperty("type", GetNonLiteralTypeName(unionType.Members.First().Type)) };
-
-            // If the union was created via an @allowed() decorator rather than via UnionTypeSyntax, add the property based on the decorator rather than the type
-            if (declaringSyntax is not null && !SyntaxHasAllowedDecorator(declaringSyntax))
-            {
-                properties.Add(SyntaxFactory.CreateObjectProperty("allowedValues", SyntaxFactory.CreateArray(unionType.Members.Select(ToLiteralValue))));
+                properties.Add(SyntaxFactory.CreateObjectProperty("items", TypePropertiesForTypeExpression(syntax.Item.Value)));
             }
 
             return SyntaxFactory.CreateObject(properties);
         }
 
-        private bool SyntaxHasAllowedDecorator(SyntaxBase syntax) => context.SemanticModel.Binder.GetParent(syntax) switch
+        private ArraySyntax? TryGetAllowedValues(SyntaxBase syntax) => syntax switch
         {
-            DecorableSyntax decorable when decorable.Decorators.Any(IsAllowedDecorator) => true,
-            ParenthesizedExpressionSyntax or TernaryOperationSyntax => SyntaxHasAllowedDecorator(syntax),
-            _ => false,
+            StringSyntax or
+            IntegerLiteralSyntax or
+            BooleanLiteralSyntax or
+            UnaryOperationSyntax or
+            NullLiteralSyntax => SingleElementArray(syntax),
+            ObjectTypeSyntax objectType when context.SemanticModel.GetDeclaredType(objectType) is {} type && TypeHelper.IsLiteralType(type) => SingleElementArray(ToLiteralValue(type)),
+            UnionTypeSyntax unionType => GetAllowedValuesForUnionType(unionType),
+            ParenthesizedExpressionSyntax parenthesized => TryGetAllowedValues(parenthesized.Expression),
+            _ => null,
         };
 
-        private bool IsAllowedDecorator(DecoratorSyntax syntax)
-        {
-            var symbol = this.context.SemanticModel.GetSymbolInfo(syntax.Expression);
+        private ArraySyntax SingleElementArray(SyntaxBase syntax) => SyntaxFactory.CreateArray(syntax.AsEnumerable());
 
-            return symbol is FunctionSymbol decoratorSymbol
-                && decoratorSymbol.DeclaringObject is NamespaceType namespaceType
-                && LanguageConstants.ParameterAllowedPropertyName == symbol.Name;
+        private ArraySyntax GetAllowedValuesForUnionType(UnionTypeSyntax syntax)
+        {
+            if (context.SemanticModel.GetDeclaredType(syntax) is not UnionType unionType)
+            {
+                // This should have been caught during type checking
+                throw new ArgumentException("Invalid union encountered during template serialization");
+            }
+
+            return GetAllowedValuesForUnionType(unionType);
         }
+
+        private ArraySyntax GetAllowedValuesForUnionType(UnionType unionType)
+            => SyntaxFactory.CreateArray(unionType.Members.Select(ToLiteralValue));
+
+        private ObjectSyntax GetTypePropertiesForObjectType(ObjectTypeSyntax syntax)
+        {
+            var properties = new List<ObjectPropertySyntax> { TypeProperty(LanguageConstants.ObjectType) };
+            List<SyntaxBase> required = new();
+            List<ObjectPropertySyntax> propertySchemata = new();
+
+            foreach (var property in syntax.Properties)
+            {
+                if (property.TryGetKeyText() is not string keyText)
+                {
+                    // This should have been caught during type checking
+                    throw new ArgumentException("Invalid object type key encountered during serialization.");
+                }
+
+                if (property.OptionalityMarker is null)
+                {
+                    required.Add(SyntaxFactory.CreateStringLiteral(keyText));
+                }
+
+                var propertySchema = TypePropertiesForTypeExpression(property.Value);
+                propertySchema = AddDecoratorsToBody(property, propertySchema, context.SemanticModel.GetDeclaredType(property) ?? ErrorType.Empty());
+
+                propertySchemata.Add(SyntaxFactory.CreateObjectProperty(keyText, propertySchema));
+            }
+
+            if (required.Any())
+            {
+                properties.Add(SyntaxFactory.CreateObjectProperty("required", SyntaxFactory.CreateArray(required)));
+            }
+
+            if (propertySchemata.Any())
+            {
+                properties.Add(SyntaxFactory.CreateObjectProperty("properties", SyntaxFactory.CreateObject(propertySchemata)));
+            }
+
+            return SyntaxFactory.CreateObject(properties);
+        }
+
+        private ObjectSyntax GetTypePropertiesForStringSyntax(StringSyntax syntax) => SyntaxFactory.CreateObject(new[]
+        {
+            TypeProperty(LanguageConstants.TypeNameString),
+            AllowedValuesForTypeExpression(syntax),
+        });
+
+        private ObjectSyntax GetTypePropertiesForIntegerLiteralSyntax(IntegerLiteralSyntax syntax) => SyntaxFactory.CreateObject(new[]
+        {
+            TypeProperty(LanguageConstants.TypeNameInt),
+            AllowedValuesForTypeExpression(syntax),
+        });
+
+        private ObjectSyntax GetTypePropertiesForBooleanLiteralSyntax(BooleanLiteralSyntax syntax) => SyntaxFactory.CreateObject(new[]
+        {
+            TypeProperty(LanguageConstants.TypeNameBool),
+            AllowedValuesForTypeExpression(syntax),
+        });
+
+        private ObjectSyntax GetTypePropertiesForUnaryOperationSyntax(UnaryOperationSyntax syntax)
+        {
+            // Within type syntax, unary operations are only permitted if they are resolvable to a literal type at compile-time
+            if (context.SemanticModel.GetDeclaredType(syntax) is not {} type || !TypeHelper.IsLiteralType(type))
+            {
+                throw new ArgumentException("Unary operator applied to unresolvable type symbol.");
+            }
+
+            return SyntaxFactory.CreateObject(new[]
+            {
+                TypeProperty(GetNonLiteralTypeName(type)),
+                AllowedValuesForTypeExpression(syntax),
+            });
+        }
+
+        private ObjectSyntax GetTypePropertiesForUnionTypeSyntax(UnionTypeSyntax syntax)
+        {
+            // Union types permit symbolic references, unary operations, and literals, so long as the whole expression embodied in the UnionTypeSyntax can be
+            // reduced to a flat union of literal types. If this didn't happen during type checking, the syntax will resolve to an ErrorType instead of a UnionType
+            if (context.SemanticModel.GetDeclaredType(syntax) is not UnionType unionType)
+            {
+                throw new ArgumentException("Invalid union encountered during template serialization");
+            }
+
+            return SyntaxFactory.CreateObject(new[]
+            {
+                TypeProperty(GetNonLiteralTypeName(unionType.Members.First().Type)),
+                SyntaxFactory.CreateObjectProperty("allowedValues", GetAllowedValuesForUnionType(unionType)),
+            });
+        }
+
+        private ObjectPropertySyntax AllowedValuesForTypeExpression(SyntaxBase syntax) => SyntaxFactory.CreateObjectProperty("allowedValues",
+            TryGetAllowedValues(syntax) ?? throw new ArgumentException("Unable to resolve allowed values during template serialization."));
 
         private SyntaxBase ToLiteralValue(ITypeReference literalType) => literalType.Type switch
         {
@@ -435,15 +472,15 @@ namespace Bicep.Core.Emit
             _ => throw new ArgumentException("Union types used in ARM type checks must be composed entirely of literal types"),
         };
 
-        private SyntaxBase GetNonLiteralTypeName(TypeSymbol? type) => type switch {
-            StringLiteralType => SyntaxFactory.CreateStringLiteral("string"),
-            IntegerLiteralType => SyntaxFactory.CreateStringLiteral("int"),
-            BooleanLiteralType => SyntaxFactory.CreateStringLiteral("bool"),
-            ObjectType => SyntaxFactory.CreateStringLiteral("object"),
-            ArrayType => SyntaxFactory.CreateStringLiteral("array"),
-            PrimitiveType pt when pt.Name != LanguageConstants.NullKeyword => SyntaxFactory.CreateStringLiteral(pt.Name),
+        private string GetNonLiteralTypeName(TypeSymbol? type) => type switch {
+            StringLiteralType => "string",
+            IntegerLiteralType => "int",
+            BooleanLiteralType => "bool",
+            ObjectType => "object",
+            ArrayType => "array",
+            PrimitiveType pt when pt.Name != LanguageConstants.NullKeyword => pt.Name,
             // This would have been caught by the DeclaredTypeManager during initial type assignment
-            _ => throw new ArgumentException("Union types used in ARM type checks must be composed entirely of literal types"),
+            _ => throw new ArgumentException("Unresolvable type name"),
         };
 
         private void EmitVariablesIfPresent(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)

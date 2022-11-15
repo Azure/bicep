@@ -965,8 +965,29 @@ namespace Bicep.Core.Semantics.Namespaces
                 _ => null,
             };
 
+            static void EmitDiagnosticIfTargetingAlias(string decoratorName, DecoratorSyntax decoratorSyntax, SyntaxBase? decoratorParentTypeSyntax, IBinder binder, IDiagnosticWriter diagnosticWriter)
+            {
+                if (decoratorParentTypeSyntax is VariableAccessSyntax variableAccess && binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol)
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorMayNotTargetTypeAlias(decoratorName));
+                }
+            }
+
+            static void EmitDiagnosticIfTargetingLiteral(string decoratorName, DecoratorSyntax decoratorSyntax, SyntaxBase? decoratorParentTypeSyntax, ITypeManager typeManager, IDiagnosticWriter diagnosticWriter)
+            {
+                if (IsLiteralSyntax(decoratorParentTypeSyntax, typeManager))
+                {
+                    diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorNotPermittedOnLiteralType(decoratorName));
+                }
+            }
+
+            static void ValidateNotTargetingAlias(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
+                => EmitDiagnosticIfTargetingAlias(decoratorName, decoratorSyntax, GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder), binder, diagnosticWriter);
+
             static void ValidateLength(string decoratorName, DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ITypeManager typeManager, IBinder binder, IDiagnosticWriter diagnosticWriter)
             {
+                ValidateNotTargetingAlias(decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter);
+
                 if (targetType is UnionType || TypeHelper.IsLiteralType(targetType))
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorNotPermittedOnLiteralType(decoratorName));
@@ -984,6 +1005,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Makes the parameter a secure parameter.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
+                .WithValidator(ValidateNotTargetingAlias)
                 .WithEvaluator((_, targetType, targetObject) =>
                 {
                     if (TypeValidator.AreTypesAssignable(targetType, LanguageConstants.String))
@@ -1006,11 +1028,10 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter) =>
                 {
-                    if (targetType is UnionType || TypeHelper.IsLiteralType(targetType))
-                    {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).DecoratorNotPermittedOnLiteralType(decoratorName));
-                        return;
-                    }
+                    var parentTypeSyntax = GetDeclaredTypeSyntaxOfParent(decoratorSyntax, binder);
+
+                    EmitDiagnosticIfTargetingAlias(decoratorName, decoratorSyntax, parentTypeSyntax, binder, diagnosticWriter);
+                    EmitDiagnosticIfTargetingLiteral(decoratorName, decoratorSyntax, parentTypeSyntax, typeManager, diagnosticWriter);
 
                     if (ReferenceEquals(targetType, LanguageConstants.Array) &&
                         SingleArgumentSelector(decoratorSyntax) is ArraySyntax allowedValues &&
@@ -1039,6 +1060,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("value", LanguageConstants.Int, "The minimum value.")
                 .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Int)
+                .WithValidator(ValidateNotTargetingAlias)
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinValuePropertyName, SingleArgumentSelector))
                 .Build();
 
@@ -1047,6 +1069,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("value", LanguageConstants.Int, "The maximum value.")
                 .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                 .WithAttachableType(LanguageConstants.Int)
+                .WithValidator(ValidateNotTargetingAlias)
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxValuePropertyName, SingleArgumentSelector))
                 .Build();
 
@@ -1117,10 +1140,34 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDescription("Marks an object parameter as only permitting properties specifically included in the type definition")
                     .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                     .WithAttachableType(LanguageConstants.Object)
+                    .WithValidator(ValidateNotTargetingAlias)
                     .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty(LanguageConstants.ParameterSealedPropertyName, "true"))
                     .Build();
             }
         }
+
+        private static SyntaxBase? GetDeclaredTypeSyntaxOfParent(DecoratorSyntax syntax, IBinder binder) => binder.GetParent(syntax) switch
+        {
+            ParameterDeclarationSyntax parameterDeclaration => parameterDeclaration.Type,
+            OutputDeclarationSyntax outputDeclaration => outputDeclaration.Type,
+            TypeDeclarationSyntax typeDeclaration => typeDeclaration.Value,
+            ObjectTypePropertySyntax objectTypeProperty => objectTypeProperty.Value,
+            _ => null,
+        };
+
+        private static bool IsLiteralSyntax(SyntaxBase? syntax, ITypeManager typeManager) => syntax switch
+        {
+            IntegerLiteralSyntax => true,
+            BooleanLiteralSyntax => true,
+            UnaryOperationSyntax => true,
+            StringSyntax => true,
+            // union types may contain symbols, but the type manager will enforce that they must resolve to a flat union of literals
+            UnionTypeSyntax => true,
+            // object types may contain symbols and still be literal types (iff the symbols themselves resolve to literal types)
+            // unlike with union types, we get no guarantees from the type checker and need to inspect the declared type to verify that this is a literal
+            ObjectTypeSyntax @object when TypeHelper.IsLiteralType(typeManager.GetDeclaredType(@object) ?? ErrorType.Empty()) => true,
+            _ => false,
+        };
 
         private static IEnumerable<TypeTypeProperty> GetSystemAmbientSymbols()
             => LanguageConstants.DeclarationTypes.Select(t => new TypeTypeProperty(t.Key, new(t.Value)));

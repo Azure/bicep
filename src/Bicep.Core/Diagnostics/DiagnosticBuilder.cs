@@ -1749,6 +1749,11 @@ namespace Bicep.Core.Diagnostics
                     "BCP307",
                     $"The expression cannot be evaluated, because the \"name\" property of the referenced existing resource contains a value that cannot be calculated at the start of the deployment. In this situation,{accessiblePropertyNamesClause}{accessibleFunctionNamesClause}");
             }
+
+            public ErrorDiagnostic DecoratorMayNotTargetTypeAlias(string decoratorName) => new(
+                TextSpan,
+                "BCP308",
+                $@"The decorator ""{decoratorName}"" may not be used on statements whose declared type is a reference to a user-defined type.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
