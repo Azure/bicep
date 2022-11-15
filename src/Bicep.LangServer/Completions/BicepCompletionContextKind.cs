@@ -192,6 +192,21 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location needs a repository path.
         /// </summary>
-        OciArtifactModuleReferenceRepositoryPath = 1 << 35,
+        ModuleReferenceRegistryName = 1 << 36,
+
+        /// <summary>
+        /// The current location needs a repository path.
+        /// </summary>
+        ModuleReferenceRepositoryPath = 1 << 37,
+
+        /// <summary>
+        /// The current location needs a repository path.
+        /// </summary>
+        ModuleRegistryAliasCompletionStart = 1 << 38,
+
+        /// <summary>
+        /// The current location needs a repository path.
+        /// </summary>
+        PublicModuleRegistryStart = 1 << 39,
     }
 }

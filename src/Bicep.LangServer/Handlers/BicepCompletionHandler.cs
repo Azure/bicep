@@ -52,7 +52,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (completions1.Any())
             {
-                return new CompletionList(completions1, isIncomplete: false);
+                //return new CompletionList(completions1, isIncomplete: false);
             }
 
             int offset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Position);

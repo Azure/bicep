@@ -22,7 +22,7 @@ namespace Bicep.LanguageServer.Completions
 {
     public class BicepCompletionContext
     {
-        private static readonly Regex BicepSchemaAzureContainerRegistryPath = new Regex(@"'br:[a-zA-Z0-9]+.azurecr.io/'", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+        //private static readonly Regex BicepSchemaAzureContainerRegistryPath = new Regex(@"'br:[a-zA-Z0-9]+.azurecr.io/'", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         public record FunctionArgumentContext(
             FunctionCallSyntaxBase Function,
@@ -358,9 +358,18 @@ namespace Bicep.LanguageServer.Completions
                     matchingNodes[^1] is Token token &&
                     token.Type == TokenType.StringComplete)
                 {
-                    if (BicepSchemaAzureContainerRegistryPath.IsMatch(token.Text))
+                    string text = token.Text;
+                    if (text == "'br/'")
                     {
-                        return BicepCompletionContextKind.OciArtifactModuleReferenceRepositoryPath;
+                        return BicepCompletionContextKind.ModuleRegistryAliasCompletionStart;
+                    }
+                    if (text == "'br:'")
+                    {
+                        return BicepCompletionContextKind.ModuleReferenceRegistryName;
+                    }
+                    if (text == "'br/public:'")
+                    {
+                        return BicepCompletionContextKind.PublicModuleRegistryStart;
                     }
                 }
 

@@ -130,7 +130,8 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>()
                 .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
                 .AddSingleton<IServiceClientCredentialsProvider, ServiceClientCredentialsProvider>()
-                .AddSingleton<IOciArtifactModuleRepositoryCompletionProvider, OciArtifactModuleRepositoryCompletionProvider>();
+                .AddSingleton<IOciArtifactModuleRepositoryCompletionProvider, OciArtifactModuleRepositoryCompletionProvider>()
+                .AddSingleton<IMCRCompletionProvider, MCRCompletionProvider>();
         }
 
         public void Dispose()

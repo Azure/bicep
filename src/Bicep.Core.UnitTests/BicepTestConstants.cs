@@ -17,6 +17,7 @@ using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
 using Moq;
@@ -35,6 +36,8 @@ namespace Bicep.Core.UnitTests
         public static readonly FeatureProviderOverrides FeatureOverrides = new();
 
         public static readonly IAzResourceTypeLoader AzResourceTypeLoader = new AzResourceTypeLoader();
+
+        public static readonly IMCRCompletionProvider MCRCompletionProvider = new MCRCompletionProvider();
 
         public static readonly INamespaceProvider NamespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
 
