@@ -11,11 +11,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Providers
 {
-    public class MCRCompletionProvider : IMCRCompletionProvider
+    public class McrCompletionProvider : IMcrCompletionProvider
     {
         private Dictionary<string, List<string>> moduleNamesWithTags = new();
 
-        public MCRCompletionProvider()
+        public McrCompletionProvider()
         {
             InitializeCache();
         }
@@ -45,9 +45,17 @@ namespace Bicep.LanguageServer.Providers
             return completionItems;
         }
 
-        public List<string> GetTags(string moduleName)
+        public List<CompletionItem> GetTags(string moduleName)
         {
-            return moduleNamesWithTags[moduleName];
+            List<CompletionItem> completionItems = new List<CompletionItem>();
+
+            foreach (var tag in moduleNamesWithTags[moduleName])
+            {
+                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, tag).Build();
+                completionItems.Add(completionItem);
+            }
+
+            return completionItems;
         }
     }
 }

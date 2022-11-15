@@ -192,21 +192,26 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location needs a repository path.
         /// </summary>
-        ModuleReferenceRegistryName = 1 << 36,
+        ModuleReferenceRegistryName = ((ulong)1) << 36,
 
         /// <summary>
         /// The current location needs a repository path.
         /// </summary>
-        ModuleReferenceRepositoryPath = 1 << 37,
+        ModuleReferenceRepositoryPath = ((ulong)1) << 37,
 
         /// <summary>
         /// The current location needs a repository path.
         /// </summary>
-        ModuleRegistryAliasCompletionStart = 1 << 38,
+        ModuleRegistryAliasCompletionStart = ((ulong)1) << 38,
 
         /// <summary>
         /// The current location needs a repository path.
         /// </summary>
-        PublicModuleRegistryStart = 1 << 39,
+        McrPublicModuleRegistryStart = ((ulong)1) << 39,
+
+        /// <summary>
+        /// The current location needs a repository path.
+        /// </summary>
+        McrPublicModuleRegistryTag = ((ulong)1) << 40,
     }
 }

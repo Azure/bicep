@@ -37,7 +37,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IAzResourceTypeLoader AzResourceTypeLoader = new AzResourceTypeLoader();
 
-        public static readonly IMCRCompletionProvider MCRCompletionProvider = new MCRCompletionProvider();
+        public static readonly IMcrCompletionProvider MCRCompletionProvider = new McrCompletionProvider();
 
         public static readonly INamespaceProvider NamespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
 

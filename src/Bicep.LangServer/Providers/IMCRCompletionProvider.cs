@@ -10,9 +10,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Providers
 {
-    public interface IMCRCompletionProvider
+    public interface IMcrCompletionProvider
     {
         List<CompletionItem> GetModuleNames();
-        List<string> GetTags(string moduleName);
+        List<CompletionItem> GetTags(string moduleName);
     }
 }

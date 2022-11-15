@@ -24,6 +24,8 @@ namespace Bicep.LanguageServer.Completions
     {
         //private static readonly Regex BicepSchemaAzureContainerRegistryPath = new Regex(@"'br:[a-zA-Z0-9]+.azurecr.io/'", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
+        private static readonly Regex McrPublicModuleRegistryAliasWithPath = new Regex(@"'br/public:(.*):'", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+
         public record FunctionArgumentContext(
             FunctionCallSyntaxBase Function,
             int ArgumentIndex
@@ -369,7 +371,11 @@ namespace Bicep.LanguageServer.Completions
                     }
                     if (text == "'br/public:'")
                     {
-                        return BicepCompletionContextKind.PublicModuleRegistryStart;
+                        return BicepCompletionContextKind.McrPublicModuleRegistryStart;
+                    }
+                    if (McrPublicModuleRegistryAliasWithPath.IsMatch(text))
+                    {
+                        return BicepCompletionContextKind.McrPublicModuleRegistryTag;
                     }
                 }
 

@@ -14,7 +14,7 @@ using FluentAssertions;
 namespace Bicep.LangServer.UnitTests.Providers
 {
     [TestClass]
-    public class MCRCompletionProviderTests
+    public class McrCompletionProviderTests
     {
         //[TestMethod]
         //public void VerifyGetModuleNames()
@@ -25,15 +25,15 @@ namespace Bicep.LangServer.UnitTests.Providers
         //    moduleNames.Should().NotBeNull();
         //}
 
-        [TestMethod]
-        public void VerifyGetTags()
-        {
-            MCRCompletionProvider mcrCompletionProvider = new MCRCompletionProvider();
-            List<string> tags = mcrCompletionProvider.GetTags("app/dapr-containerapp");
+        //[TestMethod]
+        //public void VerifyGetTags()
+        //{
+        //    McrCompletionProvider mcrCompletionProvider = new McrCompletionProvider();
+        //    List<string> tags = mcrCompletionProvider.GetTags("app/dapr-containerapp");
 
-            tags.Should().NotBeNull();
-            tags.Should().Contain("1.0.1");
-            tags.Should().Contain("1.0.2");
-        }
+        //    tags.Should().NotBeNull();
+        //    tags.Should().Contain("1.0.1");
+        //    tags.Should().Contain("1.0.2");
+        //}
     }
 }

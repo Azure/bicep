@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Azure;
 using Azure.Containers.ContainerRegistry;
 using Azure.Deployments.Core.Comparers;
@@ -30,6 +31,7 @@ using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using static System.Net.Mime.MediaTypeNames;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
@@ -46,12 +48,14 @@ namespace Bicep.LanguageServer.Completions
         private readonly IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
         private readonly INamespaceProvider namespaceProvider;
-        public readonly IMCRCompletionProvider mcrCompletionProvider;
+        public readonly IMcrCompletionProvider mcrCompletionProvider;
 
         private static readonly List<string> BicepRegistryAndTemplateSpecShemaCompletionLabels = new List<string> { "br:", "br/", "ts:", "ts/" };
         private static List<CompletionItem> BicepRegistryAndTemplateSpecShemaCompletionItems = new List<CompletionItem>();
 
-        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, INamespaceProvider namespaceProvider, IMCRCompletionProvider mcrCompletionProvider)
+        private static readonly Regex McrPublicModuleRegistryAliasWithPath = new Regex(@"br/public:(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
+
+        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, INamespaceProvider namespaceProvider, IMcrCompletionProvider mcrCompletionProvider)
         {
             this.FileResolver = fileResolver;
             this.SnippetsProvider = snippetsProvider;
@@ -74,7 +78,8 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetArrayItemCompletions(model, context))
                 .Concat(GetResourceTypeCompletions(model, context))
                 .Concat(GetResourceTypeFollowerCompletions(context))
-                .Concat(GetPublicMCRModuleRegistryCompletions(context))
+                .Concat(GetPublicMcrModuleRegistryCompletions(context))
+                .Concat(GetPublicMcrModuleRegistryTagCompletions(context))
                 .Concat(GetModuleRegistryAliasCompletions(context))
                 .Concat(GetModulePathCompletions(model, context))
                 .Concat(GetModuleBodyCompletions(model, context))
@@ -569,6 +574,12 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ModuleReferenceRegistryName))
             {
+                List<CompletionItem> completions = new List<CompletionItem>();
+                var mcrCompletion = CompletionItemBuilder.Create(CompletionItemKind.Reference, "mcr.microsoft.com/bicep/")
+                    .WithSortText(GetSortText("mcr.microsoft.com/bicep/", CompletionPriority.High))
+                    .Build();
+                completions.Add(mcrCompletion);
+
                 // Create a new ContainerRegistryClient
                 var containerRegistryClientOptions = new ContainerRegistryClientOptions()
                 {
@@ -578,7 +589,7 @@ namespace Bicep.LanguageServer.Completions
                 ContainerRegistryClient client = new ContainerRegistryClient(new Uri("https://bhsubrarg.azurecr.io/"), new DefaultAzureCredential(), containerRegistryClientOptions);
 
                 Pageable<string> repositories = client.GetRepositoryNames();
-                List<CompletionItem> completions = new List<CompletionItem>();
+   
 
                 foreach (string repository in repositories)
                 {
@@ -607,9 +618,30 @@ namespace Bicep.LanguageServer.Completions
             return completionItems;
         }
 
-        private IEnumerable<CompletionItem> GetPublicMCRModuleRegistryCompletions(BicepCompletionContext context)
+        private IEnumerable<CompletionItem> GetPublicMcrModuleRegistryTagCompletions(BicepCompletionContext context)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.PublicModuleRegistryStart))
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.McrPublicModuleRegistryTag))
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            if (context.EnclosingDeclaration is ModuleDeclarationSyntax declarationSyntax &&
+                declarationSyntax.Path is StringSyntax stringSyntax &&
+                stringSyntax.TryGetLiteralValue() is string entered &&
+                McrPublicModuleRegistryAliasWithPath.IsMatch(entered))
+            {
+                var matches = McrPublicModuleRegistryAliasWithPath.Matches(entered);
+                var filePath = matches[0].Groups["filePath"].Value;
+
+                return mcrCompletionProvider.GetTags(filePath);
+            }
+
+            return Enumerable.Empty<CompletionItem>();
+        }
+
+        private IEnumerable<CompletionItem> GetPublicMcrModuleRegistryCompletions(BicepCompletionContext context)
+        {
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.McrPublicModuleRegistryStart))
             {
                 return Enumerable.Empty<CompletionItem>();
             }
