@@ -45,9 +45,6 @@ namespace Bicep.LanguageServer.Completions
         private readonly INamespaceProvider namespaceProvider;
         public readonly IBicepModuleReferenceCompletionProvider bicepModuleReferenceCompletionProvider;
 
-        private static readonly List<string> BicepRegistryAndTemplateSpecShemaCompletionLabels = new List<string> { "br:", "br/", "ts:", "ts/" };
-        private static List<CompletionItem> BicepRegistryAndTemplateSpecShemaCompletionItems = new List<CompletionItem>();
-
         public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, INamespaceProvider namespaceProvider, IBicepModuleReferenceCompletionProvider bicepModuleReferenceCompletionProvider)
         {
             this.FileResolver = fileResolver;
@@ -562,20 +559,6 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private List<CompletionItem> GetBicepRegistryAndTemplateSpecSchemaCompletions()
-        {
-            List<CompletionItem> completionItems = new List<CompletionItem>();
-            foreach (string label in BicepRegistryAndTemplateSpecShemaCompletionLabels)
-            {
-                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, label)
-                    .WithSortText(GetSortText(label, CompletionPriority.High))
-                    .Build();
-                completionItems.Add(completionItem);
-            }
-
-            return completionItems;
-        }
-
         private IEnumerable<CompletionItem> GetModulePathCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.ModulePath))
@@ -591,20 +574,10 @@ namespace Bicep.LanguageServer.Completions
                 entered = "";
             }
 
-            List<CompletionItem> bicepRegistryAndTemplateSpecShemaCompletionItems = new List<CompletionItem>();
-            if (entered == string.Empty)
-            {
-                if (!BicepRegistryAndTemplateSpecShemaCompletionItems.Any())
-                {
-                    BicepRegistryAndTemplateSpecShemaCompletionItems = GetBicepRegistryAndTemplateSpecSchemaCompletions();
-                }
-                bicepRegistryAndTemplateSpecShemaCompletionItems = BicepRegistryAndTemplateSpecShemaCompletionItems;
-            }
-
             // These should only fail if we're not able to resolve cwd path or the entered string
             if (TryGetFilesForPathCompletions(model.SourceFile.FileUri, entered) is not { } fileCompletionInfo)
             {
-                return bicepRegistryAndTemplateSpecShemaCompletionItems;
+                return Enumerable.Empty<CompletionItem>();
             }
 
             var replacementRange = context.EnclosingDeclaration is ModuleDeclarationSyntax module ? module.Path.ToRange(model.SourceFile.LineStarts) : context.ReplacementRange;
@@ -614,7 +587,7 @@ namespace Bicep.LanguageServer.Completions
             var armTemplateFileItems = CreateFileCompletionItems(model.SourceFile.FileUri, replacementRange, fileCompletionInfo, IsArmTemplateFileLike, CompletionPriority.Medium);
             var dirItems = CreateDirectoryCompletionItems(replacementRange, fileCompletionInfo);
 
-            return bicepRegistryAndTemplateSpecShemaCompletionItems.Concat(bicepFileItems).Concat(armTemplateFileItems).Concat(dirItems);
+            return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
 
             // Local functions.
 

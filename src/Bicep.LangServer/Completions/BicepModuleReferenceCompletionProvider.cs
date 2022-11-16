@@ -4,22 +4,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core;
-using System.Text;
-using Bicep.Core.Configuration;
-using Bicep.Core.FileSystem;
-using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
-using Bicep.LanguageServer.Providers;
-using Bicep.LanguageServer.Snippets;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System.Text.RegularExpressions;
-using Microsoft.Azure.Management.ResourceGraph.Models;
-using Microsoft.Azure.Management.ResourceGraph;
-using Newtonsoft.Json.Linq;
 using System.Threading.Tasks;
+using Azure;
+using Azure.Containers.ContainerRegistry;
+using Azure.Core;
+using Azure.Identity;
+using Bicep.Core.Syntax;
+using Bicep.LanguageServer.Providers;
+using Microsoft.Azure.Management.ResourceGraph;
+using Microsoft.Azure.Management.ResourceGraph.Models;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Completions
 {
@@ -30,6 +26,8 @@ namespace Bicep.LanguageServer.Completions
 
         private static readonly List<string> BicepRegistryAndTemplateSpecShemaCompletionLabels = new List<string> { "br:", "br/", "ts:", "ts/" };
         private static List<CompletionItem> BicepRegistryAndTemplateSpecShemaCompletionItems = new List<CompletionItem>();
+
+        private static readonly Regex AcrModuleRegistryPath = new Regex(@"br:(?<registryName>(.*).azurecr.io)/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
         private static readonly Regex McrPublicModuleRegistryAliasWithPath = new Regex(@"br/public:(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
         private static readonly Regex McrPublicModuleRegistryWithoutAliasWithPath = new Regex(@"br:mcr.microsoft.com/bicep/(?<filePath>(.*?)):", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
@@ -43,6 +41,7 @@ namespace Bicep.LanguageServer.Completions
         public async Task<IEnumerable<CompletionItem>> GetFilteredCompletions(Uri templateUri, BicepCompletionContext context)
         {
             return GetPublicMcrModuleRegistryCompletions(context)
+                .Concat(GetAcrModuleRegistryCompletions(context))
                 .Concat(GetPublicMcrModuleRegistryTagCompletions(context))
                 .Concat(GetModuleRegistryAliasCompletions(context))
                 .Concat(GetModulePathCompletions(context))
@@ -64,7 +63,6 @@ namespace Bicep.LanguageServer.Completions
                 entered = "";
             }
 
-            List<CompletionItem> bicepRegistryAndTemplateSpecShemaCompletionItems = new List<CompletionItem>();
             if (entered == string.Empty)
             {
                 if (!BicepRegistryAndTemplateSpecShemaCompletionItems.Any())
@@ -121,6 +119,47 @@ namespace Bicep.LanguageServer.Completions
             return Enumerable.Empty<CompletionItem>();
         }
 
+        private IEnumerable<CompletionItem> GetAcrModuleRegistryCompletions(BicepCompletionContext context)
+        {
+            List<CompletionItem> completions = new List<CompletionItem>();
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.AcrModuleRegistryStart))
+            {
+                return completions;
+            }
+
+            if (context.EnclosingDeclaration is ModuleDeclarationSyntax declarationSyntax &&
+                declarationSyntax.Path is StringSyntax stringSyntax &&
+                stringSyntax.TryGetLiteralValue() is string entered)
+            {
+                if (AcrModuleRegistryPath.IsMatch(entered))
+                {
+                    var matches = AcrModuleRegistryPath.Matches(entered);
+                    var registryName = matches[0].Groups["registryName"].Value;
+
+                    // Create a new ContainerRegistryClient
+                    var containerRegistryClientOptions = new ContainerRegistryClientOptions()
+                    {
+                        Audience = ContainerRegistryAudience.AzureResourceManagerPublicCloud
+                    };
+
+                    var uri = "https://" + registryName + "/";
+
+                    ContainerRegistryClient client = new ContainerRegistryClient(new Uri(uri), new DefaultAzureCredential(), containerRegistryClientOptions);
+
+                    Pageable<string> repositories = client.GetRepositoryNames();
+
+                    foreach (string repository in repositories)
+                    {
+                        completions.Add(CompletionItemBuilder.Create(CompletionItemKind.File, repository)
+                        .WithFilterText(repository)
+                        .WithSortText(GetSortText(repository, CompletionPriority.Medium)).Build());
+                    }
+                }
+            }
+
+            return completions;
+        }
+
         private IEnumerable<CompletionItem> GetPublicMcrModuleRegistryCompletions(BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.McrPublicModuleRegistryStart))
@@ -150,13 +189,13 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ModuleReferenceRegistryName))
             {
+                IEnumerable<CompletionItem> acrCompletions = await GetAcrModuleRegistriesCompletions(templateUri);
+                completions.AddRange(acrCompletions);
+
                 var mcrCompletion = CompletionItemBuilder.Create(CompletionItemKind.Reference, "mcr.microsoft.com/bicep/")
                     .WithSortText(GetSortText("mcr.microsoft.com/bicep/", CompletionPriority.High))
                     .Build();
-                completions.Add(mcrCompletion);
-
-                IEnumerable<CompletionItem> acrCompletions = await GetAcrModuleRegistriesCompletions(templateUri);
-                completions.AddRange(acrCompletions);
+                completions.Insert(0, mcrCompletion);
             }
 
             return completions;
@@ -182,7 +221,9 @@ namespace Bicep.LanguageServer.Completions
                     jToken is not null &&
                     jToken.Value<string>() is string loginServer)
                 {
-                    repositories.Add(CompletionItemBuilder.Create(CompletionItemKind.File, loginServer).WithFilterText(loginServer).Build());
+                    repositories.Add(CompletionItemBuilder.Create(CompletionItemKind.Reference, loginServer)
+                        .WithSortText(GetSortText("mcr.microsoft.com/bicep/", CompletionPriority.Medium))
+                        .WithFilterText(loginServer).Build());
                 }
             }
 

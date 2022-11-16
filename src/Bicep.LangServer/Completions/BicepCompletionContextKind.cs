@@ -213,5 +213,10 @@ namespace Bicep.LanguageServer.Completions
         /// The current location needs a repository path.
         /// </summary>
         McrPublicModuleRegistryTag = ((ulong)1) << 40,
+
+        /// <summary>
+        /// The current location needs a repository path.
+        /// </summary>
+        AcrModuleRegistryStart = ((ulong)1) << 41,
     }
 }
