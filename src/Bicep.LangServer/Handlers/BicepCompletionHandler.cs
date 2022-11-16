@@ -48,20 +48,13 @@ namespace Bicep.LanguageServer.Handlers
                 return new CompletionList();
             }
 
-            var completions1 = await ociArtifactModuleRepositoryCompletionProvider.GetOciArtifactModuleRepositoryPathCompletionsAsync(request.TextDocument.Uri.ToUri());
-
-            if (completions1.Any())
-            {
-                //return new CompletionList(completions1, isIncomplete: false);
-            }
-
             int offset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Position);
             
             var completionContext = BicepCompletionContext.Create(featureProvider, compilationContext.Compilation, offset);
 
             try
             {
-                completions = this.completionProvider.GetFilteredCompletions(compilationContext.Compilation, completionContext);
+                completions = await this.completionProvider.GetFilteredCompletions(compilationContext.Compilation, completionContext);
             }
             catch (Exception e)
             {

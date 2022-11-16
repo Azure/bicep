@@ -12,11 +12,13 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Features;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
@@ -37,8 +39,6 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IAzResourceTypeLoader AzResourceTypeLoader = new AzResourceTypeLoader();
 
-        public static readonly IMcrCompletionProvider MCRCompletionProvider = new McrCompletionProvider();
-
         public static readonly INamespaceProvider NamespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader());
 
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
@@ -46,6 +46,10 @@ namespace Bicep.Core.UnitTests
         public static readonly ITemplateSpecRepositoryFactory TemplateSpecRepositoryFactory = StrictMock.Of<ITemplateSpecRepositoryFactory>().Object;
 
         public static readonly ConfigurationManager ConfigurationManager = CreateFilesystemConfigurationManager();
+
+        public static readonly IMcrCompletionProvider MCRCompletionProvider = new McrCompletionProvider();
+
+        public static readonly IBicepModuleReferenceCompletionProvider BicepModuleReferenceCompletionProvider = new BicepModuleReferenceCompletionProvider(new ServiceClientCredentialsProvider(ConfigurationManager, new TokenCredentialFactory()), new McrCompletionProvider());
 
         public static readonly IFeatureProviderFactory FeatureProviderFactory = new OverriddenFeatureProviderFactory(new FeatureProviderFactory(ConfigurationManager), FeatureOverrides);
 
