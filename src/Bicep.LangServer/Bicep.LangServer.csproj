@@ -16,8 +16,6 @@
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="SharpYaml" Version="2.1.0" />
     <PackageReference Include="Microsoft.Azure.Management.ResourceGraph" Version="2.1.0" />
-    <PackageReference Include="System.Net.Http" Version="4.3.4" />
-    <PackageReference Include="Azure.ResourceManager.ResourceGraph" Version="1.0.0-beta.1" />
   </ItemGroup>
 
   <ItemGroup>

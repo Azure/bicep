@@ -24,15 +24,13 @@ namespace Bicep.LanguageServer.Handlers
         private readonly ICompilationManager compilationManager;
         private readonly ICompletionProvider completionProvider;
         private readonly IFeatureProviderFactory featureProviderFactory;
-        private readonly IOciArtifactModuleRepositoryCompletionProvider ociArtifactModuleRepositoryCompletionProvider;
 
-        public BicepCompletionHandler(ILogger<BicepCompletionHandler> logger, ICompilationManager compilationManager, ICompletionProvider completionProvider, IFeatureProviderFactory featureProviderFactory, IOciArtifactModuleRepositoryCompletionProvider ociArtifactModuleRepositoryCompletionProvider)
+        public BicepCompletionHandler(ILogger<BicepCompletionHandler> logger, ICompilationManager compilationManager, ICompletionProvider completionProvider, IFeatureProviderFactory featureProviderFactory)
         {
             this.logger = logger;
             this.compilationManager = compilationManager;
             this.completionProvider = completionProvider;
             this.featureProviderFactory = featureProviderFactory;
-            this.ociArtifactModuleRepositoryCompletionProvider = ociArtifactModuleRepositoryCompletionProvider;
         }
 
         public override async Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
