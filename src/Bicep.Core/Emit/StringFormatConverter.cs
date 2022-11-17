@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Collections.Immutable;
 using System.Text;
 using Bicep.Core.Syntax;
 
@@ -7,20 +8,19 @@ namespace Bicep.Core.Emit
 {
     public static class StringFormatConverter
     {
-        public static string BuildFormatString(StringSyntax syntax)
+        public static string BuildFormatString(ImmutableArray<string> segmentValues)
         {
             var stringBuilder = new StringBuilder();
-            var values = syntax.SegmentValues;
 
-            for (var i = 0; i < values.Length - 1; i++)
+            for (var i = 0; i < segmentValues.Length - 1; i++)
             {
-                AppendAndEscapeCurlies(stringBuilder, values[i]);
+                AppendAndEscapeCurlies(stringBuilder, segmentValues[i]);
                 stringBuilder.Append('{');
                 stringBuilder.Append(i);
                 stringBuilder.Append('}');
             }
 
-            AppendAndEscapeCurlies(stringBuilder, values[values.Length - 1]);
+            AppendAndEscapeCurlies(stringBuilder, segmentValues[segmentValues.Length - 1]);
 
             return stringBuilder.ToString();
         }
