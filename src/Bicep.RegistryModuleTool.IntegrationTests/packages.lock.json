@@ -100,8 +100,8 @@
       },
       "Azure.Core": {
         "type": "Transitive",
-        "resolved": "1.25.0",
-        "contentHash": "X8Dd4sAggS84KScWIjEbFAdt2U1KDolQopTPoHVubG2y3CM54f9l6asVrP5Uy384NWXjsspPYaJgz5xHc+KvTA==",
+        "resolved": "1.26.0",
+        "contentHash": "fKn/sxuceulRDjdzY1ug2WOrDR9PV7IrTHmP5UrWj2G/qOTCg4dSs3IVIynUJ35kYWpowsKJF4sTmh1QtHTajA==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "1.1.1",
           "System.Diagnostics.DiagnosticSource": "4.6.0",
@@ -158,20 +158,20 @@
       },
       "Azure.ResourceManager": {
         "type": "Transitive",
-        "resolved": "1.3.0",
-        "contentHash": "a3wBS009sQcVB06uWFarsUZSmW0IoT12uaq/AO+WAEGEyf39RLjwLUp56Yq0t5Bmg2aG5Xq5eWzcaZdzuPuRgA==",
+        "resolved": "1.3.2",
+        "contentHash": "Vyo1oLRWPjlZm1mYXK+iwbKMRQpGAgaFwiR8iSAfVsngXuFGlgm91U6yJIDU4xqyhve3nG7vrR4G3DXDHXABPQ==",
         "dependencies": {
-          "Azure.Core": "1.25.0",
+          "Azure.Core": "1.26.0",
           "System.Text.Json": "4.7.2"
         }
       },
       "Azure.ResourceManager.Resources": {
         "type": "Transitive",
-        "resolved": "1.3.0",
-        "contentHash": "a0MOZqfEsMjHTxYP0RmQSTvZooT67alArNmeUlc0DyeQLgJng/HTKGcdIfY4tS7Y1RO8sVf3bFp1gHTqpkZKwQ==",
+        "resolved": "1.3.1",
+        "contentHash": "tF7Ybkz3nz17R9G9rJzoS8yr1D00pODaNV0AGdfJU4TWERzw18vY7TLrh9qTn1P1SXuSd0tkYvzrhw8lJS1Ljg==",
         "dependencies": {
-          "Azure.Core": "1.25.0",
-          "Azure.ResourceManager": "1.3.0",
+          "Azure.Core": "1.26.0",
+          "Azure.ResourceManager": "1.3.2",
           "System.Text.Json": "4.7.2"
         }
       },
@@ -2108,7 +2108,7 @@
           "Azure.Deployments.Expression": "[1.0.750, )",
           "Azure.Deployments.Templates": "[1.0.750, )",
           "Azure.Identity": "[1.7.0, )",
-          "Azure.ResourceManager.Resources": "[1.3.0, )",
+          "Azure.ResourceManager.Resources": "[1.3.1, )",
           "JsonPatch.Net": "[2.0.4, )",
           "JsonPath.Net": "[0.2.1, )",
           "Microsoft.Extensions.Configuration": "[6.0.1, )",
