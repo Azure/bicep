@@ -196,6 +196,36 @@ namespace Bicep.LanguageServer.Completions
         ExpectingImportAsKeyword = 1L << 35,
 
         /// <summary>
+        /// The current location needs a repository path.
+        /// </summary>
+        ModuleReferenceRegistryName = ((ulong)1) << 36,
+
+        /// <summary>
+        /// The current location needs a repository path.
+        /// </summary>
+        ModuleReferenceRepositoryPath = ((ulong)1) << 37,
+
+        /// <summary>
+        /// The current location needs a repository path.
+        /// </summary>
+        ModuleRegistryAliasCompletionStart = ((ulong)1) << 38,
+
+        /// <summary>
+        /// The current location needs a repository path.
+        /// </summary>
+        McrPublicModuleRegistryStart = ((ulong)1) << 39,
+
+        /// <summary>
+        /// The current location needs a repository path.
+        /// </summary>
+        McrPublicModuleRegistryTag = ((ulong)1) << 40,
+
+        /// <summary>
+        /// The current location needs a repository path.
+        /// </summary>
+        AcrModuleRegistryStart = ((ulong)1) << 41,
+
+        /// <summary>
         /// The current location is after the output type.
         /// </summary>
         OutputTypeFollower = 1UL << 36

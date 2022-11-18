@@ -32,7 +32,7 @@ namespace Bicep.LanguageServer.Handlers
             this.featureProviderFactory = featureProviderFactory;
         }
 
-        public override Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
+        public override async Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
         {
             var completions = Enumerable.Empty<CompletionItem>();
 
@@ -42,7 +42,7 @@ namespace Bicep.LanguageServer.Handlers
                 (compilationContext.SourceFileKind == BicepSourceFileKind.ParamsFile && !featureProvider.ParamsFilesEnabled))
             {
                 // no compilation context or this is a param file and params are disabled
-                return Task.FromResult(new CompletionList());
+                return new CompletionList();
             }
 
             int offset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Position);
@@ -51,14 +51,14 @@ namespace Bicep.LanguageServer.Handlers
 
             try
             {
-                completions = this.completionProvider.GetFilteredCompletions(compilationContext.Compilation, completionContext);
+                completions = await this.completionProvider.GetFilteredCompletions(compilationContext.Compilation, completionContext);
             }
             catch (Exception e)
             {
                 this.logger.LogError("Error with Completion in file {Uri} with {Context}. Underlying exception is: {Exception}", request.TextDocument.Uri, completionContext, e.ToString());
             }
 
-            return Task.FromResult(new CompletionList(completions, isIncomplete: false));
+            return new CompletionList(completions, isIncomplete: false);
         }
 
         public override Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken)

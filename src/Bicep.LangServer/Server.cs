@@ -133,7 +133,11 @@ namespace Bicep.LanguageServer
                 .AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>()
                 .AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>()
                 .AddSingleton<IDeploymentFileCompilationCache, DeploymentFileCompilationCache>()
-                .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>();
+                .AddSingleton<IClientCapabilitiesProvider, ClientCapabilitiesProvider>()
+                .AddSingleton<IMcrCompletionProvider, McrCompletionProvider>()
+                .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
+                .AddSingleton<IServiceClientCredentialsProvider, ServiceClientCredentialsProvider>()
+                .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
         }
 
         public void Dispose()
