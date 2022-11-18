@@ -1,16 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.ResourceManager;
+using Bicep.Core.Configuration;
 using Bicep.Core.Tracing;
 using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
@@ -41,10 +42,12 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IDeploymentCollectionProvider deploymentCollectionProvider;
         private readonly IDeploymentOperationsCache deploymentOperationsCache;
         private readonly ITelemetryProvider telemetryProvider;
+        private readonly IConfigurationManager configurationManager;
 
-        public BicepDeploymentStartCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, IDeploymentOperationsCache deploymentOperationsCache, ISerializer serializer, ITelemetryProvider telemetryProvider)
+        public BicepDeploymentStartCommandHandler(IConfigurationManager configurationManager, IDeploymentCollectionProvider deploymentCollectionProvider, IDeploymentOperationsCache deploymentOperationsCache, ISerializer serializer, ITelemetryProvider telemetryProvider)
             : base(LangServerConstants.DeployStartCommand, serializer)
         {
+            this.configurationManager = configurationManager;
             this.deploymentCollectionProvider = deploymentCollectionProvider;
             this.deploymentOperationsCache = deploymentOperationsCache;
             this.telemetryProvider = telemetryProvider;
@@ -54,9 +57,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             PostDeployStartTelemetryEvent(request.deployId);
 
-            var options = new ArmClientOptions();
-            options.Diagnostics.ApplySharedResourceManagerSettings();
-
+            var options = GetArmClientOptions(request.documentPath);
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
             var armClient = new ArmClient(credential, default, options);
 
@@ -80,6 +81,19 @@ namespace Bicep.LanguageServer.Handlers
             PostDeployStartResultTelemetryEvent(request.deployId, bicepDeploymentStartResponse.isSuccess);
 
             return bicepDeploymentStartResponse;
+        }
+
+        private ArmClientOptions GetArmClientOptions(string documentPath)
+        {
+            var documentUri = DocumentUri.FromFileSystemPath(documentPath);
+            var rootConfiguration = configurationManager.GetConfiguration(documentUri.ToUri());
+            var armEnvironment = new ArmEnvironment(rootConfiguration.Cloud.ResourceManagerEndpointUri, rootConfiguration.Cloud.ResourceManagerAudience);
+
+            var options = new ArmClientOptions();
+            options.Environment = armEnvironment;
+            options.Diagnostics.ApplySharedResourceManagerSettings();
+
+            return options;
         }
 
         private void PostDeployStartTelemetryEvent(string deployId)
