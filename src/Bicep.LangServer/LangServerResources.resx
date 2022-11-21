@@ -156,6 +156,9 @@
   <data name="InvalidParameterValueDeploymentFailedMessage" xml:space="preserve">
     <value>Deployment failed for {0}. Please provide a valid value for parameter: {1}</value>
   </data>
+  <data name="InvalidResourceManagerEndpoint" xml:space="preserve">
+    <value>Deployment failed for {0}. There was an issue retrieving ResourceManagerEndpoint.</value>
+  </data>
   <data name="MissingLocationDeploymentFailedMessage" xml:space="preserve">
     <value>Deployment failed for {0}. Please provide a valid location.</value>
   </data>

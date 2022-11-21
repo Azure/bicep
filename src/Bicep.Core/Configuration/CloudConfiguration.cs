@@ -32,9 +32,12 @@ namespace Bicep.Core.Configuration
         public CloudConfiguration(Cloud data, Uri resourceManagerEndpointUri, Uri activeDirectoryAuthorityUri)
             : base(data)
         {
+            this.Profiles = data.Profiles;
             this.ResourceManagerEndpointUri = resourceManagerEndpointUri;
             this.ActiveDirectoryAuthorityUri = activeDirectoryAuthorityUri;
         }
+
+        public ImmutableSortedDictionary<string, CloudProfile> Profiles { get; init; } = ImmutableSortedDictionary<string, CloudProfile>.Empty;
 
         public ImmutableArray<CredentialType> CredentialPrecedence => this.Data.CredentialPrecedence;
 

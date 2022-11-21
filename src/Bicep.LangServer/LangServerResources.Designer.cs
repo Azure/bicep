@@ -169,6 +169,15 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Deployment failed for {0}. There was an issue retrieving ResourceManagerEndpoint..
+        /// </summary>
+        public static string InvalidResourceManagerEndpoint {
+            get {
+                return ResourceManager.GetString("InvalidResourceManagerEndpoint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Deployment failed for {0}. Please provide a valid location..
         /// </summary>
         public static string MissingLocationDeploymentFailedMessage {
