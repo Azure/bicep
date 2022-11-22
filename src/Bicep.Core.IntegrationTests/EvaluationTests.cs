@@ -677,6 +677,48 @@ output testFor array = [for record in testArray: {
         }
 
         /// <summary>
+        /// https://github.com/Azure/bicep/issues/8782
+        /// </summary>
+        [TestMethod]
+        public void Issue8782_2()
+        {
+            var (parameters, _, _) = CompilationHelper.CompileParams(@"
+param testObject = {
+  a: true
+  b: false
+}
+");
+            var result = CompilationHelper.Compile(@"
+param testObject object
+output output1 array = map(
+  items(testObject),
+  subObject => 1 == 2 ? [ 'yes' ] : [ 'no' ]
+)
+output output2 array = map(
+  items(testObject),
+  subObject => subObject.key == 'a' ? [ 'yes' ] : [ 'no' ]
+)");
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template, parameters);
+            evaluated.Should().HaveValueAtPath("$.outputs['output1'].value", JToken.Parse(@"[
+  [
+    ""no""
+  ],
+  [
+    ""no""
+  ]
+]"));
+            evaluated.Should().HaveValueAtPath("$.outputs['output2'].value", JToken.Parse(@"[
+  [
+    ""yes""
+  ],
+  [
+    ""no""
+  ]
+]"));
+        }
+
+        /// <summary>
         /// https://github.com/Azure/bicep/issues/8798
         /// </summary>
         [TestMethod]
