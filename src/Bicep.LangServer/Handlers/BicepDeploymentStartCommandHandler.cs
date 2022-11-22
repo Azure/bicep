@@ -32,7 +32,9 @@ namespace Bicep.LanguageServer.Handlers
         bool parametersFileExists,
         string parametersFileName,
         ParametersFileUpdateOption parametersFileUpdateOption,
-        List<BicepUpdatedDeploymentParameter> updatedDeploymentParameters) : IRequest<string>;
+        List<BicepUpdatedDeploymentParameter> updatedDeploymentParameters,
+        string resourceManagerEndpointUrl,
+        string audience) : IRequest<string>;
 
     public record BicepDeploymentStartResponse(bool isSuccess, string outputMessage, string? viewDeploymentInPortalMessage);
 
@@ -56,6 +58,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var options = new ArmClientOptions();
             options.Diagnostics.ApplySharedResourceManagerSettings();
+            options.Environment = new ArmEnvironment(new Uri(request.resourceManagerEndpointUrl), request.audience);
 
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
             var armClient = new ArmClient(credential, default, options);
