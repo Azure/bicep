@@ -96,7 +96,7 @@ namespace Bicep.LanguageServer.Handlers
             }
         }
 
-        private ArmClientOptions GetArmClientOptions(string documentPath, string environmentName)
+        public ArmClientOptions GetArmClientOptions(string documentPath, string environmentName)
         {
             var documentUri = DocumentUri.FromFileSystemPath(documentPath);
             var rootConfiguration = configurationManager.GetConfiguration(documentUri.ToUri());
