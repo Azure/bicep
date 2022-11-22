@@ -12,14 +12,18 @@ namespace Bicep.Core.Syntax
 {
     public static class SyntaxFactory
     {
-        public static readonly TextSpan EmptySpan = new TextSpan(0, 0);
-
         public static readonly IEnumerable<SyntaxTrivia> EmptyTrivia = Enumerable.Empty<SyntaxTrivia>();
 
-        public static readonly SkippedTriviaSyntax EmptySkippedTrivia = new SkippedTriviaSyntax(EmptySpan, Enumerable.Empty<SyntaxBase>(), Enumerable.Empty<IDiagnostic>());
+        public static readonly SkippedTriviaSyntax EmptySkippedTrivia = new(TextSpan.Nil, Enumerable.Empty<SyntaxBase>(), Enumerable.Empty<IDiagnostic>());
 
-        public static Token CreateToken(TokenType tokenType, string text = "")
-            => new Token(tokenType, EmptySpan, string.IsNullOrEmpty(text) ? TryGetTokenText(tokenType) : text, EmptyTrivia, EmptyTrivia);
+        public static Token CreateToken(TokenType tokenType, string text = "", IEnumerable<SyntaxTrivia>? leadingTrivia = null, IEnumerable<SyntaxTrivia>? trailingTrivia = null)
+        {
+            text = string.IsNullOrEmpty(text) ? TryGetTokenText(tokenType) : text;
+            leadingTrivia ??= EmptyTrivia;
+            trailingTrivia ??= EmptyTrivia;
+
+            return new(tokenType, TextSpan.Nil, text, leadingTrivia, trailingTrivia);
+        }
 
         public static IdentifierSyntax CreateIdentifier(string text) => new(CreateToken(TokenType.Identifier, text));
 
@@ -200,8 +204,8 @@ namespace Bicep.Core.Syntax
 
         public static StringSyntax CreateStringLiteralWithComment(string value, string comment)
         {
-            var trailingTrivia = new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, EmptySpan, $"/*{comment.Replace("*/", "*\\/")}*/");
-            var stringToken = new Token(TokenType.StringComplete, EmptySpan, $"'{EscapeBicepString(value)}'", EmptyTrivia, trailingTrivia.AsEnumerable());
+            var trailingTrivia = new SyntaxTrivia(SyntaxTriviaType.MultiLineComment, TextSpan.Nil, $"/*{comment.Replace("*/", "*\\/")}*/");
+            var stringToken = CreateToken(TokenType.StringComplete, $"'{EscapeBicepString(value)}'", EmptyTrivia, trailingTrivia.AsEnumerable());
 
             return new StringSyntax(stringToken.AsEnumerable(), Enumerable.Empty<SyntaxBase>(), value.AsEnumerable());
         }
@@ -370,14 +374,10 @@ namespace Bicep.Core.Syntax
             }
         }
 
-        public static Token CreateNewLineWithIndent(string indent)
-        {
-            return new Token(
-                TokenType.NewLine,
-                SyntaxFactory.EmptySpan,
-                Environment.NewLine,
-                SyntaxFactory.EmptyTrivia,
-                new SyntaxTrivia[] { new SyntaxTrivia(SyntaxTriviaType.Whitespace, SyntaxFactory.EmptySpan, indent) });
-        }
+        public static Token CreateNewLineWithIndent(string indent) => CreateToken(
+            TokenType.NewLine,
+            Environment.NewLine,
+            SyntaxFactory.EmptyTrivia,
+            new SyntaxTrivia[] { new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, indent) });
     }
 }

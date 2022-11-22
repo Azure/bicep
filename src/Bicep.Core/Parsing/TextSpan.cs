@@ -3,19 +3,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Parsing
 {
-    public class TextSpan : IPositionable, IEquatable<TextSpan>
+    public readonly record struct TextSpan : IPositionable
     {
-        private static readonly Regex TextSpanPattern = new Regex(@"^\[(?<startInclusive>\d+)\:(?<endExclusive>\d+)\]$", RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex TextSpanPattern = new(@"^\[(?<startInclusive>\d+)\:(?<endExclusive>\d+)\]$", RegexOptions.ECMAScript | RegexOptions.Compiled);
+
+        public static readonly TextSpan Nil = new(-1, 0, true);
 
         public static readonly TextSpan TextDocumentStart = new(0, 0);
 
-        public TextSpan(int position, int length)
+        private TextSpan(int position, int length, bool isNil)
         {
-            if (position < 0)
+            if (position < 0 && !isNil)
             {
                 throw new ArgumentException("Position must not be negative.", nameof(position));
             }
@@ -25,13 +28,21 @@ namespace Bicep.Core.Parsing
                 throw new ArgumentException("Length must not be negative.", nameof(length));
             }
 
-            Position = position;
-            Length = length;
+            this.Position = position;
+            this.Length = length;
+        }
+
+        public TextSpan(int position, int length)
+            : this(position, length, false)
+        {
         }
 
         public int Position { get; }
 
         public int Length { get; }
+
+        [JsonIgnore]
+        public bool IsNil => this == Nil;
 
         TextSpan IPositionable.Span => this;
 
@@ -49,24 +60,26 @@ namespace Bicep.Core.Parsing
         /// <returns>the span from the beginning of the first span to the end of the second span</returns>
         public static TextSpan Between(TextSpan a, TextSpan b)
         {
+            if (a.IsNil || b.IsNil)
+            {
+                return Nil;
+            }
+
             if (IsPairInOrder(a, b))
             {
                 return new TextSpan(a.Position, b.Position + b.Length - a.Position);
             }
 
             // the spans are in reverse order - flip them
-            return TextSpan.Between(b, a);
+            return Between(b, a);
         }
 
         /// <summary>
         /// Calculates the span for a sequence of positionables, returning a 0-length span at a fallback position if the sequence is empty.
         /// </summary>
-        public static TextSpan SafeBetween(IEnumerable<IPositionable> positionables, int fallbackPosition)
-        {
-            return positionables.Any() ?
-                TextSpan.Between(positionables.First(), positionables.Last()) :
-                new TextSpan(fallbackPosition, 0);
-        }
+        public static TextSpan SafeBetween(IEnumerable<IPositionable> positionables, int fallbackPosition) => positionables.Any() ?
+            Between(positionables.First(), positionables.Last()) :
+            new TextSpan(fallbackPosition, 0);
 
         /// <summary>
         /// Calculates the span from the beginning of the first object to the end of the 2nd one.
@@ -74,7 +87,7 @@ namespace Bicep.Core.Parsing
         /// <param name="a">The first object</param>
         /// <param name="b">The second object</param>
         /// <returns>the span from the beginning of the first object to the end of the 2nd one</returns>
-        public static TextSpan Between(IPositionable a, IPositionable b) => TextSpan.Between(a.Span, b.Span);
+        public static TextSpan Between(IPositionable a, IPositionable b) => Between(a.Span, b.Span);
 
         /// <summary>
         /// Calculates the span from the end of the first span to the beginning of the second span.
@@ -84,6 +97,11 @@ namespace Bicep.Core.Parsing
         /// <returns>the span from the end of the first span to the beginning of the second span</returns>
         public static TextSpan BetweenExclusive(TextSpan a, TextSpan b)
         {
+            if (a.IsNil || b.IsNil)
+            {
+                return Nil;
+            }
+
             if (IsPairInOrder(a, b))
             {
                 return new TextSpan(a.Position + a.Length, b.Position - (a.Position + a.Length));
@@ -98,12 +116,17 @@ namespace Bicep.Core.Parsing
         /// <param name="a">The first span</param>
         /// <param name="b">The second span</param>
         /// <returns>the span from the end of the first object to the beginning of the second one</returns>
-        public static TextSpan BetweenExclusive(IPositionable a, IPositionable b) => TextSpan.BetweenExclusive(a.Span, b.Span);
+        public static TextSpan BetweenExclusive(IPositionable a, IPositionable b) => BetweenExclusive(a.Span, b.Span);
 
-        public static TextSpan BetweenInclusiveAndExclusive(IPositionable inclusive, IPositionable exclusive) => TextSpan.BetweenInclusiveAndExclusive(inclusive.Span, exclusive.Span);
+        public static TextSpan BetweenInclusiveAndExclusive(IPositionable inclusive, IPositionable exclusive) => BetweenInclusiveAndExclusive(inclusive.Span, exclusive.Span);
 
         public static TextSpan BetweenInclusiveAndExclusive(TextSpan inclusive, TextSpan exclusive)
         {
+            if (inclusive.IsNil || exclusive.IsNil)
+            {
+                return Nil;
+            }
+
             if (IsPairInOrder(inclusive, exclusive))
             {
                 return new TextSpan(inclusive.Position, exclusive.Position - inclusive.Position);
@@ -120,7 +143,7 @@ namespace Bicep.Core.Parsing
         /// </summary>
         /// <param name="a">The first span</param>
         /// <param name="b">The second span</param>
-        public static bool AreOverlapping(IPositionable a, IPositionable b) => TextSpan.AreOverlapping(a.Span, b.Span);
+        public static bool AreOverlapping(IPositionable a, IPositionable b) => AreOverlapping(a.Span, b.Span);
 
         /// <summary>
         /// Checks if the two spans are overlapping.
@@ -129,6 +152,11 @@ namespace Bicep.Core.Parsing
         /// <param name="b">The second span</param>
         public static bool AreOverlapping(TextSpan a, TextSpan b)
         {
+            if (a.IsNil || b.IsNil)
+            {
+                return false;
+            }
+
             if (a.Length == 0 || b.Length == 0)
             {
                 // 0-length spans do not overlap with anything regardless of order
@@ -158,6 +186,11 @@ namespace Bicep.Core.Parsing
         /// <param name="b">The second span</param>
         public static bool AreNeighbors(TextSpan a, TextSpan b)
         {
+            if (a.IsNil || b.IsNil)
+            {
+                return false;
+            }
+
             if (IsPairInOrder(a, b))
             {
                 return a.Position + a.Length == b.Position;
@@ -169,17 +202,17 @@ namespace Bicep.Core.Parsing
 
         public static TextSpan Parse(string text)
         {
-            if (TryParse(text, out TextSpan? span))
+            if (TryParse(text, out TextSpan span))
             {
-                return span!;
+                return span;
             }
 
             throw new FormatException($"The specified text span string '{text}' is not valid.");
         }
 
-        public static bool TryParse(string? text, out TextSpan? span)
+        public static bool TryParse(string? text, out TextSpan span)
         {
-            span = null;
+            span = Nil;
 
             if (text == null)
             {
@@ -226,32 +259,5 @@ namespace Bicep.Core.Parsing
         /// <param name="after">The sequence of nullable positionables</param>
         public static IPositionable LastNonNull(IPositionable first, params IPositionable?[] after)
             => after.LastOrDefault(x => x is not null) ?? first;
-
-        public bool Equals(TextSpan? other)
-        {
-            if (other == null)
-            {
-                return false;
-            }
-
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
-            return Position == other.Position && Length == other.Length;
-        }
-
-        public override bool Equals(object? obj) => Equals(obj as TextSpan);
-
-        public override int GetHashCode()
-        {
-            // was generated by R# for improved distribution of hashcodes
-            // see https://stackoverflow.com/questions/102742/why-is-397-used-for-resharper-gethashcode-override for explanation
-            unchecked
-            {
-                return (Position * 397) ^ Length;
-            }
-        }
     }
 }

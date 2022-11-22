@@ -20,7 +20,7 @@ namespace Bicep.Core.UnitTests.Syntax
         {
             var hierarchy = new SyntaxHierarchy();
             Action fail = () => hierarchy.GetParent(TestSyntaxFactory.CreateNull());
-            fail.Should().Throw<ArgumentException>().WithMessage("Unable to determine parent of specified node of type 'NullLiteralSyntax' at span '[0:0]' because it has not been indexed.");
+            fail.Should().Throw<ArgumentException>().WithMessage("Unable to determine parent of specified node of type 'NullLiteralSyntax' at span '[-1:-1]' because it has not been indexed.");
         }
 
         [TestMethod]

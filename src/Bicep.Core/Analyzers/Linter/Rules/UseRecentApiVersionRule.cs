@@ -110,7 +110,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     model.ApiVersionProvider,
                     today,
                     errorSpan: functionCallInfo.FunctionCallSyntax.Span,
-                    replacementSpan: null,
+                    replacementSpan: TextSpan.Nil,
                     model.TargetScope,
                     functionCallInfo.ResourceType,
                     functionCallInfo.ApiVersion.Value,
@@ -325,7 +325,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return null;
         }
 
-        public static Failure? AnalyzeApiVersion(IApiVersionProvider apiVersionProvider, DateTime today, TextSpan errorSpan, TextSpan? replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, ApiVersion actualApiVersion, bool returnNotFoundDiagnostics)
+        public static Failure? AnalyzeApiVersion(IApiVersionProvider apiVersionProvider, DateTime today, TextSpan errorSpan, TextSpan replacementSpan, ResourceScope scope, string fullyQualifiedResourceType, ApiVersion actualApiVersion, bool returnNotFoundDiagnostics)
         {
             var (allApiVersions, acceptableApiVersions) = GetAcceptableApiVersions(apiVersionProvider, today, MaxAllowedAgeInDays, scope, fullyQualifiedResourceType);
             if (!allApiVersions.Any())
@@ -481,10 +481,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return new Failure(span, message, Array.Empty<ApiVersion>(), Array.Empty<CodeFix>());
         }
 
-        private static Failure CreateFailureFromApiVersion(TextSpan errorSpan, TextSpan? replacementSpan, string message, ApiVersion[] acceptableVersionsSorted)
+        private static Failure CreateFailureFromApiVersion(TextSpan errorSpan, TextSpan replacementSpan, string message, ApiVersion[] acceptableVersionsSorted)
         {
             CodeFix? fix = null;
-            if (replacementSpan is not null)
+
+            if (!replacementSpan.IsNil)
             {
                 // For now, always choose the most recent for the suggested auto-fix
                 var preferredVersion = acceptableVersionsSorted[0];
