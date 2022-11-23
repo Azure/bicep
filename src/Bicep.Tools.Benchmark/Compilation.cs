@@ -24,11 +24,7 @@ public class Compilation
 
     private static BenchmarkData CreateBenchmarkData()
     {
-        var files = DataSet.ReadDataSetDictionary("Files");
-
-        var fileSystem = new MockFileSystem(files.ToDictionary(
-            x => x.Key,
-            x => new MockFileData(x.Value)));
+        var fileSystem = FileHelper.CreateMockFileSystemForEmbeddedFiles(typeof(DataSet).Assembly, "Files");
 
         var dataSets = DataSets.AllDataSets
             .Where(x => !x.HasRegistryModules)
