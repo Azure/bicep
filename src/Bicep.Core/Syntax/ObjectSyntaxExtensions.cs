@@ -208,19 +208,15 @@ namespace Bicep.Core.Syntax
                 children.Add(newChild);
             }
 
-            children.Add(new Token(
-                TokenType.NewLine,
-                SyntaxFactory.EmptySpan,
-                Environment.NewLine,
-                lastNode?.LeadingTrivia ?? ImmutableArray<SyntaxTrivia>.Empty,
-                lastNode?.TrailingTrivia ?? ImmutableArray<SyntaxTrivia>.Empty));
+
+            children.Add(SyntaxFactory.CreateToken(TokenType.NewLine, Environment.NewLine, lastNode?.LeadingTrivia, lastNode?.TrailingTrivia));
 
             return new ObjectSyntax(objectSyntax.OpenBrace, children, objectSyntax.CloseBrace);
         }
 
         public static string GetBodyIndentation(this ObjectSyntax sourceObject)
         {
-            string? GetIndent(SyntaxBase syntax)
+            static string? GetIndent(SyntaxBase syntax)
             {
                 if (syntax is Token { Type: TokenType.NewLine, TrailingTrivia: { Length: 1 } leadingTrivia } &&
                     leadingTrivia[0].Type == SyntaxTriviaType.Whitespace)

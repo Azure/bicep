@@ -10,17 +10,11 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
 {
-    public record SourceMap(
-        string Entrypoint,
-        ImmutableArray<SourceMapFileEntry> Entries);
+    public record SourceMap(string Entrypoint, ImmutableArray<SourceMapFileEntry> Entries);
 
-    public record SourceMapFileEntry(
-        string FilePath,
-        ImmutableArray<SourceMapEntry> SourceMap);
+    public record SourceMapFileEntry(string FilePath, ImmutableArray<SourceMapEntry> SourceMap);
 
-    public record SourceMapEntry(
-        int SourceLine,
-        int TargetLine);
+    public readonly record struct SourceMapEntry(int SourceLine, int TargetLine);
 
     public class SourceAwareJsonTextWriter : JsonTextWriter
     {
