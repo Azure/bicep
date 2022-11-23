@@ -269,7 +269,7 @@ param negativeValues int
 //@[202:202]           123
     ]
 })
-param decoratedBool bool = (true && false) != true
+param decoratedBool bool = /* comment1 */ /* comment2*/      /* comment3 */ /* comment4 */ (true && false) != true
 //@[193:205]     "decoratedBool": {
 
 @secure()

@@ -172,7 +172,7 @@ param negativeValues int
         123
     ]
 })
-param decoratedBool bool = (true && false) != true
+param decoratedBool bool = /* comment1 */ /* comment2*/      /* comment3 */ /* comment4 */ (true && false) != true
 
 @secure()
 param decoratedObject object = {
