@@ -311,7 +311,6 @@ namespace Bicep.Core.Parsing
                 else if (textWindow.Peek() == '/' && textWindow.Peek(1) == '*')
                 {
                     yield return ScanMultiLineComment();
-                    yield break;
                 }
                 else if (textWindow.Peek() == '#' &&
                     CheckAdjacentText(LanguageConstants.DisableNextLineDiagnosticsKeyword) &&

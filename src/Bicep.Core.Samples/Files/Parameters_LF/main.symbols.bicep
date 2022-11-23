@@ -199,8 +199,8 @@ param negativeValues int
         123
     ]
 })
-param decoratedBool bool = (true && false) != true
-//@[6:19) Parameter decoratedBool. Type: bool. Declaration start char: 0, length: 219
+param decoratedBool bool = /* comment1 */ /* comment2*/      /* comment3 */ /* comment4 */ (true && false) != true
+//@[6:19) Parameter decoratedBool. Type: bool. Declaration start char: 0, length: 283
 
 @secure()
 param decoratedObject object = {

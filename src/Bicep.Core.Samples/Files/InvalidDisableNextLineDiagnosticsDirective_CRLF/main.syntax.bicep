@@ -72,8 +72,7 @@ param storageAccount3 string = 'testStorageAccount'
 //@[51:055) ├─Token(NewLine) |\r\n\r\n|
 
 #disable-next-line/* comment between */ no-unused-params
-//@[39:056) ├─SkippedTriviaSyntax
-//@[39:040) | ├─Token(Unrecognized) | |
+//@[40:056) ├─SkippedTriviaSyntax
 //@[40:042) | ├─Token(Identifier) |no|
 //@[42:043) | ├─Token(Minus) |-|
 //@[43:049) | ├─Token(Identifier) |unused|

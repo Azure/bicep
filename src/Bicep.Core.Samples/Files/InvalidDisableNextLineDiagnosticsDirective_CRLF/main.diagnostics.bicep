@@ -17,8 +17,7 @@ param storageAccount3 string = 'testStorageAccount'
 
 #disable-next-line/* comment between */ no-unused-params
 //@[18:18) [BCP226 (Error)] Expected at least one diagnostic code at this location. Valid format is "#disable-next-line diagnosticCode1 diagnosticCode2 ..." (CodeDescription: none) ||
-//@[39:40) [BCP001 (Error)] The following token is not recognized: " ". (CodeDescription: none) | |
-//@[39:40) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) | |
+//@[40:42) [BCP007 (Error)] This declaration type is not recognized. Specify a metadata, parameter, variable, resource, or output declaration. (CodeDescription: none) |no|
 param storageAccount4 string = 'testStorageAccount'
 //@[06:21) [no-unused-params (Warning)] Parameter "storageAccount4" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |storageAccount4|
 

@@ -51,7 +51,6 @@ param storageAccount3 string = 'testStorageAccount'
 //@[51:55) NewLine |\r\n\r\n|
 
 #disable-next-line/* comment between */ no-unused-params
-//@[39:40) Unrecognized | |
 //@[40:42) Identifier |no|
 //@[42:43) Minus |-|
 //@[43:49) Identifier |unused|
