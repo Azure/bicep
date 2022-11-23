@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Completions.SyntaxPatterns
 {
-    public class AncestorsCollector : SyntaxVisitor
+    public class AncestorsCollector : AstVisitor
     {
         private readonly int offset;
 

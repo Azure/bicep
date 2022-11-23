@@ -12,7 +12,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.PrettyPrint
 {
-    public class DocumentBuildVisitor : SyntaxVisitor
+    public class DocumentBuildVisitor : AstVisitor
     {
         private static readonly ILinkedDocument Nil = new NilDocument();
 

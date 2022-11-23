@@ -39,7 +39,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return visitor.diagnostics;
         }
 
-        private class ResourceVisitor : SyntaxVisitor
+        private class ResourceVisitor : AstVisitor
         {
             public List<IDiagnostic> diagnostics = new();
 

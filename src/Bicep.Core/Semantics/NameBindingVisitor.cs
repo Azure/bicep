@@ -14,7 +14,7 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public sealed class NameBindingVisitor : SyntaxVisitor
+    public sealed class NameBindingVisitor : AstVisitor
     {
         private FunctionFlags allowedFlags;
 

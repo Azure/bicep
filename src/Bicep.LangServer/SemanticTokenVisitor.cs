@@ -13,7 +13,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer
 {
-    public class SemanticTokenVisitor : SyntaxVisitor
+    public class SemanticTokenVisitor : AstVisitor
     {
         private readonly SemanticModel model;
         private readonly List<(IPositionable positionable, SemanticTokenType tokenType)> tokens = new();

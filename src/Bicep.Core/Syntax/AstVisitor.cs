@@ -7,7 +7,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public abstract class SyntaxVisitor : ISyntaxVisitor
+    public abstract class AstVisitor : ISyntaxVisitor
     {
         public void Visit(SyntaxBase? node)
         {

@@ -11,7 +11,7 @@ using Bicep.Core.Utils;
 
 namespace Bicep.Core.TypeSystem
 {
-    public sealed class CyclicCheckVisitor : SyntaxVisitor
+    public sealed class CyclicCheckVisitor : AstVisitor
     {
         private readonly IReadOnlyDictionary<SyntaxBase, Symbol> bindings;
 

@@ -8,7 +8,7 @@ using static Bicep.Core.Semantics.ResourceAncestorGraph;
 
 namespace Bicep.Core.Semantics
 {
-    public sealed class ResourceAncestorVisitor : SyntaxVisitor
+    public sealed class ResourceAncestorVisitor : AstVisitor
     {
         private readonly SemanticModel semanticModel;
         private readonly ImmutableDictionary<DeclaredResourceMetadata, ResourceAncestor>.Builder ancestry;

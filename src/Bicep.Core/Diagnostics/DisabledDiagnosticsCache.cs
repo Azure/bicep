@@ -37,7 +37,7 @@ namespace Bicep.Core.Diagnostics
             return visitor.GetDisableNextLineDiagnosticDirectivesCache();
         }
 
-        private class SyntaxTriviaVisitor : SyntaxVisitor
+        private class SyntaxTriviaVisitor : AstVisitor
         {
             private ImmutableArray<int> lineStarts;
             private ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes>.Builder disableNextLineDiagnosticDirectivesCacheBuilder = ImmutableDictionary.CreateBuilder<int, DisableNextLineDirectiveEndPositionAndCodes>();

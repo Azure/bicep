@@ -43,7 +43,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public override string FormatMessage(params object[] values)
             => string.Format(CoreResources.UseStableResourceIdentifiersMessageFormat, values);
 
-        private class Visitor : SyntaxVisitor
+        private class Visitor : AstVisitor
         {
             private static readonly IReadOnlySet<string> NonDeterministicFunctionNames = new HashSet<string>
             {

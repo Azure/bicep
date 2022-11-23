@@ -21,7 +21,7 @@ namespace Bicep.Core.Navigation
             return visitor.Result;
         }
 
-        private sealed class NavigationSearchVisitor : SyntaxVisitor
+        private sealed class NavigationSearchVisitor : AstVisitor
         {
             private readonly int offset;
             private readonly Func<SyntaxTrivia, bool> predicate;

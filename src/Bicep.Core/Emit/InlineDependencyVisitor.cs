@@ -11,7 +11,7 @@ using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.Emit
 {
-    public class InlineDependencyVisitor : SyntaxVisitor
+    public class InlineDependencyVisitor : AstVisitor
     {
         private enum Decision
         {

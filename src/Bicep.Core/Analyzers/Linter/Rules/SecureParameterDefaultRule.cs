@@ -55,7 +55,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private class NewGuidVisitor : SyntaxVisitor
+        private class NewGuidVisitor : AstVisitor
         {
             public bool hasNewGuid = false;
 

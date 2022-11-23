@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace Bicep.Core.Emit
 {
-    public class FunctionPlacementValidatorVisitor : SyntaxVisitor
+    public class FunctionPlacementValidatorVisitor : AstVisitor
     {
         private enum VisitedElement
         {

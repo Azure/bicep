@@ -64,7 +64,7 @@ namespace Bicep.Core.TypeSystem
         };
 
 
-        private class VariableDependencyVisitor : SyntaxVisitor
+        private class VariableDependencyVisitor : AstVisitor
         {
             private readonly SemanticModel semanticModel;
 

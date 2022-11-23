@@ -27,7 +27,7 @@ namespace Bicep.LangServer.IntegrationTests.Completions
             return triggers;
         }
 
-        private sealed class CompletionTriggerCollector : SyntaxVisitor
+        private sealed class CompletionTriggerCollector : AstVisitor
         {
             private static readonly Regex TriggerPattern = new Regex(@"#\s*completionTest\s*\(\s*(?<char>\d+)\s*(,\s*(?<char>\d+)\s*)*\)\s*->\s*(?<set>\w+)", RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant);
 

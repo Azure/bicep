@@ -6,7 +6,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.UnitTests.Parsing
 {
-    public sealed class ExpressionTestVisitor : SyntaxVisitor
+    public sealed class ExpressionTestVisitor : AstVisitor
     {
         private readonly StringBuilder buffer;
 

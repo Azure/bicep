@@ -20,7 +20,7 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.TypeSystem
 {
-    public sealed class TypeAssignmentVisitor : SyntaxVisitor
+    public sealed class TypeAssignmentVisitor : AstVisitor
     {
         private readonly IFeatureProvider features;
         private readonly ITypeManager typeManager;
