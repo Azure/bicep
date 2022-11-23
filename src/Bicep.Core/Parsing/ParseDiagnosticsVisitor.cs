@@ -11,7 +11,7 @@ namespace Bicep.Core.Parsing
     /// <summary>
     /// Visitor responsible for collecting all the parse diagnostics from the parse tree.
     /// </summary>
-    public class ParseDiagnosticsVisitor : AstVisitor
+    public class ParseDiagnosticsVisitor : CstVisitor
     {
         private readonly IDiagnosticWriter diagnosticWriter;
 

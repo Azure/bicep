@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Completions.SyntaxPatterns
 {
-    public class LeftSiblingsCollector : AstVisitor
+    public class LeftSiblingsCollector : CstVisitor
     {
         private readonly int offset;
 

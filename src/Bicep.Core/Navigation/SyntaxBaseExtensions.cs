@@ -25,7 +25,7 @@ namespace Bicep.Core.Navigation
             return visitor.Result;
         }
 
-        private sealed class NavigationSearchVisitor : AstVisitor
+        private sealed class NavigationSearchVisitor : CstVisitor
         {
             private readonly int offset;
             private readonly Func<SyntaxBase, bool> predicate;
@@ -89,7 +89,7 @@ namespace Bicep.Core.Navigation
             return sb.ToString();
         }
 
-        private class PrintVisitor : AstVisitor
+        private class PrintVisitor : CstVisitor
         {
             private readonly StringBuilder buffer;
 
