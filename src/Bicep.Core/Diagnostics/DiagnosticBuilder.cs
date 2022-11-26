@@ -1754,6 +1754,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP308",
                 $@"The decorator ""{decoratorName}"" may not be used on statements whose declared type is a reference to a user-defined type.");
+
+            public ErrorDiagnostic ValueCannotBeFlattened(TypeSymbol unflattenableValueType) => new(
+                TextSpan,
+                "BCP309",
+                $@"Values of type ""{unflattenableValueType.Name}"" cannot be flattened.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
