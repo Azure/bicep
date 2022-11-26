@@ -106,39 +106,43 @@ var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, 
 //@[117:118) RightParen |)|
 //@[118:120) NewLine |\n\n|
 
-var flattenedArrayOfArrays = flatten([0, 1], [2, 3], [4, 5])
+var flattenedArrayOfArrays = flatten([[0, 1], [2, 3], [4, 5]])
 //@[000:003) Identifier |var|
 //@[004:026) Identifier |flattenedArrayOfArrays|
 //@[027:028) Assignment |=|
 //@[029:036) Identifier |flatten|
 //@[036:037) LeftParen |(|
 //@[037:038) LeftSquare |[|
-//@[038:039) Integer |0|
-//@[039:040) Comma |,|
-//@[041:042) Integer |1|
-//@[042:043) RightSquare |]|
-//@[043:044) Comma |,|
-//@[045:046) LeftSquare |[|
-//@[046:047) Integer |2|
-//@[047:048) Comma |,|
-//@[049:050) Integer |3|
-//@[050:051) RightSquare |]|
-//@[051:052) Comma |,|
-//@[053:054) LeftSquare |[|
-//@[054:055) Integer |4|
-//@[055:056) Comma |,|
-//@[057:058) Integer |5|
-//@[058:059) RightSquare |]|
-//@[059:060) RightParen |)|
-//@[060:061) NewLine |\n|
-var flattenedEmptyArray = flatten()
+//@[038:039) LeftSquare |[|
+//@[039:040) Integer |0|
+//@[040:041) Comma |,|
+//@[042:043) Integer |1|
+//@[043:044) RightSquare |]|
+//@[044:045) Comma |,|
+//@[046:047) LeftSquare |[|
+//@[047:048) Integer |2|
+//@[048:049) Comma |,|
+//@[050:051) Integer |3|
+//@[051:052) RightSquare |]|
+//@[052:053) Comma |,|
+//@[054:055) LeftSquare |[|
+//@[055:056) Integer |4|
+//@[056:057) Comma |,|
+//@[058:059) Integer |5|
+//@[059:060) RightSquare |]|
+//@[060:061) RightSquare |]|
+//@[061:062) RightParen |)|
+//@[062:063) NewLine |\n|
+var flattenedEmptyArray = flatten([])
 //@[000:003) Identifier |var|
 //@[004:023) Identifier |flattenedEmptyArray|
 //@[024:025) Assignment |=|
 //@[026:033) Identifier |flatten|
 //@[033:034) LeftParen |(|
-//@[034:035) RightParen |)|
-//@[035:037) NewLine |\n\n|
+//@[034:035) LeftSquare |[|
+//@[035:036) RightSquare |]|
+//@[036:037) RightParen |)|
+//@[037:039) NewLine |\n\n|
 
 var mapSayHi = map(['abc', 'def', 'ghi'], foo => 'Hi ${foo}!')
 //@[000:003) Identifier |var|

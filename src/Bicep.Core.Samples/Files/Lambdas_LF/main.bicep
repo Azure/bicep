@@ -13,8 +13,8 @@ var isEven = filter(numbers, i => 0 == i % 2)
 
 var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, j => 0 == j % 2), i)), x => doggos[x])
 
-var flattenedArrayOfArrays = flatten([0, 1], [2, 3], [4, 5])
-var flattenedEmptyArray = flatten()
+var flattenedArrayOfArrays = flatten([[0, 1], [2, 3], [4, 5]])
+var flattenedEmptyArray = flatten([])
 
 var mapSayHi = map(['abc', 'def', 'ghi'], foo => 'Hi ${foo}!')
 var mapEmpty = map([], foo => 'Hi ${foo}!')

@@ -23,10 +23,10 @@ var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, 
 //@[103:104) Local x. Type: int. Declaration start char: 103, length: 1
 //@[004:027) Variable evenDoggosNestedLambdas. Type: ('Casper' | 'Evie' | 'Indy' | 'Kira')[]. Declaration start char: 0, length: 118
 
-var flattenedArrayOfArrays = flatten([0, 1], [2, 3], [4, 5])
-//@[004:026) Variable flattenedArrayOfArrays. Type: array. Declaration start char: 0, length: 60
-var flattenedEmptyArray = flatten()
-//@[004:023) Variable flattenedEmptyArray. Type: array. Declaration start char: 0, length: 35
+var flattenedArrayOfArrays = flatten([[0, 1], [2, 3], [4, 5]])
+//@[004:026) Variable flattenedArrayOfArrays. Type: array. Declaration start char: 0, length: 62
+var flattenedEmptyArray = flatten([])
+//@[004:023) Variable flattenedEmptyArray. Type: array. Declaration start char: 0, length: 37
 
 var mapSayHi = map(['abc', 'def', 'ghi'], foo => 'Hi ${foo}!')
 //@[042:045) Local foo. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 42, length: 3
@@ -43,10 +43,10 @@ var mapObject = map(range(0, length(doggos)), i => {
 })
 var mapArray = flatten(map(range(1, 3), i => [i * 2, (i * 2) + 1]))
 //@[040:041) Local i. Type: int. Declaration start char: 40, length: 1
-//@[004:012) Variable mapArray. Type: array. Declaration start char: 0, length: 67
+//@[004:012) Variable mapArray. Type: int[]. Declaration start char: 0, length: 67
 var mapMultiLineArray = flatten(map(range(1, 3), i => [
 //@[049:050) Local i. Type: int. Declaration start char: 49, length: 1
-//@[004:021) Variable mapMultiLineArray. Type: array. Declaration start char: 0, length: 95
+//@[004:021) Variable mapMultiLineArray. Type: int[]. Declaration start char: 0, length: 95
   i * 3
   (i * 3) + 1
   (i * 3) + 2
