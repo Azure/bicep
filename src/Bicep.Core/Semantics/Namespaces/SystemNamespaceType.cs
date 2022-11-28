@@ -863,12 +863,14 @@ namespace Bicep.Core.Semantics.Namespaces
         private static TypeSymbol GetFlattenReturnType(TypeSymbol typeToFlatten, IPositionable argumentPosition)
         {
             static TypeSymbol FlattenUnionOfArrays(UnionType unionType, IPositionable argumentPosition) => UnionOfFlattened(
+                unionType,
                 unionType.Members.Select(typeRef => GetFlattenReturnType(typeRef.Type, argumentPosition)),
                 argumentPosition);
 
-            static TypeSymbol FlattenArrayOfUnion(UnionType itemUnion, IPositionable argumentPosition) => UnionOfFlattened(itemUnion.Members, argumentPosition);
+            static TypeSymbol FlattenArrayOfUnion(TypeSymbol flattenInputType, UnionType itemUnion, IPositionable argumentPosition)
+                => UnionOfFlattened(flattenInputType, itemUnion.Members, argumentPosition);
 
-            static TypeSymbol UnionOfFlattened(IEnumerable<ITypeReference> toFlatten, IPositionable argumentPosition)
+            static TypeSymbol UnionOfFlattened(TypeSymbol flattenInputType, IEnumerable<ITypeReference> toFlatten, IPositionable argumentPosition)
             {
                 List<ITypeReference> flattenedMembers = new();
                 TypeSymbolValidationFlags flattenedFlags = TypeSymbolValidationFlags.Default;
@@ -891,7 +893,7 @@ namespace Bicep.Core.Semantics.Namespaces
                             }
                             break;
                         default:
-                            errors.Add(ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(new TypedArrayType(member, default))));
+                            errors.Add(ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(flattenInputType, member.Type)));
                             break;
                     }
                 }
@@ -908,10 +910,11 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 AnyType => LanguageConstants.Array,
                 UnionType unionType => FlattenUnionOfArrays(unionType, argumentPosition),
-                ArrayType arrayType when arrayType.Item.Type is UnionType itemUnion => FlattenArrayOfUnion(itemUnion, argumentPosition),
+                ArrayType arrayType when arrayType.Item.Type is UnionType itemUnion => FlattenArrayOfUnion(arrayType, itemUnion, argumentPosition),
                 ArrayType arrayType when ReferenceEquals(arrayType.Item, LanguageConstants.Any) => LanguageConstants.Array,
                 ArrayType arrayType when TypeValidator.AreTypesAssignable(arrayType.Item.Type, LanguageConstants.Array) => arrayType.Item.Type,
-                _ => ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(typeToFlatten)),
+                ArrayType arrayType => ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(arrayType, arrayType.Item.Type)),
+                _ => ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(typeToFlatten, typeToFlatten)),
             };
         }
 

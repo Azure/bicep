@@ -179,19 +179,19 @@ namespace Bicep.Core.UnitTests.TypeSystem
         private static IEnumerable<object[]> GetFlattenNegativeTestCases() => new[]
         {
             // flatten(string[]) -> <error>
-            new object[] { new TypedArrayType(LanguageConstants.String, default), @"Values of type ""string[]"" cannot be flattened." },
+            new object[] { new TypedArrayType(LanguageConstants.String, default), @"Values of type ""string[]"" cannot be flattened because ""string"" is not an array type." },
             // flatten((string[] | string)[]) -> <error>
-            new object[] { new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.String), default), @"Values of type ""string[]"" cannot be flattened." },
+            new object[] { new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.String), default), @"Values of type ""(string | string[])[]"" cannot be flattened because ""string"" is not an array type." },
             // flatten((string[] | string | int)[]) -> <error>
             new object[] {
                 new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.String, LanguageConstants.Int), default),
-                @"Values of type ""int[]"" cannot be flattened.",
-                @"Values of type ""string[]"" cannot be flattened.",
+                @"Values of type ""(int | string | string[])[]"" cannot be flattened because ""int"" is not an array type.",
+                @"Values of type ""(int | string | string[])[]"" cannot be flattened because ""string"" is not an array type.",
             },
             // flatten(string[][] | bool[]) -> <error>
             new object[] {
                 TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(LanguageConstants.Bool, default)),
-                @"Values of type ""bool[]"" cannot be flattened.",
+                @"Values of type ""bool[]"" cannot be flattened because ""bool"" is not an array type.",
             },
         };
 
