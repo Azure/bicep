@@ -16,9 +16,9 @@ var isEven = filter(numbers, i => 0 == i % 2)
 var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, j => 0 == j % 2), i)), x => doggos[x])
 //@[04:27) [no-unused-vars (Warning)] Variable "evenDoggosNestedLambdas" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |evenDoggosNestedLambdas|
 
-var flattenedArrayOfArrays = flatten([0, 1], [2, 3], [4, 5])
+var flattenedArrayOfArrays = flatten([[0, 1], [2, 3], [4, 5]])
 //@[04:26) [no-unused-vars (Warning)] Variable "flattenedArrayOfArrays" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |flattenedArrayOfArrays|
-var flattenedEmptyArray = flatten()
+var flattenedEmptyArray = flatten([])
 //@[04:23) [no-unused-vars (Warning)] Variable "flattenedEmptyArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |flattenedEmptyArray|
 
 var mapSayHi = map(['abc', 'def', 'ghi'], foo => 'Hi ${foo}!')

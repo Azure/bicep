@@ -22,10 +22,10 @@ var isEven = filter(numbers, i => 0 == i % 2)
 var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, j => 0 == j % 2), i)), x => doggos[x])
 //@[27:27]     "evenDoggosNestedLambdas": "[map(filter(variables('numbers'), lambda('i', contains(filter(variables('numbers'), lambda('j', equals(0, mod(lambdaVariables('j'), 2)))), lambdaVariables('i')))), lambda('x', variables('doggos')[lambdaVariables('x')]))]",
 
-var flattenedArrayOfArrays = flatten([0, 1], [2, 3], [4, 5])
-//@[28:28]     "flattenedArrayOfArrays": "[flatten(createArray(0, 1), createArray(2, 3), createArray(4, 5))]",
-var flattenedEmptyArray = flatten()
-//@[29:29]     "flattenedEmptyArray": "[flatten()]",
+var flattenedArrayOfArrays = flatten([[0, 1], [2, 3], [4, 5]])
+//@[28:28]     "flattenedArrayOfArrays": "[flatten(createArray(createArray(0, 1), createArray(2, 3), createArray(4, 5)))]",
+var flattenedEmptyArray = flatten([])
+//@[29:29]     "flattenedEmptyArray": "[flatten(createArray())]",
 
 var mapSayHi = map(['abc', 'def', 'ghi'], foo => 'Hi ${foo}!')
 //@[30:30]     "mapSayHi": "[map(createArray('abc', 'def', 'ghi'), lambda('foo', format('Hi {0}!', lambdaVariables('foo'))))]",

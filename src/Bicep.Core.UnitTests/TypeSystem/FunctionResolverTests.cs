@@ -13,6 +13,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -105,23 +106,96 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetStringLiteralTransformations), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
-        public void StringLiteralTransformationsYieldStringLiteralReturnType(string displayName, string functionName, IList<TypeSymbol> argumentTypes, FunctionArgumentSyntax[] arguments, TypeSymbol expectedReturnType)
+        [DynamicData(nameof(GetLiteralTransformations), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        public void LiteralTransformationsYieldLiteralReturnType(string displayName, string functionName, IList<TypeSymbol> argumentTypes, FunctionArgumentSyntax[] arguments, TypeSymbol expectedReturnType)
+        {
+            EvaluateFunction(functionName, argumentTypes, arguments).Type.Should().Be(expectedReturnType);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetInputsThatFlattenToArrayOfAny), DynamicDataSourceType.Method)]
+        public void ShouldFlattenToArrayOfAny(TypeSymbol typeToFlatten)
+        {
+            EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, new[] { new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>())) })
+                .Type.As<ArrayType>()
+                .Item.Should().Be(LanguageConstants.Any);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetFlattenPositiveTestCases), DynamicDataSourceType.Method)]
+        public void ShouldFlattenTo(TypeSymbol typeToFlatten, TypeSymbol expected)
+        {
+            TypeValidator.AreTypesAssignable(EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, new[] { new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>())) }).Type, expected).Should().BeTrue();
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetFlattenNegativeTestCases), DynamicDataSourceType.Method)]
+        public void ShouldNotFlatten(TypeSymbol typeToFlatten, params string[] diagnosticMessages)
+        {
+            EvaluateFunction("flatten", new List<TypeSymbol> { typeToFlatten }, new[] { new FunctionArgumentSyntax(TestSyntaxFactory.CreateArray(Enumerable.Empty<SyntaxBase>())) }).Type.GetDiagnostics().Cast<IDiagnostic>()
+                .Should().HaveDiagnostics(diagnosticMessages.Select(message => ("BCP309", DiagnosticLevel.Error, message)));
+        }
+
+        private FunctionResult EvaluateFunction(string functionName, IList<TypeSymbol> argumentTypes, FunctionArgumentSyntax[] arguments)
         {
             var matches = GetMatches(functionName, argumentTypes, out _, out _);
             matches.Should().HaveCount(1);
 
-            var returnType = matches.Single().ResultBuilder(
+            return matches.Single().ResultBuilder(
                 Repository.Create<IBinder>().Object,
                 Repository.Create<IFileResolver>().Object,
                 Repository.Create<IDiagnosticWriter>().Object,
-                SyntaxFactory.CreateFunctionCall("foo", arguments),
-                argumentTypes.ToImmutableArray()
-            );
-            returnType.Should().NotBeNull().And.Subject.As<FunctionResult>().Type.Should().Be(expectedReturnType);
+                SyntaxFactory.CreateFunctionCall(functionName, arguments),
+                argumentTypes.ToImmutableArray());
         }
 
-        private static IEnumerable<object[]> GetStringLiteralTransformations()
+        private static IEnumerable<object[]> GetInputsThatFlattenToArrayOfAny() => new[]
+        {
+            new object[] { LanguageConstants.Any },
+            new object[] { LanguageConstants.Array },
+            new object[] { TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), LanguageConstants.Any) },
+            new object[] { TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), LanguageConstants.Array) },
+            new object[] { TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(LanguageConstants.Array, default)) },
+            new object[] { new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.Any), default) },
+            new object[] { new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.Array), default) },
+        };
+
+        private static IEnumerable<object[]> GetFlattenPositiveTestCases() => new[]
+        {
+            // flatten(string[][]) -> string[]
+            new object[] { new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(LanguageConstants.String, default) },
+            // flatten((string[] | int[])[]) -> (string | int)[]
+            new object[] {
+                new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), new TypedArrayType(LanguageConstants.Int, default)), default),
+                new TypedArrayType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), default),
+            },
+            // flatten(string[][] | int[][]) -> (string | int)[]
+            new object[] {
+                TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(new TypedArrayType(LanguageConstants.Int, default), default)),
+                new TypedArrayType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), default),
+            },
+        };
+
+        private static IEnumerable<object[]> GetFlattenNegativeTestCases() => new[]
+        {
+            // flatten(string[]) -> <error>
+            new object[] { new TypedArrayType(LanguageConstants.String, default), @"Values of type ""string[]"" cannot be flattened because ""string"" is not an array type." },
+            // flatten((string[] | string)[]) -> <error>
+            new object[] { new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.String), default), @"Values of type ""(string | string[])[]"" cannot be flattened because ""string"" is not an array type." },
+            // flatten((string[] | string | int)[]) -> <error>
+            new object[] {
+                new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), LanguageConstants.String, LanguageConstants.Int), default),
+                @"Values of type ""(int | string | string[])[]"" cannot be flattened because ""int"" is not an array type.",
+                @"Values of type ""(int | string | string[])[]"" cannot be flattened because ""string"" is not an array type.",
+            },
+            // flatten(string[][] | bool[]) -> <error>
+            new object[] {
+                TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(LanguageConstants.Bool, default)),
+                @"Values of type ""bool[]"" cannot be flattened because ""bool"" is not an array type.",
+            },
+        };
+
+        private static IEnumerable<object[]> GetLiteralTransformations()
         {
             FunctionArgumentSyntax ToFunctionArgumentSyntax(object argument) => argument switch
             {

@@ -2469,7 +2469,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nflatten(... : array[]): array\n\n```\nTakes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.\n"
+      "value": "```bicep\nflatten(array: array[]): array\n\n```\nTakes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.\n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2478,7 +2478,11 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "flatten()$0"
+      "newText": "flatten($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
     }
   },
   {

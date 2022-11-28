@@ -510,8 +510,8 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return new FunctionOverloadBuilder("flatten")
                 .WithGenericDescription("Takes an array of arrays, and returns an array of sub-array elements, in the original order. Sub-arrays are only flattened once, not recursively.")
-                .WithVariableParameter("array", new TypedArrayType(LanguageConstants.Array, TypeSymbolValidationFlags.Default), 0, "The array of sub-arrays to flatten.")
-                .WithReturnType(LanguageConstants.Array)
+                .WithRequiredParameter("array", new TypedArrayType(LanguageConstants.Array, TypeSymbolValidationFlags.Default), "The array of sub-arrays to flatten.")
+                .WithReturnResultBuilder((_, _, _, functionCall, argTypes) => new(GetFlattenReturnType(argTypes[0], functionCall.Arguments[0])), LanguageConstants.Array)
                 .Build();
 
             yield return new FunctionOverloadBuilder("filter")
@@ -858,6 +858,64 @@ namespace Bicep.Core.Semantics.Namespaces
             return new(GetItemsReturnType(
                 keyType: TypeHelper.CreateTypeUnion(keyTypes),
                 valueType: TypeHelper.TryCollapseTypes(valueTypes) ?? LanguageConstants.Any));
+        }
+
+        private static TypeSymbol GetFlattenReturnType(TypeSymbol typeToFlatten, IPositionable argumentPosition)
+        {
+            static TypeSymbol FlattenUnionOfArrays(UnionType unionType, IPositionable argumentPosition) => UnionOfFlattened(
+                unionType,
+                unionType.Members.Select(typeRef => GetFlattenReturnType(typeRef.Type, argumentPosition)),
+                argumentPosition);
+
+            static TypeSymbol FlattenArrayOfUnion(TypeSymbol flattenInputType, UnionType itemUnion, IPositionable argumentPosition)
+                => UnionOfFlattened(flattenInputType, itemUnion.Members, argumentPosition);
+
+            static TypeSymbol UnionOfFlattened(TypeSymbol flattenInputType, IEnumerable<ITypeReference> toFlatten, IPositionable argumentPosition)
+            {
+                List<ITypeReference> flattenedMembers = new();
+                TypeSymbolValidationFlags flattenedFlags = TypeSymbolValidationFlags.Default;
+                List<ErrorType> errors = new();
+
+                foreach (var member in toFlatten)
+                {
+                    switch (member.Type)
+                    {
+                        case AnyType:
+                            return LanguageConstants.Array;
+                        case ErrorType errorType:
+                            errors.Add(errorType);
+                            break;
+                        case ArrayType arrayType:
+                            flattenedMembers.Add(arrayType.Item);
+                            if (arrayType is TypedArrayType typedArrayType)
+                            {
+                                flattenedFlags |= typedArrayType.ValidationFlags;
+                            }
+                            break;
+                        default:
+                            errors.Add(ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(flattenInputType, member.Type)));
+                            break;
+                    }
+                }
+
+                if (errors.Any())
+                {
+                    return ErrorType.Create(errors.SelectMany(e => e.GetDiagnostics()));
+                }
+
+                return new TypedArrayType(TypeHelper.CreateTypeUnion(flattenedMembers), flattenedFlags);
+            }
+
+            return typeToFlatten switch
+            {
+                AnyType => LanguageConstants.Array,
+                UnionType unionType => FlattenUnionOfArrays(unionType, argumentPosition),
+                ArrayType arrayType when arrayType.Item.Type is UnionType itemUnion => FlattenArrayOfUnion(arrayType, itemUnion, argumentPosition),
+                ArrayType arrayType when ReferenceEquals(arrayType.Item, LanguageConstants.Any) => LanguageConstants.Array,
+                ArrayType arrayType when TypeValidator.AreTypesAssignable(arrayType.Item.Type, LanguageConstants.Array) => arrayType.Item.Type,
+                ArrayType arrayType => ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(arrayType, arrayType.Item.Type)),
+                _ => ErrorType.Create(DiagnosticBuilder.ForPosition(argumentPosition).ValueCannotBeFlattened(typeToFlatten, typeToFlatten)),
+            };
         }
 
         private static TypeSymbol ConvertJsonToBicepType(JToken token)

@@ -1,5 +1,5 @@
 var doggos = [
-//@[000:2299) ProgramSyntax
+//@[000:2303) ProgramSyntax
 //@[000:0054) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0010) | ├─IdentifierSyntax
@@ -201,65 +201,73 @@ var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, 
 //@[117:0118) |   └─Token(RightParen) |)|
 //@[118:0120) ├─Token(NewLine) |\n\n|
 
-var flattenedArrayOfArrays = flatten([0, 1], [2, 3], [4, 5])
-//@[000:0060) ├─VariableDeclarationSyntax
+var flattenedArrayOfArrays = flatten([[0, 1], [2, 3], [4, 5]])
+//@[000:0062) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0026) | ├─IdentifierSyntax
 //@[004:0026) | | └─Token(Identifier) |flattenedArrayOfArrays|
 //@[027:0028) | ├─Token(Assignment) |=|
-//@[029:0060) | └─FunctionCallSyntax
+//@[029:0062) | └─FunctionCallSyntax
 //@[029:0036) |   ├─IdentifierSyntax
 //@[029:0036) |   | └─Token(Identifier) |flatten|
 //@[036:0037) |   ├─Token(LeftParen) |(|
-//@[037:0043) |   ├─FunctionArgumentSyntax
-//@[037:0043) |   | └─ArraySyntax
+//@[037:0061) |   ├─FunctionArgumentSyntax
+//@[037:0061) |   | └─ArraySyntax
 //@[037:0038) |   |   ├─Token(LeftSquare) |[|
-//@[038:0039) |   |   ├─ArrayItemSyntax
-//@[038:0039) |   |   | └─IntegerLiteralSyntax
-//@[038:0039) |   |   |   └─Token(Integer) |0|
-//@[039:0040) |   |   ├─Token(Comma) |,|
-//@[041:0042) |   |   ├─ArrayItemSyntax
-//@[041:0042) |   |   | └─IntegerLiteralSyntax
-//@[041:0042) |   |   |   └─Token(Integer) |1|
-//@[042:0043) |   |   └─Token(RightSquare) |]|
-//@[043:0044) |   ├─Token(Comma) |,|
-//@[045:0051) |   ├─FunctionArgumentSyntax
-//@[045:0051) |   | └─ArraySyntax
-//@[045:0046) |   |   ├─Token(LeftSquare) |[|
-//@[046:0047) |   |   ├─ArrayItemSyntax
-//@[046:0047) |   |   | └─IntegerLiteralSyntax
-//@[046:0047) |   |   |   └─Token(Integer) |2|
-//@[047:0048) |   |   ├─Token(Comma) |,|
-//@[049:0050) |   |   ├─ArrayItemSyntax
-//@[049:0050) |   |   | └─IntegerLiteralSyntax
-//@[049:0050) |   |   |   └─Token(Integer) |3|
-//@[050:0051) |   |   └─Token(RightSquare) |]|
-//@[051:0052) |   ├─Token(Comma) |,|
-//@[053:0059) |   ├─FunctionArgumentSyntax
-//@[053:0059) |   | └─ArraySyntax
-//@[053:0054) |   |   ├─Token(LeftSquare) |[|
-//@[054:0055) |   |   ├─ArrayItemSyntax
-//@[054:0055) |   |   | └─IntegerLiteralSyntax
-//@[054:0055) |   |   |   └─Token(Integer) |4|
-//@[055:0056) |   |   ├─Token(Comma) |,|
-//@[057:0058) |   |   ├─ArrayItemSyntax
-//@[057:0058) |   |   | └─IntegerLiteralSyntax
-//@[057:0058) |   |   |   └─Token(Integer) |5|
-//@[058:0059) |   |   └─Token(RightSquare) |]|
-//@[059:0060) |   └─Token(RightParen) |)|
-//@[060:0061) ├─Token(NewLine) |\n|
-var flattenedEmptyArray = flatten()
-//@[000:0035) ├─VariableDeclarationSyntax
+//@[038:0044) |   |   ├─ArrayItemSyntax
+//@[038:0044) |   |   | └─ArraySyntax
+//@[038:0039) |   |   |   ├─Token(LeftSquare) |[|
+//@[039:0040) |   |   |   ├─ArrayItemSyntax
+//@[039:0040) |   |   |   | └─IntegerLiteralSyntax
+//@[039:0040) |   |   |   |   └─Token(Integer) |0|
+//@[040:0041) |   |   |   ├─Token(Comma) |,|
+//@[042:0043) |   |   |   ├─ArrayItemSyntax
+//@[042:0043) |   |   |   | └─IntegerLiteralSyntax
+//@[042:0043) |   |   |   |   └─Token(Integer) |1|
+//@[043:0044) |   |   |   └─Token(RightSquare) |]|
+//@[044:0045) |   |   ├─Token(Comma) |,|
+//@[046:0052) |   |   ├─ArrayItemSyntax
+//@[046:0052) |   |   | └─ArraySyntax
+//@[046:0047) |   |   |   ├─Token(LeftSquare) |[|
+//@[047:0048) |   |   |   ├─ArrayItemSyntax
+//@[047:0048) |   |   |   | └─IntegerLiteralSyntax
+//@[047:0048) |   |   |   |   └─Token(Integer) |2|
+//@[048:0049) |   |   |   ├─Token(Comma) |,|
+//@[050:0051) |   |   |   ├─ArrayItemSyntax
+//@[050:0051) |   |   |   | └─IntegerLiteralSyntax
+//@[050:0051) |   |   |   |   └─Token(Integer) |3|
+//@[051:0052) |   |   |   └─Token(RightSquare) |]|
+//@[052:0053) |   |   ├─Token(Comma) |,|
+//@[054:0060) |   |   ├─ArrayItemSyntax
+//@[054:0060) |   |   | └─ArraySyntax
+//@[054:0055) |   |   |   ├─Token(LeftSquare) |[|
+//@[055:0056) |   |   |   ├─ArrayItemSyntax
+//@[055:0056) |   |   |   | └─IntegerLiteralSyntax
+//@[055:0056) |   |   |   |   └─Token(Integer) |4|
+//@[056:0057) |   |   |   ├─Token(Comma) |,|
+//@[058:0059) |   |   |   ├─ArrayItemSyntax
+//@[058:0059) |   |   |   | └─IntegerLiteralSyntax
+//@[058:0059) |   |   |   |   └─Token(Integer) |5|
+//@[059:0060) |   |   |   └─Token(RightSquare) |]|
+//@[060:0061) |   |   └─Token(RightSquare) |]|
+//@[061:0062) |   └─Token(RightParen) |)|
+//@[062:0063) ├─Token(NewLine) |\n|
+var flattenedEmptyArray = flatten([])
+//@[000:0037) ├─VariableDeclarationSyntax
 //@[000:0003) | ├─Token(Identifier) |var|
 //@[004:0023) | ├─IdentifierSyntax
 //@[004:0023) | | └─Token(Identifier) |flattenedEmptyArray|
 //@[024:0025) | ├─Token(Assignment) |=|
-//@[026:0035) | └─FunctionCallSyntax
+//@[026:0037) | └─FunctionCallSyntax
 //@[026:0033) |   ├─IdentifierSyntax
 //@[026:0033) |   | └─Token(Identifier) |flatten|
 //@[033:0034) |   ├─Token(LeftParen) |(|
-//@[034:0035) |   └─Token(RightParen) |)|
-//@[035:0037) ├─Token(NewLine) |\n\n|
+//@[034:0036) |   ├─FunctionArgumentSyntax
+//@[034:0036) |   | └─ArraySyntax
+//@[034:0035) |   |   ├─Token(LeftSquare) |[|
+//@[035:0036) |   |   └─Token(RightSquare) |]|
+//@[036:0037) |   └─Token(RightParen) |)|
+//@[037:0039) ├─Token(NewLine) |\n\n|
 
 var mapSayHi = map(['abc', 'def', 'ghi'], foo => 'Hi ${foo}!')
 //@[000:0062) ├─VariableDeclarationSyntax
