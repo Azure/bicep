@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13856880964980728719"
+      "templateHash": "15774430606770457809"
     }
   },
   "definitions": {
@@ -62,7 +62,7 @@
           "$ref": "#/definitions/foo"
         }
       },
-      "additionalProperties": false,
+      "sealed": true,
       "metadata": {
         "description": "The foo type"
       }
@@ -168,22 +168,7 @@
       "type": "string"
     },
     "tuple": {
-      "type": "array",
-      "prefixItems": [
-        {
-          "type": "string",
-          "metadata": {
-            "description": "A leading string"
-          }
-        },
-        {
-          "$ref": "#/definitions/bar",
-          "metadata": {
-            "description": "A second element using a type alias"
-          }
-        }
-      ],
-      "items": false
+      "type": "array"
     }
   },
   "parameters": {

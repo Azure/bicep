@@ -1278,7 +1278,9 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                     .WithAttachableType(LanguageConstants.Object)
                     .WithValidator(ValidateNotTargetingAlias)
-                    .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty("additionalProperties", SyntaxFactory.CreateBooleanLiteral(false)))
+                    .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty(LanguageConstants.ParameterSealedPropertyName, SyntaxFactory.CreateBooleanLiteral(true)))
+                    // TODO delete the above line and uncomment the line below when ARM w46 has finished rolling out
+                    // .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty("additionalProperties", SyntaxFactory.CreateBooleanLiteral(false)))
                     .Build();
             }
         }

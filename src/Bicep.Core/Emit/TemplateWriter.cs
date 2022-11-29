@@ -414,12 +414,13 @@ namespace Bicep.Core.Emit
         private ObjectSyntax GetTypePropertiesForTupleType(TupleTypeSyntax syntax) => SyntaxFactory.CreateObject(new[]
         {
             TypeProperty(LanguageConstants.ArrayType),
-            SyntaxFactory.CreateObjectProperty("prefixItems",
-                SyntaxFactory.CreateArray(syntax.Items.Select(item => AddDecoratorsToBody(
-                    item,
-                    TypePropertiesForTypeExpression(item.Value),
-                    context.SemanticModel.GetDeclaredType(item) ?? ErrorType.Empty())))),
-            SyntaxFactory.CreateObjectProperty("items", SyntaxFactory.CreateBooleanLiteral(false)),
+            // TODO uncomment the lines below when ARM w46 has finished rolling out
+            // SyntaxFactory.CreateObjectProperty("prefixItems",
+            //     SyntaxFactory.CreateArray(syntax.Items.Select(item => AddDecoratorsToBody(
+            //         item,
+            //         TypePropertiesForTypeExpression(item.Value),
+            //         context.SemanticModel.GetDeclaredType(item) ?? ErrorType.Empty())))),
+            // SyntaxFactory.CreateObjectProperty("items", SyntaxFactory.CreateBooleanLiteral(false)),
         });
 
         private ObjectSyntax GetTypePropertiesForStringSyntax(StringSyntax syntax) => SyntaxFactory.CreateObject(new[]
