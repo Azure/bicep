@@ -48,7 +48,7 @@ namespace Bicep.Core.Syntax
             return false;
         }
 
-        private sealed class ParentTrackingVisitor : SyntaxVisitor
+        private sealed class ParentTrackingVisitor : AstVisitor
         {
             private readonly Dictionary<SyntaxBase, SyntaxBase?> parentMap;
             private readonly Stack<SyntaxBase> currentParents = new Stack<SyntaxBase>();

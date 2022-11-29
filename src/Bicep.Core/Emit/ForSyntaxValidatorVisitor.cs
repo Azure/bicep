@@ -8,7 +8,7 @@ using System;
 
 namespace Bicep.Core.Emit
 {
-    public sealed class ForSyntaxValidatorVisitor : SyntaxVisitor
+    public sealed class ForSyntaxValidatorVisitor : AstVisitor
     {
         // we don't support nesting of property loops right now
         private const int MaximumNestedPropertyLoopCount = 1;

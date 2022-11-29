@@ -6,7 +6,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Visitors
 {
-    public class ResourceDependencyFinderVisitor : SyntaxVisitor
+    public class ResourceDependencyFinderVisitor : AstVisitor
     {
         private readonly SemanticModel semanticModel;
         private readonly HashSet<DeclaredSymbol> resourceDependencies;

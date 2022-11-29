@@ -156,7 +156,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private sealed class RuleVisitor : SyntaxVisitor
+        private sealed class RuleVisitor : AstVisitor
         {
             public List<IDiagnostic> diagnostics = new();
             private readonly HashSet<VariableSymbol> variablesToChangeToParam = new();

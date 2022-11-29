@@ -145,7 +145,7 @@ namespace Bicep.Core.IntegrationTests
             };
         }
 
-        private sealed class SpanConsistencyVisitor : SyntaxVisitor
+        private sealed class SpanConsistencyVisitor : CstVisitor
         {
             private int maxPosition = 0;
 

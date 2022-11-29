@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.Core.TypeSystem
 {
-    public class NestedRuntimeMemberAccessValidator : SyntaxVisitor
+    public class NestedRuntimeMemberAccessValidator : AstVisitor
     {
         private readonly SemanticModel semanticModel;
 

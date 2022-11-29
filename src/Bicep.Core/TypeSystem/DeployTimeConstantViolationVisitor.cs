@@ -13,7 +13,7 @@ using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.TypeSystem
 {
-    public abstract class DeployTimeConstantViolationVisitor : SyntaxVisitor
+    public abstract class DeployTimeConstantViolationVisitor : AstVisitor
     {
         public DeployTimeConstantViolationVisitor(
             SyntaxBase deployTimeConstantContainer,

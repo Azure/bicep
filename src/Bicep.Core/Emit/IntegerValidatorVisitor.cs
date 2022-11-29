@@ -7,7 +7,7 @@ using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Emit
 {
-    public class IntegerValidatorVisitor : SyntaxVisitor
+    public class IntegerValidatorVisitor : AstVisitor
     {
         private readonly IDiagnosticWriter diagnosticWriter;
         private readonly SemanticModel semanticModel;
