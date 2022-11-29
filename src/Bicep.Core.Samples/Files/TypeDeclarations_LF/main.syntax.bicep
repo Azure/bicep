@@ -1,5 +1,5 @@
 @description('The foo type')
-//@[00:1122) ProgramSyntax
+//@[00:1117) ProgramSyntax
 //@[00:0298) ├─TypeDeclarationSyntax
 //@[00:0028) | ├─DecoratorSyntax
 //@[00:0001) | | ├─Token(At) |@|
@@ -605,16 +605,16 @@ param paramUsingType mixedArray
 //@[31:0033) ├─Token(NewLine) |\n\n|
 
 type tuple = [
-//@[00:0134) ├─TypeDeclarationSyntax
+//@[00:0129) ├─TypeDeclarationSyntax
 //@[00:0004) | ├─Token(Identifier) |type|
 //@[05:0010) | ├─IdentifierSyntax
 //@[05:0010) | | └─Token(Identifier) |tuple|
 //@[11:0012) | ├─Token(Assignment) |=|
-//@[13:0134) | └─TupleTypeSyntax
+//@[13:0129) | └─TupleTypeSyntax
 //@[13:0014) |   ├─Token(LeftSquare) |[|
 //@[14:0015) |   ├─Token(NewLine) |\n|
     @description('A leading string')
-//@[04:0048) |   ├─TupleTypeItemSyntax
+//@[04:0047) |   ├─TupleTypeItemSyntax
 //@[04:0036) |   | ├─DecoratorSyntax
 //@[04:0005) |   | | ├─Token(At) |@|
 //@[05:0036) |   | | └─FunctionCallSyntax
@@ -625,15 +625,15 @@ type tuple = [
 //@[17:0035) |   | |   | └─StringSyntax
 //@[17:0035) |   | |   |   └─Token(StringComplete) |'A leading string'|
 //@[35:0036) |   | |   └─Token(RightParen) |)|
-//@[36:0038) |   | ├─Token(NewLine) |\r\n|
+//@[36:0037) |   | ├─Token(NewLine) |\n|
     string
 //@[04:0010) |   | └─VariableAccessSyntax
 //@[04:0010) |   |   └─IdentifierSyntax
 //@[04:0010) |   |     └─Token(Identifier) |string|
-//@[10:0014) |   ├─Token(NewLine) |\r\n\r\n|
+//@[10:0012) |   ├─Token(NewLine) |\n\n|
 
     @description('A second element using a type alias')
-//@[04:0064) |   ├─TupleTypeItemSyntax
+//@[04:0063) |   ├─TupleTypeItemSyntax
 //@[04:0055) |   | ├─DecoratorSyntax
 //@[04:0005) |   | | ├─Token(At) |@|
 //@[05:0055) |   | | └─FunctionCallSyntax
@@ -644,12 +644,12 @@ type tuple = [
 //@[17:0054) |   | |   | └─StringSyntax
 //@[17:0054) |   | |   |   └─Token(StringComplete) |'A second element using a type alias'|
 //@[54:0055) |   | |   └─Token(RightParen) |)|
-//@[55:0057) |   | ├─Token(NewLine) |\r\n|
+//@[55:0056) |   | ├─Token(NewLine) |\n|
     bar
 //@[04:0007) |   | └─VariableAccessSyntax
 //@[04:0007) |   |   └─IdentifierSyntax
 //@[04:0007) |   |     └─Token(Identifier) |bar|
-//@[07:0009) |   ├─Token(NewLine) |\r\n|
+//@[07:0008) |   ├─Token(NewLine) |\n|
 ]
 //@[00:0001) |   └─Token(RightSquare) |]|
 //@[01:0001) └─Token(EndOfFile) ||

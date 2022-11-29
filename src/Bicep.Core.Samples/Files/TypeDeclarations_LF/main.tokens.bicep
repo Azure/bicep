@@ -359,10 +359,10 @@ type tuple = [
 //@[16:17) LeftParen |(|
 //@[17:35) StringComplete |'A leading string'|
 //@[35:36) RightParen |)|
-//@[36:38) NewLine |\r\n|
+//@[36:37) NewLine |\n|
     string
 //@[04:10) Identifier |string|
-//@[10:14) NewLine |\r\n\r\n|
+//@[10:12) NewLine |\n\n|
 
     @description('A second element using a type alias')
 //@[04:05) At |@|
@@ -370,10 +370,10 @@ type tuple = [
 //@[16:17) LeftParen |(|
 //@[17:54) StringComplete |'A second element using a type alias'|
 //@[54:55) RightParen |)|
-//@[55:57) NewLine |\r\n|
+//@[55:56) NewLine |\n|
     bar
 //@[04:07) Identifier |bar|
-//@[07:09) NewLine |\r\n|
+//@[07:08) NewLine |\n|
 ]
 //@[00:01) RightSquare |]|
 //@[01:01) EndOfFile ||

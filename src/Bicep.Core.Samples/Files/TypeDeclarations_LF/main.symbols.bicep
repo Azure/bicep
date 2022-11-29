@@ -64,7 +64,7 @@ param paramUsingType mixedArray
 //@[6:20) Parameter paramUsingType. Type: ('heffalump' | 'woozle' | -10 | 10 | false | null | true | { shape: '*', size: '*' })[]. Declaration start char: 0, length: 31
 
 type tuple = [
-//@[5:10) TypeAlias tuple. Type: Type<[string, bar]>. Declaration start char: 0, length: 134
+//@[5:10) TypeAlias tuple. Type: Type<[string, bar]>. Declaration start char: 0, length: 129
     @description('A leading string')
     string
 

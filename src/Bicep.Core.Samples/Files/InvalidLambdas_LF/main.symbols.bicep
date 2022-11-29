@@ -67,13 +67,13 @@ var toObject3 = toObject(range(0, 10), 'def')
 var toObject4 = toObject(range(0, 10), () => null)
 //@[04:13) Variable toObject4. Type: error. Declaration start char: 0, length: 50
 var toObject5 = toObject(range(0, 10), i => i)
-//@[39:40) Local i. Type: int. Declaration start char: 39, length: 1
+//@[39:40) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 39, length: 1
 //@[04:13) Variable toObject5. Type: error. Declaration start char: 0, length: 46
 var toObject6 = toObject(range(0, 10), i => '${i}', 'def')
-//@[39:40) Local i. Type: int. Declaration start char: 39, length: 1
+//@[39:40) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 39, length: 1
 //@[04:13) Variable toObject6. Type: error. Declaration start char: 0, length: 58
 var toObject7 = toObject(range(0, 10), i => '${i}', () => null)
-//@[39:40) Local i. Type: int. Declaration start char: 39, length: 1
+//@[39:40) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 39, length: 1
 //@[04:13) Variable toObject7. Type: error. Declaration start char: 0, length: 63
 
 var ternary = map([123], true ? i => '${i}' : i => 'hello!')

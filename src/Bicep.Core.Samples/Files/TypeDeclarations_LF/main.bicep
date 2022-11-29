@@ -1,4 +1,4 @@
-﻿@description('The foo type')
+@description('The foo type')
 @sealed()
 type foo = {
   @minLength(3)
