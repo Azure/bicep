@@ -28,7 +28,7 @@ public class IntegerLiteralType : TypeSymbol
 
     public override int GetHashCode() => (GetType(), Value).GetHashCode();
 
-    public static bool operator ==(IntegerLiteralType a, IntegerLiteralType b) => a.Value == b.Value;
+    public static bool operator ==(IntegerLiteralType? a, IntegerLiteralType? b) => a?.Value == b?.Value;
 
-    public static bool operator !=(IntegerLiteralType a, IntegerLiteralType b) => a.Value == b.Value;
+    public static bool operator !=(IntegerLiteralType? a, IntegerLiteralType? b) => a?.Value != b?.Value;
 }

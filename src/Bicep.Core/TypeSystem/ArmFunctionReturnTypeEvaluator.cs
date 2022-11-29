@@ -130,6 +130,7 @@ public static class ArmFunctionReturnTypeEvaluator
 
     private static TypeSymbol? TryCastToLiteral(JToken token) => token switch {
         JValue { Value: bool boolValue } => new BooleanLiteralType(boolValue),
+        JValue { Value: int intValue } => new IntegerLiteralType(intValue),
         JValue { Value: long longValue } => new IntegerLiteralType(longValue),
         JValue { Value: ulong ulongValue } when ulongValue <= long.MaxValue => new IntegerLiteralType((long) ulongValue),
         JValue { Value: char charValue } => new StringLiteralType(charValue.ToString()),

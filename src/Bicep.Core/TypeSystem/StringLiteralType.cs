@@ -29,6 +29,6 @@ namespace Bicep.Core.TypeSystem
 
         public static bool operator ==(StringLiteralType? a, StringLiteralType? b) => a?.RawStringValue == b?.RawStringValue;
 
-        public static bool operator !=(StringLiteralType? a, StringLiteralType? b) => a?.RawStringValue == b?.RawStringValue;
+        public static bool operator !=(StringLiteralType? a, StringLiteralType? b) => a?.RawStringValue != b?.RawStringValue;
     }
 }

@@ -165,14 +165,36 @@ namespace Bicep.Core.UnitTests.TypeSystem
             // flatten(string[][]) -> string[]
             new object[] { new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(LanguageConstants.String, default) },
             // flatten((string[] | int[])[]) -> (string | int)[]
-            new object[] {
+            new object[]
+            {
                 new TypedArrayType(TypeHelper.CreateTypeUnion(new TypedArrayType(LanguageConstants.String, default), new TypedArrayType(LanguageConstants.Int, default)), default),
                 new TypedArrayType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), default),
             },
             // flatten(string[][] | int[][]) -> (string | int)[]
-            new object[] {
+            new object[]
+            {
                 TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(new TypedArrayType(LanguageConstants.Int, default), default)),
                 new TypedArrayType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), default),
+            },
+            // flatten([[1, 2], [3, 4]]) -> [1, 2, 3, 4]
+            new object[]
+            {
+                new TupleType("[[1, 2], [3, 4]]",
+                    ImmutableArray.Create<ITypeReference>(
+                        new TupleType("[1, 2]", ImmutableArray.Create<ITypeReference>(new IntegerLiteralType(1), new IntegerLiteralType(2)), default),
+                        new TupleType("[3, 4]", ImmutableArray.Create<ITypeReference>(new IntegerLiteralType(3), new IntegerLiteralType(4)), default)),
+                    default),
+                new TupleType("[1, 2, 3, 4]", ImmutableArray.Create<ITypeReference>(new IntegerLiteralType(1), new IntegerLiteralType(2), new IntegerLiteralType(3), new IntegerLiteralType(4)), default),
+            },
+            // flatten([[1, 2], (3 | 4)[]]) -> (1 | 2 | 3 | 4)[]
+            new object[]
+            {
+                new TupleType("[[1, 2], (3, 4)[]]",
+                    ImmutableArray.Create<ITypeReference>(
+                        new TupleType("[1, 2]", ImmutableArray.Create<ITypeReference>(new IntegerLiteralType(1), new IntegerLiteralType(2)), default),
+                        new TypedArrayType(TypeHelper.CreateTypeUnion(new IntegerLiteralType(3), new IntegerLiteralType(4)), default)),
+                    default),
+                new TypedArrayType(TypeHelper.CreateTypeUnion(new IntegerLiteralType(1), new IntegerLiteralType(2), new IntegerLiteralType(3), new IntegerLiteralType(4)), default),
             },
         };
 
@@ -191,7 +213,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             // flatten(string[][] | bool[]) -> <error>
             new object[] {
                 TypeHelper.CreateTypeUnion(new TypedArrayType(new TypedArrayType(LanguageConstants.String, default), default), new TypedArrayType(LanguageConstants.Bool, default)),
-                @"Values of type ""bool[]"" cannot be flattened because ""bool"" is not an array type.",
+                @"Values of type ""bool[] | string[][]"" cannot be flattened because ""bool"" is not an array type.",
             },
         };
 
@@ -200,16 +222,22 @@ namespace Bicep.Core.UnitTests.TypeSystem
             FunctionArgumentSyntax ToFunctionArgumentSyntax(object argument) => argument switch
             {
                 string str => new(TestSyntaxFactory.CreateString(str)),
+                string[] strArray => new(TestSyntaxFactory.CreateArray(strArray.Select(TestSyntaxFactory.CreateString))),
                 int intVal => new(TestSyntaxFactory.CreateInt((ulong) intVal)),
+                int[] intArray => new(TestSyntaxFactory.CreateArray(intArray.Select(@int => TestSyntaxFactory.CreateInt((ulong) @int)))),
                 bool boolVal => new(TestSyntaxFactory.CreateBool(boolVal)),
+                bool[] boolArray => new(TestSyntaxFactory.CreateArray(boolArray.Select(TestSyntaxFactory.CreateBool))),
                 _ => throw new NotImplementedException($"Unable to transform {argument} to a literal syntax node.")
             };
 
             TypeSymbol ToTypeLiteral(object argument) => argument switch
             {
                 string str => new StringLiteralType(str),
+                string[] strArray => new TupleType($"[{string.Join(", ", strArray.Select(str => $"'{str}'"))}]", strArray.Select(str => new StringLiteralType(str)).ToImmutableArray<ITypeReference>(), default),
                 int intVal => new IntegerLiteralType(intVal),
+                int[] intArray => new TupleType("", intArray.Select(@int => new IntegerLiteralType(@int)).ToImmutableArray<ITypeReference>(), default),
                 bool boolVal => new BooleanLiteralType(boolVal),
+                bool[] boolArray => new TupleType("", boolArray.Select(@bool => new BooleanLiteralType(@bool)).ToImmutableArray<ITypeReference>(), default),
                 _ => throw new NotImplementedException($"Unable to transform {argument} to a type literal.")
             };
 
@@ -222,35 +250,50 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 return new object[] { displayName, functionName, argumentTypeLiterals, argumentLiteralSyntaxes, ToTypeLiteral(returnedLiteral) };
             }
 
-            yield return CreateRow("IEZpenog", "base64", " Fizz ");
-            yield return CreateRow(" Fizz ", "base64ToString", "IEZpenog");
-            yield return CreateRow("data:text/plain;charset=utf-8;base64,IEZpenog", "dataUri", " Fizz ");
-            yield return CreateRow(" Fizz ", "dataUriToString", "data:text/plain;charset=utf-8;base64,IEZpenog");
-            yield return CreateRow("F", "first", "Fizz");
-            yield return CreateRow("z", "last", "Fizz");
-            yield return CreateRow(" fizz ", "toLower", " Fizz ");
-            yield return CreateRow(" FIZZ ", "toUpper", " Fizz ");
-            yield return CreateRow("Fizz", "trim", " Fizz ");
-            yield return CreateRow("%20Fizz%20", "uriComponent", " Fizz ");
-            yield return CreateRow(" Fizz ", "uriComponentToString", "%20Fizz%20");
-            yield return CreateRow("byghxckddilkc", "uniqueString", "snap", "crackle", "pop");
-            yield return CreateRow("2ed86837-7c7c-5eaa-9864-dd077fd19b0d", "guid", "foo", "bar", "baz");
-            yield return CreateRow("food", "replace", "foot", "t", "d");
-            yield return CreateRow("1/2/3/True", "format", "{0}/{1}/{2}/{3}", 1, 2, 3, true);
-            yield return CreateRow("   00", "padLeft", "00", 5, " ");
-            yield return CreateRow(5, "length", "table");
-            yield return CreateRow("https://github.com/Azure/bicep", "uri", "https://github.com/another/repo", "/Azure/bicep");
-            yield return CreateRow("foo", "substring", "foot", 0, 3);
-            yield return CreateRow("foo", "take", "foot", 3);
-            yield return CreateRow("t", "skip", "foot", 3);
-            yield return CreateRow(false, "empty", "non-empty string");
-            yield return CreateRow(true, "contains", "foot", "foo");
-            yield return CreateRow(1, "indexOf", "food", "o");
-            yield return CreateRow(2, "lastIndexOf", "food", "o");
-            yield return CreateRow(true, "startsWith", "food", "foo");
-            yield return CreateRow(true, "endsWith", "foot", "t");
-            yield return CreateRow(1, "min", 10, 4, 1, 6);
-            yield return CreateRow(10, "max", 10, 4, 1, 6);
+            return new[]
+            {
+                CreateRow("IEZpenog", "base64", " Fizz "),
+                CreateRow(" Fizz ", "base64ToString", "IEZpenog"),
+                CreateRow("data:text/plain;charset=utf-8;base64,IEZpenog", "dataUri", " Fizz "),
+                CreateRow(" Fizz ", "dataUriToString", "data:text/plain;charset=utf-8;base64,IEZpenog"),
+                CreateRow("F", "first", "Fizz"),
+                CreateRow("z", "last", "Fizz"),
+                CreateRow(" fizz ", "toLower", " Fizz "),
+                CreateRow(" FIZZ ", "toUpper", " Fizz "),
+                CreateRow("Fizz", "trim", " Fizz "),
+                CreateRow("%20Fizz%20", "uriComponent", " Fizz "),
+                CreateRow(" Fizz ", "uriComponentToString", "%20Fizz%20"),
+                CreateRow("byghxckddilkc", "uniqueString", "snap", "crackle", "pop"),
+                CreateRow("2ed86837-7c7c-5eaa-9864-dd077fd19b0d", "guid", "foo", "bar", "baz"),
+                CreateRow("food", "replace", "foot", "t", "d"),
+                CreateRow("1/2/3/True", "format", "{0}/{1}/{2}/{3}", 1, 2, 3, true),
+                CreateRow("   00", "padLeft", "00", 5, " "),
+                CreateRow(5, "length", "table"),
+                CreateRow("https://github.com/Azure/bicep", "uri", "https://github.com/another/repo", "/Azure/bicep"),
+                CreateRow("foo", "substring", "foot", 0, 3),
+                CreateRow("foo", "take", "foot", 3),
+                CreateRow("t", "skip", "foot", 3),
+                CreateRow(false, "empty", "non-empty string"),
+                CreateRow(true, "contains", "foot", "foo"),
+                CreateRow(1, "indexOf", "food", "o"),
+                CreateRow(2, "lastIndexOf", "food", "o"),
+                CreateRow(true, "startsWith", "food", "foo"),
+                CreateRow(true, "endsWith", "foot", "t"),
+                CreateRow(1, "min", 10, 4, 1, 6),
+                CreateRow(10, "max", 10, 4, 1, 6),
+                CreateRow(new[] { "fizz", "buzz", "pop" }, "split", "fizz,buzz,pop", ","),
+                CreateRow(new[] { "fizz", "buzz" }, "take", new[] { "fizz", "buzz", "pop" }, 2),
+                CreateRow(true, "contains", new[] { "fizz", "buzz", "pop" }, "fizz"),
+                CreateRow(new[] { "pop" }, "intersection", new[] { "fizz", "buzz", "pop" }, new[] { "snap", "crackle", "pop" }),
+                CreateRow(new[] { "fizz", "buzz", "pop" }, "union", new[] { "fizz", "buzz" }, new[] { "pop" }),
+                CreateRow("fizz", "first", new[] { new[] { "fizz", "buzz", "pop" } }),
+                CreateRow("pop", "last", new[] { new[] { "fizz", "buzz", "pop" } }),
+                CreateRow(0, "indexOf", new[] { "fizz", "buzz", "pop", "fizz" }, "fizz"),
+                CreateRow(3, "lastIndexOf", new[] { "fizz", "buzz", "pop", "fizz" }, "fizz"),
+                CreateRow(1, "min", new[] { 10, 4, 1, 6 }),
+                CreateRow(10, "max", new[] { 10, 4, 1, 6 }),
+                CreateRow(Enumerable.Range(0, 10).ToArray(), "range", 0, 10),
+            };
         }
 
         public static string GetDisplayName(MethodInfo method, object[] row)

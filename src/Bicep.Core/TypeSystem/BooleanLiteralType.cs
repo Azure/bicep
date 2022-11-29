@@ -26,7 +26,7 @@ public class BooleanLiteralType : TypeSymbol
 
     public override int GetHashCode() => (GetType(), Value).GetHashCode();
 
-    public static bool operator ==(BooleanLiteralType a, BooleanLiteralType b) => a.Value == b.Value;
+    public static bool operator ==(BooleanLiteralType? a, BooleanLiteralType? b) => a?.Value == b?.Value;
 
-    public static bool operator !=(BooleanLiteralType a, BooleanLiteralType b) => a.Value == b.Value;
+    public static bool operator !=(BooleanLiteralType? a, BooleanLiteralType? b) => a?.Value != b?.Value;
 }

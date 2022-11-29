@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace Bicep.Core.TypeSystem;
 
@@ -26,4 +27,19 @@ public class TupleType : ArrayType
     public ImmutableArray<ITypeReference> Items { get; }
 
     public override ITypeReference Item => lazyItem.Value;
+
+    public override bool Equals(object? other) =>
+        other is TupleType otherTuple ? otherTuple == this : false;
+
+    public override int GetHashCode() => (GetType(), Items, ValidationFlags).GetHashCode();
+
+    public static bool operator ==(TupleType? a, TupleType? b) => a is not null
+        ? (b is not null ? nonNullEquals(a, b) : false)
+        : b is null;
+
+    public static bool operator !=(TupleType? a, TupleType? b) => !(a == b);
+
+    private static bool nonNullEquals(TupleType a, TupleType b) => a.ValidationFlags == b.ValidationFlags &&
+        a.Items.Length == b.Items.Length &&
+        Enumerable.Range(0, a.Items.Length).All(idx => a.Items[idx].Equals(b.Items[idx]));
 }
