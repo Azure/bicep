@@ -239,7 +239,7 @@ type anObject = {
 
         blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
             ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
-            ("BCP285", DiagnosticLevel.Error, "The type expression could not be reduced to a literal value."),
+            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
         });
 
         var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
@@ -251,5 +251,78 @@ type anObject = {
         blockedBecauseOfUnionSemantics.Should().HaveDiagnostics(new[] {
             ("BCP285", DiagnosticLevel.Error, "The type expression could not be reduced to a literal value."),
         });
+    }
+
+    [TestMethod]
+    public void Arrays_that_incorporate_their_parent_object_do_not_blow_the_stack()
+    {
+        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recur: anObject[]
+}
+");
+
+        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
+            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
+        });
+
+        var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recur?: anObject[]
+}
+");
+
+        blockedBecauseOfUnionSemantics.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Tuples_that_incorporate_their_parent_object_do_not_blow_the_stack()
+    {
+        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recurEventually: [anObject]
+}
+");
+
+        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
+            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
+        });
+
+        var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recur?: [anObject]
+}
+");
+
+        blockedBecauseOfUnionSemantics.Should().NotHaveAnyDiagnostics();
+    }
+
+    [TestMethod]
+    public void Objects_that_incorporate_their_parent_object_do_not_blow_the_stack()
+    {
+        var blockedBecauseOfCycle = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recurEventually: {
+        recurNow: anObject
+    }
+}
+");
+
+        blockedBecauseOfCycle.Should().HaveDiagnostics(new[] {
+            ("BCP298", DiagnosticLevel.Error, "This type definition includes itself as required component, which creates a constraint that cannot be fulfilled."),
+            ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"anObject\" is not valid."),
+        });
+
+        var blockedBecauseOfUnionSemantics = CompilationHelper.Compile(ServicesWithUserDefinedTypes, @"
+type anObject = {
+    recurEventually?: {
+        recurNow: anObject
+    }
+}
+");
+
+        blockedBecauseOfUnionSemantics.Should().NotHaveAnyDiagnostics();
     }
 }

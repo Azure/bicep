@@ -609,15 +609,21 @@ namespace Bicep.Core.Semantics.Namespaces
         }
 
         private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, TypeSymbol nonLitealReturnType) =>
-            (_, _, diagnostics, functionCall, argumentTypes) =>
+            TryDeriveLiteralReturnType(armFunctionName, (_, _, _, _, _) => new(nonLitealReturnType));
+
+        private static FunctionOverload.ResultBuilderDelegate TryDeriveLiteralReturnType(string armFunctionName, FunctionOverload.ResultBuilderDelegate computeNonLiteralType) =>
+            (binder, fileResolver, diagnostics, functionCall, argumentTypes) =>
             {
-                var returnType = ArmFunctionReturnTypeEvaluator.Evaluate(armFunctionName, nonLitealReturnType, out var diagnosticBuilders, argumentTypes);
+                var returnType = ArmFunctionReturnTypeEvaluator.Evaluate(armFunctionName, out var diagnosticBuilders, argumentTypes) is { } literalReturnType
+                    ? new(literalReturnType)
+                    : computeNonLiteralType(binder, fileResolver, diagnostics, functionCall, argumentTypes);
+
                 var diagnosticTarget = functionCall.Arguments.Any()
                     ? TextSpan.Between(functionCall.Arguments.First(), functionCall.Arguments.Last())
                     : TextSpan.Between(functionCall.OpenParen, functionCall.CloseParen);
                 diagnostics.WriteMultiple(diagnosticBuilders.Select(b => b(DiagnosticBuilder.ForPosition(diagnosticTarget))));
 
-                return new(returnType);
+                return returnType;
             };
 
         private static TypeSymbol? CalculateLambdaFromArrayParam(GetFunctionArgumentType getArgumentType, int arrayIndex, Func<TypeSymbol, LambdaType> lambdaBuilder)
@@ -1224,7 +1230,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithFlags(FunctionFlags.ParameterOrTypeDecorator)
                     .WithAttachableType(LanguageConstants.Object)
                     .WithValidator(ValidateNotTargetingAlias)
-                    .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty(LanguageConstants.ParameterSealedPropertyName, "true"))
+                    .WithEvaluator((_, targetType, targetObject) => targetObject.MergeProperty("additionalProperties", SyntaxFactory.CreateBooleanLiteral(false)))
                     .Build();
             }
         }

@@ -89,6 +89,9 @@ namespace Bicep.Core.TypeSystem
             IntegerLiteralType => true,
             BooleanLiteralType => true,
 
+            // A tuple can be a literal only if each item contained therein is also a literal
+            TupleType tupleType => tupleType.Items.All(t => IsLiteralType(t.Type)),
+
             // An object type can be a literal iff:
             //   - All properties are themselves of a literal type
             //   - No properties are optional
@@ -99,7 +102,6 @@ namespace Bicep.Core.TypeSystem
             ObjectType objectType => (objectType.AdditionalPropertiesType is null || objectType.AdditionalPropertiesFlags.HasFlag(TypePropertyFlags.FallbackProperty)) &&
                 objectType.Properties.All(kvp => kvp.Value.Flags.HasFlag(TypePropertyFlags.Required) && IsLiteralType(kvp.Value.TypeReference.Type)),
 
-            // TODO for array literals when type system adds support for tuples
             _ => false,
         };
 

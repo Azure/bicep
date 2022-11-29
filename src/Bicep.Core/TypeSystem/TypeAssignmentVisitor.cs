@@ -463,6 +463,17 @@ namespace Bicep.Core.TypeSystem
                 return declaredType;
             });
 
+        public override void VisitTupleTypeItemSyntax(TupleTypeItemSyntax syntax)
+            => AssignTypeWithDiagnostics(syntax, diagnostics =>
+            {
+                var declaredType = GetDeclaredTypeAndValidateDecorators(syntax, syntax.Value, diagnostics);
+                diagnostics.WriteMultiple(declaredType.GetDiagnostics());
+
+                base.VisitTupleTypeItemSyntax(syntax);
+
+                return declaredType;
+            });
+
         public override void VisitArrayTypeMemberSyntax(ArrayTypeMemberSyntax syntax)
             => AssignTypeWithDiagnostics(syntax, diagnostics =>
             {

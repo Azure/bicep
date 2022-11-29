@@ -270,6 +270,7 @@ namespace Bicep.Core.Emit
             ResourceTypeSyntax resourceType => GetTypePropertiesForResourceType(resourceType),
             ArrayTypeSyntax arrayType => GetTypePropertiesForArrayType(arrayType),
             ObjectTypeSyntax objectType => GetTypePropertiesForObjectType(objectType),
+            TupleTypeSyntax tupleType => GetTypePropertiesForTupleType(tupleType),
             StringSyntax @string => GetTypePropertiesForStringSyntax(@string),
             IntegerLiteralSyntax integerLiteral => GetTypePropertiesForIntegerLiteralSyntax(integerLiteral),
             BooleanLiteralSyntax booleanLiteral => GetTypePropertiesForBooleanLiteralSyntax(booleanLiteral),
@@ -350,6 +351,7 @@ namespace Bicep.Core.Emit
             UnaryOperationSyntax or
             NullLiteralSyntax => SingleElementArray(syntax),
             ObjectTypeSyntax objectType when context.SemanticModel.GetDeclaredType(objectType) is {} type && TypeHelper.IsLiteralType(type) => SingleElementArray(ToLiteralValue(type)),
+            TupleTypeSyntax tupleType when context.SemanticModel.GetDeclaredType(tupleType) is {} type && TypeHelper.IsLiteralType(type) => SingleElementArray(ToLiteralValue(type)),
             UnionTypeSyntax unionType => GetAllowedValuesForUnionType(unionType),
             ParenthesizedExpressionSyntax parenthesized => TryGetAllowedValues(parenthesized.Expression),
             _ => null,
@@ -408,6 +410,17 @@ namespace Bicep.Core.Emit
 
             return SyntaxFactory.CreateObject(properties);
         }
+
+        private ObjectSyntax GetTypePropertiesForTupleType(TupleTypeSyntax syntax) => SyntaxFactory.CreateObject(new[]
+        {
+            TypeProperty(LanguageConstants.ArrayType),
+            SyntaxFactory.CreateObjectProperty("prefixItems",
+                SyntaxFactory.CreateArray(syntax.Items.Select(item => AddDecoratorsToBody(
+                    item,
+                    TypePropertiesForTypeExpression(item.Value),
+                    context.SemanticModel.GetDeclaredType(item) ?? ErrorType.Empty())))),
+            SyntaxFactory.CreateObjectProperty("items", SyntaxFactory.CreateBooleanLiteral(false)),
+        });
 
         private ObjectSyntax GetTypePropertiesForStringSyntax(StringSyntax syntax) => SyntaxFactory.CreateObject(new[]
         {
@@ -468,6 +481,7 @@ namespace Bicep.Core.Emit
             BooleanLiteralType @bool => SyntaxFactory.CreateBooleanLiteral(@bool.Value),
             PrimitiveType pt when pt.Name == LanguageConstants.NullKeyword => SyntaxFactory.CreateNullLiteral(),
             ObjectType @object => SyntaxFactory.CreateObject(@object.Properties.Select(kvp => SyntaxFactory.CreateObjectProperty(kvp.Key, ToLiteralValue(kvp.Value.TypeReference)))),
+            TupleType tuple => SyntaxFactory.CreateArray(tuple.Items.Select(ToLiteralValue)),
             // This would have been caught by the DeclaredTypeManager during initial type assignment
             _ => throw new ArgumentException("Union types used in ARM type checks must be composed entirely of literal types"),
         };

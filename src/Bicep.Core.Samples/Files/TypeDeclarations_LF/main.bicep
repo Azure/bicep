@@ -33,6 +33,8 @@ type aUnion = 'snap'|'crackle'|'pop'
 
 type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 
+type tupleUnion = ['foo', 'bar', 'baz']|['fizz', 'buzz']|['snap', 'crackle', 'pop']
+
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
 
 type bool = string
@@ -50,3 +52,11 @@ param inlineObjectParam {
 param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
 
 param paramUsingType mixedArray
+
+type tuple = [
+    @description('A leading string')
+    string
+
+    @description('A second element using a type alias')
+    bar
+]

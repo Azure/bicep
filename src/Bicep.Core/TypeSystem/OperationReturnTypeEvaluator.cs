@@ -90,7 +90,7 @@ internal static class OperationReturnTypeEvaluator
 
         internal virtual TypeSymbol Evaluate(SyntaxBase expressionSyntax, out IEnumerable<IDiagnostic> evaluationDiagnostics, params TypeSymbol[] operandTypes)
         {
-            var type = ArmFunctionReturnTypeEvaluator.Evaluate(armFunctionName, nonLiteralReturnType, out var builders, operandTypes, prefixArgs);
+            var type = ArmFunctionReturnTypeEvaluator.Evaluate(armFunctionName, out var builders, operandTypes, prefixArgs) ?? nonLiteralReturnType;
             evaluationDiagnostics = builders.Select(b => b(DiagnosticBuilder.ForPosition(expressionSyntax)));
 
             return type;
@@ -146,7 +146,7 @@ internal static class OperationReturnTypeEvaluator
 
         internal override TypeSymbol Evaluate(SyntaxBase expressionSyntax, out IEnumerable<IDiagnostic> evaluationDiagnostics, params TypeSymbol[] operandTypes)
         {
-            var returnType = ArmFunctionReturnTypeEvaluator.Evaluate("equals", LanguageConstants.Bool, out var builders, operandTypes);
+            var returnType = ArmFunctionReturnTypeEvaluator.Evaluate("equals", out var builders, operandTypes);
             evaluationDiagnostics = builders.Select(builder => builder(DiagnosticBuilder.ForPosition(expressionSyntax)));
 
             if (returnType is BooleanLiteralType booleanLiteral)
@@ -174,11 +174,11 @@ internal static class OperationReturnTypeEvaluator
             var transformedArgTypes = new TypeSymbol[operandTypes.Length];
             for (int i = 0; i < operandTypes.Length; i++)
             {
-                transformedArgTypes[i] = ArmFunctionReturnTypeEvaluator.Evaluate("toLower", LanguageConstants.String, out var builderDelegates, new [] { operandTypes[i] });
+                transformedArgTypes[i] = ArmFunctionReturnTypeEvaluator.Evaluate("toLower", out var builderDelegates, new [] { operandTypes[i] }) ?? LanguageConstants.String;
                 diags.AddRange(builderDelegates.Select(b => b(DiagnosticBuilder.ForPosition(expressionSyntax))));
             }
 
-            var result = ArmFunctionReturnTypeEvaluator.Evaluate("equals", LanguageConstants.Bool, out var builders, transformedArgTypes);
+            var result = ArmFunctionReturnTypeEvaluator.Evaluate("equals", out var builders, transformedArgTypes);
             diags.AddRange(builders.Select(b => b(DiagnosticBuilder.ForPosition(expressionSyntax))));
 
             if (result is BooleanLiteralType booleanLiteral)
@@ -186,7 +186,7 @@ internal static class OperationReturnTypeEvaluator
                 return negated ? new BooleanLiteralType(!booleanLiteral.Value) : booleanLiteral;
             }
 
-            return result;
+            return LanguageConstants.Bool;
         }
     }
 }

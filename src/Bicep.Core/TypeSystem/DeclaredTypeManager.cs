@@ -72,6 +72,12 @@ namespace Bicep.Core.TypeSystem
                 case ObjectTypePropertySyntax typeProperty:
                     return GetTypePropertyType(typeProperty);
 
+                case TupleTypeSyntax tupleType:
+                    return new(GetTupleTypeType(tupleType), tupleType);
+
+                case TupleTypeItemSyntax tupleTypeItem:
+                    return GetTupleTypeItemType(tupleTypeItem);
+
                 case ArrayTypeMemberSyntax typeMember:
                     return GetTypeMemberType(typeMember);
 
@@ -222,38 +228,14 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(diagnostic);
             }
 
-            return GetTypeFromTypeSyntax(symbol.DeclaringType.Value, allowNamespaceReferences: false);
+            return GetTypeFromTypeSyntax(symbol.DeclaringType.Value, allowNamespaceReferences: false).Type;
         }
 
         private DeclaredTypeAssignment? GetTypePropertyType(ObjectTypePropertySyntax syntax)
-            => GetTypeReferencForTypeProperty(syntax) is {} @ref ? new(@ref, syntax) : null;
-
-        private ITypeReference? GetTypeReferencForTypeProperty(ObjectTypePropertySyntax syntax) => syntax.Value switch
-        {
-            VariableAccessSyntax signifier when binder.GetSymbolInfo(signifier) is TypeAliasSymbol signified
-                => new DeferredTypeReference(() => TypeRefToType(signifier, signified)),
-            UnionTypeSyntax unionTypeSyntax when unionTypeSyntax.Members.Any(m => m.Value is VariableAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol)
-                => new DeferredTypeReference(() => MustGetDeclaredType(unionTypeSyntax)),
-            UnaryOperationSyntax unaryOperationSyntax when unaryOperationSyntax.Expression is VariableAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol
-                => new DeferredTypeReference(() => MustGetDeclaredType(unaryOperationSyntax)),
-            SyntaxBase otherwise => TryGetTypeFromTypeSyntax(otherwise, allowNamespaceReferences: false),
-        };
-
-        private TypeSymbol MustGetDeclaredType(SyntaxBase syntax) => GetDeclaredType(syntax)
-            ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidTypeDefinition());
+            => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
 
         private DeclaredTypeAssignment? GetTypeMemberType(ArrayTypeMemberSyntax syntax)
-            => GetTypeReferenceForMemberType(syntax) is {} @ref ? new(@ref, syntax) : null;
-
-        private ITypeReference? GetTypeReferenceForMemberType(ArrayTypeMemberSyntax syntax)
-        {
-            if (syntax.Value is VariableAccessSyntax signifier && binder.GetSymbolInfo(signifier) is TypeAliasSymbol signified)
-            {
-                return new DeferredTypeReference(() => TypeRefToType(signifier, signified));
-            }
-
-            return TryGetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false);
-        }
+            => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
 
         private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax)
         {
@@ -263,10 +245,10 @@ namespace Bicep.Core.TypeSystem
             return new(declaredType, syntax);
         }
 
-        private TypeSymbol GetTypeFromTypeSyntax(SyntaxBase syntax, bool allowNamespaceReferences) => TryGetTypeFromTypeSyntax(syntax, allowNamespaceReferences)
+        private ITypeReference GetTypeFromTypeSyntax(SyntaxBase syntax, bool allowNamespaceReferences) => TryGetTypeFromTypeSyntax(syntax, allowNamespaceReferences)
             ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidTypeDefinition());
 
-        private TypeSymbol? TryGetTypeFromTypeSyntax(SyntaxBase syntax, bool allowNamespaceReferences)
+        private ITypeReference? TryGetTypeFromTypeSyntax(SyntaxBase syntax, bool allowNamespaceReferences)
         {
             RuntimeHelpers.EnsureSufficientExecutionStack();
 
@@ -278,11 +260,12 @@ namespace Bicep.Core.TypeSystem
                 VariableAccessSyntax typeRef => ConvertTypeExpressionToType(typeRef, allowNamespaceReferences),
                 ArrayTypeSyntax array => ConvertTypeExpressionToType(array),
                 ObjectTypeSyntax @object => GetDeclaredType(@object),
+                TupleTypeSyntax tuple => GetDeclaredType(tuple),
                 StringSyntax @string => ConvertTypeExpressionToType(@string),
                 IntegerLiteralSyntax @int => ConvertTypeExpressionToType(@int),
                 BooleanLiteralSyntax @bool => ConvertTypeExpressionToType(@bool),
-                UnaryOperationSyntax unaryOperation => GetDeclaredType(unaryOperation),
-                UnionTypeSyntax unionType => GetDeclaredType(unionType),
+                UnaryOperationSyntax unaryOperation => GetDeclaredTypeAssignment(unaryOperation)?.Reference,
+                UnionTypeSyntax unionType => GetDeclaredTypeAssignment(unionType)?.Reference,
                 ParenthesizedExpressionSyntax parenthesized => ConvertTypeExpressionToType(parenthesized, allowNamespaceReferences),
                 PropertyAccessSyntax propertyAccess => ConvertTypeExpressionToType(propertyAccess),
                 _ => null
@@ -322,7 +305,7 @@ namespace Bicep.Core.TypeSystem
             _ => null,
         };
 
-        private TypeSymbol ConvertTypeExpressionToType(VariableAccessSyntax syntax, bool allowNamespaceReferences)
+        private ITypeReference ConvertTypeExpressionToType(VariableAccessSyntax syntax, bool allowNamespaceReferences)
             => binder.GetSymbolInfo(syntax) switch
             {
                 BuiltInNamespaceSymbol builtInNamespace when allowNamespaceReferences => builtInNamespace.Type,
@@ -338,7 +321,7 @@ namespace Bicep.Core.TypeSystem
             .Concat(binder.FileSymbol.TypeDeclarations.Select(td => td.Name))
             .Distinct();
 
-        private TypeSymbol TypeRefToType(VariableAccessSyntax signifier, TypeAliasSymbol signified)
+        private ITypeReference TypeRefToType(VariableAccessSyntax signifier, TypeAliasSymbol signified) => new DeferredTypeReference(() =>
         {
             var signifiedType = userDefinedTypeReferences.GetOrAdd(signified, GetUserDefinedTypeType);
             if (signifiedType is ErrorType error)
@@ -347,17 +330,26 @@ namespace Bicep.Core.TypeSystem
             }
 
             return signifiedType;
-        }
+        });
 
-        private TypeSymbol ConvertTypeExpressionToType(ArrayTypeSyntax syntax)
+        private ITypeReference ConvertTypeExpressionToType(ArrayTypeSyntax syntax)
         {
             if (!features.UserDefinedTypesEnabled)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypedArrayDeclarationsUnsupported());
             }
 
-            var memberType = GetDeclaredTypeAssignment(syntax.Item)?.Reference;
-            memberType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Item).InvalidTypeDefinition());
+            if (RequiresDeferral(syntax))
+            {
+                return new DeferredTypeReference(() => FinalizeArrayType(syntax));
+            }
+
+            return FinalizeArrayType(syntax);
+        }
+
+        private TypeSymbol FinalizeArrayType(ArrayTypeSyntax syntax)
+        {
+            var memberType = GetDeclaredType(syntax.Item) ?? ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Item).InvalidTypeDefinition());
 
             return new TypedArrayType(memberType, TypeSymbolValidationFlags.Default);
         }
@@ -436,6 +428,31 @@ namespace Bicep.Core.TypeSystem
         private bool HasSealedDecorator(DecorableSyntax syntax)
             => SemanticModelHelper.TryGetDecoratorInNamespace(binder, typeManager.GetDeclaredType, syntax, SystemNamespaceType.BuiltInName, LanguageConstants.ParameterSealedPropertyName) is not null;
 
+        private ITypeReference GetTupleTypeType(TupleTypeSyntax syntax)
+        {
+            if (!features.UserDefinedTypesEnabled)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypedTupleDeclarationsUnsupported());
+            }
+
+            List<ITypeReference> items = new();
+            TupleTypeNameBuilder nameBuilder = new();
+
+            foreach (var item in syntax.Items)
+            {
+                var itemType = GetDeclaredTypeAssignment(item)?.Reference ?? ErrorType.Create(DiagnosticBuilder.ForPosition(item.Value).InvalidTypeDefinition());
+                items.Add(itemType);
+                nameBuilder.AppendItem(GetPropertyTypeName(item.Value, itemType));
+            }
+
+            return new TupleType(nameBuilder.ToString(),
+                items.ToImmutableArray(),
+                UnwrapUntilDecorable(syntax, HasSecureDecorator, TypeSymbolValidationFlags.IsSecure, TypeSymbolValidationFlags.Default));
+        }
+
+        private DeclaredTypeAssignment? GetTupleTypeItemType(TupleTypeItemSyntax syntax)
+            => new(GetTypeFromTypeSyntax(syntax.Value, allowNamespaceReferences: false), syntax);
+
         private TypeSymbol ConvertTypeExpressionToType(StringSyntax syntax)
         {
             if (!features.UserDefinedTypesEnabled)
@@ -476,9 +493,29 @@ namespace Bicep.Core.TypeSystem
             return syntax.Value ? LanguageConstants.True : LanguageConstants.False;
         }
 
-        private TypeSymbol GetUnaryOperationType(UnaryOperationSyntax syntax)
+        private ITypeReference GetUnaryOperationType(UnaryOperationSyntax syntax)
         {
-            var baseExpressionType = GetTypeFromTypeSyntax(syntax.Expression, allowNamespaceReferences: false);
+            if (!features.UserDefinedTypesEnabled)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeLiteralDeclarationsUnsupported());
+            }
+
+            if (RequiresDeferral(syntax))
+            {
+                return new DeferredTypeReference(() => FinalizeUnaryType(syntax));
+            }
+
+            return FinalizeUnaryType(syntax);
+        }
+
+        private TypeSymbol FinalizeUnaryType(UnaryOperationSyntax syntax)
+        {
+            var baseExpressionType = GetTypeFromTypeSyntax(syntax.Expression, allowNamespaceReferences: false).Type;
+
+            if (baseExpressionType is ErrorType)
+            {
+                return baseExpressionType;
+            }
 
             var evaluated = OperationReturnTypeEvaluator.FoldUnaryExpression(syntax, baseExpressionType, out var foldDiags);
             foldDiags ??= ImmutableArray<IDiagnostic>.Empty;
@@ -492,13 +529,34 @@ namespace Bicep.Core.TypeSystem
                 .Append(DiagnosticBuilder.ForPosition(syntax).TypeExpressionLiteralConversionFailed()));
         }
 
-        private TypeSymbol GetUnionTypeType(UnionTypeSyntax syntax)
+        private bool RequiresDeferral(SyntaxBase syntax) => syntax switch
+        {
+            ArrayTypeSyntax arrayType => RequiresDeferral(arrayType.Item.Value),
+            ParenthesizedExpressionSyntax parenthesizedExpression => RequiresDeferral(parenthesizedExpression.Expression),
+            TupleTypeSyntax tupleType => tupleType.Items.Any(i => RequiresDeferral(i.Value)),
+            UnaryOperationSyntax unaryOperation => RequiresDeferral(unaryOperation.Expression),
+            UnionTypeSyntax unionType => unionType.Members.Any(m => RequiresDeferral(m.Value)),
+            VariableAccessSyntax variableAccess when binder.GetSymbolInfo(variableAccess) is TypeAliasSymbol => true,
+            _ => false,
+        };
+
+        private ITypeReference GetUnionTypeType(UnionTypeSyntax syntax)
         {
             if (!features.UserDefinedTypesEnabled)
             {
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).TypeUnionDeclarationsUnsupported());
             }
 
+            if (RequiresDeferral(syntax))
+            {
+                return new DeferredTypeReference(() => FinalizeUnionType(syntax));
+            }
+
+            return FinalizeUnionType(syntax);
+        }
+
+        private TypeSymbol FinalizeUnionType(UnionTypeSyntax syntax)
+        {
             // ARM's allowedValues constraint permits mixed type arrays (so long as none of the members are themselves arrays).
             // The runtime in that case will validate that the submitted array contains a subset of the allowed values
             // (e.g., `[1, 2]` or `[2, 3]` would both be permitted with `"type": "array", "allowedValues": [1, 2, 3]`)
@@ -515,8 +573,7 @@ namespace Bicep.Core.TypeSystem
                 // Array<any> is the only location in which a null literal is a valid type
                 var memberType = mightBeArrayAny && IsNullLiteral(member.Value)
                     ? LanguageConstants.Null
-                    : GetTypeFromTypeSyntax(member.Value, allowNamespaceReferences: false);
-
+                    : GetTypeFromTypeSyntax(member.Value, allowNamespaceReferences: false).Type;
 
                 if (memberType is ErrorType error)
                 {
@@ -608,19 +665,19 @@ namespace Bicep.Core.TypeSystem
             IntegerLiteralType => LanguageConstants.Int,
             BooleanLiteralType => LanguageConstants.Bool,
             ObjectType => LanguageConstants.Object,
-            // TODO for array literals when type system adds support for tuples
+            TupleType => LanguageConstants.Array,
             _ => null,
         };
 
         private IEnumerable<TypeSymbol> FlattenUnionMemberType(ITypeReference memberType)
             => memberType.Type is UnionType union ? union.Members.SelectMany(FlattenUnionMemberType) : memberType.Type.AsEnumerable();
 
-        private TypeSymbol ConvertTypeExpressionToType(ParenthesizedExpressionSyntax syntax, bool allowNamespaceReferences)
+        private ITypeReference ConvertTypeExpressionToType(ParenthesizedExpressionSyntax syntax, bool allowNamespaceReferences)
             => GetTypeFromTypeSyntax(syntax.Expression, allowNamespaceReferences);
 
         private TypeSymbol ConvertTypeExpressionToType(PropertyAccessSyntax syntax)
         {
-            var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression, allowNamespaceReferences: true);
+            var baseType = GetTypeFromTypeSyntax(syntax.BaseExpression, allowNamespaceReferences: true).Type;
 
             if (baseType is ErrorType error)
             {
@@ -788,23 +845,52 @@ namespace Bicep.Core.TypeSystem
             var baseExpressionAssignment = GetDeclaredTypeAssignment(syntax.BaseExpression);
             var indexAssignedType = this.typeManager.GetTypeInfo(syntax.IndexExpression);
 
+            static TypeSymbol GetTypeAtIndex(TupleType baseType, IntegerLiteralType indexType, SyntaxBase indexSyntax) => indexType.Value switch
+            {
+                // FIXME diagnostic negative indices are not supported (but we might)
+                < 0 => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).InvalidType()),
+                // FIXME diagnostic is not a valid index/tuple only has X items
+                long value when value >= baseType.Items.Length => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).InvalidType()),
+                // unlikely to hit this given that we've established that the tuple has a item at the given position
+                // FIXME diagnostic literal index expressions must have a value less than int.MaxValue
+                > int.MaxValue => ErrorType.Create(DiagnosticBuilder.ForPosition(indexSyntax).InvalidType()),
+                long otherwise => baseType.Items[(int) otherwise].Type,
+            };
+
+            // identify the correct syntax so property access can provide completions correctly for resource and module loops
+            static SyntaxBase? DeclaringSyntaxForArrayAccessIfCollectionBase(DeclaredTypeAssignment baseExpressionAssignment) => baseExpressionAssignment.DeclaringSyntax switch
+            {
+                ForSyntax { Body: ObjectSyntax loopBody } => loopBody,
+                ForSyntax { Body: IfConditionSyntax { Body: ObjectSyntax loopBody } } => loopBody,
+                _ => null
+            };
+
             // TODO: Currently array access is broken with discriminated object types - revisit when that is fixed
             switch (baseExpressionAssignment?.Reference.Type)
             {
+                case TupleType tupleTypeWithKnownIndex when indexAssignedType is IntegerLiteralType integerLiteral:
+                    return new(GetTypeAtIndex(tupleTypeWithKnownIndex, integerLiteral, syntax.IndexExpression), DeclaringSyntaxForArrayAccessIfCollectionBase(baseExpressionAssignment));
+
+                case TupleType tupleTypeWithIndexPossibilities when indexAssignedType is UnionType indexUnion && indexUnion.Members.All(t => t.Type is IntegerLiteralType):
+                    var possibilities = indexUnion.Members.Select(t => t.Type).OfType<IntegerLiteralType>().Select(ilt => GetTypeAtIndex(tupleTypeWithIndexPossibilities, ilt, syntax.IndexExpression));
+                    if (possibilities.OfType<ErrorType>().Any())
+                    {
+                        return new(ErrorType.Create(possibilities.SelectMany(t => t.GetDiagnostics())), syntax);
+                    }
+
+                    return new(TypeHelper.CreateTypeUnion(possibilities), DeclaringSyntaxForArrayAccessIfCollectionBase(baseExpressionAssignment));
+
+                case TupleType tupleTypeWithUnknownIndex when TypeValidator.AreTypesAssignable(indexAssignedType, LanguageConstants.Int):
+                    // we don't know which index will be accessed, so return a union of all types contained in the tuple
+                    return new(tupleTypeWithUnknownIndex.Item, DeclaringSyntaxForArrayAccessIfCollectionBase(baseExpressionAssignment));
+
                 case ArrayType arrayType when TypeValidator.AreTypesAssignable(indexAssignedType, LanguageConstants.Int):
                     // we are accessing an array by an expression of a numeric type
                     // return the item type of the array
 
                     // for regular array we can't evaluate the array index at this point, but for loops the index is irrelevant
-                    // and we need to set declaring syntax, so property access can provide completions correctly for resource and module loops
-                    var declaringSyntax = baseExpressionAssignment.DeclaringSyntax switch
-                    {
-                        ForSyntax { Body: ObjectSyntax loopBody } => loopBody,
-                        ForSyntax { Body: IfConditionSyntax { Body: ObjectSyntax loopBody } } => loopBody,
-                        _ => null
-                    };
 
-                    return new DeclaredTypeAssignment(arrayType.Item.Type, declaringSyntax);
+                    return new(arrayType.Item.Type, DeclaringSyntaxForArrayAccessIfCollectionBase(baseExpressionAssignment));
 
                 case ObjectType objectType when syntax.IndexExpression is StringSyntax potentialLiteralValue && potentialLiteralValue.TryGetLiteralValue() is { } propertyName:
                     // string literal indexing over an object is the same as dot property access

@@ -15,9 +15,8 @@ namespace Bicep.Core.TypeSystem;
 
 public static class ArmFunctionReturnTypeEvaluator
 {
-    public static TypeSymbol Evaluate(
+    public static TypeSymbol? Evaluate(
         string armFunctionName,
-        TypeSymbol nonLiteralReturnType,
         out IEnumerable<DiagnosticBuilder.DiagnosticBuilderDelegate> diagnosticBuilders,
         IEnumerable<TypeSymbol> operandTypes,
         IEnumerable<FunctionArgument>? prefixArgs = default)
@@ -39,7 +38,7 @@ public static class ArmFunctionReturnTypeEvaluator
             if (ToJToken(operandTypesArray[i]) is not JToken converted)
             {
                 // if any of the input types is non-literal, we can't produce a literal return type
-                return nonLiteralReturnType;
+                return null;
             }
 
             args[i + prefixArgsArray.Length] = new(converted);
@@ -55,7 +54,7 @@ public static class ArmFunctionReturnTypeEvaluator
             builderDelegates.Add(builderFunc);
         }
 
-        return nonLiteralReturnType;
+        return null;
     }
 
     private static JToken? ToJToken(TypeSymbol typeSymbol) => typeSymbol switch {
@@ -63,6 +62,7 @@ public static class ArmFunctionReturnTypeEvaluator
         IntegerLiteralType integerLiteral => integerLiteral.Value,
         StringLiteralType stringLiteral => stringLiteral.RawStringValue,
         ObjectType objectType => ToJToken(objectType),
+        TupleType tupleType => ToJToken(tupleType),
         // This converter does not handle union types, as a union conversion will take m^n times as many computations,
         // where m == the average number of union type members defined for each function argument and n == the number of
         // function arguments. E.g, the return type of concat('foo'|'bar', 'fizz'|'buzz', 'snap'|'crackle') should be a
@@ -83,6 +83,22 @@ public static class ArmFunctionReturnTypeEvaluator
             }
 
             target[key] = converted;
+        }
+
+        return target;
+    }
+
+    private static JToken? ToJToken(TupleType tupleType)
+    {
+        var target = new JArray();
+        foreach (var item in tupleType.Items)
+        {
+            if (ToJToken(item.Type) is not JToken converted)
+            {
+                return null;
+            }
+
+            target.Add(converted);
         }
 
         return target;
@@ -119,24 +135,47 @@ public static class ArmFunctionReturnTypeEvaluator
         JValue { Value: char charValue } => new StringLiteralType(charValue.ToString()),
         JValue { Value: string stringValue } => new StringLiteralType(stringValue),
         JObject jObject => TryCastToLiteral(jObject),
-        // TODO: JArrays cannot be converted to type literals in the absence of a tuple type
+        JArray jArray=> TryCastToLiteral(jArray),
         _ => default,
     };
 
     private static TypeSymbol? TryCastToLiteral(JObject jObject)
     {
         List<TypeProperty> convertedProperties = new();
+        ObjectTypeNameBuilder nameBuilder = new();
         foreach (var prop in jObject.Properties())
         {
             if (TryCastToLiteral(prop.Value) is TypeSymbol propType)
             {
                 convertedProperties.Add(new(prop.Name, propType, TypePropertyFlags.Required|TypePropertyFlags.DisallowAny));
-            } else
+                nameBuilder.AppendProperty(prop.Name, propType.Name, isOptional: false);
+            }
+            else
             {
-                return default;
+                return null;
             }
         }
 
-        return new ObjectType("inferredType", TypeSymbolValidationFlags.Default, convertedProperties, additionalPropertiesType: default);
+        return new ObjectType(nameBuilder.ToString(), TypeSymbolValidationFlags.Default, convertedProperties, additionalPropertiesType: default);
+    }
+
+    private static TypeSymbol? TryCastToLiteral(JArray jArray)
+    {
+        List<ITypeReference> convertedItems = new();
+        TupleTypeNameBuilder nameBuilder = new();
+        foreach (var item in jArray)
+        {
+            if (TryCastToLiteral(item) is TypeSymbol itemType)
+            {
+                convertedItems.Add(itemType);
+                nameBuilder.AppendItem(itemType.Name);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        return new TupleType(nameBuilder.ToString(), convertedItems.ToImmutableArray(), TypeSymbolValidationFlags.Default);
     }
 }

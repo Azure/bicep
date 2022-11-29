@@ -1759,6 +1759,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP309",
                 $@"Values of type ""{flattenInputType.Name}"" cannot be flattened because ""{incompatibleType.Name}"" is not an array type.");
+
+            public ErrorDiagnostic TypedTupleDeclarationsUnsupported() => new(
+                TextSpan,
+                "BCP310",
+                $@"Using a strongly-typed tuple type declaration requires enabling EXPERIMENTAL feature ""{nameof(ExperimentalFeaturesEnabled.UserDefinedTypes)}"".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

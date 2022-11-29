@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 using System;
 using System.Text;
 using Bicep.Core.Parsing;
@@ -51,6 +52,7 @@ internal class ObjectTypeNameBuilder
         if (!finalized)
         {
             builder.Append(" }");
+            finalized = true;
         }
 
         return builder.ToString();
