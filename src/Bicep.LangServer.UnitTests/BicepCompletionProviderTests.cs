@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core;
@@ -13,10 +14,12 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.UnitTests.Completions;
 using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Snippets;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
@@ -25,10 +28,16 @@ namespace Bicep.LangServer.UnitTests
     [TestClass]
     public class BicepCompletionProviderTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         private static BicepCompletionProvider CreateProvider()
         {
             var helper = ServiceBuilder.Create(services => services
                 .AddSingleton<ISnippetsProvider, SnippetsProvider>()
+                .AddSingleton<IServiceClientCredentialsProvider, ServiceClientCredentialsProvider>()
+                .AddSingleton<IMcrCompletionProvider, McrCompletionProvider>()
+                .AddSingleton<IModuleReferenceCompletionProvider, ModuleReferenceCompletionProvider>()
                 .AddSingleton<BicepCompletionProvider>());
 
             return helper.Construct<BicepCompletionProvider>();
@@ -343,6 +352,54 @@ output length int =
                     c.AdditionalTextEdits!.ElementAt(0).Range.Start.Character.Should().Be(8);
                     c.AdditionalTextEdits!.ElementAt(0).Range.End.Line.Should().Be(0);
                     c.AdditionalTextEdits!.ElementAt(0).Range.End.Character.Should().Be(8);
+                });
+        }
+
+        [TestMethod]
+        public async Task VerifyBicepRegistryAndTemplateSpecSchemaNameCompletions()
+        {
+            var fileWithCursors = @"module test |";
+            var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, '|');
+
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var compilation = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
+
+            var completionProvider = CreateProvider();
+
+            var completions = await completionProvider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, cursors[0]));
+
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    const string expected = "../";
+                    c.Label.Should().Be(expected);
+                    c.Kind.Should().Be(CompletionItemKind.Folder);
+                },
+                c =>
+                {
+                    const string expected = "br:";
+                    c.Label.Should().Be(expected);
+                    c.Kind.Should().Be(CompletionItemKind.Reference);
+                },
+                c =>
+                {
+                    const string expected = "br/";
+                    c.Label.Should().Be(expected);
+                    c.Kind.Should().Be(CompletionItemKind.Reference);
+                },
+                c =>
+                {
+                    const string expected = "ts:";
+                    c.Label.Should().Be(expected);
+                    c.Kind.Should().Be(CompletionItemKind.Reference);
+                },
+                c =>
+                {
+                    const string expected = "ts/";
+                    c.Label.Should().Be(expected);
+                    c.Kind.Should().Be(CompletionItemKind.Reference);
                 });
         }
 
