@@ -196,6 +196,33 @@ type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 //@[42:47) StringComplete |'pop'|
 //@[47:49) NewLine |\n\n|
 
+type tupleUnion = ['foo', 'bar', 'baz']|['fizz', 'buzz']|['snap', 'crackle', 'pop']
+//@[00:04) Identifier |type|
+//@[05:15) Identifier |tupleUnion|
+//@[16:17) Assignment |=|
+//@[18:19) LeftSquare |[|
+//@[19:24) StringComplete |'foo'|
+//@[24:25) Comma |,|
+//@[26:31) StringComplete |'bar'|
+//@[31:32) Comma |,|
+//@[33:38) StringComplete |'baz'|
+//@[38:39) RightSquare |]|
+//@[39:40) Pipe |||
+//@[40:41) LeftSquare |[|
+//@[41:47) StringComplete |'fizz'|
+//@[47:48) Comma |,|
+//@[49:55) StringComplete |'buzz'|
+//@[55:56) RightSquare |]|
+//@[56:57) Pipe |||
+//@[57:58) LeftSquare |[|
+//@[58:64) StringComplete |'snap'|
+//@[64:65) Comma |,|
+//@[66:75) StringComplete |'crackle'|
+//@[75:76) Comma |,|
+//@[77:82) StringComplete |'pop'|
+//@[82:83) RightSquare |]|
+//@[83:85) NewLine |\n\n|
+
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
 //@[00:04) Identifier |type|
 //@[05:15) Identifier |mixedArray|
@@ -318,6 +345,35 @@ param paramUsingType mixedArray
 //@[00:05) Identifier |param|
 //@[06:20) Identifier |paramUsingType|
 //@[21:31) Identifier |mixedArray|
-//@[31:32) NewLine |\n|
+//@[31:33) NewLine |\n\n|
 
-//@[00:00) EndOfFile ||
+type tuple = [
+//@[00:04) Identifier |type|
+//@[05:10) Identifier |tuple|
+//@[11:12) Assignment |=|
+//@[13:14) LeftSquare |[|
+//@[14:15) NewLine |\n|
+    @description('A leading string')
+//@[04:05) At |@|
+//@[05:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:35) StringComplete |'A leading string'|
+//@[35:36) RightParen |)|
+//@[36:38) NewLine |\r\n|
+    string
+//@[04:10) Identifier |string|
+//@[10:14) NewLine |\r\n\r\n|
+
+    @description('A second element using a type alias')
+//@[04:05) At |@|
+//@[05:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:54) StringComplete |'A second element using a type alias'|
+//@[54:55) RightParen |)|
+//@[55:57) NewLine |\r\n|
+    bar
+//@[04:07) Identifier |bar|
+//@[07:09) NewLine |\r\n|
+]
+//@[00:01) RightSquare |]|
+//@[01:01) EndOfFile ||

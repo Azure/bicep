@@ -48,7 +48,7 @@ type foo = {
 //@          "$ref": "#/definitions/foo"
 //@        }
 //@      },
-//@      "sealed": "true",
+//@      "additionalProperties": false,
 //@      "metadata": {
 //@      }
 //@    },
@@ -151,6 +151,27 @@ type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 //@      ]
 //@    },
 
+type tupleUnion = ['foo', 'bar', 'baz']|['fizz', 'buzz']|['snap', 'crackle', 'pop']
+//@    "tupleUnion": {
+//@      "type": "array",
+//@      "allowedValues": [
+//@        [
+//@          "fizz",
+//@          "buzz"
+//@        ],
+//@        [
+//@          "foo",
+//@          "bar",
+//@          "baz"
+//@        ],
+//@        [
+//@          "snap",
+//@          "crackle",
+//@          "pop"
+//@        ]
+//@      ]
+//@    },
+
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
 //@    "mixedArray": {
 //@      "type": "array",
@@ -172,7 +193,7 @@ type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!tr
 type bool = string
 //@    "bool": {
 //@      "type": "string"
-//@    }
+//@    },
 
 param inlineObjectParam {
 //@    "inlineObjectParam": {
@@ -236,3 +257,28 @@ param paramUsingType mixedArray
 //@      "$ref": "#/definitions/mixedArray"
 //@    }
 
+type tuple = [
+//@    "tuple": {
+//@      "type": "array",
+//@      "prefixItems": [
+//@        {
+//@          "type": "string",
+//@          "metadata": {
+//@          }
+//@        },
+//@        {
+//@          "$ref": "#/definitions/bar",
+//@          "metadata": {
+//@          }
+//@        }
+//@      ],
+//@      "items": false
+//@    }
+    @description('A leading string')
+//@            "description": "A leading string"
+    string
+
+    @description('A second element using a type alias')
+//@            "description": "A second element using a type alias"
+    bar
+]

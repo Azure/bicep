@@ -37,6 +37,9 @@ type aUnion = 'snap'|'crackle'|'pop'
 type expandedUnion = aUnion|'fizz'|'buzz'|'pop'
 //@[5:18) TypeAlias expandedUnion. Type: Type<'buzz' | 'crackle' | 'fizz' | 'pop' | 'snap'>. Declaration start char: 0, length: 47
 
+type tupleUnion = ['foo', 'bar', 'baz']|['fizz', 'buzz']|['snap', 'crackle', 'pop']
+//@[5:15) TypeAlias tupleUnion. Type: Type<['fizz', 'buzz'] | ['foo', 'bar', 'baz'] | ['snap', 'crackle', 'pop']>. Declaration start char: 0, length: 83
+
 type mixedArray = ('heffalump'|'woozle'|{ shape: '*', size: '*'}|10|-10|true|!true|null)[]
 //@[5:15) TypeAlias mixedArray. Type: Type<('heffalump' | 'woozle' | -10 | 10 | false | null | true | { shape: '*', size: '*' })[]>. Declaration start char: 0, length: 90
 
@@ -60,3 +63,11 @@ param unionParam {property: 'ping'}|{property: 'pong'} = {property: 'pong'}
 param paramUsingType mixedArray
 //@[6:20) Parameter paramUsingType. Type: ('heffalump' | 'woozle' | -10 | 10 | false | null | true | { shape: '*', size: '*' })[]. Declaration start char: 0, length: 31
 
+type tuple = [
+//@[5:10) TypeAlias tuple. Type: Type<[string, bar]>. Declaration start char: 0, length: 134
+    @description('A leading string')
+    string
+
+    @description('A second element using a type alias')
+    bar
+]
