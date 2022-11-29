@@ -200,7 +200,7 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
   name: module.name
   params: {
     arrayParam: [for i in range(0,3): concat('test-', i, '-', module.name)]
-//@[21:22) Local i. Type: int. Declaration start char: 21, length: 1
+//@[21:22) Local i. Type: 0 | 1 | 2. Declaration start char: 21, length: 1
     objParam: module
     stringParamB: module.location
   }
@@ -258,15 +258,15 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
   params: {
     objParam: {
       a: [for i in range(0,10): i]
-//@[14:15) Local i. Type: int. Declaration start char: 14, length: 1
+//@[14:15) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 14, length: 1
       b: [for i in range(1,2): i]
-//@[14:15) Local i. Type: int. Declaration start char: 14, length: 1
+//@[14:15) Local i. Type: 1 | 2. Declaration start char: 14, length: 1
       c: {
         d: [for j in range(2,3): j]
-//@[16:17) Local j. Type: int. Declaration start char: 16, length: 1
+//@[16:17) Local j. Type: 2 | 3 | 4. Declaration start char: 16, length: 1
       }
       e: [for k in range(4,4): {
-//@[14:15) Local k. Type: int. Declaration start char: 14, length: 1
+//@[14:15) Local k. Type: 4 | 5 | 6 | 7. Declaration start char: 14, length: 1
         f: k
       }]
     }
@@ -274,7 +274,7 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
     arrayParam: [
       {
         e: [for j in range(7,7): j]
-//@[16:17) Local j. Type: int. Declaration start char: 16, length: 1
+//@[16:17) Local j. Type: 10 | 11 | 12 | 13 | 7 | 8 | 9. Declaration start char: 16, length: 1
       }
     ]
   }
@@ -286,18 +286,18 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
   params: {
     objParam: {
       a: [for (i, i2) in range(0,10): i + i2]
-//@[15:16) Local i. Type: int. Declaration start char: 15, length: 1
+//@[15:16) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 15, length: 1
 //@[18:20) Local i2. Type: int. Declaration start char: 18, length: 2
       b: [for (i, i2) in range(1,2): i / i2]
-//@[15:16) Local i. Type: int. Declaration start char: 15, length: 1
+//@[15:16) Local i. Type: 1 | 2. Declaration start char: 15, length: 1
 //@[18:20) Local i2. Type: int. Declaration start char: 18, length: 2
       c: {
         d: [for (j, j2) in range(2,3): j * j2]
-//@[17:18) Local j. Type: int. Declaration start char: 17, length: 1
+//@[17:18) Local j. Type: 2 | 3 | 4. Declaration start char: 17, length: 1
 //@[20:22) Local j2. Type: int. Declaration start char: 20, length: 2
       }
       e: [for (k, k2) in range(4,4): {
-//@[15:16) Local k. Type: int. Declaration start char: 15, length: 1
+//@[15:16) Local k. Type: 4 | 5 | 6 | 7. Declaration start char: 15, length: 1
 //@[18:20) Local k2. Type: int. Declaration start char: 18, length: 2
         f: k
         g: k2
@@ -307,28 +307,28 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
     arrayParam: [
       {
         e: [for j in range(7,7): j]
-//@[16:17) Local j. Type: int. Declaration start char: 16, length: 1
+//@[16:17) Local j. Type: 10 | 11 | 12 | 13 | 7 | 8 | 9. Declaration start char: 16, length: 1
       }
     ]
   }
 }
 
 module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for thing in range(0,1): {
-//@[79:84) Local thing. Type: int. Declaration start char: 79, length: 5
+//@[79:84) Local thing. Type: 0. Declaration start char: 79, length: 5
 //@[07:55) Module propertyLoopInsideParameterValueInsideModuleLoop. Type: module[]. Declaration start char: 0, length: 529
   name: 'propertyLoopInsideParameterValueInsideModuleLoop'
   params: {
     objParam: {
       a: [for i in range(0,10): i + thing]
-//@[14:15) Local i. Type: int. Declaration start char: 14, length: 1
+//@[14:15) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 14, length: 1
       b: [for i in range(1,2): i * thing]
-//@[14:15) Local i. Type: int. Declaration start char: 14, length: 1
+//@[14:15) Local i. Type: 1 | 2. Declaration start char: 14, length: 1
       c: {
         d: [for j in range(2,3): j]
-//@[16:17) Local j. Type: int. Declaration start char: 16, length: 1
+//@[16:17) Local j. Type: 2 | 3 | 4. Declaration start char: 16, length: 1
       }
       e: [for k in range(4,4): {
-//@[14:15) Local k. Type: int. Declaration start char: 14, length: 1
+//@[14:15) Local k. Type: 4 | 5 | 6 | 7. Declaration start char: 14, length: 1
         f: k - thing
       }]
     }
@@ -336,7 +336,7 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
     arrayParam: [
       {
         e: [for j in range(7,7): j % thing]
-//@[16:17) Local j. Type: int. Declaration start char: 16, length: 1
+//@[16:17) Local j. Type: 10 | 11 | 12 | 13 | 7 | 8 | 9. Declaration start char: 16, length: 1
       }
     ]
   }

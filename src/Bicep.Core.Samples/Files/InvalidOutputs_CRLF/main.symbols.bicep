@@ -176,14 +176,14 @@ output noNestedLoops array = [for thing in things: {
 output noInnerLoopsInOutputs object = {
 //@[07:28) Output noInnerLoopsInOutputs. Type: object. Declaration start char: 0, length: 74
   a: [for i in range(0,10): i]
-//@[10:11) Local i. Type: int. Declaration start char: 10, length: 1
+//@[10:11) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 10, length: 1
 }
 output noInnerLoopsInOutputs2 object = {
 //@[07:29) Output noInnerLoopsInOutputs2. Type: object. Declaration start char: 0, length: 116
   a: [for i in range(0,10): {
-//@[10:11) Local i. Type: int. Declaration start char: 10, length: 1
+//@[10:11) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 10, length: 1
     b: [for j in range(0,10): i+j]
-//@[12:13) Local j. Type: int. Declaration start char: 12, length: 1
+//@[12:13) Local j. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 12, length: 1
   }]
 }
 

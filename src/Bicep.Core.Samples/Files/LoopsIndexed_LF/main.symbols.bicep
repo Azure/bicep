@@ -65,7 +65,7 @@ resource extendSingleResourceInCollection 'Microsoft.Authorization/locks@2016-09
 
 // collection of extensions
 resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for (i, i2) in range(0,1): {
-//@[080:081) Local i. Type: int. Declaration start char: 80, length: 1
+//@[080:081) Local i. Type: 0. Declaration start char: 80, length: 1
 //@[083:085) Local i2. Type: int. Declaration start char: 83, length: 2
 //@[009:028) Resource extensionCollection. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 235
   name: 'lock-${i}-${i2}'
@@ -78,7 +78,7 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for (
 // cascade extend the extension
 @batchSize(1)
 resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for (i, i2) in range(0,1): {
-//@[073:074) Local i. Type: int. Declaration start char: 73, length: 1
+//@[073:074) Local i. Type: 0. Declaration start char: 73, length: 1
 //@[076:078) Local i2. Type: int. Declaration start char: 76, length: 2
 //@[009:021) Resource lockTheLocks. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 260
   name: 'lock-the-lock-${i}-${i2}'
@@ -372,7 +372,7 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
         name: 'BackendAPIMs'
         properties: {
           backends: [for (index,i) in range(0, length(regions)): {
-//@[026:031) Local index. Type: int. Declaration start char: 26, length: 5
+//@[026:031) Local index. Type: 0 | 1. Declaration start char: 26, length: 5
 //@[032:033) Local i. Type: int. Declaration start char: 32, length: 1
             // we cannot codegen index correctly because the generated dependsOn property
             // would be outside of the scope of the property loop
@@ -391,7 +391,7 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
 }
 
 resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for (index, i) in range(0, length(regions)): {
-//@[093:098) Local index. Type: int. Declaration start char: 93, length: 5
+//@[093:098) Local index. Type: 0 | 1. Declaration start char: 93, length: 5
 //@[100:101) Local i. Type: int. Declaration start char: 100, length: 1
 //@[009:042) Resource indexedModuleCollectionDependency. Type: Microsoft.Network/frontDoors@2020-05-01[]. Declaration start char: 0, length: 771
   name: '${name}-${index}-${i}'

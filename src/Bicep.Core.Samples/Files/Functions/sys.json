@@ -927,16 +927,16 @@
       {
         "name": "intArray",
         "description": "The array of integers.",
-        "type": "array",
+        "type": "int[]",
         "required": true
       }
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
     "flags": "default",
-    "typeSignature": "(intArray: array): int",
+    "typeSignature": "(intArray: int[]): int",
     "parameterTypeSignatures": [
-      "intArray: array"
+      "intArray: int[]"
     ]
   },
   {
@@ -963,16 +963,16 @@
       {
         "name": "intArray",
         "description": "The array of integers.",
-        "type": "array",
+        "type": "int[]",
         "required": true
       }
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
     "flags": "default",
-    "typeSignature": "(intArray: array): int",
+    "typeSignature": "(intArray: int[]): int",
     "parameterTypeSignatures": [
-      "intArray: array"
+      "intArray: int[]"
     ]
   },
   {
@@ -1208,7 +1208,7 @@
     "minimumArgumentCount": 2,
     "maximumArgumentCount": 2,
     "flags": "default",
-    "typeSignature": "(inputString: string, delimiter: array | string): array",
+    "typeSignature": "(inputString: string, delimiter: array | string): string[]",
     "parameterTypeSignatures": [
       "inputString: string",
       "delimiter: array | string"

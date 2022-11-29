@@ -346,8 +346,8 @@ var myBigIntExpression2 = 2199023255552 * 2199023255552
 
 // variable loops
 var incrementingNumbers = [for i in range(0,10) : i]
-//@[31:32) Local i. Type: int. Declaration start char: 31, length: 1
-//@[04:23) Variable incrementingNumbers. Type: int[]. Declaration start char: 0, length: 52
+//@[31:32) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 31, length: 1
+//@[04:23) Variable incrementingNumbers. Type: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9)[]. Declaration start char: 0, length: 52
 var loopInput = [
 //@[04:13) Variable loopInput. Type: ['one', 'two']. Declaration start char: 0, length: 35
   'one'
@@ -378,16 +378,16 @@ var arrayOfBooleans = [for (name, i) in loopInput: i % 2 == 0]
 //@[34:35) Local i. Type: int. Declaration start char: 34, length: 1
 //@[04:19) Variable arrayOfBooleans. Type: bool[]. Declaration start char: 0, length: 62
 var arrayOfHardCodedNumbers = [for i in range(0,10): 3]
-//@[35:36) Local i. Type: int. Declaration start char: 35, length: 1
+//@[35:36) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 35, length: 1
 //@[04:27) Variable arrayOfHardCodedNumbers. Type: 3[]. Declaration start char: 0, length: 55
 var arrayOfHardCodedBools = [for i in range(0,10): false]
-//@[33:34) Local i. Type: int. Declaration start char: 33, length: 1
+//@[33:34) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 33, length: 1
 //@[04:25) Variable arrayOfHardCodedBools. Type: false[]. Declaration start char: 0, length: 57
 var arrayOfHardCodedStrings = [for i in range(0,3): 'hi']
-//@[35:36) Local i. Type: int. Declaration start char: 35, length: 1
+//@[35:36) Local i. Type: 0 | 1 | 2. Declaration start char: 35, length: 1
 //@[04:27) Variable arrayOfHardCodedStrings. Type: 'hi'[]. Declaration start char: 0, length: 57
 var arrayOfNonRuntimeFunctionCalls = [for i in range(0,3): concat('hi', i)]
-//@[42:43) Local i. Type: int. Declaration start char: 42, length: 1
+//@[42:43) Local i. Type: 0 | 1 | 2. Declaration start char: 42, length: 1
 //@[04:34) Variable arrayOfNonRuntimeFunctionCalls. Type: string[]. Declaration start char: 0, length: 75
 
 var multilineString = '''

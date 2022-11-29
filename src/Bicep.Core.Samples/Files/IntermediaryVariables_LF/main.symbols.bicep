@@ -21,7 +21,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 }
 
 var ipConfigurations = [for i in range(0, 2): {
-//@[28:29) Local i. Type: int. Declaration start char: 28, length: 1
+//@[28:29) Local i. Type: 0 | 1. Declaration start char: 28, length: 1
 //@[04:20) Variable ipConfigurations. Type: object[]. Declaration start char: 0, length: 148
   id: true
   name: 'asdf${i}'
@@ -40,7 +40,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2020-11-01' = {
 }
 
 resource nicLoop 'Microsoft.Network/networkInterfaces@2020-11-01' = [for i in range(0, 2): {
-//@[73:74) Local i. Type: int. Declaration start char: 73, length: 1
+//@[73:74) Local i. Type: 0 | 1. Declaration start char: 73, length: 1
 //@[09:16) Resource nicLoop. Type: Microsoft.Network/networkInterfaces@2020-11-01[]. Declaration start char: 0, length: 213
   name: 'abc${i}'
   properties: {

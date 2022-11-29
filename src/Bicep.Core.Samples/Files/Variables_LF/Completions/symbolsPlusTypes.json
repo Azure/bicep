@@ -1646,7 +1646,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nmax(... : int): int\nmax(intArray: array): int\n\n```\nReturns the maximum value from an array of integers or a comma-separated list of integers.\n"
+      "value": "```bicep\nmax(... : int): int\nmax(intArray: int[]): int\n\n```\nReturns the maximum value from an array of integers or a comma-separated list of integers.\n"
     },
     "deprecated": false,
     "preselect": false,
@@ -1667,7 +1667,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nmin(... : int): int\nmin(intArray: array): int\n\n```\nReturns the minimum value from an array of integers or a comma-separated list of integers.\n"
+      "value": "```bicep\nmin(... : int): int\nmin(intArray: int[]): int\n\n```\nReturns the minimum value from an array of integers or a comma-separated list of integers.\n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2598,7 +2598,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nsplit(inputString: string, delimiter: array | string): array\n\n```\nReturns an array of strings that contains the substrings of the input string that are delimited by the specified delimiters.\n"
+      "value": "```bicep\nsplit(inputString: string, delimiter: array | string): string[]\n\n```\nReturns an array of strings that contains the substrings of the input string that are delimited by the specified delimiters.\n"
     },
     "deprecated": false,
     "preselect": false,

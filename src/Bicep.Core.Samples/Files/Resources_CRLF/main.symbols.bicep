@@ -359,12 +359,12 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 // basic nested loop
 @sys.description('this is just a basic nested loop')
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[68:069) Local i. Type: int. Declaration start char: 68, length: 1
+//@[68:069) Local i. Type: 0 | 1 | 2. Declaration start char: 68, length: 1
 //@[09:013) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 399
   name: 'vnet-${i}'
   properties: {
     subnets: [for j in range(0, 4): {
-//@[18:019) Local j. Type: int. Declaration start char: 18, length: 1
+//@[18:019) Local j. Type: 0 | 1 | 2 | 3. Declaration start char: 18, length: 1
       // #completionTest(0,1,2,3,4,5) -> subnetIdAndProperties
      
       // #completionTest(6) -> subnetIdAndPropertiesNoColon
@@ -375,12 +375,12 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 
 // duplicate identifiers within the loop are allowed
 resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[94:095) Local i. Type: int. Declaration start char: 94, length: 1
+//@[94:095) Local i. Type: 0 | 1 | 2. Declaration start char: 94, length: 1
 //@[09:039) Resource duplicateIdentifiersWithinLoop. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 239
   name: 'vnet-${i}'
   properties: {
     subnets: [for i in range(0, 4): {
-//@[18:019) Local i. Type: int. Declaration start char: 18, length: 1
+//@[18:019) Local i. Type: 0 | 1 | 2 | 3. Declaration start char: 18, length: 1
       name: 'subnet-${i}-${i}'
     }]
   }
@@ -390,12 +390,12 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
 var canHaveDuplicatesAcrossScopes = 'hello'
 //@[04:033) Variable canHaveDuplicatesAcrossScopes. Type: 'hello'. Declaration start char: 0, length: 43
 resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
-//@[91:120) Local canHaveDuplicatesAcrossScopes. Type: int. Declaration start char: 91, length: 29
+//@[91:120) Local canHaveDuplicatesAcrossScopes. Type: 0 | 1 | 2. Declaration start char: 91, length: 29
 //@[09:036) Resource duplicateInGlobalAndOneLoop. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 292
   name: 'vnet-${canHaveDuplicatesAcrossScopes}'
   properties: {
     subnets: [for i in range(0, 4): {
-//@[18:019) Local i. Type: int. Declaration start char: 18, length: 1
+//@[18:019) Local i. Type: 0 | 1 | 2 | 3. Declaration start char: 18, length: 1
       name: 'subnet-${i}-${i}'
     }]
   }
@@ -405,12 +405,12 @@ resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-
 var duplicatesEverywhere = 'hello'
 //@[04:024) Variable duplicatesEverywhere. Type: 'hello'. Declaration start char: 0, length: 34
 resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
-//@[92:112) Local duplicatesEverywhere. Type: int. Declaration start char: 92, length: 20
+//@[92:112) Local duplicatesEverywhere. Type: 0 | 1 | 2. Declaration start char: 92, length: 20
 //@[09:037) Resource duplicateInGlobalAndTwoLoops. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 308
   name: 'vnet-${duplicatesEverywhere}'
   properties: {
     subnets: [for duplicatesEverywhere in range(0, 4): {
-//@[18:038) Local duplicatesEverywhere. Type: int. Declaration start char: 18, length: 20
+//@[18:038) Local duplicatesEverywhere. Type: 0 | 1 | 2 | 3. Declaration start char: 18, length: 20
       name: 'subnet-${duplicatesEverywhere}'
     }]
   }
@@ -420,14 +420,14 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
   Scope values created via array access on a resource collection
 */
 resource dnsZones 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in range(0,4): {
-//@[65:069) Local zone. Type: int. Declaration start char: 65, length: 4
+//@[65:069) Local zone. Type: 0 | 1 | 2 | 3. Declaration start char: 65, length: 4
 //@[09:017) Resource dnsZones. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 135
   name: 'zone${zone}'
   location: 'global'
 }]
 
 resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in range(0,2): {
-//@[72:076) Local lock. Type: int. Declaration start char: 72, length: 4
+//@[72:076) Local lock. Type: 0 | 1. Declaration start char: 72, length: 4
 //@[09:021) Resource locksOnZones. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 194
   name: 'lock${lock}'
   properties: {
@@ -437,7 +437,7 @@ resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in 
 }]
 
 resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (lock, i) in range(0,3): {
-//@[77:081) Local lock. Type: int. Declaration start char: 77, length: 4
+//@[77:081) Local lock. Type: 0 | 1 | 2. Declaration start char: 77, length: 4
 //@[83:084) Local i. Type: int. Declaration start char: 83, length: 1
 //@[09:025) Resource moreLocksOnZones. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 196
   name: 'another${i}'
