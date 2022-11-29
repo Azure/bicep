@@ -78,7 +78,7 @@ namespace Bicep.Core.IntegrationTests
 
             CompilationHelper.Compile("var asfsasdf = map([1], [i => i])")
                 .ExcludingLinterDiagnostics().Should().HaveDiagnostics(new [] {
-                    ("BCP070", DiagnosticLevel.Error, "Argument of type \"(any => any)[]\" is not assignable to parameter of type \"any => any\"."),
+                    ("BCP070", DiagnosticLevel.Error, "Argument of type \"[any => any]\" is not assignable to parameter of type \"any => any\"."),
                     ("BCP242", DiagnosticLevel.Error, "Lambda functions may only be specified directly as function arguments."),
                 });
         }
@@ -137,8 +137,8 @@ var fo|o2 = map([any('foo')], a|bc => 'Hi ${abc}!')
             var info = result.GetInfoAtCursors(cursors);
 
             info.Should().SatisfyRespectively(
-                x => x.Type.Name.Should().Be("any[]"),
-                x => x.Type.Name.Should().Be("any"),
+                x => x.Type.Name.Should().Be("(never)[]"),
+                x => x.Type.Name.Should().Be("never"),
                 x => x.Type.Name.Should().Be("string[]"),
                 x => x.Type.Name.Should().Be("any"));
         }

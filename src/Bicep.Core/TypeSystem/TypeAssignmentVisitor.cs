@@ -816,10 +816,12 @@ namespace Bicep.Core.TypeSystem
                 var errors = new List<ErrorDiagnostic>();
 
                 var itemTypes = new List<TypeSymbol>(syntax.Children.Length);
+                TupleTypeNameBuilder typeName = new();
                 foreach (var arrayItem in syntax.Items)
                 {
                     var itemType = typeManager.GetTypeInfo(arrayItem);
                     itemTypes.Add(itemType);
+                    typeName.AppendItem(itemType.Name);
                     CollectErrors(errors, itemType);
                 }
 
@@ -828,12 +830,7 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(errors);
                 }
 
-                if (TypeHelper.TryCollapseTypes(itemTypes) is not { } collapsedItemType)
-                {
-                    return LanguageConstants.Array;
-                }
-
-                return new TypedArrayType(collapsedItemType, TypeSymbolValidationFlags.Default);
+                return new TupleType(typeName.ToString(), itemTypes.ToImmutableArray<ITypeReference>(), TypeSymbolValidationFlags.Default);
             });
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
