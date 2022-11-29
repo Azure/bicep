@@ -170,7 +170,7 @@ resource anotherSingleResource 'Microsoft.Storage/storageAccounts@2019-06-01' = 
 
 // vnets
 var vnetConfigurations = [
-//@[04:022) Variable vnetConfigurations. Type: array. Declaration start char: 0, length: 138
+//@[04:022) Variable vnetConfigurations. Type: [object, object]. Declaration start char: 0, length: 138
   {
     name: 'one'
     location: resourceGroup().location
@@ -182,7 +182,7 @@ var vnetConfigurations = [
 ]
 
 resource vnets 'Microsoft.Network/virtualNetworks@2020-06-01' = [for vnetConfig in vnetConfigurations: {
-//@[69:079) Local vnetConfig. Type: any. Declaration start char: 69, length: 10
+//@[69:079) Local vnetConfig. Type: object | object. Declaration start char: 69, length: 10
 //@[09:014) Resource vnets. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 163
   name: vnetConfig.name
   location: vnetConfig.location
@@ -232,7 +232,7 @@ module singleModule 'passthrough.bicep' = {
 }
 
 var moduleSetup = [
-//@[04:015) Variable moduleSetup. Type: ('one' | 'three' | 'two')[]. Declaration start char: 0, length: 47
+//@[04:015) Variable moduleSetup. Type: ['one', 'two', 'three']. Declaration start char: 0, length: 47
   'one'
   'two'
   'three'
@@ -316,7 +316,7 @@ output existingIndexedResourceAccessTier string = existingStorageAccounts[index%
 //@[07:040) Output existingIndexedResourceAccessTier. Type: string. Declaration start char: 0, length: 104
 
 resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in []: {
-//@[72:076) Local zone. Type: any. Declaration start char: 72, length: 4
+//@[72:076) Local zone. Type: never. Declaration start char: 72, length: 4
 //@[09:024) Resource duplicatedNames. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 136
   name: 'no loop variable'
   location: 'eastus'
@@ -324,7 +324,7 @@ resource duplicatedNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in 
 
 // reference to a resource collection whose name expression does not reference any loop variables
 resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in []: {
-//@[82:086) Local zone. Type: any. Declaration start char: 82, length: 4
+//@[82:086) Local zone. Type: never. Declaration start char: 82, length: 4
 //@[09:034) Resource referenceToDuplicateNames. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 194
   name: 'no loop variable 2'
   location: 'eastus'
@@ -334,7 +334,7 @@ resource referenceToDuplicateNames 'Microsoft.Network/dnsZones@2018-05-01' = [fo
 }]
 
 var regions = [
-//@[04:011) Variable regions. Type: ('eastus' | 'westus')[]. Declaration start char: 0, length: 39
+//@[04:011) Variable regions. Type: ['eastus', 'westus']. Declaration start char: 0, length: 39
   'eastus'
   'westus'
 ]

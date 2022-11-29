@@ -55,7 +55,7 @@ var myFalsehood = false
 var myEmptyObj = { }
 //@[04:14) Variable myEmptyObj. Type: object. Declaration start char: 0, length: 20
 var myEmptyArray = [ ]
-//@[04:16) Variable myEmptyArray. Type: array. Declaration start char: 0, length: 22
+//@[04:16) Variable myEmptyArray. Type: []. Declaration start char: 0, length: 22
 
 // object
 @sys.description('a object variable')
@@ -91,7 +91,7 @@ var objWithInterp = {
 
 // array
 var myArr = [
-//@[04:09) Variable myArr. Type: ('arr' | 'pirates' | 'say')[]. Declaration start char: 0, length: 43
+//@[04:09) Variable myArr. Type: ['pirates', 'say', 'arr']. Declaration start char: 0, length: 43
   'pirates'
   'say'
   'arr'
@@ -99,7 +99,7 @@ var myArr = [
 
 // array with objects
 var myArrWithObjects = [
-//@[04:20) Variable myArrWithObjects. Type: array. Declaration start char: 0, length: 138
+//@[04:20) Variable myArrWithObjects. Type: [object, object]. Declaration start char: 0, length: 138
   {
     name: 'one'
     enable: true
@@ -151,7 +151,7 @@ var functionOnIndexer2 = concat([
 ][0], 's')
 
 var functionOnIndexer3 = concat([
-//@[04:22) Variable functionOnIndexer3. Type: any. Declaration start char: 0, length: 49
+//@[04:22) Variable functionOnIndexer3. Type: array. Declaration start char: 0, length: 49
 ][0], any('s'))
 
 var singleQuote = '\''
@@ -166,7 +166,7 @@ var unusedIntermediateRef = unusedIntermediate.secondaryKey
 
 // previously this was not possible to emit correctly
 var previousEmitLimit = [
-//@[04:21) Variable previousEmitLimit. Type: array. Declaration start char: 0, length: 299
+//@[04:21) Variable previousEmitLimit. Type: [string, string, object]. Declaration start char: 0, length: 299
   concat('s')
   '${4}'
   {
@@ -191,7 +191,7 @@ var previousEmitLimit = [
 
 // previously this was not possible to emit correctly
 var previousEmitLimit2 = [
-//@[04:22) Variable previousEmitLimit2. Type: array. Declaration start char: 0, length: 327
+//@[04:22) Variable previousEmitLimit2. Type: [string, string, object]. Declaration start char: 0, length: 327
   concat('s')
   '${4}'
   {
@@ -349,7 +349,7 @@ var incrementingNumbers = [for i in range(0,10) : i]
 //@[31:32) Local i. Type: int. Declaration start char: 31, length: 1
 //@[04:23) Variable incrementingNumbers. Type: int[]. Declaration start char: 0, length: 52
 var loopInput = [
-//@[04:13) Variable loopInput. Type: ('one' | 'two')[]. Declaration start char: 0, length: 35
+//@[04:13) Variable loopInput. Type: ['one', 'two']. Declaration start char: 0, length: 35
   'one'
   'two'
 ]
@@ -368,7 +368,7 @@ var arrayOfObjectsViaLoop = [for (name, i) in loopInput: {
 var arrayOfArraysViaLoop = [for (name, i) in loopInput: [
 //@[33:37) Local name. Type: 'one' | 'two'. Declaration start char: 33, length: 4
 //@[39:40) Local i. Type: int. Declaration start char: 39, length: 1
-//@[04:24) Variable arrayOfArraysViaLoop. Type: array[]. Declaration start char: 0, length: 102
+//@[04:24) Variable arrayOfArraysViaLoop. Type: [int, 'one' | 'two', string][]. Declaration start char: 0, length: 102
   i
   name
   'prefix-${i}-${name}-suffix'
@@ -459,7 +459,7 @@ var copyBlockInObject = {
 }
 
 var joinedString = join(['I', 'love', 'Bicep!'], ' ')
-//@[04:16) Variable joinedString. Type: string. Declaration start char: 0, length: 53
+//@[04:16) Variable joinedString. Type: 'I love Bicep!'. Declaration start char: 0, length: 53
 
 var prefix = take('food', 3)
 //@[04:10) Variable prefix. Type: 'foo'. Declaration start char: 0, length: 28

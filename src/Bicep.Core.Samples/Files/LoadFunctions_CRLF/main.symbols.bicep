@@ -37,7 +37,7 @@ var loadedBinaryInObject = {
 }
 
 var loadedTextArray = [
-//@[4:19) Variable loadedTextArray. Type: ('Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n Donec laoreet sem tortor, ut dignissim ipsum ornare vel.\n  Duis ac ipsum turpis.\n\tMaecenas at condimentum dui.\n Suspendisse aliquet efficitur iaculis.\nIn hac habitasse platea dictumst.\nEtiam consectetur ut libero ac lobortis.\n\tNullam vitae auctor massa.\nFusce tincidunt urna purus, sit amet.\n' | Assets/binary)[]. Declaration start char: 0, length: 108
+//@[4:19) Variable loadedTextArray. Type: ['Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n Donec laoreet sem tortor, ut dignissim ipsum ornare vel.\n  Duis ac ipsum turpis.\n\tMaecenas at condimentum dui.\n Suspendisse aliquet efficitur iaculis.\nIn hac habitasse platea dictumst.\nEtiam consectetur ut libero ac lobortis.\n\tNullam vitae auctor massa.\nFusce tincidunt urna purus, sit amet.\n', Assets/binary]. Declaration start char: 0, length: 108
   loadTextContent('Assets/TextFile.LF.txt')
   loadFileAsBase64('Assets/binary')
 ]

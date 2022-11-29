@@ -96,7 +96,7 @@ output str string = false
 //@[20:25) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "false". (CodeDescription: none) |false|
 output str string = [
 //@[07:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
-//@[20:24) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "array". (CodeDescription: none) |[\r\n]|
+//@[20:24) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "[]". (CodeDescription: none) |[\r\n]|
 ]
 output str string = {
 //@[07:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
@@ -115,7 +115,7 @@ output i int = false
 //@[15:20) [BCP026 (Error)] The output expects a value of type "int" but the provided value is of type "false". (CodeDescription: none) |false|
 output i int = [
 //@[07:08) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
-//@[15:19) [BCP026 (Error)] The output expects a value of type "int" but the provided value is of type "array". (CodeDescription: none) |[\r\n]|
+//@[15:19) [BCP026 (Error)] The output expects a value of type "int" but the provided value is of type "[]". (CodeDescription: none) |[\r\n]|
 ]
 output i int = }
 //@[07:08) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
@@ -129,7 +129,7 @@ output i int = 'test'
 // wrong bool output values
 output b bool = [
 //@[07:08) [BCP145 (Error)] Output "b" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |b|
-//@[16:20) [BCP026 (Error)] The output expects a value of type "bool" but the provided value is of type "array". (CodeDescription: none) |[\r\n]|
+//@[16:20) [BCP026 (Error)] The output expects a value of type "bool" but the provided value is of type "[]". (CodeDescription: none) |[\r\n]|
 ]
 output b bool = {
 //@[07:08) [BCP145 (Error)] Output "b" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |b|
@@ -172,7 +172,7 @@ output o object = false
 //@[18:23) [BCP026 (Error)] The output expects a value of type "object" but the provided value is of type "false". (CodeDescription: none) |false|
 output o object = [
 //@[07:08) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|
-//@[18:22) [BCP026 (Error)] The output expects a value of type "object" but the provided value is of type "array". (CodeDescription: none) |[\r\n]|
+//@[18:22) [BCP026 (Error)] The output expects a value of type "object" but the provided value is of type "[]". (CodeDescription: none) |[\r\n]|
 ]
 output o object = 'str'
 //@[07:08) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|

@@ -445,7 +445,7 @@ resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-0
 
 
 resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
-//@[076:081) Local thing. Type: any. Declaration start char: 76, length: 5
+//@[076:081) Local thing. Type: never. Declaration start char: 76, length: 5
 //@[009:028) Resource loopForRuntimeCheck. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 130
   name: 'test'
   location: 'test'
@@ -463,14 +463,14 @@ resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' =
 }
 
 resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
-//@[077:082) Local thing. Type: any. Declaration start char: 77, length: 5
+//@[077:082) Local thing. Type: never. Declaration start char: 77, length: 5
 //@[009:029) Resource loopForRuntimeCheck2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 141
   name: runtimeCheckVar2
   location: 'test'
 }]
 
 resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
-//@[077:087) Local otherThing. Type: any. Declaration start char: 77, length: 10
+//@[077:087) Local otherThing. Type: never. Declaration start char: 77, length: 10
 //@[009:029) Resource loopForRuntimeCheck3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 172
   name: loopForRuntimeCheck[0].properties.zoneType
   location: 'test'
@@ -481,7 +481,7 @@ var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
 var varForRuntimeCheck4b = varForRuntimeCheck4a
 //@[004:024) Variable varForRuntimeCheck4b. Type: 'Private' | 'Public'. Declaration start char: 0, length: 47
 resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
-//@[077:087) Local otherThing. Type: any. Declaration start char: 77, length: 10
+//@[077:087) Local otherThing. Type: never. Declaration start char: 77, length: 10
 //@[009:029) Resource loopForRuntimeCheck4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 150
   name: varForRuntimeCheck4b
   location: 'test'
@@ -548,7 +548,7 @@ resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-
 Discriminator key missing (loop)
 */
 resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-//@[095:100) Local thing. Type: any. Declaration start char: 95, length: 5
+//@[095:100) Local thing. Type: never. Declaration start char: 95, length: 5
 //@[009:036) Resource discriminatorKeyMissing_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 171
   // #completionTest(0,1,2) -> discriminatorProperty
   
@@ -558,7 +558,7 @@ resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020
 Discriminator key missing (filtered loop)
 */
 resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
-//@[098:103) Local thing. Type: any. Declaration start char: 98, length: 5
+//@[098:103) Local thing. Type: never. Declaration start char: 98, length: 5
 //@[009:039) Resource discriminatorKeyMissing_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 183
   // #completionTest(0,1,2) -> discriminatorProperty
   
@@ -606,7 +606,7 @@ var discriminatorKeyValueMissingCompletions3_if = discriminatorKeyValueMissing_i
 Discriminator key value missing with property access (loops)
 */
 resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-//@[100:105) Local thing. Type: any. Declaration start char: 100, length: 5
+//@[100:105) Local thing. Type: never. Declaration start char: 100, length: 5
 //@[009:041) Resource discriminatorKeyValueMissing_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 202
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for
   kind:   
@@ -631,7 +631,7 @@ var discriminatorKeyValueMissingCompletions3_for = discriminatorKeyValueMissing_
 Discriminator key value missing with property access (filtered loops)
 */
 resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
-//@[103:108) Local thing. Type: any. Declaration start char: 103, length: 5
+//@[103:108) Local thing. Type: never. Declaration start char: 103, length: 5
 //@[009:044) Resource discriminatorKeyValueMissing_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 217
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for_if
   kind:   
@@ -704,7 +704,7 @@ var discriminatorKeySetOneCompletions3_if = discriminatorKeySetOne_if.properties
 Discriminator value set 1 (loop)
 */
 resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: {
-//@[095:100) Local thing. Type: any. Declaration start char: 95, length: 5
+//@[095:100) Local thing. Type: never. Declaration start char: 95, length: 5
 //@[009:035) Resource discriminatorKeySetOne_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 290
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
@@ -729,7 +729,7 @@ var discriminatorKeySetOneCompletions3_for = discriminatorKeySetOne_for[1].prope
 Discriminator value set 1 (filtered loop)
 */
 resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: if(true) {
-//@[098:103) Local thing. Type: any. Declaration start char: 98, length: 5
+//@[098:103) Local thing. Type: never. Declaration start char: 98, length: 5
 //@[009:038) Resource discriminatorKeySetOne_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 302
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
@@ -810,7 +810,7 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_if = discriminatorKeySetTwo_i
 Discriminator value set 2 (loops)
 */
 resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-//@[094:099) Local thing. Type: any. Declaration start char: 94, length: 5
+//@[094:099) Local thing. Type: never. Declaration start char: 94, length: 5
 //@[009:035) Resource discriminatorKeySetTwo_for. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 295
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
@@ -839,7 +839,7 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for = discriminatorKeySetTwo_
 Discriminator value set 2 (filtered loops)
 */
 resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
-//@[097:102) Local thing. Type: any. Declaration start char: 97, length: 5
+//@[097:102) Local thing. Type: never. Declaration start char: 97, length: 5
 //@[009:038) Resource discriminatorKeySetTwo_for_if. Type: Microsoft.Resources/deploymentScripts@2020-10-01[]. Declaration start char: 0, length: 307
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
@@ -979,7 +979,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions_if = nestedDiscriminatorMissin
 Nested discriminator missing key (loop)
 */
 resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
-//@[109:114) Local thing. Type: any. Declaration start char: 109, length: 5
+//@[109:114) Local thing. Type: never. Declaration start char: 109, length: 5
 //@[009:042) Resource nestedDiscriminatorMissingKey_for. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview[]. Declaration start char: 0, length: 213
   name: 'test'
   location: 'l'
@@ -1004,7 +1004,7 @@ var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissi
 Nested discriminator missing key (filtered loop)
 */
 resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
-//@[112:117) Local thing. Type: any. Declaration start char: 112, length: 5
+//@[112:117) Local thing. Type: never. Declaration start char: 112, length: 5
 //@[009:045) Resource nestedDiscriminatorMissingKey_for_if. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview[]. Declaration start char: 0, length: 225
   name: 'test'
   location: 'l'
@@ -1088,7 +1088,7 @@ var nestedDiscriminatorArrayIndexCompletions_if = nestedDiscriminator_if.propert
 Nested discriminator (loop)
 */
 resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
-//@[099:104) Local thing. Type: any. Declaration start char: 99, length: 5
+//@[099:104) Local thing. Type: never. Declaration start char: 99, length: 5
 //@[009:032) Resource nestedDiscriminator_for. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview[]. Declaration start char: 0, length: 201
   name: 'test'
   location: 'l'
@@ -1119,7 +1119,7 @@ var nestedDiscriminatorArrayIndexCompletions_for = nestedDiscriminator_for[0].pr
 Nested discriminator (filtered loop)
 */
 resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
-//@[102:107) Local thing. Type: any. Declaration start char: 102, length: 5
+//@[102:107) Local thing. Type: never. Declaration start char: 102, length: 5
 //@[009:035) Resource nestedDiscriminator_for_if. Type: Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview[]. Declaration start char: 0, length: 213
   name: 'test'
   location: 'l'
@@ -1339,18 +1339,18 @@ resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05
 
 // wrong body type
 var emptyArray = []
-//@[004:014) Variable emptyArray. Type: array. Declaration start char: 0, length: 19
+//@[004:014) Variable emptyArray. Type: []. Declaration start char: 0, length: 19
 resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray:4]
-//@[081:082) Local x. Type: any. Declaration start char: 81, length: 1
+//@[081:082) Local x. Type: never. Declaration start char: 81, length: 1
 //@[009:026) Resource wrongLoopBodyType. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 99
 resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
-//@[083:084) Local x. Type: any. Declaration start char: 83, length: 1
+//@[083:084) Local x. Type: never. Declaration start char: 83, length: 1
 //@[086:087) Local i. Type: int. Declaration start char: 86, length: 1
 //@[009:027) Resource wrongLoopBodyType2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 105
 
 // duplicate variable in the same scope
 resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
-//@[080:084) Local same. Type: any. Declaration start char: 80, length: 4
+//@[080:084) Local same. Type: never. Declaration start char: 80, length: 4
 //@[086:090) Local same. Type: int. Declaration start char: 86, length: 4
 //@[009:029) Resource itemAndIndexSameName. Type: Microsoft.AAD/domainServices@2020-01-01[]. Declaration start char: 0, length: 112
 }]
@@ -1381,29 +1381,29 @@ resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (
 
 // wrong filter expression type
 resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in emptyArray: if(4) {
-//@[089:096) Local account. Type: any. Declaration start char: 89, length: 7
+//@[089:096) Local account. Type: never. Declaration start char: 89, length: 7
 //@[009:034) Resource wrongFilterExpressionType. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 123
 }]
 resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in emptyArray: if(concat('s')){
-//@[091:098) Local account. Type: any. Declaration start char: 91, length: 7
+//@[091:098) Local account. Type: never. Declaration start char: 91, length: 7
 //@[099:100) Local i. Type: int. Declaration start char: 99, length: 1
 //@[009:035) Resource wrongFilterExpressionType2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 137
 }]
 
 // missing required properties
 resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
-//@[089:096) Local account. Type: any. Declaration start char: 89, length: 7
+//@[089:096) Local account. Type: never. Declaration start char: 89, length: 7
 //@[009:034) Resource missingRequiredProperties. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 109
 }]
 resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,j) in []: {
-//@[091:098) Local account. Type: any. Declaration start char: 91, length: 7
+//@[091:098) Local account. Type: never. Declaration start char: 91, length: 7
 //@[099:100) Local j. Type: int. Declaration start char: 99, length: 1
 //@[009:035) Resource missingRequiredProperties2. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 114
 }]
 
 // fewer missing required properties and a wrong property
 resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
-//@[094:101) Local account. Type: any. Declaration start char: 94, length: 7
+//@[094:101) Local account. Type: never. Declaration start char: 94, length: 7
 //@[009:039) Resource missingFewerRequiredProperties. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 196
   name: account
   location: 'eastus42'
@@ -1467,10 +1467,10 @@ resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' 
 
     networkAcls: {
       virtualNetworkRules: [for rule in []: {
-//@[032:036) Local rule. Type: any. Declaration start char: 32, length: 4
+//@[032:036) Local rule. Type: never. Declaration start char: 32, length: 4
         id: '${account.name}-${account.location}'
         state: [for lol in []: 4]
-//@[020:023) Local lol. Type: any. Declaration start char: 20, length: 3
+//@[020:023) Local lol. Type: never. Declaration start char: 20, length: 3
       }]
     }
   }
@@ -1489,11 +1489,11 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
 
     networkAcls: {
       virtualNetworkRules: [for (rule,j) in []: {
-//@[033:037) Local rule. Type: any. Declaration start char: 33, length: 4
+//@[033:037) Local rule. Type: never. Declaration start char: 33, length: 4
 //@[038:039) Local j. Type: int. Declaration start char: 38, length: 1
         id: '${account.name}-${account.location}'
         state: [for (lol,k) in []: 4]
-//@[021:024) Local lol. Type: any. Declaration start char: 21, length: 3
+//@[021:024) Local lol. Type: never. Declaration start char: 21, length: 3
 //@[025:026) Local k. Type: int. Declaration start char: 25, length: 1
       }]
     }
@@ -1513,14 +1513,14 @@ resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01'
   properties: {
     networkAcls:  {
       virtualNetworkRules: [for rule in []: {
-//@[032:036) Local rule. Type: any. Declaration start char: 32, length: 4
+//@[032:036) Local rule. Type: never. Declaration start char: 32, length: 4
         // #completionTest(15,31) -> symbolsPlusRule
         id: '${account.name}-${account.location}'
         state: [for state in []: {
-//@[020:025) Local state. Type: any. Declaration start char: 20, length: 5
+//@[020:025) Local state. Type: never. Declaration start char: 20, length: 5
           // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
           fake: [for something in []: true]
-//@[021:030) Local something. Type: any. Declaration start char: 21, length: 9
+//@[021:030) Local something. Type: never. Declaration start char: 21, length: 9
         }]
       }]
     }
@@ -1540,7 +1540,7 @@ resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in
   properties: {
     networkAcls: {
       virtualNetworkRules: concat([for lol in []: {
-//@[039:042) Local lol. Type: any. Declaration start char: 39, length: 3
+//@[039:042) Local lol. Type: never. Declaration start char: 39, length: 3
         id: '${account.name}-${account.location}'
       }])
     }
@@ -1619,32 +1619,32 @@ resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' =
   location: 'eastus'
   properties: {
     'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
-//@[068:073) Local thing. Type: any. Declaration start char: 68, length: 5
+//@[068:073) Local thing. Type: never. Declaration start char: 68, length: 5
   }
 }
 
 // resource loop body that isn't an object
 @batchSize(-1)
 resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
-//@[082:087) Local thing. Type: any. Declaration start char: 82, length: 5
+//@[082:087) Local thing. Type: never. Declaration start char: 82, length: 5
 //@[009:034) Resource nonObjectResourceLoopBody. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 118
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
-//@[083:088) Local thing. Type: any. Declaration start char: 83, length: 5
+//@[083:088) Local thing. Type: never. Declaration start char: 83, length: 5
 //@[009:035) Resource nonObjectResourceLoopBody2. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 110
 resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: 'test']
-//@[084:089) Local thing. Type: any. Declaration start char: 84, length: 5
+//@[084:089) Local thing. Type: never. Declaration start char: 84, length: 5
 //@[090:091) Local i. Type: int. Declaration start char: 90, length: 1
 //@[009:035) Resource nonObjectResourceLoopBody3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 107
 resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: environment()]
-//@[084:089) Local thing. Type: any. Declaration start char: 84, length: 5
+//@[084:089) Local thing. Type: never. Declaration start char: 84, length: 5
 //@[090:091) Local i. Type: int. Declaration start char: 90, length: 1
 //@[009:035) Resource nonObjectResourceLoopBody4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 114
 resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) 'test']
-//@[084:089) Local thing. Type: any. Declaration start char: 84, length: 5
+//@[084:089) Local thing. Type: never. Declaration start char: 84, length: 5
 //@[090:091) Local i. Type: int. Declaration start char: 90, length: 1
 //@[009:035) Resource nonObjectResourceLoopBody3. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 116
 resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) environment()]
-//@[084:089) Local thing. Type: any. Declaration start char: 84, length: 5
+//@[084:089) Local thing. Type: never. Declaration start char: 84, length: 5
 //@[090:091) Local i. Type: int. Declaration start char: 90, length: 1
 //@[009:035) Resource nonObjectResourceLoopBody4. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 123
 
@@ -1653,13 +1653,13 @@ resource foo 'Microsoft.Network/dnsZones@2018-05-01' =
 //@[009:012) Resource foo. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 55
 
 resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
-//@[060:064) Local item. Type: any. Declaration start char: 60, length: 4
+//@[060:064) Local item. Type: never. Declaration start char: 60, length: 4
 //@[009:012) Resource foo. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 257
   properties: {
     // #completionTest(32,33) -> symbolsPlusArrayAndFor
     registrationVirtualNetworks: 
     resolutionVirtualNetworks: [for lol in []: {
-//@[036:039) Local lol. Type: any. Declaration start char: 36, length: 3
+//@[036:039) Local lol. Type: never. Declaration start char: 36, length: 3
       
     }]
   }
@@ -1669,7 +1669,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 //@[009:013) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01. Declaration start char: 0, length: 325
   properties: {
     virtualNetworkPeerings: [for item in []: {
-//@[033:037) Local item. Type: any. Declaration start char: 33, length: 4
+//@[033:037) Local item. Type: never. Declaration start char: 33, length: 4
         properties: {
           remoteAddressSpace: {
             // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
@@ -1810,7 +1810,7 @@ resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
 }
 
 resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
-//@[082:087) Local thing. Type: any. Declaration start char: 82, length: 5
+//@[082:087) Local thing. Type: never. Declaration start char: 82, length: 5
 //@[009:028) Resource anyTypeInParentLoop. Type: Microsoft.Network/dnsZones/CNAME@2018-05-01[]. Declaration start char: 0, length: 121
   parent: any(true)
 }]
@@ -1832,7 +1832,7 @@ resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' exi
 }
 
 resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = [for thing in []: {
-//@[097:102) Local thing. Type: any. Declaration start char: 97, length: 5
+//@[097:102) Local thing. Type: never. Declaration start char: 97, length: 5
 //@[009:035) Resource anyTypeInExistingScopeLoop. Type: Microsoft.Network/dnsZones/AAAA@2018-05-01[]. Declaration start char: 0, length: 155
   parent: any('')
   scope: any(false)
@@ -2005,8 +2005,8 @@ resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-
   properties: {
     description: dataCollectionRule.description
     destinations: empty([]) ? [for x in []: {}] : [for x in []: {}]
-//@[035:036) Local x. Type: any. Declaration start char: 35, length: 1
-//@[055:056) Local x. Type: any. Declaration start char: 55, length: 1
+//@[035:036) Local x. Type: never. Declaration start char: 35, length: 1
+//@[055:056) Local x. Type: never. Declaration start char: 55, length: 1
     dataSources: dataCollectionRule.dataSources
     dataFlows: dataCollectionRule.dataFlows
   }

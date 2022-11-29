@@ -5,7 +5,7 @@
     "detail": "fifth",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `array`  \n"
+      "value": "Type: `[object, object]`  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -89,7 +89,7 @@
     "detail": "sixth",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `object[]`  \n"
+      "value": "Type: `[object]`  \n"
     },
     "deprecated": false,
     "preselect": false,

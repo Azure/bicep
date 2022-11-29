@@ -3,7 +3,7 @@ targetScope = 'subscription'
 param prefix string = 'majastrz'
 //@[06:12) Parameter prefix. Type: string. Declaration start char: 0, length: 32
 var groups = [
-//@[04:10) Variable groups. Type: ('bicep1' | 'bicep2' | 'bicep3' | 'bicep4')[]. Declaration start char: 0, length: 60
+//@[04:10) Variable groups. Type: ['bicep1', 'bicep2', 'bicep3', 'bicep4']. Declaration start char: 0, length: 60
   'bicep1'
   'bicep2'
   'bicep3'

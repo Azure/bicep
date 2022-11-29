@@ -48,7 +48,7 @@ metadata foo = {
 
 // array value
 metadata myArrayMetadata = [
-//@[9:24) Metadata myArrayMetadata. Type: ('a' | 'b' | 'c')[]. Declaration start char: 0, length: 52
+//@[9:24) Metadata myArrayMetadata. Type: ['a', 'b', 'c']. Declaration start char: 0, length: 52
   'a'
   'b'
   'c'
@@ -58,7 +58,7 @@ metadata myArrayMetadata = [
 metadata myEmptyObj = { }
 //@[9:19) Metadata myEmptyObj. Type: object. Declaration start char: 0, length: 25
 metadata myEmptyArray = [ ]
-//@[9:21) Metadata myEmptyArray. Type: array. Declaration start char: 0, length: 27
+//@[9:21) Metadata myEmptyArray. Type: []. Declaration start char: 0, length: 27
 
 // param with same name as metadata is permitted
 param foo string

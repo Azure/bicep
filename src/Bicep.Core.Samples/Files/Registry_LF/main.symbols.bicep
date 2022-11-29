@@ -25,7 +25,7 @@ module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
 }
 
 var websites = [
-//@[04:12) Variable websites. Type: array. Declaration start char: 0, length: 110
+//@[04:12) Variable websites. Type: [object, object]. Declaration start char: 0, length: 110
   {
     name: 'fancy'
     tag: 'latest'
@@ -37,7 +37,7 @@ var websites = [
 ]
 
 module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in websites: {
-//@[69:73) Local site. Type: any. Declaration start char: 69, length: 4
+//@[69:73) Local site. Type: object | object. Declaration start char: 69, length: 4
 //@[07:17) Module siteDeploy. Type: module[]. Declaration start char: 0, length: 287
   name: '${site.name}siteDeploy'
   scope: rg
@@ -50,7 +50,7 @@ module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in web
 }]
 
 module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
-//@[48:52) Local site. Type: any. Declaration start char: 48, length: 4
+//@[48:52) Local site. Type: object | object. Declaration start char: 48, length: 4
 //@[07:18) Module siteDeploy2. Type: module[]. Declaration start char: 0, length: 267
   name: '${site.name}siteDeploy2'
   scope: rg
@@ -81,7 +81,7 @@ module storageDeploy2 'ts/mySpecRG:storage-spec:1.0' = {
 }
 
 var vnets = [
-//@[04:09) Variable vnets. Type: array. Declaration start char: 0, length: 123
+//@[04:09) Variable vnets. Type: [object, object]. Declaration start char: 0, length: 123
   {
     name: 'vnet1'
     subnetName: 'subnet1.1'
@@ -93,7 +93,7 @@ var vnets = [
 ]
 
 module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2' = [for vnet in vnets: {
-//@[88:92) Local vnet. Type: any. Declaration start char: 88, length: 4
+//@[88:92) Local vnet. Type: object | object. Declaration start char: 88, length: 4
 //@[07:17) Module vnetDeploy. Type: module[]. Declaration start char: 0, length: 220
   name: '${vnet.name}Deploy'
   scope: rg
@@ -104,7 +104,7 @@ module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'
 }]
 
 output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUrl]
-//@[30:34) Local site. Type: any. Declaration start char: 30, length: 4
+//@[30:34) Local site. Type: object | object. Declaration start char: 30, length: 4
 //@[36:37) Local i. Type: int. Declaration start char: 36, length: 1
 //@[07:15) Output siteUrls. Type: array. Declaration start char: 0, length: 82
 

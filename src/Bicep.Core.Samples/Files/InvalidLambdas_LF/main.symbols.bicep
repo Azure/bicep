@@ -27,8 +27,8 @@ var filter5 = filter(range(0, 10), i => i)
 //@[35:36) Local i. Type: int. Declaration start char: 35, length: 1
 //@[04:11) Variable filter5. Type: error. Declaration start char: 0, length: 42
 var filter6 = filter([true, 'hello!'], i => i)
-//@[39:40) Local i. Type: any. Declaration start char: 39, length: 1
-//@[04:11) Variable filter6. Type: array. Declaration start char: 0, length: 46
+//@[39:40) Local i. Type: 'hello!' | true. Declaration start char: 39, length: 1
+//@[04:11) Variable filter6. Type: error. Declaration start char: 0, length: 46
 
 var sort1 = sort('abc')
 //@[04:09) Variable sort1. Type: error. Declaration start char: 0, length: 23
@@ -101,7 +101,7 @@ var inObject = {
 }
 
 var inArray = [
-//@[04:11) Variable inArray. Type: array. Declaration start char: 0, length: 35
+//@[04:11) Variable inArray. Type: [any => any, any => any]. Declaration start char: 0, length: 35
   i => i
 //@[02:03) Local i. Type: any. Declaration start char: 2, length: 1
   j => j

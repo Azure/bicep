@@ -29,7 +29,7 @@ param storageSku = 'Standard_LRS'
 param storageName = 'myStorage'
 //@[6:17) ParameterAssignment storageName. Type: 'myStorage'. Declaration start char: 0, length: 31
 param someArray = [
-//@[6:15) ParameterAssignment someArray. Type: ('a' | 'b' | 'c' | 'd')[]. Declaration start char: 0, length: 53
+//@[6:15) ParameterAssignment someArray. Type: ['a', 'b', 'c', 'd']. Declaration start char: 0, length: 53
     'a'
     'b'
     'c'

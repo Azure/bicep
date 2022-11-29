@@ -10,7 +10,7 @@ param int = false
 //@[0:17) [BCP260 (Error)] The parameter "int" expects a value of type "int" but the provided value is of type "false". (CodeDescription: none) |param int = false|
 
 param object = ['abc', 'def']
-//@[0:29) [BCP260 (Error)] The parameter "object" expects a value of type "object" but the provided value is of type "('abc' | 'def')[]". (CodeDescription: none) |param object = ['abc', 'def']|
+//@[0:29) [BCP260 (Error)] The parameter "object" expects a value of type "object" but the provided value is of type "['abc', 'def']". (CodeDescription: none) |param object = ['abc', 'def']|
 
 param array = {
 //@[0:38) [BCP260 (Error)] The parameter "array" expects a value of type "array" but the provided value is of type "object". (CodeDescription: none) |param array = {\n  isThis: 'correct?'\n}|

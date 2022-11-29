@@ -151,7 +151,7 @@ output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputO
 
 @sys.description('this is myModules')
 var myModules = [
-//@[04:13) Variable myModules. Type: array. Declaration start char: 0, length: 162
+//@[04:13) Variable myModules. Type: [object, object]. Declaration start char: 0, length: 162
   {
     name: 'one'
     location: 'eastus2'
@@ -163,11 +163,11 @@ var myModules = [
 ]
 
 var emptyArray = []
-//@[04:14) Variable emptyArray. Type: array. Declaration start char: 0, length: 19
+//@[04:14) Variable emptyArray. Type: []. Declaration start char: 0, length: 19
 
 // simple module loop
 module storageResources 'modulea.bicep' = [for module in myModules: {
-//@[47:53) Local module. Type: any. Declaration start char: 47, length: 6
+//@[47:53) Local module. Type: object | object. Declaration start char: 47, length: 6
 //@[07:23) Module storageResources. Type: module[]. Declaration start char: 0, length: 189
   name: module.name
   params: {
@@ -179,7 +179,7 @@ module storageResources 'modulea.bicep' = [for module in myModules: {
 
 // simple indexed module loop
 module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules: {
-//@[57:63) Local module. Type: any. Declaration start char: 57, length: 6
+//@[57:63) Local module. Type: object | object. Declaration start char: 57, length: 6
 //@[65:66) Local i. Type: int. Declaration start char: 65, length: 1
 //@[07:32) Module storageResourcesWithIndex. Type: module[]. Declaration start char: 0, length: 256
   name: module.name
@@ -195,7 +195,7 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
 
 // nested module loop
 module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
-//@[47:53) Local module. Type: any. Declaration start char: 47, length: 6
+//@[47:53) Local module. Type: object | object. Declaration start char: 47, length: 6
 //@[07:23) Module nestedModuleLoop. Type: module[]. Declaration start char: 0, length: 246
   name: module.name
   params: {
@@ -208,7 +208,7 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 
 // duplicate identifiers across scopes are allowed (inner hides the outer)
 module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
-//@[61:62) Local x. Type: any. Declaration start char: 61, length: 1
+//@[61:62) Local x. Type: never. Declaration start char: 61, length: 1
 //@[07:37) Module duplicateIdentifiersWithinLoop. Type: module[]. Declaration start char: 0, length: 234
   name: 'hello-${x}'
   params: {
@@ -216,7 +216,7 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
     stringParamA: 'test'
     stringParamB: 'test'
     arrayParam: [for x in emptyArray: x]
-//@[21:22) Local x. Type: any. Declaration start char: 21, length: 1
+//@[21:22) Local x. Type: never. Declaration start char: 21, length: 1
   }
 }]
 
@@ -224,7 +224,7 @@ module duplicateIdentifiersWithinLoop 'modulea.bicep' = [for x in emptyArray:{
 var duplicateAcrossScopes = 'hello'
 //@[04:25) Variable duplicateAcrossScopes. Type: 'hello'. Declaration start char: 0, length: 35
 module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes in []: {
-//@[58:79) Local duplicateAcrossScopes. Type: any. Declaration start char: 58, length: 21
+//@[58:79) Local duplicateAcrossScopes. Type: never. Declaration start char: 58, length: 21
 //@[07:34) Module duplicateInGlobalAndOneLoop. Type: module[]. Declaration start char: 0, length: 264
   name: 'hello-${duplicateAcrossScopes}'
   params: {
@@ -232,7 +232,7 @@ module duplicateInGlobalAndOneLoop 'modulea.bicep' = [for duplicateAcrossScopes 
     stringParamA: 'test'
     stringParamB: 'test'
     arrayParam: [for x in emptyArray: x]
-//@[21:22) Local x. Type: any. Declaration start char: 21, length: 1
+//@[21:22) Local x. Type: never. Declaration start char: 21, length: 1
   }
 }]
 
@@ -241,14 +241,14 @@ var someDuplicate = true
 var otherDuplicate = false
 //@[04:18) Variable otherDuplicate. Type: false. Declaration start char: 0, length: 26
 module duplicatesEverywhere 'modulea.bicep' = [for someDuplicate in []: {
-//@[51:64) Local someDuplicate. Type: any. Declaration start char: 51, length: 13
+//@[51:64) Local someDuplicate. Type: never. Declaration start char: 51, length: 13
 //@[07:27) Module duplicatesEverywhere. Type: module[]. Declaration start char: 0, length: 263
   name: 'hello-${someDuplicate}'
   params: {
     objParam: {}
     stringParamB: 'test'
     arrayParam: [for otherDuplicate in emptyArray: '${someDuplicate}-${otherDuplicate}']
-//@[21:35) Local otherDuplicate. Type: any. Declaration start char: 21, length: 14
+//@[21:35) Local otherDuplicate. Type: never. Declaration start char: 21, length: 14
   }
 }]
 
@@ -376,7 +376,7 @@ module secureModule2 'child/secureParams.bicep' = {
 
 //looped module with looped existing resource (Issue #2862)
 var vaults = [
-//@[04:10) Variable vaults. Type: array. Declaration start char: 0, length: 200
+//@[04:10) Variable vaults. Type: [object, object]. Declaration start char: 0, length: 200
   {
     vaultName: 'test-1-kv'
     vaultRG: 'test-1-rg'
@@ -389,7 +389,7 @@ var vaults = [
   }
 ]
 var secrets = [
-//@[04:11) Variable secrets. Type: array. Declaration start char: 0, length: 132
+//@[04:11) Variable secrets. Type: [object, object]. Declaration start char: 0, length: 132
   {
     name: 'secret01'
     version: 'versionA'
@@ -401,14 +401,14 @@ var secrets = [
 ]
 
 resource loopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = [for vault in vaults: {
-//@[73:78) Local vault. Type: any. Declaration start char: 73, length: 5
+//@[73:78) Local vault. Type: object | object. Declaration start char: 73, length: 5
 //@[09:17) Resource loopedKv. Type: Microsoft.KeyVault/vaults@2019-09-01[]. Declaration start char: 0, length: 175
   name: vault.vaultName
   scope: resourceGroup(vault.vaultSub, vault.vaultRG)
 }]
 
 module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secrets: {
-//@[61:67) Local secret. Type: any. Declaration start char: 61, length: 6
+//@[61:67) Local secret. Type: object | object. Declaration start char: 61, length: 6
 //@[69:70) Local i. Type: int. Declaration start char: 69, length: 1
 //@[07:25) Module secureModuleLooped. Type: module[]. Declaration start char: 0, length: 278
   name: 'secureModuleLooped-${i}'

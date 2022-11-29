@@ -84,7 +84,7 @@ resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
 }
 
 var items = [
-//@[04:09) Variable items. Type: ('a' | 'b')[]. Declaration start char: 0, length: 27
+//@[04:09) Variable items. Type: ['a', 'b']. Declaration start char: 0, length: 27
   'a'
   'b'
 ]

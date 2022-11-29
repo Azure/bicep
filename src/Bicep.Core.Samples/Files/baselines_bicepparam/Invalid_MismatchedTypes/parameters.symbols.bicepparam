@@ -10,7 +10,7 @@ param int = false
 //@[6:09) ParameterAssignment int. Type: false. Declaration start char: 0, length: 17
 
 param object = ['abc', 'def']
-//@[6:12) ParameterAssignment object. Type: ('abc' | 'def')[]. Declaration start char: 0, length: 29
+//@[6:12) ParameterAssignment object. Type: ['abc', 'def']. Declaration start char: 0, length: 29
 
 param array = {
 //@[6:11) ParameterAssignment array. Type: object. Declaration start char: 0, length: 38
