@@ -147,31 +147,10 @@ namespace Bicep.Core.Samples
         public string GetStreamPrefix() => $"{Prefix}{this.Name}";
 
         public static string ReadFile(string streamName)
-        {
-            using Stream? stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(streamName);
-            stream.Should().NotBeNull($"because stream '{streamName}' should exist");
-
-            using var reader = new StreamReader(stream ?? Stream.Null);
-
-            return reader.ReadToEnd();
-        }
+            => FileHelper.ReadEmbeddedFile(Assembly.GetExecutingAssembly(), streamName);
 
         public static ImmutableDictionary<string, string> ReadDataSetDictionary(string streamNamePrefix)
-        {
-            var matches = Assembly.GetExecutingAssembly()
-                .GetManifestResourceNames()
-                .Where(streamName => streamName.StartsWith(streamNamePrefix, StringComparison.Ordinal))
-                .Select(streamName => (streamName, key: streamName.Substring(streamNamePrefix.Length)));
-
-            var builder = ImmutableDictionary.CreateBuilder<string, string>();
-
-            foreach (var (streamName, key) in matches)
-            {
-                builder.Add(key, ReadFile(streamName));
-            }
-
-            return builder.ToImmutable();
-        }
+            => FileHelper.BuildEmbeddedFileDictionary(Assembly.GetExecutingAssembly(), streamNamePrefix);
 
         public static string AddDiagsToSourceText<T>(DataSet dataSet, IEnumerable<T> items, Func<T, TextSpan> getSpanFunc, Func<T, string> diagsFunc)
             => OutputHelper.AddDiagsToSourceText<T>(dataSet.Bicep, dataSet.HasCrLfNewlines() ? "\r\n" : "\n", items, getSpanFunc, diagsFunc);
