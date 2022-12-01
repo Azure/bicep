@@ -355,11 +355,13 @@ output length int =
                 });
         }
 
-        [TestMethod]
-        public async Task VerifyBicepRegistryAndTemplateSpecSchemaNameCompletions()
+        [DataTestMethod]
+        [DataRow("module test '|'", 14)]
+        [DataRow("module test '|", 13)]
+        [DataRow("module test |", 12)]
+        public async Task VerifyBicepRegistryAndTemplateSpecSchemaNameCompletions(string inputWithCursors, int expectedEnd)
         {
-            var fileWithCursors = @"module test |";
-            var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors, '|');
+            var (bicepFileContents, cursors) = ParserHelper.GetFileWithCursors(inputWithCursors, '|');
 
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
@@ -373,33 +375,68 @@ output length int =
             completions.Should().SatisfyRespectively(
                 c =>
                 {
-                    const string expected = "../";
-                    c.Label.Should().Be(expected);
+                    c.Label.Should().Be("../");
                     c.Kind.Should().Be(CompletionItemKind.Folder);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().BeNull();
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'../$0'");
+                    c.TextEdit!.TextEdit!.Range.Start.Line.Should().Be(0);
+                    c.TextEdit!.TextEdit!.Range.Start.Character.Should().Be(12);
+                    c.TextEdit!.TextEdit!.Range.End.Line.Should().Be(0);
+                    c.TextEdit!.TextEdit!.Range.End.Character.Should().Be(expectedEnd);
                 },
                 c =>
                 {
-                    const string expected = "br:";
-                    c.Label.Should().Be(expected);
+                    c.Label.Should().Be("br:");
                     c.Kind.Should().Be(CompletionItemKind.Reference);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().Be("Bicep registry schema name");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br:$0'");
+                    c.TextEdit!.TextEdit!.Range.Start.Line.Should().Be(0);
+                    c.TextEdit!.TextEdit!.Range.Start.Character.Should().Be(12);
+                    c.TextEdit!.TextEdit!.Range.End.Line.Should().Be(0);
+                    c.TextEdit!.TextEdit!.Range.End.Character.Should().Be(expectedEnd);
                 },
                 c =>
                 {
-                    const string expected = "br/";
-                    c.Label.Should().Be(expected);
+                    c.Label.Should().Be("br/");
                     c.Kind.Should().Be(CompletionItemKind.Reference);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().Be("Bicep registry schema name");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'br/$0'");
+                    c.TextEdit!.TextEdit!.Range.Start.Line.Should().Be(0);
+                    c.TextEdit!.TextEdit!.Range.Start.Character.Should().Be(12);
+                    c.TextEdit!.TextEdit!.Range.End.Line.Should().Be(0);
+                    c.TextEdit!.TextEdit!.Range.End.Character.Should().Be(expectedEnd);
                 },
                 c =>
                 {
-                    const string expected = "ts:";
-                    c.Label.Should().Be(expected);
+                    c.Label.Should().Be("ts:");
                     c.Kind.Should().Be(CompletionItemKind.Reference);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().Be("Template spec schema name");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'ts:$0'");
+                    c.TextEdit!.TextEdit!.Range.Start.Line.Should().Be(0);
+                    c.TextEdit!.TextEdit!.Range.Start.Character.Should().Be(12);
+                    c.TextEdit!.TextEdit!.Range.End.Line.Should().Be(0);
+                    c.TextEdit!.TextEdit!.Range.End.Character.Should().Be(expectedEnd);
                 },
                 c =>
                 {
-                    const string expected = "ts/";
-                    c.Label.Should().Be(expected);
+                    c.Label.Should().Be("ts/");
                     c.Kind.Should().Be(CompletionItemKind.Reference);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().Be("Template spec schema name");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("'ts/$0'");
+                    c.TextEdit!.TextEdit!.Range.Start.Line.Should().Be(0);
+                    c.TextEdit!.TextEdit!.Range.Start.Character.Should().Be(12);
+                    c.TextEdit!.TextEdit!.Range.End.Line.Should().Be(0);
+                    c.TextEdit!.TextEdit!.Range.End.Character.Should().Be(expectedEnd);
                 });
         }
 

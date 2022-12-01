@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Azure;
@@ -11,6 +12,7 @@ using Azure.Containers.ContainerRegistry;
 using Azure.Identity;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Providers;
+using Bicep.LanguageServer.Telemetry;
 using Microsoft.Azure.Management.ResourceGraph;
 using Microsoft.Azure.Management.ResourceGraph.Models;
 using Newtonsoft.Json.Linq;
@@ -23,8 +25,13 @@ namespace Bicep.LanguageServer.Completions
         private readonly IMcrCompletionProvider mcrCompletionProvider;
         private readonly IServiceClientCredentialsProvider serviceClientCredentialsProvider;
 
-        private static readonly List<string> BicepRegistryAndTemplateSpecShemaCompletionLabels = new List<string> { "br:", "br/", "ts:", "ts/" };
-        private static List<CompletionItem> BicepRegistryAndTemplateSpecShemaCompletionItems = new List<CompletionItem>();
+        private static readonly Dictionary<string, string> BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails = new Dictionary<string, string>()
+        {
+            {"br:", "Bicep registry schema name" },
+            {"br/", "Bicep registry schema name" },
+            {"ts:", "Template spec schema name" },
+            {"ts/", "Template spec schema name" },
+        };
 
         private static readonly Regex AcrModuleRegistryPath = new Regex(@"br:(?<registryName>(.*).azurecr.io)/", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.IgnoreCase);
 
@@ -54,39 +61,83 @@ namespace Bicep.LanguageServer.Completions
                 return Enumerable.Empty<CompletionItem>();
             }
 
-            // To provide intellisense before the quotes are typed
-            if (context.EnclosingDeclaration is not ModuleDeclarationSyntax declarationSyntax
-                || declarationSyntax.Path is not StringSyntax stringSyntax
-                || stringSyntax.TryGetLiteralValue() is not string entered)
-            {
-                entered = "";
-            }
-
-            if (entered == string.Empty)
-            {
-                if (!BicepRegistryAndTemplateSpecShemaCompletionItems.Any())
-                {
-                    BicepRegistryAndTemplateSpecShemaCompletionItems = GetBicepRegistryAndTemplateSpecSchemaCompletions();
-                }
-                return BicepRegistryAndTemplateSpecShemaCompletionItems;
-            }
-
-            return Enumerable.Empty<CompletionItem>();
-        }
-
-        private List<CompletionItem> GetBicepRegistryAndTemplateSpecSchemaCompletions()
-        {
             List<CompletionItem> completionItems = new List<CompletionItem>();
-            foreach (string label in BicepRegistryAndTemplateSpecShemaCompletionLabels)
+            foreach (var kvp in BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails)
             {
-                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, label)
-                    .WithSortText(GetSortText(label, CompletionPriority.High))
+                var text = kvp.Key;
+                var sb = new StringBuilder();
+                sb.Append("'");
+                sb.Append(text);
+                sb.Append("$0");
+                sb.Append("'");
+
+                var completionText = sb.ToString();
+
+                BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateBicepRegistryOrTemplateSpecShemaCompletion(text);
+                var command = TelemetryHelper.CreateCommand
+                (
+                    title: "Bicep registry or template spec shema completion",
+                    name: TelemetryConstants.CommandName,
+                    args: JArray.FromObject(new List<object> { telemetryEvent })
+                );
+
+                var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, text)
+                    .WithFilterText(completionText)
+                    .WithSortText(GetSortText(text, CompletionPriority.Medium))
+                    .WithSnippetEdit(context.ReplacementRange, completionText)
+                    .WithDetail(kvp.Value)
+                    .WithCommand(command)
                     .Build();
                 completionItems.Add(completionItem);
             }
 
             return completionItems;
+
+            // To provide intellisense before the quotes are typed
+            //if (context.EnclosingDeclaration is not ModuleDeclarationSyntax declarationSyntax
+            //    || declarationSyntax.Path is not StringSyntax stringSyntax
+            //    || stringSyntax.TryGetLiteralValue() is not string entered)
+            //{
+            //    entered = "";
+            //}
+
+            //if (entered == string.Empty)
+            //{
+           // return GetBicepRegistryAndTemplateSpecSchemaCompletions(context);
+            //}
+
+            //return Enumerable.Empty<CompletionItem>();
         }
+
+        //private List<CompletionItem> GetBicepRegistryAndTemplateSpecSchemaCompletions(BicepCompletionContext context)
+        //{
+        //    List<CompletionItem> completionItems = new List<CompletionItem>();
+        //    foreach (var kvp in BicepRegistryAndTemplateSpecShemaCompletionLabelsWithDetails)
+        //    {
+        //        var text = kvp.Key;
+        //        var sb = new StringBuilder();
+        //        if (!text.StartsWith("'"))
+        //        {
+        //            sb.Append("'");
+        //        }
+
+        //        sb.Append(text);
+        //        sb.Append("$0");
+
+        //        if (!text.EndsWith("'"))
+        //        {
+        //            sb.Append("'");
+        //        }
+        //        var completionItem = CompletionItemBuilder.Create(CompletionItemKind.Reference, text)
+        //            .WithSortText(GetSortText(text, CompletionPriority.Low))
+        //            .WithSnippetEdit(context.ReplacementRange, sb.ToString())
+        //            .WithDetail(kvp.Value)
+        //            .Build();
+        //        completionItems.Add(completionItem);
+        //    }
+
+        //    return completionItems;
+        //}
 
         private IEnumerable<CompletionItem> GetPublicMcrModuleRegistryTagCompletions(BicepCompletionContext context)
         {
