@@ -55,6 +55,8 @@ namespace Bicep.LangServer.IntegrationTests
 
         public BicepFile ApplyCompletion(CompletionList completions, string label, params string[] tabStops)
         {
+            // Should().Contain is superfluous here, but it gives a better assertion message when it fails
+            completions.Should().Contain(x => x.Label == label);
             completions.Should().ContainSingle(x => x.Label == label);
 
             return ApplyCompletion(completions.Single(x => x.Label == label), tabStops);
