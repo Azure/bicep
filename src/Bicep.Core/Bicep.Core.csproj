@@ -32,9 +32,9 @@
     <PackageReference Include="Azure.Deployments.Core" Version="1.0.750" />
     <PackageReference Include="Azure.Deployments.Templates" Version="1.0.750" />
     <PackageReference Include="Azure.Deployments.Expression" Version="1.0.750" />
-    <PackageReference Include="Azure.Bicep.Types" Version="0.3.29" />
-    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.199" />
-    <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.202" />
+    <PackageReference Include="Azure.Bicep.Types" Version="0.3.61" />
+    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.2.238" />
+    <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.233" />
     <PackageReference Include="System.IO.Abstractions" Version="17.2.3" />
     <PackageReference Include="Azure.Bicep.Internal.RoslynAnalyzers" Version="0.1.17" PrivateAssets="all" />
   </ItemGroup>
