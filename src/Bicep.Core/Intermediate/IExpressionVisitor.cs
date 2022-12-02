@@ -20,4 +20,18 @@ public interface IExpressionVisitor
     void VisitObjectExpression(ObjectExpression expression);
 
     void VisitArrayExpression(ArrayExpression expression);
+
+    void VisitTernaryExpression(TernaryExpression expression);
+
+    void VisitBinaryExpression(BinaryExpression expression);
+
+    void VisitUnaryExpression(UnaryExpression expression);
+
+    void VisitFunctionCallExpression(FunctionCallExpression expression);
+
+    void VisitArrayAccessExpression(ArrayAccessExpression expression);
+
+    void VisitPropertyAccessExpression(PropertyAccessExpression expression);
+
+    void VisitResourceIdExpression(ResourceIdExpression expression);
 }
