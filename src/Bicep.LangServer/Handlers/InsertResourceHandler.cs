@@ -311,7 +311,10 @@ namespace Bicep.LanguageServer.Handlers
                     {
                         return SyntaxFactory.CreatePositiveOrNegativeInteger(intValue);
                     }
-                    return SyntaxFactory.CreateStringLiteral(element.ToString()!);
+
+                    return SyntaxFactory.CreateFunctionCall(
+                        "json",
+                        SyntaxFactory.CreateStringLiteral(element.ToString()));
                 case JsonValueKind.True:
                     return SyntaxFactory.CreateToken(TokenType.TrueKeyword);
                 case JsonValueKind.False:
