@@ -163,3 +163,38 @@ public record ModuleReferenceExpression(
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitModuleReferenceExpression(this);
 }
+
+public record ModuleOutputExpression(
+    Expression Module) : Expression
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitModuleOutputExpression(this);
+}
+
+public record VariableReferenceExpression(
+    VariableSymbol Variable) : Expression
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitVariableReferenceExpression(this);
+}
+
+public record ParametersReferenceExpression(
+    ParameterSymbol Parameter) : Expression
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitParametersReferenceExpression(this);
+}
+
+public record LambdaVariableReferenceExpression(
+    LocalVariableSymbol Variable) : Expression
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitLambdaVariableReferenceExpression(this);
+}
+
+public record CopyIndexExpression(
+    string? Name) : Expression
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitCopyIndexExpression(this);
+}

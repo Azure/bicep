@@ -35,7 +35,7 @@ namespace Bicep.Core.Syntax
                 Interleave(variables.Select(x => new LocalVariableSyntax(x)), () => CommaToken),
                 SyntaxFactory.RightParenToken);
 
-        public static ExplicitVariableAccessSyntax CreateExplicitVariableAccess(string text) => new(CreateIdentifier(text));
+        public static UnboundVariableAccessSyntax CreateUnboundVariableAccess(string text) => new(CreateIdentifier(text));
 
         public static Token DoubleNewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine + Environment.NewLine);
         public static Token NewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine);

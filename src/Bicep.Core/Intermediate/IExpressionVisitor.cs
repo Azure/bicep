@@ -38,4 +38,14 @@ public interface IExpressionVisitor
     void VisitResourceReferenceExpression(ResourceReferenceExpression expression);
 
     void VisitModuleReferenceExpression(ModuleReferenceExpression expression);
+
+    void VisitModuleOutputExpression(ModuleOutputExpression expression);
+
+    void VisitVariableReferenceExpression(VariableReferenceExpression expression);
+
+    void VisitParametersReferenceExpression(ParametersReferenceExpression expression);
+
+    void VisitLambdaVariableReferenceExpression(LambdaVariableReferenceExpression expression);
+
+    void VisitCopyIndexExpression(CopyIndexExpression expression);
 }

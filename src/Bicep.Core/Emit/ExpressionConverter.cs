@@ -161,6 +161,19 @@ namespace Bicep.Core.Emit
                         ToFunctionExpression(ConvertExpression(exp.Base)),
                         ConvertExpression(exp.Access));
 
+                case PropertyAccessExpression { Base: ResourceReferenceExpression resource } exp:
+                    return GetConverter(resource.IndexContext).ConvertResourcePropertyAccess(resource, exp);
+
+                case PropertyAccessExpression { Base: ModuleReferenceExpression module } exp:
+                    return GetConverter(module.IndexContext).ConvertModulePropertyAccess(module.Module, exp);
+
+                case PropertyAccessExpression { Base: ModuleOutputExpression moduleOutput } exp:
+                    return AppendProperties(
+                        ToFunctionExpression(ConvertExpression(moduleOutput.Module)),
+                        new JTokenExpression("outputs"),
+                        new JTokenExpression(exp.PropertyName),
+                        new JTokenExpression("value"));
+
                 case PropertyAccessExpression exp:
                     return AppendProperties(
                         ToFunctionExpression(ConvertExpression(exp.Base)),
@@ -170,45 +183,33 @@ namespace Bicep.Core.Emit
                     return GetConverter(exp.IndexContext).GetFullyQualifiedResourceId(exp.Metadata);
 
                 case ResourceReferenceExpression exp:
-                    var declaredResource = exp.Metadata as DeclaredResourceMetadata;
-
-                    if (declaredResource?.IsAzResource == false)
-                    {
-                        return CreateFunction(
-                            "reference",
-                            GenerateSymbolicReference(declaredResource.Symbol.Name, exp.IndexContext));
-                    }
-
-                    return (context.Settings.EnableSymbolicNames, declaredResource) switch {
-                        (true, {}) => CreateFunction(
-                            "reference",
-                            GenerateSymbolicReference(declaredResource.Symbol.Name, exp.IndexContext),
-                            new JTokenExpression(exp.Metadata.TypeReference.ApiVersion!),
-                            new JTokenExpression("full")),
-                        _ => CreateFunction(
-                            "reference",
-                            GetConverter(exp.IndexContext).GetFullyQualifiedResourceId(exp.Metadata),
-                            new JTokenExpression(exp.Metadata.TypeReference.ApiVersion!),
-                            new JTokenExpression("full")),
-                    };
+                    return GetReferenceExpression(exp.Metadata, exp.IndexContext, true);
 
                 case ModuleReferenceExpression exp:
-                    // See https://github.com/Azure/bicep/issues/6008 for more info
-                    var shouldIncludeApiVersion = exp.Module.DeclaringModule.HasCondition();
+                    return GetModuleReferenceExpression(exp.Module, exp.IndexContext);
 
-                    return (context.Settings.EnableSymbolicNames, shouldIncludeApiVersion) switch
+                case ModuleOutputExpression exp:
+                    // TODO verify this is caught earlier on
+                    throw new NotImplementedException($"Module outputs cannot be directly referenced");
+
+                case VariableReferenceExpression exp:
+                    if (context.VariablesToInline.Contains(exp.Variable))
                     {
-                        (true, _) => CreateFunction(
-                            "reference",
-                            GenerateSymbolicReference(exp.Module.Name, exp.IndexContext)),
-                        (false, false) => CreateFunction(
-                            "reference",
-                            GetConverter(exp.IndexContext).GetFullyQualifiedResourceId(exp.Module)),
-                        (false, true) => CreateFunction(
-                            "reference",
-                            GetConverter(exp.IndexContext).GetFullyQualifiedResourceId(exp.Module),
-                            new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion)),
-                    };
+                        // we've got a runtime dependency, so we have to inline the variable usage
+                        return ConvertExpression(exp.Variable.DeclaringVariable.Value);
+                    }
+                    return CreateFunction("variables", new JTokenExpression(exp.Variable.Name));
+
+                case ParametersReferenceExpression exp:
+                    return CreateFunction("parameters", new JTokenExpression(exp.Parameter.Name));
+
+                case LambdaVariableReferenceExpression exp:
+                    return CreateFunction("lambdaVariables", new JTokenExpression(exp.Variable.Name));
+
+                case CopyIndexExpression exp:
+                    return exp.Name is null
+                        ? CreateFunction("copyIndex")
+                        : CreateFunction("copyIndex", new JTokenExpression(exp.Name));
 
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {expression.GetType().Name}");
@@ -216,15 +217,6 @@ namespace Bicep.Core.Emit
 
             switch (syntax)
             {
-                case ResourceAccessSyntax resourceAccess:
-                    return ConvertResourceAccess(resourceAccess);
-
-                case PropertyAccessSyntax propertyAccess:
-                    return ConvertPropertyAccess(propertyAccess);
-
-                case VariableAccessSyntax variableAccess:
-                    return ConvertVariableAccess(variableAccess);
-
                 case LambdaSyntax lambda:
                     var variables = lambda.GetLocalVariables();
 
@@ -257,14 +249,42 @@ namespace Bicep.Core.Emit
             return GetConverter(indexContext);
         }
 
-        private LanguageExpression ConvertResourcePropertyAccess(ResourceMetadata resource, SyntaxBase? indexExpression, string propertyName)
+        private LanguageExpression ConvertResourceReference(ResourceReferenceExpression reference)
         {
+            var declaredResource = reference.Metadata as DeclaredResourceMetadata;
+            if (declaredResource?.IsAzResource == false)
+            {
+                return CreateFunction(
+                    "reference",
+                    GenerateSymbolicReference(declaredResource, reference.IndexContext));
+            }
+
+            return (context.Settings.EnableSymbolicNames, declaredResource) switch {
+                (true, {}) => CreateFunction(
+                    "reference",
+                    GenerateSymbolicReference(declaredResource, reference.IndexContext),
+                    new JTokenExpression(reference.Metadata.TypeReference.ApiVersion!),
+                    new JTokenExpression("full")),
+                _ => CreateFunction(
+                    "reference",
+                    GetConverter(reference.IndexContext).GetFullyQualifiedResourceId(reference.Metadata),
+                    new JTokenExpression(reference.Metadata.TypeReference.ApiVersion!),
+                    new JTokenExpression("full")),
+            };
+        }
+
+        private LanguageExpression ConvertResourcePropertyAccess(ResourceReferenceExpression reference, PropertyAccessExpression propertyAccess)
+        {
+            var resource = reference.Metadata;
+            var indexContext = reference.IndexContext;
+            var propertyName = propertyAccess.PropertyName;
+
             if (!resource.IsAzResource)
             {
                 // For an extensible resource, always generate a 'reference' statement.
                 // User-defined properties appear inside "properties", so use a non-full reference.
                 return AppendProperties(
-                    GetReferenceExpression(resource, indexExpression, false),
+                    GetReferenceExpression(resource, indexContext, false),
                     new JTokenExpression(propertyName));
             }
 
@@ -300,10 +320,10 @@ namespace Bicep.Core.Emit
                     case "properties":
                         // use the reference() overload without "full" to generate a shorter expression
                         // this is dependent on the name expression which could involve locals in case of a resource collection
-                        return GetReferenceExpression(resource, indexExpression, false);
+                        return GetReferenceExpression(resource, indexContext, false);
                     default:
                         return AppendProperties(
-                            GetReferenceExpression(resource, indexExpression, true),
+                            GetReferenceExpression(resource, indexContext, true),
                             new JTokenExpression(propertyName));
                 }
             }
@@ -336,11 +356,11 @@ namespace Bicep.Core.Emit
                     case "properties":
                         // use the reference() overload without "full" to generate a shorter expression
                         // this is dependent on the name expression which could involve locals in case of a resource collection
-                        return GetReferenceExpression(resource, indexExpression, false);
+                        return GetReferenceExpression(resource, indexContext, false);
                     default:
                         // For a module output we have to handle all possible cases here, because otherwise
                         // this case would be handled like any old property access rather than access to a resource's property.
-                        return AppendProperties(GetReferenceExpression(resource, indexExpression, true), new JTokenExpression(propertyName));
+                        return AppendProperties(GetReferenceExpression(resource, indexContext, true), new JTokenExpression(propertyName));
                 }
             }
             else if (resource is DeclaredResourceMetadata declaredResource)
@@ -351,7 +371,7 @@ namespace Bicep.Core.Emit
                     case ("name", true):
                     case ("type", true):
                     case ("apiVersion", true):
-                        var symbolExpression = GenerateSymbolicReference(declaredResource, indexExpression);
+                        var symbolExpression = GenerateSymbolicReference(declaredResource, indexContext);
 
                         return AppendProperties(
                             CreateFunction("resourceInfo", symbolExpression),
@@ -373,10 +393,10 @@ namespace Bicep.Core.Emit
                     case ("properties", _):
                         // use the reference() overload without "full" to generate a shorter expression
                         // this is dependent on the name expression which could involve locals in case of a resource collection
-                        return GetReferenceExpression(resource, indexExpression, false);
+                        return GetReferenceExpression(resource, indexContext, false);
                     default:
                         return AppendProperties(
-                            GetReferenceExpression(resource, indexExpression, true),
+                            GetReferenceExpression(resource, indexContext, true),
                             new JTokenExpression(propertyName));
                 }
             }
@@ -386,142 +406,16 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private LanguageExpression? ConvertModulePropertyAccess(ModuleSymbol moduleSymbol, string propertyName)
+        private LanguageExpression ConvertModulePropertyAccess(ModuleSymbol moduleSymbol, PropertyAccessExpression propertyAccess)
         {
-            switch (propertyName)
+            switch (propertyAccess.PropertyName)
             {
                 case "name":
                     // the name is dependent on the name expression which could involve locals in case of a resource collection
                     return GetModuleNameExpression(moduleSymbol);
             }
 
-            return null;
-        }
-
-        private LanguageExpression ConvertPropertyAccess(PropertyAccessSyntax propertyAccess)
-        {
-            if (context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is DeclaredResourceMetadata resource)
-            {
-                var movedSyntax = context.Settings.EnableSymbolicNames ? resource.Symbol.NameIdentifier : resource.NameSyntax;
-
-                // we are doing property access on a single resource
-                return CreateConverterForIndexReplacement(movedSyntax, null, propertyAccess)
-                    .ConvertResourcePropertyAccess(resource, null, propertyAccess.PropertyName.IdentifierName);
-            }
-
-            if ((propertyAccess.BaseExpression is VariableAccessSyntax || propertyAccess.BaseExpression is ResourceAccessSyntax) &&
-                context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ParameterResourceMetadata parameter &&
-                    this.ConvertResourcePropertyAccess(parameter, null, propertyAccess.PropertyName.IdentifierName) is { } convertedSingleParameter)
-            {
-                // we are doing property access on a single resource
-                // and we are dealing with special case properties
-                return convertedSingleParameter;
-            }
-
-            if (propertyAccess.BaseExpression is ArrayAccessSyntax propArrayAccess &&
-                context.SemanticModel.ResourceMetadata.TryLookup(propArrayAccess.BaseExpression) is DeclaredResourceMetadata resourceCollection)
-            {
-                var movedSyntax = context.Settings.EnableSymbolicNames ? resourceCollection.Symbol.NameIdentifier : resourceCollection.NameSyntax;
-
-                // we are doing property access on an array access of a resource collection
-                return CreateConverterForIndexReplacement(movedSyntax, propArrayAccess.IndexExpression, propertyAccess)
-                    .ConvertResourcePropertyAccess(resourceCollection, propArrayAccess.IndexExpression, propertyAccess.PropertyName.IdentifierName);
-            }
-
-            if (propertyAccess.BaseExpression is PropertyAccessSyntax &&
-                context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ModuleOutputResourceMetadata moduleOutput &&
-                !moduleOutput.Module.IsCollection &&
-                this.ConvertResourcePropertyAccess(moduleOutput, null, propertyAccess.PropertyName.IdentifierName) is { } convertedSingleModuleOutput)
-            {
-                // we are doing property access on an output of a non-collection module.
-                // and we are dealing with special case properties
-                return convertedSingleModuleOutput;
-            }
-
-            if (propertyAccess.BaseExpression is PropertyAccessSyntax moduleCollectionOutputProperty &&
-                moduleCollectionOutputProperty.BaseExpression is PropertyAccessSyntax moduleCollectionOutputs &&
-                moduleCollectionOutputs.BaseExpression is ArrayAccessSyntax moduleArrayAccess &&
-                context.SemanticModel.ResourceMetadata.TryLookup(propertyAccess.BaseExpression) is ModuleOutputResourceMetadata moduleCollectionOutputMetadata &&
-                moduleCollectionOutputMetadata.Module.IsCollection &&
-                CreateConverterForIndexReplacement(moduleCollectionOutputMetadata.NameSyntax, moduleArrayAccess.IndexExpression, propertyAccess)
-                    .ConvertResourcePropertyAccess(moduleCollectionOutputMetadata, null, propertyAccess.PropertyName.IdentifierName) is { } convertedCollectionModuleOutput)
-            {
-                // we are doing property access on an output of an array of modules.
-                // and we are dealing with special case properties
-                return convertedCollectionModuleOutput;
-            }
-
-            if (propertyAccess.BaseExpression is VariableAccessSyntax modulePropVariableAccess &&
-                context.SemanticModel.GetSymbolInfo(modulePropVariableAccess) is ModuleSymbol moduleSymbol &&
-                CreateConverterForIndexReplacement(GetModuleNameSyntax(moduleSymbol), null, propertyAccess)
-                    .ConvertModulePropertyAccess(moduleSymbol, propertyAccess.PropertyName.IdentifierName) is { } moduleConvertedSingle)
-            {
-                // we are doing property access on a single module
-                // and we are dealing with special case properties
-                return moduleConvertedSingle;
-            }
-
-            if (propertyAccess.BaseExpression is ArrayAccessSyntax modulePropArrayAccess &&
-                modulePropArrayAccess.BaseExpression is VariableAccessSyntax moduleArrayVariableAccess &&
-                context.SemanticModel.GetSymbolInfo(moduleArrayVariableAccess) is ModuleSymbol moduleCollectionSymbol &&
-                CreateConverterForIndexReplacement(GetModuleNameSyntax(moduleCollectionSymbol), modulePropArrayAccess.IndexExpression, propertyAccess)
-                    .ConvertModulePropertyAccess(moduleCollectionSymbol, propertyAccess.PropertyName.IdentifierName) is { } moduleConvertedCollection)
-            {
-
-                // we are doing property access on an array access of a module collection
-                // and we are dealing with special case properties
-                return moduleConvertedCollection;
-            }
-
-            // is this a (<child>.outputs).<prop> propertyAccess?
-            if (propertyAccess.BaseExpression is PropertyAccessSyntax childPropertyAccess && childPropertyAccess.PropertyName.IdentifierName == LanguageConstants.ModuleOutputsPropertyName)
-            {
-                switch (childPropertyAccess.BaseExpression)
-                {
-                    // is <child> a variable which points to a variable that requires in-lining?
-                    case VariableAccessSyntax grandChildVariableAccess
-                        when context.SemanticModel.GetSymbolInfo(grandChildVariableAccess) is VariableSymbol variableSymbol &&
-                            context.VariablesToInline.Contains(variableSymbol):
-                        {
-                            //execute variable in-lining
-                            if (ConvertVariableAccess(grandChildVariableAccess) is FunctionExpression moduleReferenceExpression)
-                            {
-                                // we assume that this will generate a proper reference function to a deployment resource.
-                                // If not then the deployment will fail as the template will be malformed but that should have been caught before
-
-                                return AppendProperties(moduleReferenceExpression,
-                                    new JTokenExpression(propertyAccess.PropertyName.IdentifierName),
-                                    new JTokenExpression("value"));
-                            }
-                            break;
-                        }
-
-                    // is <child> a variable which points to a non-collection module symbol?
-                    case VariableAccessSyntax grandChildVariableAccess
-                        when context.SemanticModel.GetSymbolInfo(grandChildVariableAccess) is ModuleSymbol { IsCollection: false } outputsModuleSymbol:
-                        {
-                            return AppendProperties(
-                                this.GetModuleOutputsReferenceExpression(outputsModuleSymbol, null),
-                                new JTokenExpression(propertyAccess.PropertyName.IdentifierName),
-                                new JTokenExpression("value"));
-                        }
-
-                    // is <child> an array access operating on a module collection
-                    case ArrayAccessSyntax { BaseExpression: VariableAccessSyntax grandGrandChildVariableAccess } grandChildArrayAccess
-                        when context.SemanticModel.GetSymbolInfo(grandGrandChildVariableAccess) is ModuleSymbol { IsCollection: true } outputsModuleCollectionSymbol:
-                        {
-                            var updatedConverter = this.CreateConverterForIndexReplacement(GetModuleNameSyntax(outputsModuleCollectionSymbol), grandChildArrayAccess.IndexExpression, propertyAccess);
-                            return AppendProperties(
-                                updatedConverter.GetModuleOutputsReferenceExpression(outputsModuleCollectionSymbol, grandChildArrayAccess.IndexExpression),
-                                new JTokenExpression(propertyAccess.PropertyName.IdentifierName),
-                                new JTokenExpression("value"));
-                        }
-                }
-            }
-
-            return AppendProperties(
-                ToFunctionExpression(propertyAccess.BaseExpression),
-                new JTokenExpression(propertyAccess.PropertyName.IdentifierName));
+            throw new InvalidOperationException($"Unsupported module property: {propertyAccess.PropertyName}");
         }
 
         public IEnumerable<LanguageExpression> GetResourceNameSegments(DeclaredResourceMetadata resource)
@@ -742,7 +636,8 @@ namespace Bicep.Core.Emit
             else if (resource is ModuleOutputResourceMetadata output)
             {
                 return AppendProperties(
-                    GetModuleOutputsReferenceExpression(output.Module, null),
+                    GetModuleReferenceExpression(output.Module, null),
+                    new JTokenExpression("outputs"),
                     new JTokenExpression(output.OutputName),
                     new JTokenExpression("value"));
             }
@@ -772,26 +667,22 @@ namespace Bicep.Core.Emit
                 GetModuleNameExpression(moduleSymbol).AsEnumerable());
         }
 
-        public FunctionExpression GetModuleOutputsReferenceExpression(ModuleSymbol moduleSymbol, SyntaxBase? indexExpression)
+        public FunctionExpression GetModuleReferenceExpression(ModuleSymbol moduleSymbol, IndexReplacementContext? indexContext)
         {
             if (context.Settings.EnableSymbolicNames)
             {
-                return AppendProperties(
-                    CreateFunction(
-                        "reference",
-                        GenerateSymbolicReference(moduleSymbol.Name, indexExpression)),
-                    new JTokenExpression("outputs"));
+                return CreateFunction(
+                    "reference",
+                    GenerateSymbolicReference(moduleSymbol, indexContext));
             }
 
-            return AppendProperties(
-                CreateFunction(
-                    "reference",
-                    GetFullyQualifiedResourceId(moduleSymbol),
-                    new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion)),
-                new JTokenExpression("outputs"));
+            return CreateFunction(
+                "reference",
+                GetConverter(indexContext).GetFullyQualifiedResourceId(moduleSymbol),
+                new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion));
         }
 
-        public FunctionExpression GetReferenceExpression(ResourceMetadata resource, SyntaxBase? indexExpression, bool full)
+        public FunctionExpression GetReferenceExpression(ResourceMetadata resource, IndexReplacementContext? indexContext, bool full)
         {
             var referenceExpression = resource switch
             {
@@ -801,12 +692,13 @@ namespace Bicep.Core.Emit
                     Array.Empty<LanguageExpression>()),
 
                 ModuleOutputResourceMetadata output => AppendProperties(
-                    GetModuleOutputsReferenceExpression(output.Module, null),
+                    GetModuleReferenceExpression(output.Module, null),
+                    new JTokenExpression("outputs"),
                     new JTokenExpression(output.OutputName),
                     new JTokenExpression("value")),
 
                 DeclaredResourceMetadata declared when context.Settings.EnableSymbolicNames =>
-                    GenerateSymbolicReference(declared, indexExpression),
+                    GenerateSymbolicReference(declared, indexContext),
                 DeclaredResourceMetadata => GetFullyQualifiedResourceId(resource),
 
                 _ => throw new InvalidOperationException($"Unexpected resource metadata type: {resource.GetType()}"),
@@ -945,89 +837,6 @@ namespace Bicep.Core.Emit
             var arrayExpression = ToFunctionExpression(@for.Expression);
 
             return AppendProperties(arrayExpression, indexExpression);
-        }
-
-        private LanguageExpression ConvertVariableAccess(VariableAccessSyntax variableAccessSyntax)
-        {
-            var name = variableAccessSyntax.Name.IdentifierName;
-
-            if (variableAccessSyntax is ExplicitVariableAccessSyntax)
-            {
-                //just return a call to variables.
-                return CreateFunction("variables", new JTokenExpression(name));
-            }
-
-            var symbol = context.SemanticModel.GetSymbolInfo(variableAccessSyntax);
-
-            switch (symbol)
-            {
-                case ParameterSymbol parameterSymbol when parameterSymbol.Type is ResourceType resourceType:
-                    // This is a reference to a pre-existing resource where the resource ID was passed in as a
-                    // string. Generate a call to reference().
-                    return CreateFunction(
-                        "reference",
-                        CreateFunction("parameters", new JTokenExpression(name)),
-                        new JTokenExpression(resourceType.TypeReference.ApiVersion),
-                        new JTokenExpression("full"));
-
-                case ParameterSymbol parameterSymbol when parameterSymbol.Type is ResourceType:
-                    return CreateFunction("parameters", new JTokenExpression(name));
-
-                case ParameterSymbol _:
-                    return CreateFunction("parameters", new JTokenExpression(name));
-
-                case VariableSymbol variableSymbol:
-                    if (context.VariablesToInline.Contains(variableSymbol))
-                    {
-                        // we've got a runtime dependency, so we have to inline the variable usage
-                        return ConvertExpression(variableSymbol.DeclaringVariable.Value);
-                    }
-                    return CreateFunction("variables", new JTokenExpression(name));
-
-                case ResourceSymbol when context.SemanticModel.ResourceMetadata.TryLookup(variableAccessSyntax) is { } resource:
-                    return GetReferenceExpression(resource, null, true);
-
-                case ModuleSymbol moduleSymbol:
-                    return GetModuleOutputsReferenceExpression(moduleSymbol, null);
-
-                case LocalVariableSymbol localVariableSymbol:
-                    return GetLocalVariableExpression(localVariableSymbol);
-
-                default:
-                    throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");
-
-            }
-        }
-
-        private LanguageExpression ConvertResourceAccess(ResourceAccessSyntax resourceAccessSyntax)
-        {
-            if (context.SemanticModel.ResourceMetadata.TryLookup(resourceAccessSyntax) is { } resource)
-            {
-                return GetReferenceExpression(resource, null, true);
-            }
-
-            throw new NotImplementedException($"Unable to obtain resource metadata when generating a resource access expression.");
-        }
-
-        private LanguageExpression ConvertString(StringSyntax syntax)
-        {
-            if (syntax.TryGetLiteralValue() is string literalStringValue)
-            {
-                // no need to build a format string
-                return new JTokenExpression(literalStringValue);
-            }
-
-            var formatArgs = new LanguageExpression[syntax.Expressions.Length + 1];
-
-            var formatString = StringFormatConverter.BuildFormatString(syntax.SegmentValues);
-            formatArgs[0] = new JTokenExpression(formatString);
-
-            for (var i = 0; i < syntax.Expressions.Length; i++)
-            {
-                formatArgs[i + 1] = ConvertExpression(syntax.Expressions[i]);
-            }
-
-            return CreateFunction("format", formatArgs);
         }
 
         private LanguageExpression ConvertString(InterpolatedStringExpression expression)
@@ -1188,7 +997,7 @@ namespace Bicep.Core.Emit
             return string.Join("::", nestedHierarchy.Select(x => x.Symbol.Name));
         }
 
-        public LanguageExpression GenerateSymbolicReference(string symbolName, IndexReplacementContext? indexContext)
+        private LanguageExpression GenerateSymbolicReference(string symbolName, IndexReplacementContext? indexContext)
         {
             if (indexContext is null)
             {
@@ -1213,6 +1022,12 @@ namespace Bicep.Core.Emit
                 new JTokenExpression($"{symbolName}[{{0}}]"),
                 ConvertExpression(indexExpression));
         }
+
+        public LanguageExpression GenerateSymbolicReference(DeclaredResourceMetadata resource, IndexReplacementContext? indexContext)
+            => GenerateSymbolicReference(GetSymbolicName(resource), indexContext);
+
+        public LanguageExpression GenerateSymbolicReference(ModuleSymbol module, IndexReplacementContext? indexContext)
+            => GenerateSymbolicReference(module.Name, indexContext);
 
         public LanguageExpression GenerateSymbolicReference(DeclaredResourceMetadata resource, SyntaxBase? indexExpression)
             => GenerateSymbolicReference(GetSymbolicName(resource), indexExpression);

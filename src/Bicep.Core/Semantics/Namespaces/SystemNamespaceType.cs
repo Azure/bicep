@@ -779,7 +779,7 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             if (functionVariable is not null)
             {
-                return SyntaxFactory.CreateExplicitVariableAccess(functionVariable.Name);
+                return SyntaxFactory.CreateUnboundVariableAccess(functionVariable.Name);
             }
 
             return CreateStringLiteral(typeSymbol);
@@ -813,8 +813,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 throw new InvalidOperationException($"Function Variable must be used");
             }
 
-            return SyntaxFactory.CreateExplicitVariableAccess(functionVariable.Name);
-
+            return SyntaxFactory.CreateUnboundVariableAccess(functionVariable.Name);
         }
 
         private static SyntaxBase JsonContentFunctionVariableGenerator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, bool directVariableAssignment, object? functionValue)

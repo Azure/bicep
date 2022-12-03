@@ -125,7 +125,7 @@ namespace Bicep.Core.Emit
 
         public void EmitSymbolReference(DeclaredResourceMetadata resource)
         {
-            var expression = converter.GenerateSymbolicReference(resource, null);
+            var expression = converter.GenerateSymbolicReference(resource, null as SyntaxBase);
 
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
         }
