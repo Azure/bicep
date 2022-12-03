@@ -140,18 +140,26 @@ public record PropertyAccessExpression(
         => visitor.VisitPropertyAccessExpression(this);
 }
 
-public enum StaticResourcePropertyKind {
-    Id,
-    Name,
-    Type,
-    ApiVersion,
-}
-
 public record ResourceIdExpression(
-    StaticResourcePropertyKind Kind,
     ResourceMetadata Metadata,
     IndexReplacementContext? IndexContext) : Expression
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitResourceIdExpression(this);
+}
+
+public record ResourceReferenceExpression(
+    ResourceMetadata Metadata,
+    IndexReplacementContext? IndexContext) : Expression
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitResourceReferenceExpression(this);
+}
+
+public record ModuleReferenceExpression(
+    ModuleSymbol Module,
+    IndexReplacementContext? IndexContext) : Expression
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitModuleReferenceExpression(this);
 }

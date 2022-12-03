@@ -169,15 +169,53 @@ namespace Bicep.Core.Emit
                 case ResourceIdExpression exp:
                     return GetConverter(exp.IndexContext).GetFullyQualifiedResourceId(exp.Metadata);
 
+                case ResourceReferenceExpression exp:
+                    var declaredResource = exp.Metadata as DeclaredResourceMetadata;
+
+                    if (declaredResource?.IsAzResource == false)
+                    {
+                        return CreateFunction(
+                            "reference",
+                            GenerateSymbolicReference(declaredResource.Symbol.Name, exp.IndexContext));
+                    }
+
+                    return (context.Settings.EnableSymbolicNames, declaredResource) switch {
+                        (true, {}) => CreateFunction(
+                            "reference",
+                            GenerateSymbolicReference(declaredResource.Symbol.Name, exp.IndexContext),
+                            new JTokenExpression(exp.Metadata.TypeReference.ApiVersion!),
+                            new JTokenExpression("full")),
+                        _ => CreateFunction(
+                            "reference",
+                            GetConverter(exp.IndexContext).GetFullyQualifiedResourceId(exp.Metadata),
+                            new JTokenExpression(exp.Metadata.TypeReference.ApiVersion!),
+                            new JTokenExpression("full")),
+                    };
+
+                case ModuleReferenceExpression exp:
+                    // See https://github.com/Azure/bicep/issues/6008 for more info
+                    var shouldIncludeApiVersion = exp.Module.DeclaringModule.HasCondition();
+
+                    return (context.Settings.EnableSymbolicNames, shouldIncludeApiVersion) switch
+                    {
+                        (true, _) => CreateFunction(
+                            "reference",
+                            GenerateSymbolicReference(exp.Module.Name, exp.IndexContext)),
+                        (false, false) => CreateFunction(
+                            "reference",
+                            GetConverter(exp.IndexContext).GetFullyQualifiedResourceId(exp.Module)),
+                        (false, true) => CreateFunction(
+                            "reference",
+                            GetConverter(exp.IndexContext).GetFullyQualifiedResourceId(exp.Module),
+                            new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion)),
+                    };
+
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {expression.GetType().Name}");
             }
 
             switch (syntax)
             {
-                case ArrayAccessSyntax arrayAccess:
-                    return ConvertArrayAccess(arrayAccess);
-
                 case ResourceAccessSyntax resourceAccess:
                     return ConvertResourceAccess(resourceAccess);
 
@@ -217,37 +255,6 @@ namespace Bicep.Core.Emit
             var indexContext = expressionBuilder.TryGetReplacementContext(nameSyntax, indexExpression, newContext);
 
             return GetConverter(indexContext);
-        }
-
-        private LanguageExpression ConvertArrayAccess(ArrayAccessSyntax arrayAccess)
-        {
-            // if there is an array access on a resource/module reference, we have to generate differently
-            // when constructing the reference() function call, the resource name expression needs to have its local
-            // variable replaced with <loop array expression>[this array access' index expression]
-            if (arrayAccess.BaseExpression is VariableAccessSyntax || arrayAccess.BaseExpression is ResourceAccessSyntax)
-            {
-                if (context.SemanticModel.ResourceMetadata.TryLookup(arrayAccess.BaseExpression) is DeclaredResourceMetadata resource &&
-                    resource.Symbol.IsCollection)
-                {
-                    var movedSyntax = context.Settings.EnableSymbolicNames ? resource.Symbol.NameIdentifier : resource.NameSyntax;
-
-                    return this.CreateConverterForIndexReplacement(movedSyntax, arrayAccess.IndexExpression, arrayAccess)
-                        .GetReferenceExpression(resource, arrayAccess.IndexExpression, true);
-                }
-
-                switch (this.context.SemanticModel.GetSymbolInfo(arrayAccess.BaseExpression))
-                {
-                    case ModuleSymbol { IsCollection: true } moduleSymbol:
-                        var moduleConverter = this.CreateConverterForIndexReplacement(ExpressionConverter.GetModuleNameSyntax(moduleSymbol), arrayAccess.IndexExpression, arrayAccess);
-
-                        // TODO: Can this return a language expression?
-                        return moduleConverter.ToFunctionExpression(arrayAccess.BaseExpression);
-                }
-            }
-
-            return AppendProperties(
-                ToFunctionExpression(arrayAccess.BaseExpression),
-                ConvertExpression(arrayAccess.IndexExpression));
         }
 
         private LanguageExpression ConvertResourcePropertyAccess(ResourceMetadata resource, SyntaxBase? indexExpression, string propertyName)
@@ -1179,6 +1186,19 @@ namespace Bicep.Core.Emit
                 .Concat(resource);
 
             return string.Join("::", nestedHierarchy.Select(x => x.Symbol.Name));
+        }
+
+        public LanguageExpression GenerateSymbolicReference(string symbolName, IndexReplacementContext? indexContext)
+        {
+            if (indexContext is null)
+            {
+                return new JTokenExpression(symbolName);
+            }
+
+            return CreateFunction(
+                "format",
+                new JTokenExpression($"{symbolName}[{{0}}]"),
+                ConvertExpression(indexContext.Index));
         }
 
         private LanguageExpression GenerateSymbolicReference(string symbolName, SyntaxBase? indexExpression)

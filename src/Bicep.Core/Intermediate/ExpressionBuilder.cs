@@ -28,7 +28,7 @@ public class ExpressionBuilder
     {
         switch (syntax)
         {
-            case StringSyntax @string:
+            case StringSyntax @string: {
                 if (@string.TryGetLiteralValue() is {} stringValue)
                 {
                     return new StringLiteralExpression(stringValue);
@@ -37,10 +37,25 @@ public class ExpressionBuilder
                 return new InterpolatedStringExpression(
                     @string.SegmentValues,
                     @string.Expressions.Select(Convert).ToImmutableArray());
-            case IntegerLiteralSyntax x when TryGetIntegerLiteralValue(x) is {} val:
-                return new IntegerLiteralExpression(val);
-            case UnaryOperationSyntax x when TryGetIntegerLiteralValue(x) is {} val:
-                return new IntegerLiteralExpression(val);
+            }
+            case IntegerLiteralSyntax @int: {
+                var literalValue = @int.Value switch {
+                    <= long.MaxValue => (long)@int.Value,
+                    // Should have been caught earlier in validation.
+                    _ => throw new NotImplementedException($"Unexpected out-of-range integer value"),
+                };
+
+                return new IntegerLiteralExpression(literalValue);
+            }
+            case UnaryOperationSyntax { Operator: UnaryOperator.Minus } unary when unary.Expression is IntegerLiteralSyntax @int: {
+                var literalValue = @int.Value switch {
+                    <= long.MaxValue => -(long)@int.Value,
+                    (ulong)long.MaxValue + 1 => long.MinValue,
+                    // Should have been caught earlier in validation.
+                    _ => throw new NotImplementedException($"Unexpected out-of-range integer value"),
+                };
+                return new IntegerLiteralExpression(literalValue);
+            }
             case BooleanLiteralSyntax @bool:
                 return new BooleanLiteralExpression(@bool.Value);
             case NullLiteralSyntax:
@@ -69,6 +84,8 @@ public class ExpressionBuilder
                     Convert(unary.Expression));
             case FunctionCallSyntaxBase function:
                 return ConvertFunction(function);
+            case ArrayAccessSyntax arrayAccess:
+                return ConvertArrayAccess(arrayAccess);
             default:
                 return new SyntaxExpression(syntax);
         }
@@ -130,7 +147,7 @@ public class ExpressionBuilder
 
                             // Handle list<method_name>(...) method on resource symbol - e.g. stgAcc.listKeys()
                             var convertedArgs = method.Arguments.SelectArray(a => Convert(a.Expression));
-                            var resourceIdExpression = new ResourceIdExpression(StaticResourcePropertyKind.Id, resource, indexContext);
+                            var resourceIdExpression = new ResourceIdExpression(resource, indexContext);
 
                             var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
                             var apiVersionExpression = new StringLiteralExpression(apiVersion);
@@ -152,6 +169,37 @@ public class ExpressionBuilder
             default:
                 throw new NotImplementedException($"Cannot emit unexpected expression of type {functionCall.GetType().Name}");
         }
+    }
+
+    private Expression ConvertArrayAccess(ArrayAccessSyntax arrayAccess)
+    {
+        // if there is an array access on a resource/module reference, we have to generate differently
+        // when constructing the reference() function call, the resource name expression needs to have its local
+        // variable replaced with <loop array expression>[this array access' index expression]
+        if (arrayAccess.BaseExpression is VariableAccessSyntax || arrayAccess.BaseExpression is ResourceAccessSyntax)
+        {
+            if (context.SemanticModel.ResourceMetadata.TryLookup(arrayAccess.BaseExpression) is DeclaredResourceMetadata resource &&
+                resource.Symbol.IsCollection)
+            {
+                var indexContext = TryGetReplacementContext(resource, arrayAccess.IndexExpression, arrayAccess);
+                return new ResourceReferenceExpression(resource, indexContext);
+            }
+
+            if (context.SemanticModel.GetSymbolInfo(arrayAccess.BaseExpression) is ModuleSymbol { IsCollection: true } moduleSymbol)
+            {
+                // TODO: although this does work for now, it's a bit of a hack. Is there a better approach?
+                var indexContext = TryGetReplacementContext(GetModuleNameSyntax(moduleSymbol), arrayAccess.IndexExpression, arrayAccess);
+                return new PropertyAccessExpression(
+                    new ModuleReferenceExpression(
+                        moduleSymbol,
+                        indexContext),
+                    "outputs");
+            }
+        }
+
+        return new ArrayAccessExpression(
+            Convert(arrayAccess.BaseExpression),
+            Convert(arrayAccess.IndexExpression));
     }
 
     private Expression GetLoopItemVariable(ForSyntax @for, Expression index)
@@ -196,6 +244,13 @@ public class ExpressionBuilder
         throw new NotImplementedException($"{nameof(LocalVariableSymbol)} was declared by an unexpected syntax type '{localScope.DeclaringSyntax?.GetType().Name}'.");
     }
 
+    public IndexReplacementContext? TryGetReplacementContext(DeclaredResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
+    {
+        var movedSyntax = context.Settings.EnableSymbolicNames ? resource.Symbol.NameIdentifier : resource.NameSyntax;
+
+        return TryGetReplacementContext(movedSyntax, indexExpression, newContext);
+    }
+
     public IndexReplacementContext? TryGetReplacementContext(SyntaxBase nameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
     {
         var inaccessibleLocals = this.context.DataFlowAnalyzer.GetInaccessibleLocalsAfterSyntaxMove(nameSyntax, newContext);
@@ -206,7 +261,12 @@ public class ExpressionBuilder
             case 0:
                 // moving the name expression does not produce any inaccessible locals (no locals means no loops)
                 // regardless if there is an index expression or not, we don't need to append replacements
-                return null;
+                if (indexExpression is null)
+                {
+                    return null;
+                }
+
+                return new(this.localReplacements, Convert(indexExpression));
 
             case 1 when indexExpression is not null:
                 // TODO: Run data flow analysis on the array expression as well. (Will be needed for nested resource loops)
@@ -223,5 +283,12 @@ public class ExpressionBuilder
             default:
                 throw new NotImplementedException("Mismatch between count of index expressions and inaccessible symbols during array access index replacement.");
         }
+    }
+
+    public static SyntaxBase GetModuleNameSyntax(ModuleSymbol moduleSymbol)
+    {
+        // this condition should have already been validated by the type checker
+        return moduleSymbol.TryGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName)
+            ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
     }
 }
