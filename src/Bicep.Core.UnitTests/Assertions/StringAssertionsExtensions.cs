@@ -11,6 +11,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.Parsing;
 using System.Collections.Generic;
 using System;
+using Bicep.Core.UnitTests.Utils;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
@@ -79,6 +80,33 @@ namespace Bicep.Core.UnitTests.Assertions
         {
             var normalizedActual = StringUtils.ReplaceNewlines(instance.Subject, "\n");
             var normalizedExpected = StringUtils.ReplaceNewlines(expected, "\n");
+
+            normalizedActual.Should().Be(normalizedExpected, because, becauseArgs);
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
+        /// <summary>
+        /// Compares two strings after normalizing by unindenting lines until the least indented line is flushed left, similar to
+        /// YAML blocks of text.
+        /// </summary>
+        public static AndConstraint<StringAssertions> EqualIgnoringMinimumIndent(this StringAssertions instance, string? expected, string because = "", params object[] becauseArgs)
+        {
+            var normalizedActual = instance.Subject is null ? null : StringTestUtils.Unindent(StringUtils.ReplaceNewlines(instance.Subject, "\n"));
+            var normalizedExpected = expected is null ? null : StringTestUtils.Unindent(StringUtils.ReplaceNewlines(expected, "\n"));
+
+            normalizedActual.Should().Be(normalizedExpected, because, becauseArgs);
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
+        /// <summary>
+        /// Compares two strings after normalizing by removing whitespace from the beginning and ending of all lines
+        /// </summary>
+        public static AndConstraint<StringAssertions> EqualIgnoringIndent(this StringAssertions instance, string? expected, string because = "", params object[] becauseArgs)
+        {
+            var normalizedActual = instance.Subject is null ? null : StringTestUtils.TrimAllLines(StringUtils.ReplaceNewlines(instance.Subject, "\n"));
+            var normalizedExpected = expected is null ? null : StringTestUtils.TrimAllLines(StringUtils.ReplaceNewlines(expected, "\n"));
 
             normalizedActual.Should().Be(normalizedExpected, because, becauseArgs);
 

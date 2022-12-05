@@ -171,7 +171,7 @@ namespace Bicep.Core.FileSystem
             }
         }
 
-        public bool TryReadAtMostNCharaters(Uri fileUri, Encoding fileEncoding, int n, [NotNullWhen(true)] out string? fileContents)
+        public bool TryReadAtMostNCharacters(Uri fileUri, Encoding fileEncoding, int n, [NotNullWhen(true)] out string? fileContents)
         {
             if (!fileUri.IsFile || n <= 0)
             {

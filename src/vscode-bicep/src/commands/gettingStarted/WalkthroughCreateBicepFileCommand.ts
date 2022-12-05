@@ -13,6 +13,7 @@ import vscode, {
 import { UserCancelledError } from "@microsoft/vscode-azext-utils";
 
 import { Command } from "../types";
+import { bicepFileExtension } from "../../language/constants";
 
 export class WalkthroughCreateBicepFileCommand implements Command {
   public static id = "bicep.gettingStarted.createBicepFile";
@@ -33,7 +34,7 @@ async function createAndOpenBicepFile(
   const uri: Uri | undefined = await window.showSaveDialog({
     title: "Save new Bicep file",
     defaultUri: Uri.joinPath(folder, "main"),
-    filters: { "Bicep files": ["bicep"] },
+    filters: { "Bicep files": [bicepFileExtension] },
   });
   if (!uri) {
     throw new UserCancelledError("saveDialog");

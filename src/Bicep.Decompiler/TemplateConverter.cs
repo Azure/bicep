@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core;
@@ -21,6 +22,7 @@ using Bicep.Decompiler.BicepHelpers;
 using Bicep.Decompiler.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using static Bicep.Core.Emit.ResourceDependencyVisitor;
 
 namespace Bicep.Decompiler
 {
@@ -35,8 +37,9 @@ namespace Bicep.Decompiler
         private readonly Uri bicepFileUri;
         private readonly JObject template;
         private readonly Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule;
+        private readonly DecompileOptions options;
 
-        private TemplateConverter(Workspace workspace, IFileResolver fileResolver, Uri bicepFileUri, JObject template, Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule)
+        private TemplateConverter(Workspace workspace, IFileResolver fileResolver, Uri bicepFileUri, JObject template, Dictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule, DecompileOptions options)
         {
             this.workspace = workspace;
             this.fileResolver = fileResolver;
@@ -44,13 +47,15 @@ namespace Bicep.Decompiler
             this.template = template;
             this.nameResolver = new UniqueNamingResolver();
             this.jsonTemplateUrisByModule = jsonTemplateUrisByModule;
+            this.options = options;
         }
 
         public static (ProgramSyntax programSyntax, IReadOnlyDictionary<ModuleDeclarationSyntax, Uri> jsonTemplateUrisByModule) DecompileTemplate(
             Workspace workspace,
             IFileResolver fileResolver,
             Uri bicepFileUri,
-            string content)
+            string content,
+            DecompileOptions options)
         {
             JObject templateObject;
             using (var reader = new JsonTextReader(new StringReader(content)))
@@ -68,7 +73,8 @@ namespace Bicep.Decompiler
                 fileResolver,
                 bicepFileUri,
                 templateObject,
-                new());
+                new(),
+                options);
 
             return (instance.Parse(), instance.jsonTemplateUrisByModule);
         }
@@ -468,7 +474,20 @@ namespace Bicep.Decompiler
                         }
 
                         var stringVal = jTokenExpression.Value.Value<string>()!;
-                        var resolved = nameResolver.TryLookupName(NameType.Parameter, stringVal) ?? throw new ArgumentException($"Unable to find parameter {stringVal}");
+                        var resolved = nameResolver.TryLookupName(NameType.Parameter, stringVal);
+                        if (resolved is null)
+                        {
+                            if (options.AllowMissingParamsAndVars)
+                            {
+                                resolved = nameResolver.TryRequestName(NameType.Parameter, stringVal)
+                                ?? throw new ArgumentException($"Unable to pick unique name for missing parameter {stringVal}");
+                            }
+                            else
+                            {
+                                throw new ArgumentException($"Unable to find parameter {stringVal}");
+                            }
+                        }
+
                         baseSyntax = new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resolved));
                         break;
                     }
@@ -480,7 +499,19 @@ namespace Bicep.Decompiler
                         }
 
                         var stringVal = jTokenExpression.Value.Value<string>()!;
-                        var resolved = nameResolver.TryLookupName(NameType.Variable, stringVal) ?? throw new ArgumentException($"Unable to find variable {stringVal}");
+                        var resolved = nameResolver.TryLookupName(NameType.Variable, stringVal);
+                        if (resolved is null)
+                        {
+                            if (options.AllowMissingParamsAndVars)
+                            {
+                                resolved = nameResolver.TryRequestName(NameType.Parameter, stringVal)
+                                ?? throw new ArgumentException($"Unable to pick unique name for missing variable {stringVal}");
+                            }
+                            else
+                            {
+                                throw new ArgumentException($"Unable to find variable {stringVal}");
+                            }
+                        }
                         baseSyntax = new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(resolved));
                         break;
                     }
@@ -1246,7 +1277,8 @@ namespace Bicep.Decompiler
                     throw new ConversionFailedException($"Unable to generate duplicate module to path ${nestedModuleUri} for {typeString} {nameString}", nestedTemplate);
                 }
 
-                var nestedConverter = new TemplateConverter(workspace, fileResolver, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule);
+                var nestedOptions = this.options with { AllowMissingParamsAndVars = this.options.AllowMissingParamsAndVarsInNestedTemplates };
+                var nestedConverter = new TemplateConverter(workspace, fileResolver, nestedModuleUri, nestedTemplateObject, this.jsonTemplateUrisByModule, nestedOptions);
                 var nestedBicepFile = SourceFileFactory.CreateBicepFile(nestedModuleUri, nestedConverter.Parse().ToText());
                 workspace.UpsertSourceFile(nestedBicepFile);
 

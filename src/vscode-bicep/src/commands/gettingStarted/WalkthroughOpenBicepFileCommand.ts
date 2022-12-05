@@ -16,6 +16,7 @@ import {
 } from "@microsoft/vscode-azext-utils";
 
 import { Command } from "../types";
+import { bicepFileExtension } from "../../language/constants";
 
 export class WalkthroughOpenBicepFileCommand implements Command {
   public static id = "bicep.gettingStarted.openBicepFile";
@@ -83,7 +84,7 @@ async function queryUserForBicepFile(context: IActionContext): Promise<Uri> {
 async function browseForFile(context: IActionContext): Promise<Uri> {
   const browsedFile: Uri[] = await context.ui.showOpenDialog({
     title: "Open a Bicep file",
-    filters: { "Bicep files": ["bicep"] },
+    filters: { "Bicep files": [bicepFileExtension] },
   });
 
   return browsedFile[0];

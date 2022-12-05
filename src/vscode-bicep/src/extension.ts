@@ -7,7 +7,6 @@ import {
   ExtensionContext,
   ProgressLocation,
   TextDocument,
-  TextDocumentChangeEvent,
   TextEditor,
   Uri,
   window,
@@ -31,6 +30,7 @@ import {
 import { CreateBicepConfigurationFile } from "./commands/createConfigurationFile";
 import { DecompileCommand } from "./commands/decompile";
 import { ImportKubernetesManifestCommand } from "./commands/importKubernetesManifest";
+import { PasteAsBicepCommand } from "./commands/pasteAsBicep";
 import { BicepCacheContentProvider, createLanguageService } from "./language";
 import { TreeManager } from "./tree/TreeManager";
 import { updateUiContext } from "./updateUiContext";
@@ -44,6 +44,11 @@ import {
 import { createAzExtOutputChannel } from "./utils/AzExtOutputChannel";
 import { OutputChannelManager } from "./utils/OutputChannelManager";
 import { BicepVisualizerViewManager } from "./visualizer";
+import {
+  bicepConfigurationPrefix,
+  bicepLanguageId,
+} from "./language/constants";
+import { SuppressedWarningsManager } from "./commands/SuppressedWarningsManager";
 
 let languageClient: lsp.LanguageClient | null = null;
 
@@ -74,7 +79,10 @@ export async function activateWithProgressReport(
 
 export async function activate(context: ExtensionContext): Promise<void> {
   const extension = BicepExtension.create(context);
-  const outputChannel = createAzExtOutputChannel("Bicep", "bicep");
+  const outputChannel = createAzExtOutputChannel(
+    "Bicep",
+    bicepConfigurationPrefix
+  );
 
   extension.register(outputChannel);
   extension.register(createLogger(context, outputChannel));
@@ -83,7 +91,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
   registerAzureUtilsExtensionVariables({
     context,
     outputChannel,
-    prefix: "bicep",
+    prefix: bicepLanguageId,
   });
 
   // Launch language server
@@ -111,14 +119,21 @@ export async function activate(context: ExtensionContext): Promise<void> {
         );
 
         const outputChannelManager = extension.register(
-          new OutputChannelManager("Bicep Operations", "bicep")
+          new OutputChannelManager("Bicep Operations", bicepConfigurationPrefix)
         );
 
         const treeManager = extension.register(
           new TreeManager(outputChannelManager)
         );
 
+        const suppressedWarningsManager = new SuppressedWarningsManager();
+
         // Register commands.
+        const pasteAsBicepCommand = new PasteAsBicepCommand(
+          languageClient,
+          outputChannelManager,
+          suppressedWarningsManager
+        );
         await extension
           .register(new CommandManager(context))
           .registerCommands(
@@ -136,6 +151,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
               outputChannelManager
             ),
             new InsertResourceCommand(languageClient),
+            pasteAsBicepCommand,
             new ShowVisualizerCommand(viewManager),
             new ShowVisualizerToSideCommand(viewManager),
             new ShowSourceCommand(viewManager),
@@ -145,43 +161,48 @@ export async function activate(context: ExtensionContext): Promise<void> {
             new ImportKubernetesManifestCommand(languageClient)
           );
 
+        pasteAsBicepCommand.registerForPasteEvents(extension);
+
         extension.register(
           window.onDidChangeActiveTextEditor(
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            (_editor: TextEditor | undefined) => {
-              updateUiContext();
+            async (editor: TextEditor | undefined) => {
+              await updateUiContext(editor?.document, pasteAsBicepCommand);
             }
           )
         );
+
         extension.register(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          workspace.onDidChangeTextDocument((_e: TextDocumentChangeEvent) => {
-            updateUiContext();
+          workspace.onDidCloseTextDocument(async (_d: TextDocument) => {
+            await updateUiContext(
+              window.activeTextEditor?.document,
+              pasteAsBicepCommand
+            );
           })
         );
 
         extension.register(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          workspace.onDidCloseTextDocument((_d: TextDocument) => {
-            updateUiContext();
+          workspace.onDidOpenTextDocument(async (_d: TextDocument) => {
+            await updateUiContext(
+              window.activeTextEditor?.document,
+              pasteAsBicepCommand
+            );
           })
         );
 
         extension.register(
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          workspace.onDidOpenTextDocument((_d: TextDocument) => {
-            updateUiContext();
+          workspace.onDidSaveTextDocument(async (_d: TextDocument) => {
+            await updateUiContext(window.activeTextEditor?.document);
           })
         );
 
-        extension.register(
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          workspace.onDidSaveTextDocument((_d: TextDocument) => {
-            updateUiContext();
-          })
+        await updateUiContext(
+          window.activeTextEditor?.document,
+          pasteAsBicepCommand
         );
-
-        updateUiContext();
 
         await languageClient.start();
         getLogger().info("Bicep language service started.");

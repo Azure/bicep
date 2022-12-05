@@ -42,7 +42,7 @@ describe("decompile", (): void => {
   });
 
   it("should generate decompiled files", async () => {
-    const folder = await createUniqueTempFolder("decompile");
+    const folder = createUniqueTempFolder("decompile");
 
     const inputPath = path.join(folder, "my template.json");
     fs.writeFileSync(inputPath, json);

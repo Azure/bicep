@@ -79,7 +79,7 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Decompile_Decompiling {0} into Bicep....
+        ///   Looks up a localized string similar to Decompiling {0} into Bicep....
         /// </summary>
         public static string Decompile_DecompilationStartMsg {
             get {

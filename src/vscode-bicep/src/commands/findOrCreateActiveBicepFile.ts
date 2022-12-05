@@ -14,6 +14,7 @@ import * as os from "os";
 import * as fse from "fs-extra";
 import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
 import { TextDocument, Uri, window, workspace } from "vscode";
+import { bicepFileExtension, bicepLanguageId } from "../language/constants";
 
 type TargetFile =
   | "rightClickOrMenu"
@@ -52,7 +53,7 @@ export async function findOrCreateActiveBicepFile(
     await workspace.findFiles("**/*.bicep", undefined)
   ).filter((f) => !!f.fsPath);
   const visibleBicepFiles = window.visibleTextEditors // List of the active editor in each editor tab group
-    .filter((e) => e.document.languageId === "bicep")
+    .filter((e) => e.document.languageId === bicepLanguageId)
     .map((e) => e.document.uri);
 
   // Create deduped, sorted array of all available Bicep files (in workspace and visible editors)
@@ -83,7 +84,7 @@ export async function findOrCreateActiveBicepFile(
   // Show quick pick
   const entries: IAzureQuickPickItem<Uri>[] = [];
   const activeEditor = window.activeTextEditor;
-  if (activeEditor?.document?.languageId === "bicep") {
+  if (activeEditor?.document?.languageId === bicepLanguageId) {
     // Add active editor to the top of the list
     addFileQuickPick(entries, activeEditor.document.uri, true);
   }
@@ -140,7 +141,7 @@ async function queryCreateBicepFile(
   const uri: Uri | undefined = await window.showSaveDialog({
     title: "Save new Bicep file",
     defaultUri: Uri.joinPath(startingFolder, "main"),
-    filters: { "Bicep files": ["bicep"] },
+    filters: { "Bicep files": [bicepFileExtension] },
   });
   if (!uri) {
     throw new UserCancelledError("saveDialog");

@@ -188,3 +188,17 @@ export const getRecommendedConfigLocationRequestType = new ProtocolRequestType<
   void,
   void
 >("bicep/getRecommendedConfigLocation");
+
+export interface BicepDecompileForPasteCommandParams {
+  jsonContent: string;
+  queryCanPaste: boolean;
+}
+
+export interface BicepDecompileForPasteCommandResult {
+  decompileId: string;
+  output: string;
+  errorMessage?: string;
+  pasteType?: string; // undefined if can't be pasted
+  bicep?: string;
+  decompilationDisclaimer?: string;
+}

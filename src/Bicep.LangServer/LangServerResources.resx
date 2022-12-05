@@ -125,7 +125,7 @@
     <value>Decompilation failed. Please fix the following problems and try again: {0}</value>
   </data>
   <data name="Decompile_DecompilationStartMsg" xml:space="preserve">
-    <value>Decompile_Decompiling {0} into Bicep...</value>
+    <value>Decompiling {0} into Bicep...</value>
     <comment>{0} = file path</comment>
   </data>
   <data name="DeploymentFailedMessage" xml:space="preserve">
