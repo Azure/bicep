@@ -435,8 +435,8 @@
       },
       "Microsoft.Extensions.Logging.Abstractions": {
         "type": "Transitive",
-        "resolved": "6.0.2",
-        "contentHash": "pwXCZKaA7m5wgmCj49dW+H1RPSY7U62SKLTQYCcavf/k3Nyt/WnBgAjG4jMGnwy9rElfAZ2KvxvM5CJzJWG0hg=="
+        "resolved": "7.0.0",
+        "contentHash": "kmn78+LPVMOWeITUjIlfxUPDsI0R6G0RkeAMBmQxAJ7vBJn4q2dTva7pWi65ceN5vPGjJ9q/Uae2WKgvfktJAw=="
       },
       "Microsoft.Extensions.Logging.Configuration": {
         "type": "Transitive",
@@ -2146,7 +2146,7 @@
           "Azure.Bicep.RegistryModuleTool": "[1.0.0, )",
           "FluentAssertions": "[6.8.0, )",
           "JsonPatch.Net": "[2.0.4, )",
-          "Microsoft.Extensions.Logging.Abstractions": "[6.0.2, )",
+          "Microsoft.Extensions.Logging.Abstractions": "[7.0.0, )",
           "Moq": "[4.18.2, )",
           "System.IO.Abstractions.TestingHelpers": "[17.2.3, )"
         }
