@@ -198,3 +198,11 @@ public record CopyIndexExpression(
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitCopyIndexExpression(this);
 }
+
+public record LambdaExpression(
+    ImmutableArray<string> Parameters,
+    Expression Body) : Expression
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitLambdaExpression(this);
+}

@@ -203,6 +203,14 @@ namespace Bicep.Core.Emit
                 case ParametersReferenceExpression exp:
                     return CreateFunction("parameters", new JTokenExpression(exp.Parameter.Name));
 
+                case LambdaExpression exp:
+                    var variableNames = exp.Parameters.Select(x => new JTokenExpression(x));
+                    var body = ConvertExpression(exp.Body);
+
+                    return CreateFunction(
+                        "lambda",
+                        variableNames.Concat(body));
+
                 case LambdaVariableReferenceExpression exp:
                     return CreateFunction("lambdaVariables", new JTokenExpression(exp.Variable.Name));
 
@@ -217,16 +225,6 @@ namespace Bicep.Core.Emit
 
             switch (syntax)
             {
-                case LambdaSyntax lambda:
-                    var variables = lambda.GetLocalVariables();
-
-                    var variableNames = variables.Select(x => new JTokenExpression(x.Name.IdentifierName));
-                    var body = ConvertExpression(lambda.Body);
-
-                    return CreateFunction(
-                        "lambda",
-                        variableNames.Concat(body));
-
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}");
             }

@@ -97,6 +97,12 @@ public class ExpressionBuilder
                 return ConvertVariableAccess(variableAccess);
             case ResourceAccessSyntax resourceAccess:
                 return ConvertResourceAccess(resourceAccess);
+            case LambdaSyntax lambda:
+                var variableNames = lambda.GetLocalVariables().Select(x => x.Name.IdentifierName);
+
+                return new LambdaExpression(
+                    variableNames.ToImmutableArray(),
+                    Convert(lambda.Body));
             default:
                 return new SyntaxExpression(syntax);
         }

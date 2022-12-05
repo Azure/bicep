@@ -48,4 +48,6 @@ public interface IExpressionVisitor
     void VisitLambdaVariableReferenceExpression(LambdaVariableReferenceExpression expression);
 
     void VisitCopyIndexExpression(CopyIndexExpression expression);
+
+    void VisitLambdaExpression(LambdaExpression expression);
 }
