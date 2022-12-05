@@ -3,18 +3,15 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
-using Azure.Deployments.Expression.Serializers;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Extensions;
 using Bicep.Core.Intermediate;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
@@ -245,30 +242,6 @@ namespace Bicep.Core.Emit
             var indexContext = expressionBuilder.TryGetReplacementContext(nameSyntax, indexExpression, newContext);
 
             return GetConverter(indexContext);
-        }
-
-        private LanguageExpression ConvertResourceReference(ResourceReferenceExpression reference)
-        {
-            var declaredResource = reference.Metadata as DeclaredResourceMetadata;
-            if (declaredResource?.IsAzResource == false)
-            {
-                return CreateFunction(
-                    "reference",
-                    GenerateSymbolicReference(declaredResource, reference.IndexContext));
-            }
-
-            return (context.Settings.EnableSymbolicNames, declaredResource) switch {
-                (true, {}) => CreateFunction(
-                    "reference",
-                    GenerateSymbolicReference(declaredResource, reference.IndexContext),
-                    new JTokenExpression(reference.Metadata.TypeReference.ApiVersion!),
-                    new JTokenExpression("full")),
-                _ => CreateFunction(
-                    "reference",
-                    GetConverter(reference.IndexContext).GetFullyQualifiedResourceId(reference.Metadata),
-                    new JTokenExpression(reference.Metadata.TypeReference.ApiVersion!),
-                    new JTokenExpression("full")),
-            };
         }
 
         private LanguageExpression ConvertResourcePropertyAccess(ResourceReferenceExpression reference, PropertyAccessExpression propertyAccess)
@@ -738,43 +711,6 @@ namespace Bicep.Core.Emit
                 referenceExpression);
         }
 
-        private LanguageExpression GetLocalVariableExpression(LocalVariableSymbol localVariableSymbol)
-        {
-            if (this.localReplacements.TryGetValue(localVariableSymbol, out var replacement))
-            {
-                // the current context has specified an expression to be used for this local variable symbol
-                // to override the regular conversion
-                return ConvertExpression(replacement);
-            }
-
-            var enclosingSyntax = GetEnclosingDeclaringSyntax(localVariableSymbol);
-            switch (enclosingSyntax)
-            {
-                case ForSyntax @for:
-                    return GetLoopVariableExpression(localVariableSymbol, @for, CreateCopyIndexFunction(@for));
-                case LambdaSyntax lambda:
-                    return CreateFunction("lambdaVariables", new JTokenExpression(localVariableSymbol.Name));
-            }
-
-            throw new NotImplementedException($"{nameof(LocalVariableSymbol)} was declared by an unexpected syntax type '{enclosingSyntax?.GetType().Name}'.");
-        }
-
-        private LanguageExpression GetLoopVariableExpression(LocalVariableSymbol localVariableSymbol, ForSyntax @for, LanguageExpression indexExpression)
-        {
-            return localVariableSymbol.LocalKind switch
-            {
-                // this is the "item" variable of a for-expression
-                // to emit this, we need to index the array expression by the copyIndex() function
-                LocalKind.ForExpressionItemVariable => GetLoopItemVariableExpression(@for, indexExpression),
-
-                // this is the "index" variable of a for-expression inside a variable block
-                // to emit this, we need to return a copyIndex(...) function
-                LocalKind.ForExpressionIndexVariable => indexExpression,
-
-                _ => throw new NotImplementedException($"Unexpected local variable kind '{localVariableSymbol.LocalKind}'."),
-            };
-        }
-
         private SyntaxBase GetEnclosingDeclaringSyntax(LocalVariableSymbol localVariable)
         {
             // we're following the symbol hierarchy rather than syntax hierarchy because
@@ -800,43 +736,6 @@ namespace Bicep.Core.Emit
             throw new NotImplementedException($"{nameof(LocalVariableSymbol)} was declared by an unexpected syntax type '{declaringSyntax?.GetType().Name}'.");
         }
 
-        private string? GetCopyIndexName(ForSyntax @for)
-        {
-            return this.context.SemanticModel.Binder.GetParent(@for) switch
-            {
-                // copyIndex without name resolves to module/resource loop index in the runtime
-                ResourceDeclarationSyntax => null,
-                ModuleDeclarationSyntax => null,
-
-                // variable copy index has the name of the variable
-                VariableDeclarationSyntax variable when variable.Name.IsValid => variable.Name.IdentifierName,
-
-                // output loops are only allowed at the top level and don't have names, either
-                OutputDeclarationSyntax => null,
-
-                // the property copy index has the name of the property
-                ObjectPropertySyntax property when property.TryGetKeyText() is { } key && ReferenceEquals(property.Value, @for) => key,
-
-                _ => throw new NotImplementedException("Unexpected for-expression grandparent.")
-            };
-        }
-
-        private FunctionExpression CreateCopyIndexFunction(ForSyntax @for)
-        {
-            var copyIndexName = GetCopyIndexName(@for);
-            return copyIndexName is null
-                ? CreateFunction("copyIndex")
-                : CreateFunction("copyIndex", new JTokenExpression(copyIndexName));
-        }
-
-        private FunctionExpression GetLoopItemVariableExpression(ForSyntax @for, LanguageExpression indexExpression)
-        {
-            // loop item variable should be replaced with <array expression>[<index expression>]
-            var arrayExpression = ToFunctionExpression(@for.Expression);
-
-            return AppendProperties(arrayExpression, indexExpression);
-        }
-
         private LanguageExpression ConvertString(InterpolatedStringExpression expression)
         {
             var formatArgs = new LanguageExpression[expression.Expressions.Length + 1];
@@ -850,18 +749,6 @@ namespace Bicep.Core.Emit
             }
 
             return CreateFunction("format", formatArgs);
-        }
-
-        /// <summary>
-        /// Converts the specified bicep expression tree into an ARM template expression tree.
-        /// This always returns a function expression, which is useful when converting property access or array access
-        /// on literals.
-        /// </summary>
-        /// <param name="expression">The expression</param>
-        public FunctionExpression ToFunctionExpression(SyntaxBase expression)
-        {
-            var converted = ConvertExpression(expression);
-            return ToFunctionExpression(converted);
         }
 
         public static FunctionExpression ToFunctionExpression(LanguageExpression converted)
@@ -969,18 +856,6 @@ namespace Bicep.Core.Emit
                 UnaryOperator.Minus => CreateFunction("sub", new JTokenExpression(0), operand),
                 _ => throw new NotImplementedException($"Cannot emit unexpected unary operator '{unary.Operator}."),
             };
-        }
-
-        // the deployment engine can only handle 32 bit integers expressed as literal values, so for 32 bit integers, we return the literal integer value
-        // for values outside that signed 32 bit integer range, we return the FunctionExpression
-        private LanguageExpression ConvertInteger(long value)
-        {
-            if (value > int.MaxValue || value < int.MinValue)
-            {
-                return CreateFunction("json", new JTokenExpression(value.ToString(CultureInfo.InvariantCulture)));
-            }
-
-            return new JTokenExpression((int)value);
         }
 
         public string GetSymbolicName(DeclaredResourceMetadata resource)
@@ -1101,14 +976,5 @@ namespace Bicep.Core.Emit
 
         public static FunctionExpression AppendProperties(FunctionExpression function, IEnumerable<LanguageExpression> properties)
             => new(function.Function, function.Parameters, function.Properties.Concat(properties).ToArray());
-
-        protected static void Assert(bool predicate, string message)
-        {
-            if (predicate == false)
-            {
-                // we have a code defect - use the exception stack to debug
-                throw new ArgumentException(message);
-            }
-        }
     }
 }
