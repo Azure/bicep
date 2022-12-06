@@ -4,6 +4,6 @@
 import { normalizeIndentation } from "./normalizeIndentation";
 import { normalizeLineEndings } from "./normalizeLineEndings";
 
-export function normalizeMultilineString(s: string, spacesPerTab = 1): string {
+export function normalizeMultilineString(s: string, spacesPerTab = 2): string {
   return normalizeLineEndings(normalizeIndentation(s, spacesPerTab));
 }

@@ -35,6 +35,7 @@ import { SuppressedWarningsManager } from "./SuppressedWarningsManager";
 export class PasteAsBicepCommand implements Command {
   public static readonly id = "bicep.pasteAsBicep";
   public readonly id = PasteAsBicepCommand.id;
+  public disclaimerShownThisSession = false;
 
   public constructor(
     private readonly client: LanguageClient,
@@ -239,6 +240,7 @@ export class PasteAsBicepCommand implements Command {
     }
 
     if (
+      this.disclaimerShownThisSession || 
       this.suppressedWarningsManager.isWarningSuppressed(
         SuppressedWarningsManager.keys.decompileOnPasteWarning
       )
@@ -253,6 +255,7 @@ export class PasteAsBicepCommand implements Command {
       title: "Disable decompile on paste",
     };
 
+    this.disclaimerShownThisSession = true;
     const result = await context.ui.showWarningMessage(
       pasteResult.decompilationDisclaimer,
       dontShowAgain,
