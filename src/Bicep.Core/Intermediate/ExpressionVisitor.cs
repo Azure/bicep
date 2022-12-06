@@ -33,6 +33,12 @@ public abstract class ExpressionVisitor : IExpressionVisitor
     {
     }
 
+    public void VisitForLoopExpression(ForLoopExpression expression)
+    {
+        Visit(expression.Expression);
+        Visit(expression.Body);
+    }
+
     public void VisitFunctionCallExpression(FunctionCallExpression expression)
     {
         VisitMultiple(expression.Parameters);
@@ -71,11 +77,13 @@ public abstract class ExpressionVisitor : IExpressionVisitor
 
     public void VisitObjectExpression(ObjectExpression expression)
     {
-        foreach (var prop in expression.Properties)
-        {
-            Visit(prop.Key);
-            Visit(prop.Value);
-        }
+        VisitMultiple(expression.Properties);
+    }
+
+    public void VisitObjectPropertyExpression(ObjectPropertyExpression expression)
+    {
+        Visit(expression.Key);
+        Visit(expression.Value);
     }
 
     public void VisitParametersReferenceExpression(ParametersReferenceExpression expression)

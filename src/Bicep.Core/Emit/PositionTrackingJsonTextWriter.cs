@@ -82,7 +82,7 @@ namespace Bicep.Core.Emit
             this.trackingWriter = trackingWriter;
         }
 
-        public void WriteExpressionWithPosition(SyntaxBase? sourcePosition, Action expressionFunc)
+        public void WriteExpressionWithPosition(IPositionable? sourcePosition, Action expressionFunc)
         {
             var startPos = this.trackingWriter.CurrentPosition;
 
@@ -91,7 +91,7 @@ namespace Bicep.Core.Emit
             AddSourceMapping(sourcePosition, startPos);
         }
 
-        public void WriteObjectWithPosition(SyntaxBase? sourcePosition, Action propertiesFunc)
+        public void WriteObjectWithPosition(IPositionable? sourcePosition, Action propertiesFunc)
         {
             var startPos = this.trackingWriter.CurrentPosition;
 
@@ -102,7 +102,7 @@ namespace Bicep.Core.Emit
             AddSourceMapping(sourcePosition, startPos);
         }
 
-        public void WritePropertyWithPosition(SyntaxBase? keyPosition, string name, Action valueFunc)
+        public void WritePropertyWithPosition(IPositionable? keyPosition, string name, Action valueFunc)
         {
             var startPos = this.trackingWriter.CurrentPosition;
 
@@ -132,7 +132,7 @@ namespace Bicep.Core.Emit
 
         public override string? ToString() => this.trackingWriter.ToString();
 
-        private void AddSourceMapping(SyntaxBase? bicepSyntax, int jsonStartPosition)
+        private void AddSourceMapping(IPositionable? bicepSyntax, int jsonStartPosition)
         {
             if (this.sourceFile == null || bicepSyntax == null || bicepSyntax.Span.Length == 0)
             {

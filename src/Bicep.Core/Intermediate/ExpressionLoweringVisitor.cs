@@ -10,7 +10,7 @@ public class ExpressionLoweringVisitor : ExpressionRewriteVisitor
     public static Expression Lower(Expression expression)
     {
         var visitor = new ExpressionLoweringVisitor();
-        
+
         return visitor.Replace(expression);
     }
 
@@ -18,7 +18,7 @@ public class ExpressionLoweringVisitor : ExpressionRewriteVisitor
     {
         if (expression.Access is StringLiteralExpression stringLiteral)
         {
-            return base.Replace(new PropertyAccessExpression(expression.Base, stringLiteral.Value));
+            return base.Replace(new PropertyAccessExpression(expression.SourceSyntax, expression.Base, stringLiteral.Value));
         }
 
         return base.ReplaceArrayAccessExpression(expression);

@@ -12,36 +12,42 @@ public record IndexReplacementContext(
     ImmutableDictionary<LocalVariableSymbol, Expression> LocalReplacements,
     Expression Index);
 
-public abstract record Expression()
+public abstract record Expression(
+    SyntaxBase? SourceSyntax)
 {
     public abstract void Accept(IExpressionVisitor visitor);
 }
 
 public record BooleanLiteralExpression(
+    SyntaxBase? SourceSyntax,
     bool Value
-) : Expression
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitBooleanLiteralExpression(this);
 }
 
 public record IntegerLiteralExpression(
+    SyntaxBase? SourceSyntax,
     long Value
-) : Expression
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitIntegerLiteralExpression(this);
 }
 
 public record StringLiteralExpression(
+    SyntaxBase? SourceSyntax,
     string Value
-) : Expression
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitStringLiteralExpression(this);
 }
 
-public record NullLiteralExpression() : Expression
+public record NullLiteralExpression(
+    SyntaxBase? SourceSyntax
+): Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitNullLiteralExpression(this);
@@ -49,152 +55,193 @@ public record NullLiteralExpression() : Expression
 
 public record SyntaxExpression(
     SyntaxBase Syntax
-) : Expression
+) : Expression(Syntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitSyntaxExpression(this);
 }
 
 public record InterpolatedStringExpression(
+    SyntaxBase? SourceSyntax,
     ImmutableArray<string> SegmentValues,
     ImmutableArray<Expression> Expressions
-) : Expression
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitInterpolatedStringExpression(this);
 }
 
-public record ObjectProperty(
+public record ObjectPropertyExpression(
+    SyntaxBase? SourceSyntax,
     Expression Key,
-    Expression Value);
+    Expression Value
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitObjectPropertyExpression(this);
+}
 
 public record ObjectExpression(
-    ImmutableArray<ObjectProperty> Properties
-) : Expression
+    SyntaxBase? SourceSyntax,
+    ImmutableArray<ObjectPropertyExpression> Properties
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitObjectExpression(this);
 }
 
 public record ArrayExpression(
+    SyntaxBase? SourceSyntax,
     ImmutableArray<Expression> Items
-) : Expression
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitArrayExpression(this);
 }
 
 public record TernaryExpression(
+    SyntaxBase? SourceSyntax,
     Expression Condition,
     Expression True,
     Expression False
-) : Expression
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitTernaryExpression(this);
 }
 
 public record BinaryExpression(
+    SyntaxBase? SourceSyntax,
     BinaryOperator Operator,
     Expression Left,
     Expression Right
-) : Expression
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitBinaryExpression(this);
 }
 
 public record UnaryExpression(
+    SyntaxBase? SourceSyntax,
     UnaryOperator Operator,
     Expression Expression
-) : Expression
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitUnaryExpression(this);
 }
 
 public record FunctionCallExpression(
+    SyntaxBase? SourceSyntax,
     string Name,
     ImmutableArray<Expression> Parameters
-) : Expression
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitFunctionCallExpression(this);
 }
 
 public record ArrayAccessExpression(
+    SyntaxBase? SourceSyntax,
     Expression Base,
     Expression Access
-) : Expression
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitArrayAccessExpression(this);
 }
 
 public record PropertyAccessExpression(
+    SyntaxBase? SourceSyntax,
     Expression Base,
     string PropertyName
-) : Expression
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitPropertyAccessExpression(this);
 }
 
 public record ResourceReferenceExpression(
+    SyntaxBase? SourceSyntax,
     ResourceMetadata Metadata,
-    IndexReplacementContext? IndexContext) : Expression
+    IndexReplacementContext? IndexContext
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitResourceReferenceExpression(this);
 }
 
 public record ModuleReferenceExpression(
+    SyntaxBase? SourceSyntax,
     ModuleSymbol Module,
-    IndexReplacementContext? IndexContext) : Expression
+    IndexReplacementContext? IndexContext
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitModuleReferenceExpression(this);
 }
 
 public record ModuleOutputPropertyAccessExpression(
+    SyntaxBase? SourceSyntax,
     Expression Base,
-    string PropertyName) : Expression
+    string PropertyName)
+: Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitModuleOutputPropertyAccessExpression(this);
 }
 
 public record VariableReferenceExpression(
-    VariableSymbol Variable) : Expression
+    SyntaxBase? SourceSyntax,
+    VariableSymbol Variable
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitVariableReferenceExpression(this);
 }
 
 public record ParametersReferenceExpression(
-    ParameterSymbol Parameter) : Expression
+    SyntaxBase? SourceSyntax,
+    ParameterSymbol Parameter
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitParametersReferenceExpression(this);
 }
 
 public record LambdaVariableReferenceExpression(
-    LocalVariableSymbol Variable) : Expression
+    SyntaxBase? SourceSyntax,
+    LocalVariableSymbol Variable
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitLambdaVariableReferenceExpression(this);
 }
 
+public record ForLoopExpression(
+    SyntaxBase? SourceSyntax,
+    Expression Expression,
+    Expression Body
+) : Expression(SourceSyntax)
+{
+    public override void Accept(IExpressionVisitor visitor)
+        => visitor.VisitForLoopExpression(this);
+}
+
 public record CopyIndexExpression(
-    string? Name) : Expression
+    SyntaxBase? SourceSyntax,
+    string? Name
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitCopyIndexExpression(this);
 }
 
 public record LambdaExpression(
+    SyntaxBase? SourceSyntax,
     ImmutableArray<string> Parameters,
-    Expression Body) : Expression
+    Expression Body
+) : Expression(SourceSyntax)
 {
     public override void Accept(IExpressionVisitor visitor)
         => visitor.VisitLambdaExpression(this);
