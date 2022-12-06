@@ -469,9 +469,7 @@ export async function importResourceIconInline(
 
     case "microsoft.app/managedenvironments":
       return (
-        await import(
-          "./containers/02989-icon-service-Container-App-Environments.svg"
-        )
+        await import("./containers/02989-icon-service-Container-App-Environments.svg")
       ).default;
 
     // Microsoft.Cdn
