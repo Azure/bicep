@@ -105,6 +105,16 @@ namespace Bicep.Core.UnitTests.TypeSystem
             }
         }
 
+        [TestMethod]
+        public void LengthOfNonLiteralTuplesIsLiteral()
+        {
+            var evaluated = EvaluateFunction("length",
+                new List<TypeSymbol> { new TupleType("nonLiteralTuple", ImmutableArray.Create<ITypeReference>(LanguageConstants.Int, LanguageConstants.String, LanguageConstants.Bool), default) },
+                new FunctionArgumentSyntax[0]);
+
+            evaluated.Type.Should().Be(new IntegerLiteralType(3));
+        }
+
         [DataTestMethod]
         [DynamicData(nameof(GetLiteralTransformations), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         public void LiteralTransformationsYieldLiteralReturnType(string displayName, string functionName, IList<TypeSymbol> argumentTypes, FunctionArgumentSyntax[] arguments, TypeSymbol expectedReturnType)
@@ -269,6 +279,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow("1/2/3/True", "format", "{0}/{1}/{2}/{3}", 1, 2, 3, true),
                 CreateRow("   00", "padLeft", "00", 5, " "),
                 CreateRow(5, "length", "table"),
+                CreateRow(5, "length", new[] { new[] { 1, 2, 3, 4, 5 } }),
                 CreateRow("https://github.com/Azure/bicep", "uri", "https://github.com/another/repo", "/Azure/bicep"),
                 CreateRow("foo", "substring", "foot", 0, 3),
                 CreateRow("foo", "take", "foot", 3),
@@ -331,12 +342,10 @@ namespace Bicep.Core.UnitTests.TypeSystem
             //vararg function
             yield return CreateRow("union", LanguageConstants.Object, LanguageConstants.Object, LanguageConstants.Object, LanguageConstants.Object);
 
-            yield return CreateRow("length", LanguageConstants.Int, LanguageConstants.Any);
             yield return CreateRow("length", LanguageConstants.Int, LanguageConstants.String);
             yield return CreateRow("length", LanguageConstants.Int, LanguageConstants.Object);
             yield return CreateRow("length", LanguageConstants.Int, LanguageConstants.Array);
-            yield return CreateRow("length", LanguageConstants.Int, TypeHelper.CreateTypeUnion(LanguageConstants.Array, LanguageConstants.String));
-            yield return CreateRow("length", LanguageConstants.Int, TypeHelper.CreateTypeUnion(LanguageConstants.Array, LanguageConstants.String, LanguageConstants.Object));
+            yield return CreateRow("length", LanguageConstants.Int, TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object));
         }
 
         private static IEnumerable<object[]> GetAmbiguousMatchData()
@@ -351,6 +360,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("concat", 2, LanguageConstants.String, LanguageConstants.Array);
             yield return CreateRow("contains", 2, LanguageConstants.Bool, LanguageConstants.Bool, LanguageConstants.Bool);
             yield return CreateRow("base64", 1, LanguageConstants.String);
+            yield return CreateRow("length", 1, LanguageConstants.Int, LanguageConstants.Int);
         }
 
         private static IEnumerable<object[]> GetArgumentCountMismatchData()

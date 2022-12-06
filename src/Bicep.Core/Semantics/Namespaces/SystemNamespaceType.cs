@@ -110,7 +110,18 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new FunctionOverloadBuilder("length")
                 .WithReturnResultBuilder(TryDeriveLiteralReturnType("length", LanguageConstants.Int), LanguageConstants.Int)
                 .WithGenericDescription("Returns the number of characters in a string, elements in an array, or root-level properties in an object.")
-                .WithRequiredParameter("arg", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object, LanguageConstants.Array), "The array to use for getting the number of elements, the string to use for getting the number of characters, or the object to use for getting the number of root-level properties.")
+                .WithRequiredParameter("arg", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object), "The string to use for getting the number of characters or the object to use for getting the number of root-level properties.")
+                .Build();
+
+            yield return new FunctionOverloadBuilder("length")
+                .WithReturnResultBuilder(
+                    (binder, fileResolver, diagnostics, functionCall, argumentTypes) => (argumentTypes.IsEmpty ? null : argumentTypes[0]) switch {
+                        TupleType tupleType => new(new IntegerLiteralType(tupleType.Items.Length)),
+                        _ => new(LanguageConstants.Int),
+                    },
+                    LanguageConstants.Int)
+                .WithGenericDescription("Returns the number of characters in a string, elements in an array, or root-level properties in an object.")
+                .WithRequiredParameter("arg", LanguageConstants.Array, "The array to use for getting the number of elements.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("split")
