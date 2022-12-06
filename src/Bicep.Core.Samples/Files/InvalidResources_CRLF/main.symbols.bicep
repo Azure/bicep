@@ -1414,25 +1414,25 @@ resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-
 
 // wrong property inside the nested property loop
 resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[089:090) Local i. Type: 0 | 1 | 2. Declaration start char: 89, length: 1
+//@[089:090) Local i. Type: int. Declaration start char: 89, length: 1
 //@[009:034) Resource wrongPropertyInNestedLoop. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 262
   name: 'vnet-${i}'
   properties: {
     subnets: [for j in range(0, 4): {
-//@[018:019) Local j. Type: 0 | 1 | 2 | 3. Declaration start char: 18, length: 1
+//@[018:019) Local j. Type: int. Declaration start char: 18, length: 1
       doesNotExist: 'test'
       name: 'subnet-${i}-${j}'
     }]
   }
 }]
 resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-01' = [for (i,k) in range(0, 3): {
-//@[091:092) Local i. Type: 0 | 1 | 2. Declaration start char: 91, length: 1
+//@[091:092) Local i. Type: int. Declaration start char: 91, length: 1
 //@[093:094) Local k. Type: int. Declaration start char: 93, length: 1
 //@[009:035) Resource wrongPropertyInNestedLoop2. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 272
   name: 'vnet-${i}'
   properties: {
     subnets: [for j in range(0, 4): {
-//@[018:019) Local j. Type: 0 | 1 | 2 | 3. Declaration start char: 18, length: 1
+//@[018:019) Local j. Type: int. Declaration start char: 18, length: 1
       doesNotExist: 'test'
       name: 'subnet-${i}-${j}-${k}'
     }]
@@ -1587,7 +1587,7 @@ resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2
 
 @batchSize()
 resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[098:099) Local i. Type: 0 | 1 | 2. Declaration start char: 98, length: 1
+//@[098:099) Local i. Type: int. Declaration start char: 98, length: 1
 //@[009:043) Resource directRefViaSingleLoopResourceBody. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 208
   name: 'vnet-${i}'
   properties: {
@@ -1597,7 +1597,7 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
 
 @batchSize(0)
 resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[116:117) Local i. Type: 0 | 1 | 2. Declaration start char: 116, length: 1
+//@[116:117) Local i. Type: int. Declaration start char: 116, length: 1
 //@[009:061) Resource directRefViaSingleLoopResourceBodyWithExtraDependsOn. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 302
   name: 'vnet-${i}'
   properties: {

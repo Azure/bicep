@@ -7,20 +7,20 @@ var doggos = [
 ]
 
 var numbers = range(0, 4)
-//@[004:011) Variable numbers. Type: [0, 1, 2, 3]. Declaration start char: 0, length: 25
+//@[004:011) Variable numbers. Type: int[]. Declaration start char: 0, length: 25
 
 var sayHello = map(doggos, i => 'Hello ${i}!')
 //@[027:028) Local i. Type: 'Casper' | 'Evie' | 'Indy' | 'Kira'. Declaration start char: 27, length: 1
 //@[004:012) Variable sayHello. Type: string[]. Declaration start char: 0, length: 46
 
 var isEven = filter(numbers, i => 0 == i % 2)
-//@[029:030) Local i. Type: 0 | 1 | 2 | 3. Declaration start char: 29, length: 1
-//@[004:010) Variable isEven. Type: (0 | 1 | 2 | 3)[]. Declaration start char: 0, length: 45
+//@[029:030) Local i. Type: int. Declaration start char: 29, length: 1
+//@[004:010) Variable isEven. Type: int[]. Declaration start char: 0, length: 45
 
 var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, j => 0 == j % 2), i)), x => doggos[x])
-//@[080:081) Local j. Type: 0 | 1 | 2 | 3. Declaration start char: 80, length: 1
-//@[050:051) Local i. Type: 0 | 1 | 2 | 3. Declaration start char: 50, length: 1
-//@[103:104) Local x. Type: 0 | 1 | 2 | 3. Declaration start char: 103, length: 1
+//@[080:081) Local j. Type: int. Declaration start char: 80, length: 1
+//@[050:051) Local i. Type: int. Declaration start char: 50, length: 1
+//@[103:104) Local x. Type: int. Declaration start char: 103, length: 1
 //@[004:027) Variable evenDoggosNestedLambdas. Type: ('Casper' | 'Evie' | 'Indy' | 'Kira')[]. Declaration start char: 0, length: 118
 
 var flattenedArrayOfArrays = flatten([[0, 1], [2, 3], [4, 5]])
@@ -35,17 +35,17 @@ var mapEmpty = map([], foo => 'Hi ${foo}!')
 //@[023:026) Local foo. Type: never. Declaration start char: 23, length: 3
 //@[004:012) Variable mapEmpty. Type: string[]. Declaration start char: 0, length: 43
 var mapObject = map(range(0, length(doggos)), i => {
-//@[046:047) Local i. Type: 0 | 1 | 2 | 3. Declaration start char: 46, length: 1
+//@[046:047) Local i. Type: int. Declaration start char: 46, length: 1
 //@[004:013) Variable mapObject. Type: object[]. Declaration start char: 0, length: 115
   i: i
   doggo: doggos[i]
   greeting: 'Ahoy, ${doggos[i]}!'
 })
 var mapArray = flatten(map(range(1, 3), i => [i * 2, (i * 2) + 1]))
-//@[040:041) Local i. Type: 1 | 2 | 3. Declaration start char: 40, length: 1
+//@[040:041) Local i. Type: int. Declaration start char: 40, length: 1
 //@[004:012) Variable mapArray. Type: int[]. Declaration start char: 0, length: 67
 var mapMultiLineArray = flatten(map(range(1, 3), i => [
-//@[049:050) Local i. Type: 1 | 2 | 3. Declaration start char: 49, length: 1
+//@[049:050) Local i. Type: int. Declaration start char: 49, length: 1
 //@[004:021) Variable mapMultiLineArray. Type: int[]. Declaration start char: 0, length: 95
   i * 3
   (i * 3) + 1
@@ -90,8 +90,8 @@ var reduceStringConcat = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat
 //@[065:069) Local next. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 65, length: 4
 //@[004:022) Variable reduceStringConcat. Type: string. Declaration start char: 0, length: 92
 var reduceFactorial = reduce(range(1, 5), 1, (cur, next) => cur * next)
-//@[046:049) Local cur. Type: 1 | 2 | 3 | 4 | 5. Declaration start char: 46, length: 3
-//@[051:055) Local next. Type: 1 | 2 | 3 | 4 | 5. Declaration start char: 51, length: 4
+//@[046:049) Local cur. Type: int. Declaration start char: 46, length: 3
+//@[051:055) Local next. Type: int. Declaration start char: 51, length: 4
 //@[004:019) Variable reduceFactorial. Type: int. Declaration start char: 0, length: 71
 var reduceObjectUnion = reduce([
 //@[004:021) Variable reduceObjectUnion. Type: object. Declaration start char: 0, length: 117
@@ -107,11 +107,11 @@ var reduceEmpty = reduce([], 0, (cur, next) => cur)
 //@[004:015) Variable reduceEmpty. Type: never. Declaration start char: 0, length: 51
 
 var itemForLoop = [for item in range(0, 10): item]
-//@[023:027) Local item. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 23, length: 4
-//@[004:015) Variable itemForLoop. Type: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9)[]. Declaration start char: 0, length: 50
+//@[023:027) Local item. Type: int. Declaration start char: 23, length: 4
+//@[004:015) Variable itemForLoop. Type: int[]. Declaration start char: 0, length: 50
 var filteredLoop = filter(itemForLoop, i => i > 5)
-//@[039:040) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 39, length: 1
-//@[004:016) Variable filteredLoop. Type: (0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9)[]. Declaration start char: 0, length: 50
+//@[039:040) Local i. Type: int. Declaration start char: 39, length: 1
+//@[004:016) Variable filteredLoop. Type: int[]. Declaration start char: 0, length: 50
 
 output doggoGreetings array = [for item in mapObject: item.greeting]
 //@[035:039) Local item. Type: object. Declaration start char: 35, length: 4

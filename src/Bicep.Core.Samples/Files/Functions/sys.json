@@ -786,17 +786,36 @@
     "fixedParameters": [
       {
         "name": "arg",
-        "description": "The array to use for getting the number of elements, the string to use for getting the number of characters, or the object to use for getting the number of root-level properties.",
-        "type": "array | object | string",
+        "description": "The string to use for getting the number of characters or the object to use for getting the number of root-level properties.",
+        "type": "object | string",
         "required": true
       }
     ],
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
     "flags": "default",
-    "typeSignature": "(arg: array | object | string): int",
+    "typeSignature": "(arg: object | string): int",
     "parameterTypeSignatures": [
-      "arg: array | object | string"
+      "arg: object | string"
+    ]
+  },
+  {
+    "name": "length",
+    "description": "Returns the number of characters in a string, elements in an array, or root-level properties in an object.",
+    "fixedParameters": [
+      {
+        "name": "arg",
+        "description": "The array to use for getting the number of elements.",
+        "type": "array",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(arg: array): int",
+    "parameterTypeSignatures": [
+      "arg: array"
     ]
   },
   {

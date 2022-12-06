@@ -64,7 +64,7 @@ resource extendSingleResourceInCollection 'Microsoft.Authorization/locks@2016-09
 
 // collection of extensions
 resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for i in range(0,1): {
-//@[79:080) Local i. Type: 0. Declaration start char: 79, length: 1
+//@[79:080) Local i. Type: int. Declaration start char: 79, length: 1
 //@[09:028) Resource extensionCollection. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 212
   name: 'lock-${i}'
   properties: {
@@ -76,7 +76,7 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for i
 // cascade extend the extension
 @batchSize(1)
 resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for i in range(0,1): {
-//@[72:073) Local i. Type: 0. Declaration start char: 72, length: 1
+//@[72:073) Local i. Type: int. Declaration start char: 72, length: 1
 //@[09:021) Resource lockTheLocks. Type: Microsoft.Authorization/locks@2016-09-01[]. Declaration start char: 0, length: 236
   name: 'lock-the-lock-${i}'
   properties: {
@@ -358,7 +358,7 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
         name: 'BackendAPIMs'
         properties: {
           backends: [for index in range(0, length(regions)): {
-//@[25:030) Local index. Type: 0 | 1. Declaration start char: 25, length: 5
+//@[25:030) Local index. Type: int. Declaration start char: 25, length: 5
             // we cannot codegen index correctly because the generated dependsOn property
             // would be outside of the scope of the property loop
             // as a result, this will generate a dependency on the entire collection
@@ -376,7 +376,7 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
 }
 
 resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05-01' = [for index in range(0, length(regions)): {
-//@[92:097) Local index. Type: 0 | 1. Declaration start char: 92, length: 5
+//@[92:097) Local index. Type: int. Declaration start char: 92, length: 5
 //@[09:042) Resource indexedModuleCollectionDependency. Type: Microsoft.Network/frontDoors@2020-05-01[]. Declaration start char: 0, length: 757
   name: '${name}-${index}'
   location: 'Global'
@@ -459,14 +459,14 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
 }]
 
 resource filteredZones 'Microsoft.Network/dnsZones@2018-05-01' = [for i in range(0,10): if(i % 3 == 0) {
-//@[70:071) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 70, length: 1
+//@[70:071) Local i. Type: int. Declaration start char: 70, length: 1
 //@[09:022) Resource filteredZones. Type: Microsoft.Network/dnsZones@2018-05-01[]. Declaration start char: 0, length: 163
   name: 'zone${i}'
   location: resourceGroup().location
 }]
 
 module filteredModules 'passthrough.bicep' = [for i in range(0,6): if(i % 2 == 0) {
-//@[50:051) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5. Declaration start char: 50, length: 1
+//@[50:051) Local i. Type: int. Declaration start char: 50, length: 1
 //@[07:022) Module filteredModules. Type: module[]. Declaration start char: 0, length: 149
   name: 'stuff${i}'
   params: {

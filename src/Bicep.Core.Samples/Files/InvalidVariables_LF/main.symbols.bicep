@@ -242,13 +242,13 @@ var noNestedVariableLoopsEither = [for thing in stuff: {
 var innerPropertyLoop = {
 //@[04:21) Variable innerPropertyLoop. Type: object. Declaration start char: 0, length: 58
   a: [for i in range(0,10): i]
-//@[10:11) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 10, length: 1
+//@[10:11) Local i. Type: int. Declaration start char: 10, length: 1
 }
 var innerPropertyLoop2 = {
 //@[04:22) Variable innerPropertyLoop2. Type: object. Declaration start char: 0, length: 72
   b: {
     a: [for i in range(0,10): i]
-//@[12:13) Local i. Type: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Declaration start char: 12, length: 1
+//@[12:13) Local i. Type: int. Declaration start char: 12, length: 1
   }
 }
 

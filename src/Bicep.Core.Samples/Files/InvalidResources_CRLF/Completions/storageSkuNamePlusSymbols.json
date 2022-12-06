@@ -3135,7 +3135,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nlength(arg: array | object | string): int\n\n```\nReturns the number of characters in a string, elements in an array, or root-level properties in an object.\n"
+      "value": "```bicep\nlength(arg: object | string): int\nlength(arg: array): int\n\n```\nReturns the number of characters in a string, elements in an array, or root-level properties in an object.\n"
     },
     "deprecated": false,
     "preselect": false,
