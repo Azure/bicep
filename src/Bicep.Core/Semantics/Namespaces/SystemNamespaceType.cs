@@ -385,7 +385,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             yield return new FunctionOverloadBuilder("range")
-                .WithReturnResultBuilder(TryDeriveLiteralReturnType("range", new TypedArrayType(LanguageConstants.Int, TypeSymbolValidationFlags.Default)), new TypedArrayType(LanguageConstants.Int, TypeSymbolValidationFlags.Default))
+                .WithReturnType(new TypedArrayType(LanguageConstants.Int, TypeSymbolValidationFlags.Default))
                 .WithGenericDescription("Creates an array of integers from a starting integer and containing a number of items.")
                 .WithRequiredParameter("startIndex", LanguageConstants.Int, "The first integer in the array. The sum of startIndex and count must be no greater than 2147483647.")
                 .WithRequiredParameter("count", LanguageConstants.Int, "The number of integers in the array. Must be non-negative integer up to 10000.")

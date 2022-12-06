@@ -303,7 +303,6 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 CreateRow(3, "lastIndexOf", new[] { "fizz", "buzz", "pop", "fizz" }, "fizz"),
                 CreateRow(1, "min", new[] { 10, 4, 1, 6 }),
                 CreateRow(10, "max", new[] { 10, 4, 1, 6 }),
-                CreateRow(Enumerable.Range(0, 10).ToArray(), "range", 0, 10),
             };
         }
 
