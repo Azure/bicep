@@ -29,66 +29,6 @@ describe("pasteAsBicep", (): void => {
     );
   }
 
-  it("should convert pasted full templates", async () => {
-    const json = `
-{
-	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-	"contentVersion": "1.0.0.0",
-	"metadata": {
-		"prefix": "arm-nested-template-inner",
-		"description": "Nested (inline) Inner-Scoped Deployment. Defines its own local parameters."
-	},
-	"resources": [
-		{
-            "name": "nestedDeployment1",
-            "type": "Microsoft.Resources/deployments",
-            "apiVersion": "2021-04-01",
-            "properties": {
-                "mode": "Incremental",
-                "template": {
-                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-                    "contentVersion": "1.0.0.0",
-                    "variables": {},
-                    "resources": [],
-                    "outputs": {}
-                }
-            }
-        }
-	]
-}`;
-
-    const waitFor = "module nestedDeployment1";
-    const expected = `metadata prefix = 'arm-nested-template-inner'
-metadata description = 'Nested (inline) Inner-Scoped Deployment. Defines its own local parameters.'
-
-module nestedDeployment1 './nested_nestedDeployment1.bicep' = {
-  name: 'nestedDeployment1'
-  params: {
-  }
-}
-// My bicep file`;
-
-    await configureSettings();
-
-    const textDocument = await vscode.workspace.openTextDocument({
-      language: "bicep",
-      content: "// My bicep file\n",
-    });
-    await vscode.window.showTextDocument(textDocument);
-
-    vscode.env.clipboard.writeText(json);
-    await vscode.commands.executeCommand("editor.action.clipboardPasteAction");
-
-    await until(() => textDocument.getText().includes(waitFor), {
-      timeoutMs: 10000,
-    });
-    const buffer = textDocument.getText();
-
-    expect(normalizeMultilineString(buffer)).toBe(
-      normalizeMultilineString(expected)
-    );
-  });
-
   it("should convert pasted list of resources", async () => {
     const json = `
 {
