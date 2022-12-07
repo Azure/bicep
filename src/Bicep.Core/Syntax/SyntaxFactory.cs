@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
@@ -13,6 +14,9 @@ namespace Bicep.Core.Syntax
     public static class SyntaxFactory
     {
         public static readonly IEnumerable<SyntaxTrivia> EmptyTrivia = Enumerable.Empty<SyntaxTrivia>();
+
+        public static readonly IEnumerable<SyntaxTrivia> SingleSpaceTrivia = ImmutableArray.Create(
+            new SyntaxTrivia(SyntaxTriviaType.Whitespace, TextSpan.Nil, " "));
 
         public static readonly SkippedTriviaSyntax EmptySkippedTrivia = new(TextSpan.Nil, Enumerable.Empty<SyntaxBase>(), Enumerable.Empty<IDiagnostic>());
 
@@ -73,7 +77,7 @@ namespace Bicep.Core.Syntax
         public static Token NullKeywordToken => CreateToken(TokenType.NullKeyword, "null");
 
         public static ObjectPropertySyntax CreateObjectProperty(string key, SyntaxBase value)
-            => new ObjectPropertySyntax(CreateObjectPropertyKey(key), CreateToken(TokenType.Colon, ":"), value);
+            => new ObjectPropertySyntax(CreateObjectPropertyKey(key), CreateToken(TokenType.Colon, ":", EmptyTrivia, SingleSpaceTrivia), value);
 
         public static ObjectSyntax CreateObject(IEnumerable<ObjectPropertySyntax> properties)
         {

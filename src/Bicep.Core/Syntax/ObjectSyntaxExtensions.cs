@@ -162,7 +162,7 @@ namespace Bicep.Core.Syntax
                     : mergedObject);
         }
 
-        public static ObjectSyntax AddChildrenWithFormatting(this ObjectSyntax objectSyntax, IEnumerable<SyntaxBase> newChildren)
+        public static ObjectSyntax AddPropertiesWithFormatting(this ObjectSyntax objectSyntax, IEnumerable<ObjectPropertySyntax> newProperties, bool atStart = false)
         {
             bool IsEmptyLine(Token token)
             {
@@ -191,25 +191,33 @@ namespace Bicep.Core.Syntax
             }
 
             var children = new List<SyntaxBase>(objectSyntax.Children);
-
-            // Remove trailing empty lines
-            Token? lastNode = null;
-            while (children.Count > 0 && children[^1] is Token token && IsEmptyLine(token))
-            {
-                lastNode ??= token;
-                children.Remove(token);
-            }
+            var newChildren = new List<SyntaxBase>();
 
             var indent = objectSyntax.GetBodyIndentation();
-
-            foreach (var newChild in newChildren)
+            foreach (var property in newProperties)
             {
-                children.Add(SyntaxFactory.CreateNewLineWithIndent(indent));
-                children.Add(newChild);
+                newChildren.Add(SyntaxFactory.CreateNewLineWithIndent(indent));
+                newChildren.Add(property);
             }
 
+            if (!atStart)
+            {
+                // Remove trailing empty lines
+                Token? lastNode = null;
+                while (children.Count > 0 && children[^1] is Token token && IsEmptyLine(token))
+                {
+                    lastNode ??= token;
+                    children.Remove(token);
+                }
 
-            children.Add(SyntaxFactory.CreateToken(TokenType.NewLine, Environment.NewLine, lastNode?.LeadingTrivia, lastNode?.TrailingTrivia));
+                children.AddRange(newChildren);
+
+                children.Add(SyntaxFactory.CreateToken(TokenType.NewLine, Environment.NewLine, lastNode?.LeadingTrivia, lastNode?.TrailingTrivia));
+            }
+            else
+            {
+                children = newChildren.Concat(children).ToList();
+            }
 
             return new ObjectSyntax(objectSyntax.OpenBrace, children, objectSyntax.CloseBrace);
         }

@@ -234,7 +234,7 @@ namespace Bicep.Core.Diagnostics
                     ? $" from source declaration \"{sourceDeclaration.Name}\""
                     : string.Empty;
 
-                var newSyntax = objectSyntax.AddChildrenWithFormatting(
+                var newSyntax = objectSyntax.AddPropertiesWithFormatting(
                     properties.Select(p => SyntaxFactory.CreateObjectProperty(p, SyntaxFactory.EmptySkippedTrivia))
                 );
 
