@@ -282,7 +282,7 @@ output length int =
                 },
                 c =>
                 {
-                    c.Label.Should().Be("secureString");
+                    c.Label.Should().Be("securestring");
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.TextEdit!.TextEdit!.NewText.Should().StartWith("string");
@@ -329,7 +329,7 @@ output length int =
                 },
                 c =>
                 {
-                    c.Label.Should().Be("secureString");
+                    c.Label.Should().Be("securestring");
                     c.Kind.Should().Be(CompletionItemKind.Snippet);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.Snippet);
                     c.TextEdit!.TextEdit!.NewText.Should().Be("string");

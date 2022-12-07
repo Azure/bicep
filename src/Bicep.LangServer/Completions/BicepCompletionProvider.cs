@@ -683,7 +683,7 @@ namespace Bicep.LanguageServer.Completions
                                                                context.ReplacementRange,
                                                                new TextEdit[] { textEdit });
 
-                yield return CreateContextualSnippetCompletion("secureString",
+                yield return CreateContextualSnippetCompletion("securestring",
                                                                "Secure string",
                                                                "string",
                                                                context.ReplacementRange,
