@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using System;
@@ -100,10 +102,23 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                                     if (inferredDependencies.Any(d => d.Resource == referencedResource))
                                     {
+                                        CodeReplacement codeReplacement;
+                                        if (declaredDependencies.Items.Count() == 1)
+                                        {
+                                            var newObject = SyntaxModifier.RemoveProperty(body, dependsOnProperty);
+                                            codeReplacement = new CodeReplacement(body.Span, newObject.ToTextPreserveFormatting());
+                                        }
+                                        else
+                                        {
+                                            var newArray = SyntaxModifier.RemoveItem(declaredDependencies, declaredDependency);
+                                            codeReplacement = new CodeReplacement(declaredDependencies.Span, newArray.ToTextPreserveFormatting());
+                                        }
+
                                         this.diagnostics.Add(
-                                            parent.CreateDiagnosticForSpan(
+                                            parent.CreateFixableDiagnosticForSpan(
                                                 diagnosticLevel,
                                                 declaredDependency.Span,
+                                                new CodeFix("Remove unneccessary dependsOn", isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
                                                 referencedResource.Name));
                                     }
                                 }

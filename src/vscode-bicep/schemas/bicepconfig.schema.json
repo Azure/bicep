@@ -515,6 +515,16 @@
                     }
                   ]
                 },
+                "use-parent-property": {
+                  "allOf": [
+                    {
+                      "description": "Use the parent property instead of formatting child resource names with '/' characters. See https://aka.ms/bicep/linter/use-parent-property"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-level-warning"
+                    }
+                  ]
+                },
                 "use-recent-api-versions": {
                   "allOf": [
                     {

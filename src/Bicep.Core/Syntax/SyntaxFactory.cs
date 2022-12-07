@@ -77,7 +77,14 @@ namespace Bicep.Core.Syntax
         public static Token NullKeywordToken => CreateToken(TokenType.NullKeyword, "null");
 
         public static ObjectPropertySyntax CreateObjectProperty(string key, SyntaxBase value)
-            => new ObjectPropertySyntax(CreateObjectPropertyKey(key), CreateToken(TokenType.Colon, ":", EmptyTrivia, SingleSpaceTrivia), value);
+        {
+            if (value is SkippedTriviaSyntax)
+            {
+                return new ObjectPropertySyntax(CreateObjectPropertyKey(key), CreateToken(TokenType.Colon, ":", EmptyTrivia), value);
+            }
+
+            return new ObjectPropertySyntax(CreateObjectPropertyKey(key), CreateToken(TokenType.Colon, ":", EmptyTrivia, SingleSpaceTrivia), value);
+        }
 
         public static ObjectSyntax CreateObject(IEnumerable<ObjectPropertySyntax> properties)
         {

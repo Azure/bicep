@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Linq;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax;
 
@@ -26,5 +28,31 @@ public static class SyntaxModifier
         return @object.AddPropertiesWithFormatting(new [] {
             newProperty,
         }, atStart);
+    }
+
+    public static ObjectSyntax RemoveProperty(ObjectSyntax @object, ObjectPropertySyntax property)
+    {
+        var endIndex = @object.Children.IndexOf(property);
+        var prevChild = @object.Children
+            .Where((x, i) => i < endIndex && x is not Token { Type: TokenType.NewLine} && x is not Token { Type: TokenType.Comma })
+            .LastOrDefault();
+        var startIndex = prevChild is null ? 0 : @object.Children.IndexOf(prevChild);
+
+        var newChildren = @object.Children.Where((x, i) => i <= startIndex || i > endIndex);
+
+        return new ObjectSyntax(@object.OpenBrace, newChildren, @object.CloseBrace);
+    }
+
+    public static ArraySyntax RemoveItem(ArraySyntax array, ArrayItemSyntax item)
+    {
+        var endIndex = array.Children.IndexOf(item);
+        var prevChild = array.Children
+            .Where((x, i) => i < endIndex && x is not Token { Type: TokenType.NewLine} && x is not Token { Type: TokenType.Comma })
+            .LastOrDefault();
+        var startIndex = prevChild is null ? 0 : array.Children.IndexOf(prevChild);
+
+        var newChildren = array.Children.Where((x, i) => i <= startIndex || i > endIndex);
+
+        return new ArraySyntax(array.OpenBracket, newChildren, array.CloseBracket);
     }
 }
