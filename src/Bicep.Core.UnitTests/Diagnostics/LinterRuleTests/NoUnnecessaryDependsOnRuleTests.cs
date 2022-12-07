@@ -10,7 +10,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     public class NoUnnecessaryDependsOnRuleTests : LinterRuleTestsBase
     {
         private void AssertCodeFix(string inputFile, string resultFile)
-            => AssertCodeFix(NoUnnecessaryDependsOnRule.Code, "Remove unneccessary dependsOn", inputFile, resultFile);
+            => AssertCodeFix(NoUnnecessaryDependsOnRule.Code, "Remove unneccessary dependsOn.", inputFile, resultFile);
 
         private void CompileAndTest(string text, OnCompileErrors onCompileErrors, string[] expectedMessages)
         {

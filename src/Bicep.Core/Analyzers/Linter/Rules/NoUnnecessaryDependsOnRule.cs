@@ -118,7 +118,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                             parent.CreateFixableDiagnosticForSpan(
                                                 diagnosticLevel,
                                                 declaredDependency.Span,
-                                                new CodeFix("Remove unneccessary dependsOn", isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
+                                                new CodeFix(CoreResources.NoUnnecessaryDependsOnRuleCodeFix, isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
                                                 referencedResource.Name));
                                     }
                                 }

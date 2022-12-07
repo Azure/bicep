@@ -10,10 +10,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests;
 public class UseParentPropertyRuleTests : LinterRuleTestsBase
 {
     private void AssertCodeFix(string inputFile, string resultFile)
-        => AssertCodeFix(UseParentPropertyRule.Code, "Use parent property", inputFile, resultFile);
+        => AssertCodeFix(UseParentPropertyRule.Code, "Use parent property.", inputFile, resultFile);
+
+    private void AssertNoDiagnostics(string inputFile)
+        => AssertLinterRuleDiagnostics(UseParentPropertyRule.Code, inputFile, new string[] { }, new Options(OnCompileErrors.Ignore, IncludePosition.None));
 
     [TestMethod]
-    public void Code_fix_handles_parent_name_expression() => AssertCodeFix(@"
+    public void Codefix_handles_parent_name_expression() => AssertCodeFix(@"
 param stgName string
 
 resource stg 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
@@ -37,7 +40,7 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01'
 ");
 
     [TestMethod]
-    public void Code_fix_handles_parent_name_interpolated() => AssertCodeFix(@"
+    public void Codefix_handles_parent_name_interpolated() => AssertCodeFix(@"
 param stgName string
 param blobName string
 
@@ -63,7 +66,7 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01'
 ");
 
     [TestMethod]
-    public void Code_fix_handles_parent_name_interpolated_complex() => AssertCodeFix(@"
+    public void Codefix_handles_parent_name_interpolated_complex() => AssertCodeFix(@"
 param stgName string
 
 resource stg 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
@@ -87,7 +90,7 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01'
 ");
 
     [TestMethod]
-    public void Code_fix_handles_child_name_uninterpolated() => AssertCodeFix(@"
+    public void Codefix_handles_child_name_uninterpolated() => AssertCodeFix(@"
 resource stg 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: 'abc'
 }
@@ -107,7 +110,7 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01'
 ");
 
     [TestMethod]
-    public void Code_fix_handles_whitespace_name_interpolated_complex() => AssertCodeFix(@"
+    public void Codefix_handles_whitespace_name_interpolated_complex() => AssertCodeFix(@"
 resource stg 'Microsoft.Storage/storageAccounts@2022-09-01' existing = {
   name: '${stgName /* sdfsad */}-${toLower(blah)}-foo'
 }
@@ -124,5 +127,16 @@ resource blobService 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01'
   parent: stg
   name: 'asd-${abc}-${def}'
 }
+");
+
+    [TestMethod]
+    public void Rule_ignores_parent_resources_with_loops() => AssertNoDiagnostics(@"
+resource sdf 'Microsoft.Storage/storageAccounts@2022-09-01' = [for item in range(0, 10): {
+  name: 'abc${item}'
+}]
+
+resource sdf2 'Microsoft.Storage/storageAccounts/blobServices@2022-09-01' = [for item in range(0, 10): {
+  name: 'abc${item}/asdf'
+}]
 ");
 }

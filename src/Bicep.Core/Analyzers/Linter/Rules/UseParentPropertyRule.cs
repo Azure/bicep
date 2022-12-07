@@ -21,16 +21,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public UseParentPropertyRule() : base(
             code: Code,
-            description: "TODO", // TODO fill this in,
+            description: CoreResources.UseParentPropertyRuleDescription,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
             diagnosticLevel: DiagnosticLevel.Warning)
         { }
 
         public override string FormatMessage(params object[] values)
-        {
-            string paramName = (string)values[0];
-            return string.Format(CoreResources.SecretsInParamsRule_MessageFormat, paramName);
-        }
+            => string.Format(CoreResources.UseParentPropertyRule_MessageFormat, values);
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model, DiagnosticLevel diagnosticLevel)
         {
@@ -52,9 +49,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                 foreach (var parentResource in typeLookup[parentType])
                 {
-                    if (parentResource.TryGetNameSyntax() is {} parentNameSyntax &&
+                    if (!parentResource.Symbol.IsCollection &&
+                        parentResource.TryGetNameSyntax() is {} parentNameSyntax &&
                         TryGetParentName(childName, parentNameSyntax) is {} replacement &&
-                        CreateDiagnostic(diagnosticLevel, parentResource, resource, replacement) is {} diagnostic)
+                        TryCreateDiagnostic(diagnosticLevel, parentResource, resource, replacement) is {} diagnostic)
                     {
                         yield return diagnostic;
                     }
@@ -138,7 +136,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return TryGetParentName(parentNameString, childName);
         }
 
-        private IDiagnostic? CreateDiagnostic(DiagnosticLevel diagnosticLevel, DeclaredResourceMetadata parentResource, DeclaredResourceMetadata childResource, SyntaxBase replacementName)
+        private IDiagnostic? TryCreateDiagnostic(DiagnosticLevel diagnosticLevel, DeclaredResourceMetadata parentResource, DeclaredResourceMetadata childResource, SyntaxBase replacementName)
         {
             if (childResource.Symbol.DeclaringResource.TryGetBody() is not {} body ||
                 body.TryGetPropertyByName("name") is not {} nameProp)
@@ -162,8 +160,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return CreateFixableDiagnosticForSpan(
                 diagnosticLevel,
                 nameProp.Value.Span,
-                new CodeFix("Use parent property", isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
-                childResource.Symbol.NameIdentifier.IdentifierName);
+                new CodeFix(CoreResources.UseParentPropertyRuleCodeFix, isPreferred: true, CodeFixKind.QuickFix, codeReplacement),
+                childResource.Symbol.NameIdentifier.IdentifierName,
+                parentResource.Symbol.NameIdentifier.IdentifierName);
         }
     }
 }
