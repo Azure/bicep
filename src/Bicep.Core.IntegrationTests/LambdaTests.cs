@@ -137,7 +137,7 @@ var fo|o2 = map([any('foo')], a|bc => 'Hi ${abc}!')
             var info = result.GetInfoAtCursors(cursors);
 
             info.Should().SatisfyRespectively(
-                x => x.Type.Name.Should().Be("(never)[]"),
+                x => x.Type.Name.Should().Be("never[]"),
                 x => x.Type.Name.Should().Be("never"),
                 x => x.Type.Name.Should().Be("string[]"),
                 x => x.Type.Name.Should().Be("any"));

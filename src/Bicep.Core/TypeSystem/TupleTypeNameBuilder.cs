@@ -9,6 +9,7 @@ namespace Bicep.Core.TypeSystem;
 
 internal class TupleTypeNameBuilder
 {
+    private const string EmptyTupleName = "<empty array>";
     private readonly StringBuilder builder = new("[");
     private bool hasItems = false;
     private bool finalized = false;
@@ -37,6 +38,6 @@ internal class TupleTypeNameBuilder
             finalized = true;
         }
 
-        return builder.ToString();
+        return hasItems ? builder.ToString() : EmptyTupleName;
     }
 }

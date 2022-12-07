@@ -1989,7 +1989,7 @@ var primaryFoo = foos[0]
 ");
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                ("BCP076", DiagnosticLevel.Error, "Cannot index over expression of type \"[] | true\". Arrays or objects are required.")
+                ("BCP076", DiagnosticLevel.Error, "Cannot index over expression of type \"<empty array> | true\". Arrays or objects are required.")
             });
         }
 

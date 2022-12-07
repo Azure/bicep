@@ -185,7 +185,7 @@ param three = []
                     x.DocumentSymbol!.Name.Should().Be("three");
                     x.DocumentSymbol.Kind.Should().Be(SymbolKind.Constant);
                     x.DocumentSymbol.Children.Should().BeEmpty();
-                    x.DocumentSymbol.Detail.Should().Be("[]");
+                    x.DocumentSymbol.Detail.Should().Be("<empty array>");
                 });
         }
 
