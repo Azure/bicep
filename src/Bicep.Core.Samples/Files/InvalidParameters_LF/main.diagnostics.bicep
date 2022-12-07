@@ -237,7 +237,7 @@ param secureInt int
 //@[10:013) [BCP070 (Error)] Argument of type "object" is not assignable to parameter of type "int". (CodeDescription: none) |{\n}|
 })
 @maxValue([
-//@[10:013) [BCP070 (Error)] Argument of type "[]" is not assignable to parameter of type "int". (CodeDescription: none) |[\n]|
+//@[10:013) [BCP070 (Error)] Argument of type "<empty array>" is not assignable to parameter of type "int". (CodeDescription: none) |[\n]|
 ])
 @metadata('wrong')
 //@[10:017) [BCP070 (Error)] Argument of type "'wrong'" is not assignable to parameter of type "object". (CodeDescription: none) |'wrong'|

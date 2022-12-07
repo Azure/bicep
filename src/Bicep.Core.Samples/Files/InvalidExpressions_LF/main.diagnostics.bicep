@@ -87,7 +87,7 @@ var not = !'s'
 var not = ![
 //@[04:07) [BCP028 (Error)] Identifier "not" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |not|
 //@[04:07) [no-unused-vars (Warning)] Variable "not" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |not|
-//@[10:14) [BCP044 (Error)] Cannot apply operator "!" to operand of type "[]". (CodeDescription: none) |![\n]|
+//@[10:14) [BCP044 (Error)] Cannot apply operator "!" to operand of type "<empty array>". (CodeDescription: none) |![\n]|
 ]
 var not = !{
 //@[04:07) [BCP028 (Error)] Identifier "not" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |not|
@@ -123,7 +123,7 @@ var minus = -'s'
 var minus = -[
 //@[04:09) [BCP028 (Error)] Identifier "minus" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |minus|
 //@[04:09) [no-unused-vars (Warning)] Variable "minus" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |minus|
-//@[12:16) [BCP044 (Error)] Cannot apply operator "-" to operand of type "[]". (CodeDescription: none) |-[\n]|
+//@[12:16) [BCP044 (Error)] Cannot apply operator "-" to operand of type "<empty array>". (CodeDescription: none) |-[\n]|
 ]
 var minus = -{
 //@[04:09) [BCP028 (Error)] Identifier "minus" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |minus|
@@ -140,7 +140,7 @@ var mul = true * null
 //@[10:21) [BCP045 (Error)] Cannot apply operator "*" to operands of type "true" and "null". (CodeDescription: none) |true * null|
 var div = {
 //@[04:07) [no-unused-vars (Warning)] Variable "div" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |div|
-//@[10:19) [BCP045 (Error)] Cannot apply operator "/" to operands of type "object" and "[]". (CodeDescription: none) |{\n} / [\n]|
+//@[10:19) [BCP045 (Error)] Cannot apply operator "/" to operands of type "object" and "<empty array>". (CodeDescription: none) |{\n} / [\n]|
 } / [
 ]
 
@@ -163,7 +163,7 @@ var eq = true =~ null
 //@[09:21) [BCP045 (Error)] Cannot apply operator "=~" to operands of type "true" and "null". (CodeDescription: none) |true =~ null|
 var ne = 15 !~ [
 //@[04:06) [no-unused-vars (Warning)] Variable "ne" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |ne|
-//@[09:18) [BCP045 (Error)] Cannot apply operator "!~" to operands of type "15" and "[]". (CodeDescription: none) |15 !~ [\n]|
+//@[09:18) [BCP045 (Error)] Cannot apply operator "!~" to operands of type "15" and "<empty array>". (CodeDescription: none) |15 !~ [\n]|
 ]
 
 // relational
@@ -175,7 +175,7 @@ var lteq = null <= 10
 //@[11:21) [BCP045 (Error)] Cannot apply operator "<=" to operands of type "null" and "10". (CodeDescription: none) |null <= 10|
 var gt = false>[
 //@[04:06) [no-unused-vars (Warning)] Variable "gt" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |gt|
-//@[09:18) [BCP045 (Error)] Cannot apply operator ">" to operands of type "false" and "[]". (CodeDescription: none) |false>[\n]|
+//@[09:18) [BCP045 (Error)] Cannot apply operator ">" to operands of type "false" and "<empty array>". (CodeDescription: none) |false>[\n]|
 ]
 var gteq = {
 //@[04:08) [no-unused-vars (Warning)] Variable "gteq" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |gteq|
@@ -359,7 +359,7 @@ var concatWrongTypes = concat({
 })
 var concatWrongTypesContradiction = concat('s', [
 //@[04:33) [no-unused-vars (Warning)] Variable "concatWrongTypesContradiction" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |concatWrongTypesContradiction|
-//@[48:51) [BCP070 (Error)] Argument of type "[]" is not assignable to parameter of type "bool | int | string". (CodeDescription: none) |[\n]|
+//@[48:51) [BCP070 (Error)] Argument of type "<empty array>" is not assignable to parameter of type "bool | int | string". (CodeDescription: none) |[\n]|
 ])
 var indexOfWrongTypes = indexOf(1,1)
 //@[04:21) [no-unused-vars (Warning)] Variable "indexOfWrongTypes" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |indexOfWrongTypes|

@@ -55,7 +55,7 @@ var myFalsehood = false
 var myEmptyObj = { }
 //@[04:14) Variable myEmptyObj. Type: object. Declaration start char: 0, length: 20
 var myEmptyArray = [ ]
-//@[04:16) Variable myEmptyArray. Type: []. Declaration start char: 0, length: 22
+//@[04:16) Variable myEmptyArray. Type: <empty array>. Declaration start char: 0, length: 22
 
 // object
 @sys.description('a object variable')

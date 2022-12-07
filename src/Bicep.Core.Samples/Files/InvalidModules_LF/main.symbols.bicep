@@ -467,7 +467,7 @@ module expectedLoopFilterPredicateAndBody2 'modulea.bicep' = [for (x,y) in z: if
 
 // wrong loop body type
 var emptyArray = []
-//@[04:14) Variable emptyArray. Type: []. Declaration start char: 0, length: 19
+//@[04:14) Variable emptyArray. Type: <empty array>. Declaration start char: 0, length: 19
 module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
 //@[48:49) Local x. Type: never. Declaration start char: 48, length: 1
 //@[07:24) Module wrongLoopBodyType. Type: module[]. Declaration start char: 0, length: 66

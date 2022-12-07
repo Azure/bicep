@@ -1339,7 +1339,7 @@ resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05
 
 // wrong body type
 var emptyArray = []
-//@[004:014) Variable emptyArray. Type: []. Declaration start char: 0, length: 19
+//@[004:014) Variable emptyArray. Type: <empty array>. Declaration start char: 0, length: 19
 resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray:4]
 //@[081:082) Local x. Type: never. Declaration start char: 81, length: 1
 //@[009:026) Resource wrongLoopBodyType. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 99
@@ -1952,7 +1952,7 @@ var issue3000stgMadeUpProperty = issue3000stg.madeUpProperty
 var issue3000stgManagedBy = issue3000stg.managedBy
 //@[004:025) Variable issue3000stgManagedBy. Type: string. Declaration start char: 0, length: 50
 var issue3000stgManagedByExtended = issue3000stg.managedByExtended
-//@[004:033) Variable issue3000stgManagedByExtended. Type: (never)[]. Declaration start char: 0, length: 66
+//@[004:033) Variable issue3000stgManagedByExtended. Type: never[]. Declaration start char: 0, length: 66
 
 param dataCollectionRule object
 //@[006:024) Parameter dataCollectionRule. Type: object. Declaration start char: 0, length: 31

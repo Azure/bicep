@@ -268,7 +268,7 @@ var runtimeLoop2 = [for (item, index) in indirection.keys: 's']
 //@[04:16) Variable runtimeLoop2. Type: 's'[]. Declaration start char: 0, length: 63
 
 var zoneInput = []
-//@[04:13) Variable zoneInput. Type: []. Declaration start char: 0, length: 18
+//@[04:13) Variable zoneInput. Type: <empty array>. Declaration start char: 0, length: 18
 resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneInput: {
 //@[63:67) Local zone. Type: never. Declaration start char: 63, length: 4
 //@[69:70) Local i. Type: int. Declaration start char: 69, length: 1

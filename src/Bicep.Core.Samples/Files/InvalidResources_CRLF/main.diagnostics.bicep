@@ -207,7 +207,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
   name: 'foo'
 //@[008:013) [BCP121 (Error)] Resources: "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo", "foo" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'foo'|
   location: [
-//@[012:018) [BCP036 (Warning)] The property "location" expected a value of type "string" but the provided value is of type "[]". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |[\r\n  ]|
+//@[012:018) [BCP036 (Warning)] The property "location" expected a value of type "string" but the provided value is of type "<empty array>". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |[\r\n  ]|
   ]
   tags: 'tag are not a string?'
 //@[008:031) [BCP036 (Warning)] The property "tags" expected a value of type "Tags" but the provided value is of type "'tag are not a string?'". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |'tag are not a string?'|

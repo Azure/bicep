@@ -26,7 +26,7 @@ var evenDoggosNestedLambdas = map(filter(numbers, i => contains(filter(numbers, 
 var flattenedArrayOfArrays = flatten([[0, 1], [2, 3], [4, 5]])
 //@[004:026) Variable flattenedArrayOfArrays. Type: [0, 1, 2, 3, 4, 5]. Declaration start char: 0, length: 62
 var flattenedEmptyArray = flatten([])
-//@[004:023) Variable flattenedEmptyArray. Type: []. Declaration start char: 0, length: 37
+//@[004:023) Variable flattenedEmptyArray. Type: <empty array>. Declaration start char: 0, length: 37
 
 var mapSayHi = map(['abc', 'def', 'ghi'], foo => 'Hi ${foo}!')
 //@[042:045) Local foo. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 42, length: 3
@@ -57,7 +57,7 @@ var filterEqualityCheck = filter(['abc', 'def', 'ghi'], foo => 'def' == foo)
 //@[004:023) Variable filterEqualityCheck. Type: ('abc' | 'def' | 'ghi')[]. Declaration start char: 0, length: 76
 var filterEmpty = filter([], foo => 'def' == foo)
 //@[029:032) Local foo. Type: never. Declaration start char: 29, length: 3
-//@[004:015) Variable filterEmpty. Type: (never)[]. Declaration start char: 0, length: 49
+//@[004:015) Variable filterEmpty. Type: never[]. Declaration start char: 0, length: 49
 
 var sortNumeric = sort([8, 3, 10, -13, 5], (x, y) => x < y)
 //@[044:045) Local x. Type: -13 | 10 | 3 | 5 | 8. Declaration start char: 44, length: 1
@@ -83,7 +83,7 @@ var sortByObjectKey = sort([
 var sortEmpty = sort([], (x, y) => int(x) < int(y))
 //@[026:027) Local x. Type: never. Declaration start char: 26, length: 1
 //@[029:030) Local y. Type: never. Declaration start char: 29, length: 1
-//@[004:013) Variable sortEmpty. Type: (never)[]. Declaration start char: 0, length: 51
+//@[004:013) Variable sortEmpty. Type: never[]. Declaration start char: 0, length: 51
 
 var reduceStringConcat = reduce(['abc', 'def', 'ghi'], '', (cur, next) => concat(cur, next))
 //@[060:063) Local cur. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 60, length: 3
