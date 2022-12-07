@@ -197,9 +197,13 @@ resource aksCluster1 'Microsoft.ContainerService/managedClusters@2021-05-01' = {
     vscode.env.clipboard.writeText(json);
     await vscode.commands.executeCommand("editor.action.clipboardPasteAction");
 
-    await until(() => textDocument.getText().includes(waitfor), {
-      timeoutMs: 10000,
-    });
+    try {
+      await until(() => textDocument.getText().includes(waitfor), {
+        timeoutMs: 10000,
+      });
+    } catch (err) {
+      throw "Timeout.  Editor text: " + textDocument.getText();
+    }
     const buffer = textDocument.getText();
 
     expect(normalizeMultilineString(buffer)).toBe(

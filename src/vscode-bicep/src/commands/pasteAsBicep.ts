@@ -240,7 +240,7 @@ export class PasteAsBicepCommand implements Command {
     }
 
     if (
-      this.disclaimerShownThisSession || 
+      this.disclaimerShownThisSession ||
       this.suppressedWarningsManager.isWarningSuppressed(
         SuppressedWarningsManager.keys.decompileOnPasteWarning
       )
