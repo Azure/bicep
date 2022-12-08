@@ -48,10 +48,12 @@ namespace Bicep.Core.Syntax
             return false;
         }
 
+        // SyntaxHierarchy is only used in semantic analysis, during which lexemes
+        // like parentheses and commas are not used, so the visitor doesn't need to be a CST visitor.
         private sealed class ParentTrackingVisitor : AstVisitor
         {
             private readonly Dictionary<SyntaxBase, SyntaxBase?> parentMap;
-            private readonly Stack<SyntaxBase> currentParents = new Stack<SyntaxBase>();
+            private readonly Stack<SyntaxBase> currentParents = new();
 
             public ParentTrackingVisitor(Dictionary<SyntaxBase, SyntaxBase?> parentMap)
             {

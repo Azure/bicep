@@ -10,6 +10,10 @@ namespace Bicep.Core.Syntax
     /// <summary>
     /// Visits an <see href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract syntax tree (AST)</see>.
     /// </summary>
+    /// <remarks>
+    /// The Bicep syntax tree is always a <see href="https://en.wikipedia.org/wiki/Parse_tree">concret syntax tree</see>.
+    /// The visitor visits syntax nodes except for terminal symbols (tokens) so that the Bicep syntax tree is traversed as an AST.
+    /// </remarks>
     public abstract class AstVisitor : SyntaxVisitor
     {
         public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
