@@ -274,7 +274,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             /* TTK result:
                 [-] artifacts parameter (2 ms)                                                                                      
                     The _artifactsLocation in "mainTemplate.json" parameter must be a 'string' type in the parameter declaration "array"
-                    The _artifactsLocationSasToken in "mainTemplate.json" parameter must be of type 'secureString'.                 
+                    The _artifactsLocationSasToken in "mainTemplate.json" parameter must be of type 'securestring'.                 
                     The _artifactsLocation parameter in "mainTemplate.json" must have a defaultValue in the main template           
                     The _artifactsLocationSasToken in "mainTemplate.json" has an incorrect defaultValue, must be an empty string    
              */
@@ -298,7 +298,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             /* TTK result:
                 [-] artifacts parameter (2 ms)                                                                                      
                     The _artifactsLocation in "mainTemplate.json" parameter must be a 'string' type in the parameter declaration "array"
-                    The _artifactsLocationSasToken in "mainTemplate.json" parameter must be of type 'secureString'.                 
+                    The _artifactsLocationSasToken in "mainTemplate.json" parameter must be of type 'securestring'.                 
                     The _artifactsLocation parameter in "mainTemplate.json" must have a defaultValue in the main template           
                     The _artifactsLocationSasToken in "mainTemplate.json" has an incorrect defaultValue, must be an empty string    
              */

@@ -49,7 +49,7 @@ resource customScriptExtension 'Microsoft.HybridCompute/machines/extensions@2019
               new string[] {
                 // TTK error message:
                 //  [-] CommandToExecute Must Use ProtectedSettings For Secrets (62 ms)
-                //    CommandToExecute references parameter 'arguments' of type 'secureString', but is not in .protectedSettings
+                //    CommandToExecute references parameter 'arguments' of type 'securestring', but is not in .protectedSettings
                 "[23] Use protectedSettings for commandToExecute secrets. Found possible secret: secure parameter 'arguments'"
               }
             );
