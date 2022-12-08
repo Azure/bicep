@@ -802,7 +802,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return ConvertJsonToBicepSyntax(functionValue as JToken ?? throw new InvalidOperationException($"Expecting function to return {nameof(JToken)}, but {functionValue?.GetType().ToString() ?? "null"} received."));
         }
 
-        private static readonly JTokenType[] SupportedJsonTokenTypes = new[] { JTokenType.Object, JTokenType.Array, JTokenType.String, JTokenType.Integer, JTokenType.Float, JTokenType.Boolean, JTokenType.Null };
+        private static readonly ImmutableHashSet<JTokenType> SupportedJsonTokenTypes = new[] { JTokenType.Object, JTokenType.Array, JTokenType.String, JTokenType.Integer, JTokenType.Float, JTokenType.Boolean, JTokenType.Null }.ToImmutableHashSet();
         private static SyntaxBase ConvertJsonToBicepSyntax(JToken token) =>
         token switch
         {
